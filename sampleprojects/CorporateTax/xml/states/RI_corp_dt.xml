@@ -18,7 +18,7 @@
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize RI filing requirement check</action_description>
+<action_dsl>Initialize RI filing requirement check</action_dsl>
 <action_postfix>
 "RI Filing Requirement Check Started" job.audit_trail swap addto
 </action_postfix>
@@ -29,7 +29,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in RI</condition_comment>
-<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "RI"</condition_description>
+<condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "RI"</condition_dsl>
 <condition_postfix>
 apportionment.has_physical_presence get true eq
 apportionment.state_code get "RI" streq and
@@ -42,7 +42,7 @@ apportionment.state_code get "RI" streq and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in RI</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "RI"</condition_description>
+<condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "RI"</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.state_code get "RI" streq and
@@ -116,7 +116,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize RI income adjustments</action_description>
+<action_dsl>Initialize RI income adjustments</action_dsl>
 <action_postfix>
 "RI Income Adjustments Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -127,7 +127,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus with RI; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
@@ -181,7 +181,7 @@ apportionment.has_physical_presence get true eq or
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize RI state tax calculation</action_description>
+<action_dsl>Initialize RI state tax calculation</action_dsl>
 <action_postfix>
 "RI State Tax Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -192,7 +192,7 @@ apportionment.has_physical_presence get true eq or
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus with RI; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
@@ -205,7 +205,7 @@ apportionment.has_physical_presence get true eq or
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income &gt; 0</condition_description>
+<condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
 apportionment.state_taxable_income get 0 gt
 </condition_postfix>

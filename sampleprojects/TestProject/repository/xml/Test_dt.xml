@@ -9,7 +9,7 @@
 <contexts>
 <context_details>
 <context_number>1</context_number>
-<context_description>for all things</context_description>
+<context_dsl>for all things</context_dsl>
 <context_postfix>
 dup things forall pop 
 </context_postfix></context_details></contexts>
@@ -19,7 +19,7 @@ dup things forall pop
 <condition_number>1</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>thing.value == 1</condition_description>
+<condition_dsl>thing.value == 1</condition_dsl>
 <condition_postfix>
 thing.value 1 == 
 </condition_postfix>
@@ -28,7 +28,7 @@ thing.value 1 ==
 <condition_number>2</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>thing.value == 2</condition_description>
+<condition_dsl>thing.value == 2</condition_dsl>
 <condition_postfix>
 thing.value 2 == 
 </condition_postfix>
@@ -37,7 +37,7 @@ thing.value 2 ==
 <condition_number>3</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>thing.value == 3</condition_description>
+<condition_dsl>thing.value == 3</condition_dsl>
 <condition_postfix>
 thing.value 3 == 
 </condition_postfix>
@@ -46,7 +46,7 @@ thing.value 3 ==
 <condition_number>4</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
-<condition_description>otherwise</condition_description>
+<condition_dsl>otherwise</condition_dsl>
 <condition_postfix>
 otherwise 
 </condition_postfix>
@@ -56,7 +56,7 @@ otherwise
 <action_number>1</action_number>
 <action_comment></action_comment>
 <initial_action_requirement></initial_action_requirement>
-<action_description>add the policy statements to the job.notes</action_description>
+<action_dsl>add the policy statements to the job.notes</action_dsl>
 <action_postfix>
 policystatements job.notes true  addarray 
 </action_postfix>

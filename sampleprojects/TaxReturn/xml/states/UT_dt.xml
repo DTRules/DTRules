@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Single filer within AGI cap</condition_comment>
-<condition_description>Single filer within AGI cap</condition_description>
+<condition_dsl>Single filer within AGI cap</condition_dsl>
 <condition_postfix>
 filing_status == &quot;Single&quot; AND agi &lt;= $50,000
 </condition_postfix>
@@ -27,7 +27,7 @@ filing_status == &quot;Single&quot; AND agi &lt;= $50,000
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Joint filer within AGI cap</condition_comment>
-<condition_description>Joint filer within AGI cap</condition_description>
+<condition_dsl>Joint filer within AGI cap</condition_dsl>
 <condition_postfix>
 filing_status == &quot;MFJ&quot; AND agi &lt;= $65,000
 </condition_postfix>
@@ -39,7 +39,7 @@ filing_status == &quot;MFJ&quot; AND agi &lt;= $65,000
 <action_details>
 <action_number>2</action_number>
 <action_comment>No exemption - exceeds AGI cap</action_comment>
-<action_description>No exemption - exceeds AGI cap</action_description>
+<action_dsl>No exemption - exceeds AGI cap</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -47,7 +47,7 @@ filing_status == &quot;MFJ&quot; AND agi &lt;= $65,000
 <action_details>
 <action_number>3</action_number>
 <action_comment>No military retirement pay - no exemption</action_comment>
-<action_description>No military retirement pay - no exemption</action_description>
+<action_dsl>No military retirement pay - no exemption</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -73,7 +73,7 @@ filing_status == &quot;MFJ&quot; AND agi &lt;= $65,000
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married filing jointly</condition_comment>
-<condition_description>Married filing jointly</condition_description>
+<condition_dsl>Married filing jointly</condition_dsl>
 <condition_postfix>
 Filing status is Married Filing Jointly
 </condition_postfix>
@@ -84,7 +84,7 @@ Filing status is Married Filing Jointly
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Head of household</condition_comment>
-<condition_description>Head of household</condition_description>
+<condition_dsl>Head of household</condition_dsl>
 <condition_postfix>
 Filing status is Head of Household
 </condition_postfix>
@@ -97,7 +97,7 @@ Filing status is Head of Household
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate UT tax for joint filer</action_comment>
-<action_description>Calculate UT tax for joint filer</action_description>
+<action_dsl>Calculate UT tax for joint filer</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -105,7 +105,7 @@ Filing status is Head of Household
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate UT tax for head of household</action_comment>
-<action_description>Calculate UT tax for head of household</action_description>
+<action_dsl>Calculate UT tax for head of household</action_dsl>
 <action_postfix>
 
 </action_postfix>

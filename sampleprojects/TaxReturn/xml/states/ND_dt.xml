@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
-<action_description>No military retirement pay - no exclusion</action_description>
+<action_dsl>No military retirement pay - no exclusion</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -45,7 +45,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married filing jointly</condition_comment>
-<condition_description>Married filing jointly</condition_description>
+<condition_dsl>Married filing jointly</condition_dsl>
 <condition_postfix>
 filing_status == &quot;MarriedFilingJointly&quot;
 </condition_postfix>
@@ -55,7 +55,7 @@ filing_status == &quot;MarriedFilingJointly&quot;
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate North Dakota tax - Married filing jointly (progressive brackets)</action_comment>
-<action_description>Calculate North Dakota tax - Married filing jointly (progressive brackets)</action_description>
+<action_dsl>Calculate North Dakota tax - Married filing jointly (progressive brackets)</action_dsl>
 <action_postfix>
 
 </action_postfix>

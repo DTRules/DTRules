@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Ordinary income fills 0% bracket</condition_comment>
-<condition_description>Ordinary income fills 0% bracket</condition_description>
+<condition_dsl>Ordinary income fills 0% bracket</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -28,7 +28,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Taxable income in 15% bracket</condition_comment>
-<condition_description>Taxable income in 15% bracket</condition_description>
+<condition_dsl>Taxable income in 15% bracket</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -41,7 +41,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>0% rate applies to all preferential income</action_comment>
-<action_description>0% rate applies to all preferential income</action_description>
+<action_dsl>0% rate applies to all preferential income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -50,7 +50,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>15% rate applies</action_comment>
-<action_description>15% rate applies</action_description>
+<action_dsl>15% rate applies</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -59,7 +59,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>20% rate applies</action_comment>
-<action_description>20% rate applies</action_description>
+<action_dsl>20% rate applies</action_dsl>
 <action_postfix>
 
 </action_postfix>

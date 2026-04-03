@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Is capital gain type</condition_comment>
-<condition_description>Is capital gain type</condition_description>
+<condition_dsl>Is capital gain type</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Is long-term holding period</condition_comment>
-<condition_description>Is long-term holding period</condition_description>
+<condition_dsl>Is long-term holding period</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -41,7 +41,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Is dividend type</condition_comment>
-<condition_description>Is dividend type</condition_description>
+<condition_dsl>Is dividend type</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -53,7 +53,7 @@
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Is qualified dividend</condition_comment>
-<condition_description>Is qualified dividend</condition_description>
+<condition_dsl>Is qualified dividend</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -67,7 +67,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Add to long-term gains</action_comment>
-<action_description>Add to long-term gains</action_description>
+<action_dsl>Add to long-term gains</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -76,7 +76,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Add to short-term gains</action_comment>
-<action_description>Add to short-term gains</action_description>
+<action_dsl>Add to short-term gains</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -85,7 +85,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Add qualified dividend</action_comment>
-<action_description>Add qualified dividend</action_description>
+<action_dsl>Add qualified dividend</action_dsl>
 <action_postfix>
 
 </action_postfix>

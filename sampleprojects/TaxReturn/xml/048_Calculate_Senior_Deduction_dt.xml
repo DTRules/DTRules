@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has seniors</condition_comment>
-<condition_description>Has seniors</condition_description>
+<condition_dsl>Has seniors</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -30,7 +30,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_description>Married Filing Jointly</condition_description>
+<condition_dsl>Married Filing Jointly</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -43,7 +43,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>MFJ income below phase-out threshold ($150k)</condition_comment>
-<condition_description>MFJ income below phase-out threshold ($150k)</condition_description>
+<condition_dsl>MFJ income below phase-out threshold ($150k)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -56,7 +56,7 @@
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Single income below phase-out threshold ($75k)</condition_comment>
-<condition_description>Single income below phase-out threshold ($75k)</condition_description>
+<condition_dsl>Single income below phase-out threshold ($75k)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -71,7 +71,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Full senior deduction (below phase-out)</action_comment>
-<action_description>Full senior deduction (below phase-out)</action_description>
+<action_dsl>Full senior deduction (below phase-out)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -81,7 +81,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Senior deduction phased out (high income)</action_comment>
-<action_description>Senior deduction phased out (high income)</action_description>
+<action_dsl>Senior deduction phased out (high income)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -91,7 +91,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>No seniors</action_comment>
-<action_description>No seniors</action_description>
+<action_dsl>No seniors</action_dsl>
 <action_postfix>
 
 </action_postfix>

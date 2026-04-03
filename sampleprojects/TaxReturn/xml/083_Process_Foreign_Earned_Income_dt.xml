@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Qualifies for FEIE</condition_comment>
-<condition_description>Qualifies for FEIE</condition_description>
+<condition_dsl>Qualifies for FEIE</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>

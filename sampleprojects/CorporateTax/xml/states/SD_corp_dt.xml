@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>General business corporation (not financial institution or insurance company)</condition_comment>
-<condition_description>result.sd_is_financial_institution == false AND result.sd_is_insurance_company == false</condition_description>
+<condition_dsl>result.sd_is_financial_institution == false AND result.sd_is_insurance_company == false</condition_dsl>
 <condition_postfix>
 result.sd_is_financial_institution get false eq
 result.sd_is_insurance_company get false eq and
@@ -36,7 +36,7 @@ result.sd_is_insurance_company get false eq and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Financial institution subject to Bank Franchise Tax</condition_comment>
-<condition_description>result.sd_is_financial_institution == true</condition_description>
+<condition_dsl>result.sd_is_financial_institution == true</condition_dsl>
 <condition_postfix>
 result.sd_is_financial_institution get true eq
 </condition_postfix>
@@ -48,7 +48,7 @@ result.sd_is_financial_institution get true eq
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Insurance company subject to Insurance Premium Tax</condition_comment>
-<condition_description>result.sd_is_insurance_company == true</condition_description>
+<condition_dsl>result.sd_is_insurance_company == true</condition_dsl>
 <condition_postfix>
 result.sd_is_insurance_company get true eq
 </condition_postfix>
@@ -62,7 +62,7 @@ result.sd_is_insurance_company get true eq
 <action_details>
 <action_number>1</action_number>
 <action_comment>General corporation - no corporate income tax; South Dakota has NO corporate income tax for general corporations</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 true /result.sd_no_corporate_tax xdef
 0.0 /apportionment.state_tax xdef
@@ -76,7 +76,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Financial institution - Bank Franchise Tax (NOT income tax); Financial institutions pay Bank Franchise Tax (separate from general corporate taxation)</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 result.sd_bank_franchise_tax get /apportionment.state_tax xdef
 0.0 /apportionment.state_tax_rate xdef
@@ -88,7 +88,7 @@ result.sd_bank_franchise_tax get /apportionment.state_tax xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Insurance company - Insurance Premium Tax (NOT income tax); Insurance companies pay Insurance Premium Tax (separate from general corporate taxation)</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 result.sd_insurance_premium_tax get /apportionment.state_tax xdef
 0.0 /apportionment.state_tax_rate xdef
@@ -122,7 +122,7 @@ result.sd_insurance_premium_tax get /apportionment.state_tax xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>General business corporation</condition_comment>
-<condition_description>result.sd_is_financial_institution == false AND result.sd_is_insurance_company == false</condition_description>
+<condition_dsl>result.sd_is_financial_institution == false AND result.sd_is_insurance_company == false</condition_dsl>
 <condition_postfix>
 result.sd_is_financial_institution get false eq
 result.sd_is_insurance_company get false eq and
@@ -136,7 +136,7 @@ result.sd_is_insurance_company get false eq and
 <action_details>
 <action_number>1</action_number>
 <action_comment>General corporation - no income tax adjustments; South Dakota has NO corporate income tax - no adjustments</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 /apportionment.state_tax_rate xdef
 0.0 /apportionment.state_additions xdef
@@ -150,7 +150,7 @@ result.sd_is_insurance_company get false eq and
 <action_details>
 <action_number>2</action_number>
 <action_comment>Specialized entity - no income adjustments; Financial institution or insurance company - no income tax adjustments</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 /apportionment.state_additions xdef
 0.0 /apportionment.state_subtractions xdef
@@ -184,7 +184,7 @@ result.sd_is_insurance_company get false eq and
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>General business corporation</condition_comment>
-<condition_description>result.sd_is_financial_institution == false AND result.sd_is_insurance_company == false</condition_description>
+<condition_dsl>result.sd_is_financial_institution == false AND result.sd_is_insurance_company == false</condition_dsl>
 <condition_postfix>
 result.sd_is_financial_institution get false eq
 result.sd_is_insurance_company get false eq and
@@ -198,7 +198,7 @@ result.sd_is_insurance_company get false eq and
 <action_details>
 <action_number>1</action_number>
 <action_comment>General corporation - $0 tax; South Dakota has NO corporate income tax</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 /apportionment.state_tax xdef
 0.0 /apportionment.state_tax_rate xdef
@@ -212,7 +212,7 @@ true /result.sd_no_corporate_tax xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Specialized entity - tax already calculated; Financial institution or insurance company - tax calculated in table 54500</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 "Specialized entity tax (Bank Franchise or Insurance Premium) calculated separately." job.audit_trail swap addto
 </action_postfix>

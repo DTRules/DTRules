@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>set result.tips_deduction = 0, set result.overtime_deduction = 0, set result.senior_deduction = 0</action_description>
+<action_dsl>set result.tips_deduction = 0, set result.overtime_deduction = 0, set result.senior_deduction = 0</action_dsl>
 <action_postfix>
 0.0 /result.tips_deduction xdef
 0.0 /result.overtime_deduction xdef
@@ -27,7 +27,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always calculate OBBBA deductions</condition_comment>
-<condition_description>Always calculate OBBBA deductions</condition_description>
+<condition_dsl>Always calculate OBBBA deductions</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate No Tax on Tips deduction</action_comment>
-<action_description>Calculate No Tax on Tips deduction</action_description>
+<action_dsl>Calculate No Tax on Tips deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -47,7 +47,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate No Tax on Overtime deduction</action_comment>
-<action_description>Calculate No Tax on Overtime deduction</action_description>
+<action_dsl>Calculate No Tax on Overtime deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -56,7 +56,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate Senior Additional deduction</action_comment>
-<action_description>Calculate Senior Additional deduction</action_description>
+<action_dsl>Calculate Senior Additional deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -65,7 +65,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Sum total OBBBA deductions</action_comment>
-<action_description>Sum total OBBBA deductions</action_description>
+<action_dsl>Sum total OBBBA deductions</action_dsl>
 <action_postfix>
 
 </action_postfix>

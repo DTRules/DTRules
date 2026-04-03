@@ -18,7 +18,7 @@
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Wisconsin filing requirement determination</action_description>
+<action_dsl>Initialize Wisconsin filing requirement determination</action_dsl>
 <action_postfix>
 "Wisconsin Filing Requirement Check Started" job.audit_trail swap addto
 </action_postfix>
@@ -29,7 +29,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in Wisconsin</condition_comment>
-<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "WI"</condition_description>
+<condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "WI"</condition_dsl>
 <condition_postfix>
 apportionment.has_physical_presence get true eq
 apportionment.state_code get "WI" streq and
@@ -42,7 +42,7 @@ apportionment.state_code get "WI" streq and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets Wisconsin economic nexus threshold</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "WI"</condition_description>
+<condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "WI"</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.state_code get "WI" streq and
@@ -116,7 +116,7 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Wisconsin income adjustments calculation</action_description>
+<action_dsl>Initialize Wisconsin income adjustments calculation</action_dsl>
 <action_postfix>
 "Wisconsin Income Adjustments Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -127,7 +127,7 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to calculate adjustments; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
@@ -212,7 +212,7 @@ subtractions /apportionment.state_subtractions xdef
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Wisconsin state tax calculation</action_description>
+<action_dsl>Initialize Wisconsin state tax calculation</action_dsl>
 <action_postfix>
 "Wisconsin State Tax Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -223,7 +223,7 @@ subtractions /apportionment.state_subtractions xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe tax; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
@@ -236,7 +236,7 @@ apportionment.has_physical_presence get true eq or
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income &gt; 0</condition_description>
+<condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
 apportionment.state_taxable_income get 0 gt
 </condition_postfix>

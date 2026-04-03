@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has contributions</condition_comment>
-<condition_description>Has contributions</condition_description>
+<condition_dsl>Has contributions</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status MFJ</condition_comment>
-<condition_description>Filing status MFJ</condition_description>
+<condition_dsl>Filing status MFJ</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -58,7 +58,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Filing status HOH</condition_comment>
-<condition_description>Filing status HOH</condition_description>
+<condition_dsl>Filing status HOH</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -74,7 +74,7 @@
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>AGI at 50% tier for MFJ</condition_comment>
-<condition_description>AGI at 50% tier for MFJ</condition_description>
+<condition_dsl>AGI at 50% tier for MFJ</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -86,7 +86,7 @@
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>AGI at 20% tier for MFJ</condition_comment>
-<condition_description>AGI at 20% tier for MFJ</condition_description>
+<condition_dsl>AGI at 20% tier for MFJ</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -97,7 +97,7 @@
 <condition_details>
 <condition_number>6</condition_number>
 <condition_comment>AGI at 10% tier for MFJ</condition_comment>
-<condition_description>AGI at 10% tier for MFJ</condition_description>
+<condition_dsl>AGI at 10% tier for MFJ</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -107,7 +107,7 @@
 <condition_details>
 <condition_number>7</condition_number>
 <condition_comment>AGI at 50% tier for HOH</condition_comment>
-<condition_description>AGI at 50% tier for HOH</condition_description>
+<condition_dsl>AGI at 50% tier for HOH</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -119,7 +119,7 @@
 <condition_details>
 <condition_number>8</condition_number>
 <condition_comment>AGI at 20% tier for HOH</condition_comment>
-<condition_description>AGI at 20% tier for HOH</condition_description>
+<condition_dsl>AGI at 20% tier for HOH</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -130,7 +130,7 @@
 <condition_details>
 <condition_number>9</condition_number>
 <condition_comment>AGI at 10% tier for HOH</condition_comment>
-<condition_description>AGI at 10% tier for HOH</condition_description>
+<condition_dsl>AGI at 10% tier for HOH</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -140,7 +140,7 @@
 <condition_details>
 <condition_number>10</condition_number>
 <condition_comment>AGI at 50% tier for Single</condition_comment>
-<condition_description>AGI at 50% tier for Single</condition_description>
+<condition_dsl>AGI at 50% tier for Single</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -152,7 +152,7 @@
 <condition_details>
 <condition_number>11</condition_number>
 <condition_comment>AGI at 20% tier for Single</condition_comment>
-<condition_description>AGI at 20% tier for Single</condition_description>
+<condition_dsl>AGI at 20% tier for Single</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -163,7 +163,7 @@
 <condition_details>
 <condition_number>12</condition_number>
 <condition_comment>AGI at 10% tier for Single</condition_comment>
-<condition_description>AGI at 10% tier for Single</condition_description>
+<condition_dsl>AGI at 10% tier for Single</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -175,7 +175,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -186,7 +186,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -197,7 +197,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -208,7 +208,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -219,7 +219,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -239,7 +239,7 @@
 <action_details>
 <action_number>6</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>

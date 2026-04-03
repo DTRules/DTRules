@@ -13,7 +13,7 @@
     <contexts />
     <initial_actions>
       <initial_action>
-        <action_description>Initialize Maryland filing requirement check</action_description>
+        <action_dsl>Initialize Maryland filing requirement check</action_dsl>
         <action_postfix>
 "Maryland Corporate Filing Requirement Check Started" job.audit_trail swap addto
 false result.md_has_nexus xdef
@@ -24,7 +24,7 @@ false result.md_has_nexus xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Has physical presence in Maryland</condition_comment>
-        <condition_description>result.has_physical_presence_md is equal to true</condition_description>
+        <condition_dsl>result.has_physical_presence_md is equal to true</condition_dsl>
         <condition_postfix>
 result.has_physical_presence_md true eq
 </condition_postfix>
@@ -35,7 +35,7 @@ result.has_physical_presence_md true eq
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Meets economic nexus threshold ($100K gross receipts); result.md_gross_receipts is greater than or equal to result.md_economic_nexus_threshold</condition_comment>
-        <condition_description />
+        <condition_dsl />
         <condition_postfix>
 result.md_gross_receipts result.md_economic_nexus_threshold &gt;=
 </condition_postfix>
@@ -48,7 +48,7 @@ result.md_gross_receipts result.md_economic_nexus_threshold &gt;=
       <action_details>
         <action_number>1</action_number>
         <action_comment>Physical nexus - filing required</action_comment>
-        <action_description>result.md_has_nexus = true</action_description>
+        <action_dsl>result.md_has_nexus = true</action_dsl>
         <action_postfix>
 // Physical nexus established - filing required
 true result.md_has_nexus xdef
@@ -59,7 +59,7 @@ true result.md_has_nexus xdef
       <action_details>
         <action_number>2</action_number>
         <action_comment>Economic nexus - filing required</action_comment>
-        <action_description>result.md_has_nexus = true</action_description>
+        <action_dsl>result.md_has_nexus = true</action_dsl>
         <action_postfix>
 // Economic nexus established per Wayfair - filing required
 true result.md_has_nexus xdef
@@ -70,7 +70,7 @@ true result.md_has_nexus xdef
       <action_details>
         <action_number>3</action_number>
         <action_comment>No nexus - no filing required</action_comment>
-        <action_description>result.md_has_nexus = false; result.md_tax_liability = 0.0</action_description>
+        <action_dsl>result.md_has_nexus = false; result.md_tax_liability = 0.0</action_dsl>
         <action_postfix>
 // No nexus - no filing required
 false result.md_has_nexus xdef
@@ -94,7 +94,7 @@ false result.md_has_nexus xdef
     <contexts />
     <initial_actions>
       <initial_action>
-        <action_description>Initialize Maryland income adjustments</action_description>
+        <action_dsl>Initialize Maryland income adjustments</action_dsl>
         <action_postfix>
 "Maryland Corporate Income Adjustments Calculation Started" job.audit_trail swap addto
 0.0 result.md_state_additions xdef
@@ -106,7 +106,7 @@ false result.md_has_nexus xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Has Maryland nexus</condition_comment>
-        <condition_description>result.md_has_nexus is equal to true</condition_description>
+        <condition_dsl>result.md_has_nexus is equal to true</condition_dsl>
         <condition_postfix>
 result.md_has_nexus true eq
 </condition_postfix>
@@ -118,7 +118,7 @@ result.md_has_nexus true eq
       <action_details>
         <action_number>1</action_number>
         <action_comment>Calculate Maryland state additions and subtractions; Calculate state-specific income adjustments</action_comment>
-        <action_description />
+        <action_dsl />
         <action_postfix>
 // Calculate Maryland state additions
 0.0 /md_additions xdef
@@ -157,7 +157,7 @@ md_subtractions result.md_state_subtractions xdef
       <action_details>
         <action_number>2</action_number>
         <action_comment>No nexus - no adjustments</action_comment>
-        <action_description>result.md_state_additions = 0.0; result.md_state_subtractions = 0.0</action_description>
+        <action_dsl>result.md_state_additions = 0.0; result.md_state_subtractions = 0.0</action_dsl>
         <action_postfix>
 0.0 result.md_state_additions xdef
 0.0 result.md_state_subtractions xdef
@@ -180,7 +180,7 @@ md_subtractions result.md_state_subtractions xdef
     <contexts />
     <initial_actions>
       <initial_action>
-        <action_description>Initialize Maryland tax calculation</action_description>
+        <action_dsl>Initialize Maryland tax calculation</action_dsl>
         <action_postfix>
 "Maryland Corporate Tax Calculation Started" job.audit_trail swap addto
 0.0 result.md_taxable_income xdef
@@ -192,7 +192,7 @@ md_subtractions result.md_state_subtractions xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Has Maryland nexus</condition_comment>
-        <condition_description>result.md_has_nexus is equal to true</condition_description>
+        <condition_dsl>result.md_has_nexus is equal to true</condition_dsl>
         <condition_postfix>
 result.md_has_nexus true eq
 </condition_postfix>
@@ -203,7 +203,7 @@ result.md_has_nexus true eq
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Has positive taxable income; result.md_apportioned_income is greater than 0</condition_comment>
-        <condition_description />
+        <condition_dsl />
         <condition_postfix>
 result.md_apportioned_income 0.0 &gt;
 </condition_postfix>
@@ -216,7 +216,7 @@ result.md_apportioned_income 0.0 &gt;
       <action_details>
         <action_number>1</action_number>
         <action_comment>Calculate Maryland corporate tax (flat rate 8.25%); Apply Maryland 8.25% flat rate</action_comment>
-        <action_description />
+        <action_dsl />
         <action_postfix>
 // Calculate Maryland taxable income
 // Federal taxable income apportioned to MD + additions - subtractions
@@ -246,7 +246,7 @@ result.md_refund_or_owed xdef
       <action_details>
         <action_number>2</action_number>
         <action_comment>No taxable income - no tax liability</action_comment>
-        <action_description>result.md_taxable_income = 0.0; result.md_tax_liability = 0.0</action_description>
+        <action_dsl>result.md_taxable_income = 0.0; result.md_tax_liability = 0.0</action_dsl>
         <action_postfix>
 // No taxable income - no tax liability
 0.0 result.md_taxable_income xdef
@@ -259,7 +259,7 @@ result.md_estimated_payments result.md_refund_or_owed xdef
       <action_details>
         <action_number>3</action_number>
         <action_comment>No nexus - no tax liability</action_comment>
-        <action_description>result.md_taxable_income = 0.0; result.md_tax_liability = 0.0</action_description>
+        <action_dsl>result.md_taxable_income = 0.0; result.md_tax_liability = 0.0</action_dsl>
         <action_postfix>
 // No nexus - no tax liability
 0.0 result.md_taxable_income xdef

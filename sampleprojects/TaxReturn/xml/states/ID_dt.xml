@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Disabled veteran OR age 62+; is_disabled OR age &gt;= 62</condition_comment>
-<condition_description>Disabled veteran OR age 62+; is_disabled OR age &gt;= 62</condition_description>
+<condition_dsl>Disabled veteran OR age 62+; is_disabled OR age &gt;= 62</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -28,7 +28,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No ID military retirement exemption (not disabled, age &lt; 62)</action_comment>
-<action_description>No ID military retirement exemption (not disabled, age &lt; 62)</action_description>
+<action_dsl>No ID military retirement exemption (not disabled, age &lt; 62)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -36,7 +36,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>No military retirement pay</action_comment>
-<action_description>No military retirement pay</action_description>
+<action_dsl>No military retirement pay</action_dsl>
 <action_postfix>
 
 </action_postfix>

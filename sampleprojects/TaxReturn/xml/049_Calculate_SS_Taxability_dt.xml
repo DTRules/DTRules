@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>set result.provisional_income = result.agi + (result.total_social_security * 0.5)</action_description>
+<action_dsl>set result.provisional_income = result.agi + (result.total_social_security * 0.5)</action_dsl>
 <action_postfix>
 result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xdef
 &quot;SOCIAL SECURITY TAXABILITY (Publication 915)&quot; job.audit_trail swap addto
@@ -26,7 +26,7 @@ result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xde
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has Social Security income</condition_comment>
-<condition_description>Has Social Security income</condition_description>
+<condition_dsl>Has Social Security income</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -41,7 +41,7 @@ result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xde
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_description>Married Filing Jointly</condition_description>
+<condition_dsl>Married Filing Jointly</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -56,7 +56,7 @@ result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xde
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>MFJ provisional income at or below base amount ($32k)</condition_comment>
-<condition_description>MFJ provisional income at or below base amount ($32k)</condition_description>
+<condition_dsl>MFJ provisional income at or below base amount ($32k)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -71,7 +71,7 @@ result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xde
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>MFJ provisional income at or below additional amount ($44k)</condition_comment>
-<condition_description>MFJ provisional income at or below additional amount ($44k)</condition_description>
+<condition_dsl>MFJ provisional income at or below additional amount ($44k)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -86,7 +86,7 @@ result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xde
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>Single provisional income at or below base amount ($25k)</condition_comment>
-<condition_description>Single provisional income at or below base amount ($25k)</condition_description>
+<condition_dsl>Single provisional income at or below base amount ($25k)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -101,7 +101,7 @@ result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xde
 <condition_details>
 <condition_number>6</condition_number>
 <condition_comment>Single provisional income at or below additional amount ($34k)</condition_comment>
-<condition_description>Single provisional income at or below additional amount ($34k)</condition_description>
+<condition_dsl>Single provisional income at or below additional amount ($34k)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -118,7 +118,7 @@ result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xde
 <action_details>
 <action_number>1</action_number>
 <action_comment>0% SS taxable - below base amount</action_comment>
-<action_description>0% SS taxable - below base amount</action_description>
+<action_dsl>0% SS taxable - below base amount</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -128,7 +128,7 @@ result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xde
 <action_details>
 <action_number>2</action_number>
 <action_comment>Up to 50% SS taxable MFJ - between base and additional</action_comment>
-<action_description>Up to 50% SS taxable MFJ - between base and additional</action_description>
+<action_dsl>Up to 50% SS taxable MFJ - between base and additional</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -137,7 +137,7 @@ result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xde
 <action_details>
 <action_number>3</action_number>
 <action_comment>Up to 50% SS taxable Single - between base and additional</action_comment>
-<action_description>Up to 50% SS taxable Single - between base and additional</action_description>
+<action_dsl>Up to 50% SS taxable Single - between base and additional</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -146,7 +146,7 @@ result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xde
 <action_details>
 <action_number>4</action_number>
 <action_comment>Up to 85% SS taxable - above additional amount</action_comment>
-<action_description>Up to 85% SS taxable - above additional amount</action_description>
+<action_dsl>Up to 85% SS taxable - above additional amount</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -156,7 +156,7 @@ result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xde
 <action_details>
 <action_number>5</action_number>
 <action_comment>No SS income</action_comment>
-<action_description>No SS income</action_description>
+<action_dsl>No SS income</action_dsl>
 <action_postfix>
 
 </action_postfix>

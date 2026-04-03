@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Child under 13</condition_comment>
-<condition_description>Child under 13</condition_description>
+<condition_dsl>Child under 13</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -28,7 +28,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Disabled dependent</condition_comment>
-<condition_description>Disabled dependent</condition_description>
+<condition_dsl>Disabled dependent</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -39,7 +39,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Has work-related care expenses</condition_comment>
-<condition_description>Has work-related care expenses</condition_description>
+<condition_dsl>Has work-related care expenses</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -52,7 +52,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -62,7 +62,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>

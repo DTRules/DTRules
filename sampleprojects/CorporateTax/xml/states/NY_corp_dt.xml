@@ -16,7 +16,7 @@
   <condition_details>
   <condition_number>1</condition_number>
   <condition_comment>Has physical presence in NY (office, employees, property)</condition_comment>
-  <condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "NY"</condition_description>
+  <condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "NY"</condition_dsl>
   <condition_postfix>
 apportionment.has_physical_presence true eq
 apportionment.state_code "NY" streq
@@ -29,7 +29,7 @@ and
   <condition_details>
   <condition_number>2</condition_number>
   <condition_comment>Meets NY economic nexus threshold ($1M)</condition_comment>
-  <condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "NY"</condition_description>
+  <condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "NY"</condition_dsl>
   <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.state_code "NY" streq
@@ -44,7 +44,7 @@ and
   <action_details>
   <action_number>1</action_number>
   <action_comment>Physical nexus established - filing required</action_comment>
-  <action_description>Apportionment will be calculated by tables 7000-7500</action_description>
+  <action_dsl>Apportionment will be calculated by tables 7000-7500</action_dsl>
   <action_postfix>
 // Physical nexus established - filing required
 // Apportionment will be calculated by tables 7000-7500
@@ -54,7 +54,7 @@ and
   <action_details>
   <action_number>2</action_number>
   <action_comment>Economic nexus established per Wayfair - filing required</action_comment>
-  <action_description>Apportionment will be calculated by tables 7000-7500</action_description>
+  <action_dsl>Apportionment will be calculated by tables 7000-7500</action_dsl>
   <action_postfix>
 // Economic nexus established per Wayfair - filing required
 // Apportionment will be calculated by tables 7000-7500
@@ -64,7 +64,7 @@ and
   <action_details>
   <action_number>3</action_number>
   <action_comment>No nexus - no filing required; No NY nexus - any estimated payments would be refunded</action_comment>
-  <action_description />
+  <action_dsl />
   <action_postfix>
 // No nexus - no filing required
 apportionment.state_tax 0.0 xdef
@@ -90,7 +90,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
   <condition_details>
   <condition_number>1</condition_number>
   <condition_comment>Must have nexus to calculate adjustments; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-  <condition_description />
+  <condition_dsl />
   <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
@@ -104,7 +104,7 @@ or
   <action_details>
   <action_number>1</action_number>
   <action_comment>Calculate NY state additions and subtractions; Calculate state additions (federal bond interest, IRC 199A addback, depreciation) and subtractions (NY municipal interest, QETC deductions)</action_comment>
-  <action_description />
+  <action_dsl />
   <action_postfix>
 // Calculate NY state additions and subtractions
 0.0 /additions xdef
@@ -117,7 +117,7 @@ apportionment.state_subtractions subtractions xdef
   <action_details>
   <action_number>2</action_number>
   <action_comment>No nexus - no state adjustments; No nexus - no state adjustments calculated</action_comment>
-  <action_description />
+  <action_dsl />
   <action_postfix>
 // No nexus - no state adjustments
 apportionment.state_additions 0.0 xdef
@@ -143,7 +143,7 @@ apportionment.state_subtractions 0.0 xdef
   <condition_details>
   <condition_number>1</condition_number>
   <condition_comment>Must have nexus to owe tax; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-  <condition_description />
+  <condition_dsl />
   <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
@@ -156,7 +156,7 @@ or
   <condition_details>
   <condition_number>2</condition_number>
   <condition_comment>Has positive state taxable income</condition_comment>
-  <condition_description>apportionment.state_taxable_income &gt; 0</condition_description>
+  <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
   <condition_postfix>
 apportionment.state_taxable_income 0 gt
   </condition_postfix>
@@ -169,7 +169,7 @@ apportionment.state_taxable_income 0 gt
   <action_details>
   <action_number>1</action_number>
   <action_comment>Calculate NY tax at 6.5% flat rate; NY uses flat 6.5% rate (Tax Law § 209), subtract credits, calculate refund/owed</action_comment>
-  <action_description />
+  <action_dsl />
   <action_postfix>
 // NY uses 6.5% flat rate
 apportionment.state_taxable_income apportionment.state_tax_rate mul
@@ -189,7 +189,7 @@ apportionment.state_payments apportionment.state_tax sub
   <action_details>
   <action_number>2</action_number>
   <action_comment>No nexus - no tax liability; No NY nexus - any estimated payments are refunded</action_comment>
-  <action_description />
+  <action_dsl />
   <action_postfix>
 // No nexus - no tax liability
 apportionment.state_tax 0.0 xdef
@@ -200,7 +200,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
   <action_details>
   <action_number>3</action_number>
   <action_comment>Nexus but no taxable income - no tax liability; No NY taxable income - NY NOL rules may apply (not implemented)</action_comment>
-  <action_description />
+  <action_dsl />
   <action_postfix>
 // Nexus but no taxable income - no tax liability
 apportionment.state_tax 0.0 xdef
@@ -226,7 +226,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
   <condition_details>
   <condition_number>1</condition_number>
   <condition_comment>Must have NY nexus; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-  <condition_description />
+  <condition_dsl />
   <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
@@ -240,7 +240,7 @@ or
   <condition_details>
   <condition_number>2</condition_number>
   <condition_comment>Business operates in MTA region</condition_comment>
-  <condition_description>result.ny_in_mta_region == true</condition_description>
+  <condition_dsl>result.ny_in_mta_region == true</condition_dsl>
   <condition_postfix>
 result.ny_in_mta_region true eq
   </condition_postfix>
@@ -252,7 +252,7 @@ result.ny_in_mta_region true eq
   <condition_details>
   <condition_number>3</condition_number>
   <condition_comment>Has positive tax base for surcharge calculation</condition_comment>
-  <condition_description>apportionment.state_taxable_income &gt; 0</condition_description>
+  <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
   <condition_postfix>
 apportionment.state_taxable_income 0 gt
   </condition_postfix>
@@ -266,7 +266,7 @@ apportionment.state_taxable_income 0 gt
   <action_details>
   <action_number>1</action_number>
   <action_comment>Calculate MTA surcharge at 0.34%; MTA surcharge is 0.34% of business income base, add to total state tax, recalculate refund/owed</action_comment>
-  <action_description />
+  <action_dsl />
   <action_postfix>
 // MTA surcharge is 0.34% of business income base
 apportionment.state_taxable_income result.ny_mta_surcharge_rate mul
@@ -285,7 +285,7 @@ apportionment.state_payments apportionment.state_tax sub
   <action_details>
   <action_number>2</action_number>
   <action_comment>No MTA surcharge - not in MTA region</action_comment>
-  <action_description>State tax and refund/owed already calculated in table 50180</action_description>
+  <action_dsl>State tax and refund/owed already calculated in table 50180</action_dsl>
   <action_postfix>
   // No MTA surcharge
 result.ny_mta_surcharge 0.0 xdef
@@ -295,7 +295,7 @@ result.ny_mta_surcharge 0.0 xdef
   <action_details>
   <action_number>3</action_number>
   <action_comment>No MTA surcharge - no nexus; No MTA surcharge - no NY nexus or no taxable income</action_comment>
-  <action_description />
+  <action_dsl />
   <action_postfix>
   // No MTA surcharge - no nexus
 result.ny_mta_surcharge 0.0 xdef
@@ -305,7 +305,7 @@ result.ny_mta_surcharge 0.0 xdef
   <action_details>
   <action_number>4</action_number>
   <action_comment>No MTA surcharge - no positive tax base; No positive tax base for surcharge calculation</action_comment>
-  <action_description />
+  <action_dsl />
   <action_postfix>
   // No MTA surcharge - no positive tax base
 result.ny_mta_surcharge 0.0 xdef

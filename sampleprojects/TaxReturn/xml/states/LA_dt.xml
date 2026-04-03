@@ -37,7 +37,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly or Head of Household; filing_status == &quot;married_filing_jointly&quot; OR filing_status == &quot;head_of_household&quot;</condition_comment>
-<condition_description>Filing status is Married Filing Jointly or Head of Household; filing_status == &quot;married_filing_jointly&quot; OR filing_status == &quot;head_of_household&quot;</condition_description>
+<condition_dsl>Filing status is Married Filing Jointly or Head of Household; filing_status == &quot;married_filing_jointly&quot; OR filing_status == &quot;head_of_household&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -49,7 +49,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate LA tax with joint/HOH standard deduction</action_comment>
-<action_description>Calculate LA tax with joint/HOH standard deduction</action_description>
+<action_dsl>Calculate LA tax with joint/HOH standard deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>

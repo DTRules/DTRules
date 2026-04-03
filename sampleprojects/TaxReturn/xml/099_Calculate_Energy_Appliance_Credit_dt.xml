@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize energy appliance credit</action_description>
+<action_dsl>Initialize energy appliance credit</action_dsl>
 <action_postfix>
 0.0 /result.energy_appliance_credit xdef
 </action_postfix>
@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Manufacturer has appliance production</condition_comment>
-<condition_description>Manufacturer has appliance production</condition_description>
+<condition_dsl>Manufacturer has appliance production</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -34,7 +34,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>

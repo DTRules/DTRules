@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>set result.amti = result.taxable_income + amt_adjustments</action_description>
+<action_dsl>set result.amti = result.taxable_income + amt_adjustments</action_dsl>
 <action_postfix>
 result.taxable_income result.salt_deduction f+ /result.amti xdef
 &quot;ALTERNATIVE MINIMUM TAX (Form 6251, IRC 55-59)&quot; job.audit_trail swap addto
@@ -27,7 +27,7 @@ result.taxable_income result.salt_deduction f+ /result.amti xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Filing status MFJ</condition_comment>
-<condition_description>Filing status MFJ</condition_description>
+<condition_dsl>Filing status MFJ</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@ result.taxable_income result.salt_deduction f+ /result.amti xdef
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status MFS</condition_comment>
-<condition_description>Filing status MFS</condition_description>
+<condition_dsl>Filing status MFS</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -50,7 +50,7 @@ result.taxable_income result.salt_deduction f+ /result.amti xdef
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -59,7 +59,7 @@ result.taxable_income result.salt_deduction f+ /result.amti xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -68,7 +68,7 @@ result.taxable_income result.salt_deduction f+ /result.amti xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>

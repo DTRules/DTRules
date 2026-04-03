@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Single filer, AGI ≤ $125k; Single AND AGI ≤ $125,000</condition_comment>
-<condition_description>Single filer, AGI ≤ $125k; Single AND AGI ≤ $125,000</condition_description>
+<condition_dsl>Single filer, AGI ≤ $125k; Single AND AGI ≤ $125,000</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -26,7 +26,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Joint filer, AGI ≤ $250k; Married Filing Jointly AND AGI ≤ $250,000</condition_comment>
-<condition_description>Joint filer, AGI ≤ $250k; Married Filing Jointly AND AGI ≤ $250,000</condition_description>
+<condition_dsl>Joint filer, AGI ≤ $250k; Married Filing Jointly AND AGI ≤ $250,000</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -37,7 +37,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Apply CA $20,000 military retirement exemption (Joint, AGI ≤ $250k)</action_comment>
-<action_description>Apply CA $20,000 military retirement exemption (Joint, AGI ≤ $250k)</action_description>
+<action_dsl>Apply CA $20,000 military retirement exemption (Joint, AGI ≤ $250k)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -45,7 +45,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>No CA military retirement exemption (AGI exceeds limit)</action_comment>
-<action_description>No CA military retirement exemption (AGI exceeds limit)</action_description>
+<action_dsl>No CA military retirement exemption (AGI exceeds limit)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -53,7 +53,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>No military retirement pay</action_comment>
-<action_description>No military retirement pay</action_description>
+<action_dsl>No military retirement pay</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -79,7 +79,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Single filer within AGI limit</condition_comment>
-<condition_description>Single filer within AGI limit</condition_description>
+<condition_dsl>Single filer within AGI limit</condition_dsl>
 <condition_postfix>
 Single AND AGI &lt;= $50,746
 </condition_postfix>
@@ -89,7 +89,7 @@ Single AND AGI &lt;= $50,746
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Joint/HOH filer within AGI limit</condition_comment>
-<condition_description>Joint/HOH filer within AGI limit</condition_description>
+<condition_dsl>Joint/HOH filer within AGI limit</condition_dsl>
 <condition_postfix>
 Joint/HOH AND AGI &lt;= $101,492
 </condition_postfix>
@@ -101,7 +101,7 @@ Joint/HOH AND AGI &lt;= $101,492
 <action_details>
 <action_number>2</action_number>
 <action_comment>Apply CA $120 renter's credit (Joint/HOH filer)</action_comment>
-<action_description>Apply CA $120 renter's credit (Joint/HOH filer)</action_description>
+<action_dsl>Apply CA $120 renter's credit (Joint/HOH filer)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -109,7 +109,7 @@ Joint/HOH AND AGI &lt;= $101,492
 <action_details>
 <action_number>3</action_number>
 <action_comment>Not eligible for CA renter's credit</action_comment>
-<action_description>Not eligible for CA renter's credit</action_description>
+<action_dsl>Not eligible for CA renter's credit</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -135,7 +135,7 @@ Joint/HOH AND AGI &lt;= $101,492
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly or Head of Household; Filing Status is MFJ or HOH</condition_comment>
-<condition_description>Filing status is Married Filing Jointly or Head of Household; Filing Status is MFJ or HOH</condition_description>
+<condition_dsl>Filing status is Married Filing Jointly or Head of Household; Filing Status is MFJ or HOH</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -145,7 +145,7 @@ Joint/HOH AND AGI &lt;= $101,492
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate CA tax for Married Filing Jointly/HOH using progressive brackets (10 brackets: 1% to 13.3%)</action_comment>
-<action_description>Calculate CA tax for Married Filing Jointly/HOH using progressive brackets (10 brackets: 1% to 13.3%)</action_description>
+<action_dsl>Calculate CA tax for Married Filing Jointly/HOH using progressive brackets (10 brackets: 1% to 13.3%)</action_dsl>
 <action_postfix>
 
 </action_postfix>

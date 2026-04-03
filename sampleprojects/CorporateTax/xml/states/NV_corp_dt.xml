@@ -18,7 +18,7 @@
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Nevada filing requirement check</action_description>
+<action_dsl>Initialize Nevada filing requirement check</action_dsl>
 <action_postfix>
 // Initialize Nevada Commerce Tax
 result.nv_qualifies_for_exemption false xdef
@@ -31,7 +31,7 @@ result.nv_commerce_tax 0.0 xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in Nevada; has_physical_presence == true AND below threshold</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.has_physical_presence_nv result.nv_gross_revenue result.nv_commerce_tax_threshold lt and
 </condition_postfix>
@@ -44,7 +44,7 @@ result.has_physical_presence_nv result.nv_gross_revenue result.nv_commerce_tax_t
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has physical presence and exceeds threshold; has_physical_presence == true AND exceeds threshold</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.has_physical_presence_nv result.nv_gross_revenue result.nv_commerce_tax_threshold ge and
 </condition_postfix>
@@ -57,7 +57,7 @@ result.has_physical_presence_nv result.nv_gross_revenue result.nv_commerce_tax_t
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Has economic nexus and exceeds threshold; has_economic_nexus == true AND exceeds threshold</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.nv_gross_revenue result.nv_economic_nexus_threshold ge result.nv_gross_revenue result.nv_commerce_tax_threshold ge and
 </condition_postfix>
@@ -134,7 +134,7 @@ result.state_refund_or_owed result.state_payments xdef
 
 <initial_actions>
 <initial_action>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Nevada has NO corporate income tax
 result.state_tax_rate 0.0 xdef
@@ -148,7 +148,7 @@ result.state_subtractions 0.0 xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus with Nevada; has_economic_nexus == true OR has_physical_presence == true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.has_physical_presence_nv result.nv_gross_revenue result.nv_economic_nexus_threshold ge or
 </condition_postfix>
@@ -202,7 +202,7 @@ result.state_subtractions 0.0 xdef
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Nevada business classification determination</action_description>
+<action_dsl>Initialize Nevada business classification determination</action_dsl>
 <action_postfix>
 // Default to Other Services rate
 result.nv_commerce_tax_rate result.nv_other_rate xdef
@@ -214,7 +214,7 @@ result.nv_commerce_tax_rate result.nv_other_rate xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Financial Services (NAICS 52)</condition_comment>
-<condition_description>business classification is financial</condition_description>
+<condition_dsl>business classification is financial</condition_dsl>
 <condition_postfix>
 result.nv_business_classification financial streq
 </condition_postfix>
@@ -231,7 +231,7 @@ result.nv_business_classification financial streq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Mining (NAICS 21)</condition_comment>
-<condition_description>business classification is mining</condition_description>
+<condition_dsl>business classification is mining</condition_dsl>
 <condition_postfix>
 result.nv_business_classification mining streq
 </condition_postfix>
@@ -248,7 +248,7 @@ result.nv_business_classification mining streq
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Utilities (NAICS 22)</condition_comment>
-<condition_description>business classification is utilities</condition_description>
+<condition_dsl>business classification is utilities</condition_dsl>
 <condition_postfix>
 result.nv_business_classification utilities streq
 </condition_postfix>
@@ -265,7 +265,7 @@ result.nv_business_classification utilities streq
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Professional Services (NAICS 54)</condition_comment>
-<condition_description>business classification is professional</condition_description>
+<condition_dsl>business classification is professional</condition_dsl>
 <condition_postfix>
 result.nv_business_classification professional streq
 </condition_postfix>
@@ -282,7 +282,7 @@ result.nv_business_classification professional streq
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>Retail Trade (NAICS 44-45)</condition_comment>
-<condition_description>business classification is retail</condition_description>
+<condition_dsl>business classification is retail</condition_dsl>
 <condition_postfix>
 result.nv_business_classification retail streq
 </condition_postfix>
@@ -299,7 +299,7 @@ result.nv_business_classification retail streq
 <condition_details>
 <condition_number>6</condition_number>
 <condition_comment>Manufacturing (NAICS 31-33)</condition_comment>
-<condition_description>business classification is manufacturing</condition_description>
+<condition_dsl>business classification is manufacturing</condition_dsl>
 <condition_postfix>
 result.nv_business_classification manufacturing streq
 </condition_postfix>
@@ -316,7 +316,7 @@ result.nv_business_classification manufacturing streq
 <condition_details>
 <condition_number>7</condition_number>
 <condition_comment>Wholesale Trade (NAICS 42)</condition_comment>
-<condition_description>business classification is wholesale</condition_description>
+<condition_dsl>business classification is wholesale</condition_dsl>
 <condition_postfix>
 result.nv_business_classification wholesale streq
 </condition_postfix>
@@ -432,7 +432,7 @@ result.nv_commerce_tax_rate result.nv_other_rate xdef
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Nevada sitused revenue calculation</action_description>
+<action_dsl>Initialize Nevada sitused revenue calculation</action_dsl>
 <action_postfix>
 // Initialize sitused revenue
 result.nv_sitused_revenue 0.0 xdef
@@ -445,7 +445,7 @@ result.nv_gross_revenue 0.0 xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus and has apportionment percentage</condition_comment>
-<condition_description>has_nexus AND apportionment_percentage &gt; 0</condition_description>
+<condition_dsl>has_nexus AND apportionment_percentage &gt; 0</condition_dsl>
 <condition_postfix>
 result.has_physical_presence_nv result.nv_gross_receipts result.nv_economic_nexus_threshold ge or
 result.apportionment_percentage 0 gt and
@@ -458,7 +458,7 @@ result.apportionment_percentage 0 gt and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has nexus but no apportionment percentage</condition_comment>
-<condition_description>has_nexus AND apportionment_percentage = 0</condition_description>
+<condition_dsl>has_nexus AND apportionment_percentage = 0</condition_dsl>
 <condition_postfix>
 result.has_physical_presence_nv result.nv_gross_receipts result.nv_economic_nexus_threshold ge or
 result.apportionment_percentage 0 eq and
@@ -524,7 +524,7 @@ result.nv_gross_revenue 0.0 xdef
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Nevada Commerce Tax calculation</action_description>
+<action_dsl>Initialize Nevada Commerce Tax calculation</action_dsl>
 <action_postfix>
 // Initialize Commerce Tax
 result.nv_taxable_revenue 0.0 xdef
@@ -537,7 +537,7 @@ result.nv_commerce_tax 0.0 xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus and exceeds $4M threshold; has_nexus AND gross_revenue &gt;= threshold</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.has_physical_presence_nv result.nv_gross_revenue result.nv_economic_nexus_threshold ge or
 result.nv_gross_revenue result.nv_commerce_tax_threshold ge and
@@ -550,7 +550,7 @@ result.nv_gross_revenue result.nv_commerce_tax_threshold ge and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has nexus but below threshold; has_nexus AND gross_revenue &lt; threshold</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.has_physical_presence_nv result.nv_gross_revenue result.nv_economic_nexus_threshold ge or
 result.nv_gross_revenue result.nv_commerce_tax_threshold lt and

@@ -101,7 +101,8 @@ Why EL is Required
 - VALIDATED: Syntax errors caught at compile time, not runtime
 - CONSISTENT: Eliminates hand-coded postfix errors
 
-IMPORTANT: Do NOT hand-code postfix. Always use EL descriptions.
+IMPORTANT: Do NOT hand-code postfix. Always use EL in *_dsl tags
+(e.g., condition_dsl, action_dsl, context_dsl, initial_action_dsl).
 
 
 Conditions
@@ -325,7 +326,7 @@ Decision Table XML Structure (EL Format - REQUIRED)
 
         <contexts>
             <context_details>
-                <context_description>for all dependents</context_description>
+                <context_dsl>for all dependents</context_dsl>
             </context_details>
         </contexts>
 
@@ -367,6 +368,15 @@ Key Elements:
   - <expression>: EL condition (compiled to postfix automatically)
   - <action>: EL statements separated by semicolons
   - Y/N/-: Condition values (Yes/No/Don't care)
+
+DSL Tag Names:
+  - <context_dsl>: Context statement in EL (inside <context_details>)
+  - <condition_dsl>: Condition expression in EL (inside <condition_details>)
+  - <action_dsl>: Action statement in EL (inside <action_details>)
+  - <initial_action_dsl>: Initial action in EL (executed before conditions)
+
+Note: For backward compatibility, the system also reads legacy tag names
+(*_description instead of *_dsl). New code should use *_dsl tags.
 
 Table Types (in <attribute_fields>):
   - FIRST:    Execute only the first matching row (most common)
@@ -1560,7 +1570,7 @@ Required workflow:
   3. dtrules -rules xml    <- Use compiled rules
 
 If AI/developers modify XML directly:
-  1. Edit XML (add/modify EL expressions in descriptions)
+  1. Edit XML (add/modify EL expressions in *_dsl tags)
   2. dtrules sync export   <- Update Excel with standard formatting
   3. dtrules sync import   <- Re-import to compile EL to postfix
 
@@ -1590,9 +1600,9 @@ Best for: Programmatic rule editing
 1. Check for pending user edits FIRST
    dtrules sync check
 
-2. Edit XML files (EL descriptions only, NOT postfix)
+2. Edit XML files (EL in *_dsl tags only, NOT postfix)
    - *_edd.xml: entity definitions
-   - *_dt.xml: decision tables
+   - *_dt.xml: decision tables (use condition_dsl, action_dsl, context_dsl)
 
 3. Export to Excel (records changes)
    dtrules sync export
@@ -1604,7 +1614,7 @@ Best for: Programmatic rule editing
    dtrules -rules ./xml -test ./testfiles
 
 IMPORTANT: Never hand-code postfix. Always use EL expressions in
-the description fields. The import process compiles them automatically.
+the *_dsl tags. The import process compiles them automatically.
 
 
 Validate Command
@@ -1651,7 +1661,7 @@ project/
 
 EL vs Postfix
 -------------
-EL (in Excel/XML descriptions):
+EL (in Excel cells or XML *_dsl tags):
     taxpayer.income > 50000
     taxpayer.filing_status == "SINGLE"
     set result.tax = income * rate
@@ -1669,7 +1679,7 @@ If 'dtrules sync export' fails because Excel was modified:
 1. Import their changes first:
    dtrules sync import
 
-2. Re-apply your XML changes (edit descriptions, not postfix)
+2. Re-apply your XML changes (edit *_dsl tags, not postfix)
 
 3. Export the merged result:
    dtrules sync export
@@ -1702,7 +1712,7 @@ If you have existing XML with hand-coded postfix:
 
 2. For each legacy file:
    a. Open the corresponding Excel file
-   b. Add EL expressions to the description column
+   b. Add EL expressions to the DSL column (or description column for legacy)
    c. Run: dtrules sync import
 
 3. Verify migration:

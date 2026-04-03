@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has self-employment income</condition_comment>
-<condition_description>Has self-employment income</condition_description>
+<condition_dsl>Has self-employment income</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Log gross receipts</action_comment>
-<action_description>Log gross receipts</action_description>
+<action_dsl>Log gross receipts</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate vehicle deduction</action_comment>
-<action_description>Calculate vehicle deduction</action_description>
+<action_dsl>Calculate vehicle deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -47,7 +47,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate net profit</action_comment>
-<action_description>Calculate net profit</action_description>
+<action_dsl>Calculate net profit</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -56,7 +56,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate SE tax after net profit is known</action_comment>
-<action_description>Calculate SE tax after net profit is known</action_description>
+<action_dsl>Calculate SE tax after net profit is known</action_dsl>
 <action_postfix>
 
 </action_postfix>

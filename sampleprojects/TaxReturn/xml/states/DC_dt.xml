@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Age 62 or older</condition_comment>
-<condition_description>Age 62 or older</condition_description>
+<condition_dsl>Age 62 or older</condition_dsl>
 <condition_postfix>
 age &gt;= 62
 </condition_postfix>
@@ -28,7 +28,7 @@ age &gt;= 62
 <action_details>
 <action_number>2</action_number>
 <action_comment>No DC military retirement exemption (age &lt; 62)</action_comment>
-<action_description>No DC military retirement exemption (age &lt; 62)</action_description>
+<action_dsl>No DC military retirement exemption (age &lt; 62)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -36,7 +36,7 @@ age &gt;= 62
 <action_details>
 <action_number>3</action_number>
 <action_comment>No military retirement pay</action_comment>
-<action_description>No military retirement pay</action_description>
+<action_dsl>No military retirement pay</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -62,7 +62,7 @@ age &gt;= 62
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly</condition_comment>
-<condition_description>Filing status is Married Filing Jointly</condition_description>
+<condition_dsl>Filing status is Married Filing Jointly</condition_dsl>
 <condition_postfix>
 Filing Status is MFJ
 </condition_postfix>
@@ -70,7 +70,7 @@ Filing Status is MFJ
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
-<condition_description>Filing status is Head of Household</condition_description>
+<condition_dsl>Filing status is Head of Household</condition_dsl>
 <condition_postfix>
 Filing Status is HOH
 </condition_postfix>
@@ -80,7 +80,7 @@ Filing Status is HOH
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate DC tax for Married Filing Jointly using progressive brackets</action_comment>
-<action_description>Calculate DC tax for Married Filing Jointly using progressive brackets</action_description>
+<action_dsl>Calculate DC tax for Married Filing Jointly using progressive brackets</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -88,7 +88,7 @@ Filing Status is HOH
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate DC tax for Head of Household using progressive brackets</action_comment>
-<action_description>Calculate DC tax for Head of Household using progressive brackets</action_description>
+<action_dsl>Calculate DC tax for Head of Household using progressive brackets</action_dsl>
 <action_postfix>
 
 </action_postfix>

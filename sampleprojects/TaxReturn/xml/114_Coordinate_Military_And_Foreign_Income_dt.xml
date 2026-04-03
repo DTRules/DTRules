@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize coordination of military and foreign income</action_description>
+<action_dsl>Initialize coordination of military and foreign income</action_dsl>
 <action_postfix>
 &quot;Coordinating Military Combat Zone and Foreign Earned Income Exclusions&quot; job.audit_trail swap addto
 </action_postfix>
@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Military with combat zone AND foreign earned income</condition_comment>
-<condition_description>Military with combat zone AND foreign earned income</condition_description>
+<condition_dsl>Military with combat zone AND foreign earned income</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -34,7 +34,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Apply both exclusions (no double benefit)</action_comment>
-<action_description>Apply both exclusions (no double benefit)</action_description>
+<action_dsl>Apply both exclusions (no double benefit)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -43,7 +43,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No coordination needed</action_comment>
-<action_description>No coordination needed</action_description>
+<action_dsl>No coordination needed</action_dsl>
 <action_postfix>
 
 </action_postfix>

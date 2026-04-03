@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Log kiddie tax calculation start</action_description>
+<action_dsl>Log kiddie tax calculation start</action_dsl>
 <action_postfix>
 &quot;KIDDIE TAX CALCULATION (Form 8615)&quot; job.audit_trail swap addto
 </action_postfix>
@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always process kiddie tax for all dependents</condition_comment>
-<condition_description>Always process kiddie tax for all dependents</condition_description>
+<condition_dsl>Always process kiddie tax for all dependents</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -34,7 +34,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Process kiddie tax for each dependent</action_comment>
-<action_description>Process kiddie tax for each dependent</action_description>
+<action_dsl>Process kiddie tax for each dependent</action_dsl>
 <action_postfix>
 
 </action_postfix>

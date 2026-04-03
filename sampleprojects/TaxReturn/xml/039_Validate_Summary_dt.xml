@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>All validations passed</condition_comment>
-<condition_description>All validations passed</condition_description>
+<condition_dsl>All validations passed</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>All tests passed</action_comment>
-<action_description>All tests passed</action_description>
+<action_dsl>All tests passed</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Some tests failed</action_comment>
-<action_description>Some tests failed</action_description>
+<action_dsl>Some tests failed</action_dsl>
 <action_postfix>
 
 </action_postfix>

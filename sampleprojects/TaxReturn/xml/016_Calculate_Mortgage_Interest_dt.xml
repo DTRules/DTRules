@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has mortgage interest</condition_comment>
-<condition_description>Has mortgage interest</condition_description>
+<condition_dsl>Has mortgage interest</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -28,7 +28,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Mortgage balance within limit</condition_comment>
-<condition_description>Mortgage balance within limit</condition_description>
+<condition_dsl>Mortgage balance within limit</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -40,7 +40,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Full mortgage interest deduction</action_comment>
-<action_description>Full mortgage interest deduction</action_description>
+<action_dsl>Full mortgage interest deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -49,7 +49,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Limited mortgage interest deduction</action_comment>
-<action_description>Limited mortgage interest deduction</action_description>
+<action_dsl>Limited mortgage interest deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>

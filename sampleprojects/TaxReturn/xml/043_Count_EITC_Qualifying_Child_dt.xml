@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has child relationship</condition_comment>
-<condition_description>Has child relationship</condition_description>
+<condition_dsl>Has child relationship</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -27,7 +27,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets age test</condition_comment>
-<condition_description>Meets age test</condition_description>
+<condition_dsl>Meets age test</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -37,7 +37,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Meets residency test</condition_comment>
-<condition_description>Meets residency test</condition_description>
+<condition_dsl>Meets residency test</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -49,7 +49,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Increment counter</action_comment>
-<action_description>Increment counter</action_description>
+<action_dsl>Increment counter</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -58,7 +58,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Skip non-qualifying</action_comment>
-<action_description>Skip non-qualifying</action_description>
+<action_dsl>Skip non-qualifying</action_dsl>
 <action_postfix>
 
 </action_postfix>

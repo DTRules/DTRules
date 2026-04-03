@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Tax amount &lt;= $20,000; Qualifies for tier 1 rebate (90%)</condition_comment>
-<condition_description>Tax amount &lt;= $20,000; Qualifies for tier 1 rebate (90%)</condition_description>
+<condition_dsl>Tax amount &lt;= $20,000; Qualifies for tier 1 rebate (90%)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -27,7 +27,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Tax amount &gt; $20,000 and &lt;= $100,000; Qualifies for tier 2 rebate (70% on excess)</condition_comment>
-<condition_description>Tax amount &gt; $20,000 and &lt;= $100,000; Qualifies for tier 2 rebate (70% on excess)</condition_description>
+<condition_dsl>Tax amount &gt; $20,000 and &lt;= $100,000; Qualifies for tier 2 rebate (70% on excess)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -37,7 +37,7 @@
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Tax amount &gt; $100,000; Qualifies for tier 3 rebate (50% on excess over $100k)</condition_comment>
-<condition_description>Tax amount &gt; $100,000; Qualifies for tier 3 rebate (50% on excess over $100k)</condition_description>
+<condition_dsl>Tax amount &gt; $100,000; Qualifies for tier 3 rebate (50% on excess over $100k)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -49,7 +49,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Bona fide resident with tax $20k-$100k - tiered rebate</action_comment>
-<action_description>Bona fide resident with tax $20k-$100k - tiered rebate</action_description>
+<action_dsl>Bona fide resident with tax $20k-$100k - tiered rebate</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -57,7 +57,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Bona fide resident with tax &gt; $100k - three-tier rebate</action_comment>
-<action_description>Bona fide resident with tax &gt; $100k - three-tier rebate</action_description>
+<action_dsl>Bona fide resident with tax &gt; $100k - three-tier rebate</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -65,7 +65,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Non-resident - requires Form 5074 for allocation</action_comment>
-<action_description>Non-resident - requires Form 5074 for allocation</action_description>
+<action_dsl>Non-resident - requires Form 5074 for allocation</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -104,26 +104,26 @@ type AttributeFieldsXML struct {
 
 // InitialActionXML represents an initial action.
 type InitialActionXML struct {
-	Description string `xml:"action_description"`
-	Postfix     string `xml:"action_postfix"`
+	DSL     string `xml:"initial_action_dsl"`
+	Postfix string `xml:"action_postfix"`
 }
 
 // ConditionXML represents a condition row with its column values.
 type ConditionXML struct {
-	Number      string           `xml:"condition_number"`
-	Comment     string           `xml:"condition_comment"`
-	Description string           `xml:"condition_description"`
-	Postfix     string           `xml:"condition_postfix"`
-	Columns     []ColumnValueXML `xml:"condition_column"`
+	Number  string           `xml:"condition_number"`
+	Comment string           `xml:"condition_comment"`
+	DSL     string           `xml:"condition_dsl"`
+	Postfix string           `xml:"condition_postfix"`
+	Columns []ColumnValueXML `xml:"condition_column"`
 }
 
 // ActionXML represents an action row with its column values.
 type ActionXML struct {
-	Number      string           `xml:"action_number"`
-	Comment     string           `xml:"action_comment"`
-	Description string           `xml:"action_description"`
-	Postfix     string           `xml:"action_postfix"`
-	Columns     []ColumnValueXML `xml:"action_column"`
+	Number  string           `xml:"action_number"`
+	Comment string           `xml:"action_comment"`
+	DSL     string           `xml:"action_dsl"`
+	Postfix string           `xml:"action_postfix"`
+	Columns []ColumnValueXML `xml:"action_column"`
 }
 
 // ColumnValueXML represents a column value in conditions or actions.
@@ -309,7 +309,7 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 	f.WriteString("<initial_actions>\n")
 	for _, action := range table.InitialActions {
 		f.WriteString("<initial_action>\n")
-		f.WriteString(fmt.Sprintf("<action_description>%s</action_description>\n", xmlEscape(action.Description)))
+		f.WriteString(fmt.Sprintf("<initial_action_dsl>%s</initial_action_dsl>\n", xmlEscape(action.DSL)))
 		f.WriteString(fmt.Sprintf("<action_postfix>\n%s\n</action_postfix>\n", xmlEscape(action.Postfix)))
 		f.WriteString("</initial_action>\n")
 	}
@@ -321,7 +321,7 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 		f.WriteString("<condition_details>\n")
 		f.WriteString(fmt.Sprintf("<condition_number>%s</condition_number>\n", xmlEscape(cond.Number)))
 		f.WriteString(fmt.Sprintf("<condition_comment>%s</condition_comment>\n", xmlEscape(cond.Comment)))
-		f.WriteString(fmt.Sprintf("<condition_description>%s</condition_description>\n", xmlEscape(cond.Description)))
+		f.WriteString(fmt.Sprintf("<condition_dsl>%s</condition_dsl>\n", xmlEscape(cond.DSL)))
 		f.WriteString(fmt.Sprintf("<condition_postfix>\n%s\n</condition_postfix>\n", xmlEscape(cond.Postfix)))
 		for _, col := range cond.Columns {
 			f.WriteString(fmt.Sprintf("<condition_column column_number=\"%d\" column_value=\"%s\"></condition_column>\n",
@@ -337,7 +337,7 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 		f.WriteString("<action_details>\n")
 		f.WriteString(fmt.Sprintf("<action_number>%s</action_number>\n", xmlEscape(action.Number)))
 		f.WriteString(fmt.Sprintf("<action_comment>%s</action_comment>\n", xmlEscape(action.Comment)))
-		f.WriteString(fmt.Sprintf("<action_description>%s</action_description>\n", xmlEscape(action.Description)))
+		f.WriteString(fmt.Sprintf("<action_dsl>%s</action_dsl>\n", xmlEscape(action.DSL)))
 		f.WriteString(fmt.Sprintf("<action_postfix>\n%s\n</action_postfix>\n", xmlEscape(action.Postfix)))
 		for _, col := range action.Columns {
 			f.WriteString(fmt.Sprintf("<action_column column_number=\"%d\" column_value=\"%s\"></action_column>\n",
@@ -496,21 +496,21 @@ func (i *DTImporter) parseDT2ExcelFormat(rows [][]string, table *DecisionTableXM
 			case "initial_actions":
 				if len(row) > 1 && firstCell != "" {
 					action := InitialActionXML{
-						Description: firstCell,
-						Postfix:     strings.TrimSpace(row[1]),
+						DSL:     firstCell,
+						Postfix: strings.TrimSpace(row[1]),
 					}
 					table.InitialActions = append(table.InitialActions, action)
 				}
 
 			case "conditions":
-				// Parse condition row: #, Description, Col1, Col2, ...
+				// Parse condition row: #, DSL, Col1, Col2, ...
 				// Only process rows that start with a number
 				if len(row) > 1 && firstCell != "" {
 					if _, err := strconv.Atoi(firstCell); err == nil {
 						cond := ConditionXML{
-							Number:      firstCell,
-							Comment:     strings.TrimSpace(safeGet(row, 1)),
-							Description: strings.TrimSpace(safeGet(row, 1)), // Use comment as description
+							Number:  firstCell,
+							Comment: strings.TrimSpace(safeGet(row, 1)),
+							DSL:     strings.TrimSpace(safeGet(row, 1)), // Use comment as DSL
 						}
 						// Parse column values - columns start at index 2
 						for col := 2; col < len(row); col++ {
@@ -527,14 +527,14 @@ func (i *DTImporter) parseDT2ExcelFormat(rows [][]string, table *DecisionTableXM
 				}
 
 			case "actions":
-				// Parse action row: #, Description, Col1, Col2, ...
+				// Parse action row: #, DSL, Col1, Col2, ...
 				// Only process rows that start with a number
 				if len(row) > 1 && firstCell != "" {
 					if _, err := strconv.Atoi(firstCell); err == nil {
 						action := ActionXML{
-							Number:      firstCell,
-							Comment:     strings.TrimSpace(safeGet(row, 1)),
-							Description: strings.TrimSpace(safeGet(row, 1)), // Use comment as description
+							Number:  firstCell,
+							Comment: strings.TrimSpace(safeGet(row, 1)),
+							DSL:     strings.TrimSpace(safeGet(row, 1)), // Use comment as DSL
 						}
 						// Parse column values - columns start at index 2
 						for col := 2; col < len(row); col++ {
@@ -662,8 +662,8 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 					num, err := strconv.Atoi(firstCell)
 					if err == nil && num > 0 {
 						action := InitialActionXML{
-							Description: strings.TrimSpace(row[1]),
-							Postfix:     strings.TrimSpace(row[2]),
+							DSL:     strings.TrimSpace(row[1]),
+							Postfix: strings.TrimSpace(row[2]),
 						}
 						table.InitialActions = append(table.InitialActions, action)
 					}
@@ -683,10 +683,10 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 					num, err := strconv.Atoi(firstCell)
 					if err == nil && num > 0 {
 						cond := ConditionXML{
-							Number:      firstCell,
-							Comment:     strings.TrimSpace(safeGet(row, 1)),
-							Description: strings.TrimSpace(safeGet(row, 1)),
-							Postfix:     strings.TrimSpace(safeGet(row, 2)),
+							Number:  firstCell,
+							Comment: strings.TrimSpace(safeGet(row, 1)),
+							DSL:     strings.TrimSpace(safeGet(row, 1)),
+							Postfix: strings.TrimSpace(safeGet(row, 2)),
 						}
 						// Parse column values (columns start at index 3)
 						for col := 3; col < len(row) && col < numCols+3; col++ {
@@ -716,10 +716,10 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 					num, err := strconv.Atoi(firstCell)
 					if err == nil && num > 0 {
 						action := ActionXML{
-							Number:      firstCell,
-							Comment:     strings.TrimSpace(safeGet(row, 1)),
-							Description: strings.TrimSpace(safeGet(row, 1)),
-							Postfix:     strings.TrimSpace(safeGet(row, 2)),
+							Number:  firstCell,
+							Comment: strings.TrimSpace(safeGet(row, 1)),
+							DSL:     strings.TrimSpace(safeGet(row, 1)),
+							Postfix: strings.TrimSpace(safeGet(row, 2)),
 						}
 						// Parse column values (columns start at index 3)
 						for col := 3; col < len(row) && col < numCols+3; col++ {
@@ -836,8 +836,8 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 	// Compile initial actions
 	for idx := range table.InitialActions {
 		action := &table.InitialActions[idx]
-		if action.Description != "" {
-			postfix, err := i.elCompiler.CompileAction(action.Description)
+		if action.DSL != "" {
+			postfix, err := i.elCompiler.CompileAction(action.DSL)
 			if err != nil {
 				errors = append(errors, fmt.Sprintf("initial action %d: %v", idx+1, err))
 				continue
@@ -849,8 +849,8 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 	// Compile conditions
 	for idx := range table.Conditions {
 		cond := &table.Conditions[idx]
-		if cond.Description != "" {
-			postfix, err := i.elCompiler.CompileCondition(cond.Description)
+		if cond.DSL != "" {
+			postfix, err := i.elCompiler.CompileCondition(cond.DSL)
 			if err != nil {
 				errors = append(errors, fmt.Sprintf("condition %s: %v", cond.Number, err))
 				continue
@@ -862,8 +862,8 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 	// Compile actions
 	for idx := range table.Actions {
 		action := &table.Actions[idx]
-		if action.Description != "" {
-			postfix, err := i.elCompiler.CompileAction(action.Description)
+		if action.DSL != "" {
+			postfix, err := i.elCompiler.CompileAction(action.DSL)
 			if err != nil {
 				errors = append(errors, fmt.Sprintf("action %s: %v", action.Number, err))
 				continue

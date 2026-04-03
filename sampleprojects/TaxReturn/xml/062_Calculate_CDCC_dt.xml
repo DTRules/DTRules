@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has 2+ qualifying persons</condition_comment>
-<condition_description>Has 2+ qualifying persons</condition_description>
+<condition_dsl>Has 2+ qualifying persons</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -28,7 +28,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has 1 qualifying person</condition_comment>
-<condition_description>Has 1 qualifying person</condition_description>
+<condition_dsl>Has 1 qualifying person</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -41,7 +41,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -50,7 +50,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -59,7 +59,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -69,7 +69,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>

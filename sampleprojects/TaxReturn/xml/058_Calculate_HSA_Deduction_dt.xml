@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has HSA contribution</condition_comment>
-<condition_description>Has HSA contribution</condition_description>
+<condition_dsl>Has HSA contribution</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -30,7 +30,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Family coverage</condition_comment>
-<condition_description>Family coverage</condition_description>
+<condition_dsl>Family coverage</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -43,7 +43,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Age 55 or over (catchup eligible)</condition_comment>
-<condition_description>Age 55 or over (catchup eligible)</condition_description>
+<condition_dsl>Age 55 or over (catchup eligible)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -58,7 +58,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>HSA deduction - family coverage with catchup</action_comment>
-<action_description>HSA deduction - family coverage with catchup</action_description>
+<action_dsl>HSA deduction - family coverage with catchup</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -67,7 +67,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>HSA deduction - family coverage no catchup</action_comment>
-<action_description>HSA deduction - family coverage no catchup</action_description>
+<action_dsl>HSA deduction - family coverage no catchup</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -76,7 +76,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>HSA deduction - self coverage with catchup</action_comment>
-<action_description>HSA deduction - self coverage with catchup</action_description>
+<action_dsl>HSA deduction - self coverage with catchup</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -85,7 +85,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>HSA deduction - self coverage no catchup</action_comment>
-<action_description>HSA deduction - self coverage no catchup</action_description>
+<action_dsl>HSA deduction - self coverage no catchup</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -94,7 +94,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>No HSA contribution</action_comment>
-<action_description>No HSA contribution</action_description>
+<action_dsl>No HSA contribution</action_dsl>
 <action_postfix>
 
 </action_postfix>

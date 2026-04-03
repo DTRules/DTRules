@@ -40,7 +40,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in DC (office, employees, property)</condition_comment>
-<condition_description>apportionment.has_physical_presence is true and apportionment.state_code == "DC"</condition_description>
+<condition_dsl>apportionment.has_physical_presence is true and apportionment.state_code == "DC"</condition_dsl>
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "DC" streq } over if
 </condition_postfix>
@@ -52,7 +52,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "DC"
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets DC economic nexus threshold</condition_comment>
-<condition_description>apportionment.has_economic_nexus is true and apportionment.state_code == "DC"</condition_description>
+<condition_dsl>apportionment.has_economic_nexus is true and apportionment.state_code == "DC"</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "DC" streq } over if
 </condition_postfix>
@@ -66,7 +66,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DC" st
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus established - filing required</action_comment>
-<action_description>// Physical nexus established - filing required</action_description>
+<action_dsl>// Physical nexus established - filing required</action_dsl>
 <action_postfix>
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
@@ -75,7 +75,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DC" st
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established per Wayfair - filing required</action_comment>
-<action_description>// Economic nexus established per Wayfair - filing required</action_description>
+<action_dsl>// Economic nexus established per Wayfair - filing required</action_dsl>
 <action_postfix>
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
@@ -84,7 +84,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DC" st
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
-<action_description>// No nexus - no filing required; set apportionment.state_tax = 0.0; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_dsl>// No nexus - no filing required; set apportionment.state_tax = 0.0; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef 0.0 cvd /result.dc_minimum_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
@@ -115,7 +115,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DC" st
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to calculate adjustments</condition_comment>
-<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_dsl>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
@@ -128,7 +128,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate DC state additions and subtractions</action_comment>
-<action_description>// Calculate DC state additions and subtractions; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_dsl>// Calculate DC state additions and subtractions; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
@@ -138,7 +138,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments</action_comment>
-<action_description>// No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_dsl>// No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
@@ -169,7 +169,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe tax</condition_comment>
-<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_dsl>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
@@ -181,7 +181,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income > 0.0</condition_description>
+<condition_dsl>apportionment.state_taxable_income > 0.0</condition_dsl>
 <condition_postfix>
 apportionment.state_taxable_income 0.0 f>
 </condition_postfix>
@@ -195,7 +195,7 @@ apportionment.state_taxable_income 0.0 f>
 <action_details>
 <action_number>1</action_number>
 <action_comment>DC flat rate calculation (8.25%)</action_comment>
-<action_description>// DC uses 8.25% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits;</action_description>
+<action_dsl>// DC uses 8.25% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits;</action_dsl>
 <action_postfix>
 apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f> { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef
 </action_postfix>
@@ -205,7 +205,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no tax liability</action_comment>
-<action_description>// No DC nexus - no tax liability; set apportionment.state_tax = 0.0; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_dsl>// No DC nexus - no tax liability; set apportionment.state_tax = 0.0; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef 0.0 cvd /result.dc_minimum_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
@@ -215,7 +215,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_details>
 <action_number>3</action_number>
 <action_comment>Nexus but no taxable income - minimum tax applies</action_comment>
-<action_description>// No income-based tax, but minimum tax still applies; set apportionment.state_tax = 0.0;</action_description>
+<action_dsl>// No income-based tax, but minimum tax still applies; set apportionment.state_tax = 0.0;</action_dsl>
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef
 </action_postfix>
@@ -246,7 +246,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe minimum tax</condition_comment>
-<condition_description>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_description>
+<condition_dsl>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
@@ -258,7 +258,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>DC gross receipts exceed $1 million</condition_comment>
-<condition_description>result.dc_gross_receipts > 1000000.0</condition_description>
+<condition_dsl>result.dc_gross_receipts > 1000000.0</condition_dsl>
 <condition_postfix>
 result.dc_gross_receipts 1000000.0 f>
 </condition_postfix>
@@ -272,7 +272,7 @@ result.dc_gross_receipts 1000000.0 f>
 <action_details>
 <action_number>1</action_number>
 <action_comment>High gross receipts - $1,000 minimum</action_comment>
-<action_description>// Minimum tax: $1,000 for gross receipts > $1M; set result.dc_minimum_tax = 1000.0; set apportionment.state_tax = max(apportionment.state_tax, result.dc_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_description>
+<action_dsl>// Minimum tax: $1,000 for gross receipts > $1M; set result.dc_minimum_tax = 1000.0; set apportionment.state_tax = max(apportionment.state_tax, result.dc_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
 1000.0 cvd /result.dc_minimum_tax xdef apportionment.state_tax result.dc_minimum_tax f> { apportionment.state_tax } { result.dc_minimum_tax } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
@@ -282,7 +282,7 @@ result.dc_gross_receipts 1000000.0 f>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Low gross receipts - $250 minimum</action_comment>
-<action_description>// Minimum tax: $250 for gross receipts <= $1M; set result.dc_minimum_tax = 250.0; set apportionment.state_tax = max(apportionment.state_tax, result.dc_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_description>
+<action_dsl>// Minimum tax: $250 for gross receipts <= $1M; set result.dc_minimum_tax = 250.0; set apportionment.state_tax = max(apportionment.state_tax, result.dc_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
 250.0 cvd /result.dc_minimum_tax xdef apportionment.state_tax result.dc_minimum_tax f> { apportionment.state_tax } { result.dc_minimum_tax } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
@@ -292,7 +292,7 @@ result.dc_gross_receipts 1000000.0 f>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no minimum tax</action_comment>
-<action_description>// No DC nexus - no minimum tax requirement; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_description>
+<action_dsl>// No DC nexus - no minimum tax requirement; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
 0.0 cvd /result.dc_minimum_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>

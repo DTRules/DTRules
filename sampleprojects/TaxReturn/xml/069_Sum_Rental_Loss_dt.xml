@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Is rental property</condition_comment>
-<condition_description>Is rental property</condition_description>
+<condition_dsl>Is rental property</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -27,7 +27,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Property has loss (negative net income)</condition_comment>
-<condition_description>Property has loss (negative net income)</condition_description>
+<condition_dsl>Property has loss (negative net income)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -39,7 +39,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -48,7 +48,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>

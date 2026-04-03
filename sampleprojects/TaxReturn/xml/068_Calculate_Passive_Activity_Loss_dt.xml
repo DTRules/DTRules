@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>set result.pal_allowance = ($25k - phaseout_reduction)</action_description>
+<action_dsl>set result.pal_allowance = ($25k - phaseout_reduction)</action_dsl>
 <action_postfix>
 result.agi constants.rental_loss_phaseout_start f- 0 fmax constants.rental_loss_phaseout_rate f* /result.pal_phaseout_reduction xdef
 constants.rental_loss_allowance result.pal_phaseout_reduction f- 0 fmax /result.pal_reduced_allowance xdef
@@ -26,7 +26,7 @@ result.total_rental_loss result.rental_loss_allowed f- /result.suspended_passive
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has rental losses</condition_comment>
-<condition_description>Has rental losses</condition_description>
+<condition_dsl>Has rental losses</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@ result.total_rental_loss result.rental_loss_allowed f- /result.suspended_passive
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -47,7 +47,7 @@ result.total_rental_loss result.rental_loss_allowed f- /result.suspended_passive
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>

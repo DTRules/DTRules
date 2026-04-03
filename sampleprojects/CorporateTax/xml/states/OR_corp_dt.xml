@@ -24,7 +24,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in OR</condition_comment>
-<condition_description>apportionment.has_physical_presence == true and state_code == 'OR'</condition_description>
+<condition_dsl>apportionment.has_physical_presence == true and state_code == 'OR'</condition_dsl>
 <condition_postfix>
 apportionment.has_physical_presence true eq
 apportionment.state_code "OR" streq
@@ -38,7 +38,7 @@ and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in OR</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true and state_code == 'OR'</condition_description>
+<condition_dsl>apportionment.has_economic_nexus == true and state_code == 'OR'</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.state_code "OR" streq
@@ -54,7 +54,7 @@ and
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus - filing required</action_comment>
-<action_description>Physical nexus established - filing required. Apportionment will be calculated by tables 7000-7500</action_description>
+<action_dsl>Physical nexus established - filing required. Apportionment will be calculated by tables 7000-7500</action_dsl>
 <action_postfix>
 // Physical nexus established - filing required
 </action_postfix>
@@ -64,7 +64,7 @@ and
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus - filing required; Economic nexus established per Wayfair - filing required. OR threshold: $750,000 in sales</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Economic nexus established per Wayfair - filing required
 </action_postfix>
@@ -74,7 +74,7 @@ and
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required; No nexus - no filing required</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // No nexus - no filing required
 apportionment.state_tax 0.0 xdef
@@ -132,7 +132,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus; Must have nexus to calculate adjustments</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
@@ -147,7 +147,7 @@ or
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate OR state additions and subtractions; Calculate OR state additions and subtractions to federal taxable income</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Calculate OR state additions and subtractions
 apportionment.state_additions 0.0 xdef
@@ -159,7 +159,7 @@ apportionment.state_subtractions 0.0 xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments; No nexus - no state adjustments calculated</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // No nexus - no state adjustments
 apportionment.state_additions 0.0 xdef
@@ -210,7 +210,7 @@ apportionment.state_subtractions 0.0 xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus</condition_comment>
-<condition_description>Must have nexus to owe tax</condition_description>
+<condition_dsl>Must have nexus to owe tax</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
@@ -225,7 +225,7 @@ or
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>Has positive state taxable income</condition_description>
+<condition_dsl>Has positive state taxable income</condition_dsl>
 <condition_postfix>
 apportionment.state_taxable_income 0 gt
 </condition_postfix>
@@ -238,7 +238,7 @@ apportionment.state_taxable_income 0 gt
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Is financial institution; Is financial institution subject to 7.6% rate</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.or_is_financial_institution true eq
 </condition_postfix>
@@ -253,7 +253,7 @@ result.or_is_financial_institution true eq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate OR tax for financial institutions (7.6% rate); Financial institutions use 7.6% rate instead of 6.6%</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Financial institutions use 7.6% rate
 apportionment.state_tax apportionment.state_taxable_income result.or_financial_institution_rate mul xdef
@@ -272,7 +272,7 @@ apportionment.state_refund_or_owed apportionment.state_payments apportionment.st
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate OR tax for regular corporations (6.6% rate); Regular corporations use 6.6% flat rate</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Regular corporations use 6.6% flat rate
 apportionment.state_tax apportionment.state_taxable_income apportionment.state_tax_rate mul xdef
@@ -291,7 +291,7 @@ apportionment.state_refund_or_owed apportionment.state_payments apportionment.st
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no tax liability; No nexus - no tax liability</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // No nexus - no tax liability
 apportionment.state_tax 0.0 xdef
@@ -304,7 +304,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <action_details>
 <action_number>4</action_number>
 <action_comment>Nexus but no taxable income (still owe minimum tax!); No excise tax, but MINIMUM TAX STILL APPLIES</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Nexus but no taxable income - minimum tax still applies
 // Minimum tax calculated by separate table

@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
-<action_description>No military retirement pay - no exclusion</action_description>
+<action_dsl>No military retirement pay - no exclusion</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -45,7 +45,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Taxable income in bracket 2; SC taxable income over $3,560 and under or equal to $17,830</condition_comment>
-<condition_description>Taxable income in bracket 2; SC taxable income over $3,560 and under or equal to $17,830</condition_description>
+<condition_dsl>Taxable income in bracket 2; SC taxable income over $3,560 and under or equal to $17,830</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -53,7 +53,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Taxable income in bracket 3</condition_comment>
-<condition_description>Taxable income in bracket 3</condition_description>
+<condition_dsl>Taxable income in bracket 3</condition_dsl>
 <condition_postfix>
 SC taxable income over $17,830
 </condition_postfix>
@@ -63,7 +63,7 @@ SC taxable income over $17,830
 <action_details>
 <action_number>2</action_number>
 <action_comment>Bracket 2 tax (3%)</action_comment>
-<action_description>Bracket 2 tax (3%)</action_description>
+<action_dsl>Bracket 2 tax (3%)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -71,7 +71,7 @@ SC taxable income over $17,830
 <action_details>
 <action_number>3</action_number>
 <action_comment>Bracket 3 tax (6%)</action_comment>
-<action_description>Bracket 3 tax (6%)</action_description>
+<action_dsl>Bracket 3 tax (6%)</action_dsl>
 <action_postfix>
 
 </action_postfix>

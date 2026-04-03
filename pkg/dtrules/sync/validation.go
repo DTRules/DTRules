@@ -281,8 +281,9 @@ func validateTable(table *dtTableXML) TableValidationResult {
 	}
 
 	// Check contexts
-	for _, ctx := range table.Contexts.Contexts {
-		if hasContent(ctx.Description) {
+	for i := range table.Contexts.Contexts {
+		ctx := &table.Contexts.Contexts[i]
+		if hasContent(ctx.GetDSL()) {
 			result.HasELContexts = true
 		}
 		if hasContent(ctx.Postfix) {
@@ -291,8 +292,9 @@ func validateTable(table *dtTableXML) TableValidationResult {
 	}
 
 	// Check conditions
-	for _, cond := range table.Conditions.Conditions {
-		if hasContent(cond.Description) {
+	for i := range table.Conditions.Conditions {
+		cond := &table.Conditions.Conditions[i]
+		if hasContent(cond.GetDSL()) {
 			result.HasELConditions = true
 		}
 		if hasContent(cond.Postfix) {
@@ -301,8 +303,9 @@ func validateTable(table *dtTableXML) TableValidationResult {
 	}
 
 	// Check actions
-	for _, action := range table.Actions.Actions {
-		if hasContent(action.Description) {
+	for i := range table.Actions.Actions {
+		action := &table.Actions.Actions[i]
+		if hasContent(action.GetDSL()) {
 			result.HasELActions = true
 		}
 		if hasContent(action.Postfix) {
@@ -311,8 +314,9 @@ func validateTable(table *dtTableXML) TableValidationResult {
 	}
 
 	// Check initial actions
-	for _, action := range table.InitialActions.Actions {
-		if hasContent(action.Description) {
+	for i := range table.InitialActions.Actions {
+		action := &table.InitialActions.Actions[i]
+		if hasContent(action.GetDSL()) {
 			result.HasELActions = true
 		}
 		if hasContent(action.Postfix) {
@@ -368,7 +372,15 @@ type dtContextsXML struct {
 
 type dtContextDetailXML struct {
 	Description string `xml:"context_description"`
+	DSL         string `xml:"context_dsl"`
 	Postfix     string `xml:"context_postfix"`
+}
+
+func (c *dtContextDetailXML) GetDSL() string {
+	if c.DSL != "" {
+		return c.DSL
+	}
+	return c.Description
 }
 
 type dtInitialActionsXML struct {
@@ -377,7 +389,15 @@ type dtInitialActionsXML struct {
 
 type dtInitialActionXML struct {
 	Description string `xml:"initial_action_description"`
+	DSL         string `xml:"initial_action_dsl"`
 	Postfix     string `xml:"initial_action_postfix"`
+}
+
+func (a *dtInitialActionXML) GetDSL() string {
+	if a.DSL != "" {
+		return a.DSL
+	}
+	return a.Description
 }
 
 type dtConditionsXML struct {
@@ -386,7 +406,15 @@ type dtConditionsXML struct {
 
 type dtConditionDetailXML struct {
 	Description string `xml:"condition_description"`
+	DSL         string `xml:"condition_dsl"`
 	Postfix     string `xml:"condition_postfix"`
+}
+
+func (c *dtConditionDetailXML) GetDSL() string {
+	if c.DSL != "" {
+		return c.DSL
+	}
+	return c.Description
 }
 
 type dtActionsXML struct {
@@ -395,7 +423,15 @@ type dtActionsXML struct {
 
 type dtActionDetailXML struct {
 	Description string `xml:"action_description"`
+	DSL         string `xml:"action_dsl"`
 	Postfix     string `xml:"action_postfix"`
+}
+
+func (a *dtActionDetailXML) GetDSL() string {
+	if a.DSL != "" {
+		return a.DSL
+	}
+	return a.Description
 }
 
 // parseDTXML parses a decision table XML file.

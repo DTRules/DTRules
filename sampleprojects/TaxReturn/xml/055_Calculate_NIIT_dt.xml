@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>set result.net_investment_income = sum of investment income</action_description>
+<action_dsl>set result.net_investment_income = sum of investment income</action_dsl>
 <action_postfix>
 result.total_other_income result.total_long_term_gains f+ result.total_short_term_gains f+ result.total_rental_income f+ result.total_qualified_dividends f+ /result.net_investment_income xdef
 result.agi /result.magi_for_niit xdef
@@ -27,7 +27,7 @@ result.agi /result.magi_for_niit xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has NII</condition_comment>
-<condition_description>Has NII</condition_description>
+<condition_dsl>Has NII</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -42,7 +42,7 @@ result.agi /result.magi_for_niit xdef
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_description>Married Filing Jointly</condition_description>
+<condition_dsl>Married Filing Jointly</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -57,7 +57,7 @@ result.agi /result.magi_for_niit xdef
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Married Filing Separately</condition_comment>
-<condition_description>Married Filing Separately</condition_description>
+<condition_dsl>Married Filing Separately</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -72,7 +72,7 @@ result.agi /result.magi_for_niit xdef
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>MAGI exceeds MFJ threshold ($250k)</condition_comment>
-<condition_description>MAGI exceeds MFJ threshold ($250k)</condition_description>
+<condition_dsl>MAGI exceeds MFJ threshold ($250k)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -87,7 +87,7 @@ result.agi /result.magi_for_niit xdef
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>MAGI exceeds MFS threshold ($125k)</condition_comment>
-<condition_description>MAGI exceeds MFS threshold ($125k)</condition_description>
+<condition_dsl>MAGI exceeds MFS threshold ($125k)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -102,7 +102,7 @@ result.agi /result.magi_for_niit xdef
 <condition_details>
 <condition_number>6</condition_number>
 <condition_comment>MAGI exceeds Single threshold ($200k)</condition_comment>
-<condition_description>MAGI exceeds Single threshold ($200k)</condition_description>
+<condition_dsl>MAGI exceeds Single threshold ($200k)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -119,7 +119,7 @@ result.agi /result.magi_for_niit xdef
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate NIIT for MFJ</action_comment>
-<action_description>Calculate NIIT for MFJ</action_description>
+<action_dsl>Calculate NIIT for MFJ</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -128,7 +128,7 @@ result.agi /result.magi_for_niit xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate NIIT for MFS</action_comment>
-<action_description>Calculate NIIT for MFS</action_description>
+<action_dsl>Calculate NIIT for MFS</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -137,7 +137,7 @@ result.agi /result.magi_for_niit xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate NIIT for Single</action_comment>
-<action_description>Calculate NIIT for Single</action_description>
+<action_dsl>Calculate NIIT for Single</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -146,7 +146,7 @@ result.agi /result.magi_for_niit xdef
 <action_details>
 <action_number>4</action_number>
 <action_comment>No NIIT - below threshold</action_comment>
-<action_description>No NIIT - below threshold</action_description>
+<action_dsl>No NIIT - below threshold</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -157,7 +157,7 @@ result.agi /result.magi_for_niit xdef
 <action_details>
 <action_number>5</action_number>
 <action_comment>No NII</action_comment>
-<action_description>No NII</action_description>
+<action_dsl>No NII</action_dsl>
 <action_postfix>
 
 </action_postfix>

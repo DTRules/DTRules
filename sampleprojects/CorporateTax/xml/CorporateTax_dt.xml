@@ -1060,7 +1060,7 @@
 <context_details>
 <context_number>1</context_number>
 <context_comment>Add a new result entity to the context of this table</context_comment>
-<context_description>add a new result entity to the context of this table</context_description>
+<context_dsl>add a new result entity to the context of this table</context_dsl>
 <context_postfix>
 /result createentity entitypush
 </context_postfix>
@@ -1068,7 +1068,7 @@
 </contexts>
 <initial_actions>
 <initial_action>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.21 cvd /result.federal_tax_rate xdef
 "Corporate Tax Calculation Started - Form 1120" result.audit_trail swap addto
@@ -1079,7 +1079,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always execute full tax calculation</condition_comment>
-<condition_description>true</condition_description>
+<condition_dsl>true</condition_dsl>
 <condition_postfix>
 true
 </condition_postfix>
@@ -1090,7 +1090,7 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Net Receipts (Form 1120 Line 1c)</action_comment>
-<action_description>perform Calculate_Net_Receipts;</action_description>
+<action_dsl>perform Calculate_Net_Receipts;</action_dsl>
 <action_postfix>
 Calculate_Net_Receipts
 </action_postfix>
@@ -1099,7 +1099,7 @@ Calculate_Net_Receipts
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate Gross Profit (Form 1120 Line 3)</action_comment>
-<action_description>perform Calculate_Gross_Profit;</action_description>
+<action_dsl>perform Calculate_Gross_Profit;</action_dsl>
 <action_postfix>
 Calculate_Gross_Profit
 </action_postfix>
@@ -1108,7 +1108,7 @@ Calculate_Gross_Profit
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate Total Income (Form 1120 Line 11)</action_comment>
-<action_description>perform Calculate_Total_Income;</action_description>
+<action_dsl>perform Calculate_Total_Income;</action_dsl>
 <action_postfix>
 Calculate_Total_Income
 </action_postfix>
@@ -1117,7 +1117,7 @@ Calculate_Total_Income
 <action_details>
 <action_number>4</action_number>
 <action_comment>Aggregate Depreciation (Form 4562)</action_comment>
-<action_description>perform Aggregate_Depreciation;</action_description>
+<action_dsl>perform Aggregate_Depreciation;</action_dsl>
 <action_postfix>
 Aggregate_Depreciation
 </action_postfix>
@@ -1126,7 +1126,7 @@ Aggregate_Depreciation
 <action_details>
 <action_number>5</action_number>
 <action_comment>Calculate Compensation Deduction (Form 1120 Line 12)</action_comment>
-<action_description>perform Calculate_Compensation_Deduction;</action_description>
+<action_dsl>perform Calculate_Compensation_Deduction;</action_dsl>
 <action_postfix>
 Calculate_Compensation_Deduction
 </action_postfix>
@@ -1135,7 +1135,7 @@ Calculate_Compensation_Deduction
 <action_details>
 <action_number>6</action_number>
 <action_comment>Calculate Interest Deduction with IRC 163(j) Limitation (Form 1120 Line 18)</action_comment>
-<action_description>perform Calculate_Interest_Deduction;</action_description>
+<action_dsl>perform Calculate_Interest_Deduction;</action_dsl>
 <action_postfix>
 Calculate_Interest_Deduction
 </action_postfix>
@@ -1144,7 +1144,7 @@ Calculate_Interest_Deduction
 <action_details>
 <action_number>7</action_number>
 <action_comment>Calculate Charitable Contributions with 10% Limitation (Form 1120 Line 19)</action_comment>
-<action_description>perform Calculate_Charitable_Contributions;</action_description>
+<action_dsl>perform Calculate_Charitable_Contributions;</action_dsl>
 <action_postfix>
 Calculate_Charitable_Contributions
 </action_postfix>
@@ -1153,7 +1153,7 @@ Calculate_Charitable_Contributions
 <action_details>
 <action_number>8</action_number>
 <action_comment>Calculate Total Deductions (Form 1120 Line 27)</action_comment>
-<action_description>perform Calculate_Total_Deductions;</action_description>
+<action_dsl>perform Calculate_Total_Deductions;</action_dsl>
 <action_postfix>
 Calculate_Total_Deductions
 </action_postfix>
@@ -1162,7 +1162,7 @@ Calculate_Total_Deductions
 <action_details>
 <action_number>9</action_number>
 <action_comment>Calculate Taxable Income (Form 1120 Line 28)</action_comment>
-<action_description>perform Calculate_Taxable_Income;</action_description>
+<action_dsl>perform Calculate_Taxable_Income;</action_dsl>
 <action_postfix>
 Calculate_Taxable_Income
 </action_postfix>
@@ -1171,7 +1171,7 @@ Calculate_Taxable_Income
 <action_details>
 <action_number>10</action_number>
 <action_comment>Apply Corporate Tax Rate (Schedule J - 21% flat rate)</action_comment>
-<action_description>perform Apply_Corporate_Tax_Rate;</action_description>
+<action_dsl>perform Apply_Corporate_Tax_Rate;</action_dsl>
 <action_postfix>
 Apply_Corporate_Tax_Rate
 </action_postfix>
@@ -1180,7 +1180,7 @@ Apply_Corporate_Tax_Rate
 <action_details>
 <action_number>11</action_number>
 <action_comment>Calculate R&amp;D Credit (Form 6765)</action_comment>
-<action_description>perform Calculate_RD_Credit;</action_description>
+<action_dsl>perform Calculate_RD_Credit;</action_dsl>
 <action_postfix>
 Calculate_RD_Credit
 </action_postfix>
@@ -1189,7 +1189,7 @@ Calculate_RD_Credit
 <action_details>
 <action_number>12</action_number>
 <action_comment>Calculate General Business Credit (Form 3800)</action_comment>
-<action_description>perform Calculate_General_Business_Credit;</action_description>
+<action_dsl>perform Calculate_General_Business_Credit;</action_dsl>
 <action_postfix>
 Calculate_General_Business_Credit
 </action_postfix>
@@ -1198,7 +1198,7 @@ Calculate_General_Business_Credit
 <action_details>
 <action_number>13</action_number>
 <action_comment>Calculate Refund or Amount Owed (Form 1120 Lines 32-35)</action_comment>
-<action_description>perform Calculate_Refund_Or_Owed;</action_description>
+<action_dsl>perform Calculate_Refund_Or_Owed;</action_dsl>
 <action_postfix>
 Calculate_Refund_Or_Owed
 </action_postfix>
@@ -1207,7 +1207,7 @@ Calculate_Refund_Or_Owed
 <action_details>
 <action_number>14</action_number>
 <action_comment>Log completion</action_comment>
-<action_description>add "Corporate Tax Calculation Complete" to result.audit_trail;</action_description>
+<action_dsl>add "Corporate Tax Calculation Complete" to result.audit_trail;</action_dsl>
 <action_postfix>
 "Corporate Tax Calculation Complete - Form 1120" result.audit_trail swap addto
 </action_postfix>

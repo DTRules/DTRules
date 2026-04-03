@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>set result.medicare_wages = sum of taxpayer wages</action_description>
+<action_dsl>set result.medicare_wages = sum of taxpayer wages</action_dsl>
 <action_postfix>
 result.total_w2_wages result.total_se_income f+ /result.wages_for_additional_medicare xdef
 &quot;ADDITIONAL MEDICARE TAX (Form 8959, IRC 3101(b)(2))&quot; job.audit_trail swap addto
@@ -25,7 +25,7 @@ result.total_w2_wages result.total_se_income f+ /result.wages_for_additional_med
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_description>Married Filing Jointly</condition_description>
+<condition_dsl>Married Filing Jointly</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -39,7 +39,7 @@ result.total_w2_wages result.total_se_income f+ /result.wages_for_additional_med
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married Filing Separately</condition_comment>
-<condition_description>Married Filing Separately</condition_description>
+<condition_dsl>Married Filing Separately</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -53,7 +53,7 @@ result.total_w2_wages result.total_se_income f+ /result.wages_for_additional_med
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Wages exceed MFJ threshold ($250k)</condition_comment>
-<condition_description>Wages exceed MFJ threshold ($250k)</condition_description>
+<condition_dsl>Wages exceed MFJ threshold ($250k)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -67,7 +67,7 @@ result.total_w2_wages result.total_se_income f+ /result.wages_for_additional_med
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Wages exceed MFS threshold ($125k)</condition_comment>
-<condition_description>Wages exceed MFS threshold ($125k)</condition_description>
+<condition_dsl>Wages exceed MFS threshold ($125k)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -81,7 +81,7 @@ result.total_w2_wages result.total_se_income f+ /result.wages_for_additional_med
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>Wages exceed Single threshold ($200k)</condition_comment>
-<condition_description>Wages exceed Single threshold ($200k)</condition_description>
+<condition_dsl>Wages exceed Single threshold ($200k)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -97,7 +97,7 @@ result.total_w2_wages result.total_se_income f+ /result.wages_for_additional_med
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Additional Medicare Tax for MFJ</action_comment>
-<action_description>Calculate Additional Medicare Tax for MFJ</action_description>
+<action_dsl>Calculate Additional Medicare Tax for MFJ</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -106,7 +106,7 @@ result.total_w2_wages result.total_se_income f+ /result.wages_for_additional_med
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate Additional Medicare Tax for MFS</action_comment>
-<action_description>Calculate Additional Medicare Tax for MFS</action_description>
+<action_dsl>Calculate Additional Medicare Tax for MFS</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -115,7 +115,7 @@ result.total_w2_wages result.total_se_income f+ /result.wages_for_additional_med
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate Additional Medicare Tax for Single</action_comment>
-<action_description>Calculate Additional Medicare Tax for Single</action_description>
+<action_dsl>Calculate Additional Medicare Tax for Single</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -124,7 +124,7 @@ result.total_w2_wages result.total_se_income f+ /result.wages_for_additional_med
 <action_details>
 <action_number>4</action_number>
 <action_comment>No Additional Medicare Tax</action_comment>
-<action_description>No Additional Medicare Tax</action_description>
+<action_dsl>No Additional Medicare Tax</action_dsl>
 <action_postfix>
 
 </action_postfix>

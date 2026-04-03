@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Served in combat zone</condition_comment>
-<condition_description>Served in combat zone</condition_description>
+<condition_dsl>Served in combat zone</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -26,7 +26,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Enlisted rank</condition_comment>
-<condition_description>Enlisted rank</condition_description>
+<condition_dsl>Enlisted rank</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -37,7 +37,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Enlisted - exclude all combat zone pay</action_comment>
-<action_description>Enlisted - exclude all combat zone pay</action_description>
+<action_dsl>Enlisted - exclude all combat zone pay</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -46,7 +46,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Officer - limited exclusion</action_comment>
-<action_description>Officer - limited exclusion</action_description>
+<action_dsl>Officer - limited exclusion</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -55,7 +55,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>No combat zone service</action_comment>
-<action_description>No combat zone service</action_description>
+<action_dsl>No combat zone service</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -130,8 +130,17 @@ type DTContexts struct {
 type DTContextDetail struct {
 	Number      int    `xml:"context_number" json:"context_number"`
 	Comment     string `xml:"context_comment" json:"context_comment,omitempty"`
+	DSL         string `xml:"context_dsl" json:"context_dsl,omitempty"`
 	Description string `xml:"context_description" json:"context_description"`
 	Postfix     string `xml:"context_postfix" json:"context_postfix"`
+}
+
+// GetDSL returns the DSL expression, preferring DSL over Description for backward compatibility.
+func (c *DTContextDetail) GetDSL() string {
+	if c.DSL != "" {
+		return c.DSL
+	}
+	return c.Description
 }
 
 // DTInitialActions represents the initial actions section
@@ -143,8 +152,17 @@ type DTInitialActions struct {
 type DTInitialAction struct {
 	Number      int    `xml:"action_number" json:"action_number"`
 	Comment     string `xml:"action_comment" json:"action_comment,omitempty"`
+	DSL         string `xml:"initial_action_dsl" json:"initial_action_dsl,omitempty"`
 	Description string `xml:"action_description" json:"action_description"`
 	Postfix     string `xml:"action_postfix" json:"action_postfix"`
+}
+
+// GetDSL returns the DSL expression, preferring DSL over Description for backward compatibility.
+func (a *DTInitialAction) GetDSL() string {
+	if a.DSL != "" {
+		return a.DSL
+	}
+	return a.Description
 }
 
 // DTConditions represents the conditions section
@@ -157,9 +175,18 @@ type DTConditionDetail struct {
 	Number      int              `xml:"condition_number" json:"condition_number"`
 	Comment     string           `xml:"condition_comment" json:"condition_comment,omitempty"`
 	Requirement string           `xml:"condition_requirement" json:"condition_requirement,omitempty"`
+	DSL         string           `xml:"condition_dsl" json:"condition_dsl,omitempty"`
 	Description string           `xml:"condition_description" json:"condition_description"`
 	Postfix     string           `xml:"condition_postfix" json:"condition_postfix"`
 	Columns     []DTConditionCol `xml:"condition_column" json:"condition_columns"`
+}
+
+// GetDSL returns the DSL expression, preferring DSL over Description for backward compatibility.
+func (c *DTConditionDetail) GetDSL() string {
+	if c.DSL != "" {
+		return c.DSL
+	}
+	return c.Description
 }
 
 // DTConditionCol represents a condition column entry
@@ -178,9 +205,18 @@ type DTActionDetail struct {
 	Number      int           `xml:"action_number" json:"action_number"`
 	Comment     string        `xml:"action_comment" json:"action_comment,omitempty"`
 	Requirement string        `xml:"initial_action_requirement" json:"action_requirement,omitempty"`
+	DSL         string        `xml:"action_dsl" json:"action_dsl,omitempty"`
 	Description string        `xml:"action_description" json:"action_description"`
 	Postfix     string        `xml:"action_postfix" json:"action_postfix"`
 	Columns     []DTActionCol `xml:"action_column" json:"action_columns"`
+}
+
+// GetDSL returns the DSL expression, preferring DSL over Description for backward compatibility.
+func (a *DTActionDetail) GetDSL() string {
+	if a.DSL != "" {
+		return a.DSL
+	}
+	return a.Description
 }
 
 // DTActionCol represents an action column entry
@@ -288,14 +324,15 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	contextsPostfix := make([]string, len(table.Contexts.Contexts))
 	contextsComment := make([]string, len(table.Contexts.Contexts))
 	for i, ctx := range table.Contexts.Contexts {
-		contexts[i] = ctx.Description
+		dsl := ctx.GetDSL()
+		contexts[i] = dsl
 		postfix := strings.TrimSpace(ctx.Postfix)
 
-		// Auto-compile EL description to postfix if postfix is empty
-		if postfix == "" && strings.TrimSpace(ctx.Description) != "" {
-			compiled, err := l.elCompiler.CompileContext(ctx.Description)
+		// Auto-compile EL DSL to postfix if postfix is empty
+		if postfix == "" && strings.TrimSpace(dsl) != "" {
+			compiled, err := l.elCompiler.CompileContext(dsl)
 			if err != nil {
-				return fmt.Errorf("failed to compile EL context %d ('%s'): %w", i+1, ctx.Description, err)
+				return fmt.Errorf("failed to compile EL context %d ('%s'): %w", i+1, dsl, err)
 			}
 			postfix = compiled
 		}
@@ -309,23 +346,24 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	initialActions := make([]string, len(table.InitialActions.Actions))
 	initialActionsPostfix := make([]string, len(table.InitialActions.Actions))
 	for i, action := range table.InitialActions.Actions {
-		initialActions[i] = action.Description
+		dsl := action.GetDSL()
+		initialActions[i] = dsl
 		postfix := strings.TrimSpace(action.Postfix)
 
-		// Auto-compile EL description to postfix if postfix is empty or only comments
-		descTrimmed := strings.TrimSpace(action.Description)
-		if isEmptyOrCommentOnly(postfix) && descTrimmed != "" && !isCommentLine(descTrimmed) {
-			compiled, err := l.elCompiler.CompileAction(action.Description)
+		// Auto-compile EL DSL to postfix if postfix is empty or only comments
+		dslTrimmed := strings.TrimSpace(dsl)
+		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) {
+			compiled, err := l.elCompiler.CompileAction(dsl)
 			if err != nil {
-				// Description is not valid EL - log warning and use no-op as fallback
+				// DSL is not valid EL - log warning and use no-op as fallback
 				log.Printf("Warning: Initial action %d ('%s') is not valid EL, using no-op: %v",
-					i+1, action.Description, err)
+					i+1, dsl, err)
 				postfix = "" // No-op
 			} else {
 				postfix = compiled
 			}
 		}
-		// If description is a comment, postfix stays as-is (could be empty, which is no-op)
+		// If DSL is a comment, postfix stays as-is (could be empty, which is no-op)
 		initialActionsPostfix[i] = postfix
 	}
 	builder.SetInitialActions(initialActions)
@@ -342,23 +380,24 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	conditionTable := make([][]string, numConditions)
 
 	for i, cond := range table.Conditions.Conditions {
-		conditions[i] = cond.Description
+		dsl := cond.GetDSL()
+		conditions[i] = dsl
 		postfix := strings.TrimSpace(cond.Postfix)
 
-		// Auto-compile EL description to postfix if postfix is empty or only comments
-		descTrimmed := strings.TrimSpace(cond.Description)
-		if isEmptyOrCommentOnly(postfix) && descTrimmed != "" && !isCommentLine(descTrimmed) {
-			compiled, err := l.elCompiler.CompileCondition(cond.Description)
+		// Auto-compile EL DSL to postfix if postfix is empty or only comments
+		dslTrimmed := strings.TrimSpace(dsl)
+		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) {
+			compiled, err := l.elCompiler.CompileCondition(dsl)
 			if err != nil {
-				// Description is not valid EL - log warning and use "true always" as fallback
+				// DSL is not valid EL - log warning and use "true always" as fallback
 				log.Printf("Warning: Condition %d ('%s') is not valid EL, using 'always true': %v",
-					i+1, cond.Description, err)
+					i+1, dsl, err)
 				postfix = "true always"
 			} else {
 				postfix = compiled
 			}
-		} else if isEmptyOrCommentOnly(postfix) && isCommentLine(descTrimmed) {
-			// Description is a comment - use "true always" as fallback
+		} else if isEmptyOrCommentOnly(postfix) && isCommentLine(dslTrimmed) {
+			// DSL is a comment - use "true always" as fallback
 			postfix = "true always"
 		}
 		conditionsPostfix[i] = postfix
@@ -389,23 +428,24 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	actionTable := make([][]string, numActions)
 
 	for i, action := range table.Actions.Actions {
-		actions[i] = action.Description
+		dsl := action.GetDSL()
+		actions[i] = dsl
 		postfix := strings.TrimSpace(action.Postfix)
 
-		// Auto-compile EL description to postfix if postfix is empty or only comments
-		descTrimmed := strings.TrimSpace(action.Description)
-		if isEmptyOrCommentOnly(postfix) && descTrimmed != "" && !isCommentLine(descTrimmed) {
-			compiled, err := l.elCompiler.CompileAction(action.Description)
+		// Auto-compile EL DSL to postfix if postfix is empty or only comments
+		dslTrimmed := strings.TrimSpace(dsl)
+		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) {
+			compiled, err := l.elCompiler.CompileAction(dsl)
 			if err != nil {
-				// Description is not valid EL - log warning and use no-op as fallback
+				// DSL is not valid EL - log warning and use no-op as fallback
 				log.Printf("Warning: Action %d ('%s') is not valid EL, using no-op: %v",
-					i+1, action.Description, err)
+					i+1, dsl, err)
 				postfix = "" // No-op
 			} else {
 				postfix = compiled
 			}
 		}
-		// If description is a comment, postfix stays as-is (could be empty, which is no-op)
+		// If DSL is a comment, postfix stays as-is (could be empty, which is no-op)
 		actionsPostfix[i] = postfix
 		actionsComment[i] = action.Comment
 
@@ -838,20 +878,20 @@ func (l *DTLoader) GetErrors() []error {
 	return l.errors
 }
 
-// detectLegacyPostfix checks if a table has hand-coded postfix without EL descriptions.
-// A table is considered legacy if it has postfix but no EL descriptions in
+// detectLegacyPostfix checks if a table has hand-coded postfix without EL DSL.
+// A table is considered legacy if it has postfix but no EL DSL in
 // its conditions, actions, or contexts.
 func (l *DTLoader) detectLegacyPostfix(table *DTTable) bool {
 	hasPostfix := false
-	hasDescription := false
+	hasDSL := false
 
 	// Check conditions
 	for _, cond := range table.Conditions.Conditions {
 		if strings.TrimSpace(cond.Postfix) != "" {
 			hasPostfix = true
 		}
-		if strings.TrimSpace(cond.Description) != "" {
-			hasDescription = true
+		if strings.TrimSpace(cond.GetDSL()) != "" {
+			hasDSL = true
 		}
 	}
 
@@ -860,8 +900,8 @@ func (l *DTLoader) detectLegacyPostfix(table *DTTable) bool {
 		if strings.TrimSpace(action.Postfix) != "" {
 			hasPostfix = true
 		}
-		if strings.TrimSpace(action.Description) != "" {
-			hasDescription = true
+		if strings.TrimSpace(action.GetDSL()) != "" {
+			hasDSL = true
 		}
 	}
 
@@ -870,8 +910,8 @@ func (l *DTLoader) detectLegacyPostfix(table *DTTable) bool {
 		if strings.TrimSpace(action.Postfix) != "" {
 			hasPostfix = true
 		}
-		if strings.TrimSpace(action.Description) != "" {
-			hasDescription = true
+		if strings.TrimSpace(action.GetDSL()) != "" {
+			hasDSL = true
 		}
 	}
 
@@ -880,18 +920,18 @@ func (l *DTLoader) detectLegacyPostfix(table *DTTable) bool {
 		if strings.TrimSpace(ctx.Postfix) != "" {
 			hasPostfix = true
 		}
-		if strings.TrimSpace(ctx.Description) != "" {
-			hasDescription = true
+		if strings.TrimSpace(ctx.GetDSL()) != "" {
+			hasDSL = true
 		}
 	}
 
-	// Legacy: has postfix but no descriptions
-	return hasPostfix && !hasDescription
+	// Legacy: has postfix but no DSL
+	return hasPostfix && !hasDSL
 }
 
 // warnLegacyPostfix logs a warning about a table with hand-coded postfix.
 func (l *DTLoader) warnLegacyPostfix(tableName, filePath string) {
-	log.Printf("WARNING: %s in %s has hand-coded postfix without EL descriptions.", tableName, filePath)
+	log.Printf("WARNING: %s in %s has hand-coded postfix without EL DSL.", tableName, filePath)
 	log.Printf("         All postfix should come from EL compilation. Use 'dtrules sync import' to compile EL.")
 }
 
