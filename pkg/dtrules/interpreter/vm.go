@@ -467,18 +467,23 @@ func (s *DTState) EvaluateBytecodeCondition(bc *dtrules.BytecodeChunk) (bool, er
 }
 
 // EvaluateBytecodeAction executes bytecode for an action.
-// If the action leaves extra values on the stack, they are silently cleaned up.
-// This is appropriate for actions which may have side effects and may not
-// consume all computed values.
+// Actions should not leave extra values on the stack. If the stack is
+// unbalanced after execution, the extra values are cleaned up and an
+// error is returned to signal the problem.
 func (s *DTState) EvaluateBytecodeAction(bc *dtrules.BytecodeChunk) error {
 	initialDepth := s.ValueStackDepth()
 	if err := s.ExecuteBytecode(bc); err != nil {
 		return err
 	}
 
-	// Clean up any extra values left on the stack
-	for s.ValueStackDepth() > initialDepth {
-		s.ValuePop()
+	// Check for unbalanced stack - actions should not leave extra values
+	if s.ValueStackDepth() != initialDepth {
+		// Clean up extra values so the interpreter can continue
+		for s.ValueStackDepth() > initialDepth {
+			s.ValuePop()
+		}
+		return dtrules.NewRulesError("Stack Check Exception", "EvaluateBytecodeAction",
+			"action left extra values on the stack")
 	}
 
 	return nil
