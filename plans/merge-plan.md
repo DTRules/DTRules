@@ -6,7 +6,7 @@
 | Remote | URL | Status |
 |--------|-----|--------|
 | origin | github.com/DTRules/DTRules | Active development |
-| paulsnow | github.com/PaulSnow/DTRules | Legacy (101 commits behind) |
+| paulsnow | github.com/DTRules/DTRules | Legacy (101 commits behind) |
 | eembach | github.com/eembach/DTRules | Contributor fork |
 
 ### Key Finding: PaulSnow/DTRules is NOT a concern
@@ -49,7 +49,7 @@ issue-31-asm-optimization (local HEAD) ───────┴─────�
 
 ### Uncommitted Changes (65+ files)
 The local changes include:
-1. **Import path fix**: `github.com/PaulSnow/DTRules` → `github.com/DTRules/DTRules` (65 Go files)
+1. **Import path fix**: `github.com/DTRules/DTRules` → `github.com/DTRules/DTRules` (65 Go files)
 2. **Documentation updates**: README.md, docs/*.md
 3. **Other modifications**: See `git status` for full list
 

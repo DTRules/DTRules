@@ -48,7 +48,7 @@ This directory contains comprehensive documentation for DTRules. The project has
 ### Java Quick Start
 
 ```bash
-git clone https://github.com/PaulSnow/DTRules.git
+git clone https://github.com/DTRules/DTRules.git
 cd DTRules
 mvn clean install
 ```

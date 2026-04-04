@@ -18,7 +18,7 @@ mvn -version
 
 ```bash
 # Clone the repository
-git clone https://github.com/PaulSnow/DTRules.git
+git clone https://github.com/DTRules/DTRules.git
 cd DTRules
 
 # Build all modules

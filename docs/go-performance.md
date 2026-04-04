@@ -129,7 +129,7 @@ All four optimizations have been implemented and tested:
 ### Using Indexed Operator Lookup
 ```go
 // At initialization
-import "github.com/PaulSnow/DTRules/go/pkg/dtrules/operators"
+import "github.com/DTRules/DTRules/pkg/dtrules/operators"
 
 // Get index once
 addIdx, _ := operators.GetIndex(dtrules.GetRName("+"))
@@ -140,7 +140,7 @@ addOp := operators.GetByIndex(addIdx)
 
 ### Using Value-based Arithmetic
 ```go
-import "github.com/PaulSnow/DTRules/go/pkg/dtrules"
+import "github.com/DTRules/DTRules/pkg/dtrules"
 
 a := dtrules.NewValueInteger(100)
 b := dtrules.NewValueInteger(50)
@@ -158,8 +158,8 @@ s2 := dtrules.GetRString("hello") // Returns same object
 ### Using Bytecode Execution
 ```go
 import (
-    "github.com/PaulSnow/DTRules/go/pkg/dtrules"
-    "github.com/PaulSnow/DTRules/go/pkg/dtrules/compiler"
+    "github.com/DTRules/DTRules/pkg/dtrules"
+    "github.com/DTRules/DTRules/pkg/dtrules/compiler"
 )
 
 // Compile to bytecode
