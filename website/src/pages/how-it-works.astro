@@ -197,7 +197,7 @@ import { Table2, FileText, Code2, Zap, ArrowRight, ArrowDown, Play, CheckCircle 
                 The Excel files are compiled to XML format. This validates all expressions,
                 checks for missing conditions, and generates optimized bytecode.
               </p>
-              <pre class="text-sm bg-background/50 rounded-lg p-4"><code>java -jar compilerutil.jar -compile MyProject.xls</code></pre>
+              <pre class="text-sm bg-background/50 rounded-lg p-4"><code>./dtrules -compile MyProject</code></pre>
             </div>
           </div>
         </div>
@@ -213,15 +213,13 @@ import { Table2, FileText, Code2, Zap, ArrowRight, ArrowDown, Play, CheckCircle 
               4
             </div>
             <div class="flex-1">
-              <h3 class="text-xl font-bold mb-2">Execute with Java or Go Runtime</h3>
+              <h3 class="text-xl font-bold mb-2">Execute with Go Runtime</h3>
               <p class="text-muted-foreground mb-4">
                 Load the XML files into the runtime, provide input data, and execute the decision tables.
                 Get deterministic results with full execution traces.
               </p>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <div class="text-sm font-medium text-blue-400 mb-2">Go</div>
-                  <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>engine := dtrules.NewEngine()
+              <div>
+                <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>engine := dtrules.NewEngine()
 engine.LoadProject("TaxReturn")
 
 rsess := engine.NewSession()
@@ -229,15 +227,6 @@ rsess.MapInput(taxpayerData)
 rsess.Execute("Compute_Tax_Return")
 
 result := rsess.GetOutput()</code></pre>
-                </div>
-                <div>
-                  <div class="text-sm font-medium text-purple-400 mb-2">Java</div>
-                  <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>RuleSession session = engine.newSession();
-session.mapInput(taxpayerData);
-session.execute("Compute_Tax_Return");
-
-EntityState result = session.getState();</code></pre>
-                </div>
               </div>
             </div>
           </div>

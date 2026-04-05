@@ -64,71 +64,7 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
     <li>Quick iteration during development</li>
   </ul>
 
-  <h2>Testing with Java <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span></h2>
-
-  <h3>Basic Test Runner</h3>
-
-  <pre><code>public class TestRules &#123;
-    public static void main(String[] args) throws Exception &#123;
-        String path = System.getProperty("user.dir");
-
-        // Load rules
-        RulesDirectory rd = new RulesDirectory(path, "DTRules.xml");
-        RuleSet rs = rd.getRuleSet("MyRules");
-
-        // Create session
-        IRSession session = rs.newSession();
-
-        // Load test data
-        FileInputStream input = new FileInputStream("testfiles/test1.xml");
-        session.loadXml(input, "mapping");
-        input.close();
-
-        // Execute
-        session.execute("Main");
-
-        // Output results
-        session.printEntityReport(System.out, session.getState(), "results");
-    &#125;
-&#125;</code></pre>
-
-  <h3>JUnit Integration</h3>
-
-  <pre><code>public class RulesTest &#123;
-
-    private RuleSet ruleSet;
-
-    @BeforeEach
-    void setup() throws Exception &#123;
-        String path = System.getProperty("user.dir");
-        RulesDirectory rd = new RulesDirectory(path, "DTRules.xml");
-        ruleSet = rd.getRuleSet("MyRules");
-    &#125;
-
-    @Test
-    void testEligibleCustomer() throws Exception &#123;
-        IRSession session = ruleSet.newSession();
-        session.loadXml(new FileInputStream("testfiles/eligible.xml"), "mapping");
-        session.execute("Determine_Eligibility");
-
-        // Assert results
-        IREntity result = session.getState().find("application");
-        assertTrue((Boolean) result.get("eligible"));
-    &#125;
-
-    @Test
-    void testIneligibleIncome() throws Exception &#123;
-        IRSession session = ruleSet.newSession();
-        session.loadXml(new FileInputStream("testfiles/high_income.xml"), "mapping");
-        session.execute("Determine_Eligibility");
-
-        IREntity result = session.getState().find("application");
-        assertFalse((Boolean) result.get("eligible"));
-        assertEquals("income_too_high", result.get("reason_code"));
-    &#125;
-&#125;</code></pre>
-
-  <h2>Testing with Go <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full">Go</span></h2>
+  <h2>Testing with Go</h2>
 
   <h3>Go Test File</h3>
 

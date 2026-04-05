@@ -17,10 +17,8 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
   <div class="glass rounded-xl p-4 border-l-4 border-purple-500 my-6">
     <p class="mb-0">
       <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full">Go</span>
-      <strong class="ml-2">Go tools only.</strong>
-      The CLI tools on this page are part of the Go implementation. For the legacy Java
-      <code>ImportRuleSets</code> workflow, see
-      <a href="/docs/getting-started/quickstart-java">Quick Start (Java)</a>.
+      <strong class="ml-2">Go CLI tools.</strong>
+      The CLI tools on this page are part of the Go implementation.
     </p>
   </div>
 
@@ -400,11 +398,10 @@ go test ./...</code></pre>
     sync workflow details.
   </p>
 
-  <h2>Legacy Java Format</h2>
+  <h2>Legacy Format</h2>
 
   <p>
-    The original Java <code>ImportRuleSets</code> compiler expected four default columns in
-    decision table spreadsheets:
+    The original compiler expected four default columns in decision table spreadsheets:
   </p>
 
   <pre><code>number | comments | dsl | table</code></pre>
@@ -412,7 +409,7 @@ go test ./...</code></pre>
   <p>
     These map to the row number, a comment field, the DSL expression, and the column values
     respectively. The Go tools understand both the legacy format and the newer formats described
-    above, so existing spreadsheets created for the Java workflow can be imported without changes.
+    above, so existing spreadsheets can be imported without changes.
   </p>
 
   <h2>Troubleshooting</h2>

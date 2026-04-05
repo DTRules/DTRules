@@ -32,10 +32,7 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 │   ├── ChipEligibility_edd.xml
 │   └── ChipEligibility_dt.xml
 ├── testfiles/                     # Test cases
-├── DTRules.xml                    # Configuration
-└── src/main/java/
-    ├── CompileChip.java           # Excel → XML compiler
-    └── TestChip.java              # Test runner</code></pre>
+└── DTRules.xml                    # Configuration</code></pre>
 
   <h2>Entity Data Dictionary</h2>
 
@@ -187,16 +184,6 @@ go build -o dtrules ./cmd/dtrules
 
 # Execute with tracing
 ./dtrules -rules ../sampleprojects/CHIP/xml -entry Main -trace</code></pre>
-
-  <h3>Using Java</h3>
-
-  <pre><code>cd sampleprojects/CHIP
-
-# Compile Excel to XML (if needed)
-mvn exec:java -Dexec.mainClass="com.dtrules.samples.chipeligibility.CompileChip"
-
-# Run test cases
-mvn exec:java -Dexec.mainClass="com.dtrules.samples.chipeligibility.TestChip"</code></pre>
 
   <h2>Test Cases</h2>
 
