@@ -31,7 +31,7 @@ git --version
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/PaulSnow/DTRules.git
+git clone https://github.com/DTRules/DTRules.git
 cd DTRules
 ```
 
