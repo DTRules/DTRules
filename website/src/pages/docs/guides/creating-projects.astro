@@ -13,13 +13,12 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
     calculation system to demonstrate the process.
   </p>
 
-  <div class="glass rounded-xl p-4 border-l-4 border-blue-500 my-6">
+  <div class="glass rounded-xl p-4 border-l-4 border-purple-500 my-6">
     <p class="mb-0">
-      <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span>
-      <strong class="ml-2">This guide uses Java for compilation.</strong>
-      Excel compilation requires the Java implementation. See
-      <a href="/docs/getting-started/choosing-implementation">Choosing an Implementation</a>
-      to understand the full workflow.
+      <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full">Go</span>
+      <strong class="ml-2">This guide uses Go CLI tools.</strong>
+      See <a href="/docs/getting-started/choosing-implementation">Choosing an Implementation</a>
+      for an overview of available tools.
     </p>
   </div>
 
@@ -314,27 +313,14 @@ Description: Apply discount to get final total
 Actions:
   set order.total = order.subtotal - order.discount</code></pre>
 
-  <h2>Compile the Rules <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span></h2>
+  <h2>Compile the Rules</h2>
 
-  <h3>Create the Compiler</h3>
+  <p>Use the Go CLI tools to compile your Excel files to XML:</p>
 
-  <p>Create <code>src/main/java/com/mycompany/CompileMyProject.java</code>:</p>
+  <pre><code>cd /path/to/DTRules/go
+go build -o dtrules ./cmd/dtrules
 
-  <pre><code>package com.mycompany;
-
-import com.dtrules.compiler.Excel2XML;
-
-public class CompileMyProject &#123;
-    public static void main(String[] args) throws Exception &#123;
-        String path = System.getProperty("user.dir");
-        Excel2XML.compile(path, "DTRules.xml", "MyProject");
-        System.out.println("Compilation complete!");
-    &#125;
-&#125;</code></pre>
-
-  <h3>Run the Compiler</h3>
-
-  <pre><code>mvn exec:java -Dexec.mainClass="com.mycompany.CompileMyProject"</code></pre>
+./dtrules -compile ../sampleprojects/MyProject</code></pre>
 
   <p>This generates XML files in the <code>xml/</code> directory.</p>
 
@@ -370,9 +356,9 @@ go build -o dtrules ./cmd/dtrules
 
 ./dtrules -rules ../sampleprojects/MyProject/xml -entry Main -trace</code></pre>
 
-  <h3>Run with Java <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span></h3>
+  <h3>Run with REST API</h3>
 
-  <p>Create a test runner class and execute with Maven.</p>
+  <p>Start the REST API server and send test requests for production-style integration.</p>
 
   <h2>Using the Visual UI</h2>
 

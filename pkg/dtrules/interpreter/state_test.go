@@ -969,10 +969,10 @@ func TestBytecodeActionEvaluation(t *testing.T) {
 		t.Fatalf("EvaluateBytecodeAction failed: %v", err)
 	}
 
-	// Test action that leaves extra values on stack - should be cleaned up
+	// Test action that leaves extra values on stack - should return error
 	bc = dtrules.NewBytecodeChunk()
 	bc.EmitPushConstant(dtrules.NewValueInteger(1))
-	// Don't pop - this value should be cleaned up automatically
+	// Don't pop - this leaves an extra value on the stack
 
 	for state.ValueStackDepth() > 0 {
 		state.ValuePop()
@@ -980,10 +980,10 @@ func TestBytecodeActionEvaluation(t *testing.T) {
 
 	initialDepth := state.ValueStackDepth()
 	err = state.EvaluateBytecodeAction(bc)
-	if err != nil {
-		t.Errorf("EvaluateBytecodeAction should not error for unbalanced stack: %v", err)
+	if err == nil {
+		t.Errorf("Expected error for unbalanced stack, but got nil")
 	}
-	// Stack should be cleaned up to initial depth
+	// Stack should still be cleaned up to initial depth despite the error
 	if state.ValueStackDepth() != initialDepth {
 		t.Errorf("Stack depth should be restored to %d, got %d", initialDepth, state.ValueStackDepth())
 	}

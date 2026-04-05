@@ -8,7 +8,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description = 'DTRules - Decision Table Rules Engine for Java and Go' } = Astro.props;
+const { title, description = 'DTRules - Decision Table Rules Engine for Go' } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImageURL = new URL('/og-image.svg', Astro.site);
 
@@ -17,7 +17,7 @@ const structuredData = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "DTRules",
-  "description": "Decision Table Rules Engine for Java and Go. Express complex business logic using spreadsheet-like decision tables.",
+  "description": "Decision Table Rules Engine for Go. Express complex business logic using spreadsheet-like decision tables.",
   "url": Astro.site?.toString() || "https://dtrules.com",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Cross-platform",
@@ -27,7 +27,7 @@ const structuredData = {
     "priceCurrency": "USD"
   },
   "license": "https://www.apache.org/licenses/LICENSE-2.0",
-  "programmingLanguage": ["Java", "Go"]
+  "programmingLanguage": ["Go"]
 };
 ---
 

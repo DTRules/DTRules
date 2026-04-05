@@ -1,0 +1,35 @@
+name: Go Tests
+
+on:
+  push:
+    branches: [5.0-SNAPSHOT, main]
+  pull_request:
+
+jobs:
+  test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.24']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go ${{ matrix.go-version }}
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Build all packages
+      run: go build ./...
+
+    - name: Run all tests
+      run: go test ./...
+
+    - name: Build CLI
+      run: go build -o build/dtrules ./cmd/dtrules/
+
+    - name: Validate CHIP sample project
+      run: ./build/dtrules validate --xml-dir sampleprojects/CHIP/xml

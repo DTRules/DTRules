@@ -444,5 +444,5 @@ Estimated time for complete validation:
 - [MI Form MI-1040](https://www.michigan.gov/taxes/iit/forms)
 
 ### Technical Documentation
-- DTRules GitHub: https://github.com/PaulSnow/DTRules
+- DTRules GitHub: https://github.com/DTRules/DTRules
 - Issue #237: Cross-validate top 10 states

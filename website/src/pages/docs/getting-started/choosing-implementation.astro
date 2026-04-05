@@ -4,13 +4,13 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 
 <DocsLayout
   title="Choosing an Implementation"
-  description="Understand when to use the Java or Go implementation of DTRules."
+  description="Understand the DTRules Go implementation and its tools."
   prev={{ title: "Introduction", href: "/docs/getting-started" }}
   next={{ title: "Quick Start (UI)", href: "/docs/getting-started/quickstart-ui" }}
 >
   <p>
-    DTRules has two implementations: <strong>Java</strong> (the original) and <strong>Go</strong> (high-performance runtime).
-    Understanding how they work together helps you choose the right tools for your workflow.
+    DTRules is implemented in <strong>Go</strong>, providing a high-performance runtime with
+    multiple ways to work with your rules.
   </p>
 
   <h2>The DTRules Workflow</h2>
@@ -23,11 +23,11 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
     <pre class="text-sm"><code>┌─────────────────────────────────────────────────────────────────┐
 │                      AUTHORING PHASE                            │
 │                                                                 │
-│   Excel Files (.xls)  ───►  Java Compiler  ───►  XML Files      │
-│   - EDD (data model)        (Excel2XML)         - *_edd.xml     │
+│   Excel Files (.xls)  ───►  CLI Compiler  ───►  XML Files       │
+│   - EDD (data model)        (Go tools)          - *_edd.xml     │
 │   - Decision Tables                             - *_dt.xml      │
 │                                                                 │
-│   <span class="text-blue-400">Requires: Java 8+, Maven</span>                                      │
+│   <span class="text-purple-400">Requires: Go 1.21+</span>                                              │
 └─────────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
@@ -35,138 +35,70 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 │                      EXECUTION PHASE                            │
 │                                                                 │
 │   ┌─────────────────────┐          ┌─────────────────────┐      │
-│   │   Java Runtime      │    OR    │    Go Runtime       │      │
+│   │   Go CLI            │    OR    │    REST API         │      │
 │   │                     │          │                     │      │
-│   │ • Auto-mapping to   │          │ • High performance  │      │
-│   │   Java objects      │          │ • REST API          │      │
-│   │ • Full tooling      │          │ • Visual UI backend │      │
-│   │ • IDE debugging     │          │ • Cloud-native      │      │
+│   │ • Quick validation  │          │ • HTTP endpoints    │      │
+│   │ • Batch execution   │          │ • Visual UI backend │      │
+│   │ • Tracing output    │          │ • Cloud-native      │      │
 │   │                     │          │                     │      │
-│   │ <span class="text-blue-400">Requires: Java 8+</span>    │          │ <span class="text-purple-400">Requires: Go 1.21+</span>   │      │
 │   └─────────────────────┘          └─────────────────────┘      │
 │                                                                 │
-│                    Both read the same XML files                 │
+│                    <span class="text-purple-400">Requires: Go 1.21+</span>                            │
 └─────────────────────────────────────────────────────────────────┘</code></pre>
   </div>
 
-  <h3>Key Insight</h3>
-
-  <p>
-    <strong>Excel compilation requires Java</strong>, but once you have XML files, you can execute them with
-    <em>either</em> Java or Go. This means:
-  </p>
-
-  <ul>
-    <li>Rule authors use Java to compile Excel → XML</li>
-    <li>Runtime execution can use Java <em>or</em> Go, depending on your needs</li>
-    <li>You can develop with Java and deploy with Go for better performance</li>
-  </ul>
-
-  <h2>Feature Comparison</h2>
+  <h2>Available Tools</h2>
 
   <table>
     <thead>
       <tr>
-        <th>Feature</th>
-        <th><span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full">Java</span></th>
-        <th><span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full">Go</span></th>
+        <th>Tool</th>
+        <th>Purpose</th>
+        <th>Best For</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>Excel Compilation</td>
-        <td>Yes</td>
-        <td>No</td>
+        <td><strong>Visual UI</strong></td>
+        <td>Interactive rule editing and testing</td>
+        <td>Learning, visual debugging</td>
       </tr>
       <tr>
-        <td>XML Execution</td>
-        <td>Yes</td>
-        <td>Yes</td>
+        <td><strong>Go CLI</strong></td>
+        <td>Command-line rule execution</td>
+        <td>Validation, batch testing, CI/CD</td>
       </tr>
       <tr>
-        <td>Auto Object Mapping</td>
-        <td>Yes (Java objects)</td>
-        <td>Manual / JSON</td>
+        <td><strong>REST API</strong></td>
+        <td>HTTP API for rule execution</td>
+        <td>Production services, microservices</td>
       </tr>
       <tr>
-        <td>REST API</td>
-        <td>Build your own</td>
-        <td>Built-in</td>
-      </tr>
-      <tr>
-        <td>Visual UI Backend</td>
-        <td>No</td>
-        <td>Yes</td>
-      </tr>
-      <tr>
-        <td>CLI Tool</td>
-        <td>No</td>
-        <td>Yes</td>
-      </tr>
-      <tr>
-        <td>Performance</td>
-        <td>Good</td>
-        <td>Excellent (130x faster operator lookup)</td>
-      </tr>
-      <tr>
-        <td>IDE Debugging</td>
-        <td>Full support</td>
-        <td>Limited</td>
+        <td><strong>Go Library</strong></td>
+        <td>Embedded rule engine</td>
+        <td>Go application integration</td>
       </tr>
     </tbody>
   </table>
 
-  <h2>When to Use Java</h2>
-
-  <div class="glass rounded-xl p-6 border-l-4 border-blue-500 my-6">
-    <h3 class="mt-0 text-blue-400">Use Java when you need:</h3>
-    <ul class="mb-0">
-      <li><strong>Excel compilation</strong> - Converting Excel files to XML (required for rule authoring)</li>
-      <li><strong>Automatic Java object mapping</strong> - Direct mapping between rule entities and Java classes</li>
-      <li><strong>IDE debugging</strong> - Step-through debugging of rule execution</li>
-      <li><strong>Enterprise Java stack</strong> - Integration with Spring, J2EE, or existing Java applications</li>
-      <li><strong>Full tooling</strong> - Test harness, comprehensive diagnostics</li>
-    </ul>
-  </div>
-
-  <h3>Typical Java Workflow</h3>
-
-  <ol>
-    <li>Define entities in <code>*_edd.xls</code> Excel files</li>
-    <li>Write decision tables in <code>*_dt.xls</code> Excel files</li>
-    <li>Run the Java compiler to generate XML</li>
-    <li>Load XML and execute rules in your Java application</li>
-    <li>Use the test harness to validate rules</li>
-  </ol>
-
-  <h2>When to Use Go</h2>
+  <h2>Performance</h2>
 
   <div class="glass rounded-xl p-6 border-l-4 border-purple-500 my-6">
-    <h3 class="mt-0 text-purple-400">Use Go when you need:</h3>
+    <h3 class="mt-0 text-purple-400">Go runtime highlights:</h3>
     <ul class="mb-0">
-      <li><strong>High performance</strong> - 130x faster operator lookup, 24x faster arithmetic</li>
-      <li><strong>REST API</strong> - Built-in HTTP API for rule execution</li>
-      <li><strong>Visual UI</strong> - The React UI requires the Go backend</li>
-      <li><strong>Microservices</strong> - Lightweight, single-binary deployment</li>
-      <li><strong>Cloud-native</strong> - Container-friendly, low memory footprint</li>
-      <li><strong>CLI tool</strong> - Quick validation and testing from the command line</li>
+      <li><strong>130x faster</strong> operator lookup</li>
+      <li><strong>24x faster</strong> arithmetic operations</li>
+      <li><strong>Zero-allocation</strong> hot paths for reduced GC pressure</li>
+      <li><strong>Single binary</strong> deployment - no runtime dependencies</li>
+      <li><strong>Container-friendly</strong> - low memory footprint</li>
     </ul>
   </div>
-
-  <h3>Typical Go Workflow</h3>
-
-  <ol>
-    <li>Receive pre-compiled XML files (from Java compilation)</li>
-    <li>Use the CLI to validate rules: <code>./dtrules -validate</code></li>
-    <li>Start the REST API server for production use</li>
-    <li>Or use the Visual UI for interactive editing and testing</li>
-  </ol>
 
   <h2>Common Scenarios</h2>
 
   <h3>Scenario 1: New to DTRules</h3>
 
-  <p><strong>Recommended:</strong> Start with the <a href="/docs/getting-started/quickstart-ui">Visual UI</a> (Go backend)</p>
+  <p><strong>Recommended:</strong> Start with the <a href="/docs/getting-started/quickstart-ui">Visual UI</a></p>
 
   <p>
     The Visual UI is the easiest way to understand DTRules concepts. Load the CHIP sample project
@@ -175,102 +107,39 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 
   <h3>Scenario 2: Rule Author</h3>
 
-  <p><strong>Recommended:</strong> Java for compilation + Go for testing</p>
+  <p><strong>Recommended:</strong> Go CLI for compilation and testing</p>
 
   <ol>
     <li>Write rules in Excel</li>
-    <li>Compile with Java: <code>mvn exec:java -Dexec.mainClass="CompileRules"</code></li>
+    <li>Compile with Go CLI tools</li>
     <li>Test with Go CLI: <code>./dtrules -rules xml/ -entry Main -trace</code></li>
     <li>Use Visual UI for interactive debugging</li>
   </ol>
 
-  <h3>Scenario 3: Java Application Integration</h3>
+  <h3>Scenario 3: Production Service</h3>
 
-  <p><strong>Recommended:</strong> Java only</p>
-
-  <p>
-    If you're embedding DTRules in a Java application and want automatic object mapping,
-    use the Java runtime. Your Java objects will map directly to rule entities.
-  </p>
-
-  <h3>Scenario 4: Production Service</h3>
-
-  <p><strong>Recommended:</strong> Java for compilation, Go for deployment</p>
+  <p><strong>Recommended:</strong> Go REST API</p>
 
   <ol>
-    <li>Compile rules with Java (CI/CD pipeline)</li>
-    <li>Deploy XML files with Go runtime</li>
+    <li>Compile rules (CI/CD pipeline)</li>
+    <li>Deploy XML files with Go REST API server</li>
     <li>Use the REST API for rule execution</li>
     <li>Benefit from Go's performance and low resource usage</li>
   </ol>
 
-  <h2>Project Structures</h2>
-
-  <h3>Java Project Structure</h3>
+  <h2>Project Structure</h2>
 
   <pre><code>myproject/
 ├── DecisionTables/           # Excel files with business rules
 │   └── MyRules_dt.xls
 ├── edd/                      # Entity Definition Documents
 │   └── MyRules_edd.xls
-├── xml/                      # Compiled XML (generated)
+├── xml/                      # Compiled XML files
 │   ├── MyRules_edd.xml
 │   └── MyRules_dt.xml
 ├── testfiles/                # Test case input files
 ├── DTRules.xml               # Project configuration
-├── pom.xml                   # Maven configuration
-└── src/main/java/
-    └── CompileRules.java     # Compiles Excel → XML</code></pre>
-
-  <h3>Go Project Structure</h3>
-
-  <pre><code>myproject/
-├── xml/                      # Pre-compiled XML files
-│   ├── MyRules_edd.xml       # (from Java compilation)
-│   └── MyRules_dt.xml
-├── testfiles/                # Test case input files
 └── main.go                   # Your Go application (optional)</code></pre>
-
-  <p>
-    <strong>Note:</strong> Go projects consume pre-compiled XML. If you need to modify rules,
-    you'll need access to the Excel sources and Java compiler.
-  </p>
-
-  <h2>Hybrid Workflows</h2>
-
-  <p>Many teams use both implementations together:</p>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Phase</th>
-        <th>Tool</th>
-        <th>Why</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Authoring</td>
-        <td>Excel + Java</td>
-        <td>Required for compilation</td>
-      </tr>
-      <tr>
-        <td>Testing</td>
-        <td>Go CLI + Visual UI</td>
-        <td>Fast iteration, visual debugging</td>
-      </tr>
-      <tr>
-        <td>CI/CD</td>
-        <td>Java (compile) + Go (validate)</td>
-        <td>Automated quality gates</td>
-      </tr>
-      <tr>
-        <td>Production</td>
-        <td>Go REST API</td>
-        <td>Performance, scalability</td>
-      </tr>
-    </tbody>
-  </table>
 
   <h2>Next Steps</h2>
 
@@ -279,18 +148,12 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
   <ul>
     <li>
       <a href="/docs/getting-started/quickstart-ui">Quick Start (UI)</a>
-      <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full ml-2">Go</span>
+      <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full ml-2">Recommended</span>
       - Visual editing, best for learning
     </li>
     <li>
       <a href="/docs/getting-started/quickstart-go">Quick Start (Go)</a>
-      <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full ml-2">Go</span>
       - CLI and REST API
-    </li>
-    <li>
-      <a href="/docs/getting-started/quickstart-java">Quick Start (Java)</a>
-      <span class="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full ml-2">Java</span>
-      - Full tooling with Excel compilation
     </li>
   </ul>
 </DocsLayout>
