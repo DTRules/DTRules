@@ -82,9 +82,9 @@ var sampleProjects = []SampleProject{
 		EDDFile:    "Test_edd.xml",
 		DTFile:     "Test_dt.xml",
 		MapFile:    "Test_map.xml",
-		EntryTable: "", // Compile only - no test cases
+		EntryTable: "Test_Entry_Point",
 		ExpectedTables: []string{
-			// Will be discovered when DT loading is fixed
+			"Test_Entry_Point",
 		},
 	},
 	{
