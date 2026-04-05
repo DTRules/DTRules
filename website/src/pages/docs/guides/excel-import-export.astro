@@ -1,0 +1,468 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Excel Import/Export"
+  description="Import and export decision tables and Entity Data Dictionaries between Excel and XML."
+  prev={{ title: "Testing Rules", href: "/docs/guides/testing" }}
+  next={{ title: "TaxReturn Example", href: "/docs/examples/tax-return" }}
+>
+  <p>
+    DTRules provides CLI tools for converting between Excel spreadsheets and the XML format
+    used by the rules engine. This enables a workflow where business analysts author rules
+    in Excel while the engine consumes XML.
+  </p>
+
+  <div class="glass rounded-xl p-4 border-l-4 border-purple-500 my-6">
+    <p class="mb-0">
+      <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-medium rounded-full">Go</span>
+      <strong class="ml-2">Go tools only.</strong>
+      The CLI tools on this page are part of the Go implementation. For the legacy Java
+      <code>ImportRuleSets</code> workflow, see
+      <a href="/docs/getting-started/quickstart-java">Quick Start (Java)</a>.
+    </p>
+  </div>
+
+  <h2>Overview</h2>
+
+  <p>Four standalone CLI tools handle conversion in both directions:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Tool</th>
+        <th>Direction</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>dt2excel</code></td>
+        <td>XML &rarr; Excel</td>
+        <td>Export decision tables to <code>.xlsx</code> files</td>
+      </tr>
+      <tr>
+        <td><code>excel2dt</code></td>
+        <td>Excel &rarr; XML</td>
+        <td>Import decision tables from <code>.xlsx</code> files</td>
+      </tr>
+      <tr>
+        <td><code>edd2excel</code></td>
+        <td>XML &rarr; Excel</td>
+        <td>Export the Entity Data Dictionary to <code>.xlsx</code></td>
+      </tr>
+      <tr>
+        <td><code>excel2edd</code></td>
+        <td>Excel &rarr; XML</td>
+        <td>Import the Entity Data Dictionary from <code>.xlsx</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Installation</h2>
+
+  <p>Build the tools from source (requires Go 1.21+):</p>
+
+  <pre><code># Build all four tools
+go build -o dt2excel   ./cmd/dt2excel
+go build -o excel2dt   ./cmd/excel2dt
+go build -o edd2excel  ./cmd/edd2excel
+go build -o excel2edd  ./cmd/excel2edd
+
+# Or install to $GOPATH/bin
+go install ./cmd/dt2excel ./cmd/excel2dt ./cmd/edd2excel ./cmd/excel2edd</code></pre>
+
+  <h2>Decision Table Excel Format</h2>
+
+  <p>
+    Two Excel layouts are supported. Both are recognized automatically by <code>excel2dt</code>
+    on import.
+  </p>
+
+  <h3>Format 1 &mdash; dt2excel layout</h3>
+
+  <p>
+    This is the format produced by <code>dt2excel</code>. Each decision table is written to its
+    own <code>.xlsx</code> file with a single sheet.
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Row</th><th>Column A</th><th>Column B</th><th>Column C+</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>Decision Table</code></td><td><em>table name</em></td><td></td></tr>
+      <tr><td>2</td><td><code>Table Number</code></td><td><em>number</em></td><td></td></tr>
+      <tr><td>3</td><td><code>Type</code></td><td><em>FIRST | ALL | BEST</em></td><td></td></tr>
+      <tr><td>4</td><td><code>Comments</code></td><td><em>description</em></td><td></td></tr>
+      <tr><td>&nbsp;</td><td colspan="3"></td></tr>
+      <tr><td colspan="4"><strong>Initial Actions section</strong></td></tr>
+      <tr><td></td><td><code>Initial Actions</code></td><td></td><td></td></tr>
+      <tr><td></td><td><em>description</em></td><td><em>postfix</em></td><td></td></tr>
+      <tr><td>&nbsp;</td><td colspan="3"></td></tr>
+      <tr><td colspan="4"><strong>Conditions section</strong></td></tr>
+      <tr><td></td><td><code>Conditions</code></td><td></td><td></td></tr>
+      <tr><td></td><td><code>#</code></td><td><code>Description</code></td><td><code>Col 1</code>, <code>Col 2</code>, ...</td></tr>
+      <tr><td></td><td><em>1</em></td><td><em>condition text</em></td><td><em>Y / N / blank</em></td></tr>
+      <tr><td>&nbsp;</td><td colspan="3"></td></tr>
+      <tr><td colspan="4"><strong>Actions section</strong></td></tr>
+      <tr><td></td><td><code>Actions</code></td><td></td><td></td></tr>
+      <tr><td></td><td><code>#</code></td><td><code>Description</code></td><td><code>Col 1</code>, <code>Col 2</code>, ...</td></tr>
+      <tr><td></td><td><em>1</em></td><td><em>action text</em></td><td><em>X / blank</em></td></tr>
+      <tr><td>&nbsp;</td><td colspan="3"></td></tr>
+      <tr><td colspan="4"><strong>Policy Statements section</strong></td></tr>
+      <tr><td></td><td><code>Policy Statements</code></td><td></td><td></td></tr>
+      <tr><td></td><td><code>Column 1</code></td><td><em>description</em></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Format 2 &mdash; Exporter layout</h3>
+
+  <p>
+    This is the format produced by the Go <code>Exporter</code> (used by the <code>dtrules</code>
+    CLI and the sync system). Multiple tables are written as separate sheets inside a single
+    <code>.xlsx</code> workbook.
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Row</th><th>Column A</th><th>Column B</th><th>Column C</th><th>Column D+</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td colspan="4"><code>Name: Table Name</code> (merged across all columns)</td></tr>
+      <tr><td>2</td><td colspan="4"><code>Type: FIRST</code> (merged)</td></tr>
+      <tr><td>3</td><td colspan="4"><code>COMMENTS: ...</code> (merged)</td></tr>
+      <tr><td>4</td><td colspan="4"><code>TABLE_NUMBER: 1</code> (merged)</td></tr>
+      <tr><td>&nbsp;</td><td colspan="4"></td></tr>
+      <tr><td colspan="5"><strong>Contexts</strong></td></tr>
+      <tr><td></td><td colspan="2"><code>Contexts:</code></td><td colspan="2"></td></tr>
+      <tr><td></td><td><em>#</em></td><td><em>comment</em></td><td colspan="2"><em>expression (merged)</em></td></tr>
+      <tr><td>&nbsp;</td><td colspan="4"></td></tr>
+      <tr><td colspan="5"><strong>Initial Actions</strong></td></tr>
+      <tr><td></td><td colspan="2"><code>Initial Actions:</code></td><td colspan="2"></td></tr>
+      <tr><td></td><td><em>#</em></td><td><em>comment</em></td><td colspan="2"><em>expression (merged)</em></td></tr>
+      <tr><td>&nbsp;</td><td colspan="4"></td></tr>
+      <tr><td colspan="5"><strong>Conditions</strong></td></tr>
+      <tr><td></td><td><code>Conditions:</code></td><td></td><td><em>DSL expression</em></td><td><em>1, 2, 3, ...</em></td></tr>
+      <tr><td></td><td><em>#</em></td><td><em>comment</em></td><td><em>expression</em></td><td><em>Y / N / blank</em></td></tr>
+      <tr><td>&nbsp;</td><td colspan="4"></td></tr>
+      <tr><td colspan="5"><strong>Actions</strong></td></tr>
+      <tr><td></td><td><code>Actions:</code></td><td></td><td><em>DSL expression</em></td><td><em>1, 2, 3, ...</em></td></tr>
+      <tr><td></td><td><em>#</em></td><td><em>comment</em></td><td><em>expression</em></td><td><em>X / blank</em></td></tr>
+      <tr><td>&nbsp;</td><td colspan="4"></td></tr>
+      <tr><td colspan="5"><strong>Policy</strong></td></tr>
+      <tr><td></td><td><code>Policy:</code></td><td></td><td></td><td><em>statement per column</em></td></tr>
+    </tbody>
+  </table>
+
+  <div class="glass rounded-xl p-4 border-l-4 border-blue-500 my-6">
+    <p class="mb-0">
+      <strong>Tip:</strong> The exporter format includes a third column (C) for the DSL expression
+      or compiled postfix, while the dt2excel format puts the description in column B and decision
+      columns starting at C.
+    </p>
+  </div>
+
+  <h2>EDD Excel Format</h2>
+
+  <p>
+    Two EDD layouts are also supported. <code>excel2edd</code> detects the format automatically.
+  </p>
+
+  <h3>Single-sheet format (Exporter)</h3>
+
+  <p>
+    The Go exporter writes a single sheet named <strong>EDD</strong> with all entities.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Column A</th><th>Column B</th><th>Column C</th><th>Column D</th>
+        <th>Column E</th><th>Column F</th><th>Column G</th><th>Column H</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Entity</strong></td><td><strong>Attribute</strong></td><td><strong>Type</strong></td><td><strong>SubType</strong></td>
+        <td><strong>Default</strong></td><td><strong>Input</strong></td><td><strong>Access</strong></td><td><strong>Description</strong></td>
+      </tr>
+      <tr>
+        <td><em>customer</em></td><td><em>(5 attributes)</em></td><td colspan="6"></td>
+      </tr>
+      <tr>
+        <td></td><td><em>name</em></td><td><em>string</em></td><td></td>
+        <td></td><td></td><td><em>rw</em></td><td><em>Customer name</em></td>
+      </tr>
+      <tr>
+        <td></td><td><em>age</em></td><td><em>integer</em></td><td></td>
+        <td></td><td><em>customer.age</em></td><td><em>rw</em></td><td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    Entity header rows have the entity name in column A and the attribute count
+    (e.g., <code>(5 attributes)</code>) in column B. Attribute rows leave column A blank and
+    fill columns B through H.
+  </p>
+
+  <h3>Multi-sheet format (edd2excel)</h3>
+
+  <p>
+    The <code>edd2excel</code> tool writes one sheet per entity. Each sheet has this layout:
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Row</th><th>Column A</th><th>Column B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>Entity</code></td><td><em>entity_name</em></td><td colspan="5"></td></tr>
+      <tr><td>2</td><td><code>Access</code></td><td><em>rw</em></td><td colspan="5"></td></tr>
+      <tr><td>3</td><td><code>Comment</code></td><td><em>description</em></td><td colspan="5"></td></tr>
+      <tr><td>4</td><td colspan="7"><em>(blank)</em></td></tr>
+      <tr>
+        <td>5</td>
+        <td><strong>Field Name</strong></td><td><strong>Type</strong></td><td><strong>Subtype</strong></td>
+        <td><strong>Access</strong></td><td><strong>Input</strong></td><td><strong>Default</strong></td><td><strong>Comment</strong></td>
+      </tr>
+      <tr>
+        <td>6+</td>
+        <td><em>name</em></td><td><em>string</em></td><td></td>
+        <td><em>rw</em></td><td></td><td></td><td><em>Customer name</em></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Supported types</h3>
+
+  <p>Valid values for the <strong>Type</strong> column:</p>
+
+  <ul>
+    <li><code>string</code> &mdash; text value</li>
+    <li><code>integer</code> / <code>long</code> &mdash; whole number</li>
+    <li><code>double</code> &mdash; floating-point number</li>
+    <li><code>boolean</code> &mdash; true/false</li>
+    <li><code>date</code> &mdash; date value</li>
+    <li><code>array</code> &mdash; ordered collection (use <strong>SubType</strong> for element type)</li>
+    <li><code>entity</code> &mdash; reference to another entity (use <strong>SubType</strong> for entity name)</li>
+  </ul>
+
+  <h2>CLI Usage</h2>
+
+  <h3>dt2excel &mdash; Export Decision Tables to Excel</h3>
+
+  <pre><code>dt2excel -input &lt;xml_file&gt; -output &lt;output_dir&gt;</code></pre>
+
+  <p>
+    Reads a decision table XML file and writes one <code>.xlsx</code> file per table into the
+    output directory. Files are named <code>NNN_TableName.xlsx</code> where <code>NNN</code>
+    is a zero-padded sequence number.
+  </p>
+
+  <pre><code># Export all decision tables
+dt2excel -input xml/TaxReturn_dt.xml -output excel/
+
+# Output files:
+#   excel/001_Validate_Input.xlsx
+#   excel/002_Calculate_Tax.xlsx
+#   ...</code></pre>
+
+  <h3>excel2dt &mdash; Import Decision Tables from Excel</h3>
+
+  <pre><code>excel2dt -input &lt;file_or_dir&gt; -output &lt;output.xml&gt; [-v] [-sort]</code></pre>
+
+  <p>Reads one or more <code>.xlsx</code> files and produces a single XML file.</p>
+
+  <table>
+    <thead>
+      <tr><th>Flag</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>-input</code></td><td>Path to a single <code>.xlsx</code> file or a directory of files</td></tr>
+      <tr><td><code>-output</code></td><td>Path to the output XML file</td></tr>
+      <tr><td><code>-v</code></td><td>Verbose output (print each sheet as it is processed)</td></tr>
+      <tr><td><code>-sort</code></td><td>Sort tables by <code>TABLE_NUMBER</code> (default: true)</td></tr>
+    </tbody>
+  </table>
+
+  <pre><code># Import from a directory of .xlsx files
+excel2dt -input excel/ -output xml/TaxReturn_dt.xml -v
+
+# Import from a single file
+excel2dt -input tables.xlsx -output xml/Tables_dt.xml</code></pre>
+
+  <h3>edd2excel &mdash; Export EDD to Excel</h3>
+
+  <pre><code>edd2excel -input &lt;edd.xml&gt; [-output &lt;output.xlsx&gt;]</code></pre>
+
+  <p>
+    Reads an EDD XML file and writes one sheet per entity. If <code>-output</code> is omitted,
+    the output filename is derived from the input by replacing the extension with <code>.xlsx</code>.
+  </p>
+
+  <pre><code>edd2excel -input xml/TaxReturn_edd.xml -output TaxReturn_edd.xlsx</code></pre>
+
+  <h3>excel2edd &mdash; Import EDD from Excel</h3>
+
+  <pre><code>excel2edd -input &lt;file.xlsx&gt; [-output &lt;output.xml&gt;]
+excel2edd -dir &lt;directory&gt;   [-output &lt;output.xml&gt;]</code></pre>
+
+  <p>Reads a single file or an entire directory of <code>.xlsx</code> files and merges
+    all entities into one XML file.</p>
+
+  <table>
+    <thead>
+      <tr><th>Flag</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>-input</code></td><td>Path to a single <code>.xlsx</code> file</td></tr>
+      <tr><td><code>-dir</code></td><td>Path to a directory of <code>.xlsx</code> files (cannot combine with <code>-input</code>)</td></tr>
+      <tr><td><code>-output</code></td><td>Path to the output XML file (derived from input if omitted)</td></tr>
+    </tbody>
+  </table>
+
+  <pre><code># Import a single EDD file
+excel2edd -input edd/TaxReturn_edd.xlsx -output xml/TaxReturn_edd.xml
+
+# Import all EDD files from a directory
+excel2edd -dir edd/ -output xml/TaxReturn_edd.xml</code></pre>
+
+  <h2>Round-Trip Workflow</h2>
+
+  <p>
+    A typical development cycle involves exporting XML to Excel for editing, then importing the
+    modified spreadsheets back. This "round-trip" preserves all rule structure.
+  </p>
+
+  <h3>Step 1: Export to Excel</h3>
+
+  <pre><code># Export decision tables
+dt2excel -input xml/MyProject_dt.xml -output excel/dt/
+
+# Export EDD
+edd2excel -input xml/MyProject_edd.xml -output excel/MyProject_edd.xlsx</code></pre>
+
+  <h3>Step 2: Edit in Excel</h3>
+
+  <p>Open the generated <code>.xlsx</code> files in Excel, LibreOffice, or Google Sheets and
+    make changes. You can:</p>
+
+  <ul>
+    <li>Add or remove condition and action rows</li>
+    <li>Change column values (Y/N for conditions, X for actions)</li>
+    <li>Edit descriptions and comments</li>
+    <li>Add new entities or attributes to the EDD</li>
+  </ul>
+
+  <div class="glass rounded-xl p-4 border-l-4 border-yellow-500 my-6">
+    <p class="mb-0">
+      <strong>Important:</strong> Do not rename the section header cells
+      (<code>Decision Table</code>, <code>Conditions</code>, <code>Actions</code>, etc.) or
+      change the overall layout structure. The importer relies on these markers to parse the
+      spreadsheet.
+    </p>
+  </div>
+
+  <h3>Step 3: Import back to XML</h3>
+
+  <pre><code># Import decision tables
+excel2dt -input excel/dt/ -output xml/MyProject_dt.xml -v
+
+# Import EDD
+excel2edd -input excel/MyProject_edd.xlsx -output xml/MyProject_edd.xml</code></pre>
+
+  <h3>Step 4: Validate</h3>
+
+  <pre><code># Run your test suite to verify the imported rules
+dtrules validate xml/
+go test ./...</code></pre>
+
+  <h2>Combined Workbooks</h2>
+
+  <p>
+    A single <code>.xlsx</code> file can contain both decision table sheets and an EDD sheet.
+    The Go <code>WorkbookImporter</code> detects sheet types automatically:
+  </p>
+
+  <ul>
+    <li><strong>EDD sheet</strong> &mdash; a sheet named <code>EDD</code>, or whose first row
+      has headers <code>Entity, Attribute, Type, SubType, ...</code></li>
+    <li><strong>DT sheet</strong> &mdash; a sheet whose cell A1 starts with
+      <code>Decision Table</code> or <code>Name:</code></li>
+  </ul>
+
+  <p>
+    The <code>dtrules sync</code> system uses combined workbooks to keep Excel and XML files
+    synchronized. See <a href="/docs/getting-started/quickstart-go">Quick Start (Go)</a> for
+    sync workflow details.
+  </p>
+
+  <h2>Legacy Java Format</h2>
+
+  <p>
+    The original Java <code>ImportRuleSets</code> compiler expected four default columns in
+    decision table spreadsheets:
+  </p>
+
+  <pre><code>number | comments | dsl | table</code></pre>
+
+  <p>
+    These map to the row number, a comment field, the DSL expression, and the column values
+    respectively. The Go tools understand both the legacy format and the newer formats described
+    above, so existing spreadsheets created for the Java workflow can be imported without changes.
+  </p>
+
+  <h2>Troubleshooting</h2>
+
+  <h3>"unrecognized Excel format"</h3>
+
+  <p>
+    The importer could not detect whether the sheet uses the dt2excel or exporter layout.
+    Verify that:
+  </p>
+
+  <ul>
+    <li>Cell A1 contains exactly <code>Decision Table</code> (dt2excel format) or starts
+      with <code>Name:</code> (exporter format)</li>
+    <li>Section headers (<code>Conditions</code>, <code>Actions</code>) are present</li>
+    <li>The file has a <code>.xlsx</code> extension (not <code>.xls</code> or <code>.csv</code>)</li>
+  </ul>
+
+  <h3>"no table name found"</h3>
+
+  <p>
+    The table name cell is empty. In dt2excel format, cell B1 must contain the table name.
+    In exporter format, row 1 must read <code>Name: Your_Table_Name</code>.
+  </p>
+
+  <h3>"failed to open Excel file"</h3>
+
+  <ul>
+    <li>Make sure the file is a valid <code>.xlsx</code> (Office Open XML) file</li>
+    <li>Close the file in Excel if it is open &mdash; locked files cannot be read</li>
+    <li>Temporary files starting with <code>~$</code> are automatically skipped</li>
+  </ul>
+
+  <h3>Entities not detected from combined workbook</h3>
+
+  <p>
+    If the EDD sheet is not being recognized, verify:
+  </p>
+
+  <ul>
+    <li>The sheet is named <code>EDD</code>, or</li>
+    <li>The first row contains headers starting with <code>Entity</code>, <code>Attribute</code></li>
+    <li>For the multi-sheet format, cell A1 must be <code>Entity</code> and A2 must be <code>Access</code></li>
+  </ul>
+
+  <h3>Column values are missing after import</h3>
+
+  <p>
+    The importers treat empty cells and the value <code>-</code> (dash) as blank.
+    Make sure condition values are <code>Y</code>, <code>N</code>, or another non-empty value,
+    and action values use <code>X</code> or the desired value text.
+  </p>
+</DocsLayout>
