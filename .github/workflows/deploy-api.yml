@@ -1,0 +1,37 @@
+# Deploy DTRules API to Fly.io
+# This workflow deploys the Go API server for the poker demo
+#
+# Setup:
+# 1. Install Fly CLI: curl -L https://fly.io/install.sh | sh
+# 2. Login: fly auth login
+# 3. Create app: fly launch --name dtrules-api (from repo root)
+# 4. Get deploy token: fly tokens create deploy -x 999999h
+# 5. Add to GitHub secrets: FLY_API_TOKEN
+
+name: Deploy API to Fly.io
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'cmd/api/**'
+      - 'pkg/**'
+      - 'sampleprojects/Poker/**'
+      - 'Dockerfile'
+      - 'fly.toml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy API
+    runs-on: ubuntu-latest
+    # Only run if FLY_API_TOKEN is configured
+    if: ${{ vars.DEPLOY_API == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

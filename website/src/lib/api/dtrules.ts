@@ -1,8 +1,35 @@
 // DTRules Go API client for poker demo
 
-const API_BASE = typeof window !== 'undefined'
-  ? (window as any).__DTRULES_API__ || 'http://localhost:8080'
-  : 'http://localhost:8080';
+// API URL priority:
+// 1. Runtime override: window.__DTRULES_API__
+// 2. Build-time env: import.meta.env.PUBLIC_DTRULES_API
+// 3. Production default: https://dtrules-api.fly.dev (when deployed)
+// 4. Development fallback: http://localhost:8080
+const getApiBase = (): string => {
+  if (typeof window !== 'undefined') {
+    // Check for runtime override
+    if ((window as any).__DTRULES_API__) {
+      return (window as any).__DTRULES_API__;
+    }
+  }
+
+  // Check for build-time environment variable
+  const envApi = (import.meta as any).env?.PUBLIC_DTRULES_API;
+  if (envApi) {
+    return envApi;
+  }
+
+  // Production vs development detection
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    // In production, use the Fly.io API
+    return 'https://dtrules-api.fly.dev';
+  }
+
+  // Local development
+  return 'http://localhost:8080';
+};
+
+const API_BASE = getApiBase();
 
 const API_TIMEOUT_MS = 5000; // 5 second timeout
 

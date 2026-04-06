@@ -1,0 +1,24 @@
+# Only include what's needed for the API server
+
+# Exclude everything by default
+*
+
+# Include Go source code
+!go.mod
+!go.sum
+!cmd/
+!pkg/
+!internal/
+
+# Include only the Poker sample project (for demo)
+!sampleprojects/Poker/
+
+# Exclude binaries and build artifacts
+build/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Exclude test files from final image
+*_test.go
