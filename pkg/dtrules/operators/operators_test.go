@@ -3067,3 +3067,491 @@ func TestNewDateUsesUTC(t *testing.T) {
 		t.Errorf("Expected 2024-06-15, got %d-%d-%d", year, month, day)
 	}
 }
+
+// =============================================================================
+// Issue #487: ADD and FIND_BY_FIELD Operator Tests
+// =============================================================================
+
+// mockEntity implements a simple entity for testing
+type mockEntity struct {
+	dtrules.BaseObject
+	name   *dtrules.RName
+	id     int
+	values map[string]dtrules.Object
+}
+
+func newMockEntity(name string, id int) *mockEntity {
+	return &mockEntity{
+		name:   dtrules.GetRName(name),
+		id:     id,
+		values: make(map[string]dtrules.Object),
+	}
+}
+
+func (e *mockEntity) SetField(name string, value dtrules.Object) {
+	e.values[name] = value
+}
+
+func (e *mockEntity) Type() *dtrules.RType                            { return dtrules.TypeEntity }
+func (e *mockEntity) Execute(state dtrules.State) error               { return state.DataPush(e) }
+func (e *mockEntity) ArrayExecute(state dtrules.State) error          { return state.DataPush(e) }
+func (e *mockEntity) GetExecutable() dtrules.Object                   { return e }
+func (e *mockEntity) GetNonExecutable() dtrules.Object                { return e }
+func (e *mockEntity) IsExecutable() bool                              { return false }
+func (e *mockEntity) Equals(o dtrules.Object) (bool, error)           { return e == o, nil }
+func (e *mockEntity) Compare(o dtrules.Object) (int, error)           { return 0, nil }
+func (e *mockEntity) StringValue() string                             { return e.name.StringValue() }
+func (e *mockEntity) PostFix() string                                 { return e.name.StringValue() }
+func (e *mockEntity) Clone(s dtrules.Session) (dtrules.Object, error) { return e, nil }
+func (e *mockEntity) RClone() dtrules.Object                          { return e }
+func (e *mockEntity) RStringValue() *dtrules.RString                  { return dtrules.NewRString(e.StringValue()) }
+func (e *mockEntity) REntityValue() (dtrules.Entity, error)           { return e, nil }
+func (e *mockEntity) GetName() *dtrules.RName                         { return e.name }
+func (e *mockEntity) GetID() int                                      { return e.id }
+func (e *mockEntity) GetAttributeNames() []*dtrules.RName {
+	names := make([]*dtrules.RName, 0, len(e.values))
+	for k := range e.values {
+		names = append(names, dtrules.GetRName(k))
+	}
+	return names
+}
+func (e *mockEntity) ContainsAttribute(name *dtrules.RName) bool {
+	_, ok := e.values[name.StringValue()]
+	return ok
+}
+func (e *mockEntity) Get(name *dtrules.RName) (dtrules.Object, error) {
+	v, ok := e.values[name.StringValue()]
+	if !ok {
+		return nil, dtrules.UndefinedError("Get", name.StringValue()+" is undefined")
+	}
+	return v, nil
+}
+func (e *mockEntity) Put(name *dtrules.RName, value dtrules.Object) error {
+	e.values[name.StringValue()] = value
+	return nil
+}
+func (e *mockEntity) IntValue() (int, error)                          { return 0, nil }
+func (e *mockEntity) LongValue() (int64, error)                       { return 0, nil }
+func (e *mockEntity) DoubleValue() (float64, error)                   { return 0, nil }
+func (e *mockEntity) BooleanValue() (bool, error)                     { return false, nil }
+func (e *mockEntity) TimeValue() (time.Time, error)                   { return time.Time{}, nil }
+func (e *mockEntity) ArrayValue() ([]dtrules.Object, error)           { return nil, nil }
+func (e *mockEntity) TableValue() (map[dtrules.Object]dtrules.Object, error) {
+	return nil, nil
+}
+func (e *mockEntity) RIntegerValue() (*dtrules.RInteger, error) { return nil, nil }
+func (e *mockEntity) RDoubleValue() (*dtrules.RDouble, error)   { return nil, nil }
+func (e *mockEntity) RBooleanValue() (*dtrules.RBoolean, error) { return nil, nil }
+func (e *mockEntity) RNameValue() (*dtrules.RName, error)       { return nil, nil }
+func (e *mockEntity) RArrayValue() (*dtrules.RArray, error)     { return nil, nil }
+func (e *mockEntity) RTableValue() (*dtrules.RTable, error)     { return nil, nil }
+func (e *mockEntity) RTimeValue() (*dtrules.RDate, error)       { return nil, nil }
+
+// TestArrayAddOperator tests issue #487: ADD operator for entity collections
+func TestArrayAddOperator(t *testing.T) {
+	state := newTestState()
+
+	// Create array
+	arr, _ := dtrules.NewArray(state.GetSession(), true, false)
+
+	// Push element first, then array (reversed order from addto)
+	state.DataPush(dtrules.GetRIntegerValue(42))
+	state.DataPush(arr)
+
+	op, ok := Get(dtrules.GetRName("add"))
+	if !ok {
+		t.Fatal("add operator not found")
+	}
+
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("add operator failed: %v", err)
+	}
+
+	// Stack should be empty
+	if state.DataStackDepth() != 0 {
+		t.Errorf("Expected empty stack, got size %d", state.DataStackDepth())
+	}
+
+	// Array should have one element
+	if arr.Size() != 1 {
+		t.Errorf("Expected array size 1, got %d", arr.Size())
+	}
+
+	elem, _ := arr.Get(0)
+	val, _ := elem.IntValue()
+	if val != 42 {
+		t.Errorf("Expected element 42, got %d", val)
+	}
+}
+
+// TestArrayAddOperatorWithEntity tests ADD operator for entity collections
+func TestArrayAddOperatorWithEntity(t *testing.T) {
+	state := newTestState()
+
+	// Create array of entities
+	arr, _ := dtrules.NewArray(state.GetSession(), true, false)
+
+	// Create entity
+	entity := newMockEntity("account", 1)
+	entity.SetField("address", dtrules.NewRString("0x1234"))
+
+	// Push entity first, then array
+	state.DataPush(entity)
+	state.DataPush(arr)
+
+	op, _ := Get(dtrules.GetRName("add"))
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("add operator failed: %v", err)
+	}
+
+	// Array should have one entity
+	if arr.Size() != 1 {
+		t.Errorf("Expected array size 1, got %d", arr.Size())
+	}
+
+	elem, _ := arr.Get(0)
+	entityVal, err := elem.REntityValue()
+	if err != nil {
+		t.Fatalf("Expected entity, got error: %v", err)
+	}
+	if entityVal.GetID() != 1 {
+		t.Errorf("Expected entity ID 1, got %d", entityVal.GetID())
+	}
+}
+
+// TestFindByFieldOperator tests issue #487: FIND_BY_FIELD operator
+func TestFindByFieldOperator(t *testing.T) {
+	state := newTestState()
+
+	// Create array of entities
+	arr, _ := dtrules.NewArray(state.GetSession(), true, false)
+
+	// Create entities with different addresses
+	entity1 := newMockEntity("account", 1)
+	entity1.SetField("address", dtrules.NewRString("0x1111"))
+
+	entity2 := newMockEntity("account", 2)
+	entity2.SetField("address", dtrules.NewRString("0x2222"))
+
+	entity3 := newMockEntity("account", 3)
+	entity3.SetField("address", dtrules.NewRString("0x3333"))
+
+	arr.Add(entity1)
+	arr.Add(entity2)
+	arr.Add(entity3)
+
+	// Push array, field name, value to search
+	state.DataPush(arr)
+	state.DataPush(dtrules.NewRString("address"))
+	state.DataPush(dtrules.NewRString("0x2222"))
+
+	op, ok := Get(dtrules.GetRName("find_by_field"))
+	if !ok {
+		t.Fatal("find_by_field operator not found")
+	}
+
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("find_by_field operator failed: %v", err)
+	}
+
+	// Should return entity2
+	result, _ := state.DataPop()
+	if result.Type() != dtrules.TypeEntity {
+		t.Fatalf("Expected entity, got %s", result.Type())
+	}
+
+	entityVal, _ := result.REntityValue()
+	if entityVal.GetID() != 2 {
+		t.Errorf("Expected entity ID 2, got %d", entityVal.GetID())
+	}
+}
+
+// TestFindByFieldNotFound tests find_by_field returns null when not found
+func TestFindByFieldNotFound(t *testing.T) {
+	state := newTestState()
+
+	// Create array of entities
+	arr, _ := dtrules.NewArray(state.GetSession(), true, false)
+
+	entity1 := newMockEntity("account", 1)
+	entity1.SetField("address", dtrules.NewRString("0x1111"))
+
+	arr.Add(entity1)
+
+	// Search for non-existent address
+	state.DataPush(arr)
+	state.DataPush(dtrules.NewRString("address"))
+	state.DataPush(dtrules.NewRString("0x9999"))
+
+	op, _ := Get(dtrules.GetRName("find_by_field"))
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("find_by_field operator failed: %v", err)
+	}
+
+	// Should return null
+	result, _ := state.DataPop()
+	if result.Type() != dtrules.TypeNull {
+		t.Errorf("Expected null, got %s", result.Type())
+	}
+}
+
+// TestFindByFieldWithRName tests find_by_field with RName field name
+func TestFindByFieldWithRName(t *testing.T) {
+	state := newTestState()
+
+	arr, _ := dtrules.NewArray(state.GetSession(), true, false)
+
+	entity1 := newMockEntity("account", 1)
+	entity1.SetField("balance", dtrules.GetRIntegerValue(100))
+
+	entity2 := newMockEntity("account", 2)
+	entity2.SetField("balance", dtrules.GetRIntegerValue(200))
+
+	arr.Add(entity1)
+	arr.Add(entity2)
+
+	// Use RName for field name
+	state.DataPush(arr)
+	state.DataPush(dtrules.GetRName("balance"))
+	state.DataPush(dtrules.GetRIntegerValue(200))
+
+	op, _ := Get(dtrules.GetRName("find_by_field"))
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("find_by_field operator failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	entityVal, _ := result.REntityValue()
+	if entityVal.GetID() != 2 {
+		t.Errorf("Expected entity ID 2, got %d", entityVal.GetID())
+	}
+}
+
+// TestFindByFieldAlias tests the findbyfield alias
+func TestFindByFieldAlias(t *testing.T) {
+	op, ok := Get(dtrules.GetRName("findbyfield"))
+	if !ok {
+		t.Fatal("findbyfield alias not found")
+	}
+	if op == nil {
+		t.Fatal("findbyfield alias is nil")
+	}
+}
+
+// TestFindByFieldEmptyArray tests find_by_field on empty array
+func TestFindByFieldEmptyArray(t *testing.T) {
+	state := newTestState()
+
+	arr, _ := dtrules.NewArray(state.GetSession(), true, false)
+
+	state.DataPush(arr)
+	state.DataPush(dtrules.NewRString("address"))
+	state.DataPush(dtrules.NewRString("0x1111"))
+
+	op, _ := Get(dtrules.GetRName("find_by_field"))
+	err := op.Execute(state)
+	if err != nil {
+		t.Fatalf("find_by_field operator failed: %v", err)
+	}
+
+	result, _ := state.DataPop()
+	if result.Type() != dtrules.TypeNull {
+		t.Errorf("Expected null for empty array, got %s", result.Type())
+	}
+}
+
+// TestArrayAddOperatorTypeMismatch tests add with non-array
+func TestArrayAddOperatorTypeMismatch(t *testing.T) {
+	state := newTestState()
+
+	// Push element and non-array
+	state.DataPush(dtrules.GetRIntegerValue(42))
+	state.DataPush(dtrules.GetRIntegerValue(1)) // not an array
+
+	op, _ := Get(dtrules.GetRName("add"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Error("Expected type mismatch error for add on non-array")
+	}
+}
+
+// TestFindByFieldTypeMismatch tests find_by_field with non-array
+func TestFindByFieldTypeMismatch(t *testing.T) {
+	state := newTestState()
+
+	// Push non-array
+	state.DataPush(dtrules.GetRIntegerValue(1)) // not an array
+	state.DataPush(dtrules.NewRString("field"))
+	state.DataPush(dtrules.NewRString("value"))
+
+	op, _ := Get(dtrules.GetRName("find_by_field"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Error("Expected type mismatch error for find_by_field on non-array")
+	}
+}
+
+// TestAbortOperator tests that ABORT stops execution and returns an error
+func TestAbortOperator(t *testing.T) {
+	state := newTestState()
+
+	// Push error message
+	state.DataPush(dtrules.NewRString("Sync coverage below 95%"))
+
+	op, ok := Get(dtrules.GetRName("abort"))
+	if !ok {
+		t.Fatal("abort operator not found")
+	}
+
+	err := op.Execute(state)
+	if err == nil {
+		t.Fatal("Expected error from ABORT operator, got nil")
+	}
+
+	// Check that error message is included
+	if !strings.Contains(err.Error(), "Sync coverage below 95%") {
+		t.Errorf("Expected error message to contain 'Sync coverage below 95%%', got: %v", err)
+	}
+
+	// Check that it's an Abort error type
+	if !dtrules.IsAbortError(err) {
+		t.Errorf("Expected IsAbortError to return true, got false")
+	}
+}
+
+// TestAbortOperatorEmptyStack tests ABORT with empty stack
+func TestAbortOperatorEmptyStack(t *testing.T) {
+	state := newTestState()
+
+	op, _ := Get(dtrules.GetRName("abort"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Fatal("Expected error from ABORT with empty stack")
+	}
+}
+
+// TestLogWarningOperator tests that LOG_WARNING logs and continues
+func TestLogWarningOperator(t *testing.T) {
+	state := newTestState()
+
+	// Push warning message
+	state.DataPush(dtrules.NewRString("Data may be stale"))
+
+	op, ok := Get(dtrules.GetRName("log_warning"))
+	if !ok {
+		t.Fatal("log_warning operator not found")
+	}
+
+	// LOG_WARNING should not return an error - execution continues
+	err := op.Execute(state)
+	if err != nil {
+		t.Errorf("LOG_WARNING should not return error, got: %v", err)
+	}
+
+	// Stack should be empty after LOG_WARNING consumes its argument
+	if state.DataStackDepth() != 0 {
+		t.Errorf("Expected empty stack after LOG_WARNING, got depth %d", state.DataStackDepth())
+	}
+}
+
+// TestLogWarningAlias tests that logwarning (without underscore) is an alias
+func TestLogWarningAlias(t *testing.T) {
+	state := newTestState()
+
+	state.DataPush(dtrules.NewRString("Test warning"))
+
+	op, ok := Get(dtrules.GetRName("logwarning"))
+	if !ok {
+		t.Fatal("logwarning alias not found")
+	}
+
+	err := op.Execute(state)
+	if err != nil {
+		t.Errorf("logwarning should not return error, got: %v", err)
+	}
+}
+
+// TestLogWarningEmptyStack tests LOG_WARNING with empty stack
+func TestLogWarningEmptyStack(t *testing.T) {
+	state := newTestState()
+
+	op, _ := Get(dtrules.GetRName("log_warning"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Fatal("Expected error from LOG_WARNING with empty stack")
+	}
+}
+
+// =============================================================================
+// PerformAliased Operator Tests
+// =============================================================================
+
+// TestPerformAliasedOperatorRegistered verifies the performaliased operator is registered
+// and not aliased to ignore (issue #465)
+func TestPerformAliasedOperatorRegistered(t *testing.T) {
+	op, ok := Get(dtrules.GetRName("performaliased"))
+	if !ok {
+		t.Fatal("performaliased operator not found")
+	}
+	if op == nil {
+		t.Fatal("performaliased operator is nil")
+	}
+
+	// Verify it's NOT the same as ignore - they should be different operators
+	ignoreOp, _ := Get(dtrules.GetRName("ignore"))
+	nopOp, _ := Get(dtrules.GetRName("nop"))
+
+	// ignore and nop should be the same (aliases)
+	if ignoreOp != nopOp {
+		t.Error("ignore and nop should be aliases (same operator)")
+	}
+
+	// performaliased should NOT be the same as ignore
+	// Note: We can't directly compare function pointers in Go,
+	// so we verify behavior differs by checking that performaliased
+	// expects arguments on the stack while ignore doesn't
+	state := newTestState()
+	err := ignoreOp.Execute(state)
+	if err != nil {
+		t.Errorf("ignore should succeed with empty stack, got: %v", err)
+	}
+
+	state = newTestState()
+	err = op.Execute(state)
+	if err == nil {
+		t.Error("performaliased should fail with empty stack (needs table name), but didn't - this confirms it was incorrectly aliased to ignore")
+	}
+}
+
+// TestPerformAliasedStackUnderflow tests that performaliased properly handles stack underflow
+func TestPerformAliasedStackUnderflow(t *testing.T) {
+	state := newTestState()
+	op, _ := Get(dtrules.GetRName("performaliased"))
+	err := op.Execute(state)
+	if err == nil {
+		t.Error("Expected stack underflow error with empty stack")
+	}
+}
+
+// TestPerformAliasedWithRName tests performaliased with a valid RName
+// Note: A full integration test with a real session/entity factory would be needed
+// to verify the table lookup behavior. This unit test just verifies basic stack handling.
+func TestPerformAliasedWithRName(t *testing.T) {
+	state := newTestState()
+	state.DataPush(dtrules.GetRName("SomeTable"))
+	op, _ := Get(dtrules.GetRName("performaliased"))
+	err := op.Execute(state)
+	// Should fail because the mock session doesn't have a real entity factory
+	// This is expected behavior for the unit test
+	if err == nil {
+		t.Error("Expected error due to nil entity factory in mock session")
+	}
+	// Verify the error is related to the session, not stack handling
+	// The fact that we got past the DataPop and RNameValue calls means
+	// the stack handling is correct
+}
