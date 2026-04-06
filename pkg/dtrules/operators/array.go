@@ -43,10 +43,13 @@ func init() {
 	Register("intersection", opIntersection)
 	Register("intersects", opIntersects)
 	Register("addarray", opAddArray)
+	Register("add", opArrayAdd)
 	Register("deepcopy", opDeepCopy)
 	Register("tokenize", opTokenize)
 	Register("findmatch", opFindMatch)
 	Register("cleararray", opClearArray)
+	Register("find_by_field", opFindByField)
+	Alias("find_by_field", "findbyfield")
 }
 
 // opNewArray: ( -- array ) creates a new empty array
@@ -56,6 +59,26 @@ func opNewArray(state dtrules.State) error {
 		return err
 	}
 	return state.DataPush(arr)
+}
+
+// opArrayAdd: ( element array -- ) adds element to array
+// This is the reverse argument order from addto, matching "element array ADD" syntax.
+// Use case: account eligible_accounts ADD
+func opArrayAdd(state dtrules.State) error {
+	arrayObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	element, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	arr, err := arrayObj.RArrayValue()
+	if err != nil {
+		return err
+	}
+	arr.Add(element)
+	return nil
 }
 
 // opAddTo: ( array element -- ) adds element to array
@@ -742,4 +765,64 @@ func opClearArray(state dtrules.State) error {
 	}
 	arr.Clear()
 	return nil
+}
+
+// opFindByField: ( array field_name value -- entity|null )
+// Searches array of entities for one where field equals value.
+// Returns the matching entity or null if not found.
+// Use case: delegate_url accounts FIND_BY_FIELD
+func opFindByField(state dtrules.State) error {
+	value, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	fieldNameObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	arrayObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+
+	arr, err := arrayObj.RArrayValue()
+	if err != nil {
+		return err
+	}
+
+	// Get field name - could be string or RName
+	var fieldName *dtrules.RName
+	switch fieldNameObj.Type() {
+	case dtrules.TypeName:
+		fieldName, err = fieldNameObj.RNameValue()
+		if err != nil {
+			return err
+		}
+	case dtrules.TypeString:
+		fieldName = dtrules.GetRName(fieldNameObj.StringValue())
+	default:
+		return dtrules.NewRulesError("Type Error", "find_by_field", "field name must be string or name")
+	}
+
+	// Search through array for matching entity
+	for _, elem := range arr.GetIterator() {
+		e, err := elem.REntityValue()
+		if err != nil {
+			continue // Skip non-entities
+		}
+
+		v, err := e.Get(fieldName)
+		if err != nil {
+			continue // Field doesn't exist
+		}
+
+		eq, eqErr := v.Equals(value)
+		if eqErr == nil && eq {
+			// Found match
+			return state.DataPush(e.(dtrules.Object))
+		}
+	}
+
+	// No match found
+	return state.DataPush(dtrules.GetRNull())
 }

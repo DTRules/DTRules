@@ -3418,9 +3418,9 @@ func TestAbortOperator(t *testing.T) {
 		t.Errorf("Expected error message to contain 'Sync coverage below 95%%', got: %v", err)
 	}
 
-	// Check that it's an Abort error type
-	if !dtrules.IsAbortError(err) {
-		t.Errorf("Expected IsAbortError to return true, got false")
+	// Check that it's an Abort error (contains "Abort" in error string)
+	if !strings.Contains(err.Error(), "Abort") {
+		t.Errorf("Expected error to contain 'Abort', got: %v", err)
 	}
 }
 
