@@ -55,7 +55,7 @@ def parse_decision_tables(xml_path):
         if contexts is not None:
             for ctx in contexts.findall('context'):
                 table['contexts'].append({
-                    'description': ctx.findtext('context_description', ''),
+                    'description': ctx.findtext('context_dsl', ''),
                     'postfix': ctx.findtext('context_postfix', '')
                 })
 
@@ -64,7 +64,7 @@ def parse_decision_tables(xml_path):
         if initial_actions is not None:
             for ia in initial_actions.findall('initial_action'):
                 table['initial_actions'].append({
-                    'description': ia.findtext('action_description', ''),
+                    'description': ia.findtext('initial_action_dsl', ''),
                     'postfix': ia.findtext('action_postfix', '')
                 })
 
@@ -75,7 +75,7 @@ def parse_decision_tables(xml_path):
                 condition = {
                     'number': cond.findtext('condition_number', ''),
                     'comment': cond.findtext('condition_comment', ''),
-                    'description': cond.findtext('condition_description', ''),
+                    'description': cond.findtext('condition_dsl', ''),
                     'postfix': cond.findtext('condition_postfix', ''),
                     'columns': {}
                 }
@@ -93,7 +93,7 @@ def parse_decision_tables(xml_path):
                 action = {
                     'number': act.findtext('action_number', ''),
                     'comment': act.findtext('action_comment', ''),
-                    'description': act.findtext('action_description', ''),
+                    'description': act.findtext('action_dsl', ''),
                     'postfix': act.findtext('action_postfix', ''),
                     'columns': {}
                 }

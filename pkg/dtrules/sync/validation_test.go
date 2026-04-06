@@ -30,13 +30,13 @@ func TestValidateELCompliance_Compliant(t *testing.T) {
         <table_name>Test_Table</table_name>
         <conditions>
             <condition_details>
-                <condition_description>input.age >= 18</condition_description>
+                <condition_dsl>input.age >= 18</condition_dsl>
                 <condition_postfix>input.age 18 >=</condition_postfix>
             </condition_details>
         </conditions>
         <actions>
             <action_details>
-                <action_description>set result.eligible = true</action_description>
+                <action_dsl>set result.eligible = true</action_dsl>
                 <action_postfix>true result.eligible =</action_postfix>
             </action_details>
         </actions>
@@ -73,13 +73,13 @@ func TestValidateELCompliance_Legacy(t *testing.T) {
         <table_name>Legacy_Table</table_name>
         <conditions>
             <condition_details>
-                <condition_description></condition_description>
+                <condition_dsl></condition_dsl>
                 <condition_postfix>input.age 18 >=</condition_postfix>
             </condition_details>
         </conditions>
         <actions>
             <action_details>
-                <action_description></action_description>
+                <action_dsl></action_dsl>
                 <action_postfix>true result.eligible =</action_postfix>
             </action_details>
         </actions>
@@ -116,13 +116,13 @@ func TestValidateELCompliance_NeedsCompilation(t *testing.T) {
         <table_name>Uncompiled_Table</table_name>
         <conditions>
             <condition_details>
-                <condition_description>input.age >= 18</condition_description>
+                <condition_dsl>input.age >= 18</condition_dsl>
                 <condition_postfix></condition_postfix>
             </condition_details>
         </conditions>
         <actions>
             <action_details>
-                <action_description>set result.eligible = true</action_description>
+                <action_dsl>set result.eligible = true</action_dsl>
                 <action_postfix></action_postfix>
             </action_details>
         </actions>
@@ -181,7 +181,7 @@ func TestIsLegacyPostfixFile(t *testing.T) {
         <table_name>Compliant</table_name>
         <conditions>
             <condition_details>
-                <condition_description>a == b</condition_description>
+                <condition_dsl>a == b</condition_dsl>
                 <condition_postfix>a b =</condition_postfix>
             </condition_details>
         </conditions>

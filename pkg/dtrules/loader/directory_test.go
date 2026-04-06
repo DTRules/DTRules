@@ -189,7 +189,7 @@ func TestLoadRulesFromDirectory_BasicFlow(t *testing.T) {
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
-        <condition_description>true</condition_description>
+        <condition_dsl>true</condition_dsl>
         <condition_postfix>true</condition_postfix>
         <condition_column column_number="1" column_value="X"/>
       </condition_details>
@@ -197,7 +197,7 @@ func TestLoadRulesFromDirectory_BasicFlow(t *testing.T) {
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_description>Set result.test_value = 100</action_description>
+        <action_dsl>Set result.test_value = 100</action_dsl>
         <action_postfix>100.0 result test_value !</action_postfix>
         <action_column column_number="1" column_value="X"/>
       </action_details>

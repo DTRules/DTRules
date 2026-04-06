@@ -280,7 +280,7 @@ func TestDTLoaderELAutoCompile(t *testing.T) {
         <conditions>
             <condition_details>
                 <condition_number>1</condition_number>
-                <condition_description>taxpayer.income > 50000</condition_description>
+                <condition_dsl>taxpayer.income > 50000</condition_dsl>
                 <condition_column column_number="1" column_value="y"/>
                 <condition_column column_number="2" column_value="n"/>
             </condition_details>
@@ -288,7 +288,7 @@ func TestDTLoaderELAutoCompile(t *testing.T) {
         <actions>
             <action_details>
                 <action_number>1</action_number>
-                <action_description>set result.eligible = true</action_description>
+                <action_dsl>set result.eligible = true</action_dsl>
                 <action_column column_number="1" column_value="x"/>
                 <action_column column_number="2" column_value=""/>
             </action_details>
@@ -324,7 +324,7 @@ func TestDTLoaderELAutoCompileWithExistingPostfix(t *testing.T) {
         <conditions>
             <condition_details>
                 <condition_number>1</condition_number>
-                <condition_description>taxpayer.income > 50000</condition_description>
+                <condition_dsl>taxpayer.income > 50000</condition_dsl>
                 <condition_postfix>taxpayer.income 50000 f></condition_postfix>
                 <condition_column column_number="1" column_value="y"/>
             </condition_details>
@@ -332,7 +332,7 @@ func TestDTLoaderELAutoCompileWithExistingPostfix(t *testing.T) {
         <actions>
             <action_details>
                 <action_number>1</action_number>
-                <action_description>set result.tax = income * 0.25</action_description>
+                <action_dsl>set result.tax = income * 0.25</action_dsl>
                 <action_postfix>income 0.25 fmul /result.tax xdef</action_postfix>
                 <action_column column_number="1" column_value="x"/>
             </action_details>
@@ -368,14 +368,14 @@ func TestDTLoaderELAutoCompileFallback(t *testing.T) {
         <conditions>
             <condition_details>
                 <condition_number>1</condition_number>
-                <condition_description>value > (invalid</condition_description>
+                <condition_dsl>value > (invalid</condition_dsl>
                 <condition_column column_number="1" column_value="y"/>
             </condition_details>
         </conditions>
         <actions>
             <action_details>
                 <action_number>1</action_number>
-                <action_description>Do something</action_description>
+                <action_dsl>Do something</action_dsl>
                 <action_postfix>true</action_postfix>
                 <action_column column_number="1" column_value="x"/>
             </action_details>

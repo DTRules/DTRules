@@ -61,7 +61,7 @@ func TestBigIntEndToEndPipeline(t *testing.T) {
 		<conditions>
 			<condition_details>
 				<condition_number>1</condition_number>
-				<condition_description>Always execute</condition_description>
+				<condition_dsl>Always execute</condition_dsl>
 				<condition_postfix>true</condition_postfix>
 				<condition_column column_number="1" column_value="Y"></condition_column>
 			</condition_details>
@@ -69,7 +69,7 @@ func TestBigIntEndToEndPipeline(t *testing.T) {
 		<actions>
 			<action_details>
 				<action_number>1</action_number>
-				<action_description>Calculate remaining = supply_limit - amount_issued</action_description>
+				<action_dsl>Calculate remaining = supply_limit - amount_issued</action_dsl>
 				<action_postfix>budget.supply_limit budget.amount_issued b- /budget.remaining xdef</action_postfix>
 				<action_column column_number="1" column_value="X"></action_column>
 			</action_details>
@@ -281,7 +281,7 @@ func TestBigIntArithmeticOperators(t *testing.T) {
 		<conditions>
 			<condition_details>
 				<condition_number>1</condition_number>
-				<condition_description>Always</condition_description>
+				<condition_dsl>Always</condition_dsl>
 				<condition_postfix>true</condition_postfix>
 				<condition_column column_number="1" column_value="Y"></condition_column>
 			</condition_details>
@@ -289,25 +289,25 @@ func TestBigIntArithmeticOperators(t *testing.T) {
 		<actions>
 			<action_details>
 				<action_number>1</action_number>
-				<action_description>sum = a + b</action_description>
+				<action_dsl>sum = a + b</action_dsl>
 				<action_postfix>calc.a calc.b b+ /calc.sum xdef</action_postfix>
 				<action_column column_number="1" column_value="X"></action_column>
 			</action_details>
 			<action_details>
 				<action_number>2</action_number>
-				<action_description>diff = a - b</action_description>
+				<action_dsl>diff = a - b</action_dsl>
 				<action_postfix>calc.a calc.b b- /calc.diff xdef</action_postfix>
 				<action_column column_number="1" column_value="X"></action_column>
 			</action_details>
 			<action_details>
 				<action_number>3</action_number>
-				<action_description>product = a * b</action_description>
+				<action_dsl>product = a * b</action_dsl>
 				<action_postfix>calc.a calc.b b* /calc.product xdef</action_postfix>
 				<action_column column_number="1" column_value="X"></action_column>
 			</action_details>
 			<action_details>
 				<action_number>4</action_number>
-				<action_description>quotient = a / b</action_description>
+				<action_dsl>quotient = a / b</action_dsl>
 				<action_postfix>calc.a calc.b b/ /calc.quotient xdef</action_postfix>
 				<action_column column_number="1" column_value="X"></action_column>
 			</action_details>
@@ -412,7 +412,7 @@ func TestBigIntComparisonOperators(t *testing.T) {
 		<conditions>
 			<condition_details>
 				<condition_number>1</condition_number>
-				<condition_description>Always</condition_description>
+				<condition_dsl>Always</condition_dsl>
 				<condition_postfix>true</condition_postfix>
 				<condition_column column_number="1" column_value="Y"></condition_column>
 			</condition_details>
@@ -420,19 +420,19 @@ func TestBigIntComparisonOperators(t *testing.T) {
 		<actions>
 			<action_details>
 				<action_number>1</action_number>
-				<action_description>Check balance > threshold</action_description>
+				<action_dsl>Check balance > threshold</action_dsl>
 				<action_postfix>compare.balance compare.threshold b> /compare.is_above_threshold xdef</action_postfix>
 				<action_column column_number="1" column_value="X"></action_column>
 			</action_details>
 			<action_details>
 				<action_number>2</action_number>
-				<action_description>Check balance &lt; threshold</action_description>
+				<action_dsl>Check balance &lt; threshold</action_dsl>
 				<action_postfix>compare.balance compare.threshold b&lt; /compare.is_below_threshold xdef</action_postfix>
 				<action_column column_number="1" column_value="X"></action_column>
 			</action_details>
 			<action_details>
 				<action_number>3</action_number>
-				<action_description>Check balance == threshold</action_description>
+				<action_dsl>Check balance == threshold</action_dsl>
 				<action_postfix>compare.balance compare.threshold b== /compare.is_equal_threshold xdef</action_postfix>
 				<action_column column_number="1" column_value="X"></action_column>
 			</action_details>
@@ -552,7 +552,7 @@ func TestBigIntTypeConversion(t *testing.T) {
 		<conditions>
 			<condition_details>
 				<condition_number>1</condition_number>
-				<condition_description>Always</condition_description>
+				<condition_dsl>Always</condition_dsl>
 				<condition_postfix>true</condition_postfix>
 				<condition_column column_number="1" column_value="Y"></condition_column>
 			</condition_details>
@@ -560,13 +560,13 @@ func TestBigIntTypeConversion(t *testing.T) {
 		<actions>
 			<action_details>
 				<action_number>1</action_number>
-				<action_description>Convert int to bigint</action_description>
+				<action_dsl>Convert int to bigint</action_dsl>
 				<action_postfix>convert.int_value cvbi /convert.bigint_from_int xdef</action_postfix>
 				<action_column column_number="1" column_value="X"></action_column>
 			</action_details>
 			<action_details>
 				<action_number>2</action_number>
-				<action_description>Convert string to bigint</action_description>
+				<action_dsl>Convert string to bigint</action_dsl>
 				<action_postfix>convert.str_value cvbi /convert.bigint_from_str xdef</action_postfix>
 				<action_column column_number="1" column_value="X"></action_column>
 			</action_details>
@@ -655,7 +655,7 @@ func TestBigIntPipelineWithSession(t *testing.T) {
 		<conditions>
 			<condition_details>
 				<condition_number>1</condition_number>
-				<condition_description>Always</condition_description>
+				<condition_dsl>Always</condition_dsl>
 				<condition_postfix>true</condition_postfix>
 				<condition_column column_number="1" column_value="Y"></condition_column>
 			</condition_details>
@@ -663,7 +663,7 @@ func TestBigIntPipelineWithSession(t *testing.T) {
 		<actions>
 			<action_details>
 				<action_number>1</action_number>
-				<action_description>new_balance = balance + deposit</action_description>
+				<action_dsl>new_balance = balance + deposit</action_dsl>
 				<action_postfix>account.balance account.deposit b+ /account.new_balance xdef</action_postfix>
 				<action_column column_number="1" column_value="X"></action_column>
 			</action_details>

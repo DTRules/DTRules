@@ -59,7 +59,7 @@ func TestDTLoaderWithFilePath(t *testing.T) {
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
-        <condition_description>Always true</condition_description>
+        <condition_dsl>Always true</condition_dsl>
         <condition_postfix>true</condition_postfix>
         <condition_column column_number="1" column_value="X"/>
       </condition_details>
@@ -67,7 +67,7 @@ func TestDTLoaderWithFilePath(t *testing.T) {
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_description>Set status</action_description>
+        <action_dsl>Set status</action_dsl>
         <action_postfix>"ok" result status !</action_postfix>
         <action_column column_number="1" column_value="X"/>
       </action_details>
@@ -148,7 +148,7 @@ func TestDTLoaderLegacyXlsFile(t *testing.T) {
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
-        <condition_description>Always true</condition_description>
+        <condition_dsl>Always true</condition_dsl>
         <condition_postfix>true</condition_postfix>
         <condition_column column_number="1" column_value="X"/>
       </condition_details>
@@ -156,7 +156,7 @@ func TestDTLoaderLegacyXlsFile(t *testing.T) {
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_description>Set status</action_description>
+        <action_dsl>Set status</action_dsl>
         <action_postfix>"ok" result status !</action_postfix>
         <action_column column_number="1" column_value="X"/>
       </action_details>
@@ -237,7 +237,7 @@ func TestDTGetFilePathPriority(t *testing.T) {
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
-        <condition_description>Always true</condition_description>
+        <condition_dsl>Always true</condition_dsl>
         <condition_postfix>true</condition_postfix>
         <condition_column column_number="1" column_value="X"/>
       </condition_details>
@@ -245,7 +245,7 @@ func TestDTGetFilePathPriority(t *testing.T) {
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_description>Set status</action_description>
+        <action_dsl>Set status</action_dsl>
         <action_postfix>"ok" result status !</action_postfix>
         <action_column column_number="1" column_value="X"/>
       </action_details>
@@ -330,7 +330,7 @@ func TestDTGetFilePathEmpty(t *testing.T) {
     <conditions>
       <condition_details>
         <condition_number>1</condition_number>
-        <condition_description>Always true</condition_description>
+        <condition_dsl>Always true</condition_dsl>
         <condition_postfix>true</condition_postfix>
         <condition_column column_number="1" column_value="X"/>
       </condition_details>
@@ -338,7 +338,7 @@ func TestDTGetFilePathEmpty(t *testing.T) {
     <actions>
       <action_details>
         <action_number>1</action_number>
-        <action_description>Set status</action_description>
+        <action_dsl>Set status</action_dsl>
         <action_postfix>"ok" result status !</action_postfix>
         <action_column column_number="1" column_value="X"/>
       </action_details>
