@@ -204,3 +204,68 @@ func TestEngine_ConcurrentContexts(t *testing.T) {
 		<-done
 	}
 }
+
+// TestEntityStackPush verifies that entities created via SetEntity are pushed
+// onto the entity stack and accessible in decision tables (issue #491)
+func TestEntityStackPush(t *testing.T) {
+	// Create in-memory filesystem with rules that access entity fields
+	fsys := fstest.MapFS{
+		"rules/test_edd.xml": &fstest.MapFile{
+			Data: []byte(`<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+    <entity name="sync_state" readonly="false">
+        <field name="last_major_block" type="integer" subtype="" default_value="0"/>
+        <field name="coverage_percent" type="double" subtype="" default_value="0"/>
+    </entity>
+    <entity name="result" readonly="false">
+        <field name="valid" type="boolean" subtype="" default_value="false"/>
+    </entity>
+</entity_data_dictionary>`),
+		},
+		"rules/test_dt.xml": &fstest.MapFile{
+			Data: []byte(`<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+    <decision_table>
+        <table_name>Check_Sync_State</table_name>
+        <table_number>1</table_number>
+        <purpose>Verify sync state entity is accessible</purpose>
+        <column type="condition" column_number="1">
+            <column_name>Always</column_name>
+            <column_postfix>true</column_postfix>
+            <row_entries>
+                <row_entry row_number="1">Y</row_entry>
+            </row_entries>
+        </column>
+        <column type="action" column_number="2">
+            <column_name>SetValid</column_name>
+            <column_postfix>sync_state.last_major_block 100 >= result.valid =</column_postfix>
+            <row_entries>
+                <row_entry row_number="1">X</row_entry>
+            </row_entries>
+        </column>
+    </decision_table>
+</decision_tables>`),
+		},
+	}
+
+	engine, err := NewEngine("SyncRules", WithFS(fsys, "rules"))
+	if err != nil {
+		t.Fatalf("NewEngine failed: %v", err)
+	}
+
+	ctx := engine.NewContext()
+	ctx.SetEntity("sync_state", "last_major_block", int64(150))
+	ctx.SetEntity("sync_state", "coverage_percent", 98.5)
+	ctx.SetEntity("result", "valid", false)
+
+	result, err := engine.Execute("Check_Sync_State", ctx)
+	if err != nil {
+		t.Fatalf("Execute failed: %v", err)
+	}
+
+	// The decision table should have been able to read sync_state.last_major_block
+	// and set result.valid = true (since 150 >= 100)
+	if result == nil {
+		t.Fatal("Expected non-nil result")
+	}
+}

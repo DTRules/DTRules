@@ -371,6 +371,8 @@ func (c *Context) SetEntity(entityName, fieldName string, value interface{}) *Co
 
 // populateSession populates a session with context data.
 func (c *Context) populateSession(sess *session.RSession) error {
+	state := sess.GetState()
+
 	// For each entity with data, create an instance and populate it
 	for entityName, fields := range c.entities {
 		entity, err := sess.CreateEntity(dtrules.GetRName(entityName))
@@ -387,6 +389,9 @@ func (c *Context) populateSession(sess *session.RSession) error {
 				return fmt.Errorf("failed to set %s.%s: %w", entityName, fieldName, err)
 			}
 		}
+
+		// Push entity onto stack so decision tables can access it
+		state.EntityPush(entity)
 	}
 
 	// Simple inputs go to session attributes or a default entity
