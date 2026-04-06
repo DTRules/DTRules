@@ -483,3 +483,73 @@ func createEDDWorkbook(t *testing.T, dir, filename, entityName string) string {
 
 	return filePath
 }
+
+// TestStripDTOrEDDSuffix tests the suffix stripping helper function
+func TestStripDTOrEDDSuffix(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"TaxReturn_edd", "TaxReturn"},
+		{"TaxReturn_dt", "TaxReturn"},
+		{"CO_edd", "CO"},
+		{"CO_dt", "CO"},
+		{"MyFile", "MyFile"},
+		{"file_with_underscore", "file_with_underscore"},
+		{"edd_prefix", "edd_prefix"}, // Not a suffix
+		{"dt_prefix", "dt_prefix"},   // Not a suffix
+		{"_edd", ""},                 // Edge case: just suffix
+		{"_dt", ""},                  // Edge case: just suffix
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			result := stripDTOrEDDSuffix(tt.input)
+			if result != tt.expected {
+				t.Errorf("stripDTOrEDDSuffix(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+// TestImportWorkbookToDirNoDoubleSuffix ensures _edd.xlsx doesn't become _edd_edd.xml
+func TestImportWorkbookToDirNoDoubleSuffix(t *testing.T) {
+	// Create temp directory
+	tempDir := t.TempDir()
+	excelDir := filepath.Join(tempDir, "excel")
+	xmlDir := filepath.Join(tempDir, "xml")
+
+	if err := os.MkdirAll(excelDir, 0755); err != nil {
+		t.Fatalf("Failed to create excel dir: %v", err)
+	}
+	if err := os.MkdirAll(xmlDir, 0755); err != nil {
+		t.Fatalf("Failed to create xml dir: %v", err)
+	}
+
+	// Create EDD workbook with _edd suffix in filename (like TaxReturn_edd.xlsx)
+	excelPath := createEDDWorkbook(t, excelDir, "test_edd.xlsx", "result")
+
+	// Import it
+	importer := NewWorkbookImporter()
+	dtPath, eddPath, err := importer.ImportWorkbookToDir(excelPath, xmlDir)
+	if err != nil {
+		t.Fatalf("ImportWorkbookToDir failed: %v", err)
+	}
+
+	// dtPath should be empty (no DT sheet)
+	if dtPath != "" {
+		t.Errorf("Expected empty dtPath, got %q", dtPath)
+	}
+
+	// eddPath should be test_edd.xml, NOT test_edd_edd.xml
+	expectedEddPath := filepath.Join(xmlDir, "test_edd.xml")
+	if eddPath != expectedEddPath {
+		t.Errorf("eddPath = %q, want %q", eddPath, expectedEddPath)
+	}
+
+	// Verify the _edd_edd.xml file does NOT exist
+	badPath := filepath.Join(xmlDir, "test_edd_edd.xml")
+	if _, err := os.Stat(badPath); err == nil {
+		t.Errorf("Spurious file %q should not exist", badPath)
+	}
+}

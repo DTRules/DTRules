@@ -42,6 +42,9 @@ func init() {
 	Register("doloop", opDoloop)
 	Register("lookup", opLookup)
 	Register("throwexception", opThrowException)
+	Register("abort", opAbort)
+	Register("log_warning", opLogWarning)
+	Alias("log_warning", "logwarning")
 	Register("forfirst", opForFirst)
 	Register("forfirstelse", opForFirstElse)
 	Register("entityforall", opEntityForAll)
@@ -53,7 +56,7 @@ func init() {
 	Register("local!", opLocalStore)
 	Register("ignore", opIgnore)
 	Alias("ignore", "nop")
-	Alias("ignore", "performaliased")
+	Register("performaliased", opPerformAliased)
 	Register("executetable", opExecuteTable)
 	Register("performtable", opPerformTable)
 	Register("performcatcherror", opPerformCatchError)
@@ -395,6 +398,30 @@ func opThrowException(state dtrules.State) error {
 	return dtrules.NewRulesError("throwException", "ThrowException.execute()", value.StringValue())
 }
 
+// opAbort: ( string -- ) stops execution with error message
+// Use this when data validation fails and execution cannot continue.
+// Example: sync_coverage_percent 95 < if "Sync coverage below 95%" ABORT then
+func opAbort(state dtrules.State) error {
+	value, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	return dtrules.NewRulesError("Abort", "ABORT", value.StringValue())
+}
+
+// opLogWarning: ( string -- ) logs a warning message but continues execution
+// Use this to record warnings without stopping rule evaluation.
+// Example: "Data may be stale" LOG_WARNING
+func opLogWarning(state dtrules.State) error {
+	value, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	// Print warning to stdout with WARNING prefix
+	state.Print(fmt.Sprintf("WARNING: %s\n", value.StringValue()))
+	return nil
+}
+
 // opForFirst: ( body test array -- ) executes body for first entity matching test
 func opForFirst(state dtrules.State) error {
 	arrayObj, err := state.DataPop()
@@ -649,6 +676,42 @@ func opPerformTable(state dtrules.State) error {
 	}
 	// Call Execute which runs the context first (if any), then the decision tree
 	return dtObj.Execute(state)
+}
+
+// opPerformAliased: ( name -- ) executes a decision table using the current entity context
+// This is typically used inside forall loops where the entity is already on the entity stack.
+// Unlike performtable which runs the table's context setup, this runs ExecuteTable directly.
+// This is also the operator used by EL's "perform TableName" syntax.
+func opPerformAliased(state dtrules.State) error {
+	nameObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	name, err := nameObj.RNameValue()
+	if err != nil {
+		return err
+	}
+	// Get the session and entity factory
+	session := state.GetSession()
+	if session == nil {
+		return dtrules.UndefinedError("PerformAliased", "No session available")
+	}
+	ef := session.GetEntityFactory()
+	if ef == nil {
+		return dtrules.UndefinedError("PerformAliased", "No entity factory available")
+	}
+	// Get the decision table from the entity factory
+	dtObj, err := ef.GetDecisionTable(name)
+	if err != nil {
+		return err
+	}
+	if dtObj == nil {
+		return dtrules.UndefinedError("PerformAliased", "Decision table not found: "+name.StringValue())
+	}
+	// Call ExecuteTable which runs the decision tree directly without context setup
+	// This is appropriate when called from within a forall loop where the entity
+	// context has already been established
+	return dtObj.ExecuteTable(state)
 }
 
 // opPerformCatchError: ( table error_table error_entity -- )

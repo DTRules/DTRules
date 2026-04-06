@@ -355,10 +355,16 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) {
 			compiled, err := l.elCompiler.CompileAction(dsl)
 			if err != nil {
-				// DSL is not valid EL - log warning and use no-op as fallback
-				log.Printf("Warning: Initial action %d ('%s') is not valid EL, using no-op: %v",
-					i+1, dsl, err)
-				postfix = "" // No-op
+				// DSL is not valid EL - preserve existing postfix if present, otherwise use no-op
+				if postfix != "" {
+					// Keep existing postfix (even if comment-only) - it may contain documentation
+					log.Printf("Warning: Initial action %d ('%s') is not valid EL, using existing postfix: %v",
+						i+1, dsl, err)
+				} else {
+					log.Printf("Warning: Initial action %d ('%s') is not valid EL, using no-op: %v",
+						i+1, dsl, err)
+					// postfix is already "" (no-op)
+				}
 			} else {
 				postfix = compiled
 			}
@@ -389,16 +395,24 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) {
 			compiled, err := l.elCompiler.CompileCondition(dsl)
 			if err != nil {
-				// DSL is not valid EL - log warning and use "true always" as fallback
-				log.Printf("Warning: Condition %d ('%s') is not valid EL, using 'always true': %v",
-					i+1, dsl, err)
-				postfix = "true always"
+				// DSL is not valid EL - preserve existing postfix if present, otherwise use fallback
+				if postfix != "" {
+					// Keep existing postfix (even if comment-only) - it may contain documentation
+					log.Printf("Warning: Condition %d ('%s') is not valid EL, using existing postfix: %v",
+						i+1, dsl, err)
+				} else {
+					log.Printf("Warning: Condition %d ('%s') is not valid EL, using 'always true': %v",
+						i+1, dsl, err)
+					postfix = "true always"
+				}
 			} else {
 				postfix = compiled
 			}
 		} else if isEmptyOrCommentOnly(postfix) && isCommentLine(dslTrimmed) {
-			// DSL is a comment - use "true always" as fallback
-			postfix = "true always"
+			// DSL is a comment - use "true always" as fallback only if no existing postfix
+			if postfix == "" {
+				postfix = "true always"
+			}
 		}
 		conditionsPostfix[i] = postfix
 		conditionsComment[i] = cond.Comment
@@ -437,10 +451,16 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) {
 			compiled, err := l.elCompiler.CompileAction(dsl)
 			if err != nil {
-				// DSL is not valid EL - log warning and use no-op as fallback
-				log.Printf("Warning: Action %d ('%s') is not valid EL, using no-op: %v",
-					i+1, dsl, err)
-				postfix = "" // No-op
+				// DSL is not valid EL - preserve existing postfix if present, otherwise use no-op
+				if postfix != "" {
+					// Keep existing postfix (even if comment-only) - it may contain documentation
+					log.Printf("Warning: Action %d ('%s') is not valid EL, using existing postfix: %v",
+						i+1, dsl, err)
+				} else {
+					log.Printf("Warning: Action %d ('%s') is not valid EL, using no-op: %v",
+						i+1, dsl, err)
+					// postfix is already "" (no-op)
+				}
 			} else {
 				postfix = compiled
 			}
@@ -615,16 +635,11 @@ func normalizeIfThen(tokens []string) []string {
 					depth++
 				case "endif":
 					depth--
-					if depth == 0 {
-						// Already using endif, nothing to do
-						break
-					}
 				case "then":
 					depth--
 					if depth == 0 {
 						// Convert then to endif
 						tokens[j] = "endif"
-						break
 					}
 				}
 				if depth == 0 {
