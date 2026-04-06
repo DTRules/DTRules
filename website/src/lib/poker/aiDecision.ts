@@ -158,7 +158,7 @@ export async function makeAIDecisionAsync(player: PokerPlayer, game: PokerGame, 
     pot: game.pot,
     current_bet: game.currentBet,
     big_blind: game.bigBlind,
-    phase: game.phase,
+    phase: game.round || 'preflop', // Use round field, default to preflop
   };
 
   const playerState: PokerPlayerState = {
@@ -326,8 +326,20 @@ async function processAllAITurnsImpl(
       game.players.length
     );
 
-    // Get AI decision (use async version if API is available)
-    let action = await makeAIDecisionAsync(currentPlayer, game, handStrength);
+    // Get AI decision from Go engine
+    let action: PokerAction;
+    try {
+      action = await makeAIDecisionAsync(currentPlayer, game, handStrength);
+    } catch (error) {
+      // On API error, use safe default action (check if possible, fold otherwise)
+      console.error('AI decision failed:', error);
+      const toCall = game.currentBet - currentPlayer.currentBet;
+      action = {
+        playerId: currentPlayer.id,
+        actionType: toCall === 0 ? 'check' : 'fold',
+        amount: 0,
+      };
+    }
 
     // Process action
     let result = processPokerAction(game, action);
@@ -417,8 +429,20 @@ export async function processInitialAITurns(game: PokerGame): Promise<void> {
       game.players.length
     );
 
-    // Get AI decision from Go engine (no fallback)
-    let action = await makeAIDecisionAsync(currentPlayer, game, handStrength);
+    // Get AI decision from Go engine
+    let action: PokerAction;
+    try {
+      action = await makeAIDecisionAsync(currentPlayer, game, handStrength);
+    } catch (error) {
+      // On API error, use safe default action (check if possible, fold otherwise)
+      console.error('Initial AI decision failed:', error);
+      const toCall = game.currentBet - currentPlayer.currentBet;
+      action = {
+        playerId: currentPlayer.id,
+        actionType: toCall === 0 ? 'check' : 'fold',
+        amount: 0,
+      };
+    }
 
     // Process action
     let result = processPokerAction(game, action);

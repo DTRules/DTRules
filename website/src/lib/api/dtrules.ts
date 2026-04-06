@@ -4,6 +4,8 @@ const API_BASE = typeof window !== 'undefined'
   ? (window as any).__DTRULES_API__ || 'http://localhost:8080'
   : 'http://localhost:8080';
 
+const API_TIMEOUT_MS = 5000; // 5 second timeout
+
 export interface PokerGameState {
   pot: number;
   current_bet: number;
@@ -38,11 +40,33 @@ export interface ExecuteResponse {
 
 let projectLoaded = false;
 
+/**
+ * Fetch with timeout support
+ */
+async function fetchWithTimeout(
+  url: string,
+  options: RequestInit,
+  timeoutMs: number = API_TIMEOUT_MS
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export async function ensurePokerProjectLoaded(): Promise<boolean> {
   if (projectLoaded) return true;
 
   try {
-    const response = await fetch(`${API_BASE}/api/project/open`, {
+    const response = await fetchWithTimeout(`${API_BASE}/api/project/open`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: 'sampleprojects/Poker' })
@@ -65,44 +89,93 @@ export class DTRulesApiError extends Error {
   }
 }
 
+/**
+ * Validate that the decision result has all required fields
+ */
+function validateDecisionResult(decision: unknown): decision is PokerDecisionResult {
+  if (!decision || typeof decision !== 'object') return false;
+  const d = decision as Record<string, unknown>;
+
+  // Check action is a valid string
+  if (typeof d.action !== 'string') return false;
+  const validActions = ['RAISE', 'CALL', 'CHECK', 'FOLD'];
+  if (!validActions.includes(d.action.toUpperCase())) return false;
+
+  // raise_amount should be a number (can be 0)
+  if (typeof d.raise_amount !== 'number' || d.raise_amount < 0) {
+    d.raise_amount = 0; // Default to 0 if invalid
+  }
+
+  return true;
+}
+
 export async function executePokerDecision(
   gameState: PokerGameState,
   playerState: PokerPlayerState
 ): Promise<PokerDecisionResult> {
-  await ensurePokerProjectLoaded();
+  const loaded = await ensurePokerProjectLoaded();
+  if (!loaded) {
+    throw new DTRulesApiError('Failed to load Poker project');
+  }
 
-  const response = await fetch(`${API_BASE}/api/execute`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      tableName: 'Poker_Decision',
-      data: {
-        game: gameState,
-        player: playerState,
-        decision: {
-          action: '',
-          raise_amount: 0,
-          reasoning: ''
-        }
-      },
-      trace: false
-    })
-  });
+  let response: Response;
+  try {
+    response = await fetchWithTimeout(`${API_BASE}/api/execute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tableName: 'Poker_Decision',
+        data: {
+          game: gameState,
+          player: playerState,
+          decision: {
+            action: '',
+            raise_amount: 0,
+            reasoning: ''
+          }
+        },
+        trace: false
+      })
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new DTRulesApiError('API request timed out');
+    }
+    throw new DTRulesApiError(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 
   if (!response.ok) {
     throw new DTRulesApiError(`API request failed: ${response.statusText}`, response.status);
   }
 
-  const result: ExecuteResponse = await response.json();
+  let result: ExecuteResponse;
+  try {
+    result = await response.json();
+  } catch {
+    throw new DTRulesApiError('Invalid JSON response from API');
+  }
+
   if (result.success && result.result?.decision) {
-    return result.result.decision;
+    if (validateDecisionResult(result.result.decision)) {
+      // Normalize action to uppercase
+      result.result.decision.action = result.result.decision.action.toUpperCase() as PokerDecisionResult['action'];
+      return result.result.decision;
+    }
+    throw new DTRulesApiError('Invalid decision format from API');
   }
 
   throw new DTRulesApiError(result.error || 'Decision table execution failed');
 }
 
-export function isApiAvailable(): Promise<boolean> {
-  return fetch(`${API_BASE}/api/health`, { method: 'GET' })
-    .then(r => r.ok)
-    .catch(() => false);
+export async function isApiAvailable(): Promise<boolean> {
+  try {
+    const response = await fetchWithTimeout(
+      `${API_BASE}/api/health`,
+      { method: 'GET' },
+      2000 // Shorter timeout for health check
+    );
+    return response.ok;
+  } catch {
+    return false;
+  }
 }
