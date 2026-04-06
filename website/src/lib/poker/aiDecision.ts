@@ -5,9 +5,26 @@ import { ARCHETYPE_TAG, ARCHETYPE_LAG, ARCHETYPE_ROCK, ARCHETYPE_CALLING } from 
 import { secureRandom } from './deck';
 import { selectBestFiveCards } from './handEval';
 import { processPokerAction, advanceToNextPlayer, checkAndAdvanceRound } from './gameLogic';
+import { executePokerDecision, isApiAvailable, type PokerGameState, type PokerPlayerState } from '../api/dtrules';
 
 // Promise-based queue to prevent concurrent AI processing
 let aiProcessingQueue: Promise<void> = Promise.resolve();
+
+// Module-level flags for API availability
+let useGoApi = false;
+let apiCheckDone = false;
+
+export async function checkApiAvailability(): Promise<boolean> {
+  if (!apiCheckDone) {
+    useGoApi = await isApiAvailable();
+    apiCheckDone = true;
+  }
+  return useGoApi;
+}
+
+export function isUsingGoApi(): boolean {
+  return useGoApi;
+}
 
 /**
  * Calculate hand strength from hand rank (1-10) to (0.0-1.0)
@@ -108,7 +125,79 @@ export function getPlayerPosition(playerIdx: number, dealerPos: number, numPlaye
 }
 
 /**
- * Make an AI decision based on archetype and hand strength
+ * Make an AI decision using DTRules Go API with fallback to hardcoded logic
+ */
+export async function makeAIDecisionAsync(player: PokerPlayer, game: PokerGame, handStrength: number): Promise<PokerAction> {
+  // Try Go API if available
+  if (useGoApi) {
+    try {
+      const toCall = game.currentBet - player.currentBet;
+      const canCheck = toCall === 0;
+      let potOdds = 0.0;
+      if (game.pot + toCall > 0) {
+        potOdds = toCall / (game.pot + toCall);
+      }
+
+      // Convert to API types
+      const gameState: PokerGameState = {
+        pot: game.pot,
+        current_bet: game.currentBet,
+        big_blind: game.bigBlind,
+        phase: game.phase,
+      };
+
+      const playerState: PokerPlayerState = {
+        name: player.name,
+        chips: player.chips,
+        current_bet: player.currentBet,
+        hand_strength: Math.round(handStrength * 100), // Convert 0-1 to 0-100
+        pot_odds: Math.round(potOdds * 100), // Convert 0-1 to 0-100
+        can_check: canCheck,
+        position: player.position || 'middle',
+        archetype: player.archetype || 'TAG',
+      };
+
+      const result = await executePokerDecision(gameState, playerState);
+
+      if (result) {
+        // Convert API result back to PokerAction
+        const action: PokerAction = {
+          playerId: player.id,
+          actionType: result.action.toLowerCase(),
+          amount: 0,
+        };
+
+        if (result.action === 'RAISE') {
+          action.amount = result.raise_amount;
+          // Validate raise amount
+          const minRaise = game.currentBet + game.minRaise;
+          if (action.amount < minRaise) {
+            action.amount = minRaise;
+          }
+          const maxRaise = player.chips + player.currentBet;
+          if (action.amount > maxRaise) {
+            if (player.chips > toCall) {
+              action.actionType = 'allin';
+            } else {
+              action.actionType = 'call';
+            }
+          }
+        }
+
+        return action;
+      }
+    } catch (e) {
+      // Fall through to hardcoded logic
+      console.warn('DTRules API call failed, using fallback logic:', e);
+    }
+  }
+
+  // Fallback to hardcoded logic
+  return makeAIDecision(player, game, handStrength);
+}
+
+/**
+ * Make an AI decision based on archetype and hand strength (hardcoded fallback)
  */
 export function makeAIDecision(player: PokerPlayer, game: PokerGame, handStrength: number): PokerAction {
   const toCall = game.currentBet - player.currentBet;
@@ -378,8 +467,8 @@ async function processAllAITurnsImpl(
       game.players.length
     );
 
-    // Get AI decision
-    let action = makeAIDecision(currentPlayer, game, handStrength);
+    // Get AI decision (use async version if API is available)
+    let action = await makeAIDecisionAsync(currentPlayer, game, handStrength);
 
     // Process action
     let result = processPokerAction(game, action);

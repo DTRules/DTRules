@@ -16,6 +16,11 @@ import BettingControls from '../components/poker/BettingControls.astro';
         <p class="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
           Texas Hold'em poker powered by DTRules decision tables. <span class="text-purple-400">Watch the AI think!</span>
         </p>
+        <div class="mt-2 flex justify-center">
+          <span id="api-status" class="text-gray-400 text-sm flex items-center">
+            <span class="inline-block w-2 h-2 rounded-full bg-gray-400 mr-1.5 animate-pulse"></span>Checking engine...
+          </span>
+        </div>
       </div>
 
       <!-- Main Layout: Decision Theater (hero) + Compact Game -->
@@ -155,9 +160,34 @@ import BettingControls from '../components/poker/BettingControls.astro';
       generateDecisionExplanation,
       getDecisionTable,
       ARCHETYPE_STRATEGIES,
+      checkApiAvailability,
+      isUsingGoApi,
     } from '../lib/poker/index';
     import type { PokerGame, PokerPlayer, PokerCard, AIActionResult } from '../lib/poker/index';
     import { GAME_CONFIG } from '../lib/poker/gameConfig';
+
+    // API status indicator
+    let apiStatusElement: HTMLElement | null = null;
+
+    async function initializeApiCheck() {
+      const available = await checkApiAvailability();
+      updateApiStatus(available);
+    }
+
+    function updateApiStatus(available: boolean) {
+      if (!apiStatusElement) {
+        apiStatusElement = document.getElementById('api-status');
+      }
+      if (apiStatusElement) {
+        if (available) {
+          apiStatusElement.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-green-400 mr-1.5"></span>DTRules Go Engine';
+          apiStatusElement.className = 'text-green-400 text-sm flex items-center';
+        } else {
+          apiStatusElement.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1.5"></span>JavaScript Fallback';
+          apiStatusElement.className = 'text-yellow-400 text-sm flex items-center';
+        }
+      }
+    }
 
     // Game statistics tracking
     interface GameStats {
@@ -1231,6 +1261,9 @@ import BettingControls from '../components/poker/BettingControls.astro';
 
       // Add keyboard navigation
       document.addEventListener('keydown', handleKeyboardShortcut);
+
+      // Check API availability on load
+      initializeApiCheck();
 
       // Initialize stats display
       updateStatsDisplay(gameStats);

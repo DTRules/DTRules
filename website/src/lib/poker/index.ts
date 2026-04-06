@@ -72,6 +72,8 @@ export {
   makeAIDecision,
   processAllAITurns,
   processAITurnsSync,
+  checkApiAvailability,
+  isUsingGoApi,
 } from './aiDecision';
 
 // Decision table data
