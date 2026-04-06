@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+	<!--
+	Poker Demo - Entity Data Dictionary
+
+	Defines entities for poker AI decision making:
+	- game: Root entity with game state
+	- player: Player state for AI decision making
+	- decision: Result of AI decision
+	-->
+
+	<file_metadata>
+		<file_path>poker/entities</file_path>
+	</file_metadata>
+
+	<!-- Game entity - root entity with overall game state -->
+	<entity name="game" xls_file="Poker.xls" access="rw" comment="Root entity for poker game state">
+		<field name="game" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="string" subtype="" access="r" input="main" default_value="" comment="Game ID" />
+		<field name="pot" type="double" subtype="" access="rw" input="main" default_value="0" comment="Current pot size" />
+		<field name="current_bet" type="double" subtype="" access="rw" input="main" default_value="0" comment="Current bet to call" />
+		<field name="big_blind" type="double" subtype="" access="rw" input="main" default_value="20" comment="Big blind amount" />
+		<field name="phase" type="string" subtype="" access="rw" input="main" default_value="preflop" comment="Game phase: preflop, flop, turn, river" />
+		<field name="players" type="array" subtype="player" access="r" input="" default_value="" comment="Players in the game" />
+		<field name="decisions" type="array" subtype="decision" access="r" input="" default_value="" comment="AI decisions made" />
+		<field name="audit_trail" type="array" subtype="" access="rw" input="" default_value="" comment="Detailed trace of decisions" />
+	</entity>
+
+	<!-- Player entity - represents a player's state for AI decision making -->
+	<entity name="player" xls_file="Poker.xls" access="rw" comment="Player state for AI decisions">
+		<field name="player" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="id" type="string" subtype="" access="r" input="main" default_value="" comment="Player ID" />
+		<field name="name" type="string" subtype="" access="r" input="main" default_value="" comment="Player name" />
+		<field name="archetype" type="string" subtype="" access="r" input="main" default_value="TAG" comment="AI archetype: TAG, LAG, Rock, Calling" />
+		<field name="hand_strength" type="double" subtype="" access="rw" input="main" default_value="0" comment="Hand strength 0.0 to 1.0" />
+		<field name="pot_odds" type="double" subtype="" access="rw" input="main" default_value="0" comment="Pot odds ratio" />
+		<field name="can_check" type="boolean" subtype="" access="rw" input="main" default_value="false" comment="Whether player can check (no bet to call)" />
+		<field name="position" type="string" subtype="" access="rw" input="main" default_value="middle" comment="Position: early, middle, late, button" />
+		<field name="stack_size" type="double" subtype="" access="rw" input="main" default_value="1000" comment="Player's chip stack" />
+		<field name="is_small_bet" type="boolean" subtype="" access="rw" input="main" default_value="false" comment="Whether bet is small (less than 2x big blind)" />
+	</entity>
+
+	<!-- Decision entity - result of AI decision making -->
+	<entity name="decision" xls_file="Poker.xls" access="rw" comment="AI decision result">
+		<field name="decision" type="entity" subtype="" access="r" input="" default_value="" comment="Self Reference" />
+		<field name="mapping*key" type="string" subtype="" access="r" input="" default_value="" comment="Mapping Key" />
+		<field name="player_id" type="string" subtype="" access="rw" input="" default_value="" comment="ID of player who made decision" />
+		<field name="archetype" type="string" subtype="" access="rw" input="" default_value="" comment="AI archetype that made decision" />
+		<field name="action" type="string" subtype="" access="rw" input="" default_value="" comment="Action: RAISE, CALL, CHECK, FOLD" />
+		<field name="raise_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Amount to raise (if action is RAISE)" />
+		<field name="reasoning" type="string" subtype="" access="rw" input="" default_value="" comment="Explanation of decision" />
+	</entity>
+</entity_data_dictionary>

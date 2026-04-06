@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Basic Poker AI Decision Test Scenarios
+
+  Tests each of the 4 AI archetypes with various hand strengths and game states.
+  Each player represents a different test case.
+-->
+<game>
+  <id>test_game_001</id>
+  <pot>100</pot>
+  <current_bet>20</current_bet>
+  <big_blind>20</big_blind>
+  <phase>flop</phase>
+
+  <!-- Test Case 1: TAG with strong hand (should RAISE) -->
+  <player>
+    <id>tag_strong</id>
+    <name>TAG Strong Hand</name>
+    <archetype>TAG</archetype>
+    <hand_strength>0.75</hand_strength>
+    <pot_odds>0.3</pot_odds>
+    <can_check>false</can_check>
+    <position>middle</position>
+    <stack_size>1000</stack_size>
+    <is_small_bet>false</is_small_bet>
+  </player>
+
+  <!-- Test Case 2: TAG with medium hand and good pot odds (should CALL) -->
+  <player>
+    <id>tag_medium</id>
+    <name>TAG Medium Hand</name>
+    <archetype>TAG</archetype>
+    <hand_strength>0.55</hand_strength>
+    <pot_odds>0.2</pot_odds>
+    <can_check>false</can_check>
+    <position>late</position>
+    <stack_size>800</stack_size>
+    <is_small_bet>true</is_small_bet>
+  </player>
+
+  <!-- Test Case 3: TAG with weak hand, can check (should CHECK) -->
+  <player>
+    <id>tag_weak_check</id>
+    <name>TAG Weak Can Check</name>
+    <archetype>TAG</archetype>
+    <hand_strength>0.30</hand_strength>
+    <pot_odds>0.5</pot_odds>
+    <can_check>true</can_check>
+    <position>button</position>
+    <stack_size>1200</stack_size>
+    <is_small_bet>false</is_small_bet>
+  </player>
+
+  <!-- Test Case 4: TAG with weak hand, must call (should FOLD) -->
+  <player>
+    <id>tag_weak_fold</id>
+    <name>TAG Weak Must Fold</name>
+    <archetype>TAG</archetype>
+    <hand_strength>0.25</hand_strength>
+    <pot_odds>0.6</pot_odds>
+    <can_check>false</can_check>
+    <position>early</position>
+    <stack_size>500</stack_size>
+    <is_small_bet>false</is_small_bet>
+  </player>
+
+  <!-- Test Case 5: LAG with good position and marginal hand (should RAISE) -->
+  <player>
+    <id>lag_position</id>
+    <name>LAG Position Play</name>
+    <archetype>LAG</archetype>
+    <hand_strength>0.35</hand_strength>
+    <pot_odds>0.4</pot_odds>
+    <can_check>false</can_check>
+    <position>button</position>
+    <stack_size>1500</stack_size>
+    <is_small_bet>true</is_small_bet>
+  </player>
+
+  <!-- Test Case 6: LAG with strong hand (should RAISE) -->
+  <player>
+    <id>lag_strong</id>
+    <name>LAG Strong Hand</name>
+    <archetype>LAG</archetype>
+    <hand_strength>0.65</hand_strength>
+    <pot_odds>0.3</pot_odds>
+    <can_check>false</can_check>
+    <position>middle</position>
+    <stack_size>900</stack_size>
+    <is_small_bet>false</is_small_bet>
+  </player>
+
+  <!-- Test Case 7: Rock with monster hand (should RAISE - rare!) -->
+  <player>
+    <id>rock_monster</id>
+    <name>Rock Monster Hand</name>
+    <archetype>Rock</archetype>
+    <hand_strength>0.90</hand_strength>
+    <pot_odds>0.2</pot_odds>
+    <can_check>false</can_check>
+    <position>middle</position>
+    <stack_size>1000</stack_size>
+    <is_small_bet>false</is_small_bet>
+  </player>
+
+  <!-- Test Case 8: Rock with good hand (should CALL) -->
+  <player>
+    <id>rock_good</id>
+    <name>Rock Good Hand</name>
+    <archetype>Rock</archetype>
+    <hand_strength>0.70</hand_strength>
+    <pot_odds>0.3</pot_odds>
+    <can_check>false</can_check>
+    <position>late</position>
+    <stack_size>800</stack_size>
+    <is_small_bet>true</is_small_bet>
+  </player>
+
+  <!-- Test Case 9: Rock with weak hand (should FOLD) -->
+  <player>
+    <id>rock_weak</id>
+    <name>Rock Weak Hand</name>
+    <archetype>Rock</archetype>
+    <hand_strength>0.40</hand_strength>
+    <pot_odds>0.5</pot_odds>
+    <can_check>false</can_check>
+    <position>early</position>
+    <stack_size>600</stack_size>
+    <is_small_bet>false</is_small_bet>
+  </player>
+
+  <!-- Test Case 10: Calling Station with any value (should CALL) -->
+  <player>
+    <id>calling_value</id>
+    <name>Calling Station Value</name>
+    <archetype>Calling</archetype>
+    <hand_strength>0.25</hand_strength>
+    <pot_odds>0.4</pot_odds>
+    <can_check>false</can_check>
+    <position>middle</position>
+    <stack_size>1000</stack_size>
+    <is_small_bet>false</is_small_bet>
+  </player>
+
+  <!-- Test Case 11: Calling Station with small bet (should CALL) -->
+  <player>
+    <id>calling_small</id>
+    <name>Calling Station Small Bet</name>
+    <archetype>Calling</archetype>
+    <hand_strength>0.15</hand_strength>
+    <pot_odds>0.5</pot_odds>
+    <can_check>false</can_check>
+    <position>late</position>
+    <stack_size>700</stack_size>
+    <is_small_bet>true</is_small_bet>
+  </player>
+
+  <!-- Test Case 12: Calling Station facing big bet with garbage (should FOLD - rare!) -->
+  <player>
+    <id>calling_fold</id>
+    <name>Calling Station Rare Fold</name>
+    <archetype>Calling</archetype>
+    <hand_strength>0.10</hand_strength>
+    <pot_odds>0.7</pot_odds>
+    <can_check>false</can_check>
+    <position>early</position>
+    <stack_size>400</stack_size>
+    <is_small_bet>false</is_small_bet>
+  </player>
+</game>
