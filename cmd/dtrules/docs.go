@@ -784,6 +784,8 @@ Operator        Stack Effect              Example
 --------------  ---------------------     -----------------------
 newarray        ( -- [])                  Create empty array
 addto           (array val -- array)      Add value to array
+add             (val array -- )           Add value to array (reversed args)
+find_by_field   (array field val -- e|null) Find entity by field value
 length          (array -- len)            Get array length
 get             (array idx -- val)        Get element at index
 first           (array -- val)            Get first element
@@ -814,6 +816,8 @@ for             (array {body} -- )        Iterate over array
 while           ({cond} {body} -- )       Loop while condition true
 break           ( -- )                    Exit loop
 return          ( -- )                    Return from table
+abort           (string -- )              Stop execution with error message
+log_warning     (string -- )              Log warning and continue
 
 
 Special Values
