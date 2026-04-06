@@ -1,29 +1,42 @@
-// AI Decision logic - ported from Go poker.go lines 1247-1484
+// AI Decision logic - uses Go DTRules engine exclusively (no JavaScript fallback)
 
 import type { PokerGame, PokerPlayer, PokerAction } from './types';
 import { ARCHETYPE_TAG, ARCHETYPE_LAG, ARCHETYPE_ROCK, ARCHETYPE_CALLING } from './constants';
 import { secureRandom } from './deck';
 import { selectBestFiveCards } from './handEval';
 import { processPokerAction, advanceToNextPlayer, checkAndAdvanceRound } from './gameLogic';
-import { executePokerDecision, isApiAvailable, type PokerGameState, type PokerPlayerState } from '../api/dtrules';
+import { executePokerDecision, isApiAvailable, DTRulesApiError, type PokerGameState, type PokerPlayerState } from '../api/dtrules';
 
 // Promise-based queue to prevent concurrent AI processing
 let aiProcessingQueue: Promise<void> = Promise.resolve();
 
-// Module-level flags for API availability
-let useGoApi = false;
+// API availability state
+let apiAvailable = false;
 let apiCheckDone = false;
+
+export class EngineUnavailableError extends Error {
+  constructor(message: string = 'DTRules Go engine is not available. Please start the API server.') {
+    super(message);
+    this.name = 'EngineUnavailableError';
+  }
+}
 
 export async function checkApiAvailability(): Promise<boolean> {
   if (!apiCheckDone) {
-    useGoApi = await isApiAvailable();
+    apiAvailable = await isApiAvailable();
     apiCheckDone = true;
   }
-  return useGoApi;
+  return apiAvailable;
 }
 
 export function isUsingGoApi(): boolean {
-  return useGoApi;
+  return apiAvailable;
+}
+
+export function requireApiAvailable(): void {
+  if (!apiAvailable) {
+    throw new EngineUnavailableError();
+  }
 }
 
 /**
@@ -125,81 +138,14 @@ export function getPlayerPosition(playerIdx: number, dealerPos: number, numPlaye
 }
 
 /**
- * Make an AI decision using DTRules Go API with fallback to hardcoded logic
+ * Make an AI decision using DTRules Go API (no fallback - requires API server)
+ * @throws {EngineUnavailableError} if API is not available
+ * @throws {DTRulesApiError} if API call fails
  */
 export async function makeAIDecisionAsync(player: PokerPlayer, game: PokerGame, handStrength: number): Promise<PokerAction> {
-  // Try Go API if available
-  if (useGoApi) {
-    try {
-      const toCall = game.currentBet - player.currentBet;
-      const canCheck = toCall === 0;
-      let potOdds = 0.0;
-      if (game.pot + toCall > 0) {
-        potOdds = toCall / (game.pot + toCall);
-      }
+  // Require API to be available - no fallback
+  requireApiAvailable();
 
-      // Convert to API types
-      const gameState: PokerGameState = {
-        pot: game.pot,
-        current_bet: game.currentBet,
-        big_blind: game.bigBlind,
-        phase: game.phase,
-      };
-
-      const playerState: PokerPlayerState = {
-        name: player.name,
-        chips: player.chips,
-        current_bet: player.currentBet,
-        hand_strength: Math.round(handStrength * 100), // Convert 0-1 to 0-100
-        pot_odds: Math.round(potOdds * 100), // Convert 0-1 to 0-100
-        can_check: canCheck,
-        position: player.position || 'middle',
-        archetype: player.archetype || 'TAG',
-      };
-
-      const result = await executePokerDecision(gameState, playerState);
-
-      if (result) {
-        // Convert API result back to PokerAction
-        const action: PokerAction = {
-          playerId: player.id,
-          actionType: result.action.toLowerCase(),
-          amount: 0,
-        };
-
-        if (result.action === 'RAISE') {
-          action.amount = result.raise_amount;
-          // Validate raise amount
-          const minRaise = game.currentBet + game.minRaise;
-          if (action.amount < minRaise) {
-            action.amount = minRaise;
-          }
-          const maxRaise = player.chips + player.currentBet;
-          if (action.amount > maxRaise) {
-            if (player.chips > toCall) {
-              action.actionType = 'allin';
-            } else {
-              action.actionType = 'call';
-            }
-          }
-        }
-
-        return action;
-      }
-    } catch (e) {
-      // Fall through to hardcoded logic
-      console.warn('DTRules API call failed, using fallback logic:', e);
-    }
-  }
-
-  // Fallback to hardcoded logic
-  return makeAIDecision(player, game, handStrength);
-}
-
-/**
- * Make an AI decision based on archetype and hand strength (hardcoded fallback)
- */
-export function makeAIDecision(player: PokerPlayer, game: PokerGame, handStrength: number): PokerAction {
   const toCall = game.currentBet - player.currentBet;
   const canCheck = toCall === 0;
   let potOdds = 0.0;
@@ -207,127 +153,37 @@ export function makeAIDecision(player: PokerPlayer, game: PokerGame, handStrengt
     potOdds = toCall / (game.pot + toCall);
   }
 
+  // Convert to API types
+  const gameState: PokerGameState = {
+    pot: game.pot,
+    current_bet: game.currentBet,
+    big_blind: game.bigBlind,
+    phase: game.phase,
+  };
+
+  const playerState: PokerPlayerState = {
+    name: player.name,
+    chips: player.chips,
+    current_bet: player.currentBet,
+    hand_strength: Math.round(handStrength * 100), // Convert 0-1 to 0-100
+    pot_odds: Math.round(potOdds * 100), // Convert 0-1 to 0-100
+    can_check: canCheck,
+    position: player.position || 'middle',
+    archetype: player.archetype || 'TAG',
+  };
+
+  const result = await executePokerDecision(gameState, playerState);
+
+  // Convert API result back to PokerAction
   const action: PokerAction = {
     playerId: player.id,
-    actionType: '',
+    actionType: result.action.toLowerCase(),
     amount: 0,
   };
 
-  // Add some randomness
-  const randomFactor = (secureRandom(20) - 10) / 100.0; // -0.1 to +0.1
-  const adjustedStrength = handStrength + randomFactor;
-
-  switch (player.archetype) {
-    case ARCHETYPE_TAG:
-      // Tight-Aggressive: ~18% VPIP, aggressive when playing
-      if (adjustedStrength >= 0.7) {
-        action.actionType = 'raise';
-        action.amount = game.currentBet + game.minRaise + secureRandom(game.minRaise + 1);
-      } else if (adjustedStrength >= 0.5 && (canCheck || potOdds < adjustedStrength * 0.8)) {
-        if (canCheck) {
-          action.actionType = 'check';
-        } else {
-          action.actionType = 'call';
-        }
-      } else if (adjustedStrength >= 0.35 && canCheck) {
-        action.actionType = 'check';
-      } else if (canCheck) {
-        action.actionType = 'check';
-      } else {
-        action.actionType = 'fold';
-      }
-      break;
-
-    case ARCHETYPE_LAG:
-      // Loose-Aggressive: ~35% VPIP, aggressive
-      if (adjustedStrength >= 0.5) {
-        action.actionType = 'raise';
-        action.amount = game.currentBet + game.minRaise * 2 + secureRandom(game.minRaise);
-      } else if (player.position === 'late' || player.position === 'button') {
-        if (adjustedStrength >= 0.25) {
-          if (canCheck) {
-            // Sometimes bet/raise with position
-            if (secureRandom(100) < 40) {
-              action.actionType = 'raise';
-              action.amount = game.currentBet + game.minRaise;
-            } else {
-              action.actionType = 'check';
-            }
-          } else if (potOdds < 0.4) {
-            action.actionType = 'call';
-          } else {
-            action.actionType = 'fold';
-          }
-        } else if (canCheck) {
-          action.actionType = 'check';
-        } else {
-          action.actionType = 'fold';
-        }
-      } else if (adjustedStrength >= 0.35) {
-        if (canCheck) {
-          action.actionType = 'check';
-        } else {
-          action.actionType = 'call';
-        }
-      } else if (canCheck) {
-        action.actionType = 'check';
-      } else {
-        action.actionType = 'fold';
-      }
-      break;
-
-    case ARCHETYPE_ROCK:
-      // Tight-Passive: ~12% VPIP, rarely raises
-      if (adjustedStrength >= 0.85) {
-        action.actionType = 'raise';
-        action.amount = game.currentBet + game.minRaise;
-      } else if (adjustedStrength >= 0.6) {
-        if (canCheck) {
-          action.actionType = 'check';
-        } else {
-          action.actionType = 'call';
-        }
-      } else if (canCheck) {
-        action.actionType = 'check';
-      } else {
-        action.actionType = 'fold';
-      }
-      break;
-
-    case ARCHETYPE_CALLING:
-      // Calling Station: ~40% VPIP, calls too much
-      if (adjustedStrength >= 0.2 || (toCall <= game.bigBlind * 2 && adjustedStrength >= 0.1)) {
-        if (canCheck) {
-          action.actionType = 'check';
-        } else {
-          action.actionType = 'call';
-        }
-      } else if (canCheck) {
-        action.actionType = 'check';
-      } else if (toCall <= game.bigBlind) {
-        action.actionType = 'call'; // Calls min bets with anything
-      } else {
-        action.actionType = 'fold';
-      }
-      break;
-
-    default:
-      // Default to tight play
-      if (adjustedStrength >= 0.6) {
-        if (canCheck) {
-          action.actionType = 'check';
-        } else {
-          action.actionType = 'call';
-        }
-      } else if (canCheck) {
-        action.actionType = 'check';
-      } else {
-        action.actionType = 'fold';
-      }
-  }
-
-  // Validate raise amount
-  if (action.actionType === 'raise') {
+  if (result.action === 'RAISE') {
+    action.amount = result.raise_amount;
+    // Validate raise amount
     const minRaise = game.currentBet + game.minRaise;
     if (action.amount < minRaise) {
       action.amount = minRaise;
@@ -344,6 +200,9 @@ export function makeAIDecision(player: PokerPlayer, game: PokerGame, handStrengt
 
   return action;
 }
+
+// NOTE: The old makeAIDecision fallback function has been removed.
+// All AI decisions now go through the Go DTRules engine via makeAIDecisionAsync.
 
 /**
  * Determine which decision table column was matched based on archetype and action
@@ -519,10 +378,11 @@ async function processAllAITurnsImpl(
 }
 
 /**
- * Process AI turns synchronously (without delays)
+ * Process initial AI turns (without visual delays)
  * Used for initial dealing where AI might act before human
+ * Now async since all AI decisions go through the Go API
  */
-export function processAITurnsSync(game: PokerGame): void {
+export async function processInitialAITurns(game: PokerGame): Promise<void> {
   const maxIterations = game.players.length * 10;
 
   for (let i = 0; i < maxIterations && !game.handComplete; i++) {
@@ -557,8 +417,8 @@ export function processAITurnsSync(game: PokerGame): void {
       game.players.length
     );
 
-    // Get AI decision
-    let action = makeAIDecision(currentPlayer, game, handStrength);
+    // Get AI decision from Go engine (no fallback)
+    let action = await makeAIDecisionAsync(currentPlayer, game, handStrength);
 
     // Process action
     let result = processPokerAction(game, action);
@@ -575,3 +435,7 @@ export function processAITurnsSync(game: PokerGame): void {
     if (game.pendingReveal) break;
   }
 }
+
+// Keep old name for backwards compatibility but mark deprecated
+/** @deprecated Use processInitialAITurns instead - this is now async */
+export const processAITurnsSync = processInitialAITurns;

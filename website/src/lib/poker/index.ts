@@ -69,11 +69,14 @@ export {
   calculateHandStrength,
   calculatePreflopStrength,
   getPlayerPosition,
-  makeAIDecision,
+  makeAIDecisionAsync,
   processAllAITurns,
-  processAITurnsSync,
+  processInitialAITurns,
+  processAITurnsSync, // deprecated alias
   checkApiAvailability,
   isUsingGoApi,
+  requireApiAvailable,
+  EngineUnavailableError,
 } from './aiDecision';
 
 // Decision table data

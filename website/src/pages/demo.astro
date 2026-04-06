@@ -154,7 +154,7 @@ import BettingControls from '../components/poker/BettingControls.astro';
       continueRunOut,
       awardPot,
       processAllAITurns,
-      processAITurnsSync,
+      processInitialAITurns,
       secureRandom,
       CARD_RANK_NAMES,
       generateDecisionExplanation,
@@ -162,16 +162,20 @@ import BettingControls from '../components/poker/BettingControls.astro';
       ARCHETYPE_STRATEGIES,
       checkApiAvailability,
       isUsingGoApi,
+      EngineUnavailableError,
     } from '../lib/poker/index';
     import type { PokerGame, PokerPlayer, PokerCard, AIActionResult } from '../lib/poker/index';
     import { GAME_CONFIG } from '../lib/poker/gameConfig';
 
     // API status indicator
     let apiStatusElement: HTMLElement | null = null;
+    let engineAvailable = false;
 
     async function initializeApiCheck() {
       const available = await checkApiAvailability();
+      engineAvailable = available;
       updateApiStatus(available);
+      updatePlayButton(available);
     }
 
     function updateApiStatus(available: boolean) {
@@ -183,10 +187,29 @@ import BettingControls from '../components/poker/BettingControls.astro';
           apiStatusElement.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-green-400 mr-1.5"></span>DTRules Go Engine';
           apiStatusElement.className = 'text-green-400 text-sm flex items-center';
         } else {
-          apiStatusElement.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1.5"></span>JavaScript Fallback';
-          apiStatusElement.className = 'text-yellow-400 text-sm flex items-center';
+          apiStatusElement.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-red-400 mr-1.5"></span>Engine Unavailable';
+          apiStatusElement.className = 'text-red-400 text-sm flex items-center';
         }
       }
+    }
+
+    function updatePlayButton(available: boolean) {
+      const playBtn = document.getElementById('btn-play') as HTMLButtonElement;
+      if (playBtn) {
+        if (available) {
+          playBtn.disabled = false;
+          playBtn.textContent = 'Play Game';
+          playBtn.title = '';
+        } else {
+          playBtn.disabled = true;
+          playBtn.textContent = 'Start API Server';
+          playBtn.title = 'Run: dtrules serve';
+        }
+      }
+    }
+
+    function showEngineError() {
+      showGameError('DTRules engine not available. Start the API server with: dtrules serve');
     }
 
     // Game statistics tracking
@@ -595,8 +618,15 @@ import BettingControls from '../components/poker/BettingControls.astro';
           updateGameDisplay();
         }
       } catch (error) {
-        if (import.meta.env.DEV) console.error('Error during AI turns:', error);
-        showGameError('An error occurred during AI turns. Please start a new game.');
+        if (error instanceof EngineUnavailableError) {
+          engineAvailable = false;
+          updateApiStatus(false);
+          updatePlayButton(false);
+          showEngineError();
+        } else {
+          if (import.meta.env.DEV) console.error('Error during AI turns:', error);
+          showGameError('An error occurred during AI turns. Please start a new game.');
+        }
       } finally {
         setAIThinking(false);
       }
@@ -666,6 +696,12 @@ import BettingControls from '../components/poker/BettingControls.astro';
 
     // Deal new hand
     async function dealNewHand() {
+      // Verify API is available before starting
+      if (!engineAvailable) {
+        showEngineError();
+        return;
+      }
+
       hideShowdownModal();
       showdownModalShown = false;
       isRevealingCards = false;
@@ -680,7 +716,21 @@ import BettingControls from '../components/poker/BettingControls.astro';
         dealerPosition: secureRandom(GAME_CONFIG.playerCount)
       });
 
-      processAITurnsSync(gameState);
+      try {
+        setAIThinking(true);
+        await processInitialAITurns(gameState);
+        setAIThinking(false);
+      } catch (error) {
+        setAIThinking(false);
+        if (error instanceof EngineUnavailableError) {
+          engineAvailable = false;
+          updateApiStatus(false);
+          updatePlayButton(false);
+          showEngineError();
+          return;
+        }
+        throw error;
+      }
 
       if (gameState.pendingReveal) {
         updateGameDisplay();
@@ -695,6 +745,12 @@ import BettingControls from '../components/poker/BettingControls.astro';
     // Continue to next hand
     async function dealContinueHand() {
       if (!gameState) { dealNewHand(); return; }
+
+      // Verify API is available before continuing
+      if (!engineAvailable) {
+        showEngineError();
+        return;
+      }
 
       const currentChips = gameState.players.map(p => p.chips);
       const handNumber = (gameState.handNumber || 1) + 1;
@@ -726,7 +782,21 @@ import BettingControls from '../components/poker/BettingControls.astro';
       gameState.pot = GAME_CONFIG.smallBlind + GAME_CONFIG.bigBlind;
       gameState.handNumber = handNumber;
 
-      processAITurnsSync(gameState);
+      try {
+        setAIThinking(true);
+        await processInitialAITurns(gameState);
+        setAIThinking(false);
+      } catch (error) {
+        setAIThinking(false);
+        if (error instanceof EngineUnavailableError) {
+          engineAvailable = false;
+          updateApiStatus(false);
+          updatePlayButton(false);
+          showEngineError();
+          return;
+        }
+        throw error;
+      }
 
       if (gameState.pendingReveal) {
         updateGameDisplay();
@@ -1244,7 +1314,21 @@ import BettingControls from '../components/poker/BettingControls.astro';
     }
 
     // Start/restart game with confirmation if game in progress
-    function handlePlayButton() {
+    async function handlePlayButton() {
+      // Check if engine is available
+      if (!engineAvailable) {
+        // Try to re-check API availability
+        const available = await checkApiAvailability();
+        engineAvailable = available;
+        updateApiStatus(available);
+        updatePlayButton(available);
+
+        if (!available) {
+          showEngineError();
+          return;
+        }
+      }
+
       if (gameState && !gameState.handComplete) {
         // Game in progress - ask for confirmation
         if (confirm('A game is in progress. Start a new game?')) {

@@ -58,41 +58,47 @@ export async function ensurePokerProjectLoaded(): Promise<boolean> {
   }
 }
 
+export class DTRulesApiError extends Error {
+  constructor(message: string, public readonly statusCode?: number) {
+    super(message);
+    this.name = 'DTRulesApiError';
+  }
+}
+
 export async function executePokerDecision(
   gameState: PokerGameState,
   playerState: PokerPlayerState
-): Promise<PokerDecisionResult | null> {
-  try {
-    await ensurePokerProjectLoaded();
+): Promise<PokerDecisionResult> {
+  await ensurePokerProjectLoaded();
 
-    const response = await fetch(`${API_BASE}/api/execute`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        tableName: 'Poker_Decision',
-        data: {
-          game: gameState,
-          player: playerState,
-          decision: {
-            action: '',
-            raise_amount: 0,
-            reasoning: ''
-          }
-        },
-        trace: false
-      })
-    });
+  const response = await fetch(`${API_BASE}/api/execute`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      tableName: 'Poker_Decision',
+      data: {
+        game: gameState,
+        player: playerState,
+        decision: {
+          action: '',
+          raise_amount: 0,
+          reasoning: ''
+        }
+      },
+      trace: false
+    })
+  });
 
-    if (!response.ok) return null;
-
-    const result: ExecuteResponse = await response.json();
-    if (result.success && result.result?.decision) {
-      return result.result.decision;
-    }
-    return null;
-  } catch {
-    return null;
+  if (!response.ok) {
+    throw new DTRulesApiError(`API request failed: ${response.statusText}`, response.status);
   }
+
+  const result: ExecuteResponse = await response.json();
+  if (result.success && result.result?.decision) {
+    return result.result.decision;
+  }
+
+  throw new DTRulesApiError(result.error || 'Decision table execution failed');
 }
 
 export function isApiAvailable(): Promise<boolean> {
