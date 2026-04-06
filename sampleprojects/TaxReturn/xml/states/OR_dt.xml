@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>All service before Oct 1, 1991</condition_comment>
-<condition_description>All service before Oct 1, 1991</condition_description>
+<condition_dsl>All service before Oct 1, 1991</condition_dsl>
 <condition_postfix>
 service_all_before_1991_10_01 == true
 </condition_postfix>
@@ -28,7 +28,7 @@ service_all_before_1991_10_01 == true
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Mixed service before and after Oct 1, 1991</condition_comment>
-<condition_description>Mixed service before and after Oct 1, 1991</condition_description>
+<condition_dsl>Mixed service before and after Oct 1, 1991</condition_dsl>
 <condition_postfix>
 has_service_before_1991 == true AND has_service_after_1991 == true
 </condition_postfix>
@@ -40,7 +40,7 @@ has_service_before_1991 == true AND has_service_after_1991 == true
 <action_details>
 <action_number>2</action_number>
 <action_comment>Mixed service - prorated exemption</action_comment>
-<action_description>Mixed service - prorated exemption</action_description>
+<action_dsl>Mixed service - prorated exemption</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -48,7 +48,7 @@ has_service_before_1991 == true AND has_service_after_1991 == true
 <action_details>
 <action_number>3</action_number>
 <action_comment>All service after Oct 1, 1991 - fully taxable</action_comment>
-<action_description>All service after Oct 1, 1991 - fully taxable</action_description>
+<action_dsl>All service after Oct 1, 1991 - fully taxable</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -56,7 +56,7 @@ has_service_before_1991 == true AND has_service_after_1991 == true
 <action_details>
 <action_number>4</action_number>
 <action_comment>No military retirement pay</action_comment>
-<action_description>No military retirement pay</action_description>
+<action_dsl>No military retirement pay</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -82,7 +82,7 @@ has_service_before_1991 == true AND has_service_after_1991 == true
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married filing jointly</condition_comment>
-<condition_description>Married filing jointly</condition_description>
+<condition_dsl>Married filing jointly</condition_dsl>
 <condition_postfix>
 filing_status == &quot;MFJ&quot;
 </condition_postfix>
@@ -94,7 +94,7 @@ filing_status == &quot;MFJ&quot;
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate Oregon progressive tax - Joint</action_comment>
-<action_description>Calculate Oregon progressive tax - Joint</action_description>
+<action_dsl>Calculate Oregon progressive tax - Joint</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in Texas</condition_comment>
-<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "TX"</condition_description>
+<condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "TX"</condition_dsl>
 <condition_postfix>
 apportionment.has_physical_presence get true eq
 apportionment.state_code get "TX" streq and
@@ -37,7 +37,7 @@ apportionment.state_code get "TX" streq and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets Texas economic nexus threshold ($500K Texas receipts)</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "TX"</condition_description>
+<condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "TX"</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.state_code get "TX" streq and
@@ -51,7 +51,7 @@ apportionment.state_code get "TX" streq and
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Total revenue below $1.23M no-tax-due threshold; result.tx_total_revenue &lt; result.tx_no_tax_due_threshold</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.tx_total_revenue get result.tx_no_tax_due_threshold get lt
 </condition_postfix>
@@ -66,7 +66,7 @@ result.tx_total_revenue get result.tx_no_tax_due_threshold get lt
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical presence but below threshold - no tax due; No tax due - total revenue below $1.23M threshold</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 true /result.tx_qualifies_for_no_tax_due xdef
 0.0 /result.tx_franchise_tax xdef
@@ -79,7 +79,7 @@ true /result.tx_qualifies_for_no_tax_due xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Physical nexus established - franchise tax calculation required</action_comment>
-<action_description>TX franchise tax filing required due to physical presence</action_description>
+<action_dsl>TX franchise tax filing required due to physical presence</action_dsl>
 <action_postfix>
 false /result.tx_qualifies_for_no_tax_due xdef
 "TX franchise tax filing required due to physical presence. Reference: TX Tax Code 171.001" job.audit_trail swap addto
@@ -90,7 +90,7 @@ false /result.tx_qualifies_for_no_tax_due xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Economic nexus established - franchise tax calculation required; TX franchise tax filing required due to economic nexus ($500K threshold)</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 false /result.tx_qualifies_for_no_tax_due xdef
 "TX franchise tax filing required due to economic nexus ($500K TX receipts). Reference: TX Tax Code 171.0001(a)(1)" job.audit_trail swap addto
@@ -101,7 +101,7 @@ false /result.tx_qualifies_for_no_tax_due xdef
 <action_details>
 <action_number>4</action_number>
 <action_comment>No nexus - no filing required; No Texas nexus - no filing requirement</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 true /result.tx_qualifies_for_no_tax_due xdef
 0.0 /result.tx_franchise_tax xdef
@@ -137,7 +137,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus and above no-tax-due threshold; result.tx_qualifies_for_no_tax_due == false</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.tx_qualifies_for_no_tax_due get false eq
 </condition_postfix>
@@ -150,7 +150,7 @@ result.tx_qualifies_for_no_tax_due get false eq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>COGS is greater than compensation</condition_comment>
-<condition_description>result.tx_cogs &gt; result.tx_compensation</condition_description>
+<condition_dsl>result.tx_cogs &gt; result.tx_compensation</condition_dsl>
 <condition_postfix>
 result.tx_cogs get result.tx_compensation get gt
 </condition_postfix>
@@ -165,7 +165,7 @@ result.tx_cogs get result.tx_compensation get gt
 <action_details>
 <action_number>1</action_number>
 <action_comment>No nexus or below threshold - deduction method not applicable; No franchise tax due - deduction method not applicable</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 "none" /result.tx_deduction_method xdef
 0.0 /result.tx_margin_deduction xdef
@@ -177,7 +177,7 @@ result.tx_cogs get result.tx_compensation get gt
 <action_details>
 <action_number>2</action_number>
 <action_comment>Use 70% of revenue deduction; 70% of revenue provides largest deduction (simplified method)</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 "70_percent" /result.tx_deduction_method xdef
 result.tx_total_revenue get 0.70 mul /result.tx_margin_deduction xdef
@@ -189,7 +189,7 @@ result.tx_total_revenue get 0.70 mul /result.tx_margin_deduction xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Use COGS deduction</action_comment>
-<action_description>COGS provides larger deduction than compensation</action_description>
+<action_dsl>COGS provides larger deduction than compensation</action_dsl>
 <action_postfix>
 "cogs" /result.tx_deduction_method xdef
 result.tx_cogs get /result.tx_margin_deduction xdef
@@ -201,7 +201,7 @@ result.tx_cogs get /result.tx_margin_deduction xdef
 <action_details>
 <action_number>4</action_number>
 <action_comment>Use compensation deduction</action_comment>
-<action_description>Compensation provides larger deduction than COGS</action_description>
+<action_dsl>Compensation provides larger deduction than COGS</action_dsl>
 <action_postfix>
 "compensation" /result.tx_deduction_method xdef
 result.tx_compensation get /result.tx_margin_deduction xdef
@@ -235,7 +235,7 @@ result.tx_compensation get /result.tx_margin_deduction xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus and above no-tax-due threshold; result.tx_qualifies_for_no_tax_due == false</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.tx_qualifies_for_no_tax_due get false eq
 </condition_postfix>
@@ -247,7 +247,7 @@ result.tx_qualifies_for_no_tax_due get false eq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Qualifies for E-Z computation ($20M or less in revenue)</condition_comment>
-<condition_description>result.tx_total_revenue &lt;= 20000000.0</condition_description>
+<condition_dsl>result.tx_total_revenue &lt;= 20000000.0</condition_dsl>
 <condition_postfix>
 result.tx_total_revenue get 20000000.0 le
 </condition_postfix>
@@ -261,7 +261,7 @@ result.tx_total_revenue get 20000000.0 le
 <action_details>
 <action_number>1</action_number>
 <action_comment>No nexus or below threshold - no margin calculation; No franchise tax due - margin calculation not applicable</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 /result.tx_taxable_margin xdef
 0.0 /result.tx_apportioned_margin xdef
@@ -273,7 +273,7 @@ result.tx_total_revenue get 20000000.0 le
 <action_details>
 <action_number>2</action_number>
 <action_comment>E-Z Computation option available; Calculate margin - E-Z computation available ($20M or less)</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 true /result.tx_qualifies_for_ez_computation xdef
 result.tx_total_revenue get result.tx_margin_deduction get sub 0.0 max /result.tx_taxable_margin xdef
@@ -286,7 +286,7 @@ result.tx_taxable_margin get apportionment.apportionment_factor get mul /result.
 <action_details>
 <action_number>3</action_number>
 <action_comment>Standard margin calculation (no E-Z); Calculate margin - standard method (revenue exceeds $20M)</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 false /result.tx_qualifies_for_ez_computation xdef
 result.tx_total_revenue get result.tx_margin_deduction get sub 0.0 max /result.tx_taxable_margin xdef
@@ -321,7 +321,7 @@ result.tx_taxable_margin get apportionment.apportionment_factor get mul /result.
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus and above no-tax-due threshold; result.tx_qualifies_for_no_tax_due == false</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.tx_qualifies_for_no_tax_due get false eq
 </condition_postfix>
@@ -335,7 +335,7 @@ result.tx_qualifies_for_no_tax_due get false eq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive apportioned margin</condition_comment>
-<condition_description>result.tx_apportioned_margin &gt; 0</condition_description>
+<condition_dsl>result.tx_apportioned_margin &gt; 0</condition_dsl>
 <condition_postfix>
 result.tx_apportioned_margin get 0 gt
 </condition_postfix>
@@ -349,7 +349,7 @@ result.tx_apportioned_margin get 0 gt
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Elects to use E-Z computation method; result.tx_qualifies_for_ez_computation == true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.tx_qualifies_for_ez_computation get true eq
 </condition_postfix>
@@ -363,7 +363,7 @@ result.tx_qualifies_for_ez_computation get true eq
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Primarily engaged in retail or wholesale trade</condition_comment>
-<condition_description>result.tx_is_retail_wholesale == true</condition_description>
+<condition_dsl>result.tx_is_retail_wholesale == true</condition_dsl>
 <condition_postfix>
 result.tx_is_retail_wholesale get true eq
 </condition_postfix>
@@ -379,7 +379,7 @@ result.tx_is_retail_wholesale get true eq
 <action_details>
 <action_number>1</action_number>
 <action_comment>No nexus or below threshold - no franchise tax; No Texas franchise tax due</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 /result.tx_franchise_tax xdef
 0.0 /apportionment.state_tax xdef
@@ -392,7 +392,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>E-Z Computation (simplified method); TX franchise tax using E-Z computation (0.575%)</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 result.tx_total_revenue get result.tx_no_tax_due_threshold get sub 0.0 max /taxable_revenue xdef
 taxable_revenue get result.tx_ez_computation_rate get mul apportionment.apportionment_factor get mul /result.tx_franchise_tax xdef
@@ -407,7 +407,7 @@ apportionment.state_payments get apportionment.state_tax get sub /apportionment.
 <action_details>
 <action_number>3</action_number>
 <action_comment>Retail/wholesale reduced rate (0.375%); TX franchise tax at reduced retail/wholesale rate</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.00375 /result.tx_margin_tax_rate xdef
 result.tx_apportioned_margin get result.tx_margin_tax_rate get mul /result.tx_franchise_tax xdef
@@ -422,7 +422,7 @@ apportionment.state_payments get apportionment.state_tax get sub /apportionment.
 <action_details>
 <action_number>4</action_number>
 <action_comment>Standard rate (0.75%); TX franchise tax at standard rate</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0075 /result.tx_margin_tax_rate xdef
 result.tx_apportioned_margin get result.tx_margin_tax_rate get mul /result.tx_franchise_tax xdef
@@ -437,7 +437,7 @@ apportionment.state_payments get apportionment.state_tax get sub /apportionment.
 <action_details>
 <action_number>5</action_number>
 <action_comment>No apportioned margin - no franchise tax; No TX franchise tax due - zero or negative margin</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 /result.tx_franchise_tax xdef
 0.0 /apportionment.state_tax xdef

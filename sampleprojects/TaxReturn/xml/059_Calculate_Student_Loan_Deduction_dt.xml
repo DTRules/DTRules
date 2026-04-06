@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has student loan interest</condition_comment>
-<condition_description>Has student loan interest</condition_description>
+<condition_dsl>Has student loan interest</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -30,7 +30,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_description>Married Filing Jointly</condition_description>
+<condition_dsl>Married Filing Jointly</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -43,7 +43,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>MFJ AGI below phase-out start</condition_comment>
-<condition_description>MFJ AGI below phase-out start</condition_description>
+<condition_dsl>MFJ AGI below phase-out start</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -56,7 +56,7 @@
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Single AGI below phase-out start</condition_comment>
-<condition_description>Single AGI below phase-out start</condition_description>
+<condition_dsl>Single AGI below phase-out start</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -71,7 +71,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Full student loan deduction</action_comment>
-<action_description>Full student loan deduction</action_description>
+<action_dsl>Full student loan deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -81,7 +81,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Student loan deduction with MFJ phase-out</action_comment>
-<action_description>Student loan deduction with MFJ phase-out</action_description>
+<action_dsl>Student loan deduction with MFJ phase-out</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -90,7 +90,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Student loan deduction with Single phase-out</action_comment>
-<action_description>Student loan deduction with Single phase-out</action_description>
+<action_dsl>Student loan deduction with Single phase-out</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -99,7 +99,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>No student loan interest</action_comment>
-<action_description>No student loan interest</action_description>
+<action_dsl>No student loan interest</action_dsl>
 <action_postfix>
 
 </action_postfix>

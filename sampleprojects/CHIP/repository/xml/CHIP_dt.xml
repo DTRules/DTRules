@@ -15,7 +15,7 @@
 <condition_number>1</condition_number>
 <condition_comment>CHIP</condition_comment>
 <condition_requirement />
-<condition_description>job.program is equal to CHIP</condition_description>
+<condition_dsl>job.program is equal to CHIP</condition_dsl>
 <condition_postfix>
 job.program CHIP streq 
 </condition_postfix>
@@ -24,7 +24,7 @@ job.program CHIP streq
 <condition_number>2</condition_number>
 <condition_comment>MEDICAID</condition_comment>
 <condition_requirement />
-<condition_description>job.program is equal to MEDICAID</condition_description>
+<condition_dsl>job.program is equal to MEDICAID</condition_dsl>
 <condition_postfix>
 job.program MEDICAID streq 
 </condition_postfix>
@@ -33,7 +33,7 @@ job.program MEDICAID streq
 <condition_number>3</condition_number>
 <condition_comment>FOODSTAMPS</condition_comment>
 <condition_requirement />
-<condition_description>job.program is equal to FOODSTAMPS</condition_description>
+<condition_dsl>job.program is equal to FOODSTAMPS</condition_dsl>
 <condition_postfix>
 job.program FOODSTAMPS streq 
 </condition_postfix>
@@ -42,7 +42,7 @@ job.program FOODSTAMPS streq
 <condition_number>4</condition_number>
 <condition_comment>If Not Any of these programs, Report Results Anyway</condition_comment>
 <condition_requirement />
-<condition_description>otherwise</condition_description>
+<condition_dsl>otherwise</condition_dsl>
 <condition_postfix>
 otherwise 
 </condition_postfix>
@@ -52,7 +52,7 @@ otherwise
 <action_number>1</action_number>
 <action_comment>Calculate the Individual Incomes</action_comment>
 <initial_action_requirement />
-<action_description>perform Calculate_Individual_Income</action_description>
+<action_dsl>perform Calculate_Individual_Income</action_dsl>
 <action_postfix>
 Calculate_Individual_Income 
 </action_postfix>
@@ -63,7 +63,7 @@ Calculate_Individual_Income
 <action_number>2</action_number>
 <action_comment>Get the Group Size for each individual</action_comment>
 <initial_action_requirement />
-<action_description>perform Calculate_Group_Size</action_description>
+<action_dsl>perform Calculate_Group_Size</action_dsl>
 <action_postfix>
 Calculate_Group_Size 
 </action_postfix>
@@ -74,7 +74,7 @@ Calculate_Group_Size
 <action_number>3</action_number>
 <action_comment>Evaluate for CHIP</action_comment>
 <initial_action_requirement />
-<action_description>perform Evaluate_CHIP_Eligibility</action_description>
+<action_dsl>perform Evaluate_CHIP_Eligibility</action_dsl>
 <action_postfix>
 Evaluate_CHIP_Eligibility 
 </action_postfix>
@@ -83,7 +83,7 @@ Evaluate_CHIP_Eligibility
 <action_number>4</action_number>
 <action_comment>Evaluate for MEDICAID</action_comment>
 <initial_action_requirement />
-<action_description>perform Evaluate_MEDICAID_Eligibility</action_description>
+<action_dsl>perform Evaluate_MEDICAID_Eligibility</action_dsl>
 <action_postfix>
 Evaluate_MEDICAID_Eligibility 
 </action_postfix>
@@ -92,7 +92,7 @@ Evaluate_MEDICAID_Eligibility
 <action_number>5</action_number>
 <action_comment>Evaluate for FOODSTAMPS</action_comment>
 <initial_action_requirement />
-<action_description>perform Evaluate_FOODSTAMPS_Eligibilty</action_description>
+<action_dsl>perform Evaluate_FOODSTAMPS_Eligibilty</action_dsl>
 <action_postfix>
 Evaluate_FOODSTAMPS_Eligibilty 
 </action_postfix>
@@ -101,7 +101,7 @@ Evaluate_FOODSTAMPS_Eligibilty
 <action_number>6</action_number>
 <action_comment>Build a set of Result Objects to report to the caller</action_comment>
 <initial_action_requirement />
-<action_description>perform Evaluate_Results</action_description>
+<action_dsl>perform Evaluate_Results</action_dsl>
 <action_postfix>
 Evaluate_Results 
 </action_postfix>
@@ -134,14 +134,14 @@ Evaluate_Results
 <context_details>
 <context_number>1</context_number>
 <context_comment />
-<context_description>for all clients</context_description>
+<context_dsl>for all clients</context_dsl>
 <context_postfix>
 dup clients forall pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>2</context_number>
 <context_comment />
-<context_description>for all incomes</context_description>
+<context_dsl>for all incomes</context_dsl>
 <context_postfix>
 dup incomes forall pop 
 </context_postfix></context_details></contexts>
@@ -151,7 +151,7 @@ dup incomes forall pop
 <condition_number>1</condition_number>
 <condition_comment>We include all earned income</condition_comment>
 <condition_requirement />
-<condition_description>income.earned == true</condition_description>
+<condition_dsl>income.earned == true</condition_dsl>
 <condition_postfix>
 income.earned true beq 
 </condition_postfix>
@@ -161,7 +161,7 @@ income.earned true beq
 <condition_number>2</condition_number>
 <condition_comment>We don't include all unearned income types</condition_comment>
 <condition_requirement />
-<condition_description>ExcludedIncomeTypes includes the string income.type</condition_description>
+<condition_dsl>ExcludedIncomeTypes includes the string income.type</condition_dsl>
 <condition_postfix>
 ExcludedIncomeTypes income.type memberof 
 </condition_postfix>
@@ -171,7 +171,7 @@ ExcludedIncomeTypes income.type memberof
 <action_number>1</action_number>
 <action_comment>Add this income to the total income for this client</action_comment>
 <initial_action_requirement />
-<action_description>add income.amount to the client.totalIncome</action_description>
+<action_dsl>add income.amount to the client.totalIncome</action_dsl>
 <action_postfix>
 income.amount  client.totalIncome + /client.totalIncome xdef 
 </action_postfix>
@@ -194,21 +194,21 @@ Note that this table doesn't actually create the income group.  It just counts t
 <context_details>
 <context_number>1</context_number>
 <context_comment>For each client in the group, we need to calculate a group size (we only need to do this for applying clients)</context_comment>
-<context_description>for all clients whose applying == true</context_description>
+<context_dsl>for all clients whose applying == true</context_dsl>
 <context_postfix>
 { dup applying true beq if } clients forall pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>2</context_number>
 <context_comment>We want to compare a client against every other client in the case, so we set up a local variable to point to ThisClient</context_comment>
-<context_description>local entity ThisClient = client</context_description>
+<context_dsl>local entity ThisClient = client</context_dsl>
 <context_postfix>
 client cve allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>3</context_number>
 <context_comment>Now consider the client in respect to all the other clients in the case (We need to consider all clients in the case, even if not applying)</context_comment>
-<context_description>for all clients</context_description>
+<context_dsl>for all clients</context_dsl>
 <context_postfix>
 dup clients forall pop 
 </context_postfix></context_details></contexts>
@@ -218,7 +218,7 @@ dup clients forall pop
 <condition_number>1</condition_number>
 <condition_comment>Are we consider the client themselves?</condition_comment>
 <condition_requirement />
-<condition_description>ThisClient == client</condition_description>
+<condition_dsl>ThisClient == client</condition_dsl>
 <condition_postfix>
 0 local@  client req  
 </condition_postfix>
@@ -229,7 +229,7 @@ dup clients forall pop
 <condition_number>2</condition_number>
 <condition_comment>Include ThisClient's parents</condition_comment>
 <condition_requirement />
-<condition_description>the client is the parent of ThisClient</condition_description>
+<condition_dsl>the client is the parent of ThisClient</condition_dsl>
 <condition_postfix>
 /source client /target 0 local@  /type parent relationships findmatch swap pop
 </condition_postfix>
@@ -240,7 +240,7 @@ dup clients forall pop
 <condition_number>3</condition_number>
 <condition_comment>Include ThisClient's siblings</condition_comment>
 <condition_requirement />
-<condition_description>the client is the sibling of ThisClient</condition_description>
+<condition_dsl>the client is the sibling of ThisClient</condition_dsl>
 <condition_postfix>
 /source client /target 0 local@  /type sibling relationships findmatch swap pop
 </condition_postfix>
@@ -251,7 +251,7 @@ dup clients forall pop
 <condition_number>4</condition_number>
 <condition_comment>Include ThisClient's children</condition_comment>
 <condition_requirement />
-<condition_description>the client is the child of ThisClient</condition_description>
+<condition_dsl>the client is the child of ThisClient</condition_dsl>
 <condition_postfix>
 /source client /target 0 local@  /type child relationships findmatch swap pop
 </condition_postfix>
@@ -261,7 +261,7 @@ dup clients forall pop
 <condition_number>5</condition_number>
 <condition_comment>Include the unborn children in some cases</condition_comment>
 <condition_requirement />
-<condition_description>the client.pregnant == true</condition_description>
+<condition_dsl>the client.pregnant == true</condition_dsl>
 <condition_postfix>
 client.pregnant true beq 
 </condition_postfix>
@@ -275,7 +275,7 @@ client.pregnant true beq
 <condition_number>6</condition_number>
 <condition_comment>Is this client older than 18</condition_comment>
 <condition_requirement />
-<condition_description>client.age &gt; 18</condition_description>
+<condition_dsl>client.age &gt; 18</condition_dsl>
 <condition_postfix>
 client.age 18 &gt; 
 </condition_postfix>
@@ -288,7 +288,7 @@ client.age 18 &gt;
 <action_number>1</action_number>
 <action_comment>Count the Client himself and particular relatives</action_comment>
 <initial_action_requirement />
-<action_description>add 1 to ThisClient's IncomeGroupCount</action_description>
+<action_dsl>add 1 to ThisClient's IncomeGroupCount</action_dsl>
 <action_postfix>
 1  0 local@  entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop 
 </action_postfix>
@@ -303,7 +303,7 @@ client.age 18 &gt;
 <action_number>2</action_number>
 <action_comment>Add 1 for each of the expected babies for a pregnant person</action_comment>
 <initial_action_requirement />
-<action_description>add expectedChildren to ThisClient's IncomeGroupCount</action_description>
+<action_dsl>add expectedChildren to ThisClient's IncomeGroupCount</action_dsl>
 <action_postfix>
 expectedChildren  0 local@  entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop 
 </action_postfix>
@@ -314,7 +314,7 @@ expectedChildren  0 local@  entitypush IncomeGroupCount + /IncomeGroupCount xdef
 <action_number>3</action_number>
 <action_comment>Add this person's Income to the ThisPerson's total group income</action_comment>
 <initial_action_requirement />
-<action_description>add the client.totalIncome to ThisClient's totalGroupIncome</action_description>
+<action_dsl>add the client.totalIncome to ThisClient's totalGroupIncome</action_dsl>
 <action_postfix>
 client.totalIncome  0 local@  entitypush totalGroupIncome + /totalGroupIncome xdef entitypop 
 </action_postfix>
@@ -337,21 +337,21 @@ An appropriate income is only one requirement for CHIP.  All the others required
 <context_details>
 <context_number>1</context_number>
 <context_comment />
-<context_description>for all clients whose applying == true</context_description>
+<context_dsl>for all clients whose applying == true</context_dsl>
 <context_postfix>
 { dup applying true beq if } clients forall pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>2</context_number>
 <context_comment>FPL = the Federal Poverty Limit calculated for the number of people in this client's Income Group.</context_comment>
-<context_description>local int FPL = FPL_Base + FPL_PerAdditionalPerson * (client.IncomeGroupCount - 1 )</context_description>
+<context_dsl>local int FPL = FPL_Base + FPL_PerAdditionalPerson * (client.IncomeGroupCount - 1 )</context_dsl>
 <context_postfix>
 FPL_Base FPL_PerAdditionalPerson client.IncomeGroupCount 1 -  * +  cvi allocate execute deallocate pop 
 </context_postfix></context_details>
 <context_details>
 <context_number>3</context_number>
 <context_comment>FPL200 = 200 percent of the Federal Poverty Limit</context_comment>
-<context_description>local int FPL200 = FPL * 2</context_description>
+<context_dsl>local int FPL200 = FPL * 2</context_dsl>
 <context_postfix>
 0 local@  2 *  cvi allocate execute deallocate pop 
 </context_postfix></context_details></contexts>
@@ -361,7 +361,7 @@ FPL_Base FPL_PerAdditionalPerson client.IncomeGroupCount 1 -  * +  cvi allocate 
 <condition_number>1</condition_number>
 <condition_comment>Are you a citizen?</condition_comment>
 <condition_requirement />
-<condition_description>validatedCitizenship == true</condition_description>
+<condition_dsl>validatedCitizenship == true</condition_dsl>
 <condition_postfix>
 validatedCitizenship true beq 
 </condition_postfix>
@@ -370,7 +370,7 @@ validatedCitizenship true beq
 <condition_number>2</condition_number>
 <condition_comment>If not a citizen,  are you a legal immigrant(Lawfully present immigrant children who have not been in the country for 5 years)</condition_comment>
 <condition_requirement />
-<condition_description>validatedImmigrationStatus == true</condition_description>
+<condition_dsl>validatedImmigrationStatus == true</condition_dsl>
 <condition_postfix>
 validatedImmigrationStatus true beq 
 </condition_postfix>
@@ -379,7 +379,7 @@ validatedImmigrationStatus true beq
 <condition_number>3</condition_number>
 <condition_comment>Group income must be &lt;=200 percent of the Federal Poverty Limit</condition_comment>
 <condition_requirement />
-<condition_description>client.totalGroupIncome &lt;= FPL200</condition_description>
+<condition_dsl>client.totalGroupIncome &lt;= FPL200</condition_dsl>
 <condition_postfix>
 client.totalGroupIncome 1 local@  &lt;= 
 </condition_postfix>
@@ -388,7 +388,7 @@ client.totalGroupIncome 1 local@  &lt;=
 <condition_number>4</condition_number>
 <condition_comment>Children should be uninsured to qualify for CHIP-funded coverage</condition_comment>
 <condition_requirement />
-<condition_description>uninsured</condition_description>
+<condition_dsl>uninsured</condition_dsl>
 <condition_postfix>
 uninsured 
 </condition_postfix>
@@ -398,7 +398,7 @@ uninsured
 <condition_number>5</condition_number>
 <condition_comment>If we have no lost Insurance date, and we are uninsured, then the client was never insured.</condition_comment>
 <condition_requirement />
-<condition_description>lostInsuranceDate is null</condition_description>
+<condition_dsl>lostInsuranceDate is null</condition_dsl>
 <condition_postfix>
 lostInsuranceDate  isnull 
 </condition_postfix>
@@ -407,7 +407,7 @@ lostInsuranceDate  isnull
 <condition_number>6</condition_number>
 <condition_comment>Children should be uninsured to qualify for CHIP-funded coverage</condition_comment>
 <condition_requirement />
-<condition_description>lostInsuranceDate + 90 days is greater than the currentdate</condition_description>
+<condition_dsl>lostInsuranceDate + 90 days is greater than the currentdate</condition_dsl>
 <condition_postfix>
 lostInsuranceDate  90  adddays currentdate d&gt; 
 </condition_postfix>
@@ -416,7 +416,7 @@ lostInsuranceDate  90  adddays currentdate d&gt;
 <condition_number>7</condition_number>
 <condition_comment>Make sure this case is in the appropriate county</condition_comment>
 <condition_requirement />
-<condition_description>The CoveredCounties includes the string case.county_Cd</condition_description>
+<condition_dsl>The CoveredCounties includes the string case.county_Cd</condition_dsl>
 <condition_postfix>
 CoveredCounties case.county_Cd memberof 
 </condition_postfix>
@@ -425,7 +425,7 @@ CoveredCounties case.county_Cd memberof
 <condition_number>8</condition_number>
 <condition_comment>Age limit should be &lt;=18 years</condition_comment>
 <condition_requirement />
-<condition_description>client.age &lt;= 18</condition_description>
+<condition_dsl>client.age &lt;= 18</condition_dsl>
 <condition_postfix>
 client.age 18 &lt;= 
 </condition_postfix>
@@ -434,7 +434,7 @@ client.age 18 &lt;=
 <condition_number>9</condition_number>
 <condition_comment>If you are eligible for Medicaid, then you are not eligible for CHIP</condition_comment>
 <condition_requirement />
-<condition_description>eligibleForMedicaid == true</condition_description>
+<condition_dsl>eligibleForMedicaid == true</condition_dsl>
 <condition_postfix>
 eligibleForMedicaid true beq 
 </condition_postfix>
@@ -443,7 +443,7 @@ eligibleForMedicaid true beq
 <condition_number>10</condition_number>
 <condition_comment>Otherwise the client is eligible</condition_comment>
 <condition_requirement />
-<condition_description>otherwise</condition_description>
+<condition_dsl>otherwise</condition_dsl>
 <condition_postfix>
 otherwise 
 </condition_postfix>
@@ -453,7 +453,7 @@ otherwise
 <action_number>1</action_number>
 <action_comment>Record the fpl for this client</action_comment>
 <initial_action_requirement />
-<action_description>set the client_fpl = fpl</action_description>
+<action_dsl>set the client_fpl = fpl</action_dsl>
 <action_postfix>
 0 local@   cvi /client_fpl xdef  
 </action_postfix>
@@ -469,7 +469,7 @@ otherwise
 <action_number>2</action_number>
 <action_comment>Provide reasons for rejection</action_comment>
 <initial_action_requirement />
-<action_description>set client.eligible = false</action_description>
+<action_dsl>set client.eligible = false</action_dsl>
 <action_postfix>
 false cvb /client.eligible xdef  
 </action_postfix>
@@ -484,7 +484,7 @@ false cvb /client.eligible xdef
 <action_number>3</action_number>
 <action_comment>If none of the eligiblity exclusions fired, then the client is eligible</action_comment>
 <initial_action_requirement />
-<action_description>set client.eligible = true</action_description>
+<action_dsl>set client.eligible = true</action_dsl>
 <action_postfix>
 true cvb /client.eligible xdef  
 </action_postfix>
@@ -493,7 +493,7 @@ true cvb /client.eligible xdef
 <action_number>4</action_number>
 <action_comment>Record the client's income</action_comment>
 <initial_action_requirement />
-<action_description>add "Client Income = " + client.totalGroupIncome to the client.notes</action_description>
+<action_dsl>add "Client Income = " + client.totalGroupIncome to the client.notes</action_dsl>
 <action_postfix>
 "Client Income = " client.totalGroupIncome strconcat client.notes swap addto 
 </action_postfix>
@@ -509,7 +509,7 @@ true cvb /client.eligible xdef
 <action_number>5</action_number>
 <action_comment>Record the reasoning.</action_comment>
 <initial_action_requirement />
-<action_description>add the policy statements to the client.notes</action_description>
+<action_dsl>add the policy statements to the client.notes</action_dsl>
 <action_postfix>
 policystatements client.notes true  addarray 
 </action_postfix>
@@ -558,7 +558,7 @@ policystatements client.notes true  addarray
 <context_details>
 <context_number>1</context_number>
 <context_comment />
-<context_description>for all clients</context_description>
+<context_dsl>for all clients</context_dsl>
 <context_postfix>
 dup clients forall pop 
 </context_postfix></context_details></contexts>
@@ -568,7 +568,7 @@ dup clients forall pop
 <condition_number>1</condition_number>
 <condition_comment>Is this client applying for this program?</condition_comment>
 <condition_requirement />
-<condition_description>client.applying == true</condition_description>
+<condition_dsl>client.applying == true</condition_dsl>
 <condition_postfix>
 client.applying true beq 
 </condition_postfix>
@@ -578,7 +578,7 @@ client.applying true beq
 <action_number>1</action_number>
 <action_comment>Reject the client</action_comment>
 <initial_action_requirement />
-<action_description>set client.eligible = false</action_description>
+<action_dsl>set client.eligible = false</action_dsl>
 <action_postfix>
 false cvb /client.eligible xdef  
 </action_postfix>
@@ -587,7 +587,7 @@ false cvb /client.eligible xdef
 <action_number>2</action_number>
 <action_comment>Note rejection reason; add "The System does not yet support Medicaid Applications" to client.notes</action_comment>
 <initial_action_requirement />
-<action_description />
+<action_dsl />
 <action_postfix>
 "The System does not yet support Medicaid Applications" client.notes swap addto 
 </action_postfix>
@@ -605,7 +605,7 @@ false cvb /client.eligible xdef
 <context_details>
 <context_number>1</context_number>
 <context_comment />
-<context_description>for all clients</context_description>
+<context_dsl>for all clients</context_dsl>
 <context_postfix>
 dup clients forall pop 
 </context_postfix></context_details></contexts>
@@ -615,7 +615,7 @@ dup clients forall pop
 <condition_number>1</condition_number>
 <condition_comment>Is this client applying for this program?</condition_comment>
 <condition_requirement />
-<condition_description>client.applying == true</condition_description>
+<condition_dsl>client.applying == true</condition_dsl>
 <condition_postfix>
 client.applying true beq 
 </condition_postfix>
@@ -625,7 +625,7 @@ client.applying true beq
 <action_number>1</action_number>
 <action_comment>Reject the client</action_comment>
 <initial_action_requirement />
-<action_description>set client.eligible = false</action_description>
+<action_dsl>set client.eligible = false</action_dsl>
 <action_postfix>
 false cvb /client.eligible xdef  
 </action_postfix>
@@ -634,7 +634,7 @@ false cvb /client.eligible xdef
 <action_number>2</action_number>
 <action_comment>Note rejection reason; add "The System does not yet support Food Stamp Applications" to client.notes</action_comment>
 <initial_action_requirement />
-<action_description />
+<action_dsl />
 <action_postfix>
 "The System does not yet support Food Stamp Applications" client.notes swap addto 
 </action_postfix>
@@ -652,7 +652,7 @@ false cvb /client.eligible xdef
 <context_details>
 <context_number>1</context_number>
 <context_comment />
-<context_description>for all clients whose applying == true</context_description>
+<context_dsl>for all clients whose applying == true</context_dsl>
 <context_postfix>
 { dup applying true beq if } clients forall pop 
 </context_postfix></context_details></contexts>
@@ -662,7 +662,7 @@ false cvb /client.eligible xdef
 <condition_number>1</condition_number>
 <condition_comment />
 <condition_requirement />
-<condition_description>perform when called</condition_description>
+<condition_dsl>perform when called</condition_dsl>
 <condition_postfix>
 perform when called 
 </condition_postfix>
@@ -672,7 +672,7 @@ perform when called
 <action_number>1</action_number>
 <action_comment>Create a Result Record</action_comment>
 <initial_action_requirement />
-<action_description>add a new Result entity to the context of this table</action_description>
+<action_dsl>add a new Result entity to the context of this table</action_dsl>
 <action_postfix>
 /Result createentity entitypush 
 </action_postfix>
@@ -681,7 +681,7 @@ perform when called
 <action_number>2</action_number>
 <action_comment>Add the record to the list on the job</action_comment>
 <initial_action_requirement />
-<action_description>add the result to the job.results</action_description>
+<action_dsl>add the result to the job.results</action_dsl>
 <action_postfix>
 result job.results swap addto 
 </action_postfix>
@@ -690,7 +690,7 @@ result job.results swap addto
 <action_number>3</action_number>
 <action_comment>Point the Result notes to the Client notes</action_comment>
 <initial_action_requirement />
-<action_description>Set Result.notes = client.notes</action_description>
+<action_dsl>Set Result.notes = client.notes</action_dsl>
 <action_postfix>
 client.notes /Result.notes xdef 
 </action_postfix>
@@ -699,7 +699,7 @@ client.notes /Result.notes xdef
 <action_number>4</action_number>
 <action_comment>Copy the client ID</action_comment>
 <initial_action_requirement />
-<action_description>Set Result.client_id = client.id</action_description>
+<action_dsl>Set Result.client_id = client.id</action_dsl>
 <action_postfix>
 client.id  cvs /Result.client_id xdef  
 </action_postfix>
@@ -708,7 +708,7 @@ client.id  cvs /Result.client_id xdef
 <action_number>5</action_number>
 <action_comment>Point the Result to the client</action_comment>
 <initial_action_requirement />
-<action_description>Set Result.client = client.client</action_description>
+<action_dsl>Set Result.client = client.client</action_dsl>
 <action_postfix>
 client.client cve /Result.client xdef  
 </action_postfix>
@@ -717,7 +717,7 @@ client.client cve /Result.client xdef
 <action_number>6</action_number>
 <action_comment>Set the Result to the program we processed</action_comment>
 <initial_action_requirement />
-<action_description>Set Result.program = job.program</action_description>
+<action_dsl>Set Result.program = job.program</action_dsl>
 <action_postfix>
 job.program cvs /Result.program xdef  
 </action_postfix>
@@ -726,7 +726,7 @@ job.program cvs /Result.program xdef
 <action_number>7</action_number>
 <action_comment>Set the Result programLevel to that recorded on the client</action_comment>
 <initial_action_requirement />
-<action_description>Set Result.programLevel = client.programLevel</action_description>
+<action_dsl>Set Result.programLevel = client.programLevel</action_dsl>
 <action_postfix>
 client.programLevel cvs /Result.programLevel xdef  
 </action_postfix>
@@ -735,7 +735,7 @@ client.programLevel cvs /Result.programLevel xdef
 <action_number>8</action_number>
 <action_comment>Set the Result eligible flag to that recorded on the client</action_comment>
 <initial_action_requirement />
-<action_description>Set Result.eligible = client.eligible</action_description>
+<action_dsl>Set Result.eligible = client.eligible</action_dsl>
 <action_postfix>
 client.eligible cvb /Result.eligible xdef  
 </action_postfix>
@@ -744,7 +744,7 @@ client.eligible cvb /Result.eligible xdef
 <action_number>9</action_number>
 <action_comment>Set the Result Federal Poverty Level to the client's</action_comment>
 <initial_action_requirement />
-<action_description>Set Result.client_fpl = client.client_fpl</action_description>
+<action_dsl>Set Result.client_fpl = client.client_fpl</action_dsl>
 <action_postfix>
 client.client_fpl  cvi /Result.client_fpl xdef  
 </action_postfix>
@@ -753,7 +753,7 @@ client.client_fpl  cvi /Result.client_fpl xdef
 <action_number>10</action_number>
 <action_comment>Set the Result's totalGroupIncome to the clients.</action_comment>
 <initial_action_requirement />
-<action_description>Set Result.totalGroupIncome = client.totalGroupIncome</action_description>
+<action_dsl>Set Result.totalGroupIncome = client.totalGroupIncome</action_dsl>
 <action_postfix>
 client.totalGroupIncome  cvi /Result.totalGroupIncome xdef  
 </action_postfix>

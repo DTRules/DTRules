@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize MT tax calculation</action_description>
+<action_dsl>Initialize MT tax calculation</action_dsl>
 <action_postfix>
 &quot;MONTANA FORM 2 - State Income Tax Calculation&quot; job.audit_trail swap addto
 result.agi /result.mt_agi xdef
@@ -26,7 +26,7 @@ result.agi /result.mt_agi xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_description>Married Filing Jointly</condition_description>
+<condition_dsl>Married Filing Jointly</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -37,7 +37,7 @@ result.agi /result.mt_agi xdef
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Single</condition_comment>
-<condition_description>Single</condition_description>
+<condition_dsl>Single</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -48,7 +48,7 @@ result.agi /result.mt_agi xdef
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Head of Household</condition_comment>
-<condition_description>Head of Household</condition_description>
+<condition_dsl>Head of Household</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -61,7 +61,7 @@ result.agi /result.mt_agi xdef
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate MT tax MFJ</action_comment>
-<action_description>Calculate MT tax MFJ</action_description>
+<action_dsl>Calculate MT tax MFJ</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -70,7 +70,7 @@ result.agi /result.mt_agi xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate MT tax Single</action_comment>
-<action_description>Calculate MT tax Single</action_description>
+<action_dsl>Calculate MT tax Single</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -79,7 +79,7 @@ result.agi /result.mt_agi xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate MT tax HOH</action_comment>
-<action_description>Calculate MT tax HOH</action_description>
+<action_dsl>Calculate MT tax HOH</action_dsl>
 <action_postfix>
 
 </action_postfix>

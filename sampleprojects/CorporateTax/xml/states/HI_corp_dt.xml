@@ -16,7 +16,7 @@
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Has physical presence in HI (office, employees, property)</condition_comment>
-        <condition_description>apportionment.has_physical_presence is equal to true and apportionment.state_code is equal to "HI"</condition_description>
+        <condition_dsl>apportionment.has_physical_presence is equal to true and apportionment.state_code is equal to "HI"</condition_dsl>
         <condition_postfix>
 apportionment.has_physical_presence true eq
 { pop apportionment.state_code "HI" streq } over if
@@ -28,7 +28,7 @@ apportionment.has_physical_presence true eq
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Meets HI economic nexus threshold</condition_comment>
-        <condition_description>apportionment.has_economic_nexus is equal to true and apportionment.state_code is equal to "HI"</condition_description>
+        <condition_dsl>apportionment.has_economic_nexus is equal to true and apportionment.state_code is equal to "HI"</condition_dsl>
         <condition_postfix>
 apportionment.has_economic_nexus true eq
 { pop apportionment.state_code "HI" streq } over if
@@ -42,7 +42,7 @@ apportionment.has_economic_nexus true eq
       <action_details>
         <action_number>1</action_number>
         <action_comment>Physical nexus established - filing required</action_comment>
-        <action_description>Apportionment will be calculated by tables 7000-7500</action_description>
+        <action_dsl>Apportionment will be calculated by tables 7000-7500</action_dsl>
         <action_postfix>
 // Physical nexus established - filing required
 // Apportionment will be calculated by tables 7000-7500
@@ -52,7 +52,7 @@ apportionment.has_economic_nexus true eq
       <action_details>
         <action_number>2</action_number>
         <action_comment>Economic nexus established per Wayfair - filing required; Threshold: $100,000 gross receipts OR 200 transactions</action_comment>
-        <action_description />
+        <action_dsl />
         <action_postfix>
 // Economic nexus established per Wayfair - filing required
 // Apportionment will be calculated by tables 7000-7500
@@ -62,7 +62,7 @@ apportionment.has_economic_nexus true eq
       <action_details>
         <action_number>3</action_number>
         <action_comment>No nexus - no filing required</action_comment>
-        <action_description>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_description>
+        <action_dsl>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_dsl>
         <action_postfix>
 // No nexus - no filing required
 0.0 apportionment.state_tax xdef
@@ -102,7 +102,7 @@ apportionment.state_payments apportionment.state_refund_or_owed xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Must have nexus to calculate adjustments; apportionment.has_economic_nexus is equal to true or apportionment.has_physical_presence is equal to true</condition_comment>
-        <condition_description />
+        <condition_dsl />
         <condition_postfix>
 apportionment.has_economic_nexus true eq
 { pop apportionment.has_physical_presence true eq } over not if
@@ -115,7 +115,7 @@ apportionment.has_economic_nexus true eq
       <action_details>
         <action_number>1</action_number>
         <action_comment>Calculate HI state additions and subtractions; Calculate state-specific income adjustments</action_comment>
-        <action_description />
+        <action_dsl />
         <action_postfix>
 // Calculate state additions (customize for Hawaii)
 0.0 /additions xdef
@@ -147,7 +147,7 @@ subtractions apportionment.state_subtractions xdef
       <action_details>
         <action_number>2</action_number>
         <action_comment>No nexus - no state adjustments</action_comment>
-        <action_description>apportionment.state_additions = 0.0; apportionment.state_subtractions = 0.0</action_description>
+        <action_dsl>apportionment.state_additions = 0.0; apportionment.state_subtractions = 0.0</action_dsl>
         <action_postfix>
 0.0 apportionment.state_additions xdef
 0.0 apportionment.state_subtractions xdef
@@ -182,7 +182,7 @@ subtractions apportionment.state_subtractions xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Must have nexus to owe tax; apportionment.has_economic_nexus is equal to true or apportionment.has_physical_presence is equal to true</condition_comment>
-        <condition_description />
+        <condition_dsl />
         <condition_postfix>
 apportionment.has_economic_nexus true eq
 { pop apportionment.has_physical_presence true eq } over not if
@@ -194,7 +194,7 @@ apportionment.has_economic_nexus true eq
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Has positive state taxable income; apportionment.state_taxable_income is greater than 0</condition_comment>
-        <condition_description />
+        <condition_dsl />
         <condition_postfix>
 apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
@@ -207,7 +207,7 @@ apportionment.state_taxable_income 0 &gt;
       <action_details>
         <action_number>1</action_number>
         <action_comment>Hawaii 6.4% flat rate calculation; Calculate HI tax using 6.4% flat rate</action_comment>
-        <action_description />
+        <action_dsl />
         <action_postfix>
 // Hawaii uses 6.4% flat rate
 apportionment.state_taxable_income apportionment.state_tax_rate mul
@@ -226,7 +226,7 @@ apportionment.state_refund_or_owed xdef
       <action_details>
         <action_number>2</action_number>
         <action_comment>No nexus - no tax liability</action_comment>
-        <action_description>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_description>
+        <action_dsl>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_dsl>
         <action_postfix>
 0.0 apportionment.state_tax xdef
 apportionment.state_payments apportionment.state_refund_or_owed xdef
@@ -236,7 +236,7 @@ apportionment.state_payments apportionment.state_refund_or_owed xdef
       <action_details>
         <action_number>3</action_number>
         <action_comment>Nexus but no taxable income - no tax liability</action_comment>
-        <action_description>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_description>
+        <action_dsl>apportionment.state_tax = 0.0; apportionment.state_refund_or_owed = apportionment.state_payments</action_dsl>
         <action_postfix>
 0.0 apportionment.state_tax xdef
 apportionment.state_payments apportionment.state_refund_or_owed xdef

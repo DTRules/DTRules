@@ -22,7 +22,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in DE (office, employees, property)</condition_comment>
-<condition_description>apportionment.has_physical_presence is true and apportionment.state_code == "DE"</condition_description>
+<condition_dsl>apportionment.has_physical_presence is true and apportionment.state_code == "DE"</condition_dsl>
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "DE" streq } over if
 </condition_postfix>
@@ -34,7 +34,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "DE"
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets DE economic nexus threshold ($100,000 or 200 transactions)</condition_comment>
-<condition_description>apportionment.has_economic_nexus is true and apportionment.state_code == "DE"</condition_description>
+<condition_dsl>apportionment.has_economic_nexus is true and apportionment.state_code == "DE"</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "DE" streq } over if
 </condition_postfix>
@@ -48,7 +48,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DE" st
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus established - filing required</action_comment>
-<action_description>// Physical nexus established - filing required</action_description>
+<action_dsl>// Physical nexus established - filing required</action_dsl>
 <action_postfix>
 </action_postfix>
 <action_column column_number="1" column_value="X" />
@@ -57,7 +57,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DE" st
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established per Wayfair - filing required</action_comment>
-<action_description>// Economic nexus established per Wayfair - filing required</action_description>
+<action_dsl>// Economic nexus established per Wayfair - filing required</action_dsl>
 <action_postfix>
 </action_postfix>
 <action_column column_number="2" column_value="X" />
@@ -66,7 +66,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DE" st
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required; // No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
@@ -97,7 +97,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DE" st
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to calculate adjustments; apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
@@ -110,7 +110,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Delaware state additions and subtractions; // Calculate Delaware state additions and subtractions; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
@@ -120,7 +120,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments; // No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
@@ -151,7 +151,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe tax; apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
@@ -163,7 +163,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income &gt; 0.0</condition_description>
+<condition_dsl>apportionment.state_taxable_income &gt; 0.0</condition_dsl>
 <condition_postfix>
 apportionment.state_taxable_income 0.0 f&gt;
 </condition_postfix>
@@ -177,7 +177,7 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Delaware tax at 8.8% flat rate; // Delaware uses 8.8% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f&gt; { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
@@ -187,7 +187,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no tax liability; // No Delaware nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
@@ -197,7 +197,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_details>
 <action_number>3</action_number>
 <action_comment>No taxable income - no tax liability; // No Delaware taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>

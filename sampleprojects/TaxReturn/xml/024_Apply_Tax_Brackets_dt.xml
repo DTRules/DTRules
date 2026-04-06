@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_description>Married Filing Jointly</condition_description>
+<condition_dsl>Married Filing Jointly</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -26,7 +26,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Single or other</condition_comment>
-<condition_description>Single or other</condition_description>
+<condition_dsl>Single or other</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -37,7 +37,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate MFJ tax</action_comment>
-<action_description>Calculate MFJ tax</action_description>
+<action_dsl>Calculate MFJ tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -46,7 +46,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate Single tax</action_comment>
-<action_description>Calculate Single tax</action_description>
+<action_dsl>Calculate Single tax</action_dsl>
 <action_postfix>
 
 </action_postfix>

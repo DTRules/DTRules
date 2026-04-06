@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize mortgage interest credit</action_description>
+<action_dsl>Initialize mortgage interest credit</action_dsl>
 <action_postfix>
 0.0 /result.mortgage_interest_credit xdef
 0.0 /result.carryforward_mortgage_credit xdef
@@ -25,7 +25,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Property has MCC</condition_comment>
-<condition_description>Property has MCC</condition_description>
+<condition_dsl>Property has MCC</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -35,7 +35,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>MCC rate is valid</condition_comment>
-<condition_description>MCC rate is valid</condition_description>
+<condition_dsl>MCC rate is valid</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -45,7 +45,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Has mortgage interest paid</condition_comment>
-<condition_description>Has mortgage interest paid</condition_description>
+<condition_dsl>Has mortgage interest paid</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -57,7 +57,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate mortgage interest credit</action_comment>
-<action_description>Calculate mortgage interest credit</action_description>
+<action_dsl>Calculate mortgage interest credit</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -66,7 +66,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No MCC credit</action_comment>
-<action_description>No MCC credit</action_description>
+<action_dsl>No MCC credit</action_dsl>
 <action_postfix>
 
 </action_postfix>

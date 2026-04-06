@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
-<condition_description>Married Filing Jointly or Qualifying Surviving Spouse</condition_description>
+<condition_dsl>Married Filing Jointly or Qualifying Surviving Spouse</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -31,7 +31,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>AGI exceeds MFJ phase-out threshold</condition_comment>
-<condition_description>AGI exceeds MFJ phase-out threshold</condition_description>
+<condition_dsl>AGI exceeds MFJ phase-out threshold</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -45,7 +45,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>AGI exceeds Single phase-out threshold</condition_comment>
-<condition_description>AGI exceeds Single phase-out threshold</condition_description>
+<condition_dsl>AGI exceeds Single phase-out threshold</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -59,7 +59,7 @@
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Has credits to phase out</condition_comment>
-<condition_description>Has credits to phase out</condition_description>
+<condition_dsl>Has credits to phase out</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -75,7 +75,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Set MFJ threshold and calculate values</action_comment>
-<action_description>Set MFJ threshold and calculate values</action_description>
+<action_dsl>Set MFJ threshold and calculate values</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -86,7 +86,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Set Single threshold and calculate values</action_comment>
-<action_description>Set Single threshold and calculate values</action_description>
+<action_dsl>Set Single threshold and calculate values</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -97,7 +97,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate phase-out reduction for MFJ with credits over threshold</action_comment>
-<action_description>Calculate phase-out reduction for MFJ with credits over threshold</action_description>
+<action_dsl>Calculate phase-out reduction for MFJ with credits over threshold</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -106,7 +106,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate phase-out reduction for Single with credits over threshold</action_comment>
-<action_description>Calculate phase-out reduction for Single with credits over threshold</action_description>
+<action_dsl>Calculate phase-out reduction for Single with credits over threshold</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -115,7 +115,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>AGI over threshold but no credits to reduce</action_comment>
-<action_description>AGI over threshold but no credits to reduce</action_description>
+<action_dsl>AGI over threshold but no credits to reduce</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -125,7 +125,7 @@
 <action_details>
 <action_number>6</action_number>
 <action_comment>AGI does not exceed threshold</action_comment>
-<action_description>AGI does not exceed threshold</action_description>
+<action_dsl>AGI does not exceed threshold</action_dsl>
 <action_postfix>
 
 </action_postfix>

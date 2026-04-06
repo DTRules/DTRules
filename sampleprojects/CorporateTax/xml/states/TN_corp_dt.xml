@@ -18,7 +18,7 @@
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Tennessee filing requirement check</action_description>
+<action_dsl>Initialize Tennessee filing requirement check</action_dsl>
 <action_postfix>
 "Tennessee Filing Requirement Check Started" job.audit_trail swap addto
 </action_postfix>
@@ -29,7 +29,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in TN (office, employees, property)</condition_comment>
-<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "TN"</condition_description>
+<condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "TN"</condition_dsl>
 <condition_postfix>
 apportionment.has_physical_presence get true eq
 apportionment.state_code get "TN" streq and
@@ -42,7 +42,7 @@ apportionment.state_code get "TN" streq and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets TN economic nexus threshold ($100K or 200 transactions)</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "TN"</condition_description>
+<condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "TN"</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.state_code get "TN" streq and
@@ -112,7 +112,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Tennessee income adjustments</action_description>
+<action_dsl>Initialize Tennessee income adjustments</action_dsl>
 <action_postfix>
 "Tennessee Income Adjustments Started" job.audit_trail swap addto
 </action_postfix>
@@ -123,7 +123,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to calculate adjustments; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
@@ -223,7 +223,7 @@ subtractions /apportionment.state_subtractions xdef
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Tennessee franchise tax calculation</action_description>
+<action_dsl>Initialize Tennessee franchise tax calculation</action_dsl>
 <action_postfix>
 "Tennessee Franchise Tax Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -234,7 +234,7 @@ subtractions /apportionment.state_subtractions xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe franchise tax; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
@@ -247,7 +247,7 @@ apportionment.has_physical_presence get true eq or
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive net worth in TN</condition_comment>
-<condition_description>result.tn_net_worth &gt; 0</condition_description>
+<condition_dsl>result.tn_net_worth &gt; 0</condition_dsl>
 <condition_postfix>
 result.tn_net_worth get 0 gt
 </condition_postfix>
@@ -310,7 +310,7 @@ result.tn_net_worth get result.tn_franchise_tax_rate get mul /result.tn_franchis
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize Tennessee excise tax calculation</action_description>
+<action_dsl>Initialize Tennessee excise tax calculation</action_dsl>
 <action_postfix>
 "Tennessee Excise Tax Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -321,7 +321,7 @@ result.tn_net_worth get result.tn_franchise_tax_rate get mul /result.tn_franchis
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe excise tax; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
@@ -334,7 +334,7 @@ apportionment.has_physical_presence get true eq or
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive apportioned taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income &gt; 0</condition_description>
+<condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
 apportionment.state_taxable_income get 0 gt
 </condition_postfix>

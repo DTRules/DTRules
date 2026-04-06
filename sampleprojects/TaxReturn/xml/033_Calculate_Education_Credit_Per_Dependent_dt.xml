@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Is college student</condition_comment>
-<condition_description>Is college student</condition_description>
+<condition_dsl>Is college student</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -30,7 +30,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Eligible for AOTC (years 1-4, not exhausted)</condition_comment>
-<condition_description>Eligible for AOTC (years 1-4, not exhausted)</condition_description>
+<condition_dsl>Eligible for AOTC (years 1-4, not exhausted)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -43,7 +43,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>AGI in AOTC phase-out range</condition_comment>
-<condition_description>AGI in AOTC phase-out range</condition_description>
+<condition_dsl>AGI in AOTC phase-out range</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -56,7 +56,7 @@
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>AGI in LLC phase-out range</condition_comment>
-<condition_description>AGI in LLC phase-out range</condition_description>
+<condition_dsl>AGI in LLC phase-out range</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -71,7 +71,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate AOTC (full amount)</action_comment>
-<action_description>Calculate AOTC (full amount)</action_description>
+<action_dsl>Calculate AOTC (full amount)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -80,7 +80,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate AOTC with phase-out</action_comment>
-<action_description>Calculate AOTC with phase-out</action_description>
+<action_dsl>Calculate AOTC with phase-out</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -89,7 +89,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate LLC (full amount)</action_comment>
-<action_description>Calculate LLC (full amount)</action_description>
+<action_dsl>Calculate LLC (full amount)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -98,7 +98,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate LLC with phase-out</action_comment>
-<action_description>Calculate LLC with phase-out</action_description>
+<action_dsl>Calculate LLC with phase-out</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -107,7 +107,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>Not a college student</action_comment>
-<action_description>Not a college student</action_description>
+<action_dsl>Not a college student</action_dsl>
 <action_postfix>
 
 </action_postfix>

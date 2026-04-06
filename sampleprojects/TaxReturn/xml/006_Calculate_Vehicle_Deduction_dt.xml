@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has business miles</condition_comment>
-<condition_description>Has business miles</condition_description>
+<condition_dsl>Has business miles</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -28,7 +28,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Using standard mileage method</condition_comment>
-<condition_description>Using standard mileage method</condition_description>
+<condition_dsl>Using standard mileage method</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -40,7 +40,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate business use percentage</action_comment>
-<action_description>Calculate business use percentage</action_description>
+<action_dsl>Calculate business use percentage</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -50,7 +50,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate standard mileage deduction</action_comment>
-<action_description>Calculate standard mileage deduction</action_description>
+<action_dsl>Calculate standard mileage deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -59,7 +59,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate actual expense deduction</action_comment>
-<action_description>Calculate actual expense deduction</action_description>
+<action_dsl>Calculate actual expense deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>

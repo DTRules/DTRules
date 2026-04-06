@@ -13,7 +13,7 @@
     <contexts />
     <initial_actions>
       <initial_action>
-        <action_description>Initialize Kentucky filing requirement check</action_description>
+        <action_dsl>Initialize Kentucky filing requirement check</action_dsl>
         <action_postfix>
 "Kentucky Corporate Filing Requirement Check Started" job.audit_trail swap addto
 false result.ky_has_nexus xdef
@@ -24,7 +24,7 @@ false result.ky_has_nexus xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Has physical presence in Kentucky</condition_comment>
-        <condition_description>result.has_physical_presence_ky is equal to true</condition_description>
+        <condition_dsl>result.has_physical_presence_ky is equal to true</condition_dsl>
         <condition_postfix>
 result.has_physical_presence_ky true eq
 </condition_postfix>
@@ -35,7 +35,7 @@ result.has_physical_presence_ky true eq
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Meets economic nexus threshold ($100K gross receipts or 200 transactions); result.ky_gross_receipts is greater than or equal to result.ky_economic_nexus_threshold</condition_comment>
-        <condition_description />
+        <condition_dsl />
         <condition_postfix>
 result.ky_gross_receipts result.ky_economic_nexus_threshold &gt;=
 </condition_postfix>
@@ -48,7 +48,7 @@ result.ky_gross_receipts result.ky_economic_nexus_threshold &gt;=
       <action_details>
         <action_number>1</action_number>
         <action_comment>Physical nexus - filing required</action_comment>
-        <action_description>result.ky_has_nexus = true</action_description>
+        <action_dsl>result.ky_has_nexus = true</action_dsl>
         <action_postfix>
 // Physical nexus established - filing required
 true result.ky_has_nexus xdef
@@ -59,7 +59,7 @@ true result.ky_has_nexus xdef
       <action_details>
         <action_number>2</action_number>
         <action_comment>Economic nexus - filing required</action_comment>
-        <action_description>result.ky_has_nexus = true</action_description>
+        <action_dsl>result.ky_has_nexus = true</action_dsl>
         <action_postfix>
 // Economic nexus established per Wayfair - filing required
 true result.ky_has_nexus xdef
@@ -70,7 +70,7 @@ true result.ky_has_nexus xdef
       <action_details>
         <action_number>3</action_number>
         <action_comment>No nexus - no filing required</action_comment>
-        <action_description>result.ky_has_nexus = false; result.ky_tax_liability = 0.0</action_description>
+        <action_dsl>result.ky_has_nexus = false; result.ky_tax_liability = 0.0</action_dsl>
         <action_postfix>
 // No nexus - no filing required
 false result.ky_has_nexus xdef
@@ -94,7 +94,7 @@ false result.ky_has_nexus xdef
     <contexts />
     <initial_actions>
       <initial_action>
-        <action_description>Initialize Kentucky income adjustments</action_description>
+        <action_dsl>Initialize Kentucky income adjustments</action_dsl>
         <action_postfix>
 "Kentucky Corporate Income Adjustments Calculation Started" job.audit_trail swap addto
 0.0 result.ky_state_additions xdef
@@ -106,7 +106,7 @@ false result.ky_has_nexus xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Has Kentucky nexus</condition_comment>
-        <condition_description>result.ky_has_nexus is equal to true</condition_description>
+        <condition_dsl>result.ky_has_nexus is equal to true</condition_dsl>
         <condition_postfix>
 result.ky_has_nexus true eq
 </condition_postfix>
@@ -118,7 +118,7 @@ result.ky_has_nexus true eq
       <action_details>
         <action_number>1</action_number>
         <action_comment>Calculate Kentucky state additions and subtractions; Calculate state-specific income adjustments</action_comment>
-        <action_description />
+        <action_dsl />
         <action_postfix>
 // Calculate Kentucky state additions
 0.0 /ky_additions xdef
@@ -161,7 +161,7 @@ ky_subtractions result.ky_state_subtractions xdef
       <action_details>
         <action_number>2</action_number>
         <action_comment>No nexus - no adjustments</action_comment>
-        <action_description>result.ky_state_additions = 0.0; result.ky_state_subtractions = 0.0</action_description>
+        <action_dsl>result.ky_state_additions = 0.0; result.ky_state_subtractions = 0.0</action_dsl>
         <action_postfix>
 0.0 result.ky_state_additions xdef
 0.0 result.ky_state_subtractions xdef
@@ -184,7 +184,7 @@ ky_subtractions result.ky_state_subtractions xdef
     <contexts />
     <initial_actions>
       <initial_action>
-        <action_description>Initialize Kentucky tax calculation</action_description>
+        <action_dsl>Initialize Kentucky tax calculation</action_dsl>
         <action_postfix>
 "Kentucky Corporate Tax Calculation Started" job.audit_trail swap addto
 0.0 result.ky_taxable_income xdef
@@ -196,7 +196,7 @@ ky_subtractions result.ky_state_subtractions xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Has Kentucky nexus</condition_comment>
-        <condition_description>result.ky_has_nexus is equal to true</condition_description>
+        <condition_dsl>result.ky_has_nexus is equal to true</condition_dsl>
         <condition_postfix>
 result.ky_has_nexus true eq
 </condition_postfix>
@@ -207,7 +207,7 @@ result.ky_has_nexus true eq
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Has positive taxable income; result.ky_apportioned_income is greater than 0</condition_comment>
-        <condition_description />
+        <condition_dsl />
         <condition_postfix>
 result.ky_apportioned_income 0.0 &gt;
 </condition_postfix>
@@ -220,7 +220,7 @@ result.ky_apportioned_income 0.0 &gt;
       <action_details>
         <action_number>1</action_number>
         <action_comment>Calculate Kentucky corporate tax (flat rate 4.5%); Apply Kentucky 4.5% flat rate</action_comment>
-        <action_description />
+        <action_dsl />
         <action_postfix>
 // Calculate Kentucky taxable income
 // Federal taxable income apportioned to KY + additions - subtractions
@@ -250,7 +250,7 @@ result.ky_refund_or_owed xdef
       <action_details>
         <action_number>2</action_number>
         <action_comment>No taxable income - no tax liability</action_comment>
-        <action_description>result.ky_taxable_income = 0.0; result.ky_tax_liability = 0.0</action_description>
+        <action_dsl>result.ky_taxable_income = 0.0; result.ky_tax_liability = 0.0</action_dsl>
         <action_postfix>
 // No taxable income - no tax liability
 0.0 result.ky_taxable_income xdef
@@ -263,7 +263,7 @@ result.ky_estimated_payments result.ky_refund_or_owed xdef
       <action_details>
         <action_number>3</action_number>
         <action_comment>No nexus - no tax liability</action_comment>
-        <action_description>result.ky_taxable_income = 0.0; result.ky_tax_liability = 0.0</action_description>
+        <action_dsl>result.ky_taxable_income = 0.0; result.ky_tax_liability = 0.0</action_dsl>
         <action_postfix>
 // No nexus - no tax liability
 0.0 result.ky_taxable_income xdef

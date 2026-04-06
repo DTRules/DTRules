@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>In bracket 1 only</condition_comment>
-<condition_description>In bracket 1 only</condition_description>
+<condition_dsl>In bracket 1 only</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -32,7 +32,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>In bracket 2</condition_comment>
-<condition_description>In bracket 2</condition_description>
+<condition_dsl>In bracket 2</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -47,7 +47,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>In bracket 3</condition_comment>
-<condition_description>In bracket 3</condition_description>
+<condition_dsl>In bracket 3</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -62,7 +62,7 @@
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>In bracket 4</condition_comment>
-<condition_description>In bracket 4</condition_description>
+<condition_dsl>In bracket 4</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -77,7 +77,7 @@
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>In bracket 5</condition_comment>
-<condition_description>In bracket 5</condition_description>
+<condition_dsl>In bracket 5</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -92,7 +92,7 @@
 <condition_details>
 <condition_number>6</condition_number>
 <condition_comment>In bracket 6</condition_comment>
-<condition_description>In bracket 6</condition_description>
+<condition_dsl>In bracket 6</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -109,7 +109,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Bracket 1 tax</action_comment>
-<action_description>Bracket 1 tax</action_description>
+<action_dsl>Bracket 1 tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -118,7 +118,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Bracket 2 tax</action_comment>
-<action_description>Bracket 2 tax</action_description>
+<action_dsl>Bracket 2 tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -127,7 +127,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Bracket 3 tax</action_comment>
-<action_description>Bracket 3 tax</action_description>
+<action_dsl>Bracket 3 tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -136,7 +136,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Bracket 4 tax</action_comment>
-<action_description>Bracket 4 tax</action_description>
+<action_dsl>Bracket 4 tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -145,7 +145,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>Bracket 5 tax</action_comment>
-<action_description>Bracket 5 tax</action_description>
+<action_dsl>Bracket 5 tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -154,7 +154,7 @@
 <action_details>
 <action_number>6</action_number>
 <action_comment>Bracket 6 tax</action_comment>
-<action_description>Bracket 6 tax</action_description>
+<action_dsl>Bracket 6 tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -163,7 +163,7 @@
 <action_details>
 <action_number>7</action_number>
 <action_comment>Bracket 7 tax</action_comment>
-<action_description>Bracket 7 tax</action_description>
+<action_dsl>Bracket 7 tax</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
-<condition_description>Married Filing Jointly or Qualifying Surviving Spouse</condition_description>
+<condition_dsl>Married Filing Jointly or Qualifying Surviving Spouse</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -31,7 +31,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Head of Household</condition_comment>
-<condition_description>Head of Household</condition_description>
+<condition_dsl>Head of Household</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -45,7 +45,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Has seniors age 65+</condition_comment>
-<condition_description>Has seniors age 65+</condition_description>
+<condition_dsl>Has seniors age 65+</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -61,7 +61,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>MFJ/QSS standard deduction</action_comment>
-<action_description>MFJ/QSS standard deduction</action_description>
+<action_dsl>MFJ/QSS standard deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -71,7 +71,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>HOH standard deduction</action_comment>
-<action_description>HOH standard deduction</action_description>
+<action_dsl>HOH standard deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -81,7 +81,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Single/MFS standard deduction</action_comment>
-<action_description>Single/MFS standard deduction</action_description>
+<action_dsl>Single/MFS standard deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -91,7 +91,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Add additional standard deduction for married seniors age 65+</action_comment>
-<action_description>Add additional standard deduction for married seniors age 65+</action_description>
+<action_dsl>Add additional standard deduction for married seniors age 65+</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -100,7 +100,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>Add additional standard deduction for single/HOH seniors age 65+</action_comment>
-<action_description>Add additional standard deduction for single/HOH seniors age 65+</action_description>
+<action_dsl>Add additional standard deduction for single/HOH seniors age 65+</action_dsl>
 <action_postfix>
 
 </action_postfix>

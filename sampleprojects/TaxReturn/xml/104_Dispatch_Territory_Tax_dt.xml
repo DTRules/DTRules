@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Log territory tax calculation start</action_description>
+<action_dsl>Log territory tax calculation start</action_dsl>
 <action_postfix>
 job.territory isnull not if
   &quot;US Territory Tax Calculation for &quot; job.territory strconcat job.audit_trail swap addto
@@ -25,7 +25,7 @@ then
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Puerto Rico territory</condition_comment>
-<condition_description>Puerto Rico territory</condition_description>
+<condition_dsl>Puerto Rico territory</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -39,7 +39,7 @@ then
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>US Virgin Islands territory</condition_comment>
-<condition_description>US Virgin Islands territory</condition_description>
+<condition_dsl>US Virgin Islands territory</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -53,7 +53,7 @@ then
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Guam territory</condition_comment>
-<condition_description>Guam territory</condition_description>
+<condition_dsl>Guam territory</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -67,7 +67,7 @@ then
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>American Samoa territory</condition_comment>
-<condition_description>American Samoa territory</condition_description>
+<condition_dsl>American Samoa territory</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -81,7 +81,7 @@ then
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>Northern Mariana Islands territory</condition_comment>
-<condition_description>Northern Mariana Islands territory</condition_description>
+<condition_dsl>Northern Mariana Islands territory</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -95,7 +95,7 @@ then
 <condition_details>
 <condition_number>6</condition_number>
 <condition_comment>No territory or not applicable</condition_comment>
-<condition_description>No territory or not applicable</condition_description>
+<condition_dsl>No territory or not applicable</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -111,7 +111,7 @@ then
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Puerto Rico territory tax</action_comment>
-<action_description>Calculate Puerto Rico territory tax</action_description>
+<action_dsl>Calculate Puerto Rico territory tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -120,7 +120,7 @@ then
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate US Virgin Islands territory tax</action_comment>
-<action_description>Calculate US Virgin Islands territory tax</action_description>
+<action_dsl>Calculate US Virgin Islands territory tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -129,7 +129,7 @@ then
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate Guam territory tax</action_comment>
-<action_description>Calculate Guam territory tax</action_description>
+<action_dsl>Calculate Guam territory tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -138,7 +138,7 @@ then
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate American Samoa territory tax</action_comment>
-<action_description>Calculate American Samoa territory tax</action_description>
+<action_dsl>Calculate American Samoa territory tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -147,7 +147,7 @@ then
 <action_details>
 <action_number>5</action_number>
 <action_comment>Calculate Northern Mariana Islands territory tax</action_comment>
-<action_description>Calculate Northern Mariana Islands territory tax</action_description>
+<action_dsl>Calculate Northern Mariana Islands territory tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -156,7 +156,7 @@ then
 <action_details>
 <action_number>6</action_number>
 <action_comment>No territory tax</action_comment>
-<action_description>No territory tax</action_description>
+<action_dsl>No territory tax</action_dsl>
 <action_postfix>
 
 </action_postfix>

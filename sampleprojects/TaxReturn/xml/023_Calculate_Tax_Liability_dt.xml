@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>add &quot;TAX CALCULATION (Form 1040 Lines 16-24)&quot; to job.audit_trail</action_description>
+<action_dsl>add &quot;TAX CALCULATION (Form 1040 Lines 16-24)&quot; to job.audit_trail</action_dsl>
 <action_postfix>
 &quot;TAX CALCULATION (Form 1040 Lines 16-24)&quot; job.audit_trail swap addto
 </action_postfix>
@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always calculate</condition_comment>
-<condition_description>Always calculate</condition_description>
+<condition_dsl>Always calculate</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -34,7 +34,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate regular tax using brackets</action_comment>
-<action_description>Calculate regular tax using brackets</action_description>
+<action_dsl>Calculate regular tax using brackets</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -43,7 +43,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate capital gains tax</action_comment>
-<action_description>Calculate capital gains tax</action_description>
+<action_dsl>Calculate capital gains tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -52,7 +52,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Add SE tax from all taxpayers</action_comment>
-<action_description>Add SE tax from all taxpayers</action_description>
+<action_dsl>Add SE tax from all taxpayers</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -61,7 +61,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate NIIT</action_comment>
-<action_description>Calculate NIIT</action_description>
+<action_dsl>Calculate NIIT</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -70,7 +70,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>Calculate Additional Medicare Tax</action_comment>
-<action_description>Calculate Additional Medicare Tax</action_description>
+<action_dsl>Calculate Additional Medicare Tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -79,7 +79,7 @@
 <action_details>
 <action_number>6</action_number>
 <action_comment>Calculate Schedule H (household employment taxes)</action_comment>
-<action_description>Calculate Schedule H (household employment taxes)</action_description>
+<action_dsl>Calculate Schedule H (household employment taxes)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -88,7 +88,7 @@
 <action_details>
 <action_number>7</action_number>
 <action_comment>Calculate total tax before credits</action_comment>
-<action_description>Calculate total tax before credits</action_description>
+<action_dsl>Calculate total tax before credits</action_dsl>
 <action_postfix>
 
 </action_postfix>

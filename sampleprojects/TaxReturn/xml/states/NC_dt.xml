@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
-<action_description>No military retirement pay - no exclusion</action_description>
+<action_dsl>No military retirement pay - no exclusion</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -45,7 +45,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly</condition_comment>
-<condition_description>Filing status is Married Filing Jointly</condition_description>
+<condition_dsl>Filing status is Married Filing Jointly</condition_dsl>
 <condition_postfix>
 result.filing_status &quot;married_filing_jointly&quot; ==
 </condition_postfix>
@@ -57,7 +57,7 @@ result.filing_status &quot;married_filing_jointly&quot; ==
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
-<condition_description>Filing status is Head of Household</condition_description>
+<condition_dsl>Filing status is Head of Household</condition_dsl>
 <condition_postfix>
 result.filing_status &quot;head_of_household&quot; ==
 </condition_postfix>
@@ -69,7 +69,7 @@ result.filing_status &quot;head_of_household&quot; ==
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Default case (Married Filing Separately, etc.)</condition_comment>
-<condition_description>Default case (Married Filing Separately, etc.)</condition_description>
+<condition_dsl>Default case (Married Filing Separately, etc.)</condition_dsl>
 <condition_postfix>
 true
 </condition_postfix>
@@ -83,7 +83,7 @@ true
 <action_details>
 <action_number>2</action_number>
 <action_comment>Married Filing Jointly: Apply standard deduction $25,500</action_comment>
-<action_description>Married Filing Jointly: Apply standard deduction $25,500</action_description>
+<action_dsl>Married Filing Jointly: Apply standard deduction $25,500</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -91,7 +91,7 @@ true
 <action_details>
 <action_number>3</action_number>
 <action_comment>Head of Household: Apply standard deduction $22,500</action_comment>
-<action_description>Head of Household: Apply standard deduction $22,500</action_description>
+<action_dsl>Head of Household: Apply standard deduction $22,500</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -99,7 +99,7 @@ true
 <action_details>
 <action_number>4</action_number>
 <action_comment>Other statuses: Apply single standard deduction $12,750</action_comment>
-<action_description>Other statuses: Apply single standard deduction $12,750</action_description>
+<action_dsl>Other statuses: Apply single standard deduction $12,750</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -107,7 +107,7 @@ true
 <action_details>
 <action_number>5</action_number>
 <action_comment>Calculate NC AGI (Federal AGI minus subtractions)</action_comment>
-<action_description>Calculate NC AGI (Federal AGI minus subtractions)</action_description>
+<action_dsl>Calculate NC AGI (Federal AGI minus subtractions)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -116,7 +116,7 @@ true
 <action_details>
 <action_number>6</action_number>
 <action_comment>Calculate NC taxable income (NC AGI - standard deduction, minimum 0)</action_comment>
-<action_description>Calculate NC taxable income (NC AGI - standard deduction, minimum 0)</action_description>
+<action_dsl>Calculate NC taxable income (NC AGI - standard deduction, minimum 0)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -125,7 +125,7 @@ true
 <action_details>
 <action_number>7</action_number>
 <action_comment>Calculate NC tax: taxable income × 4.25%</action_comment>
-<action_description>Calculate NC tax: taxable income × 4.25%</action_description>
+<action_dsl>Calculate NC tax: taxable income × 4.25%</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Is rental property</condition_comment>
-<condition_description>Is rental property</condition_description>
+<condition_dsl>Is rental property</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -28,7 +28,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has rental income</condition_comment>
-<condition_description>Has rental income</condition_description>
+<condition_dsl>Has rental income</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Net income is positive (income not loss)</condition_comment>
-<condition_description>Net income is positive (income not loss)</condition_description>
+<condition_dsl>Net income is positive (income not loss)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -50,7 +50,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Log rental property header</action_comment>
-<action_description>Log rental property header</action_description>
+<action_dsl>Log rental property header</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -60,7 +60,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate total rental expenses</action_comment>
-<action_description>Calculate total rental expenses</action_description>
+<action_dsl>Calculate total rental expenses</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -70,7 +70,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate net rental income</action_comment>
-<action_description>Calculate net rental income</action_description>
+<action_dsl>Calculate net rental income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -80,7 +80,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Log net income</action_comment>
-<action_description>Log net income</action_description>
+<action_dsl>Log net income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -89,7 +89,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>Log net loss</action_comment>
-<action_description>Log net loss</action_description>
+<action_dsl>Log net loss</action_dsl>
 <action_postfix>
 
 </action_postfix>

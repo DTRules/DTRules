@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>set result.total_itemized = 0</action_description>
+<action_dsl>set result.total_itemized = 0</action_dsl>
 <action_postfix>
 0.0 /result.total_itemized xdef
 &quot;SCHEDULE A - Itemized Deductions&quot; job.audit_trail swap addto
@@ -24,7 +24,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always calculate itemized for comparison</condition_comment>
-<condition_description>Always calculate itemized for comparison</condition_description>
+<condition_dsl>Always calculate itemized for comparison</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -35,7 +35,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate medical expense deduction (Schedule A Lines 1-4)</action_comment>
-<action_description>Calculate medical expense deduction (Schedule A Lines 1-4)</action_description>
+<action_dsl>Calculate medical expense deduction (Schedule A Lines 1-4)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -44,7 +44,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate SALT deduction</action_comment>
-<action_description>Calculate SALT deduction</action_description>
+<action_dsl>Calculate SALT deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -53,7 +53,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate mortgage interest deduction</action_comment>
-<action_description>Calculate mortgage interest deduction</action_description>
+<action_dsl>Calculate mortgage interest deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -62,7 +62,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate charitable contributions</action_comment>
-<action_description>Calculate charitable contributions</action_description>
+<action_dsl>Calculate charitable contributions</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -71,7 +71,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>Calculate noncash charitable contributions (Form 8283)</action_comment>
-<action_description>Calculate noncash charitable contributions (Form 8283)</action_description>
+<action_dsl>Calculate noncash charitable contributions (Form 8283)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -80,7 +80,7 @@
 <action_details>
 <action_number>6</action_number>
 <action_comment>Log total itemized</action_comment>
-<action_description>Log total itemized</action_description>
+<action_dsl>Log total itemized</action_dsl>
 <action_postfix>
 
 </action_postfix>

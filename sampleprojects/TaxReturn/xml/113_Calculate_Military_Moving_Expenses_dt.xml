@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Active duty military with PCS move</condition_comment>
-<condition_description>Active duty military with PCS move</condition_description>
+<condition_dsl>Active duty military with PCS move</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -26,7 +26,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Move meets distance test</condition_comment>
-<condition_description>Move meets distance test</condition_description>
+<condition_dsl>Move meets distance test</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -37,7 +37,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Deduct qualifying military moving expenses</action_comment>
-<action_description>Deduct qualifying military moving expenses</action_description>
+<action_dsl>Deduct qualifying military moving expenses</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -46,7 +46,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Not qualified or not military</action_comment>
-<action_description>Not qualified or not military</action_description>
+<action_dsl>Not qualified or not military</action_dsl>
 <action_postfix>
 
 </action_postfix>

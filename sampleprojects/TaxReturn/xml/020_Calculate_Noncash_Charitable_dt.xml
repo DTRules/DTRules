@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has noncash contributions</condition_comment>
-<condition_description>Has noncash contributions</condition_description>
+<condition_dsl>Has noncash contributions</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Log total noncash charitable</action_comment>
-<action_description>Log total noncash charitable</action_description>
+<action_dsl>Log total noncash charitable</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No noncash contributions</action_comment>
-<action_description>No noncash contributions</action_description>
+<action_dsl>No noncash contributions</action_dsl>
 <action_postfix>
 
 </action_postfix>

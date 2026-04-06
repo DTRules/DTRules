@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in Ohio (bright-line presence)</condition_comment>
-<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == 'OH'</condition_description>
+<condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == 'OH'</condition_dsl>
 <condition_postfix>
 apportionment.has_physical_presence true eq
 apportionment.state_code "OH" streq
@@ -38,7 +38,7 @@ and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets Ohio economic nexus threshold ($500K Ohio receipts)</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == 'OH'</condition_description>
+<condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == 'OH'</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.state_code "OH" streq
@@ -53,7 +53,7 @@ and
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Ohio receipts below $150K exclusion threshold; result.oh_taxable_gross_receipts &lt; result.oh_cat_exclusion_threshold</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.oh_taxable_gross_receipts result.oh_cat_exclusion_threshold lt
 </condition_postfix>
@@ -68,7 +68,7 @@ result.oh_taxable_gross_receipts result.oh_cat_exclusion_threshold lt
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical presence but below exclusion threshold - no tax due; Set no CAT due and zero tax</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Physical presence but below threshold - no CAT due
 result.oh_qualifies_for_no_cat true xdef
@@ -84,7 +84,7 @@ apportionment.state_tax 0.0 xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Physical nexus established - CAT calculation required; Mark CAT as due and log bright-line presence</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Physical nexus - CAT calculation required
 result.oh_qualifies_for_no_cat false xdef
@@ -98,7 +98,7 @@ result.oh_qualifies_for_no_cat false xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Economic nexus established - CAT calculation required; Mark CAT as due and log economic nexus</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Economic nexus - CAT calculation required
 result.oh_qualifies_for_no_cat false xdef
@@ -112,7 +112,7 @@ result.oh_qualifies_for_no_cat false xdef
 <action_details>
 <action_number>4</action_number>
 <action_comment>No nexus - no filing required; Set no CAT due, zero tax, and refund any payments</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // No nexus - no filing required
 result.oh_qualifies_for_no_cat true xdef
@@ -150,7 +150,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus and above exclusion threshold; result.oh_qualifies_for_no_cat == false</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.oh_qualifies_for_no_cat false eq
 </condition_postfix>
@@ -162,7 +162,7 @@ result.oh_qualifies_for_no_cat false eq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has receipts excluded from CAT calculation</condition_comment>
-<condition_description>result.oh_cat_excluded_receipts &gt; 0</condition_description>
+<condition_dsl>result.oh_cat_excluded_receipts &gt; 0</condition_dsl>
 <condition_postfix>
 result.oh_cat_excluded_receipts 0 gt
 </condition_postfix>
@@ -176,7 +176,7 @@ result.oh_cat_excluded_receipts 0 gt
 <action_details>
 <action_number>1</action_number>
 <action_comment>No nexus or below threshold - no calculation needed</action_comment>
-<action_description>Set taxable receipts to zero</action_description>
+<action_dsl>Set taxable receipts to zero</action_dsl>
 <action_postfix>
 // No nexus or below threshold - no calculation needed
 result.oh_taxable_gross_receipts 0.0 xdef
@@ -189,7 +189,7 @@ result.oh_taxable_gross_receipts 0.0 xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate gross receipts after exclusions; Apply exclusions to Ohio-sourced receipts</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Calculate gross receipts after exclusions
 result.oh_taxable_gross_receipts result.oh_cat_excluded_receipts sub
@@ -204,7 +204,7 @@ result.oh_taxable_gross_receipts result.oh_cat_excluded_receipts sub
 <action_details>
 <action_number>3</action_number>
 <action_comment>Use Ohio-sourced gross receipts (no exclusions); Log CAT basis and situsing</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Use Ohio-sourced gross receipts (no exclusions)
 </action_postfix>
@@ -237,7 +237,7 @@ result.oh_taxable_gross_receipts result.oh_cat_excluded_receipts sub
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus and above exclusion threshold; result.oh_qualifies_for_no_cat == false</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.oh_qualifies_for_no_cat false eq
 </condition_postfix>
@@ -250,7 +250,7 @@ result.oh_qualifies_for_no_cat false eq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive Ohio-sourced gross receipts</condition_comment>
-<condition_description>result.oh_taxable_gross_receipts &gt; 0</condition_description>
+<condition_dsl>result.oh_taxable_gross_receipts &gt; 0</condition_dsl>
 <condition_postfix>
 result.oh_taxable_gross_receipts 0 gt
 </condition_postfix>
@@ -263,7 +263,7 @@ result.oh_taxable_gross_receipts 0 gt
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Ohio receipts at or above $1M (subject to percentage tax); result.oh_taxable_gross_receipts &gt;= result.oh_cat_minimum_threshold</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold ge
 </condition_postfix>
@@ -278,7 +278,7 @@ result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold ge
 <action_details>
 <action_number>1</action_number>
 <action_comment>No nexus or below exclusion threshold - no CAT</action_comment>
-<action_description>Set zero tax and refund payments</action_description>
+<action_dsl>Set zero tax and refund payments</action_dsl>
 <action_postfix>
 // No nexus or below exclusion threshold - no CAT
 result.oh_cat_tax 0.0 xdef
@@ -294,7 +294,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Receipts over $1M - calculate percentage tax + minimum; CAT = $150 + (Receipts - $1M) × 0.26%</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Receipts over $1M - CAT = $150 + (Receipts - $1M) x 0.26%
 result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold sub
@@ -315,7 +315,7 @@ apportionment.state_payments apportionment.state_tax sub
 <action_details>
 <action_number>3</action_number>
 <action_comment>Receipts between $150K and $1M - minimum tax only</action_comment>
-<action_description>CAT = $150 flat minimum</action_description>
+<action_dsl>CAT = $150 flat minimum</action_dsl>
 <action_postfix>
 // Receipts between $150K and $1M - minimum tax only ($150)
 result.oh_cat_tax result.oh_cat_minimum_tax xdef
@@ -332,7 +332,7 @@ apportionment.state_payments apportionment.state_tax sub
 <action_details>
 <action_number>4</action_number>
 <action_comment>No taxable receipts - no CAT</action_comment>
-<action_description>Set zero tax and refund payments</action_description>
+<action_dsl>Set zero tax and refund payments</action_dsl>
 <action_postfix>
 // No taxable receipts - no CAT
 result.oh_cat_tax 0.0 xdef

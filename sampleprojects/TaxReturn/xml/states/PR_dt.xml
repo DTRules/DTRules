@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Qualifies for Act 60 investor benefits; Act 60 investor (0% capital gains)</condition_comment>
-<condition_description>Qualifies for Act 60 investor benefits; Act 60 investor (0% capital gains)</condition_description>
+<condition_dsl>Qualifies for Act 60 investor benefits; Act 60 investor (0% capital gains)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -27,7 +27,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Qualifies for Act 60 business benefits; Act 60 business (4% rate)</condition_comment>
-<condition_description>Qualifies for Act 60 business benefits; Act 60 business (4% rate)</condition_description>
+<condition_dsl>Qualifies for Act 60 business benefits; Act 60 business (4% rate)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -39,7 +39,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Not bona fide resident - subject to US tax</action_comment>
-<action_description>Not bona fide resident - subject to US tax</action_description>
+<action_dsl>Not bona fide resident - subject to US tax</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -37,7 +37,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly</condition_comment>
-<condition_description>Filing status is Married Filing Jointly</condition_description>
+<condition_dsl>Filing status is Married Filing Jointly</condition_dsl>
 <condition_postfix>
 Filing Status is MFJ
 </condition_postfix>
@@ -47,7 +47,7 @@ Filing Status is MFJ
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate MN tax for Married Filing Jointly using progressive brackets</action_comment>
-<action_description>Calculate MN tax for Married Filing Jointly using progressive brackets</action_description>
+<action_dsl>Calculate MN tax for Married Filing Jointly using progressive brackets</action_dsl>
 <action_postfix>
 
 </action_postfix>

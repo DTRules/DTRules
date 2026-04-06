@@ -19,7 +19,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in NC</condition_comment>
-<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "NC"</condition_description>
+<condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "NC"</condition_dsl>
 <condition_postfix>
 apportionment.has_physical_presence true eq
 apportionment.state_code "NC" streq
@@ -30,7 +30,7 @@ and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in NC</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "NC"</condition_description>
+<condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "NC"</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.state_code "NC" streq
@@ -44,7 +44,7 @@ and
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus established - filing required; Log NC filing requirement due to physical presence</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Physical nexus established - filing required
 // Apportionment will be calculated by tables 7000-7500
@@ -54,7 +54,7 @@ and
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established - filing required; Log NC filing requirement due to economic nexus</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Economic nexus established per Wayfair - filing required
 // Apportionment will be calculated by tables 7000-7500
@@ -64,7 +64,7 @@ and
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
-<action_description>Set state tax to zero and refund any payments</action_description>
+<action_dsl>Set state tax to zero and refund any payments</action_dsl>
 <action_postfix>
 // No nexus - no filing required
 apportionment.state_tax 0.0 xdef
@@ -93,7 +93,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has NC nexus (physical or economic); apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
@@ -107,7 +107,7 @@ or
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate NC state additions and subtractions; Calculate NC state-specific income adjustments to federal taxable income</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // Calculate NC state additions and subtractions
 0.0 /additions xdef
@@ -121,7 +121,7 @@ apportionment.state_subtractions subtractions xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - zero adjustments; Set state additions and subtractions to zero</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // No nexus - no state adjustments
 apportionment.state_additions 0.0 xdef
@@ -150,7 +150,7 @@ apportionment.state_subtractions 0.0 xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has NC nexus (physical or economic); apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
@@ -163,7 +163,7 @@ or
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive NC taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income &gt; 0</condition_description>
+<condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
 apportionment.state_taxable_income 0 gt
 </condition_postfix>
@@ -175,7 +175,7 @@ apportionment.state_taxable_income 0 gt
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate NC tax at 2.5% flat rate (LOWEST in nation); Calculate NC state tax using 2.5% flat rate, apply credits, calculate refund or owed</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 // NC uses 2.5% flat rate (LOWEST STATE RATE IN THE NATION)
 apportionment.state_taxable_income apportionment.state_tax_rate mul
@@ -195,7 +195,7 @@ apportionment.state_payments apportionment.state_tax sub
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no tax liability</action_comment>
-<action_description>Set state tax to zero and refund any payments</action_description>
+<action_dsl>Set state tax to zero and refund any payments</action_dsl>
 <action_postfix>
 // No nexus - no tax liability
 apportionment.state_tax 0.0 xdef
@@ -206,7 +206,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Nexus but no taxable income - no tax liability</action_comment>
-<action_description>Set state tax to zero and refund any payments</action_description>
+<action_dsl>Set state tax to zero and refund any payments</action_dsl>
 <action_postfix>
 // Nexus but no taxable income - no tax liability
 apportionment.state_tax 0.0 xdef

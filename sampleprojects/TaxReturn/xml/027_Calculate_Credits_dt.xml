@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>set result.total_ctc = 0, set result.total_odc = 0, set result.total_actc = 0, set result.total_credits = 0</action_description>
+<action_dsl>set result.total_ctc = 0, set result.total_odc = 0, set result.total_actc = 0, set result.total_credits = 0</action_dsl>
 <action_postfix>
 0.0 /result.total_ctc xdef
 0.0 /result.total_odc xdef
@@ -27,7 +27,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always process credits</condition_comment>
-<condition_description>Always process credits</condition_description>
+<condition_dsl>Always process credits</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate child tax credits for all dependents</action_comment>
-<action_description>Calculate child tax credits for all dependents</action_description>
+<action_dsl>Calculate child tax credits for all dependents</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -47,7 +47,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Apply CTC phase-out per IRC 24(b)</action_comment>
-<action_description>Apply CTC phase-out per IRC 24(b)</action_description>
+<action_dsl>Apply CTC phase-out per IRC 24(b)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -56,7 +56,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate EITC</action_comment>
-<action_description>Calculate EITC</action_description>
+<action_dsl>Calculate EITC</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -65,7 +65,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate education credits</action_comment>
-<action_description>Calculate education credits</action_description>
+<action_dsl>Calculate education credits</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -74,7 +74,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>Calculate Child and Dependent Care Credit</action_comment>
-<action_description>Calculate Child and Dependent Care Credit</action_description>
+<action_dsl>Calculate Child and Dependent Care Credit</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -83,7 +83,7 @@
 <action_details>
 <action_number>6</action_number>
 <action_comment>Calculate Saver's Credit</action_comment>
-<action_description>Calculate Saver's Credit</action_description>
+<action_dsl>Calculate Saver's Credit</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -92,7 +92,7 @@
 <action_details>
 <action_number>7</action_number>
 <action_comment>Calculate Energy Credits</action_comment>
-<action_description>Calculate Energy Credits</action_description>
+<action_dsl>Calculate Energy Credits</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -101,7 +101,7 @@
 <action_details>
 <action_number>8</action_number>
 <action_comment>Calculate Premium Tax Credit</action_comment>
-<action_description>Calculate Premium Tax Credit</action_description>
+<action_dsl>Calculate Premium Tax Credit</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -110,7 +110,7 @@
 <action_details>
 <action_number>9</action_number>
 <action_comment>Calculate Foreign Tax Credit (Form 1116)</action_comment>
-<action_description>Calculate Foreign Tax Credit (Form 1116)</action_description>
+<action_dsl>Calculate Foreign Tax Credit (Form 1116)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -119,7 +119,7 @@
 <action_details>
 <action_number>10</action_number>
 <action_comment>Calculate DC First-Time Homebuyer Credit (Form 8859)</action_comment>
-<action_description>Calculate DC First-Time Homebuyer Credit (Form 8859)</action_description>
+<action_dsl>Calculate DC First-Time Homebuyer Credit (Form 8859)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -128,7 +128,7 @@
 <action_details>
 <action_number>11</action_number>
 <action_comment>Calculate Mortgage Interest Credit (Form 8396)</action_comment>
-<action_description>Calculate Mortgage Interest Credit (Form 8396)</action_description>
+<action_dsl>Calculate Mortgage Interest Credit (Form 8396)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -137,7 +137,7 @@
 <action_details>
 <action_number>12</action_number>
 <action_comment>Calculate Energy Efficient Appliance Credit (Form 8909)</action_comment>
-<action_description>Calculate Energy Efficient Appliance Credit (Form 8909)</action_description>
+<action_dsl>Calculate Energy Efficient Appliance Credit (Form 8909)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -146,7 +146,7 @@
 <action_details>
 <action_number>13</action_number>
 <action_comment>Calculate General Business Credit (Form 3800)</action_comment>
-<action_description>Calculate General Business Credit (Form 3800)</action_description>
+<action_dsl>Calculate General Business Credit (Form 3800)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -155,7 +155,7 @@
 <action_details>
 <action_number>14</action_number>
 <action_comment>Sum total credits</action_comment>
-<action_description>Sum total credits</action_description>
+<action_dsl>Sum total credits</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -18,7 +18,7 @@
 
 <initial_actions>
 <initial_action>
-<action_description>// Initialize CT filing requirement determination</action_description>
+<action_dsl>// Initialize CT filing requirement determination</action_dsl>
 <action_postfix>
 </action_postfix>
 </initial_action>
@@ -29,7 +29,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in CT (office, employees, property)</condition_comment>
-<condition_description>apportionment.has_physical_presence is true and apportionment.state_code == "CT"</condition_description>
+<condition_dsl>apportionment.has_physical_presence is true and apportionment.state_code == "CT"</condition_dsl>
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "CT" streq } over if
 </condition_postfix>
@@ -42,7 +42,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "CT"
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets CT economic nexus threshold ($500,000)</condition_comment>
-<condition_description>apportionment.has_economic_nexus is true and apportionment.state_code == "CT"</condition_description>
+<condition_dsl>apportionment.has_economic_nexus is true and apportionment.state_code == "CT"</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "CT" streq } over if
 </condition_postfix>
@@ -57,7 +57,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CT" st
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus established - CT filing required</action_comment>
-<action_description>// Physical nexus established - CT filing required</action_description>
+<action_dsl>// Physical nexus established - CT filing required</action_dsl>
 <action_postfix>
 </action_postfix>
 <action_column column_number="1" column_value="X" />
@@ -67,7 +67,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CT" st
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established - CT filing required</action_comment>
-<action_description>// Economic nexus established per Wayfair - CT filing required</action_description>
+<action_dsl>// Economic nexus established per Wayfair - CT filing required</action_dsl>
 <action_postfix>
 </action_postfix>
 <action_column column_number="2" column_value="X" />
@@ -77,7 +77,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CT" st
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no CT filing required; // No nexus - no CT filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
@@ -104,7 +104,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CT" st
 
 <initial_actions>
 <initial_action>
-<action_description>// Initialize CT income adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_description>
+<action_dsl>// Initialize CT income adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
@@ -116,7 +116,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CT" st
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to calculate adjustments; apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
@@ -130,7 +130,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate CT state additions and subtractions; // Calculate CT state additions and subtractions - placeholder for future implementation</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
@@ -141,7 +141,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no state adjustments calculated; // No nexus - no state adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
@@ -168,7 +168,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 
 <initial_actions>
 <initial_action>
-<action_description>// Initialize CT state tax calculation; set apportionment.state_tax = 0.0;</action_description>
+<action_dsl>// Initialize CT state tax calculation; set apportionment.state_tax = 0.0;</action_dsl>
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef
 </action_postfix>
@@ -180,7 +180,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe tax; apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
@@ -193,7 +193,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income &gt; 0.0</condition_description>
+<condition_dsl>apportionment.state_taxable_income &gt; 0.0</condition_dsl>
 <condition_postfix>
 apportionment.state_taxable_income 0.0 f&gt;
 </condition_postfix>
@@ -208,7 +208,7 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate CT tax using 7.5% flat rate; // CT uses 7.5% flat rate on all corporate income; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - 0.0 f&gt; { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { 0.0 } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
@@ -219,7 +219,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_details>
 <action_number>2</action_number>
 <action_comment>No CT nexus - no tax liability; // No CT nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
@@ -230,7 +230,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_details>
 <action_number>3</action_number>
 <action_comment>No CT taxable income - no tax liability; // No CT taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>

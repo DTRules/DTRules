@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Log multi-state allocation start</action_description>
+<action_dsl>Log multi-state allocation start</action_dsl>
 <action_postfix>
 &quot;Multi-State Income Allocation&quot; job.audit_trail swap addto
 </action_postfix>
@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always execute for each state period</condition_comment>
-<condition_description>Always execute for each state period</condition_description>
+<condition_dsl>Always execute for each state period</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -34,7 +34,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate days in state</action_comment>
-<action_description>Calculate days in state</action_description>
+<action_dsl>Calculate days in state</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -43,7 +43,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate allocation percentage</action_comment>
-<action_description>Calculate allocation percentage</action_description>
+<action_dsl>Calculate allocation percentage</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -52,7 +52,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Allocate income for this state</action_comment>
-<action_description>Allocate income for this state</action_description>
+<action_dsl>Allocate income for this state</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -61,7 +61,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Log allocation results</action_comment>
-<action_description>Log allocation results</action_description>
+<action_dsl>Log allocation results</action_dsl>
 <action_postfix>
 
 </action_postfix>

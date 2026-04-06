@@ -33,7 +33,7 @@
 
 <initial_actions>
 <initial_action>
-<action_description>Initialize [STATE] tax calculation</action_description>
+<action_dsl>Initialize [STATE] tax calculation</action_dsl>
 <action_postfix>
 "[STATE NAME] Tax Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -45,7 +45,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always execute</condition_comment>
-<condition_description>true</condition_description>
+<condition_dsl>true</condition_dsl>
 <condition_postfix>
 true
 </condition_postfix>

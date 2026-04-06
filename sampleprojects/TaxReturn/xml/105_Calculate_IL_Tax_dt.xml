@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize IL tax calculation</action_description>
+<action_dsl>Initialize IL tax calculation</action_dsl>
 <action_postfix>
 &quot;ILLINOIS FORM IL-1040 - State Income Tax Calculation&quot; job.audit_trail swap addto
 0 local@ num_people &gt;
@@ -25,7 +25,7 @@ result.agi /result.il_agi xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Calculate number of people</condition_comment>
-<condition_description>Calculate number of people</condition_description>
+<condition_dsl>Calculate number of people</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -37,7 +37,7 @@ result.agi /result.il_agi xdef
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate IL tax with exemptions</action_comment>
-<action_description>Calculate IL tax with exemptions</action_description>
+<action_dsl>Calculate IL tax with exemptions</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -46,7 +46,7 @@ result.agi /result.il_agi xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>No exemptions - unlikely case</action_comment>
-<action_description>No exemptions - unlikely case</action_description>
+<action_dsl>No exemptions - unlikely case</action_dsl>
 <action_postfix>
 
 </action_postfix>

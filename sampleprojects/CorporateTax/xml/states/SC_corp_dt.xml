@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in SC (office, employees, property)</condition_comment>
-<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "SC"</condition_description>
+<condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "SC"</condition_dsl>
 <condition_postfix>
 apportionment.has_physical_presence get true eq
 apportionment.state_code get "SC" streq and
@@ -36,7 +36,7 @@ apportionment.state_code get "SC" streq and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets SC economic nexus threshold ($100K or 200 transactions)</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "SC"</condition_description>
+<condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "SC"</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.state_code get "SC" streq and
@@ -51,7 +51,7 @@ apportionment.state_code get "SC" streq and
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus established - filing required</action_comment>
-<action_description>SC filing required due to physical presence</action_description>
+<action_dsl>SC filing required due to physical presence</action_dsl>
 <action_postfix>
 "SC filing required due to physical presence. Reference: SC Code 12-6-2320" job.audit_trail swap addto
 </action_postfix>
@@ -61,7 +61,7 @@ apportionment.state_code get "SC" streq and
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established per Wayfair - filing required</action_comment>
-<action_description>SC filing required due to economic nexus</action_description>
+<action_dsl>SC filing required due to economic nexus</action_dsl>
 <action_postfix>
 "SC filing required due to economic nexus. Threshold: $100K OR 200 transactions. Reference: SC Code 12-36-2691" job.audit_trail swap addto
 </action_postfix>
@@ -71,7 +71,7 @@ apportionment.state_code get "SC" streq and
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required; No SC nexus - no filing requirement</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
@@ -105,7 +105,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to calculate adjustments; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
@@ -119,7 +119,7 @@ apportionment.has_physical_presence get true eq or
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate SC state additions and subtractions; Calculate SC-specific income adjustments</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 /apportionment.state_additions xdef
 0.0 /apportionment.state_subtractions xdef
@@ -131,7 +131,7 @@ apportionment.has_physical_presence get true eq or
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no state adjustments; No SC nexus - no adjustments calculated</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 /apportionment.state_additions xdef
 0.0 /apportionment.state_subtractions xdef
@@ -165,7 +165,7 @@ apportionment.has_physical_presence get true eq or
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe tax; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus get true eq
 apportionment.has_physical_presence get true eq or
@@ -178,7 +178,7 @@ apportionment.has_physical_presence get true eq or
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income &gt; 0</condition_description>
+<condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
 apportionment.state_taxable_income get 0 gt
 </condition_postfix>
@@ -192,7 +192,7 @@ apportionment.state_taxable_income get 0 gt
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate SC tax at 5% flat rate; SC income tax at 5% plus license fee</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 apportionment.state_taxable_income get apportionment.state_tax_rate get mul /apportionment.state_tax xdef
 apportionment.state_tax get apportionment.state_credits get sub 0.0 max /apportionment.state_tax xdef
@@ -207,7 +207,7 @@ apportionment.state_payments get apportionment.state_tax get sub /apportionment.
 <action_details>
 <action_number>2</action_number>
 <action_comment>No SC nexus - no tax liability; No SC nexus - no tax</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 /apportionment.state_tax xdef
 apportionment.state_payments get /apportionment.state_refund_or_owed xdef
@@ -219,7 +219,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Nexus but no taxable income - license fee only; No SC taxable income but license fee applies</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 apportionment.license_fee_minimum get /apportionment.state_tax xdef
 apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef

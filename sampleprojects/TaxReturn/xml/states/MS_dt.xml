@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
-<action_description>No military retirement pay - no exclusion</action_description>
+<action_dsl>No military retirement pay - no exclusion</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -45,7 +45,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married filing jointly</condition_comment>
-<condition_description>Married filing jointly</condition_description>
+<condition_dsl>Married filing jointly</condition_dsl>
 <condition_postfix>
 filing_status == &quot;MFJ&quot;
 </condition_postfix>
@@ -53,7 +53,7 @@ filing_status == &quot;MFJ&quot;
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Head of household</condition_comment>
-<condition_description>Head of household</condition_description>
+<condition_dsl>Head of household</condition_dsl>
 <condition_postfix>
 filing_status == &quot;HOH&quot;
 </condition_postfix>
@@ -61,7 +61,7 @@ filing_status == &quot;HOH&quot;
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Married filing separately</condition_comment>
-<condition_description>Married filing separately</condition_description>
+<condition_dsl>Married filing separately</condition_dsl>
 <condition_postfix>
 filing_status == &quot;MFS&quot;
 </condition_postfix>
@@ -71,7 +71,7 @@ filing_status == &quot;MFS&quot;
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate MS tax - MFJ (progressive: 0% up to $10k, 4.4% above)</action_comment>
-<action_description>Calculate MS tax - MFJ (progressive: 0% up to $10k, 4.4% above)</action_description>
+<action_dsl>Calculate MS tax - MFJ (progressive: 0% up to $10k, 4.4% above)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -79,7 +79,7 @@ filing_status == &quot;MFS&quot;
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate MS tax - HOH (progressive: 0% up to $10k, 4.4% above)</action_comment>
-<action_description>Calculate MS tax - HOH (progressive: 0% up to $10k, 4.4% above)</action_description>
+<action_dsl>Calculate MS tax - HOH (progressive: 0% up to $10k, 4.4% above)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -87,7 +87,7 @@ filing_status == &quot;MFS&quot;
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate MS tax - MFS (progressive: 0% up to $10k, 4.4% above)</action_comment>
-<action_description>Calculate MS tax - MFS (progressive: 0% up to $10k, 4.4% above)</action_description>
+<action_dsl>Calculate MS tax - MFS (progressive: 0% up to $10k, 4.4% above)</action_dsl>
 <action_postfix>
 
 </action_postfix>

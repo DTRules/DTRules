@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has only AS-source income</condition_comment>
-<condition_description>Has only AS-source income</condition_description>
+<condition_dsl>Has only AS-source income</condition_dsl>
 <condition_postfix>
 All income from American Samoa sources
 </condition_postfix>
@@ -28,7 +28,7 @@ All income from American Samoa sources
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Has self-employment income &gt;= $400</condition_comment>
-<condition_description>Has self-employment income &gt;= $400</condition_description>
+<condition_dsl>Has self-employment income &gt;= $400</condition_dsl>
 <condition_postfix>
 Subject to US self-employment tax
 </condition_postfix>
@@ -41,7 +41,7 @@ Subject to US self-employment tax
 <action_details>
 <action_number>2</action_number>
 <action_comment>Bona fide resident with only AS income, no SE tax</action_comment>
-<action_description>Bona fide resident with only AS income, no SE tax</action_description>
+<action_dsl>Bona fide resident with only AS income, no SE tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -49,7 +49,7 @@ Subject to US self-employment tax
 <action_details>
 <action_number>3</action_number>
 <action_comment>Not bona fide resident or has US income - files with IRS</action_comment>
-<action_description>Not bona fide resident or has US income - files with IRS</action_description>
+<action_dsl>Not bona fide resident or has US income - files with IRS</action_dsl>
 <action_postfix>
 
 </action_postfix>

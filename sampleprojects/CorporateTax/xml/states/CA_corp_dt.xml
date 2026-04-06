@@ -22,7 +22,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in CA</condition_comment>
-<condition_description>apportionment.has_physical_presence is true and apportionment.state_code == "CA"</condition_description>
+<condition_dsl>apportionment.has_physical_presence is true and apportionment.state_code == "CA"</condition_dsl>
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "CA" streq } over if
 </condition_postfix>
@@ -34,7 +34,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "CA"
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets CA economic nexus threshold</condition_comment>
-<condition_description>apportionment.has_economic_nexus is true and apportionment.state_code == "CA"</condition_description>
+<condition_dsl>apportionment.has_economic_nexus is true and apportionment.state_code == "CA"</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" streq } over if
 </condition_postfix>
@@ -48,7 +48,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" st
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus established - filing required</action_comment>
-<action_description>// Physical nexus established - filing required</action_description>
+<action_dsl>// Physical nexus established - filing required</action_dsl>
 <action_postfix>
 </action_postfix>
 <action_column column_number="1" column_value="X" />
@@ -57,7 +57,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" st
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established - filing required</action_comment>
-<action_description>// Economic nexus established - filing required</action_description>
+<action_dsl>// Economic nexus established - filing required</action_dsl>
 <action_postfix>
 </action_postfix>
 <action_column column_number="2" column_value="X" />
@@ -66,7 +66,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" st
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required; // No CA nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
@@ -97,7 +97,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" st
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have CA nexus; (apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true) and apportionment.state_code == "CA"</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if { pop apportionment.state_code "CA" streq } over if
 </condition_postfix>
@@ -110,7 +110,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate CA additions and subtractions; // CA Additions and Subtractions - placeholder; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
@@ -120,7 +120,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_details>
 <action_number>2</action_number>
 <action_comment>No CA nexus - no adjustments; // No CA nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
@@ -151,7 +151,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have CA nexus; (apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true) and apportionment.state_code == "CA"</condition_comment>
-<condition_description />
+<condition_dsl />
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if { pop apportionment.state_code "CA" streq } over if
 </condition_postfix>
@@ -163,7 +163,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive CA taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income &gt; 0.0</condition_description>
+<condition_dsl>apportionment.state_taxable_income &gt; 0.0</condition_dsl>
 <condition_postfix>
 apportionment.state_taxable_income 0.0 f&gt;
 </condition_postfix>
@@ -177,7 +177,7 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate CA income tax at 8.84% with $800 minimum; // Calculate CA income tax at 8.84%, enforce $800 minimum; set apportionment.state_tax = max(result.ca_minimum_franchise_tax, apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - result.ca_minimum_franchise_tax f&gt; { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { result.ca_minimum_franchise_tax } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
@@ -187,7 +187,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_details>
 <action_number>2</action_number>
 <action_comment>No income but still owe minimum franchise tax; // No CA taxable income, but $800 minimum franchise tax still applies; set apportionment.state_tax = result.ca_minimum_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 result.ca_minimum_franchise_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
@@ -197,7 +197,7 @@ result.ca_minimum_franchise_tax cvd /apportionment.state_tax xdef apportionment.
 <action_details>
 <action_number>3</action_number>
 <action_comment>No CA nexus - no tax or minimum franchise tax; // No CA nexus - no tax or minimum franchise tax; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
@@ -228,7 +228,7 @@ result.ca_minimum_franchise_tax cvd /apportionment.state_tax xdef apportionment.
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has elected water's edge treatment</condition_comment>
-<condition_description>result.ca_waters_edge_election is true</condition_description>
+<condition_dsl>result.ca_waters_edge_election is true</condition_dsl>
 <condition_postfix>
 result.ca_waters_edge_election true beq
 </condition_postfix>
@@ -240,7 +240,7 @@ result.ca_waters_edge_election true beq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has unitary group members</condition_comment>
-<condition_description>result.ca_unitary_group_count &gt; 1</condition_description>
+<condition_dsl>result.ca_unitary_group_count &gt; 1</condition_dsl>
 <condition_postfix>
 result.ca_unitary_group_count 1 &gt;
 </condition_postfix>
@@ -254,7 +254,7 @@ result.ca_unitary_group_count 1 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Water's edge limits combined reporting</action_comment>
-<action_description>// Water's edge limits combined reporting to US corporations and certain foreign entities</action_description>
+<action_dsl>// Water's edge limits combined reporting to US corporations and certain foreign entities</action_dsl>
 <action_postfix>
 </action_postfix>
 <action_column column_number="1" column_value="X" />
@@ -263,7 +263,7 @@ result.ca_unitary_group_count 1 &gt;
 <action_details>
 <action_number>2</action_number>
 <action_comment>Worldwide combined reporting</action_comment>
-<action_description>// Worldwide combined reporting includes all unitary group members globally</action_description>
+<action_dsl>// Worldwide combined reporting includes all unitary group members globally</action_dsl>
 <action_postfix>
 </action_postfix>
 <action_column column_number="2" column_value="X" />
@@ -272,7 +272,7 @@ result.ca_unitary_group_count 1 &gt;
 <action_details>
 <action_number>3</action_number>
 <action_comment>Standalone corporation - no combined reporting; // Standalone corporation - no combined reporting required</action_comment>
-<action_description />
+<action_dsl />
 <action_postfix>
 </action_postfix>
 <action_column column_number="3" column_value="X" />

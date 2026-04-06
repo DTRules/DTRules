@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has charitable contribution</condition_comment>
-<condition_description>Has charitable contribution</condition_description>
+<condition_dsl>Has charitable contribution</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Add charitable contribution</action_comment>
-<action_description>Add charitable contribution</action_description>
+<action_dsl>Add charitable contribution</action_dsl>
 <action_postfix>
 
 </action_postfix>

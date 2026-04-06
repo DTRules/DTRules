@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>set result.preferential_rate_income = result.total_long_term_gains + result.qualified_dividends</action_description>
+<action_dsl>set result.preferential_rate_income = result.total_long_term_gains + result.qualified_dividends</action_dsl>
 <action_postfix>
 result.total_long_term_gains result.total_qualified_dividends f+ allocate
 result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
@@ -27,7 +27,7 @@ result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has preferential rate income</condition_comment>
-<condition_description>Has preferential rate income</condition_description>
+<condition_dsl>Has preferential rate income</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@ result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_description>Married Filing Jointly</condition_description>
+<condition_dsl>Married Filing Jointly</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -48,7 +48,7 @@ result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Head of Household</condition_comment>
-<condition_description>Head of Household</condition_description>
+<condition_dsl>Head of Household</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -59,7 +59,7 @@ result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate CG tax for MFJ</action_comment>
-<action_description>Calculate CG tax for MFJ</action_description>
+<action_dsl>Calculate CG tax for MFJ</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -68,7 +68,7 @@ result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate CG tax for HOH</action_comment>
-<action_description>Calculate CG tax for HOH</action_description>
+<action_dsl>Calculate CG tax for HOH</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -77,7 +77,7 @@ result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate CG tax for Single/Other</action_comment>
-<action_description>Calculate CG tax for Single/Other</action_description>
+<action_dsl>Calculate CG tax for Single/Other</action_dsl>
 <action_postfix>
 
 </action_postfix>

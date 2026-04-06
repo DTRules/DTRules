@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has qualified business income</condition_comment>
-<condition_description>Has qualified business income</condition_description>
+<condition_dsl>Has qualified business income</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -27,7 +27,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Taxable income below threshold (simplified calculation)</condition_comment>
-<condition_description>Taxable income below threshold (simplified calculation)</condition_description>
+<condition_dsl>Taxable income below threshold (simplified calculation)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate QBI deduction at 20%</action_comment>
-<action_description>Calculate QBI deduction at 20%</action_description>
+<action_dsl>Calculate QBI deduction at 20%</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -47,7 +47,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No QBI - no qualified business income</action_comment>
-<action_description>No QBI - no qualified business income</action_description>
+<action_dsl>No QBI - no qualified business income</action_dsl>
 <action_postfix>
 
 </action_postfix>

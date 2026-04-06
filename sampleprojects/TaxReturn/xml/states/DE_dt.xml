@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay</action_comment>
-<action_description>No military retirement pay</action_description>
+<action_dsl>No military retirement pay</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -45,7 +45,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly</condition_comment>
-<condition_description>Filing status is Married Filing Jointly</condition_description>
+<condition_dsl>Filing status is Married Filing Jointly</condition_dsl>
 <condition_postfix>
 Filing Status is MFJ
 </condition_postfix>
@@ -53,7 +53,7 @@ Filing Status is MFJ
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
-<condition_description>Filing status is Head of Household</condition_description>
+<condition_dsl>Filing status is Head of Household</condition_dsl>
 <condition_postfix>
 Filing Status is HOH
 </condition_postfix>
@@ -63,7 +63,7 @@ Filing Status is HOH
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate DE tax for Married Filing Jointly using progressive brackets</action_comment>
-<action_description>Calculate DE tax for Married Filing Jointly using progressive brackets</action_description>
+<action_dsl>Calculate DE tax for Married Filing Jointly using progressive brackets</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -71,7 +71,7 @@ Filing Status is HOH
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate DE tax for Head of Household using progressive brackets</action_comment>
-<action_description>Calculate DE tax for Head of Household using progressive brackets</action_description>
+<action_dsl>Calculate DE tax for Head of Household using progressive brackets</action_dsl>
 <action_postfix>
 
 </action_postfix>

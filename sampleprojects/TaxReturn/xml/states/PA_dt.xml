@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate PA Class 2: Interest Income</action_comment>
-<action_description>Calculate PA Class 2: Interest Income</action_description>
+<action_dsl>Calculate PA Class 2: Interest Income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -28,7 +28,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate PA Class 3: Dividends</action_comment>
-<action_description>Calculate PA Class 3: Dividends</action_description>
+<action_dsl>Calculate PA Class 3: Dividends</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -37,7 +37,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate PA Class 4: Net Profits from Business (Schedule C)</action_comment>
-<action_description>Calculate PA Class 4: Net Profits from Business (Schedule C)</action_description>
+<action_dsl>Calculate PA Class 4: Net Profits from Business (Schedule C)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -46,7 +46,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>Calculate PA Class 5: Net Gains (Schedule D Capital Gains)</action_comment>
-<action_description>Calculate PA Class 5: Net Gains (Schedule D Capital Gains)</action_description>
+<action_dsl>Calculate PA Class 5: Net Gains (Schedule D Capital Gains)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -55,7 +55,7 @@
 <action_details>
 <action_number>6</action_number>
 <action_comment>Calculate PA Class 6: Rents and Royalties (Schedule E)</action_comment>
-<action_description>Calculate PA Class 6: Rents and Royalties (Schedule E)</action_description>
+<action_dsl>Calculate PA Class 6: Rents and Royalties (Schedule E)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -64,7 +64,7 @@
 <action_details>
 <action_number>7</action_number>
 <action_comment>Calculate PA Class 7: Estate or Trust Income (K-1)</action_comment>
-<action_description>Calculate PA Class 7: Estate or Trust Income (K-1)</action_description>
+<action_dsl>Calculate PA Class 7: Estate or Trust Income (K-1)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -73,7 +73,7 @@
 <action_details>
 <action_number>8</action_number>
 <action_comment>Calculate PA Class 8: Gambling and Lottery Winnings</action_comment>
-<action_description>Calculate PA Class 8: Gambling and Lottery Winnings</action_description>
+<action_dsl>Calculate PA Class 8: Gambling and Lottery Winnings</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -82,7 +82,7 @@
 <action_details>
 <action_number>9</action_number>
 <action_comment>Exclude ALL retirement income (Social Security, pensions, IRA)</action_comment>
-<action_description>Exclude ALL retirement income (Social Security, pensions, IRA)</action_description>
+<action_dsl>Exclude ALL retirement income (Social Security, pensions, IRA)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -91,7 +91,7 @@
 <action_details>
 <action_number>10</action_number>
 <action_comment>Sum all 8 PA income classes to get PA total income</action_comment>
-<action_description>Sum all 8 PA income classes to get PA total income</action_description>
+<action_dsl>Sum all 8 PA income classes to get PA total income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -100,7 +100,7 @@
 <action_details>
 <action_number>11</action_number>
 <action_comment>Apply PA flat tax rate of 3.07% (NO deductions, NO exemptions)</action_comment>
-<action_description>Apply PA flat tax rate of 3.07% (NO deductions, NO exemptions)</action_description>
+<action_dsl>Apply PA flat tax rate of 3.07% (NO deductions, NO exemptions)</action_dsl>
 <action_postfix>
 
 </action_postfix>

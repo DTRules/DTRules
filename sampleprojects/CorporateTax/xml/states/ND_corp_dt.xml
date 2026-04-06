@@ -34,7 +34,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in ND</condition_comment>
-<condition_description>apportionment.has_physical_presence == true AND apportionment.state_code == "ND"</condition_description>
+<condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "ND"</condition_dsl>
 <condition_postfix>
 apportionment.has_physical_presence true eq
 apportionment.state_code "ND" streq
@@ -48,7 +48,7 @@ and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in ND</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true AND apportionment.state_code == "ND"</condition_description>
+<condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "ND"</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.state_code "ND" streq
@@ -122,7 +122,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has ND nexus</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_dsl>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
@@ -184,7 +184,7 @@ apportionment.state_subtractions 0.0 xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has ND nexus</condition_comment>
-<condition_description>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_description>
+<condition_dsl>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true eq
 apportionment.has_physical_presence true eq
@@ -198,7 +198,7 @@ or
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_description>apportionment.state_taxable_income > 0</condition_description>
+<condition_dsl>apportionment.state_taxable_income > 0</condition_dsl>
 <condition_postfix>
 apportionment.state_taxable_income 0 gt
 </condition_postfix>

@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No federal EITC - no Colorado EITC</action_comment>
-<action_description>No federal EITC - no Colorado EITC</action_description>
+<action_dsl>No federal EITC - no Colorado EITC</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -45,7 +45,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Age less than 55</condition_comment>
-<condition_description>Age less than 55</condition_description>
+<condition_dsl>Age less than 55</condition_dsl>
 <condition_postfix>
 age &lt; 55
 </condition_postfix>
@@ -54,7 +54,7 @@ age &lt; 55
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Age 55 to 64</condition_comment>
-<condition_description>Age 55 to 64</condition_description>
+<condition_dsl>Age 55 to 64</condition_dsl>
 <condition_postfix>
 age &gt;= 55 AND age &lt; 65
 </condition_postfix>
@@ -63,7 +63,7 @@ age &gt;= 55 AND age &lt; 65
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Age 65 or older</condition_comment>
-<condition_description>Age 65 or older</condition_description>
+<condition_dsl>Age 65 or older</condition_dsl>
 <condition_postfix>
 age &gt;= 65
 </condition_postfix>
@@ -74,7 +74,7 @@ age &gt;= 65
 <action_details>
 <action_number>2</action_number>
 <action_comment>Apply CO $20,000 military retirement exemption (age 55-64)</action_comment>
-<action_description>Apply CO $20,000 military retirement exemption (age 55-64)</action_description>
+<action_dsl>Apply CO $20,000 military retirement exemption (age 55-64)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -82,7 +82,7 @@ age &gt;= 65
 <action_details>
 <action_number>3</action_number>
 <action_comment>Apply CO $24,000 military retirement exemption (age 65+)</action_comment>
-<action_description>Apply CO $24,000 military retirement exemption (age 65+)</action_description>
+<action_dsl>Apply CO $24,000 military retirement exemption (age 65+)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -90,7 +90,7 @@ age &gt;= 65
 <action_details>
 <action_number>4</action_number>
 <action_comment>No military retirement pay</action_comment>
-<action_description>No military retirement pay</action_description>
+<action_dsl>No military retirement pay</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -116,7 +116,7 @@ age &gt;= 65
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Age 55 to 64</condition_comment>
-<condition_description>Age 55 to 64</condition_description>
+<condition_dsl>Age 55 to 64</condition_dsl>
 <condition_postfix>
 age &gt;= 55 AND age &lt; 65
 </condition_postfix>
@@ -125,7 +125,7 @@ age &gt;= 55 AND age &lt; 65
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Age 65 or older</condition_comment>
-<condition_description>Age 65 or older</condition_description>
+<condition_dsl>Age 65 or older</condition_dsl>
 <condition_postfix>
 age &gt;= 65
 </condition_postfix>
@@ -136,7 +136,7 @@ age &gt;= 65
 <action_details>
 <action_number>2</action_number>
 <action_comment>Apply CO $24,000 pension/annuity subtraction (age 65+)</action_comment>
-<action_description>Apply CO $24,000 pension/annuity subtraction (age 65+)</action_description>
+<action_dsl>Apply CO $24,000 pension/annuity subtraction (age 65+)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -144,7 +144,7 @@ age &gt;= 65
 <action_details>
 <action_number>3</action_number>
 <action_comment>No pension/annuity subtraction applicable</action_comment>
-<action_description>No pension/annuity subtraction applicable</action_description>
+<action_dsl>No pension/annuity subtraction applicable</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>add K-1 SE tax summary to job.audit_trail</action_description>
+<action_dsl>add K-1 SE tax summary to job.audit_trail</action_dsl>
 <action_postfix>
 &quot;Calculating K-1 Self-Employment Tax (Schedule SE)&quot; job.audit_trail swap addto
 </action_postfix>
@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has K-1 SE earnings</condition_comment>
-<condition_description>Has K-1 SE earnings</condition_description>
+<condition_dsl>Has K-1 SE earnings</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -35,7 +35,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -44,7 +44,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>

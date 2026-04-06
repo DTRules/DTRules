@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>add &quot;FARM INCOME PROCESSING&quot; to job.audit_trail</action_description>
+<action_dsl>add &quot;FARM INCOME PROCESSING&quot; to job.audit_trail</action_dsl>
 <action_postfix>
 &quot;Processing Schedule F Farm Income (Publication 225)&quot; job.audit_trail swap addto
 </action_postfix>
@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has farm to process</condition_comment>
-<condition_description>Has farm to process</condition_description>
+<condition_dsl>Has farm to process</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -34,7 +34,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>set result.energy_efficiency_credit = the minimum of credit and annual_limit</action_description>
+<action_dsl>set result.energy_efficiency_credit = the minimum of credit and annual_limit</action_dsl>
 <action_postfix>
 result.energy_efficiency_credit constants.energy_efficiency_annual_limit fmin /result.energy_efficiency_credit xdef
 </action_postfix>
@@ -23,7 +23,7 @@ result.energy_efficiency_credit constants.energy_efficiency_annual_limit fmin /r
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has energy credits</condition_comment>
-<condition_description>Has energy credits</condition_description>
+<condition_dsl>Has energy credits</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -35,7 +35,7 @@ result.energy_efficiency_credit constants.energy_efficiency_annual_limit fmin /r
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -44,7 +44,7 @@ result.energy_efficiency_credit constants.energy_efficiency_annual_limit fmin /r
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_description></action_description>
+<action_dsl></action_dsl>
 <action_postfix>
 
 </action_postfix>

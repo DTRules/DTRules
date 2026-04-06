@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Log state tax calculation start</action_description>
+<action_dsl>Log state tax calculation start</action_dsl>
 <action_postfix>
 job.state_periods length 0 eq
 if
@@ -29,7 +29,7 @@ then
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Illinois state</condition_comment>
-<condition_description>Illinois state</condition_description>
+<condition_dsl>Illinois state</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -42,7 +42,7 @@ then
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>New Hampshire state</condition_comment>
-<condition_description>New Hampshire state</condition_description>
+<condition_dsl>New Hampshire state</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -55,7 +55,7 @@ then
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Montana state</condition_comment>
-<condition_description>Montana state</condition_description>
+<condition_dsl>Montana state</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -68,7 +68,7 @@ then
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>No state income tax (TX, FL, etc.)</condition_comment>
-<condition_description>No state income tax (TX, FL, etc.)</condition_description>
+<condition_dsl>No state income tax (TX, FL, etc.)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -83,7 +83,7 @@ then
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Illinois state tax</action_comment>
-<action_description>Calculate Illinois state tax</action_description>
+<action_dsl>Calculate Illinois state tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -92,7 +92,7 @@ then
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate New Hampshire state tax</action_comment>
-<action_description>Calculate New Hampshire state tax</action_description>
+<action_dsl>Calculate New Hampshire state tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -101,7 +101,7 @@ then
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate Montana state tax</action_comment>
-<action_description>Calculate Montana state tax</action_description>
+<action_dsl>Calculate Montana state tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -110,7 +110,7 @@ then
 <action_details>
 <action_number>4</action_number>
 <action_comment>No state income tax</action_comment>
-<action_description>No state income tax</action_description>
+<action_dsl>No state income tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -119,7 +119,7 @@ then
 <action_details>
 <action_number>5</action_number>
 <action_comment>State tax calculation not implemented</action_comment>
-<action_description>State tax calculation not implemented</action_description>
+<action_dsl>State tax calculation not implemented</action_dsl>
 <action_postfix>
 
 </action_postfix>

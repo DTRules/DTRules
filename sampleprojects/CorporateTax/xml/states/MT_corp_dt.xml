@@ -13,7 +13,7 @@
     <contexts />
     <initial_actions>
       <initial_action>
-        <action_description>Initialize Montana filing requirement check</action_description>
+        <action_dsl>Initialize Montana filing requirement check</action_dsl>
         <action_postfix>
 "Montana Corporate Filing Requirement Check Started" job.audit_trail swap addto
 false result.mt_has_nexus xdef
@@ -24,7 +24,7 @@ false result.mt_has_nexus xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Has physical presence in Montana</condition_comment>
-        <condition_description>result.has_physical_presence_mt is equal to true</condition_description>
+        <condition_dsl>result.has_physical_presence_mt is equal to true</condition_dsl>
         <condition_postfix>
 result.has_physical_presence_mt true eq
 </condition_postfix>
@@ -35,7 +35,7 @@ result.has_physical_presence_mt true eq
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Meets economic nexus threshold ($100K gross receipts or 200 transactions); result.mt_gross_receipts is greater than or equal to result.mt_economic_nexus_threshold</condition_comment>
-        <condition_description />
+        <condition_dsl />
         <condition_postfix>
 result.mt_gross_receipts result.mt_economic_nexus_threshold &gt;=
 </condition_postfix>
@@ -48,7 +48,7 @@ result.mt_gross_receipts result.mt_economic_nexus_threshold &gt;=
       <action_details>
         <action_number>1</action_number>
         <action_comment>Physical nexus - filing required</action_comment>
-        <action_description>result.mt_has_nexus = true</action_description>
+        <action_dsl>result.mt_has_nexus = true</action_dsl>
         <action_postfix>
 // Physical nexus established - filing required
 true result.mt_has_nexus xdef
@@ -59,7 +59,7 @@ true result.mt_has_nexus xdef
       <action_details>
         <action_number>2</action_number>
         <action_comment>Economic nexus - filing required</action_comment>
-        <action_description>result.mt_has_nexus = true</action_description>
+        <action_dsl>result.mt_has_nexus = true</action_dsl>
         <action_postfix>
 // Economic nexus established per Wayfair - filing required
 true result.mt_has_nexus xdef
@@ -70,7 +70,7 @@ true result.mt_has_nexus xdef
       <action_details>
         <action_number>3</action_number>
         <action_comment>No nexus - no filing required</action_comment>
-        <action_description>result.mt_has_nexus = false; result.mt_tax_liability = 0.0</action_description>
+        <action_dsl>result.mt_has_nexus = false; result.mt_tax_liability = 0.0</action_dsl>
         <action_postfix>
 // No nexus - no filing required
 false result.mt_has_nexus xdef
@@ -94,7 +94,7 @@ false result.mt_has_nexus xdef
     <contexts />
     <initial_actions>
       <initial_action>
-        <action_description>Initialize Montana income adjustments</action_description>
+        <action_dsl>Initialize Montana income adjustments</action_dsl>
         <action_postfix>
 "Montana Corporate Income Adjustments Calculation Started" job.audit_trail swap addto
 0.0 result.mt_state_additions xdef
@@ -106,7 +106,7 @@ false result.mt_has_nexus xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Has Montana nexus</condition_comment>
-        <condition_description>result.mt_has_nexus is equal to true</condition_description>
+        <condition_dsl>result.mt_has_nexus is equal to true</condition_dsl>
         <condition_postfix>
 result.mt_has_nexus true eq
 </condition_postfix>
@@ -118,7 +118,7 @@ result.mt_has_nexus true eq
       <action_details>
         <action_number>1</action_number>
         <action_comment>Calculate Montana state additions and subtractions; Calculate state-specific income adjustments</action_comment>
-        <action_description />
+        <action_dsl />
         <action_postfix>
 // Calculate Montana state additions
 0.0 /mt_additions xdef
@@ -158,7 +158,7 @@ mt_subtractions result.mt_state_subtractions xdef
       <action_details>
         <action_number>2</action_number>
         <action_comment>No nexus - no adjustments</action_comment>
-        <action_description>result.mt_state_additions = 0.0; result.mt_state_subtractions = 0.0</action_description>
+        <action_dsl>result.mt_state_additions = 0.0; result.mt_state_subtractions = 0.0</action_dsl>
         <action_postfix>
 0.0 result.mt_state_additions xdef
 0.0 result.mt_state_subtractions xdef
@@ -181,7 +181,7 @@ mt_subtractions result.mt_state_subtractions xdef
     <contexts />
     <initial_actions>
       <initial_action>
-        <action_description>Initialize Montana tax calculation</action_description>
+        <action_dsl>Initialize Montana tax calculation</action_dsl>
         <action_postfix>
 "Montana Corporate Tax Calculation Started" job.audit_trail swap addto
 0.0 result.mt_taxable_income xdef
@@ -193,7 +193,7 @@ mt_subtractions result.mt_state_subtractions xdef
       <condition_details>
         <condition_number>1</condition_number>
         <condition_comment>Has Montana nexus</condition_comment>
-        <condition_description>result.mt_has_nexus is equal to true</condition_description>
+        <condition_dsl>result.mt_has_nexus is equal to true</condition_dsl>
         <condition_postfix>
 result.mt_has_nexus true eq
 </condition_postfix>
@@ -205,7 +205,7 @@ result.mt_has_nexus true eq
       <condition_details>
         <condition_number>2</condition_number>
         <condition_comment>Has positive taxable income; result.mt_apportioned_income is greater than 0</condition_comment>
-        <condition_description />
+        <condition_dsl />
         <condition_postfix>
 result.mt_apportioned_income 0.0 &gt;
 </condition_postfix>
@@ -217,7 +217,7 @@ result.mt_apportioned_income 0.0 &gt;
       <condition_details>
         <condition_number>3</condition_number>
         <condition_comment>Made water's edge election</condition_comment>
-        <condition_description>result.mt_waters_edge_election is equal to true</condition_description>
+        <condition_dsl>result.mt_waters_edge_election is equal to true</condition_dsl>
         <condition_postfix>
 result.mt_waters_edge_election true eq
 </condition_postfix>
@@ -231,7 +231,7 @@ result.mt_waters_edge_election true eq
       <action_details>
         <action_number>1</action_number>
         <action_comment>Calculate Montana corporate tax (standard rate 6.75%); Apply Montana 6.75% flat rate</action_comment>
-        <action_description />
+        <action_dsl />
         <action_postfix>
 // Calculate Montana taxable income
 // Federal taxable income apportioned to MT + additions - subtractions
@@ -261,7 +261,7 @@ result.mt_refund_or_owed xdef
       <action_details>
         <action_number>2</action_number>
         <action_comment>Calculate Montana corporate tax (water's edge rate 7.0%); Apply Montana 7.0% water's edge rate</action_comment>
-        <action_description />
+        <action_dsl />
         <action_postfix>
 // Calculate Montana taxable income
 // Federal taxable income apportioned to MT + additions - subtractions
@@ -291,7 +291,7 @@ result.mt_refund_or_owed xdef
       <action_details>
         <action_number>3</action_number>
         <action_comment>No taxable income - no tax liability</action_comment>
-        <action_description>result.mt_taxable_income = 0.0; result.mt_tax_liability = 0.0</action_description>
+        <action_dsl>result.mt_taxable_income = 0.0; result.mt_tax_liability = 0.0</action_dsl>
         <action_postfix>
 // No taxable income - no tax liability
 0.0 result.mt_taxable_income xdef
@@ -304,7 +304,7 @@ result.mt_estimated_payments result.mt_refund_or_owed xdef
       <action_details>
         <action_number>4</action_number>
         <action_comment>No nexus - no tax liability</action_comment>
-        <action_description>result.mt_taxable_income = 0.0; result.mt_tax_liability = 0.0</action_description>
+        <action_dsl>result.mt_taxable_income = 0.0; result.mt_tax_liability = 0.0</action_dsl>
         <action_postfix>
 // No nexus - no tax liability
 0.0 result.mt_taxable_income xdef

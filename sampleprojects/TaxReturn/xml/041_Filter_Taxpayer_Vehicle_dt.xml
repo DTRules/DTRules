@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Vehicle belongs to current taxpayer</condition_comment>
-<condition_description>Vehicle belongs to current taxpayer</condition_description>
+<condition_dsl>Vehicle belongs to current taxpayer</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Process vehicle</action_comment>
-<action_description>Process vehicle</action_description>
+<action_dsl>Process vehicle</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Skip vehicle</action_comment>
-<action_description>Skip vehicle</action_description>
+<action_dsl>Skip vehicle</action_dsl>
 <action_postfix>
 
 </action_postfix>

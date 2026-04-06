@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Deduction is state or local tax</condition_comment>
-<condition_description>Deduction is state or local tax</condition_description>
+<condition_dsl>Deduction is state or local tax</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Add SALT deduction to total</action_comment>
-<action_description>Add SALT deduction to total</action_description>
+<action_dsl>Add SALT deduction to total</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Skip non-SALT deduction</action_comment>
-<action_description>Skip non-SALT deduction</action_description>
+<action_dsl>Skip non-SALT deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>

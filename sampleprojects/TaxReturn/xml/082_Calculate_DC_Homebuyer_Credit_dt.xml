@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>Initialize DC homebuyer credit</action_description>
+<action_dsl>Initialize DC homebuyer credit</action_dsl>
 <action_postfix>
 0.0 /result.dc_homebuyer_credit xdef
 </action_postfix>
@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Purchased DC home as first-time buyer</condition_comment>
-<condition_description>Purchased DC home as first-time buyer</condition_description>
+<condition_dsl>Purchased DC home as first-time buyer</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -33,7 +33,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Purchase price is greater than zero</condition_comment>
-<condition_description>Purchase price is greater than zero</condition_description>
+<condition_dsl>Purchase price is greater than zero</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -45,7 +45,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate DC homebuyer credit</action_comment>
-<action_description>Calculate DC homebuyer credit</action_description>
+<action_dsl>Calculate DC homebuyer credit</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -54,7 +54,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No DC homebuyer credit</action_comment>
-<action_description>No DC homebuyer credit</action_description>
+<action_dsl>No DC homebuyer credit</action_dsl>
 <action_postfix>
 
 </action_postfix>

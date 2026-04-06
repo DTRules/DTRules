@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_description>set result.total_tax = tax_before_credits - nonrefundable_credits + ptc_repayment, add refundable credits to payments</action_description>
+<action_dsl>set result.total_tax = tax_before_credits - nonrefundable_credits + ptc_repayment, add refundable credits to payments</action_dsl>
 <action_postfix>
 &quot;FINAL CALCULATION (Form 1040 Lines 33-37)&quot; job.audit_trail swap addto
 result.total_tax_before_credits result.amt_owed f+ /result.tax_before_nonrefundable_credits xdef
@@ -38,7 +38,7 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Total tax is negative (floor at zero)</condition_comment>
-<condition_description>Total tax is negative (floor at zero)</condition_description>
+<condition_dsl>Total tax is negative (floor at zero)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -49,7 +49,7 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Payments exceed tax (refund)</condition_comment>
-<condition_description>Payments exceed tax (refund)</condition_description>
+<condition_dsl>Payments exceed tax (refund)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -62,7 +62,7 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 <action_details>
 <action_number>1</action_number>
 <action_comment>Floor total tax at zero</action_comment>
-<action_description>Floor total tax at zero</action_description>
+<action_dsl>Floor total tax at zero</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -71,7 +71,7 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 <action_details>
 <action_number>2</action_number>
 <action_comment>Log total tax and payments</action_comment>
-<action_description>Log total tax and payments</action_description>
+<action_dsl>Log total tax and payments</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -82,7 +82,7 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate refund</action_comment>
-<action_description>Calculate refund</action_description>
+<action_dsl>Calculate refund</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -92,7 +92,7 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate amount owed</action_comment>
-<action_description>Calculate amount owed</action_description>
+<action_dsl>Calculate amount owed</action_dsl>
 <action_postfix>
 
 </action_postfix>
