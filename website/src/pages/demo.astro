@@ -736,6 +736,11 @@ import BettingControls from '../components/poker/BettingControls.astro';
         updateGameDisplay();
         renderPlayers();
         await handlePendingReveal(gameState);
+      } else if (gameState.handComplete && gameState.winners?.length) {
+        // Everyone folded during initial AI turns
+        updateGameDisplay();
+        renderPlayers();
+        showWinMessage(gameState);
       } else {
         updateGameDisplay();
         renderPlayers();
@@ -802,6 +807,11 @@ import BettingControls from '../components/poker/BettingControls.astro';
         updateGameDisplay();
         renderPlayers();
         await handlePendingReveal(gameState);
+      } else if (gameState.handComplete && gameState.winners?.length) {
+        // Everyone folded during initial AI turns
+        updateGameDisplay();
+        renderPlayers();
+        showWinMessage(gameState);
       } else {
         updateGameDisplay();
         renderPlayers();
