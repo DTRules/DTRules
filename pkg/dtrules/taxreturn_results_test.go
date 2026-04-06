@@ -739,14 +739,26 @@ func Test2025HSALimits(t *testing.T) {
 		t.Fatalf("Failed to load rules from directory: %v", err)
 	}
 
-	sess, _ := rs.NewSession()
+	sess, err := rs.NewSession()
+	if err != nil {
+		t.Fatalf("Failed to create session: %v", err)
+	}
 
-	mapFile, _ := os.Open(filepath.Join(xmlDir, "TaxReturn_map.xml"))
+	mapFile, err := os.Open(filepath.Join(xmlDir, "TaxReturn_map.xml"))
+	if err != nil {
+		t.Fatalf("Failed to open mapping file: %v", err)
+	}
 	defer mapFile.Close()
 
 	m := mapping.NewMapping(sess)
-	m.LoadMapping(mapFile)
-	m.Initialize()
+	err = m.LoadMapping(mapFile)
+	if err != nil {
+		t.Fatalf("Failed to load mapping: %v", err)
+	}
+	err = m.Initialize()
+	if err != nil {
+		t.Fatalf("Failed to initialize mapping: %v", err)
+	}
 
 	// Use existing HSA test file
 	testFile, err := os.Open(filepath.Join(sampleDir, "testfiles", "TestScenarios", "Retirement", "TestCase_HSA_Family.xml"))
@@ -754,17 +766,38 @@ func Test2025HSALimits(t *testing.T) {
 		t.Fatalf("Failed to open HSA test file: %v", err)
 	}
 	defer testFile.Close()
-	m.LoadData(testFile)
+	err = m.LoadData(testFile)
+	if err != nil {
+		t.Fatalf("Failed to load test data: %v", err)
+	}
 
 	ef := sess.GetEntityFactory()
-	dt, _ := ef.GetDecisionTable(dtrules.GetRName("Compute_Tax_Return"))
+	dt, err := ef.GetDecisionTable(dtrules.GetRName("Compute_Tax_Return"))
+	if err != nil {
+		t.Fatalf("Failed to get decision table: %v", err)
+	}
 	state := sess.GetState()
-	dt.Execute(state)
+	err = dt.Execute(state)
+	if err != nil {
+		t.Fatalf("Failed to execute decision table: %v", err)
+	}
 
 	job, _ := state.FindEntity(dtrules.GetRName("job"))
+	if job == nil {
+		t.Fatal("No job entity found")
+	}
 	resultsObj, _ := job.Get(dtrules.GetRName("results"))
+	if resultsObj == nil {
+		t.Fatal("No results array found")
+	}
 	resultsArr, _ := resultsObj.ArrayValue()
+	if len(resultsArr) == 0 {
+		t.Fatal("Results array is empty")
+	}
 	result, _ := resultsArr[0].REntityValue()
+	if result == nil {
+		t.Fatal("No result entity found")
+	}
 
 	hsaDeduction := getFloatAttr(result, "hsa_deduction")
 
@@ -815,9 +848,21 @@ func Test2025IRALimits(t *testing.T) {
 	dt.Execute(state)
 
 	job, _ := state.FindEntity(dtrules.GetRName("job"))
+	if job == nil {
+		t.Fatal("No job entity found")
+	}
 	resultsObj, _ := job.Get(dtrules.GetRName("results"))
+	if resultsObj == nil {
+		t.Fatal("No results array found")
+	}
 	resultsArr, _ := resultsObj.ArrayValue()
+	if len(resultsArr) == 0 {
+		t.Fatal("Results array is empty")
+	}
 	result, _ := resultsArr[0].REntityValue()
+	if result == nil {
+		t.Fatal("No result entity found")
+	}
 
 	iraDeduction := getFloatAttr(result, "ira_deduction")
 	agi := getFloatAttr(result, "agi")
@@ -871,9 +916,21 @@ func Test2025StudentLoanPhaseout(t *testing.T) {
 	dt.Execute(state)
 
 	job, _ := state.FindEntity(dtrules.GetRName("job"))
+	if job == nil {
+		t.Fatal("No job entity found")
+	}
 	resultsObj, _ := job.Get(dtrules.GetRName("results"))
+	if resultsObj == nil {
+		t.Fatal("No results array found")
+	}
 	resultsArr, _ := resultsObj.ArrayValue()
+	if len(resultsArr) == 0 {
+		t.Fatal("Results array is empty")
+	}
 	result, _ := resultsArr[0].REntityValue()
+	if result == nil {
+		t.Fatal("No result entity found")
+	}
 
 	slDeduction := getFloatAttr(result, "student_loan_deduction")
 	agi := getFloatAttr(result, "agi")
@@ -944,9 +1001,21 @@ func Test2025CapitalGainsBrackets(t *testing.T) {
 			dt.Execute(state)
 
 			job, _ := state.FindEntity(dtrules.GetRName("job"))
+			if job == nil {
+				t.Fatal("No job entity found")
+			}
 			resultsObj, _ := job.Get(dtrules.GetRName("results"))
+			if resultsObj == nil {
+				t.Fatal("No results array found")
+			}
 			resultsArr, _ := resultsObj.ArrayValue()
+			if len(resultsArr) == 0 {
+				t.Fatal("Results array is empty")
+			}
 			result, _ := resultsArr[0].REntityValue()
+			if result == nil {
+				t.Fatal("No result entity found")
+			}
 
 			taxable := getFloatAttr(result, "taxable_income")
 			cgTax := getFloatAttr(result, "capital_gains_tax")
@@ -969,7 +1038,7 @@ func Test2025CapitalGainsBrackets(t *testing.T) {
 
 // TestSouthCarolinaTax tests South Carolina state income tax implementation
 // SC has progressive tax brackets: 0% up to $3,560, 3% from $3,561-$17,830, and 6% above $17,830
-// SC standard deduction: $15,000 (Single) or $30,000 (MFJ)
+// SC standard deduction (2025): $15,750 (Single) or $31,500 (MFJ)
 func TestSouthCarolinaTax(t *testing.T) {
 	cwd, _ := os.Getwd()
 	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
@@ -987,21 +1056,21 @@ func TestSouthCarolinaTax(t *testing.T) {
 			name:        "SC_Low_Income",
 			file:        "SC/TestCase_SC_Low_Income.xml",
 			expectedAGI: 18000,
-			expectedSCTax: 0, // SC taxable: $3,000 (under $3,560 threshold, 0% bracket)
+			expectedSCTax: 0, // SC taxable: $2,250 (under $3,560 threshold, 0% bracket)
 			description: "SC resident with income under first bracket threshold",
 		},
 		{
 			name:        "SC_Middle_Income",
 			file:        "SC/TestCase_SC_Middle_Income.xml",
 			expectedAGI: 32000,
-			expectedSCTax: 403, // SC taxable: $17,000, tax: ($17,000 - $3,560) * 3% = $403.20
+			expectedSCTax: 381, // SC taxable: $16,250, tax: ($16,250 - $3,560) * 3% = $380.70
 			description: "SC resident in 3% bracket",
 		},
 		{
 			name:        "SC_High_Income",
 			file:        "SC/TestCase_SC_High_Income.xml",
 			expectedAGI: 100000,
-			expectedSCTax: 3558, // SC taxable: $70,000, tax: $428.10 + ($70,000 - $17,830) * 6% = $3,558.30
+			expectedSCTax: 3468, // SC taxable: $68,500, tax: $428.10 + ($68,500 - $17,830) * 6% = $3,468.30
 			description: "SC resident MFJ in 6% bracket",
 		},
 	}
@@ -1055,12 +1124,21 @@ func TestSouthCarolinaTax(t *testing.T) {
 			}
 
 			job, _ := state.FindEntity(dtrules.GetRName("job"))
+			if job == nil {
+				t.Fatal("No job entity found")
+			}
 			resultsObj, _ := job.Get(dtrules.GetRName("results"))
+			if resultsObj == nil {
+				t.Fatal("No results array found")
+			}
 			resultsArr, _ := resultsObj.ArrayValue()
 			if len(resultsArr) == 0 {
-				t.Fatal("No results")
+				t.Fatal("Results array is empty")
 			}
 			result, _ := resultsArr[0].REntityValue()
+			if result == nil {
+				t.Fatal("No result entity found")
+			}
 
 			agi := getFloatAttr(result, "agi")
 			scTax := getFloatAttr(result, "sc_state_tax")
