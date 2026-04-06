@@ -203,13 +203,26 @@ func (w *WorkbookImporter) ImportDirectory(excelDir string) ([]*WorkbookResult, 
 	return results, nil
 }
 
+// stripDTOrEDDSuffix removes _dt or _edd suffix from a base name to prevent doubling.
+// For example: "TaxReturn_edd" -> "TaxReturn", "CO_dt" -> "CO", "MyFile" -> "MyFile"
+func stripDTOrEDDSuffix(baseName string) string {
+	if strings.HasSuffix(baseName, "_edd") {
+		return strings.TrimSuffix(baseName, "_edd")
+	}
+	if strings.HasSuffix(baseName, "_dt") {
+		return strings.TrimSuffix(baseName, "_dt")
+	}
+	return baseName
+}
+
 // WriteAll writes all results to XML, mirroring the Excel directory structure.
 // For example: excel/states/CO.xlsx -> xml/states/CO_dt.xml + xml/states/CO_edd.xml
 func (w *WorkbookImporter) WriteAll(results []*WorkbookResult, xmlDir string) error {
 	for _, result := range results {
 		// Calculate output paths based on relative path
 		// Remove .xlsx extension and add appropriate suffix
-		basePath := strings.TrimSuffix(result.FilePath, filepath.Ext(result.FilePath))
+		// Also strip any existing _dt or _edd suffix to prevent doubling
+		basePath := stripDTOrEDDSuffix(strings.TrimSuffix(result.FilePath, filepath.Ext(result.FilePath)))
 
 		// Write DT file if there are tables
 		if len(result.DTables.Tables) > 0 {
@@ -461,7 +474,7 @@ func (w *WorkbookImporter) parseMultiSheetEntityFromRows(rows [][]string, sheetN
 }
 
 // parseEDDSheetFromRows parses EDD data from rows in single-sheet format.
-func (w *WorkbookImporter) parseEDDSheetFromRows(rows [][]string, sheetName string) (*EDDXML, error) {
+func (w *WorkbookImporter) parseEDDSheetFromRows(rows [][]string, _ string) (*EDDXML, error) {
 	edd := &EDDXML{
 		Version:  "2",
 		Entities: make([]*EDDXMLEntity, 0),
@@ -648,7 +661,8 @@ func (w *WorkbookImporter) ImportWorkbookToDir(excelPath, xmlDir string) (dtPath
 	}
 
 	// Generate base name from Excel file
-	baseName := strings.TrimSuffix(filepath.Base(excelPath), filepath.Ext(excelPath))
+	// Strip any existing _dt or _edd suffix to prevent doubling (e.g., TaxReturn_edd.xlsx -> TaxReturn_edd.xml, not TaxReturn_edd_edd.xml)
+	baseName := stripDTOrEDDSuffix(strings.TrimSuffix(filepath.Base(excelPath), filepath.Ext(excelPath)))
 
 	// Ensure directory exists
 	if err := os.MkdirAll(xmlDir, 0755); err != nil {

@@ -423,7 +423,7 @@ func (i *DTImporter) detectFormat(rows [][]string) string {
 	for _, row := range rows {
 		if len(row) > 0 {
 			cell := strings.ToLower(strings.TrimSpace(row[0]))
-			if cell == "conditions:" {
+			if strings.HasPrefix(cell, "conditions:") {
 				return "exporter"
 			}
 			if cell == "conditions" && len(row) > 1 {
@@ -624,16 +624,16 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 		case firstCellLower == "contexts:":
 			currentSection = "contexts"
 
-		case strings.HasPrefix(firstCellLower, "initial actions:"):
+		case strings.HasPrefix(firstCellLower, "initial actions"):
 			currentSection = "initial_actions_header"
 
-		case firstCellLower == "conditions:":
+		case strings.HasPrefix(firstCellLower, "conditions"):
 			currentSection = "conditions_header"
 
-		case firstCellLower == "actions:":
+		case strings.HasPrefix(firstCellLower, "actions"):
 			currentSection = "actions_header"
 
-		case firstCellLower == "policy:":
+		case strings.HasPrefix(firstCellLower, "policy"):
 			currentSection = "policy_header"
 
 		default:

@@ -392,6 +392,58 @@ func TestDTLoaderELAutoCompileFallback(t *testing.T) {
 	t.Log("Invalid EL description correctly used fallback")
 }
 
+// TestDTLoaderPreservePostfixComments tests that when EL compilation fails but there's
+// existing postfix (even if comment-only), the original postfix is preserved.
+// This is issue #438 - non-EL descriptions should not overwrite existing postfix.
+func TestDTLoaderPreservePostfixComments(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	session := &mockSession{factory: factory}
+	loader := NewDTLoader(session, factory)
+
+	// XML with invalid EL in action_dsl but comment-only postfix
+	// The postfix comments should be preserved, not replaced with no-op
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+    <decision_table>
+        <table_name>Test_Preserve_Comments</table_name>
+        <attribute_fields>
+            <Type>First</Type>
+        </attribute_fields>
+        <contexts></contexts>
+        <initial_actions></initial_actions>
+        <conditions>
+            <condition_details>
+                <condition_number>1</condition_number>
+                <condition_dsl>Check some condition</condition_dsl>
+                <condition_postfix>
+// This is a documentation comment
+// It should be preserved even if DSL is invalid
+</condition_postfix>
+                <condition_column column_number="1" column_value="y"/>
+            </condition_details>
+        </conditions>
+        <actions>
+            <action_details>
+                <action_number>1</action_number>
+                <action_dsl>Apportionment will be calculated by tables 7000-7500</action_dsl>
+                <action_postfix>
+// Physical nexus established - filing required
+// Apportionment documentation
+</action_postfix>
+                <action_column column_number="1" column_value="x"/>
+            </action_details>
+        </actions>
+        <policy_statements></policy_statements>
+    </decision_table>
+</decision_tables>`
+
+	err := loader.Load(strings.NewReader(xml))
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+	t.Log("Postfix comments preserved when EL compilation fails")
+}
+
 // TestFilePathLoading tests that FILE_PATH is loaded and stored on the decision table.
 func TestFilePathLoading(t *testing.T) {
 	factory := entity.NewFactory(nil)
