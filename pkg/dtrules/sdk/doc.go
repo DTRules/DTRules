@@ -94,6 +94,36 @@ Set values on specific entities:
 	ctx.SetEntity("address", "state", "CO")
 	ctx.SetEntity("address", "zip", "80202")
 
+# Entity Arrays (for iteration)
+
+Use SetEntityArray to provide arrays of entities that decision tables
+can iterate over using forall:
+
+	ctx := engine.NewContext()
+
+	// Set an array of staking accounts for iteration
+	ctx.SetEntityArray("accounts", []map[string]interface{}{
+	    {"balance": "1000", "identity_url": "https://example.com/1"},
+	    {"balance": "2000", "identity_url": "https://example.com/2"},
+	    {"balance": "500", "identity_url": "https://example.com/3"},
+	})
+
+	// Execute table that iterates over the array
+	result, err := engine.Execute("Calculate_Rewards", ctx)
+
+The array name should be the plural form of the entity name.
+The SDK automatically derives "account" from "accounts" when
+creating entities. Common pluralization rules are handled:
+accounts -> account, entities -> entity, boxes -> box.
+
+Decision tables can iterate using forall in contexts:
+
+	for all accounts
+
+Or using forall in action expressions with postfix:
+
+	{ account.balance /total b+ /total xdef } accounts forall
+
 # Loading Options
 
 Multiple loading options can be combined:

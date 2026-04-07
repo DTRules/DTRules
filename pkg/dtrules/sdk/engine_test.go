@@ -205,6 +205,279 @@ func TestEngine_ConcurrentContexts(t *testing.T) {
 	}
 }
 
+// TestContext_SetEntityArray_Basic tests basic entity array creation
+func TestContext_SetEntityArray_Basic(t *testing.T) {
+	engine, _ := NewEngine("Test")
+	ctx := engine.NewContext()
+
+	items := []map[string]interface{}{
+		{"name": "Item1", "value": 100},
+		{"name": "Item2", "value": 200},
+		{"name": "Item3", "value": 300},
+	}
+
+	ctx.SetEntityArray("items", items)
+
+	if ctx.entityArrays == nil {
+		t.Fatal("entityArrays map should not be nil after SetEntityArray")
+	}
+	if len(ctx.entityArrays["items"]) != 3 {
+		t.Errorf("entityArrays[items] has %d elements, want 3", len(ctx.entityArrays["items"]))
+	}
+	if ctx.entityArrays["items"][0]["name"] != "Item1" {
+		t.Errorf("entityArrays[items][0][name] = %v, want Item1", ctx.entityArrays["items"][0]["name"])
+	}
+	if ctx.entityArrays["items"][1]["value"] != 200 {
+		t.Errorf("entityArrays[items][1][value] = %v, want 200", ctx.entityArrays["items"][1]["value"])
+	}
+}
+
+// TestContext_SetEntityArray_Empty tests that empty arrays are handled gracefully
+func TestContext_SetEntityArray_Empty(t *testing.T) {
+	engine, _ := NewEngine("Test")
+	ctx := engine.NewContext()
+
+	// Set an empty array
+	ctx.SetEntityArray("items", []map[string]interface{}{})
+
+	if ctx.entityArrays == nil {
+		t.Fatal("entityArrays map should not be nil")
+	}
+	if len(ctx.entityArrays["items"]) != 0 {
+		t.Errorf("entityArrays[items] has %d elements, want 0", len(ctx.entityArrays["items"]))
+	}
+}
+
+// TestContext_SetEntityArray_Nil tests that nil arrays are handled gracefully
+func TestContext_SetEntityArray_Nil(t *testing.T) {
+	engine, _ := NewEngine("Test")
+	ctx := engine.NewContext()
+
+	// Set a nil array
+	ctx.SetEntityArray("items", nil)
+
+	if ctx.entityArrays == nil {
+		t.Fatal("entityArrays map should not be nil")
+	}
+	if ctx.entityArrays["items"] != nil {
+		t.Errorf("entityArrays[items] should be nil, got %v", ctx.entityArrays["items"])
+	}
+}
+
+// TestContext_SetEntityArray_MultipleArrays tests setting multiple different entity arrays
+func TestContext_SetEntityArray_MultipleArrays(t *testing.T) {
+	engine, _ := NewEngine("Test")
+	ctx := engine.NewContext()
+
+	orders := []map[string]interface{}{
+		{"order_id": 1, "amount": 100.50},
+		{"order_id": 2, "amount": 200.75},
+	}
+	products := []map[string]interface{}{
+		{"product_id": "SKU001", "price": 29.99},
+		{"product_id": "SKU002", "price": 49.99},
+		{"product_id": "SKU003", "price": 19.99},
+	}
+
+	ctx.SetEntityArray("orders", orders)
+	ctx.SetEntityArray("products", products)
+
+	if len(ctx.entityArrays) != 2 {
+		t.Errorf("entityArrays has %d entries, want 2", len(ctx.entityArrays))
+	}
+	if len(ctx.entityArrays["orders"]) != 2 {
+		t.Errorf("entityArrays[orders] has %d elements, want 2", len(ctx.entityArrays["orders"]))
+	}
+	if len(ctx.entityArrays["products"]) != 3 {
+		t.Errorf("entityArrays[products] has %d elements, want 3", len(ctx.entityArrays["products"]))
+	}
+	if ctx.entityArrays["orders"][0]["order_id"] != 1 {
+		t.Errorf("entityArrays[orders][0][order_id] = %v, want 1", ctx.entityArrays["orders"][0]["order_id"])
+	}
+	if ctx.entityArrays["products"][1]["product_id"] != "SKU002" {
+		t.Errorf("entityArrays[products][1][product_id] = %v, want SKU002", ctx.entityArrays["products"][1]["product_id"])
+	}
+}
+
+// TestContext_SetEntityArray_Chaining tests that method chaining works correctly
+func TestContext_SetEntityArray_Chaining(t *testing.T) {
+	engine, _ := NewEngine("Test")
+	ctx := engine.NewContext()
+
+	items := []map[string]interface{}{
+		{"name": "Item1"},
+	}
+
+	// Chain Set, SetEntity, and SetEntityArray
+	ctx.Set("simple_value", 42).
+		SetEntity("person", "name", "John").
+		SetEntityArray("items", items).
+		Set("another_value", "test").
+		SetEntity("person", "age", 30)
+
+	// Verify all were set correctly
+	if ctx.inputs["simple_value"] != 42 {
+		t.Errorf("inputs[simple_value] = %v, want 42", ctx.inputs["simple_value"])
+	}
+	if ctx.inputs["another_value"] != "test" {
+		t.Errorf("inputs[another_value] = %v, want test", ctx.inputs["another_value"])
+	}
+	if ctx.entities["person"]["name"] != "John" {
+		t.Errorf("entities[person][name] = %v, want John", ctx.entities["person"]["name"])
+	}
+	if ctx.entities["person"]["age"] != 30 {
+		t.Errorf("entities[person][age] = %v, want 30", ctx.entities["person"]["age"])
+	}
+	if len(ctx.entityArrays["items"]) != 1 {
+		t.Errorf("entityArrays[items] has %d elements, want 1", len(ctx.entityArrays["items"]))
+	}
+}
+
+// TestContext_SetEntityArray_Overwrite tests that setting the same array twice overwrites
+func TestContext_SetEntityArray_Overwrite(t *testing.T) {
+	engine, _ := NewEngine("Test")
+	ctx := engine.NewContext()
+
+	items1 := []map[string]interface{}{
+		{"name": "Item1"},
+		{"name": "Item2"},
+	}
+	items2 := []map[string]interface{}{
+		{"name": "NewItem1"},
+	}
+
+	ctx.SetEntityArray("items", items1)
+	ctx.SetEntityArray("items", items2)
+
+	if len(ctx.entityArrays["items"]) != 1 {
+		t.Errorf("entityArrays[items] has %d elements, want 1 (should be overwritten)", len(ctx.entityArrays["items"]))
+	}
+	if ctx.entityArrays["items"][0]["name"] != "NewItem1" {
+		t.Errorf("entityArrays[items][0][name] = %v, want NewItem1", ctx.entityArrays["items"][0]["name"])
+	}
+}
+
+// TestSingularize tests the singularize helper function
+func TestSingularize(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"items", "item"},
+		{"orders", "order"},
+		{"products", "product"},
+		{"entities", "entity"},
+		{"categories", "category"},
+		{"boxes", "box"},
+		{"classes", "class"},
+		{"passes", "pass"}, // ends in "ss" - should not be singularized
+		{"item", "item"},   // already singular
+		{"s", "s"},         // edge case
+		{"", ""},           // empty string
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			result := singularize(tt.input)
+			if result != tt.expected {
+				t.Errorf("singularize(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+// TestEngine_Execute_WithEntityArray is an integration test that verifies
+// entity arrays can be used in decision table execution
+func TestEngine_Execute_WithEntityArray(t *testing.T) {
+	// Create in-memory filesystem with rules that use forall
+	fsys := fstest.MapFS{
+		"rules/test_edd.xml": &fstest.MapFile{
+			Data: []byte(`<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+    <entity name="item" readonly="false">
+        <field name="name" type="string" subtype="" default_value=""/>
+        <field name="price" type="double" subtype="" default_value="0"/>
+        <field name="quantity" type="integer" subtype="" default_value="0"/>
+    </entity>
+    <entity name="result" readonly="false">
+        <field name="total_items" type="integer" subtype="" default_value="0"/>
+        <field name="total_value" type="double" subtype="" default_value="0"/>
+    </entity>
+</entity_data_dictionary>`),
+		},
+		"rules/test_dt.xml": &fstest.MapFile{
+			Data: []byte(`<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+    <decision_table>
+        <table_name>Count_Items</table_name>
+        <table_number>1</table_number>
+        <purpose>Count the number of items and calculate total value</purpose>
+        <column type="condition" column_number="1">
+            <column_name>Always</column_name>
+            <column_postfix>true</column_postfix>
+            <row_entries>
+                <row_entry row_number="1">Y</row_entry>
+            </row_entries>
+        </column>
+        <column type="action" column_number="2">
+            <column_name>SetItemCount</column_name>
+            <column_postfix>3 result.total_items =</column_postfix>
+            <row_entries>
+                <row_entry row_number="1">X</row_entry>
+            </row_entries>
+        </column>
+    </decision_table>
+</decision_tables>`),
+		},
+	}
+
+	engine, err := NewEngine("ArrayRules", WithFS(fsys, "rules"))
+	if err != nil {
+		t.Fatalf("NewEngine failed: %v", err)
+	}
+
+	ctx := engine.NewContext()
+
+	// Set up entity array
+	items := []map[string]interface{}{
+		{"name": "Apple", "price": 1.50, "quantity": int64(10)},
+		{"name": "Banana", "price": 0.75, "quantity": int64(20)},
+		{"name": "Orange", "price": 2.00, "quantity": int64(15)},
+	}
+	ctx.SetEntityArray("items", items)
+
+	// Also set up a result entity to capture output
+	ctx.SetEntity("result", "total_items", int64(0))
+	ctx.SetEntity("result", "total_value", 0.0)
+
+	result, err := engine.Execute("Count_Items", ctx)
+	if err != nil {
+		t.Fatalf("Execute failed: %v", err)
+	}
+
+	if result == nil {
+		t.Fatal("Expected non-nil result")
+	}
+}
+
+// TestContext_SetEntityArray_WithNilItems tests arrays containing nil items
+func TestContext_SetEntityArray_WithNilItems(t *testing.T) {
+	engine, _ := NewEngine("Test")
+	ctx := engine.NewContext()
+
+	items := []map[string]interface{}{
+		{"name": "Item1"},
+		nil, // nil item should be handled
+		{"name": "Item3"},
+	}
+
+	ctx.SetEntityArray("items", items)
+
+	if len(ctx.entityArrays["items"]) != 3 {
+		t.Errorf("entityArrays[items] has %d elements, want 3", len(ctx.entityArrays["items"]))
+	}
+}
+
 // TestEntityStackPush verifies that entities created via SetEntity are pushed
 // onto the entity stack and accessible in decision tables (issue #491)
 func TestEntityStackPush(t *testing.T) {

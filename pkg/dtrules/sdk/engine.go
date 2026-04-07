@@ -345,9 +345,10 @@ func (e *Engine) Execute(tableName string, ctx *Context) (*Result, error) {
 
 // Context holds input data for decision table execution.
 type Context struct {
-	engine   *Engine
-	inputs   map[string]interface{}
-	entities map[string]map[string]interface{}
+	engine       *Engine
+	inputs       map[string]interface{}
+	entities     map[string]map[string]interface{}
+	entityArrays map[string][]map[string]interface{}
 }
 
 // Set sets a simple input value.
@@ -366,6 +367,17 @@ func (c *Context) SetEntity(entityName, fieldName string, value interface{}) *Co
 		c.entities[entityName] = make(map[string]interface{})
 	}
 	c.entities[entityName][fieldName] = value
+	return c
+}
+
+// SetEntityArray sets an array of entities that can be iterated with forall.
+// arrayName should be the plural entity name (e.g., "accounts" for "account" entities).
+// items is a slice of maps where each map represents field name -> value for one entity.
+func (c *Context) SetEntityArray(arrayName string, items []map[string]interface{}) *Context {
+	if c.entityArrays == nil {
+		c.entityArrays = make(map[string][]map[string]interface{})
+	}
+	c.entityArrays[arrayName] = items
 	return c
 }
 
@@ -392,6 +404,53 @@ func (c *Context) populateSession(sess *session.RSession) error {
 
 		// Push entity onto stack so decision tables can access it
 		state.EntityPush(entity)
+	}
+
+	// Process entity arrays
+	for arrayName, items := range c.entityArrays {
+		if len(items) == 0 {
+			continue
+		}
+
+		// Derive singular entity name from plural array name
+		entityName := singularize(arrayName)
+
+		// Create a DTRules array to hold the entities
+		arr, err := dtrules.NewArray(sess, true, false)
+		if err != nil {
+			return fmt.Errorf("failed to create array for %s: %w", arrayName, err)
+		}
+
+		// Create entity instances and add them to the array
+		for i, itemFields := range items {
+			if itemFields == nil {
+				continue
+			}
+
+			entity, err := sess.CreateEntity(dtrules.GetRName(entityName))
+			if err != nil {
+				return fmt.Errorf("failed to create entity %s[%d]: %w", arrayName, i, err)
+			}
+
+			for fieldName, value := range itemFields {
+				obj, err := toObject(value)
+				if err != nil {
+					return fmt.Errorf("failed to convert %s[%d].%s: %w", arrayName, i, fieldName, err)
+				}
+				if err := entity.Put(dtrules.GetRName(fieldName), obj); err != nil {
+					return fmt.Errorf("failed to set %s[%d].%s: %w", arrayName, i, fieldName, err)
+				}
+			}
+
+			// Add entity to the array
+			arr.Add(entity)
+
+			// Push entity to entity stack so it's accessible
+			state.EntityPush(entity)
+		}
+
+		// Store the array as a session attribute so it can be accessed by name
+		sess.SetAttribute(arrayName, arr)
 	}
 
 	// Simple inputs go to session attributes or a default entity
@@ -427,6 +486,25 @@ func toObject(v interface{}) (dtrules.Object, error) {
 	default:
 		return nil, fmt.Errorf("unsupported type: %T", v)
 	}
+}
+
+// singularize returns the singular form of a plural noun.
+// Handles common cases: "orders" -> "order", "entities" -> "entity".
+func singularize(s string) string {
+	if len(s) <= 1 {
+		return s
+	}
+	lower := strings.ToLower(s)
+	if strings.HasSuffix(lower, "ies") && len(s) > 3 {
+		return s[:len(s)-3] + "y"
+	}
+	if strings.HasSuffix(lower, "ses") || strings.HasSuffix(lower, "xes") {
+		return s[:len(s)-2]
+	}
+	if strings.HasSuffix(lower, "s") && !strings.HasSuffix(lower, "ss") {
+		return s[:len(s)-1]
+	}
+	return s
 }
 
 // Result holds the output from a decision table execution.
