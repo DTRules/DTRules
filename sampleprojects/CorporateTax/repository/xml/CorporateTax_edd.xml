@@ -402,12 +402,12 @@
     <field name='drd_domestic_dividends_lt20' type='double' default_value='0.0' comment='Domestic dividends - ownership &lt; 20%'/>
     <field name='drd_domestic_dividends_20to80' type='double' default_value='0.0' comment='Domestic dividends - ownership 20-79.9%'/>
     <field name='drd_domestic_dividends_80plus' type='double' default_value='0.0' comment='Domestic dividends - ownership ≥ 80% (affiliated group)'/>
-    <field name='drd_domestic_ownership_lt20' type='double' default_value='0.0' comment='Ownership percentage for <20% DRD pool'/>
+    <field name='drd_domestic_ownership_lt20' type='double' default_value='0.0' comment='Ownership percentage for less than 20% DRD pool'/>
     <field name='drd_domestic_ownership_20to80' type='double' default_value='0.0' comment='Ownership percentage for 20-80% DRD pool'/>
     <field name='drd_domestic_ownership_80plus' type='double' default_value='0.0' comment='Ownership percentage for 80%+ DRD pool'/>
 
     <!-- DRD Percentages (IRC § 243) -->
-    <field name='drd_rate_50pct' type='double' default_value='0.50' comment='DRD rate for <20% ownership (50%)'/>
+    <field name='drd_rate_50pct' type='double' default_value='0.50' comment='DRD rate for less than 20% ownership (50%)'/>
     <field name='drd_rate_65pct' type='double' default_value='0.65' comment='DRD rate for 20-79.9% ownership (65%)'/>
     <field name='drd_rate_100pct' type='double' default_value='1.00' comment='DRD rate for ≥80% ownership (100%)'/>
 
@@ -693,7 +693,7 @@
            comment='Whether corporation is USVI Economic Development Commission beneficiary'/>
     <field name='usvi_edp_certificate_number' type='string' default_value=''
            comment='USVI EDC certificate number (if EDP beneficiary)'/>
-    <field name='usvi_edp_benefit_start_date' type='date'
+    <field name='usvi_edp_benefit_start_date' type='date' default_value='' comment='USVI EDP benefit start date'/>
 
     <!-- Form 4797: Sales of Business Property (Asset Disposition and Depreciation Recapture) -->
     <!-- Reference: IRC §§ 1231, 1245, 1250, Form 4797 -->
@@ -808,7 +808,7 @@
     <!-- Compliance and Reporting -->
     <field name='usvi_annual_report_filed' type='boolean' default_value='false'
            comment='Whether annual EDP compliance report filed with USVI EDC'/>
-    <field name='usvi_edp_compliance_status' type='string' default_value='compliant'
+    <field name='usvi_edp_compliance_status' type='string' default_value='compliant' comment='USVI EDP compliance status'/>
 
     <!-- Puerto Rico (PR) - IRC § 933, Act 60-2019 (Export Services Act) -->
     <!--
@@ -1063,13 +1063,13 @@
     <field name='net_assets_usd_at_current_rates' type='double' default_value='0.0'
            comment='QBU net assets at current spot rate'/>
 
-    <!-- Branch Earnings and Profits (E&P) -->
+    <!-- Branch Earnings and Profits (E&amp;P) -->
     <field name='branch_current_ep' type='double' default_value='0.0'
-           comment='Branch current year E&P (in USD, different from CFC E&P)'/>
+           comment='Branch current year E&amp;P (in USD, different from CFC E&amp;P)'/>
     <field name='branch_accumulated_ep' type='double' default_value='0.0'
-           comment='Branch accumulated E&P from prior years (in USD)'/>
+           comment='Branch accumulated E&amp;P from prior years (in USD)'/>
     <field name='branch_ep_adjustment_section_987' type='double' default_value='0.0'
-           comment='E&P adjustment for § 987 gain/loss'/>
+           comment='E&amp;P adjustment for § 987 gain/loss'/>
 
     <!-- Foreign Tax Credit - Foreign Branch Basket (IRC § 904(d)(1)(E)) -->
     <field name='ftc_branch_basket_income' type='double' default_value='0.0'
@@ -1224,31 +1224,31 @@
     <field name='sched_e_foreign_tax_category' type='string' default_value='general'
            comment='Schedule E: Foreign tax category (general, passive, etc.)'/>
 
-    <!-- Schedule H: Current Earnings and Profits (E&P) -->
+    <!-- Schedule H: Current Earnings and Profits (E&amp;P) -->
     <field name='sched_h_net_income_per_books' type='double' default_value='0.0'
            comment='Schedule H: Net income per books (from Schedule C)'/>
     <field name='sched_h_us_depreciation_adjustment' type='double' default_value='0.0'
            comment='Schedule H: U.S. depreciation adjustment (book vs tax)'/>
     <field name='sched_h_current_year_deficit' type='double' default_value='0.0'
-           comment='Schedule H: Current year E&P deficit'/>
+           comment='Schedule H: Current year E&amp;P deficit'/>
     <field name='sched_h_foreign_taxes_paid' type='double' default_value='0.0'
-           comment='Schedule H: Foreign income taxes (reduces E&P)'/>
+           comment='Schedule H: Foreign income taxes (reduces E&amp;P)'/>
     <field name='sched_h_other_adjustments' type='double' default_value='0.0'
-           comment='Schedule H: Other E&P adjustments'/>
+           comment='Schedule H: Other E&amp;P adjustments'/>
     <field name='sched_h_current_earnings_and_profits' type='double' default_value='0.0'
-           comment='Schedule H: Current year earnings and profits (E&P)'/>
+           comment='Schedule H: Current year earnings and profits (E&amp;P)'/>
 
-    <!-- Schedule J: Accumulated Earnings and Profits (E&P) -->
+    <!-- Schedule J: Accumulated Earnings and Profits (E&amp;P) -->
     <field name='sched_j_beginning_accumulated_ep' type='double' default_value='0.0'
-           comment='Schedule J: Accumulated E&P at beginning of year'/>
+           comment='Schedule J: Accumulated E&amp;P at beginning of year'/>
     <field name='sched_j_current_year_ep' type='double' default_value='0.0'
-           comment='Schedule J: Current year E&P (from Schedule H)'/>
+           comment='Schedule J: Current year E&amp;P (from Schedule H)'/>
     <field name='sched_j_distributions' type='double' default_value='0.0'
            comment='Schedule J: Distributions during the year'/>
     <field name='sched_j_reclassifications' type='double' default_value='0.0'
            comment='Schedule J: Reclassifications to/from PTEP'/>
     <field name='sched_j_ending_accumulated_ep' type='double' default_value='0.0'
-           comment='Schedule J: Accumulated E&P at end of year'/>
+           comment='Schedule J: Accumulated E&amp;P at end of year'/>
 
     <!-- Schedule M: Transactions Between CFC and Shareholders or Related Persons -->
     <field name='sched_m_sales_to_related' type='double' default_value='0.0'
@@ -1336,7 +1336,7 @@
     <field name='subpart_f_de_minimis_threshold' type='double' default_value='1000000.0'
            comment='De minimis threshold ($1M or 5% of gross income)'/>
     <field name='subpart_f_de_minimis_applied' type='boolean' default_value='false'
-           comment='Whether de minimis rule applied (Subpart F < threshold)'/>
+           comment='Whether de minimis rule applied (Subpart F less than threshold)'/>
     <field name='subpart_f_full_inclusion_applied' type='boolean' default_value='false'
            comment='Whether full inclusion rule applied (Subpart F > 70% gross income)'/>
     <field name='subpart_f_high_tax_exception_rate' type='double' default_value='0.189'
@@ -1346,9 +1346,9 @@
     <field name='subpart_f_high_tax_exception_applied' type='boolean' default_value='false'
            comment='Whether high-tax exception applied (foreign rate > 18.9%)'/>
     <field name='subpart_f_ep_limitation' type='double' default_value='0.0'
-           comment='Current E&P limitation on Subpart F income'/>
+           comment='Current E&amp;P limitation on Subpart F income'/>
     <field name='subpart_f_after_ep_limitation' type='double' default_value='0.0'
-           comment='Subpart F income after E&P limitation'/>
+           comment='Subpart F income after E&amp;P limitation'/>
 
     <!-- FPHCI Component Detail (IRC § 954(c)) -->
     <field name='fphci_dividends' type='double' default_value='0.0'

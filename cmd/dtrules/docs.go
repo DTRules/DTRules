@@ -29,7 +29,6 @@ var docTopics = map[string]string{
 	"decision-tables":  docDecisionTables,
 	"operators":        docOperators,
 	"expressions":      docExpressions,
-	"sdk":              docSDK,
 	"examples":         docExamples,
 	"workflow":         docWorkflow,
 }
@@ -73,7 +72,6 @@ func printDocIndex() {
 		"decision-tables": "How to write decision tables",
 		"operators":       "All available operators with examples",
 		"expressions":     "Postfix expression syntax (compiled from EL)",
-		"sdk":             "Embedding DTRules in Go applications",
 		"examples":        "Complete working examples",
 		"workflow":        "Development workflow with Excel and XML",
 	}
@@ -1050,229 +1048,6 @@ Tips
 6. Entity.field for all field access
 `
 
-const docSDK = `Embedding DTRules in Go Applications
-=====================================
-
-The SDK package allows embedding decision tables directly into Go binaries.
-
-
-Installation
-------------
-go get github.com/DTRules/DTRules/pkg/dtrules/sdk
-
-
-Basic Usage
------------
-package main
-
-import (
-    "log"
-    "github.com/DTRules/DTRules/pkg/dtrules/sdk"
-)
-
-func main() {
-    // Load from directory
-    engine, err := sdk.NewEngine("MyRules", sdk.WithDirectory("./rules"))
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    // Create execution context
-    ctx := engine.NewContext()
-    ctx.SetEntity("input", "income", 75000)
-    ctx.SetEntity("input", "filing_status", "single")
-
-    // Execute decision table
-    result, err := engine.Execute("Calculate_Tax", ctx)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    // Get results
-    taxDue := result.GetFloat("tax_due")
-    eligible := result.GetBool("eligible")
-}
-
-
-Embedding Rules in Binary
--------------------------
-Use Go's embed package to compile rules into the binary:
-
-package main
-
-import (
-    "embed"
-    "log"
-    "github.com/DTRules/DTRules/pkg/dtrules/sdk"
-)
-
-//go:embed rules/xml/*.xml
-var rulesFS embed.FS
-
-func main() {
-    // Load from embedded filesystem
-    engine, err := sdk.NewEngine("MyRules", sdk.WithFS(rulesFS, "rules/xml"))
-    if err != nil {
-        log.Fatal(err)
-    }
-    // Use engine...
-}
-
-
-Loading Options
----------------
-// From filesystem directory
-sdk.NewEngine("Name", sdk.WithDirectory("./rules"))
-
-// From embedded filesystem
-sdk.NewEngine("Name", sdk.WithFS(rulesFS, "rules/xml"))
-
-// From explicit readers
-eddFile, _ := os.Open("rules/edd.xml")
-dtFile, _ := os.Open("rules/dt.xml")
-sdk.NewEngine("Name", sdk.WithEDD(eddFile), sdk.WithDT(dtFile))
-
-
-Setting Input Values
---------------------
-ctx := engine.NewContext()
-
-// Set on specific entity
-ctx.SetEntity("customer", "name", "John")
-ctx.SetEntity("customer", "age", 35)
-ctx.SetEntity("customer", "premium", true)
-
-// Simple key-value (session attributes)
-ctx.Set("debug_mode", true)
-
-// Method chaining
-ctx.SetEntity("input", "a", 1).
-    SetEntity("input", "b", 2).
-    SetEntity("input", "c", 3)
-
-
-Setting Entity Arrays (for iteration)
--------------------------------------
-Use SetEntityArray to provide arrays of entities that decision tables can
-iterate over using forall:
-
-ctx := engine.NewContext()
-
-// Set an array of accounts for iteration
-ctx.SetEntityArray("accounts", []map[string]interface{}{
-    {"balance": "1000", "identity_url": "https://example.com/1"},
-    {"balance": "2000", "identity_url": "https://example.com/2"},
-    {"balance": "500", "identity_url": "https://example.com/3"},
-})
-
-// Execute table that iterates over the array
-result, err := engine.Execute("Calculate_Rewards", ctx)
-
-The array name should be the plural form of the entity name. The SDK
-automatically derives "account" from "accounts" when creating entities.
-
-Decision tables can iterate over the array using forall in contexts:
-
-    for all accounts
-
-Or using forall in action expressions:
-
-    { account.balance /total b+ /total xdef } accounts forall
-
-Common pluralization rules are handled:
-  - accounts -> account
-  - entities -> entity
-  - boxes -> box
-
-
-Getting Results
----------------
-result, _ := engine.Execute("TableName", ctx)
-
-// Typed getters (return zero value if missing/wrong type)
-s := result.GetString("status")      // string
-n := result.GetInt("count")          // int64
-f := result.GetFloat("amount")       // float64
-b := result.GetBool("approved")      // bool
-
-// Generic getter
-v, ok := result.Get("field_name")    // interface{}, bool
-
-
-Concurrent Execution
---------------------
-Engine is safe for concurrent use. Each context is independent:
-
-var wg sync.WaitGroup
-for i := 0; i < 100; i++ {
-    wg.Add(1)
-    go func(n int) {
-        defer wg.Done()
-        ctx := engine.NewContext()
-        ctx.SetEntity("input", "value", n)
-        result, _ := engine.Execute("Process", ctx)
-        _ = result.GetInt("output")
-    }(i)
-}
-wg.Wait()
-
-
-Listing Available Tables
-------------------------
-tables := engine.ListTables()
-for _, name := range tables {
-    fmt.Println(name)
-}
-
-
-Listing Entities
-----------------
-entities := engine.ListEntities()
-for _, name := range entities {
-    fmt.Println(name)
-}
-
-
-File Naming Convention
-----------------------
-The SDK auto-detects file types:
-
-EDD files: *_edd.xml, edd_*.xml, edd.xml
-DT files:  *_dt.xml, dt_*.xml, decisiontables.xml
-
-Files are loaded: EDD first, then DT.
-
-
-Project Structure
------------------
-myapp/
-├── main.go
-├── rules/
-│   └── xml/
-│       ├── myapp_edd.xml
-│       └── myapp_dt.xml
-└── go.mod
-
-With embed directive in main.go:
-    //go:embed rules/xml/*.xml
-    var rulesFS embed.FS
-
-
-Error Handling
---------------
-engine, err := sdk.NewEngine("Rules", sdk.WithDirectory("./rules"))
-if err != nil {
-    // Failed to load rules (file not found, parse error, etc.)
-    log.Fatalf("Failed to initialize: %v", err)
-}
-
-result, err := engine.Execute("TableName", ctx)
-if err != nil {
-    // Execution failed (unknown table, runtime error, etc.)
-    log.Printf("Execution error: %v", err)
-}
-`
-
 const docExamples = `Complete Working Examples
 =========================
 
@@ -1440,38 +1215,24 @@ Decision Table (tax_dt.xml):
 </decision_tables>
 
 
-Go Code:
---------
-package main
+CLI Usage:
+----------
+# Run with test data
+dtrules run ./rules Calculate_Tax --data input.xml
 
-import (
-    "embed"
-    "fmt"
-    "log"
-    "github.com/DTRules/DTRules/pkg/dtrules/sdk"
-)
-
-//go:embed rules/*.xml
-var rulesFS embed.FS
-
-func main() {
-    engine, err := sdk.NewEngine("Tax", sdk.WithFS(rulesFS, "rules"))
-    if err != nil {
-        log.Fatal(err)
+# Or via REST API
+curl -X POST http://localhost:8080/execute \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project": "Tax",
+    "table": "Calculate_Tax",
+    "data": {
+      "input": {
+        "income": 85000.0,
+        "state": "CO"
+      }
     }
-
-    ctx := engine.NewContext()
-    ctx.SetEntity("input", "income", 85000.0)
-    ctx.SetEntity("input", "state", "CO")
-
-    result, err := engine.Execute("Calculate_Tax", ctx)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    fmt.Printf("Federal Tax: $%.2f\n", result.GetFloat("federal_tax"))
-    fmt.Printf("State Tax: $%.2f\n", result.GetFloat("state_tax"))
-}
+  }'
 
 
 Example 2: Eligibility Check

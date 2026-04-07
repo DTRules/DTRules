@@ -135,7 +135,6 @@ Documentation:
   dtrules docs el                  Expression Language syntax
   dtrules docs decision-tables     How to write decision tables
   dtrules docs operators           All operators with examples
-  dtrules docs sdk                 Embedding DTRules in applications
 
 Options:
   --xml-dir      Directory containing XML files (default: ./xml)
