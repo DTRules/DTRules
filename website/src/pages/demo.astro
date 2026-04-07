@@ -595,18 +595,38 @@ import BettingControls from '../components/poker/BettingControls.astro';
 
     // Run AI turns
     async function runAITurns() {
-      if (!gameState || gameState.handComplete) return;
+      console.log('[runAITurns] START', {
+        handComplete: gameState?.handComplete,
+        winners: gameState?.winners,
+        currentPlayerIndex: gameState?.currentPlayerIndex,
+        activePlayerCount: gameState?.activePlayerCount
+      });
+      if (!gameState || gameState.handComplete) {
+        console.log('[runAITurns] Early return - no gameState or hand complete');
+        return;
+      }
 
       setAIThinking(true);
       try {
+        console.log('[runAITurns] Calling processAllAITurns...');
         await processAllAITurns(gameState, (result) => {
+          console.log('[runAITurns] AI action callback:', result.action.actionType, result.player.name);
           updateAIDecisionDisplay(result);
           updateGameDisplay();
         }, { min: 200, max: 500 });
 
+        console.log('[runAITurns] After processAllAITurns:', {
+          handComplete: gameState.handComplete,
+          winners: gameState.winners,
+          pendingReveal: gameState.pendingReveal,
+          showdownResults: gameState.showdownResults?.length
+        });
+
         if (gameState.pendingReveal) {
+          console.log('[runAITurns] Handling pending reveal');
           await handlePendingReveal(gameState);
         } else if (gameState.handComplete && gameState.winners) {
+          console.log('[runAITurns] Hand complete with winners, showing result');
           if (gameState.showdownResults && gameState.showdownResults.length > 1) {
             showShowdownResults(gameState);
           } else {
@@ -615,19 +635,21 @@ import BettingControls from '../components/poker/BettingControls.astro';
           }
           updateGameDisplay();
         } else {
+          console.log('[runAITurns] Normal update display');
           updateGameDisplay();
         }
       } catch (error) {
+        console.error('[runAITurns] ERROR:', error);
         if (error instanceof EngineUnavailableError) {
           engineAvailable = false;
           updateApiStatus(false);
           updatePlayButton(false);
           showEngineError();
         } else {
-          if (import.meta.env.DEV) console.error('Error during AI turns:', error);
           showGameError('An error occurred during AI turns. Please start a new game.');
         }
       } finally {
+        console.log('[runAITurns] FINALLY - setting AI thinking false');
         setAIThinking(false);
       }
     }
@@ -696,8 +718,10 @@ import BettingControls from '../components/poker/BettingControls.astro';
 
     // Deal new hand
     async function dealNewHand() {
+      console.log('[dealNewHand] START');
       // Verify API is available before starting
       if (!engineAvailable) {
+        console.log('[dealNewHand] Engine not available');
         showEngineError();
         return;
       }
@@ -716,11 +740,25 @@ import BettingControls from '../components/poker/BettingControls.astro';
         dealerPosition: secureRandom(GAME_CONFIG.playerCount)
       });
 
+      console.log('[dealNewHand] After deal:', {
+        currentPlayerIndex: gameState.currentPlayerIndex,
+        handComplete: gameState.handComplete,
+        players: gameState.players.map(p => ({ name: p.name, isHuman: p.isHuman, folded: p.folded }))
+      });
+
       try {
         setAIThinking(true);
+        console.log('[dealNewHand] Calling processInitialAITurns...');
         await processInitialAITurns(gameState);
+        console.log('[dealNewHand] After processInitialAITurns:', {
+          handComplete: gameState.handComplete,
+          winners: gameState.winners,
+          activePlayerCount: gameState.activePlayerCount,
+          players: gameState.players.map(p => ({ name: p.name, folded: p.folded }))
+        });
         setAIThinking(false);
       } catch (error) {
+        console.error('[dealNewHand] ERROR:', error);
         setAIThinking(false);
         if (error instanceof EngineUnavailableError) {
           engineAvailable = false;
@@ -732,16 +770,25 @@ import BettingControls from '../components/poker/BettingControls.astro';
         throw error;
       }
 
+      console.log('[dealNewHand] Checking state:', {
+        pendingReveal: gameState.pendingReveal,
+        handComplete: gameState.handComplete,
+        winners: gameState.winners
+      });
+
       if (gameState.pendingReveal) {
+        console.log('[dealNewHand] Branch: pendingReveal');
         updateGameDisplay();
         renderPlayers();
         await handlePendingReveal(gameState);
       } else if (gameState.handComplete && gameState.winners?.length) {
         // Everyone folded during initial AI turns
+        console.log('[dealNewHand] Branch: handComplete with winners - showing win message');
         updateGameDisplay();
         renderPlayers();
         showWinMessage(gameState);
       } else {
+        console.log('[dealNewHand] Branch: normal game continues');
         updateGameDisplay();
         renderPlayers();
       }

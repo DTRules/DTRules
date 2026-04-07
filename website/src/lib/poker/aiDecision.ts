@@ -281,27 +281,42 @@ async function processAllAITurnsImpl(
   onAction?: (result: AIActionResult) => void,
   delayMs: { min: number; max: number } = { min: 500, max: 1500 }
 ): Promise<void> {
+  console.log('[processAllAITurnsImpl] START', {
+    currentPlayerIndex: game.currentPlayerIndex,
+    handComplete: game.handComplete
+  });
   const maxIterations = game.players.length * 10; // Safety limit
 
   for (let i = 0; i < maxIterations && !game.handComplete; i++) {
+    console.log(`[processAllAITurnsImpl] Iteration ${i}:`, {
+      currentPlayerIndex: game.currentPlayerIndex,
+      handComplete: game.handComplete,
+      pendingReveal: game.pendingReveal
+    });
+
     // Check for pending reveal (street transition)
     if (game.pendingReveal) {
+      console.log('[processAllAITurnsImpl] Breaking: pendingReveal');
       break;
     }
 
     if (game.currentPlayerIndex < 0 || game.currentPlayerIndex >= game.players.length) {
+      console.log('[processAllAITurnsImpl] Breaking: invalid currentPlayerIndex');
       break;
     }
 
     const currentPlayer = game.players[game.currentPlayerIndex];
+    console.log('[processAllAITurnsImpl] Current player:', currentPlayer.name, { isHuman: currentPlayer.isHuman, folded: currentPlayer.folded });
 
     // Stop if human's turn
     if (currentPlayer.isHuman) {
+      console.log('[processAllAITurnsImpl] Breaking: human turn');
       break;
     }
 
     // Skip folded/all-in
     if (currentPlayer.folded || currentPlayer.allIn) {
+      console.log('[processAllAITurnsImpl] Skipping folded/allin player');
       advanceToNextPlayer(game);
       continue;
     }
@@ -329,10 +344,12 @@ async function processAllAITurnsImpl(
     // Get AI decision from Go engine
     let action: PokerAction;
     try {
+      console.log('[processAllAITurnsImpl] Calling makeAIDecisionAsync for', currentPlayer.name);
       action = await makeAIDecisionAsync(currentPlayer, game, handStrength);
+      console.log('[processAllAITurnsImpl] AI decision:', action.actionType);
     } catch (error) {
       // On API error, use safe default action (check if possible, fold otherwise)
-      console.error('AI decision failed:', error);
+      console.error('[processAllAITurnsImpl] AI decision failed:', error);
       const toCall = game.currentBet - currentPlayer.currentBet;
       action = {
         playerId: currentPlayer.id,
@@ -342,7 +359,13 @@ async function processAllAITurnsImpl(
     }
 
     // Process action
+    console.log('[processAllAITurnsImpl] Processing action:', action.actionType);
     let result = processPokerAction(game, action);
+    console.log('[processAllAITurnsImpl] After processPokerAction:', {
+      valid: result.valid,
+      handComplete: game.handComplete,
+      winners: game.winners
+    });
     if (!result.valid) {
       // Fallback to check/fold
       if (game.currentBet <= currentPlayer.currentBet) {
@@ -384,9 +407,16 @@ async function processAllAITurnsImpl(
 
     // Check for pending reveal after action
     if (game.pendingReveal) {
+      console.log('[processAllAITurnsImpl] Breaking: pendingReveal after action');
       break;
     }
   }
+  console.log('[processAllAITurnsImpl] END', {
+    handComplete: game.handComplete,
+    winners: game.winners,
+    pendingReveal: game.pendingReveal,
+    currentPlayerIndex: game.currentPlayerIndex
+  });
 }
 
 /**
@@ -395,20 +425,40 @@ async function processAllAITurnsImpl(
  * Now async since all AI decisions go through the Go API
  */
 export async function processInitialAITurns(game: PokerGame): Promise<void> {
+  console.log('[processInitialAITurns] START', {
+    currentPlayerIndex: game.currentPlayerIndex,
+    handComplete: game.handComplete,
+    players: game.players.map(p => ({ name: p.name, isHuman: p.isHuman, folded: p.folded }))
+  });
   const maxIterations = game.players.length * 10;
 
   for (let i = 0; i < maxIterations && !game.handComplete; i++) {
-    if (game.pendingReveal) break;
+    console.log(`[processInitialAITurns] Iteration ${i}:`, {
+      currentPlayerIndex: game.currentPlayerIndex,
+      handComplete: game.handComplete,
+      pendingReveal: game.pendingReveal
+    });
+
+    if (game.pendingReveal) {
+      console.log('[processInitialAITurns] Breaking: pendingReveal');
+      break;
+    }
 
     if (game.currentPlayerIndex < 0 || game.currentPlayerIndex >= game.players.length) {
+      console.log('[processInitialAITurns] Breaking: invalid currentPlayerIndex');
       break;
     }
 
     const currentPlayer = game.players[game.currentPlayerIndex];
+    console.log('[processInitialAITurns] Current player:', currentPlayer.name, { isHuman: currentPlayer.isHuman, folded: currentPlayer.folded });
 
-    if (currentPlayer.isHuman) break;
+    if (currentPlayer.isHuman) {
+      console.log('[processInitialAITurns] Breaking: human turn');
+      break;
+    }
 
     if (currentPlayer.folded || currentPlayer.allIn) {
+      console.log('[processInitialAITurns] Skipping folded/allin player');
       advanceToNextPlayer(game);
       continue;
     }
@@ -432,10 +482,12 @@ export async function processInitialAITurns(game: PokerGame): Promise<void> {
     // Get AI decision from Go engine
     let action: PokerAction;
     try {
+      console.log('[processInitialAITurns] Calling makeAIDecisionAsync for', currentPlayer.name);
       action = await makeAIDecisionAsync(currentPlayer, game, handStrength);
+      console.log('[processInitialAITurns] AI decision:', action.actionType);
     } catch (error) {
       // On API error, use safe default action (check if possible, fold otherwise)
-      console.error('Initial AI decision failed:', error);
+      console.error('[processInitialAITurns] AI decision failed:', error);
       const toCall = game.currentBet - currentPlayer.currentBet;
       action = {
         playerId: currentPlayer.id,
@@ -445,7 +497,14 @@ export async function processInitialAITurns(game: PokerGame): Promise<void> {
     }
 
     // Process action
+    console.log('[processInitialAITurns] Processing action:', action.actionType);
     let result = processPokerAction(game, action);
+    console.log('[processInitialAITurns] After processPokerAction:', {
+      valid: result.valid,
+      handComplete: game.handComplete,
+      winners: game.winners
+    });
+
     if (!result.valid) {
       if (game.currentBet <= currentPlayer.currentBet) {
         action.actionType = 'check';
@@ -456,8 +515,16 @@ export async function processInitialAITurns(game: PokerGame): Promise<void> {
       processPokerAction(game, action);
     }
 
-    if (game.pendingReveal) break;
+    if (game.pendingReveal) {
+      console.log('[processInitialAITurns] Breaking: pendingReveal after action');
+      break;
+    }
   }
+  console.log('[processInitialAITurns] END', {
+    handComplete: game.handComplete,
+    winners: game.winners,
+    players: game.players.map(p => ({ name: p.name, folded: p.folded }))
+  });
 }
 
 // Keep old name for backwards compatibility but mark deprecated
