@@ -774,14 +774,16 @@ func (s *Syncer) exportXMLToExcel(pair *FilePair) error {
 			pair.XMLPath, pair.ExcelPath)
 	}
 
-	// ENFORCEMENT: Check if Excel was modified since last export
+	// ENFORCEMENT: Check if Excel was modified since last export (skip with prefer-xml)
 	m, err := s.GetManifest()
 	if err != nil {
 		return fmt.Errorf("failed to load manifest: %w", err)
 	}
 
-	if err := m.ExportGuard(pair.ExcelPath); err != nil {
-		return err // Returns ExcelModifiedError if user modified Excel
+	if s.options.ConflictResolution != "prefer-xml" {
+		if err := m.ExportGuard(pair.ExcelPath); err != nil {
+			return err // Returns ExcelModifiedError if user modified Excel
+		}
 	}
 
 	// Ensure parent directory exists
@@ -1141,14 +1143,16 @@ func (s *Syncer) exportCombinedWorkbook(wb *CombinedWorkbook) error {
 		return fmt.Errorf("Excel exporter not configured (stub: export to %s)", wb.ExcelPath)
 	}
 
-	// ENFORCEMENT: Check if Excel was modified since last export
+	// ENFORCEMENT: Check if Excel was modified since last export (skip with prefer-xml)
 	m, err := s.GetManifest()
 	if err != nil {
 		return fmt.Errorf("failed to load manifest: %w", err)
 	}
 
-	if err := m.ExportGuard(wb.ExcelPath); err != nil {
-		return err // Returns ExcelModifiedError if user modified Excel
+	if s.options.ConflictResolution != "prefer-xml" {
+		if err := m.ExportGuard(wb.ExcelPath); err != nil {
+			return err // Returns ExcelModifiedError if user modified Excel
+		}
 	}
 
 	// Ensure parent directory exists

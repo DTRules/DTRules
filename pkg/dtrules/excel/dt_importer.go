@@ -743,7 +743,22 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 				currentSection = "policy"
 
 			case "policy":
-				// Policy row: empty, "Column Policy", empty, col1_stmt, col2_stmt, ...
+				// New format: column number in A, policy text in B (one row per policy)
+				if firstCell != "" {
+					if _, err := strconv.Atoi(firstCell); err == nil && len(row) > 1 {
+						desc := strings.TrimSpace(safeGet(row, 1))
+						if desc != "" {
+							policy := PolicyStatementXML{
+								Column:      firstCell,
+								Description: desc,
+								Postfix:     fmt.Sprintf(`"%s"`, desc),
+							}
+							table.PolicyStatements = append(table.PolicyStatements, policy)
+						}
+						continue
+					}
+				}
+				// Old format: empty A, "Column Policy" in B, statements in D, E, F...
 				if len(row) > 3 {
 					for col := 3; col < len(row); col++ {
 						val := strings.TrimSpace(row[col])
@@ -757,7 +772,9 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 						}
 					}
 				}
-				currentSection = ""
+				if len(row) == 0 || firstCell == "" {
+					currentSection = ""
+				}
 			}
 		}
 

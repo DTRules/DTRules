@@ -31,6 +31,7 @@ type CLI struct {
 	xmlDir   string
 	excelDir string
 	verbose  bool
+	force    bool
 
 	// Sync components
 	syncer   *sync.Syncer
@@ -191,6 +192,8 @@ func (c *CLI) runSync(args []string) int {
 			}
 		case "-v", "--verbose":
 			c.verbose = true
+		case "-f", "--force":
+			c.force = true
 		default:
 			// Not a flag - must be the subcommand
 			if !strings.HasPrefix(args[i], "-") && subcmd == "" {
@@ -250,6 +253,7 @@ Commands:
 Options:
   --xml-dir      Directory containing XML files (default: ./xml)
   --excel-dir    Directory containing Excel files (default: ./excel)
+  -f, --force    Force export even if Excel files have pending edits
   -v, --verbose  Verbose output
 
 Examples:
@@ -271,6 +275,9 @@ func (c *CLI) initSyncer() error {
 	// Create syncer
 	opts := sync.DefaultOptions()
 	opts.Verbose = c.verbose
+	if c.force {
+		opts.ConflictResolution = "prefer-xml"
+	}
 	c.syncer = sync.NewSyncerWithOptions(c.xmlDir, c.excelDir, opts)
 
 	// Set up importer (combined workbook mode)
@@ -409,20 +416,24 @@ func (c *CLI) syncImport() int {
 
 // syncExport exports XML files to Excel.
 func (c *CLI) syncExport() int {
-	// First check for pending user edits
+	// Check for pending user edits (skip with --force)
 	modified, err := c.syncer.CheckExcelModified()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error checking modifications: %v\n", err)
 		return 1
 	}
 
-	if len(modified) > 0 {
+	if len(modified) > 0 && !c.force {
 		fmt.Fprintf(os.Stderr, "ERROR: Cannot export - Excel files have pending user edits:\n")
 		for _, f := range modified {
 			fmt.Fprintf(os.Stderr, "  %s\n", f)
 		}
-		fmt.Fprintf(os.Stderr, "\nUser changes would be lost. Run 'dtrules sync import' first.\n")
+		fmt.Fprintf(os.Stderr, "\nUser changes would be lost. Run 'dtrules sync import' first,\nor use --force to overwrite Excel files.\n")
 		return 1
+	}
+
+	if len(modified) > 0 {
+		fmt.Printf("Overwriting %d Excel file(s) with pending edits (--force).\n", len(modified))
 	}
 
 	fmt.Println("Exporting XML to Excel...")
