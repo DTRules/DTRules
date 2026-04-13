@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has unreported tips</condition_comment>
-<condition_dsl>Has unreported tips</condition_dsl>
+<condition_dsl>Taxpayer has unreported tip income</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.unreported_tips_tax = unreported_tips * fica_rate</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.unreported_tips_tax = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

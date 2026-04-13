@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has any IRA contribution</condition_comment>
-<condition_dsl>Has any IRA contribution</condition_dsl>
+<condition_dsl>taxpayer has IRA contributions</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>add contribution.amount to result.eligible_contributions (up to limit)</action_dsl>
 <action_postfix>
 
 </action_postfix>

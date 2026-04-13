@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>State has income tax</condition_comment>
-<condition_dsl>State has income tax</condition_dsl>
+<condition_dsl>job.has_state_income_tax == true</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Total SALT exceeds effective cap</condition_comment>
-<condition_dsl>Total SALT exceeds effective cap</condition_dsl>
+<condition_dsl>salt_total &gt; effective_salt_cap</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -43,7 +43,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Apply SALT cap with state income tax</action_comment>
-<action_dsl>Apply SALT cap with state income tax</action_dsl>
+<action_dsl>set result.salt_deduction = salt_cap</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -52,7 +52,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No state income tax, apply cap if needed</action_comment>
-<action_dsl>No state income tax, apply cap if needed</action_dsl>
+<action_dsl>perform Calculate_DE_Tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -61,7 +61,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Full SALT with state income tax (under cap)</action_comment>
-<action_dsl>Full SALT with state income tax (under cap)</action_dsl>
+<action_dsl>set result.salt_deduction = salt_cap</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -70,7 +70,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Full SALT no state income tax (under cap)</action_comment>
-<action_dsl>Full SALT no state income tax (under cap)</action_dsl>
+<action_dsl>set result.salt_deduction = salt_total</action_dsl>
 <action_postfix>
 
 </action_postfix>

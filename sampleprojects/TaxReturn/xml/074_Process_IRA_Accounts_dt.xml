@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has IRA account to process</condition_comment>
-<condition_dsl>Has IRA account to process</condition_dsl>
+<condition_dsl>IRA account exists in context</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -32,7 +32,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Is traditional IRA</condition_comment>
-<condition_dsl>Is traditional IRA</condition_dsl>
+<condition_dsl>Account type is traditional</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -43,7 +43,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>for all IRA accounts perform Process_IRA_Basis</action_dsl>
 <action_postfix>
 
 </action_postfix>

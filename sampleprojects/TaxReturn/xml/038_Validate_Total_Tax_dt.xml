@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Total tax matches expected</condition_comment>
-<condition_dsl>Total tax matches expected</condition_dsl>
+<condition_dsl>total_tax_difference &lt;= 1.0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Total tax validation passed</action_comment>
-<action_dsl>Total tax validation passed</action_dsl>
+<action_dsl>add total tax pass message to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Total tax validation failed</action_comment>
-<action_dsl>Total tax validation failed</action_dsl>
+<action_dsl>add total tax mismatch to job.audit_trail, set result.validation_passed = false</action_dsl>
 <action_postfix>
 
 </action_postfix>

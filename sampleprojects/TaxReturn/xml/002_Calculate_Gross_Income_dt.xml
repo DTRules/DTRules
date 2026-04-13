@@ -27,7 +27,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always execute</condition_comment>
-<condition_dsl>Always execute</condition_dsl>
+<condition_dsl>perform when called</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Process W-2 income for all taxpayers</action_comment>
-<action_dsl>Process W-2 income for all taxpayers</action_dsl>
+<action_dsl>perform Process_W2_Income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -47,7 +47,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Process self-employment income (Schedule C)</action_comment>
-<action_dsl>Process self-employment income (Schedule C)</action_dsl>
+<action_dsl>perform Process_Self_Employment</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -56,7 +56,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Process rental income (Schedule E)</action_comment>
-<action_dsl>Process rental income (Schedule E)</action_dsl>
+<action_dsl>perform Process_Rental_Income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -65,7 +65,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Process other income (pension, interest, dividends)</action_comment>
-<action_dsl>Process other income (pension, interest, dividends)</action_dsl>
+<action_dsl>perform Process_Other_Income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -74,7 +74,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>Process capital gains and qualified dividends</action_comment>
-<action_dsl>Process capital gains and qualified dividends</action_dsl>
+<action_dsl>perform Process_Capital_Gains</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -83,7 +83,7 @@
 <action_details>
 <action_number>6</action_number>
 <action_comment>Process Schedule K-1 income (partnerships, S-corps, trusts)</action_comment>
-<action_dsl>Process Schedule K-1 income (partnerships, S-corps, trusts)</action_dsl>
+<action_dsl>perform Process_K1_Income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -92,7 +92,7 @@
 <action_details>
 <action_number>7</action_number>
 <action_comment>Process IRA accounts (Form 8606)</action_comment>
-<action_dsl>Process IRA accounts (Form 8606)</action_dsl>
+<action_dsl>perform Process_IRA_Accounts</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -101,7 +101,7 @@
 <action_details>
 <action_number>8</action_number>
 <action_comment>Process Schedule F farm income</action_comment>
-<action_dsl>Process Schedule F farm income</action_dsl>
+<action_dsl>perform Process_Farm_Income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -110,7 +110,7 @@
 <action_details>
 <action_number>9</action_number>
 <action_comment>Process Form 4797 business property sales</action_comment>
-<action_dsl>Process Form 4797 business property sales</action_dsl>
+<action_dsl>perform Process_Property_Sales</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -119,7 +119,7 @@
 <action_details>
 <action_number>10</action_number>
 <action_comment>Process Form 1116 foreign income</action_comment>
-<action_dsl>Process Form 1116 foreign income</action_dsl>
+<action_dsl>perform Process_Foreign_Income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -128,7 +128,7 @@
 <action_details>
 <action_number>11</action_number>
 <action_comment>Calculate total gross income FIRST (for OBBBA phase-out calculations)</action_comment>
-<action_dsl>Calculate total gross income FIRST (for OBBBA phase-out calculations)</action_dsl>
+<action_dsl>perform Process_Installment_Sales</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -137,7 +137,7 @@
 <action_details>
 <action_number>12</action_number>
 <action_comment>Calculate AGI adjustments (Schedule 1 Part II)</action_comment>
-<action_dsl>Calculate AGI adjustments (Schedule 1 Part II)</action_dsl>
+<action_dsl>perform Process_Like_Kind_Exchanges</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -146,7 +146,7 @@
 <action_details>
 <action_number>13</action_number>
 <action_comment>Calculate AGI</action_comment>
-<action_dsl>Calculate AGI</action_dsl>
+<action_dsl>set result.gross_income = result.total_w2_wages + result.total_se_income + result.total_rental_income + result.total_other_income + result.unemployment_compensation + result.gambling_winnings + result.alimony_received + result.state_tax_refund</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -155,7 +155,7 @@
 <action_details>
 <action_number>14</action_number>
 <action_comment>Calculate Social Security taxability after AGI is known</action_comment>
-<action_dsl>Calculate Social Security taxability after AGI is known</action_dsl>
+<action_dsl>perform Calculate_AGI_Adjustments</action_dsl>
 <action_postfix>
 
 </action_postfix>

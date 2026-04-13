@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has self-employment income for QBI</condition_comment>
-<condition_dsl>Has self-employment income for QBI</condition_dsl>
+<condition_dsl>perform when called</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate QBI deduction</action_comment>
-<action_dsl>Calculate QBI deduction</action_dsl>
+<action_dsl>perform Calculate_QBI_Deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No QBI deduction</action_comment>
-<action_dsl>No QBI deduction</action_dsl>
+<action_dsl>set result.qbi_deduction = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -47,7 +47,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate taxable income (floor at zero)</action_comment>
-<action_dsl>Calculate taxable income (floor at zero)</action_dsl>
+<action_dsl>set result.taxable_income = the maximum of (result.agi - result.total_deduction - result.qbi_deduction) and 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

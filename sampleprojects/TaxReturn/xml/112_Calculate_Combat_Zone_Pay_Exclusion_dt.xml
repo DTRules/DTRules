@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Served in combat zone</condition_comment>
-<condition_dsl>Served in combat zone</condition_dsl>
+<condition_dsl>taxpayer.combat_zone_service == true</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -26,7 +26,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Enlisted rank</condition_comment>
-<condition_dsl>Enlisted rank</condition_dsl>
+<condition_dsl>taxpayer.military_rank == &quot;enlisted&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>

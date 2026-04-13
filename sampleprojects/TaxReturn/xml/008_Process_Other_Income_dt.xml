@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has gross amount</condition_comment>
-<condition_dsl>Has gross amount</condition_dsl>
+<condition_dsl>income.gross_amount &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Add income to total other income</action_comment>
-<action_dsl>Add income to total other income</action_dsl>
+<action_dsl>add income.gross_amount to result.total_other_income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Track withholding</action_comment>
-<action_dsl>Track withholding</action_dsl>
+<action_dsl>add income.tax_withheld to result.total_payments</action_dsl>
 <action_postfix>
 
 </action_postfix>

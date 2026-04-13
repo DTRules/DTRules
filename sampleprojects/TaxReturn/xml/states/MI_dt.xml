@@ -37,7 +37,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly</condition_comment>
-<condition_dsl>Filing status is Married Filing Jointly</condition_dsl>
+<condition_dsl>job.state is not &quot;MI&quot;</condition_dsl>
 <condition_postfix>
 result.filing_status &quot;married_filing_jointly&quot; ==
 </condition_postfix>
@@ -75,7 +75,7 @@ true
 <action_details>
 <action_number>2</action_number>
 <action_comment>Married Filing Jointly: base exemption (2 x $5,800) + dependent exemptions</action_comment>
-<action_dsl>Married Filing Jointly: base exemption (2 x $5,800) + dependent exemptions</action_dsl>
+<action_dsl>set result.mi_state_tax = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

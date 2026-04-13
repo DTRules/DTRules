@@ -26,7 +26,7 @@ deallocate pop
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has earned income</condition_comment>
-<condition_dsl>Has earned income</condition_dsl>
+<condition_dsl>result.total_earned_income &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -43,7 +43,7 @@ deallocate pop
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>3+ qualifying children</condition_comment>
-<condition_dsl>3+ qualifying children</condition_dsl>
+<condition_dsl>EITC qualifying children 3 or more</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -60,7 +60,7 @@ deallocate pop
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>2 qualifying children</condition_comment>
-<condition_dsl>2 qualifying children</condition_dsl>
+<condition_dsl>result.eitc_qualifying_children == 2</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -77,7 +77,7 @@ deallocate pop
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>1 qualifying child</condition_comment>
-<condition_dsl>1 qualifying child</condition_dsl>
+<condition_dsl>result.eitc_qualifying_children == 1</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -94,7 +94,7 @@ deallocate pop
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>0 qualifying children</condition_comment>
-<condition_dsl>0 qualifying children</condition_dsl>
+<condition_dsl>result.eitc_qualifying_children == 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -111,7 +111,7 @@ deallocate pop
 <condition_details>
 <condition_number>6</condition_number>
 <condition_comment>AGI below phase-out threshold (3+ children)</condition_comment>
-<condition_dsl>AGI below phase-out threshold (3+ children)</condition_dsl>
+<condition_dsl>AGI at or below threshold for 3+ children</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -128,7 +128,7 @@ deallocate pop
 <condition_details>
 <condition_number>7</condition_number>
 <condition_comment>AGI below phase-out threshold (2 children)</condition_comment>
-<condition_dsl>AGI below phase-out threshold (2 children)</condition_dsl>
+<condition_dsl>AGI at or below threshold for 2 children</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -145,7 +145,7 @@ deallocate pop
 <condition_details>
 <condition_number>8</condition_number>
 <condition_comment>AGI below phase-out threshold (1 child)</condition_comment>
-<condition_dsl>AGI below phase-out threshold (1 child)</condition_dsl>
+<condition_dsl>AGI at or below threshold for 1 child</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -162,7 +162,7 @@ deallocate pop
 <condition_details>
 <condition_number>9</condition_number>
 <condition_comment>AGI below phase-out threshold (0 children)</condition_comment>
-<condition_dsl>AGI below phase-out threshold (0 children)</condition_dsl>
+<condition_dsl>AGI at or below threshold for 0 children</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -181,7 +181,7 @@ deallocate pop
 <action_details>
 <action_number>1</action_number>
 <action_comment>EITC 3+ children - full amount</action_comment>
-<action_dsl>EITC 3+ children - full amount</action_dsl>
+<action_dsl>set result.eitc = eitc_max_3_children</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -190,7 +190,7 @@ deallocate pop
 <action_details>
 <action_number>2</action_number>
 <action_comment>EITC 3+ children - phase-out</action_comment>
-<action_dsl>EITC 3+ children - phase-out</action_dsl>
+<action_dsl>EITC for 3+ children with phase-out per IRC 32</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -199,7 +199,7 @@ deallocate pop
 <action_details>
 <action_number>3</action_number>
 <action_comment>EITC 2 children - full amount</action_comment>
-<action_dsl>EITC 2 children - full amount</action_dsl>
+<action_dsl>set result.eitc = eitc_max_2_children</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -208,7 +208,7 @@ deallocate pop
 <action_details>
 <action_number>4</action_number>
 <action_comment>EITC 2 children - phase-out</action_comment>
-<action_dsl>EITC 2 children - phase-out</action_dsl>
+<action_dsl>EITC for 2 children with phase-out per IRC 32</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -217,7 +217,7 @@ deallocate pop
 <action_details>
 <action_number>5</action_number>
 <action_comment>EITC 1 child - full amount</action_comment>
-<action_dsl>EITC 1 child - full amount</action_dsl>
+<action_dsl>set result.eitc = eitc_max_1_child</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -226,7 +226,7 @@ deallocate pop
 <action_details>
 <action_number>6</action_number>
 <action_comment>EITC 1 child - phase-out</action_comment>
-<action_dsl>EITC 1 child - phase-out</action_dsl>
+<action_dsl>EITC for 1 child with phase-out per IRC 32</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -235,7 +235,7 @@ deallocate pop
 <action_details>
 <action_number>7</action_number>
 <action_comment>EITC 0 children - full amount</action_comment>
-<action_dsl>EITC 0 children - full amount</action_dsl>
+<action_dsl>set result.eitc = eitc_max_0_children</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -244,7 +244,7 @@ deallocate pop
 <action_details>
 <action_number>8</action_number>
 <action_comment>EITC 0 children - phase-out</action_comment>
-<action_dsl>EITC 0 children - phase-out</action_dsl>
+<action_dsl>EITC for 0 children with phase-out per IRC 32</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -253,7 +253,7 @@ deallocate pop
 <action_details>
 <action_number>9</action_number>
 <action_comment>No EITC - no earned income</action_comment>
-<action_dsl>No EITC - no earned income</action_dsl>
+<action_dsl>set result.eitc = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

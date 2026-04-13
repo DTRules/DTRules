@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always execute for each state period</condition_comment>
-<condition_dsl>Always execute for each state period</condition_dsl>
+<condition_dsl>taxpayer.energy_efficient_appliances_produced &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -34,7 +34,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate days in state</action_comment>
-<action_dsl>Calculate days in state</action_dsl>
+<action_dsl>Calculate days between start_date and end_date</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -43,7 +43,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate allocation percentage</action_comment>
-<action_dsl>Calculate allocation percentage</action_dsl>
+<action_dsl>Calculate allocation percentage based on days in state</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -52,7 +52,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Allocate income for this state</action_comment>
-<action_dsl>Allocate income for this state</action_dsl>
+<action_dsl>Allocate income to this state based on state_code match or allocation percentage</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -61,7 +61,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Log allocation results</action_comment>
-<action_dsl>Log allocation results</action_dsl>
+<action_dsl>Log the allocation results for audit trail</action_dsl>
 <action_postfix>
 
 </action_postfix>

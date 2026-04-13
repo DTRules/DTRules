@@ -26,7 +26,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_dsl>Married Filing Jointly</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;MFJ&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -35,7 +35,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Single filer</condition_comment>
-<condition_dsl>Single filer</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;Single&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -44,7 +44,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Head of Household</condition_comment>
-<condition_dsl>Head of Household</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;HOH&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -53,7 +53,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Default case</condition_comment>
-<condition_dsl>Default case</condition_dsl>
+<condition_dsl>otherwise</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -64,7 +64,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <action_details>
 <action_number>1</action_number>
 <action_comment>Log filing status per Form 1040 Line 1</action_comment>
-<action_dsl>Log filing status per Form 1040 Line 1</action_dsl>
+<action_dsl>add &quot;Filing as MFJ per Form 1040 Line 1&quot; to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -73,7 +73,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Log Single filing status</action_comment>
-<action_dsl>Log Single filing status</action_dsl>
+<action_dsl>add &quot;Filing as Single per Form 1040 Line 1&quot; to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -82,7 +82,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Log HOH filing status</action_comment>
-<action_dsl>Log HOH filing status</action_dsl>
+<action_dsl>add &quot;Filing as HOH per Form 1040 Line 1&quot; to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -91,7 +91,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <action_details>
 <action_number>4</action_number>
 <action_comment>Log MFS or QSS status</action_comment>
-<action_dsl>Log MFS or QSS status</action_dsl>
+<action_dsl>add &quot;Filing as &quot; + job.filing_status + &quot; per Form 1040&quot; to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -100,7 +100,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <action_details>
 <action_number>5</action_number>
 <action_comment>Calculate gross income (Form 1040 Lines 1-9)</action_comment>
-<action_dsl>Calculate gross income (Form 1040 Lines 1-9)</action_dsl>
+<action_dsl>perform Calculate_Gross_Income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -112,7 +112,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <action_details>
 <action_number>6</action_number>
 <action_comment>Calculate deductions (Form 1040 Line 12)</action_comment>
-<action_dsl>Calculate deductions (Form 1040 Line 12)</action_dsl>
+<action_dsl>perform Validate_AGI</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -124,7 +124,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <action_details>
 <action_number>7</action_number>
 <action_comment>Calculate taxable income (Form 1040 Line 15)</action_comment>
-<action_dsl>Calculate taxable income (Form 1040 Line 15)</action_dsl>
+<action_dsl>perform Calculate_Deductions</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -136,7 +136,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <action_details>
 <action_number>8</action_number>
 <action_comment>Calculate tax liability (Form 1040 Lines 16-24)</action_comment>
-<action_dsl>Calculate tax liability (Form 1040 Lines 16-24)</action_dsl>
+<action_dsl>perform Calculate_Taxable_Income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -148,7 +148,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <action_details>
 <action_number>9</action_number>
 <action_comment>Calculate Alternative Minimum Tax (Form 6251)</action_comment>
-<action_dsl>Calculate Alternative Minimum Tax (Form 6251)</action_dsl>
+<action_dsl>perform Validate_Taxable_Income</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -160,7 +160,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <action_details>
 <action_number>10</action_number>
 <action_comment>Calculate kiddie tax for dependents with unearned income (Form 8615)</action_comment>
-<action_dsl>Calculate kiddie tax for dependents with unearned income (Form 8615)</action_dsl>
+<action_dsl>perform Calculate_Tax_Liability</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -172,7 +172,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <action_details>
 <action_number>11</action_number>
 <action_comment>Calculate credits (Form 1040 Lines 19-21)</action_comment>
-<action_dsl>Calculate credits (Form 1040 Lines 19-21)</action_dsl>
+<action_dsl>perform Validate_Total_Tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -184,7 +184,7 @@ no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
 <action_details>
 <action_number>12</action_number>
 <action_comment>Calculate final balance (Form 1040 Lines 33-37)</action_comment>
-<action_dsl>Calculate final balance (Form 1040 Lines 33-37)</action_dsl>
+<action_dsl>perform Calculate_AMT</action_dsl>
 <action_postfix>
 
 </action_postfix>

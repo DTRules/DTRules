@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>SE net profit meets threshold for SE tax</condition_comment>
-<condition_dsl>SE net profit meets threshold for SE tax</condition_dsl>
+<condition_dsl>taxpayer.se_net_profit &gt;= se_threshold</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate SE tax with proper SS wage base cap and Medicare component</action_comment>
-<action_dsl>Calculate SE tax with proper SS wage base cap and Medicare component</action_dsl>
+<action_dsl>set taxpayer.se_tax = taxpayer.se_net_profit * se_income_multiplier * se_tax_rate</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No SE tax required - net profit below threshold</action_comment>
-<action_dsl>No SE tax required - net profit below threshold</action_dsl>
+<action_dsl>set taxpayer.se_tax = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

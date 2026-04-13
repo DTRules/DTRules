@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has child relationship</condition_comment>
-<condition_dsl>Has child relationship</condition_dsl>
+<condition_dsl>relationship is &quot;child&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -37,7 +37,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Meets residency test</condition_comment>
-<condition_dsl>Meets residency test</condition_dsl>
+<condition_dsl>months_lived_with &gt; 6</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -49,7 +49,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Increment counter</action_comment>
-<action_dsl>Increment counter</action_dsl>
+<action_dsl>increment qualifying children count</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -58,7 +58,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Skip non-qualifying</action_comment>
-<action_dsl>Skip non-qualifying</action_dsl>
+<action_dsl>otherwise</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Single filer, AGI ≤ $125k; Single AND AGI ≤ $125,000</condition_comment>
-<condition_dsl>Single filer, AGI ≤ $125k; Single AND AGI ≤ $125,000</condition_dsl>
+<condition_dsl>military_retirement_pay &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -135,7 +135,7 @@ Joint/HOH AND AGI &lt;= $101,492
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly or Head of Household; Filing Status is MFJ or HOH</condition_comment>
-<condition_dsl>Filing status is Married Filing Jointly or Head of Household; Filing Status is MFJ or HOH</condition_dsl>
+<condition_dsl>Filing Status is Single</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>

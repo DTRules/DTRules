@@ -45,7 +45,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married filing jointly</condition_comment>
-<condition_dsl>Married filing jointly</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;married_filing_jointly&quot;</condition_dsl>
 <condition_postfix>
 filing_status == &quot;MFJ&quot;
 </condition_postfix>
@@ -53,7 +53,7 @@ filing_status == &quot;MFJ&quot;
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Head of household</condition_comment>
-<condition_dsl>Head of household</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;single&quot;</condition_dsl>
 <condition_postfix>
 filing_status == &quot;HOH&quot;
 </condition_postfix>
@@ -61,7 +61,7 @@ filing_status == &quot;HOH&quot;
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Married filing separately</condition_comment>
-<condition_dsl>Married filing separately</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;head_of_household&quot;</condition_dsl>
 <condition_postfix>
 filing_status == &quot;MFS&quot;
 </condition_postfix>

@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl>Calculate_Standard_Deduction</action_dsl>
+<action_dsl>perform Calculate_Standard_Deduction</action_dsl>
 <action_postfix>
 &quot;DEDUCTIONS (Form 1040 Line 12)&quot; job.audit_trail swap addto
 /Calculate_Standard_Deduction executetable
@@ -25,7 +25,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Itemized deductions exceed standard deduction</condition_comment>
-<condition_dsl>Itemized deductions exceed standard deduction</condition_dsl>
+<condition_dsl>result.total_itemized &gt; result.standard_deduction</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -37,7 +37,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Use itemized deductions</action_comment>
-<action_dsl>Use itemized deductions</action_dsl>
+<action_dsl>set result.deduction_used = result.total_itemized</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -46,7 +46,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Use standard deduction</action_comment>
-<action_dsl>Use standard deduction</action_dsl>
+<action_dsl>set result.deduction_used = result.standard_deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>

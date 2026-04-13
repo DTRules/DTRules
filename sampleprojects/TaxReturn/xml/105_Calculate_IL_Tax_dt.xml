@@ -25,7 +25,7 @@ result.agi /result.il_agi xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Calculate number of people</condition_comment>
-<condition_dsl>Calculate number of people</condition_dsl>
+<condition_dsl>Count taxpayers and dependents</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -37,7 +37,7 @@ result.agi /result.il_agi xdef
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate IL tax with exemptions</action_comment>
-<action_dsl>Calculate IL tax with exemptions</action_dsl>
+<action_dsl>Calculate Illinois AGI, apply exemptions, calculate tax at 4.95%</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -46,7 +46,7 @@ result.agi /result.il_agi xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>No exemptions - unlikely case</action_comment>
-<action_dsl>No exemptions - unlikely case</action_dsl>
+<action_dsl>Calculate IL tax without exemptions</action_dsl>
 <action_postfix>
 
 </action_postfix>

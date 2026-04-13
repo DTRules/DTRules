@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Subject to penalty</condition_comment>
-<condition_dsl>Subject to penalty</condition_dsl>
+<condition_dsl>Early distribution with no exception</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.early_withdrawal_penalty = distribution.amount * 0.10</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.early_withdrawal_penalty = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

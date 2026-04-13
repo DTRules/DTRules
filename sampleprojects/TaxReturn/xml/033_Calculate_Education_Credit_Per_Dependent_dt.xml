@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Is college student</condition_comment>
-<condition_dsl>Is college student</condition_dsl>
+<condition_dsl>dependent.is_college_student == true</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -30,7 +30,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Eligible for AOTC (years 1-4, not exhausted)</condition_comment>
-<condition_dsl>Eligible for AOTC (years 1-4, not exhausted)</condition_dsl>
+<condition_dsl>dependent.college_year &gt;= 1 and dependent.college_year &lt;= 4 and dependent.aotc_used_years &lt; 4</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -43,7 +43,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>AGI in AOTC phase-out range</condition_comment>
-<condition_dsl>AGI in AOTC phase-out range</condition_dsl>
+<condition_dsl>result.agi &gt; aotc_phase_out_mfj</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -56,7 +56,7 @@
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>AGI in LLC phase-out range</condition_comment>
-<condition_dsl>AGI in LLC phase-out range</condition_dsl>
+<condition_dsl>result.agi &gt; llc_phase_out_mfj</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -71,7 +71,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate AOTC (full amount)</action_comment>
-<action_dsl>Calculate AOTC (full amount)</action_dsl>
+<action_dsl>AOTC: 100% of first $2000 + 25% of next $2000</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -80,7 +80,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate AOTC with phase-out</action_comment>
-<action_dsl>Calculate AOTC with phase-out</action_dsl>
+<action_dsl>AOTC with AGI phase-out reduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -89,7 +89,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate LLC (full amount)</action_comment>
-<action_dsl>Calculate LLC (full amount)</action_dsl>
+<action_dsl>LLC: 20% of qualified expenses up to $2000</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -98,7 +98,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate LLC with phase-out</action_comment>
-<action_dsl>Calculate LLC with phase-out</action_dsl>
+<action_dsl>LLC with AGI phase-out reduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -107,7 +107,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>Not a college student</action_comment>
-<action_dsl>Not a college student</action_dsl>
+<action_dsl>otherwise</action_dsl>
 <action_postfix>
 
 </action_postfix>

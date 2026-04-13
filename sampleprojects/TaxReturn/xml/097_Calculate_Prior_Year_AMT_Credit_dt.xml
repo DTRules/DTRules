@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Credit available</condition_comment>
-<condition_dsl>Credit available</condition_dsl>
+<condition_dsl>Prior year AMT credit is available</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.amt_credit_used = the minimum of available_credit and (regular_tax - tentative_minimum_tax)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.amt_credit_used = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

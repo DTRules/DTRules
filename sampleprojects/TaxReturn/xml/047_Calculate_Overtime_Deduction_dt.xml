@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has overtime income</condition_comment>
-<condition_dsl>Has overtime income</condition_dsl>
+<condition_dsl>result.total_overtime_income &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -30,7 +30,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_dsl>Married Filing Jointly</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;MFJ&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -43,7 +43,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>MFJ income below phase-out threshold ($300k)</condition_comment>
-<condition_dsl>MFJ income below phase-out threshold ($300k)</condition_dsl>
+<condition_dsl>gross income below MFJ overtime phase-out threshold</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -56,7 +56,7 @@
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Single income below phase-out threshold ($150k)</condition_comment>
-<condition_dsl>Single income below phase-out threshold ($150k)</condition_dsl>
+<condition_dsl>gross income below Single overtime phase-out threshold</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -71,7 +71,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Full overtime deduction MFJ (below phase-out)</action_comment>
-<action_dsl>Full overtime deduction MFJ (below phase-out)</action_dsl>
+<action_dsl>set result.overtime_deduction = the minimum of result.total_overtime_income and constants.overtime_deduction_max_joint</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -80,7 +80,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Full overtime deduction Single (below phase-out)</action_comment>
-<action_dsl>Full overtime deduction Single (below phase-out)</action_dsl>
+<action_dsl>set result.overtime_deduction = the minimum of result.total_overtime_income and constants.overtime_deduction_max_single</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -89,7 +89,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Overtime deduction phased out (high income)</action_comment>
-<action_dsl>Overtime deduction phased out (high income)</action_dsl>
+<action_dsl>set result.overtime_deduction = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -99,7 +99,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>No overtime income</action_comment>
-<action_dsl>No overtime income</action_dsl>
+<action_dsl>set result.overtime_deduction = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

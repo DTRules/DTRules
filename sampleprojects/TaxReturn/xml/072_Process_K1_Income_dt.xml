@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has K-1 to process</condition_comment>
-<condition_dsl>Has K-1 to process</condition_dsl>
+<condition_dsl>K-1 entity exists in context</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -34,7 +34,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>add k1.income to appropriate category totals</action_dsl>
 <action_postfix>
 
 </action_postfix>

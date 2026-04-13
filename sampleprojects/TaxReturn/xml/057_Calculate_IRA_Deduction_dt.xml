@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has IRA contribution</condition_comment>
-<condition_dsl>Has IRA contribution</condition_dsl>
+<condition_dsl>taxpayer.traditional_ira_contribution &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -32,7 +32,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Covered by employer plan</condition_comment>
-<condition_dsl>Covered by employer plan</condition_dsl>
+<condition_dsl>taxpayer.covered_by_employer_plan == true</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -47,7 +47,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Age 50 or over (catchup eligible)</condition_comment>
-<condition_dsl>Age 50 or over (catchup eligible)</condition_dsl>
+<condition_dsl>taxpayer.age_50_or_over == true</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -62,7 +62,7 @@
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Married Filing Jointly (for phase-out)</condition_comment>
-<condition_dsl>Married Filing Jointly (for phase-out)</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;MFJ&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -79,7 +79,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Full IRA deduction with catchup (not covered, age 50+)</action_comment>
-<action_dsl>Full IRA deduction with catchup (not covered, age 50+)</action_dsl>
+<action_dsl>set taxpayer.ira_deduction = the minimum of contribution and ira_catchup_limit</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -88,7 +88,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Full IRA deduction no catchup (not covered, age under 50)</action_comment>
-<action_dsl>Full IRA deduction no catchup (not covered, age under 50)</action_dsl>
+<action_dsl>set taxpayer.ira_deduction = the minimum of contribution and ira_standard_limit</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -97,7 +97,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>IRA deduction with MFJ phase-out and catchup</action_comment>
-<action_dsl>IRA deduction with MFJ phase-out and catchup</action_dsl>
+<action_dsl>set taxpayer.ira_deduction = phased out deduction with catchup (MFJ)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -106,7 +106,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>IRA deduction with MFJ phase-out no catchup</action_comment>
-<action_dsl>IRA deduction with MFJ phase-out no catchup</action_dsl>
+<action_dsl>set taxpayer.ira_deduction = phased out deduction standard (MFJ)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -115,7 +115,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>IRA deduction with Single phase-out and catchup</action_comment>
-<action_dsl>IRA deduction with Single phase-out and catchup</action_dsl>
+<action_dsl>set taxpayer.ira_deduction = phased out deduction with catchup (Single)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -124,7 +124,7 @@
 <action_details>
 <action_number>6</action_number>
 <action_comment>IRA deduction with Single phase-out no catchup</action_comment>
-<action_dsl>IRA deduction with Single phase-out no catchup</action_dsl>
+<action_dsl>set taxpayer.ira_deduction = phased out deduction standard (Single)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -133,7 +133,7 @@
 <action_details>
 <action_number>7</action_number>
 <action_comment>No IRA contribution</action_comment>
-<action_dsl>No IRA contribution</action_dsl>
+<action_dsl>set taxpayer.ira_deduction = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

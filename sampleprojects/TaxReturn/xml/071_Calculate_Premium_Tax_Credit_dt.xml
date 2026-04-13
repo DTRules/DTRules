@@ -31,7 +31,7 @@ result.max_ptc job.advance_ptc_received f- /result.net_ptc xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has marketplace coverage</condition_comment>
-<condition_dsl>Has marketplace coverage</condition_dsl>
+<condition_dsl>job.has_marketplace_coverage == true</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -43,7 +43,7 @@ result.max_ptc job.advance_ptc_received f- /result.net_ptc xdef
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Eligible for PTC (FPL 100-400%)</condition_comment>
-<condition_dsl>Eligible for PTC (FPL 100-400%)</condition_dsl>
+<condition_dsl>FPL between 100 and 400</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -54,7 +54,7 @@ result.max_ptc job.advance_ptc_received f- /result.net_ptc xdef
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Net PTC is positive (credit owed)</condition_comment>
-<condition_dsl>Net PTC is positive (credit owed)</condition_dsl>
+<condition_dsl>result.net_ptc &gt;= 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -66,7 +66,7 @@ result.max_ptc job.advance_ptc_received f- /result.net_ptc xdef
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>add PTC summary to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -77,7 +77,7 @@ result.max_ptc job.advance_ptc_received f- /result.net_ptc xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>add result.premium_tax_credit to result.total_credits</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -86,7 +86,7 @@ result.max_ptc job.advance_ptc_received f- /result.net_ptc xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.ptc_repayment = excess_advance_ptc</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -95,7 +95,7 @@ result.max_ptc job.advance_ptc_received f- /result.net_ptc xdef
 <action_details>
 <action_number>4</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.ptc_repayment = total_advance_ptc</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -104,7 +104,7 @@ result.max_ptc job.advance_ptc_received f- /result.net_ptc xdef
 <action_details>
 <action_number>5</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.premium_tax_credit = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

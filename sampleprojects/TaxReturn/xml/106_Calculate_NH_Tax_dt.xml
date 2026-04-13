@@ -27,7 +27,7 @@ result.agi /result.nh_agi xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_dsl>Married Filing Jointly</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;married_filing_jointly&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -39,7 +39,7 @@ result.agi /result.nh_agi xdef
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate NH tax MFJ</action_comment>
-<action_dsl>Calculate NH tax MFJ</action_dsl>
+<action_dsl>Calculate NH tax with MFJ standard deduction and progressive brackets</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -48,7 +48,7 @@ result.agi /result.nh_agi xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate NH tax Single/other</action_comment>
-<action_dsl>Calculate NH tax Single/other</action_dsl>
+<action_dsl>Calculate NH tax with Single standard deduction and progressive brackets</action_dsl>
 <action_postfix>
 
 </action_postfix>

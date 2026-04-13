@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Is disaster loss (deductible)</condition_comment>
-<condition_dsl>Is disaster loss (deductible)</condition_dsl>
+<condition_dsl>Federally declared disaster</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.disaster_loss_deduction = (loss - $500 floor) - (10% of AGI)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.casualty_deduction = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

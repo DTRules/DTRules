@@ -45,7 +45,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly</condition_comment>
-<condition_dsl>Filing status is Married Filing Jointly</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;married_filing_jointly&quot;</condition_dsl>
 <condition_postfix>
 Filing Status is MFJ
 </condition_postfix>

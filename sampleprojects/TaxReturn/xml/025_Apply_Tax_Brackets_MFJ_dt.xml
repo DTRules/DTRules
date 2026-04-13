@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>In bracket 1 only</condition_comment>
-<condition_dsl>In bracket 1 only</condition_dsl>
+<condition_dsl>taxable_income at or below bracket_1_mfj</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -32,7 +32,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>In bracket 2</condition_comment>
-<condition_dsl>In bracket 2</condition_dsl>
+<condition_dsl>taxable_income at or below bracket_2_mfj</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -47,7 +47,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>In bracket 3</condition_comment>
-<condition_dsl>In bracket 3</condition_dsl>
+<condition_dsl>taxable_income at or below bracket_3_mfj</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -62,7 +62,7 @@
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>In bracket 4</condition_comment>
-<condition_dsl>In bracket 4</condition_dsl>
+<condition_dsl>taxable_income at or below bracket_4_mfj</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -109,7 +109,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Bracket 1 tax</action_comment>
-<action_dsl>Bracket 1 tax</action_dsl>
+<action_dsl>set result.regular_tax = result.taxable_income * bracket_1_rate</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -118,7 +118,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Bracket 2 tax</action_comment>
-<action_dsl>Bracket 2 tax</action_dsl>
+<action_dsl>set result.regular_tax = tax at bracket_1 + excess taxed at bracket_2_rate</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -127,7 +127,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Bracket 3 tax</action_comment>
-<action_dsl>Bracket 3 tax</action_dsl>
+<action_dsl>set result.regular_tax = tax at brackets 1-2 + excess taxed at bracket_3_rate</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -136,7 +136,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Bracket 4 tax</action_comment>
-<action_dsl>Bracket 4 tax</action_dsl>
+<action_dsl>set result.regular_tax = tax at brackets 1-3 + excess taxed at bracket_4_rate</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -145,7 +145,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>Bracket 5 tax</action_comment>
-<action_dsl>Bracket 5 tax</action_dsl>
+<action_dsl>set result.regular_tax = tax at brackets 1-4 + excess taxed at bracket_5_rate</action_dsl>
 <action_postfix>
 
 </action_postfix>
