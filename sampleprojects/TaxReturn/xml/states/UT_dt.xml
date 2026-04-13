@@ -1,62 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 42301: Calculate_UT_Military_Retirement_Exclusion -->
-<decision_table>
-<table_name>Calculate_UT_Military_Retirement_Exclusion</table_name>
-<xls_file>UT.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Utah military retirement exclusion calculation. UT allows up to $10,000 exemption on military retirement pay with income caps: Single $50k, Joint $65k AGI. Must choose between military retirement or Social Security exemption. Honors MSRRA and SCRA per federal law. Source: MOAA State Report Card.</COMMENTS>
-<TABLE_NUMBER>42301</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Single filer within AGI cap</condition_comment>
-<condition_dsl>Single filer within AGI cap</condition_dsl>
-<condition_postfix>
-filing_status == &quot;Single&quot; AND agi &lt;= $50,000
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
-<condition_comment>Joint filer within AGI cap</condition_comment>
-<condition_dsl>Joint filer within AGI cap</condition_dsl>
-<condition_postfix>
-filing_status == &quot;MFJ&quot; AND agi &lt;= $65,000
-</condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-</condition_details>
-</conditions>
-<actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>No exemption - exceeds AGI cap</action_comment>
-<action_dsl>No exemption - exceeds AGI cap</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>No military retirement pay - no exemption</action_comment>
-<action_dsl>No military retirement pay - no exemption</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
-
 <!-- TABLE 42300: Calculate_UT_Tax -->
 <decision_table>
 <table_name>Calculate_UT_Tax</table_name>
@@ -72,21 +16,10 @@ filing_status == &quot;MFJ&quot; AND agi &lt;= $65,000
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Married filing jointly</condition_comment>
-<condition_dsl>Married filing jointly</condition_dsl>
-<condition_postfix>
-Filing status is Married Filing Jointly
-</condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
 <condition_comment>Head of household</condition_comment>
-<condition_dsl>Head of household</condition_dsl>
+<condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
 <condition_postfix>
-Filing status is Head of Household
+Head of household
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -94,22 +27,36 @@ Filing status is Head of Household
 </condition_details>
 </conditions>
 <actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Calculate UT tax for joint filer</action_comment>
-<action_dsl>Calculate UT tax for joint filer</action_dsl>
-<action_postfix>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
 
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>Calculate UT tax for head of household</action_comment>
-<action_dsl>Calculate UT tax for head of household</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
+<!-- TABLE 42301: Calculate_UT_Military_Retirement_Exclusion -->
+<decision_table>
+<table_name>Calculate_UT_Military_Retirement_Exclusion</table_name>
+<xls_file>UT.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Utah military retirement exclusion calculation. UT allows up to $10,000 exemption on military retirement pay with income caps: Single $50k, Joint $65k AGI. Must choose between military retirement or Social Security exemption. Honors MSRRA and SCRA per federal law. Source: MOAA State Report Card.</COMMENTS>
+<TABLE_NUMBER>42301</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Joint filer within AGI cap</condition_comment>
+<condition_dsl>job.filing_status is equal to "MFJ" and result.agi &lt;= result.ut_military_exemption_agi_cap_joint</condition_dsl>
+<condition_postfix>
+Joint filer within AGI cap
+</condition_postfix>
+<condition_column column_number="1" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
 </actions>
 <policy_statements>
 </policy_statements>

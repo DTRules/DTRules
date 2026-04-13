@@ -1,34 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 43101: Calculate_NM_Military_Retirement_Exclusion -->
-<decision_table>
-<table_name>Calculate_NM_Military_Retirement_Exclusion</table_name>
-<xls_file>NM.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>New Mexico military retirement exclusion calculation. NM allows up to $30,000 exemption on military retirement pay for 2025-2026. Honors MSRRA and SCRA per federal law. Source: MOAA State Report Card.</COMMENTS>
-<TABLE_NUMBER>43101</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>No military retirement pay - no exclusion</action_comment>
-<action_dsl>No military retirement pay - no exclusion</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
-
 <!-- TABLE 43100: Calculate_NM_Tax -->
 <decision_table>
 <table_name>Calculate_NM_Tax</table_name>
@@ -44,21 +16,10 @@
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Married filing jointly</condition_comment>
-<condition_dsl>Married filing jointly</condition_dsl>
-<condition_postfix>
-filing_status == &quot;married_filing_jointly&quot;
-</condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
 <condition_comment>Head of household</condition_comment>
-<condition_dsl>Head of household</condition_dsl>
+<condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
 <condition_postfix>
-filing_status == &quot;head_of_household&quot;
+Head of household
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -66,22 +27,26 @@ filing_status == &quot;head_of_household&quot;
 </condition_details>
 </conditions>
 <actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Calculate New Mexico tax - Married filing jointly (6 progressive brackets + LICTR)</action_comment>
-<action_dsl>Calculate New Mexico tax - Married filing jointly (6 progressive brackets + LICTR)</action_dsl>
-<action_postfix>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
 
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>Calculate New Mexico tax - Head of Household (6 progressive brackets + LICTR)</action_comment>
-<action_dsl>Calculate New Mexico tax - Head of Household (6 progressive brackets + LICTR)</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
+<!-- TABLE 43101: Calculate_NM_Military_Retirement_Exclusion -->
+<decision_table>
+<table_name>Calculate_NM_Military_Retirement_Exclusion</table_name>
+<xls_file>NM.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>New Mexico military retirement exclusion calculation. NM allows up to $30,000 exemption on military retirement pay for 2025-2026. Honors MSRRA and SCRA per federal law. Source: MOAA State Report Card.</COMMENTS>
+<TABLE_NUMBER>43101</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+</conditions>
+<actions>
 </actions>
 <policy_statements>
 </policy_statements>

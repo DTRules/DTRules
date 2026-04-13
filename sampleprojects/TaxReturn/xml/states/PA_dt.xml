@@ -18,91 +18,82 @@
 <actions>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate PA Class 2: Interest Income</action_comment>
-<action_dsl>Calculate PA Class 2: Interest Income</action_dsl>
+<action_comment>Calculate PA Class 3: Dividends</action_comment>
+<action_dsl>set result.pa_taxable_dividends = result.total_qualified_dividends</action_dsl>
 <action_postfix>
-
+Calculate PA Class 3: Dividends
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Calculate PA Class 3: Dividends</action_comment>
-<action_dsl>Calculate PA Class 3: Dividends</action_dsl>
+<action_comment>Calculate PA Class 4: Net Profits from Business (Schedule C)</action_comment>
+<action_dsl>set result.pa_taxable_net_profits = result.total_se_income</action_dsl>
 <action_postfix>
-
+Calculate PA Class 4: Net Profits from Business (Schedule C)
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>4</action_number>
-<action_comment>Calculate PA Class 4: Net Profits from Business (Schedule C)</action_comment>
-<action_dsl>Calculate PA Class 4: Net Profits from Business (Schedule C)</action_dsl>
+<action_comment>Calculate PA Class 5: Net Gains (Schedule D Capital Gains)</action_comment>
+<action_dsl>set result.pa_taxable_gains = result.total_long_term_gains + result.total_short_term_gains</action_dsl>
 <action_postfix>
-
+Calculate PA Class 5: Net Gains (Schedule D Capital Gains)
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>5</action_number>
-<action_comment>Calculate PA Class 5: Net Gains (Schedule D Capital Gains)</action_comment>
-<action_dsl>Calculate PA Class 5: Net Gains (Schedule D Capital Gains)</action_dsl>
+<action_comment>Calculate PA Class 6: Rents and Royalties (Schedule E)</action_comment>
+<action_dsl>set result.pa_taxable_rents_royalties = result.total_rental_income</action_dsl>
 <action_postfix>
-
+Calculate PA Class 6: Rents and Royalties (Schedule E)
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>6</action_number>
-<action_comment>Calculate PA Class 6: Rents and Royalties (Schedule E)</action_comment>
-<action_dsl>Calculate PA Class 6: Rents and Royalties (Schedule E)</action_dsl>
+<action_comment>Calculate PA Class 7: Estate or Trust Income (K-1)</action_comment>
+<action_dsl>Calculate PA Class 7: Estate or Trust Income (K-1)</action_dsl>
 <action_postfix>
-
+Calculate PA Class 7: Estate or Trust Income (K-1)
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>7</action_number>
-<action_comment>Calculate PA Class 7: Estate or Trust Income (K-1)</action_comment>
-<action_dsl>Calculate PA Class 7: Estate or Trust Income (K-1)</action_dsl>
+<action_comment>Calculate PA Class 8: Gambling and Lottery Winnings</action_comment>
+<action_dsl>Calculate PA Class 8: Gambling and Lottery Winnings</action_dsl>
 <action_postfix>
-
+Calculate PA Class 8: Gambling and Lottery Winnings
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>8</action_number>
-<action_comment>Calculate PA Class 8: Gambling and Lottery Winnings</action_comment>
-<action_dsl>Calculate PA Class 8: Gambling and Lottery Winnings</action_dsl>
+<action_comment>Exclude ALL retirement income (Social Security, pensions, IRA)</action_comment>
+<action_dsl>set result.pa_social_security_exclusion = result.total_social_security</action_dsl>
 <action_postfix>
-
+Exclude ALL retirement income (Social Security, pensions, IRA)
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>9</action_number>
-<action_comment>Exclude ALL retirement income (Social Security, pensions, IRA)</action_comment>
-<action_dsl>Exclude ALL retirement income (Social Security, pensions, IRA)</action_dsl>
+<action_comment>Sum all 8 PA income classes to get PA total income</action_comment>
+<action_dsl>set result.pa_total_income = result.pa_taxable_compensation + result.pa_taxable_interest + result.pa_taxable_dividends + result.pa_taxable_net_profits + result.pa_taxable_gains + result.pa_taxable_rents_royalties + result.pa_taxable_estate_trust + result.pa_taxable_gambling</action_dsl>
 <action_postfix>
-
+Sum all 8 PA income classes to get PA total income
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>10</action_number>
-<action_comment>Sum all 8 PA income classes to get PA total income</action_comment>
-<action_dsl>Sum all 8 PA income classes to get PA total income</action_dsl>
-<action_postfix>
-
-</action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-</action_details>
-<action_details>
-<action_number>11</action_number>
 <action_comment>Apply PA flat tax rate of 3.07% (NO deductions, NO exemptions)</action_comment>
-<action_dsl>Apply PA flat tax rate of 3.07% (NO deductions, NO exemptions)</action_dsl>
+<action_dsl>set result.pa_tax = result.pa_total_income * result.pa_tax_rate</action_dsl>
 <action_postfix>
-
+Apply PA flat tax rate of 3.07% (NO deductions, NO exemptions)
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>

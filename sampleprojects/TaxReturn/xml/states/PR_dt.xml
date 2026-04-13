@@ -16,34 +16,16 @@
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Qualifies for Act 60 investor benefits; Act 60 investor (0% capital gains)</condition_comment>
-<condition_dsl>Qualifies for Act 60 investor benefits; Act 60 investor (0% capital gains)</condition_dsl>
-<condition_postfix>
-
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
 <condition_comment>Qualifies for Act 60 business benefits; Act 60 business (4% rate)</condition_comment>
-<condition_dsl>Qualifies for Act 60 business benefits; Act 60 business (4% rate)</condition_dsl>
+<condition_dsl>result.pr_act60_business is true</condition_dsl>
 <condition_postfix>
-
+Qualifies for Act 60 business benefits; Act 60 business (4% rate)
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
 </condition_details>
 </conditions>
 <actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Not bona fide resident - subject to US tax</action_comment>
-<action_dsl>Not bona fide resident - subject to US tax</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
 </actions>
 <policy_statements>
 </policy_statements>

@@ -1,34 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 40601: Calculate_CO_EITC -->
-<decision_table>
-<table_name>Calculate_CO_EITC</table_name>
-<xls_file>CO.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Colorado Earned Income Tax Credit. Refundable credit equal to 35-50% of federal EITC. Minimum 35%, up to 50% based on economic growth. Expanded eligibility to age 18+ and ITIN holders. Per Colorado DOR 2025. Source: https://tax.colorado.gov/ctc-eitc</COMMENTS>
-<TABLE_NUMBER>40601</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>No federal EITC - no Colorado EITC</action_comment>
-<action_dsl>No federal EITC - no Colorado EITC</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
-
 <!-- TABLE 5790: Calculate_CO_Military_Retirement_Exemption -->
 <decision_table>
 <table_name>Calculate_CO_Military_Retirement_Exemption</table_name>
@@ -44,57 +16,22 @@
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Age less than 55</condition_comment>
-<condition_dsl>Age less than 55</condition_dsl>
+<condition_comment>Age 55 to 64</condition_comment>
+<condition_dsl>taxpayer.age >= 55 and taxpayer.age &lt;= 64</condition_dsl>
 <condition_postfix>
-age &lt; 55
+Age 55 to 64
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
-<condition_comment>Age 55 to 64</condition_comment>
-<condition_dsl>Age 55 to 64</condition_dsl>
-<condition_postfix>
-age &gt;= 55 AND age &lt; 65
-</condition_postfix>
-<condition_column column_number="2" column_value="Y"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>4</condition_number>
 <condition_comment>Age 65 or older</condition_comment>
-<condition_dsl>Age 65 or older</condition_dsl>
+<condition_dsl>taxpayer.age >= 65</condition_dsl>
 <condition_postfix>
-age &gt;= 65
+Age 65 or older
 </condition_postfix>
-<condition_column column_number="3" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
 <actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Apply CO $20,000 military retirement exemption (age 55-64)</action_comment>
-<action_dsl>Apply CO $20,000 military retirement exemption (age 55-64)</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>Apply CO $24,000 military retirement exemption (age 65+)</action_comment>
-<action_dsl>Apply CO $24,000 military retirement exemption (age 65+)</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>4</action_number>
-<action_comment>No military retirement pay</action_comment>
-<action_dsl>No military retirement pay</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
 </actions>
 <policy_statements>
 </policy_statements>
@@ -115,40 +52,14 @@ age &gt;= 65
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Age 55 to 64</condition_comment>
-<condition_dsl>Age 55 to 64</condition_dsl>
-<condition_postfix>
-age &gt;= 55 AND age &lt; 65
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
 <condition_comment>Age 65 or older</condition_comment>
-<condition_dsl>Age 65 or older</condition_dsl>
+<condition_dsl>taxpayer.age >= 65</condition_dsl>
 <condition_postfix>
-age &gt;= 65
+Age 65 or older
 </condition_postfix>
-<condition_column column_number="2" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
 <actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Apply CO $24,000 pension/annuity subtraction (age 65+)</action_comment>
-<action_dsl>Apply CO $24,000 pension/annuity subtraction (age 65+)</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>No pension/annuity subtraction applicable</action_comment>
-<action_dsl>No pension/annuity subtraction applicable</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
 </actions>
 <policy_statements>
 </policy_statements>
@@ -182,6 +93,26 @@ age &gt;= 65
 <Type>FIRST</Type>
 <COMMENTS>Colorado state income tax calculation (2025). Flat 4.40% rate applied to federal AGI with Colorado-specific adjustments: add state tax refunds, subtract Social Security, military retirement, and pension/annuity subtractions. Source: Colorado DOR Form DR 0104.</COMMENTS>
 <TABLE_NUMBER>5792</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+</conditions>
+<actions>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 40601: Calculate_CO_EITC -->
+<decision_table>
+<table_name>Calculate_CO_EITC</table_name>
+<xls_file>CO.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Colorado Earned Income Tax Credit. Refundable credit equal to 35-50% of federal EITC. Minimum 35%, up to 50% based on economic growth. Expanded eligibility to age 18+ and ITIN holders. Per Colorado DOR 2025. Source: https://tax.colorado.gov/ctc-eitc</COMMENTS>
+<TABLE_NUMBER>40601</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>

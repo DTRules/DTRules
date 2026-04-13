@@ -1,26 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 42201: Calculate_MI_Military_Retirement_Exclusion -->
-<decision_table>
-<table_name>Calculate_MI_Military_Retirement_Exclusion</table_name>
-<xls_file>MI.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Michigan military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per MCL § 206.30 (2025).</COMMENTS>
-<TABLE_NUMBER>42201</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
-
 <!-- TABLE 42200: Calculate_MI_Tax -->
 <decision_table>
 <table_name>Calculate_MI_Tax</table_name>
@@ -36,22 +16,10 @@
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Filing status is Married Filing Jointly</condition_comment>
-<condition_dsl>job.state is not &quot;MI&quot;</condition_dsl>
-<condition_postfix>
-result.filing_status &quot;married_filing_jointly&quot; ==
-</condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
-<condition_dsl>Filing status is Head of Household</condition_dsl>
+<condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
 <condition_postfix>
-result.filing_status &quot;head_of_household&quot; ==
+Filing status is Head of Household
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -59,11 +27,11 @@ result.filing_status &quot;head_of_household&quot; ==
 <condition_column column_number="4" column_value="N"></condition_column>
 </condition_details>
 <condition_details>
-<condition_number>4</condition_number>
+<condition_number>3</condition_number>
 <condition_comment>Default case (Married Filing Separately, etc.)</condition_comment>
-<condition_dsl>Default case (Married Filing Separately, etc.)</condition_dsl>
+<condition_dsl>otherwise</condition_dsl>
 <condition_postfix>
-true
+Default case (Married Filing Separately, etc.)
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
@@ -73,47 +41,41 @@ true
 </conditions>
 <actions>
 <action_details>
-<action_number>2</action_number>
-<action_comment>Married Filing Jointly: base exemption (2 x $5,800) + dependent exemptions</action_comment>
-<action_dsl>set result.mi_state_tax = 0</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>Head of Household: base exemption + dependent exemptions</action_comment>
-<action_dsl>Head of Household: base exemption + dependent exemptions</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-<action_details>
 <action_number>4</action_number>
-<action_comment>Other statuses: base exemption + dependent exemptions</action_comment>
-<action_dsl>Other statuses: base exemption + dependent exemptions</action_dsl>
+<action_comment>Calculate MI taxable income (AGI - exemptions, minimum 0)</action_comment>
+<action_dsl>set result.mi_taxable_income = (result.agi - result.mi_total_exemption) max 0</action_dsl>
 <action_postfix>
-
+Calculate MI taxable income (AGI - exemptions, minimum 0)
 </action_postfix>
 </action_details>
 <action_details>
 <action_number>5</action_number>
-<action_comment>Calculate MI taxable income (AGI - exemptions, minimum 0)</action_comment>
-<action_dsl>Calculate MI taxable income (AGI - exemptions, minimum 0)</action_dsl>
-<action_postfix>
-
-</action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-</action_details>
-<action_details>
-<action_number>6</action_number>
 <action_comment>Calculate MI tax: taxable income × 4.25%</action_comment>
-<action_dsl>Calculate MI tax: taxable income × 4.25%</action_dsl>
+<action_dsl>set result.state_tax_liability = result.mi_taxable_income * result.mi_tax_rate</action_dsl>
 <action_postfix>
-
+Calculate MI tax: taxable income × 4.25%
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
 </action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 42201: Calculate_MI_Military_Retirement_Exclusion -->
+<decision_table>
+<table_name>Calculate_MI_Military_Retirement_Exclusion</table_name>
+<xls_file>MI.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Michigan military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per MCL § 206.30 (2025).</COMMENTS>
+<TABLE_NUMBER>42201</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+</conditions>
+<actions>
 </actions>
 <policy_statements>
 </policy_statements>
