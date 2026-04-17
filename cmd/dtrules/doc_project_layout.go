@@ -88,6 +88,41 @@ Multiple <Entities> and <Decisiontables> elements are allowed — the engine
 loads them in the order listed.
 
 
+Custom Directory Overrides in DTRules.xml
+------------------------------------------
+Projects that store rules in non-standard directories can declare overrides
+directly in DTRules.xml. This removes the need to pass flags on every command:
+
+    <dtrules>
+      <xml_dir>pkg/dtrules/rules</xml_dir>
+      <excel_dir>pkg/dtrules/excel</excel_dir>
+      ...
+    </dtrules>
+
+Both elements are optional. Paths may be relative (resolved against the project
+root) or absolute.
+
+When these elements are present, verify, validate, and build all use them
+automatically. CLI flags still take the highest priority if supplied:
+
+    dtrules verify --xml-dir override/path          # flag wins
+    dtrules verify                                   # DTRules.xml wins
+    dtrules verify /project/without/dtrules-xml     # defaults (xml/, excel/)
+
+Directory resolution order (highest to lowest priority):
+  1. --xml-dir / --excel-dir CLI flags
+  2. <xml_dir> / <excel_dir> in DTRules.xml
+  3. Default: xml/ and excel/ relative to the project root
+
+Better error messages:
+  When a custom directory cannot be found, the error message names the
+  flag you can use to correct it:
+
+      ERROR: could not find xml directory
+        Tried: /home/user/project/nonexistent
+        Use --xml-dir <path> or declare <xml_dir> in DTRules.xml.
+
+
 File Naming Convention (v1.5.0+)
 ----------------------------------
 Since v1.5.0, each file's suffix signals what artifact type it contains.

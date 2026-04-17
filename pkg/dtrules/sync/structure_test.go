@@ -27,7 +27,7 @@ func TestValidateProjectStructure_Valid(t *testing.T) {
 	os.MkdirAll(filepath.Join(tmpDir, "xml"), 0755)
 	os.MkdirAll(filepath.Join(tmpDir, "testfiles"), 0755)
 
-	result, err := ValidateProjectStructure(tmpDir)
+	result, err := ValidateProjectStructure(tmpDir, "", "")
 	if err != nil {
 		t.Fatalf("ValidateProjectStructure failed: %v", err)
 	}
@@ -53,7 +53,7 @@ func TestValidateProjectStructure_MissingExcel(t *testing.T) {
 	os.MkdirAll(filepath.Join(tmpDir, "xml"), 0755)
 	// Missing excel/ directory
 
-	result, err := ValidateProjectStructure(tmpDir)
+	result, err := ValidateProjectStructure(tmpDir, "", "")
 	if err != nil {
 		t.Fatalf("ValidateProjectStructure failed: %v", err)
 	}
@@ -78,7 +78,7 @@ func TestValidateProjectStructure_MissingXML(t *testing.T) {
 	os.MkdirAll(filepath.Join(tmpDir, "excel"), 0755)
 	// Missing xml/ directory
 
-	result, err := ValidateProjectStructure(tmpDir)
+	result, err := ValidateProjectStructure(tmpDir, "", "")
 	if err != nil {
 		t.Fatalf("ValidateProjectStructure failed: %v", err)
 	}
@@ -106,7 +106,7 @@ func TestValidateProjectStructure_OrphanedXML(t *testing.T) {
 	// Create XML file without Excel source
 	os.WriteFile(filepath.Join(tmpDir, "xml", "orphan_dt.xml"), []byte("<decision_tables/>"), 0644)
 
-	result, err := ValidateProjectStructure(tmpDir)
+	result, err := ValidateProjectStructure(tmpDir, "", "")
 	if err != nil {
 		t.Fatalf("ValidateProjectStructure failed: %v", err)
 	}

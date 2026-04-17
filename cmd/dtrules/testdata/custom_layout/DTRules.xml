@@ -1,0 +1,9 @@
+<dtrules>
+  <xml_dir>rules</xml_dir>
+  <excel_dir>workbooks</excel_dir>
+  <RuleSet name="simple" source="file">
+    <RuleSetFilePath>/rules</RuleSetFilePath>
+    <Entities       name="Simple_edd.xml" />
+    <Decisiontables name="Simple_dt.xml"  />
+  </RuleSet>
+</dtrules>

@@ -343,7 +343,7 @@ func TestNestedMixedSubdirStructureMirror(t *testing.T) {
 		os.WriteFile(f, []byte("<decision_tables/>"), 0644)
 	}
 
-	result, err := ValidateProjectStructure(tmpDir)
+	result, err := ValidateProjectStructure(tmpDir, "", "")
 	if err != nil {
 		t.Fatalf("ValidateProjectStructure: %v", err)
 	}
