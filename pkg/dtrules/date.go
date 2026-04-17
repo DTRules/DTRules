@@ -104,8 +104,14 @@ func (r *RDate) Compare(o Object) (int, error) {
 }
 
 // StringValue returns the string representation of this date.
+// Pure dates (midnight UTC) are serialized as YYYY-MM-DD to preserve existing
+// XML/Excel output. Timestamps with a non-zero time component use RFC3339Nano.
 func (r *RDate) StringValue() string {
-	return r.time.Format(DateFormat)
+	t := r.time.UTC()
+	if t.Hour() == 0 && t.Minute() == 0 && t.Second() == 0 && t.Nanosecond() == 0 {
+		return t.Format("2006-01-02")
+	}
+	return t.Format(time.RFC3339Nano)
 }
 
 // PostFix returns the postfix representation.
