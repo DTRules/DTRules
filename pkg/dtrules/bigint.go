@@ -18,6 +18,8 @@ package dtrules
 import (
 	"math/big"
 	"strings"
+
+	"github.com/DTRules/DTRules/pkg/dtrules/encoding"
 )
 
 // RBigInt represents a big integer value in the rules engine.
@@ -235,4 +237,10 @@ func (r *RBigInt) BigIntValue() *big.Int {
 // String implements the Stringer interface.
 func (r *RBigInt) String() string {
 	return r.StringValue()
+}
+
+// ToBytes encodes the bigint as a big-endian byte slice, zero-padded to size bytes.
+// Returns an error if the value is negative or does not fit in size bytes.
+func (r *RBigInt) ToBytes(size int) ([]byte, error) {
+	return encoding.BigIntToBytes(r.value, size)
 }

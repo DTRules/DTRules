@@ -928,6 +928,9 @@ type ELListener interface {
 	// EnterStrValueOfOp is called when entering the strValueOfOp production.
 	EnterStrValueOfOp(c *StrValueOfOpContext)
 
+	// EnterStrHexOfBytes is called when entering the strHexOfBytes production.
+	EnterStrHexOfBytes(c *StrHexOfBytesContext)
+
 	// EnterStrConcatDate is called when entering the strConcatDate production.
 	EnterStrConcatDate(c *StrConcatDateContext)
 
@@ -967,8 +970,14 @@ type ELListener interface {
 	// EnterStrToUpper is called when entering the strToUpper production.
 	EnterStrToUpper(c *StrToUpperContext)
 
+	// EnterStrBase58CheckOfBytes is called when entering the strBase58CheckOfBytes production.
+	EnterStrBase58CheckOfBytes(c *StrBase58CheckOfBytesContext)
+
 	// EnterStrValueOfBool is called when entering the strValueOfBool production.
 	EnterStrValueOfBool(c *StrValueOfBoolContext)
+
+	// EnterStrBech32OfBytes is called when entering the strBech32OfBytes production.
+	EnterStrBech32OfBytes(c *StrBech32OfBytesContext)
 
 	// EnterStrConcatFloat is called when entering the strConcatFloat production.
 	EnterStrConcatFloat(c *StrConcatFloatContext)
@@ -1207,6 +1216,9 @@ type ELListener interface {
 	// EnterBigColonRef is called when entering the bigColonRef production.
 	EnterBigColonRef(c *BigColonRefContext)
 
+	// EnterBigFromBytes is called when entering the bigFromBytes production.
+	EnterBigFromBytes(c *BigFromBytesContext)
+
 	// EnterBigFromFloat is called when entering the bigFromFloat production.
 	EnterBigFromFloat(c *BigFromFloatContext)
 
@@ -1237,23 +1249,47 @@ type ELListener interface {
 	// EnterBigTyped is called when entering the bigTyped production.
 	EnterBigTyped(c *BigTypedContext)
 
+	// EnterBytesSha256 is called when entering the bytesSha256 production.
+	EnterBytesSha256(c *BytesSha256Context)
+
+	// EnterBytesLiteral is called when entering the bytesLiteral production.
+	EnterBytesLiteral(c *BytesLiteralContext)
+
+	// EnterBytesCvBase58Check is called when entering the bytesCvBase58Check production.
+	EnterBytesCvBase58Check(c *BytesCvBase58CheckContext)
+
+	// EnterBytesCvBech32 is called when entering the bytesCvBech32 production.
+	EnterBytesCvBech32(c *BytesCvBech32Context)
+
+	// EnterBytesRipemd160 is called when entering the bytesRipemd160 production.
+	EnterBytesRipemd160(c *BytesRipemd160Context)
+
+	// EnterBytesColonRef is called when entering the bytesColonRef production.
+	EnterBytesColonRef(c *BytesColonRefContext)
+
+	// EnterBytesCvHex is called when entering the bytesCvHex production.
+	EnterBytesCvHex(c *BytesCvHexContext)
+
+	// EnterBytesCvBigInt is called when entering the bytesCvBigInt production.
+	EnterBytesCvBigInt(c *BytesCvBigIntContext)
+
 	// EnterBytesSlice is called when entering the bytesSlice production.
 	EnterBytesSlice(c *BytesSliceContext)
 
 	// EnterBytesConcat is called when entering the bytesConcat production.
 	EnterBytesConcat(c *BytesConcatContext)
 
-	// EnterBytesLiteral is called when entering the bytesLiteral production.
-	EnterBytesLiteral(c *BytesLiteralContext)
+	// EnterBytesKeccak256 is called when entering the bytesKeccak256 production.
+	EnterBytesKeccak256(c *BytesKeccak256Context)
 
 	// EnterBytesTyped is called when entering the bytesTyped production.
 	EnterBytesTyped(c *BytesTypedContext)
 
-	// EnterBytesColonRef is called when entering the bytesColonRef production.
-	EnterBytesColonRef(c *BytesColonRefContext)
-
 	// EnterBytesParen is called when entering the bytesParen production.
 	EnterBytesParen(c *BytesParenContext)
+
+	// EnterBytesSha3 is called when entering the bytesSha3 production.
+	EnterBytesSha3(c *BytesSha3Context)
 
 	// EnterIncludeNumber is called when entering the includeNumber production.
 	EnterIncludeNumber(c *IncludeNumberContext)
@@ -2620,6 +2656,9 @@ type ELListener interface {
 	// ExitStrValueOfOp is called when exiting the strValueOfOp production.
 	ExitStrValueOfOp(c *StrValueOfOpContext)
 
+	// ExitStrHexOfBytes is called when exiting the strHexOfBytes production.
+	ExitStrHexOfBytes(c *StrHexOfBytesContext)
+
 	// ExitStrConcatDate is called when exiting the strConcatDate production.
 	ExitStrConcatDate(c *StrConcatDateContext)
 
@@ -2659,8 +2698,14 @@ type ELListener interface {
 	// ExitStrToUpper is called when exiting the strToUpper production.
 	ExitStrToUpper(c *StrToUpperContext)
 
+	// ExitStrBase58CheckOfBytes is called when exiting the strBase58CheckOfBytes production.
+	ExitStrBase58CheckOfBytes(c *StrBase58CheckOfBytesContext)
+
 	// ExitStrValueOfBool is called when exiting the strValueOfBool production.
 	ExitStrValueOfBool(c *StrValueOfBoolContext)
+
+	// ExitStrBech32OfBytes is called when exiting the strBech32OfBytes production.
+	ExitStrBech32OfBytes(c *StrBech32OfBytesContext)
 
 	// ExitStrConcatFloat is called when exiting the strConcatFloat production.
 	ExitStrConcatFloat(c *StrConcatFloatContext)
@@ -2899,6 +2944,9 @@ type ELListener interface {
 	// ExitBigColonRef is called when exiting the bigColonRef production.
 	ExitBigColonRef(c *BigColonRefContext)
 
+	// ExitBigFromBytes is called when exiting the bigFromBytes production.
+	ExitBigFromBytes(c *BigFromBytesContext)
+
 	// ExitBigFromFloat is called when exiting the bigFromFloat production.
 	ExitBigFromFloat(c *BigFromFloatContext)
 
@@ -2929,23 +2977,47 @@ type ELListener interface {
 	// ExitBigTyped is called when exiting the bigTyped production.
 	ExitBigTyped(c *BigTypedContext)
 
+	// ExitBytesSha256 is called when exiting the bytesSha256 production.
+	ExitBytesSha256(c *BytesSha256Context)
+
+	// ExitBytesLiteral is called when exiting the bytesLiteral production.
+	ExitBytesLiteral(c *BytesLiteralContext)
+
+	// ExitBytesCvBase58Check is called when exiting the bytesCvBase58Check production.
+	ExitBytesCvBase58Check(c *BytesCvBase58CheckContext)
+
+	// ExitBytesCvBech32 is called when exiting the bytesCvBech32 production.
+	ExitBytesCvBech32(c *BytesCvBech32Context)
+
+	// ExitBytesRipemd160 is called when exiting the bytesRipemd160 production.
+	ExitBytesRipemd160(c *BytesRipemd160Context)
+
+	// ExitBytesColonRef is called when exiting the bytesColonRef production.
+	ExitBytesColonRef(c *BytesColonRefContext)
+
+	// ExitBytesCvHex is called when exiting the bytesCvHex production.
+	ExitBytesCvHex(c *BytesCvHexContext)
+
+	// ExitBytesCvBigInt is called when exiting the bytesCvBigInt production.
+	ExitBytesCvBigInt(c *BytesCvBigIntContext)
+
 	// ExitBytesSlice is called when exiting the bytesSlice production.
 	ExitBytesSlice(c *BytesSliceContext)
 
 	// ExitBytesConcat is called when exiting the bytesConcat production.
 	ExitBytesConcat(c *BytesConcatContext)
 
-	// ExitBytesLiteral is called when exiting the bytesLiteral production.
-	ExitBytesLiteral(c *BytesLiteralContext)
+	// ExitBytesKeccak256 is called when exiting the bytesKeccak256 production.
+	ExitBytesKeccak256(c *BytesKeccak256Context)
 
 	// ExitBytesTyped is called when exiting the bytesTyped production.
 	ExitBytesTyped(c *BytesTypedContext)
 
-	// ExitBytesColonRef is called when exiting the bytesColonRef production.
-	ExitBytesColonRef(c *BytesColonRefContext)
-
 	// ExitBytesParen is called when exiting the bytesParen production.
 	ExitBytesParen(c *BytesParenContext)
+
+	// ExitBytesSha3 is called when exiting the bytesSha3 production.
+	ExitBytesSha3(c *BytesSha3Context)
 
 	// ExitIncludeNumber is called when exiting the includeNumber production.
 	ExitIncludeNumber(c *IncludeNumberContext)

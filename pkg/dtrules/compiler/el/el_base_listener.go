@@ -1862,6 +1862,12 @@ func (s *BaseELListener) EnterStrValueOfOp(ctx *StrValueOfOpContext) {}
 // ExitStrValueOfOp is called when production strValueOfOp is exited.
 func (s *BaseELListener) ExitStrValueOfOp(ctx *StrValueOfOpContext) {}
 
+// EnterStrHexOfBytes is called when production strHexOfBytes is entered.
+func (s *BaseELListener) EnterStrHexOfBytes(ctx *StrHexOfBytesContext) {}
+
+// ExitStrHexOfBytes is called when production strHexOfBytes is exited.
+func (s *BaseELListener) ExitStrHexOfBytes(ctx *StrHexOfBytesContext) {}
+
 // EnterStrConcatDate is called when production strConcatDate is entered.
 func (s *BaseELListener) EnterStrConcatDate(ctx *StrConcatDateContext) {}
 
@@ -1940,11 +1946,23 @@ func (s *BaseELListener) EnterStrToUpper(ctx *StrToUpperContext) {}
 // ExitStrToUpper is called when production strToUpper is exited.
 func (s *BaseELListener) ExitStrToUpper(ctx *StrToUpperContext) {}
 
+// EnterStrBase58CheckOfBytes is called when production strBase58CheckOfBytes is entered.
+func (s *BaseELListener) EnterStrBase58CheckOfBytes(ctx *StrBase58CheckOfBytesContext) {}
+
+// ExitStrBase58CheckOfBytes is called when production strBase58CheckOfBytes is exited.
+func (s *BaseELListener) ExitStrBase58CheckOfBytes(ctx *StrBase58CheckOfBytesContext) {}
+
 // EnterStrValueOfBool is called when production strValueOfBool is entered.
 func (s *BaseELListener) EnterStrValueOfBool(ctx *StrValueOfBoolContext) {}
 
 // ExitStrValueOfBool is called when production strValueOfBool is exited.
 func (s *BaseELListener) ExitStrValueOfBool(ctx *StrValueOfBoolContext) {}
+
+// EnterStrBech32OfBytes is called when production strBech32OfBytes is entered.
+func (s *BaseELListener) EnterStrBech32OfBytes(ctx *StrBech32OfBytesContext) {}
+
+// ExitStrBech32OfBytes is called when production strBech32OfBytes is exited.
+func (s *BaseELListener) ExitStrBech32OfBytes(ctx *StrBech32OfBytesContext) {}
 
 // EnterStrConcatFloat is called when production strConcatFloat is entered.
 func (s *BaseELListener) EnterStrConcatFloat(ctx *StrConcatFloatContext) {}
@@ -2420,6 +2438,12 @@ func (s *BaseELListener) EnterBigColonRef(ctx *BigColonRefContext) {}
 // ExitBigColonRef is called when production bigColonRef is exited.
 func (s *BaseELListener) ExitBigColonRef(ctx *BigColonRefContext) {}
 
+// EnterBigFromBytes is called when production bigFromBytes is entered.
+func (s *BaseELListener) EnterBigFromBytes(ctx *BigFromBytesContext) {}
+
+// ExitBigFromBytes is called when production bigFromBytes is exited.
+func (s *BaseELListener) ExitBigFromBytes(ctx *BigFromBytesContext) {}
+
 // EnterBigFromFloat is called when production bigFromFloat is entered.
 func (s *BaseELListener) EnterBigFromFloat(ctx *BigFromFloatContext) {}
 
@@ -2480,6 +2504,54 @@ func (s *BaseELListener) EnterBigTyped(ctx *BigTypedContext) {}
 // ExitBigTyped is called when production bigTyped is exited.
 func (s *BaseELListener) ExitBigTyped(ctx *BigTypedContext) {}
 
+// EnterBytesSha256 is called when production bytesSha256 is entered.
+func (s *BaseELListener) EnterBytesSha256(ctx *BytesSha256Context) {}
+
+// ExitBytesSha256 is called when production bytesSha256 is exited.
+func (s *BaseELListener) ExitBytesSha256(ctx *BytesSha256Context) {}
+
+// EnterBytesLiteral is called when production bytesLiteral is entered.
+func (s *BaseELListener) EnterBytesLiteral(ctx *BytesLiteralContext) {}
+
+// ExitBytesLiteral is called when production bytesLiteral is exited.
+func (s *BaseELListener) ExitBytesLiteral(ctx *BytesLiteralContext) {}
+
+// EnterBytesCvBase58Check is called when production bytesCvBase58Check is entered.
+func (s *BaseELListener) EnterBytesCvBase58Check(ctx *BytesCvBase58CheckContext) {}
+
+// ExitBytesCvBase58Check is called when production bytesCvBase58Check is exited.
+func (s *BaseELListener) ExitBytesCvBase58Check(ctx *BytesCvBase58CheckContext) {}
+
+// EnterBytesCvBech32 is called when production bytesCvBech32 is entered.
+func (s *BaseELListener) EnterBytesCvBech32(ctx *BytesCvBech32Context) {}
+
+// ExitBytesCvBech32 is called when production bytesCvBech32 is exited.
+func (s *BaseELListener) ExitBytesCvBech32(ctx *BytesCvBech32Context) {}
+
+// EnterBytesRipemd160 is called when production bytesRipemd160 is entered.
+func (s *BaseELListener) EnterBytesRipemd160(ctx *BytesRipemd160Context) {}
+
+// ExitBytesRipemd160 is called when production bytesRipemd160 is exited.
+func (s *BaseELListener) ExitBytesRipemd160(ctx *BytesRipemd160Context) {}
+
+// EnterBytesColonRef is called when production bytesColonRef is entered.
+func (s *BaseELListener) EnterBytesColonRef(ctx *BytesColonRefContext) {}
+
+// ExitBytesColonRef is called when production bytesColonRef is exited.
+func (s *BaseELListener) ExitBytesColonRef(ctx *BytesColonRefContext) {}
+
+// EnterBytesCvHex is called when production bytesCvHex is entered.
+func (s *BaseELListener) EnterBytesCvHex(ctx *BytesCvHexContext) {}
+
+// ExitBytesCvHex is called when production bytesCvHex is exited.
+func (s *BaseELListener) ExitBytesCvHex(ctx *BytesCvHexContext) {}
+
+// EnterBytesCvBigInt is called when production bytesCvBigInt is entered.
+func (s *BaseELListener) EnterBytesCvBigInt(ctx *BytesCvBigIntContext) {}
+
+// ExitBytesCvBigInt is called when production bytesCvBigInt is exited.
+func (s *BaseELListener) ExitBytesCvBigInt(ctx *BytesCvBigIntContext) {}
+
 // EnterBytesSlice is called when production bytesSlice is entered.
 func (s *BaseELListener) EnterBytesSlice(ctx *BytesSliceContext) {}
 
@@ -2492,11 +2564,11 @@ func (s *BaseELListener) EnterBytesConcat(ctx *BytesConcatContext) {}
 // ExitBytesConcat is called when production bytesConcat is exited.
 func (s *BaseELListener) ExitBytesConcat(ctx *BytesConcatContext) {}
 
-// EnterBytesLiteral is called when production bytesLiteral is entered.
-func (s *BaseELListener) EnterBytesLiteral(ctx *BytesLiteralContext) {}
+// EnterBytesKeccak256 is called when production bytesKeccak256 is entered.
+func (s *BaseELListener) EnterBytesKeccak256(ctx *BytesKeccak256Context) {}
 
-// ExitBytesLiteral is called when production bytesLiteral is exited.
-func (s *BaseELListener) ExitBytesLiteral(ctx *BytesLiteralContext) {}
+// ExitBytesKeccak256 is called when production bytesKeccak256 is exited.
+func (s *BaseELListener) ExitBytesKeccak256(ctx *BytesKeccak256Context) {}
 
 // EnterBytesTyped is called when production bytesTyped is entered.
 func (s *BaseELListener) EnterBytesTyped(ctx *BytesTypedContext) {}
@@ -2504,17 +2576,17 @@ func (s *BaseELListener) EnterBytesTyped(ctx *BytesTypedContext) {}
 // ExitBytesTyped is called when production bytesTyped is exited.
 func (s *BaseELListener) ExitBytesTyped(ctx *BytesTypedContext) {}
 
-// EnterBytesColonRef is called when production bytesColonRef is entered.
-func (s *BaseELListener) EnterBytesColonRef(ctx *BytesColonRefContext) {}
-
-// ExitBytesColonRef is called when production bytesColonRef is exited.
-func (s *BaseELListener) ExitBytesColonRef(ctx *BytesColonRefContext) {}
-
 // EnterBytesParen is called when production bytesParen is entered.
 func (s *BaseELListener) EnterBytesParen(ctx *BytesParenContext) {}
 
 // ExitBytesParen is called when production bytesParen is exited.
 func (s *BaseELListener) ExitBytesParen(ctx *BytesParenContext) {}
+
+// EnterBytesSha3 is called when production bytesSha3 is entered.
+func (s *BaseELListener) EnterBytesSha3(ctx *BytesSha3Context) {}
+
+// ExitBytesSha3 is called when production bytesSha3 is exited.
+func (s *BaseELListener) ExitBytesSha3(ctx *BytesSha3Context) {}
 
 // EnterIncludeNumber is called when production includeNumber is entered.
 func (s *BaseELListener) EnterIncludeNumber(ctx *IncludeNumberContext) {}

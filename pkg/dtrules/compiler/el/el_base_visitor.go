@@ -1235,6 +1235,10 @@ func (v *BaseELVisitor) VisitStrValueOfOp(ctx *StrValueOfOpContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitStrHexOfBytes(ctx *StrHexOfBytesContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitStrConcatDate(ctx *StrConcatDateContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1287,7 +1291,15 @@ func (v *BaseELVisitor) VisitStrToUpper(ctx *StrToUpperContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitStrBase58CheckOfBytes(ctx *StrBase58CheckOfBytesContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitStrValueOfBool(ctx *StrValueOfBoolContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitStrBech32OfBytes(ctx *StrBech32OfBytesContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1607,6 +1619,10 @@ func (v *BaseELVisitor) VisitBigColonRef(ctx *BigColonRefContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBigFromBytes(ctx *BigFromBytesContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBigFromFloat(ctx *BigFromFloatContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1647,6 +1663,38 @@ func (v *BaseELVisitor) VisitBigTyped(ctx *BigTypedContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBytesSha256(ctx *BytesSha256Context) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBytesLiteral(ctx *BytesLiteralContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBytesCvBase58Check(ctx *BytesCvBase58CheckContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBytesCvBech32(ctx *BytesCvBech32Context) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBytesRipemd160(ctx *BytesRipemd160Context) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBytesColonRef(ctx *BytesColonRefContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBytesCvHex(ctx *BytesCvHexContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBytesCvBigInt(ctx *BytesCvBigIntContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBytesSlice(ctx *BytesSliceContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1655,7 +1703,7 @@ func (v *BaseELVisitor) VisitBytesConcat(ctx *BytesConcatContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBytesLiteral(ctx *BytesLiteralContext) interface{} {
+func (v *BaseELVisitor) VisitBytesKeccak256(ctx *BytesKeccak256Context) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1663,11 +1711,11 @@ func (v *BaseELVisitor) VisitBytesTyped(ctx *BytesTypedContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBytesColonRef(ctx *BytesColonRefContext) interface{} {
+func (v *BaseELVisitor) VisitBytesParen(ctx *BytesParenContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBytesParen(ctx *BytesParenContext) interface{} {
+func (v *BaseELVisitor) VisitBytesSha3(ctx *BytesSha3Context) interface{} {
 	return v.VisitChildren(ctx)
 }
 

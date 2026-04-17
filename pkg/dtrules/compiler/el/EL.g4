@@ -545,6 +545,9 @@ strexpr
     | GET CURRENT_TIMESTAMP                                 # strTimestamp
     | USING eexpr LPAREN strexpr RPAREN                     # strUsing
     | RELATIONSHIP_BETWEEN eexpr AND eexpr                  # strRelationship
+    | HEX OF bytesexpr                                      # strHexOfBytes
+    | BASE58CHECK OF bytesexpr VERSION iexpr                # strBase58CheckOfBytes
+    | BECH32 OF bytesexpr HRP strexpr                       # strBech32OfBytes
     ;
 
 fexpr
@@ -639,6 +642,7 @@ bigexpr
     | LPAREN BIGINT RPAREN fexpr                            # bigFromFloat
     | USING eexpr LPAREN bigexpr RPAREN                     # bigUsing
     | ABSOLUTEVALUE OF bigexpr                              # bigAbs
+    | BIGINT OF BYTES bytesexpr                             # bigFromBytes
     ;
 
 bytesexpr
@@ -648,6 +652,14 @@ bytesexpr
     | LPAREN bytesexpr RPAREN                               # bytesParen
     | bytesexpr PLUS bytesexpr                              # bytesConcat
     | bytesexpr FROM iexpr TO iexpr                         # bytesSlice
+    | SHA256 OF bytesexpr                                   # bytesSha256
+    | KECCAK256 OF bytesexpr                                # bytesKeccak256
+    | RIPEMD160 OF bytesexpr                                # bytesRipemd160
+    | SHA3 OF bytesexpr                                     # bytesSha3
+    | BYTES OF HEX strexpr                                  # bytesCvHex
+    | BYTES OF BASE58CHECK strexpr                          # bytesCvBase58Check
+    | BYTES OF BECH32 strexpr                               # bytesCvBech32
+    | BYTES OF BIGINT bigexpr SIZE iexpr                    # bytesCvBigInt
     ;
 
 includeSearch
@@ -897,6 +909,16 @@ ARRAY               : 'array' ;
 TABLE               : 'table' ;
 BIGINT              : 'bigint' | 'biginteger' ;
 BYTES               : 'bytes' ;
+SHA256              : 'sha256' ;
+KECCAK256           : 'keccak256' ;
+RIPEMD160           : 'ripemd160' ;
+SHA3                : 'sha3' ;
+HEX                 : 'hex' ;
+BASE58CHECK         : 'base58check' ;
+VERSION             : 'version' ;
+BECH32              : 'bech32' ;
+HRP                 : 'hrp' ;
+SIZE                : 'size' ;
 
 // Current date/time
 CURRENT_TIMESTAMP   : 'current' WS+ 'timestamp' ;

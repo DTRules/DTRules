@@ -171,6 +171,71 @@ func TestBytesLocalDeclWithInit(t *testing.T) {
 	}
 }
 
+// TestHashBuiltinsPostfix tests that hash built-ins compile to their postfix operators.
+func TestHashBuiltinsPostfix(t *testing.T) {
+	tests := []struct {
+		name     string
+		el       string
+		contains string
+	}{
+		{
+			name:     "sha256 literal",
+			el:       "sha256 of 0xdeadbeef is equal to 0xdeadbeef",
+			contains: "sha256",
+		},
+		{
+			name:     "keccak256 literal",
+			el:       "keccak256 of 0xdeadbeef is equal to 0xdeadbeef",
+			contains: "keccak256",
+		},
+		{
+			name:     "ripemd160 literal",
+			el:       "ripemd160 of 0xdeadbeef is equal to 0xdeadbeef",
+			contains: "ripemd160",
+		},
+		{
+			name:     "sha3 literal",
+			el:       "sha3 of 0xdeadbeef is equal to 0xdeadbeef",
+			contains: "sha3",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewCompiler()
+			got, err := c.CompileCondition(tt.el)
+			if err != nil {
+				t.Fatalf("CompileCondition(%q) error: %v", tt.el, err)
+			}
+			if !strings.Contains(got, tt.contains) {
+				t.Errorf("CompileCondition(%q) = %q; expected %q in output", tt.el, got, tt.contains)
+			}
+		})
+	}
+}
+
+// TestHashBuiltinsSymbolTyped tests hash built-ins with symbol-typed bytes variables.
+func TestHashBuiltinsSymbolTyped(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{"payload": TypeBytes, "expected": TypeBytes})
+	got, err := c.CompileCondition("sha256 of payload is equal to expected")
+	if err != nil {
+		t.Fatalf("CompileCondition error: %v", err)
+	}
+	if !strings.Contains(got, "sha256") {
+		t.Errorf("sha256 of typed bytes should produce sha256, got: %q", got)
+	}
+}
+
+// TestHashBuiltinsNonBytesError tests that applying a hash to a non-bytes expression fails.
+func TestHashBuiltinsNonBytesError(t *testing.T) {
+	c := NewCompiler()
+	_, err := c.CompileCondition("sha256 of 42 is equal to 0x00")
+	if err == nil {
+		t.Error("sha256 of non-bytes integer should fail at compile time")
+	}
+}
+
 // TestBytesPostfixGolden tests postfix round-trip for key bytes constructs.
 func TestBytesPostfixGolden(t *testing.T) {
 	tests := []struct {
@@ -224,6 +289,34 @@ func TestBytesPostfixGolden(t *testing.T) {
 				return c.CompileCondition("data[0] is equal to 255")
 			},
 			contains: "bytesidx",
+		},
+		{
+			name: "sha256",
+			compile: func(c *Compiler) (string, error) {
+				return c.CompileCondition("sha256 of 0xdeadbeef is equal to 0xdeadbeef")
+			},
+			contains: "sha256",
+		},
+		{
+			name: "keccak256",
+			compile: func(c *Compiler) (string, error) {
+				return c.CompileCondition("keccak256 of 0xdeadbeef is equal to 0xdeadbeef")
+			},
+			contains: "keccak256",
+		},
+		{
+			name: "ripemd160",
+			compile: func(c *Compiler) (string, error) {
+				return c.CompileCondition("ripemd160 of 0xdeadbeef is equal to 0xdeadbeef")
+			},
+			contains: "ripemd160",
+		},
+		{
+			name: "sha3",
+			compile: func(c *Compiler) (string, error) {
+				return c.CompileCondition("sha3 of 0xdeadbeef is equal to 0xdeadbeef")
+			},
+			contains: "sha3",
 		},
 	}
 

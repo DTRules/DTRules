@@ -928,6 +928,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#strValueOfOp.
 	VisitStrValueOfOp(ctx *StrValueOfOpContext) interface{}
 
+	// Visit a parse tree produced by ELParser#strHexOfBytes.
+	VisitStrHexOfBytes(ctx *StrHexOfBytesContext) interface{}
+
 	// Visit a parse tree produced by ELParser#strConcatDate.
 	VisitStrConcatDate(ctx *StrConcatDateContext) interface{}
 
@@ -967,8 +970,14 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#strToUpper.
 	VisitStrToUpper(ctx *StrToUpperContext) interface{}
 
+	// Visit a parse tree produced by ELParser#strBase58CheckOfBytes.
+	VisitStrBase58CheckOfBytes(ctx *StrBase58CheckOfBytesContext) interface{}
+
 	// Visit a parse tree produced by ELParser#strValueOfBool.
 	VisitStrValueOfBool(ctx *StrValueOfBoolContext) interface{}
+
+	// Visit a parse tree produced by ELParser#strBech32OfBytes.
+	VisitStrBech32OfBytes(ctx *StrBech32OfBytesContext) interface{}
 
 	// Visit a parse tree produced by ELParser#strConcatFloat.
 	VisitStrConcatFloat(ctx *StrConcatFloatContext) interface{}
@@ -1207,6 +1216,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#bigColonRef.
 	VisitBigColonRef(ctx *BigColonRefContext) interface{}
 
+	// Visit a parse tree produced by ELParser#bigFromBytes.
+	VisitBigFromBytes(ctx *BigFromBytesContext) interface{}
+
 	// Visit a parse tree produced by ELParser#bigFromFloat.
 	VisitBigFromFloat(ctx *BigFromFloatContext) interface{}
 
@@ -1237,23 +1249,47 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#bigTyped.
 	VisitBigTyped(ctx *BigTypedContext) interface{}
 
+	// Visit a parse tree produced by ELParser#bytesSha256.
+	VisitBytesSha256(ctx *BytesSha256Context) interface{}
+
+	// Visit a parse tree produced by ELParser#bytesLiteral.
+	VisitBytesLiteral(ctx *BytesLiteralContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bytesCvBase58Check.
+	VisitBytesCvBase58Check(ctx *BytesCvBase58CheckContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bytesCvBech32.
+	VisitBytesCvBech32(ctx *BytesCvBech32Context) interface{}
+
+	// Visit a parse tree produced by ELParser#bytesRipemd160.
+	VisitBytesRipemd160(ctx *BytesRipemd160Context) interface{}
+
+	// Visit a parse tree produced by ELParser#bytesColonRef.
+	VisitBytesColonRef(ctx *BytesColonRefContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bytesCvHex.
+	VisitBytesCvHex(ctx *BytesCvHexContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bytesCvBigInt.
+	VisitBytesCvBigInt(ctx *BytesCvBigIntContext) interface{}
+
 	// Visit a parse tree produced by ELParser#bytesSlice.
 	VisitBytesSlice(ctx *BytesSliceContext) interface{}
 
 	// Visit a parse tree produced by ELParser#bytesConcat.
 	VisitBytesConcat(ctx *BytesConcatContext) interface{}
 
-	// Visit a parse tree produced by ELParser#bytesLiteral.
-	VisitBytesLiteral(ctx *BytesLiteralContext) interface{}
+	// Visit a parse tree produced by ELParser#bytesKeccak256.
+	VisitBytesKeccak256(ctx *BytesKeccak256Context) interface{}
 
 	// Visit a parse tree produced by ELParser#bytesTyped.
 	VisitBytesTyped(ctx *BytesTypedContext) interface{}
 
-	// Visit a parse tree produced by ELParser#bytesColonRef.
-	VisitBytesColonRef(ctx *BytesColonRefContext) interface{}
-
 	// Visit a parse tree produced by ELParser#bytesParen.
 	VisitBytesParen(ctx *BytesParenContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bytesSha3.
+	VisitBytesSha3(ctx *BytesSha3Context) interface{}
 
 	// Visit a parse tree produced by ELParser#includeNumber.
 	VisitIncludeNumber(ctx *IncludeNumberContext) interface{}
