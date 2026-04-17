@@ -507,6 +507,39 @@ func TestDocumentation_NoExpressionsTopic(t *testing.T) {
 	}
 }
 
+// TestDocumentation_ProjectLayoutTopic verifies the project-layout doc topic exists
+// and contains key markers.
+func TestDocumentation_ProjectLayoutTopic(t *testing.T) {
+	bin := findDTRulesBinary()
+	if bin == "" {
+		build := exec.Command("go", "build", "-o", "/tmp/dtrules-test-bin", "../../cmd/dtrules/")
+		if out, err := build.CombinedOutput(); err != nil {
+			t.Logf("build failed: %v\n%s", err, out)
+			t.Skip("dtrules binary not available")
+		}
+		bin = "/tmp/dtrules-test-bin"
+	}
+
+	out, err := exec.Command(bin, "docs", "project-layout").Output()
+	if err != nil {
+		t.Fatalf("dtrules docs project-layout failed: %v", err)
+	}
+	content := string(out)
+
+	required := []string{
+		"_dt.xml",
+		"_edd.xml",
+		"_map.xml",
+		".sync-manifest.json",
+		"A1 marker",
+	}
+	for _, marker := range required {
+		if !strings.Contains(content, marker) {
+			t.Errorf("project-layout doc missing required marker: %q", marker)
+		}
+	}
+}
+
 // TestDocumentation_NoBytecodeSpecFile asserts that pkg/dtrules/docs/bytecode-spec.md
 // does not exist. This file would expose internal bytecode format to authors.
 func TestDocumentation_NoBytecodeSpecFile(t *testing.T) {

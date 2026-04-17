@@ -22,14 +22,15 @@ import (
 
 // Documentation topics embedded in the executable
 var docTopics = map[string]string{
-	"bigint":          docBigInt,
-	"el":              docEL,
-	"xml-format":      docXMLFormat,
-	"edd":             docEDD,
-	"decision-tables": docDecisionTables,
-	"operators":       docOperators,
-	"examples":        docExamples,
-	"workflow":        docWorkflow,
+	"bigint":           docBigInt,
+	"decision-tables":  docDecisionTables,
+	"edd":              docEDD,
+	"el":               docEL,
+	"examples":         docExamples,
+	"operators":        docOperators,
+	"project-layout":   docProjectLayout,
+	"workflow":         docWorkflow,
+	"xml-format":       docXMLFormat,
 }
 
 func runDocs(args []string) error {
@@ -64,14 +65,15 @@ func printDocIndex() {
 	sort.Strings(topics)
 
 	descriptions := map[string]string{
-		"bigint":          "Arbitrary-precision integer support for financial calculations",
-		"el":              "Expression Language syntax (REQUIRED for all tables)",
-		"xml-format":      "XML file format specification (EDD and DT)",
-		"edd":             "Entity Data Dictionary - defining entities and fields",
-		"decision-tables": "How to write decision tables",
-		"operators":       "All available operators with examples",
-		"examples":        "Complete working examples",
-		"workflow":        "Development workflow with Excel and XML",
+		"bigint":           "Arbitrary-precision integer support for financial calculations",
+		"decision-tables":  "How to write decision tables",
+		"edd":              "Entity Data Dictionary - defining entities and fields",
+		"el":               "Expression Language syntax (REQUIRED for all tables)",
+		"examples":         "Complete working examples",
+		"operators":        "All available operators with examples",
+		"project-layout":   "Project folder conventions and the _dt/_edd/_map file naming rule",
+		"workflow":         "Development workflow with Excel and XML",
+		"xml-format":       "XML file format specification (EDD and DT)",
 	}
 
 	for _, t := range topics {
