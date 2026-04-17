@@ -88,12 +88,20 @@ type EDDFieldShort struct {
 	Comment      string `xml:"comment,attr"`
 }
 
+// EDDSource records the Excel workbook and sheet from which an entity was imported.
+type EDDSource struct {
+	RelativePath string `xml:"relative_path"`
+	FileName     string `xml:"file_name"`
+	SheetNumber  int    `xml:"sheet_number"`
+}
+
 // EDDEntity represents an entity definition
 type EDDEntity struct {
 	Name    string     `xml:"name,attr" json:"name"`
 	Access  string     `xml:"access,attr" json:"access"`
 	Comment string     `xml:"comment,attr" json:"comment,omitempty"`
 	XlsFile string     `xml:"xls_file,attr" json:"xls_file,omitempty"`
+	Source  *EDDSource `xml:"source,omitempty" json:"-"`
 	Fields  []EDDField `xml:"field" json:"fields"`
 }
 

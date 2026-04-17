@@ -75,6 +75,14 @@ func (i *DTImporter) SetSymbols(symbols map[string]string) {
 	}
 }
 
+// SourceXML records the Excel workbook and sheet from which an artifact was imported.
+// It enables the exporter to route the artifact back to the exact workbook and sheet.
+type SourceXML struct {
+	RelativePath string `xml:"relative_path"`
+	FileName     string `xml:"file_name"`
+	SheetNumber  int    `xml:"sheet_number"`
+}
+
 // DecisionTablesXML represents the root XML element for decision tables.
 type DecisionTablesXML struct {
 	XMLName xml.Name           `xml:"decision_tables"`
@@ -83,6 +91,7 @@ type DecisionTablesXML struct {
 
 // DecisionTableXML represents a single decision table in XML format.
 type DecisionTableXML struct {
+	Source           *SourceXML           `xml:"source,omitempty"`
 	TableName        string               `xml:"table_name"`
 	XLSFile          string               `xml:"xls_file"`
 	AttributeFields  AttributeFieldsXML   `xml:"attribute_fields"`
@@ -141,6 +150,12 @@ type PolicyStatementXML struct {
 
 // ImportDecisionTables reads an Excel file and returns decision table XML.
 func (i *DTImporter) ImportDecisionTables(filename string) (*DecisionTablesXML, error) {
+	return i.importDecisionTablesWithSource(filename, filepath.Base(filename), filepath.Base(filename))
+}
+
+// importDecisionTablesWithSource reads an Excel file and returns decision table XML,
+// setting xlsFile in XLSFile and relPath in the <source> element.
+func (i *DTImporter) importDecisionTablesWithSource(filename, xlsFile, relPath string) (*DecisionTablesXML, error) {
 	f, err := excelize.OpenFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open Excel file: %w", err)
@@ -149,14 +164,14 @@ func (i *DTImporter) ImportDecisionTables(filename string) (*DecisionTablesXML, 
 
 	tables := &DecisionTablesXML{}
 
-	// Process each sheet as a decision table
+	// Process each sheet as a decision table, tracking 1-based sheet index
 	sheets := f.GetSheetList()
-	for _, sheetName := range sheets {
+	for sheetIdx, sheetName := range sheets {
 		if i.verbose {
 			fmt.Printf("Processing sheet: %s\n", sheetName)
 		}
 
-		table, err := i.parseSheet(f, sheetName, filepath.Base(filename))
+		table, err := i.parseSheet(f, sheetName, xlsFile)
 		if err != nil {
 			if i.verbose {
 				fmt.Printf("  Warning: %v\n", err)
@@ -169,6 +184,11 @@ func (i *DTImporter) ImportDecisionTables(filename string) (*DecisionTablesXML, 
 				if i.verbose {
 					fmt.Printf("  EL compilation warning: %v\n", err)
 				}
+			}
+			table.Source = &SourceXML{
+				RelativePath: relPath,
+				FileName:     filepath.Base(filename),
+				SheetNumber:  sheetIdx + 1, // 1-based
 			}
 			tables.Tables = append(tables.Tables, *table)
 		}
@@ -230,17 +250,12 @@ func (i *DTImporter) ImportDecisionTablesFromDir(dir string) (*DecisionTablesXML
 			fmt.Printf("Processing file: %s\n", entry.relPath)
 		}
 
-		fileTables, err := i.ImportDecisionTables(entry.path)
+		fileTables, err := i.importDecisionTablesWithSource(entry.path, entry.relPath, entry.relPath)
 		if err != nil {
 			if i.verbose {
 				fmt.Printf("  Warning: %v\n", err)
 			}
 			continue
-		}
-
-		// Update xls_file to include relative directory path
-		for idx := range fileTables.Tables {
-			fileTables.Tables[idx].XLSFile = entry.relPath
 		}
 
 		tables.Tables = append(tables.Tables, fileTables.Tables...)
@@ -289,6 +304,16 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 	} else {
 		f.WriteString("<decision_table>\n")
 	}
+
+	// Write <source> as first child if present
+	if table.Source != nil {
+		f.WriteString("<source>\n")
+		f.WriteString(fmt.Sprintf("<relative_path>%s</relative_path>\n", xmlEscape(table.Source.RelativePath)))
+		f.WriteString(fmt.Sprintf("<file_name>%s</file_name>\n", xmlEscape(table.Source.FileName)))
+		f.WriteString(fmt.Sprintf("<sheet_number>%d</sheet_number>\n", table.Source.SheetNumber))
+		f.WriteString("</source>\n")
+	}
+
 	f.WriteString(fmt.Sprintf("<table_name>%s</table_name>\n", xmlEscape(table.TableName)))
 	f.WriteString(fmt.Sprintf("<xls_file>%s</xls_file>\n", xmlEscape(table.XLSFile)))
 

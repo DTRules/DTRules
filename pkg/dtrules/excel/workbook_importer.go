@@ -57,14 +57,24 @@ func (w *WorkbookImporter) SetVerbose(v bool) {
 // - EDD sheet: Sheet named "EDD" OR first row has headers "Entity, Attribute, Type, SubType..."
 // - DT sheet: Cell A1 contains "Decision Table" or "Name:" pattern
 func (w *WorkbookImporter) ImportWorkbook(excelPath string) (*WorkbookResult, error) {
+	return w.importWorkbookWithSource(excelPath, filepath.Base(excelPath), "")
+}
+
+// importWorkbookWithSource reads a workbook and sets xlsFile and relPath for metadata.
+func (w *WorkbookImporter) importWorkbookWithSource(excelPath, xlsFile, relPath string) (*WorkbookResult, error) {
 	f, err := excelize.OpenFile(excelPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open Excel file: %w", err)
 	}
 	defer f.Close()
 
+	srcRelPath := relPath
+	if srcRelPath == "" {
+		srcRelPath = filepath.Base(excelPath)
+	}
+
 	result := &WorkbookResult{
-		FilePath: filepath.Base(excelPath),
+		FilePath: xlsFile,
 		DTables:  &DecisionTablesXML{},
 		EDD:      &EDDXML{Version: "2", Entities: make([]*EDDXMLEntity, 0)},
 	}
@@ -72,6 +82,12 @@ func (w *WorkbookImporter) ImportWorkbook(excelPath string) (*WorkbookResult, er
 	sheets := f.GetSheetList()
 	if len(sheets) == 0 {
 		return nil, fmt.Errorf("no sheets found in Excel file")
+	}
+
+	// Build sheet index map (1-based) for source tracking
+	sheetIndexMap := make(map[string]int, len(sheets))
+	for idx, name := range sheets {
+		sheetIndexMap[name] = idx + 1
 	}
 
 	// Categorize sheets
@@ -93,7 +109,9 @@ func (w *WorkbookImporter) ImportWorkbook(excelPath string) (*WorkbookResult, er
 
 	// Process EDD sheets
 	if len(eddSheets) > 0 {
-		w.eddImporter.SourceFile = filepath.Base(excelPath)
+		w.eddImporter.SourceFile = xlsFile
+		w.eddImporter.sourceRelPath = srcRelPath
+		w.eddImporter.sheetIndexMap = sheetIndexMap
 		for _, sheet := range eddSheets {
 			eddData, err := w.importEDDSheetFromFile(f, sheet)
 			if err != nil {
@@ -111,7 +129,7 @@ func (w *WorkbookImporter) ImportWorkbook(excelPath string) (*WorkbookResult, er
 		if w.verbose {
 			fmt.Printf("  Processing DT sheet: %s\n", sheet)
 		}
-		table, err := w.parseDTSheet(f, sheet, filepath.Base(excelPath))
+		table, err := w.parseDTSheet(f, sheet, xlsFile)
 		if err != nil {
 			if w.verbose {
 				fmt.Printf("  Warning: failed to parse DT sheet %s: %v\n", sheet, err)
@@ -119,6 +137,12 @@ func (w *WorkbookImporter) ImportWorkbook(excelPath string) (*WorkbookResult, er
 			continue
 		}
 		if table != nil {
+			// Attach source metadata
+			table.Source = &SourceXML{
+				RelativePath: srcRelPath,
+				FileName:     filepath.Base(excelPath),
+				SheetNumber:  sheetIndexMap[sheet],
+			}
 			result.DTables.Tables = append(result.DTables.Tables, *table)
 		}
 	}
@@ -178,23 +202,12 @@ func (w *WorkbookImporter) ImportDirectory(excelDir string) ([]*WorkbookResult, 
 			fmt.Printf("Processing workbook: %s\n", entry.relPath)
 		}
 
-		result, err := w.ImportWorkbook(entry.path)
+		result, err := w.importWorkbookWithSource(entry.path, entry.relPath, entry.relPath)
 		if err != nil {
 			if w.verbose {
 				fmt.Printf("  Warning: %v\n", err)
 			}
 			continue
-		}
-
-		// Update FilePath to relative path from base directory
-		result.FilePath = entry.relPath
-
-		// Update xls_file metadata in all tables and entities
-		for idx := range result.DTables.Tables {
-			result.DTables.Tables[idx].XLSFile = entry.relPath
-		}
-		for _, ent := range result.EDD.Entities {
-			ent.XlsFile = entry.relPath
 		}
 
 		results = append(results, result)
@@ -424,12 +437,18 @@ func (w *WorkbookImporter) parseMultiSheetEntityFromRows(rows [][]string, sheetN
 		entityName = sheetName // Use sheet name as fallback
 	}
 
+	sheetNum := w.eddImporter.sheetIndexMap[sheetName]
 	entity := &EDDXMLEntity{
 		Name:    entityName,
 		XlsFile: w.eddImporter.SourceFile,
 		Access:  strings.TrimSpace(getCellValue(rows[1], 1)),
 		Comment: strings.TrimSpace(getCellValue(rows[2], 1)),
 		Fields:  make([]*EDDXMLField, 0),
+		Source: &SourceXML{
+			RelativePath: w.eddImporter.sourceRelPath,
+			FileName:     filepath.Base(w.eddImporter.SourceFile),
+			SheetNumber:  sheetNum,
+		},
 	}
 
 	if entity.Access == "" {
@@ -474,11 +493,13 @@ func (w *WorkbookImporter) parseMultiSheetEntityFromRows(rows [][]string, sheetN
 }
 
 // parseEDDSheetFromRows parses EDD data from rows in single-sheet format.
-func (w *WorkbookImporter) parseEDDSheetFromRows(rows [][]string, _ string) (*EDDXML, error) {
+func (w *WorkbookImporter) parseEDDSheetFromRows(rows [][]string, sheetName string) (*EDDXML, error) {
 	edd := &EDDXML{
 		Version:  "2",
 		Entities: make([]*EDDXMLEntity, 0),
 	}
+
+	sheetNum := w.eddImporter.sheetIndexMap[sheetName]
 
 	// Skip header row (row 0)
 	var currentEntity *EDDXMLEntity
@@ -502,6 +523,11 @@ func (w *WorkbookImporter) parseEDDSheetFromRows(rows [][]string, _ string) (*ED
 					XlsFile: w.eddImporter.SourceFile,
 					Access:  "rw",
 					Fields:  make([]*EDDXMLField, 0),
+					Source: &SourceXML{
+						RelativePath: w.eddImporter.sourceRelPath,
+						FileName:     filepath.Base(w.eddImporter.SourceFile),
+						SheetNumber:  sheetNum,
+					},
 				}
 				edd.Entities = append(edd.Entities, currentEntity)
 				continue
