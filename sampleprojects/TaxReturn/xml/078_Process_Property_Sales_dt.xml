@@ -4,7 +4,7 @@
 <!-- TABLE 22000: Process_Property_Sales -->
 <decision_table>
 <table_name>Process_Property_Sales</table_name>
-<xls_file>078_Process_Property_Sales.xlsx</xls_file>
+<xls_file>078_Process_Property_Sales_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 4797 sales of business property. Calculates gain/loss, depreciation recapture (Section 1245/1250), and Section 1231 treatment.</COMMENTS>

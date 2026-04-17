@@ -4,7 +4,7 @@
 <!-- TABLE 2100: Process_W2_Income -->
 <decision_table>
 <table_name>Process_W2_Income</table_name>
-<xls_file>003_Process_W2_Income.xlsx</xls_file>
+<xls_file>003_Process_W2_Income_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Processes W-2 wage income for all taxpayers. Records wages per Form 1040 Line 1a, IRC Section 61(a)(1). Also tracks withholding for payment calculation.</COMMENTS>

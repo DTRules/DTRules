@@ -4,7 +4,7 @@
 <!-- TABLE 9040: Count_EITC_Qualifying_Child -->
 <decision_table>
 <table_name>Count_EITC_Qualifying_Child</table_name>
-<xls_file>043_Count_EITC_Qualifying_Child.xlsx</xls_file>
+<xls_file>043_Count_EITC_Qualifying_Child_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table that increments counter if dependent is qualifying child for EITC. Per IRS Pub 596: child relationship, age test (under 19, OR under 24 if student, OR any age if disabled), and residency test (&gt;6 months).</COMMENTS>

@@ -4,7 +4,7 @@
 <!-- TABLE 6000: Calculate_Credits -->
 <decision_table>
 <table_name>Calculate_Credits</table_name>
-<xls_file>027_Calculate_Credits.xlsx</xls_file>
+<xls_file>027_Calculate_Credits_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates tax credits including Child Tax Credit (CTC), Other Dependent Credit (ODC), and Additional Child Tax Credit (ACTC) per Form 1040 Lines 19-21, Schedule 8812, IRC Section 24.</COMMENTS>

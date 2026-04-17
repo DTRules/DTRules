@@ -4,7 +4,7 @@
 <!-- TABLE 8400: Calculate_Mortgage_Interest_Credit -->
 <decision_table>
 <table_name>Calculate_Mortgage_Interest_Credit</table_name>
-<xls_file>084_Calculate_Mortgage_Interest_Credit.xlsx</xls_file>
+<xls_file>084_Calculate_Mortgage_Interest_Credit_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates Mortgage Interest Credit for holders of Mortgage Credit Certificates (MCC). Credit = mortgage interest paid x MCC rate. Limited to $2,000. Reduces Schedule A mortgage interest deduction. Excess carries forward per Form 8396.</COMMENTS>

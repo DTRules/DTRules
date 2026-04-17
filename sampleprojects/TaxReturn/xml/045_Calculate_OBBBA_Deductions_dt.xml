@@ -4,7 +4,7 @@
 <!-- TABLE 10000: Calculate_OBBBA_Deductions -->
 <decision_table>
 <table_name>Calculate_OBBBA_Deductions</table_name>
-<xls_file>045_Calculate_OBBBA_Deductions.xlsx</xls_file>
+<xls_file>045_Calculate_OBBBA_Deductions_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates OBBBA 2025 deductions: No Tax on Tips, No Tax on Overtime, and Senior Additional Deduction. These are above-the-line deductions that reduce AGI.</COMMENTS>

@@ -4,7 +4,7 @@
 <!-- TABLE 5100: Apply_Tax_Brackets -->
 <decision_table>
 <table_name>Apply_Tax_Brackets</table_name>
-<xls_file>024_Apply_Tax_Brackets.xlsx</xls_file>
+<xls_file>024_Apply_Tax_Brackets_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Applies marginal tax brackets to calculate regular tax per Form 1040 Line 16, IRC Section 1. Uses 2025 estimated bracket amounts for MFJ, Single, and other filing statuses.</COMMENTS>

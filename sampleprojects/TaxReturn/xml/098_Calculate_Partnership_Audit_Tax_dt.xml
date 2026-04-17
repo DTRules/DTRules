@@ -4,7 +4,7 @@
 <!-- TABLE 26200: Calculate_Partnership_Audit_Tax -->
 <decision_table>
 <table_name>Calculate_Partnership_Audit_Tax</table_name>
-<xls_file>098_Calculate_Partnership_Audit_Tax.xlsx</xls_file>
+<xls_file>098_Calculate_Partnership_Audit_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate Partner's Additional Reporting Year Tax per Form 8978 and IRC 6226. For BBA partnership audit adjustments pushed out to partners.</COMMENTS>

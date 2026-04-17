@@ -4,7 +4,7 @@
 <!-- TABLE : Calculate_Educator_Expenses -->
 <decision_table>
 <table_name>Calculate_Educator_Expenses</table_name>
-<xls_file>060_Calculate_Educator_Expenses.xlsx</xls_file>
+<xls_file>060_Calculate_Educator_Expenses_dt.xlsx</xls_file>
 <attribute_fields>
 <Type></Type>
 <COMMENTS></COMMENTS>

@@ -4,7 +4,7 @@
 <!-- TABLE 8100: Validate_AGI -->
 <decision_table>
 <table_name>Validate_AGI</table_name>
-<xls_file>036_Validate_AGI.xlsx</xls_file>
+<xls_file>036_Validate_AGI_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Validates AGI against expected value. Sets validation_passed to false on mismatch.</COMMENTS>

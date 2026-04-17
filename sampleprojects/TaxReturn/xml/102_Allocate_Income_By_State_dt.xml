@@ -4,7 +4,7 @@
 <!-- TABLE 45000: Allocate_Income_By_State -->
 <decision_table>
 <table_name>Allocate_Income_By_State</table_name>
-<xls_file>102_Allocate_Income_By_State.xlsx</xls_file>
+<xls_file>102_Allocate_Income_By_State_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ITERATIVE</Type>
 <COMMENTS>Allocates income across multiple states for taxpayers who moved between states during the tax year. Processes each state_period and allocates income based on dates and source state.</COMMENTS>

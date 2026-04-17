@@ -4,7 +4,7 @@
 <!-- TABLE 24800: Process_Clean_Vehicle_Credit -->
 <decision_table>
 <table_name>Process_Clean_Vehicle_Credit</table_name>
-<xls_file>092_Process_Clean_Vehicle_Credit.xlsx</xls_file>
+<xls_file>092_Process_Clean_Vehicle_Credit_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 8936 Clean Vehicle Credit per IRC 30D. Up to $7,500 for new EVs meeting assembly and component requirements.</COMMENTS>

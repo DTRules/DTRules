@@ -4,7 +4,7 @@
 <!-- TABLE 25400: Coordinate_Military_And_Foreign_Income -->
 <decision_table>
 <table_name>Coordinate_Military_And_Foreign_Income</table_name>
-<xls_file>114_Coordinate_Military_And_Foreign_Income.xlsx</xls_file>
+<xls_file>114_Coordinate_Military_And_Foreign_Income_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Coordinate military combat zone exclusion with foreign earned income exclusion for military stationed abroad with civilian spouse working in foreign country. Combat zone exclusion takes priority; remaining spouse income may qualify for FEIE.</COMMENTS>

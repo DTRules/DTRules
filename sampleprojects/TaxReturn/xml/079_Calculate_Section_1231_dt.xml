@@ -4,7 +4,7 @@
 <!-- TABLE 22100: Calculate_Section_1231 -->
 <decision_table>
 <table_name>Calculate_Section_1231</table_name>
-<xls_file>079_Calculate_Section_1231.xlsx</xls_file>
+<xls_file>079_Calculate_Section_1231_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine treatment of net Section 1231 gain or loss. Net gains are treated as long-term capital gains; net losses are treated as ordinary losses (fully deductible).</COMMENTS>

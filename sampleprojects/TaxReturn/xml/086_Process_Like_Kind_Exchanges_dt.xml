@@ -4,7 +4,7 @@
 <!-- TABLE 24200: Process_Like_Kind_Exchanges -->
 <decision_table>
 <table_name>Process_Like_Kind_Exchanges</table_name>
-<xls_file>086_Process_Like_Kind_Exchanges.xlsx</xls_file>
+<xls_file>086_Process_Like_Kind_Exchanges_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 8824 Like-Kind Exchanges (Section 1031). Allows deferral of gain on exchange of like-kind real property.</COMMENTS>

@@ -4,7 +4,7 @@
 <!-- TABLE 4100: Calculate_QBI_Deduction -->
 <decision_table>
 <table_name>Calculate_QBI_Deduction</table_name>
-<xls_file>034_Calculate_QBI_Deduction.xlsx</xls_file>
+<xls_file>034_Calculate_QBI_Deduction_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates Qualified Business Income deduction per Form 8995/8995-A, Publication 535, IRC 199A. The QBI deduction allows eligible self-employed and small business owners to deduct up to 20% of their qualified business income.</COMMENTS>

@@ -4,7 +4,7 @@
 <!-- TABLE 5600: Calculate_CDCC -->
 <decision_table>
 <table_name>Calculate_CDCC</table_name>
-<xls_file>062_Calculate_CDCC.xlsx</xls_file>
+<xls_file>062_Calculate_CDCC_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Child and Dependent Care Credit per Form 2441, IRC 21</COMMENTS>

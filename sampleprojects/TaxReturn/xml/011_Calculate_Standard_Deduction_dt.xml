@@ -4,7 +4,7 @@
 <!-- TABLE 3100: Calculate_Standard_Deduction -->
 <decision_table>
 <table_name>Calculate_Standard_Deduction</table_name>
-<xls_file>011_Calculate_Standard_Deduction.xlsx</xls_file>
+<xls_file>011_Calculate_Standard_Deduction_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determines standard deduction amount based on filing status per IRC Section 63(c), Publication 17 Chapter 20. Amounts for 2025 are estimated.</COMMENTS>

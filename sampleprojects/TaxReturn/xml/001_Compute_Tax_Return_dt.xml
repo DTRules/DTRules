@@ -4,7 +4,7 @@
 <!-- TABLE 1000: Compute_Tax_Return -->
 <decision_table>
 <table_name>Compute_Tax_Return</table_name>
-<xls_file>001_Compute_Tax_Return.xlsx</xls_file>
+<xls_file>001_Compute_Tax_Return_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Entry point for tax return calculation. Orchestrates the complete tax calculation process following the structure of Form 1040. Determines filing status and executes calculation tables in proper order per IRS Form 1040 instructions.</COMMENTS>

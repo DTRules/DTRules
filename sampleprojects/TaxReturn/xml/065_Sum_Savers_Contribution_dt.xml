@@ -4,7 +4,7 @@
 <!-- TABLE 5701: Sum_Savers_Contribution -->
 <decision_table>
 <table_name>Sum_Savers_Contribution</table_name>
-<xls_file>065_Sum_Savers_Contribution.xlsx</xls_file>
+<xls_file>065_Sum_Savers_Contribution_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Sum eligible retirement contributions for Saver's Credit per IRC 25B</COMMENTS>

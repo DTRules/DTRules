@@ -4,7 +4,7 @@
 <!-- TABLE 13150: Apply_CG_Brackets_HOH -->
 <decision_table>
 <table_name>Apply_CG_Brackets_HOH</table_name>
-<xls_file>053_Apply_CG_Brackets_HOH.xlsx</xls_file>
+<xls_file>053_Apply_CG_Brackets_HOH_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Applies HOH capital gains brackets (0%/15%/20%) based on taxable income level.</COMMENTS>

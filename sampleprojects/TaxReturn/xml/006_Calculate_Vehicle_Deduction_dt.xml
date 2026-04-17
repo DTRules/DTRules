@@ -4,7 +4,7 @@
 <!-- TABLE 2210: Calculate_Vehicle_Deduction -->
 <decision_table>
 <table_name>Calculate_Vehicle_Deduction</table_name>
-<xls_file>006_Calculate_Vehicle_Deduction.xlsx</xls_file>
+<xls_file>006_Calculate_Vehicle_Deduction_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates vehicle expense deduction using either standard mileage rate or actual expenses method per Publication 463 Chapter 4, IRC Section 162 and 274(d). Standard mileage rate for 2025 estimated at $0.70 per mile.</COMMENTS>

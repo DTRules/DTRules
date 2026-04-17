@@ -4,7 +4,7 @@
 <!-- TABLE 13000: Calculate_Capital_Gains_Tax -->
 <decision_table>
 <table_name>Calculate_Capital_Gains_Tax</table_name>
-<xls_file>051_Calculate_Capital_Gains_Tax.xlsx</xls_file>
+<xls_file>051_Calculate_Capital_Gains_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates capital gains tax using preferential rates (0%/15%/20%) per Schedule D Tax Worksheet, IRC 1(h). Applies different brackets based on filing status.</COMMENTS>

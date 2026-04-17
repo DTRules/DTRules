@@ -4,7 +4,7 @@
 <!-- TABLE 23000: Process_Foreign_Income -->
 <decision_table>
 <table_name>Process_Foreign_Income</table_name>
-<xls_file>080_Process_Foreign_Income.xlsx</xls_file>
+<xls_file>080_Process_Foreign_Income_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process foreign income for Form 1116 Foreign Tax Credit. Categorizes income by type (passive, general) and tracks foreign taxes paid.</COMMENTS>

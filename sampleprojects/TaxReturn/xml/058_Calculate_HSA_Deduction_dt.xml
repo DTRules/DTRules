@@ -4,7 +4,7 @@
 <!-- TABLE 17000: Calculate_HSA_Deduction -->
 <decision_table>
 <table_name>Calculate_HSA_Deduction</table_name>
-<xls_file>058_Calculate_HSA_Deduction.xlsx</xls_file>
+<xls_file>058_Calculate_HSA_Deduction_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates HSA deduction per Form 8889, Publication 969, IRC 223. Limits based on coverage type.</COMMENTS>

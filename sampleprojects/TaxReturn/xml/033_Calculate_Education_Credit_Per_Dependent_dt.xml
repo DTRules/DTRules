@@ -4,7 +4,7 @@
 <!-- TABLE 6310: Calculate_Education_Credit_Per_Dependent -->
 <decision_table>
 <table_name>Calculate_Education_Credit_Per_Dependent</table_name>
-<xls_file>033_Calculate_Education_Credit_Per_Dependent.xlsx</xls_file>
+<xls_file>033_Calculate_Education_Credit_Per_Dependent_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates education credit for a single dependent. Determines AOTC vs LLC eligibility and applies phase-out. Called by forall loop in Calculate_Education_Credits.</COMMENTS>

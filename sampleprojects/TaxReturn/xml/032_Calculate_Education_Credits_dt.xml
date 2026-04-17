@@ -4,7 +4,7 @@
 <!-- TABLE 6300: Calculate_Education_Credits -->
 <decision_table>
 <table_name>Calculate_Education_Credits</table_name>
-<xls_file>032_Calculate_Education_Credits.xlsx</xls_file>
+<xls_file>032_Calculate_Education_Credits_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates education credits (AOTC and LLC) per Form 8863, Publication 970, IRC 25A. AOTC is up to $2,500 for first 4 years of college (40% refundable). LLC is up to $2,000 for any post-secondary education.</COMMENTS>

@@ -4,7 +4,7 @@
 <!-- TABLE 19100: Calculate_K1_SE_Tax -->
 <decision_table>
 <table_name>Calculate_K1_SE_Tax</table_name>
-<xls_file>073_Calculate_K1_SE_Tax.xlsx</xls_file>
+<xls_file>073_Calculate_K1_SE_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate self-employment tax on K-1 SE earnings (Box 14 and guaranteed payments for services). General partners and LLC members pay SE tax on distributive share.</COMMENTS>

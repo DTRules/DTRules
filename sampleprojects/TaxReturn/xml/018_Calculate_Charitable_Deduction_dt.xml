@@ -4,7 +4,7 @@
 <!-- TABLE 3230: Calculate_Charitable_Deduction -->
 <decision_table>
 <table_name>Calculate_Charitable_Deduction</table_name>
-<xls_file>018_Calculate_Charitable_Deduction.xlsx</xls_file>
+<xls_file>018_Calculate_Charitable_Deduction_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates charitable contribution deduction per Schedule A Lines 11-14, Publication 526, IRC Section 170. Sums all charity-category deductions.</COMMENTS>

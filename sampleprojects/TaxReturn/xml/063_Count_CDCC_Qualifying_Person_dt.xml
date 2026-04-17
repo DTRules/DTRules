@@ -4,7 +4,7 @@
 <!-- TABLE 5601: Count_CDCC_Qualifying_Person -->
 <decision_table>
 <table_name>Count_CDCC_Qualifying_Person</table_name>
-<xls_file>063_Count_CDCC_Qualifying_Person.xlsx</xls_file>
+<xls_file>063_Count_CDCC_Qualifying_Person_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Count qualifying persons and care expenses for CDCC per IRC 21. Requires qualifying person (under 13 OR disabled) AND work-related care expenses greater than zero.</COMMENTS>

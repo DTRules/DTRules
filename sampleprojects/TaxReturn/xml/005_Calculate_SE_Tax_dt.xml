@@ -4,7 +4,7 @@
 <!-- TABLE 2210: Calculate_SE_Tax -->
 <decision_table>
 <table_name>Calculate_SE_Tax</table_name>
-<xls_file>005_Calculate_SE_Tax.xlsx</xls_file>
+<xls_file>005_Calculate_SE_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates self-employment tax per Schedule SE and IRC 1401. Called after net profit is computed so threshold checks work correctly.</COMMENTS>

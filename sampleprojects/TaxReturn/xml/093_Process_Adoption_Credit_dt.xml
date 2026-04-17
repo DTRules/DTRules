@@ -4,7 +4,7 @@
 <!-- TABLE 24900: Process_Adoption_Credit -->
 <decision_table>
 <table_name>Process_Adoption_Credit</table_name>
-<xls_file>093_Process_Adoption_Credit.xlsx</xls_file>
+<xls_file>093_Process_Adoption_Credit_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 8839 Adoption Credit per IRC 23. Up to $16,810 per child for qualified adoption expenses.</COMMENTS>

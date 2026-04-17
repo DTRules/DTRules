@@ -4,7 +4,7 @@
 <!-- TABLE 20100: Calculate_Roth_Conversion_Tax -->
 <decision_table>
 <table_name>Calculate_Roth_Conversion_Tax</table_name>
-<xls_file>075_Calculate_Roth_Conversion_Tax.xlsx</xls_file>
+<xls_file>075_Calculate_Roth_Conversion_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate taxable portion of Roth conversions using the pro-rata rule. When traditional IRA has both deductible and non-deductible contributions, conversions are taxed proportionally.</COMMENTS>

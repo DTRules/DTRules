@@ -4,7 +4,7 @@
 <!-- TABLE 18000: Calculate_Student_Loan_Deduction -->
 <decision_table>
 <table_name>Calculate_Student_Loan_Deduction</table_name>
-<xls_file>059_Calculate_Student_Loan_Deduction.xlsx</xls_file>
+<xls_file>059_Calculate_Student_Loan_Deduction_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates student loan interest deduction per Publication 970, IRC 221. Maximum $2,500 with AGI phase-out.</COMMENTS>

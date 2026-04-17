@@ -4,7 +4,7 @@
 <!-- TABLE 3221: Filter_Primary_Residence -->
 <decision_table>
 <table_name>Filter_Primary_Residence</table_name>
-<xls_file>017_Filter_Primary_Residence.xlsx</xls_file>
+<xls_file>017_Filter_Primary_Residence_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table that processes property if it is a primary residence.</COMMENTS>

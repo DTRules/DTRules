@@ -4,7 +4,7 @@
 <!-- TABLE 24000: Process_Foreign_Earned_Income -->
 <decision_table>
 <table_name>Process_Foreign_Earned_Income</table_name>
-<xls_file>083_Process_Foreign_Earned_Income.xlsx</xls_file>
+<xls_file>083_Process_Foreign_Earned_Income_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 2555 Foreign Earned Income Exclusion. Allows US citizens/residents abroad to exclude up to $126,500 of foreign earned income per IRC 911.</COMMENTS>

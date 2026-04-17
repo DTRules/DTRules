@@ -4,7 +4,7 @@
 <!-- TABLE 16000: Calculate_IRA_Deduction -->
 <decision_table>
 <table_name>Calculate_IRA_Deduction</table_name>
-<xls_file>057_Calculate_IRA_Deduction.xlsx</xls_file>
+<xls_file>057_Calculate_IRA_Deduction_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates Traditional IRA deduction per Publication 590-A, IRC 219. Applies phase-out if covered by employer plan.</COMMENTS>

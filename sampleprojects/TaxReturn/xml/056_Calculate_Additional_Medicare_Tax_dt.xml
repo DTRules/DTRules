@@ -4,7 +4,7 @@
 <!-- TABLE 15000: Calculate_Additional_Medicare_Tax -->
 <decision_table>
 <table_name>Calculate_Additional_Medicare_Tax</table_name>
-<xls_file>056_Calculate_Additional_Medicare_Tax.xlsx</xls_file>
+<xls_file>056_Calculate_Additional_Medicare_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates Additional Medicare Tax (0.9%) per Form 8959, IRC 3101(b)(2). Applies to wages and SE income over threshold.</COMMENTS>

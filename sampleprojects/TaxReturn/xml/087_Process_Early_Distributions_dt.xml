@@ -4,7 +4,7 @@
 <!-- TABLE 24300: Process_Early_Distributions -->
 <decision_table>
 <table_name>Process_Early_Distributions</table_name>
-<xls_file>087_Process_Early_Distributions.xlsx</xls_file>
+<xls_file>087_Process_Early_Distributions_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 5329 Early Distribution penalties. 10% penalty on early withdrawals from retirement accounts per IRC 72(t).</COMMENTS>

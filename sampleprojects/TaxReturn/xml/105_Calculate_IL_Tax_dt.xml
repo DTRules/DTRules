@@ -4,7 +4,7 @@
 <!-- TABLE 41100: Calculate_IL_Tax -->
 <decision_table>
 <table_name>Calculate_IL_Tax</table_name>
-<xls_file>105_Calculate_IL_Tax.xlsx</xls_file>
+<xls_file>105_Calculate_IL_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates Illinois state income tax per Form IL-1040. Illinois uses a flat tax rate of 4.95% (2025) with personal exemptions of $2,775 per person. Starting with federal AGI, adds state bond interest, subtracts retirement income, applies personal exemptions, and calculates tax at flat rate.</COMMENTS>

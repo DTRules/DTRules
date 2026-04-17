@@ -4,7 +4,7 @@
 <!-- TABLE 5801: Calculate_Energy_Credit_Per_Improvement -->
 <decision_table>
 <table_name>Calculate_Energy_Credit_Per_Improvement</table_name>
-<xls_file>067_Calculate_Energy_Credit_Per_Improvement.xlsx</xls_file>
+<xls_file>067_Calculate_Energy_Credit_Per_Improvement_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate credit for individual energy improvement per IRC 25C/25D</COMMENTS>

@@ -4,7 +4,7 @@
 <!-- TABLE 24700: Process_Casualty_Losses -->
 <decision_table>
 <table_name>Process_Casualty_Losses</table_name>
-<xls_file>091_Process_Casualty_Losses.xlsx</xls_file>
+<xls_file>091_Process_Casualty_Losses_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 4684 Casualty and Theft Losses per IRC 165. Personal casualty losses only deductible for federally declared disasters after TCJA.</COMMENTS>

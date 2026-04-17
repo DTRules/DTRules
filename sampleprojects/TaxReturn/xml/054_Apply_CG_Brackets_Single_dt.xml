@@ -4,7 +4,7 @@
 <!-- TABLE 13200: Apply_CG_Brackets_Single -->
 <decision_table>
 <table_name>Apply_CG_Brackets_Single</table_name>
-<xls_file>054_Apply_CG_Brackets_Single.xlsx</xls_file>
+<xls_file>054_Apply_CG_Brackets_Single_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Applies Single capital gains brackets (0%/15%/20%) based on taxable income level.</COMMENTS>

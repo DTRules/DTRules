@@ -401,8 +401,8 @@ func (s *Syncer) collectFiles(dir, ext string) ([]string, error) {
 // xmlToExcelPath converts an XML path to its corresponding Excel path.
 // In combined workbook mode:
 //
-//	xml/states/CO_dt.xml -> excel/states/CO.xlsx
-//	xml/states/CO_edd.xml -> excel/states/CO.xlsx (same file!)
+//	xml/states/CO_dt.xml -> excel/states/CO.xlsx        (mixed workbook, no suffix file)
+//	xml/001_Foo_dt.xml   -> excel/001_Foo_dt.xlsx       (single-artifact, suffix file exists)
 //
 // In legacy mode:
 //
@@ -416,7 +416,15 @@ func (s *Syncer) xmlToExcelPath(xmlPath string) string {
 	}
 
 	if s.UseCombinedWorkbooks {
-		// Combined workbook mode: strip _dt or _edd suffix
+		// Prefer a same-suffix xlsx if it exists on disk (single-artifact convention).
+		// e.g. 001_Foo_dt.xml → 001_Foo_dt.xlsx (when that file exists)
+		sameNameXlsx := filepath.Join(s.excelDir, strings.TrimSuffix(relPath, ".xml")+".xlsx")
+		if _, err := os.Stat(sameNameXlsx); err == nil {
+			return sameNameXlsx
+		}
+
+		// Fall back: strip _dt or _edd suffix to find the combined workbook.
+		// e.g. CO_dt.xml → CO.xlsx (shared by CO_dt.xml and CO_edd.xml)
 		relPath = strings.TrimSuffix(relPath, "_dt.xml")
 		relPath = strings.TrimSuffix(relPath, "_edd.xml")
 		relPath = strings.TrimSuffix(relPath, ".xml")
@@ -463,7 +471,17 @@ func (s *Syncer) excelToXMLPaths(excelPath string) []string {
 	base := strings.TrimSuffix(relPath, ".xlsx")
 
 	if s.UseCombinedWorkbooks {
-		// Combined mode: return both DT and EDD paths
+		// Single-artifact workbooks (suffix in filename) map to only their artifact type.
+		// e.g. 001_Foo_dt.xlsx → [001_Foo_dt.xml] only
+		if strings.HasSuffix(base, "_dt") {
+			return []string{filepath.Join(s.xmlDir, base+".xml")}
+		}
+		if strings.HasSuffix(base, "_edd") {
+			return []string{filepath.Join(s.xmlDir, base+".xml")}
+		}
+
+		// Mixed-artifact workbooks: return both DT and EDD paths.
+		// e.g. CO.xlsx → [CO_dt.xml, CO_edd.xml]
 		return []string{
 			filepath.Join(s.xmlDir, base+"_dt.xml"),
 			filepath.Join(s.xmlDir, base+"_edd.xml"),
@@ -858,11 +876,32 @@ func (s *Syncer) collectCombinedWorkbooks() ([]CombinedWorkbook, error) {
 		relPath, _ := filepath.Rel(s.excelDir, excelPath)
 		base := strings.TrimSuffix(relPath, ".xlsx")
 
-		wb := &CombinedWorkbook{
-			ExcelPath:  excelPath,
-			DTXMLPath:  filepath.Join(s.xmlDir, base+"_dt.xml"),
-			EDDXMLPath: filepath.Join(s.xmlDir, base+"_edd.xml"),
-			RelPath:    base,
+		var wb *CombinedWorkbook
+
+		// Single-artifact workbooks have a _dt or _edd suffix in the filename.
+		// e.g. 001_Foo_dt.xlsx → DTXMLPath = 001_Foo_dt.xml (same base, not 001_Foo_dt_dt.xml)
+		if strings.HasSuffix(base, "_dt") {
+			wb = &CombinedWorkbook{
+				ExcelPath:  excelPath,
+				DTXMLPath:  filepath.Join(s.xmlDir, base+".xml"),
+				EDDXMLPath: "", // not expected
+				RelPath:    base,
+			}
+		} else if strings.HasSuffix(base, "_edd") {
+			wb = &CombinedWorkbook{
+				ExcelPath:  excelPath,
+				DTXMLPath:  "", // not expected
+				EDDXMLPath: filepath.Join(s.xmlDir, base+".xml"),
+				RelPath:    base,
+			}
+		} else {
+			// Mixed-artifact workbook: maps to both _dt and _edd XML files.
+			wb = &CombinedWorkbook{
+				ExcelPath:  excelPath,
+				DTXMLPath:  filepath.Join(s.xmlDir, base+"_dt.xml"),
+				EDDXMLPath: filepath.Join(s.xmlDir, base+"_edd.xml"),
+				RelPath:    base,
+			}
 		}
 
 		// Check Excel file
@@ -872,15 +911,19 @@ func (s *Syncer) collectCombinedWorkbooks() ([]CombinedWorkbook, error) {
 		}
 
 		// Check DT XML file
-		if info, err := os.Stat(wb.DTXMLPath); err == nil {
-			wb.DTExists = true
-			wb.DTMod = info.ModTime()
+		if wb.DTXMLPath != "" {
+			if info, err := os.Stat(wb.DTXMLPath); err == nil {
+				wb.DTExists = true
+				wb.DTMod = info.ModTime()
+			}
 		}
 
 		// Check EDD XML file
-		if info, err := os.Stat(wb.EDDXMLPath); err == nil {
-			wb.EDDExists = true
-			wb.EDDMod = info.ModTime()
+		if wb.EDDXMLPath != "" {
+			if info, err := os.Stat(wb.EDDXMLPath); err == nil {
+				wb.EDDExists = true
+				wb.EDDMod = info.ModTime()
+			}
 		}
 
 		workbookMap[base] = wb
@@ -896,21 +939,39 @@ func (s *Syncer) collectCombinedWorkbooks() ([]CombinedWorkbook, error) {
 		relPath, _ := filepath.Rel(s.xmlDir, xmlPath)
 
 		// Determine base name (strip _dt.xml or _edd.xml)
+		isDT := strings.HasSuffix(relPath, "_dt.xml")
+		isEDD := strings.HasSuffix(relPath, "_edd.xml")
 		var base string
-		if strings.HasSuffix(relPath, "_dt.xml") {
+		if isDT {
 			base = strings.TrimSuffix(relPath, "_dt.xml")
-		} else if strings.HasSuffix(relPath, "_edd.xml") {
+		} else if isEDD {
 			base = strings.TrimSuffix(relPath, "_edd.xml")
 		} else {
 			// Not a standard naming convention, skip
 			continue
 		}
 
-		// Check if we already have this workbook
-		if _, exists := workbookMap[base]; exists {
+		// For single-artifact convention, the workbook map key is base+"_dt" or base+"_edd"
+		// because the Excel file is named with the same suffix.
+		singleArtifactKey := base
+		if isDT {
+			singleArtifactKey = base + "_dt"
+		} else {
+			singleArtifactKey = base + "_edd"
+		}
+
+		// Check if we already have this workbook (single-artifact key first, then mixed key)
+		var lookupKey string
+		if _, exists := workbookMap[singleArtifactKey]; exists {
+			lookupKey = singleArtifactKey
+		} else if _, exists := workbookMap[base]; exists {
+			lookupKey = base
+		}
+
+		if lookupKey != "" {
 			// Update XML existence info
-			wb := workbookMap[base]
-			if strings.HasSuffix(relPath, "_dt.xml") {
+			wb := workbookMap[lookupKey]
+			if isDT {
 				if info, err := os.Stat(xmlPath); err == nil {
 					wb.DTExists = true
 					wb.DTMod = info.ModTime()
@@ -924,8 +985,50 @@ func (s *Syncer) collectCombinedWorkbooks() ([]CombinedWorkbook, error) {
 			continue
 		}
 
-		// Create new workbook entry
-		wb := &CombinedWorkbook{
+		// Create new workbook entry — XML exists but no Excel counterpart yet.
+		// For single-artifact, check if _dt.xlsx / _edd.xlsx exists on disk.
+		var wb *CombinedWorkbook
+		singleXlsx := filepath.Join(s.excelDir, base+(map[bool]string{true: "_dt", false: "_edd"}[isDT])+".xlsx")
+		if _, err := os.Stat(singleXlsx); err == nil {
+			// Single-artifact workbook with suffix-named xlsx
+			if isDT {
+				wb = &CombinedWorkbook{
+					ExcelPath:  singleXlsx,
+					DTXMLPath:  xmlPath,
+					EDDXMLPath: "",
+					RelPath:    base + "_dt",
+				}
+				if info, err := os.Stat(singleXlsx); err == nil {
+					wb.ExcelExists = true
+					wb.ExcelMod = info.ModTime()
+				}
+				if info, err := os.Stat(xmlPath); err == nil {
+					wb.DTExists = true
+					wb.DTMod = info.ModTime()
+				}
+				workbookMap[base+"_dt"] = wb
+			} else {
+				wb = &CombinedWorkbook{
+					ExcelPath:  singleXlsx,
+					DTXMLPath:  "",
+					EDDXMLPath: xmlPath,
+					RelPath:    base + "_edd",
+				}
+				if info, err := os.Stat(singleXlsx); err == nil {
+					wb.ExcelExists = true
+					wb.ExcelMod = info.ModTime()
+				}
+				if info, err := os.Stat(xmlPath); err == nil {
+					wb.EDDExists = true
+					wb.EDDMod = info.ModTime()
+				}
+				workbookMap[base+"_edd"] = wb
+			}
+			continue
+		}
+
+		// Fall back: mixed-artifact workbook where only XML exists
+		wb = &CombinedWorkbook{
 			ExcelPath:  filepath.Join(s.excelDir, base+".xlsx"),
 			DTXMLPath:  filepath.Join(s.xmlDir, base+"_dt.xml"),
 			EDDXMLPath: filepath.Join(s.xmlDir, base+"_edd.xml"),

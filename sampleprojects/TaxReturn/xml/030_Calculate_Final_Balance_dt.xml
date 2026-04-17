@@ -4,7 +4,7 @@
 <!-- TABLE 7000: Calculate_Final_Balance -->
 <decision_table>
 <table_name>Calculate_Final_Balance</table_name>
-<xls_file>030_Calculate_Final_Balance.xlsx</xls_file>
+<xls_file>030_Calculate_Final_Balance_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates final tax balance - total tax minus credits and payments to determine refund or amount owed per Form 1040 Lines 33-37.</COMMENTS>

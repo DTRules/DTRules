@@ -4,7 +4,7 @@
 <!-- TABLE 8150: Calculate_Kiddie_Tax_For_Dependent -->
 <decision_table>
 <table_name>Calculate_Kiddie_Tax_For_Dependent</table_name>
-<xls_file>110_Calculate_Kiddie_Tax_For_Dependent.xlsx</xls_file>
+<xls_file>110_Calculate_Kiddie_Tax_For_Dependent_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Processes kiddie tax for an individual dependent. Determines if dependent meets age and income requirements, then applies parent's marginal tax rate to net unearned income.</COMMENTS>

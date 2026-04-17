@@ -4,7 +4,7 @@
 <!-- TABLE 8350: Calculate_Energy_Appliance_Credit -->
 <decision_table>
 <table_name>Calculate_Energy_Appliance_Credit</table_name>
-<xls_file>099_Calculate_Energy_Appliance_Credit.xlsx</xls_file>
+<xls_file>099_Calculate_Energy_Appliance_Credit_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates Energy Efficient Appliance Credit for MANUFACTURERS. Credit varies by appliance type: dishwasher ($25-$75), clothes_washer ($75-$175), refrigerator ($50-$200) per unit. Subject to annual caps. Not for individual homeowners per Form 8909.</COMMENTS>

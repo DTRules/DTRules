@@ -4,7 +4,7 @@
 <!-- TABLE 25100: Process_NOL_Carryover -->
 <decision_table>
 <table_name>Process_NOL_Carryover</table_name>
-<xls_file>095_Process_NOL_Carryover.xlsx</xls_file>
+<xls_file>095_Process_NOL_Carryover_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Net Operating Loss carryovers per IRC 172. NOLs limited to 80% of taxable income for post-2017 losses.</COMMENTS>

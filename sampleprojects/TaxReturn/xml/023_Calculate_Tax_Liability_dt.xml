@@ -4,7 +4,7 @@
 <!-- TABLE 5000: Calculate_Tax_Liability -->
 <decision_table>
 <table_name>Calculate_Tax_Liability</table_name>
-<xls_file>023_Calculate_Tax_Liability.xlsx</xls_file>
+<xls_file>023_Calculate_Tax_Liability_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates total tax liability including regular tax (using tax brackets per IRC Section 1) and self-employment tax (Schedule SE, IRC Section 1401). Form 1040 Lines 16-24.</COMMENTS>

@@ -4,7 +4,7 @@
 <!-- TABLE 4000: Calculate_Taxable_Income -->
 <decision_table>
 <table_name>Calculate_Taxable_Income</table_name>
-<xls_file>022_Calculate_Taxable_Income.xlsx</xls_file>
+<xls_file>022_Calculate_Taxable_Income_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates taxable income per Form 1040 Line 15, IRC Section 63. Subtracts deductions and QBI deduction from AGI.</COMMENTS>

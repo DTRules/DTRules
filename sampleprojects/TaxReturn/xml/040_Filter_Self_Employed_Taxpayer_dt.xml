@@ -4,7 +4,7 @@
 <!-- TABLE 9010: Filter_Self_Employed_Taxpayer -->
 <decision_table>
 <table_name>Filter_Self_Employed_Taxpayer</table_name>
-<xls_file>040_Filter_Self_Employed_Taxpayer.xlsx</xls_file>
+<xls_file>040_Filter_Self_Employed_Taxpayer_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table that processes taxpayer if self-employed.</COMMENTS>

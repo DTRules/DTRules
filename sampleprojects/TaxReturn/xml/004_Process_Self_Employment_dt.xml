@@ -4,7 +4,7 @@
 <!-- TABLE 2200: Process_Self_Employment -->
 <decision_table>
 <table_name>Process_Self_Employment</table_name>
-<xls_file>004_Process_Self_Employment.xlsx</xls_file>
+<xls_file>004_Process_Self_Employment_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Processes self-employment income per Schedule C, calculates vehicle deductions per Publication 463. Calls Calculate_SE_Tax after computing net profit.</COMMENTS>

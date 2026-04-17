@@ -4,7 +4,7 @@
 <!-- TABLE 3231: Filter_Charity_Deduction -->
 <decision_table>
 <table_name>Filter_Charity_Deduction</table_name>
-<xls_file>019_Filter_Charity_Deduction.xlsx</xls_file>
+<xls_file>019_Filter_Charity_Deduction_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table that processes deduction if category is charity.</COMMENTS>

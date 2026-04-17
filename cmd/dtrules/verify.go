@@ -99,6 +99,12 @@ func (c *CLI) runVerify(args []string) int {
 		failures = append(failures, orderFails...)
 	}
 
+	// Check 4: filename suffix matches sheet content
+	if dirExists(excelDir) {
+		suffixFails := checkSuffixContentConsistency(excelDir)
+		failures = append(failures, suffixFails...)
+	}
+
 	if len(failures) == 0 {
 		fmt.Printf("verified: %s is consistent with its Excel source\n", absPath)
 		return 0
@@ -667,6 +673,47 @@ func findExcelFile(excelDir, wbFile string) string {
 		return nil
 	})
 	return found
+}
+
+// checkSuffixContentConsistency verifies that workbooks with a _dt, _edd, or _map
+// suffix contain only the expected sheet type. A mismatch is a verify failure.
+func checkSuffixContentConsistency(excelDir string) []verifyFailure {
+	var failures []verifyFailure
+
+	importer := excel.NewWorkbookImporter()
+
+	_ = filepath.WalkDir(excelDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		if strings.HasPrefix(d.Name(), "~$") {
+			return nil
+		}
+		if !strings.HasSuffix(strings.ToLower(d.Name()), ".xlsx") {
+			return nil
+		}
+
+		suffix, hasSuffix := excel.ArtifactTypeFromFilename(path)
+		if !hasSuffix {
+			return nil // mixed-artifact workbook — no constraint
+		}
+
+		hasDT, _ := importer.HasDTSheet(path)
+		hasEDD, _ := importer.HasEDDSheet(path)
+		hasMAP, _ := importer.HasMAPSheet(path)
+
+		rel, _ := filepath.Rel(excelDir, path)
+		msg := excel.ArtifactTypeMismatch(suffix, hasDT, hasEDD, hasMAP)
+		if msg != "" {
+			failures = append(failures, verifyFailure{
+				kind:    "suffix",
+				message: fmt.Sprintf("%s: %s", rel, msg),
+			})
+		}
+		return nil
+	})
+
+	return failures
 }
 
 // copyDir copies src directory tree into dst, preserving structure.

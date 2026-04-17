@@ -4,7 +4,7 @@
 <!-- TABLE 13100: Apply_CG_Brackets_MFJ -->
 <decision_table>
 <table_name>Apply_CG_Brackets_MFJ</table_name>
-<xls_file>052_Apply_CG_Brackets_MFJ.xlsx</xls_file>
+<xls_file>052_Apply_CG_Brackets_MFJ_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Applies MFJ capital gains brackets (0%/15%/20%) based on taxable income level.</COMMENTS>

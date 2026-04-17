@@ -4,7 +4,7 @@
 <!-- TABLE : Calculate_Medical_Expense_Deduction -->
 <decision_table>
 <table_name>Calculate_Medical_Expense_Deduction</table_name>
-<xls_file>061_Calculate_Medical_Expense_Deduction.xlsx</xls_file>
+<xls_file>061_Calculate_Medical_Expense_Deduction_dt.xlsx</xls_file>
 <attribute_fields>
 <Type></Type>
 <COMMENTS></COMMENTS>

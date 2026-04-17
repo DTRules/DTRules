@@ -4,7 +4,7 @@
 <!-- TABLE 8300: Calculate_DC_Homebuyer_Credit -->
 <decision_table>
 <table_name>Calculate_DC_Homebuyer_Credit</table_name>
-<xls_file>082_Calculate_DC_Homebuyer_Credit.xlsx</xls_file>
+<xls_file>082_Calculate_DC_Homebuyer_Credit_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates DC First-Time Homebuyer Credit. Credit is lesser of $5,000 or purchase price. Subject to phase-out at higher income levels. Must be first-time homebuyer in DC during qualified period per Form 8859.</COMMENTS>

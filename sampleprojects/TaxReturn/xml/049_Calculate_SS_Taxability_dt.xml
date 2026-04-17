@@ -4,7 +4,7 @@
 <!-- TABLE 11000: Calculate_SS_Taxability -->
 <decision_table>
 <table_name>Calculate_SS_Taxability</table_name>
-<xls_file>049_Calculate_SS_Taxability.xlsx</xls_file>
+<xls_file>049_Calculate_SS_Taxability_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates taxable portion of Social Security benefits per Publication 915. Uses provisional income (AGI + 50% SS + tax-exempt interest) to determine if 0%, 50%, or 85% of SS is taxable.</COMMENTS>

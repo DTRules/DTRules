@@ -4,7 +4,7 @@
 <!-- TABLE 21000: Process_Farm_Income -->
 <decision_table>
 <table_name>Process_Farm_Income</table_name>
-<xls_file>076_Process_Farm_Income.xlsx</xls_file>
+<xls_file>076_Process_Farm_Income_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Schedule F farm income and expenses. Calculates net farm profit/loss for inclusion in gross income and self-employment tax.</COMMENTS>

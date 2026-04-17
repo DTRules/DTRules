@@ -4,7 +4,7 @@
 <!-- TABLE 25000: Calculate_Combat_Zone_Pay_Exclusion -->
 <decision_table>
 <table_name>Calculate_Combat_Zone_Pay_Exclusion</table_name>
-<xls_file>112_Calculate_Combat_Zone_Pay_Exclusion.xlsx</xls_file>
+<xls_file>112_Calculate_Combat_Zone_Pay_Exclusion_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate combat zone pay exclusion per IRC § 112. Enlisted: entire combat pay excluded. Officers: limited to max enlisted pay + imminent danger pay.</COMMENTS>

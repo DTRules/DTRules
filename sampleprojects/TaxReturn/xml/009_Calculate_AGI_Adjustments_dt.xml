@@ -4,7 +4,7 @@
 <!-- TABLE 2400: Calculate_AGI_Adjustments -->
 <decision_table>
 <table_name>Calculate_AGI_Adjustments</table_name>
-<xls_file>009_Calculate_AGI_Adjustments.xlsx</xls_file>
+<xls_file>009_Calculate_AGI_Adjustments_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates above-the-line deductions (adjustments to income) per Schedule 1 Part II, IRC Section 62. Includes SE tax deduction, health insurance for self-employed, and other adjustments.</COMMENTS>

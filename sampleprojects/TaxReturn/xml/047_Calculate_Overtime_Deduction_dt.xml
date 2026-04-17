@@ -4,7 +4,7 @@
 <!-- TABLE 10200: Calculate_Overtime_Deduction -->
 <decision_table>
 <table_name>Calculate_Overtime_Deduction</table_name>
-<xls_file>047_Calculate_Overtime_Deduction.xlsx</xls_file>
+<xls_file>047_Calculate_Overtime_Deduction_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>No Tax on Overtime deduction per OBBBA 2025. Maximum $12,500 (Single/HOH) or $25,000 (MFJ). Phases out above $150,000 MAGI (Single) or $300,000 (MFJ).</COMMENTS>

@@ -4,7 +4,7 @@
 <!-- TABLE 2000: Calculate_Gross_Income -->
 <decision_table>
 <table_name>Calculate_Gross_Income</table_name>
-<xls_file>002_Calculate_Gross_Income.xlsx</xls_file>
+<xls_file>002_Calculate_Gross_Income_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates total gross income from all sources including W-2 wages, self-employment income (Schedule C), rental income (Schedule E), and other income sources. References Form 1040 Lines 1-9.</COMMENTS>

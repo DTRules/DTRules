@@ -4,7 +4,7 @@
 <!-- TABLE 24400: Process_Kiddie_Tax -->
 <decision_table>
 <table_name>Process_Kiddie_Tax</table_name>
-<xls_file>088_Process_Kiddie_Tax.xlsx</xls_file>
+<xls_file>088_Process_Kiddie_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 8615 Kiddie Tax. Child unearned income over threshold taxed at parent rate per IRC 1(g).</COMMENTS>
