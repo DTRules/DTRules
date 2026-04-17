@@ -718,6 +718,24 @@ func (w *WorkbookImporter) HasEDDSheet(excelPath string) (bool, error) {
 	return false, nil
 }
 
+// HasMAPSheet checks if the workbook contains a mapping sheet.
+func (w *WorkbookImporter) HasMAPSheet(excelPath string) (bool, error) {
+	f, err := excelize.OpenFile(excelPath)
+	if err != nil {
+		return false, fmt.Errorf("failed to open Excel file: %w", err)
+	}
+	defer f.Close()
+
+	sheets := f.GetSheetList()
+	for _, sheet := range sheets {
+		if w.isMAPSheet(f, sheet) {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 // ImportWorkbookToDir imports a workbook to separate XML files in the given directory.
 // Returns the paths to the generated XML files (dtPath, eddPath).
 // Either path may be empty if that sheet type doesn't exist in the workbook.

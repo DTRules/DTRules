@@ -322,9 +322,6 @@ func (c *CLI) runBuildDryRun(xmlDir, excelDir, authoringPath string, opts *build
 // syncMAPFiles handles _map.xml ↔ _map.xlsx synchronization which the main
 // sync pipeline skips. direction is "xml-to-excel" or "excel-to-xml".
 func (c *CLI) syncMAPFiles(xmlDir, excelDir, direction string, verbose bool) error {
-	wbExporter := excel.NewWorkbookExporter()
-	wbExporter.SetVerbose(verbose)
-	wbImporter := excel.NewWorkbookImporter()
 
 	// Walk XML dir for _map.xml files (xml-to-excel direction)
 	if direction == "xml-to-excel" {
@@ -346,7 +343,11 @@ func (c *CLI) syncMAPFiles(xmlDir, excelDir, direction string, verbose bool) err
 				return nil // xlsx already up to date
 			}
 
-			if err := wbExporter.ExportMap(path, xlsxPath); err != nil {
+			mapXML, err := excel.LoadMapXMLFromFile(path)
+			if err != nil {
+				return fmt.Errorf("load MAP xml %s: %w", rel, err)
+			}
+			if err := excel.NewMapExporter().ExportToFile(mapXML, xlsxPath); err != nil {
 				return fmt.Errorf("export MAP %s: %w", rel, err)
 			}
 			if verbose {
@@ -375,17 +376,17 @@ func (c *CLI) syncMAPFiles(xmlDir, excelDir, direction string, verbose bool) err
 			return nil // xml already up to date
 		}
 
-		result, err := wbImporter.ImportWorkbook(path)
+		mapXML, err := excel.NewMapImporter().ImportFile(path)
 		if err != nil {
 			return fmt.Errorf("import MAP xlsx %s: %w", rel, err)
 		}
-		if result.Map == nil || len(result.Map.Entries) == 0 {
+		if mapXML == nil || len(mapXML.Entries) == 0 {
 			return nil
 		}
 		if err := os.MkdirAll(filepath.Dir(xmlPath), 0755); err != nil {
 			return err
 		}
-		if err := excel.WriteMapXML(result.Map, xmlPath); err != nil {
+		if err := excel.WriteMapXML(mapXML, xmlPath); err != nil {
 			return fmt.Errorf("write MAP XML %s: %w", xmlPath, err)
 		}
 		if verbose {
