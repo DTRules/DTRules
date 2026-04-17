@@ -39,6 +39,7 @@ type EDDXMLEntity struct {
 	XlsFile string          `xml:"xls_file,attr,omitempty"`
 	Access  string          `xml:"access,attr"`
 	Comment string          `xml:"comment,attr,omitempty"`
+	Source  *SourceXML      `xml:"source,omitempty"`
 	Fields  []*EDDXMLField  `xml:"field"`
 }
 
@@ -57,6 +58,10 @@ type EDDXMLField struct {
 type EDDImporter struct {
 	// SourceFile tracks the source file for xls_file metadata
 	SourceFile string
+	// sourceRelPath is the project-relative path for <source> element
+	sourceRelPath string
+	// sheetIndexMap maps sheet name to 1-based sheet number within the workbook
+	sheetIndexMap map[string]int
 }
 
 // NewEDDImporter creates a new EDD importer
@@ -79,17 +84,30 @@ func NewEDDImporter() *EDDImporter {
 //   - Row 5: Field headers (Field Name, Type, Subtype, Access, Input, Default, Comment)
 //   - Row 6+: Field data
 func (i *EDDImporter) ImportEDD(filename string) (*EDDXML, error) {
+	return i.importEDDWithSource(filename, filepath.Base(filename), filepath.Base(filename))
+}
+
+// importEDDWithSource reads an Excel file and returns EDD XML, setting xlsFile and relPath
+// for xls_file attribute and <source> element respectively.
+func (i *EDDImporter) importEDDWithSource(filename, xlsFile, relPath string) (*EDDXML, error) {
 	f, err := excelize.OpenFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open Excel file: %w", err)
 	}
 	defer f.Close()
 
-	i.SourceFile = filepath.Base(filename)
+	i.SourceFile = xlsFile
+	i.sourceRelPath = relPath
 
 	sheets := f.GetSheetList()
 	if len(sheets) == 0 {
 		return nil, fmt.Errorf("no sheets found in Excel file")
+	}
+
+	// Build sheet index map (1-based) for source tracking
+	i.sheetIndexMap = make(map[string]int, len(sheets))
+	for idx, name := range sheets {
+		i.sheetIndexMap[name] = idx + 1
 	}
 
 	// Check if this is the single "EDD" sheet format
@@ -170,14 +188,9 @@ func (i *EDDImporter) ImportEDDFromDir(dir string) (*EDDXML, error) {
 
 	// Process each file
 	for _, entry := range xlsxFiles {
-		fileEDD, err := i.ImportEDD(entry.path)
+		fileEDD, err := i.importEDDWithSource(entry.path, entry.relPath, entry.relPath)
 		if err != nil {
 			return nil, fmt.Errorf("failed to import %s: %w", entry.relPath, err)
-		}
-
-		// Set xls_file for all entities from this file using relative path
-		for _, ent := range fileEDD.Entities {
-			ent.XlsFile = entry.relPath
 		}
 
 		edd.Entities = append(edd.Entities, fileEDD.Entities...)
@@ -253,12 +266,18 @@ func (i *EDDImporter) parseEntitySheet(f *excelize.File, sheetName string) (*EDD
 		entityName = sheetName // Use sheet name as fallback
 	}
 
+	sheetNum := i.sheetIndexMap[sheetName]
 	entity := &EDDXMLEntity{
 		Name:    entityName,
 		XlsFile: i.SourceFile,
 		Access:  strings.TrimSpace(getCellValue(rows[1], 1)),
 		Comment: strings.TrimSpace(getCellValue(rows[2], 1)),
 		Fields:  make([]*EDDXMLField, 0),
+		Source: &SourceXML{
+			RelativePath: i.sourceRelPath,
+			FileName:     filepath.Base(i.SourceFile),
+			SheetNumber:  sheetNum,
+		},
 	}
 
 	if entity.Access == "" {
@@ -338,11 +357,17 @@ func (i *EDDImporter) parseEDDSheet(f *excelize.File, sheetName string) (*EDDXML
 			// Check if column B contains "(N attributes)" pattern
 			if isEntityHeader(colB) || (colA != "" && colB == "") {
 				// Start a new entity
+				sheetNum := i.sheetIndexMap[sheetName]
 				currentEntity = &EDDXMLEntity{
 					Name:    colA,
 					XlsFile: i.SourceFile,
 					Access:  "rw", // default access
 					Fields:  make([]*EDDXMLField, 0),
+					Source: &SourceXML{
+						RelativePath: i.sourceRelPath,
+						FileName:     filepath.Base(i.SourceFile),
+						SheetNumber:  sheetNum,
+					},
 				}
 				edd.Entities = append(edd.Entities, currentEntity)
 				continue

@@ -58,6 +58,13 @@ type DTFile struct {
 	Tables  []DTTable `xml:"decision_table" json:"decision_tables"`
 }
 
+// DTSource records the Excel workbook and sheet from which a decision table was imported.
+type DTSource struct {
+	RelativePath string `xml:"relative_path"`
+	FileName     string `xml:"file_name"`
+	SheetNumber  int    `xml:"sheet_number"`
+}
+
 // DTTable represents a single decision table
 type DTTable struct {
 	// NameAttr captures the 'name' attribute on <decision_table name="...">
@@ -65,6 +72,7 @@ type DTTable struct {
 	NameAttr         string             `xml:"name,attr" json:"-"`
 	// NumberAttr captures the 'number' attribute on <decision_table number="...">
 	NumberAttr       string             `xml:"number,attr" json:"-"`
+	Source           *DTSource          `xml:"source,omitempty" json:"-"`
 	TableName        string             `xml:"table_name" json:"table_name"`
 	XlsFile          string             `xml:"xls_file" json:"xls_file,omitempty"`
 	AttributeFields  DTAttributeFields  `xml:"attribute_fields" json:"attribute_fields"`
