@@ -90,171 +90,590 @@ const docEL = `Expression Language (EL)
 ========================
 
 EL is the REQUIRED format for writing decision table conditions and actions.
-The EL compiler converts human-readable syntax to executable postfix notation.
+The EL compiler converts human-readable syntax to executable bytecode.
 
-
-Why EL is Required
-------------------
-- READABLE: Business analysts can understand and modify rules
-- VALIDATED: Syntax errors caught at compile time, not runtime
-- CONSISTENT: Eliminates hand-coded postfix errors
+EL is case-insensitive. Articles (a, an, the) are ignored by the parser.
+Statements are separated by semicolons. Comments use // or /* ... */.
 
 IMPORTANT: Do NOT hand-code postfix. Always use EL in *_dsl tags
 (e.g., condition_dsl, action_dsl, context_dsl, initial_action_dsl).
 
 
-Conditions
-----------
-Comparison:
-    taxpayer.income > 50000
-    taxpayer.filing_status == "SINGLE"
-    result.has_nexus is true
-    customer.age >= 18 AND customer.income > 0
+Overview
+--------
+EL expressions fit into four entry points depending on where they appear:
 
-Boolean:
-    eligible AND has_documents
-    status == "active" OR override is true
-    NOT expired
+  Condition cell  -> boolean expression (bexpr)
+  Action cell     -> statement list (statementList)
+  Context cell    -> context statement (contextForTable)
+  Policy cell     -> any scalar expression (string, number, boolean, date)
 
-String:
-    state == "CO"
-    name == "John Doe"
+Grammar productions are described below, organized by type.
 
 
-Actions
--------
-Assignment:
+Literals
+--------
+Integer:       42     -7     0     1000000
+Double:        3.14   0.044  100.0
+String:        "hello"   'single quoted'   "John's tax"
+Boolean:       true   false   default   otherwise   always
+               perform when called
+Date:          current date       (today's date)
+               current timestamp  (returns the current timestamp as string)
+Null:          (tested with "is null" / "is not null")
+
+
+Identifiers and Field Access
+-----------------------------
+A bare identifier resolves to a typed field in the current context:
+    income          -> field in current entity
+    taxpayer.income -> field on specific entity
+
+Possessive syntax (equivalent to dot notation):
+    taxpayer's income          same as taxpayer.income
+    customer's plan's balance  same as customer.plan.balance
+    :Customer:plan's balance   colon-prefixed typed chain
+
+Array element access (zero-based index):
+    accounts[0]                first element of accounts array
+    (long) accounts[i]         element cast to long
+    (string) accounts[i]       element cast to string
+    (date) accounts[i]         element cast to date
+    (boolean) accounts[i]      element cast to boolean
+
+
+Integer Expressions (iexpr)
+----------------------------
+Arithmetic:
+    income * rate                  multiplication
+    gross - deductions             subtraction
+    a + b                          addition
+    total / count                  division (integer)
+    (a + b) * c                    grouping
+    -amount                        negation
+
+Built-in integer functions:
+    number of accounts                    count of array
+    number of accounts where active       count with filter
+    length of myArray                     array length
+    length of myString                    string length
+    index of "sub" in "string"            position of substring (-1 if absent)
+    sum of count in orders                sum of integer field across array
+    absolute value of amount              absolute value
+    get days in year of someDate          days in year containing date
+    get days in months for someDate       days in month of date
+    get days of months for someDate       day-of-month number
+    get yearof someDate                   four-digit year
+    days from d1 to d2                    days between two dates
+    months from d1 to d2                  whole months between two dates
+    years from d1 to d2                   whole years between two dates
+    long value of myOperator(args)        integer result from a custom operator
+
+Mutating integer operations (used in actions):
+    add to myLong 5                add 5 to variable
+    subtract from myLong 3         subtract 3 from variable
+    multiply myLong by 2           multiply variable in place
+    divide myLong by 4             divide variable in place
+    increment myLong               add 1
+    decrement myLong               subtract 1
+
+Cast to integer:
+    (long) "42"                    parse string to integer
+    (long) 3.7                     truncate double to integer
+    (long) someTable("key")        table lookup returning integer
+    (long) accounts[i]             array element cast to integer
+
+
+Double Expressions (fexpr)
+---------------------------
+Arithmetic:
+    rate * income                  multiplication (double * double)
+    income * 0.044                 double * integer
+    gross - deductions             subtraction
+    a + b                          addition
+    total / count                  division
+    -amount                        negation
+    (a - b) * c                    grouping
+
+Built-in double functions:
+    sum of balance in accounts     sum of double field across array
+    absolute value of rate         absolute value
+    double value of myOp(args)     double result from custom operator
+
+Rounding:
+    amount rounded                         round to nearest integer
+    amount rounded to 2 decimal places     round to N decimal places
+    amount rounded to 2 decimal places with boundry 0.5
+                                           round with custom boundary
+
+Mutating double operations:
+    add to myDouble 1.5            add to variable in place
+    subtract from myDouble 0.5     subtract from variable in place
+    multiply myDouble by 1.1       multiply in place
+    divide myDouble by 2.0         divide in place
+
+Cast to double:
+    (double) "3.14"                parse string to double
+    (double) 42                    promote integer to double
+    (double) someTable("key")      table lookup returning double
+    (double) accounts[i]           array element cast to double
+
+
+BigInt Expressions (bigexpr)
+-----------------------------
+BigInt provides arbitrary-precision integer arithmetic.
+
+Arithmetic:
+    amount + other                 addition
+    amount - other                 subtraction
+    amount * multiplier            multiplication
+    amount / divisor               integer division
+    -amount                        negation
+    absolute value of amount       absolute value
+
+Cast to bigint:
+    (bigint) "123456789012345678901234567890"   from string
+    (biginteger) "..."                           (biginteger is synonym)
+    (bigint) 42                                  from integer
+    (bigint) 3.14                                from double (truncates)
+
+See 'dtrules docs bigint' for full bigint documentation.
+
+
+String Expressions (strexpr)
+-----------------------------
+Literals and variables:
+    "hello world"                  string literal
+    myString                       typed string variable
+    taxpayer's name                possessive access
+
+Concatenation (+ operator accepts mixed types):
+    firstName + " " + lastName     string + string
+    "Amount: " + amount            string + integer
+    "Rate: " + rate                string + double
+    "Date: " + reportDate          string + date
+    "Name: " + personName          string + name value
+    "Status: " + myEntity          string + entity
+    "Items: " + myArray            string + array
+
+String functions:
+    substring of s from 0 to 5     extract characters 0..4
+    trim(myString)                  strip leading/trailing whitespace
+    change myString to upper case   convert to uppercase
+    change myString to lower case   convert to lowercase
+    get current timestamp           current date/time as string
+    string value of myDouble        double to string
+    string value of myInt           integer to string
+    string value of myDate          date to string
+    string value of boolean myBool  boolean to string
+    relationship between e1 and e2  named relationship between entities
+    attribute someAttr of myEntity  XML attribute value on entity
+    mapping key                     current mapping key (in map context)
+    table information               returns name of executing table
+    index of "x" in myString        position of substring (-1 if absent)
+    s starts with "prefix"          prefix test
+
+Table lookup returning string:
+    (string) someTable("key")       table lookup returning string
+
+String from index/cast:
+    (string) accounts[i]           array element as string
+
+
+Boolean Expressions (bexpr)
+-----------------------------
+Boolean literals:
+    true     false     default     otherwise     always
+    perform when called
+
+Typed boolean variable:
+    eligible                       boolean field
+    taxpayer's eligible            possessive
+    eligible is true               explicit true check
+    eligible is false              explicit false check
+    eligible is not true           negated check
+    eligible is not false          negated check
+
+Logical operators:
+    a AND b    (also: a && b)      both must be true
+    a OR b     (also: a || b)      either must be true
+    NOT a                          negation
+
+Null tests (work on any type):
+    myField is null
+    myField is not null
+
+Numeric comparisons (integer, double, or bigint):
+    a == b     (also: a is equal to b,   equal to b)
+    a != b     (also: a is not equal to b)
+    a > b      (also: a is greater than b,   greater than b)
+    a >= b     (also: a is greater than or equal to b,   at or above b)
+    a < b      (also: a is less than b,   less than b)
+    a <= b     (also: a is less than or equal to b,   at or below b)
+
+    fexpr is within N percent of fexpr    percentage proximity test
+    fexpr is plus or minus N of fexpr     absolute proximity test
+
+String comparisons:
+    s == "text"                    equal
+    s != "text"                    not equal
+    s is "text"                    same as ==
+    s is not "text"                same as !=
+    s is equal to ignore case "text"              case-insensitive equal
+    s is not equal to ignore case "text"          case-insensitive not equal
+    s == "a", "b", "c"             equal to any in list
+    s is equal to ignore case "a", "b"            case-insensitive list match
+    s starts with "prefix"         prefix test
+    s at 3 starts with "x"         starts-with at character offset
+    s > "b"    s < "b"    s >= "b"    s <= "b"   lexicographic comparison
+    s matches "regex.*"            regular expression match
+    s is one of myArray            member of array
+    s is not one of myArray        not a member of array
+
+Name comparisons:
+    $myName == $otherName          name equality
+    $myName != $otherName          name not equal
+
+Date comparisons:
+    d1 == d2
+    d1 < d2    (also: d1 is before d2)
+    d1 > d2    (also: d1 is after d2)
+    d1 <= d2
+    d1 >= d2
+    d1 is between d2 and d3
+
+Entity comparisons:
+    e1 == e2                       same entity instance
+    e1 != e2                       different instances
+    myEntity entity is in context        entity type in context
+    myEntity entity is not in context
+
+Entity existence / relationship tests:
+    myEntity has a "relationship"           entity has named relationship
+    myEntity has a "rel" where bexpr        relationship with filter
+    myEntity is "role" of otherEntity       entity plays role
+    entity does not have "relationship"     negative has-a test
+
+Array inclusion tests:
+    myArray includes value N               array contains integer
+    myArray includes string "x"            array contains string
+    myArray includes date d                array contains date
+    myArray includes entity e              array contains entity
+    myArray does include value N           explicit form
+    myArray does not include value N       negative test
+
+Collection quantifiers:
+    all myArray have bexpr                 every element satisfies condition
+    one of myArray has a bexpr             at least one element satisfies
+
+Existence quantifiers:
+    there is entity in array where bexpr   any matching entity exists
+    is there entity in array where bexpr   question form
+    was there entity in array where bexpr  past-tense form
+    there is no entity in array where bexpr  none match
+
+Question-form tests:
+    does bexpr?
+    is bexpr?
+    was bexpr?
+
+Custom operator returning boolean:
+    boolean value of myOp(a, b)
+
+Cast from index or string:
+    (boolean) accounts[i]
+    (boolean) "true"
+
+
+Date Expressions (dexpr)
+--------------------------
+Sources:
+    current date                   today's date
+    myDate                         typed date field
+    taxpayer's birthDate           possessive
+
+Cast to date:
+    (date) "2024-01-15"            parse string to date
+    (date) accounts[i]             array element as date
+    (date) someTable("key")        table lookup returning date
+    using myEntity(myDate)         delegate to entity's table
+
+Date arithmetic (returns dexpr):
+    (5 days)                       duration literal (integer days)
+
+    add N years to myDate          mutating add
+    add N months to myDate         mutating add
+    add N days to myDate           mutating add
+    subtract N years from myDate   mutating subtract
+    subtract N months from myDate
+    subtract N days from myDate
+
+    d plus N years                 non-mutating date expression
+    d plus N months
+    d plus N days
+    d minus N years
+    d minus N months
+    d minus N days
+
+    subtract N years from dexpr    expression-level (returns new dexpr)
+    subtract N months from dexpr
+    subtract N days from dexpr
+    add N years to dexpr
+    add N months to dexpr
+    add N days to dexpr
+
+Date navigation:
+    first of years of d            January 1 of d's year
+    first of months of d           first day of d's month
+    end of months of d             last day of d's month
+    earliest of myArray after d    earliest date in array that is after d
+
+Table lookup returning date:
+    (date) someTable("key")
+
+
+Name Expressions (nexpr)
+--------------------------
+A "name" is a symbolic identifier (prefixed with $ or bare 'name' keyword).
+
+    $myName                        named variable
+    name                           bare name keyword
+    nameof myEntity                entity's type name
+    the name "some.literal"        name from string literal
+    name myArray[i]                name at array index
+    (name) "some.string"           cast string to name
+    using myEntity(myName)         delegate to entity's table
+
+
+Array Expressions (arrayExpr)
+------------------------------
+Sources:
+    myArray                        typed array field
+    policy statements              special context array
+    taxpayer's accounts            possessive array
+
+Constructors:
+    { e1, e2, e3 }                 array literal (entities, strings, numbers)
+    array of values [ v1, v2 ]     array of scalar values
+    tokenize "a,b,c" by ","        split string into array
+
+Copies:
+    get copy of myArray            shallow copy
+    copy of myArray                shallow copy (shorthand)
+    get deep copy of myArray       deep copy (entities cloned)
+    deep copy of myArray           deep copy (shorthand)
+
+Map through table:
+    map myArray through someTable  apply table to each element, return results
+
+
+Entity Expressions (eexpr)
+---------------------------
+    myEntity                       typed entity field
+    taxpayer's plan                possessive
+    new $myName entity             create new entity by name
+    new myEntity entity            create new entity of same type
+    clone of myEntity              shallow clone
+    (entity) someTable(args)       table lookup returning entity
+    first myEntity in myArray where bexpr    first matching entity in array
+    first myEntity where bexpr     first matching entity in context
+    "role" of otherEntity          entity via relationship
+    using myEntity(eexpr)          delegate to entity's table
+
+
+Table Expressions (texpr)
+--------------------------
+    someTable                      reference to a decision table
+    new "tableName" table of "entityType"   create a new table
+
+
+Statements (Actions)
+---------------------
+SET - assign a value:
     set result.tax = income * rate
-    set taxpayer.exemptions = taxpayer.exemptions + 1
     set result.status = "approved"
+    set result.eligible = income > 0
+    set myDate = current date
+    set myArray = otherArray
+    set myBigInt = (bigint) "12345678901234567890"
 
-Multiple statements (use semicolons):
-    set result.a = 1; set result.b = 2; set result.c = 3
+    set result.str = myDouble            (double to string)
+    set result.str = myDate              (date to string)
+    set result.str = $myName             (name to string)
+    set result.str = someTable           (table to string)
+    set result.bool = $myName            (name to boolean)
 
-Execute another table:
+INCREMENT / DECREMENT:
+    increment myLong
+    increment myDouble
+    decrement myLong
+    decrement myDouble
+
+PERFORM - call another decision table:
     perform Calculate_Deductions
-    perform Validate_Input
+    Calculate_Deductions              (implicit perform)
+    perform "DynamicTableName"        (perform by name variable)
+    perform myTable and on error add myEntity to context and perform ErrorHandler
 
-Tables call tables directly - no external orchestration needed:
-    perform Calculate_Gross_Income;
-    perform Calculate_Deductions;
-    perform Calculate_Tax_Liability
+ADD - add to arrays or numbers:
+    add myEntity to myArray
+    add myEntity to myArray and to otherArray
+    add myEntity if not member to myArray      (no duplicates)
+    add myStr to myArray
+    add 5 to myArray
+    add myDate to myArray
+    add myArray to otherArray
+    add myArray to otherArray if not member    (set union)
+
+SUBTRACT from numbers:
+    subtract 5 from myLong
+    subtract 3.14 from myDouble
+
+REMOVE from arrays:
+    remove 2 element from myArray array        remove at index
+    remove each myEntity from myArray where bexpr   remove matching
+    remove $myName from myArray array          remove by name
+    remove "string" from myArray array         remove by string value
+    remove myEntity from myArray array         remove entity
+
+CLEAR array:
+    clear myArray
+
+SORT array:
+    sort myArray in ascending order by $nameField
+    sort myArray in descending order by $nameField
+
+RANDOMIZE array:
+    randomize myArray
+
+XML ATTRIBUTE operations:
+    myXml: set attribute "attr" = value
+    myXml: add attribute "attr" = value
+
+DEBUG / PRINT (diagnostic output):
+    debug "message"
+    debug myInteger
+    debug myDouble
+    debug myBoolean
+    debug myEntity
+    debug myDate
+    debug myArray
+    print "message"      (same as debug; alias)
+
+LOCAL VARIABLE declarations (context statements only):
+    local entity myVar
+    local entity myVar = someEntity
+    local long counter = 0
+    local double total = 0.0
+    local boolean found = false
+    local string msg = "start"
+    local date d = current date
+    local array results
+    local bigint amount = (bigint) "0"
+
+IF / ELSE / ENDIF:
+    if bexpr then
+        set result.x = 1
+    endif
+
+    if bexpr then
+        set result.x = 1
+    else
+        set result.x = 0
+    endif
+
+    if bexpr then
+        set result.x = 1
+    else if otherExpr then
+        set result.x = 2
+    else
+        set result.x = 3
+    endif
+
+USING - execute sub-table in entity context:
+    using myEntity(myDate)      returns date from entity's table
+    using myEntity(myInt)       returns integer
+    using myEntity(myStr)       returns string
+    using myEntity(myBool)      returns boolean
+    using myEntity(myFloat)     returns double
+    using myEntity(myArray)     returns array
+    using myArray 42            integer lookup in array
 
 
 Context Statements
 ------------------
-Context statements configure how a decision table executes. They can set up
-iteration, declare local variables, add entities to context, or output debug info.
-Place in the Contexts row (row 6) of Excel, or <contexts> element in XML.
+Context statements configure how a decision table executes. Place them in
+the Contexts row (row 6) in Excel, or in <contexts> in XML.
 
-1. FOR ALL (iterate over arrays):
+FOR ALL - iterate over array (one execution per element):
     for all dependents
     for all job.taxpayers
     for all accounts where account.active is true
     for all items allowing array to be removed
+    for all items in myEntity
+    for all items in myEntity allowing array to be removed
+    for all items in myEntity where bexpr
+    for all items where bexpr allowing array to be removed
 
-   The table executes once per entity, with that entity in context.
-
-2. FOR FIRST (find first matching):
+FOR FIRST - find first matching entity:
     for first of dependents where dependent.age < 18
-    for first of accounts where account.balance > 0
     for first of items and its details where details.valid is true
+    for first in myArray where bexpr
 
-   Finds the first matching entity and executes the table with it in context.
-
-3. FOR LOOP (Java-style iteration):
+FOR LOOP - counter-based iteration:
     for i = 0; i < 10; increment i
+    (same syntax as SET statement with SEMI bexpr SEMI statement)
 
-   Traditional counter-based loop for numeric iteration.
-
-4. LOCAL VARIABLES (declare table-scoped variables):
-    local entity tempCustomer
-    local entity current = input.customer
+LOCAL VARIABLES - declare table-scoped variables:
+    local entity temp
+    local entity current = someEntity
     local long counter = 0
     local double total = 0.0
     local boolean found = false
-    local string message = "processing"
-    local date startDate = current date
-    local array items
+    local string msg = ""
+    local date start = current date
+    local array results
+    local bigint amount
 
-   Declares variables scoped to the table execution. Supported types:
-   entity, long, double, boolean, string, date, array.
-
-5. ADD TO CONTEXT (push entity to context stack):
+ADD TO CONTEXT - push entity for field resolution:
     add customer to context of this table
     add order.customer to context for this table
 
-   Pushes an entity onto the context stack for field resolution.
-
-6. DEBUG (output before processing):
-    debug "Starting table execution"
-    debug input.customer
-
-   Outputs debug information before the table processes.
+DEBUG before table execution:
+    debug "Starting execution"
+    debug myEntity
 
 
-Arithmetic
-----------
-    income * 0.044                    Multiplication
-    gross - deductions                Subtraction
-    principal + interest              Addition
-    total / count                     Division
-    (income - deductions) * rate      Grouping with parentheses
+FOR FIRST Blocks (in actions)
+------------------------------
+FOR FIRST can also appear as a block in action context:
+    for first of myArray where bexpr then
+        set result.found = true
+    elseifnonearefound
+        set result.found = false
+    endff
 
+    for first of myArray and its relatedEntity where bexpr then
+        set result.x = relatedEntity.value
+    endff
 
-Comparisons
------------
-    a == b        Equal (numeric)
-    a == "text"   Equal (string - use quotes)
-    a > b         Greater than
-    a >= b        Greater than or equal
-    a < b         Less than
-    a <= b        Less than or equal
-    a is true     Boolean check
-    a is false    Boolean check
+FOR ALL Blocks (in actions)
+----------------------------
+FORALL iterates over an array in an action block:
+    for all myArray { set item.processed = true }
 
+FOREACH iterates with an entity variable:
+    for each myEntity in myArray { set result.count = result.count + 1 }
+    for each myEntity in myArray where bexpr { ... }
+    for each myEntity and its related in myArray { ... }
+    for each myEntity and its related in myArray where bexpr { ... }
 
-Boolean Logic
--------------
-    a AND b       Both must be true
-    a OR b        Either can be true
-    NOT a         Negation
+USING block:
+    using :TypeName:fieldName
+        { set result.x = field.value }
 
-
-BigInt Operations
-------------------
-BigInt values support arbitrary-precision integer arithmetic:
-    context local bigint amount = (bigint) input.amount_string
-    set result.total = amount * 2
-    amount > 1000000000000
-
-
-XML Structure (EL Format)
--------------------------
-<decision_table name="Calculate_Tax" number="1000">
-  <conditions>
-    <condition name="high_income">
-      <expression>taxpayer.income > 100000</expression>
-    </condition>
-    <condition name="single_filer">
-      <expression>taxpayer.filing_status == "SINGLE"</expression>
-    </condition>
-  </conditions>
-  <rules>
-    <rule number="1">
-      <conditions>
-        <high_income>Y</high_income>
-        <single_filer>Y</single_filer>
-      </conditions>
-      <actions>
-        <action>
-          set result.tax = taxpayer.income * 0.24;
-          set result.bracket = "high"
-        </action>
-      </actions>
-    </rule>
-  </rules>
-</decision_table>
+Block with trailing FORALL:
+    { set x = 1; set y = 2 } for all myArray
 
 
 Best Practices
@@ -264,13 +683,15 @@ Best Practices
 3. Use semicolons between statements: set a = 1; set b = 2
 4. No shorthand: use set X = X + 1 (not X += 1)
 5. Use is true/is false for booleans: eligible is true
+6. EL is case-insensitive, but use consistent casing for readability
 
 
 See Also
 --------
   dtrules docs xml-format       XML file structure
   dtrules docs decision-tables  Full decision table guide
-  dtrules docs operators        All available operators
+  dtrules docs operators        All EL operators with syntax
+  dtrules docs bigint           Arbitrary-precision integers
 `
 
 const docXMLFormat = `DTRules XML Format Specification
@@ -700,200 +1121,421 @@ Tiered calculation:
     *                      | 0.10
 `
 
-const docOperators = `DTRules Operators
-=================
+const docOperators = `DTRules EL Operators
+====================
 
-DTRules uses postfix (RPN) notation: operands come before operators.
+This document lists every EL operator by category with syntax and examples.
+EL is case-insensitive. All examples use EL syntax as it appears in *_dsl tags.
 
-Example: "income 50000 >=" means "income >= 50000"
+For full grammar context see 'dtrules docs el'.
 
 
 Arithmetic Operators
 --------------------
-Operator   Stack Effect              Example
---------   ---------------------     -----------------------
-+          (a b -- sum)              10 5 +        → 15
--          (a b -- difference)       10 5 -        → 5
-*          (a b -- product)          10 5 *        → 50
-/          (a b -- quotient)         10 5 /        → 2
-%          (a b -- remainder)        10 3 %        → 1
-abs        (a -- |a|)                -5 abs        → 5
-neg        (a -- -a)                 5 neg         → -5
-round      (a -- rounded)            3.7 round     → 4
-floor      (a -- floor)              3.7 floor     → 3
-ceil       (a -- ceiling)            3.2 ceil      → 4
-min        (a b -- min)              10 5 min      → 5
-max        (a b -- max)              10 5 max      → 10
+Operator  EL Syntax                           Result Type   Example
+--------  ----------------------------------  -----------   ------------------------------------
++         a + b                               int/double    income + bonus
+-         a - b                               int/double    gross - deductions
+*         a * b                               int/double    income * 0.044
+/         a / b  (also: a div b)              int/double    total / count
+-         -a                                  int/double    -amount   (unary negation)
+
+Absolute value:
+    absolute value of amount                  same type     absolute value of -5 -> 5
+
+Rounding (double only):
+    amount rounded                            double        3.7 rounded -> 4.0
+    amount rounded to 2 decimal places        double
+    amount rounded to 2 decimal places with boundry 0.5
+
+Mutating shortcuts (action statements):
+    increment myLong                          (adds 1 to long field)
+    decrement myLong                          (subtracts 1)
+    increment myDouble
+    decrement myDouble
+    add to myLong 5                           (myLong = myLong + 5)
+    subtract from myLong 3                    (myLong = myLong - 3)
+    multiply myLong by 2                      (myLong = myLong * 2)
+    divide myLong by 4                        (myLong = myLong / 4)
+    add to myDouble 1.5
+    subtract from myDouble 0.5
+    multiply myDouble by 1.1
+    divide myDouble by 2.0
 
 
 Comparison Operators
 --------------------
-Operator   Stack Effect              Example
---------   ---------------------     -----------------------
-=          (a b -- bool)             10 10 =       → true
-!=         (a b -- bool)             10 5 !=       → true
-<          (a b -- bool)             5 10 <        → true
->          (a b -- bool)             10 5 >        → true
-<=         (a b -- bool)             5 10 <=       → true
->=         (a b -- bool)             10 5 >=       → true
+Each operator has symbolic and natural-language forms. All are equivalent.
+
+Equal:
+    a == b
+    a is equal to b
+    equal to b
+
+Not equal:
+    a != b
+    a is not equal to b
+    not equal to b
+
+Greater than:
+    a > b
+    a is greater than b
+    greater than b
+
+Greater than or equal:
+    a >= b
+    a is greater than or equal to b
+    greater than or equal to b
+    a at or above b
+
+Less than:
+    a < b
+    a is less than b
+    less than b
+
+Less than or equal:
+    a <= b
+    a is less than or equal to b
+    less than or equal to b
+    a at or below b
+
+Case-insensitive string equal:
+    s is equal to ignore case "text"
+    s is equal to ignore case "a", "b", "c"    (list form)
+
+Case-insensitive string not equal:
+    s is not equal to ignore case "text"
+
+Numeric proximity tests:
+    a is within 5 percent of b      true if |a-b|/b <= 0.05
+    a is plus or minus 10 of b      true if |a-b| <= 10
+
+Date ordering:
+    d1 is before d2                 same as d1 < d2
+    d1 is after d2                  same as d1 > d2
+    d1 is between d2 and d3         d2 <= d1 <= d3
 
 
 Boolean Operators
 -----------------
-Operator   Stack Effect              Example
---------   ---------------------     -----------------------
-and        (a b -- bool)             true false and  → false
-or         (a b -- bool)             true false or   → true
-xor        (a b -- bool)             true false xor  → true
-not        (a -- bool)               true not        → false
+Operator  EL Syntax            Example
+--------  -------------------  ----------------------------------------
+AND       a AND b              eligible AND income > 0
+AND       a && b               eligible && income > 0
+OR        a OR b               co_resident OR filed_jointly
+OR        a || b               co_resident || filed_jointly
+NOT       NOT a                NOT expired
+IS NULL   a is null            myField is null
+IS NOT NULL  a is not null     myField is not null
+
+Boolean "is" checks:
+    myBool is true
+    myBool is false
+    myBool is not true
+    myBool is not false
+    taxpayer's eligible is true
+
+Question forms (evaluate to boolean):
+    does bexpr?
+    is bexpr?
+    was bexpr?
 
 
 String Operators
 ----------------
-Operator        Stack Effect              Example
---------------  ---------------------     -----------------------
-+               (s1 s2 -- concat)         "Hello" " World" + → "Hello World"
-length          (s -- len)                "Hello" length      → 5
-substring       (s start end -- sub)      "Hello" 0 3 substring → "Hel"
-upper           (s -- upper)              "hello" upper       → "HELLO"
-lower           (s -- lower)              "HELLO" lower       → "hello"
-trim            (s -- trimmed)            "  hi  " trim       → "hi"
-contains        (s sub -- bool)           "Hello" "ell" contains → true
-startswith      (s prefix -- bool)        "Hello" "He" startswith → true
-endswith        (s suffix -- bool)        "Hello" "lo" endswith → true
-split           (s delim -- array)        "a,b,c" "," split   → ["a","b","c"]
-join            (array delim -- s)        ["a","b"] "," join  → "a,b"
+Operator      EL Syntax                                  Example
+-----------   ----------------------------------------   ------------------------------------
++             s + t                                      firstName + " " + lastName
++             s + intExpr                                "Count: " + total
++             s + floatExpr                              "Rate: " + rate
++             s + dateExpr                               "Date: " + dueDate
++             s + nameExpr                               "Name: " + $person
++             s + entityExpr                             "Entity: " + myEntity
++             s + arrayExpr                              "Items: " + myList
+
+Substring:    substring of s from start to end           substring of name from 0 to 3
+Trim:         trim(s)                                    trim(input.value)
+Upper case:   change s to upper case                     change input.state to upper case
+Lower case:   change s to lower case                     change input.code to lower case
+Timestamp:    get current timestamp                      current date/time as string
+Index of:     index of sub in s                          index of "x" in myStr   (-> -1 if absent)
+Starts with:  s starts with "prefix"
+              s at N starts with "prefix"                starts at character offset N
+
+String value of:
+    string value of myDouble                             "3.14"
+    string value of myInt                                "42"
+    string value of myDate                               ISO date string
+    string value of boolean myBool                       "true" or "false"
+
+Relationship:
+    relationship between e1 and e2                       named relationship string
+
+Attribute:
+    attribute "attrName" of myEntity                     XML attribute value
+
+Table information:
+    table information                                    name of currently-executing table
+
+Mapping key:
+    mapping key                                          current key in a MAP...THROUGH context
 
 
-Stack Operators
----------------
-Operator   Stack Effect              Description
---------   ---------------------     -----------------------
-dup        (a -- a a)                Duplicate top
-drop       (a -- )                   Remove top
-swap       (a b -- b a)              Swap top two
-over       (a b -- a b a)            Copy second to top
-rot        (a b c -- b c a)          Rotate top three
+Collection Operators
+--------------------
+Array construction:
+    { e1, e2, e3 }                       literal array
+    array of values [ v1, v2, v3 ]       scalar array
+    tokenize "a,b,c" by ","              split string into array
+
+Array copy:
+    get copy of myArray                  shallow copy
+    copy of myArray                      shallow copy (shorthand)
+    get deep copy of myArray             deep copy (clones entities)
+    deep copy of myArray                 deep copy (shorthand)
+
+Map through table:
+    map myArray through someTable        apply table to each element
+
+Number of elements:
+    number of myArray                    count of all elements
+    number of myArray where bexpr        count of matching elements
+
+Length:
+    length of myArray                    same as number of
+    length of myString                   character count
+
+Sum:
+    sum of intField in myArray           sum integer field across array
+    sum of doubleField in myArray        sum double field across array
+
+Array inclusion:
+    myArray includes value N             contains integer N
+    myArray includes string "x"          contains string "x"
+    myArray includes date d              contains date d
+    myArray includes entity e            contains entity e
+    myArray does include value N         (explicit form, same)
+    myArray does not include value N     negation
+
+Array membership:
+    s is one of myArray                  string is in array
+    s is not one of myArray              string is not in array
+
+Quantifiers:
+    all myArray have bexpr               every element satisfies
+    one of myArray has a bexpr           at least one satisfies
 
 
-Array Operators
----------------
-Operator        Stack Effect              Example
---------------  ---------------------     -----------------------
-newarray        ( -- [])                  Create empty array
-addto           (array val -- array)      Add value to array
-add             (val array -- )           Add value to array (reversed args)
-find_by_field   (array field val -- e|null) Find entity by field value
-length          (array -- len)            Get array length
-get             (array idx -- val)        Get element at index
-first           (array -- val)            Get first element
-last            (array -- val)            Get last element
-contains        (array val -- bool)       Check if contains value
-sum             (array -- sum)            Sum numeric array
-average         (array -- avg)            Average of array
+Integer Built-in Functions
+--------------------------
+Function                                      Returns   Description
+--------------------------------------------  --------  ------------------------------------
+number of arrayExpr                           integer   count of elements
+number of arrayExpr where bexpr               integer   count of matching elements
+length of arrayExpr                           integer   array size
+length of strexpr                             integer   string length
+index of strexpr in strexpr                   integer   substring position (-1 if absent)
+sum of iexpr in arrayExpr                     integer   sum of integer field
+absolute value of iexpr                       integer   absolute value
+get days in year of dexpr                     integer   days in date's year (365 or 366)
+get days in months for dexpr                  integer   days in date's month
+get days of months for dexpr                  integer   day-of-month (1-31)
+get yearof dexpr                              integer   four-digit year
+days from d1 to d2                            integer   days between dates
+months from d1 to d2                          integer   whole months between dates
+years from d1 to d2                           integer   whole years between dates
+long value of typedOperator(args)             integer   custom operator result
+
+Cast to integer:
+    (long) "42"                               integer   parse string
+    (int) "42"                                integer   (long and int are synonyms)
+    (long) 3.7                                integer   truncate double
+    (long) someTable("key")                   integer   table lookup
+    (long) myArray[i]                         integer   array element
 
 
-Entity Operators
-----------------
-Operator        Stack Effect              Example
---------------  ---------------------     -----------------------
-new             (name -- entity)          "customer" new
-entitypush      (entity -- )              Push onto context
-entitypop       ( -- entity)              Pop from context
-get             (entity name -- val)      Get field value
-put             (entity name val -- )     Set field value
+Double Built-in Functions
+-------------------------
+Function                                      Returns   Description
+--------------------------------------------  --------  ------------------------------------
+sum of fexpr in arrayExpr                     double    sum of double field across array
+absolute value of fexpr                       double    absolute value
+fexpr rounded                                 double    round to nearest integer
+fexpr rounded to N decimal places             double    round to N places
+fexpr rounded to N decimal places
+    with boundry B                            double    round with custom boundary
+double value of typedOperator(args)           double    custom operator result
 
-
-Control Flow
-------------
-Operator        Stack Effect              Description
---------------  ---------------------     -----------------------
-if              (bool {t} {f} -- ?)       Conditional execution
-perform         (name -- )                Execute decision table
-for             (array {body} -- )        Iterate over array
-while           ({cond} {body} -- )       Loop while condition true
-break           ( -- )                    Exit loop
-return          ( -- )                    Return from table
-abort           (string -- )              Stop execution with error message
-log_warning     (string -- )              Log warning and continue
-
-
-Special Values
---------------
-Operator        Stack Effect              Description
---------------  ---------------------     -----------------------
-null            ( -- null)                Push null value
-true            ( -- true)                Push true
-false           ( -- false)               Push false
-
-
-Type Conversion
----------------
-Operator        Stack Effect              Description
---------------  ---------------------     -----------------------
-tostring        (a -- string)             Convert to string
-tointeger       (a -- int)                Convert to integer
-todouble        (a -- double)             Convert to double
-toboolean       (a -- bool)               Convert to boolean
-cvbi            (a -- bigint)             Convert to bigint
+Cast to double:
+    (double) "3.14"                           double    parse string
+    (double) 42                               double    promote integer
+    (double) someTable("key")                 double    table lookup
+    (double) myArray[i]                       double    array element
 
 
 BigInt Operators
 ----------------
-Operator        Stack Effect              Description
---------------  ---------------------     -----------------------
-b+              (a b -- sum)              Add two bigint values
-b-              (a b -- difference)       Subtract two bigint values
-b*              (a b -- product)          Multiply two bigint values
-b/              (a b -- quotient)         Integer division of two bigint values
-bmod            (a b -- remainder)        Modulo of two bigint values
-babs            (a -- |a|)                Absolute value
-bnegate         (a -- -a)                 Negate a bigint value
-b=              (a b -- bool)             Equal comparison
-b!=, b<>        (a b -- bool)             Not equal comparison
-b>              (a b -- bool)             Greater than comparison
-b>=             (a b -- bool)             Greater than or equal comparison
-b<              (a b -- bool)             Less than comparison
-b<=             (a b -- bool)             Less than or equal comparison
+Operator   EL Syntax                       Example
+---------  -----------------------------   ------------------------------------------
++          amount + other                  total + fee
+-          amount - other                  balance - withdrawal
+*          amount * multiplier             principal * rate
+/          amount / divisor                total / shares  (integer division)
+-          -amount                         unary negation
+
+absolute value of bigexpr                  absolute value of deficit
+
+Cast to bigint:
+    (bigint) "12345678901234567890"         from string
+    (biginteger) "..."                      (biginteger is synonym)
+    (bigint) 42                             from integer
+    (bigint) 3.14                           from double (truncates)
+
+Cast bigint to other types:
+    (string) myBigInt                       bigint -> string for display
+
+Comparisons (same operators as integer/double):
+    amount == other     amount != other
+    amount > other      amount >= other
+    amount < other      amount <= other
+
+See 'dtrules docs bigint' for full bigint documentation.
 
 
 Date Operators
 --------------
-Operator        Stack Effect              Example
---------------  ---------------------     -----------------------
-now             ( -- date)                Current date/time
-today           ( -- date)                Current date
-year            (date -- int)             Get year
-month           (date -- int)             Get month (1-12)
-day             (date -- int)             Get day of month
-adddays         (date n -- date)          Add n days
-addmonths       (date n -- date)          Add n months
-daysbetween     (d1 d2 -- int)            Days between dates
+Source operators:
+    current date                            today's date
+    current timestamp                       current date/time as string
+
+Arithmetic returning dexpr:
+    d plus N years
+    d plus N months
+    d plus N days
+    d minus N years
+    d minus N months
+    d minus N days
+    (N days)                                duration literal
+
+Arithmetic on expressions (non-mutating):
+    add N years to dexpr                    returns new dexpr
+    add N months to dexpr
+    add N days to dexpr
+    subtract N years from dexpr
+    subtract N months from dexpr
+    subtract N days from dexpr
+
+Mutating date statements (action context, operate on typed date fields):
+    add N years to typedDate
+    add N months to typedDate
+    add N days to typedDate
+    subtract N years from typedDate
+    subtract N months from typedDate
+    subtract N days from typedDate
+
+Navigation:
+    first of years of d                     January 1 of d's year
+    first of months of d                    first day of d's month
+    end of months of d                      last day of d's month
+    earliest of myArray after d             earliest date in array after d
+
+Cast to date:
+    (date) "2024-01-15"                     parse ISO string
+    (time) "2024-01-15"                     (time is synonym for date)
+    (date) myArray[i]                       array element as date
+    (date) someTable("key")                 table lookup
 
 
-Common Expression Patterns
---------------------------
+Entity Operators
+----------------
+Creation:
+    new $myName entity                      create entity by name variable
+    new myEntity entity                     create entity of same type
+    clone of myEntity                       shallow clone
 
-Field comparison:
-    input.age 18 >=                    → input.age >= 18
+Access:
+    myEntity                                typed entity field
+    taxpayer's plan                         possessive
+    "roleName" of otherEntity               via relationship
+    first myEntity in myArray where bexpr   first matching in array
+    first myEntity where bexpr              first matching in context
+    (entity) someTable(args)                table lookup
 
-Field assignment:
-    input.income 0.25 * result.tax =   → result.tax = input.income * 0.25
+Delegation:
+    using myEntity(iexpr)                   entity supplies integer
+    using myEntity(fexpr)                   entity supplies double
+    using myEntity(strexpr)                 entity supplies string
+    using myEntity(bexpr)                   entity supplies boolean
+    using myEntity(dexpr)                   entity supplies date
+    using myEntity(nexpr)                   entity supplies name
+    using myEntity(arrayExpr)               entity supplies array
 
-Conditional:
-    input.age 18 >= { "adult" } { "minor" } if
 
-Null check:
-    input.value null =                 → input.value == null
+Name Operators
+--------------
+    $myName                                 named identifier
+    name                                    bare name keyword
+    nameof myEntity                         entity's type name
+    the name "some.literal"                 name from string literal
+    name myArray[i]                         name at array index
+    (name) "some.string"                    cast string to name
+    using myEntity(nexpr)                   name from entity's table
 
-String matching:
-    input.state "CO" =                 → input.state == "CO"
 
-Range check:
-    input.age 18 >= input.age 65 < and → 18 <= age < 65
+Logical / Control Operators in Statements
+-----------------------------------------
+IF / ENDIF:
+    if income > 50000 then
+        set result.bracket = "high"
+    endif
 
-Calculation with assignment:
-    input.principal input.rate * input.years * result.interest =
+IF / ELSE / ENDIF:
+    if income > 50000 then
+        set result.bracket = "high"
+    else
+        set result.bracket = "low"
+    endif
+
+IF / ELSE IF / ENDIF:
+    if income > 100000 then
+        set result.bracket = "top"
+    else if income > 50000 then
+        set result.bracket = "high"
+    else
+        set result.bracket = "low"
+    endif
+
+PERFORM (call another decision table):
+    perform Calculate_Deductions
+    Calculate_Deductions                   (implicit perform)
+    perform "DynamicName"                  (by name variable)
+    perform myTable and on error add myEntity to context and perform ErrorHandler
+
+FORALL block (action context):
+    for all myArray { set item.processed = true }
+
+FOREACH block:
+    for each myEntity in myArray { set result.count = result.count + 1 }
+    for each myEntity in myArray where bexpr { ... }
+    for each myEntity and its related in myArray { ... }
+    for each myEntity and its related in myArray where bexpr { ... }
+
+FOR FIRST block:
+    for first of myArray where bexpr then
+        set result.found = true
+    elseifnonearefound
+        set result.found = false
+    endff
+
+USING block:
+    using :TypeName:fieldName { set result.x = field.value }
+
+
+See Also
+--------
+  dtrules docs el              Full EL grammar and syntax reference
+  dtrules docs bigint          Arbitrary-precision integers
+  dtrules docs decision-tables Decision table guide with examples
 `
 
 const docExpressions = `Postfix Expression Syntax
