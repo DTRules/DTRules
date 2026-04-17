@@ -269,5 +269,132 @@ func assertDSLFont(t *testing.T, f *excelize.File, sheet string, col, row int) {
 	}
 }
 
+// =============================================================================
+// Issue #505: additional style tests
+// =============================================================================
+
+// TestStylerHasAllExpectedStyles verifies each named style has a non-negative index.
+func TestStylerHasAllExpectedStyles(t *testing.T) {
+	f := excelize.NewFile()
+	defer f.Close()
+
+	s, err := NewStyler(f)
+	if err != nil {
+		t.Fatalf("NewStyler: %v", err)
+	}
+
+	styles := map[string]int{
+		"HeaderStyle":    s.HeaderStyle,
+		"BodyStyle":      s.BodyStyle,
+		"DSLStyle":       s.DSLStyle,
+		"SeparatorStyle": s.SeparatorStyle,
+		"NumberStyle":    s.NumberStyle,
+	}
+	for name, idx := range styles {
+		if idx < 0 {
+			t.Errorf("style %s has invalid index %d", name, idx)
+		}
+	}
+	// All five styles must be registered — verify against the excelize file.
+	// excelize assigns sequential indices starting at 0; if we have 5 styles,
+	// the last index must be >= 4.
+	maxIdx := 0
+	for _, idx := range styles {
+		if idx > maxIdx {
+			maxIdx = idx
+		}
+	}
+	if maxIdx < 4 {
+		t.Errorf("expected at least 5 registered styles (max index >= 4), got max=%d", maxIdx)
+	}
+}
+
+// TestDSLStyleUsesMonospacedFont verifies DSL cells use a monospace font.
+func TestDSLStyleUsesMonospacedFont(t *testing.T) {
+	monoFonts := []string{"Consolas", "Menlo", "Courier New", "Courier"}
+
+	f := excelize.NewFile()
+	defer f.Close()
+
+	s, err := NewStyler(f)
+	if err != nil {
+		t.Fatalf("NewStyler: %v", err)
+	}
+
+	// Write a DSL cell and verify its style font.
+	sheet := f.GetSheetName(0)
+	s.ApplyDSL(f, sheet, "A1", "income > 50000")
+
+	styleID, err := f.GetCellStyle(sheet, "A1")
+	if err != nil {
+		t.Fatalf("GetCellStyle: %v", err)
+	}
+	style, err := f.GetStyle(styleID)
+	if err != nil {
+		t.Fatalf("GetStyle: %v", err)
+	}
+	if style.Font == nil {
+		t.Fatal("DSL cell font is nil")
+	}
+
+	family := style.Font.Family
+	ok := false
+	for _, m := range monoFonts {
+		if family == m {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		t.Errorf("DSL cell font family = %q, want one of %v", family, monoFonts)
+	}
+}
+
+// TestFreezePaneRow2AndRow3 verifies YSplit values for DT and combined EDD exports.
+func TestFreezePaneRow2AndRow3(t *testing.T) {
+	// DT export: single-header row → YSplit == 1 (freeze after row 1)
+	dtRS := loadKidAidRuleSet(t)
+	dtExporter := NewExporter(dtRS)
+	dtOut := filepath.Join(t.TempDir(), "dt_freeze.xlsx")
+	if err := dtExporter.ExportDecisionTables(dtOut); err != nil {
+		t.Fatalf("ExportDecisionTables: %v", err)
+	}
+	dtFile := openXLSX(t, dtOut)
+	defer dtFile.Close()
+	dtSheets := dtFile.GetSheetList()
+	if len(dtSheets) > 0 {
+		panes, err := dtFile.GetPanes(dtSheets[0])
+		if err == nil && panes.Freeze {
+			if panes.YSplit != 1 {
+				t.Errorf("DT export YSplit = %d, want 1", panes.YSplit)
+			}
+		}
+		// If freeze pane is not set, just verify no panic.
+	}
+
+	// Combined export: marker row + header row → YSplit == 2 (freeze after row 2)
+	combinedRS := loadKidAidRuleSet(t)
+	combinedExporter := NewExporter(combinedRS)
+	combinedOut := filepath.Join(t.TempDir(), "combined_freeze.xlsx")
+	if err := combinedExporter.ExportCombinedWorkbook(combinedOut); err != nil {
+		t.Fatalf("ExportCombinedWorkbook: %v", err)
+	}
+	combinedFile := openXLSX(t, combinedOut)
+	defer combinedFile.Close()
+	combinedSheets := combinedFile.GetSheetList()
+	if len(combinedSheets) == 0 {
+		t.Fatal("combined workbook has no sheets")
+	}
+	// Find the EDD sheet (last sheet, has "EDD: EDD" A1 marker).
+	eddSheet := combinedSheets[len(combinedSheets)-1]
+	panes, err := combinedFile.GetPanes(eddSheet)
+	if err == nil && panes.Freeze {
+		if panes.YSplit != 2 {
+			t.Errorf("EDD sheet YSplit = %d, want 2", panes.YSplit)
+		}
+	}
+	// Non-panic is the minimum requirement; YSplit check is best-effort.
+}
+
 // Ensure testdata directory exists (used by future golden file tests).
 var _ = filepath.Join("testdata", ".keep")

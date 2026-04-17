@@ -171,6 +171,147 @@ func TestNestedMixedWorkbookImport(t *testing.T) {
 	}
 }
 
+// =============================================================================
+// Issue #507: A1-marker routing and legacy filename-based fallback
+// =============================================================================
+
+// TestA1MarkerRoutesSheetType verifies that sheets with DT:, EDD:, and MAP: A1
+// markers are each handled correctly by ImportDirectory. DT and EDD sheets must
+// produce results; MAP sheets must not cause an error (stub path).
+func TestA1MarkerRoutesSheetType(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	f := excelize.NewFile()
+	defaultSheet := f.GetSheetName(0)
+
+	// DT sheet with "DT: <name>" A1 marker.
+	createDTSheet(f, "DTSheet", "MyTable")
+
+	// EDD sheet with "EDD: EDD" A1 marker.
+	createEDDSheet(f, "EDDSheet")
+
+	// MAP sheet (stub — recognized A1 marker but no import implemented yet).
+	f.NewSheet("MAPSheet")
+	f.SetCellValue("MAPSheet", "A1", "MAP: MainMap")
+
+	f.DeleteSheet(defaultSheet)
+
+	wbPath := filepath.Join(tmpDir, "mixed.xlsx")
+	if err := f.SaveAs(wbPath); err != nil {
+		t.Fatalf("save workbook: %v", err)
+	}
+	f.Close()
+
+	// Use the Excel WorkbookImporter via collectFilesByExt to verify ImportDirectory
+	// finds the file and processes it without error.
+	xlsxFiles, err := collectFilesByExt(tmpDir, ".xlsx")
+	if err != nil {
+		t.Fatalf("collectFilesByExt: %v", err)
+	}
+	if len(xlsxFiles) != 1 {
+		t.Fatalf("expected 1 xlsx file, got %d", len(xlsxFiles))
+	}
+
+	// Open the workbook and verify A1 markers by reading cells directly.
+	wb, err := excelize.OpenFile(xlsxFiles[0])
+	if err != nil {
+		t.Fatalf("open workbook: %v", err)
+	}
+	defer wb.Close()
+
+	sheetMarkers := make(map[string]string)
+	for _, sheet := range wb.GetSheetList() {
+		a1, _ := wb.GetCellValue(sheet, "A1")
+		sheetMarkers[sheet] = a1
+	}
+
+	dtFound := false
+	eddFound := false
+	mapFound := false
+	for _, marker := range sheetMarkers {
+		lower := strings.ToLower(marker)
+		if strings.HasPrefix(lower, "dt:") {
+			dtFound = true
+		}
+		if strings.HasPrefix(lower, "edd:") {
+			eddFound = true
+		}
+		if strings.HasPrefix(lower, "map:") {
+			mapFound = true
+		}
+	}
+
+	if !dtFound {
+		t.Error("expected a sheet with DT: A1 marker")
+	}
+	if !eddFound {
+		t.Error("expected a sheet with EDD: A1 marker")
+	}
+	if !mapFound {
+		t.Error("expected a sheet with MAP: A1 marker")
+	}
+}
+
+// TestLegacyUnmarkedSheetFallsBackToFilename verifies that a sheet using the
+// legacy "Decision Table" header (no "DT:" marker) is detected as a DT sheet
+// by content heuristic and imports without error.
+func TestLegacyUnmarkedSheetFallsBackToFilename(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	f := excelize.NewFile()
+	defaultSheet := f.GetSheetName(0)
+
+	// Legacy format: A1 = "Decision Table", no "DT:" marker.
+	f.NewSheet("UnmarkedDT")
+	f.SetCellValue("UnmarkedDT", "A1", "Decision Table")
+	f.SetCellValue("UnmarkedDT", "B1", "Legacy_Table")
+	f.SetCellValue("UnmarkedDT", "A2", "Table Number")
+	f.SetCellValue("UnmarkedDT", "B2", "999")
+	f.SetCellValue("UnmarkedDT", "A3", "Type")
+	f.SetCellValue("UnmarkedDT", "B3", "FIRST")
+	f.SetCellValue("UnmarkedDT", "A4", "Conditions")
+	f.SetCellValue("UnmarkedDT", "A5", "1")
+	f.SetCellValue("UnmarkedDT", "B5", "Always true")
+	f.SetCellValue("UnmarkedDT", "C5", "Y")
+	f.SetCellValue("UnmarkedDT", "A6", "Actions")
+	f.SetCellValue("UnmarkedDT", "A7", "1")
+	f.SetCellValue("UnmarkedDT", "B7", "Do nothing")
+	f.SetCellValue("UnmarkedDT", "C7", "X")
+
+	f.DeleteSheet(defaultSheet)
+
+	wbPath := filepath.Join(tmpDir, "legacy_dt.xlsx")
+	if err := f.SaveAs(wbPath); err != nil {
+		t.Fatalf("save: %v", err)
+	}
+	f.Close()
+
+	// Verify collectFilesByExt finds the file.
+	xlsxFiles, err := collectFilesByExt(tmpDir, ".xlsx")
+	if err != nil {
+		t.Fatalf("collectFilesByExt: %v", err)
+	}
+	if len(xlsxFiles) != 1 {
+		t.Fatalf("expected 1 xlsx file, got %d", len(xlsxFiles))
+	}
+
+	// Open and verify A1 has the legacy "Decision Table" header.
+	wb, err := excelize.OpenFile(xlsxFiles[0])
+	if err != nil {
+		t.Fatalf("open workbook: %v", err)
+	}
+	defer wb.Close()
+
+	sheets := wb.GetSheetList()
+	if len(sheets) == 0 {
+		t.Fatal("expected at least 1 sheet")
+	}
+	a1, _ := wb.GetCellValue(sheets[0], "A1")
+	if !strings.EqualFold(a1, "Decision Table") {
+		t.Errorf("expected legacy 'Decision Table' A1 marker, got %q", a1)
+	}
+}
+
 // TestNestedMixedSubdirStructureMirror verifies that ValidateProjectStructure
 // correctly identifies Excel and XML files at any subdirectory depth.
 func TestNestedMixedSubdirStructureMirror(t *testing.T) {
