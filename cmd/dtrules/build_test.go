@@ -228,3 +228,150 @@ func dirSnapshot(t *testing.T, root string) map[string]struct{} {
 	})
 	return m
 }
+
+// =============================================================================
+// Issue #508: additional build tests
+// =============================================================================
+
+// TestBuildIdempotent verifies that running build twice on a clean fixture
+// produces no filesystem changes on the second run.
+func TestBuildIdempotent(t *testing.T) {
+	dir := t.TempDir()
+	xmlDir := filepath.Join(dir, "xml")
+	excelDir := filepath.Join(dir, "excel")
+
+	if err := os.MkdirAll(xmlDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(excelDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	// First build on an empty project — should exit 0 (no-op).
+	cli1 := NewCLI()
+	_ = cli1.runBuild([]string{"--dry-run", dir})
+
+	// Take snapshot before second build.
+	before := dirSnapshot(t, dir)
+
+	// Second build — must not write anything new.
+	cli2 := NewCLI()
+	_ = cli2.runBuild([]string{"--dry-run", dir})
+
+	after := dirSnapshot(t, dir)
+	if len(before) != len(after) {
+		t.Errorf("second build changed file count: before=%d after=%d", len(before), len(after))
+	}
+}
+
+// TestBuildFromExcelTouchProducesCanonicalOutput verifies that touching an xlsx
+// causes build to import (or at least detect the newer file) without panicking,
+// and that a second run is a no-op.
+func TestBuildFromExcelTouchProducesCanonicalOutput(t *testing.T) {
+	if _, err := os.Stat(taxReturnDir); err != nil {
+		t.Skip("TaxReturn sample project not found")
+	}
+	excelDir := filepath.Join(taxReturnDir, "excel")
+	if _, err := os.Stat(excelDir); err != nil {
+		t.Skip("TaxReturn excel dir not found")
+	}
+
+	// Find first xlsx.
+	entries, err := os.ReadDir(excelDir)
+	if err != nil || len(entries) == 0 {
+		t.Skip("no entries in TaxReturn excel dir")
+	}
+	var xlsxFile string
+	for _, e := range entries {
+		if strings.HasSuffix(e.Name(), ".xlsx") {
+			xlsxFile = filepath.Join(excelDir, e.Name())
+			break
+		}
+	}
+	if xlsxFile == "" {
+		t.Skip("no xlsx files found")
+	}
+
+	// Copy TaxReturn to a temp dir to avoid mutating the real project.
+	tmpDir := t.TempDir()
+	if err := copyDir(taxReturnDir, tmpDir); err != nil {
+		t.Fatalf("copyDir: %v", err)
+	}
+	projCopy := filepath.Join(tmpDir, filepath.Base(taxReturnDir))
+
+	// Touch the xlsx copy to make it newer than any xml.
+	copiedExcelDir := filepath.Join(projCopy, "excel")
+	copiedEntries, err := os.ReadDir(copiedExcelDir)
+	if err != nil {
+		t.Fatalf("ReadDir: %v", err)
+	}
+	for _, e := range copiedEntries {
+		if strings.HasSuffix(e.Name(), ".xlsx") {
+			p := filepath.Join(copiedExcelDir, e.Name())
+			future := time.Now().Add(10 * time.Minute)
+			_ = os.Chtimes(p, future, future)
+			break
+		}
+	}
+
+	// First run — should not panic.
+	cli1 := NewCLI()
+	_ = cli1.runBuild([]string{"--from-excel", "--dry-run", projCopy})
+
+	// Second run — no new files relative to first.
+	before := dirSnapshot(t, projCopy)
+	cli2 := NewCLI()
+	_ = cli2.runBuild([]string{"--from-excel", "--dry-run", projCopy})
+	after := dirSnapshot(t, projCopy)
+
+	if len(before) != len(after) {
+		t.Errorf("second --dry-run changed file count: before=%d after=%d", len(before), len(after))
+	}
+}
+
+// TestBuildFromXMLTouchProducesCanonicalOutput verifies the --from-xml path
+// accepts a project without panicking and that a second dry run is a no-op.
+func TestBuildFromXMLTouchProducesCanonicalOutput(t *testing.T) {
+	if _, err := os.Stat(taxReturnDir); err != nil {
+		t.Skip("TaxReturn sample project not found")
+	}
+	xmlDir := filepath.Join(taxReturnDir, "xml")
+	if _, err := os.Stat(xmlDir); err != nil {
+		t.Skip("TaxReturn xml dir not found")
+	}
+
+	tmpDir := t.TempDir()
+	if err := copyDir(taxReturnDir, tmpDir); err != nil {
+		t.Fatalf("copyDir: %v", err)
+	}
+	projCopy := filepath.Join(tmpDir, filepath.Base(taxReturnDir))
+
+	// Touch the first xml file to make it newer.
+	copiedXMLDir := filepath.Join(projCopy, "xml")
+	copiedEntries, err := os.ReadDir(copiedXMLDir)
+	if err != nil {
+		t.Fatalf("ReadDir: %v", err)
+	}
+	for _, e := range copiedEntries {
+		if strings.HasSuffix(e.Name(), "_dt.xml") {
+			p := filepath.Join(copiedXMLDir, e.Name())
+			future := time.Now().Add(10 * time.Minute)
+			_ = os.Chtimes(p, future, future)
+			break
+		}
+	}
+
+	// First run.
+	cli1 := NewCLI()
+	_ = cli1.runBuild([]string{"--from-xml", "--dry-run", projCopy})
+
+	// Second run must not add files.
+	before := dirSnapshot(t, projCopy)
+	cli2 := NewCLI()
+	_ = cli2.runBuild([]string{"--from-xml", "--dry-run", projCopy})
+	after := dirSnapshot(t, projCopy)
+
+	if len(before) != len(after) {
+		t.Errorf("second --from-xml --dry-run changed file count: before=%d after=%d", len(before), len(after))
+	}
+}

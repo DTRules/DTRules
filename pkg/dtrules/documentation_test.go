@@ -449,3 +449,77 @@ func readFileContent(path string) (string, error) {
 	}
 	return string(output), nil
 }
+
+// =============================================================================
+// Issue #503 / #504: EL banner, no expressions topic, no bytecode-spec file
+// =============================================================================
+
+// TestDocumentation_ELBannerPresent verifies the EL doc topic begins with a
+// prominent warning directing authors away from postfix/bytecode.
+func TestDocumentation_ELBannerPresent(t *testing.T) {
+	elDoc, _ := getDocContent(t)
+
+	// The banner must contain all three key phrases:
+	requiredPhrases := []string{
+		"EL is the only",
+		"Postfix",
+		"do not write",
+	}
+	lower := strings.ToLower(elDoc)
+	for _, phrase := range requiredPhrases {
+		if !strings.Contains(lower, strings.ToLower(phrase)) {
+			t.Errorf("EL doc banner missing required phrase %q", phrase)
+		}
+	}
+}
+
+// TestDocumentation_NoExpressionsTopic verifies that "expressions" is not
+// listed in the doc index and that requesting it returns an error.
+func TestDocumentation_NoExpressionsTopic(t *testing.T) {
+	bin := findDTRulesBinary()
+	if bin == "" {
+		build := exec.Command("go", "build", "-o", "/tmp/dtrules-test-bin", "../../cmd/dtrules/")
+		if out, err := build.CombinedOutput(); err != nil {
+			t.Logf("build failed: %v\n%s", err, out)
+			t.Skip("dtrules binary not available")
+		}
+		bin = "/tmp/dtrules-test-bin"
+	}
+
+	// Index must not list "expressions"
+	indexCmd := exec.Command(bin, "docs")
+	indexOut, err := indexCmd.Output()
+	if err != nil {
+		t.Fatalf("dtrules docs failed: %v", err)
+	}
+	if strings.Contains(string(indexOut), "expressions") {
+		t.Error("dtrules docs index must not list 'expressions' topic")
+	}
+
+	// Requesting the topic must error
+	topicCmd := exec.Command(bin, "docs", "expressions")
+	topicOut, topicErr := topicCmd.CombinedOutput()
+	if topicErr == nil {
+		t.Errorf("dtrules docs expressions should fail, but exit 0\nOutput: %s", topicOut)
+	}
+	if !strings.Contains(string(topicOut), "Unknown topic") && !strings.Contains(string(topicOut), "unknown topic") {
+		t.Errorf("dtrules docs expressions output should say 'unknown topic', got: %s", topicOut)
+	}
+}
+
+// TestDocumentation_NoBytecodeSpecFile asserts that pkg/dtrules/docs/bytecode-spec.md
+// does not exist. This file would expose internal bytecode format to authors.
+func TestDocumentation_NoBytecodeSpecFile(t *testing.T) {
+	// The test file lives in pkg/dtrules/, so "." is that directory.
+	// Check that docs/bytecode-spec.md does NOT exist under pkg/dtrules/.
+	candidates := []string{
+		"docs/bytecode-spec.md",
+		"docs/bytecode_spec.md",
+	}
+	for _, c := range candidates {
+		_, err := readFileContent(c)
+		if err == nil {
+			t.Errorf("bytecode spec file must not exist under pkg/dtrules/: %s", c)
+		}
+	}
+}

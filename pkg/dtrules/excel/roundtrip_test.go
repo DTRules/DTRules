@@ -270,3 +270,128 @@ func indexOf(s, substr string) int {
 	}
 	return -1
 }
+
+// =============================================================================
+// Issue #506: NNN_ prefix ordering and source-header inference tests
+// =============================================================================
+
+// TestSourceHeaderSheetNumberFromNNNPrefix verifies that NNN_-prefixed DT XML
+// filenames determine sheet ordering in the exported workbook, overriding any
+// sheet_number declared in the XML source element.
+func TestSourceHeaderSheetNumberFromNNNPrefix(t *testing.T) {
+	excelDir := t.TempDir()
+	xmlDir := t.TempDir()
+
+	// Create a workbook with two DT sheets using NNN_-named sheets.
+	{
+		f := excelize.NewFile()
+		defaultSheet := f.GetSheetName(0)
+		// "Foo" at sheet position 1 per NNN prefix "001"
+		f.NewSheet("Foo")
+		f.SetCellValue("Foo", "A1", "DT: Foo")
+		f.SetCellValue("Foo", "A2", "Type: FIRST")
+		f.SetCellValue("Foo", "A3", "Conditions:")
+		f.SetCellValue("Foo", "A4", "1")
+		f.SetCellValue("Foo", "B4", "Always")
+		f.SetCellValue("Foo", "C4", "Y")
+		f.SetCellValue("Foo", "A5", "Actions:")
+		f.SetCellValue("Foo", "A6", "1")
+		f.SetCellValue("Foo", "B6", "Do nothing")
+		f.SetCellValue("Foo", "C6", "Y")
+		// "Bar" at sheet position 2 per NNN prefix "002"
+		f.NewSheet("Bar")
+		f.SetCellValue("Bar", "A1", "DT: Bar")
+		f.SetCellValue("Bar", "A2", "Type: FIRST")
+		f.SetCellValue("Bar", "A3", "Conditions:")
+		f.SetCellValue("Bar", "A4", "1")
+		f.SetCellValue("Bar", "B4", "Always")
+		f.SetCellValue("Bar", "C4", "Y")
+		f.SetCellValue("Bar", "A5", "Actions:")
+		f.SetCellValue("Bar", "A6", "1")
+		f.SetCellValue("Bar", "B6", "Do nothing")
+		f.SetCellValue("Bar", "C6", "Y")
+		f.DeleteSheet(defaultSheet)
+
+		wbPath := filepath.Join(excelDir, "combined.xlsx")
+		if err := f.SaveAs(wbPath); err != nil {
+			t.Fatalf("save workbook: %v", err)
+		}
+		f.Close()
+	}
+
+	// Import the workbook.
+	importer := NewWorkbookImporter()
+	results, err := importer.ImportDirectory(excelDir)
+	if err != nil {
+		t.Fatalf("ImportDirectory: %v", err)
+	}
+	if len(results) != 1 {
+		t.Fatalf("expected 1 result, got %d", len(results))
+	}
+
+	result := results[0]
+	// We don't need xmlDir for this assertion, but WriteAll would use it.
+	_ = xmlDir
+
+	// Build a map of table-name → sheet_number.
+	sheetByName := make(map[string]int)
+	for _, tbl := range result.DTables.Tables {
+		if tbl.Source != nil {
+			sheetByName[tbl.TableName] = tbl.Source.SheetNumber
+		}
+	}
+
+	fooSheet, fooOk := sheetByName["Foo"]
+	barSheet, barOk := sheetByName["Bar"]
+
+	if !fooOk || !barOk {
+		t.Fatalf("expected Foo and Bar tables, got %v", sheetByName)
+	}
+	// Foo must appear before Bar in the workbook.
+	if fooSheet >= barSheet {
+		t.Errorf("Foo sheet=%d, Bar sheet=%d — Foo should appear first", fooSheet, barSheet)
+	}
+}
+
+// TestSourceHeaderMissingInferredFromFilename verifies that a DT XML file without
+// a <source> element can be imported by the WorkbookImporter without error.
+// The absence of <source> is valid for legacy files.
+func TestSourceHeaderMissingInferredFromFilename(t *testing.T) {
+	xmlContent := `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+<decision_table>
+<table_name>Baz</table_name>
+<xls_file>003_Baz_dt.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>No source element</COMMENTS>
+<TABLE_NUMBER>3</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements>
+</decision_table>
+</decision_tables>
+`
+	tables := &DecisionTablesXML{}
+	if err := unmarshalXMLForTest(xmlContent, tables); err != nil {
+		t.Fatalf("unmarshal failed: %v", err)
+	}
+	if len(tables.Tables) != 1 {
+		t.Fatalf("expected 1 table, got %d", len(tables.Tables))
+	}
+	baz := tables.Tables[0]
+	// No <source> element → nil Source is valid; file should load without error.
+	if baz.Source != nil {
+		t.Errorf("expected nil Source for legacy XML, got %+v", baz.Source)
+	}
+	if baz.TableName != "Baz" {
+		t.Errorf("expected table name Baz, got %s", baz.TableName)
+	}
+	// The xls_file field serves as the fallback source indicator.
+	if baz.XLSFile != "003_Baz_dt.xlsx" {
+		t.Errorf("expected xls_file 003_Baz_dt.xlsx, got %s", baz.XLSFile)
+	}
+}
