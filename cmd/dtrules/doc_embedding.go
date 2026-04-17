@@ -229,6 +229,29 @@ For a large production rule set (dozens of states, hundreds of tables), expect
 budgets for server applications.
 
 
+Dumping embedded rules back to xlsx
+------------------------------------
+When debugging a deployed binary or handing rules back to an author without
+the dev repo, use excel.ExtractExcel to reconstruct the xlsx tree from the
+embedded XML.  This is useful for field debugging, compliance audits, and
+letting rule authors inspect exactly what shipped in a given binary.
+
+    // Minimal app that can dump its own embedded rules:
+    func main() {
+        if len(os.Args) > 2 && os.Args[1] == "--dump-rules" {
+            if err := excel.ExtractExcel(rulesFS, os.Args[2]); err != nil {
+                log.Fatal(err)
+            }
+            return
+        }
+        // ... normal app startup ...
+    }
+
+ExtractExcel walks the embedded fs.FS and writes one xlsx file for every
+*_dt.xml, *_edd.xml, and *_map.xml it finds, preserving the subdirectory
+layout.  The output directory is created if it does not exist.
+
+
 See Also
 --------
   dtrules docs workflow        Build and sync pipeline
