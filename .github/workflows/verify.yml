@@ -1,0 +1,47 @@
+name: verify
+
+on:
+  pull_request:
+    paths:
+      - 'sampleprojects/**'
+      - 'pkg/dtrules/excel/**'
+      - 'pkg/dtrules/sync/**'
+      - 'cmd/dtrules/**'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build dtrules binary
+        run: go build -o /tmp/dtrules ./cmd/dtrules/
+
+      - name: Verify TaxReturn
+        run: /tmp/dtrules verify sampleprojects/TaxReturn
+
+      - name: Verify KidAid (if excel/ present)
+        run: |
+          if [ -d sampleprojects/KidAid/excel ]; then
+            /tmp/dtrules verify sampleprojects/KidAid
+          else
+            echo "KidAid has no excel/ dir, skipping"
+          fi
+
+      - name: Verify remaining sample projects
+        run: |
+          for dir in sampleprojects/*/; do
+            name=$(basename "$dir")
+            case "$name" in
+              TaxReturn|KidAid) continue ;;  # already verified above
+            esac
+            if [ -d "${dir}excel" ]; then
+              echo "Verifying $name..."
+              /tmp/dtrules verify "$dir"
+            fi
+          done
