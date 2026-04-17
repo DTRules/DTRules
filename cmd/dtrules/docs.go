@@ -699,6 +699,114 @@ Best Practices
 6. EL is case-insensitive, but use consistent casing for readability
 
 
+Real-World Examples: Tax Calculation
+-------------------------------------
+The TaxReturn sample project (sampleprojects/TaxReturn/xml/) uses EL throughout.
+These are actual condition_dsl and action_dsl values from those files.
+
+Filing status dispatch (condition cell):
+    job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"
+    job.filing_status is equal to "HOH"
+    otherwise
+
+Tax bracket conditions (condition cells, Apply_Tax_Brackets_Single):
+    taxable_income at or below bracket_1_single
+    taxable_income at or below bracket_2_single
+
+Child Tax Credit conditions (condition cells, Calculate_Child_Tax_Credit):
+    dependent.relationship is equal to "child"
+    dependent.age < ctc_age_limit
+    dependent.has_ssn == true
+
+EITC conditions (condition cells, Calculate_EITC):
+    result.total_earned_income > 0
+    result.eitc_qualifying_children == 2
+    result.eitc_qualifying_children == 0
+
+Standard deduction actions (action cells, Calculate_Standard_Deduction):
+    set result.standard_deduction = standard_deduction_mfj
+    set result.standard_deduction = standard_deduction_single
+    add senior_extra_deduction_married to result.standard_deduction
+
+Taxable income actions (action cells, Calculate_Taxable_Income):
+    set result.taxable_income = the maximum of (result.agi - result.total_deduction - result.qbi_deduction) and 0
+    set result.qbi_deduction = 0
+
+Tax bracket actions (action cells):
+    set result.regular_tax = result.taxable_income * bracket_1_rate
+    set result.deduction_used = result.total_itemized
+    set result.deduction_used = result.standard_deduction
+
+CTC accumulator actions:
+    add constants.ctc_amount to result.total_ctc
+    add constants.odc_amount to result.total_odc
+
+Audit trail actions:
+    add "Filing as MFJ per Form 1040 Line 1" to job.audit_trail
+    add "Filing as " + job.filing_status + " per Form 1040" to job.audit_trail
+
+Table orchestration actions (Compute_Tax_Return entry point):
+    perform Calculate_Gross_Income
+    perform Calculate_Deductions
+    perform Calculate_Taxable_Income
+    perform Calculate_Tax_Liability
+    perform Calculate_Credits
+
+For-all iteration (action cell, Calculate_Credits):
+    for all dependents perform Calculate_Child_Tax_Credit
+
+For-all iteration (action cell, Calculate_EITC):
+    for all dependents perform Count_EITC_Qualifying_Child
+
+Colorado state tax conditions (states/CO_dt.xml):
+    taxpayer.age >= 55 and taxpayer.age <= 64
+    taxpayer.age >= 65
+
+
+Real-World Examples: Eligibility Rules
+----------------------------------------
+The KidAid sample project (sampleprojects/KidAid/xml/kidaid_dt.xml) uses EL
+for program dispatch and income calculation.
+
+Program dispatch conditions (condition cells):
+    job.program == KidAid
+    job.program == MEDICAID
+    job.program == FOODSTAMPS
+
+Iterating over clients (context cell):
+    for all clients
+
+Income filter conditions:
+    income.earned == true
+    ExcludedIncomeTypes includes the string income.type
+    client.applying == true
+
+Income accumulation action:
+    add income.amount to the client.totalIncome
+
+FPL percentage calculation action:
+    set client_fpl = (100.0 * totalGroupIncome) / FPL
+
+Eligibility note actions:
+    Add "Client is eligible for Medicaid, so cannot enroll in KidAid" to client.notes
+    Add "Must Provide Validation of Citizenship" to client.notes
+    Add "Case must be within a KidAid County" to client.notes
+
+Eligible/ineligible actions:
+    set client.eligible = false
+
+Result population actions:
+    Set Result.eligible = client.eligible
+    Set Result.program = job.program
+    Set Result.client_fpl = client.client_fpl
+
+Table orchestration actions (Determine_Eligibility entry point):
+    Perform Calculate_Individual_Income
+    Perform Calculate_Group_Size
+    Perform Evaluate_KidAid_Eligibility
+    Perform Evaluate_Results
+
+
 See Also
 --------
   dtrules docs xml-format       XML file structure
@@ -1542,6 +1650,69 @@ FOR FIRST block:
 
 USING block:
     using :TypeName:fieldName { set result.x = field.value }
+
+
+Real-World Operator Usage: Tax Rules
+--------------------------------------
+These expressions come directly from TaxReturn decision table files
+(sampleprojects/TaxReturn/xml/).
+
+Comparison operators in condition cells:
+    taxable_income at or below bracket_1_single        <=
+    taxable_income at or below bracket_2_single        <=
+    dependent.age < ctc_age_limit                      <
+    result.eitc_qualifying_children == 2               ==
+    result.total_earned_income > 0                     >
+    dependent.has_ssn == true                          ==
+    result.total_itemized > result.standard_deduction  >
+
+String equality in condition cells:
+    job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"
+    job.filing_status is equal to "HOH"
+    dependent.relationship is equal to "child"
+
+AND / OR in condition cells:
+    job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"
+    taxpayer.age >= 55 and taxpayer.age <= 64
+
+Arithmetic in action cells:
+    set result.regular_tax = result.taxable_income * bracket_1_rate
+    set result.standard_deduction = standard_deduction_mfj
+
+Add operator in action cells:
+    add constants.ctc_amount to result.total_ctc
+    add senior_extra_deduction_married to result.standard_deduction
+    add "Filing as MFJ per Form 1040 Line 1" to job.audit_trail
+
+String concatenation in action cells:
+    add "Filing as " + job.filing_status + " per Form 1040" to job.audit_trail
+
+Maximum expression in action cells:
+    set result.taxable_income = the maximum of (result.agi - result.total_deduction - result.qbi_deduction) and 0
+
+
+Real-World Operator Usage: Eligibility Rules
+---------------------------------------------
+These expressions come directly from KidAid decision table files
+(sampleprojects/KidAid/xml/kidaid_dt.xml).
+
+String equality in condition cells:
+    job.program == KidAid
+    income.earned == true
+    client.applying == true
+
+Array inclusion test in condition cell:
+    ExcludedIncomeTypes includes the string income.type
+
+Add to array in action cell:
+    add income.amount to the client.totalIncome
+    Add "Must Provide Validation of Citizenship" to client.notes
+
+Boolean assignment in action cell:
+    set client.eligible = false
+
+Division in action cell (FPL calculation):
+    set client_fpl = (100.0 * totalGroupIncome) / FPL
 
 
 See Also
