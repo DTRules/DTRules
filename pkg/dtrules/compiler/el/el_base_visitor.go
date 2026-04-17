@@ -547,6 +547,14 @@ func (v *BaseELVisitor) VisitPerformName(ctx *PerformNameContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitErrorStmt(ctx *ErrorStmtContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitWarnStmt(ctx *WarnStmtContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitDebugStr(ctx *DebugStrContext) interface{} {
 	return v.VisitChildren(ctx)
 }

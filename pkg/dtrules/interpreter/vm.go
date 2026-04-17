@@ -15,6 +15,8 @@
 package interpreter
 
 import (
+	"log"
+
 	"github.com/DTRules/DTRules/pkg/dtrules"
 )
 
@@ -743,6 +745,21 @@ func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 			if err := s.ValuePush(dtrules.ValueFromObject(dtrules.NewRBigInt(result))); err != nil {
 				return err
 			}
+
+		case dtrules.OpError:
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			return dtrules.NewELStatementError(a.AsObject().StringValue())
+
+		case dtrules.OpWarn:
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			// TODO: wire to a real logger-injection point (see future issue)
+			log.Printf("[warn] %s", a.AsObject().StringValue())
 
 		default:
 			return dtrules.NewRulesError("Invalid Opcode", "ExecuteBytecode", "unknown opcode")

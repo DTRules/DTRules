@@ -412,6 +412,12 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#performName.
 	VisitPerformName(ctx *PerformNameContext) interface{}
 
+	// Visit a parse tree produced by ELParser#errorStmt.
+	VisitErrorStmt(ctx *ErrorStmtContext) interface{}
+
+	// Visit a parse tree produced by ELParser#warnStmt.
+	VisitWarnStmt(ctx *WarnStmtContext) interface{}
+
 	// Visit a parse tree produced by ELParser#debugStr.
 	VisitDebugStr(ctx *DebugStrContext) interface{}
 

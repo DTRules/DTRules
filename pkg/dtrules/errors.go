@@ -105,3 +105,19 @@ func OutOfBoundsError(location, message string) *RulesError {
 func ParsingError(location, message string) *RulesError {
 	return NewRulesError("Parsing Error", location, message)
 }
+
+// ELStatementError is returned when an EL `error` statement executes.
+// Callers can distinguish a rule-raised error from a VM/runtime bug by
+// checking: errors.As(err, &dtrules.ELStatementError{}).
+type ELStatementError struct {
+	Msg string
+}
+
+func (e *ELStatementError) Error() string {
+	return "[EL error statement] " + e.Msg
+}
+
+// NewELStatementError creates an ELStatementError with the given message.
+func NewELStatementError(msg string) *ELStatementError {
+	return &ELStatementError{Msg: msg}
+}

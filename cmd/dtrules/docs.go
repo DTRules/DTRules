@@ -631,6 +631,18 @@ DEBUG / PRINT (diagnostic output):
     debug myArray
     print "message"      (same as debug; alias)
 
+ERRORS AND WARNINGS:
+    error <strexpr>      Halt rule-set execution; the string is surfaced to the
+                         host as an ELStatementError (distinguishable from
+                         runtime/VM errors via errors.As).
+    warn  <strexpr>      Non-fatal diagnostic; logs the string and continues.
+
+    Examples:
+        error "Policy rejected: income below minimum";
+        error "Invalid status: " + applicant.status;
+        warn  "Tax bracket lookup returned null";
+        if amount < 0 then error "amount must not be negative"; endif
+
 LOCAL VARIABLE declarations (context statements only):
     local entity myVar
     local entity myVar = someEntity

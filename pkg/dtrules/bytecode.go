@@ -126,6 +126,10 @@ const (
 	OpBigIntBytes Opcode = 126 // [bigint size -> bytes]     bigint → big-endian zero-padded bytes
 	OpBytesBigInt Opcode = 127 // [bytes -> bigint]          bytes → bigint (unsigned big-endian)
 
+	// EL statement opcodes
+	OpError Opcode = 128 // [string --] halt execution, surface string as ELStatementError
+	OpWarn  Opcode = 129 // [string --] non-fatal; logs string and continues
+
 	// Constants
 	OpPushTrue  Opcode = 100 // Push true
 	OpPushFalse Opcode = 101 // Push false
