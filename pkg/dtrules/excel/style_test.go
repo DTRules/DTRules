@@ -171,11 +171,11 @@ func TestExportCombinedStyle(t *testing.T) {
 		t.Fatalf("combined workbook should have DT + EDD sheets, got %d", len(sheets))
 	}
 
-	// Last sheet should be EDD.
+	// Last sheet should be EDD. Row 1 is the type marker for mixed-workbook detection.
 	eddSheet := sheets[len(sheets)-1]
 	val, _ := f.GetCellValue(eddSheet, "A1")
-	if val != "Entity" {
-		t.Errorf("EDD sheet A1: got %q, want \"Entity\"", val)
+	if val != "EDD: EDD" {
+		t.Errorf("EDD sheet A1: got %q, want \"EDD: EDD\"", val)
 	}
 }
 

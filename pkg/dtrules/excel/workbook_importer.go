@@ -298,15 +298,11 @@ func (w *WorkbookImporter) MergeResults(results []*WorkbookResult) (*DecisionTab
 
 // isEDDSheet detects if a sheet contains EDD data.
 // Returns true if:
+// - A1 contains "EDD:" type marker (new combined-workbook format)
 // - Sheet is named "EDD"
 // - First row has EDD header pattern (Entity, Attribute, Type, SubType...)
 // - Sheet uses multi-sheet entity format (A1="Entity", B1=entity_name)
 func (w *WorkbookImporter) isEDDSheet(f *excelize.File, sheet string) bool {
-	// Check sheet name
-	if sheet == "EDD" {
-		return true
-	}
-
 	// Get first row
 	rows, err := f.GetRows(sheet)
 	if err != nil || len(rows) == 0 {
@@ -315,10 +311,21 @@ func (w *WorkbookImporter) isEDDSheet(f *excelize.File, sheet string) bool {
 
 	row := rows[0]
 	if len(row) == 0 {
-		return false
+		// Check sheet name as fallback
+		return sheet == "EDD"
 	}
 
 	firstCell := strings.ToLower(strings.TrimSpace(row[0]))
+
+	// New combined-workbook format: "EDD: <name>"
+	if strings.HasPrefix(firstCell, "edd:") {
+		return true
+	}
+
+	// Check sheet name
+	if sheet == "EDD" {
+		return true
+	}
 
 	// Check for single-sheet EDD format header
 	if firstCell == "entity" {
@@ -347,6 +354,18 @@ func (w *WorkbookImporter) isEDDSheet(f *excelize.File, sheet string) bool {
 	return false
 }
 
+// isMAPSheet detects if a sheet contains Mapping data.
+// MAP sheet support is stubbed — the A1 marker is recognized but
+// no import logic is implemented yet.
+func (w *WorkbookImporter) isMAPSheet(f *excelize.File, sheet string) bool {
+	rows, err := f.GetRows(sheet)
+	if err != nil || len(rows) == 0 || len(rows[0]) == 0 {
+		return false
+	}
+	firstCell := strings.ToLower(strings.TrimSpace(rows[0][0]))
+	return strings.HasPrefix(firstCell, "map:")
+}
+
 // isDTSheet detects if a sheet contains Decision Table data.
 // Returns true if:
 // - Cell A1 contains "Decision Table"
@@ -362,12 +381,17 @@ func (w *WorkbookImporter) isDTSheet(f *excelize.File, sheet string) bool {
 	if len(rows[0]) > 0 {
 		firstCell := strings.ToLower(strings.TrimSpace(rows[0][0]))
 
+		// New combined-workbook format: "DT: <table_name>"
+		if strings.HasPrefix(firstCell, "dt:") {
+			return true
+		}
+
 		// dt2excel format starts with "Decision Table"
 		if strings.HasPrefix(firstCell, "decision table") {
 			return true
 		}
 
-		// exporter.go format starts with "Name:"
+		// legacy exporter format starts with "Name:"
 		if strings.HasPrefix(firstCell, "name:") {
 			return true
 		}
@@ -405,7 +429,20 @@ func (w *WorkbookImporter) importEDDSheetFromFile(f *excelize.File, sheet string
 		return nil, fmt.Errorf("sheet %s has no data rows", sheet)
 	}
 
-	// Detect format based on first row
+	// Strip the "EDD: ..." type marker row if present, so downstream parsers
+	// see the same layout as the legacy (unmarked) format.
+	if len(rows[0]) > 0 {
+		firstCell := strings.ToLower(strings.TrimSpace(rows[0][0]))
+		if strings.HasPrefix(firstCell, "edd:") {
+			rows = rows[1:]
+		}
+	}
+
+	if len(rows) < 1 {
+		return nil, fmt.Errorf("sheet %s has no data rows after marker", sheet)
+	}
+
+	// Detect format based on first (now non-marker) row
 	if len(rows[0]) >= 2 {
 		firstCell := strings.ToLower(strings.TrimSpace(rows[0][0]))
 		secondCell := strings.ToLower(strings.TrimSpace(rows[0][1]))
@@ -607,12 +644,17 @@ func (w *WorkbookImporter) detectDTFormat(rows [][]string) string {
 	if len(rows[0]) > 0 {
 		firstCell := strings.ToLower(strings.TrimSpace(rows[0][0]))
 
+		// New combined-workbook format: "DT: <table_name>"
+		if strings.HasPrefix(firstCell, "dt:") {
+			return "exporter"
+		}
+
 		// dt2excel format starts with "Decision Table"
 		if firstCell == "decision table" {
 			return "dt2excel"
 		}
 
-		// exporter.go format starts with "Name: <table_name>"
+		// legacy exporter format starts with "Name: <table_name>"
 		if strings.HasPrefix(firstCell, "name:") {
 			return "exporter"
 		}

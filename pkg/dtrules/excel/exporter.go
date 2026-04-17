@@ -268,7 +268,7 @@ func (e *Exporter) ExportEDD(filename string) error {
 	}
 
 	e.setEDDColumnWidths(f, sheet)
-	e.writeEDDHeaders(f, sheet, styler)
+	e.writeEDDHeaders(f, sheet, styler, 1)
 	FreezePaneAtRow2(f, sheet)
 
 	entities := e.ruleSet.GetEntityFactory().GetRefEntities()
@@ -276,7 +276,7 @@ func (e *Exporter) ExportEDD(filename string) error {
 		return entities[i].GetName().StringValue() < entities[j].GetName().StringValue()
 	})
 
-	e.writeEDDEntities(f, sheet, entities, styler, eddStyles)
+	e.writeEDDEntities(f, sheet, entities, styler, eddStyles, 2)
 
 	return f.SaveAs(filename)
 }
@@ -318,6 +318,8 @@ func (e *Exporter) ExportCombinedWorkbook(filename string) error {
 }
 
 // writeEDDSheet writes the EDD data to a sheet in an existing workbook.
+// Row 1 carries the "EDD: EDD" type marker so mixed-workbook importers can
+// detect sheet type from A1 without relying on the sheet name.
 func (e *Exporter) writeEDDSheet(f *excelize.File, styler *Styler, sheetName string) error {
 	_, err := f.NewSheet(sheetName)
 	if err != nil {
@@ -330,15 +332,21 @@ func (e *Exporter) writeEDDSheet(f *excelize.File, styler *Styler, sheetName str
 	}
 
 	e.setEDDColumnWidths(f, sheetName)
-	e.writeEDDHeaders(f, sheetName, styler)
-	FreezePaneAtRow2(f, sheetName)
+
+	// Row 1: type marker for mixed-workbook sheet-type detection
+	f.SetCellValue(sheetName, "A1", "EDD: EDD")
+	f.SetCellStyle(sheetName, "A1", "A1", eddStyles.header)
+
+	e.writeEDDHeaders(f, sheetName, styler, 2)
+	FreezePaneAtRow3(f, sheetName)
 
 	entities := e.ruleSet.GetEntityFactory().GetRefEntities()
 	sort.Slice(entities, func(i, j int) bool {
 		return entities[i].GetName().StringValue() < entities[j].GetName().StringValue()
 	})
 
-	e.writeEDDEntities(f, sheetName, entities, styler, eddStyles)
+	e.writeEDDEntities(f, sheetName, entities, styler, eddStyles, 3)
+
 	return nil
 }
 
@@ -388,9 +396,9 @@ func (e *Exporter) writeEDDGroup(dir, xlsFile string, entities []*entity.REntity
 	}
 
 	e.setEDDColumnWidths(f, sheet)
-	e.writeEDDHeaders(f, sheet, styler)
+	e.writeEDDHeaders(f, sheet, styler, 1)
 	FreezePaneAtRow2(f, sheet)
-	e.writeEDDEntities(f, sheet, entities, styler, eddStyles)
+	e.writeEDDEntities(f, sheet, entities, styler, eddStyles, 2)
 
 	return f.SaveAs(dir + "/" + xlsFile)
 }
@@ -591,16 +599,16 @@ func (e *Exporter) setEDDColumnWidths(f *excelize.File, sheet string) {
 	AutoWidth(f, sheet, "H", 55)
 }
 
-func (e *Exporter) writeEDDHeaders(f *excelize.File, sheet string, styler *Styler) {
+func (e *Exporter) writeEDDHeaders(f *excelize.File, sheet string, styler *Styler, startRow int) {
 	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description"}
 	for col, header := range headers {
-		cell, _ := excelize.CoordinatesToCellName(col+1, 1)
+		cell, _ := excelize.CoordinatesToCellName(col+1, startRow)
 		styler.ApplyHeader(f, sheet, cell, cell, cell, header)
 	}
 }
 
-func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*entity.REntity, styler *Styler, s *eddExtraStyles) {
-	row := 2
+func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*entity.REntity, styler *Styler, s *eddExtraStyles, startRow int) {
+	row := startRow
 	for _, ent := range entities {
 		entityName := ent.GetName().StringValue()
 
@@ -739,8 +747,9 @@ func (e *Exporter) writeName(f *excelize.File, sheet string, dt *decisiontable.R
 	startCell := cellName(1, row)
 	endCell := cellName(3+numCols, row)
 	f.MergeCell(sheet, startCell, endCell)
-	f.SetCellValue(sheet, startCell, "Name: "+displayName)
+	f.SetCellValue(sheet, startCell, "DT: "+displayName)
 	f.SetCellStyle(sheet, startCell, endCell, styler.BodyStyle)
+
 	return row + 1
 }
 
