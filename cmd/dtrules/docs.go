@@ -29,6 +29,7 @@ var docTopics = map[string]string{
 	"decision-tables": docDecisionTables,
 	"operators":       docOperators,
 	"examples":        docExamples,
+	"embedding":       docEmbedding,
 	"workflow":        docWorkflow,
 }
 
@@ -71,6 +72,7 @@ func printDocIndex() {
 		"decision-tables": "How to write decision tables",
 		"operators":       "All available operators with examples",
 		"examples":        "Complete working examples",
+		"embedding":       "Embed DTRules rules into a single Go binary via //go:embed (no xlsx or xml at runtime)",
 		"workflow":        "Development workflow with Excel and XML",
 	}
 
