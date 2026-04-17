@@ -338,6 +338,42 @@ func (s *BaseELListener) EnterLocalStringDefined(ctx *LocalStringDefinedContext)
 // ExitLocalStringDefined is called when production localStringDefined is exited.
 func (s *BaseELListener) ExitLocalStringDefined(ctx *LocalStringDefinedContext) {}
 
+// EnterLocalBigIntUndef is called when production localBigIntUndef is entered.
+func (s *BaseELListener) EnterLocalBigIntUndef(ctx *LocalBigIntUndefContext) {}
+
+// ExitLocalBigIntUndef is called when production localBigIntUndef is exited.
+func (s *BaseELListener) ExitLocalBigIntUndef(ctx *LocalBigIntUndefContext) {}
+
+// EnterLocalBigIntInit is called when production localBigIntInit is entered.
+func (s *BaseELListener) EnterLocalBigIntInit(ctx *LocalBigIntInitContext) {}
+
+// ExitLocalBigIntInit is called when production localBigIntInit is exited.
+func (s *BaseELListener) ExitLocalBigIntInit(ctx *LocalBigIntInitContext) {}
+
+// EnterLocalBigIntDefined is called when production localBigIntDefined is entered.
+func (s *BaseELListener) EnterLocalBigIntDefined(ctx *LocalBigIntDefinedContext) {}
+
+// ExitLocalBigIntDefined is called when production localBigIntDefined is exited.
+func (s *BaseELListener) ExitLocalBigIntDefined(ctx *LocalBigIntDefinedContext) {}
+
+// EnterLocalBytesUndef is called when production localBytesUndef is entered.
+func (s *BaseELListener) EnterLocalBytesUndef(ctx *LocalBytesUndefContext) {}
+
+// ExitLocalBytesUndef is called when production localBytesUndef is exited.
+func (s *BaseELListener) ExitLocalBytesUndef(ctx *LocalBytesUndefContext) {}
+
+// EnterLocalBytesInit is called when production localBytesInit is entered.
+func (s *BaseELListener) EnterLocalBytesInit(ctx *LocalBytesInitContext) {}
+
+// ExitLocalBytesInit is called when production localBytesInit is exited.
+func (s *BaseELListener) ExitLocalBytesInit(ctx *LocalBytesInitContext) {}
+
+// EnterLocalBytesDefined is called when production localBytesDefined is entered.
+func (s *BaseELListener) EnterLocalBytesDefined(ctx *LocalBytesDefinedContext) {}
+
+// ExitLocalBytesDefined is called when production localBytesDefined is exited.
+func (s *BaseELListener) ExitLocalBytesDefined(ctx *LocalBytesDefinedContext) {}
+
 // EnterIfThen is called when production ifThen is entered.
 func (s *BaseELListener) EnterIfThen(ctx *IfThenContext) {}
 
@@ -602,6 +638,18 @@ func (s *BaseELListener) EnterLeftTexprColon(ctx *LeftTexprColonContext) {}
 // ExitLeftTexprColon is called when production leftTexprColon is exited.
 func (s *BaseELListener) ExitLeftTexprColon(ctx *LeftTexprColonContext) {}
 
+// EnterLeftBigexprSimple is called when production leftBigexprSimple is entered.
+func (s *BaseELListener) EnterLeftBigexprSimple(ctx *LeftBigexprSimpleContext) {}
+
+// ExitLeftBigexprSimple is called when production leftBigexprSimple is exited.
+func (s *BaseELListener) ExitLeftBigexprSimple(ctx *LeftBigexprSimpleContext) {}
+
+// EnterLeftBigexprColon is called when production leftBigexprColon is entered.
+func (s *BaseELListener) EnterLeftBigexprColon(ctx *LeftBigexprColonContext) {}
+
+// ExitLeftBigexprColon is called when production leftBigexprColon is exited.
+func (s *BaseELListener) ExitLeftBigexprColon(ctx *LeftBigexprColonContext) {}
+
 // EnterLeftArraySimple is called when production leftArraySimple is entered.
 func (s *BaseELListener) EnterLeftArraySimple(ctx *LeftArraySimpleContext) {}
 
@@ -721,6 +769,12 @@ func (s *BaseELListener) EnterSetArrayArray(ctx *SetArrayArrayContext) {}
 
 // ExitSetArrayArray is called when production setArrayArray is exited.
 func (s *BaseELListener) ExitSetArrayArray(ctx *SetArrayArrayContext) {}
+
+// EnterSetBigInt is called when production setBigInt is entered.
+func (s *BaseELListener) EnterSetBigInt(ctx *SetBigIntContext) {}
+
+// ExitSetBigInt is called when production setBigInt is exited.
+func (s *BaseELListener) ExitSetBigInt(ctx *SetBigIntContext) {}
 
 // EnterIncrementLong is called when production incrementLong is entered.
 func (s *BaseELListener) EnterIncrementLong(ctx *IncrementLongContext) {}
@@ -2324,6 +2378,12 @@ func (s *BaseELListener) EnterIntColonRef(ctx *IntColonRefContext) {}
 // ExitIntColonRef is called when production intColonRef is exited.
 func (s *BaseELListener) ExitIntColonRef(ctx *IntColonRefContext) {}
 
+// EnterIntBytesIndex is called when production intBytesIndex is entered.
+func (s *BaseELListener) EnterIntBytesIndex(ctx *IntBytesIndexContext) {}
+
+// ExitIntBytesIndex is called when production intBytesIndex is exited.
+func (s *BaseELListener) ExitIntBytesIndex(ctx *IntBytesIndexContext) {}
+
 // EnterIntSubFrom is called when production intSubFrom is entered.
 func (s *BaseELListener) EnterIntSubFrom(ctx *IntSubFromContext) {}
 
@@ -2335,6 +2395,126 @@ func (s *BaseELListener) EnterIntMonthsBetween(ctx *IntMonthsBetweenContext) {}
 
 // ExitIntMonthsBetween is called when production intMonthsBetween is exited.
 func (s *BaseELListener) ExitIntMonthsBetween(ctx *IntMonthsBetweenContext) {}
+
+// EnterIntLengthBytes is called when production intLengthBytes is entered.
+func (s *BaseELListener) EnterIntLengthBytes(ctx *IntLengthBytesContext) {}
+
+// ExitIntLengthBytes is called when production intLengthBytes is exited.
+func (s *BaseELListener) ExitIntLengthBytes(ctx *IntLengthBytesContext) {}
+
+// EnterBigAbs is called when production bigAbs is entered.
+func (s *BaseELListener) EnterBigAbs(ctx *BigAbsContext) {}
+
+// ExitBigAbs is called when production bigAbs is exited.
+func (s *BaseELListener) ExitBigAbs(ctx *BigAbsContext) {}
+
+// EnterBigDiv is called when production bigDiv is entered.
+func (s *BaseELListener) EnterBigDiv(ctx *BigDivContext) {}
+
+// ExitBigDiv is called when production bigDiv is exited.
+func (s *BaseELListener) ExitBigDiv(ctx *BigDivContext) {}
+
+// EnterBigColonRef is called when production bigColonRef is entered.
+func (s *BaseELListener) EnterBigColonRef(ctx *BigColonRefContext) {}
+
+// ExitBigColonRef is called when production bigColonRef is exited.
+func (s *BaseELListener) ExitBigColonRef(ctx *BigColonRefContext) {}
+
+// EnterBigFromFloat is called when production bigFromFloat is entered.
+func (s *BaseELListener) EnterBigFromFloat(ctx *BigFromFloatContext) {}
+
+// ExitBigFromFloat is called when production bigFromFloat is exited.
+func (s *BaseELListener) ExitBigFromFloat(ctx *BigFromFloatContext) {}
+
+// EnterBigNegate is called when production bigNegate is entered.
+func (s *BaseELListener) EnterBigNegate(ctx *BigNegateContext) {}
+
+// ExitBigNegate is called when production bigNegate is exited.
+func (s *BaseELListener) ExitBigNegate(ctx *BigNegateContext) {}
+
+// EnterBigUsing is called when production bigUsing is entered.
+func (s *BaseELListener) EnterBigUsing(ctx *BigUsingContext) {}
+
+// ExitBigUsing is called when production bigUsing is exited.
+func (s *BaseELListener) ExitBigUsing(ctx *BigUsingContext) {}
+
+// EnterBigSub is called when production bigSub is entered.
+func (s *BaseELListener) EnterBigSub(ctx *BigSubContext) {}
+
+// ExitBigSub is called when production bigSub is exited.
+func (s *BaseELListener) ExitBigSub(ctx *BigSubContext) {}
+
+// EnterBigParen is called when production bigParen is entered.
+func (s *BaseELListener) EnterBigParen(ctx *BigParenContext) {}
+
+// ExitBigParen is called when production bigParen is exited.
+func (s *BaseELListener) ExitBigParen(ctx *BigParenContext) {}
+
+// EnterBigAdd is called when production bigAdd is entered.
+func (s *BaseELListener) EnterBigAdd(ctx *BigAddContext) {}
+
+// ExitBigAdd is called when production bigAdd is exited.
+func (s *BaseELListener) ExitBigAdd(ctx *BigAddContext) {}
+
+// EnterBigFromStr is called when production bigFromStr is entered.
+func (s *BaseELListener) EnterBigFromStr(ctx *BigFromStrContext) {}
+
+// ExitBigFromStr is called when production bigFromStr is exited.
+func (s *BaseELListener) ExitBigFromStr(ctx *BigFromStrContext) {}
+
+// EnterBigFromInt is called when production bigFromInt is entered.
+func (s *BaseELListener) EnterBigFromInt(ctx *BigFromIntContext) {}
+
+// ExitBigFromInt is called when production bigFromInt is exited.
+func (s *BaseELListener) ExitBigFromInt(ctx *BigFromIntContext) {}
+
+// EnterBigMul is called when production bigMul is entered.
+func (s *BaseELListener) EnterBigMul(ctx *BigMulContext) {}
+
+// ExitBigMul is called when production bigMul is exited.
+func (s *BaseELListener) ExitBigMul(ctx *BigMulContext) {}
+
+// EnterBigTyped is called when production bigTyped is entered.
+func (s *BaseELListener) EnterBigTyped(ctx *BigTypedContext) {}
+
+// ExitBigTyped is called when production bigTyped is exited.
+func (s *BaseELListener) ExitBigTyped(ctx *BigTypedContext) {}
+
+// EnterBytesSlice is called when production bytesSlice is entered.
+func (s *BaseELListener) EnterBytesSlice(ctx *BytesSliceContext) {}
+
+// ExitBytesSlice is called when production bytesSlice is exited.
+func (s *BaseELListener) ExitBytesSlice(ctx *BytesSliceContext) {}
+
+// EnterBytesConcat is called when production bytesConcat is entered.
+func (s *BaseELListener) EnterBytesConcat(ctx *BytesConcatContext) {}
+
+// ExitBytesConcat is called when production bytesConcat is exited.
+func (s *BaseELListener) ExitBytesConcat(ctx *BytesConcatContext) {}
+
+// EnterBytesLiteral is called when production bytesLiteral is entered.
+func (s *BaseELListener) EnterBytesLiteral(ctx *BytesLiteralContext) {}
+
+// ExitBytesLiteral is called when production bytesLiteral is exited.
+func (s *BaseELListener) ExitBytesLiteral(ctx *BytesLiteralContext) {}
+
+// EnterBytesTyped is called when production bytesTyped is entered.
+func (s *BaseELListener) EnterBytesTyped(ctx *BytesTypedContext) {}
+
+// ExitBytesTyped is called when production bytesTyped is exited.
+func (s *BaseELListener) ExitBytesTyped(ctx *BytesTypedContext) {}
+
+// EnterBytesColonRef is called when production bytesColonRef is entered.
+func (s *BaseELListener) EnterBytesColonRef(ctx *BytesColonRefContext) {}
+
+// ExitBytesColonRef is called when production bytesColonRef is exited.
+func (s *BaseELListener) ExitBytesColonRef(ctx *BytesColonRefContext) {}
+
+// EnterBytesParen is called when production bytesParen is entered.
+func (s *BaseELListener) EnterBytesParen(ctx *BytesParenContext) {}
+
+// ExitBytesParen is called when production bytesParen is exited.
+func (s *BaseELListener) ExitBytesParen(ctx *BytesParenContext) {}
 
 // EnterIncludeNumber is called when production includeNumber is entered.
 func (s *BaseELListener) EnterIncludeNumber(ctx *IncludeNumberContext) {}
@@ -2456,6 +2636,12 @@ func (s *BaseELListener) EnterBoolThereIsNoInEntityWhere(ctx *BoolThereIsNoInEnt
 // ExitBoolThereIsNoInEntityWhere is called when production boolThereIsNoInEntityWhere is exited.
 func (s *BaseELListener) ExitBoolThereIsNoInEntityWhere(ctx *BoolThereIsNoInEntityWhereContext) {}
 
+// EnterBoolBigLt is called when production boolBigLt is entered.
+func (s *BaseELListener) EnterBoolBigLt(ctx *BoolBigLtContext) {}
+
+// ExitBoolBigLt is called when production boolBigLt is exited.
+func (s *BaseELListener) ExitBoolBigLt(ctx *BoolBigLtContext) {}
+
 // EnterBoolArrayIsNull is called when production boolArrayIsNull is entered.
 func (s *BaseELListener) EnterBoolArrayIsNull(ctx *BoolArrayIsNullContext) {}
 
@@ -2479,6 +2665,12 @@ func (s *BaseELListener) EnterBoolStrEqList(ctx *BoolStrEqListContext) {}
 
 // ExitBoolStrEqList is called when production boolStrEqList is exited.
 func (s *BaseELListener) ExitBoolStrEqList(ctx *BoolStrEqListContext) {}
+
+// EnterBoolBigNeq is called when production boolBigNeq is entered.
+func (s *BaseELListener) EnterBoolBigNeq(ctx *BoolBigNeqContext) {}
+
+// ExitBoolBigNeq is called when production boolBigNeq is exited.
+func (s *BaseELListener) ExitBoolBigNeq(ctx *BoolBigNeqContext) {}
 
 // EnterBoolIntLt is called when production boolIntLt is entered.
 func (s *BaseELListener) EnterBoolIntLt(ctx *BoolIntLtContext) {}
@@ -2594,6 +2786,12 @@ func (s *BaseELListener) EnterBoolDateAfter(ctx *BoolDateAfterContext) {}
 // ExitBoolDateAfter is called when production boolDateAfter is exited.
 func (s *BaseELListener) ExitBoolDateAfter(ctx *BoolDateAfterContext) {}
 
+// EnterBoolBytesNeq is called when production boolBytesNeq is entered.
+func (s *BaseELListener) EnterBoolBytesNeq(ctx *BoolBytesNeqContext) {}
+
+// ExitBoolBytesNeq is called when production boolBytesNeq is exited.
+func (s *BaseELListener) ExitBoolBytesNeq(ctx *BoolBytesNeqContext) {}
+
 // EnterBoolDateLt is called when production boolDateLt is entered.
 func (s *BaseELListener) EnterBoolDateLt(ctx *BoolDateLtContext) {}
 
@@ -2678,6 +2876,12 @@ func (s *BaseELListener) EnterBoolAnd(ctx *BoolAndContext) {}
 // ExitBoolAnd is called when production boolAnd is exited.
 func (s *BaseELListener) ExitBoolAnd(ctx *BoolAndContext) {}
 
+// EnterBoolBytesEq is called when production boolBytesEq is entered.
+func (s *BaseELListener) EnterBoolBytesEq(ctx *BoolBytesEqContext) {}
+
+// ExitBoolBytesEq is called when production boolBytesEq is exited.
+func (s *BaseELListener) ExitBoolBytesEq(ctx *BoolBytesEqContext) {}
+
 // EnterBoolStrIsNot is called when production boolStrIsNot is entered.
 func (s *BaseELListener) EnterBoolStrIsNot(ctx *BoolStrIsNotContext) {}
 
@@ -2695,6 +2899,12 @@ func (s *BaseELListener) EnterBoolFloatLte(ctx *BoolFloatLteContext) {}
 
 // ExitBoolFloatLte is called when production boolFloatLte is exited.
 func (s *BaseELListener) ExitBoolFloatLte(ctx *BoolFloatLteContext) {}
+
+// EnterBoolBigLte is called when production boolBigLte is entered.
+func (s *BaseELListener) EnterBoolBigLte(ctx *BoolBigLteContext) {}
+
+// ExitBoolBigLte is called when production boolBigLte is exited.
+func (s *BaseELListener) ExitBoolBigLte(ctx *BoolBigLteContext) {}
 
 // EnterBoolStrEqIc is called when production boolStrEqIc is entered.
 func (s *BaseELListener) EnterBoolStrEqIc(ctx *BoolStrEqIcContext) {}
@@ -2761,6 +2971,12 @@ func (s *BaseELListener) EnterBoolColonRef(ctx *BoolColonRefContext) {}
 
 // ExitBoolColonRef is called when production boolColonRef is exited.
 func (s *BaseELListener) ExitBoolColonRef(ctx *BoolColonRefContext) {}
+
+// EnterBoolBigGt is called when production boolBigGt is entered.
+func (s *BaseELListener) EnterBoolBigGt(ctx *BoolBigGtContext) {}
+
+// ExitBoolBigGt is called when production boolBigGt is exited.
+func (s *BaseELListener) ExitBoolBigGt(ctx *BoolBigGtContext) {}
 
 // EnterBoolFloatGt is called when production boolFloatGt is entered.
 func (s *BaseELListener) EnterBoolFloatGt(ctx *BoolFloatGtContext) {}
@@ -2864,6 +3080,12 @@ func (s *BaseELListener) EnterBoolEntityNotHas(ctx *BoolEntityNotHasContext) {}
 // ExitBoolEntityNotHas is called when production boolEntityNotHas is exited.
 func (s *BaseELListener) ExitBoolEntityNotHas(ctx *BoolEntityNotHasContext) {}
 
+// EnterBoolBigGte is called when production boolBigGte is entered.
+func (s *BaseELListener) EnterBoolBigGte(ctx *BoolBigGteContext) {}
+
+// ExitBoolBigGte is called when production boolBigGte is exited.
+func (s *BaseELListener) ExitBoolBigGte(ctx *BoolBigGteContext) {}
+
 // EnterBoolDateEq is called when production boolDateEq is entered.
 func (s *BaseELListener) EnterBoolDateEq(ctx *BoolDateEqContext) {}
 
@@ -2947,6 +3169,12 @@ func (s *BaseELListener) EnterBoolBoolEq(ctx *BoolBoolEqContext) {}
 
 // ExitBoolBoolEq is called when production boolBoolEq is exited.
 func (s *BaseELListener) ExitBoolBoolEq(ctx *BoolBoolEqContext) {}
+
+// EnterBoolBigEq is called when production boolBigEq is entered.
+func (s *BaseELListener) EnterBoolBigEq(ctx *BoolBigEqContext) {}
+
+// ExitBoolBigEq is called when production boolBigEq is exited.
+func (s *BaseELListener) ExitBoolBigEq(ctx *BoolBigEqContext) {}
 
 // EnterBoolPlusOrMinus is called when production boolPlusOrMinus is entered.
 func (s *BaseELListener) EnterBoolPlusOrMinus(ctx *BoolPlusOrMinusContext) {}
@@ -3157,6 +3385,18 @@ func (s *BaseELListener) EnterTypedBoolFunction(ctx *TypedBoolFunctionContext) {
 
 // ExitTypedBoolFunction is called when production typedBoolFunction is exited.
 func (s *BaseELListener) ExitTypedBoolFunction(ctx *TypedBoolFunctionContext) {}
+
+// EnterTypedBigInt is called when production typedBigInt is entered.
+func (s *BaseELListener) EnterTypedBigInt(ctx *TypedBigIntContext) {}
+
+// ExitTypedBigInt is called when production typedBigInt is exited.
+func (s *BaseELListener) ExitTypedBigInt(ctx *TypedBigIntContext) {}
+
+// EnterTypedBytes is called when production typedBytes is entered.
+func (s *BaseELListener) EnterTypedBytes(ctx *TypedBytesContext) {}
+
+// ExitTypedBytes is called when production typedBytes is exited.
+func (s *BaseELListener) ExitTypedBytes(ctx *TypedBytesContext) {}
 
 // EnterUndefinedIdent is called when production undefinedIdent is entered.
 func (s *BaseELListener) EnterUndefinedIdent(ctx *UndefinedIdentContext) {}

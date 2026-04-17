@@ -469,6 +469,17 @@ Opcodes are defined in `pkg/dtrules/bytecode.go` as `type Opcode uint8`.
 | `OpConcat` | 90 | `(a b -- str)` |
 | `OpSubstring` | 91 | `(str start end -- str)` |
 
+**Bytes operations**
+
+| Opcode | Value | Stack effect | Notes |
+|--------|-------|-------------|-------|
+| `OpBytesConcat` | 110 | `(bytes bytes -- bytes)` | Concatenate two byte sequences |
+| `OpBytesLen`    | 111 | `(bytes -- int)` | Number of bytes |
+| `OpBytesSlice`  | 112 | `(bytes from to -- bytes)` | Slice `[from, to)`, runtime error if out of range |
+| `OpBytesIndex`  | 113 | `(bytes i -- int)` | Byte at index `i` as 0–255; runtime error if out of range |
+| `OpBytesEq`     | 114 | `(bytes bytes -- bool)` | `crypto/subtle.ConstantTimeCompare` |
+| `OpBytesNe`     | 115 | `(bytes bytes -- bool)` | Negated constant-time comparison |
+
 **Constant shortcuts**
 
 | Opcode | Value | Stack effect |

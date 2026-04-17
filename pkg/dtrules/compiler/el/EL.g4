@@ -126,6 +126,9 @@ localvariables
     | LOCAL BIGINT undefinedIdent                           # localBigIntUndef
     | LOCAL BIGINT undefinedIdent ASSIGN bigexpr            # localBigIntInit
     | LOCAL BIGINT typedBigInt                              # localBigIntDefined
+    | LOCAL BYTES undefinedIdent                            # localBytesUndef
+    | LOCAL BYTES undefinedIdent ASSIGN bytesexpr           # localBytesInit
+    | LOCAL BYTES typedBytes                                # localBytesDefined
     ;
 
 ifstatement
@@ -604,6 +607,8 @@ iexpr
     | NUMBEROF arrayExpr WHERE bexpr                        # intNumberOfWhere
     | LENGTH OF arrayExpr                                   # intLengthArray
     | LENGTH OF strexpr                                     # intLengthStr
+    | LENGTH OF bytesexpr                                   # intLengthBytes
+    | bytesexpr LBRACE iexpr RBRACE                         # intBytesIndex
     | INDEX_OF strexpr IN strexpr                           # intIndexOf
     | USING arrayExpr number                                # intUsingArray
     | ADD TO typedLong number                               # intAddTo
@@ -634,6 +639,15 @@ bigexpr
     | LPAREN BIGINT RPAREN fexpr                            # bigFromFloat
     | USING eexpr LPAREN bigexpr RPAREN                     # bigUsing
     | ABSOLUTEVALUE OF bigexpr                              # bigAbs
+    ;
+
+bytesexpr
+    : HEX_BYTES_LITERAL                                     # bytesLiteral
+    | typedBytes                                            # bytesTyped
+    | colonRef typedBytes                                   # bytesColonRef
+    | LPAREN bytesexpr RPAREN                               # bytesParen
+    | bytesexpr PLUS bytesexpr                              # bytesConcat
+    | bytesexpr FROM iexpr TO iexpr                         # bytesSlice
     ;
 
 includeSearch
@@ -732,6 +746,10 @@ bexpr
     | bigexpr GTE bigexpr                                   # boolBigGte
     | bigexpr LT bigexpr                                    # boolBigLt
     | bigexpr LTE bigexpr                                   # boolBigLte
+
+    // Bytes comparisons (constant-time equality)
+    | bytesexpr EQ bytesexpr                                # boolBytesEq
+    | bytesexpr NEQ bytesexpr                               # boolBytesNeq
 
     // Boolean reference
     | typedBoolean                                          # boolTyped
@@ -851,6 +869,7 @@ typedNull           : IDENT ;
 typedInvalid        : IDENT ;
 typedBoolFunction   : IDENT ;
 typedBigInt         : IDENT ;
+typedBytes          : IDENT ;
 undefinedIdent      : IDENT ;
 
 // ============================================================================
@@ -877,6 +896,7 @@ ENTITY              : 'entity' ;
 ARRAY               : 'array' ;
 TABLE               : 'table' ;
 BIGINT              : 'bigint' | 'biginteger' ;
+BYTES               : 'bytes' ;
 
 // Current date/time
 CURRENT_TIMESTAMP   : 'current' WS+ 'timestamp' ;
@@ -1045,6 +1065,7 @@ AT                  : 'at' ;
 INT_LITERAL         : DIGIT+ ;
 FLOAT_LITERAL       : DIGIT+ '.' DIGIT* | DIGIT* '.' DIGIT+ ;
 STRING_LITERAL      : '"' ~["]* '"' | '\'' ~[']* '\'' ;
+HEX_BYTES_LITERAL   : '0x' HEX_DIGIT* ;
 
 // Articles - ignored (must come before IDENT to take precedence)
 ARTICLE             : ('a' | 'an' | 'the') -> skip ;
@@ -1066,3 +1087,4 @@ WS                  : [ \t\r\n\f]+ -> skip ;
 fragment IDENT_CHAR : [a-z] | [A-Z] | [0-9] | '_' ;
 fragment DIGIT      : [0-9] ;
 fragment LETTER     : [a-zA-Z] ;
+fragment HEX_DIGIT  : [0-9a-fA-F] ;

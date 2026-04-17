@@ -129,6 +129,9 @@ type Object interface {
 
 	// RBigIntValue returns the RBigInt representation of this object.
 	RBigIntValue() (*RBigInt, error)
+
+	// RBytesValue returns the RBytes representation of this object.
+	RBytesValue() (*RBytes, error)
 }
 
 // State flags

@@ -171,6 +171,14 @@ func (c *Compiler) compileToken(token string) (dtrules.Object, error) {
 		return dtrules.GetRNull(), nil
 	}
 
+	// Try as hex bytes literal (0x...)
+	if strings.HasPrefix(strings.ToLower(token), "0x") {
+		b, err := dtrules.NewRBytesFromHex(token)
+		if err == nil {
+			return b, nil
+		}
+	}
+
 	// Try as integer
 	if i, err := dtrules.GetRIntegerValueFromString(token); err == nil {
 		return i, nil

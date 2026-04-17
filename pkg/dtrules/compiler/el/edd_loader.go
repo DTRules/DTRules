@@ -36,6 +36,7 @@ const (
 	TypeTable    = "table"
 	TypeXmlValue = "xmlvalue"
 	TypeBigInt   = "bigint"
+	TypeBytes    = "bytes"
 )
 
 // EDDFile represents the root entity_data_dictionary element
@@ -148,6 +149,8 @@ func normalizeType(t string) string {
 		return TypeXmlValue
 	case "bigint", "biginteger":
 		return TypeBigInt
+	case "bytes":
+		return TypeBytes
 	default:
 		return t
 	}

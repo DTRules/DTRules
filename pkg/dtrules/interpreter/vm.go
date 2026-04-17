@@ -430,6 +430,124 @@ func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 				return err
 			}
 
+		// Bytes operations
+		case dtrules.OpBytesConcat:
+			b, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			ab, err := a.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			bb, err := b.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			if err := s.ValuePush(dtrules.ValueFromObject(ab.Concat(bb))); err != nil {
+				return err
+			}
+		case dtrules.OpBytesLen:
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			ab, err := a.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			if err := s.ValuePush(dtrules.NewValueInteger(int64(ab.Len()))); err != nil {
+				return err
+			}
+		case dtrules.OpBytesSlice:
+			toVal, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			fromVal, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			ab, err := a.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			result, err := ab.Slice(int(fromVal.AsInteger()), int(toVal.AsInteger()))
+			if err != nil {
+				return err
+			}
+			if err := s.ValuePush(dtrules.ValueFromObject(result)); err != nil {
+				return err
+			}
+		case dtrules.OpBytesIndex:
+			idxVal, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			ab, err := a.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			byteVal, err := ab.At(int(idxVal.AsInteger()))
+			if err != nil {
+				return err
+			}
+			if err := s.ValuePush(dtrules.NewValueInteger(byteVal)); err != nil {
+				return err
+			}
+		case dtrules.OpBytesEq:
+			b, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			ab, err := a.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			bb, err := b.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			if err := s.ValuePush(dtrules.NewValueBoolean(ab.ConstantTimeEqual(bb))); err != nil {
+				return err
+			}
+		case dtrules.OpBytesNe:
+			b, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			ab, err := a.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			bb, err := b.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			if err := s.ValuePush(dtrules.NewValueBoolean(!ab.ConstantTimeEqual(bb))); err != nil {
+				return err
+			}
+
 		default:
 			return dtrules.NewRulesError("Invalid Opcode", "ExecuteBytecode", "unknown opcode")
 		}

@@ -161,3 +161,8 @@ func (b *BaseObject) REntityValue() (Entity, error) {
 func (b *BaseObject) RBigIntValue() (*RBigInt, error) {
 	return nil, ConversionError("RBigIntValue", "cannot convert to bigint")
 }
+
+// RBytesValue returns an error by default.
+func (b *BaseObject) RBytesValue() (*RBytes, error) {
+	return nil, ConversionError("RBytesValue", "cannot convert to bytes")
+}
