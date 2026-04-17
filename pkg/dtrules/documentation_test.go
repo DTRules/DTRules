@@ -334,6 +334,9 @@ var productionNames = []string{
 	// Hash built-ins
 	"sha256", "keccak256", "ripemd160", "sha3",
 
+	// Encoding built-ins
+	"hex", "base58check", "bech32",
+
 	// xmlvalue operations
 	"attribute",
 }

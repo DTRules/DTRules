@@ -7,6 +7,7 @@ import (
 
 // BigIntToBytes encodes n as a big-endian byte slice, zero-padded to size bytes.
 // Returns an error if n is negative or does not fit in size bytes.
+// size=0 is allowed only if n==0, returning an empty slice.
 func BigIntToBytes(n *big.Int, size int) ([]byte, error) {
 	if n.Sign() < 0 {
 		return nil, errors.New("bigint to bytes: negative value not supported")
@@ -14,6 +15,9 @@ func BigIntToBytes(n *big.Int, size int) ([]byte, error) {
 	b := n.Bytes()
 	if len(b) > size {
 		return nil, errors.New("bigint to bytes: value does not fit in requested size")
+	}
+	if size == 0 {
+		return []byte{}, nil
 	}
 	result := make([]byte, size)
 	copy(result[size-len(b):], b)

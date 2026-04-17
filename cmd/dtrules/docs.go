@@ -277,6 +277,16 @@ Hashes:
     ripemd160 of data               RIPEMD-160 → bytes(20)
     sha3 of data                    SHA3-256 → bytes(32)
 
+Encoding (bytes ↔ string / bigint):
+    hex of data                     lowercase hex string, no 0x prefix → string
+    bytes of hex "deadbeef"         decode hex string (accepts 0x prefix) → bytes
+    base58check of data version 0   base58check encode with version byte → string
+    bytes of base58check encoded    decode base58check → bytes (version on stack, pop if not needed)
+    bech32 of data hrp "bc"         BIP-173 bech32 encode → string
+    bytes of bech32 encoded         BIP-173 bech32 decode → bytes (hrp on stack, pop if not needed)
+    bytes of bigint n size 32       big-endian, zero-padded to 32 bytes → bytes
+    bigint of bytes data            unsigned big-endian interpretation → bigint
+
 Equality (constant-time):
     hash is equal to expected       bytes == bytes → boolean
     hash is not equal to expected   bytes != bytes → boolean
@@ -1583,6 +1593,18 @@ Hashes:
     ripemd160 of data               RIPEMD-160 → bytes(20)
     sha3 of data                    SHA3-256 → bytes(32)
 
+Encoding (bytes ↔ string):
+    hex of data                     lowercase hex string without 0x prefix → string
+    bytes of hex s                  decode hex string (optional 0x prefix) → bytes
+    base58check of data version v   base58check encode → string
+    bytes of base58check s          base58check decode → bytes (version on stack)
+    bech32 of data hrp s            BIP-173 bech32 encode → string
+    bytes of bech32 s               BIP-173 bech32 decode → bytes (hrp on stack)
+
+Bigint ↔ bytes:
+    bytes of bigint n size s        big-endian, zero-padded to s bytes → bytes
+    bigint of bytes data            unsigned big-endian interpretation → bigint
+
 Equality (constant-time via crypto/subtle.ConstantTimeCompare):
     hash is equal to expected       → boolean
     hash is not equal to expected   → boolean
@@ -2395,6 +2417,23 @@ Equality (constant-time)
     hash is equal to expected       → boolean
     hash is not equal to expected   → boolean
     Uses crypto/subtle.ConstantTimeCompare. Both values must be bytes type.
+
+
+Encoding
+--------
+Convert bytes to/from string encodings and bigint:
+
+    hex of data                     lowercase hex, no 0x prefix → string
+    bytes of hex "deadbeef"         decode hex (0x prefix optional) → bytes
+    base58check of data version 0   base58check encode → string
+    bytes of base58check encoded    decode base58check → bytes (version on stack)
+    bech32 of data hrp "bc"         BIP-173 bech32 encode → string
+    bytes of bech32 encoded         bech32 decode → bytes (hrp on stack)
+    bytes of bigint n size 32       big-endian, zero-padded → bytes
+    bigint of bytes data            unsigned big-endian → bigint
+
+Bitcoin address example (hash pubkey, base58check with version 0):
+    base58check of (ripemd160 of (sha256 of pubkey)) version 0
 
 
 Blockchain Policy Example
