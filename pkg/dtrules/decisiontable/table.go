@@ -520,6 +520,13 @@ func (dt *RDecisionTable) buildUnbalanced(state dtrules.State, executeAll bool) 
 		return
 	}
 
+	// ALL tables with more columns than the threshold use lazy encoding without
+	// building the binary tree at all.
+	if executeAll && dt.maxCol > lazyLeafThreshold {
+		dt.decisionTree = buildLazyTable(dt)
+		return
+	}
+
 	// Create the root node
 	top := NewCNode(dt, 1, 0, dt.rconditions[0])
 
