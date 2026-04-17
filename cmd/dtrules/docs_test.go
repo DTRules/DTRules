@@ -84,3 +84,13 @@ func TestDocumentation_EmbeddingTopic(t *testing.T) {
 		}
 	}
 }
+
+func TestDocumentation_EmbeddingContainsExtractExcel(t *testing.T) {
+	doc, ok := docTopics["embedding"]
+	if !ok {
+		t.Fatal("embedding topic not registered in docTopics")
+	}
+	if !strings.Contains(doc, "ExtractExcel") {
+		t.Error("embedding doc should document ExtractExcel for dumping embedded rules")
+	}
+}
