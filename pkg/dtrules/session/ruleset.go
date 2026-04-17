@@ -18,6 +18,7 @@ package session
 import (
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -108,10 +109,25 @@ func (rs *RuleSet) LoadDecisionTables(r io.Reader) error {
 // in the correct order based on TABLE_NUMBER (for DTs) and file_path numbering (for EDDs).
 //
 // Example:
-//   rs := session.NewRuleSet("TaxReturn")
-//   err := rs.LoadFromDirectory("./sampleprojects/TaxReturn/xml")
+//
+//	rs := session.NewRuleSet("TaxReturn")
+//	err := rs.LoadFromDirectory("./sampleprojects/TaxReturn/xml")
 func (rs *RuleSet) LoadFromDirectory(dirPath string) error {
 	return loader.LoadRulesFromDirectory(rs, dirPath)
+}
+
+// LoadFromFS loads all XML files from an fs.FS under the given root path.
+// Use "." as root to load from the FS root, or a subdirectory like "rules/xml".
+//
+// Example:
+//
+//	//go:embed rules/xml
+//	var rulesFS embed.FS
+//
+//	rs := session.NewRuleSet("TaxReturn")
+//	err := rs.LoadFromFS(rulesFS, "rules/xml")
+func (rs *RuleSet) LoadFromFS(fsys fs.FS, root string) error {
+	return loader.LoadRulesFromFS(rs, fsys, root)
 }
 
 // LoadEDDFile loads an EDD from a file path.
@@ -176,11 +192,32 @@ func (rs *RuleSet) LoadFromPath(path, eddPath, dtPath string) error {
 	return fmt.Errorf("must specify either path or both eddPath and dtPath")
 }
 
+// LoadRulesFromFS loads rules from an fs.FS into a new RuleSet.
+// root is the subdirectory inside fsys that contains the XML tree (use "." for the FS root).
+//
+// Example:
+//
+//	//go:embed rules/xml
+//	var rulesFS embed.FS
+//
+//	rs, err := session.LoadRulesFromFS("TaxReturn", rulesFS, "rules/xml")
+func LoadRulesFromFS(name string, fsys fs.FS, root string) (*RuleSet, error) {
+	rs := NewRuleSet(name)
+	if rs == nil {
+		return nil, fmt.Errorf("invalid rule set name: %s", name)
+	}
+	if err := rs.LoadFromFS(fsys, root); err != nil {
+		return nil, err
+	}
+	return rs, nil
+}
+
 // LoadRulesFromDirectory is a package-level convenience function for loading
 // rules from a directory into a new RuleSet.
 //
 // Example:
-//   rs, err := session.LoadRulesFromDirectory("TaxReturn", "./sampleprojects/TaxReturn/xml")
+//
+//	rs, err := session.LoadRulesFromDirectory("TaxReturn", "./sampleprojects/TaxReturn/xml")
 func LoadRulesFromDirectory(name, dirPath string) (*RuleSet, error) {
 	rs := NewRuleSet(name)
 	if rs == nil {
