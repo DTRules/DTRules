@@ -55,36 +55,18 @@ A typical layout inside your Go module:
     └── go.mod
 
 
-Current limitation: loader requires a filesystem path
-------------------------------------------------------
-The session loader (session.LoadFromDirectory) currently accepts an
-os-filesystem directory path, not an fs.FS.  Until the API is updated
-(see follow-up issue #536), copy the embedded files to a temp directory
-at startup, then load by path.
-
-A follow-up issue has been filed:
-  https://github.com/DTRules/DTRules/issues/536
-  "Loader should accept fs.FS directly (no tempdir round-trip)"
-
-The minimal end-to-end example below uses the tempdir workaround.
-When issue #536 is resolved the tempdir block can be replaced with a
-direct fs.FS call.
-
-
 Minimal end-to-end example
 ---------------------------
-The following self-contained program embeds a compiled rules tree, loads it,
-sets one input field, calls a decision table, and reads a result.
+The following self-contained program embeds a compiled rules tree, loads it
+directly from the embed.FS (no temp-directory round-trip), sets one input
+field, calls a decision table, and reads a result.
 
     package main
 
     import (
         "embed"
         "fmt"
-        "io/fs"
         "log"
-        "os"
-        "path/filepath"
 
         "github.com/DTRules/DTRules/pkg/dtrules"
         "github.com/DTRules/DTRules/pkg/dtrules/session"
@@ -94,25 +76,13 @@ sets one input field, calls a decision table, and reads a result.
     var rulesFS embed.FS
 
     func main() {
-        // --- step 1: copy embedded xml to a temp directory ---
-        // (workaround until loader accepts fs.FS; see issue #536)
-        tmpDir, err := os.MkdirTemp("", "dtrules-*")
-        if err != nil {
-            log.Fatal(err)
-        }
-        defer os.RemoveAll(tmpDir)
-
-        if err := copyEmbedToDir(rulesFS, "rules/xml", tmpDir); err != nil {
-            log.Fatal(err)
-        }
-
-        // --- step 2: load the rule set ---
-        rs, err := session.LoadRulesFromDirectory("TaxReturn", tmpDir)
+        // --- step 1: load the rule set directly from the embedded FS ---
+        rs, err := session.LoadRulesFromFS("TaxReturn", rulesFS, "rules/xml")
         if err != nil {
             log.Fatal(err)
         }
 
-        // --- step 3: create a session and build input entities ---
+        // --- step 2: create a session and build input entities ---
         sess, err := rs.NewSession()
         if err != nil {
             log.Fatal(err)
@@ -128,12 +98,12 @@ sets one input field, calls a decision table, and reads a result.
         state := sess.GetState()
         state.EntityPush(taxpayer)
 
-        // --- step 4: execute the entry-point decision table ---
+        // --- step 3: execute the entry-point decision table ---
         if err := sess.Execute("Compute_Tax_Return"); err != nil {
             log.Fatal(err)
         }
 
-        // --- step 5: read a result field ---
+        // --- step 4: read a result field ---
         result, err := sess.CreateEntity(dtrules.GetRName("result"))
         if err != nil {
             log.Fatal(err)
@@ -143,25 +113,6 @@ sets one input field, calls a decision table, and reads a result.
             log.Fatal(err)
         }
         fmt.Printf("federal_tax = %s\n", val.StringValue())
-    }
-
-    // copyEmbedToDir copies all files from an embed.FS subtree to a real directory.
-    func copyEmbedToDir(fsys embed.FS, src, dst string) error {
-        return fs.WalkDir(fsys, src, func(path string, d fs.DirEntry, err error) error {
-            if err != nil {
-                return err
-            }
-            rel, _ := filepath.Rel(src, path)
-            target := filepath.Join(dst, rel)
-            if d.IsDir() {
-                return os.MkdirAll(target, 0755)
-            }
-            data, err := fsys.ReadFile(path)
-            if err != nil {
-                return err
-            }
-            return os.WriteFile(target, data, 0644)
-        })
     }
 
 To use this in your own project:

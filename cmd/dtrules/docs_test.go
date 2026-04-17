@@ -94,3 +94,16 @@ func TestDocumentation_EmbeddingContainsExtractExcel(t *testing.T) {
 		t.Error("embedding doc should document ExtractExcel for dumping embedded rules")
 	}
 }
+
+func TestDocumentation_EmbeddingUsesLoadRulesFromFS(t *testing.T) {
+	doc, ok := docTopics["embedding"]
+	if !ok {
+		t.Fatal("embedding topic not registered in docTopics")
+	}
+	if !strings.Contains(doc, "LoadRulesFromFS") {
+		t.Error("embedding doc should show LoadRulesFromFS (not tempdir workaround)")
+	}
+	if strings.Contains(doc, "MkdirTemp") || strings.Contains(doc, "copyEmbedToDir") {
+		t.Error("embedding doc should not reference the old tempdir workaround")
+	}
+}

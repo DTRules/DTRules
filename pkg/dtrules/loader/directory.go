@@ -83,6 +83,159 @@ func CollectXMLFiles(dirPath string) ([]string, error) {
 	return files, err
 }
 
+// collectXMLFilesFS scans an fs.FS recursively for *.xml files under root.
+func collectXMLFilesFS(fsys fs.FS, root string) ([]string, error) {
+	var files []string
+	err := fs.WalkDir(fsys, root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() && strings.HasSuffix(strings.ToLower(path), ".xml") {
+			if !shouldSkipFile(path) {
+				files = append(files, path)
+			}
+		}
+		return nil
+	})
+	return files, err
+}
+
+// parseFileMetadataFS extracts metadata from an XML file within an fs.FS.
+func parseFileMetadataFS(fsys fs.FS, filePath string) (*xmlFileInfo, error) {
+	f, err := fsys.Open(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open %s: %w", filePath, err)
+	}
+	defer f.Close()
+
+	data, err := io.ReadAll(f)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read %s: %w", filePath, err)
+	}
+
+	// Quick validation
+	dataStr := string(data)
+	hasDecisionTables := strings.Contains(dataStr, "<decision_tables")
+	hasEntityDict := strings.Contains(dataStr, "<entity_data_dictionary") ||
+		strings.Contains(dataStr, "<entity_dictionary")
+
+	if !hasDecisionTables && !hasEntityDict {
+		return nil, fmt.Errorf("file %s does not appear to be a DTRules XML file", filePath)
+	}
+
+	// Reuse path-based metadata parsing by writing to a temp file
+	// is wasteful; instead duplicate the parse logic with the data we already have.
+	info := &xmlFileInfo{
+		Path: filePath,
+	}
+
+	if hasDecisionTables {
+		var dtFile DTFile
+		if err := xml.Unmarshal(data, &dtFile); err == nil && len(dtFile.Tables) > 0 {
+			info.IsDecisionTable = true
+
+			if dtFile.Tables[0].AttributeFields.TableNumber != "" {
+				tableNumStr := strings.TrimSpace(dtFile.Tables[0].AttributeFields.TableNumber)
+				if strings.Contains(tableNumStr, "X") || strings.Contains(tableNumStr, "?") {
+					return nil, fmt.Errorf("template file with placeholder TABLE_NUMBER: %s", tableNumStr)
+				}
+				num, err := strconv.Atoi(tableNumStr)
+				if err != nil {
+					return nil, fmt.Errorf("invalid TABLE_NUMBER in %s: %w", filePath, err)
+				}
+				info.Number = num
+			}
+
+			if info.Number == 0 {
+				base := filepath.Base(filePath)
+				numStr := ""
+				for _, ch := range base {
+					if ch >= '0' && ch <= '9' {
+						numStr += string(ch)
+					} else {
+						break
+					}
+				}
+				if numStr != "" {
+					if num, err := strconv.Atoi(numStr); err == nil {
+						info.Number = num
+					}
+				}
+			}
+
+			filePathStr := strings.TrimSpace(dtFile.Tables[0].AttributeFields.FilePath)
+			info.FilePath = filePathStr
+
+			if filePathStr == "" {
+				base := filepath.Base(filePath)
+				base = strings.TrimSuffix(base, filepath.Ext(base))
+				base = strings.TrimSuffix(base, "_dt")
+				info.FilePath = base
+				if info.Number == 0 {
+					info.Number = 99999
+				}
+			}
+
+			return info, nil
+		}
+	}
+
+	if hasEntityDict {
+		var entityCount int
+		var filePathStr string
+
+		var eddFile EDDFile
+		if err := xml.Unmarshal(data, &eddFile); err == nil && len(eddFile.Entities) > 0 {
+			entityCount = len(eddFile.Entities)
+			filePathStr = strings.TrimSpace(eddFile.FileMetadata.FilePath)
+		} else {
+			var legacyFile EDDFileLegacy
+			if err := xml.Unmarshal(data, &legacyFile); err == nil && len(legacyFile.Entities) > 0 {
+				entityCount = len(legacyFile.Entities)
+			}
+		}
+
+		if entityCount > 0 {
+			info.IsDecisionTable = false
+			info.FilePath = filePathStr
+
+			if filePathStr == "" {
+				base := filepath.Base(filePath)
+				base = strings.TrimSuffix(base, filepath.Ext(base))
+				if entityCount > 10 {
+					return nil, fmt.Errorf("EDD file missing file_path (likely a merged/generated file)")
+				}
+				filePathStr = base
+				info.FilePath = filePathStr
+			}
+
+			parts := strings.Split(filePathStr, "/")
+			if len(parts) > 0 {
+				lastPart := parts[len(parts)-1]
+				numStr := ""
+				for _, ch := range lastPart {
+					if ch >= '0' && ch <= '9' {
+						numStr += string(ch)
+					} else {
+						break
+					}
+				}
+				if numStr != "" {
+					num, err := strconv.Atoi(numStr)
+					if err != nil {
+						return nil, fmt.Errorf("invalid file_path number in %s: %w", filePathStr, err)
+					}
+					info.Number = num
+				}
+			}
+
+			return info, nil
+		}
+	}
+
+	return nil, fmt.Errorf("file %s is neither a valid decision table nor EDD file", filePath)
+}
+
 // ParseFileMetadata extracts metadata from an XML file.
 func ParseFileMetadata(filePath string) (*xmlFileInfo, error) {
 	f, err := os.Open(filePath)
@@ -247,25 +400,25 @@ func ParseFileMetadata(filePath string) (*xmlFileInfo, error) {
 	return nil, fmt.Errorf("file %s is neither a valid decision table nor EDD file", filePath)
 }
 
-// LoadRulesFromDirectory loads all XML files from a directory.
+// LoadRulesFromFS loads all XML files from an fs.FS under the given root path.
 // EDDs are loaded first (in order), then decision tables (in order).
-func LoadRulesFromDirectory(rs dtrules.RuleSet, dirPath string) error {
+// Use "." as root to load from the FS root.
+func LoadRulesFromFS(rs dtrules.RuleSet, fsys fs.FS, root string) error {
 	// 1. Collect all XML files
-	files, err := CollectXMLFiles(dirPath)
+	files, err := collectXMLFilesFS(fsys, root)
 	if err != nil {
-		return fmt.Errorf("failed to collect XML files from %s: %w", dirPath, err)
+		return fmt.Errorf("failed to collect XML files from FS root %q: %w", root, err)
 	}
 
 	if len(files) == 0 {
-		return fmt.Errorf("no XML files found in directory: %s", dirPath)
+		return fmt.Errorf("no XML files found in FS root: %s", root)
 	}
 
 	// 2. Parse metadata for each file
 	var fileInfos []*xmlFileInfo
 	for _, file := range files {
-		info, err := ParseFileMetadata(file)
+		info, err := parseFileMetadataFS(fsys, file)
 		if err != nil {
-			// Log warning but continue
 			fmt.Printf("Warning: skipping file %s: %v\n", file, err)
 			continue
 		}
@@ -273,7 +426,7 @@ func LoadRulesFromDirectory(rs dtrules.RuleSet, dirPath string) error {
 	}
 
 	if len(fileInfos) == 0 {
-		return fmt.Errorf("no valid XML files found in directory: %s", dirPath)
+		return fmt.Errorf("no valid XML files found in FS root: %s", root)
 	}
 
 	// 3. Sort by number
@@ -293,24 +446,24 @@ func LoadRulesFromDirectory(rs dtrules.RuleSet, dirPath string) error {
 	}
 
 	// Get session and factory
-	session, err := rs.NewSession()
+	sess, err := rs.NewSession()
 	if err != nil {
 		return fmt.Errorf("failed to create session: %w", err)
 	}
-	factory := session.GetEntityFactory().(*entity.Factory)
+	factory := sess.GetEntityFactory().(*entity.Factory)
 
 	var errs []error
 
 	// 5. Load EDDs in order
 	for _, info := range edds {
-		if err := loadEDDFile(session, factory, info.Path); err != nil {
+		if err := loadEDDFromFS(fsys, sess, factory, info.Path); err != nil {
 			errs = append(errs, fmt.Errorf("failed to load EDD %s: %w", info.Path, err))
 		}
 	}
 
 	// 6. Load DTs in order
 	for _, info := range dts {
-		if err := loadDTFile(session, factory, info.Path); err != nil {
+		if err := loadDTFromFS(fsys, sess, factory, info.Path); err != nil {
 			errs = append(errs, fmt.Errorf("failed to load DT %s: %w", info.Path, err))
 		}
 	}
@@ -328,26 +481,32 @@ func LoadRulesFromDirectory(rs dtrules.RuleSet, dirPath string) error {
 	return nil
 }
 
-// loadEDDFile loads a single EDD file.
-func loadEDDFile(session dtrules.Session, factory *entity.Factory, filePath string) error {
-	f, err := os.Open(filePath)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	loader := NewEDDLoader(session, factory)
-	return loader.Load(f)
+// LoadRulesFromDirectory loads all XML files from a directory.
+// EDDs are loaded first (in order), then decision tables (in order).
+func LoadRulesFromDirectory(rs dtrules.RuleSet, dirPath string) error {
+	return LoadRulesFromFS(rs, os.DirFS(dirPath), ".")
 }
 
-// loadDTFile loads a single decision table file.
-func loadDTFile(session dtrules.Session, factory *entity.Factory, filePath string) error {
-	f, err := os.Open(filePath)
+// loadEDDFromFS loads a single EDD file from an fs.FS.
+func loadEDDFromFS(fsys fs.FS, sess dtrules.Session, factory *entity.Factory, filePath string) error {
+	f, err := fsys.Open(filePath)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
-	loader := NewDTLoader(session, factory)
-	return loader.Load(f)
+	l := NewEDDLoader(sess, factory)
+	return l.Load(f)
+}
+
+// loadDTFromFS loads a single decision table file from an fs.FS.
+func loadDTFromFS(fsys fs.FS, sess dtrules.Session, factory *entity.Factory, filePath string) error {
+	f, err := fsys.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	l := NewDTLoader(sess, factory)
+	return l.Load(f)
 }
