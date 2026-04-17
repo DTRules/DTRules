@@ -32,3 +32,55 @@ func TestDocumentation_MappingTopic(t *testing.T) {
 		}
 	}
 }
+
+func TestDocumentation_ProjectLayoutTopic(t *testing.T) {
+	doc, ok := docTopics["project-layout"]
+	if !ok {
+		t.Fatal("project-layout topic not registered in docTopics")
+	}
+	required := []string{"_dt.xml", "_edd.xml", "_map.xml", ".sync-manifest.json", "A1"}
+	for _, term := range required {
+		if !strings.Contains(doc, term) {
+			t.Errorf("project-layout doc missing required term: %q", term)
+		}
+	}
+}
+
+func TestDocumentation_DatabaseTopic(t *testing.T) {
+	doc, ok := docTopics["database"]
+	if !ok {
+		t.Fatal("database topic not registered in docTopics")
+	}
+	required := []string{"key", "mapping*key", "EDD"}
+	for _, term := range required {
+		if !strings.Contains(doc, term) {
+			t.Errorf("database doc missing required term: %q", term)
+		}
+	}
+}
+
+func TestDocumentation_ArchitectureTopic(t *testing.T) {
+	doc, ok := docTopics["architecture"]
+	if !ok {
+		t.Fatal("architecture topic not registered in docTopics")
+	}
+	required := []string{"dev-time", "deploy-time", "go:embed"}
+	for _, term := range required {
+		if !strings.Contains(doc, term) {
+			t.Errorf("architecture doc missing required term: %q", term)
+		}
+	}
+}
+
+func TestDocumentation_EmbeddingTopic(t *testing.T) {
+	doc, ok := docTopics["embedding"]
+	if !ok {
+		t.Fatal("embedding topic not registered in docTopics")
+	}
+	required := []string{"//go:embed", "embed.FS"}
+	for _, term := range required {
+		if !strings.Contains(doc, term) {
+			t.Errorf("embedding doc missing required term: %q", term)
+		}
+	}
+}
