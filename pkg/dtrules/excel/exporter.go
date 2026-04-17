@@ -335,7 +335,7 @@ func (e *Exporter) writeEDDSheet(f *excelize.File, styler *Styler, sheetName str
 
 	// Row 1: type marker for mixed-workbook sheet-type detection
 	f.SetCellValue(sheetName, "A1", "EDD: EDD")
-	f.SetCellStyle(sheetName, "A1", "A1", eddStyles.header)
+	f.SetCellStyle(sheetName, "A1", "A1", styler.HeaderStyle)
 
 	e.writeEDDHeaders(f, sheetName, styler, 2)
 	FreezePaneAtRow3(f, sheetName)
