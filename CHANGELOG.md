@@ -1,5 +1,53 @@
 # DTRules Changelog
 
+## v1.6.2 — 2026-04-17
+
+Patch release. Two consumer-ergonomic additions driven by Accumulate staking's migration path. No breaking changes.
+
+### `session.LoadRulesFromFS(name, fs.FS, root)`
+
+New primary API for loading rules from an `fs.FS` (typically an `//go:embed` tree). `LoadRulesFromDirectory(name, path)` still works and is now a thin wrapper around `LoadRulesFromFS(name, os.DirFS(path), ".")`. The underlying XML loaders already accepted `io.Reader`; the refactor is shallow and fully backwards-compatible.
+
+Usage:
+
+```go
+//go:embed rules
+var rulesFS embed.FS
+
+rs, err := session.LoadRulesFromFS("MyApp", rulesFS, "rules")
+```
+
+No more tempdir workaround for embedded binary deployments. `dtrules docs embedding` updated. (#541, PR #575)
+
+### `--xml-dir` / `--excel-dir` flags on `verify`, `validate`, `build`
+
+Projects with non-standard layouts (e.g., `pkg/dtrules/rules/` + `pkg/dtrules/excel/`) can now drive the tooling without adopting the default `xml/` + `excel/` convention. Three levels of precedence:
+
+1. CLI flag (`--xml-dir <path> --excel-dir <path>`).
+2. `<xml_dir>` / `<excel_dir>` elements inside `DTRules.xml`.
+3. Default `xml/` + `excel/` relative to project root.
+
+Error messages on missing directories now name the flags instead of listing an absolute path that doesn't exist. (#574, PR #576, hotfix PR #577 for fixture cleanup)
+
+### Documentation
+
+- `dtrules docs project-layout` updated with the new flags and `DTRules.xml` elements.
+- `dtrules docs embedding` no longer recommends the tempdir workaround — direct `fs.FS` loading is shown instead.
+
+### Issues closed
+
+#541, #574.
+
+### Consumer impact
+
+Accumulate staking can now:
+- Use `session.LoadRulesFromFS("Staking", rulesFS, "rules")` in their engine without a tempdir.
+- Run `dtrules verify --xml-dir pkg/dtrules/rules --excel-dir pkg/dtrules/excel` against their repo layout.
+
+Combined with v1.6.1's #568 and #570, staking's DTRules integration has no remaining protocol blockers.
+
+---
+
 ## v1.6.1 — 2026-04-17
 
 Patch release driven by consumer (Accumulate staking) feedback. Two protocol additions, both backward-compatible.
