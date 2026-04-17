@@ -104,7 +104,7 @@ West Virginia 2025 tax rates based on:
 
 ## Technical Notes
 
-- The implementation uses DTRules' postfix notation for calculations
+- The implementation uses DTRules' EL (Expression Language) for calculations
 - Local variable `wv_taxable_income` is used to store the state-specific taxable income
 - Filing status determines which standard deduction to apply (single vs. MFJ)
 - Tax calculation follows cumulative bracket method (each bracket is taxed separately and summed)

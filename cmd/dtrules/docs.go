@@ -22,15 +22,14 @@ import (
 
 // Documentation topics embedded in the executable
 var docTopics = map[string]string{
-	"bigint":           docBigInt,
-	"el":               docEL,
-	"xml-format":       docXMLFormat,
-	"edd":              docEDD,
-	"decision-tables":  docDecisionTables,
-	"operators":        docOperators,
-	"expressions":      docExpressions,
-	"examples":         docExamples,
-	"workflow":         docWorkflow,
+	"bigint":          docBigInt,
+	"el":              docEL,
+	"xml-format":      docXMLFormat,
+	"edd":             docEDD,
+	"decision-tables": docDecisionTables,
+	"operators":       docOperators,
+	"examples":        docExamples,
+	"workflow":        docWorkflow,
 }
 
 func runDocs(args []string) error {
@@ -71,7 +70,6 @@ func printDocIndex() {
 		"edd":             "Entity Data Dictionary - defining entities and fields",
 		"decision-tables": "How to write decision tables",
 		"operators":       "All available operators with examples",
-		"expressions":     "Postfix expression syntax (compiled from EL)",
 		"examples":        "Complete working examples",
 		"workflow":        "Development workflow with Excel and XML",
 	}
@@ -89,13 +87,18 @@ func printDocIndex() {
 const docEL = `Expression Language (EL)
 ========================
 
+===========================================================================
+IMPORTANT: EL is the only language to author rules in.
+Postfix and bytecode are internal compilation targets — do not write them
+by hand.
+===========================================================================
+
 EL is the REQUIRED format for writing decision table conditions and actions.
-The EL compiler converts human-readable syntax to executable bytecode.
 
 EL is case-insensitive. Articles (a, an, the) are ignored by the parser.
 Statements are separated by semicolons. Comments use // or /* ... */.
 
-IMPORTANT: Do NOT hand-code postfix. Always use EL in *_dsl tags
+Always use EL in *_dsl tags
 (e.g., condition_dsl, action_dsl, context_dsl, initial_action_dsl).
 
 
@@ -784,7 +787,7 @@ Context Statement Types (in <contexts>):
 Key Elements:
   - name attribute on <decision_table>: Table identifier
   - number attribute: Unique table number for ordering
-  - <expression>: EL condition (compiled to postfix automatically)
+  - <expression>: EL condition (compiled automatically)
   - <action>: EL statements separated by semicolons
   - Y/N/-: Condition values (Yes/No/Don't care)
 
@@ -1538,158 +1541,6 @@ See Also
   dtrules docs decision-tables Decision table guide with examples
 `
 
-const docExpressions = `Postfix Expression Syntax
-=========================
-
-NOTE: You should NOT write postfix directly. Use EL (Expression Language)
-instead - the compiler generates postfix automatically.
-See 'dtrules docs el' for the required EL syntax.
-
-This document explains the compiled postfix format for debugging purposes.
-
-DTRules uses postfix (Reverse Polish Notation) for all expressions.
-In postfix, operands come before operators.
-
-
-Basic Syntax
-------------
-Infix:     a + b
-Postfix:   a b +
-
-Infix:     (a + b) * c
-Postfix:   a b + c *
-
-Infix:     a >= 18 && b > 0
-Postfix:   a 18 >= b 0 > and
-
-
-Field References
-----------------
-Fields are referenced as: entity.field
-
-Examples:
-    input.age              → value of input.age
-    result.eligible        → value of result.eligible
-    customer.orders.total  → nested field access
-
-
-Literals
---------
-Type       Examples
---------   ----------------------
-Integer    42, -7, 0, 1000000
-Double     3.14, -0.5, 100.0
-String     "hello", "John Doe", ""
-Boolean    true, false
-Null       null
-
-
-Common Patterns
----------------
-
-Comparison:
-    Infix:   input.age >= 18
-    Postfix: input.age 18 >=
-
-Assignment:
-    Infix:   result.tax = income * 0.25
-    Postfix: income 0.25 * result.tax =
-
-Conditional:
-    Infix:   if (age >= 18) "adult" else "minor"
-    Postfix: age 18 >= { "adult" } { "minor" } if
-
-Boolean logic:
-    Infix:   age >= 18 && income > 0
-    Postfix: age 18 >= income 0 > and
-
-    Infix:   status == "active" || override
-    Postfix: status "active" = override or
-
-Negation:
-    Infix:   !eligible
-    Postfix: eligible not
-
-Calculation chain:
-    Infix:   (principal * rate * years) / 12
-    Postfix: principal rate * years * 12 /
-
-
-Blocks
-------
-Code blocks are enclosed in braces: { ... }
-
-Used for:
-  - Conditionals: condition { true-branch } { false-branch } if
-  - Loops: array { element process } for
-  - Grouping multiple operations
-
-Example - conditional assignment:
-    input.age 18 >=
-    { "adult" result.category = }
-    { "minor" result.category = }
-    if
-
-
-Calling Decision Tables
------------------------
-Use 'perform' to call another decision table:
-
-    Calculate_Tax perform
-
-With context setup:
-    customer entitypush Calculate_Discount perform entitypop
-
-
-Reading the Stack
------------------
-Postfix is read left-to-right. Stack grows with values, shrinks with operators.
-
-Expression: input.income 50000 >=
-
-Step 1: input.income    Stack: [75000]
-Step 2: 50000           Stack: [75000, 50000]
-Step 3: >=              Stack: [true]
-
-Expression: input.base input.rate * 12 /
-
-Step 1: input.base      Stack: [1200]
-Step 2: input.rate      Stack: [1200, 0.05]
-Step 3: *               Stack: [60]
-Step 4: 12              Stack: [60, 12]
-Step 5: /               Stack: [5]
-
-
-Complex Example
----------------
-Infix:
-    result.tax = max(0, (income - deduction) * rate)
-
-Postfix:
-    0 income deduction - rate * max result.tax =
-
-Step by step:
-    0                    Stack: [0]
-    income               Stack: [0, 100000]
-    deduction            Stack: [0, 100000, 15000]
-    -                    Stack: [0, 85000]
-    rate                 Stack: [0, 85000, 0.044]
-    *                    Stack: [0, 3740]
-    max                  Stack: [3740]
-    result.tax           Stack: [3740, <field ref>]
-    =                    Stack: []  (assigns 3740 to result.tax)
-
-
-Tips
-----
-1. Read left-to-right, tracking the stack mentally
-2. Each operator consumes its operands and pushes result
-3. Assignments (=) consume the value and field reference
-4. Use spaces to separate tokens
-5. String literals use double quotes
-6. Entity.field for all field access
-`
-
 const docExamples = `Complete Working Examples
 =========================
 
@@ -2001,19 +1852,18 @@ const docWorkflow = `DTRules Development Workflow
 
 CRITICAL: Excel is the System of Record
 ----------------------------------------
-ALL postfix expressions MUST come from EL (Expression Language) compilation.
-Hand-coded postfix is NOT allowed. The EL compiler generates postfix from
-human-readable expressions during import.
+All rules MUST be written in EL (Expression Language). The EL compiler
+generates internal bytecode automatically — never write bytecode by hand.
 
 Required workflow:
   1. User edits Excel      <- Source of truth (EL expressions)
-  2. dtrules sync import   <- Compiles EL to postfix, generates XML
+  2. dtrules sync import   <- Compiles EL, generates XML
   3. dtrules -rules xml    <- Use compiled rules
 
 If AI/developers modify XML directly:
   1. Edit XML (add/modify EL expressions in *_dsl tags)
   2. dtrules sync export   <- Update Excel with standard formatting
-  3. dtrules sync import   <- Re-import to compile EL to postfix
+  3. dtrules sync import   <- Re-import to compile EL
 
 
 Excel-First Workflow
@@ -2024,7 +1874,7 @@ Best for: Business analysts editing rules in spreadsheets
    - EDD sheet: entity definitions
    - DT sheets: decision tables with EL expressions
 
-2. Import to XML (compiles EL to postfix)
+2. Import to XML (compiles EL)
    dtrules sync import
 
 3. Test
@@ -2041,7 +1891,7 @@ Best for: Programmatic rule editing
 1. Check for pending user edits FIRST
    dtrules sync check
 
-2. Edit XML files (EL in *_dsl tags only, NOT postfix)
+2. Edit XML files (EL in *_dsl tags only)
    - *_edd.xml: entity definitions
    - *_dt.xml: decision tables (use condition_dsl, action_dsl, context_dsl)
 
@@ -2054,19 +1904,19 @@ Best for: Programmatic rule editing
 5. Test
    dtrules -rules ./xml -test ./testfiles
 
-IMPORTANT: Never hand-code postfix. Always use EL expressions in
-the *_dsl tags. The import process compiles them automatically.
+IMPORTANT: Always use EL expressions in the *_dsl tags.
+The import process compiles them automatically.
 
 
 Validate Command
 ----------------
 dtrules validate           Check project structure and EL compliance
-dtrules validate --strict  Fail if any legacy postfix files exist
-dtrules validate --allow-legacy  Allow legacy postfix (migration mode)
+dtrules validate --strict  Fail if any legacy non-EL files exist
+dtrules validate --allow-legacy  Allow legacy files (migration mode)
 
 The validate command checks:
   1. Project structure (excel/, xml/, testfiles/)
-  2. EL compliance (no hand-coded postfix)
+  2. EL compliance
   3. Sync status (no pending user edits)
 
 
@@ -2074,7 +1924,7 @@ Sync Commands
 -------------
 dtrules sync status    Show sync state
 dtrules sync check     Check for pending user edits (exits non-zero if any)
-dtrules sync import    Import Excel → XML (compiles EL to postfix)
+dtrules sync import    Import Excel → XML (compiles EL)
 dtrules sync export    Export XML → Excel (fails if user edits pending)
 dtrules sync auto      Auto-detect direction and sync
 
@@ -2088,7 +1938,7 @@ project/
 │   └── states/
 │       ├── CO.xlsx
 │       └── CA.xlsx
-├── xml/                      # Generated from Excel - DO NOT EDIT POSTFIX
+├── xml/                      # Generated from Excel - edit only *_dsl tags
 │   ├── Rules_edd.xml
 │   ├── Rules_dt.xml
 │   └── states/
@@ -2100,17 +1950,12 @@ project/
     └── TestScenarios/
 
 
-EL vs Postfix
--------------
+EL Examples
+-----------
 EL (in Excel cells or XML *_dsl tags):
     taxpayer.income > 50000
     taxpayer.filing_status == "SINGLE"
     set result.tax = income * rate
-
-Postfix (generated by compiler - never hand-code):
-    taxpayer.income 50000 >
-    taxpayer.filing_status "SINGLE" =
-    income rate * result.tax =
 
 
 Resolving Conflicts
@@ -2120,7 +1965,7 @@ If 'dtrules sync export' fails because Excel was modified:
 1. Import their changes first:
    dtrules sync import
 
-2. Re-apply your XML changes (edit *_dsl tags, not postfix)
+2. Re-apply your XML changes (edit *_dsl tags)
 
 3. Export the merged result:
    dtrules sync export
@@ -2144,9 +1989,9 @@ fi
 dtrules -rules ./xml -test ./testfiles -entry Main
 
 
-Migrating Legacy Postfix
-------------------------
-If you have existing XML with hand-coded postfix:
+Migrating Legacy XML
+--------------------
+If you have existing XML without EL expressions:
 
 1. Run validate to identify legacy files:
    dtrules validate
@@ -2162,11 +2007,11 @@ If you have existing XML with hand-coded postfix:
 
 Best Practices
 --------------
-1. NEVER edit postfix directly - always use EL expressions
+1. ALWAYS write EL in *_dsl tags — never hand-code internal formats
 2. Always run 'dtrules sync check' before editing XML
 3. Always run 'dtrules sync import' after editing Excel
 4. Run 'dtrules validate' before committing
-5. Use --strict in CI to catch any hand-coded postfix
+5. Use --strict in CI to enforce EL compliance
 `
 
 const docBigInt = `BigInt - Arbitrary-Precision Integers
@@ -2233,9 +2078,9 @@ Convert between types:
     (string) amount          BigInt to string (for display/storage)
 
 
-Postfix Operators (Reference)
------------------------------
-These are the compiled postfix operators (generated from EL):
+Internal Operators (Reference)
+------------------------------
+These operators are generated by the EL compiler (do not write these directly):
 
     b+        Add two bigint values
     b-        Subtract two bigint values

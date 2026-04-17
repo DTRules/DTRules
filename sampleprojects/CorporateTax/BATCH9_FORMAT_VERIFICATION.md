@@ -87,7 +87,7 @@ All `_corp_dt.xml` files comply with the new standard format:
 - Conditions use named `<condition>` elements with expressions
 - Rules organized in `<rules>` section with numbered `<rule>` elements
 - Each rule includes comprehensive `<policy>` statement
-- Actions use Java-like pseudocode (not RPN postfix notation)
+- Actions use EL (Expression Language) syntax
 - Includes references to state statutes, forms, and regulations
 
 ## Table Numbering Verification

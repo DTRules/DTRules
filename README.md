@@ -129,7 +129,6 @@ dtrules docs                     # List all topics
 dtrules docs xml-format          # XML file format specification
 dtrules docs decision-tables     # How to write decision tables
 dtrules docs operators           # All operators with examples
-dtrules docs expressions         # Postfix expression syntax
 dtrules docs sdk                 # Embedding in applications
 dtrules docs examples            # Complete working examples
 dtrules docs workflow            # Development workflow
@@ -144,7 +143,7 @@ dtrules docs workflow            # Development workflow
 
 - [EL Reference](docs/EL-REFERENCE.md) - Expression Language syntax
 - [XML Format](docs/decision-table-xml-format.md) - Decision table XML structure
-- [EL Compiler](pkg/dtrules/compiler/el/README.md) - How EL compiles to postfix
+- [EL Compiler](pkg/dtrules/compiler/el/README.md) - How EL expressions are compiled
 
 ## Sample Projects
 
@@ -183,7 +182,7 @@ Key optimizations achieve significant speedups vs Java:
 
 ## Expression Language (EL)
 
-Decision tables use **EL (Expression Language)** for conditions and actions. EL is human-readable syntax that compiles to executable postfix notation.
+Decision tables use **EL (Expression Language)** for conditions and actions. EL is the only language to author rules in — write all conditions and actions in EL.
 
 ### EL Syntax Examples
 
@@ -205,7 +204,7 @@ perform Calculate_Deductions
 
 - **Readable** - Business analysts can understand and modify rules
 - **Validated** - Syntax errors caught at compile time, not runtime
-- **Consistent** - Eliminates hand-coded postfix errors
+- **Consistent** - Eliminates hand-coded expression errors
 
 See [EL Reference](docs/EL-REFERENCE.md) for complete syntax and [XML Format](docs/decision-table-xml-format.md) for file structure.
 

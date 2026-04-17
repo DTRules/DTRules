@@ -60,7 +60,6 @@ dtrules docs                     # List all topics
 dtrules docs xml-format          # XML file format specification
 dtrules docs decision-tables     # How to write decision tables
 dtrules docs operators           # All operators with examples
-dtrules docs expressions         # Postfix expression syntax
 dtrules docs sdk                 # Embedding in applications
 dtrules docs examples            # Complete working examples
 dtrules docs workflow            # Development workflow
