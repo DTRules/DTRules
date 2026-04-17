@@ -92,6 +92,8 @@ func (c *CLI) Run(args []string) int {
 	switch cmd {
 	case "build":
 		return c.runBuild(cmdArgs)
+	case "verify":
+		return c.runVerify(cmdArgs)
 	case "sync":
 		return c.runSync(cmdArgs)
 	case "internal":
@@ -121,6 +123,7 @@ Usage: dtrules <command> [options]
 
 Commands:
   build     Normalize and compile Excel/XML rules (primary workflow)
+  verify    Gate CI by checking XML matches Excel build output
   sync      Synchronize Excel and XML files (status/check/auto)
   init      Initialize a DTRules project structure
   validate  Validate decision tables and EDD
