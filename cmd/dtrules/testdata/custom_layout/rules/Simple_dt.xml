@@ -2,7 +2,6 @@
 <decision_tables>
 <decision_table>
 <table_name>SimpleRule</table_name>
-<xls_file>Simple.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>A simple test rule</COMMENTS>
