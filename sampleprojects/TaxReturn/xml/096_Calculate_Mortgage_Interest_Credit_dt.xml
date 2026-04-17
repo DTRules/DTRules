@@ -4,7 +4,7 @@
 <!-- TABLE 26000: Calculate_Mortgage_Interest_Credit -->
 <decision_table>
 <table_name>Calculate_Mortgage_Interest_Credit</table_name>
-<xls_file>096_Calculate_Mortgage_Interest_Credit.xlsx</xls_file>
+<xls_file>096_Calculate_Mortgage_Interest_Credit_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate Mortgage Interest Credit for first-time homebuyers with Mortgage Credit Certificates per Form 8396 and IRC 25.</COMMENTS>

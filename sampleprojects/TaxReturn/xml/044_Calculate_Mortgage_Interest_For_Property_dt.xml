@@ -4,7 +4,7 @@
 <!-- TABLE 9050: Calculate_Mortgage_Interest_For_Property -->
 <decision_table>
 <table_name>Calculate_Mortgage_Interest_For_Property</table_name>
-<xls_file>044_Calculate_Mortgage_Interest_For_Property.xlsx</xls_file>
+<xls_file>044_Calculate_Mortgage_Interest_For_Property_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Processes mortgage interest for a single property. Called by filter table.</COMMENTS>

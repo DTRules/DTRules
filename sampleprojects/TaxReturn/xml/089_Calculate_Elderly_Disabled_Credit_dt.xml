@@ -4,7 +4,7 @@
 <!-- TABLE 24500: Calculate_Elderly_Disabled_Credit -->
 <decision_table>
 <table_name>Calculate_Elderly_Disabled_Credit</table_name>
-<xls_file>089_Calculate_Elderly_Disabled_Credit.xlsx</xls_file>
+<xls_file>089_Calculate_Elderly_Disabled_Credit_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate Schedule R Credit for Elderly or Disabled per IRC 22. 15% credit on base amount reduced by nontaxable income and excess AGI.</COMMENTS>

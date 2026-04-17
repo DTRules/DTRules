@@ -190,6 +190,11 @@ func (c *CLI) runExcelAuthoredBuild(xmlDir, excelDir string, opts *buildOptions)
 		fmt.Println("  XML is already up to date.")
 	}
 
+	// Sync MAP files (excel→xml direction, outside main sync pipeline)
+	if err := c.syncMAPFiles(xmlDir, excelDir, "excel-to-xml", opts.verbose); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: MAP sync error: %v\n", err)
+	}
+
 	fmt.Println("Build complete.")
 	return 0
 }
@@ -269,6 +274,11 @@ func (c *CLI) runXMLAuthoredBuild(xmlDir, excelDir string, opts *buildOptions) i
 		fmt.Printf("  Normalized %d workbook(s).\n", result2.ExcelToXMLCount)
 	}
 
+	// Sync MAP files (xml→excel direction, outside main sync pipeline)
+	if err := c.syncMAPFiles(xmlDir, excelDir, "xml-to-excel", opts.verbose); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: MAP sync error: %v\n", err)
+	}
+
 	fmt.Println("Build complete.")
 	return 0
 }
@@ -307,6 +317,82 @@ func (c *CLI) runBuildDryRun(xmlDir, excelDir, authoringPath string, opts *build
 	}
 
 	return 0
+}
+
+// syncMAPFiles handles _map.xml ↔ _map.xlsx synchronization which the main
+// sync pipeline skips. direction is "xml-to-excel" or "excel-to-xml".
+func (c *CLI) syncMAPFiles(xmlDir, excelDir, direction string, verbose bool) error {
+	wbExporter := excel.NewWorkbookExporter()
+	wbExporter.SetVerbose(verbose)
+	wbImporter := excel.NewWorkbookImporter()
+
+	// Walk XML dir for _map.xml files (xml-to-excel direction)
+	if direction == "xml-to-excel" {
+		return filepath.WalkDir(xmlDir, func(path string, d os.DirEntry, err error) error {
+			if err != nil || d.IsDir() {
+				return err
+			}
+			if !strings.HasSuffix(d.Name(), "_map.xml") {
+				return nil
+			}
+			rel, _ := filepath.Rel(xmlDir, path)
+			base := strings.TrimSuffix(rel, "_map.xml")
+			xlsxPath := filepath.Join(excelDir, base+"_map.xlsx")
+
+			// Check timestamps: export if XML is newer
+			xmlInfo, _ := os.Stat(path)
+			xlsxInfo, _ := os.Stat(xlsxPath)
+			if xlsxInfo != nil && !xmlInfo.ModTime().After(xlsxInfo.ModTime()) {
+				return nil // xlsx already up to date
+			}
+
+			if err := wbExporter.ExportMap(path, xlsxPath); err != nil {
+				return fmt.Errorf("export MAP %s: %w", rel, err)
+			}
+			if verbose {
+				fmt.Printf("  Exported %s → %s\n", rel, filepath.Base(xlsxPath))
+			}
+			return nil
+		})
+	}
+
+	// Walk Excel dir for _map.xlsx files (excel-to-xml direction)
+	return filepath.WalkDir(excelDir, func(path string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		if !strings.HasSuffix(strings.ToLower(d.Name()), "_map.xlsx") {
+			return nil
+		}
+		rel, _ := filepath.Rel(excelDir, path)
+		base := strings.TrimSuffix(rel, "_map.xlsx")
+		xmlPath := filepath.Join(xmlDir, base+"_map.xml")
+
+		// Check timestamps: import if xlsx is newer
+		xlsxInfo, _ := os.Stat(path)
+		xmlInfo, _ := os.Stat(xmlPath)
+		if xmlInfo != nil && !xlsxInfo.ModTime().After(xmlInfo.ModTime()) {
+			return nil // xml already up to date
+		}
+
+		result, err := wbImporter.ImportWorkbook(path)
+		if err != nil {
+			return fmt.Errorf("import MAP xlsx %s: %w", rel, err)
+		}
+		if result.Map == nil || len(result.Map.Entries) == 0 {
+			return nil
+		}
+		if err := os.MkdirAll(filepath.Dir(xmlPath), 0755); err != nil {
+			return err
+		}
+		if err := excel.WriteMapXML(result.Map, xmlPath); err != nil {
+			return fmt.Errorf("write MAP XML %s: %w", xmlPath, err)
+		}
+		if verbose {
+			fmt.Printf("  Imported %s → %s\n", filepath.Base(path), filepath.Base(xmlPath))
+		}
+		return nil
+	})
 }
 
 func (c *CLI) printBuildUsage() {

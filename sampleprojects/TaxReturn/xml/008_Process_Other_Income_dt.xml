@@ -4,7 +4,7 @@
 <!-- TABLE 2350: Process_Other_Income -->
 <decision_table>
 <table_name>Process_Other_Income</table_name>
-<xls_file>008_Process_Other_Income.xlsx</xls_file>
+<xls_file>008_Process_Other_Income_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Processes other income sources (pension, interest, dividends, etc.) from income entities. Sums gross_amount into total_other_income and tracks withholding.</COMMENTS>

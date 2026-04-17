@@ -4,7 +4,7 @@
 <!-- TABLE 5800: Calculate_Energy_Credits -->
 <decision_table>
 <table_name>Calculate_Energy_Credits</table_name>
-<xls_file>066_Calculate_Energy_Credits.xlsx</xls_file>
+<xls_file>066_Calculate_Energy_Credits_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Residential Energy Credits per Form 5695, IRC 25C/25D</COMMENTS>

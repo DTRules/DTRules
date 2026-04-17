@@ -4,7 +4,7 @@
 <!-- TABLE 40100: Dispatch_Territory_Tax -->
 <decision_table>
 <table_name>Dispatch_Territory_Tax</table_name>
-<xls_file>104_Dispatch_Territory_Tax.xlsx</xls_file>
+<xls_file>104_Dispatch_Territory_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Dispatches to US territory-specific tax calculation. Territories have special tax systems: PR (separate progressive), VI/GU (mirror code), AS (frozen IRC 2000 + SE tax), MP/CNMI (mirror + rebate). Bona fide residence test determines filing authority.</COMMENTS>

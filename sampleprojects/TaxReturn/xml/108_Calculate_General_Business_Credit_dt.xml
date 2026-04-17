@@ -4,7 +4,7 @@
 <!-- TABLE 8600: Calculate_General_Business_Credit -->
 <decision_table>
 <table_name>Calculate_General_Business_Credit</table_name>
-<xls_file>108_Calculate_General_Business_Credit.xlsx</xls_file>
+<xls_file>108_Calculate_General_Business_Credit_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates General Business Credit per Form 3800. Aggregates component business credits (Forms 5884, 6765, 8586, 8826, 8881, 8941, 8994) and applies limitation based on regular tax liability. Credit limited to net income tax minus greater of: (a) tentative AMT or (b) 25% of regular tax over $25,000. Unused credit carries forward.</COMMENTS>

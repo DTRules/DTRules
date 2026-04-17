@@ -4,7 +4,7 @@
 <!-- TABLE 3220: Calculate_Mortgage_Interest -->
 <decision_table>
 <table_name>Calculate_Mortgage_Interest</table_name>
-<xls_file>016_Calculate_Mortgage_Interest.xlsx</xls_file>
+<xls_file>016_Calculate_Mortgage_Interest_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates mortgage interest deduction for qualified residences per Schedule A Lines 8a-8e, Publication 936, IRC Section 163(h). Applies $750,000 debt limit for post-12/15/2017 mortgages per TCJA Section 11043.</COMMENTS>

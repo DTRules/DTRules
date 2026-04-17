@@ -4,7 +4,7 @@
 <!-- TABLE 6000: Calculate_AMT -->
 <decision_table>
 <table_name>Calculate_AMT</table_name>
-<xls_file>070_Calculate_AMT.xlsx</xls_file>
+<xls_file>070_Calculate_AMT_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Alternative Minimum Tax per Form 6251, IRC 55-59. AMTI = taxable income + preference items. Tax rates: 26% up to $239,100, 28% above. Exemption phased out at 25% of AMTI over threshold.</COMMENTS>

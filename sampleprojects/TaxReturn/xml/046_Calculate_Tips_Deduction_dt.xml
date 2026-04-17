@@ -4,7 +4,7 @@
 <!-- TABLE 10100: Calculate_Tips_Deduction -->
 <decision_table>
 <table_name>Calculate_Tips_Deduction</table_name>
-<xls_file>046_Calculate_Tips_Deduction.xlsx</xls_file>
+<xls_file>046_Calculate_Tips_Deduction_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>No Tax on Tips deduction per OBBBA 2025. Maximum deduction is $25,000. Phases out above $150,000 MAGI (Single) or $300,000 (MFJ). Uses gross income as proxy for MAGI since this is calculated before AGI.</COMMENTS>

@@ -4,7 +4,7 @@
 <!-- TABLE 8200: Validate_Taxable_Income -->
 <decision_table>
 <table_name>Validate_Taxable_Income</table_name>
-<xls_file>037_Validate_Taxable_Income.xlsx</xls_file>
+<xls_file>037_Validate_Taxable_Income_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Validates taxable income against expected value.</COMMENTS>

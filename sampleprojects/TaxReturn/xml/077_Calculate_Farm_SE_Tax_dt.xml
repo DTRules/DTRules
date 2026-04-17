@@ -4,7 +4,7 @@
 <!-- TABLE 21100: Calculate_Farm_SE_Tax -->
 <decision_table>
 <table_name>Calculate_Farm_SE_Tax</table_name>
-<xls_file>077_Calculate_Farm_SE_Tax.xlsx</xls_file>
+<xls_file>077_Calculate_Farm_SE_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate self-employment tax on farm income. Farm net profit is subject to SE tax with optional farm methods available.</COMMENTS>

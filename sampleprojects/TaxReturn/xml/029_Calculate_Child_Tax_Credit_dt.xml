@@ -4,7 +4,7 @@
 <!-- TABLE 6100: Calculate_Child_Tax_Credit -->
 <decision_table>
 <table_name>Calculate_Child_Tax_Credit</table_name>
-<xls_file>029_Calculate_Child_Tax_Credit.xlsx</xls_file>
+<xls_file>029_Calculate_Child_Tax_Credit_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates Child Tax Credit (CTC) and Other Dependent Credit (ODC) per Schedule 8812, Publication 972, IRC Section 24. CTC requires child under 17 with SSN. ODC is $500 for dependents who dont qualify for CTC.</COMMENTS>

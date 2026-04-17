@@ -4,7 +4,7 @@
 <!-- TABLE 3000: Calculate_Deductions -->
 <decision_table>
 <table_name>Calculate_Deductions</table_name>
-<xls_file>010_Calculate_Deductions.xlsx</xls_file>
+<xls_file>010_Calculate_Deductions_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determines whether to use standard or itemized deduction per Form 1040 Line 12, Schedule A, IRC Section 63. Calculates itemized deductions including SALT (with $10,000 cap per TCJA), mortgage interest, and charitable contributions.</COMMENTS>

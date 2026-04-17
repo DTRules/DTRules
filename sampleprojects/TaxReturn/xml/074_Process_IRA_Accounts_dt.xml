@@ -4,7 +4,7 @@
 <!-- TABLE 20000: Process_IRA_Accounts -->
 <decision_table>
 <table_name>Process_IRA_Accounts</table_name>
-<xls_file>074_Process_IRA_Accounts.xlsx</xls_file>
+<xls_file>074_Process_IRA_Accounts_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process IRA accounts for Form 8606. Tracks non-deductible contributions (basis), calculates taxable portion of distributions and Roth conversions using the pro-rata rule.</COMMENTS>

@@ -4,7 +4,7 @@
 <!-- TABLE 9020: Filter_Taxpayer_Vehicle -->
 <decision_table>
 <table_name>Filter_Taxpayer_Vehicle</table_name>
-<xls_file>041_Filter_Taxpayer_Vehicle.xlsx</xls_file>
+<xls_file>041_Filter_Taxpayer_Vehicle_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table that processes vehicle if it belongs to current taxpayer.</COMMENTS>

@@ -4,7 +4,7 @@
 <!-- TABLE 8300: Validate_Total_Tax -->
 <decision_table>
 <table_name>Validate_Total_Tax</table_name>
-<xls_file>038_Validate_Total_Tax.xlsx</xls_file>
+<xls_file>038_Validate_Total_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Validates total tax against expected value.</COMMENTS>

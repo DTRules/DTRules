@@ -4,7 +4,7 @@
 <!-- TABLE 6200: Calculate_EITC -->
 <decision_table>
 <table_name>Calculate_EITC</table_name>
-<xls_file>031_Calculate_EITC.xlsx</xls_file>
+<xls_file>031_Calculate_EITC_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates Earned Income Tax Credit per Schedule EIC, Publication 596, IRC 32. EITC is a refundable credit for low-to-moderate income workers.</COMMENTS>

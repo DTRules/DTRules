@@ -4,7 +4,7 @@
 <!-- TABLE 8400: Validate_Summary -->
 <decision_table>
 <table_name>Validate_Summary</table_name>
-<xls_file>039_Validate_Summary.xlsx</xls_file>
+<xls_file>039_Validate_Summary_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Logs overall validation summary.</COMMENTS>

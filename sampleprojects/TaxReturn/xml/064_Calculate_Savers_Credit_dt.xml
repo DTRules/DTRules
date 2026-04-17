@@ -4,7 +4,7 @@
 <!-- TABLE 5700: Calculate_Savers_Credit -->
 <decision_table>
 <table_name>Calculate_Savers_Credit</table_name>
-<xls_file>064_Calculate_Savers_Credit.xlsx</xls_file>
+<xls_file>064_Calculate_Savers_Credit_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Saver's Credit (Form 8880, IRC 25B) - Retirement Savings Contributions Credit. Rate tiers: 50%, 20%, 10%, 0% based on AGI and filing status.</COMMENTS>

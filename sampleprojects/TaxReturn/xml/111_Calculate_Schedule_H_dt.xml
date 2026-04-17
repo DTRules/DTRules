@@ -4,7 +4,7 @@
 <!-- TABLE 8500: Calculate_Schedule_H -->
 <decision_table>
 <table_name>Calculate_Schedule_H</table_name>
-<xls_file>111_Calculate_Schedule_H.xlsx</xls_file>
+<xls_file>111_Calculate_Schedule_H_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates household employment taxes per Schedule H. Includes employer's share of Social Security (6.2%), Medicare (1.45%), and FUTA (6.0% on first $7,000 per employee). Only applies to employees with wages above threshold ($2,700 for FICA, $1,000 for FUTA).</COMMENTS>

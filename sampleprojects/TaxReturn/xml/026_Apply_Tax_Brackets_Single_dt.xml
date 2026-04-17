@@ -4,7 +4,7 @@
 <!-- TABLE 5120: Apply_Tax_Brackets_Single -->
 <decision_table>
 <table_name>Apply_Tax_Brackets_Single</table_name>
-<xls_file>026_Apply_Tax_Brackets_Single.xlsx</xls_file>
+<xls_file>026_Apply_Tax_Brackets_Single_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates regular tax using Single brackets. Each column represents a bracket range.</COMMENTS>

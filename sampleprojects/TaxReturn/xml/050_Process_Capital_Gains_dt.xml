@@ -4,7 +4,7 @@
 <!-- TABLE 12000: Process_Capital_Gains -->
 <decision_table>
 <table_name>Process_Capital_Gains</table_name>
-<xls_file>050_Process_Capital_Gains.xlsx</xls_file>
+<xls_file>050_Process_Capital_Gains_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Processes capital gains and qualified dividends from income entities. Categorizes by holding period and sums totals for LTCG tax calculation.</COMMENTS>

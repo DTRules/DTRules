@@ -4,7 +4,7 @@
 <!-- TABLE 3232: Calculate_Noncash_Charitable -->
 <decision_table>
 <table_name>Calculate_Noncash_Charitable</table_name>
-<xls_file>020_Calculate_Noncash_Charitable.xlsx</xls_file>
+<xls_file>020_Calculate_Noncash_Charitable_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates noncash charitable contribution deductions per Form 8283, Publication 526, IRC Section 170. Handles Section A (under $5,000) and Section B (over $5,000 requiring appraisal). Applies AGI limitations (30% or 50%).</COMMENTS>

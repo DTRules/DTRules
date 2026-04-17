@@ -4,7 +4,7 @@
 <!-- TABLE 8000: Validate_Results -->
 <decision_table>
 <table_name>Validate_Results</table_name>
-<xls_file>035_Validate_Results.xlsx</xls_file>
+<xls_file>035_Validate_Results_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Validates calculated results against expected values from test case. Logs any discrepancies for review.</COMMENTS>

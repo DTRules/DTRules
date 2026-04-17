@@ -4,7 +4,7 @@
 <!-- TABLE 10300: Calculate_Senior_Deduction -->
 <decision_table>
 <table_name>Calculate_Senior_Deduction</table_name>
-<xls_file>048_Calculate_Senior_Deduction.xlsx</xls_file>
+<xls_file>048_Calculate_Senior_Deduction_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Senior Additional Deduction per OBBBA 2025. $6,000 per senior (age 65+). Phases out above $75,000 MAGI (Single) or $150,000 (MFJ).</COMMENTS>

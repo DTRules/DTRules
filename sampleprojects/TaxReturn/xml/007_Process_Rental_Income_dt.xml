@@ -4,7 +4,7 @@
 <!-- TABLE 2300: Process_Rental_Income -->
 <decision_table>
 <table_name>Process_Rental_Income</table_name>
-<xls_file>007_Process_Rental_Income.xlsx</xls_file>
+<xls_file>007_Process_Rental_Income_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Processes rental property income and expenses per Schedule E Part I, Publication 527, IRC Section 61(a)(5). Calculates depreciation, mortgage interest, property taxes, and other rental expenses.</COMMENTS>

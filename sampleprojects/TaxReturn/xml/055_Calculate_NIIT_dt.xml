@@ -4,7 +4,7 @@
 <!-- TABLE 14000: Calculate_NIIT -->
 <decision_table>
 <table_name>Calculate_NIIT</table_name>
-<xls_file>055_Calculate_NIIT.xlsx</xls_file>
+<xls_file>055_Calculate_NIIT_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates Net Investment Income Tax (3.8%) per Form 8960, IRC 1411. NIIT applies to lesser of NII or MAGI over threshold.</COMMENTS>

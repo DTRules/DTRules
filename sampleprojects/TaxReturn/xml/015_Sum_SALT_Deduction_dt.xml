@@ -4,7 +4,7 @@
 <!-- TABLE 3216: Sum_SALT_Deduction -->
 <decision_table>
 <table_name>Sum_SALT_Deduction</table_name>
-<xls_file>015_Sum_SALT_Deduction.xlsx</xls_file>
+<xls_file>015_Sum_SALT_Deduction_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table for SALT calculation. Adds state and local tax deductions to running total.</COMMENTS>

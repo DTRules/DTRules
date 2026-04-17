@@ -4,7 +4,7 @@
 <!-- TABLE 3200: Calculate_Itemized_Deductions -->
 <decision_table>
 <table_name>Calculate_Itemized_Deductions</table_name>
-<xls_file>012_Calculate_Itemized_Deductions.xlsx</xls_file>
+<xls_file>012_Calculate_Itemized_Deductions_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates total itemized deductions per Schedule A including SALT (capped at $10,000 per IRC 164(b)(6)(B) as amended by TCJA Section 11042), mortgage interest, and charitable contributions.</COMMENTS>

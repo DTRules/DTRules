@@ -4,7 +4,7 @@
 <!-- TABLE 24100: Process_Installment_Sales -->
 <decision_table>
 <table_name>Process_Installment_Sales</table_name>
-<xls_file>085_Process_Installment_Sales.xlsx</xls_file>
+<xls_file>085_Process_Installment_Sales_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Form 6252 Installment Sale Income. Allows gain recognition to be spread over payment period per IRC 453.</COMMENTS>

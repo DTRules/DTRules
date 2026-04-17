@@ -4,7 +4,7 @@
 <!-- TABLE 5901: Sum_Rental_Loss -->
 <decision_table>
 <table_name>Sum_Rental_Loss</table_name>
-<xls_file>069_Sum_Rental_Loss.xlsx</xls_file>
+<xls_file>069_Sum_Rental_Loss_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Sum rental losses for PAL calculation per IRC 469. Only counts properties with type='rental' to exclude primary residence and second homes.</COMMENTS>

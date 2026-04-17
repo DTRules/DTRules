@@ -4,7 +4,7 @@
 <!-- TABLE 9030: Filter_Rental_Property -->
 <decision_table>
 <table_name>Filter_Rental_Property</table_name>
-<xls_file>042_Filter_Rental_Property.xlsx</xls_file>
+<xls_file>042_Filter_Rental_Property_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Helper table that processes property if it is a rental.</COMMENTS>

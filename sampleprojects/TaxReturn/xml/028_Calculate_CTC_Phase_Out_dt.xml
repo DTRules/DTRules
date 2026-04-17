@@ -4,7 +4,7 @@
 <!-- TABLE 6050: Calculate_CTC_Phase_Out -->
 <decision_table>
 <table_name>Calculate_CTC_Phase_Out</table_name>
-<xls_file>028_Calculate_CTC_Phase_Out.xlsx</xls_file>
+<xls_file>028_Calculate_CTC_Phase_Out_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Applies CTC phase-out based on filing status and AGI. Phase-out threshold is $400,000 for MFJ/QSS and $200,000 for others per IRC 24(b). Reduction is $50 per $1,000 over threshold.</COMMENTS>

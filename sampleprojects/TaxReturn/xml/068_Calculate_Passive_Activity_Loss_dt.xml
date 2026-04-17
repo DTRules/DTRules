@@ -4,7 +4,7 @@
 <!-- TABLE 5900: Calculate_Passive_Activity_Loss -->
 <decision_table>
 <table_name>Calculate_Passive_Activity_Loss</table_name>
-<xls_file>068_Calculate_Passive_Activity_Loss.xlsx</xls_file>
+<xls_file>068_Calculate_Passive_Activity_Loss_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Passive Activity Loss Rules per Form 8582, IRC 469</COMMENTS>

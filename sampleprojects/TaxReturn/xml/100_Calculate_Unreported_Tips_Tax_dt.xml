@@ -4,7 +4,7 @@
 <!-- TABLE 26300: Calculate_Unreported_Tips_Tax -->
 <decision_table>
 <table_name>Calculate_Unreported_Tips_Tax</table_name>
-<xls_file>100_Calculate_Unreported_Tips_Tax.xlsx</xls_file>
+<xls_file>100_Calculate_Unreported_Tips_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate Social Security and Medicare Tax on Unreported Tip Income per Form 4137 and IRC 3121(q).</COMMENTS>

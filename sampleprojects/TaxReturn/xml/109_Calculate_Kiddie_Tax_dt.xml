@@ -4,7 +4,7 @@
 <!-- TABLE 8100: Calculate_Kiddie_Tax -->
 <decision_table>
 <table_name>Calculate_Kiddie_Tax</table_name>
-<xls_file>109_Calculate_Kiddie_Tax.xlsx</xls_file>
+<xls_file>109_Calculate_Kiddie_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates tax on unearned income of children under age 19 (or under 24 if full-time student). Applies parent's marginal tax rate to net unearned income over threshold per IRC Section 1(g) and Form 8615.</COMMENTS>

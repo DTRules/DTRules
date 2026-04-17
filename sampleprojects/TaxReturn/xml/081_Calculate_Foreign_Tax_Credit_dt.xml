@@ -4,7 +4,7 @@
 <!-- TABLE 23100: Calculate_Foreign_Tax_Credit -->
 <decision_table>
 <table_name>Calculate_Foreign_Tax_Credit</table_name>
-<xls_file>081_Calculate_Foreign_Tax_Credit.xlsx</xls_file>
+<xls_file>081_Calculate_Foreign_Tax_Credit_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Foreign Tax Credit with IRC 904 limitation. Credit cannot exceed US tax attributable to foreign source income (foreign income / total income x US tax).</COMMENTS>

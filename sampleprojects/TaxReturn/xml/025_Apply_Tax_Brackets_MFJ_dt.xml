@@ -4,7 +4,7 @@
 <!-- TABLE 5110: Apply_Tax_Brackets_MFJ -->
 <decision_table>
 <table_name>Apply_Tax_Brackets_MFJ</table_name>
-<xls_file>025_Apply_Tax_Brackets_MFJ.xlsx</xls_file>
+<xls_file>025_Apply_Tax_Brackets_MFJ_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates regular tax using MFJ brackets. Each column represents a bracket range.</COMMENTS>

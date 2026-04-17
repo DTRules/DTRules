@@ -4,7 +4,7 @@
 <!-- TABLE 25100: Calculate_Military_Moving_Expenses -->
 <decision_table>
 <table_name>Calculate_Military_Moving_Expenses</table_name>
-<xls_file>113_Calculate_Military_Moving_Expenses.xlsx</xls_file>
+<xls_file>113_Calculate_Military_Moving_Expenses_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate deductible military moving expenses for PCS moves. TCJA suspended civilian moving expense deduction but retained it for active duty military permanent change of station.</COMMENTS>

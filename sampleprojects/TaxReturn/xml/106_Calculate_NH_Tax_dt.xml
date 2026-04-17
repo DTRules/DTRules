@@ -4,7 +4,7 @@
 <!-- TABLE 42700: Calculate_NH_Tax -->
 <decision_table>
 <table_name>Calculate_NH_Tax</table_name>
-<xls_file>106_Calculate_NH_Tax.xlsx</xls_file>
+<xls_file>106_Calculate_NH_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates New Hampshire state income tax per hypothetical Form NH-1040. New Hampshire uses progressive tax brackets: 3% on first $75,000, 5% on $75,000-$150,000, 7.5% above $150,000. Starting with federal AGI, applies standard deduction based on filing status, then calculates tax using progressive brackets with div/int arithmetic only.</COMMENTS>

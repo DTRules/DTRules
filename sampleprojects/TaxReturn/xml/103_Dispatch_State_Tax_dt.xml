@@ -4,7 +4,7 @@
 <!-- TABLE 40000: Dispatch_State_Tax -->
 <decision_table>
 <table_name>Dispatch_State_Tax</table_name>
-<xls_file>103_Dispatch_State_Tax.xlsx</xls_file>
+<xls_file>103_Dispatch_State_Tax_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Dispatches to state-specific tax calculation for each state_period or falls back to job.state for single-state returns. Supports multi-state allocation for taxpayers who moved between states.</COMMENTS>

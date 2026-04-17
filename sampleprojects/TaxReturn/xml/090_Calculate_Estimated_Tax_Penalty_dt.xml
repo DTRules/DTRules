@@ -4,7 +4,7 @@
 <!-- TABLE 24600: Calculate_Estimated_Tax_Penalty -->
 <decision_table>
 <table_name>Calculate_Estimated_Tax_Penalty</table_name>
-<xls_file>090_Calculate_Estimated_Tax_Penalty.xlsx</xls_file>
+<xls_file>090_Calculate_Estimated_Tax_Penalty_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate Form 2210 underpayment penalty for estimated taxes per IRC 6654. Checks safe harbor exceptions.</COMMENTS>

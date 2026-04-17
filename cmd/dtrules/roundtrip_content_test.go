@@ -34,7 +34,6 @@ package main
 
 import (
 	"crypto/sha256"
-	"encoding/xml"
 	"fmt"
 	"io"
 	"os"
@@ -115,10 +114,10 @@ func TestExcelEditDTPropagatesToXML(t *testing.T) {
 	proj := copyAndMakeFresh(t)
 	excelDir := filepath.Join(proj, "excel")
 
-	// Pick a small DT workbook (001_Compute_Tax_Return.xlsx).
-	xlsxPath := filepath.Join(excelDir, "001_Compute_Tax_Return.xlsx")
+	// Pick a small DT workbook (001_Compute_Tax_Return_dt.xlsx).
+	xlsxPath := filepath.Join(excelDir, "001_Compute_Tax_Return_dt.xlsx")
 	if _, err := os.Stat(xlsxPath); err != nil {
-		t.Skip("001_Compute_Tax_Return.xlsx not found")
+		t.Skip("001_Compute_Tax_Return_dt.xlsx not found")
 	}
 
 	sent := sentinel("DTExcelToXML")
@@ -149,7 +148,7 @@ func TestExcelEditDTPropagatesToXML(t *testing.T) {
 		}
 	}
 	if editedSheet == "" {
-		t.Skip("no DT sheet found in 001_Compute_Tax_Return.xlsx")
+		t.Skip("no DT sheet found in 001_Compute_Tax_Return_dt.xlsx")
 	}
 
 	if err := f.Save(); err != nil {
@@ -277,59 +276,56 @@ func TestExcelEditEDDPropagatesToXML(t *testing.T) {
 	}
 }
 
-// TestExcelEditMappingPropagatesToXML documents the MAP sheet import gap.
-// MAP sheet import from Excel is not implemented — this test asserts that
-// constructing an xlsx with a "MAP:" marker sheet does NOT silently update
-// TaxReturn_map.xml (the build should leave it unchanged).
-// See GitHub issue: "MAP sheet import/export from Excel is not implemented".
+// TestExcelEditMappingPropagatesToXML edits a MAP xlsx (TaxReturn_map.xlsx) and asserts
+// that the sentinel tag propagates to TaxReturn_map.xml after --from-excel build.
 func TestExcelEditMappingPropagatesToXML(t *testing.T) {
 	proj := copyAndMakeFresh(t)
 	excelDir := filepath.Join(proj, "excel")
 
-	// Create a minimal xlsx with a MAP: marker sheet containing a sentinel.
-	sent := sentinel("MAPExcelToXML")
 	mapXlsxPath := filepath.Join(excelDir, "TaxReturn_map.xlsx")
-
-	newFile := excelize.NewFile()
-	defer newFile.Close()
-
-	sheet := newFile.GetSheetName(0)
-	_ = newFile.SetCellStr(sheet, "A1", "MAP: TaxReturn")
-	_ = newFile.SetCellStr(sheet, "A2", sent)
-	if err := newFile.SaveAs(mapXlsxPath); err != nil {
-		t.Fatalf("create map xlsx: %v", err)
+	if _, err := os.Stat(mapXlsxPath); err != nil {
+		t.Skip("TaxReturn_map.xlsx not found — run the MAP exporter fixture first")
 	}
+
+	sent := sentinel("MAPExcelToXML")
+
+	// Open the MAP xlsx and add a sentinel tag row.
+	f, err := excelize.OpenFile(mapXlsxPath)
+	if err != nil {
+		t.Fatalf("open MAP xlsx: %v", err)
+	}
+
+	sheets := f.GetSheetList()
+	if len(sheets) == 0 {
+		t.Fatal("MAP xlsx has no sheets")
+	}
+	sheet := sheets[0]
+	// Append a new attribute row at the end.
+	rows, _ := f.GetRows(sheet)
+	nextRow := len(rows) + 1
+	cell, _ := excelize.CoordinatesToCellName(1, nextRow)
+	_ = f.SetCellStr(sheet, cell, sent) // Tag = sentinel value
+	if err := f.Save(); err != nil {
+		t.Fatalf("save MAP xlsx: %v", err)
+	}
+	f.Close()
 
 	touchNewer(t, mapXlsxPath)
 
-	// Record map XML content before build.
+	cli := NewCLI()
+	code := cli.runBuild([]string{"--from-excel", proj})
+	if code != 0 {
+		t.Fatalf("runBuild --from-excel returned %d", code)
+	}
+
 	mapXMLPath := filepath.Join(proj, "xml", "TaxReturn_map.xml")
-	origContent, err := os.ReadFile(mapXMLPath)
+	content, err := os.ReadFile(mapXMLPath)
 	if err != nil {
 		t.Fatalf("read map xml: %v", err)
 	}
-
-	cli := NewCLI()
-	// Run build — it may detect the new xlsx but should NOT import MAP content.
-	_ = cli.runBuild([]string{"--from-excel", proj})
-
-	// MAP XML must NOT contain the sentinel — import is not implemented.
-	afterContent, err := os.ReadFile(mapXMLPath)
-	if err != nil {
-		t.Fatalf("read map xml after build: %v", err)
+	if !strings.Contains(string(content), sent) {
+		t.Errorf("sentinel %q not found in %s after --from-excel build", sent, mapXMLPath)
 	}
-	if strings.Contains(string(afterContent), sent) {
-		t.Errorf("MAP sheet import appears implemented (sentinel found in map xml) — remove this skip and update TestExcelEditMappingPropagatesToXML to assert full propagation")
-	}
-
-	// Also verify the original map XML was not corrupted.
-	if string(origContent) != string(afterContent) {
-		t.Logf("WARNING: TaxReturn_map.xml changed during --from-excel build (content drift, not sentinel injection)")
-	}
-
-	t.Logf("DOCUMENTED GAP: MAP sheet import from Excel is not implemented. " +
-		"The xlsx with MAP: marker was recognized but its content was not propagated to TaxReturn_map.xml. " +
-		"See GitHub issue: 'MAP sheet import/export from Excel is not implemented'.")
 }
 
 // =============================================================================
@@ -386,7 +382,7 @@ func TestXMLEditDTPropagatesToExcel(t *testing.T) {
 	}
 
 	// Assert sentinel appears in the generated xlsx.
-	xlsxPath := filepath.Join(excelDir, "001_Compute_Tax_Return.xlsx")
+	xlsxPath := filepath.Join(excelDir, "001_Compute_Tax_Return_dt.xlsx")
 	if _, err := os.Stat(xlsxPath); err != nil {
 		t.Fatalf("xlsx not generated at %s: %v", xlsxPath, err)
 	}
@@ -463,13 +459,12 @@ func TestXMLEditEDDPropagatesToExcel(t *testing.T) {
 	}
 }
 
-// TestXMLEditMappingPropagatesToExcel edits TaxReturn_map.xml and verifies that
-// the build preserves (canonicalizes) the sentinel in the XML output.
-// Mapping Excel export is not implemented — we assert the XML round-trip property:
-// the edited XML must retain the sentinel after a --from-xml build.
+// TestXMLEditMappingPropagatesToExcel edits TaxReturn_map.xml with a sentinel tag,
+// runs build --from-xml, and asserts the sentinel appears in TaxReturn_map.xlsx.
 func TestXMLEditMappingPropagatesToExcel(t *testing.T) {
 	proj := copyAndMakeFresh(t)
 	xmlDir := filepath.Join(proj, "xml")
+	excelDir := filepath.Join(proj, "excel")
 
 	mapXMLPath := filepath.Join(xmlDir, "TaxReturn_map.xml")
 	if _, err := os.Stat(mapXMLPath); err != nil {
@@ -483,51 +478,34 @@ func TestXMLEditMappingPropagatesToExcel(t *testing.T) {
 		t.Fatalf("read map xml: %v", err)
 	}
 
-	// Add a sentinel comment before the closing </mapping> tag.
+	// Inject a sentinel <setattribute> before the closing </map> tag.
 	xmlStr := string(xmlBytes)
-	const closeMapping = "</mapping>"
-	idx := strings.LastIndex(xmlStr, closeMapping)
+	const closeMap = "</map>"
+	idx := strings.LastIndex(xmlStr, closeMap)
 	if idx < 0 {
-		t.Skip("</mapping> not found in TaxReturn_map.xml")
+		t.Skip("</map> not found in TaxReturn_map.xml")
 	}
-	newXML := xmlStr[:idx] + "<!-- " + sent + " -->" + xmlStr[idx:]
+	newTag := fmt.Sprintf("\t\t\t<setattribute tag='%s' RAttribute='%s' enclosure='job' type='string'></setattribute>\n", sent, sent)
+	newXML := xmlStr[:idx] + newTag + xmlStr[idx:]
 	if err := os.WriteFile(mapXMLPath, []byte(newXML), 0644); err != nil {
 		t.Fatalf("write map xml: %v", err)
 	}
 	touchNewer(t, mapXMLPath)
 
 	cli := NewCLI()
-	// Build --from-xml. The sync system doesn't process map.xml, so this is a no-op for mapping.
-	_ = cli.runBuild([]string{"--from-xml", proj})
-
-	// The map XML must still contain our sentinel (not been overwritten).
-	afterContent, err := os.ReadFile(mapXMLPath)
-	if err != nil {
-		t.Fatalf("read map xml after build: %v", err)
-	}
-	if !strings.Contains(string(afterContent), sent) {
-		t.Errorf("map xml sentinel %q was lost after --from-xml build (XML was overwritten)", sent)
+	code := cli.runBuild([]string{"--from-xml", proj})
+	if code != 0 {
+		t.Fatalf("runBuild --from-xml returned %d", code)
 	}
 
-	// Also verify the map XML is valid XML.
-	if err := xml.Unmarshal(afterContent, new(interface{})); err != nil {
-		// xml.Unmarshal of arbitrary XML into interface{} often fails on comments; use Decoder.
-		decoder := xml.NewDecoder(strings.NewReader(string(afterContent)))
-		for {
-			_, decErr := decoder.Token()
-			if decErr == io.EOF {
-				break
-			}
-			if decErr != nil {
-				t.Errorf("map xml is invalid after build: %v", decErr)
-				break
-			}
-		}
+	// Assert sentinel appears in the generated MAP xlsx.
+	mapXlsxPath := filepath.Join(excelDir, "TaxReturn_map.xlsx")
+	if _, err := os.Stat(mapXlsxPath); err != nil {
+		t.Fatalf("TaxReturn_map.xlsx not generated at %s: %v", mapXlsxPath, err)
 	}
-
-	t.Logf("DOCUMENTED GAP: mapping Excel export is not implemented. " +
-		"TaxReturn_map.xml is not included in the sync manifest and is not exported to xlsx. " +
-		"XML round-trip property verified: sentinel retained in map XML after --from-xml build.")
+	if !xlsxContains(t, mapXlsxPath, sent) {
+		t.Errorf("sentinel %q not found in %s after --from-xml build", sent, mapXlsxPath)
+	}
 }
 
 // =============================================================================

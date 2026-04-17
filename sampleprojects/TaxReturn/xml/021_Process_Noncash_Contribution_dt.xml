@@ -4,7 +4,7 @@
 <!-- TABLE 3233: Process_Noncash_Contribution -->
 <decision_table>
 <table_name>Process_Noncash_Contribution</table_name>
-<xls_file>021_Process_Noncash_Contribution.xlsx</xls_file>
+<xls_file>021_Process_Noncash_Contribution_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Processes individual noncash charitable contribution. Applies appropriate valuation rules and AGI limitations based on property type and holding period.</COMMENTS>

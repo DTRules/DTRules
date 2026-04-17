@@ -4,7 +4,7 @@
 <!-- TABLE 19000: Process_K1_Income -->
 <decision_table>
 <table_name>Process_K1_Income</table_name>
-<xls_file>072_Process_K1_Income.xlsx</xls_file>
+<xls_file>072_Process_K1_Income_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Process Schedule K-1 income from partnerships, S-corps, and trusts. Categorizes income by type and flows to appropriate forms (Schedule E, B, D).</COMMENTS>

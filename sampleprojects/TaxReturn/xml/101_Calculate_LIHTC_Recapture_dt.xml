@@ -4,7 +4,7 @@
 <!-- TABLE 26400: Calculate_LIHTC_Recapture -->
 <decision_table>
 <table_name>Calculate_LIHTC_Recapture</table_name>
-<xls_file>101_Calculate_LIHTC_Recapture.xlsx</xls_file>
+<xls_file>101_Calculate_LIHTC_Recapture_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate Recapture of Low-Income Housing Credit per Form 8611 and IRC 42(j). Recapture occurs when property ceases to be qualified low-income housing.</COMMENTS>

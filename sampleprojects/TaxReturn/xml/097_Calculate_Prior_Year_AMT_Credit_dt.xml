@@ -4,7 +4,7 @@
 <!-- TABLE 26100: Calculate_Prior_Year_AMT_Credit -->
 <decision_table>
 <table_name>Calculate_Prior_Year_AMT_Credit</table_name>
-<xls_file>097_Calculate_Prior_Year_AMT_Credit.xlsx</xls_file>
+<xls_file>097_Calculate_Prior_Year_AMT_Credit_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculate Prior Year Minimum Tax Credit per Form 8801 and IRC 53. Credits carryforward from years when AMT was paid on timing differences.</COMMENTS>
