@@ -137,6 +137,7 @@ var (
 	TypeDecisionTable *RType
 	TypeMark          *RType
 	TypeBigInt        *RType
+	TypeBytes         *RType
 )
 
 func init() {
@@ -156,6 +157,7 @@ func init() {
 	TypeDecisionTable = NewType("decisiontable")
 	TypeMark = NewType("mark")
 	TypeBigInt = NewType("bigint")
+	TypeBytes = NewType("bytes")
 
 	// Register common type aliases
 	registerTypeAlias("float", TypeDouble)

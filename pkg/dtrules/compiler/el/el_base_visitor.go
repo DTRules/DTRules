@@ -1,7 +1,6 @@
-// Code generated from EL.g4 by ANTLR 4.13.2. DO NOT EDIT.
+// Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package el // EL
-
 import "github.com/antlr4-go/antlr/v4"
 
 type BaseELVisitor struct {
@@ -229,6 +228,18 @@ func (v *BaseELVisitor) VisitLocalBigIntInit(ctx *LocalBigIntInitContext) interf
 }
 
 func (v *BaseELVisitor) VisitLocalBigIntDefined(ctx *LocalBigIntDefinedContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitLocalBytesUndef(ctx *LocalBytesUndefContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitLocalBytesInit(ctx *LocalBytesInitContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitLocalBytesDefined(ctx *LocalBytesDefinedContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1568,11 +1579,19 @@ func (v *BaseELVisitor) VisitIntColonRef(ctx *IntColonRefContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitIntSubFrom(ctx *IntSubFromContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
 func (v *BaseELVisitor) VisitIntMonthsBetween(ctx *IntMonthsBetweenContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitIntLengthBytes(ctx *IntLengthBytesContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1625,6 +1644,30 @@ func (v *BaseELVisitor) VisitBigMul(ctx *BigMulContext) interface{} {
 }
 
 func (v *BaseELVisitor) VisitBigTyped(ctx *BigTypedContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBytesSlice(ctx *BytesSliceContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBytesConcat(ctx *BytesConcatContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBytesLiteral(ctx *BytesLiteralContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBytesTyped(ctx *BytesTypedContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBytesColonRef(ctx *BytesColonRefContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBytesParen(ctx *BytesParenContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1808,6 +1851,10 @@ func (v *BaseELVisitor) VisitBoolDateAfter(ctx *BoolDateAfterContext) interface{
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBoolBytesNeq(ctx *BoolBytesNeqContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBoolDateLt(ctx *BoolDateLtContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1861,6 +1908,10 @@ func (v *BaseELVisitor) VisitBoolStrIsNotNull(ctx *BoolStrIsNotNullContext) inte
 }
 
 func (v *BaseELVisitor) VisitBoolAnd(ctx *BoolAndContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBoolBytesEq(ctx *BoolBytesEqContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2201,6 +2252,10 @@ func (v *BaseELVisitor) VisitTypedBoolFunction(ctx *TypedBoolFunctionContext) in
 }
 
 func (v *BaseELVisitor) VisitTypedBigInt(ctx *TypedBigIntContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitTypedBytes(ctx *TypedBytesContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

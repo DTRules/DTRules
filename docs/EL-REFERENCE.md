@@ -134,6 +134,7 @@ DTRules supports the following primitive and composite types. Each type keyword 
 | `string`            | UTF-8 string                             |
 | `date` / `time`     | Represented as milliseconds since epoch  |
 | `bigint` / `biginteger` | Arbitrary-precision integer          |
+| `bytes`             | Immutable byte sequence (hex, constant-time equality) |
 | `name`              | Symbol/name value (e.g., `$foo`)        |
 | `entity`            | Reference to a DTRules entity            |
 | `array`             | Ordered list of DTRules objects          |
@@ -1119,6 +1120,8 @@ local date myvar = current date
 local entity myvar = person
 local array myvar
 local bigint myvar = 1000000
+local bytes myvar
+local bytes myvar = 0xdeadbeef
 ```
 
 **Semantics**: The compiler registers the variable in a local slot table. The declaration emits a `null allocate execute deallocate pop` (or initializer + conversion) sequence. Subsequent references emit `N local@` (read) and `N local!` (write) where N is the slot index (0-based).
@@ -1131,6 +1134,8 @@ local bigint myvar = 1000000
 | `local boolean myvar = true`    | `true cvb allocate execute deallocate pop` (slot 0)      |
 | `local entity myvar = person`   | `person cve allocate execute deallocate pop` (slot 0)    |
 | `local bigint myvar = 1000000`  | `1000000 cvbi allocate execute deallocate pop` (slot 0)  |
+| `local bytes myvar`             | `null allocate execute deallocate pop` (slot 0)          |
+| `local bytes myvar = 0xdeadbeef` | `0xdeadbeef cvbytes allocate execute deallocate pop` (slot 0) |
 
 After declaration, reads emit `0 local@` and writes emit `0 local!`.
 
@@ -1142,6 +1147,60 @@ Postfix: `0.0 cvr allocate execute deallocate pop`
 
 Action referencing it: `running_total + bracket.rate * result.taxable_income`
 → `0 local@ bracket.rate result.taxable_income * +`
+
+---
+
+## Bytes Type
+
+Bytes is an immutable byte-sequence type for opaque binary data.
+
+### Literal
+
+**Syntax**: `HEX_BYTES_LITERAL` — `0x` followed by an even number of hex digits (case-insensitive).  
+**Semantics**: Creates an `RBytes` value. The empty literal `0x` is a zero-length byte sequence.
+
+**Example (EL)**: `received_hash is equal to 0xa914748284390f9e263a4b766a75d999`  
+**Compiled postfix**: `received_hash 0xa914748284390f9e263a4b766a75d999 cvbytes bytes==`
+
+**Blockchain-policy example**: `received_hash is equal to expected_commitment` where both fields are `type="bytes"` in the EDD.  
+**Tax example**: N/A — bytes is not a tax-domain type.
+
+---
+
+### Bytes operations
+
+#### Concatenation
+
+**Syntax**: `bytesexpr + bytesexpr` (both operands must be bytes-typed)  
+**Semantics**: Returns the concatenation of the two byte sequences.  
+**Compiled postfix**: `... bytes+`
+
+#### Slice
+
+**Syntax**: `bytesexpr from iexpr to iexpr`  
+**Semantics**: Returns bytes `[from, to)`. `from` is inclusive, `to` is exclusive. Out-of-range is a runtime error.  
+**Compiled postfix**: `<bytes> <from> <to> bytesslice`
+
+#### Length
+
+**Syntax**: `length of bytesexpr`  
+**Semantics**: Returns the number of bytes as an integer.  
+**Compiled postfix**: `<bytes> byteslen`
+
+#### Indexed access
+
+**Syntax**: `bytesexpr[iexpr]`  
+**Semantics**: Returns the byte at index `i` as an integer 0–255. Out-of-range is a runtime error.  
+**Compiled postfix**: `<bytes> <i> bytesidx`
+
+#### Equality (constant-time)
+
+**Syntax**: `bytesexpr is equal to bytesexpr`  
+**Semantics**: Returns `true` iff both sequences have the same length and content, using `crypto/subtle.ConstantTimeCompare`.  
+**Compiled postfix**: `<a> <b> bytes==`
+
+**Syntax**: `bytesexpr is not equal to bytesexpr`  
+**Compiled postfix**: `<a> <b> bytes!=`
 
 ---
 

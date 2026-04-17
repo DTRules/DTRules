@@ -102,6 +102,14 @@ const (
 	OpConcat    Opcode = 90 // String concatenation
 	OpSubstring Opcode = 91 // Substring
 
+	// Bytes operations (stack effect noted as [a b -> result])
+	OpBytesConcat Opcode = 110 // [bytes bytes -> bytes] concatenate two byte sequences
+	OpBytesLen    Opcode = 111 // [bytes -> int]         number of bytes
+	OpBytesSlice  Opcode = 112 // [bytes from to -> bytes] slice [from, to)
+	OpBytesIndex  Opcode = 113 // [bytes i -> int]       byte at index i (0-255)
+	OpBytesEq     Opcode = 114 // [bytes bytes -> bool]  constant-time equality
+	OpBytesNe     Opcode = 115 // [bytes bytes -> bool]  constant-time inequality
+
 	// Constants
 	OpPushTrue  Opcode = 100 // Push true
 	OpPushFalse Opcode = 101 // Push false

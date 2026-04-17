@@ -166,6 +166,24 @@ type ELListener interface {
 	// EnterLocalStringDefined is called when entering the localStringDefined production.
 	EnterLocalStringDefined(c *LocalStringDefinedContext)
 
+	// EnterLocalBigIntUndef is called when entering the localBigIntUndef production.
+	EnterLocalBigIntUndef(c *LocalBigIntUndefContext)
+
+	// EnterLocalBigIntInit is called when entering the localBigIntInit production.
+	EnterLocalBigIntInit(c *LocalBigIntInitContext)
+
+	// EnterLocalBigIntDefined is called when entering the localBigIntDefined production.
+	EnterLocalBigIntDefined(c *LocalBigIntDefinedContext)
+
+	// EnterLocalBytesUndef is called when entering the localBytesUndef production.
+	EnterLocalBytesUndef(c *LocalBytesUndefContext)
+
+	// EnterLocalBytesInit is called when entering the localBytesInit production.
+	EnterLocalBytesInit(c *LocalBytesInitContext)
+
+	// EnterLocalBytesDefined is called when entering the localBytesDefined production.
+	EnterLocalBytesDefined(c *LocalBytesDefinedContext)
+
 	// EnterIfThen is called when entering the ifThen production.
 	EnterIfThen(c *IfThenContext)
 
@@ -298,6 +316,12 @@ type ELListener interface {
 	// EnterLeftTexprColon is called when entering the leftTexprColon production.
 	EnterLeftTexprColon(c *LeftTexprColonContext)
 
+	// EnterLeftBigexprSimple is called when entering the leftBigexprSimple production.
+	EnterLeftBigexprSimple(c *LeftBigexprSimpleContext)
+
+	// EnterLeftBigexprColon is called when entering the leftBigexprColon production.
+	EnterLeftBigexprColon(c *LeftBigexprColonContext)
+
 	// EnterLeftArraySimple is called when entering the leftArraySimple production.
 	EnterLeftArraySimple(c *LeftArraySimpleContext)
 
@@ -357,6 +381,9 @@ type ELListener interface {
 
 	// EnterSetArrayArray is called when entering the setArrayArray production.
 	EnterSetArrayArray(c *SetArrayArrayContext)
+
+	// EnterSetBigInt is called when entering the setBigInt production.
+	EnterSetBigInt(c *SetBigIntContext)
 
 	// EnterIncrementLong is called when entering the incrementLong production.
 	EnterIncrementLong(c *IncrementLongContext)
@@ -1159,11 +1186,74 @@ type ELListener interface {
 	// EnterIntColonRef is called when entering the intColonRef production.
 	EnterIntColonRef(c *IntColonRefContext)
 
+	// EnterIntBytesIndex is called when entering the intBytesIndex production.
+	EnterIntBytesIndex(c *IntBytesIndexContext)
+
 	// EnterIntSubFrom is called when entering the intSubFrom production.
 	EnterIntSubFrom(c *IntSubFromContext)
 
 	// EnterIntMonthsBetween is called when entering the intMonthsBetween production.
 	EnterIntMonthsBetween(c *IntMonthsBetweenContext)
+
+	// EnterIntLengthBytes is called when entering the intLengthBytes production.
+	EnterIntLengthBytes(c *IntLengthBytesContext)
+
+	// EnterBigAbs is called when entering the bigAbs production.
+	EnterBigAbs(c *BigAbsContext)
+
+	// EnterBigDiv is called when entering the bigDiv production.
+	EnterBigDiv(c *BigDivContext)
+
+	// EnterBigColonRef is called when entering the bigColonRef production.
+	EnterBigColonRef(c *BigColonRefContext)
+
+	// EnterBigFromFloat is called when entering the bigFromFloat production.
+	EnterBigFromFloat(c *BigFromFloatContext)
+
+	// EnterBigNegate is called when entering the bigNegate production.
+	EnterBigNegate(c *BigNegateContext)
+
+	// EnterBigUsing is called when entering the bigUsing production.
+	EnterBigUsing(c *BigUsingContext)
+
+	// EnterBigSub is called when entering the bigSub production.
+	EnterBigSub(c *BigSubContext)
+
+	// EnterBigParen is called when entering the bigParen production.
+	EnterBigParen(c *BigParenContext)
+
+	// EnterBigAdd is called when entering the bigAdd production.
+	EnterBigAdd(c *BigAddContext)
+
+	// EnterBigFromStr is called when entering the bigFromStr production.
+	EnterBigFromStr(c *BigFromStrContext)
+
+	// EnterBigFromInt is called when entering the bigFromInt production.
+	EnterBigFromInt(c *BigFromIntContext)
+
+	// EnterBigMul is called when entering the bigMul production.
+	EnterBigMul(c *BigMulContext)
+
+	// EnterBigTyped is called when entering the bigTyped production.
+	EnterBigTyped(c *BigTypedContext)
+
+	// EnterBytesSlice is called when entering the bytesSlice production.
+	EnterBytesSlice(c *BytesSliceContext)
+
+	// EnterBytesConcat is called when entering the bytesConcat production.
+	EnterBytesConcat(c *BytesConcatContext)
+
+	// EnterBytesLiteral is called when entering the bytesLiteral production.
+	EnterBytesLiteral(c *BytesLiteralContext)
+
+	// EnterBytesTyped is called when entering the bytesTyped production.
+	EnterBytesTyped(c *BytesTypedContext)
+
+	// EnterBytesColonRef is called when entering the bytesColonRef production.
+	EnterBytesColonRef(c *BytesColonRefContext)
+
+	// EnterBytesParen is called when entering the bytesParen production.
+	EnterBytesParen(c *BytesParenContext)
 
 	// EnterIncludeNumber is called when entering the includeNumber production.
 	EnterIncludeNumber(c *IncludeNumberContext)
@@ -1225,6 +1315,9 @@ type ELListener interface {
 	// EnterBoolThereIsNoInEntityWhere is called when entering the boolThereIsNoInEntityWhere production.
 	EnterBoolThereIsNoInEntityWhere(c *BoolThereIsNoInEntityWhereContext)
 
+	// EnterBoolBigLt is called when entering the boolBigLt production.
+	EnterBoolBigLt(c *BoolBigLtContext)
+
 	// EnterBoolArrayIsNull is called when entering the boolArrayIsNull production.
 	EnterBoolArrayIsNull(c *BoolArrayIsNullContext)
 
@@ -1236,6 +1329,9 @@ type ELListener interface {
 
 	// EnterBoolStrEqList is called when entering the boolStrEqList production.
 	EnterBoolStrEqList(c *BoolStrEqListContext)
+
+	// EnterBoolBigNeq is called when entering the boolBigNeq production.
+	EnterBoolBigNeq(c *BoolBigNeqContext)
 
 	// EnterBoolIntLt is called when entering the boolIntLt production.
 	EnterBoolIntLt(c *BoolIntLtContext)
@@ -1294,6 +1390,9 @@ type ELListener interface {
 	// EnterBoolDateAfter is called when entering the boolDateAfter production.
 	EnterBoolDateAfter(c *BoolDateAfterContext)
 
+	// EnterBoolBytesNeq is called when entering the boolBytesNeq production.
+	EnterBoolBytesNeq(c *BoolBytesNeqContext)
+
 	// EnterBoolDateLt is called when entering the boolDateLt production.
 	EnterBoolDateLt(c *BoolDateLtContext)
 
@@ -1336,6 +1435,9 @@ type ELListener interface {
 	// EnterBoolAnd is called when entering the boolAnd production.
 	EnterBoolAnd(c *BoolAndContext)
 
+	// EnterBoolBytesEq is called when entering the boolBytesEq production.
+	EnterBoolBytesEq(c *BoolBytesEqContext)
+
 	// EnterBoolStrIsNot is called when entering the boolStrIsNot production.
 	EnterBoolStrIsNot(c *BoolStrIsNotContext)
 
@@ -1344,6 +1446,9 @@ type ELListener interface {
 
 	// EnterBoolFloatLte is called when entering the boolFloatLte production.
 	EnterBoolFloatLte(c *BoolFloatLteContext)
+
+	// EnterBoolBigLte is called when entering the boolBigLte production.
+	EnterBoolBigLte(c *BoolBigLteContext)
 
 	// EnterBoolStrEqIc is called when entering the boolStrEqIc production.
 	EnterBoolStrEqIc(c *BoolStrEqIcContext)
@@ -1377,6 +1482,9 @@ type ELListener interface {
 
 	// EnterBoolColonRef is called when entering the boolColonRef production.
 	EnterBoolColonRef(c *BoolColonRefContext)
+
+	// EnterBoolBigGt is called when entering the boolBigGt production.
+	EnterBoolBigGt(c *BoolBigGtContext)
 
 	// EnterBoolFloatGt is called when entering the boolFloatGt production.
 	EnterBoolFloatGt(c *BoolFloatGtContext)
@@ -1429,6 +1537,9 @@ type ELListener interface {
 	// EnterBoolEntityNotHas is called when entering the boolEntityNotHas production.
 	EnterBoolEntityNotHas(c *BoolEntityNotHasContext)
 
+	// EnterBoolBigGte is called when entering the boolBigGte production.
+	EnterBoolBigGte(c *BoolBigGteContext)
+
 	// EnterBoolDateEq is called when entering the boolDateEq production.
 	EnterBoolDateEq(c *BoolDateEqContext)
 
@@ -1470,6 +1581,9 @@ type ELListener interface {
 
 	// EnterBoolBoolEq is called when entering the boolBoolEq production.
 	EnterBoolBoolEq(c *BoolBoolEqContext)
+
+	// EnterBoolBigEq is called when entering the boolBigEq production.
+	EnterBoolBigEq(c *BoolBigEqContext)
 
 	// EnterBoolPlusOrMinus is called when entering the boolPlusOrMinus production.
 	EnterBoolPlusOrMinus(c *BoolPlusOrMinusContext)
@@ -1575,6 +1689,12 @@ type ELListener interface {
 
 	// EnterTypedBoolFunction is called when entering the typedBoolFunction production.
 	EnterTypedBoolFunction(c *TypedBoolFunctionContext)
+
+	// EnterTypedBigInt is called when entering the typedBigInt production.
+	EnterTypedBigInt(c *TypedBigIntContext)
+
+	// EnterTypedBytes is called when entering the typedBytes production.
+	EnterTypedBytes(c *TypedBytesContext)
 
 	// EnterUndefinedIdent is called when entering the undefinedIdent production.
 	EnterUndefinedIdent(c *UndefinedIdentContext)
@@ -1738,6 +1858,24 @@ type ELListener interface {
 	// ExitLocalStringDefined is called when exiting the localStringDefined production.
 	ExitLocalStringDefined(c *LocalStringDefinedContext)
 
+	// ExitLocalBigIntUndef is called when exiting the localBigIntUndef production.
+	ExitLocalBigIntUndef(c *LocalBigIntUndefContext)
+
+	// ExitLocalBigIntInit is called when exiting the localBigIntInit production.
+	ExitLocalBigIntInit(c *LocalBigIntInitContext)
+
+	// ExitLocalBigIntDefined is called when exiting the localBigIntDefined production.
+	ExitLocalBigIntDefined(c *LocalBigIntDefinedContext)
+
+	// ExitLocalBytesUndef is called when exiting the localBytesUndef production.
+	ExitLocalBytesUndef(c *LocalBytesUndefContext)
+
+	// ExitLocalBytesInit is called when exiting the localBytesInit production.
+	ExitLocalBytesInit(c *LocalBytesInitContext)
+
+	// ExitLocalBytesDefined is called when exiting the localBytesDefined production.
+	ExitLocalBytesDefined(c *LocalBytesDefinedContext)
+
 	// ExitIfThen is called when exiting the ifThen production.
 	ExitIfThen(c *IfThenContext)
 
@@ -1870,6 +2008,12 @@ type ELListener interface {
 	// ExitLeftTexprColon is called when exiting the leftTexprColon production.
 	ExitLeftTexprColon(c *LeftTexprColonContext)
 
+	// ExitLeftBigexprSimple is called when exiting the leftBigexprSimple production.
+	ExitLeftBigexprSimple(c *LeftBigexprSimpleContext)
+
+	// ExitLeftBigexprColon is called when exiting the leftBigexprColon production.
+	ExitLeftBigexprColon(c *LeftBigexprColonContext)
+
 	// ExitLeftArraySimple is called when exiting the leftArraySimple production.
 	ExitLeftArraySimple(c *LeftArraySimpleContext)
 
@@ -1929,6 +2073,9 @@ type ELListener interface {
 
 	// ExitSetArrayArray is called when exiting the setArrayArray production.
 	ExitSetArrayArray(c *SetArrayArrayContext)
+
+	// ExitSetBigInt is called when exiting the setBigInt production.
+	ExitSetBigInt(c *SetBigIntContext)
 
 	// ExitIncrementLong is called when exiting the incrementLong production.
 	ExitIncrementLong(c *IncrementLongContext)
@@ -2731,11 +2878,74 @@ type ELListener interface {
 	// ExitIntColonRef is called when exiting the intColonRef production.
 	ExitIntColonRef(c *IntColonRefContext)
 
+	// ExitIntBytesIndex is called when exiting the intBytesIndex production.
+	ExitIntBytesIndex(c *IntBytesIndexContext)
+
 	// ExitIntSubFrom is called when exiting the intSubFrom production.
 	ExitIntSubFrom(c *IntSubFromContext)
 
 	// ExitIntMonthsBetween is called when exiting the intMonthsBetween production.
 	ExitIntMonthsBetween(c *IntMonthsBetweenContext)
+
+	// ExitIntLengthBytes is called when exiting the intLengthBytes production.
+	ExitIntLengthBytes(c *IntLengthBytesContext)
+
+	// ExitBigAbs is called when exiting the bigAbs production.
+	ExitBigAbs(c *BigAbsContext)
+
+	// ExitBigDiv is called when exiting the bigDiv production.
+	ExitBigDiv(c *BigDivContext)
+
+	// ExitBigColonRef is called when exiting the bigColonRef production.
+	ExitBigColonRef(c *BigColonRefContext)
+
+	// ExitBigFromFloat is called when exiting the bigFromFloat production.
+	ExitBigFromFloat(c *BigFromFloatContext)
+
+	// ExitBigNegate is called when exiting the bigNegate production.
+	ExitBigNegate(c *BigNegateContext)
+
+	// ExitBigUsing is called when exiting the bigUsing production.
+	ExitBigUsing(c *BigUsingContext)
+
+	// ExitBigSub is called when exiting the bigSub production.
+	ExitBigSub(c *BigSubContext)
+
+	// ExitBigParen is called when exiting the bigParen production.
+	ExitBigParen(c *BigParenContext)
+
+	// ExitBigAdd is called when exiting the bigAdd production.
+	ExitBigAdd(c *BigAddContext)
+
+	// ExitBigFromStr is called when exiting the bigFromStr production.
+	ExitBigFromStr(c *BigFromStrContext)
+
+	// ExitBigFromInt is called when exiting the bigFromInt production.
+	ExitBigFromInt(c *BigFromIntContext)
+
+	// ExitBigMul is called when exiting the bigMul production.
+	ExitBigMul(c *BigMulContext)
+
+	// ExitBigTyped is called when exiting the bigTyped production.
+	ExitBigTyped(c *BigTypedContext)
+
+	// ExitBytesSlice is called when exiting the bytesSlice production.
+	ExitBytesSlice(c *BytesSliceContext)
+
+	// ExitBytesConcat is called when exiting the bytesConcat production.
+	ExitBytesConcat(c *BytesConcatContext)
+
+	// ExitBytesLiteral is called when exiting the bytesLiteral production.
+	ExitBytesLiteral(c *BytesLiteralContext)
+
+	// ExitBytesTyped is called when exiting the bytesTyped production.
+	ExitBytesTyped(c *BytesTypedContext)
+
+	// ExitBytesColonRef is called when exiting the bytesColonRef production.
+	ExitBytesColonRef(c *BytesColonRefContext)
+
+	// ExitBytesParen is called when exiting the bytesParen production.
+	ExitBytesParen(c *BytesParenContext)
 
 	// ExitIncludeNumber is called when exiting the includeNumber production.
 	ExitIncludeNumber(c *IncludeNumberContext)
@@ -2797,6 +3007,9 @@ type ELListener interface {
 	// ExitBoolThereIsNoInEntityWhere is called when exiting the boolThereIsNoInEntityWhere production.
 	ExitBoolThereIsNoInEntityWhere(c *BoolThereIsNoInEntityWhereContext)
 
+	// ExitBoolBigLt is called when exiting the boolBigLt production.
+	ExitBoolBigLt(c *BoolBigLtContext)
+
 	// ExitBoolArrayIsNull is called when exiting the boolArrayIsNull production.
 	ExitBoolArrayIsNull(c *BoolArrayIsNullContext)
 
@@ -2808,6 +3021,9 @@ type ELListener interface {
 
 	// ExitBoolStrEqList is called when exiting the boolStrEqList production.
 	ExitBoolStrEqList(c *BoolStrEqListContext)
+
+	// ExitBoolBigNeq is called when exiting the boolBigNeq production.
+	ExitBoolBigNeq(c *BoolBigNeqContext)
 
 	// ExitBoolIntLt is called when exiting the boolIntLt production.
 	ExitBoolIntLt(c *BoolIntLtContext)
@@ -2866,6 +3082,9 @@ type ELListener interface {
 	// ExitBoolDateAfter is called when exiting the boolDateAfter production.
 	ExitBoolDateAfter(c *BoolDateAfterContext)
 
+	// ExitBoolBytesNeq is called when exiting the boolBytesNeq production.
+	ExitBoolBytesNeq(c *BoolBytesNeqContext)
+
 	// ExitBoolDateLt is called when exiting the boolDateLt production.
 	ExitBoolDateLt(c *BoolDateLtContext)
 
@@ -2908,6 +3127,9 @@ type ELListener interface {
 	// ExitBoolAnd is called when exiting the boolAnd production.
 	ExitBoolAnd(c *BoolAndContext)
 
+	// ExitBoolBytesEq is called when exiting the boolBytesEq production.
+	ExitBoolBytesEq(c *BoolBytesEqContext)
+
 	// ExitBoolStrIsNot is called when exiting the boolStrIsNot production.
 	ExitBoolStrIsNot(c *BoolStrIsNotContext)
 
@@ -2916,6 +3138,9 @@ type ELListener interface {
 
 	// ExitBoolFloatLte is called when exiting the boolFloatLte production.
 	ExitBoolFloatLte(c *BoolFloatLteContext)
+
+	// ExitBoolBigLte is called when exiting the boolBigLte production.
+	ExitBoolBigLte(c *BoolBigLteContext)
 
 	// ExitBoolStrEqIc is called when exiting the boolStrEqIc production.
 	ExitBoolStrEqIc(c *BoolStrEqIcContext)
@@ -2949,6 +3174,9 @@ type ELListener interface {
 
 	// ExitBoolColonRef is called when exiting the boolColonRef production.
 	ExitBoolColonRef(c *BoolColonRefContext)
+
+	// ExitBoolBigGt is called when exiting the boolBigGt production.
+	ExitBoolBigGt(c *BoolBigGtContext)
 
 	// ExitBoolFloatGt is called when exiting the boolFloatGt production.
 	ExitBoolFloatGt(c *BoolFloatGtContext)
@@ -3001,6 +3229,9 @@ type ELListener interface {
 	// ExitBoolEntityNotHas is called when exiting the boolEntityNotHas production.
 	ExitBoolEntityNotHas(c *BoolEntityNotHasContext)
 
+	// ExitBoolBigGte is called when exiting the boolBigGte production.
+	ExitBoolBigGte(c *BoolBigGteContext)
+
 	// ExitBoolDateEq is called when exiting the boolDateEq production.
 	ExitBoolDateEq(c *BoolDateEqContext)
 
@@ -3042,6 +3273,9 @@ type ELListener interface {
 
 	// ExitBoolBoolEq is called when exiting the boolBoolEq production.
 	ExitBoolBoolEq(c *BoolBoolEqContext)
+
+	// ExitBoolBigEq is called when exiting the boolBigEq production.
+	ExitBoolBigEq(c *BoolBigEqContext)
 
 	// ExitBoolPlusOrMinus is called when exiting the boolPlusOrMinus production.
 	ExitBoolPlusOrMinus(c *BoolPlusOrMinusContext)
@@ -3147,6 +3381,12 @@ type ELListener interface {
 
 	// ExitTypedBoolFunction is called when exiting the typedBoolFunction production.
 	ExitTypedBoolFunction(c *TypedBoolFunctionContext)
+
+	// ExitTypedBigInt is called when exiting the typedBigInt production.
+	ExitTypedBigInt(c *TypedBigIntContext)
+
+	// ExitTypedBytes is called when exiting the typedBytes production.
+	ExitTypedBytes(c *TypedBytesContext)
 
 	// ExitUndefinedIdent is called when exiting the undefinedIdent production.
 	ExitUndefinedIdent(c *UndefinedIdentContext)

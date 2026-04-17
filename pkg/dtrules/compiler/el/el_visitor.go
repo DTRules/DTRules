@@ -1,7 +1,6 @@
-// Code generated from EL.g4 by ANTLR 4.13.2. DO NOT EDIT.
+// Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package el // EL
-
 import "github.com/antlr4-go/antlr/v4"
 
 // A complete Visitor for a parse tree produced by ELParser.
@@ -175,6 +174,15 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#localBigIntDefined.
 	VisitLocalBigIntDefined(ctx *LocalBigIntDefinedContext) interface{}
+
+	// Visit a parse tree produced by ELParser#localBytesUndef.
+	VisitLocalBytesUndef(ctx *LocalBytesUndefContext) interface{}
+
+	// Visit a parse tree produced by ELParser#localBytesInit.
+	VisitLocalBytesInit(ctx *LocalBytesInitContext) interface{}
+
+	// Visit a parse tree produced by ELParser#localBytesDefined.
+	VisitLocalBytesDefined(ctx *LocalBytesDefinedContext) interface{}
 
 	// Visit a parse tree produced by ELParser#ifThen.
 	VisitIfThen(ctx *IfThenContext) interface{}
@@ -1178,11 +1186,17 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#intColonRef.
 	VisitIntColonRef(ctx *IntColonRefContext) interface{}
 
+	// Visit a parse tree produced by ELParser#intBytesIndex.
+	VisitIntBytesIndex(ctx *IntBytesIndexContext) interface{}
+
 	// Visit a parse tree produced by ELParser#intSubFrom.
 	VisitIntSubFrom(ctx *IntSubFromContext) interface{}
 
 	// Visit a parse tree produced by ELParser#intMonthsBetween.
 	VisitIntMonthsBetween(ctx *IntMonthsBetweenContext) interface{}
+
+	// Visit a parse tree produced by ELParser#intLengthBytes.
+	VisitIntLengthBytes(ctx *IntLengthBytesContext) interface{}
 
 	// Visit a parse tree produced by ELParser#bigAbs.
 	VisitBigAbs(ctx *BigAbsContext) interface{}
@@ -1222,6 +1236,24 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#bigTyped.
 	VisitBigTyped(ctx *BigTypedContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bytesSlice.
+	VisitBytesSlice(ctx *BytesSliceContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bytesConcat.
+	VisitBytesConcat(ctx *BytesConcatContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bytesLiteral.
+	VisitBytesLiteral(ctx *BytesLiteralContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bytesTyped.
+	VisitBytesTyped(ctx *BytesTypedContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bytesColonRef.
+	VisitBytesColonRef(ctx *BytesColonRefContext) interface{}
+
+	// Visit a parse tree produced by ELParser#bytesParen.
+	VisitBytesParen(ctx *BytesParenContext) interface{}
 
 	// Visit a parse tree produced by ELParser#includeNumber.
 	VisitIncludeNumber(ctx *IncludeNumberContext) interface{}
@@ -1358,6 +1390,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolDateAfter.
 	VisitBoolDateAfter(ctx *BoolDateAfterContext) interface{}
 
+	// Visit a parse tree produced by ELParser#boolBytesNeq.
+	VisitBoolBytesNeq(ctx *BoolBytesNeqContext) interface{}
+
 	// Visit a parse tree produced by ELParser#boolDateLt.
 	VisitBoolDateLt(ctx *BoolDateLtContext) interface{}
 
@@ -1399,6 +1434,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#boolAnd.
 	VisitBoolAnd(ctx *BoolAndContext) interface{}
+
+	// Visit a parse tree produced by ELParser#boolBytesEq.
+	VisitBoolBytesEq(ctx *BoolBytesEqContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolStrIsNot.
 	VisitBoolStrIsNot(ctx *BoolStrIsNotContext) interface{}
@@ -1654,6 +1692,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#typedBigInt.
 	VisitTypedBigInt(ctx *TypedBigIntContext) interface{}
+
+	// Visit a parse tree produced by ELParser#typedBytes.
+	VisitTypedBytes(ctx *TypedBytesContext) interface{}
 
 	// Visit a parse tree produced by ELParser#undefinedIdent.
 	VisitUndefinedIdent(ctx *UndefinedIdentContext) interface{}

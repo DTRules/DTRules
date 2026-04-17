@@ -132,6 +132,8 @@ func (e *PostfixEmitter) typeConverter(fieldType string) string {
 		return "cvd"
 	case TypeBigInt:
 		return "cvbi"
+	case TypeBytes:
+		return "cvbytes"
 	case TypeArray, TypeName, TypeTable, TypeXmlValue:
 		return "" // No conversion needed
 	default:
@@ -293,6 +295,15 @@ func (e *PostfixEmitter) VisitErrorNode(node antlr.ErrorNode) interface{} {
 
 func (e *PostfixEmitter) VisitBoolIntEq(ctx *BoolIntEqContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
+
+	// If both sides are bytes-typed, use constant-time equality.
+	if e.iexprIsBytes(left) && e.iexprIsBytes(right) {
+		e.Visit(left)
+		e.Visit(right)
+		e.emit("bytes==")
+		return nil
+	}
+
 	leftIsBigInt := e.isBigIntExpr(left)
 	rightIsBigInt := e.isBigIntExpr(right)
 	needsBigInt := leftIsBigInt || rightIsBigInt
@@ -310,6 +321,15 @@ func (e *PostfixEmitter) VisitBoolIntEq(ctx *BoolIntEqContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
+
+	// If both sides are bytes-typed, use constant-time inequality.
+	if e.iexprIsBytes(left) && e.iexprIsBytes(right) {
+		e.Visit(left)
+		e.Visit(right)
+		e.emit("bytes!=")
+		return nil
+	}
+
 	leftIsBigInt := e.isBigIntExpr(left)
 	rightIsBigInt := e.isBigIntExpr(right)
 	needsBigInt := leftIsBigInt || rightIsBigInt
@@ -437,30 +457,109 @@ func (e *PostfixEmitter) VisitBoolFloatLte(ctx *BoolFloatLteContext) interface{}
 	return nil
 }
 
+// arrayExprIsBytes returns true if an arrayExpr resolves to a bytes-typed identifier.
+func (e *PostfixEmitter) arrayExprIsBytes(ctx IArrayExprContext) bool {
+	base, ok := ctx.(*ArrayBaseContext)
+	if !ok {
+		return false
+	}
+	typed, ok2 := base.ArrayExpr2().(*ArrayTypedContext)
+	if !ok2 {
+		return false
+	}
+	return e.identIsBytes(typed.TypedArray().GetText())
+}
+
+// identIsBytes returns true if an identifier name is typed as bytes.
+func (e *PostfixEmitter) identIsBytes(name string) bool {
+	if lv, ok := e.lookupLocal(name); ok {
+		return lv.Type == TypeBytes
+	}
+	return e.lookupType(name) == TypeBytes
+}
+
+// iexprIsBytes returns true if an iexpr resolves to a bytes-typed identifier.
+func (e *PostfixEmitter) iexprIsBytes(ctx IIexprContext) bool {
+	if ctx == nil {
+		return false
+	}
+	switch c := ctx.(type) {
+	case *IntTypedContext:
+		return e.identIsBytes(c.TypedLong().GetText())
+	case *IntParenContext:
+		return e.iexprIsBytes(c.Iexpr())
+	case *IntAddContext:
+		// Bytes concat masquerading as int add
+		return e.iexprIsBytes(c.Iexpr(0)) && e.iexprIsBytes(c.Iexpr(1))
+	}
+	return false
+}
+
+// strexprIsBytes returns true if a strexpr resolves to an identifier typed as bytes.
+func (e *PostfixEmitter) strexprIsBytes(ctx IStrexprContext) bool {
+	typed, ok := ctx.(*StrTypedContext)
+	if !ok {
+		return false
+	}
+	ident := typed.TypedString().GetText()
+	if lv, ok := e.lookupLocal(ident); ok {
+		return lv.Type == TypeBytes
+	}
+	return e.lookupType(ident) == TypeBytes
+}
+
 func (e *PostfixEmitter) VisitBoolStrEq(ctx *BoolStrEqContext) interface{} {
-	e.Visit(ctx.Strexpr(0))
-	e.Visit(ctx.Strexpr(1))
+	left, right := ctx.Strexpr(0), ctx.Strexpr(1)
+	if e.strexprIsBytes(left) && e.strexprIsBytes(right) {
+		e.Visit(left)
+		e.Visit(right)
+		e.emit("bytes==")
+		return nil
+	}
+	e.Visit(left)
+	e.Visit(right)
 	e.emit("streq")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitBoolStrNeq(ctx *BoolStrNeqContext) interface{} {
-	e.Visit(ctx.Strexpr(0))
-	e.Visit(ctx.Strexpr(1))
+	left, right := ctx.Strexpr(0), ctx.Strexpr(1)
+	if e.strexprIsBytes(left) && e.strexprIsBytes(right) {
+		e.Visit(left)
+		e.Visit(right)
+		e.emit("bytes!=")
+		return nil
+	}
+	e.Visit(left)
+	e.Visit(right)
 	e.emit("strneq")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitBoolStrIs(ctx *BoolStrIsContext) interface{} {
-	e.Visit(ctx.Strexpr(0))
-	e.Visit(ctx.Strexpr(1))
+	left, right := ctx.Strexpr(0), ctx.Strexpr(1)
+	if e.strexprIsBytes(left) && e.strexprIsBytes(right) {
+		e.Visit(left)
+		e.Visit(right)
+		e.emit("bytes==")
+		return nil
+	}
+	e.Visit(left)
+	e.Visit(right)
 	e.emit("streq")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitBoolStrIsNot(ctx *BoolStrIsNotContext) interface{} {
-	e.Visit(ctx.Strexpr(0))
-	e.Visit(ctx.Strexpr(1))
+	left, right := ctx.Strexpr(0), ctx.Strexpr(1)
+	if e.strexprIsBytes(left) && e.strexprIsBytes(right) {
+		e.Visit(left)
+		e.Visit(right)
+		e.emit("bytes!=")
+		return nil
+	}
+	e.Visit(left)
+	e.Visit(right)
 	e.emit("strneq")
 	e.emit("not")
 	return nil
@@ -677,6 +776,16 @@ func (e *PostfixEmitter) VisitBoolNameEq(ctx *BoolNameEqContext) interface{} {
 	name0 := ctx.Nexpr(0).GetText()
 	name1 := ctx.Nexpr(1).GetText()
 
+	// bytes type: check before entity so bytes==bytes uses constant-time comparison
+	isBytes0 := e.identIsBytes(name0)
+	isBytes1 := e.identIsBytes(name1)
+	if isBytes0 && isBytes1 {
+		e.Visit(ctx.Nexpr(0))
+		e.Visit(ctx.Nexpr(1))
+		e.emit("bytes==")
+		return nil
+	}
+
 	isEntity := false
 	if lv, ok := e.lookupLocal(name0); ok && lv.Type == TypeEntity {
 		isEntity = true
@@ -702,6 +811,14 @@ func (e *PostfixEmitter) VisitBoolNameNeq(ctx *BoolNameNeqContext) interface{} {
 	// Check if either operand is an entity
 	name0 := ctx.Nexpr(0).GetText()
 	name1 := ctx.Nexpr(1).GetText()
+
+	// bytes: constant-time inequality
+	if e.identIsBytes(name0) && e.identIsBytes(name1) {
+		e.Visit(ctx.Nexpr(0))
+		e.Visit(ctx.Nexpr(1))
+		e.emit("bytes!=")
+		return nil
+	}
 
 	isEntity := false
 	if lv, ok := e.lookupLocal(name0); ok && lv.Type == TypeEntity {
@@ -843,6 +960,15 @@ func (e *PostfixEmitter) VisitIntTyped(ctx *IntTypedContext) interface{} {
 
 func (e *PostfixEmitter) VisitIntAdd(ctx *IntAddContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
+
+	// Bytes concat: when both sides resolve to bytes, emit bytes+
+	if e.iexprIsBytes(left) && e.iexprIsBytes(right) {
+		e.Visit(left)
+		e.Visit(right)
+		e.emit("bytes+")
+		return nil
+	}
+
 	leftIsBigInt := e.isBigIntExpr(left)
 	rightIsBigInt := e.isBigIntExpr(right)
 	needsBigInt := leftIsBigInt || rightIsBigInt
@@ -933,14 +1059,39 @@ func (e *PostfixEmitter) VisitIntNumberOf(ctx *IntNumberOfContext) interface{} {
 }
 
 func (e *PostfixEmitter) VisitIntLengthArray(ctx *IntLengthArrayContext) interface{} {
+	// If the arrayExpr is actually a bytes-typed identifier, emit byteslen.
+	if e.arrayExprIsBytes(ctx.ArrayExpr()) {
+		e.Visit(ctx.ArrayExpr())
+		e.emit("byteslen")
+		return nil
+	}
 	e.Visit(ctx.ArrayExpr())
 	e.emit("length")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntLengthStr(ctx *IntLengthStrContext) interface{} {
+	// If the strexpr resolves to a bytes-typed identifier, emit byteslen instead.
+	if e.strexprIsBytes(ctx.Strexpr()) {
+		e.Visit(ctx.Strexpr())
+		e.emit("byteslen")
+		return nil
+	}
 	e.Visit(ctx.Strexpr())
 	e.emit("length")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntLengthBytes(ctx *IntLengthBytesContext) interface{} {
+	e.Visit(ctx.Bytesexpr())
+	e.emit("byteslen")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface{} {
+	e.Visit(ctx.Bytesexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("bytesidx")
 	return nil
 }
 
@@ -2682,5 +2833,100 @@ func (e *PostfixEmitter) VisitBoolBigLte(ctx *BoolBigLteContext) interface{} {
 	e.Visit(ctx.Bigexpr(0))
 	e.Visit(ctx.Bigexpr(1))
 	e.emit("b<=")
+	return nil
+}
+
+// ============================================================================
+// Bytes Expression Visitors
+// ============================================================================
+
+func (e *PostfixEmitter) VisitBytesLiteral(ctx *BytesLiteralContext) interface{} {
+	e.emit(ctx.HEX_BYTES_LITERAL().GetText())
+	e.emit("cvbytes")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBytesTyped(ctx *BytesTypedContext) interface{} {
+	e.Visit(ctx.TypedBytes())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBytesColonRef(ctx *BytesColonRefContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.TypedBytes())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBytesParen(ctx *BytesParenContext) interface{} {
+	e.Visit(ctx.Bytesexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBytesConcat(ctx *BytesConcatContext) interface{} {
+	e.Visit(ctx.Bytesexpr(0))
+	e.Visit(ctx.Bytesexpr(1))
+	e.emit("bytes+")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBytesSlice(ctx *BytesSliceContext) interface{} {
+	e.Visit(ctx.Bytesexpr())
+	e.Visit(ctx.Iexpr(0))
+	e.Visit(ctx.Iexpr(1))
+	e.emit("bytesslice")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitTypedBytes(ctx *TypedBytesContext) interface{} {
+	name := ctx.GetText()
+	if !e.emitLocalRef(name) {
+		e.emit(name)
+	}
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolBytesEq(ctx *BoolBytesEqContext) interface{} {
+	e.Visit(ctx.Bytesexpr(0))
+	e.Visit(ctx.Bytesexpr(1))
+	e.emit("bytes==")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolBytesNeq(ctx *BoolBytesNeqContext) interface{} {
+	e.Visit(ctx.Bytesexpr(0))
+	e.Visit(ctx.Bytesexpr(1))
+	e.emit("bytes!=")
+	return nil
+}
+
+// ============================================================================
+// Bytes Local Variable Declaration Visitors
+// ============================================================================
+
+func (e *PostfixEmitter) VisitLocalBytesUndef(ctx *LocalBytesUndefContext) interface{} {
+	name := ctx.UndefinedIdent().GetText()
+	e.declareLocal(name, TypeBytes)
+	e.emit("null")
+	e.emit("allocate")
+	e.emit("execute")
+	e.emit("deallocate")
+	e.emit("pop")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitLocalBytesInit(ctx *LocalBytesInitContext) interface{} {
+	name := ctx.UndefinedIdent().GetText()
+	e.declareLocal(name, TypeBytes)
+	e.Visit(ctx.Bytesexpr())
+	e.emit("cvbytes")
+	e.emit("allocate")
+	e.emit("execute")
+	e.emit("deallocate")
+	e.emit("pop")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitLocalBytesDefined(ctx *LocalBytesDefinedContext) interface{} {
+	e.emit(ctx.TypedBytes().GetText())
 	return nil
 }

@@ -23,6 +23,7 @@ import (
 // Documentation topics embedded in the executable
 var docTopics = map[string]string{
 	"bigint":          docBigInt,
+	"bytes":           docBytes,
 	"el":              docEL,
 	"xml-format":      docXMLFormat,
 	"edd":             docEDD,
@@ -70,6 +71,7 @@ func printDocIndex() {
 
 	descriptions := map[string]string{
 		"bigint":          "Arbitrary-precision integer support for financial calculations",
+		"bytes":           "Immutable byte sequences with constant-time equality (blockchain / token use cases)",
 		"el":              "Expression Language syntax (REQUIRED for all tables)",
 		"xml-format":      "XML file format specification (EDD and DT)",
 		"edd":             "Entity Data Dictionary - defining entities and fields",
@@ -251,6 +253,36 @@ Cast to bigint:
     (bigint) 3.14                                from double (truncates)
 
 See 'dtrules docs bigint' for full bigint documentation.
+
+
+Bytes Expressions (bytesexpr)
+------------------------------
+Bytes is an immutable byte-sequence type for opaque binary data (hashes,
+tokens, addresses). Equality uses constant-time comparison to prevent
+timing side-channels.
+
+Literal syntax:
+    0x4a5b6c7d                      hex literal, lowercase or uppercase
+    0x                              empty literal (zero-length)
+
+Operations:
+    prefix + suffix                 concatenation → bytes (when both are bytes type)
+    data from 2 to 6                slice [2,6) → bytes
+    length of data                  number of bytes → integer
+    data[0]                         byte at index 0 → integer 0-255
+
+Equality (constant-time):
+    hash is equal to expected       bytes == bytes → boolean
+    hash is not equal to expected   bytes != bytes → boolean
+
+Local variable:
+    local bytes myHash
+    local bytes myHash = 0xdeadbeef
+
+EDD field declaration:
+    <field name="commitment" type="bytes" default_value=""/>
+
+See 'dtrules docs bytes' for more detail.
 
 
 String Expressions (strexpr)
@@ -813,6 +845,7 @@ See Also
   dtrules docs decision-tables  Full decision table guide
   dtrules docs operators        All EL operators with syntax
   dtrules docs bigint           Arbitrary-precision integers
+  dtrules docs bytes            Immutable byte sequences (blockchain / token use cases)
 `
 
 const docXMLFormat = `DTRules XML Format Specification
@@ -957,6 +990,7 @@ double    0.0        Decimal numbers                3.14, -0.5, 100.0
 boolean   false      True/false values              true, false
 date      null       Date values                    2024-01-15
 bigint    0          Arbitrary-precision integer    123456789012345678901234567890
+bytes     (empty)    Immutable byte sequence        0xdeadbeef
 entity    null       Reference to another entity    (see below)
 array     []         List of values                 (see below)
 
@@ -1521,6 +1555,27 @@ Comparisons (same operators as integer/double):
     amount < other      amount <= other
 
 See 'dtrules docs bigint' for full bigint documentation.
+
+
+Bytes Operators
+---------------
+Bytes is an immutable byte-sequence type for opaque binary data.
+
+Literal:
+    0x4a5b6c7d                      hex literal (case-insensitive, even length)
+    0x                              empty literal
+
+Operations:
+    prefix + suffix                 concat two byte sequences → bytes
+    data from 2 to 6                slice [from, to) inclusive/exclusive → bytes
+    length of data                  number of bytes → integer
+    data[0]                         byte at index → integer 0-255
+
+Equality (constant-time via crypto/subtle.ConstantTimeCompare):
+    hash is equal to expected       → boolean
+    hash is not equal to expected   → boolean
+
+See 'dtrules docs bytes' for full bytes documentation.
 
 
 Date Operators
@@ -2261,4 +2316,96 @@ See Also
   dtrules docs el          EL syntax reference
   dtrules docs edd         Entity field definitions
   dtrules docs operators   All operators including bigint
+  dtrules docs bytes       Immutable byte sequences
+`
+
+const docBytes = `Bytes - Immutable Byte Sequences
+================================
+
+Bytes is a first-class type for opaque binary data: hashes, addresses,
+tokens, or any content that must be compared in constant time. It is the
+right type for blockchain policy rules — e.g., "does the provided script
+hash match the expected commitment?"
+
+IMPORTANT: Equality uses crypto/subtle.ConstantTimeCompare, preventing
+timing side-channel attacks when comparing secrets such as Bitcoin script
+hashes or HMAC values.
+
+
+Literal Syntax
+--------------
+Hex literals start with 0x (case-insensitive). Length must be even.
+
+    0xdeadbeef              4-byte literal
+    0xDEADBEEF              same value — case doesn't matter
+    0x                      zero-length literal
+
+Invalid literals produce a compile-time error:
+    0x1                     ERROR: odd length
+    0xgg                    ERROR: non-hex character
+
+
+EDD Field Declaration
+---------------------
+    <field name="script_hash"   type="bytes" default_value=""/>
+    <field name="expected_hash" type="bytes" default_value=""/>
+
+
+Local Variable Declaration
+--------------------------
+    local bytes myHash                              uninitialized
+    local bytes myHash = 0xdeadbeef0102030405      initialized
+
+
+Operations
+----------
+
+Concatenation
+    prefix + suffix                 → bytes
+    When both operands are bytes-typed, + produces byte concatenation.
+    If operands are of other types, + is string or integer concatenation
+    as usual.
+
+Slice
+    data from 2 to 6                → bytes (indices 2, 3, 4, 5)
+    from is inclusive, to is exclusive.
+    Out-of-range index is a runtime error.
+
+Length
+    length of data                  → integer (number of bytes)
+
+Indexed access
+    data[0]                         → integer 0-255 (byte at index 0)
+    data[length of data - 1]        last byte
+    Out-of-range index is a runtime error.
+
+Equality (constant-time)
+    hash is equal to expected       → boolean
+    hash is not equal to expected   → boolean
+    Uses crypto/subtle.ConstantTimeCompare. Both values must be bytes type.
+
+
+Blockchain Policy Example
+-------------------------
+A policy rule that checks whether a received script hash matches the
+expected commitment hash:
+
+Context:
+    local bytes expected = 0xa914748284390f9e263a4b766a75d99999999999987
+
+Condition:
+    received_hash is equal to expected
+
+This is equivalent to:
+    crypto/subtle.ConstantTimeCompare(received_hash, expected) == 1
+
+Without constant-time comparison, a timing oracle could leak information
+about secret values byte-by-byte.
+
+
+See Also
+--------
+  dtrules docs el          EL syntax reference
+  dtrules docs operators   All operators including bytes
+  dtrules docs bigint      Arbitrary-precision integers
 `

@@ -328,6 +328,9 @@ var productionNames = []string{
 	// BigInt
 	"bigint", "biginteger",
 
+	// Bytes
+	"bytes", "bytesexpr",
+
 	// xmlvalue operations
 	"attribute",
 }
