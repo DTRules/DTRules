@@ -110,6 +110,22 @@ const (
 	OpBytesEq     Opcode = 114 // [bytes bytes -> bool]  constant-time equality
 	OpBytesNe     Opcode = 115 // [bytes bytes -> bool]  constant-time inequality
 
+	// Hash operations (stack effect: [bytes -> bytes])
+	OpSha256    Opcode = 116 // [bytes -> bytes(32)] SHA-256
+	OpKeccak256 Opcode = 117 // [bytes -> bytes(32)] Keccak-256 (Ethereum)
+	OpRipemd160 Opcode = 118 // [bytes -> bytes(20)] RIPEMD-160
+	OpSha3      Opcode = 119 // [bytes -> bytes(32)] SHA3-256
+
+	// Encoding operations (starting at 120)
+	OpHex         Opcode = 120 // [bytes -> string]         hex encode (lowercase, no 0x prefix)
+	OpCvHex       Opcode = 121 // [string -> bytes]         decode hex (accepts optional 0x prefix)
+	OpB58Check    Opcode = 122 // [bytes version -> string]  base58check encode
+	OpCvB58Check  Opcode = 123 // [string -> bytes version]  base58check decode; pushes bytes then version
+	OpBech32      Opcode = 124 // [bytes hrp -> string]      bech32 encode
+	OpCvBech32    Opcode = 125 // [string -> bytes hrp]      bech32 decode; pushes bytes then hrp
+	OpBigIntBytes Opcode = 126 // [bigint size -> bytes]     bigint → big-endian zero-padded bytes
+	OpBytesBigInt Opcode = 127 // [bytes -> bigint]          bytes → bigint (unsigned big-endian)
+
 	// Constants
 	OpPushTrue  Opcode = 100 // Push true
 	OpPushFalse Opcode = 101 // Push false

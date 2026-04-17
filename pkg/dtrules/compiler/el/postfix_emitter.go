@@ -2877,6 +2877,83 @@ func (e *PostfixEmitter) VisitBytesSlice(ctx *BytesSliceContext) interface{} {
 	return nil
 }
 
+func (e *PostfixEmitter) VisitBytesSha256(ctx *BytesSha256Context) interface{} {
+	e.Visit(ctx.Bytesexpr())
+	e.emit("sha256")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBytesKeccak256(ctx *BytesKeccak256Context) interface{} {
+	e.Visit(ctx.Bytesexpr())
+	e.emit("keccak256")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBytesRipemd160(ctx *BytesRipemd160Context) interface{} {
+	e.Visit(ctx.Bytesexpr())
+	e.emit("ripemd160")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBytesSha3(ctx *BytesSha3Context) interface{} {
+	e.Visit(ctx.Bytesexpr())
+	e.emit("sha3")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBytesCvHex(ctx *BytesCvHexContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("cvhex")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBytesCvBase58Check(ctx *BytesCvBase58CheckContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("cvb58check")
+	e.emit("pop")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBytesCvBech32(ctx *BytesCvBech32Context) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("cvbech32")
+	e.emit("pop")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBytesCvBigInt(ctx *BytesCvBigIntContext) interface{} {
+	e.Visit(ctx.Bigexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("bigintbytes")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitStrHexOfBytes(ctx *StrHexOfBytesContext) interface{} {
+	e.Visit(ctx.Bytesexpr())
+	e.emit("hex")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitStrBase58CheckOfBytes(ctx *StrBase58CheckOfBytesContext) interface{} {
+	e.Visit(ctx.Bytesexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("b58check")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitStrBech32OfBytes(ctx *StrBech32OfBytesContext) interface{} {
+	e.Visit(ctx.Bytesexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("bech32")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBigFromBytes(ctx *BigFromBytesContext) interface{} {
+	e.Visit(ctx.Bytesexpr())
+	e.emit("bytesbigint")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitTypedBytes(ctx *TypedBytesContext) interface{} {
 	name := ctx.GetText()
 	if !e.emitLocalRef(name) {

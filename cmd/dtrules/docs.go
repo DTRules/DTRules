@@ -271,6 +271,12 @@ Operations:
     length of data                  number of bytes → integer
     data[0]                         byte at index 0 → integer 0-255
 
+Hashes:
+    sha256 of data                  SHA-256 → bytes(32)
+    keccak256 of data               Keccak-256 (Ethereum) → bytes(32)
+    ripemd160 of data               RIPEMD-160 → bytes(20)
+    sha3 of data                    SHA3-256 → bytes(32)
+
 Equality (constant-time):
     hash is equal to expected       bytes == bytes → boolean
     hash is not equal to expected   bytes != bytes → boolean
@@ -1570,6 +1576,12 @@ Operations:
     data from 2 to 6                slice [from, to) inclusive/exclusive → bytes
     length of data                  number of bytes → integer
     data[0]                         byte at index → integer 0-255
+
+Hashes:
+    sha256 of data                  SHA-256 → bytes(32)
+    keccak256 of data               Keccak-256 (Ethereum) → bytes(32)
+    ripemd160 of data               RIPEMD-160 → bytes(20)
+    sha3 of data                    SHA3-256 → bytes(32)
 
 Equality (constant-time via crypto/subtle.ConstantTimeCompare):
     hash is equal to expected       → boolean

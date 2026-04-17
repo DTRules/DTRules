@@ -331,6 +331,9 @@ var productionNames = []string{
 	// Bytes
 	"bytes", "bytesexpr",
 
+	// Hash built-ins
+	"sha256", "keccak256", "ripemd160", "sha3",
+
 	// xmlvalue operations
 	"attribute",
 }

@@ -1202,6 +1202,46 @@ Bytes is an immutable byte-sequence type for opaque binary data.
 **Syntax**: `bytesexpr is not equal to bytesexpr`  
 **Compiled postfix**: `<a> <b> bytes!=`
 
+### Hashes
+
+Hash built-ins take a `bytesexpr` operand and return a new `bytesexpr`.
+
+#### sha256
+
+**Syntax**: `sha256 of bytesexpr`  
+**Semantics**: Returns the SHA-256 hash (32 bytes) of the input.  
+**Compiled postfix**: `<bytes> sha256`  
+**Example**: `sha256 of 0x` → `0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+
+#### keccak256
+
+**Syntax**: `keccak256 of bytesexpr`  
+**Semantics**: Returns the Keccak-256 hash (32 bytes) used by Ethereum. Note: this is **not** SHA3-256.  
+**Compiled postfix**: `<bytes> keccak256`  
+**Example**: `keccak256 of 0x` → `0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470`
+
+#### ripemd160
+
+**Syntax**: `ripemd160 of bytesexpr`  
+**Semantics**: Returns the RIPEMD-160 hash (20 bytes) of the input. Used in Bitcoin address derivation (SHA-256 then RIPEMD-160).  
+**Compiled postfix**: `<bytes> ripemd160`  
+**Example**: `ripemd160 of 0x` → `0x9c1185a5c5e9fc54612808977ee8f548b2258d31`
+
+#### sha3
+
+**Syntax**: `sha3 of bytesexpr`  
+**Semantics**: Returns the SHA3-256 hash (32 bytes) of the input (NIST FIPS 202, distinct from Keccak-256).  
+**Compiled postfix**: `<bytes> sha3`  
+**Example**: `sha3 of 0x` → `0xa7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a`
+
+#### Merkle step example
+
+```
+// Compute a Merkle parent from two 32-byte leaf hashes:
+// sha256 of (left + right) gives the parent hash.
+sha256 of (left + right) is equal to expected_parent
+```
+
 ---
 
 ## Grammar Appendix

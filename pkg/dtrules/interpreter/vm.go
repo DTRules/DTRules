@@ -548,6 +548,202 @@ func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 				return err
 			}
 
+		// Hash operations
+		case dtrules.OpSha256:
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			ab, err := a.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			result := ab.Sha256()
+			if err := s.ValuePush(dtrules.ValueFromObject(result)); err != nil {
+				return err
+			}
+		case dtrules.OpKeccak256:
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			ab, err := a.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			result := ab.Keccak256()
+			if err := s.ValuePush(dtrules.ValueFromObject(result)); err != nil {
+				return err
+			}
+		case dtrules.OpRipemd160:
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			ab, err := a.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			result := ab.Ripemd160()
+			if err := s.ValuePush(dtrules.ValueFromObject(result)); err != nil {
+				return err
+			}
+		case dtrules.OpSha3:
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			ab, err := a.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			result := ab.Sha3()
+			if err := s.ValuePush(dtrules.ValueFromObject(result)); err != nil {
+				return err
+			}
+
+		// Encoding operations
+		case dtrules.OpHex:
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			ab, err := a.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			if err := s.ValuePush(dtrules.ValueFromObject(dtrules.NewRString(ab.HexString()))); err != nil {
+				return err
+			}
+
+		case dtrules.OpCvHex:
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			result, err := dtrules.NewRBytesFromHex(a.AsObject().StringValue())
+			if err != nil {
+				return dtrules.ConversionError("OpCvHex", err.Error())
+			}
+			if err := s.ValuePush(dtrules.ValueFromObject(result)); err != nil {
+				return err
+			}
+
+		case dtrules.OpB58Check:
+			versionVal, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			ab, err := a.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			version := int(versionVal.AsInteger())
+			if version < 0 || version > 255 {
+				return dtrules.ConversionError("OpB58Check", "version byte out of range [0,255]")
+			}
+			encoded := ab.Base58CheckEncode(byte(version))
+			if err := s.ValuePush(dtrules.ValueFromObject(dtrules.NewRString(encoded))); err != nil {
+				return err
+			}
+
+		case dtrules.OpCvB58Check:
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			payload, version, decErr := dtrules.RBytesBase58CheckDecode(a.AsObject().StringValue())
+			if decErr != nil {
+				return dtrules.ConversionError("OpCvB58Check", decErr.Error())
+			}
+			if err := s.ValuePush(dtrules.ValueFromObject(dtrules.NewRBytes(payload))); err != nil {
+				return err
+			}
+			if err := s.ValuePush(dtrules.NewValueInteger(int64(version))); err != nil {
+				return err
+			}
+
+		case dtrules.OpBech32:
+			hrpVal, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			ab, err := a.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			hrp := hrpVal.AsObject().StringValue()
+			encoded, encErr := ab.Bech32Encode(hrp)
+			if encErr != nil {
+				return dtrules.ConversionError("OpBech32", encErr.Error())
+			}
+			if err := s.ValuePush(dtrules.ValueFromObject(dtrules.NewRString(encoded))); err != nil {
+				return err
+			}
+
+		case dtrules.OpCvBech32:
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			payload, hrp, decErr := dtrules.RBytesBech32Decode(a.AsObject().StringValue())
+			if decErr != nil {
+				return dtrules.ConversionError("OpCvBech32", decErr.Error())
+			}
+			if err := s.ValuePush(dtrules.ValueFromObject(dtrules.NewRBytes(payload))); err != nil {
+				return err
+			}
+			if err := s.ValuePush(dtrules.ValueFromObject(dtrules.NewRString(hrp))); err != nil {
+				return err
+			}
+
+		case dtrules.OpBigIntBytes:
+			sizeVal, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			bi, err := a.AsObject().RBigIntValue()
+			if err != nil {
+				return err
+			}
+			size := int(sizeVal.AsInteger())
+			if size <= 0 {
+				return dtrules.ConversionError("OpBigIntBytes", "size must be positive")
+			}
+			result, convErr := bi.ToBytes(size)
+			if convErr != nil {
+				return dtrules.ConversionError("OpBigIntBytes", convErr.Error())
+			}
+			if err := s.ValuePush(dtrules.ValueFromObject(dtrules.NewRBytes(result))); err != nil {
+				return err
+			}
+
+		case dtrules.OpBytesBigInt:
+			a, err := s.ValuePop()
+			if err != nil {
+				return err
+			}
+			ab, err := a.AsObject().RBytesValue()
+			if err != nil {
+				return err
+			}
+			result := ab.ToBigInt()
+			if err := s.ValuePush(dtrules.ValueFromObject(dtrules.NewRBigInt(result))); err != nil {
+				return err
+			}
+
 		default:
 			return dtrules.NewRulesError("Invalid Opcode", "ExecuteBytecode", "unknown opcode")
 		}

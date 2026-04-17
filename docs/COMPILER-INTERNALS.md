@@ -480,6 +480,15 @@ Opcodes are defined in `pkg/dtrules/bytecode.go` as `type Opcode uint8`.
 | `OpBytesEq`     | 114 | `(bytes bytes -- bool)` | `crypto/subtle.ConstantTimeCompare` |
 | `OpBytesNe`     | 115 | `(bytes bytes -- bool)` | Negated constant-time comparison |
 
+**Hash operations**
+
+| Opcode | Value | Stack effect | Notes |
+|--------|-------|-------------|-------|
+| `OpSha256`    | 116 | `(bytes -- bytes(32))` | SHA-256 via `crypto/sha256` |
+| `OpKeccak256` | 117 | `(bytes -- bytes(32))` | Keccak-256 (Ethereum) via `golang.org/x/crypto/sha3.NewLegacyKeccak256()` |
+| `OpRipemd160` | 118 | `(bytes -- bytes(20))` | RIPEMD-160 via `golang.org/x/crypto/ripemd160` |
+| `OpSha3`      | 119 | `(bytes -- bytes(32))` | SHA3-256 (NIST) via `golang.org/x/crypto/sha3.New256()` |
+
 **Constant shortcuts**
 
 | Opcode | Value | Stack effect |

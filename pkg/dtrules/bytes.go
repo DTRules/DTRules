@@ -15,10 +15,17 @@
 package dtrules
 
 import (
+	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"strings"
+
+	"golang.org/x/crypto/ripemd160" //nolint:staticcheck
+	"golang.org/x/crypto/sha3"
+
+	"github.com/DTRules/DTRules/pkg/dtrules/encoding"
 )
 
 // RBytes represents an immutable byte-sequence value in the rules engine.
@@ -239,4 +246,63 @@ func (r *RBytes) DoubleValue() (float64, error) {
 // BooleanValue returns an error.
 func (r *RBytes) BooleanValue() (bool, error) {
 	return false, ConversionError("RBytes.BooleanValue", "cannot convert bytes to boolean")
+}
+
+// Sha256 returns the SHA-256 hash of the byte sequence (32 bytes).
+func (r *RBytes) Sha256() *RBytes {
+	h := sha256.Sum256(r.value)
+	return NewRBytes(h[:])
+}
+
+// Keccak256 returns the Keccak-256 (Ethereum) hash of the byte sequence (32 bytes).
+func (r *RBytes) Keccak256() *RBytes {
+	h := sha3.NewLegacyKeccak256()
+	h.Write(r.value)
+	return NewRBytes(h.Sum(nil))
+}
+
+// Ripemd160 returns the RIPEMD-160 hash of the byte sequence (20 bytes).
+func (r *RBytes) Ripemd160() *RBytes {
+	h := ripemd160.New()
+	h.Write(r.value)
+	return NewRBytes(h.Sum(nil))
+}
+
+// Sha3 returns the SHA3-256 hash of the byte sequence (32 bytes).
+func (r *RBytes) Sha3() *RBytes {
+	h := sha3.New256()
+	h.Write(r.value)
+	return NewRBytes(h.Sum(nil))
+}
+
+// HexString returns the bytes as a lowercase hex string without a 0x prefix.
+func (r *RBytes) HexString() string {
+	return hex.EncodeToString(r.value)
+}
+
+// Base58CheckEncode encodes the bytes with a version prefix using base58check.
+func (r *RBytes) Base58CheckEncode(version byte) string {
+	return encoding.Base58CheckEncode(r.value, version)
+}
+
+// RBytesBase58CheckDecode decodes a base58check string and returns (payload, version, error).
+func RBytesBase58CheckDecode(s string) ([]byte, byte, error) {
+	version, payload, err := encoding.Base58CheckDecode(s)
+	return payload, version, err
+}
+
+// Bech32Encode encodes the bytes with the given HRP using BIP-173 bech32.
+func (r *RBytes) Bech32Encode(hrp string) (string, error) {
+	return encoding.Bech32Encode(hrp, r.value)
+}
+
+// RBytesBech32Decode decodes a bech32 string and returns (payload, hrp, error).
+func RBytesBech32Decode(s string) ([]byte, string, error) {
+	hrp, payload, err := encoding.Bech32Decode(s)
+	return payload, hrp, err
+}
+
+// ToBigInt interprets the byte slice as an unsigned big-endian integer.
+func (r *RBytes) ToBigInt() *big.Int {
+	return encoding.BytesToBigInt(r.value)
 }
