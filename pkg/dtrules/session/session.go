@@ -190,14 +190,18 @@ type DateParser struct {
 }
 
 // NewDateParser creates a new date parser with common formats.
+// Most-specific formats are tried first; RFC3339 variants precede date-only formats
+// so that timestamps like "2026-04-17T21:05:30Z" are parsed correctly.
 func NewDateParser() *DateParser {
 	return &DateParser{
 		formats: []string{
+			time.RFC3339Nano,      // 2006-01-02T15:04:05.999999999Z07:00
+			time.RFC3339,          // 2006-01-02T15:04:05Z07:00
+			"2006-01-02 15:04:05", // YYYY-MM-DD HH:MM:SS (space-separated)
+			"2006-01-02",          // YYYY-MM-DD
 			"01/02/2006",          // MM/DD/YYYY
 			"1/2/2006",            // M/D/YYYY
 			"01/02/2006 15:04:05", // MM/DD/YYYY HH:MM:SS
-			"2006-01-02",          // YYYY-MM-DD
-			"2006-01-02 15:04:05", // YYYY-MM-DD HH:MM:SS
 			"Jan 2, 2006",         // Month D, YYYY
 			"January 2, 2006",     // Month D, YYYY
 			dtrules.DateFormat,    // Default format

@@ -454,10 +454,20 @@ Sources:
     taxpayer's birthDate           possessive
 
 Cast to date:
-    (date) "2024-01-15"            parse string to date
+    (date) "2024-01-15"            parse string to date (pure date, midnight UTC)
+    (date) "2026-04-17T21:05:30Z"  parse RFC 3339 timestamp
+    (date) "2026-04-17 21:05:30"   parse space-separated datetime
     (date) accounts[i]             array element as date
     (date) someTable("key")        table lookup returning date
     using myEntity(myDate)         delegate to entity's table
+
+Accepted string formats (most-specific tried first):
+    RFC 3339 with nanoseconds: "2026-04-17T21:05:30.123456789Z"
+    RFC 3339:                  "2026-04-17T21:05:30Z"
+    Space-separated datetime:  "2026-04-17 21:05:30"
+    Pure date (midnight UTC):  "2026-04-17"
+
+Pure dates serialize as "YYYY-MM-DD"; timestamps serialize as RFC 3339.
 
 Date arithmetic (returns dexpr):
     (5 days)                       duration literal (integer days)

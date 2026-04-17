@@ -438,8 +438,20 @@ Natural language forms (`is greater than`, `at or above`, etc.) compile identica
 
 **Syntax**: `(date) strexpr` or `date(strexpr)`
 **Semantics**: Parse a string into a date value. Postfix: `cvd`.
+
+The parser accepts both pure dates and full timestamps. Formats tried in order:
+- RFC 3339 with nanoseconds: `2026-04-17T21:05:30.123456789Z`
+- RFC 3339: `2026-04-17T21:05:30Z`
+- Space-separated datetime: `2026-04-17 21:05:30`
+- Pure date (midnight UTC): `2026-04-17`
+
+Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize as RFC 3339.
+
 **Example (EL)**: `(date)"2024-01-01" is before current date`
 **Compiled postfix**: `"2024-01-01" cvd currentdate d<`
+
+**Example (EL with timestamp)**: `(date)"2026-04-17T21:05:30Z" is before current date`
+**Compiled postfix**: `"2026-04-17T21:05:30Z" cvd currentdate d<`
 
 #### Date arithmetic (date plus/minus days/months/years)
 
