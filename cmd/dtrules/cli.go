@@ -569,18 +569,19 @@ func (c *CLI) runValidate(args []string) int {
 	var strict bool
 	var allowLegacy bool
 	var projectDir string
+	var flagXMLDir, flagExcelDir string
 
 	// Parse flags
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--xml-dir":
 			if i+1 < len(args) {
-				c.xmlDir = args[i+1]
+				flagXMLDir = args[i+1]
 				i++
 			}
 		case "--excel-dir":
 			if i+1 < len(args) {
-				c.excelDir = args[i+1]
+				flagExcelDir = args[i+1]
 				i++
 			}
 		case "--project", "-p":
@@ -594,6 +595,10 @@ func (c *CLI) runValidate(args []string) int {
 			strict = true
 		case "--allow-legacy":
 			allowLegacy = true
+		default:
+			if !strings.HasPrefix(args[i], "-") && projectDir == "" {
+				projectDir = args[i]
+			}
 		}
 	}
 
@@ -601,12 +606,20 @@ func (c *CLI) runValidate(args []string) int {
 	if projectDir == "" {
 		projectDir = "."
 	}
-	if c.xmlDir == "" {
-		c.xmlDir = filepath.Join(projectDir, "xml")
+
+	absProjectDir, err := filepath.Abs(projectDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error resolving path: %v\n", err)
+		return 1
 	}
-	if c.excelDir == "" {
-		c.excelDir = filepath.Join(projectDir, "excel")
+
+	resolvedXML, resolvedExcel, err := resolveDirs(absProjectDir, flagXMLDir, flagExcelDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
+		return 1
 	}
+	c.xmlDir = resolvedXML
+	c.excelDir = resolvedExcel
 
 	fmt.Printf("Validating DTRules project in %s\n", projectDir)
 	fmt.Println()
@@ -615,7 +628,7 @@ func (c *CLI) runValidate(args []string) int {
 
 	// 1. Validate project structure
 	fmt.Println("Checking project structure...")
-	structResult, err := sync.ValidateProjectStructure(projectDir)
+	structResult, err := sync.ValidateProjectStructure(absProjectDir, flagXMLDir, flagExcelDir)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error validating structure: %v\n", err)
 		return 1

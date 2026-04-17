@@ -90,7 +90,10 @@ func (r *StructureValidationResult) IsValid() bool {
 // - xml/ directory exists
 // - For each Excel file, corresponding XML files exist (or warns if not)
 // - No orphaned XML files without Excel source (warns)
-func ValidateProjectStructure(projectRoot string) (*StructureValidationResult, error) {
+//
+// xmlDirOverride and excelDirOverride, when non-empty, replace the default
+// xml/ and excel/ subdirectory paths respectively.
+func ValidateProjectStructure(projectRoot string, xmlDirOverride, excelDirOverride string) (*StructureValidationResult, error) {
 	result := &StructureValidationResult{
 		Structure: &ProjectStructure{
 			ProjectRoot: projectRoot,
@@ -104,9 +107,18 @@ func ValidateProjectStructure(projectRoot string) (*StructureValidationResult, e
 	}
 	result.Structure.ProjectRoot = absRoot
 
-	// Set standard paths
-	result.Structure.ExcelDir = filepath.Join(absRoot, "excel")
-	result.Structure.XMLDir = filepath.Join(absRoot, "xml")
+	// Set paths, respecting overrides.
+	resolveDir := func(override, defaultName string) string {
+		if override != "" {
+			if filepath.IsAbs(override) {
+				return override
+			}
+			return filepath.Join(absRoot, override)
+		}
+		return filepath.Join(absRoot, defaultName)
+	}
+	result.Structure.ExcelDir = resolveDir(excelDirOverride, "excel")
+	result.Structure.XMLDir = resolveDir(xmlDirOverride, "xml")
 	result.Structure.TestDir = filepath.Join(absRoot, "testfiles")
 	result.Structure.ManifestPath = filepath.Join(result.Structure.ExcelDir, DefaultManifestName)
 

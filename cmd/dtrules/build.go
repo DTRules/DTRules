@@ -31,6 +31,8 @@ type buildOptions struct {
 	fromExcel bool
 	dryRun    bool
 	verbose   bool
+	xmlDir    string
+	excelDir  string
 }
 
 // runBuild handles the `dtrules build [path]` command.
@@ -49,6 +51,16 @@ func (c *CLI) runBuild(args []string) int {
 			opts.dryRun = true
 		case "-v", "--verbose":
 			opts.verbose = true
+		case "--xml-dir":
+			if i+1 < len(args) {
+				opts.xmlDir = args[i+1]
+				i++
+			}
+		case "--excel-dir":
+			if i+1 < len(args) {
+				opts.excelDir = args[i+1]
+				i++
+			}
 		default:
 			if !strings.HasPrefix(args[i], "-") {
 				opts.path = args[i]
@@ -71,13 +83,25 @@ func (c *CLI) runBuild(args []string) int {
 		return 1
 	}
 
-	xmlDir := filepath.Join(absPath, "xml")
-	excelDir := filepath.Join(absPath, "excel")
+	xmlDir, excelDir, err := resolveDirs(absPath, opts.xmlDir, opts.excelDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
+		return 1
+	}
 
 	// Validate directories exist
 	if !dirExists(xmlDir) && !dirExists(excelDir) {
-		fmt.Fprintf(os.Stderr, "Error: no xml/ or excel/ directory found in %s\n", absPath)
-		fmt.Fprintln(os.Stderr, "Run 'dtrules init' to create a new project.")
+		if opts.xmlDir != "" || opts.excelDir != "" {
+			if !dirExists(xmlDir) {
+				fmt.Fprintf(os.Stderr, "ERROR: could not find xml directory\n  Tried: %s\n  Use --xml-dir <path> or declare <xml_dir> in DTRules.xml.\n", xmlDir)
+			}
+			if !dirExists(excelDir) {
+				fmt.Fprintf(os.Stderr, "ERROR: could not find excel directory\n  Tried: %s\n  Use --excel-dir <path> or declare <excel_dir> in DTRules.xml.\n", excelDir)
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "Error: no xml/ or excel/ directory found in %s\n", absPath)
+			fmt.Fprintln(os.Stderr, "Run 'dtrules init' to create a new project.")
+		}
 		return 1
 	}
 
@@ -404,17 +428,25 @@ files are newer and runs the appropriate path. Both paths end with canonical
 Excel files and compiled execution XML on disk.
 
 Arguments:
-  path         Project directory to build (default: .)
+  path                Project directory to build (default: .)
 
 Options:
-  --from-excel  Force Excel-authored path (Excel → XML)
-  --from-xml    Force XML-authored path (XML → Excel → XML)
-  --dry-run     Report what would change without writing files
-  -v, --verbose Verbose output
+  --xml-dir <path>    Override XML directory (relative to project root or absolute)
+  --excel-dir <path>  Override Excel directory (relative to project root or absolute)
+  --from-excel        Force Excel-authored path (Excel → XML)
+  --from-xml          Force XML-authored path (XML → Excel → XML)
+  --dry-run           Report what would change without writing files
+  -v, --verbose       Verbose output
+
+Directory resolution (highest to lowest priority):
+  1. --xml-dir / --excel-dir flags
+  2. <xml_dir> / <excel_dir> elements in DTRules.xml
+  3. Default: xml/ and excel/ relative to the project root
 
 Examples:
   dtrules build
   dtrules build ./sampleprojects/TaxReturn
   dtrules build --from-xml
-  dtrules build --dry-run`)
+  dtrules build --dry-run
+  dtrules build --xml-dir pkg/dtrules/rules --excel-dir pkg/dtrules/excel /path/to/project`)
 }

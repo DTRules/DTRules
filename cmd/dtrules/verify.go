@@ -34,9 +34,11 @@ import (
 
 // verifyOptions holds parsed options for the verify command.
 type verifyOptions struct {
-	path   string
-	diff   bool
-	strict bool
+	path     string
+	diff     bool
+	strict   bool
+	xmlDir   string
+	excelDir string
 }
 
 // verifyFailure records one failing check.
@@ -50,17 +52,27 @@ type verifyFailure struct {
 func (c *CLI) runVerify(args []string) int {
 	opts := &verifyOptions{path: "."}
 
-	for _, arg := range args {
-		switch arg {
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
 		case "--diff":
 			opts.diff = true
 		case "--strict":
 			opts.strict = true
+		case "--xml-dir":
+			if i+1 < len(args) {
+				opts.xmlDir = args[i+1]
+				i++
+			}
+		case "--excel-dir":
+			if i+1 < len(args) {
+				opts.excelDir = args[i+1]
+				i++
+			}
 		default:
-			if !strings.HasPrefix(arg, "-") {
-				opts.path = arg
+			if !strings.HasPrefix(args[i], "-") {
+				opts.path = args[i]
 			} else {
-				fmt.Fprintf(os.Stderr, "Unknown flag: %s\n", arg)
+				fmt.Fprintf(os.Stderr, "Unknown flag: %s\n", args[i])
 				c.printVerifyUsage()
 				return 1
 			}
@@ -73,11 +85,23 @@ func (c *CLI) runVerify(args []string) int {
 		return 1
 	}
 
-	xmlDir := filepath.Join(absPath, "xml")
-	excelDir := filepath.Join(absPath, "excel")
+	xmlDir, excelDir, err := resolveDirs(absPath, opts.xmlDir, opts.excelDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
+		return 1
+	}
 
 	if !dirExists(xmlDir) && !dirExists(excelDir) {
-		fmt.Fprintf(os.Stderr, "Error: no xml/ or excel/ directory found in %s\n", absPath)
+		if opts.xmlDir != "" || opts.excelDir != "" {
+			if !dirExists(xmlDir) {
+				fmt.Fprintf(os.Stderr, "ERROR: could not find xml directory\n  Tried: %s\n  Use --xml-dir <path> or declare <xml_dir> in DTRules.xml.\n", xmlDir)
+			}
+			if !dirExists(excelDir) {
+				fmt.Fprintf(os.Stderr, "ERROR: could not find excel directory\n  Tried: %s\n  Use --excel-dir <path> or declare <excel_dir> in DTRules.xml.\n", excelDir)
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "ERROR: no xml/ or excel/ directory found in %s\n", absPath)
+		}
 		return 1
 	}
 
@@ -772,11 +796,18 @@ Gates CI/pre-commit by checking that committed XML matches what dtrules build
 from the committed Excel would produce.
 
 Arguments:
-  path         Project directory to verify (default: .)
+  path              Project directory to verify (default: .)
 
 Options:
-  --diff       On failure, show diff between committed and build output
-  --strict     Also fail on warnings (e.g. missing <source> header)
+  --xml-dir <path>    Override XML directory (relative to project root or absolute)
+  --excel-dir <path>  Override Excel directory (relative to project root or absolute)
+  --diff              On failure, show diff between committed and build output
+  --strict            Also fail on warnings (e.g. missing <source> header)
+
+Directory resolution (highest to lowest priority):
+  1. --xml-dir / --excel-dir flags
+  2. <xml_dir> / <excel_dir> elements in DTRules.xml
+  3. Default: xml/ and excel/ relative to the project root
 
 Exit codes:
   0  All checks passed
@@ -790,5 +821,6 @@ Checks performed:
 Examples:
   dtrules verify
   dtrules verify ./sampleprojects/TaxReturn
-  dtrules verify --diff --strict`)
+  dtrules verify --diff --strict
+  dtrules verify --xml-dir pkg/dtrules/rules --excel-dir pkg/dtrules/excel /path/to/project`)
 }
