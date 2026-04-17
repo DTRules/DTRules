@@ -489,6 +489,19 @@ Opcodes are defined in `pkg/dtrules/bytecode.go` as `type Opcode uint8`.
 | `OpRipemd160` | 118 | `(bytes -- bytes(20))` | RIPEMD-160 via `golang.org/x/crypto/ripemd160` |
 | `OpSha3`      | 119 | `(bytes -- bytes(32))` | SHA3-256 (NIST) via `golang.org/x/crypto/sha3.New256()` |
 
+**Encoding opcodes** (120–127) — hex, base58check, bech32, bigint↔bytes
+
+| Opcode | Value | Stack effect | Notes |
+|--------|-------|-------------|-------|
+| `OpHex`         | 120 | `(bytes -- string)` | Lowercase hex, no `0x` prefix; `encoding/hex` |
+| `OpCvHex`       | 121 | `(string -- bytes)` | Decode hex; optional `0x` prefix; runtime error on odd length or non-hex |
+| `OpB58Check`    | 122 | `(bytes version -- string)` | base58check encode; version ∈ [0,255]; SHA-256² checksum; vendored `pkg/dtrules/encoding` |
+| `OpCvB58Check`  | 123 | `(string -- bytes version)` | base58check decode; pushes payload bytes then version int; runtime error on bad checksum |
+| `OpBech32`      | 124 | `(bytes hrp -- string)` | BIP-173 bech32 encode; vendored `pkg/dtrules/encoding` |
+| `OpCvBech32`    | 125 | `(string -- bytes hrp)` | BIP-173 bech32 decode; pushes payload bytes then hrp string; runtime error on bad checksum |
+| `OpBigIntBytes` | 126 | `(bigint size -- bytes)` | Big-endian, zero-padded to `size` bytes; runtime error if negative or too large |
+| `OpBytesBigInt` | 127 | `(bytes -- bigint)` | Unsigned big-endian interpretation via `math/big` |
+
 **Constant shortcuts**
 
 | Opcode | Value | Stack effect |

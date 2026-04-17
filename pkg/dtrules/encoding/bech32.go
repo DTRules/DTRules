@@ -40,14 +40,16 @@ func bech32HRPExpand(hrp string) []byte {
 }
 
 func bech32VerifyChecksum(hrp string, data []byte) bool {
+	values := append(bech32HRPExpand(hrp), data...)
+	return bech32Polymod(values) == 1
+}
+
+func bech32Polymod(values []byte) uint32 {
 	chk := uint32(1)
-	for _, b := range bech32HRPExpand(hrp) {
-		chk = bech32PolymodStep(chk) ^ uint32(b)
+	for _, v := range values {
+		chk = bech32PolymodStep(chk) ^ uint32(v)
 	}
-	for _, b := range data {
-		chk = bech32PolymodStep(chk) ^ uint32(b)
-	}
-	return chk == 1
+	return chk
 }
 
 func bech32CreateChecksum(hrp string, data []byte) []byte {
@@ -55,15 +57,10 @@ func bech32CreateChecksum(hrp string, data []byte) []byte {
 	// Process hrp_expand and data with their values XOR'd in, then 6 more
 	// polymod steps for the trailing zeros (no XOR since value is 0),
 	// then XOR 1 at the end.
+	// Append 6 zero bytes for checksum placeholder, then XOR with 1
 	values := append(bech32HRPExpand(hrp), data...)
-	var polymod uint32 = 1
-	for _, v := range values {
-		polymod = bech32PolymodStep(polymod) ^ uint32(v)
-	}
-	for range 6 {
-		polymod = bech32PolymodStep(polymod)
-	}
-	polymod ^= 1
+	zeros := []byte{0, 0, 0, 0, 0, 0}
+	polymod := bech32Polymod(append(values, zeros...)) ^ 1
 	checksum := make([]byte, 6)
 	for i := range checksum {
 		checksum[i] = byte((polymod >> (5 * (5 - i))) & 0x1f)
@@ -117,17 +114,33 @@ func Bech32Encode(hrp string, payload []byte) (string, error) {
 
 // Bech32Decode decodes a bech32 string and returns (hrp, payload, error).
 func Bech32Decode(bech string) (hrp string, payload []byte, err error) {
+	// Validate all characters are printable ASCII (33–126, no mixed case)
+	hasLower, hasUpper := false, false
+	for _, c := range bech {
+		if c < 33 || c > 126 {
+			return "", nil, errors.New("bech32: character out of printable ASCII range")
+		}
+		if c >= 'a' && c <= 'z' {
+			hasLower = true
+		}
+		if c >= 'A' && c <= 'Z' {
+			hasUpper = true
+		}
+	}
+	if hasLower && hasUpper {
+		return "", nil, errors.New("bech32: mixed case string")
+	}
 	lower := strings.ToLower(bech)
 	sep := strings.LastIndex(lower, "1")
 	if sep < 1 || sep+7 > len(lower) {
-		return "", nil, errors.New("bech32: invalid format")
+		return "", nil, errors.New("bech32: invalid format (no separator or too short)")
 	}
 	hrp = lower[:sep]
 	data := make([]byte, len(lower)-sep-1)
 	for i := 0; i < len(data); i++ {
 		c := lower[sep+1+i]
 		if c > 127 || bech32CharsetIndex[c] < 0 {
-			return "", nil, errors.New("bech32: invalid character")
+			return "", nil, errors.New("bech32: invalid data character")
 		}
 		data[i] = byte(bech32CharsetIndex[c])
 	}

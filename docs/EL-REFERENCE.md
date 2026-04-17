@@ -1242,6 +1242,74 @@ Hash built-ins take a `bytesexpr` operand and return a new `bytesexpr`.
 sha256 of (left + right) is equal to expected_parent
 ```
 
+### Encoding
+
+Encoding operators convert between `bytesexpr`, `strexpr`, and `bigexpr`.  
+All encoding operations are runtime errors for invalid input (bad checksum, odd-length hex, etc.).
+
+#### hex of bytesexpr → string
+
+**Syntax**: `hex of bytesexpr`  
+**Semantics**: Returns the bytes as a lowercase hex string with no `0x` prefix.  
+**Compiled postfix**: `<bytes> hex`  
+**Example**: `hex of 0xdeadbeef` → `"deadbeef"`
+
+#### bytes of hex strexpr → bytes
+
+**Syntax**: `bytes of hex strexpr`  
+**Semantics**: Decodes a hex string to bytes. Accepts an optional `0x` prefix. Runtime error on odd length or non-hex characters.  
+**Compiled postfix**: `<string> cvhex`  
+**Example**: `bytes of hex "deadbeef"` → `0xdeadbeef`
+
+#### base58check of bytesexpr version iexpr → string
+
+**Syntax**: `base58check of bytesexpr version iexpr`  
+**Semantics**: Encodes bytes using base58check with a one-byte version prefix. Checksum = SHA-256(SHA-256(version||payload))[0:4].  
+**Compiled postfix**: `<bytes> <version> b58check`  
+**Example**: `base58check of 0x000000000000000000000000000000000000000000 version 0` → `"1111111111111111111114oLvT2"`
+
+#### bytes of base58check strexpr → bytes (version on stack)
+
+**Syntax**: `bytes of base58check strexpr`  
+**Semantics**: Decodes a base58check string. Returns the payload as bytes; the version integer is pushed on the stack above the bytes. Runtime error on bad checksum.  
+**Compiled postfix**: `<string> cvb58check pop`  
+**Example**: `bytes of base58check "1111111111111111111114oLvT2"` → 20 zero bytes
+
+Bitcoin address round-trip:
+```
+// Compute a Bitcoin-style address from a pubkey hash:
+// hash the pubkey, base58check encode with version 0.
+base58check of (ripemd160 of (sha256 of pubkey)) version 0
+```
+
+#### bech32 of bytesexpr hrp strexpr → string
+
+**Syntax**: `bech32 of bytesexpr hrp strexpr`  
+**Semantics**: Encodes bytes using BIP-173 bech32 with the given human-readable part (HRP).  
+**Compiled postfix**: `<bytes> <hrp> bech32`  
+**Example**: `bech32 of 0x751e76e8199196d454941c45d1b3a323f1433bd6 hrp "bc"` → `"bc1w508d6qejxtdg4y5r3zarvary0c5xw7kj7gz7z"`
+
+#### bytes of bech32 strexpr → bytes (hrp on stack)
+
+**Syntax**: `bytes of bech32 strexpr`  
+**Semantics**: Decodes a bech32 string. Returns the payload as bytes; the HRP string is pushed on the stack above the bytes. Runtime error on bad checksum.  
+**Compiled postfix**: `<string> cvbech32 pop`  
+**Example**: `bytes of bech32 "bc1w508d6qejxtdg4y5r3zarvary0c5xw7kj7gz7z"` → 20-byte hash
+
+#### bytes of bigint bigexpr size iexpr → bytes
+
+**Syntax**: `bytes of bigint bigexpr size iexpr`  
+**Semantics**: Encodes a bigint as a big-endian byte slice, zero-padded to `size` bytes. Runtime error if the value is negative or does not fit in `size` bytes.  
+**Compiled postfix**: `<bigint> <size> bigintbytes`  
+**Example**: `bytes of bigint 256 size 2` → `0x0100`
+
+#### bigint of bytes bytesexpr → bigint
+
+**Syntax**: `bigint of bytes bytesexpr`  
+**Semantics**: Interprets a byte slice as an unsigned big-endian integer.  
+**Compiled postfix**: `<bytes> bytesbigint`  
+**Example**: `bigint of bytes 0x0100` → `256`
+
 ---
 
 ## Grammar Appendix
