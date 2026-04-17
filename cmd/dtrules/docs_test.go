@@ -19,16 +19,16 @@ import (
 	"testing"
 )
 
-func TestDocumentation_ArchitectureTopic(t *testing.T) {
-	doc, ok := docTopics["architecture"]
+func TestDocumentation_MappingTopic(t *testing.T) {
+	doc, ok := docTopics["mapping"]
 	if !ok {
-		t.Fatal("architecture topic not registered in docTopics")
+		t.Fatal("mapping topic not registered in docTopics")
 	}
 
-	required := []string{"dev-time", "deploy-time", "go:embed"}
+	required := []string{"setattribute", "MAP:", "RAttribute", "enclosure"}
 	for _, term := range required {
 		if !strings.Contains(doc, term) {
-			t.Errorf("architecture doc missing required term: %q", term)
+			t.Errorf("mapping doc missing required term: %q", term)
 		}
 	}
 }
