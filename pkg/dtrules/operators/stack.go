@@ -16,6 +16,8 @@
 package operators
 
 import (
+	"log"
+
 	"github.com/DTRules/DTRules/pkg/dtrules"
 )
 
@@ -78,8 +80,13 @@ func init() {
 	Register("cvn", opCvn)
 	Register("cvd", opCvd)
 
-	// Error handling
+	// Error handling (legacy two-arg form)
 	Register("error", opError)
+
+	// EL statement opcodes — registered so the compiler can resolve the token
+	// at compile time; runtime dispatch goes through OpError/OpWarn opcodes
+	Register("elstmterror", opELStmtError)
+	Register("elstmtwarn", opELStmtWarn)
 
 	// Policy statements
 	Register("policystatements", opPolicyStatements)
@@ -719,4 +726,26 @@ func opError(state dtrules.State) error {
 		return err
 	}
 	return dtrules.NewRulesError(excObj.StringValue(), "User Exception", msgObj.StringValue())
+}
+
+// opELStmtError: ( string -- ) halts execution with an ELStatementError.
+// Used by the `error <strexpr>` EL statement; runtime dispatch uses OpError.
+func opELStmtError(state dtrules.State) error {
+	msgObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	return dtrules.NewELStatementError(msgObj.StringValue())
+}
+
+// opELStmtWarn: ( string -- ) logs a non-fatal warning and continues.
+// Used by the `warn <strexpr>` EL statement; runtime dispatch uses OpWarn.
+func opELStmtWarn(state dtrules.State) error {
+	msgObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	// TODO: wire to a real logger-injection point (see future issue)
+	log.Printf("[warn] %s", msgObj.StringValue())
+	return nil
 }

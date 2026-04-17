@@ -169,6 +169,10 @@ func (c *Compiler) compileTokenToBytecode(bc *dtrules.BytecodeChunk, token strin
 			bc.Emit(dtrules.OpDef)
 		case "negate":
 			bc.Emit(dtrules.OpNeg)
+		case "elstmterror":
+			bc.Emit(dtrules.OpError)
+		case "elstmtwarn":
+			bc.Emit(dtrules.OpWarn)
 		default:
 			// Use indexed operator call for other operators
 			bc.EmitOperator(idx)

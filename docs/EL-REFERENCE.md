@@ -1029,6 +1029,43 @@ typedXmlValue : add attribute strexpr = xmlvalues
 
 ---
 
+---
+
+### error / warn
+
+**Syntax**: `ERROR strexpr` / `WARN strexpr`
+
+**Semantics (error)**: Halts rule-set execution immediately. The string is surfaced to the host as a `*dtrules.ELStatementError`. Callers can distinguish a rule-raised error from a VM/runtime bug:
+
+```go
+var elErr *dtrules.ELStatementError
+if errors.As(err, &elErr) {
+    // rule rejected the input; elErr.Msg contains the reason
+}
+```
+
+**Semantics (warn)**: Non-fatal. Logs the string (to `log.Printf` for now) and continues execution. The stack is unchanged after the string is consumed.
+
+**Postfix**: `<string> elstmterror` / `<string> elstmtwarn`
+
+**Opcodes**: `OpError` (128) `(string --)`, `OpWarn` (129) `(string --)`
+
+**Examples (EL)**:
+```
+action error "Policy rejected: income below minimum";
+action error "Invalid status: " + applicant.status;
+action warn "Tax bracket lookup returned null";
+```
+
+**Compiled postfix**:
+```
+"Policy rejected: income below minimum" elstmterror
+"Invalid status: " applicant.status strconcat elstmterror
+"Tax bracket lookup returned null" elstmtwarn
+```
+
+---
+
 ### add to context
 
 **Syntax**: `ADD eexpr TO CONTEXT OF THIS TABLE` / `ADD eexpr TO CONTEXT FOR THIS TABLE`

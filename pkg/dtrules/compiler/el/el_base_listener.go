@@ -830,6 +830,18 @@ func (s *BaseELListener) EnterPerformName(ctx *PerformNameContext) {}
 // ExitPerformName is called when production performName is exited.
 func (s *BaseELListener) ExitPerformName(ctx *PerformNameContext) {}
 
+// EnterErrorStmt is called when production errorStmt is entered.
+func (s *BaseELListener) EnterErrorStmt(ctx *ErrorStmtContext) {}
+
+// ExitErrorStmt is called when production errorStmt is exited.
+func (s *BaseELListener) ExitErrorStmt(ctx *ErrorStmtContext) {}
+
+// EnterWarnStmt is called when production warnStmt is entered.
+func (s *BaseELListener) EnterWarnStmt(ctx *WarnStmtContext) {}
+
+// ExitWarnStmt is called when production warnStmt is exited.
+func (s *BaseELListener) ExitWarnStmt(ctx *WarnStmtContext) {}
+
 // EnterDebugStr is called when production debugStr is entered.
 func (s *BaseELListener) EnterDebugStr(ctx *DebugStrContext) {}
 

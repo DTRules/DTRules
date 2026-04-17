@@ -1772,6 +1772,18 @@ func (e *PostfixEmitter) VisitPerformDTExplicit(ctx *PerformDTExplicitContext) i
 	return nil
 }
 
+func (e *PostfixEmitter) VisitErrorStmt(ctx *ErrorStmtContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("elstmterror")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitWarnStmt(ctx *WarnStmtContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("elstmtwarn")
+	return nil
+}
+
 // ============================================================================
 // Done (Entry Point) Visitors
 // ============================================================================

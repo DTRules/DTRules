@@ -412,6 +412,12 @@ type ELListener interface {
 	// EnterPerformName is called when entering the performName production.
 	EnterPerformName(c *PerformNameContext)
 
+	// EnterErrorStmt is called when entering the errorStmt production.
+	EnterErrorStmt(c *ErrorStmtContext)
+
+	// EnterWarnStmt is called when entering the warnStmt production.
+	EnterWarnStmt(c *WarnStmtContext)
+
 	// EnterDebugStr is called when entering the debugStr production.
 	EnterDebugStr(c *DebugStrContext)
 
@@ -2139,6 +2145,12 @@ type ELListener interface {
 
 	// ExitPerformName is called when exiting the performName production.
 	ExitPerformName(c *PerformNameContext)
+
+	// ExitErrorStmt is called when exiting the errorStmt production.
+	ExitErrorStmt(c *ErrorStmtContext)
+
+	// ExitWarnStmt is called when exiting the warnStmt production.
+	ExitWarnStmt(c *WarnStmtContext)
 
 	// ExitDebugStr is called when exiting the debugStr production.
 	ExitDebugStr(c *DebugStrContext)

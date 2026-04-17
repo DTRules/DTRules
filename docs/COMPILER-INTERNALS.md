@@ -502,6 +502,13 @@ Opcodes are defined in `pkg/dtrules/bytecode.go` as `type Opcode uint8`.
 | `OpBigIntBytes` | 126 | `(bigint size -- bytes)` | Big-endian, zero-padded to `size` bytes; runtime error if negative or too large |
 | `OpBytesBigInt` | 127 | `(bytes -- bigint)` | Unsigned big-endian interpretation via `math/big` |
 
+**EL statement opcodes** (128–129)
+
+| Opcode | Value | Stack effect | Description |
+|--------|-------|--------------|-------------|
+| `OpError` | 128 | `(string --)` | Pops string, returns `*dtrules.ELStatementError{Msg: string}` — halts the VM; callers use `errors.As` to distinguish from runtime/VM errors |
+| `OpWarn` | 129 | `(string --)` | Pops string, logs `[warn] <string>` via `log.Printf`, continues execution |
+
 **Constant shortcuts**
 
 | Opcode | Value | Stack effect |

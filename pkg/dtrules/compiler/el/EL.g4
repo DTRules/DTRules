@@ -70,6 +70,8 @@ statement
     | contextstatement separator
     | datestatement separator
     | xmlvaluestatements separator
+    | errorstatement separator
+    | warnstatement separator
     ;
 
 usingblock
@@ -265,6 +267,14 @@ performstatement
     | typedDecisionTable                                    # performDT
     | PERFORM typedDecisionTable                            # performDTExplicit
     | PERFORM NAME                                          # performName
+    ;
+
+errorstatement
+    : ERROR strexpr                                         # errorStmt
+    ;
+
+warnstatement
+    : WARN strexpr                                          # warnStmt
     ;
 
 debugstatement
@@ -1036,6 +1046,8 @@ NEW                 : 'new' ;
 EARLIEST            : 'earliest' ;
 DEBUG               : 'debug' ;
 PRINT               : 'print' ;
+ERROR               : 'error' ;
+WARN                : 'warn' ;
 CLEAR               : 'clear' ;
 CLONE               : 'clone' ;
 FOR                 : 'for' ;
