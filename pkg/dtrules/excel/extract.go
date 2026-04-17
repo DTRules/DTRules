@@ -21,21 +21,11 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/DTRules/DTRules/pkg/dtrules/session"
 )
 
 // ExtractExcel walks src and writes every *_dt.xml, *_edd.xml, and *_map.xml
-// back to an equivalent xlsx under dst, preserving subdirectory layout.
-// src is typically an embed.FS; dst is a filesystem directory path.
-// Extracted trees can be re-authored and round-tripped back through
-// `dtrules build`.
-//
-// Limitation: the loader currently requires a session/entity context to compile
-// postfix expressions, so each _edd.xml and _dt.xml is loaded into an isolated
-// RuleSet. Tables that reference entities defined in other files may produce
-// loader warnings but will still be extracted. See issue #541 for the fs.FS
-// loader follow-up that will remove this limitation.
+// to an equivalent xlsx under dst, preserving subdirectory layout.
+// This is a pure XML→xlsx representation conversion; no session or RuleSet is required.
 func ExtractExcel(src fs.FS, dst string) error {
 	return fs.WalkDir(src, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -94,12 +84,8 @@ func extractEDD(src fs.FS, relPath, dst string) error {
 		return fmt.Errorf("extract %s: %w", relPath, err)
 	}
 
-	rs := session.NewRuleSet("extract")
-	if rs == nil {
-		return fmt.Errorf("extract %s: failed to create rule set", relPath)
-	}
-
-	if err := rs.LoadEDD(bytes.NewReader(data)); err != nil {
+	edd, err := UnmarshalEDDXML(data)
+	if err != nil {
 		return fmt.Errorf("extract %s: %w", relPath, err)
 	}
 
@@ -108,8 +94,7 @@ func extractEDD(src fs.FS, relPath, dst string) error {
 		return fmt.Errorf("extract %s: %w", relPath, err)
 	}
 
-	exp := NewExporter(rs)
-	if err := exp.ExportEDD(out); err != nil {
+	if err := WriteEDDXMLToExcel(edd, out); err != nil {
 		return fmt.Errorf("extract %s: %w", relPath, err)
 	}
 	return nil
@@ -121,14 +106,8 @@ func extractDT(src fs.FS, relPath, dst string) error {
 		return fmt.Errorf("extract %s: %w", relPath, err)
 	}
 
-	rs := session.NewRuleSet("extract")
-	if rs == nil {
-		return fmt.Errorf("extract %s: failed to create rule set", relPath)
-	}
-
-	// The DT loader compiles EL expressions; warnings may appear for tables
-	// referencing entities not in this isolated RuleSet (issue #541).
-	if err := rs.LoadDecisionTables(bytes.NewReader(data)); err != nil {
+	dt, err := UnmarshalDecisionTablesXML(data)
+	if err != nil {
 		return fmt.Errorf("extract %s: %w", relPath, err)
 	}
 
@@ -137,8 +116,7 @@ func extractDT(src fs.FS, relPath, dst string) error {
 		return fmt.Errorf("extract %s: %w", relPath, err)
 	}
 
-	exp := NewExporter(rs)
-	if err := exp.ExportDecisionTables(out); err != nil {
+	if err := WriteDTXMLToExcel(dt, out); err != nil {
 		return fmt.Errorf("extract %s: %w", relPath, err)
 	}
 	return nil
