@@ -15,6 +15,8 @@
 package excel
 
 import (
+	"bytes"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -177,6 +179,87 @@ func TestExtractExcel_BadXMLReturnsError(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "broken_edd.xml") {
 		t.Errorf("error message should include offending filename, got: %s", err.Error())
+	}
+}
+
+// TestExtractExcel_NoLoaderWarnings verifies that extracting a DT file that
+// references entities not declared in the same file produces no stderr output.
+// The old RuleSet-per-file implementation would emit loader warnings in this case.
+func TestExtractExcel_NoLoaderWarnings(t *testing.T) {
+	crossRefDT := `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+<decision_table>
+<table_name>CrossRef_Table</table_name>
+<xls_file>test.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>References entity from a different file</COMMENTS>
+<TABLE_NUMBER>1</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>uses external entity</condition_comment>
+<condition_dsl>result.tax_amount &gt; 0</condition_dsl>
+<condition_postfix>result.tax_amount 0 &gt;</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions></actions>
+<policy_statements></policy_statements>
+</decision_table>
+</decision_tables>`
+
+	src := fstest.MapFS{
+		"CO_dt.xml": &fstest.MapFile{Data: []byte(crossRefDT)},
+		"TaxReturn_edd.xml": &fstest.MapFile{Data: []byte(minimalEDD)},
+	}
+
+	// Capture stderr by redirecting os.Stderr temporarily.
+	oldStderr := os.Stderr
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: %v", err)
+	}
+	os.Stderr = w
+
+	dst := t.TempDir()
+	extractErr := ExtractExcel(src, dst)
+
+	w.Close()
+	os.Stderr = oldStderr
+
+	var buf bytes.Buffer
+	io.Copy(&buf, r)
+	r.Close()
+
+	if extractErr != nil {
+		t.Fatalf("ExtractExcel: %v", extractErr)
+	}
+	if buf.Len() > 0 {
+		t.Errorf("unexpected stderr output (loader warnings should not appear): %s", buf.String())
+	}
+}
+
+// TestExtractExcel_NoSessionImport asserts that the excel package's extract.go
+// does not import session or loader packages. We verify this by checking that
+// the compiled package works without those imports (build-time guarantee via the
+// rewrite), and confirm the source file contains no such import paths.
+func TestExtractExcel_NoSessionImport(t *testing.T) {
+	extractSrc, err := os.ReadFile("extract.go")
+	if err != nil {
+		t.Fatalf("read extract.go: %v", err)
+	}
+	forbidden := []string{
+		"pkg/dtrules/session",
+		"pkg/dtrules/loader",
+	}
+	for _, pkg := range forbidden {
+		if strings.Contains(string(extractSrc), pkg) {
+			t.Errorf("extract.go must not import %q", pkg)
+		}
 	}
 }
 
