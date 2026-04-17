@@ -90,8 +90,12 @@ func (c *CLI) Run(args []string) int {
 	cmdArgs := args[1:]
 
 	switch cmd {
+	case "build":
+		return c.runBuild(cmdArgs)
 	case "sync":
 		return c.runSync(cmdArgs)
+	case "internal":
+		return c.runInternal(cmdArgs)
 	case "init":
 		return c.runInit(cmdArgs)
 	case "validate":
@@ -116,23 +120,23 @@ func (c *CLI) printUsage() {
 Usage: dtrules <command> [options]
 
 Commands:
-  sync      Synchronize Excel and XML files
+  build     Normalize and compile Excel/XML rules (primary workflow)
+  sync      Synchronize Excel and XML files (status/check/auto)
   init      Initialize a DTRules project structure
   validate  Validate decision tables and EDD
   docs      Show embedded documentation (for AI and developers)
   version   Show version information
   help      Show this help message
 
-Sync Commands:
-  dtrules sync status              Show sync status of all files
-  dtrules sync check               Check for pending user edits (exits non-zero if any)
-  dtrules sync import              Import Excel files to XML
-  dtrules sync export              Export XML files to Excel
-  dtrules sync auto                Auto-sync based on timestamps
+Build Command:
+  dtrules build [path]             Auto-detect and run the full pipeline
+  dtrules build --from-excel       Force Excel-authored path
+  dtrules build --from-xml         Force XML-authored path
+  dtrules build --dry-run          Report what would change without writing
 
 Documentation:
   dtrules docs                     List available documentation topics
-  dtrules docs bigint              Arbitrary-precision integer support
+  dtrules docs workflow            Development workflow
   dtrules docs el                  Expression Language syntax
   dtrules docs decision-tables     How to write decision tables
   dtrules docs operators           All operators with examples
@@ -143,14 +147,11 @@ Options:
   -v, --verbose  Verbose output
 
 Examples:
-  # Check if any Excel files have pending user edits
-  dtrules sync check
+  # Build (auto-detect, normalize, compile)
+  dtrules build
 
-  # Import all newer Excel files to XML
-  dtrules sync import
-
-  # Export all XML files to Excel (fails if user edits pending)
-  dtrules sync export
+  # Build a specific project directory
+  dtrules build ./sampleprojects/TaxReturn
 
   # Initialize a new DTRules project
   dtrules init my-rules
@@ -159,6 +160,22 @@ Examples:
   dtrules docs decision-tables
 
 For more information, visit: https://github.com/DTRules/DTRules`)
+}
+
+// runInternal handles hidden internal commands (e.g., `dtrules internal sync import/export`).
+// These keep backward-compat for scripts without appearing in top-level help.
+func (c *CLI) runInternal(args []string) int {
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stderr, "Usage: dtrules internal <subsystem> <command>")
+		return 1
+	}
+	switch args[0] {
+	case "sync":
+		return c.runSync(args[1:])
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown internal subsystem: %s\n", args[0])
+		return 1
+	}
 }
 
 // runDocs shows embedded documentation.
