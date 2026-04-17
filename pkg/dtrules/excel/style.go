@@ -127,6 +127,17 @@ func FreezePaneAtRow2(f *excelize.File, sheet string) {
 	})
 }
 
+func FreezePaneAtRow3(f *excelize.File, sheet string) {
+	f.SetPanes(sheet, &excelize.Panes{
+		Freeze:      true,
+		Split:       false,
+		XSplit:      0,
+		YSplit:      2,
+		TopLeftCell: "A3",
+		ActivePane:  "bottomLeft",
+	})
+}
+
 // AutoWidth sets a column width clamped to [min, maxColWidth] based on a hint.
 // hint is the expected content width in characters.
 func AutoWidth(f *excelize.File, sheet, col string, hint float64) {

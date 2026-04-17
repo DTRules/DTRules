@@ -612,8 +612,16 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 		firstCellLower := strings.ToLower(firstCell)
 
 		switch {
+		case strings.HasPrefix(firstCellLower, "dt:"):
+			// Type-marked name row: "DT: Table_Name" (new combined-workbook format)
+			name := strings.TrimPrefix(firstCell, "DT: ")
+			name = strings.TrimPrefix(name, "dt: ")
+			name = strings.TrimPrefix(name, "DT:")
+			name = strings.TrimPrefix(name, "dt:")
+			table.TableName = strings.ReplaceAll(strings.TrimSpace(name), " ", "_")
+
 		case strings.HasPrefix(firstCellLower, "name:"):
-			// Name row: "Name: Table_Name"
+			// Legacy name row: "Name: Table_Name"
 			name := strings.TrimPrefix(firstCell, "Name: ")
 			name = strings.TrimPrefix(name, "name: ")
 			// Convert display name back to underscore format
