@@ -74,32 +74,3 @@ func artifactTypeMismatch(suffix string, hasdt, hasedd, hasmap bool) string {
 	return ""
 }
 
-// suffixForResult returns the appropriate filename suffix for exporting a single-
-// artifact WorkbookResult. Returns "" for mixed-artifact results.
-func suffixForResult(r *WorkbookResult) string {
-	hasDT := r.DTables != nil && len(r.DTables.Tables) > 0
-	hasEDD := r.EDD != nil && len(r.EDD.Entities) > 0
-	hasMAP := r.Map != nil && len(r.Map.Entries) > 0
-	count := 0
-	if hasDT {
-		count++
-	}
-	if hasEDD {
-		count++
-	}
-	if hasMAP {
-		count++
-	}
-	if count != 1 {
-		return "" // mixed — no suffix
-	}
-	switch {
-	case hasDT:
-		return "_dt"
-	case hasEDD:
-		return "_edd"
-	case hasMAP:
-		return "_map"
-	}
-	return ""
-}
