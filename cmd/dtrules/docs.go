@@ -23,12 +23,14 @@ import (
 // Documentation topics embedded in the executable
 var docTopics = map[string]string{
 	"bigint":          docBigInt,
+	"database":        docDatabase,
 	"el":              docEL,
 	"xml-format":      docXMLFormat,
 	"edd":             docEDD,
 	"decision-tables": docDecisionTables,
 	"operators":       docOperators,
 	"examples":        docExamples,
+	"embedding":       docEmbedding,
 	"workflow":        docWorkflow,
 }
 
@@ -65,12 +67,14 @@ func printDocIndex() {
 
 	descriptions := map[string]string{
 		"bigint":          "Arbitrary-precision integer support for financial calculations",
+		"database":        "KV database design driven by the EDD: key composition, arrays, references, mapping*key",
 		"el":              "Expression Language syntax (REQUIRED for all tables)",
 		"xml-format":      "XML file format specification (EDD and DT)",
 		"edd":             "Entity Data Dictionary - defining entities and fields",
 		"decision-tables": "How to write decision tables",
 		"operators":       "All available operators with examples",
 		"examples":        "Complete working examples",
+		"embedding":       "Embed DTRules rules into a single Go binary via //go:embed (no xlsx or xml at runtime)",
 		"workflow":        "Development workflow with Excel and XML",
 	}
 
