@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has farm profit subject to SE tax</condition_comment>
-<condition_dsl>Has farm profit subject to SE tax</condition_dsl>
+<condition_dsl>result.net_farm_profit &gt; se_threshold</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -35,7 +35,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set taxpayer.farm_se_tax = farm_net_income * se_tax_rate</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -44,7 +44,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set taxpayer.farm_se_tax = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

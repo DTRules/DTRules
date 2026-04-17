@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has foreign income to process</condition_comment>
-<condition_dsl>Has foreign income to process</condition_dsl>
+<condition_dsl>Foreign income entity exists in context</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -34,7 +34,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>add foreign_income.amount to result.total_foreign_income</action_dsl>
 <action_postfix>
 
 </action_postfix>

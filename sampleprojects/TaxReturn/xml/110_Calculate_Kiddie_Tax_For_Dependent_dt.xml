@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Dependent is under 19 with unearned income over threshold</condition_comment>
-<condition_dsl>Dependent is under 19 with unearned income over threshold</condition_dsl>
+<condition_dsl>dependent.age lt 19 and dependent.unearned_income gt kiddie_tax_threshold</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -26,7 +26,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Dependent is 19-23 full-time student with unearned income over threshold</condition_comment>
-<condition_dsl>Dependent is 19-23 full-time student with unearned income over threshold</condition_dsl>
+<condition_dsl>dependent.age between 19 and 23 and is_student and unearned_income gt threshold</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -35,7 +35,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Kiddie tax does not apply</condition_comment>
-<condition_dsl>Kiddie tax does not apply</condition_dsl>
+<condition_dsl>otherwise</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -46,7 +46,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Mark dependent subject to kiddie tax</action_comment>
-<action_dsl>Mark dependent subject to kiddie tax</action_dsl>
+<action_dsl>Set kiddie tax flag to true</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -56,7 +56,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate net unearned income subject to parent's tax rate</action_comment>
-<action_dsl>Calculate net unearned income subject to parent's tax rate</action_dsl>
+<action_dsl>Net unearned income = unearned_income - kiddie_tax_threshold</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -66,7 +66,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Determine parent's marginal tax rate based on filing status</action_comment>
-<action_dsl>Determine parent's marginal tax rate based on filing status</action_dsl>
+<action_dsl>Calculate parent's marginal rate for MFJ filing status</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -76,7 +76,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Add kiddie tax to total tax before credits</action_comment>
-<action_dsl>Add kiddie tax to total tax before credits</action_dsl>
+<action_dsl>Add kiddie tax to total tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -86,7 +86,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment>Kiddie tax does not apply - initialize to zero</action_comment>
-<action_dsl>Kiddie tax does not apply - initialize to zero</action_dsl>
+<action_dsl>No kiddie tax applicable</action_dsl>
 <action_postfix>
 
 </action_postfix>

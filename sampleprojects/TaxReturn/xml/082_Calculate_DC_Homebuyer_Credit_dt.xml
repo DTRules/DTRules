@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Purchased DC home as first-time buyer</condition_comment>
-<condition_dsl>Purchased DC home as first-time buyer</condition_dsl>
+<condition_dsl>job.purchased_dc_home_first_time equals true</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -33,7 +33,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Purchase price is greater than zero</condition_comment>
-<condition_dsl>Purchase price is greater than zero</condition_dsl>
+<condition_dsl>job.dc_home_purchase_price &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>

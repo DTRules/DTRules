@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has property sale to process</condition_comment>
-<condition_dsl>Has property sale to process</condition_dsl>
+<condition_dsl>Property sale exists in context</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -34,7 +34,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Is Section 1245 property (personal property)</condition_comment>
-<condition_dsl>Is Section 1245 property (personal property)</condition_dsl>
+<condition_dsl>Property type is 1245</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -45,7 +45,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Is Section 1250 property (real property)</condition_comment>
-<condition_dsl>Is Section 1250 property (real property)</condition_dsl>
+<condition_dsl>Property type is 1250 or is real property</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -57,7 +57,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set sale.gain = sale.proceeds - sale.adjusted_basis</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -68,7 +68,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>add sale.depreciation to result.ordinary_income (Section 1245)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -77,7 +77,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>add sale.depreciation to result.section_1250_gain (25% max rate)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -86,7 +86,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>add sale.gain to result.section_1231_gain</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -95,7 +95,7 @@
 <action_details>
 <action_number>5</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>add sale.section_1231_gain to result.total_section_1231</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Active duty military with PCS move</condition_comment>
-<condition_dsl>Active duty military with PCS move</condition_dsl>
+<condition_dsl>taxpayer.is_military == true AND taxpayer.pcs_move == true</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -26,7 +26,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Move meets distance test</condition_comment>
-<condition_dsl>Move meets distance test</condition_dsl>
+<condition_dsl>taxpayer.moving_distance_miles &gt;= 50</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>

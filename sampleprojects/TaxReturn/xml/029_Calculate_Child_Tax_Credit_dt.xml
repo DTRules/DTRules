@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Is a qualifying child (relationship)</condition_comment>
-<condition_dsl>Is a qualifying child (relationship)</condition_dsl>
+<condition_dsl>dependent.relationship is equal to &quot;child&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -28,7 +28,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Under age 17 at end of year</condition_comment>
-<condition_dsl>Under age 17 at end of year</condition_dsl>
+<condition_dsl>dependent.age &lt; ctc_age_limit</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Has valid SSN</condition_comment>
-<condition_dsl>Has valid SSN</condition_dsl>
+<condition_dsl>dependent.has_ssn == true</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -50,7 +50,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Award Child Tax Credit</action_comment>
-<action_dsl>Award Child Tax Credit</action_dsl>
+<action_dsl>add constants.ctc_amount to result.total_ctc</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -59,7 +59,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Award Other Dependent Credit (age 17)</action_comment>
-<action_dsl>Award Other Dependent Credit (age 17)</action_dsl>
+<action_dsl>add constants.odc_amount to result.total_odc</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -68,7 +68,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Non-child dependent gets ODC</action_comment>
-<action_dsl>Non-child dependent gets ODC</action_dsl>
+<action_dsl>add constants.odc_amount to result.total_odc</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -24,7 +24,7 @@ true /result.validation_passed xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Expected values exist</condition_comment>
-<condition_dsl>Expected values exist</condition_dsl>
+<condition_dsl>job has expected values for validation</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -36,7 +36,7 @@ true /result.validation_passed xdef
 <action_details>
 <action_number>1</action_number>
 <action_comment>Run all validations</action_comment>
-<action_dsl>Run all validations</action_dsl>
+<action_dsl>Validate_AGI, Validate_Taxable_Income, Validate_Total_Tax, Validate_Summary</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -45,7 +45,7 @@ true /result.validation_passed xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>No expected values</action_comment>
-<action_dsl>No expected values</action_dsl>
+<action_dsl>add &quot;No expected values provided&quot; to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -38,7 +38,7 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Total tax is negative (floor at zero)</condition_comment>
-<condition_dsl>Total tax is negative (floor at zero)</condition_dsl>
+<condition_dsl>result.total_tax &lt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -49,7 +49,7 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Payments exceed tax (refund)</condition_comment>
-<condition_dsl>Payments exceed tax (refund)</condition_dsl>
+<condition_dsl>result.total_payments &gt; result.total_tax</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -62,7 +62,7 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 <action_details>
 <action_number>1</action_number>
 <action_comment>Floor total tax at zero</action_comment>
-<action_dsl>Floor total tax at zero</action_dsl>
+<action_dsl>set result.total_tax = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -71,7 +71,7 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 <action_details>
 <action_number>2</action_number>
 <action_comment>Log total tax and payments</action_comment>
-<action_dsl>Log total tax and payments</action_dsl>
+<action_dsl>add tax summary to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -82,7 +82,7 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate refund</action_comment>
-<action_dsl>Calculate refund</action_dsl>
+<action_dsl>set result.refund_or_owed = result.total_payments - result.total_tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -92,7 +92,7 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate amount owed</action_comment>
-<action_dsl>Calculate amount owed</action_dsl>
+<action_dsl>set result.refund_or_owed = result.total_tax - result.total_payments</action_dsl>
 <action_postfix>
 
 </action_postfix>

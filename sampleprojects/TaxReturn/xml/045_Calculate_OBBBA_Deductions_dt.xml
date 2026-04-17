@@ -27,7 +27,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always calculate OBBBA deductions</condition_comment>
-<condition_dsl>Always calculate OBBBA deductions</condition_dsl>
+<condition_dsl>perform when called</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate No Tax on Tips deduction</action_comment>
-<action_dsl>Calculate No Tax on Tips deduction</action_dsl>
+<action_dsl>perform Calculate_Tips_Deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -47,7 +47,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate No Tax on Overtime deduction</action_comment>
-<action_dsl>Calculate No Tax on Overtime deduction</action_dsl>
+<action_dsl>perform Calculate_Overtime_Deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -56,7 +56,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate Senior Additional deduction</action_comment>
-<action_dsl>Calculate Senior Additional deduction</action_dsl>
+<action_dsl>perform Calculate_Senior_Deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -65,7 +65,7 @@
 <action_details>
 <action_number>4</action_number>
 <action_comment>Sum total OBBBA deductions</action_comment>
-<action_dsl>Sum total OBBBA deductions</action_dsl>
+<action_dsl>set result.total_obbba_deductions = result.tips_deduction + result.overtime_deduction + result.senior_deduction</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has Roth conversions</condition_comment>
-<condition_dsl>Has Roth conversions</condition_dsl>
+<condition_dsl>result.total_roth_conversions &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -33,7 +33,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has basis to recover</condition_comment>
-<condition_dsl>Has basis to recover</condition_dsl>
+<condition_dsl>result.total_ira_basis &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -44,7 +44,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set conversion.taxable_amount = conversion_amount * taxable_ratio</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -53,7 +53,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set conversion.taxable_amount = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

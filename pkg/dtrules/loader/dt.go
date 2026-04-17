@@ -352,7 +352,8 @@ func (l *DTLoader) processTable(table *DTTable) error {
 
 		// Auto-compile EL DSL to postfix if postfix is empty or only comments
 		dslTrimmed := strings.TrimSpace(dsl)
-		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) {
+		commentTrimmed := strings.TrimSpace(action.Comment)
+		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) && dslTrimmed != commentTrimmed {
 			compiled, err := l.elCompiler.CompileAction(dsl)
 			if err != nil {
 				// DSL is not valid EL - preserve existing postfix if present, otherwise use no-op
@@ -392,7 +393,8 @@ func (l *DTLoader) processTable(table *DTTable) error {
 
 		// Auto-compile EL DSL to postfix if postfix is empty or only comments
 		dslTrimmed := strings.TrimSpace(dsl)
-		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) {
+		commentTrimmed := strings.TrimSpace(cond.Comment)
+		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) && dslTrimmed != commentTrimmed {
 			compiled, err := l.elCompiler.CompileCondition(dsl)
 			if err != nil {
 				// DSL is not valid EL - preserve existing postfix if present, otherwise use fallback
@@ -448,7 +450,8 @@ func (l *DTLoader) processTable(table *DTTable) error {
 
 		// Auto-compile EL DSL to postfix if postfix is empty or only comments
 		dslTrimmed := strings.TrimSpace(dsl)
-		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) {
+		commentTrimmed := strings.TrimSpace(action.Comment)
+		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) && dslTrimmed != commentTrimmed {
 			compiled, err := l.elCompiler.CompileAction(dsl)
 			if err != nil {
 				// DSL is not valid EL - preserve existing postfix if present, otherwise use no-op

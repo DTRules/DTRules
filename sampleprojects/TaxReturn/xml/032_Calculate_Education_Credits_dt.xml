@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl>set result.education_credit = 0, initialize AOTC refundable/nonrefundable, for all dependents perform Calculate_Education_Credit_Per_Dependent</action_dsl>
+<action_dsl>set result.education_credit = 0, for all dependents perform Calculate_Education_Credit_Per_Dependent</action_dsl>
 <action_postfix>
 0.0 /result.education_credit xdef
 0.0 /result.total_aotc_refundable xdef
@@ -26,7 +26,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always process</condition_comment>
-<condition_dsl>Always process</condition_dsl>
+<condition_dsl>perform when called</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -37,7 +37,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Log education credit total</action_comment>
-<action_dsl>Log education credit total</action_dsl>
+<action_dsl>add education credit summary to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>

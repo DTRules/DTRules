@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Child under 13</condition_comment>
-<condition_dsl>Child under 13</condition_dsl>
+<condition_dsl>dependent.age &lt; 13</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -28,7 +28,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Disabled dependent</condition_comment>
-<condition_dsl>Disabled dependent</condition_dsl>
+<condition_dsl>dependent.is_disabled == true</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -39,7 +39,7 @@
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Has work-related care expenses</condition_comment>
-<condition_dsl>Has work-related care expenses</condition_dsl>
+<condition_dsl>dependent.care_expenses &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -52,7 +52,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>increment qualifying_person_count, add dependent.care_expenses to total</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -62,7 +62,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>otherwise</action_dsl>
 <action_postfix>
 
 </action_postfix>

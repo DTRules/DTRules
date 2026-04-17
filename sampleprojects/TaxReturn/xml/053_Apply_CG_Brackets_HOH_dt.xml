@@ -41,7 +41,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>0% rate applies to all preferential income</action_comment>
-<action_dsl>0% rate applies to all preferential income</action_dsl>
+<action_dsl>set result.capital_gains_tax = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

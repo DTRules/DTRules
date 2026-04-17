@@ -1494,31 +1494,31 @@ func (e *Exporter) writePolicyStatements(f *excelize.File, sheet string, dt *dec
 	}
 	row++
 
-	// Policy statement row - each statement in its column
-	f.SetCellValue(sheet, cellName(1, row), "")
-	f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styles.number)
-
-	f.SetCellValue(sheet, cellName(2, row), "Column Policy")
-	f.SetCellStyle(sheet, cellName(2, row), cellName(2, row), styles.comment)
-
-	f.SetCellValue(sheet, cellName(3, row), "")
-	f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), styles.formal)
-
-	// Put each policy statement in its respective column
-	for i := 0; i < numCols; i++ {
-		stmt := ""
-		colIdx := i + 1 // Policy statements are 1-indexed by column
-		if colIdx < len(policyStatements) {
-			stmt = policyStatements[colIdx]
+	// One row per policy statement: column number in A, policy text in B
+	for i := 1; i < len(policyStatements); i++ {
+		if policyStatements[i] == "" {
+			continue
 		}
-		cell := cellName(4+i, row)
-		f.SetCellValue(sheet, cell, stmt)
-		f.SetCellStyle(sheet, cell, cell, styles.policy)
-	}
 
-	// Set row height to accommodate wrapped text
-	f.SetRowHeight(sheet, row, 45)
-	row++
+		// Column number
+		f.SetCellValue(sheet, cellName(1, row), i)
+		f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styles.number)
+
+		// Policy text
+		f.SetCellValue(sheet, cellName(2, row), policyStatements[i])
+		f.SetCellStyle(sheet, cellName(2, row), cellName(2, row), styles.comment)
+
+		// Empty C and column cells with policy style
+		f.SetCellValue(sheet, cellName(3, row), "")
+		f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), styles.formal)
+		for j := 0; j < numCols; j++ {
+			cell := cellName(4+j, row)
+			f.SetCellValue(sheet, cell, "")
+			f.SetCellStyle(sheet, cell, cell, styles.policy)
+		}
+
+		row++
+	}
 
 	return row
 }

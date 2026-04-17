@@ -27,7 +27,7 @@ result.taxable_income result.salt_deduction f+ /result.amti xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Filing status MFJ</condition_comment>
-<condition_dsl>Filing status MFJ</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;MFJ&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@ result.taxable_income result.salt_deduction f+ /result.amti xdef
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status MFS</condition_comment>
-<condition_dsl>Filing status MFS</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;MFS&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -50,7 +50,7 @@ result.taxable_income result.salt_deduction f+ /result.amti xdef
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.amt_owed = (amti - exemption) * amt_rate (MFJ)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -59,7 +59,7 @@ result.taxable_income result.salt_deduction f+ /result.amti xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.amt_owed = (amti - exemption) * amt_rate (MFS)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -68,7 +68,7 @@ result.taxable_income result.salt_deduction f+ /result.amti xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.amt_owed = (amti - exemption) * amt_rate (Single/HOH)</action_dsl>
 <action_postfix>
 
 </action_postfix>

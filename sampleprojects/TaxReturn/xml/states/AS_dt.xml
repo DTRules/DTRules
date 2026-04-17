@@ -16,21 +16,10 @@
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Has only AS-source income</condition_comment>
-<condition_dsl>Has only AS-source income</condition_dsl>
-<condition_postfix>
-All income from American Samoa sources
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
 <condition_comment>Has self-employment income &gt;= $400</condition_comment>
-<condition_dsl>Has self-employment income &gt;= $400</condition_dsl>
+<condition_dsl>result.as_self_employment_income >= 400</condition_dsl>
 <condition_postfix>
-Subject to US self-employment tax
+Has self-employment income &gt;= $400
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
@@ -38,22 +27,6 @@ Subject to US self-employment tax
 </condition_details>
 </conditions>
 <actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Bona fide resident with only AS income, no SE tax</action_comment>
-<action_dsl>Bona fide resident with only AS income, no SE tax</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>Not bona fide resident or has US income - files with IRS</action_comment>
-<action_dsl>Not bona fide resident or has US income - files with IRS</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
 </actions>
 <policy_statements>
 </policy_statements>

@@ -70,7 +70,7 @@ Filing Status is MFJ
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
-<condition_dsl>Filing status is Head of Household</condition_dsl>
+<condition_dsl>job.filing_status is &quot;HOH&quot;</condition_dsl>
 <condition_postfix>
 Filing Status is HOH
 </condition_postfix>

@@ -26,7 +26,7 @@ result.agi /result.mt_agi xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_dsl>Married Filing Jointly</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;married_filing_jointly&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -37,7 +37,7 @@ result.agi /result.mt_agi xdef
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Single</condition_comment>
-<condition_dsl>Single</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;single&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -48,7 +48,7 @@ result.agi /result.mt_agi xdef
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Head of Household</condition_comment>
-<condition_dsl>Head of Household</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;head_of_household&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -61,7 +61,7 @@ result.agi /result.mt_agi xdef
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate MT tax MFJ</action_comment>
-<action_dsl>Calculate MT tax MFJ</action_dsl>
+<action_dsl>Calculate credit for dishwashers ($50 per unit)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -70,7 +70,7 @@ result.agi /result.mt_agi xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate MT tax Single</action_comment>
-<action_dsl>Calculate MT tax Single</action_dsl>
+<action_dsl>Calculate credit for clothes washers ($125 per unit)</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -79,7 +79,7 @@ result.agi /result.mt_agi xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate MT tax HOH</action_comment>
-<action_dsl>Calculate MT tax HOH</action_dsl>
+<action_dsl>Calculate credit for refrigerators ($100 per unit)</action_dsl>
 <action_postfix>
 
 </action_postfix>

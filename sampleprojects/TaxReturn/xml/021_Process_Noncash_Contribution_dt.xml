@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Requires Section B (appraisal required for over $5,000)</condition_comment>
-<condition_dsl>Requires Section B (appraisal required for over $5,000)</condition_dsl>
+<condition_dsl>fair_market_value &gt; 5000</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -27,7 +27,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Is appreciated capital gain property (long-term)</condition_comment>
-<condition_dsl>Is appreciated capital gain property (long-term)</condition_dsl>
+<condition_dsl>is_appreciated_property == true and holding_period is equal to &quot;long_term&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -41,7 +41,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Capital gain property - use FMV with 30% AGI limit</action_comment>
-<action_dsl>Capital gain property - use FMV with 30% AGI limit</action_dsl>
+<action_dsl>set noncash_contribution.deduction_amount = fair_market_value, set noncash_contribution.agi_limitation = 0.30</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -50,7 +50,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Ordinary income property or short-term - use lesser of FMV or basis</action_comment>
-<action_dsl>Ordinary income property or short-term - use lesser of FMV or basis</action_dsl>
+<action_dsl>set noncash_contribution.deduction_amount = the minimum of fair_market_value and cost_basis</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -59,7 +59,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>Section A - capital gain property under $5,000, use FMV with 30% limit</action_comment>
-<action_dsl>Section A - capital gain property under $5,000, use FMV with 30% limit</action_dsl>
+<action_dsl>set noncash_contribution.deduction_amount = fair_market_value</action_dsl>
 <action_postfix>
 
 </action_postfix>

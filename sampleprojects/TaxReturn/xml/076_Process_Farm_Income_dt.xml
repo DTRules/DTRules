@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has farm to process</condition_comment>
-<condition_dsl>Has farm to process</condition_dsl>
+<condition_dsl>Farm entity exists in context</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -34,7 +34,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.farm_net_income = farm.gross_income - farm.expenses</action_dsl>
 <action_postfix>
 
 </action_postfix>

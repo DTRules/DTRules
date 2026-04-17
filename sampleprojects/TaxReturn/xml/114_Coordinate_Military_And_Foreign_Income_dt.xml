@@ -23,7 +23,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Military with combat zone AND foreign earned income</condition_comment>
-<condition_dsl>Military with combat zone AND foreign earned income</condition_dsl>
+<condition_dsl>Has both combat zone service and foreign earned income</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>

@@ -27,7 +27,7 @@ result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has preferential rate income</condition_comment>
-<condition_dsl>Has preferential rate income</condition_dsl>
+<condition_dsl>result.ltcg_and_qualified_dividends &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@ result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_dsl>Married Filing Jointly</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;MFJ&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -48,7 +48,7 @@ result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Head of Household</condition_comment>
-<condition_dsl>Head of Household</condition_dsl>
+<condition_dsl>job.filing_status is equal to &quot;HOH&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -59,7 +59,7 @@ result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate CG tax for MFJ</action_comment>
-<action_dsl>Calculate CG tax for MFJ</action_dsl>
+<action_dsl>perform Calculate_Capital_Gains_Tax_MFJ</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -68,7 +68,7 @@ result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate CG tax for HOH</action_comment>
-<action_dsl>Calculate CG tax for HOH</action_dsl>
+<action_dsl>perform Calculate_Capital_Gains_Tax_HOH</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -77,7 +77,7 @@ result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate CG tax for Single/Other</action_comment>
-<action_dsl>Calculate CG tax for Single/Other</action_dsl>
+<action_dsl>perform Calculate_Capital_Gains_Tax_Single</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -27,7 +27,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has household employees</condition_comment>
-<condition_dsl>Has household employees</condition_dsl>
+<condition_dsl>job.household_employees length greater than 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -39,7 +39,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate employer FICA and FUTA for each employee</action_comment>
-<action_dsl>Calculate employer FICA and FUTA for each employee</action_dsl>
+<action_dsl>Process each household employee</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -48,7 +48,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No household employees</action_comment>
-<action_dsl>No household employees</action_dsl>
+<action_dsl>Skip Schedule H</action_dsl>
 <action_postfix>
 
 </action_postfix>

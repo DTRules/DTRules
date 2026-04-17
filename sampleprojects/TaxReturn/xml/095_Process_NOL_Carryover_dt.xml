@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has NOL available</condition_comment>
-<condition_dsl>Has NOL available</condition_dsl>
+<condition_dsl>result.nol_amount_available &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -28,7 +28,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.nol_deduction = carryforward_amount (80% of taxable income limit)</action_dsl>
 <action_postfix>
 
 </action_postfix>

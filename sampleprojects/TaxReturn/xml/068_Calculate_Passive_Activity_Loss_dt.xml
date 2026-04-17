@@ -26,7 +26,7 @@ result.total_rental_loss result.rental_loss_allowed f- /result.suspended_passive
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has rental losses</condition_comment>
-<condition_dsl>Has rental losses</condition_dsl>
+<condition_dsl>result.total_rental_loss &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@ result.total_rental_loss result.rental_loss_allowed f- /result.suspended_passive
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>add PAL summary to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -47,7 +47,7 @@ result.total_rental_loss result.rental_loss_allowed f- /result.suspended_passive
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.pal_deduction = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

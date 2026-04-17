@@ -16,57 +16,22 @@
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>AGI ≤ $125,000; AGI ≤ $125,000 (full exemption)</condition_comment>
-<condition_dsl>AGI ≤ $125,000; AGI ≤ $125,000 (full exemption)</condition_dsl>
+<condition_comment>AGI in phase-out range; $125,000 &lt; AGI &lt; $175,000 (partial exemption)</condition_comment>
+<condition_dsl>result.agi > result.vt_military_agi_full_exemption_threshold and result.agi &lt; result.vt_military_agi_no_exemption_threshold</condition_dsl>
 <condition_postfix>
-
+AGI in phase-out range; $125,000 &lt; AGI &lt; $175,000 (partial exemption)
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
-<condition_comment>AGI in phase-out range; $125,000 &lt; AGI &lt; $175,000 (partial exemption)</condition_comment>
-<condition_dsl>AGI in phase-out range; $125,000 &lt; AGI &lt; $175,000 (partial exemption)</condition_dsl>
-<condition_postfix>
-
-</condition_postfix>
-<condition_column column_number="2" column_value="Y"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>4</condition_number>
 <condition_comment>AGI ≥ $175,000; AGI ≥ $175,000 (no exemption)</condition_comment>
-<condition_dsl>AGI ≥ $175,000; AGI ≥ $175,000 (no exemption)</condition_dsl>
+<condition_dsl>result.agi >= result.vt_military_agi_no_exemption_threshold</condition_dsl>
 <condition_postfix>
-
+AGI ≥ $175,000; AGI ≥ $175,000 (no exemption)
 </condition_postfix>
-<condition_column column_number="3" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
 <actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Apply VT partial military retirement exemption (AGI phase-out)</action_comment>
-<action_dsl>Apply VT partial military retirement exemption (AGI phase-out)</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>No VT military retirement exemption (AGI ≥ $175,000)</action_comment>
-<action_dsl>No VT military retirement exemption (AGI ≥ $175,000)</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>4</action_number>
-<action_comment>No military retirement pay - no exemption</action_comment>
-<action_dsl>No military retirement pay - no exemption</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
 </actions>
 <policy_statements>
 </policy_statements>
@@ -85,24 +50,8 @@
 <initial_actions>
 </initial_actions>
 <conditions>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Filing status is Married Filing Jointly or Head of Household; Filing Status is MFJ or HOH</condition_comment>
-<condition_dsl>Filing status is Married Filing Jointly or Head of Household; Filing Status is MFJ or HOH</condition_dsl>
-<condition_postfix>
-
-</condition_postfix>
-</condition_details>
 </conditions>
 <actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Calculate VT tax for Married Filing Jointly/HOH using progressive brackets</action_comment>
-<action_dsl>Calculate VT tax for Married Filing Jointly/HOH using progressive brackets</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
 </actions>
 <policy_statements>
 </policy_statements>

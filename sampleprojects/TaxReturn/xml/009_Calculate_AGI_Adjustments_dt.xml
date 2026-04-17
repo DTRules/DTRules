@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has SE tax to deduct</condition_comment>
-<condition_dsl>Has SE tax to deduct</condition_dsl>
+<condition_dsl>taxpayer.se_tax_deduction &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Add SE tax deduction to adjustments</action_comment>
-<action_dsl>Add SE tax deduction to adjustments</action_dsl>
+<action_dsl>add taxpayer.se_tax_deduction to result.total_adjustments</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Log total adjustments</action_comment>
-<action_dsl>Log total adjustments</action_dsl>
+<action_dsl>add &quot;Total Adjustments: $&quot; + result.total_adjustments to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>

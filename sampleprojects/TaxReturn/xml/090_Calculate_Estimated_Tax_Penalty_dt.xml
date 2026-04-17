@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has estimated payment</condition_comment>
-<condition_dsl>Has estimated payment</condition_dsl>
+<condition_dsl>result.payment_amount &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -28,7 +28,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>add estimated_payment.amount to result.total_estimated_payments</action_dsl>
 <action_postfix>
 
 </action_postfix>

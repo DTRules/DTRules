@@ -68,3 +68,9 @@ __pycache__/
 
 # DTRules sync manifest (local state)
 .sync-manifest.json
+
+# Working docs (plans, dev docs, benchmarks)
+plans/
+docs-dev/
+benchmark-results/
+scripts/

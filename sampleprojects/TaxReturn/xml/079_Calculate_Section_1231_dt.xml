@@ -24,7 +24,7 @@ result.total_1231_gains result.total_1231_losses f- /result.net_1231_gain_loss x
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has net Section 1231 gain</condition_comment>
-<condition_dsl>Has net Section 1231 gain</condition_dsl>
+<condition_dsl>result.net_1231_gain &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -35,7 +35,7 @@ result.total_1231_gains result.total_1231_losses f- /result.net_1231_gain_loss x
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has net Section 1231 loss</condition_comment>
-<condition_dsl>Has net Section 1231 loss</condition_dsl>
+<condition_dsl>Net 1231 loss (negative)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -47,7 +47,7 @@ result.total_1231_gains result.total_1231_losses f- /result.net_1231_gain_loss x
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>add result.net_section_1231 to result.total_long_term_gains</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -56,7 +56,7 @@ result.total_1231_gains result.total_1231_losses f- /result.net_1231_gain_loss x
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>add result.net_section_1231 to result.ordinary_loss</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -65,7 +65,7 @@ result.total_1231_gains result.total_1231_losses f- /result.net_1231_gain_loss x
 <action_details>
 <action_number>3</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>set result.net_section_1231 = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has qualified business income</condition_comment>
-<condition_dsl>Has qualified business income</condition_dsl>
+<condition_dsl>result.total_se_income &gt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -27,7 +27,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Taxable income below threshold (simplified calculation)</condition_comment>
-<condition_dsl>Taxable income below threshold (simplified calculation)</condition_dsl>
+<condition_dsl>taxable_income before QBI below $394,600 MFJ threshold (2025)</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate QBI deduction at 20%</action_comment>
-<action_dsl>Calculate QBI deduction at 20%</action_dsl>
+<action_dsl>set result.qbi_deduction = result.total_se_income * qbi_rate</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -47,7 +47,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No QBI - no qualified business income</action_comment>
-<action_dsl>No QBI - no qualified business income</action_dsl>
+<action_dsl>set result.qbi_deduction = 0</action_dsl>
 <action_postfix>
 
 </action_postfix>

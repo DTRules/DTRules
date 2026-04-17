@@ -16,75 +16,31 @@
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Age less than 62</condition_comment>
-<condition_dsl>Age less than 62</condition_dsl>
+<condition_comment>Earned income &gt;= $17,500</condition_comment>
+<condition_dsl>taxpayer.earned_income >= 17500</condition_dsl>
 <condition_postfix>
-age &lt; 62
+Earned income &gt;= $17,500
 </condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
-<condition_comment>Earned income &gt;= $17,500</condition_comment>
-<condition_dsl>Earned income &gt;= $17,500</condition_dsl>
+<condition_comment>Age 62 to 64</condition_comment>
+<condition_dsl>taxpayer.age >= 62 and taxpayer.age &lt;= 64</condition_dsl>
 <condition_postfix>
-earned_income &gt;= $17,500
+Age 62 to 64
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
-<condition_comment>Age 62 to 64</condition_comment>
-<condition_dsl>Age 62 to 64</condition_dsl>
-<condition_postfix>
-age &gt;= 62 AND age &lt; 65
-</condition_postfix>
-<condition_column column_number="3" column_value="Y"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>5</condition_number>
 <condition_comment>Age 65 or older</condition_comment>
-<condition_dsl>Age 65 or older</condition_dsl>
+<condition_dsl>taxpayer.age >= 65</condition_dsl>
 <condition_postfix>
-age &gt;= 65
+Age 65 or older
 </condition_postfix>
-<condition_column column_number="4" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
 <actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Apply GA $17,500 military retirement exemption (age &lt; 62, earned &lt; $17.5k)</action_comment>
-<action_dsl>Apply GA $17,500 military retirement exemption (age &lt; 62, earned &lt; $17.5k)</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>Apply GA $35,000 military retirement exemption (age 62-64)</action_comment>
-<action_dsl>Apply GA $35,000 military retirement exemption (age 62-64)</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>4</action_number>
-<action_comment>Apply GA $65,000 military retirement exemption (age 65+)</action_comment>
-<action_dsl>Apply GA $65,000 military retirement exemption (age 65+)</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>5</action_number>
-<action_comment>No military retirement pay</action_comment>
-<action_dsl>No military retirement pay</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
 </actions>
 <policy_statements>
 </policy_statements>

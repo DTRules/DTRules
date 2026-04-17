@@ -26,7 +26,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Any business credits present</condition_comment>
-<condition_dsl>Any business credits present</condition_dsl>
+<condition_dsl>Sum of business credits greater than 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate total GBC (Part I)</action_comment>
-<action_dsl>Calculate total GBC (Part I)</action_dsl>
+<action_dsl>Sum all component business credits</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -47,7 +47,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate GBC limitation (Part II)</action_comment>
-<action_dsl>Calculate GBC limitation (Part II)</action_dsl>
+<action_dsl>Apply tax liability limitation</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -56,7 +56,7 @@
 <action_details>
 <action_number>3</action_number>
 <action_comment>No business credits</action_comment>
-<action_dsl>No business credits</action_dsl>
+<action_dsl>Log no GBC applicable</action_dsl>
 <action_postfix>
 
 </action_postfix>

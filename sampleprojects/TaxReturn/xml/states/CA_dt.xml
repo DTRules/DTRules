@@ -16,48 +16,34 @@
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Single filer, AGI ≤ $125k; Single AND AGI ≤ $125,000</condition_comment>
-<condition_dsl>Single filer, AGI ≤ $125k; Single AND AGI ≤ $125,000</condition_dsl>
-<condition_postfix>
-
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
 <condition_comment>Joint filer, AGI ≤ $250k; Married Filing Jointly AND AGI ≤ $250,000</condition_comment>
-<condition_dsl>Joint filer, AGI ≤ $250k; Married Filing Jointly AND AGI ≤ $250,000</condition_dsl>
+<condition_dsl>job.filing_status is equal to "MFJ" and result.agi &lt;= result.ca_military_agi_limit_joint</condition_dsl>
 <condition_postfix>
-
+Joint filer, AGI ≤ $250k; Married Filing Jointly AND AGI ≤ $250,000
 </condition_postfix>
-<condition_column column_number="2" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
 <actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Apply CA $20,000 military retirement exemption (Joint, AGI ≤ $250k)</action_comment>
-<action_dsl>Apply CA $20,000 military retirement exemption (Joint, AGI ≤ $250k)</action_dsl>
-<action_postfix>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
 
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>No CA military retirement exemption (AGI exceeds limit)</action_comment>
-<action_dsl>No CA military retirement exemption (AGI exceeds limit)</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>4</action_number>
-<action_comment>No military retirement pay</action_comment>
-<action_dsl>No military retirement pay</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
+<!-- TABLE 4800: Calculate_CA_Tax -->
+<decision_table>
+<table_name>Calculate_CA_Tax</table_name>
+<xls_file>CA.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>California state income tax calculation. Implements progressive tax structure with 10 brackets (1% to 13.3%) plus Mental Health Services Tax (1% surtax on income over $1M). Highest state tax rates in the nation. Per California Franchise Tax Board (2025).</COMMENTS>
+<TABLE_NUMBER>4800</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+</conditions>
+<actions>
 </actions>
 <policy_statements>
 </policy_statements>
@@ -78,78 +64,16 @@
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Single filer within AGI limit</condition_comment>
-<condition_dsl>Single filer within AGI limit</condition_dsl>
-<condition_postfix>
-Single AND AGI &lt;= $50,746
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
 <condition_comment>Joint/HOH filer within AGI limit</condition_comment>
-<condition_dsl>Joint/HOH filer within AGI limit</condition_dsl>
+<condition_dsl>(job.filing_status is equal to "MFJ" or job.filing_status is equal to "HOH") and result.agi &lt;= result.ca_renter_credit_agi_limit_joint</condition_dsl>
 <condition_postfix>
-Joint/HOH AND AGI &lt;= $101,492
+Joint/HOH filer within AGI limit
 </condition_postfix>
 <condition_column column_number="1" column_value="N"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
 <actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Apply CA $120 renter's credit (Joint/HOH filer)</action_comment>
-<action_dsl>Apply CA $120 renter's credit (Joint/HOH filer)</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>Not eligible for CA renter's credit</action_comment>
-<action_dsl>Not eligible for CA renter's credit</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
-
-<!-- TABLE 4800: Calculate_CA_Tax -->
-<decision_table>
-<table_name>Calculate_CA_Tax</table_name>
-<xls_file>CA.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>California state income tax calculation. Implements progressive tax structure with 10 brackets (1% to 13.3%) plus Mental Health Services Tax (1% surtax on income over $1M). Highest state tax rates in the nation. Per California Franchise Tax Board (2025).</COMMENTS>
-<TABLE_NUMBER>4800</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Filing status is Married Filing Jointly or Head of Household; Filing Status is MFJ or HOH</condition_comment>
-<condition_dsl>Filing status is Married Filing Jointly or Head of Household; Filing Status is MFJ or HOH</condition_dsl>
-<condition_postfix>
-
-</condition_postfix>
-</condition_details>
-</conditions>
-<actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Calculate CA tax for Married Filing Jointly/HOH using progressive brackets (10 brackets: 1% to 13.3%)</action_comment>
-<action_dsl>Calculate CA tax for Married Filing Jointly/HOH using progressive brackets (10 brackets: 1% to 13.3%)</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
 </actions>
 <policy_statements>
 </policy_statements>

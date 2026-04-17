@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Is rental property</condition_comment>
-<condition_dsl>Is rental property</condition_dsl>
+<condition_dsl>property.type == &quot;rental&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -27,7 +27,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Property has loss (negative net income)</condition_comment>
-<condition_dsl>Property has loss (negative net income)</condition_dsl>
+<condition_dsl>property.rental_net_income &lt; 0</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -39,7 +39,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl></action_dsl>
+<action_dsl>add (-rental.net_loss) to result.total_rental_losses</action_dsl>
 <action_postfix>
 
 </action_postfix>

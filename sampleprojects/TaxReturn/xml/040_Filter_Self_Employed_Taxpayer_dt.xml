@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Taxpayer is self-employed</condition_comment>
-<condition_dsl>Taxpayer is self-employed</condition_dsl>
+<condition_dsl>taxpayer.is_self_employed == true</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -29,7 +29,7 @@
 <action_details>
 <action_number>1</action_number>
 <action_comment>Process self-employed taxpayer</action_comment>
-<action_dsl>Process self-employed taxpayer</action_dsl>
+<action_dsl>perform Process_Self_Employment</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -38,7 +38,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Skip non-self-employed</action_comment>
-<action_dsl>Skip non-self-employed</action_dsl>
+<action_dsl>otherwise</action_dsl>
 <action_postfix>
 
 </action_postfix>

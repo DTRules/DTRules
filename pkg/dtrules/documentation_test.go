@@ -250,6 +250,177 @@ func TestDocumentation_PerformTableOperatorExists(t *testing.T) {
 }
 
 // =============================================================================
+// Issue #503: EL docs coverage - every grammar production and operator symbol
+// must appear in the 'el' and 'operators' doc topics.
+// =============================================================================
+
+// productionNames lists user-facing EL grammar concepts that must appear
+// (case-insensitive) somewhere in the combined el+operators doc output.
+// Internal grammar rule names (done, commonerror, etc.) are excluded.
+var productionNames = []string{
+	// Top-level entry points / keywords
+	"action", "condition", "context",
+
+	// Statement types
+	"set", "perform", "debug", "print", "increment", "decrement",
+	"add", "subtract", "remove", "clear", "sort", "randomize",
+
+	// Control flow
+	"if", "then", "else", "endif",
+	"for all", "foreach", "for first", "endff", "elseifnonearefound",
+
+	// Context/iteration
+	"for each", "local", "using",
+
+	// Expression type headings
+	"iexpr", "fexpr", "bexpr", "strexpr", "dexpr", "nexpr", "eexpr",
+	"arrayExpr", "bigexpr", "texpr",
+
+	// Local variable types
+	"entity", "long", "double", "boolean", "string", "date", "array", "bigint",
+
+	// Integer built-ins
+	"number of", "length of", "index of", "sum of",
+	"absolute value", "days from", "months from", "years from",
+	"get yearof", "get days in year", "get days in months", "get days of months",
+
+	// Double built-ins
+	"rounded", "decimal places",
+
+	// String built-ins
+	"substring", "trim", "upper case", "lower case",
+	"current timestamp", "string value of", "relationship between",
+	"mapping key", "table information", "starts with",
+
+	// Date built-ins
+	"current date", "first of years", "first of months", "end of months",
+	"earliest of",
+
+	// Array construction
+	"tokenize", "copy of", "deep copy", "map", "through",
+	"array of values",
+
+	// Array tests
+	"includes", "is one of", "is not one of",
+	"all", "one of",
+	"there is", "there is no",
+
+	// Boolean comparisons
+	"is null", "is not null", "is before", "is after", "is between",
+	"matches", "percent of", "plus or minus",
+
+	// Entity operations - "has a" is the user-facing form of the HASA token
+	"clone", "new", "nameof", "has a",
+
+	// Possessive syntax
+	"possessive",
+
+	// Comparison operators
+	"==", "!=", ">", ">=", "<", "<=",
+	"is equal to", "is not equal to",
+	"is greater than", "is less than",
+	"at or above", "at or below",
+	"ignore case",
+
+	// Logical operators
+	"AND", "OR", "NOT",
+
+	// BigInt
+	"bigint", "biginteger",
+
+	// xmlvalue operations
+	"attribute",
+}
+
+// operatorSymbols lists token symbols that must appear in the operators doc.
+var operatorSymbols = []string{
+	"+", "-", "*", "/",
+	"==", "!=", ">", ">=", "<", "<=",
+	"&&", "||",
+}
+
+func TestDocumentation_ELDocsProductions(t *testing.T) {
+	elDoc, operDoc := getDocContent(t)
+	combined := strings.ToLower(elDoc + "\n" + operDoc)
+
+	var missing []string
+	for _, name := range productionNames {
+		if !strings.Contains(combined, strings.ToLower(name)) {
+			missing = append(missing, name)
+		}
+	}
+
+	if len(missing) > 0 {
+		t.Errorf("The following EL grammar productions/concepts are missing from 'el' and 'operators' docs (%d missing):\n  %s",
+			len(missing), strings.Join(missing, "\n  "))
+	}
+}
+
+func TestDocumentation_ELDocsOperatorSymbols(t *testing.T) {
+	_, operDoc := getDocContent(t)
+
+	var missing []string
+	for _, sym := range operatorSymbols {
+		if !strings.Contains(operDoc, sym) {
+			missing = append(missing, sym)
+		}
+	}
+
+	if len(missing) > 0 {
+		t.Errorf("The following operator symbols are missing from 'operators' doc (%d missing):\n  %s",
+			len(missing), strings.Join(missing, "\n  "))
+	}
+}
+
+func TestDocumentation_ELDocsNoPostfixContent(t *testing.T) {
+	elDoc, _ := getDocContent(t)
+	lower := strings.ToLower(elDoc)
+
+	// These phrases signal postfix/bytecode content that must not appear in the EL topic
+	forbidden := []string{
+		"stack effect",
+		"reverse polish",
+		"rpn",
+		"bytecode-spec",
+	}
+
+	for _, phrase := range forbidden {
+		if strings.Contains(lower, phrase) {
+			t.Errorf("EL doc topic contains postfix/bytecode content %q — should be EL syntax only", phrase)
+		}
+	}
+}
+
+func getDocContent(t *testing.T) (elDoc, operDoc string) {
+	t.Helper()
+
+	bin := findDTRulesBinary()
+	if bin == "" {
+		// Fall back: build the binary then call it
+		t.Log("dtrules binary not found in standard locations, trying to build")
+		build := exec.Command("go", "build", "-o", "/tmp/dtrules-test-bin",
+			"../../cmd/dtrules/")
+		if out, err := build.CombinedOutput(); err != nil {
+			t.Logf("Could not build dtrules: %v\n%s", err, out)
+			t.Skip("dtrules binary not available and could not be built")
+			return
+		}
+		bin = "/tmp/dtrules-test-bin"
+	}
+
+	elOut, err := exec.Command(bin, "docs", "el").Output()
+	if err != nil {
+		t.Fatalf("dtrules docs el failed: %v", err)
+	}
+	operOut, err := exec.Command(bin, "docs", "operators").Output()
+	if err != nil {
+		t.Fatalf("dtrules docs operators failed: %v", err)
+	}
+
+	return string(elOut), string(operOut)
+}
+
+// =============================================================================
 // Helpers
 // =============================================================================
 

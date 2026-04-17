@@ -25,7 +25,7 @@ then
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Puerto Rico territory</condition_comment>
-<condition_dsl>Puerto Rico territory</condition_dsl>
+<condition_dsl>job.territory equals &quot;PR&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -39,7 +39,7 @@ then
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>US Virgin Islands territory</condition_comment>
-<condition_dsl>US Virgin Islands territory</condition_dsl>
+<condition_dsl>job.territory equals &quot;VI&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -53,7 +53,7 @@ then
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Guam territory</condition_comment>
-<condition_dsl>Guam territory</condition_dsl>
+<condition_dsl>job.territory equals &quot;GU&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -67,7 +67,7 @@ then
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>American Samoa territory</condition_comment>
-<condition_dsl>American Samoa territory</condition_dsl>
+<condition_dsl>job.territory equals &quot;AS&quot;</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -111,7 +111,7 @@ then
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Puerto Rico territory tax</action_comment>
-<action_dsl>Calculate Puerto Rico territory tax</action_dsl>
+<action_dsl>perform Calculate_PR_Tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -120,7 +120,7 @@ then
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate US Virgin Islands territory tax</action_comment>
-<action_dsl>Calculate US Virgin Islands territory tax</action_dsl>
+<action_dsl>perform Calculate_VI_Tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -129,7 +129,7 @@ then
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate Guam territory tax</action_comment>
-<action_dsl>Calculate Guam territory tax</action_dsl>
+<action_dsl>perform Calculate_GU_Tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -138,7 +138,7 @@ then
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate American Samoa territory tax</action_comment>
-<action_dsl>Calculate American Samoa territory tax</action_dsl>
+<action_dsl>perform Calculate_AS_Tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -147,7 +147,7 @@ then
 <action_details>
 <action_number>5</action_number>
 <action_comment>Calculate Northern Mariana Islands territory tax</action_comment>
-<action_dsl>Calculate Northern Mariana Islands territory tax</action_dsl>
+<action_dsl>perform Calculate_MP_Tax</action_dsl>
 <action_postfix>
 
 </action_postfix>
