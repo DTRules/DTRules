@@ -954,7 +954,7 @@ Create comprehensive API documentation for the state tax calculation system to h
 
 **Technical Notes**
 
-- Include code examples in DTRules postfix notation
+- Include code examples in DTRules EL (Expression Language)
 - Provide template decision tables
 - Document lessons learned from implementation
 - Should be written after implementing many states (better informed)

@@ -345,4 +345,4 @@ Every test case has been verified to produce the exact expected tax value using 
 
 ## DSL
 
-Uses **EL (Expression Language)** for conditions and actions in postfix notation.
+Uses **EL (Expression Language)** for conditions and actions.
