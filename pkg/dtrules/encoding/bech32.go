@@ -51,13 +51,16 @@ func bech32VerifyChecksum(hrp string, data []byte) bool {
 }
 
 func bech32CreateChecksum(hrp string, data []byte) []byte {
+	// BIP-173: polymod(hrp_expand || data || [0,0,0,0,0,0]) XOR 1.
+	// Process hrp_expand and data with their values XOR'd in, then 6 more
+	// polymod steps for the trailing zeros (no XOR since value is 0),
+	// then XOR 1 at the end.
 	values := append(bech32HRPExpand(hrp), data...)
 	var polymod uint32 = 1
 	for _, v := range values {
 		polymod = bech32PolymodStep(polymod) ^ uint32(v)
 	}
-	polymod = bech32PolymodStep(polymod) ^ 1
-	for range 5 {
+	for range 6 {
 		polymod = bech32PolymodStep(polymod)
 	}
 	polymod ^= 1
