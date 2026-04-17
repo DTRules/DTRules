@@ -321,16 +321,27 @@ func getColLetter(num int) string {
 func setHeaderStyle(f *excelize.File, sheet, cell string) {
 	style, _ := f.NewStyle(&excelize.Style{
 		Font: &excelize.Font{
-			Bold: true,
-			Size: 11,
+			Bold:   true,
+			Size:   10,
+			Family: "Calibri",
 		},
 		Fill: excelize.Fill{
 			Type:    "pattern",
-			Color:   []string{"#D3D3D3"},
+			Color:   []string{"E8E8E8"},
 			Pattern: 1,
 		},
+		Border: thinBorder(),
 	})
 	f.SetCellStyle(sheet, cell, cell, style)
+}
+
+func thinBorder() []excelize.Border {
+	return []excelize.Border{
+		{Type: "left", Color: "CCCCCC", Style: 1},
+		{Type: "top", Color: "CCCCCC", Style: 1},
+		{Type: "bottom", Color: "CCCCCC", Style: 1},
+		{Type: "right", Color: "CCCCCC", Style: 1},
+	}
 }
 
 func sanitizeSheetName(name string) string {

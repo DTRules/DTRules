@@ -30,10 +30,12 @@ import (
 )
 
 const (
-	maxCol          = 16
-	defaultColWidth = 12.0
-	narrowColWidth  = 5.0  // Decision columns (Y/N/X values)
-	wideColWidth    = 40.0
+	maxCol         = 16
+	narrowColWidth = 5.0  // Decision columns (Y/N/X values)
+	wideColWidth   = 40.0
+
+	colorEDDEntityHeader = "D0D8E8"
+	colorEDDInput        = "FFFFC0"
 )
 
 // Exporter exports decision tables and EDD to Excel format.
@@ -52,29 +54,21 @@ func (e *Exporter) ExportDecisionTables(filename string) error {
 	f := excelize.NewFile()
 	defer f.Close()
 
-	// Delete the default sheet
 	defaultSheet := f.GetSheetName(0)
-
-	// Get all decision tables
 	tables := e.getAllDecisionTables()
-
-	// Sort by TABLE_NUMBER
 	sortTablesByTableNumber(tables)
 
-	// Create styles
-	styles, err := e.createStyles(f)
+	styler, err := NewStyler(f)
 	if err != nil {
 		return fmt.Errorf("failed to create styles: %w", err)
 	}
 
-	// Export each decision table
 	for _, dt := range tables {
-		if err := e.writeDecisionTable(f, dt, styles); err != nil {
+		if err := e.writeDecisionTable(f, dt, styler); err != nil {
 			return fmt.Errorf("failed to write table %s: %w", dt.GetName(), err)
 		}
 	}
 
-	// Delete the default sheet after we've created others
 	sheetList := f.GetSheetList()
 	if len(sheetList) > 1 {
 		f.DeleteSheet(defaultSheet)
@@ -109,34 +103,24 @@ func sortTablesByTableNumber(tables []*decisiontable.RDecisionTable) {
 		numI := tables[i].GetField("TABLE_NUMBER")
 		numJ := tables[j].GetField("TABLE_NUMBER")
 
-		// Parse as integers for proper numeric sorting
 		intI, errI := strconv.Atoi(numI)
 		intJ, errJ := strconv.Atoi(numJ)
 
-		// Both have valid numbers: sort numerically
 		if errI == nil && errJ == nil {
 			return intI < intJ
 		}
-
-		// Only i has a valid number: i comes first
 		if errI == nil {
 			return true
 		}
-
-		// Only j has a valid number: j comes first
 		if errJ == nil {
 			return false
 		}
-
-		// Neither has a valid number: sort alphabetically by name
 		return tables[i].GetName() < tables[j].GetName()
 	})
 }
 
 // ExportDecisionTablesToDir exports decision tables grouped by xls_file to a directory.
-// Creates multiple xlsx files and an index.md for navigation.
 func (e *Exporter) ExportDecisionTablesToDir(dir string) error {
-	// Group tables by xls_file
 	groups := make(map[string][]*decisiontable.RDecisionTable)
 	tableNames := e.ruleSet.GetDecisionTableNames()
 
@@ -154,28 +138,20 @@ func (e *Exporter) ExportDecisionTablesToDir(dir string) error {
 		if filePath == "" {
 			filePath = "Other"
 		}
-		xlsFile := filePath
-		// Normalize to .xlsx extension
-		xlsFile = strings.TrimSuffix(xlsFile, ".xls")
-		xlsFile = strings.TrimSuffix(xlsFile, ".xlsx")
-		xlsFile = xlsFile + ".xlsx"
-
+		xlsFile := strings.TrimSuffix(strings.TrimSuffix(filePath, ".xls"), ".xlsx") + ".xlsx"
 		groups[xlsFile] = append(groups[xlsFile], dt)
 	}
 
-	// Sort tables within each group by TABLE_NUMBER
 	for _, tables := range groups {
 		sortTablesByTableNumber(tables)
 	}
 
-	// Write each group to a separate file
 	for xlsFile, tables := range groups {
 		if err := e.writeDecisionTableGroup(dir, xlsFile, tables); err != nil {
 			return err
 		}
 	}
 
-	// Write index.md
 	return e.writeDecisionTableIndex(dir, groups)
 }
 
@@ -185,13 +161,13 @@ func (e *Exporter) writeDecisionTableGroup(dir, xlsFile string, tables []*decisi
 
 	defaultSheet := f.GetSheetName(0)
 
-	styles, err := e.createStyles(f)
+	styler, err := NewStyler(f)
 	if err != nil {
 		return fmt.Errorf("failed to create styles: %w", err)
 	}
 
 	for _, dt := range tables {
-		if err := e.writeDecisionTable(f, dt, styles); err != nil {
+		if err := e.writeDecisionTable(f, dt, styler); err != nil {
 			return fmt.Errorf("failed to write table %s: %w", dt.GetName(), err)
 		}
 	}
@@ -201,8 +177,7 @@ func (e *Exporter) writeDecisionTableGroup(dir, xlsFile string, tables []*decisi
 		f.DeleteSheet(defaultSheet)
 	}
 
-	filepath := dir + "/" + xlsFile
-	return f.SaveAs(filepath)
+	return f.SaveAs(dir + "/" + xlsFile)
 }
 
 func (e *Exporter) writeDecisionTableIndex(dir string, groups map[string][]*decisiontable.RDecisionTable) error {
@@ -211,14 +186,12 @@ func (e *Exporter) writeDecisionTableIndex(dir string, groups map[string][]*deci
 	sb.WriteString("# Decision Tables Index\n\n")
 	sb.WriteString("This folder contains decision tables organized by functional area.\n\n")
 
-	// Sort group names
 	groupNames := make([]string, 0, len(groups))
 	for name := range groups {
 		groupNames = append(groupNames, name)
 	}
 	sort.Strings(groupNames)
 
-	// Summary table
 	sb.WriteString("## Summary\n\n")
 	sb.WriteString("| File | Tables | Description |\n")
 	sb.WriteString("|------|--------|-------------|\n")
@@ -232,7 +205,6 @@ func (e *Exporter) writeDecisionTableIndex(dir string, groups map[string][]*deci
 	}
 	sb.WriteString(fmt.Sprintf("| **Total** | **%d** | |\n\n", totalTables))
 
-	// Detailed listing
 	sb.WriteString("## Tables by File\n\n")
 
 	for _, name := range groupNames {
@@ -252,8 +224,7 @@ func (e *Exporter) writeDecisionTableIndex(dir string, groups map[string][]*deci
 		sb.WriteString("\n")
 	}
 
-	filepath := dir + "/index.md"
-	return writeFile(filepath, sb.String())
+	return writeFile(dir+"/index.md", sb.String())
 }
 
 func getGroupDescription(filename string) string {
@@ -284,184 +255,60 @@ func (e *Exporter) ExportEDD(filename string) error {
 	f := excelize.NewFile()
 	defer f.Close()
 
-	// Set up sheet
 	sheet := "EDD"
 	f.SetSheetName("Sheet1", sheet)
 
-	// Create styles
-	eddStyles, err := e.createEDDStyles(f)
+	styler, err := NewStyler(f)
+	if err != nil {
+		return err
+	}
+	eddStyles, err := e.newEDDStyles(f)
 	if err != nil {
 		return err
 	}
 
-	// Set column widths
-	f.SetColWidth(sheet, "A", "A", 18)
-	f.SetColWidth(sheet, "B", "B", 25)
-	f.SetColWidth(sheet, "C", "C", 10)
-	f.SetColWidth(sheet, "D", "D", 12)
-	f.SetColWidth(sheet, "E", "E", 18)
-	f.SetColWidth(sheet, "F", "F", 8)
-	f.SetColWidth(sheet, "G", "G", 8)
-	f.SetColWidth(sheet, "H", "H", 55)
+	e.setEDDColumnWidths(f, sheet)
+	e.writeEDDHeaders(f, sheet, styler)
+	FreezePaneAtRow2(f, sheet)
 
-	// Write headers
-	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description"}
-	for col, header := range headers {
-		cell, _ := excelize.CoordinatesToCellName(col+1, 1)
-		f.SetCellValue(sheet, cell, header)
-		f.SetCellStyle(sheet, cell, cell, eddStyles.header)
-	}
-
-	// Freeze the header row
-	f.SetPanes(sheet, &excelize.Panes{
-		Freeze:      true,
-		Split:       false,
-		XSplit:      0,
-		YSplit:      1,
-		TopLeftCell: "A2",
-		ActivePane:  "bottomLeft",
-	})
-
-	// Get all entities and sort them
 	entities := e.ruleSet.GetEntityFactory().GetRefEntities()
 	sort.Slice(entities, func(i, j int) bool {
 		return entities[i].GetName().StringValue() < entities[j].GetName().StringValue()
 	})
 
-	row := 2
-	for _, ent := range entities {
-		entityName := ent.GetName().StringValue()
-
-		// Get and sort attributes
-		attrNames := ent.GetAttributeNames()
-		sort.Slice(attrNames, func(i, j int) bool {
-			return attrNames[i].StringValue() < attrNames[j].StringValue()
-		})
-
-		// Count valid attributes
-		attrCount := 0
-		for _, attrName := range attrNames {
-			if attrName.StringValue() != entityName && attrName.StringValue() != "mapping*key" {
-				if ent.GetEntry(attrName) != nil {
-					attrCount++
-				}
-			}
-		}
-
-		if attrCount == 0 {
-			continue
-		}
-
-		// Write entity header row
-		f.SetCellValue(sheet, cellName(1, row), entityName)
-		f.SetCellValue(sheet, cellName(2, row), fmt.Sprintf("(%d attributes)", attrCount))
-		for col := 1; col <= 8; col++ {
-			f.SetCellStyle(sheet, cellName(col, row), cellName(col, row), eddStyles.entityHeader)
-		}
-		row++
-
-		// Write attributes
-		attrRow := 0
-		for _, attrName := range attrNames {
-			// Skip self-reference and mapping key
-			if attrName.StringValue() == entityName || attrName.StringValue() == "mapping*key" {
-				continue
-			}
-
-			entry := ent.GetEntry(attrName)
-			if entry == nil {
-				continue
-			}
-
-			// Build access string
-			access := ""
-			if entry.Readable {
-				access += "r"
-			}
-			if entry.Writable {
-				access += "w"
-			}
-
-			// Determine row style (alternating)
-			rowStyle := eddStyles.rowEven
-			if attrRow%2 == 1 {
-				rowStyle = eddStyles.rowOdd
-			}
-
-			// Entity column is blank (merged visual)
-			f.SetCellValue(sheet, cellName(1, row), "")
-			f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), rowStyle)
-
-			f.SetCellValue(sheet, cellName(2, row), attrName.StringValue())
-			f.SetCellStyle(sheet, cellName(2, row), cellName(2, row), eddStyles.attribute)
-
-			// Type with color coding
-			typeStyle := e.getTypeStyle(eddStyles, entry.Type.String())
-			f.SetCellValue(sheet, cellName(3, row), entry.Type.String())
-			f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), typeStyle)
-
-			f.SetCellValue(sheet, cellName(4, row), entry.SubType)
-			f.SetCellStyle(sheet, cellName(4, row), cellName(4, row), rowStyle)
-
-			f.SetCellValue(sheet, cellName(5, row), entry.DefaultTxt)
-			f.SetCellStyle(sheet, cellName(5, row), cellName(5, row), rowStyle)
-
-			// Input field styling
-			inputStyle := rowStyle
-			if entry.Input != "" {
-				inputStyle = eddStyles.input
-			}
-			f.SetCellValue(sheet, cellName(6, row), entry.Input)
-			f.SetCellStyle(sheet, cellName(6, row), cellName(6, row), inputStyle)
-
-			f.SetCellValue(sheet, cellName(7, row), access)
-			f.SetCellStyle(sheet, cellName(7, row), cellName(7, row), rowStyle)
-
-			f.SetCellValue(sheet, cellName(8, row), entry.Comment)
-			f.SetCellStyle(sheet, cellName(8, row), cellName(8, row), eddStyles.comment)
-
-			row++
-			attrRow++
-		}
-	}
+	e.writeEDDEntities(f, sheet, entities, styler, eddStyles)
 
 	return f.SaveAs(filename)
 }
 
 // ExportCombinedWorkbook exports both decision tables and EDD to a single Excel file.
-// Each decision table gets its own sheet, plus one EDD sheet at the end.
 func (e *Exporter) ExportCombinedWorkbook(filename string) error {
 	f := excelize.NewFile()
 	defer f.Close()
 
 	defaultSheet := f.GetSheetName(0)
 
-	// Create DT styles
-	styles, err := e.createStyles(f)
+	styler, err := NewStyler(f)
 	if err != nil {
 		return fmt.Errorf("failed to create styles: %w", err)
 	}
 
-	// Get and sort decision tables by TABLE_NUMBER
 	tables := e.getAllDecisionTables()
 	sortTablesByTableNumber(tables)
 
-	// Export each decision table to its own sheet
 	for _, dt := range tables {
-		if err := e.writeDecisionTable(f, dt, styles); err != nil {
+		if err := e.writeDecisionTable(f, dt, styler); err != nil {
 			return fmt.Errorf("failed to write table %s: %w", dt.GetName(), err)
 		}
 	}
 
-	// Export EDD to its own sheet
 	entities := e.ruleSet.GetEntityFactory().GetRefEntities()
 	if len(entities) > 0 {
-		if err := e.writeEDDSheet(f, "EDD"); err != nil {
+		if err := e.writeEDDSheet(f, styler, "EDD"); err != nil {
 			return fmt.Errorf("failed to write EDD sheet: %w", err)
 		}
 	}
 
-	// Delete the default sheet after we've created others
 	sheetList := f.GetSheetList()
 	if len(sheetList) > 1 {
 		f.DeleteSheet(defaultSheet)
@@ -471,157 +318,32 @@ func (e *Exporter) ExportCombinedWorkbook(filename string) error {
 }
 
 // writeEDDSheet writes the EDD data to a sheet in an existing workbook.
-func (e *Exporter) writeEDDSheet(f *excelize.File, sheetName string) error {
-	// Create sheet
+func (e *Exporter) writeEDDSheet(f *excelize.File, styler *Styler, sheetName string) error {
 	_, err := f.NewSheet(sheetName)
 	if err != nil {
 		return err
 	}
 
-	// Create styles
-	eddStyles, err := e.createEDDStyles(f)
+	eddStyles, err := e.newEDDStyles(f)
 	if err != nil {
 		return err
 	}
 
-	// Set column widths
-	f.SetColWidth(sheetName, "A", "A", 18)
-	f.SetColWidth(sheetName, "B", "B", 25)
-	f.SetColWidth(sheetName, "C", "C", 10)
-	f.SetColWidth(sheetName, "D", "D", 12)
-	f.SetColWidth(sheetName, "E", "E", 18)
-	f.SetColWidth(sheetName, "F", "F", 8)
-	f.SetColWidth(sheetName, "G", "G", 8)
-	f.SetColWidth(sheetName, "H", "H", 55)
+	e.setEDDColumnWidths(f, sheetName)
+	e.writeEDDHeaders(f, sheetName, styler)
+	FreezePaneAtRow2(f, sheetName)
 
-	// Write headers
-	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description"}
-	for col, header := range headers {
-		cell, _ := excelize.CoordinatesToCellName(col+1, 1)
-		f.SetCellValue(sheetName, cell, header)
-		f.SetCellStyle(sheetName, cell, cell, eddStyles.header)
-	}
-
-	// Freeze the header row
-	f.SetPanes(sheetName, &excelize.Panes{
-		Freeze:      true,
-		Split:       false,
-		XSplit:      0,
-		YSplit:      1,
-		TopLeftCell: "A2",
-		ActivePane:  "bottomLeft",
-	})
-
-	// Get all entities and sort them
 	entities := e.ruleSet.GetEntityFactory().GetRefEntities()
 	sort.Slice(entities, func(i, j int) bool {
 		return entities[i].GetName().StringValue() < entities[j].GetName().StringValue()
 	})
 
-	row := 2
-	for _, ent := range entities {
-		entityName := ent.GetName().StringValue()
-
-		// Get and sort attributes
-		attrNames := ent.GetAttributeNames()
-		sort.Slice(attrNames, func(i, j int) bool {
-			return attrNames[i].StringValue() < attrNames[j].StringValue()
-		})
-
-		// Count valid attributes
-		attrCount := 0
-		for _, attrName := range attrNames {
-			if attrName.StringValue() != entityName && attrName.StringValue() != "mapping*key" {
-				if ent.GetEntry(attrName) != nil {
-					attrCount++
-				}
-			}
-		}
-
-		if attrCount == 0 {
-			continue
-		}
-
-		// Write entity header row
-		f.SetCellValue(sheetName, cellName(1, row), entityName)
-		f.SetCellValue(sheetName, cellName(2, row), fmt.Sprintf("(%d attributes)", attrCount))
-		for col := 1; col <= 8; col++ {
-			f.SetCellStyle(sheetName, cellName(col, row), cellName(col, row), eddStyles.entityHeader)
-		}
-		row++
-
-		// Write attributes
-		attrRow := 0
-		for _, attrName := range attrNames {
-			// Skip self-reference and mapping key
-			if attrName.StringValue() == entityName || attrName.StringValue() == "mapping*key" {
-				continue
-			}
-
-			entry := ent.GetEntry(attrName)
-			if entry == nil {
-				continue
-			}
-
-			// Build access string
-			access := ""
-			if entry.Readable {
-				access += "r"
-			}
-			if entry.Writable {
-				access += "w"
-			}
-
-			// Determine row style (alternating)
-			rowStyle := eddStyles.rowEven
-			if attrRow%2 == 1 {
-				rowStyle = eddStyles.rowOdd
-			}
-
-			// Entity column is blank (merged visual)
-			f.SetCellValue(sheetName, cellName(1, row), "")
-			f.SetCellStyle(sheetName, cellName(1, row), cellName(1, row), rowStyle)
-
-			f.SetCellValue(sheetName, cellName(2, row), attrName.StringValue())
-			f.SetCellStyle(sheetName, cellName(2, row), cellName(2, row), eddStyles.attribute)
-
-			// Type with color coding
-			typeStyle := e.getTypeStyle(eddStyles, entry.Type.String())
-			f.SetCellValue(sheetName, cellName(3, row), entry.Type.String())
-			f.SetCellStyle(sheetName, cellName(3, row), cellName(3, row), typeStyle)
-
-			f.SetCellValue(sheetName, cellName(4, row), entry.SubType)
-			f.SetCellStyle(sheetName, cellName(4, row), cellName(4, row), rowStyle)
-
-			f.SetCellValue(sheetName, cellName(5, row), entry.DefaultTxt)
-			f.SetCellStyle(sheetName, cellName(5, row), cellName(5, row), rowStyle)
-
-			// Input field styling
-			inputStyle := rowStyle
-			if entry.Input != "" {
-				inputStyle = eddStyles.input
-			}
-			f.SetCellValue(sheetName, cellName(6, row), entry.Input)
-			f.SetCellStyle(sheetName, cellName(6, row), cellName(6, row), inputStyle)
-
-			f.SetCellValue(sheetName, cellName(7, row), access)
-			f.SetCellStyle(sheetName, cellName(7, row), cellName(7, row), rowStyle)
-
-			f.SetCellValue(sheetName, cellName(8, row), entry.Comment)
-			f.SetCellStyle(sheetName, cellName(8, row), cellName(8, row), eddStyles.comment)
-
-			row++
-			attrRow++
-		}
-	}
-
+	e.writeEDDEntities(f, sheetName, entities, styler, eddStyles)
 	return nil
 }
 
 // ExportEDDToDir exports entities grouped by xls_file to a directory.
-// Creates multiple xlsx files and an index.md for navigation.
 func (e *Exporter) ExportEDDToDir(dir string) error {
-	// Group entities by xls_file
 	groups := make(map[string][]*entity.REntity)
 	entities := e.ruleSet.GetEntityFactory().GetRefEntities()
 
@@ -630,30 +352,22 @@ func (e *Exporter) ExportEDDToDir(dir string) error {
 		if filePath == "" {
 			filePath = "Other"
 		}
-		xlsFile := filePath
-		// Normalize to .xlsx extension
-		xlsFile = strings.TrimSuffix(xlsFile, ".xls")
-		xlsFile = strings.TrimSuffix(xlsFile, ".xlsx")
-		xlsFile = xlsFile + ".xlsx"
-
+		xlsFile := strings.TrimSuffix(strings.TrimSuffix(filePath, ".xls"), ".xlsx") + ".xlsx"
 		groups[xlsFile] = append(groups[xlsFile], ent)
 	}
 
-	// Sort entities within each group by name
 	for _, ents := range groups {
 		sort.Slice(ents, func(i, j int) bool {
 			return ents[i].GetName().StringValue() < ents[j].GetName().StringValue()
 		})
 	}
 
-	// Write each group to a separate file
 	for xlsFile, ents := range groups {
 		if err := e.writeEDDGroup(dir, xlsFile, ents); err != nil {
 			return err
 		}
 	}
 
-	// Write index.md
 	return e.writeEDDIndex(dir, groups)
 }
 
@@ -664,131 +378,21 @@ func (e *Exporter) writeEDDGroup(dir, xlsFile string, entities []*entity.REntity
 	sheet := "EDD"
 	f.SetSheetName("Sheet1", sheet)
 
-	eddStyles, err := e.createEDDStyles(f)
+	styler, err := NewStyler(f)
+	if err != nil {
+		return err
+	}
+	eddStyles, err := e.newEDDStyles(f)
 	if err != nil {
 		return err
 	}
 
-	// Set column widths
-	f.SetColWidth(sheet, "A", "A", 18)
-	f.SetColWidth(sheet, "B", "B", 25)
-	f.SetColWidth(sheet, "C", "C", 10)
-	f.SetColWidth(sheet, "D", "D", 12)
-	f.SetColWidth(sheet, "E", "E", 18)
-	f.SetColWidth(sheet, "F", "F", 8)
-	f.SetColWidth(sheet, "G", "G", 8)
-	f.SetColWidth(sheet, "H", "H", 55)
+	e.setEDDColumnWidths(f, sheet)
+	e.writeEDDHeaders(f, sheet, styler)
+	FreezePaneAtRow2(f, sheet)
+	e.writeEDDEntities(f, sheet, entities, styler, eddStyles)
 
-	// Write headers
-	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description"}
-	for col, header := range headers {
-		cell, _ := excelize.CoordinatesToCellName(col+1, 1)
-		f.SetCellValue(sheet, cell, header)
-		f.SetCellStyle(sheet, cell, cell, eddStyles.header)
-	}
-
-	// Freeze header row
-	f.SetPanes(sheet, &excelize.Panes{
-		Freeze:      true,
-		Split:       false,
-		XSplit:      0,
-		YSplit:      1,
-		TopLeftCell: "A2",
-		ActivePane:  "bottomLeft",
-	})
-
-	row := 2
-	for _, ent := range entities {
-		entityName := ent.GetName().StringValue()
-		attrNames := ent.GetAttributeNames()
-
-		sort.Slice(attrNames, func(i, j int) bool {
-			return attrNames[i].StringValue() < attrNames[j].StringValue()
-		})
-
-		// Count valid attributes
-		attrCount := 0
-		for _, attrName := range attrNames {
-			if attrName.StringValue() != entityName && attrName.StringValue() != "mapping*key" {
-				if ent.GetEntry(attrName) != nil {
-					attrCount++
-				}
-			}
-		}
-
-		if attrCount == 0 {
-			continue
-		}
-
-		// Write entity header row
-		f.SetCellValue(sheet, cellName(1, row), entityName)
-		f.SetCellValue(sheet, cellName(2, row), fmt.Sprintf("(%d attributes)", attrCount))
-		for col := 1; col <= 8; col++ {
-			f.SetCellStyle(sheet, cellName(col, row), cellName(col, row), eddStyles.entityHeader)
-		}
-		row++
-
-		// Write attributes
-		attrRow := 0
-		for _, attrName := range attrNames {
-			if attrName.StringValue() == entityName || attrName.StringValue() == "mapping*key" {
-				continue
-			}
-
-			entry := ent.GetEntry(attrName)
-			if entry == nil {
-				continue
-			}
-
-			access := ""
-			if entry.Readable {
-				access += "r"
-			}
-			if entry.Writable {
-				access += "w"
-			}
-
-			rowStyle := eddStyles.rowEven
-			if attrRow%2 == 1 {
-				rowStyle = eddStyles.rowOdd
-			}
-
-			f.SetCellValue(sheet, cellName(1, row), "")
-			f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), rowStyle)
-
-			f.SetCellValue(sheet, cellName(2, row), attrName.StringValue())
-			f.SetCellStyle(sheet, cellName(2, row), cellName(2, row), eddStyles.attribute)
-
-			typeStyle := e.getTypeStyle(eddStyles, entry.Type.String())
-			f.SetCellValue(sheet, cellName(3, row), entry.Type.String())
-			f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), typeStyle)
-
-			f.SetCellValue(sheet, cellName(4, row), entry.SubType)
-			f.SetCellStyle(sheet, cellName(4, row), cellName(4, row), rowStyle)
-
-			f.SetCellValue(sheet, cellName(5, row), entry.DefaultTxt)
-			f.SetCellStyle(sheet, cellName(5, row), cellName(5, row), rowStyle)
-
-			inputStyle := rowStyle
-			if entry.Input != "" {
-				inputStyle = eddStyles.input
-			}
-			f.SetCellValue(sheet, cellName(6, row), entry.Input)
-			f.SetCellStyle(sheet, cellName(6, row), cellName(6, row), inputStyle)
-
-			f.SetCellValue(sheet, cellName(7, row), access)
-			f.SetCellStyle(sheet, cellName(7, row), cellName(7, row), rowStyle)
-
-			f.SetCellValue(sheet, cellName(8, row), entry.Comment)
-			f.SetCellStyle(sheet, cellName(8, row), cellName(8, row), eddStyles.comment)
-
-			row++
-			attrRow++
-		}
-	}
-
-	filepath := dir + "/" + xlsFile
-	return f.SaveAs(filepath)
+	return f.SaveAs(dir + "/" + xlsFile)
 }
 
 func (e *Exporter) writeEDDIndex(dir string, groups map[string][]*entity.REntity) error {
@@ -797,14 +401,12 @@ func (e *Exporter) writeEDDIndex(dir string, groups map[string][]*entity.REntity
 	sb.WriteString("# Entity Data Dictionary Index\n\n")
 	sb.WriteString("This folder contains entity definitions organized by functional area.\n\n")
 
-	// Sort group names
 	groupNames := make([]string, 0, len(groups))
 	for name := range groups {
 		groupNames = append(groupNames, name)
 	}
 	sort.Strings(groupNames)
 
-	// Summary table
 	sb.WriteString("## Summary\n\n")
 	sb.WriteString("| File | Entities | Attributes |\n")
 	sb.WriteString("|------|----------|------------|\n")
@@ -812,11 +414,11 @@ func (e *Exporter) writeEDDIndex(dir string, groups map[string][]*entity.REntity
 	totalEntities := 0
 	totalAttrs := 0
 	for _, name := range groupNames {
-		entities := groups[name]
-		entCount := len(entities)
+		ents := groups[name]
+		entCount := len(ents)
 		attrCount := 0
-		for _, ent := range entities {
-			attrCount += len(ent.GetAttributeNames()) - 2 // exclude self-ref and mapping key
+		for _, ent := range ents {
+			attrCount += len(ent.GetAttributeNames()) - 2
 		}
 		totalEntities += entCount
 		totalAttrs += attrCount
@@ -824,16 +426,15 @@ func (e *Exporter) writeEDDIndex(dir string, groups map[string][]*entity.REntity
 	}
 	sb.WriteString(fmt.Sprintf("| **Total** | **%d** | **%d** |\n\n", totalEntities, totalAttrs))
 
-	// Detailed listing
 	sb.WriteString("## Entities by File\n\n")
 
 	for _, name := range groupNames {
-		entities := groups[name]
+		ents := groups[name]
 		sb.WriteString(fmt.Sprintf("### %s\n\n", name))
 		sb.WriteString("| Entity | Attributes | Description |\n")
 		sb.WriteString("|--------|------------|-------------|\n")
 
-		for _, ent := range entities {
+		for _, ent := range ents {
 			attrCount := len(ent.GetAttributeNames()) - 2
 			comment := ent.GetComment()
 			if len(comment) > 60 {
@@ -844,13 +445,11 @@ func (e *Exporter) writeEDDIndex(dir string, groups map[string][]*entity.REntity
 		sb.WriteString("\n")
 	}
 
-	filepath := dir + "/index.md"
-	return writeFile(filepath, sb.String())
+	return writeFile(dir+"/index.md", sb.String())
 }
 
-// eddStyles holds styles for EDD export
-type eddStyles struct {
-	header       int
+// eddExtraStyles holds EDD-specific styles beyond the shared Styler.
+type eddExtraStyles struct {
 	entityHeader int
 	rowEven      int
 	rowOdd       int
@@ -866,146 +465,94 @@ type eddStyles struct {
 	comment      int
 }
 
-func (e *Exporter) createEDDStyles(f *excelize.File) (*eddStyles, error) {
-	s := &eddStyles{}
+func (e *Exporter) newEDDStyles(f *excelize.File) (*eddExtraStyles, error) {
+	s := &eddExtraStyles{}
 	var err error
 
-	thinBorder := []excelize.Border{
-		{Type: "left", Color: "CCCCCC", Style: 1},
-		{Type: "top", Color: "CCCCCC", Style: 1},
-		{Type: "bottom", Color: "CCCCCC", Style: 1},
-		{Type: "right", Color: "CCCCCC", Style: 1},
-	}
+	thin := thinBorder()
+	centered := &excelize.Alignment{Horizontal: "center", Vertical: "center"}
 
-	// Header style - dark blue
-	s.header, err = f.NewStyle(&excelize.Style{
-		Font:      &excelize.Font{Bold: true, Size: 11, Color: "FFFFFF"},
-		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"1F4E79"}},
-		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
-		Border:    thinBorder,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	// Entity header style - medium blue
 	s.entityHeader, err = f.NewStyle(&excelize.Style{
-		Font:      &excelize.Font{Bold: true, Size: 10, Color: "1F4E79"},
-		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"BDD7EE"}},
+		Font:      &excelize.Font{Bold: true, Family: fontSansSerif, Size: 10},
+		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{colorEDDEntityHeader}},
 		Alignment: &excelize.Alignment{Vertical: "center"},
-		Border:    thinBorder,
+		Border:    thin,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Even row style - white
 	s.rowEven, err = f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Family: fontSansSerif, Size: 10},
 		Alignment: &excelize.Alignment{Vertical: "center"},
-		Border:    thinBorder,
+		Border:    thin,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Odd row style - light gray
 	s.rowOdd, err = f.NewStyle(&excelize.Style{
+		Font:      &excelize.Font{Family: fontSansSerif, Size: 10},
 		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"F2F2F2"}},
 		Alignment: &excelize.Alignment{Vertical: "center"},
-		Border:    thinBorder,
+		Border:    thin,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Attribute name style - bold
 	s.attribute, err = f.NewStyle(&excelize.Style{
-		Font:      &excelize.Font{Bold: true},
+		Font:      &excelize.Font{Bold: true, Family: fontSansSerif, Size: 10},
 		Alignment: &excelize.Alignment{Vertical: "center"},
-		Border:    thinBorder,
+		Border:    thin,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Type styles with color coding
-	s.typeString, err = f.NewStyle(&excelize.Style{
-		Font:      &excelize.Font{Color: "0070C0"}, // Blue
-		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
-		Border:    thinBorder,
-	})
+	s.typeString, err = f.NewStyle(&excelize.Style{Font: &excelize.Font{Family: fontSansSerif, Size: 10, Color: "0070C0"}, Alignment: centered, Border: thin})
+	if err != nil {
+		return nil, err
+	}
+	s.typeDouble, err = f.NewStyle(&excelize.Style{Font: &excelize.Font{Family: fontSansSerif, Size: 10, Color: "00B050"}, Alignment: centered, Border: thin})
+	if err != nil {
+		return nil, err
+	}
+	s.typeInteger, err = f.NewStyle(&excelize.Style{Font: &excelize.Font{Family: fontSansSerif, Size: 10, Color: "00B050"}, Alignment: centered, Border: thin})
+	if err != nil {
+		return nil, err
+	}
+	s.typeBoolean, err = f.NewStyle(&excelize.Style{Font: &excelize.Font{Family: fontSansSerif, Size: 10, Color: "ED7D31"}, Alignment: centered, Border: thin})
+	if err != nil {
+		return nil, err
+	}
+	s.typeDate, err = f.NewStyle(&excelize.Style{Font: &excelize.Font{Family: fontSansSerif, Size: 10, Color: "7030A0"}, Alignment: centered, Border: thin})
+	if err != nil {
+		return nil, err
+	}
+	s.typeArray, err = f.NewStyle(&excelize.Style{Font: &excelize.Font{Family: fontSansSerif, Size: 10, Color: "C00000", Italic: true}, Alignment: centered, Border: thin})
+	if err != nil {
+		return nil, err
+	}
+	s.typeDefault, err = f.NewStyle(&excelize.Style{Font: &excelize.Font{Family: fontSansSerif, Size: 10}, Alignment: centered, Border: thin})
 	if err != nil {
 		return nil, err
 	}
 
-	s.typeDouble, err = f.NewStyle(&excelize.Style{
-		Font:      &excelize.Font{Color: "00B050"}, // Green
-		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
-		Border:    thinBorder,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s.typeInteger, err = f.NewStyle(&excelize.Style{
-		Font:      &excelize.Font{Color: "00B050"}, // Green
-		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
-		Border:    thinBorder,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s.typeBoolean, err = f.NewStyle(&excelize.Style{
-		Font:      &excelize.Font{Color: "ED7D31"}, // Orange
-		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
-		Border:    thinBorder,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s.typeDate, err = f.NewStyle(&excelize.Style{
-		Font:      &excelize.Font{Color: "7030A0"}, // Purple
-		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
-		Border:    thinBorder,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s.typeArray, err = f.NewStyle(&excelize.Style{
-		Font:      &excelize.Font{Color: "C00000", Italic: true}, // Red italic
-		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
-		Border:    thinBorder,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s.typeDefault, err = f.NewStyle(&excelize.Style{
-		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
-		Border:    thinBorder,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	// Input field style - light yellow
 	s.input, err = f.NewStyle(&excelize.Style{
-		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"FFFFC0"}},
-		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
-		Border:    thinBorder,
+		Font:      &excelize.Font{Family: fontSansSerif, Size: 10},
+		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{colorEDDInput}},
+		Alignment: centered,
+		Border:    thin,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Comment style - wrapped text
 	s.comment, err = f.NewStyle(&excelize.Style{
-		Font:      &excelize.Font{Size: 9, Color: "666666"},
+		Font:      &excelize.Font{Family: fontSansSerif, Size: 9, Color: "666666"},
 		Alignment: &excelize.Alignment{Vertical: "center", WrapText: true},
-		Border:    thinBorder,
+		Border:    thin,
 	})
 	if err != nil {
 		return nil, err
@@ -1014,7 +561,7 @@ func (e *Exporter) createEDDStyles(f *excelize.File) (*eddStyles, error) {
 	return s, nil
 }
 
-func (e *Exporter) getTypeStyle(s *eddStyles, typeName string) int {
+func (e *Exporter) getTypeStyle(s *eddExtraStyles, typeName string) int {
 	switch strings.ToLower(typeName) {
 	case "string":
 		return s.typeString
@@ -1033,128 +580,118 @@ func (e *Exporter) getTypeStyle(s *eddStyles, typeName string) int {
 	}
 }
 
-// styles holds the cell styles for Excel export
-type styles struct {
-	title     int
-	header    int
-	numHeader int
-	field     int
-	comment   int
-	formal    int
-	table     int
-	typeStyle int
-	number    int
-	policy    int
+func (e *Exporter) setEDDColumnWidths(f *excelize.File, sheet string) {
+	AutoWidth(f, sheet, "A", 18)
+	AutoWidth(f, sheet, "B", 25)
+	AutoWidth(f, sheet, "C", 10)
+	AutoWidth(f, sheet, "D", 12)
+	AutoWidth(f, sheet, "E", 18)
+	AutoWidth(f, sheet, "F", 8)
+	AutoWidth(f, sheet, "G", 8)
+	AutoWidth(f, sheet, "H", 55)
 }
 
-func (e *Exporter) createStyles(f *excelize.File) (*styles, error) {
-	s := &styles{}
-	var err error
-
-	border := []excelize.Border{
-		{Type: "left", Color: "000000", Style: 1},
-		{Type: "top", Color: "000000", Style: 1},
-		{Type: "bottom", Color: "000000", Style: 1},
-		{Type: "right", Color: "000000", Style: 1},
+func (e *Exporter) writeEDDHeaders(f *excelize.File, sheet string, styler *Styler) {
+	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description"}
+	for col, header := range headers {
+		cell, _ := excelize.CoordinatesToCellName(col+1, 1)
+		styler.ApplyHeader(f, sheet, cell, cell, cell, header)
 	}
-
-	s.title, err = f.NewStyle(&excelize.Style{
-		Font:      &excelize.Font{Size: 12, Color: "1F4E79"},
-		Alignment: &excelize.Alignment{Vertical: "center", WrapText: true},
-		Border:    border,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s.header, err = f.NewStyle(&excelize.Style{
-		Font:      &excelize.Font{Bold: true},
-		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"C0C0C0"}},
-		Alignment: &excelize.Alignment{Vertical: "center", WrapText: true},
-		Border:    border,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s.numHeader, err = f.NewStyle(&excelize.Style{
-		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"C0C0C0"}},
-		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
-		Border:    border,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s.field, err = f.NewStyle(&excelize.Style{
-		Alignment: &excelize.Alignment{Vertical: "center", WrapText: true},
-		Border:    border,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s.comment, err = f.NewStyle(&excelize.Style{
-		Alignment: &excelize.Alignment{Vertical: "center", WrapText: true},
-		Border:    border,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s.formal, err = f.NewStyle(&excelize.Style{
-		Alignment: &excelize.Alignment{Vertical: "center", WrapText: true},
-		Border:    border,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s.table, err = f.NewStyle(&excelize.Style{
-		Font:      &excelize.Font{Bold: true},
-		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
-		Border:    border,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s.typeStyle, err = f.NewStyle(&excelize.Style{
-		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"FFFF99"}},
-		Alignment: &excelize.Alignment{Vertical: "center", WrapText: true},
-		Border:    border,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s.number, err = f.NewStyle(&excelize.Style{
-		Alignment: &excelize.Alignment{Horizontal: "center", Vertical: "center"},
-		Border:    border,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s.policy, err = f.NewStyle(&excelize.Style{
-		Fill:      excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"E2EFDA"}}, // Light green
-		Alignment: &excelize.Alignment{Vertical: "top", WrapText: true},
-		Border:    border,
-		Font:      &excelize.Font{Size: 9, Italic: true},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return s, nil
 }
 
-func (e *Exporter) writeDecisionTable(f *excelize.File, dt *decisiontable.RDecisionTable, styles *styles) error {
-	// Create sheet with sanitized name
+func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*entity.REntity, styler *Styler, s *eddExtraStyles) {
+	row := 2
+	for _, ent := range entities {
+		entityName := ent.GetName().StringValue()
+
+		attrNames := ent.GetAttributeNames()
+		sort.Slice(attrNames, func(i, j int) bool {
+			return attrNames[i].StringValue() < attrNames[j].StringValue()
+		})
+
+		attrCount := 0
+		for _, attrName := range attrNames {
+			if attrName.StringValue() != entityName && attrName.StringValue() != "mapping*key" {
+				if ent.GetEntry(attrName) != nil {
+					attrCount++
+				}
+			}
+		}
+
+		if attrCount == 0 {
+			continue
+		}
+
+		f.SetCellValue(sheet, cellName(1, row), entityName)
+		f.SetCellValue(sheet, cellName(2, row), fmt.Sprintf("(%d attributes)", attrCount))
+		for col := 1; col <= 8; col++ {
+			f.SetCellStyle(sheet, cellName(col, row), cellName(col, row), s.entityHeader)
+		}
+		row++
+
+		attrRow := 0
+		for _, attrName := range attrNames {
+			if attrName.StringValue() == entityName || attrName.StringValue() == "mapping*key" {
+				continue
+			}
+
+			entry := ent.GetEntry(attrName)
+			if entry == nil {
+				continue
+			}
+
+			access := ""
+			if entry.Readable {
+				access += "r"
+			}
+			if entry.Writable {
+				access += "w"
+			}
+
+			rowStyle := s.rowEven
+			if attrRow%2 == 1 {
+				rowStyle = s.rowOdd
+			}
+
+			f.SetCellValue(sheet, cellName(1, row), "")
+			f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), rowStyle)
+
+			f.SetCellValue(sheet, cellName(2, row), attrName.StringValue())
+			f.SetCellStyle(sheet, cellName(2, row), cellName(2, row), s.attribute)
+
+			typeStyle := e.getTypeStyle(s, entry.Type.String())
+			f.SetCellValue(sheet, cellName(3, row), entry.Type.String())
+			f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), typeStyle)
+
+			f.SetCellValue(sheet, cellName(4, row), entry.SubType)
+			f.SetCellStyle(sheet, cellName(4, row), cellName(4, row), rowStyle)
+
+			f.SetCellValue(sheet, cellName(5, row), entry.DefaultTxt)
+			f.SetCellStyle(sheet, cellName(5, row), cellName(5, row), rowStyle)
+
+			inputStyle := rowStyle
+			if entry.Input != "" {
+				inputStyle = s.input
+			}
+			f.SetCellValue(sheet, cellName(6, row), entry.Input)
+			f.SetCellStyle(sheet, cellName(6, row), cellName(6, row), inputStyle)
+
+			f.SetCellValue(sheet, cellName(7, row), access)
+			f.SetCellStyle(sheet, cellName(7, row), cellName(7, row), rowStyle)
+
+			f.SetCellValue(sheet, cellName(8, row), entry.Comment)
+			f.SetCellStyle(sheet, cellName(8, row), cellName(8, row), s.comment)
+
+			row++
+			attrRow++
+		}
+	}
+}
+
+func (e *Exporter) writeDecisionTable(f *excelize.File, dt *decisiontable.RDecisionTable, styler *Styler) error {
 	name := dt.GetName()
 	sheetName := sanitizeSheetName(name)
 
-	// Check for duplicate sheet names
 	for i := 1; ; i++ {
 		idx, _ := f.GetSheetIndex(sheetName)
 		if idx == -1 {
@@ -1169,10 +706,9 @@ func (e *Exporter) writeDecisionTable(f *excelize.File, dt *decisiontable.RDecis
 	}
 	_ = idx
 
-	// Set column widths
-	f.SetColWidth(sheetName, "A", "A", 20)
-	f.SetColWidth(sheetName, "B", "B", wideColWidth)
-	f.SetColWidth(sheetName, "C", "C", wideColWidth)
+	AutoWidth(f, sheetName, "A", 20)
+	AutoWidth(f, sheetName, "B", wideColWidth)
+	AutoWidth(f, sheetName, "C", wideColWidth)
 
 	numCols := dt.GetMaxCol()
 	if numCols < maxCol {
@@ -1185,65 +721,41 @@ func (e *Exporter) writeDecisionTable(f *excelize.File, dt *decisiontable.RDecis
 	}
 
 	row := 1
-
-	// Write Name
-	row = e.writeName(f, sheetName, dt, row, numCols, styles)
-
-	// Write Type
-	row = e.writeType(f, sheetName, dt, row, numCols, styles)
-
-	// Write Fields
-	row = e.writeFields(f, sheetName, dt, row, numCols, styles)
-
-	// Blank row
+	row = e.writeName(f, sheetName, dt, row, numCols, styler)
+	row = e.writeType(f, sheetName, dt, row, numCols, styler)
+	row = e.writeFields(f, sheetName, dt, row, numCols, styler)
 	row++
-
-	// Write Contexts
-	row = e.writeContexts(f, sheetName, dt, row, numCols, styles)
-
-	// Write Initial Actions
-	row = e.writeInitialActions(f, sheetName, dt, row, numCols, styles)
-
-	// Write Conditions
-	row = e.writeConditions(f, sheetName, dt, row, numCols, styles)
-
-	// Write Actions
-	row = e.writeActions(f, sheetName, dt, row, numCols, styles)
-
-	// Write Policy Statements
-	row = e.writePolicyStatements(f, sheetName, dt, row, numCols, styles)
+	row = e.writeContexts(f, sheetName, dt, row, numCols, styler)
+	row = e.writeInitialActions(f, sheetName, dt, row, numCols, styler)
+	row = e.writeConditions(f, sheetName, dt, row, numCols, styler)
+	row = e.writeActions(f, sheetName, dt, row, numCols, styler)
+	e.writePolicyStatements(f, sheetName, dt, row, numCols, styler)
 
 	return nil
 }
 
-func (e *Exporter) writeName(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styles *styles) int {
-	name := dt.GetName()
-	displayName := strings.ReplaceAll(name, "_", " ")
-
-	// Merge cells for name
+func (e *Exporter) writeName(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styler *Styler) int {
+	displayName := strings.ReplaceAll(dt.GetName(), "_", " ")
 	startCell := cellName(1, row)
 	endCell := cellName(3+numCols, row)
 	f.MergeCell(sheet, startCell, endCell)
 	f.SetCellValue(sheet, startCell, "Name: "+displayName)
-	f.SetCellStyle(sheet, startCell, endCell, styles.title)
-
+	f.SetCellStyle(sheet, startCell, endCell, styler.BodyStyle)
 	return row + 1
 }
 
-func (e *Exporter) writeType(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styles *styles) int {
+func (e *Exporter) writeType(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styler *Styler) int {
 	startCell := cellName(1, row)
 	endCell := cellName(3+numCols, row)
 	f.MergeCell(sheet, startCell, endCell)
 	f.SetCellValue(sheet, startCell, "Type: "+dt.GetTableType().String())
-	f.SetCellStyle(sheet, startCell, endCell, styles.typeStyle)
-
+	f.SetCellStyle(sheet, startCell, endCell, styler.DSLStyle)
 	return row + 1
 }
 
-func (e *Exporter) writeFields(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styles *styles) int {
+func (e *Exporter) writeFields(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styler *Styler) int {
 	fields := dt.GetFields()
 
-	// Sort field names
 	names := make([]string, 0, len(fields))
 	for name := range fields {
 		if strings.ToUpper(name) != "TYPE" {
@@ -1258,109 +770,86 @@ func (e *Exporter) writeFields(f *excelize.File, sheet string, dt *decisiontable
 		endCell := cellName(3+numCols, row)
 		f.MergeCell(sheet, startCell, endCell)
 		f.SetCellValue(sheet, startCell, name+": "+value)
-		f.SetCellStyle(sheet, startCell, endCell, styles.field)
+		f.SetCellStyle(sheet, startCell, endCell, styler.BodyStyle)
 		row++
 	}
 
 	return row
 }
 
-func (e *Exporter) writeContexts(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styles *styles) int {
-	// Header row: "CONTEXTS: COMMENTS" in A+B, "DSL: CONTEXTS" in C
+func (e *Exporter) writeContexts(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styler *Styler) int {
 	f.MergeCell(sheet, cellName(1, row), cellName(2, row))
-	f.SetCellValue(sheet, cellName(1, row), "CONTEXTS: COMMENTS")
-	f.SetCellStyle(sheet, cellName(1, row), cellName(2, row), styles.header)
-
+	styler.ApplyHeader(f, sheet, cellName(1, row), cellName(1, row), cellName(2, row), "CONTEXTS: COMMENTS")
 	f.MergeCell(sheet, cellName(3, row), cellName(3+numCols, row))
-	f.SetCellValue(sheet, cellName(3, row), "DSL: CONTEXTS")
-	f.SetCellStyle(sheet, cellName(3, row), cellName(3+numCols, row), styles.header)
+	styler.ApplyHeader(f, sheet, cellName(3, row), cellName(3, row), cellName(3+numCols, row), "DSL: CONTEXTS")
 	row++
 
 	contexts := dt.GetContexts()
 	comments := dt.GetContextsComment()
 
 	for i, ctx := range contexts {
-		// Number
 		f.SetCellValue(sheet, cellName(1, row), i+1)
-		f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styles.number)
+		f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styler.NumberStyle)
 
-		// Comment
 		comment := ""
 		if i < len(comments) {
 			comment = comments[i]
 		}
-		f.SetCellValue(sheet, cellName(2, row), comment)
-		f.SetCellStyle(sheet, cellName(2, row), cellName(2, row), styles.comment)
+		styler.ApplyBody(f, sheet, cellName(2, row), comment)
 
-		// Expression (merged)
 		startCell := cellName(3, row)
 		endCell := cellName(3+numCols, row)
 		f.MergeCell(sheet, startCell, endCell)
-		f.SetCellValue(sheet, startCell, ctx)
-		f.SetCellStyle(sheet, startCell, endCell, styles.formal)
+		styler.ApplyDSL(f, sheet, startCell, ctx)
+		f.SetCellStyle(sheet, startCell, endCell, styler.DSLStyle)
 		row++
 	}
 
-	// Blank row
 	row++
 	return row
 }
 
-func (e *Exporter) writeInitialActions(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styles *styles) int {
-	// Header row: "INITIAL ACTIONS: COMMENTS" in A+B, "DSL: INITIAL ACTIONS" in C
+func (e *Exporter) writeInitialActions(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styler *Styler) int {
 	f.MergeCell(sheet, cellName(1, row), cellName(2, row))
-	f.SetCellValue(sheet, cellName(1, row), "INITIAL ACTIONS: COMMENTS")
-	f.SetCellStyle(sheet, cellName(1, row), cellName(2, row), styles.header)
-
+	styler.ApplyHeader(f, sheet, cellName(1, row), cellName(1, row), cellName(2, row), "INITIAL ACTIONS: COMMENTS")
 	f.MergeCell(sheet, cellName(3, row), cellName(3+numCols, row))
-	f.SetCellValue(sheet, cellName(3, row), "DSL: INITIAL ACTIONS")
-	f.SetCellStyle(sheet, cellName(3, row), cellName(3+numCols, row), styles.header)
+	styler.ApplyHeader(f, sheet, cellName(3, row), cellName(3, row), cellName(3+numCols, row), "DSL: INITIAL ACTIONS")
 	row++
 
 	actions := dt.GetInitialActions()
 	comments := dt.GetInitialActionsComment()
 
 	for i, action := range actions {
-		// Number
 		f.SetCellValue(sheet, cellName(1, row), i+1)
-		f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styles.number)
+		f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styler.NumberStyle)
 
-		// Comment
 		comment := ""
 		if i < len(comments) {
 			comment = comments[i]
 		}
-		f.SetCellValue(sheet, cellName(2, row), comment)
-		f.SetCellStyle(sheet, cellName(2, row), cellName(2, row), styles.comment)
+		styler.ApplyBody(f, sheet, cellName(2, row), comment)
 
-		// Expression (merged)
 		startCell := cellName(3, row)
 		endCell := cellName(3+numCols, row)
 		f.MergeCell(sheet, startCell, endCell)
-		f.SetCellValue(sheet, startCell, action)
-		f.SetCellStyle(sheet, startCell, endCell, styles.formal)
+		styler.ApplyDSL(f, sheet, startCell, action)
+		f.SetCellStyle(sheet, startCell, endCell, styler.DSLStyle)
 		row++
 	}
 
-	// Blank row
 	row++
 	return row
 }
 
-func (e *Exporter) writeConditions(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styles *styles) int {
-	// Header row: "CONDITIONS: COMMENTS" in A+B, "DSL: CONDITIONS" in C, then column numbers
+func (e *Exporter) writeConditions(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styler *Styler) int {
 	f.MergeCell(sheet, cellName(1, row), cellName(2, row))
-	f.SetCellValue(sheet, cellName(1, row), "CONDITIONS: COMMENTS")
-	f.SetCellStyle(sheet, cellName(1, row), cellName(2, row), styles.header)
+	styler.ApplyHeader(f, sheet, cellName(1, row), cellName(1, row), cellName(2, row), "CONDITIONS: COMMENTS")
+	styler.ApplyHeader(f, sheet, cellName(3, row), cellName(3, row), cellName(3, row), "DSL: CONDITIONS")
 
-	f.SetCellValue(sheet, cellName(3, row), "DSL: CONDITIONS")
-	f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), styles.header)
-
-	// Column numbers
 	for i := 0; i < numCols; i++ {
 		cell := cellName(4+i, row)
 		f.SetCellValue(sheet, cell, i+1)
-		f.SetCellStyle(sheet, cell, cell, styles.numHeader)
+		f.SetCellStyle(sheet, cell, cell, styler.HeaderStyle)
 	}
 	row++
 
@@ -1369,23 +858,16 @@ func (e *Exporter) writeConditions(f *excelize.File, sheet string, dt *decisiont
 	condTable := dt.GetConditionTable()
 
 	for i, cond := range conditions {
-		// Number
 		f.SetCellValue(sheet, cellName(1, row), i+1)
-		f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styles.number)
+		f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styler.NumberStyle)
 
-		// Comment
 		comment := ""
 		if i < len(comments) {
 			comment = comments[i]
 		}
-		f.SetCellValue(sheet, cellName(2, row), comment)
-		f.SetCellStyle(sheet, cellName(2, row), cellName(2, row), styles.comment)
+		styler.ApplyBody(f, sheet, cellName(2, row), comment)
+		styler.ApplyDSL(f, sheet, cellName(3, row), cond)
 
-		// Expression
-		f.SetCellValue(sheet, cellName(3, row), cond)
-		f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), styles.formal)
-
-		// Table values
 		if i < len(condTable) {
 			for j := 0; j < numCols; j++ {
 				val := ""
@@ -1394,31 +876,26 @@ func (e *Exporter) writeConditions(f *excelize.File, sheet string, dt *decisiont
 				}
 				cell := cellName(4+j, row)
 				f.SetCellValue(sheet, cell, val)
-				f.SetCellStyle(sheet, cell, cell, styles.table)
+				f.SetCellStyle(sheet, cell, cell, styler.BodyStyle)
 			}
 		}
 		row++
 	}
 
-	// Blank row
 	row++
 	return row
 }
 
-func (e *Exporter) writeActions(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styles *styles) int {
-	// Header row: "ACTIONS: COMMENTS" in A+B, "DSL: ACTIONS" in C, then column numbers
+func (e *Exporter) writeActions(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styler *Styler) int {
+	// Use SeparatorStyle on action column numbers to visually mark the condition/action boundary.
 	f.MergeCell(sheet, cellName(1, row), cellName(2, row))
-	f.SetCellValue(sheet, cellName(1, row), "ACTIONS: COMMENTS")
-	f.SetCellStyle(sheet, cellName(1, row), cellName(2, row), styles.header)
+	styler.ApplyHeader(f, sheet, cellName(1, row), cellName(1, row), cellName(2, row), "ACTIONS: COMMENTS")
+	styler.ApplyHeader(f, sheet, cellName(3, row), cellName(3, row), cellName(3, row), "DSL: ACTIONS")
 
-	f.SetCellValue(sheet, cellName(3, row), "DSL: ACTIONS")
-	f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), styles.header)
-
-	// Column numbers
 	for i := 0; i < numCols; i++ {
 		cell := cellName(4+i, row)
 		f.SetCellValue(sheet, cell, i+1)
-		f.SetCellStyle(sheet, cell, cell, styles.numHeader)
+		f.SetCellStyle(sheet, cell, cell, styler.SeparatorStyle)
 	}
 	row++
 
@@ -1427,23 +904,16 @@ func (e *Exporter) writeActions(f *excelize.File, sheet string, dt *decisiontabl
 	actionTable := dt.GetActionTable()
 
 	for i, action := range actions {
-		// Number
 		f.SetCellValue(sheet, cellName(1, row), i+1)
-		f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styles.number)
+		f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styler.NumberStyle)
 
-		// Comment
 		comment := ""
 		if i < len(comments) {
 			comment = comments[i]
 		}
-		f.SetCellValue(sheet, cellName(2, row), comment)
-		f.SetCellStyle(sheet, cellName(2, row), cellName(2, row), styles.comment)
+		styler.ApplyBody(f, sheet, cellName(2, row), comment)
+		styler.ApplyDSL(f, sheet, cellName(3, row), action)
 
-		// Expression
-		f.SetCellValue(sheet, cellName(3, row), action)
-		f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), styles.formal)
-
-		// Table values
 		if i < len(actionTable) {
 			for j := 0; j < numCols; j++ {
 				val := ""
@@ -1452,21 +922,19 @@ func (e *Exporter) writeActions(f *excelize.File, sheet string, dt *decisiontabl
 				}
 				cell := cellName(4+j, row)
 				f.SetCellValue(sheet, cell, val)
-				f.SetCellStyle(sheet, cell, cell, styles.table)
+				f.SetCellStyle(sheet, cell, cell, styler.BodyStyle)
 			}
 		}
 		row++
 	}
 
-	// Blank row
 	row++
 	return row
 }
 
-func (e *Exporter) writePolicyStatements(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styles *styles) int {
+func (e *Exporter) writePolicyStatements(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styler *Styler) int {
 	policyStatements := dt.GetPolicyStatements()
 
-	// Check if there are any policy statements
 	hasStatements := false
 	for i := 1; i < len(policyStatements); i++ {
 		if policyStatements[i] != "" {
@@ -1478,19 +946,14 @@ func (e *Exporter) writePolicyStatements(f *excelize.File, sheet string, dt *dec
 		return row
 	}
 
-	// Header row
 	f.MergeCell(sheet, cellName(1, row), cellName(2, row))
-	f.SetCellValue(sheet, cellName(1, row), "Policy:")
-	f.SetCellStyle(sheet, cellName(1, row), cellName(2, row), styles.header)
+	styler.ApplyHeader(f, sheet, cellName(1, row), cellName(1, row), cellName(2, row), "Policy:")
+	styler.ApplyHeader(f, sheet, cellName(3, row), cellName(3, row), cellName(3, row), "Policy Statements")
 
-	f.SetCellValue(sheet, cellName(3, row), "Policy Statements")
-	f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), styles.header)
-
-	// Column numbers
 	for i := 0; i < numCols; i++ {
 		cell := cellName(4+i, row)
 		f.SetCellValue(sheet, cell, i+1)
-		f.SetCellStyle(sheet, cell, cell, styles.numHeader)
+		f.SetCellStyle(sheet, cell, cell, styler.HeaderStyle)
 	}
 	row++
 
@@ -1500,21 +963,16 @@ func (e *Exporter) writePolicyStatements(f *excelize.File, sheet string, dt *dec
 			continue
 		}
 
-		// Column number
 		f.SetCellValue(sheet, cellName(1, row), i)
-		f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styles.number)
+		f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styler.NumberStyle)
 
-		// Policy text
-		f.SetCellValue(sheet, cellName(2, row), policyStatements[i])
-		f.SetCellStyle(sheet, cellName(2, row), cellName(2, row), styles.comment)
+		styler.ApplyBody(f, sheet, cellName(2, row), policyStatements[i])
+		styler.ApplyDSL(f, sheet, cellName(3, row), "")
 
-		// Empty C and column cells with policy style
-		f.SetCellValue(sheet, cellName(3, row), "")
-		f.SetCellStyle(sheet, cellName(3, row), cellName(3, row), styles.formal)
 		for j := 0; j < numCols; j++ {
 			cell := cellName(4+j, row)
 			f.SetCellValue(sheet, cell, "")
-			f.SetCellStyle(sheet, cell, cell, styles.policy)
+			f.SetCellStyle(sheet, cell, cell, styler.BodyStyle)
 		}
 
 		row++
@@ -1531,13 +989,10 @@ func cellName(col, row int) string {
 }
 
 func sanitizeSheetName(name string) string {
-	// Excel sheet names have restrictions
 	name = strings.ReplaceAll(name, "_", " ")
-	// Max 31 characters
 	if len(name) > 31 {
 		name = name[:31]
 	}
-	// Remove invalid characters
 	for _, c := range []string{":", "\\", "/", "?", "*", "[", "]"} {
 		name = strings.ReplaceAll(name, c, "")
 	}
