@@ -29,6 +29,7 @@ var docTopics = map[string]string{
 	"decision-tables": docDecisionTables,
 	"operators":       docOperators,
 	"examples":        docExamples,
+	"mapping":         docMapping,
 	"workflow":        docWorkflow,
 }
 
@@ -71,6 +72,7 @@ func printDocIndex() {
 		"decision-tables": "How to write decision tables",
 		"operators":       "All available operators with examples",
 		"examples":        "Complete working examples",
+		"mapping":         "Mapping XML and xlsx schema for translating input data into EDD entities",
 		"workflow":        "Development workflow with Excel and XML",
 	}
 
