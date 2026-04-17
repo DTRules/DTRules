@@ -1,5 +1,64 @@
 # DTRules Changelog
 
+## v1.6.0 — 2026-04-17
+
+Protocol release following v1.5.0's packaging epic. Adds blockchain-friendly EL types, field-inspection tooling for deployed binaries, performance encoding for sparse decision tables, and five new embedded doc topics. No breaking changes.
+
+### New EL types and operators
+
+- **`bytes`** — first-class byte-sequence type. Hex literals `0x…`, `length of`, concat `+`, slice `from n to m`, indexed access `[i]`, `is equal to` / `is not equal to` with `crypto/subtle.ConstantTimeCompare`.
+- **Hash built-ins**: `sha256 of`, `keccak256 of`, `ripemd160 of`, `sha3 of` → bytes.
+- **Encoding helpers**: `hex of` / `bytes of hex`, `base58check of … version N` / `bytes of base58check`, `bech32 of … hrp "…"` / `bytes of bech32`, `bytes of bigint n size k` / `bigint of bytes`. BIP-173 HRP validation.
+- Signature verification remains host-side by design.
+
+### New runtime: lazy `ALL` table encoding
+
+Decision tables with sparse `Y`/don't-care columns used to expand to `2^N` tree leaves. When the leaf count would exceed 64, the runtime now switches to a lazy column-matching encoding that evaluates each referenced condition at most once, regardless of column count. Automatic at XML import. No authoring change. `FIRST` / `BALANCED` tables unaffected.
+
+### New SDK function
+
+- **`excel.ExtractExcel(src fs.FS, dst string) error`** — consumer apps embedding DTRules rules via `//go:embed` can dump their own compiled rules back to an editable `excel/` tree for debugging or audit. Pure XML→xlsx representation conversion; no session, no loader.
+
+### File conventions and mapping
+
+- Enforced `_dt` / `_edd` / `_map` suffix convention on both xlsx and xml. Single-artifact workbooks carry the type suffix; mixed-artifact workbooks stay suffix-free and route by A1 marker.
+- Mapping xlsx import/export implemented end-to-end. `TaxReturn_map.xlsx` fixture committed.
+
+### Documentation
+
+Five new embedded topics:
+- `dtrules docs project-layout` — folder conventions, `_dt`/`_edd`/`_map` rule, `.sync-manifest.json`, `DTRules.xml`.
+- `dtrules docs mapping` — XML and xlsx mapping schema.
+- `dtrules docs database` — KV design from the EDD: key composition, arrays, references, `mapping*key`.
+- `dtrules docs architecture` — dev-time-vs-deploy-time; deployment is a single `//go:embed`'d binary.
+- `dtrules docs embedding` — the `ExtractExcel` recipe and single-binary distribution pattern.
+- `dtrules docs bytes` — blockchain types and operators.
+
+Repository reference material:
+- `docs/EL-REFERENCE.md` rebuilt against ANTLR4 with real compiler-captured postfix, BIP-173 examples, tax + eligibility examples.
+- `docs/COMPILER-INTERNALS.md` added: opcodes 1–127 with stack-effect notation, VM / runtime / session model, error taxonomy. Replaces the deleted `docs/bytecode-spec.md`.
+- Both carry a prominent "NOT FOR RULE AUTHORS" banner.
+
+### Tests
+
+- `pkg/dtrules/encoding/` ships at 96.5% coverage.
+- Bech32 checksum fixed to BIP-173 spec (the property test caught an off-by-one XOR in a six-hour-old `bech32CreateChecksum`; shipped in hotfix #564).
+- 464 new lines of encoding operator + grammar tests.
+- Lazy ALL table: semantic-equivalence tests against the tree encoding for random fixtures ≤64 leaves, plus property tests for each-condition-evaluated-at-most-once.
+
+### Issues closed
+
+#522, #524, #525, #529, #530, #531, #532, #533, #534, #535, #543, #545, #547, #548, #549, #550, #554, #557, #558, #559, #560.
+
+### Still open, not blocking
+
+- #501 — declined (XML-to-XML compile would bypass Excel-as-SoR).
+- #520 — pre-existing tax-content test failures in `pkg/dtrules/` package (rule content, not the binary).
+- #541 — loader should accept `fs.FS` directly (deferred; workaround documented in `docs embedding`).
+- #555 — static analysis warnings (dead columns, unreachable columns, unused EDD fields) — filed, not yet implemented.
+
+---
+
 ## v1.5.0 — 2026-04-17
 
 Packaging release. Establishes **Excel as the system of record** and provides a single authoring pipeline so AI and human authors produce canonical rule artifacts every time.
