@@ -1,5 +1,36 @@
 # DTRules Changelog
 
+## v1.6.1 — 2026-04-17
+
+Patch release driven by consumer (Accumulate staking) feedback. Two protocol additions, both backward-compatible.
+
+### `type="date"` accepts timestamps
+
+`RDate` now parses ISO-8601 / RFC3339 datetimes (with optional nanosecond precision) and space-separated datetime strings, in addition to the existing `YYYY-MM-DD` form. Pure dates still serialize back as `YYYY-MM-DD`; non-midnight values serialize as RFC3339 — no churn on existing date-only XML. Closes the "No Time value exists for this type" error the staking repo worked around. (#568, PR #571)
+
+### EL `error` and `warn` statements
+
+- `error "<msg>"` — halts rule execution and returns `*dtrules.ELStatementError` to the host. Callers distinguish rule-raised errors from VM errors via `errors.As(&ELStatementError{})`.
+- `warn "<msg>"` — emits a `[warn]` log line, execution continues.
+- Postfix: `elstmterror` (OpError=128, stack effect `(string --)`), `elstmtwarn` (OpWarn=129).
+- `message` supports string concatenation (`error "bad: " + field`). (#570, PR #572)
+
+### Documentation
+
+- `dtrules docs el` updated: Date subsection covers timestamp acceptance; new `Errors and warnings` subsection.
+- `docs/EL-REFERENCE.md` gains entries for timestamp parsing and `error`/`warn` with captured postfix.
+- `docs/COMPILER-INTERNALS.md` adds OpError/OpWarn entries.
+
+### Issues closed
+
+#568, #570.
+
+### Consumer impact
+
+Accumulate staking (gitlab #180) had 43 entries needing migration to real EL. The 2 entries blocked on #570 and the `sync_time` issue blocked on #568 are now both unblocked. Staking can retire its native-Go fallback after consuming v1.6.1.
+
+---
+
 ## v1.6.0 — 2026-04-17
 
 Protocol release following v1.5.0's packaging epic. Adds blockchain-friendly EL types, field-inspection tooling for deployed binaries, performance encoding for sparse decision tables, and five new embedded doc topics. No breaking changes.
