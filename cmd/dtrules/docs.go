@@ -30,6 +30,10 @@ var docTopics = map[string]string{
 	"operators":       docOperators,
 	"examples":        docExamples,
 	"mapping":         docMapping,
+	"project-layout":  docProjectLayout,
+	"database":        docDatabase,
+	"architecture":    docArchitecture,
+	"embedding":       docEmbedding,
 	"workflow":        docWorkflow,
 }
 
@@ -73,6 +77,10 @@ func printDocIndex() {
 		"operators":       "All available operators with examples",
 		"examples":        "Complete working examples",
 		"mapping":         "Mapping XML and xlsx schema for translating input data into EDD entities",
+		"project-layout":  "Project folder conventions and the _dt/_edd/_map file naming rule",
+		"database":        "KV database design driven by the EDD: key composition, arrays, references, mapping*key",
+		"architecture":    "Dev-time vs deploy-time layouts (files on disk vs single embedded binary)",
+		"embedding":       "Embed DTRules rules into a single Go binary via //go:embed (no xlsx or xml at runtime)",
 		"workflow":        "Development workflow with Excel and XML",
 	}
 
