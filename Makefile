@@ -7,34 +7,28 @@
 #   make install
 
 # Version info
-# Uses git describe to get version from tags (e.g., "v1.0.0" or "v1.0.0-5-gabcdef")
+VERSION  ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
+COMMIT   ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+DATE     ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
+
 GIT_BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
-BUILD_DATE ?= $(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
-
-# Check if working directory is clean (empty = clean, non-empty = dirty)
-GIT_DIRTY := $(shell git status --porcelain 2>/dev/null)
-
-# If dirty, omit commit hash (code doesn't match any commit)
-ifdef GIT_DIRTY
-  GIT_COMMIT ?= uncommitted
-  VERSION ?= $(GIT_BRANCH)-dev
-else
-  GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
-  VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo "dev")
-endif
 
 # Build flags
 PKG := github.com/DTRules/DTRules/pkg/dtrules/version
-LDFLAGS := -X $(PKG).Version=$(VERSION)
-LDFLAGS += -X $(PKG).GitCommit=$(GIT_COMMIT)
-LDFLAGS += -X $(PKG).GitBranch=$(GIT_BRANCH)
-LDFLAGS += -X $(PKG).BuildDate=$(BUILD_DATE)
+LDFLAGS := -s -w \
+           -X $(PKG).Version=$(VERSION) \
+           -X $(PKG).Commit=$(COMMIT) \
+           -X $(PKG).Date=$(DATE) \
+           -X $(PKG).GitCommit=$(COMMIT) \
+           -X $(PKG).GitBranch=$(GIT_BRANCH) \
+           -X $(PKG).BuildDate=$(DATE)
 
 # Output
-BINARY := dtrules
+BINARY   := dtrules
 BUILD_DIR := build
+DIST_DIR  := dist
 
-.PHONY: all build install clean test version
+.PHONY: all build install clean test version release
 
 all: build
 
@@ -49,7 +43,7 @@ install:
 
 clean:
 	@echo "Cleaning..."
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR) $(DIST_DIR)
 	go clean
 
 test:
@@ -58,11 +52,24 @@ test:
 
 version:
 	@echo "Version: $(VERSION)"
-	@echo "Commit:  $(GIT_COMMIT)"
+	@echo "Commit:  $(COMMIT)"
 	@echo "Branch:  $(GIT_BRANCH)"
-	@echo "Date:    $(BUILD_DATE)"
+	@echo "Date:    $(DATE)"
 
-# Cross-compilation targets
+# Release: cross-compile for all platforms and produce checksums in dist/
+release:
+	@echo "Building release $(VERSION)..."
+	@mkdir -p $(DIST_DIR)
+	GOOS=linux   GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-linux-amd64       ./cmd/dtrules/
+	GOOS=linux   GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-linux-arm64       ./cmd/dtrules/
+	GOOS=darwin  GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-darwin-amd64      ./cmd/dtrules/
+	GOOS=darwin  GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-darwin-arm64      ./cmd/dtrules/
+	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-windows-amd64.exe ./cmd/dtrules/
+	cd $(DIST_DIR) && sha256sum * > checksums.txt
+	@echo "Release artifacts in $(DIST_DIR)/"
+	@ls -lh $(DIST_DIR)/
+
+# Cross-compilation targets (individual platforms, output to build/)
 .PHONY: build-linux build-darwin build-windows build-all
 
 build-linux:

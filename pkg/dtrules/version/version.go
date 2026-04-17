@@ -23,18 +23,26 @@ import (
 
 // These variables are set at build time using ldflags:
 //
-//	go build -ldflags "-X github.com/DTRules/DTRules/pkg/dtrules/version.Version=1.0.0"
+//	go build -ldflags "-X github.com/DTRules/DTRules/pkg/dtrules/version.Version=1.0.0 \
+//	                   -X github.com/DTRules/DTRules/pkg/dtrules/version.Commit=abc1234 \
+//	                   -X github.com/DTRules/DTRules/pkg/dtrules/version.Date=2024-01-01T00:00:00Z"
 var (
-	// Version is the semantic version (e.g., "5.0.0", "5.0.0-SNAPSHOT")
+	// Version is the semantic version (e.g., "v1.0.0")
 	Version = "dev"
 
-	// GitCommit is the git commit hash
+	// Commit is the short git commit SHA injected at build time.
+	Commit = ""
+
+	// Date is the RFC3339 build timestamp injected at build time.
+	Date = ""
+
+	// GitCommit is an alias for Commit kept for backward compatibility.
 	GitCommit = ""
 
 	// GitBranch is the git branch name
 	GitBranch = ""
 
-	// BuildDate is the build timestamp
+	// BuildDate is an alias for Date kept for backward compatibility.
 	BuildDate = ""
 )
 
@@ -58,14 +66,22 @@ func Info() string {
 func Full() string {
 	info := Info()
 
-	if GitCommit != "" {
-		info += fmt.Sprintf("\nCommit: %s", GitCommit)
+	commit := Commit
+	if commit == "" {
+		commit = GitCommit
+	}
+	if commit != "" {
+		info += fmt.Sprintf("\nCommit: %s", commit)
 	}
 	if GitBranch != "" {
 		info += fmt.Sprintf("\nBranch: %s", GitBranch)
 	}
-	if BuildDate != "" {
-		info += fmt.Sprintf("\nBuilt:  %s", BuildDate)
+	date := Date
+	if date == "" {
+		date = BuildDate
+	}
+	if date != "" {
+		info += fmt.Sprintf("\nBuilt:  %s", date)
 	}
 
 	return info

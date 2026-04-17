@@ -22,13 +22,27 @@ DTRules has been used in production systems including:
 - Insurance eligibility determination systems
 - Commercial business logic applications
 
-## Quick Start
+## Install
 
-### Install
+**Option 1 — go install (requires Go 1.21+):**
 
 ```bash
 go install github.com/DTRules/DTRules/cmd/dtrules@latest
 ```
+
+**Option 2 — Prebuilt binaries:**
+
+Download from [GitHub Releases](https://github.com/DTRules/DTRules/releases) for linux-amd64, linux-arm64, darwin-amd64, darwin-arm64, and windows-amd64.
+
+**Verify install:**
+
+```bash
+dtrules version && dtrules docs
+```
+
+<!-- TODO: Homebrew tap -->
+
+## Quick Start
 
 ### Build from Source
 
