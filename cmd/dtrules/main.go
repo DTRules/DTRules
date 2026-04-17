@@ -68,7 +68,9 @@ var (
 
 // Subcommands that trigger the new CLI
 var subcommands = map[string]bool{
+	"build":    true,
 	"sync":     true,
+	"internal": true,
 	"init":     true,
 	"validate": true,
 	"version":  true,

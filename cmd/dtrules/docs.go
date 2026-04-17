@@ -1855,90 +1855,57 @@ CRITICAL: Excel is the System of Record
 All rules MUST be written in EL (Expression Language). The EL compiler
 generates internal bytecode automatically — never write bytecode by hand.
 
-Required workflow:
-  1. User edits Excel      <- Source of truth (EL expressions)
-  2. dtrules sync import   <- Compiles EL, generates XML
-  3. dtrules -rules xml    <- Use compiled rules
 
-If AI/developers modify XML directly:
-  1. Edit XML (add/modify EL expressions in *_dsl tags)
-  2. dtrules sync export   <- Update Excel with standard formatting
-  3. dtrules sync import   <- Re-import to compile EL
+The One Command: dtrules build
+-------------------------------
+Run this after any edit — whether you changed Excel or XML:
 
+  dtrules build [path]
 
-Excel-First Workflow
---------------------
-Best for: Business analysts editing rules in spreadsheets
+dtrules build auto-detects which files changed, runs the correct pipeline,
+and leaves canonical Excel files and compiled XML on disk. You cannot skip
+steps; the pipeline is always complete.
 
-1. Create/edit rules in Excel
-   - EDD sheet: entity definitions
-   - DT sheets: decision tables with EL expressions
-
-2. Import to XML (compiles EL)
-   dtrules sync import
-
-3. Test
-   dtrules -rules ./xml -test ./testfiles -entry Main
-
-4. Validate
-   dtrules validate
+Flags:
+  --from-excel   Force Excel-authored path (Excel → XML)
+  --from-xml     Force XML-authored path   (XML → Excel → XML)
+  --dry-run      Show what would change without writing files
+  -v, --verbose  Verbose output
 
 
-AI/Developer Workflow
----------------------
-Best for: Programmatic rule editing
+Excel-Authored Path (default when .xlsx is newer)
+--------------------------------------------------
+Best for: Business analysts editing rules in spreadsheets.
 
-1. Check for pending user edits FIRST
-   dtrules sync check
-
-2. Edit XML files (EL in *_dsl tags only)
-   - *_edd.xml: entity definitions
-   - *_dt.xml: decision tables (use condition_dsl, action_dsl, context_dsl)
-
-3. Export to Excel (records changes)
-   dtrules sync export
-
-4. Re-import to compile EL
-   dtrules sync import
-
-5. Test
-   dtrules -rules ./xml -test ./testfiles
-
-IMPORTANT: Always use EL expressions in the *_dsl tags.
-The import process compiles them automatically.
+1. Edit rules in Excel (EDD sheet + DT sheets with EL expressions).
+2. Run the pipeline:
+     dtrules build
+3. Test the compiled rules:
+     dtrules -rules ./xml -test ./testfiles -entry Main
 
 
-Validate Command
-----------------
-dtrules validate           Check project structure and EL compliance
-dtrules validate --strict  Fail if any legacy non-EL files exist
-dtrules validate --allow-legacy  Allow legacy files (migration mode)
+XML-Authored Path (default when .xml is newer)
+-----------------------------------------------
+Best for: AI or developer edits directly in XML.
 
-The validate command checks:
-  1. Project structure (excel/, xml/, testfiles/)
-  2. EL compliance
-  3. Sync status (no pending user edits)
-
-
-Sync Commands
--------------
-dtrules sync status    Show sync state
-dtrules sync check     Check for pending user edits (exits non-zero if any)
-dtrules sync import    Import Excel → XML (compiles EL)
-dtrules sync export    Export XML → Excel (fails if user edits pending)
-dtrules sync auto      Auto-detect direction and sync
+1. Edit XML files — use EL in *_dsl tags only (condition_dsl, action_dsl,
+   context_dsl, initial_action_dsl). Never hand-code postfix.
+2. Run the pipeline:
+     dtrules build
+   This exports your XML to Excel, then re-imports to normalize and compile.
+3. Test the compiled rules.
 
 
 Directory Structure
 -------------------
 project/
-├── excel/                    # Source of truth
-│   ├── .sync-manifest.json   # Tracks export timestamps
+├── excel/                    # Source of truth (canonical after each build)
+│   ├── .sync-manifest.json   # Tracks export timestamps (do not commit)
 │   ├── Rules.xlsx
 │   └── states/
 │       ├── CO.xlsx
 │       └── CA.xlsx
-├── xml/                      # Generated from Excel - edit only *_dsl tags
+├── xml/                      # Compiled from Excel — edit only *_dsl tags
 │   ├── Rules_edd.xml
 │   ├── Rules_dt.xml
 │   └── states/
@@ -1958,60 +1925,35 @@ EL (in Excel cells or XML *_dsl tags):
     set result.tax = income * rate
 
 
-Resolving Conflicts
--------------------
-If 'dtrules sync export' fails because Excel was modified:
+Validate Command
+----------------
+dtrules validate           Check project structure and EL compliance
+dtrules validate --strict  Fail if any legacy non-EL files exist
 
-1. Import their changes first:
-   dtrules sync import
-
-2. Re-apply your XML changes (edit *_dsl tags)
-
-3. Export the merged result:
-   dtrules sync export
-
-4. Re-import to compile:
-   dtrules sync import
+The validate command checks:
+  1. Project structure (excel/, xml/, testfiles/)
+  2. EL compliance (no hand-coded postfix)
+  3. Sync status (no pending user edits)
 
 
 CI/CD Integration
 -----------------
-# In your CI pipeline:
+# 1. Build (idempotent — safe to run even when nothing changed)
+dtrules build
 
-# 1. Validate project
+# 2. Validate
 dtrules validate --strict
-if [ $? -ne 0 ]; then
-    echo "Validation failed!"
-    exit 1
-fi
 
-# 2. Run tests
+# 3. Run tests
 dtrules -rules ./xml -test ./testfiles -entry Main
-
-
-Migrating Legacy XML
---------------------
-If you have existing XML without EL expressions:
-
-1. Run validate to identify legacy files:
-   dtrules validate
-
-2. For each legacy file:
-   a. Open the corresponding Excel file
-   b. Add EL expressions to the DSL column (or description column for legacy)
-   c. Run: dtrules sync import
-
-3. Verify migration:
-   dtrules validate --strict
 
 
 Best Practices
 --------------
-1. ALWAYS write EL in *_dsl tags — never hand-code internal formats
-2. Always run 'dtrules sync check' before editing XML
-3. Always run 'dtrules sync import' after editing Excel
-4. Run 'dtrules validate' before committing
-5. Use --strict in CI to enforce EL compliance
+1. Always use 'dtrules build' — never invoke sync import/export manually.
+2. Always write EL in *_dsl tags — never hand-code internal formats.
+3. Run 'dtrules validate' before committing.
+4. Use --strict in CI to enforce EL compliance.
 `
 
 const docBigInt = `BigInt - Arbitrary-Precision Integers

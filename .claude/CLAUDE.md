@@ -69,46 +69,16 @@ dtrules docs workflow            # Development workflow
 
 ## Excel/XML Synchronization (CRITICAL)
 
-**Excel is the source of truth.** Users edit Excel files, AI edits XML files. The sync system ensures these stay coordinated.
-
-### The Rule
-
-**Before exporting XML to Excel, you MUST check if Excel was modified by the user.**
-
-If the user modified Excel since your last export, your export will be **REJECTED** to prevent overwriting their changes.
-
-### CLI Commands
+**Excel is the source of truth.** Run `dtrules build` after every edit — whether you changed Excel or XML. The build command auto-detects which files changed and runs the full pipeline (normalize + compile) so steps cannot be skipped.
 
 ```bash
-dtrules sync status              # Show sync status
-dtrules sync check               # Check for pending user edits
-dtrules sync import              # Import Excel → XML
-dtrules sync export              # Export XML → Excel
+dtrules build                    # Auto-detect and run the full pipeline
+dtrules build --from-excel       # Force Excel-authored path
+dtrules build --from-xml         # Force XML-authored path
+dtrules build --dry-run          # Show what would change without writing
 ```
 
-### Workflow
-
-1. **Import Excel → XML** (get user's latest changes)
-2. **Edit XML** (make your changes)
-3. **Export XML → Excel** (record your changes)
-
-### Before Making XML Changes
-
-Always check for pending user changes first:
-
-```bash
-dtrules sync check
-# If this fails, run: dtrules sync import
-```
-
-### If Export is Rejected
-
-If you see `ExcelModifiedError`:
-
-1. **DO NOT** try to force the export
-2. **DO** run `dtrules sync import` to get user's changes
-3. **THEN** re-apply your changes to the updated XML
-4. **THEN** export again
+See `dtrules docs workflow` for details on both the Excel-authored and XML-authored paths.
 
 ## State Tax Implementation
 
