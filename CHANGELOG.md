@@ -1,5 +1,75 @@
 # DTRules Changelog
 
+## v1.6.3 — 2026-04-17
+
+Patch release. Visible build summary, silent-drop bug fixed, static analysis warnings, and a safety net against "scoped tests pass but full build fails" mistakes. No breaking changes.
+
+### `dtrules build` summary
+
+Every build now ends with a structured summary covering both steps:
+
+```
+Build Summary
+
+Export step (XML → Excel):
+  tables=11  actions=38  conditions=5  entities=10  mappings=0
+  postfix-stripped=43
+  files-written=1
+  drops: none
+
+Import step (Excel → XML):
+  tables=11  actions=38  conditions=5  entities=10  mappings=0
+  compiled=38
+  files-written=3
+  drops: none
+  warnings: 0
+
+Result: OK — no drops
+```
+
+Counts expose what was preserved. Drops are fatal (build exits non-zero and names table / column / item / reason). Warnings are advisory (legacy prose-DSL where the DSL field equals the comment text; preserved verbatim through the round-trip per #504). `--quiet` suppresses the summary on success. (#580, #582, #583 — PRs #581, #582, #584)
+
+### Fix: import no longer clobbers `action_dsl` with `action_comment`
+
+The combined-workbook parse path read column B (comment) into both `Action.Comment` and `Action.DSL`, silently replacing authored DSL with the comment text. After round-trip, `<action_dsl>garbage ~ {{</action_dsl>` would come back as `<action_dsl>broken action</action_dsl>`. Fixed: DSL now reads from column C as the exporter has always written it. (#585, PR #586)
+
+### Static analysis warnings at build time
+
+`dtrules build` surfaces three classes of advisory warnings with no CLI change:
+
+- **No-op / subsumed columns** — a column with no actions, or whose conditions and actions are a subset of another column that always also matches.
+- **Unreachable columns** — structurally contradictory condition requirements (simple string-level heuristics only; no solver).
+- **Unused / write-only EDD fields** — attributes declared in the EDD but never read (or set but never read) by any decision-table DSL. Cross-table walk. Carve-outs for `mapping*key` and system-set fields.
+
+On `sampleprojects/TaxReturn/` the analysis emits 1,419 advisory hits captured in `cmd/dtrules/testdata/golden/taxreturn-static-analysis.txt` so future drift is visible. Warnings never fail the build. (#555, PR #587)
+
+### Safety net against scoped-test regressions
+
+- `make check` — full-module `go build ./...` + `go vet` + scoped test suite (excluding the known-broken tax-content tests in `pkg/dtrules/` root). Authoritative "am I done" command.
+- CI has a distinct `Build full module (go build ./...)` step so build failures surface independently of test failures.
+- `.claude/CLAUDE.md` updated: agents are instructed to run `make check` before reporting success; scoped tests alone are not sufficient.
+- Regression test asserts the Makefile retains `go build ./...`. (#529, PR #588)
+
+Plus a local-only PR merge guard (`./scripts/merge-pr.sh`) that fetches the PR head, runs the full module build + tests, and only merges on green. Complements the safety net for interactive sessions.
+
+### Issues closed
+
+#529, #555, #580, #582, #583, #585.
+
+### Stale issues closed
+
+#530, #533, #535, #547 — already delivered by PR #542's doc consolidation.
+
+### Consumer impact
+
+The combination gives downstream repos (Accumulate staking, etc.) a build pipeline that:
+- Never silently drops data (warnings vs drops classified explicitly, both visible).
+- Proves what survived the round-trip via printed counts.
+- Flags dead / unused rule code at build time.
+- Doesn't ship broken main from Claude-driven merges.
+
+---
+
 ## v1.6.2 — 2026-04-17
 
 Patch release. Two consumer-ergonomic additions driven by Accumulate staking's migration path. No breaking changes.
