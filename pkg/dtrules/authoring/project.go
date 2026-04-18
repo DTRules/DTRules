@@ -27,10 +27,11 @@ import (
 // Project holds all loaded decision tables for a DTRules project. It provides
 // a typed Go API for reading and mutating tables without touching XML directly.
 type Project struct {
-	xmlDir    string
-	dtFiles   []dtFileEntry // one entry per loaded _dt.xml file
-	symbols   map[string]string
-	edd       *EDD // lazily loaded
+	xmlDir  string
+	dtFiles []dtFileEntry // one entry per loaded _dt.xml file
+	symbols map[string]string
+	edd     *EDD       // lazily loaded
+	execSt  *execState // lazily-created execution state; nil until first use
 }
 
 // dtFileEntry tracks a single decision-table XML file and its in-memory model.

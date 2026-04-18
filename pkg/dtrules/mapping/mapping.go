@@ -251,3 +251,35 @@ func (a *AttributeInfo) Lookup(enclosure string) *Attrib {
 	// Fall back to default (empty enclosure)
 	return a.Attribs[""]
 }
+
+// SingletonEntityNames returns the names of entities with cardinality "1".
+func (m *Mapping) SingletonEntityNames() []string {
+	var names []string
+	for name, card := range m.entities {
+		if card == "1" {
+			names = append(names, name)
+		}
+	}
+	return names
+}
+
+// LoadDataAndPushSingletons loads XML data and pushes all cardinality-1 entities
+// onto the entity stack so they are available for rule evaluation.
+func (m *Mapping) LoadDataAndPushSingletons(r io.Reader) error {
+	loader := newDataLoader(m)
+	if err := loader.Load(r); err != nil {
+		return err
+	}
+	// Push singleton entities in deterministic order
+	for name, card := range m.entities {
+		if card != "1" {
+			continue
+		}
+		entity, ok := loader.entities[name]
+		if !ok {
+			continue
+		}
+		m.state.EntityPush(entity)
+	}
+	return nil
+}
