@@ -80,9 +80,7 @@ bytesexpr	bytesRipemd160	triage — sweep surfaced this label as failing; check 
 bytesexpr	bytesSha256	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 bytesexpr	bytesSha3	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 bytesexpr	bytesSlice	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-contextForTable	contextCtx	real emit fall-through — Visit method missing or under-implemented; followup
 contextForTable	contextFor	real emit fall-through — Visit method missing or under-implemented; followup
-contextForTable	contextLocal	real emit fall-through — Visit method missing or under-implemented; followup
 datestatement	dateAddDays	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 datestatement	dateAddMonths	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 datestatement	dateAddYears	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
@@ -146,39 +144,6 @@ iexpr	intYearsBetween	triage — sweep surfaced this label as failing; check if 
 includeSearch	includeDate	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 includeSearch	includeNumber	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 includeSearch	includeString	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-localvariables	localArrayDefined	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localArrayInit	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localArrayUndef	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localBigIntDefined	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localBigIntInit	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localBigIntUndef	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localBoolDefined	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localBoolInit	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localBoolUndef	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localBytesDefined	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localBytesInit	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localBytesUndef	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localDateDefined	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localDateInit	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localDateUndef	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localDoubleDefined	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localDoubleInit	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localDoubleUndef	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localEntityDefined	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localEntityInit	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localEntityUndef	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localLongDefined	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localLongInit	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localLongUndef	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localNameDefined	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localNameInit	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localNameUndef	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localStringDefined	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localStringInit	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localStringUndef	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localTableDefined	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localTableInit	real emit fall-through — Visit method missing or under-implemented; followup
-localvariables	localTableUndef	real emit fall-through — Visit method missing or under-implemented; followup
 nexpr	nameOf	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 nexpr	nameTheName	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 nexpr	nameUsing	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
