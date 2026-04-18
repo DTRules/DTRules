@@ -70,3 +70,8 @@ done	conditionDebugAfter	raw	condition true; debug "hi";
 done	contextDebugBefore	raw	context debug "hi"; for all accounts;
 possessiveRef	possessiveChain	condition	account's name EQ /tbl	tested via nexpr in a condition
 possessiveRef	colonChain	condition	account:name EQ /tbl
+contextstatement	addToContextOf	context	add account to context of this table
+contextstatement	addToContextFor	context	add account to context for this table
+ifcontinue	ifEnd	action	if true then set x = 1; endif
+ifcontinue	ifElse	action	if true then set x = 1; else set y = 1; endif
+ifcontinue	ifElseIf	action	if true then set x = 1; else if false then set y = 1; endif

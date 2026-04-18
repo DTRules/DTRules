@@ -2513,6 +2513,92 @@ func (e *PostfixEmitter) VisitIfElse(ctx *IfElseContext) interface{} {
 	return nil
 }
 
+// VisitIfElseIf: `else if <ifblock>`. The outer ifblock's ifelse expects a
+// false-body; wrap the inner ifblock emit in `{ }` so it becomes a single
+// body that ifelse can execute. The inner ifblock itself emits its own
+// bexpr / { ... } / false-body / ifelse sequence recursively.
+func (e *PostfixEmitter) VisitIfElseIf(ctx *IfElseIfContext) interface{} {
+	e.emit("{")
+	e.Visit(ctx.Ifblock())
+	e.emit("}")
+	return nil
+}
+
+// Debugstatement emitters. `debug <expr>` and `print <expr>` each push one
+// value and call the corresponding operator. Per-type labels exist for
+// parser disambiguation; each has the same emit shape.
+
+func (e *PostfixEmitter) VisitDebugStr(ctx *DebugStrContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("debug")
+	return nil
+}
+func (e *PostfixEmitter) VisitDebugBool(ctx *DebugBoolContext) interface{} {
+	e.Visit(ctx.Bexpr())
+	e.emit("debug")
+	return nil
+}
+func (e *PostfixEmitter) VisitDebugInt(ctx *DebugIntContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.emit("debug")
+	return nil
+}
+func (e *PostfixEmitter) VisitDebugFloat(ctx *DebugFloatContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.emit("debug")
+	return nil
+}
+func (e *PostfixEmitter) VisitDebugEntity(ctx *DebugEntityContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("debug")
+	return nil
+}
+func (e *PostfixEmitter) VisitDebugDate(ctx *DebugDateContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("debug")
+	return nil
+}
+func (e *PostfixEmitter) VisitDebugArray(ctx *DebugArrayContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.emit("debug")
+	return nil
+}
+func (e *PostfixEmitter) VisitPrintStr(ctx *PrintStrContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("print")
+	return nil
+}
+func (e *PostfixEmitter) VisitPrintBool(ctx *PrintBoolContext) interface{} {
+	e.Visit(ctx.Bexpr())
+	e.emit("print")
+	return nil
+}
+func (e *PostfixEmitter) VisitPrintInt(ctx *PrintIntContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.emit("print")
+	return nil
+}
+func (e *PostfixEmitter) VisitPrintFloat(ctx *PrintFloatContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.emit("print")
+	return nil
+}
+func (e *PostfixEmitter) VisitPrintEntity(ctx *PrintEntityContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("print")
+	return nil
+}
+func (e *PostfixEmitter) VisitPrintDate(ctx *PrintDateContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("print")
+	return nil
+}
+func (e *PostfixEmitter) VisitPrintArray(ctx *PrintArrayContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.emit("print")
+	return nil
+}
+
 // ============================================================================
 // Relationship and Entity Tests
 // ============================================================================
