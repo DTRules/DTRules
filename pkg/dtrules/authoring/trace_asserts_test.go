@@ -141,6 +141,28 @@ func TestAssertSequence_OutOfOrder(t *testing.T) {
 	}
 }
 
+// TestAssertVisited_SpecificColumnMatches verifies that AssertVisited with a specific
+// column passes when that column matched, and fails for a different column.
+func TestAssertVisited_SpecificColumnMatches(t *testing.T) {
+	p := openDebugProject(t)
+	loadDebugTestData(t, p, "minor_high.xml") // age<18 → column 2
+
+	trace, err := p.ExecuteEntry("Check_Eligibility")
+	if err != nil {
+		t.Fatalf("ExecuteEntry: %v", err)
+	}
+
+	// Column 2 was selected — assert should pass.
+	if err := trace.AssertVisited("Check_Eligibility", 2); err != nil {
+		t.Errorf("AssertVisited col 2 should pass: %v", err)
+	}
+
+	// Column 1 was NOT selected — assert should fail.
+	if err := trace.AssertVisited("Check_Eligibility", 1); err == nil {
+		t.Error("AssertVisited col 1 should fail when column 2 matched")
+	}
+}
+
 func TestAssertSequence_Missing(t *testing.T) {
 	tr := makeTrace(
 		inv(0, "Entry", 0, 0),

@@ -104,6 +104,9 @@ func (a *ANode) CountColumns() int {
 
 // Execute runs all actions in this node
 func (a *ANode) Execute(state dtrules.State) error {
+	if cb := a.decisionTable.ColumnSelectedCallback; cb != nil && len(a.columns) > 0 {
+		cb(a.columns[0])
+	}
 	for i, action := range a.actions {
 		num := a.actionNumbers[i]
 

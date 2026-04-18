@@ -124,6 +124,27 @@ func TestCover_UntouchedTablesReported(t *testing.T) {
 	}
 }
 
+// TestCover_TracksPerColumn verifies that ExercisedColumns tracks hit counts
+// per column: two scenarios hitting different columns each register > 0.
+func TestCover_TracksPerColumn(t *testing.T) {
+	p := openDebugProject(t)
+
+	// adult_high: age=25 → Check_Eligibility column 1
+	r1 := runCoverageScenario(t, p, "adult_high.xml", "Check_Eligibility")
+	// minor_high: age<18 → Check_Eligibility column 2
+	r2 := runCoverageScenario(t, p, "minor_high.xml", "Check_Eligibility")
+
+	report := authoring.Cover(p, []authoring.ScenarioResult{r1, r2})
+
+	cols := report.ExercisedColumns["Check_Eligibility"]
+	if cols[1] == 0 {
+		t.Errorf("expected ExercisedColumns[Check_Eligibility][1] > 0, got %d", cols[1])
+	}
+	if cols[2] == 0 {
+		t.Errorf("expected ExercisedColumns[Check_Eligibility][2] > 0, got %d", cols[2])
+	}
+}
+
 // TestCoverageSummary_Format verifies Summary produces readable output mentioning
 // untouched tables and columns.
 func TestCoverageSummary_Format(t *testing.T) {

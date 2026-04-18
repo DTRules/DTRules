@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
+	"github.com/DTRules/DTRules/pkg/dtrules/decisiontable"
 	"github.com/DTRules/DTRules/pkg/dtrules/entity"
 	"github.com/DTRules/DTRules/pkg/dtrules/interpreter"
 	"github.com/DTRules/DTRules/pkg/dtrules/operators"
@@ -284,6 +285,15 @@ func (w *depthAwareWrapper) executeTracked(state dtrules.State, tableOnly bool) 
 	}
 	b.invocations = append(b.invocations, inv)
 	b.currentDepth++
+
+	// Install column-selected callback on the underlying RDecisionTable so
+	// ANode.Execute can report which column fired.
+	if rdt, ok := w.inner.(*decisiontable.RDecisionTable); ok {
+		rdt.SetColumnSelectedCallback(func(col int) {
+			inv.Column = col
+		})
+		defer rdt.SetColumnSelectedCallback(nil)
+	}
 
 	var err error
 	if tableOnly {
