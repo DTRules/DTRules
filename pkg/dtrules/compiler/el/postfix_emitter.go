@@ -2524,6 +2524,136 @@ func (e *PostfixEmitter) VisitIfElseIf(ctx *IfElseIfContext) interface{} {
 	return nil
 }
 
+// Increment/decrement statements. typedLong/typedDouble is a name reference;
+// the emit fetches the current value, adjusts by 1, and stores back using the
+// same /<name> xdef pattern leftIexprSimple uses.
+
+func (e *PostfixEmitter) VisitIncrementLong(ctx *IncrementLongContext) interface{} {
+	name := ctx.TypedLong().GetText()
+	e.emit(name)
+	e.emit("1")
+	e.emit("+")
+	e.emit("/" + name)
+	e.emit("xdef")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIncrementDouble(ctx *IncrementDoubleContext) interface{} {
+	name := ctx.TypedDouble().GetText()
+	e.emit(name)
+	e.emit("1.0")
+	e.emit("f+")
+	e.emit("/" + name)
+	e.emit("xdef")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDecrementLong(ctx *DecrementLongContext) interface{} {
+	name := ctx.TypedLong().GetText()
+	e.emit(name)
+	e.emit("1")
+	e.emit("-")
+	e.emit("/" + name)
+	e.emit("xdef")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDecrementDouble(ctx *DecrementDoubleContext) interface{} {
+	name := ctx.TypedDouble().GetText()
+	e.emit(name)
+	e.emit("1.0")
+	e.emit("f-")
+	e.emit("/" + name)
+	e.emit("xdef")
+	return nil
+}
+
+// VisitSetStringFromName: `set <leftStrexpr> = <nexpr>`. Convert the resolved
+// name reference to a string.
+func (e *PostfixEmitter) VisitSetStringFromName(ctx *SetStringFromNameContext) interface{} {
+	e.Visit(ctx.Nexpr())
+	e.emit("cvs")
+	e.Visit(ctx.LeftStrexpr())
+	return nil
+}
+
+// VisitSetBoolFromName: `set <leftBexpr> = <nexpr>`.
+func (e *PostfixEmitter) VisitSetBoolFromName(ctx *SetBoolFromNameContext) interface{} {
+	e.Visit(ctx.Nexpr())
+	e.emit("cvb")
+	e.Visit(ctx.LeftBexpr())
+	return nil
+}
+
+// Randomstatements emitters. Array mutation statements.
+
+// VisitRemoveAtIndex: `remove <iexpr> element from <arrayExpr> array`.
+// opRemoveAt signature: (array index --).
+func (e *PostfixEmitter) VisitRemoveAtIndex(ctx *RemoveAtIndexContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("removeat")
+	return nil
+}
+
+// VisitRemoveName: `remove <nexpr> from <arrayExpr> array`.
+// opRemove signature: (array element --).
+func (e *PostfixEmitter) VisitRemoveName(ctx *RemoveNameContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.Visit(ctx.Nexpr())
+	e.emit("remove")
+	return nil
+}
+
+// VisitRemoveString: `remove <strexpr> from <arrayExpr> array`.
+func (e *PostfixEmitter) VisitRemoveString(ctx *RemoveStringContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("remove")
+	return nil
+}
+
+// VisitRemoveEntity: `remove <eexpr> from <arrayExpr> array`.
+func (e *PostfixEmitter) VisitRemoveEntity(ctx *RemoveEntityContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.Visit(ctx.Eexpr())
+	e.emit("remove")
+	return nil
+}
+
+// VisitRandomizeArray: `randomize <arrayExpr>`.
+func (e *PostfixEmitter) VisitRandomizeArray(ctx *RandomizeArrayContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.emit("randomize")
+	return nil
+}
+
+// VisitClearArray: `clear <arrayExpr>`.
+func (e *PostfixEmitter) VisitClearArray(ctx *ClearArrayContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.emit("cleararray")
+	return nil
+}
+
+// VisitSortAscending: `sort <arrayExpr> in ascending order by <nexpr>`.
+// opSortEntities signature: (array name asc --).
+func (e *PostfixEmitter) VisitSortAscending(ctx *SortAscendingContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.Visit(ctx.Nexpr())
+	e.emit("true")
+	e.emit("sortentities")
+	return nil
+}
+
+// VisitSortDescending: `sort <arrayExpr> in descending order by <nexpr>`.
+func (e *PostfixEmitter) VisitSortDescending(ctx *SortDescendingContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.Visit(ctx.Nexpr())
+	e.emit("false")
+	e.emit("sortentities")
+	return nil
+}
+
 // Debugstatement emitters. `debug <expr>` and `print <expr>` each push one
 // value and call the corresponding operator. Per-type labels exist for
 // parser disambiguation; each has the same emit shape.

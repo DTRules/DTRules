@@ -156,21 +156,12 @@ operatorlist	opListStrSingle	triage — sweep surfaced this label as failing; ch
 performstatement	performCatchError	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 possessiveRef	colonChain	real emit fall-through — Visit method missing or under-implemented; followup
 possessiveRef	possessiveChain	real emit fall-through — Visit method missing or under-implemented; followup
-randomstatements	clearArray	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-randomstatements	randomizeArray	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-randomstatements	removeAtIndex	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
+randomstatements	clearArray	unreachable via ordinary DSL — `clear <arr>` dispatches to clearstatement, not randomstatements.clearArray; DSL-path followup
 randomstatements	removeEachWhere	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-randomstatements	removeEntity	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-randomstatements	removeName	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-randomstatements	removeString	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-randomstatements	sortAscending	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-randomstatements	sortDescending	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-setstatement	decrementDouble	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-setstatement	decrementLong	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-setstatement	incrementDouble	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-setstatement	incrementLong	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-setstatement	setBoolFromName	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-setstatement	setStringFromName	real emit fall-through — Visit method missing or under-implemented; followup
+randomstatements	removeName	DSL refinement — nexpr literal /tbl not valid in remove-from-array position
+randomstatements	sortAscending	DSL refinement — nexpr /tbl not valid after by
+randomstatements	sortDescending	DSL refinement — nexpr /tbl not valid after by
+setstatement	setBoolFromName	parser-ambiguity with setStringFromName — requires declared bool symbol to disambiguate; DSL refinement followup
 strexpr	strConcatName	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 strexpr	strFromIndex	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 strexpr	strHexOfBytes	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing

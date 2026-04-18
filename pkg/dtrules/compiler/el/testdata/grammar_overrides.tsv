@@ -69,3 +69,4 @@ localvariables	localBigIntDefined	context	local bigint x
 localvariables	localBytesUndef	context	local bytes x
 localvariables	localBytesInit	context	local bytes x = 0xab
 localvariables	localBytesDefined	context	local bytes x
+setstatement	setStringFromName	action	set s = $tbl
