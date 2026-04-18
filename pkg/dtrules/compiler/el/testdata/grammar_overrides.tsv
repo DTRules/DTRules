@@ -115,3 +115,11 @@ bytesexpr	bytesCvHex	condition	bytes of hex "ab" == 0xab
 bytesexpr	bytesCvBase58Check	condition	bytes of base58check "x" == 0xab
 bytesexpr	bytesCvBech32	condition	bytes of bech32 "x" == 0xab
 bytesexpr	bytesCvBigInt	condition	bytes of bigint (bigint) 1 size 1 == 0xab
+eexpr	entityTyped	condition	account == account
+eexpr	entityParen	condition	(account) == account
+eexpr	entityIndex	condition	account == account
+eexpr	entityNewName	condition	new account entity == account
+eexpr	entityNewTyped	condition	new account entity == account
+eexpr	entityClone	condition	clone of account == account
+eexpr	entityColonRef	condition	:account:account == account
+eexpr	entityRelationship	condition	"role" of account == account

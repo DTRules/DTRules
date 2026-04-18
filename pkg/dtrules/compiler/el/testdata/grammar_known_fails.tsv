@@ -54,17 +54,9 @@ done	policyFExpr	real emit fall-through — Visit method missing or under-implem
 done	policyIExpr	real emit fall-through — Visit method missing or under-implemented; followup
 done	policyNExpr	real emit fall-through — Visit method missing or under-implemented; followup
 done	policyStrExpr	real emit fall-through — Visit method missing or under-implemented; followup
-eexpr	entityClone	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-eexpr	entityColonRef	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 eexpr	entityFirst	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 eexpr	entityFirstIn	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-eexpr	entityIndex	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-eexpr	entityNewName	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-eexpr	entityNewTyped	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-eexpr	entityParen	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-eexpr	entityRelationship	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 eexpr	entityTableLookup	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-eexpr	entityTyped	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 errorstatement	errorStmt	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 fexpr	floatLiteral	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 fexpr	floatValueOfOp	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
