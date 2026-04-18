@@ -37,18 +37,6 @@ blist	blistMulti	DSL sample needs refinement OR real emit fall-through — triag
 blist	blistOr	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 blistIc	blistIcMulti	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 blistIc	blistIcOr	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bytesexpr	bytesConcat	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bytesexpr	bytesCvBase58Check	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bytesexpr	bytesCvBech32	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bytesexpr	bytesCvBigInt	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bytesexpr	bytesCvHex	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bytesexpr	bytesKeccak256	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bytesexpr	bytesLiteral	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-bytesexpr	bytesParen	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-bytesexpr	bytesRipemd160	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-bytesexpr	bytesSha256	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-bytesexpr	bytesSha3	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-bytesexpr	bytesSlice	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 contextForTable	contextFor	real emit fall-through — Visit method missing or under-implemented; followup
 datestatement	dateAddDays	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 datestatement	dateAddMonths	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
