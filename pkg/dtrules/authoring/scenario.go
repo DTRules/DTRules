@@ -32,6 +32,7 @@ type Scenario struct {
 type ScenarioResult struct {
 	Scenario *Scenario
 	Trace    *ExecutionTrace
+	RunTrace *RunTrace // full multi-table invocation trace; nil on error
 	Pass     bool
 	Failures []AssertionFailure
 	Err      error
@@ -75,6 +76,23 @@ func (s *Scenario) Run(p *Project) *ScenarioResult {
 		return result
 	}
 	result.Trace = trace
+
+	// Also capture full multi-table RunTrace for coverage analysis.
+	// We re-execute via ExecuteEntry on the same (now-reset) project state by
+	// replaying inputs, so coverage sees sub-table invocations too.
+	p.ResetState()
+	for key, val := range s.Inputs {
+		entity, attr, err2 := splitEntityAttr(key)
+		if err2 != nil {
+			break
+		}
+		if err2 = p.SetAttribute(entity, attr, val); err2 != nil {
+			break
+		}
+	}
+	if rt, err2 := p.ExecuteEntry(s.EntryTable); err2 == nil {
+		result.RunTrace = rt
+	}
 
 	// Build actual map[string]any from trace.FinalState (string values).
 	actual := make(map[string]any, len(trace.FinalState))
