@@ -2715,6 +2715,22 @@ func (e *PostfixEmitter) VisitBoolStrIsNotOneOf(ctx *BoolStrIsNotOneOfContext) i
 	return nil
 }
 
+// Eexpr emitters.
+
+// VisitEntityIndex: eexpr as an indxExpr (array/index form). Just delegate.
+func (e *PostfixEmitter) VisitEntityIndex(ctx *EntityIndexContext) interface{} {
+	return e.Visit(ctx.IndxExpr())
+}
+
+// VisitEntityColonRef: `<colonRef> <typedEntity>`. Emit colonRef postfix
+// followed by the entity name token (which resolves to the entity object at
+// runtime).
+func (e *PostfixEmitter) VisitEntityColonRef(ctx *EntityColonRefContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.emit(ctx.TypedEntity().GetText())
+	return nil
+}
+
 // VisitBoolPlusOrMinus: `<f1> is plus or minus <n> of <f2>` →
 // `|f1 - f2| <= n`. The `number` may be int or float; `cvr` coerces to
 // double for the comparison.
