@@ -701,13 +701,13 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 				currentSection = "initial_actions"
 
 			case "initial_actions":
-				// Initial action row: number, comment, expression (merged)
+				// Initial action row: number, comment, DSL
+				// Col A=number, col B=comment, col C=DSL
 				if len(row) > 2 && firstCell != "" {
 					num, err := strconv.Atoi(firstCell)
 					if err == nil && num > 0 {
 						action := InitialActionXML{
-							DSL:     strings.TrimSpace(row[1]),
-							Postfix: strings.TrimSpace(row[2]),
+							DSL: strings.TrimSpace(row[2]),
 						}
 						table.InitialActions = append(table.InitialActions, action)
 					}
@@ -722,15 +722,15 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 				currentSection = "conditions"
 
 			case "conditions":
-				// Condition row: number, comment, expression, col1, col2, ...
-				if len(row) > 3 && firstCell != "" {
+				// Condition row: col A=number, col B=comment, col C=DSL, col D+=decision columns
+				// Postfix is not stored in Excel (stripped on export); EL compiler regenerates it.
+				if len(row) > 2 && firstCell != "" {
 					num, err := strconv.Atoi(firstCell)
 					if err == nil && num > 0 {
 						cond := ConditionXML{
 							Number:  firstCell,
 							Comment: strings.TrimSpace(safeGet(row, 1)),
-							DSL:     strings.TrimSpace(safeGet(row, 1)),
-							Postfix: strings.TrimSpace(safeGet(row, 2)),
+							DSL:     strings.TrimSpace(safeGet(row, 2)),
 						}
 						// Parse column values (columns start at index 3)
 						for col := 3; col < len(row) && col < numCols+3; col++ {
@@ -755,15 +755,15 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 				currentSection = "actions"
 
 			case "actions":
-				// Action row: number, comment, expression, col1, col2, ...
-				if len(row) > 3 && firstCell != "" {
+				// Action row: col A=number, col B=comment, col C=DSL, col D+=decision columns
+				// Postfix is not stored in Excel (stripped on export); EL compiler regenerates it.
+				if len(row) > 2 && firstCell != "" {
 					num, err := strconv.Atoi(firstCell)
 					if err == nil && num > 0 {
 						action := ActionXML{
 							Number:  firstCell,
 							Comment: strings.TrimSpace(safeGet(row, 1)),
-							DSL:     strings.TrimSpace(safeGet(row, 1)),
-							Postfix: strings.TrimSpace(safeGet(row, 2)),
+							DSL:     strings.TrimSpace(safeGet(row, 2)),
 						}
 						// Parse column values (columns start at index 3)
 						for col := 3; col < len(row) && col < numCols+3; col++ {
