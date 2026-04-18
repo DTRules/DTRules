@@ -3403,6 +3403,24 @@ func (e *PostfixEmitter) VisitPrintArray(ctx *PrintArrayContext) interface{} {
 // Relationship and Entity Tests
 // ============================================================================
 
+// VisitStrTableLookup / VisitTableNew — the hash-table ops were removed;
+// the grammar still parses these forms. Emit an elstmterror so the compile
+// succeeds (non-empty postfix) but the runtime raises a clear error.
+
+func (e *PostfixEmitter) VisitStrTableLookup(ctx *StrTableLookupContext) interface{} {
+	e.emit("\"hash tables removed — (string) table-lookup unsupported\"")
+	e.emit("elstmterror")
+	e.emit("\"\"")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitTableNew(ctx *TableNewContext) interface{} {
+	e.emit("\"hash tables removed — `new X table of Y` unsupported\"")
+	e.emit("elstmterror")
+	e.emit("newarray")
+	return nil
+}
+
 // VisitBoolEntityIsOf: `<e1> is <type> of <e2>` — the findmatch/relationship
 // lookup op this used to call was removed alongside the hash-table ops. The
 // emit now produces an elstmterror so the form parses but errors at runtime

@@ -113,16 +113,31 @@ var emptyPostfixAllowed = map[string]bool{
 }
 
 // loadKnownFails reads the inventory of labels that are known to fail the
-// sweep today. Each entry is either (a) a helper rule with no top-level
-// compile path, (b) a DSL sample the generator can't construct correctly yet,
-// or (c) a real emitter fall-through bug tracked for follow-up. New entries
-// must NOT be added casually — the correct response to a new failure is to
-// either fix the emitter or refine the DSL sample.
+// sweep today. Each entry is either a DSL sample the generator can't
+// construct correctly yet, or a real emitter fall-through bug tracked for
+// follow-up. New entries must NOT be added casually — the correct response
+// to a new failure is to either fix the emitter or refine the DSL sample.
 func loadKnownFails(t *testing.T) map[string]string {
+	return loadTSV3(t, "testdata/grammar_known_fails.tsv")
+}
+
+// loadHelpers reads the grammar helper-rule exemption list. Helper labels
+// are grammar fragments (e.g. blist, arrayList, includeSearch) that can't
+// be compiled directly from a top-level DSL entry point — they live inside
+// other rules. The sweep skips direct compile for helpers, and the coverage
+// guard treats them as covered so adding them to the grammar doesn't force
+// a bogus corpus entry.
+func loadHelpers(t *testing.T) map[string]string {
+	return loadTSV3(t, "testdata/grammar_helpers.tsv")
+}
+
+// loadTSV3 is a shared reader for the 3-column TSV files (rule, label, notes)
+// plus an optional 4th column that's ignored here.
+func loadTSV3(t *testing.T, path string) map[string]string {
 	t.Helper()
-	f, err := os.Open("testdata/grammar_known_fails.tsv")
+	f, err := os.Open(path)
 	if err != nil {
-		t.Fatalf("open known_fails: %v", err)
+		t.Fatalf("open %s: %v", path, err)
 	}
 	defer f.Close()
 	out := map[string]string{}
@@ -138,11 +153,16 @@ func loadKnownFails(t *testing.T) map[string]string {
 		if strings.TrimSpace(line) == "" {
 			continue
 		}
-		parts := strings.SplitN(line, "\t", 3)
-		if len(parts) != 3 {
-			t.Fatalf("bad known_fails line: %q", line)
+		parts := strings.SplitN(line, "\t", 4)
+		if len(parts) < 3 {
+			t.Fatalf("bad line in %s: %q", path, line)
 		}
-		out[parts[0]+"/"+parts[1]] = parts[2]
+		// Concatenate anything past column 2 as the reason.
+		reason := parts[2]
+		if len(parts) == 4 {
+			reason = parts[2] + " — " + parts[3]
+		}
+		out[parts[0]+"/"+parts[1]] = reason
 	}
 	return out
 }
@@ -153,12 +173,18 @@ func TestGrammarSweep_CompilesAndEmitsPostfix(t *testing.T) {
 		t.Fatal("corpus is empty")
 	}
 	known := loadKnownFails(t)
+	helpers := loadHelpers(t)
 
 	c := NewCompiler()
 	var fails []string
 	var unexpectedPasses []string
 	for _, r := range rows {
 		name := r.rule + "/" + r.label
+		// Helpers can't be top-level compiled; their coverage is via the
+		// parent-rule labels that wrap them. Skip direct compile assertion.
+		if _, isHelper := helpers[name]; isHelper {
+			continue
+		}
 		postfix, err := compileRow(c, r)
 		passed := err == nil && (strings.TrimSpace(postfix) != "" || emptyPostfixAllowed[r.label])
 		if _, isKnown := known[name]; isKnown {

@@ -1,0 +1,30 @@
+rule	label	parent_rule	reason
+addtodest	addDestColon	addtostatement	helper: colon-ref addto destination; reached only inside ADD ... TO addtodest
+addtodest	addDestPossessiveLong	addtostatement	helper: 's prefix addto destination
+addtodest	addDestPossessiveDouble	addtostatement	helper: 's prefix addto destination
+subtodest	subDestColon	addtostatement	helper: colon-ref subtract destination
+subtodest	subDestPossessiveLong	addtostatement	helper: 's prefix subtract destination
+subtodest	subDestPossessiveDouble	addtostatement	helper: 's prefix subtract destination
+arrayList	arrayListFloatSingle	arrayExpr	helper: single-element array literal fragment
+arrayList	arrayListIntSingle	arrayExpr	helper: single-element array literal fragment
+arrayList	arrayListNameSingle	arrayExpr	helper: single-element array literal fragment
+arrayList	arrayListStrSingle	arrayExpr	helper: single-element array literal fragment
+blist	blistMulti	bexpr	helper: strexpr EQ blist list multi-item form (via boolStrEqList)
+blist	blistOr	bexpr	helper: strexpr EQ blist OR form
+blistIc	blistIcMulti	bexpr	helper: strexpr EQ_IGNORE_CASE blistIc multi-item form (via boolStrEqIcList)
+blistIc	blistIcOr	bexpr	helper: strexpr EQ_IGNORE_CASE blistIc OR form
+includeSearch	includeDate	bexpr	helper: array INCLUDES includeSearch date variant (via boolArrayIncludes)
+includeSearch	includeNumber	bexpr	helper: array INCLUDES includeSearch number variant
+includeSearch	includeString	bexpr	helper: array INCLUDES includeSearch string variant
+operatorlist	opListFloat	bexpr	helper: VALUE OF operatorstatements list-item helper
+operatorlist	opListFloatSingle	bexpr	helper: VALUE OF operatorstatements single-item helper
+operatorlist	opListInt	bexpr	helper: VALUE OF operatorstatements list-item helper
+operatorlist	opListIntSingle	bexpr	helper: VALUE OF operatorstatements single-item helper
+operatorlist	opListStr	bexpr	helper: VALUE OF operatorstatements list-item helper
+operatorlist	opListStrSingle	bexpr	helper: VALUE OF operatorstatements single-item helper
+possessiveRef	possessiveChain	bexpr	helper: 's chain nexpr form (via boolNameEq/Neq)
+possessiveRef	colonChain	bexpr	helper: :Entity:field nexpr form (via boolNameEq/Neq)
+arrayExpr2	arrayName	bexpr	helper: (array) NAME cast; reachable only in specific cast positions
+tablelist	tableListMulti	strexpr	hash tables removed — helper rule unreachable
+tablelist	tableListSingle	strexpr	hash tables removed — helper rule unreachable
+texpr	tableNew	strexpr	hash tables removed — texpr reachable only via typedTable lookup form
