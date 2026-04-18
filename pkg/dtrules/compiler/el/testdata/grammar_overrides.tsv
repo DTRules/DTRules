@@ -166,3 +166,13 @@ addtostatement	addStrNoDups	action	add "x" if not member to accounts
 addtostatement	addEntityNoDupsDup	action	add account if not member to accounts and to accounts
 addtostatement	addStrNoDupsDup	action	add "x" if not member to accounts and to accounts
 addtostatement	addArrayNoMember	action	add accounts to accounts if not member
+bexpr	boolAllHave	condition	all accounts have true
+bexpr	boolOneOfHasa	condition	one of accounts has a true
+bexpr	boolThereIsWhere	condition	there is account where true
+bexpr	boolThereIsNoWhere	condition	there is no account where true
+bexpr	boolThereIsInEntityWhere	condition	there is account in account where true
+bexpr	boolThereIsInArrayWhere	condition	there is account in accounts where true
+bexpr	boolThereIsNoInEntityWhere	condition	there is no account in account where true
+bexpr	boolThereIsNoInArrayWhere	condition	there is no account in accounts where true
+bexpr	boolEntityHasaWhere	condition	account has a "rel" where true
+bexpr	boolStartsWithAt	condition	"hello" at 2 starts with "llo"

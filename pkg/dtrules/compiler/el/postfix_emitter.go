@@ -3070,6 +3070,137 @@ func (e *PostfixEmitter) VisitEntityColonRef(ctx *EntityColonRefContext) interfa
 	return nil
 }
 
+// Bexpr quantifier + existence family.
+//
+// Semantics and emits:
+//
+//   ALL arr HAVE b        # boolAllHave     →  true <arr> { <b> and } forall
+//   ONE OF arr HASA b     # boolOneOfHasa   →  false <arr> { <b> or } forall
+//
+// Each seeds a bool accumulator on the data stack and folds bexpr per
+// element. forall auto-pushes the element entity so bexpr resolves against
+// each. The accumulator survives the loop as the final bool.
+//
+//   there is e where b              # boolThereIsWhere          →  <b>
+//   there is e inthe e2 where b     # boolThereIsInEntityWhere  →  entitypush/eval/entitypop
+//   there is e inthe arr where b    # boolThereIsInArrayWhere   →  false <arr> { <b> or } forall
+//   there is no …                   # boolThereIsNo…Where       →  <corresponding positive> not
+//
+// The simple `there is e where b` form emits only the bexpr: the grammar
+// position implies e is on the entity stack already; if not, runtime
+// attribute lookup errors. More sophisticated scope-entry forms use the
+// entitypush/entitypop or forall folding patterns.
+//
+//   eexpr HASA str WHERE bexpr      # boolEntityHasaWhere       →  ifelse on hasrelationship
+
+func (e *PostfixEmitter) VisitBoolAllHave(ctx *BoolAllHaveContext) interface{} {
+	e.emit("true")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("{")
+	e.Visit(ctx.Bexpr())
+	e.emit("and")
+	e.emit("}")
+	e.emit("forall")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolOneOfHasa(ctx *BoolOneOfHasaContext) interface{} {
+	e.emit("false")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("{")
+	e.Visit(ctx.Bexpr())
+	e.emit("or")
+	e.emit("}")
+	e.emit("forall")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolThereIsWhere(ctx *BoolThereIsWhereContext) interface{} {
+	return e.Visit(ctx.Bexpr())
+}
+
+func (e *PostfixEmitter) VisitBoolThereIsNoWhere(ctx *BoolThereIsNoWhereContext) interface{} {
+	e.Visit(ctx.Bexpr())
+	e.emit("not")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolThereIsInEntityWhere(ctx *BoolThereIsInEntityWhereContext) interface{} {
+	e.Visit(ctx.Eexpr(1))
+	e.emit("entitypush")
+	e.Visit(ctx.Bexpr())
+	e.emit("entitypop")
+	e.emit("swap")
+	e.emit("pop")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolThereIsNoInEntityWhere(ctx *BoolThereIsNoInEntityWhereContext) interface{} {
+	e.Visit(ctx.Eexpr(1))
+	e.emit("entitypush")
+	e.Visit(ctx.Bexpr())
+	e.emit("entitypop")
+	e.emit("swap")
+	e.emit("pop")
+	e.emit("not")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolThereIsInArrayWhere(ctx *BoolThereIsInArrayWhereContext) interface{} {
+	e.emit("false")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("{")
+	e.Visit(ctx.Bexpr())
+	e.emit("or")
+	e.emit("}")
+	e.emit("forall")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolThereIsNoInArrayWhere(ctx *BoolThereIsNoInArrayWhereContext) interface{} {
+	e.emit("false")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("{")
+	e.Visit(ctx.Bexpr())
+	e.emit("or")
+	e.emit("}")
+	e.emit("forall")
+	e.emit("not")
+	return nil
+}
+
+// VisitBoolStartsWithAt: `<s1> at <i> starts with <s2>` → extract the
+// substring of s1 from position i to end, then startswith s2. opSubstring
+// takes (str start length); we compute length as stringlength(s1) - i.
+// To avoid evaluating s1 twice, dup it.
+func (e *PostfixEmitter) VisitBoolStartsWithAt(ctx *BoolStartsWithAtContext) interface{} {
+	e.Visit(ctx.Strexpr(0))
+	e.emit("dup")
+	e.emit("stringlength")
+	e.Visit(ctx.Iexpr())
+	e.emit("-")
+	e.Visit(ctx.Iexpr())
+	e.emit("swap")
+	e.emit("substring")
+	e.Visit(ctx.Strexpr(1))
+	e.emit("startswith")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolEntityHasaWhere(ctx *BoolEntityHasaWhereContext) interface{} {
+	e.emit("{")
+	e.Visit(ctx.Bexpr())
+	e.emit("}")
+	e.emit("{")
+	e.emit("false")
+	e.emit("}")
+	e.Visit(ctx.Eexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("hasrelationship")
+	e.emit("ifelse")
+	return nil
+}
+
 // VisitBoolPlusOrMinus: `<f1> is plus or minus <n> of <f2>` →
 // `|f1 - f2| <= n`. The `number` may be int or float; `cvr` coerces to
 // double for the comparison.
