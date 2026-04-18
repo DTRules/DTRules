@@ -33,7 +33,8 @@ type StepSummary struct {
 	Mappings        int    // number of MAP entries processed
 	PostfixStripped int    // export step: <*_postfix> blocks absent from Excel output
 	Compiled        int    // import step: postfix blocks regenerated from EL
-	Drops           []Drop // anything lost with a reason
+	Drops           []Drop // anything lost with a reason — fatal
+	Warnings        []Drop // non-fatal issues (e.g., legacy prose-DSL kept verbatim)
 	FilesWritten    int
 }
 
@@ -60,9 +61,23 @@ func (s *BuildSummary) HasErrors() bool {
 	return drops > 0
 }
 
-// AddDrop appends a drop record to this step.
+// AddDrop appends a drop record to this step. Drops are fatal.
 func (s *StepSummary) AddDrop(table string, column int, item, reason string) {
 	s.Drops = append(s.Drops, Drop{
+		Table:  table,
+		Column: column,
+		Item:   item,
+		Reason: reason,
+	})
+}
+
+// AddWarning appends a non-fatal issue. Warnings are surfaced in the build
+// summary and encourage migration but do not fail the build. Used for
+// legacy patterns like prose-DSL that predate the #504 "EL is authoritative"
+// policy — we want consumers to see them without breaking their current
+// round-trip.
+func (s *StepSummary) AddWarning(table string, column int, item, reason string) {
+	s.Warnings = append(s.Warnings, Drop{
 		Table:  table,
 		Column: column,
 		Item:   item,
@@ -128,6 +143,17 @@ func (s *StepSummary) format() string {
 					d.Table, d.Column, d.Item, d.Reason)
 			} else {
 				out += fmt.Sprintf("    item=%q  reason=%s\n", d.Item, d.Reason)
+			}
+		}
+	}
+	if len(s.Warnings) > 0 {
+		out += fmt.Sprintf("  warnings: %d\n", len(s.Warnings))
+		for _, w := range s.Warnings {
+			if w.Table != "" {
+				out += fmt.Sprintf("    table=%q  col=%d  item=%q  reason=%s\n",
+					w.Table, w.Column, w.Item, w.Reason)
+			} else {
+				out += fmt.Sprintf("    item=%q  reason=%s\n", w.Item, w.Reason)
 			}
 		}
 	}

@@ -204,6 +204,14 @@ func importStatsToStep(s *excel.ImportStats) *dtrsync.StepSummary {
 			Reason: d.Reason,
 		})
 	}
+	for _, w := range s.Warnings {
+		step.Warnings = append(step.Warnings, dtrsync.Drop{
+			Table:  w.Table,
+			Column: w.Column,
+			Item:   w.Item,
+			Reason: w.Reason,
+		})
+	}
 	return step
 }
 

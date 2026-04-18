@@ -894,7 +894,30 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 
 	var errors []string
 
-	// Compile initial actions
+	// recordCompileFailure decides whether a compile error is a fatal drop
+	// (real broken EL) or a non-fatal warning (legacy prose-DSL where the DSL
+	// field equals the comment text, pre-#504). Prose flows through the
+	// round-trip unchanged; the build stays green but the consumer sees the
+	// warning and can migrate at their pace. Returns true if the failure
+	// was a real drop (fatal), false if classified as a warning.
+	hadDrop := false
+	recordCompileFailure := func(tableName, item, dsl, comment string, err error) {
+		isWarning := strings.TrimSpace(dsl) == strings.TrimSpace(comment) && comment != ""
+		if i.stats != nil {
+			if isWarning {
+				i.stats.AddWarning(tableName, 0, item,
+					"legacy prose-DSL (DSL field equals comment text); not valid EL, preserved verbatim — migrate per #504: "+err.Error())
+			} else {
+				i.stats.AddDrop(tableName, 0, item, err.Error())
+			}
+		}
+		if !isWarning {
+			hadDrop = true
+		}
+	}
+
+	// Compile initial actions. Initial actions don't carry a comment field
+	// so the legacy-prose warning path doesn't apply — they're always drops.
 	for idx := range table.InitialActions {
 		action := &table.InitialActions[idx]
 		if action.DSL != "" {
@@ -921,10 +944,9 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 			postfix, err := i.elCompiler.CompileCondition(cond.DSL)
 			if err != nil {
 				errors = append(errors, fmt.Sprintf("condition %s: %v", cond.Number, err))
-				if i.stats != nil {
-					i.stats.AddDrop(table.TableName, 0,
-						fmt.Sprintf("condition %s", cond.Number), err.Error())
-				}
+				recordCompileFailure(table.TableName,
+					fmt.Sprintf("condition %s", cond.Number),
+					cond.DSL, cond.Comment, err)
 				continue
 			}
 			cond.Postfix = postfix
@@ -941,10 +963,9 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 			postfix, err := i.elCompiler.CompileAction(action.DSL)
 			if err != nil {
 				errors = append(errors, fmt.Sprintf("action %s: %v", action.Number, err))
-				if i.stats != nil {
-					i.stats.AddDrop(table.TableName, 0,
-						fmt.Sprintf("action %s", action.Number), err.Error())
-				}
+				recordCompileFailure(table.TableName,
+					fmt.Sprintf("action %s", action.Number),
+					action.DSL, action.Comment, err)
 				continue
 			}
 			action.Postfix = postfix
@@ -954,7 +975,11 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 		}
 	}
 
-	if len(errors) > 0 {
+	// Only propagate as an error if at least one failure was a real drop
+	// (not a legacy-prose warning). Warning-only compile failures don't
+	// fail the build — they're tracked in stats.Warnings and printed in
+	// the summary.
+	if len(errors) > 0 && hadDrop {
 		return fmt.Errorf("EL compilation errors in table %s: %s",
 			table.TableName, strings.Join(errors, "; "))
 	}

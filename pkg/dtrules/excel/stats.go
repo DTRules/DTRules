@@ -31,6 +31,7 @@ type ImportStats struct {
 	Mappings   int
 	Compiled   int // EL expressions successfully compiled to postfix
 	Drops      []StatDrop
+	Warnings   []StatDrop // non-fatal (e.g., legacy prose-DSL pre-#504)
 	Files      int
 }
 
@@ -46,9 +47,21 @@ type ExportStats struct {
 	Files           int
 }
 
-// AddDrop appends a drop record.
+// AddDrop appends a fatal drop record.
 func (s *ImportStats) AddDrop(table string, column int, item, reason string) {
 	s.Drops = append(s.Drops, StatDrop{
+		Table:  table,
+		Column: column,
+		Item:   item,
+		Reason: reason,
+	})
+}
+
+// AddWarning appends a non-fatal issue. Used for legacy prose-DSL entries
+// (DSL field equals the comment text verbatim) that fail to compile but
+// predate #504; the round-trip preserves them and the build stays green.
+func (s *ImportStats) AddWarning(table string, column int, item, reason string) {
+	s.Warnings = append(s.Warnings, StatDrop{
 		Table:  table,
 		Column: column,
 		Item:   item,
