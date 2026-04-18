@@ -269,8 +269,6 @@ func parseAttributeType(typeStr string) ruleset.AttributeType {
 		return ruleset.AttrTypeArray
 	case "entity":
 		return ruleset.AttrTypeEntity
-	case "table", "map", "hashtable":
-		return ruleset.AttrTypeTable
 	case "name":
 		return ruleset.AttrTypeName
 	default:

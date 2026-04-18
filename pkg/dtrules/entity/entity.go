@@ -469,11 +469,6 @@ func (e *REntity) RArrayValue() (*dtrules.RArray, error) {
 	return nil, dtrules.ConversionError("RArrayValue", "No Array value exists for entity")
 }
 
-// RTableValue is not supported for entities.
-func (e *REntity) RTableValue() (*dtrules.RTable, error) {
-	return nil, dtrules.ConversionError("RTableValue", "No Table value exists for entity")
-}
-
 // RTimeValue is not supported for entities.
 func (e *REntity) RTimeValue() (*dtrules.RDate, error) {
 	return nil, dtrules.ConversionError("RTimeValue", "No Time value exists for entity")

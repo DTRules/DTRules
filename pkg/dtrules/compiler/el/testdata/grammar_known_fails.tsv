@@ -38,14 +38,14 @@ possessiveRef	colonChain	[E] helper chain — `:Entity:field` nexpr form; reache
 possessiveRef	possessiveChain	[E] helper chain — `entity`s field` nexpr form; reached via boolNameEq etc.
 randomstatements	removeEachWhere	[D] remove-while-iterating: no bespoke op; compose forallr + remove — complex
 setstatement	setBoolFromName	[C] parser ambiguity with setStringFromName; requires symbol table to disambiguate
-strexpr	strTableLookup	[D] typed-table lookup: `(string) <tbl>(<list>)` — needs table op
+strexpr	strTableLookup	[X] hash tables removed — grammar parses but runtime ops deleted
 strexpr	strValueOfOp	[D] `string value of <operatorstatements>`
 subtodest	subDestColon	[E] helper sub-rule — parallels addtodest/addDestColon
 subtodest	subDestPossessiveDouble	[E] helper sub-rule — parallels addtodest/addDestPossessiveDouble
 subtodest	subDestPossessiveLong	[E] helper sub-rule — parallels addtodest/addDestPossessiveLong
-tablelist	tableListMulti	[E] helper — only reachable inside typedTable LPAREN tablelist RPAREN
-tablelist	tableListSingle	[E] helper — only reachable inside typedTable LPAREN tablelist RPAREN
-texpr	tableNew	[D] `new <s> table of <s>` — newtable op exists, need emit
+tablelist	tableListMulti	[X] hash tables removed — grammar parses but helper rule unreachable
+tablelist	tableListSingle	[X] hash tables removed — grammar parses but helper rule unreachable
+texpr	tableNew	[X] hash tables removed — grammar parses but runtime ops deleted
 xmlvaluestatements	xmlAddAttr	[F] XML DOM mutation
 xmlvaluestatements	xmlAddAttrEntity	[F] XML DOM mutation
 xmlvaluestatements	xmlSetAttr	[F] XML DOM mutation — used for XML output mapping; not clear if runtime supports

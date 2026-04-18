@@ -118,9 +118,6 @@ type Object interface {
 	// RArrayValue returns the RArray representation of this object.
 	RArrayValue() (*RArray, error)
 
-	// RTableValue returns the RTable representation of this object.
-	RTableValue() (*RTable, error)
-
 	// RTimeValue returns the RDate representation of this object.
 	RTimeValue() (*RDate, error)
 

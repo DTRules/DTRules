@@ -316,10 +316,6 @@ func (o *Operator) RArrayValue() (*dtrules.RArray, error) {
 	return nil, dtrules.ConversionError("RArrayValue", "No Array value exists for operator")
 }
 
-func (o *Operator) RTableValue() (*dtrules.RTable, error) {
-	return nil, dtrules.ConversionError("RTableValue", "No Table value exists for operator")
-}
-
 func (o *Operator) RTimeValue() (*dtrules.RDate, error) {
 	return nil, dtrules.ConversionError("RTimeValue", "No Time value exists for operator")
 }
@@ -520,10 +516,6 @@ func (p *PrimitivesEntity) RNameValue() (*dtrules.RName, error) {
 
 func (p *PrimitivesEntity) RArrayValue() (*dtrules.RArray, error) {
 	return nil, dtrules.ConversionError("RArrayValue", "No Array value exists for entity")
-}
-
-func (p *PrimitivesEntity) RTableValue() (*dtrules.RTable, error) {
-	return nil, dtrules.ConversionError("RTableValue", "No Table value exists for entity")
 }
 
 func (p *PrimitivesEntity) RTimeValue() (*dtrules.RDate, error) {

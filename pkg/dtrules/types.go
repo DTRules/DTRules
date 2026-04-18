@@ -132,7 +132,6 @@ var (
 	TypeBoolean       *RType
 	TypeNull          *RType
 	TypeArray         *RType
-	TypeTable         *RType
 	TypeEntity        *RType
 	TypeDecisionTable *RType
 	TypeMark          *RType
@@ -152,7 +151,6 @@ func init() {
 	TypeBoolean = NewType("boolean")
 	TypeNull = NewType("null")
 	TypeArray = NewType("array")
-	TypeTable = NewType("table")
 	TypeEntity = NewType("entity")
 	TypeDecisionTable = NewType("decisiontable")
 	TypeMark = NewType("mark")
@@ -167,10 +165,6 @@ func init() {
 	registerTypeAlias("datetime", TypeDate)
 	registerTypeAlias("time", TypeDate)
 	registerTypeAlias("list", TypeArray)
-	registerTypeAlias("map", TypeTable)
-	registerTypeAlias("dict", TypeTable)
-	registerTypeAlias("dictionary", TypeTable)
-	registerTypeAlias("hash", TypeTable)
 	registerTypeAlias("object", TypeEntity)
 	registerTypeAlias("biginteger", TypeBigInt)
 }

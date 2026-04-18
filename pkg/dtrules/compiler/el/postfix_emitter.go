@@ -134,7 +134,7 @@ func (e *PostfixEmitter) typeConverter(fieldType string) string {
 		return "cvbi"
 	case TypeBytes:
 		return "cvbytes"
-	case TypeArray, TypeName, TypeTable, TypeXmlValue:
+	case TypeArray, TypeName, TypeXmlValue:
 		return "" // No conversion needed
 	default:
 		return "cvi" // Default to integer conversion for unknown types
