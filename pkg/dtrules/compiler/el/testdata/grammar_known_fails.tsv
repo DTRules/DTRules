@@ -56,29 +56,7 @@ datestatement	dateAddYears	triage — sweep surfaced this label as failing; chec
 datestatement	dateSubDays	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 datestatement	dateSubMonths	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 datestatement	dateSubYears	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateCurrentDate	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateDays	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateEarliestAfter	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateEndOfMonth	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateExprAddDays	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateExprAddMonths	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateExprAddYears	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateExprSubDays	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateExprSubMonths	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateExprSubYears	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateFirstOfMonth	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateFirstOfYear	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateFromArrayAt	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateFromIndex	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateFromStrCast	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateFromStrFunc	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateMinusDays	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateMinusMonths	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateMinusYears	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	datePlusDays	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	datePlusMonths	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	datePlusYears	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-dexpr	dateTableLookup	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
+dexpr	dateDays	DSL refinement — `( 5 days )` form tricky; need literal days-count construction
 done	conditionDebugAfter	real emit fall-through — Visit method missing or under-implemented; followup
 done	conditionDebugBefore	real emit fall-through — Visit method missing or under-implemented; followup
 done	contextDebugBefore	real emit fall-through — Visit method missing or under-implemented; followup
