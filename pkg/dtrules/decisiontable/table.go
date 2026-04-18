@@ -124,6 +124,10 @@ type RDecisionTable struct {
 
 	// Errors found during compilation
 	errors []error
+
+	// ColumnSelectedCallback, if non-nil, is called by ANode.Execute with the
+	// 1-based column index when a column's actions are about to fire.
+	ColumnSelectedCallback func(int)
 }
 
 // NewRDecisionTable creates a new decision table with the given name
@@ -772,6 +776,13 @@ func (dt *RDecisionTable) setUnreachableNode(node DTNode) {
 			dt.actionsUsed[action] = true
 		}
 	}
+}
+
+// SetColumnSelectedCallback installs a callback that ANode.Execute calls with
+// the 1-based column index when a column's actions are about to fire.
+// Pass nil to remove an existing callback.
+func (dt *RDecisionTable) SetColumnSelectedCallback(cb func(int)) {
+	dt.ColumnSelectedCallback = cb
 }
 
 // SetField sets a metadata field

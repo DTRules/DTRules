@@ -248,6 +248,33 @@ func TestStepper_StopsOnFirstForFirstPolicy(t *testing.T) {
 	}
 }
 
+// TestExecute_PopulatesColumn verifies that ExecuteEntry sets TableInvocation.Column
+// to the 1-based column that matched in a 3-column table (using the debug project
+// which has Check_Eligibility with 2 columns; adult → column 1).
+func TestExecute_PopulatesColumn(t *testing.T) {
+	p := openDebugProject(t)
+	if err := p.SetAttribute("applicant", "age", 25); err != nil {
+		t.Fatalf("SetAttribute age: %v", err)
+	}
+	if err := p.SetAttribute("applicant", "score", 90); err != nil {
+		t.Fatalf("SetAttribute score: %v", err)
+	}
+
+	trace, err := p.ExecuteEntry("Check_Eligibility")
+	if err != nil {
+		t.Fatalf("ExecuteEntry: %v", err)
+	}
+	if len(trace.Invocations) == 0 {
+		t.Fatal("expected at least one invocation")
+	}
+
+	// The entry invocation (Check_Eligibility) should have Column == 1 (adult path).
+	entry := trace.Invocations[0]
+	if entry.Column != 1 {
+		t.Errorf("expected TableInvocation.Column == 1 for adult (age=25), got %d", entry.Column)
+	}
+}
+
 // TestLoadTestData_AccumulatesAcrossCalls loads test data twice (different
 // files) and verifies the last load wins for single-cardinality entities.
 func TestLoadTestData_AccumulatesAcrossCalls(t *testing.T) {
