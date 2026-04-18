@@ -1,4 +1,4 @@
-// Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
+// Code generated from /tmp/wt-623/pkg/dtrules/compiler/el/EL.g4 by ANTLR 4.13.2. DO NOT EDIT.
 
 package el // EL
 import "github.com/antlr4-go/antlr/v4"
@@ -1009,6 +1009,12 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#strConcatName.
 	VisitStrConcatName(ctx *StrConcatNameContext) interface{}
 
+	// Visit a parse tree produced by ELParser#floatMinOfFloat.
+	VisitFloatMinOfFloat(ctx *FloatMinOfFloatContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatMaxIntOf.
+	VisitFloatMaxIntOf(ctx *FloatMaxIntOfContext) interface{}
+
 	// Visit a parse tree produced by ELParser#floatAddFloat.
 	VisitFloatAddFloat(ctx *FloatAddFloatContext) interface{}
 
@@ -1017,6 +1023,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#floatMulFloat.
 	VisitFloatMulFloat(ctx *FloatMulFloatContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatMaxOfFloat.
+	VisitFloatMaxOfFloat(ctx *FloatMaxOfFloatContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatDivFloat.
 	VisitFloatDivFloat(ctx *FloatDivFloatContext) interface{}
@@ -1027,8 +1036,14 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatRoundedTo.
 	VisitFloatRoundedTo(ctx *FloatRoundedToContext) interface{}
 
+	// Visit a parse tree produced by ELParser#floatMinIntOf.
+	VisitFloatMinIntOf(ctx *FloatMinIntOfContext) interface{}
+
 	// Visit a parse tree produced by ELParser#floatAddInt.
 	VisitFloatAddInt(ctx *FloatAddIntContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatMinOfIntComma.
+	VisitFloatMinOfIntComma(ctx *FloatMinOfIntCommaContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatTableLookup.
 	VisitFloatTableLookup(ctx *FloatTableLookupContext) interface{}
@@ -1036,11 +1051,17 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatSubFloat.
 	VisitFloatSubFloat(ctx *FloatSubFloatContext) interface{}
 
+	// Visit a parse tree produced by ELParser#floatMinIntOfComma.
+	VisitFloatMinIntOfComma(ctx *FloatMinIntOfCommaContext) interface{}
+
 	// Visit a parse tree produced by ELParser#floatLiteral.
 	VisitFloatLiteral(ctx *FloatLiteralContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatMulBy.
 	VisitFloatMulBy(ctx *FloatMulByContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatMaxOfIntComma.
+	VisitFloatMaxOfIntComma(ctx *FloatMaxOfIntCommaContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatUsing.
 	VisitFloatUsing(ctx *FloatUsingContext) interface{}
@@ -1072,8 +1093,14 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatDivBy.
 	VisitFloatDivBy(ctx *FloatDivByContext) interface{}
 
+	// Visit a parse tree produced by ELParser#floatMinOfInt.
+	VisitFloatMinOfInt(ctx *FloatMinOfIntContext) interface{}
+
 	// Visit a parse tree produced by ELParser#floatFromIndex.
 	VisitFloatFromIndex(ctx *FloatFromIndexContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatMaxIntOfComma.
+	VisitFloatMaxIntOfComma(ctx *FloatMaxIntOfCommaContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatRounded.
 	VisitFloatRounded(ctx *FloatRoundedContext) interface{}
@@ -1096,11 +1123,20 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatFromStr.
 	VisitFloatFromStr(ctx *FloatFromStrContext) interface{}
 
+	// Visit a parse tree produced by ELParser#floatMinOfFloatComma.
+	VisitFloatMinOfFloatComma(ctx *FloatMinOfFloatCommaContext) interface{}
+
 	// Visit a parse tree produced by ELParser#floatAbs.
 	VisitFloatAbs(ctx *FloatAbsContext) interface{}
 
+	// Visit a parse tree produced by ELParser#floatMaxOfFloatComma.
+	VisitFloatMaxOfFloatComma(ctx *FloatMaxOfFloatCommaContext) interface{}
+
 	// Visit a parse tree produced by ELParser#floatNegate.
 	VisitFloatNegate(ctx *FloatNegateContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatMaxOfInt.
+	VisitFloatMaxOfInt(ctx *FloatMaxOfIntContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatSumOf.
 	VisitFloatSumOf(ctx *FloatSumOfContext) interface{}
@@ -1117,11 +1153,17 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#intIndexOf.
 	VisitIntIndexOf(ctx *IntIndexOfContext) interface{}
 
+	// Visit a parse tree produced by ELParser#intMinOfComma.
+	VisitIntMinOfComma(ctx *IntMinOfCommaContext) interface{}
+
 	// Visit a parse tree produced by ELParser#intNumberOf.
 	VisitIntNumberOf(ctx *IntNumberOfContext) interface{}
 
 	// Visit a parse tree produced by ELParser#intNumberOfWhere.
 	VisitIntNumberOfWhere(ctx *IntNumberOfWhereContext) interface{}
+
+	// Visit a parse tree produced by ELParser#intMaxOf.
+	VisitIntMaxOf(ctx *IntMaxOfContext) interface{}
 
 	// Visit a parse tree produced by ELParser#intParen.
 	VisitIntParen(ctx *IntParenContext) interface{}
@@ -1134,6 +1176,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#intYearsBetween.
 	VisitIntYearsBetween(ctx *IntYearsBetweenContext) interface{}
+
+	// Visit a parse tree produced by ELParser#intMaxOfComma.
+	VisitIntMaxOfComma(ctx *IntMaxOfCommaContext) interface{}
 
 	// Visit a parse tree produced by ELParser#intValueOfOp.
 	VisitIntValueOfOp(ctx *IntValueOfOpContext) interface{}
@@ -1194,6 +1239,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#intAbs.
 	VisitIntAbs(ctx *IntAbsContext) interface{}
+
+	// Visit a parse tree produced by ELParser#intMinOf.
+	VisitIntMinOf(ctx *IntMinOfContext) interface{}
 
 	// Visit a parse tree produced by ELParser#intDaysInMonth.
 	VisitIntDaysInMonth(ctx *IntDaysInMonthContext) interface{}
