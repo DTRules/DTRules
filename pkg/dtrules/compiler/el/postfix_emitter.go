@@ -1623,14 +1623,121 @@ func (e *PostfixEmitter) VisitContextForallCtl(ctx *ContextForallCtlContext) int
 	return e.Visit(ctx.Forallctl())
 }
 
-// VisitForallSimple emits: dup <array> forall pop
-// Wrapping layer in compileContextsPostfix leaves the table body block on the
-// data stack. dup preserves it so forall (which pops body then array) has its
-// operands; pop then drains the duplicate.
+// Forall context emitters.
+//
+// compileContextsPostfix wraps each context around a table body block so that
+// entering our emit the data stack holds [body], where body is the compiled
+// { /TableName executetable }. forall has signature (body array --), so each
+// emit must leave the stack clean after iterating.
+//
+// forallSimple: dup body so forall can consume it, iterate, drop the dup.
+// forallWhere:  replace body with a filter { <bexpr> { dup execute } if }.
+//               Entering forall the stack is [body, filter, array]; forall
+//               consumes (filter, array) leaving [body]. During each iteration
+//               the element is on the entity stack, so <bexpr> resolves
+//               element attributes. When <bexpr> is true the filter runs
+//               `dup execute`, which re-pushes and invokes body without
+//               consuming the copy that survives to the next iteration.
+//               Final pop drops the surviving body.
+// forallInEntity: evaluate eexpr, entitypush to make its attributes reachable
+//               while arrayExpr and the body run, iterate via the simple
+//               form, then entitypop + pop to clean up.
+// *AllowRemove: authoring-time affirmation that the body may mutate the array;
+//               emits identically to its non-allowing counterpart.
+
+// VisitForallSimple: `for all <array>`.
 func (e *PostfixEmitter) VisitForallSimple(ctx *ForallSimpleContext) interface{} {
 	e.emit("dup")
 	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
+	e.emit("pop")
+	return nil
+}
+
+// VisitForallAllowRemove: `for all <array> allowing array to be removed`.
+func (e *PostfixEmitter) VisitForallAllowRemove(ctx *ForallAllowRemoveContext) interface{} {
+	e.emit("dup")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	e.emit("pop")
+	return nil
+}
+
+// VisitForallWhere: `for all <array> where <bexpr>`.
+// `if` signature is (body test --), so push body block first then test.
+func (e *PostfixEmitter) VisitForallWhere(ctx *ForallWhereContext) interface{} {
+	e.emit("{")
+	e.emit("{")
+	e.emit("dup")
+	e.emit("execute")
+	e.emit("}")
+	e.Visit(ctx.Bexpr())
+	e.emit("if")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	e.emit("pop")
+	return nil
+}
+
+// VisitForallWhereAllowRemove: `for all <array> where <bexpr> allowing array to be removed`.
+func (e *PostfixEmitter) VisitForallWhereAllowRemove(ctx *ForallWhereAllowRemoveContext) interface{} {
+	e.emit("{")
+	e.emit("{")
+	e.emit("dup")
+	e.emit("execute")
+	e.emit("}")
+	e.Visit(ctx.Bexpr())
+	e.emit("if")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	e.emit("pop")
+	return nil
+}
+
+// VisitForallInEntity: `for all <array> in <entity>`.
+func (e *PostfixEmitter) VisitForallInEntity(ctx *ForallInEntityContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("entitypush")
+	e.emit("dup")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	e.emit("pop")
+	e.emit("entitypop")
+	e.emit("pop")
+	return nil
+}
+
+// VisitForallInEntityAllowRemove: `for all <array> in <entity> allowing array to be removed`.
+func (e *PostfixEmitter) VisitForallInEntityAllowRemove(ctx *ForallInEntityAllowRemoveContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("entitypush")
+	e.emit("dup")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	e.emit("pop")
+	e.emit("entitypop")
+	e.emit("pop")
+	return nil
+}
+
+// VisitForallInEntityWhere: `for all <array> in <entity> where <bexpr>`.
+func (e *PostfixEmitter) VisitForallInEntityWhere(ctx *ForallInEntityWhereContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("entitypush")
+	e.emit("{")
+	e.emit("{")
+	e.emit("dup")
+	e.emit("execute")
+	e.emit("}")
+	e.Visit(ctx.Bexpr())
+	e.emit("if")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	e.emit("pop")
+	e.emit("entitypop")
 	e.emit("pop")
 	return nil
 }

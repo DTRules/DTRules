@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 1: Process_Accounts -->
+<!-- Form 1: forallSimple — `for all <array>`.
+     Condition filters inside the body: only authorized accounts increment.
+     2-auth-1-not → 2; empty → 0; all-auth → 3. -->
 <decision_table el_compiled="true">
-<table_name>Process_Accounts</table_name>
+<table_name>FA_Simple</table_name>
 <xls_file>forall_dt.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
@@ -13,21 +15,18 @@
 <contexts>
 <context_details>
 <context_number>1</context_number>
-<context_comment>Iterate over all staking accounts</context_comment>
+<context_comment>forallSimple</context_comment>
 <context_dsl>for all calculation_context.accounts</context_dsl>
 <context_postfix></context_postfix>
 </context_details>
 </contexts>
-<initial_actions>
-</initial_actions>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Account has staking authority</condition_comment>
+<condition_comment>authorized</condition_comment>
 <condition_dsl>staking_account.has_staking_authority = true</condition_dsl>
-<condition_postfix>
-staking_account.has_staking_authority
-</condition_postfix>
+<condition_postfix></condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
 </condition_details>
@@ -35,16 +34,257 @@ staking_account.has_staking_authority
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Increment count for authorized account</action_comment>
+<action_comment>count</action_comment>
 <action_dsl>set calculation_context.processed_count = calculation_context.processed_count + 1</action_dsl>
-<action_postfix>
-calculation_context.processed_count 1 + cvi /calculation_context.processed_count xdef
-</action_postfix>
+<action_postfix></action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 </actions>
-<policy_statements>
-</policy_statements>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- Form 2: forallAllowRemove — `for all <array> allowing array to be removed`.
+     Same semantics and counts as forallSimple. -->
+<decision_table el_compiled="true">
+<table_name>FA_AllowRemove</table_name>
+<xls_file>forall_dt.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>2</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>forallAllowRemove</context_comment>
+<context_dsl>for all calculation_context.accounts allowing array to be removed</context_dsl>
+<context_postfix></context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>authorized</condition_comment>
+<condition_dsl>staking_account.has_staking_authority = true</condition_dsl>
+<condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>count</action_comment>
+<action_dsl>set calculation_context.processed_count = calculation_context.processed_count + 1</action_dsl>
+<action_postfix></action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- Form 3: forallWhere — `for all <array> where <bexpr>`.
+     Context filters to authorized accounts, body unconditionally increments.
+     Counts match forallSimple because the authorizing filter is equivalent.
+     Uses balance > 0 as a separate predicate to exercise the filter distinctly. -->
+<decision_table el_compiled="true">
+<table_name>FA_Where</table_name>
+<xls_file>forall_dt.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>3</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>forallWhere</context_comment>
+<context_dsl>for all calculation_context.accounts where staking_account.has_staking_authority = true</context_dsl>
+<context_postfix></context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>always</condition_comment>
+<condition_dsl>staking_account.balance &gt;= 0</condition_dsl>
+<condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>count</action_comment>
+<action_dsl>set calculation_context.processed_count = calculation_context.processed_count + 1</action_dsl>
+<action_postfix></action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- Form 4: forallWhereAllowRemove — same behavior as forallWhere. -->
+<decision_table el_compiled="true">
+<table_name>FA_WhereAllowRemove</table_name>
+<xls_file>forall_dt.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>4</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>forallWhereAllowRemove</context_comment>
+<context_dsl>for all calculation_context.accounts where staking_account.has_staking_authority = true allowing array to be removed</context_dsl>
+<context_postfix></context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>always</condition_comment>
+<condition_dsl>staking_account.balance &gt;= 0</condition_dsl>
+<condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>count</action_comment>
+<action_dsl>set calculation_context.processed_count = calculation_context.processed_count + 1</action_dsl>
+<action_postfix></action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- Form 5: forallInEntity — `for all accounts in calculation_context`.
+     `accounts` resolves because calculation_context is entitypush'd first.
+     Body filters by authorization. Same counts as forallSimple. -->
+<decision_table el_compiled="true">
+<table_name>FA_InEntity</table_name>
+<xls_file>forall_dt.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>5</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>forallInEntity</context_comment>
+<context_dsl>for all accounts in calculation_context</context_dsl>
+<context_postfix></context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>authorized</condition_comment>
+<condition_dsl>staking_account.has_staking_authority = true</condition_dsl>
+<condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>count</action_comment>
+<action_dsl>set calculation_context.processed_count = calculation_context.processed_count + 1</action_dsl>
+<action_postfix></action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- Form 6: forallInEntityAllowRemove — same as forallInEntity. -->
+<decision_table el_compiled="true">
+<table_name>FA_InEntityAllowRemove</table_name>
+<xls_file>forall_dt.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>6</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>forallInEntityAllowRemove</context_comment>
+<context_dsl>for all accounts in calculation_context allowing array to be removed</context_dsl>
+<context_postfix></context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>authorized</condition_comment>
+<condition_dsl>staking_account.has_staking_authority = true</condition_dsl>
+<condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>count</action_comment>
+<action_dsl>set calculation_context.processed_count = calculation_context.processed_count + 1</action_dsl>
+<action_postfix></action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- Form 7: forallInEntityWhere — `for all accounts in calculation_context where <bexpr>`.
+     Context pushes calculation_context, filters by authorization, body always increments. -->
+<decision_table el_compiled="true">
+<table_name>FA_InEntityWhere</table_name>
+<xls_file>forall_dt.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>7</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>forallInEntityWhere</context_comment>
+<context_dsl>for all accounts in calculation_context where staking_account.has_staking_authority = true</context_dsl>
+<context_postfix></context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>always</condition_comment>
+<condition_dsl>staking_account.balance &gt;= 0</condition_dsl>
+<condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>count</action_comment>
+<action_dsl>set calculation_context.processed_count = calculation_context.processed_count + 1</action_dsl>
+<action_postfix></action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
 </decision_table>
 
 </decision_tables>

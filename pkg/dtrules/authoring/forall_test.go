@@ -23,7 +23,6 @@ func forallTestdataDir(t *testing.T) string {
 	return filepath.Join(filepath.Dir(file), "testdata", "forall")
 }
 
-// forallSetup loads EDD + DT and returns a configured RuleSet.
 func forallSetup(t *testing.T) *session.RuleSet {
 	t.Helper()
 	xmlDir := filepath.Join(forallTestdataDir(t), "xml")
@@ -53,7 +52,6 @@ func forallSetup(t *testing.T) *session.RuleSet {
 	return rs
 }
 
-// forallSession creates a session, wires operators, and loads test data via map.
 func forallSession(t *testing.T, rs *session.RuleSet, inputFile string) (*session.RSession, *interpreter.DTState) {
 	t.Helper()
 	xmlDir := filepath.Join(forallTestdataDir(t), "xml")
@@ -93,7 +91,6 @@ func forallSession(t *testing.T, rs *session.RuleSet, inputFile string) (*sessio
 	return sess, state
 }
 
-// getCount returns calculation_context.processed_count from the entity stack.
 func getCount(t *testing.T, state *interpreter.DTState) int64 {
 	t.Helper()
 	depth := state.EntityDepth()
@@ -121,66 +118,137 @@ func getCount(t *testing.T, state *interpreter.DTState) int64 {
 	return 0
 }
 
-// TestForAll_ArrayElementsOnStack verifies that with 2 authorized and 1
-// unauthorized staking_account, the forall context iterates all three and
-// processed_count ends up at 2.
-func TestForAll_ArrayElementsOnStack(t *testing.T) {
+// runForm executes the named entry table against the named input fixture and
+// returns calculation_context.processed_count. An assertion failure flagging
+// the #626 regression signature ("not defined by any Entity on the Entity
+// Stack") fails the test with a distinct message — every form should have
+// pushed the element entity before running the body.
+func runForm(t *testing.T, table, inputFile string) int64 {
+	t.Helper()
 	rs := forallSetup(t)
-	inputPath := filepath.Join(forallTestdataDir(t), "inputs", "two_auth_one_not.xml")
+	inputPath := filepath.Join(forallTestdataDir(t), "inputs", inputFile)
 	sess, state := forallSession(t, rs, inputPath)
 
-	if err := sess.Execute("Process_Accounts"); err != nil {
-		// Fail only if it's the original "not defined" bug — not a real execution error
+	if err := sess.Execute(table); err != nil {
 		if strings.Contains(err.Error(), "was not defined by any Entity on the Entity Stack") {
-			t.Fatalf("REGRESSION: forall context does not push entity onto stack: %v", err)
+			t.Fatalf("REGRESSION (%s): forall context did not push element onto entity stack: %v", table, err)
 		}
-		t.Fatalf("Execute: %v", err)
+		t.Fatalf("Execute %s: %v", table, err)
 	}
+	return getCount(t, state)
+}
 
-	// 2 authorized × 1 increment + 1 unauthorized × 0 = 2
-	count := getCount(t, state)
-	if count != 2 {
-		t.Errorf("expected processed_count = 2 (two authorized accounts), got %d", count)
+// Each form gets its own subtests. The three input fixtures exercise:
+//   two_auth_one_not: 3 accounts, 2 authorized
+//   empty_accounts  : 0 accounts
+//   three_auth      : 3 accounts, all authorized
+// Simple / InEntity / AllowRemove forms filter inside the body (condition
+// column Y/N), so processed_count == authorized count.
+// Where / InEntityWhere forms filter in the context; their body is
+// unconditional, so processed_count == authorized count as well (the filter
+// predicate is equivalent).
+
+func TestForallSimple(t *testing.T) {
+	cases := map[string]int64{
+		"two_auth_one_not.xml": 2,
+		"empty_accounts.xml":   0,
+		"three_auth.xml":       3,
+	}
+	for input, want := range cases {
+		t.Run(input, func(t *testing.T) {
+			if got := runForm(t, "FA_Simple", input); got != want {
+				t.Errorf("FA_Simple on %s: got %d, want %d", input, got, want)
+			}
+		})
 	}
 }
 
-// TestForAll_EmptyArray verifies that with no staking_accounts, the forall
-// context does not iterate and processed_count stays at 0.
-func TestForAll_EmptyArray(t *testing.T) {
-	rs := forallSetup(t)
-	inputPath := filepath.Join(forallTestdataDir(t), "inputs", "empty_accounts.xml")
-	sess, state := forallSession(t, rs, inputPath)
-
-	if err := sess.Execute("Process_Accounts"); err != nil {
-		if strings.Contains(err.Error(), "was not defined by any Entity on the Entity Stack") {
-			t.Fatalf("REGRESSION: forall context does not push entity onto stack: %v", err)
-		}
-		t.Fatalf("Execute: %v", err)
+func TestForallAllowRemove(t *testing.T) {
+	cases := map[string]int64{
+		"two_auth_one_not.xml": 2,
+		"empty_accounts.xml":   0,
+		"three_auth.xml":       3,
 	}
-
-	count := getCount(t, state)
-	if count != 0 {
-		t.Errorf("expected processed_count = 0 (empty array), got %d", count)
+	for input, want := range cases {
+		t.Run(input, func(t *testing.T) {
+			if got := runForm(t, "FA_AllowRemove", input); got != want {
+				t.Errorf("FA_AllowRemove on %s: got %d, want %d", input, got, want)
+			}
+		})
 	}
 }
 
-// TestForAll_AllAuthorized verifies that with 3 authorized accounts, the forall
-// context iterates all three and processed_count ends up at 3.
-func TestForAll_AllAuthorized(t *testing.T) {
-	rs := forallSetup(t)
-	inputPath := filepath.Join(forallTestdataDir(t), "inputs", "three_auth.xml")
-	sess, state := forallSession(t, rs, inputPath)
-
-	if err := sess.Execute("Process_Accounts"); err != nil {
-		if strings.Contains(err.Error(), "was not defined by any Entity on the Entity Stack") {
-			t.Fatalf("REGRESSION: forall context does not push entity onto stack: %v", err)
-		}
-		t.Fatalf("Execute: %v", err)
+func TestForallWhere(t *testing.T) {
+	cases := map[string]int64{
+		"two_auth_one_not.xml": 2,
+		"empty_accounts.xml":   0,
+		"three_auth.xml":       3,
 	}
+	for input, want := range cases {
+		t.Run(input, func(t *testing.T) {
+			if got := runForm(t, "FA_Where", input); got != want {
+				t.Errorf("FA_Where on %s: got %d, want %d", input, got, want)
+			}
+		})
+	}
+}
 
-	// 3 authorized × 1 increment each = 3
-	count := getCount(t, state)
-	if count != 3 {
-		t.Errorf("expected processed_count = 3 (three authorized accounts), got %d", count)
+func TestForallWhereAllowRemove(t *testing.T) {
+	cases := map[string]int64{
+		"two_auth_one_not.xml": 2,
+		"empty_accounts.xml":   0,
+		"three_auth.xml":       3,
+	}
+	for input, want := range cases {
+		t.Run(input, func(t *testing.T) {
+			if got := runForm(t, "FA_WhereAllowRemove", input); got != want {
+				t.Errorf("FA_WhereAllowRemove on %s: got %d, want %d", input, got, want)
+			}
+		})
+	}
+}
+
+func TestForallInEntity(t *testing.T) {
+	cases := map[string]int64{
+		"two_auth_one_not.xml": 2,
+		"empty_accounts.xml":   0,
+		"three_auth.xml":       3,
+	}
+	for input, want := range cases {
+		t.Run(input, func(t *testing.T) {
+			if got := runForm(t, "FA_InEntity", input); got != want {
+				t.Errorf("FA_InEntity on %s: got %d, want %d", input, got, want)
+			}
+		})
+	}
+}
+
+func TestForallInEntityAllowRemove(t *testing.T) {
+	cases := map[string]int64{
+		"two_auth_one_not.xml": 2,
+		"empty_accounts.xml":   0,
+		"three_auth.xml":       3,
+	}
+	for input, want := range cases {
+		t.Run(input, func(t *testing.T) {
+			if got := runForm(t, "FA_InEntityAllowRemove", input); got != want {
+				t.Errorf("FA_InEntityAllowRemove on %s: got %d, want %d", input, got, want)
+			}
+		})
+	}
+}
+
+func TestForallInEntityWhere(t *testing.T) {
+	cases := map[string]int64{
+		"two_auth_one_not.xml": 2,
+		"empty_accounts.xml":   0,
+		"three_auth.xml":       3,
+	}
+	for input, want := range cases {
+		t.Run(input, func(t *testing.T) {
+			if got := runForm(t, "FA_InEntityWhere", input); got != want {
+				t.Errorf("FA_InEntityWhere on %s: got %d, want %d", input, got, want)
+			}
+		})
 	}
 }
