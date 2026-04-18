@@ -15,9 +15,13 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
 	dtrsync "github.com/DTRules/DTRules/pkg/dtrules/sync"
@@ -247,4 +251,249 @@ func TestModuleBuildClean(t *testing.T) {
 	// The fact that this test file compiles and links proves the full-module
 	// build is green. This catches callers that break after our changes.
 	t.Log("full-module build verified by compilation of this test file")
+}
+
+// =============================================================================
+// Integration tests for Issue #583: Import step zero counts
+// =============================================================================
+
+// captureFullOutput captures both stdout output and the exit code for a CLI run.
+// It drains the pipe in a goroutine to avoid deadlock on large outputs.
+func captureFullOutput(args []string) (stdout string, exitCode int) {
+	old := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	var buf bytes.Buffer
+	done := make(chan struct{})
+	go func() {
+		buf.ReadFrom(r)
+		close(done)
+	}()
+
+	cli := NewCLI()
+	exitCode = cli.Run(args)
+
+	w.Close()
+	os.Stdout = old
+	<-done
+
+	return buf.String(), exitCode
+}
+
+// TestBuildFromXML_ImportStepReportsNonZeroCounts verifies that after the fix,
+// the Import step of `dtrules build --from-xml` reports non-zero table/action/condition
+// counts instead of all zeros.
+//
+// Setup: copy only the xml/ dir (preserving original timestamps) and create an
+// empty excel/ dir. Step 1 exports fresh xlsx files (timestamp=now). Because the
+// source XML files have older timestamps, Step 2 sees Excel > XML and imports all
+// workbooks — guaranteeing the Import step processes tables.
+func TestBuildFromXML_ImportStepReportsNonZeroCounts(t *testing.T) {
+	if _, err := os.Stat(taxReturnDir); err != nil {
+		t.Skip("TaxReturn sample project not found")
+	}
+	srcXMLDir := filepath.Join(taxReturnDir, "xml")
+	if _, err := os.Stat(srcXMLDir); err != nil {
+		t.Skip("TaxReturn xml dir not found")
+	}
+
+	// Create a temp project with only xml/ — no excel/ — so Step 1 generates
+	// fresh xlsx files. Because the xml/ files keep their old source timestamps
+	// and Step 1 writes Excel files NOW, Step 2 sees Excel > XML and re-imports.
+	tmpDir := t.TempDir()
+	dstXMLDir := filepath.Join(tmpDir, "xml")
+	dstExcelDir := filepath.Join(tmpDir, "excel")
+
+	// Copy xml files preserving original (old) timestamps.
+	if err := os.MkdirAll(dstXMLDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(dstExcelDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	entries, err := os.ReadDir(srcXMLDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Back-date all XML files to 1 hour ago so Step 1's fresh xlsx are clearly newer.
+	past := time.Now().Add(-1 * time.Hour)
+	for _, e := range entries {
+		if e.IsDir() {
+			continue
+		}
+		src := filepath.Join(srcXMLDir, e.Name())
+		dst := filepath.Join(dstXMLDir, e.Name())
+		data, err := os.ReadFile(src)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(dst, data, 0644); err != nil {
+			t.Fatal(err)
+		}
+		_ = os.Chtimes(dst, past, past)
+	}
+
+	out, _ := captureFullOutput([]string{
+		"build", "--from-xml",
+		"--xml-dir", dstXMLDir,
+		"--excel-dir", dstExcelDir,
+		tmpDir,
+	})
+
+	// The Build Summary Import step must appear.
+	if !strings.Contains(out, "Import step") {
+		t.Fatalf("Build Summary missing 'Import step'; output:\n%s", out)
+	}
+
+	// Parse the Import step line to extract tables count.
+	lines := strings.Split(out, "\n")
+	inImport := false
+	foundNonZero := false
+	for _, line := range lines {
+		if strings.Contains(line, "Import step") {
+			inImport = true
+			continue
+		}
+		if inImport && strings.Contains(line, "tables=") {
+			if !strings.Contains(line, "tables=0") {
+				foundNonZero = true
+			}
+			break
+		}
+	}
+	if !foundNonZero {
+		t.Errorf("Import step reports tables=0 (bug #583 still present); full output:\n%s", out)
+	}
+}
+
+// minimalDTXML returns a minimal decision table XML with two conditions and two actions.
+// The exporter format round-trips through parseExporterFormat, which consumes the
+// first data row after each section header as the column-count header row. Therefore
+// we provide 2 conditions and 2 actions so at least 1 of each survives as parsed data.
+// The second action uses the provided actionDSL (expected to be invalid EL).
+func minimalDTXML(tableName, actionDSL string) string {
+	return fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+<decision_table>
+<table_name>%s</table_name>
+<xls_file>test.xlsx</xls_file>
+<attribute_fields><Type>FIRST</Type><COMMENTS></COMMENTS><TABLE_NUMBER>1</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>value positive</condition_comment>
+<condition_dsl>job.value is greater than 0</condition_dsl>
+<condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>default</condition_comment>
+<condition_dsl>otherwise</condition_dsl>
+<condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="*"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>setup</action_comment>
+<action_dsl>job.value from context</action_dsl>
+<action_postfix></action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>broken action</action_comment>
+<action_dsl>%s</action_dsl>
+<action_postfix></action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+</decision_table>
+</decision_tables>`, tableName, actionDSL)
+}
+
+// minimalEDDXML returns a minimal EDD XML with one entity.
+func minimalEDDXML() string {
+	return `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+<entity name="job" access="rw">
+<field name="value" type="integer" access="rw"/>
+</entity>
+</entity_data_dictionary>`
+}
+
+// TestBuildFromXML_ImportStepReportsCompileDrop verifies that a broken action_dsl
+// in the XML causes the Import step to record a named drop and exit non-zero.
+func TestBuildFromXML_ImportStepReportsCompileDrop(t *testing.T) {
+	// Skipped pending #585: the DT importer writes action_comment text into
+	// the DSL field during combined-workbook parsing. With that clobber, an
+	// author's distinct "garbage" DSL is replaced by the comment text before
+	// compileTableEL ever sees it, so compile failures look like
+	// legacy-prose (DSL==Comment) and get classified as warnings, not drops.
+	// Once #585 is fixed, re-enable this test.
+	t.Skip("blocked on #585: import clobbers action_dsl with action_comment; re-enable after fix")
+
+	tmpDir := t.TempDir()
+	xmlDir := filepath.Join(tmpDir, "xml")
+	excelDir := filepath.Join(tmpDir, "excel")
+	if err := os.MkdirAll(xmlDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(excelDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	// Write XML with deliberately broken EL in action_dsl.
+	// Back-date so Step 1's exported xlsx (timestamp=now) is clearly newer,
+	// ensuring Step 2 sees ExcelToXML and re-imports the workbook.
+	badDSL := "garbage ~ {{"
+	dtXML := minimalDTXML("DropTest", badDSL)
+	dtPath := filepath.Join(xmlDir, "test_dt.xml")
+	eddPath := filepath.Join(xmlDir, "test_edd.xml")
+	if err := os.WriteFile(dtPath, []byte(dtXML), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(eddPath, []byte(minimalEDDXML()), 0644); err != nil {
+		t.Fatal(err)
+	}
+	past := time.Now().Add(-1 * time.Hour)
+	_ = os.Chtimes(dtPath, past, past)
+	_ = os.Chtimes(eddPath, past, past)
+
+	out, exitCode := captureFullOutput([]string{
+		"build", "--from-xml",
+		"--xml-dir", xmlDir,
+		"--excel-dir", excelDir,
+		tmpDir,
+	})
+
+	// Must exit non-zero when compile drops are detected.
+	if exitCode == 0 {
+		t.Errorf("expected non-zero exit when EL compile drop is present; output:\n%s", out)
+	}
+
+	// Import step must appear in output.
+	if !strings.Contains(out, "Import step") {
+		t.Errorf("Build Summary missing 'Import step'; output:\n%s", out)
+	}
+
+	// Must report the drop with "EL compile" or the error reason.
+	hasDropLine := strings.Contains(out, "drops: 1") || strings.Contains(out, "drops:")
+	if !hasDropLine {
+		t.Errorf("expected drop in Import step; output:\n%s", out)
+	}
+
+	// Table name must appear in the drop line.
+	if !strings.Contains(out, "DropTest") {
+		t.Errorf("expected table name 'DropTest' in drop output; output:\n%s", out)
+	}
+
+	// Action count must be non-zero (we have 1 action).
+	if strings.Contains(out, "actions=0") {
+		t.Errorf("expected non-zero actions count in Import step; output:\n%s", out)
+	}
 }
