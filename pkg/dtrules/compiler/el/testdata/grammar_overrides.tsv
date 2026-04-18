@@ -17,7 +17,6 @@ forfirstctl	forfirstOf	context	for first of accounts where true
 forfirstctl	forfirstOfIts	context	for first of accounts and its other where true
 forfirstctl	forfirstIn	context	for first in accounts where true
 contextForTable	contextDebug	context	debug "hi"
-contextForTable	contextFor	context	for i = 0; i < 3; increment i
 contextForTable	contextForallCtl	context	for all accounts
 contextForTable	contextForfirst	context	for first of accounts where true
 contextForTable	contextLocal	context	local string s
@@ -142,3 +141,19 @@ datestatement	dateAddYears	action	add 5 years to dt
 datestatement	dateSubDays	action	subtract 5 days from dt
 datestatement	dateSubMonths	action	subtract 5 months from dt
 datestatement	dateSubYears	action	subtract 5 years from dt
+bigexpr	bigFromInt	condition	(bigint) 1 > (bigint) 0
+bigexpr	bigFromFloat	condition	(bigint) 1.0 > (bigint) 0
+bigexpr	bigFromStr	condition	(bigint) "1" > (bigint) 0
+bigexpr	bigFromBytes	condition	bigint of bytes 0xab > (bigint) 0
+contextForTable	contextFor	context	for i = 0; i < 3; increment i;
+errorstatement	errorStmt	action	error "msg"
+warnstatement	warnStmt	action	warn "msg"
+nexpr	nameOf	condition	nameof account == $tbl
+nexpr	nameTheName	condition	the name "x" == $tbl
+nexpr	nameUsing	condition	using account ( $tbl ) == $tbl
+fexpr	floatLiteral	condition	1.0 > 0.0
+strexpr	strFromIndex	condition	(string) arr[1] is equal to "x"
+randomstatements	removeName	action	remove $tbl from accounts array
+randomstatements	sortAscending	action	sort accounts in ascending order by $tbl
+randomstatements	sortDescending	action	sort accounts in descending order by $tbl
+randomstatements	clearArray	action	clear accounts
