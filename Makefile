@@ -28,7 +28,7 @@ BINARY   := dtrules
 BUILD_DIR := build
 DIST_DIR  := dist
 
-.PHONY: all build install clean test version release
+.PHONY: all build install clean test check version release
 
 all: build
 
@@ -49,6 +49,18 @@ clean:
 test:
 	@echo "Running tests..."
 	go test ./...
+
+# check: full-module verification that agents must run before declaring a task complete.
+# Excludes ./pkg/dtrules/ root (pre-existing tax-content failures tracked in #520).
+# go vet excludes compiler/el (ANTLR-generated), interpreter (ASM), cmd (pre-existing test ref).
+check:
+	@echo "Checking full module build..."
+	go build ./...
+	@echo "Running go vet (pkg packages only)..."
+	go vet ./pkg/dtrules/compiler/ ./pkg/dtrules/decisiontable/... ./pkg/dtrules/encoding/... ./pkg/dtrules/excel/... ./pkg/dtrules/loader/... ./pkg/dtrules/mapping/... ./pkg/dtrules/operators/... ./pkg/dtrules/runtime/... ./pkg/dtrules/session/... ./pkg/dtrules/sync/... ./pkg/dtrules/version/...
+	@echo "Running tests (scoped -- excludes root pkg/dtrules/ known failures)..."
+	go test -count=1 ./cmd/... ./pkg/dtrules/compiler/... ./pkg/dtrules/decisiontable/... ./pkg/dtrules/encoding/... ./pkg/dtrules/excel/... ./pkg/dtrules/interpreter/... ./pkg/dtrules/loader/... ./pkg/dtrules/mapping/... ./pkg/dtrules/operators/... ./pkg/dtrules/runtime/... ./pkg/dtrules/session/... ./pkg/dtrules/sync/... ./pkg/dtrules/version/...
+	@echo "check passed."
 
 version:
 	@echo "Version: $(VERSION)"
