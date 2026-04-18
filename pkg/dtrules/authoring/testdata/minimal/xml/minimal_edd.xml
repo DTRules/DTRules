@@ -1,0 +1,7 @@
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+	<entity name='applicant' access='rw' comment=''>
+		<field name='applicant' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='age' type='integer' subtype='' access='rw' input='main' default_value='0' comment='Age of applicant'></field>
+		<field name='eligible' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Eligibility result'></field>
+	</entity>
+</entity_data_dictionary>
