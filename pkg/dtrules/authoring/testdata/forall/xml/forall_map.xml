@@ -1,0 +1,18 @@
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<setattribute tag='processed_count' RAttribute='processed_count' enclosure='calculation_context' type='integer'></setattribute>
+			<setattribute tag='has_staking_authority' RAttribute='has_staking_authority' enclosure='staking_account' type='boolean'></setattribute>
+			<setattribute tag='balance' RAttribute='balance' enclosure='staking_account' type='integer'></setattribute>
+			<createentity entity='calculation_context' tag='calculation_context' id='processed_count'></createentity>
+			<createentity entity='staking_account' tag='staking_account' id='balance' list='accounts'></createentity>
+		</map>
+		<entities>
+			<entity name='calculation_context' number='1'></entity>
+			<entity name='staking_account' number='*'></entity>
+		</entities>
+		<initialization>
+			<initialentity entity='calculation_context' epush='true'></initialentity>
+		</initialization>
+	</XMLtoEDD>
+</mapping>

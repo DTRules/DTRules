@@ -1623,6 +1623,18 @@ func (e *PostfixEmitter) VisitContextForallCtl(ctx *ContextForallCtlContext) int
 	return e.Visit(ctx.Forallctl())
 }
 
+// VisitForallSimple emits: dup <array> forall pop
+// Wrapping layer in compileContextsPostfix leaves the table body block on the
+// data stack. dup preserves it so forall (which pops body then array) has its
+// operands; pop then drains the duplicate.
+func (e *PostfixEmitter) VisitForallSimple(ctx *ForallSimpleContext) interface{} {
+	e.emit("dup")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	e.emit("pop")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitContextForfirst(ctx *ContextForfirstContext) interface{} {
 	return e.Visit(ctx.Forfirstctl())
 }
