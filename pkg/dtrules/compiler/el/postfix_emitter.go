@@ -1746,6 +1746,69 @@ func (e *PostfixEmitter) VisitContextForfirst(ctx *ContextForfirstContext) inter
 	return e.Visit(ctx.Forfirstctl())
 }
 
+// Forfirstctl context emitters. Same wrapping rules as forallctl: the
+// compileContextsPostfix wrap leaves the table body block on the data stack.
+// opForfirst signature is (body test array --); pop order is array, test,
+// body. Emit pushes body-duplicate, test block, array — forfirst consumes
+// three, leaving the original body to drop with a final pop.
+
+// VisitForfirstOf: `for first of <array> where <bexpr>`.
+func (e *PostfixEmitter) VisitForfirstOf(ctx *ForfirstOfContext) interface{} {
+	e.emit("dup")
+	e.emit("{")
+	e.Visit(ctx.Bexpr())
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forfirst")
+	e.emit("pop")
+	return nil
+}
+
+// VisitForfirstIn: `for first in <array> where <bexpr>`. Same semantics as
+// forfirstOf.
+func (e *PostfixEmitter) VisitForfirstIn(ctx *ForfirstInContext) interface{} {
+	e.emit("dup")
+	e.emit("{")
+	e.Visit(ctx.Bexpr())
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forfirst")
+	e.emit("pop")
+	return nil
+}
+
+// VisitForfirstOfIts: `for first of <array> and its <eexpr> where <bexpr>`.
+// The related entity eexpr must be on the entity stack while both the test
+// and the body run. We wrap both with entitypush/entitypop so the test still
+// leaves a single bool on the data stack and the body remains stack-neutral
+// via the `dup execute` trick that references the outer table body still
+// sitting on the data stack below forfirst's operands.
+func (e *PostfixEmitter) VisitForfirstOfIts(ctx *ForfirstOfItsContext) interface{} {
+	// body-wrapper: push eexpr entity, execute outer body (via dup/execute),
+	// then pop the entity. Net data-stack effect: neutral.
+	e.emit("{")
+	e.Visit(ctx.Eexpr())
+	e.emit("entitypush")
+	e.emit("dup")
+	e.emit("execute")
+	e.emit("entitypop")
+	e.emit("pop")
+	e.emit("}")
+	// test-wrapper: push eexpr entity, evaluate bexpr, pop entity, leaving
+	// just the bool on the data stack.
+	e.emit("{")
+	e.Visit(ctx.Eexpr())
+	e.emit("entitypush")
+	e.Visit(ctx.Bexpr())
+	e.emit("entitypop")
+	e.emit("pop")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forfirst")
+	e.emit("pop")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitContextCtx(ctx *ContextCtxContext) interface{} {
 	return e.Visit(ctx.Contextstatement())
 }
@@ -2211,6 +2274,220 @@ func (e *PostfixEmitter) VisitLeftDexprSimple(ctx *LeftDexprSimpleContext) inter
 
 func (e *PostfixEmitter) VisitBlockIf(ctx *BlockIfContext) interface{} {
 	e.Visit(ctx.Ifblock())
+	return nil
+}
+
+// Block alternatives that delegate to sub-rules. Each sub-rule handles its
+// own emit shape; blockCurly/blockUsing below inline.
+
+func (e *PostfixEmitter) VisitBlockForall(ctx *BlockForallContext) interface{} {
+	return e.Visit(ctx.Forallblock())
+}
+
+func (e *PostfixEmitter) VisitBlockForeach(ctx *BlockForeachContext) interface{} {
+	return e.Visit(ctx.Foreachblock())
+}
+
+func (e *PostfixEmitter) VisitBlockFirst(ctx *BlockFirstContext) interface{} {
+	return e.Visit(ctx.Firstblock())
+}
+
+func (e *PostfixEmitter) VisitBlockUsing(ctx *BlockUsingContext) interface{} {
+	return e.Visit(ctx.Usingblock())
+}
+
+// VisitBlockGforall: `{ statementList } forallctl` — a body block followed by
+// a forallctl that iterates it. Grammar puts the body BEFORE the forallctl,
+// but the forallctl visitor already expects a body on the data stack and
+// consumes it. Emit the body as a quoted block, then visit the forallctl.
+func (e *PostfixEmitter) VisitBlockGforall(ctx *BlockGforallContext) interface{} {
+	e.emit("{")
+	e.Visit(ctx.StatementList())
+	e.emit("}")
+	return e.Visit(ctx.Forallctl())
+}
+
+// Foreachblock action emitters. opForall signature is (body array --).
+// Each element entity is auto-pushed by forall before the body runs.
+// `and its <eexpr>` variants push a second related entity; `where <bexpr>`
+// variants filter with an if-guarded body.
+
+// VisitForeachSimple: `<eexpr> in <arr> { block }`.
+func (e *PostfixEmitter) VisitForeachSimple(ctx *ForeachSimpleContext) interface{} {
+	e.emit("{")
+	e.Visit(ctx.Block())
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	return nil
+}
+
+// VisitForeachWhere: `<eexpr> in <arr> where <bexpr> { block }`.
+func (e *PostfixEmitter) VisitForeachWhere(ctx *ForeachWhereContext) interface{} {
+	// forall body is `{ { block } <bexpr> if }` — if the predicate is true,
+	// execute the block; otherwise do nothing.
+	e.emit("{")
+	e.emit("{")
+	e.Visit(ctx.Block())
+	e.emit("}")
+	e.Visit(ctx.Bexpr())
+	e.emit("if")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	return nil
+}
+
+// VisitForeachIts: `<e1> and its <e2> in <arr> { block }`. e1 is pushed by
+// forall, e2 is evaluated per-iteration and pushed via entitypush.
+func (e *PostfixEmitter) VisitForeachIts(ctx *ForeachItsContext) interface{} {
+	e.emit("{")
+	e.Visit(ctx.Eexpr(1)) // <e2>
+	e.emit("entitypush")
+	e.Visit(ctx.Block())
+	e.emit("entitypop")
+	e.emit("pop")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	return nil
+}
+
+// VisitForeachItsWhere: `<e1> and its <e2> in <arr> where <bexpr> { block }`.
+// entitypop must run whether or not the predicate matched.
+func (e *PostfixEmitter) VisitForeachItsWhere(ctx *ForeachItsWhereContext) interface{} {
+	e.emit("{")
+	e.Visit(ctx.Eexpr(1)) // <e2>
+	e.emit("entitypush")
+	e.emit("{")
+	e.Visit(ctx.Block())
+	e.emit("}")
+	e.Visit(ctx.Bexpr())
+	e.emit("if")
+	e.emit("entitypop")
+	e.emit("pop")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	return nil
+}
+
+// Firstblock action emitters. opForfirst is (body test array --), which runs
+// body on the first match; opForfirstelse is (body1 body2 test array --),
+// with body2 running if no match is found.
+
+// VisitFirstBlockSimple: `for first of <arr> where <bexpr> then <block> endff`.
+func (e *PostfixEmitter) VisitFirstBlockSimple(ctx *FirstBlockSimpleContext) interface{} {
+	e.emit("{")
+	e.Visit(ctx.Block())
+	e.emit("}")
+	e.emit("{")
+	e.Visit(ctx.Bexpr())
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forfirst")
+	return nil
+}
+
+// VisitFirstBlockElse: `for first of <arr> where <bexpr> then <block1>
+// else if none are found <block2> endff`.
+func (e *PostfixEmitter) VisitFirstBlockElse(ctx *FirstBlockElseContext) interface{} {
+	e.emit("{")
+	e.Visit(ctx.Block(0))
+	e.emit("}")
+	e.emit("{")
+	e.Visit(ctx.Block(1))
+	e.emit("}")
+	e.emit("{")
+	e.Visit(ctx.Bexpr())
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forfirstelse")
+	return nil
+}
+
+// Usingblock emitters. `using E1, E2 { block }` pushes each typed entity
+// onto the entity stack, runs the block with them all in scope, then pops
+// them in reverse grammar order (ANTLR's right-recursive match structure
+// naturally produces reverse-order pops via the recursive visit).
+
+// VisitUsingBlockEntity: `typedEntity usingblock`.
+func (e *PostfixEmitter) VisitUsingBlockEntity(ctx *UsingBlockEntityContext) interface{} {
+	e.Visit(ctx.TypedEntity())
+	e.emit("entitypush")
+	e.Visit(ctx.Usingblock())
+	e.emit("entitypop")
+	e.emit("pop")
+	return nil
+}
+
+// VisitUsingBlockEntityComma: `typedEntity , usingblock`.
+func (e *PostfixEmitter) VisitUsingBlockEntityComma(ctx *UsingBlockEntityCommaContext) interface{} {
+	e.Visit(ctx.TypedEntity())
+	e.emit("entitypush")
+	e.Visit(ctx.Usingblock())
+	e.emit("entitypop")
+	e.emit("pop")
+	return nil
+}
+
+// VisitUsingBlockBase: the leaf case — just emit the block inline.
+func (e *PostfixEmitter) VisitUsingBlockBase(ctx *UsingBlockBaseContext) interface{} {
+	return e.Visit(ctx.Block())
+}
+
+// Forallblock emitters (action position, explicit block body).
+
+// VisitForallBlockSimple: `<arr> { block }`. Action form with no filter.
+func (e *PostfixEmitter) VisitForallBlockSimple(ctx *ForallBlockSimpleContext) interface{} {
+	e.emit("{")
+	e.Visit(ctx.Block())
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	return nil
+}
+
+// VisitForallBlockWhere: `<arr> where <bexpr> { block }`. Filter before exec.
+func (e *PostfixEmitter) VisitForallBlockWhere(ctx *ForallBlockWhereContext) interface{} {
+	e.emit("{")
+	e.emit("{")
+	e.Visit(ctx.Block())
+	e.emit("}")
+	e.Visit(ctx.Bexpr())
+	e.emit("if")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	return nil
+}
+
+// VisitFirstBlockItsElse: same as FirstBlockElse but with `and its <e2>`.
+// The matched body and the test both run with e2 on the entity stack; body2
+// runs when no match is found, so no entity push is needed there.
+func (e *PostfixEmitter) VisitFirstBlockItsElse(ctx *FirstBlockItsElseContext) interface{} {
+	// body1 wrapper
+	e.emit("{")
+	e.Visit(ctx.Eexpr())
+	e.emit("entitypush")
+	e.Visit(ctx.Block(0))
+	e.emit("entitypop")
+	e.emit("pop")
+	e.emit("}")
+	// body2: no entity pushed
+	e.emit("{")
+	e.Visit(ctx.Block(1))
+	e.emit("}")
+	// test wrapper
+	e.emit("{")
+	e.Visit(ctx.Eexpr())
+	e.emit("entitypush")
+	e.Visit(ctx.Bexpr())
+	e.emit("entitypop")
+	e.emit("pop")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forfirstelse")
 	return nil
 }
 
