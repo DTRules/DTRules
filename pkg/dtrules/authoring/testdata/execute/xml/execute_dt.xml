@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 1: Check_Eligibility - FIRST policy, one condition, two columns -->
+<!-- TABLE 1: Check_Eligibility -->
 <decision_table el_compiled="true">
 <table_name>Check_Eligibility</table_name>
 <xls_file>execute_dt.xlsx</xls_file>
@@ -49,7 +49,7 @@ false applicant.eligible =
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 2: Score_Tiers - ALL policy, two conditions -->
+<!-- TABLE 2: Score_Tiers -->
 <decision_table el_compiled="true">
 <table_name>Score_Tiers</table_name>
 <xls_file>execute_dt.xlsx</xls_file>
@@ -77,18 +77,18 @@ applicant.score 80 &gt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>Set tier A</action_comment>
-<action_dsl>set applicant.tier = "A"</action_dsl>
+<action_dsl>set applicant.tier = &quot;A&quot;</action_dsl>
 <action_postfix>
-"A" applicant.tier =
+&quot;A&quot; applicant.tier =
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Set tier B</action_comment>
-<action_dsl>set applicant.tier = "B"</action_dsl>
+<action_dsl>set applicant.tier = &quot;B&quot;</action_dsl>
 <action_postfix>
-"B" applicant.tier =
+&quot;B&quot; applicant.tier =
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
@@ -96,5 +96,4 @@ applicant.score 80 &gt;=
 <policy_statements>
 </policy_statements>
 </decision_table>
-
 </decision_tables>
