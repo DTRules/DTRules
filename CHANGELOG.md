@@ -1,5 +1,11 @@
 # DTRules Changelog
 
+## v1.6.6 — 2026-04-18
+
+Patch release. Completes #626 by covering every labeled alternative of `forallctl` in `PostfixEmitter`.
+
+- **All seven `forall` context forms now compile to correct postfix** (#626, #632). v1.6.5 shipped `VisitForallSimple` only; the other six (`forallAllowRemove`, `forallWhere`, `forallWhereAllowRemove`, `forallInEntity`, `forallInEntityAllowRemove`, `forallInEntityWhere`) fell through to the base visitor and emitted nothing. Decision tables should never rely on hand-tuned postfix — the EL compiler must produce correct postfix for every documented form. Regression tests cover every form with three input fixtures (empty, all-authorized, mixed) — 21 subtests.
+
 ## v1.6.5 — 2026-04-18
 
 Patch release. Four bugs the staking team filed against v1.6.4, all with regression tests.
