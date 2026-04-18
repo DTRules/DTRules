@@ -68,11 +68,6 @@ blist	blistMulti	DSL sample needs refinement OR real emit fall-through — triag
 blist	blistOr	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 blistIc	blistIcMulti	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 blistIc	blistIcOr	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-block	blockFirst	real emit fall-through — Visit method missing or under-implemented; followup
-block	blockForall	real emit fall-through — Visit method missing or under-implemented; followup
-block	blockForeach	real emit fall-through — Visit method missing or under-implemented; followup
-block	blockGforall	real emit fall-through — Visit method missing or under-implemented; followup
-block	blockUsing	real emit fall-through — Visit method missing or under-implemented; followup
 bytesexpr	bytesConcat	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bytesexpr	bytesCvBase58Check	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bytesexpr	bytesCvBech32	DSL sample needs refinement OR real emit fall-through — triage in follow-up
@@ -88,7 +83,6 @@ bytesexpr	bytesSlice	triage — sweep surfaced this label as failing; check if D
 contextForTable	contextCtx	real emit fall-through — Visit method missing or under-implemented; followup
 contextForTable	contextDebug	real emit fall-through — Visit method missing or under-implemented; followup
 contextForTable	contextFor	real emit fall-through — Visit method missing or under-implemented; followup
-contextForTable	contextForfirst	real emit fall-through — Visit method missing or under-implemented; followup
 contextForTable	contextLocal	real emit fall-through — Visit method missing or under-implemented; followup
 contextstatement	addToContextFor	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 contextstatement	addToContextOf	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
@@ -158,16 +152,6 @@ eexpr	entityTyped	triage — sweep surfaced this label as failing; check if DSL 
 errorstatement	errorStmt	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 fexpr	floatLiteral	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 fexpr	floatValueOfOp	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-firstblock	firstBlockElse	real emit fall-through — Visit method missing or under-implemented; followup
-firstblock	firstBlockItsElse	real emit fall-through — Visit method missing or under-implemented; followup
-firstblock	firstBlockSimple	real emit fall-through — Visit method missing or under-implemented; followup
-foreachblock	foreachIts	real emit fall-through — Visit method missing or under-implemented; followup
-foreachblock	foreachItsWhere	real emit fall-through — Visit method missing or under-implemented; followup
-foreachblock	foreachSimple	real emit fall-through — Visit method missing or under-implemented; followup
-foreachblock	foreachWhere	real emit fall-through — Visit method missing or under-implemented; followup
-forfirstctl	forfirstIn	real emit fall-through — Visit method missing or under-implemented; followup
-forfirstctl	forfirstOf	real emit fall-through — Visit method missing or under-implemented; followup
-forfirstctl	forfirstOfIts	real emit fall-through — Visit method missing or under-implemented; followup
 iexpr	intDayOfMonth	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 iexpr	intDaysBetween	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 iexpr	intDaysInMonth	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
@@ -257,9 +241,6 @@ subtodest	subDestPossessiveLong	triage — sweep surfaced this label as failing;
 tablelist	tableListMulti	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 tablelist	tableListSingle	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 texpr	tableNew	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-usingblock	usingBlockBase	real emit fall-through — Visit method missing or under-implemented; followup
-usingblock	usingBlockEntity	real emit fall-through — Visit method missing or under-implemented; followup
-usingblock	usingBlockEntityComma	real emit fall-through — Visit method missing or under-implemented; followup
 warnstatement	warnStmt	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 xmlvaluestatements	xmlAddAttr	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 xmlvaluestatements	xmlAddAttrEntity	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
