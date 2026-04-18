@@ -76,3 +76,7 @@ bexpr	boolArrayNotInclude	condition	accounts does not include account
 bexpr	boolDateBefore	condition	(date) "2020-01-01" is before (date) "2020-01-02"
 bexpr	boolDateAfter	condition	(date) "2020-01-02" is after (date) "2020-01-01"
 bexpr	boolDateBetween	condition	(date) "2020-01-01" is between (date) "2020-01-01" and (date) "2020-01-02"
+bexpr	boolNameEq	condition	$a == $b
+bexpr	boolNameEqStr	condition	$a == "x"
+bexpr	boolNameNeq	condition	$a != $b
+bexpr	boolNameNeqStr	condition	$a != "x"
