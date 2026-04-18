@@ -1,0 +1,11 @@
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+	<entity name='job' access='rw' comment=''>
+		<field name='job' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='age' type='integer' subtype='' access='rw' input='main' default_value='0' comment='Job holder age'></field>
+		<field name='result' type='string' subtype='' access='rw' input='' default_value='' comment='Decision result'></field>
+	</entity>
+	<entity name='params' access='rw' comment=''>
+		<field name='params' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='rate' type='double' subtype='' access='rw' input='' default_value='0' comment='Rate parameter'></field>
+	</entity>
+</entity_data_dictionary>

@@ -161,12 +161,16 @@ func (l *mapLoader) handleEntity(attrs map[string]string) error {
 }
 
 // handleInitialEntity processes an <initialentity> element.
+// epush='false' opts the entity out of being pushed; absent or 'true' includes it.
 func (l *mapLoader) handleInitialEntity(attrs map[string]string) error {
 	entity := attrs["entity"]
 	if entity == "" {
 		return fmt.Errorf("initialentity requires entity attribute")
 	}
 
+	if epushVal, ok := attrs["epush"]; ok && strings.ToLower(epushVal) == "false" {
+		return nil
+	}
 	l.mapping.AddInitialEntity(entity)
 	return nil
 }
