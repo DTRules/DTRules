@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+  <applicant>
+    <id>1</id>
+    <age>25</age>
+    <score>90</score>
+  </applicant>
+</test>

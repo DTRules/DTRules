@@ -495,6 +495,9 @@ func (p *Project) snapshotState() map[string]string {
 		if !ok {
 			continue
 		}
+		if re.IsReadOnly() {
+			continue
+		}
 		entName := re.GetName().StringValue()
 		for _, attrName := range re.GetAttributeNames() {
 			val, err := re.Get(attrName)

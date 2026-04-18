@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 1: Check_Eligibility (entry table, calls sub-tables) -->
+<decision_table el_compiled="true">
+<table_name>Check_Eligibility</table_name>
+<xls_file>debug_dt.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>1</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Adult applicant</condition_comment>
+<condition_dsl>applicant.age &gt;= 18</condition_dsl>
+<condition_postfix>
+applicant.age 18 &gt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Grant eligibility and score tier</action_comment>
+<action_dsl>set applicant.eligible = true; perform Score_Tiers;</action_dsl>
+<action_postfix>
+true cvb /applicant.eligible xdef Score_Tiers
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Deny eligibility and check bonus</action_comment>
+<action_dsl>set applicant.eligible = false; perform Check_Bonus;</action_dsl>
+<action_postfix>
+false cvb /applicant.eligible xdef Check_Bonus
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 2: Score_Tiers (sub-table called from column 1 of Check_Eligibility) -->
+<decision_table el_compiled="true">
+<table_name>Score_Tiers</table_name>
+<xls_file>debug_dt.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>2</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>High score</condition_comment>
+<condition_dsl>applicant.score &gt;= 80</condition_dsl>
+<condition_postfix>
+applicant.score 80 &gt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Set tier A</action_comment>
+<action_dsl>set applicant.tier = "A"</action_dsl>
+<action_postfix>
+"A" cvs /applicant.tier xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Set tier B</action_comment>
+<action_dsl>set applicant.tier = "B"</action_dsl>
+<action_postfix>
+"B" cvs /applicant.tier xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 3: Check_Bonus (sub-table called from column 2 of Check_Eligibility) -->
+<decision_table el_compiled="true">
+<table_name>Check_Bonus</table_name>
+<xls_file>debug_dt.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>3</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>High score despite minor</condition_comment>
+<condition_dsl>applicant.score &gt;= 90</condition_dsl>
+<condition_postfix>
+applicant.score 90 &gt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_column column_number="2" column_value="N"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Grant bonus</action_comment>
+<action_dsl>set applicant.bonus = true</action_dsl>
+<action_postfix>
+true cvb /applicant.bonus xdef
+</action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No bonus</action_comment>
+<action_dsl>set applicant.bonus = false</action_dsl>
+<action_postfix>
+false cvb /applicant.bonus xdef
+</action_postfix>
+<action_column column_number="2" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements>
+</policy_statements>
+</decision_table>
+
+</decision_tables>
