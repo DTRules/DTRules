@@ -107,3 +107,43 @@ func TestDocumentation_EmbeddingUsesLoadRulesFromFS(t *testing.T) {
 		t.Error("embedding doc should not reference the old tempdir workaround")
 	}
 }
+
+func TestDocumentation_AuthoringTopic(t *testing.T) {
+	doc, ok := docTopics["authoring"]
+	if !ok {
+		t.Fatal("authoring topic not registered in docTopics")
+	}
+
+	required := []string{
+		"OpenProject",
+		"ExecuteEntry",
+		"ResumeAt",
+		"SetAttribute",
+		"ResetState",
+		"AddCondition",
+		"UpdateCondition",
+		"AddColumn",
+		"UpdateColumn",
+		"EntityStack",
+		"Resolve",
+		"Step",
+		"Continue",
+		"CheckCondition",
+		"CheckAction",
+		"CheckContext",
+		"pkg/dtrules/authoring",
+		"go doc",
+	}
+	for _, term := range required {
+		if !strings.Contains(doc, term) {
+			t.Errorf("authoring doc missing required term: %q", term)
+		}
+	}
+}
+
+func TestDocumentation_AuthoringInIndex(t *testing.T) {
+	_, ok := docTopics["authoring"]
+	if !ok {
+		t.Fatal("authoring topic not found in docTopics map")
+	}
+}
