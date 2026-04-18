@@ -93,11 +93,6 @@ const (
 	OpGet      Opcode = 73 // Get array element
 	OpPut      Opcode = 74 // Put array element
 
-	// Table operations
-	OpNewTable Opcode = 80 // Create new table
-	OpTableGet Opcode = 81 // Get table value
-	OpTablePut Opcode = 82 // Put table value
-
 	// String operations
 	OpConcat    Opcode = 90 // String concatenation
 	OpSubstring Opcode = 91 // Substring

@@ -247,9 +247,6 @@ func (w *depthAwareWrapper) RNameValue() (*dtrules.RName, error) { return w.name
 func (w *depthAwareWrapper) RArrayValue() (*dtrules.RArray, error) {
 	return nil, unsupported("RArrayValue")
 }
-func (w *depthAwareWrapper) RTableValue() (*dtrules.RTable, error) {
-	return nil, unsupported("RTableValue")
-}
 func (w *depthAwareWrapper) RTimeValue() (*dtrules.RDate, error) {
 	return nil, unsupported("RTimeValue")
 }

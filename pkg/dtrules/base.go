@@ -142,11 +142,6 @@ func (b *BaseObject) RArrayValue() (*RArray, error) {
 	return nil, ConversionError("RArrayValue", "No Array value exists for this type")
 }
 
-// RTableValue returns an error by default.
-func (b *BaseObject) RTableValue() (*RTable, error) {
-	return nil, ConversionError("RTableValue", "No Table value exists for this type")
-}
-
 // RTimeValue returns an error by default.
 func (b *BaseObject) RTimeValue() (*RDate, error) {
 	return nil, ConversionError("RTimeValue", "No Time value exists for this type")

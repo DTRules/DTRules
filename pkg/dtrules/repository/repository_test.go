@@ -295,10 +295,10 @@ func TestParseAttributeType(t *testing.T) {
 		{"array", ruleset.AttrTypeArray},
 		{"list", ruleset.AttrTypeArray},
 		{"entity", ruleset.AttrTypeEntity},
-		{"table", ruleset.AttrTypeTable},
-		{"map", ruleset.AttrTypeTable},
-		{"hashtable", ruleset.AttrTypeTable},
 		{"name", ruleset.AttrTypeName},
+		{"table", ruleset.AttrTypeUnknown},
+		{"map", ruleset.AttrTypeUnknown},
+		{"hashtable", ruleset.AttrTypeUnknown},
 		{"unknown", ruleset.AttrTypeUnknown},
 		{"xyz", ruleset.AttrTypeUnknown},
 	}

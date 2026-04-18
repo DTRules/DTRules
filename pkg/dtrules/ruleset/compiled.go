@@ -167,9 +167,6 @@ const (
 	// AttrTypeEntity represents a reference to another entity.
 	AttrTypeEntity
 
-	// AttrTypeTable represents a hashtable/map value.
-	AttrTypeTable
-
 	// AttrTypeName represents an RName value.
 	AttrTypeName
 )

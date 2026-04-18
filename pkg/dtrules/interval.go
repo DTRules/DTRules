@@ -237,11 +237,6 @@ func (i *RInterval) RArrayValue() (*RArray, error) {
 	return nil, UndefinedError("RArrayValue", "Intervals do not support RArrayValue")
 }
 
-// RTableValue is not supported for intervals.
-func (i *RInterval) RTableValue() (*RTable, error) {
-	return nil, UndefinedError("RTableValue", "Intervals do not support RTableValue")
-}
-
 // RTimeValue is not supported for intervals.
 func (i *RInterval) RTimeValue() (*RDate, error) {
 	return nil, UndefinedError("RTimeValue", "Intervals do not support RTimeValue")

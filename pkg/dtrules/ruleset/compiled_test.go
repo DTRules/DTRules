@@ -295,7 +295,6 @@ func TestAttributeTypes(t *testing.T) {
 		{AttrTypeDate, "date"},
 		{AttrTypeArray, "array"},
 		{AttrTypeEntity, "entity"},
-		{AttrTypeTable, "table"},
 		{AttrTypeName, "name"},
 	}
 

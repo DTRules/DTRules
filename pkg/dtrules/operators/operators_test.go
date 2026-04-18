@@ -3144,7 +3144,6 @@ func (e *mockEntity) RDoubleValue() (*dtrules.RDouble, error)   { return nil, ni
 func (e *mockEntity) RBooleanValue() (*dtrules.RBoolean, error) { return nil, nil }
 func (e *mockEntity) RNameValue() (*dtrules.RName, error)       { return nil, nil }
 func (e *mockEntity) RArrayValue() (*dtrules.RArray, error)     { return nil, nil }
-func (e *mockEntity) RTableValue() (*dtrules.RTable, error)     { return nil, nil }
 func (e *mockEntity) RTimeValue() (*dtrules.RDate, error)       { return nil, nil }
 
 // TestArrayAddOperator tests issue #487: ADD operator for entity collections

@@ -33,7 +33,6 @@ const (
 	TypeArray    = "array"
 	TypeDate     = "date"
 	TypeName     = "name"
-	TypeTable    = "table"
 	TypeXmlValue = "xmlvalue"
 	TypeBigInt   = "bigint"
 	TypeBytes    = "bytes"
@@ -143,8 +142,6 @@ func normalizeType(t string) string {
 		return TypeDate
 	case "name":
 		return TypeName
-	case "table":
-		return TypeTable
 	case "xmlvalue":
 		return TypeXmlValue
 	case "bigint", "biginteger":
