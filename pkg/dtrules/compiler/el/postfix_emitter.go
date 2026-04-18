@@ -2698,6 +2698,68 @@ func (e *PostfixEmitter) VisitBoolArrayAt(ctx *BoolArrayAtContext) interface{} {
 	return nil
 }
 
+// VisitBoolStrIsOneOf: `<s> is one of <arr>` → `<arr> <s> memberof`.
+func (e *PostfixEmitter) VisitBoolStrIsOneOf(ctx *BoolStrIsOneOfContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("memberof")
+	return nil
+}
+
+// VisitBoolStrIsNotOneOf: `<s> is not one of <arr>` → `<arr> <s> memberof not`.
+func (e *PostfixEmitter) VisitBoolStrIsNotOneOf(ctx *BoolStrIsNotOneOfContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("memberof")
+	e.emit("not")
+	return nil
+}
+
+// VisitBoolPlusOrMinus: `<f1> is plus or minus <n> of <f2>` →
+// `|f1 - f2| <= n`. The `number` may be int or float; `cvr` coerces to
+// double for the comparison.
+func (e *PostfixEmitter) VisitBoolPlusOrMinus(ctx *BoolPlusOrMinusContext) interface{} {
+	e.Visit(ctx.Fexpr(0))
+	e.Visit(ctx.Fexpr(1))
+	e.emit("f-")
+	e.emit("fabs")
+	e.Visit(ctx.Number())
+	e.emit("cvr")
+	e.emit("f<=")
+	return nil
+}
+
+// VisitBoolWithinPercent: `<f1> is within <n> percent of <f2>` →
+// `|(f1 - f2) / f2| * 100 <= n`.
+func (e *PostfixEmitter) VisitBoolWithinPercent(ctx *BoolWithinPercentContext) interface{} {
+	e.Visit(ctx.Fexpr(0))
+	e.Visit(ctx.Fexpr(1))
+	e.emit("f-")
+	e.Visit(ctx.Fexpr(1))
+	e.emit("fdiv")
+	e.emit("fabs")
+	e.emit("100.0")
+	e.emit("f*")
+	e.Visit(ctx.Number())
+	e.emit("cvr")
+	e.emit("f<=")
+	return nil
+}
+
+// VisitBoolUsing: `using <eexpr> ( <bexpr> )` — push eexpr onto the entity
+// stack, evaluate bexpr, pop the entity while preserving the bool result.
+// entitypop pushes the popped entity onto the data stack, so we swap under
+// the bool and discard the entity with pop.
+func (e *PostfixEmitter) VisitBoolUsing(ctx *BoolUsingContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("entitypush")
+	e.Visit(ctx.Bexpr())
+	e.emit("entitypop")
+	e.emit("swap")
+	e.emit("pop")
+	return nil
+}
+
 // Randomstatements emitters. Array mutation statements.
 
 // VisitRemoveAtIndex: `remove <iexpr> element from <arrayExpr> array`.

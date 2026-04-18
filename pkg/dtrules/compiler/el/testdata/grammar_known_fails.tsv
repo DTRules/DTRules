@@ -20,24 +20,15 @@ arrayList	arrayListStrSingle	helper rule; only valid inside an array list contex
 bexpr	boolAllHave	real emit fall-through — VisitBoolAllHave missing
 bexpr	boolEntityHasaWhere	real emit fall-through — VisitBoolEntityHasaWhere missing
 bexpr	boolMatchForall	DSL sample needs refinement
-bexpr	boolNameEq	DSL sample needs refinement — /literal-name vs nexpr shape
-bexpr	boolNameEqStr	DSL sample needs refinement
-bexpr	boolNameNeq	DSL sample needs refinement
-bexpr	boolNameNeqStr	DSL sample needs refinement
 bexpr	boolOneOfHasa	real emit fall-through — VisitBoolOneOfHasa missing
-bexpr	boolPlusOrMinus	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolStartsWithAt	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolStrIsNotOneOf	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolStrIsOneOf	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolThereIsInArrayWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolThereIsInEntityWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolThereIsNoInArrayWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolThereIsNoInEntityWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolThereIsNoWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolThereIsWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolUsing	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolValueOfOp	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolWithinPercent	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bigexpr	bigFromBytes	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bigexpr	bigFromFloat	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bigexpr	bigFromInt	DSL sample needs refinement OR real emit fall-through — triage in follow-up
