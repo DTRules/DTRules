@@ -163,6 +163,12 @@ git push origin feature/issue-180 > /tmp/git-push.log 2>&1
 ## Build Commands
 
 ```bash
+# BEFORE DECLARING A TASK COMPLETE -- run this:
+make check > /tmp/make-check.log 2>&1 && tail -20 /tmp/make-check.log
+
+# Scoped tests are NOT sufficient. `make check` runs go build ./... (full module)
+# followed by go vet and the scoped test suite. A task is only done when check passes.
+
 # Build CLI (from repo root)
 make build > /tmp/make-build.log 2>&1
 
