@@ -136,3 +136,9 @@ strexpr	strValueOfInt	condition	string value of 1 is equal to "x"
 strexpr	strValueOfFloat	condition	string value of 1.0 is equal to "x"
 strexpr	strValueOfDate	condition	string value of (date) "2020-01-01" is equal to "x"
 strexpr	strValueOfBool	condition	string value of boolean true is equal to "x"
+datestatement	dateAddDays	action	add 5 days to dt
+datestatement	dateAddMonths	action	add 5 months to dt
+datestatement	dateAddYears	action	add 5 years to dt
+datestatement	dateSubDays	action	subtract 5 days from dt
+datestatement	dateSubMonths	action	subtract 5 months from dt
+datestatement	dateSubYears	action	subtract 5 years from dt
