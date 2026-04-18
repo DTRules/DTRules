@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<calculation_context>
+  <processed_count>0</processed_count>
+  <staking_account>
+    <has_staking_authority>true</has_staking_authority>
+    <balance>1000</balance>
+  </staking_account>
+  <staking_account>
+    <has_staking_authority>true</has_staking_authority>
+    <balance>2000</balance>
+  </staking_account>
+  <staking_account>
+    <has_staking_authority>true</has_staking_authority>
+    <balance>3000</balance>
+  </staking_account>
+</calculation_context>
