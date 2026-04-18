@@ -7,17 +7,7 @@ arrayList	arrayListFloatSingle	[E] helper — only valid inside an array-literal
 arrayList	arrayListIntSingle	[E] helper — only valid inside an array-literal / operatorlist context
 arrayList	arrayListNameSingle	[E] helper — only valid inside an array-literal / operatorlist context
 arrayList	arrayListStrSingle	[E] helper — only valid inside an array-literal / operatorlist context
-bexpr	boolAllHave	[B] universal quantifier: `not (exists <arr> where not <b>)` — iterate, short-circuit false
-bexpr	boolEntityHasaWhere	[B] attribute-filter: push entity, check attribute exists, eval where
 bexpr	boolMatchForall	[B] complex multi-array join — needs design
-bexpr	boolOneOfHasa	[B] existential quantifier: iterate, short-circuit true
-bexpr	boolStartsWithAt	[B] substring + startswith: `<s> <i> <s> stringlength <i> - substring <s2> startswith`
-bexpr	boolThereIsInArrayWhere	[B] array-scoped existence: iterate, return true on first match, else false
-bexpr	boolThereIsInEntityWhere	[B] entity-scoped existence: push enclosing entity, then check
-bexpr	boolThereIsNoInArrayWhere	[B] parallel to InArrayWhere + not
-bexpr	boolThereIsNoInEntityWhere	[B] parallel to InEntityWhere + not
-bexpr	boolThereIsNoWhere	[B] parallel to boolThereIsWhere + not
-bexpr	boolThereIsWhere	[B] existence+where: emit `/<entityName> isdefined { <bexpr> } { false } ifelse`
 bexpr	boolValueOfOp	[D] `boolean value of <operatorstatements>` — operator dispatch returning a bool; needs runtime op understanding
 blist	blistMulti	[E] helper — only reachable inside strexpr EQ blist; tested via boolStrEqList
 blist	blistOr	[E] helper — only reachable inside strexpr EQ blist
@@ -33,9 +23,6 @@ done	policyFExpr	[F] same as policyBExpr
 done	policyIExpr	[F] same as policyBExpr
 done	policyNExpr	[F] same as policyBExpr
 done	policyStrExpr	[F] same as policyBExpr
-eexpr	entityFirst	[B] find-first entity: use opForfirst where scope is the enclosing entity stack
-eexpr	entityFirstIn	[B] find-first in array: `<arr> { <b> } forfirst` with result on data stack
-eexpr	entityTableLookup	[D] typed-table lookup: `(entity) <tbl>(<list>)` — parallel to strTableLookup
 fexpr	floatValueOfOp	[D] `double value of <operatorstatements>`
 iexpr	intValueOfOp	[D] `long value of <operatorstatements>`
 includeSearch	includeDate	[E] helper — only reachable inside arrayExpr INCLUDES includeSearch
