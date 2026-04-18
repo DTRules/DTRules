@@ -7,7 +7,7 @@ arrayList	arrayListFloatSingle	[E] helper — only valid inside an array-literal
 arrayList	arrayListIntSingle	[E] helper — only valid inside an array-literal / operatorlist context
 arrayList	arrayListNameSingle	[E] helper — only valid inside an array-literal / operatorlist context
 arrayList	arrayListStrSingle	[E] helper — only valid inside an array-literal / operatorlist context
-bexpr	boolMatchForall	[B] complex multi-array join — needs design
+bexpr	boolMatchForall	[D] complex multi-array join — `for each x in arr1, exists y in arr2 such that y.<nexpr> == x`; needs nested forall with inner-break primitive or accumulator gymnastics
 bexpr	boolValueOfOp	[D] `boolean value of <operatorstatements>` — operator dispatch returning a bool; needs runtime op understanding
 blist	blistMulti	[E] helper — only reachable inside strexpr EQ blist; tested via boolStrEqList
 blist	blistOr	[E] helper — only reachable inside strexpr EQ blist
