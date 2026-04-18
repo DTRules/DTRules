@@ -20,44 +20,11 @@ contextForTable	contextDebug	context	debug "hi"
 contextForTable	contextFor	context	for i = 0; i < 3; increment i
 contextForTable	contextForallCtl	context	for all accounts
 contextForTable	contextForfirst	context	for first of accounts where true
-contextForTable	contextLocal	context	with local string s
-contextForTable	contextCtx	context	ctx account
+contextForTable	contextLocal	context	local string s
+contextForTable	contextCtx	context	add account to context of this table
 usingblock	usingBlockEntity	action	using account { set x = 1; }
 usingblock	usingBlockEntityComma	action	using account, account { set x = 1; }
 usingblock	usingBlockBase	action	using account { set x = 1; }
-localvariables	localEntityUndef	context	with local entity e
-localvariables	localEntityInit	context	with local entity e = account
-localvariables	localEntityDefined	context	with local entity account
-localvariables	localLongUndef	context	with local int n
-localvariables	localLongInit	context	with local int n = 5
-localvariables	localLongDefined	context	with local int n
-localvariables	localDoubleUndef	context	with local double d
-localvariables	localDoubleInit	context	with local double d = 5.0
-localvariables	localDoubleDefined	context	with local double d
-localvariables	localBoolUndef	context	with local boolean b
-localvariables	localBoolInit	context	with local boolean b = true
-localvariables	localBoolDefined	context	with local boolean b
-localvariables	localDateUndef	context	with local date dt
-localvariables	localDateInit	context	with local date dt = 2020-01-01
-localvariables	localDateDefined	context	with local date dt
-localvariables	localArrayUndef	context	with local array arr
-localvariables	localArrayInit	context	with local array arr = accounts
-localvariables	localArrayDefined	context	with local array arr
-localvariables	localStringUndef	context	with local string s
-localvariables	localStringInit	context	with local string s = "x"
-localvariables	localStringDefined	context	with local string s
-localvariables	localBigIntUndef	context	with local bigint bi
-localvariables	localBigIntInit	context	with local bigint bi = the bigint of 1
-localvariables	localBigIntDefined	context	with local bigint bi
-localvariables	localBytesUndef	context	with local bytes bs
-localvariables	localBytesInit	context	with local bytes bs = 0xab
-localvariables	localBytesDefined	context	with local bytes bs
-localvariables	localNameUndef	context	with local name nm
-localvariables	localNameInit	context	with local name nm = /tbl
-localvariables	localNameDefined	context	with local name nm
-localvariables	localTableUndef	context	with local table tbl
-localvariables	localTableInit	context	with local table tbl = accounts
-localvariables	localTableDefined	context	with local table tbl
 setstatement	setStringFromName	action	set s = /tbl
 done	policyStrExpr	raw	policystatement "x";
 done	policyNExpr	raw	policystatement /tbl;
@@ -75,3 +42,30 @@ contextstatement	addToContextFor	context	add account to context for this table
 ifcontinue	ifEnd	action	if true then set x = 1; endif
 ifcontinue	ifElse	action	if true then set x = 1; else set y = 1; endif
 ifcontinue	ifElseIf	action	if true then set x = 1; else if false then set y = 1; endif
+localvariables	localEntityUndef	context	local entity x
+localvariables	localEntityInit	context	local entity x = account
+localvariables	localEntityDefined	context	local entity x
+localvariables	localLongUndef	context	local int x
+localvariables	localLongInit	context	local int x = 5
+localvariables	localLongDefined	context	local int x
+localvariables	localDoubleUndef	context	local double x
+localvariables	localDoubleInit	context	local double x = 5.0
+localvariables	localDoubleDefined	context	local double x
+localvariables	localBoolUndef	context	local boolean x
+localvariables	localBoolInit	context	local boolean x = true
+localvariables	localBoolDefined	context	local boolean x
+localvariables	localDateUndef	context	local date x
+localvariables	localDateInit	context	local date x = today
+localvariables	localDateDefined	context	local date x
+localvariables	localArrayUndef	context	local array x
+localvariables	localArrayInit	context	local array x = accounts
+localvariables	localArrayDefined	context	local array x
+localvariables	localStringUndef	context	local string x
+localvariables	localStringInit	context	local string x = "x"
+localvariables	localStringDefined	context	local string x
+localvariables	localBigIntUndef	context	local bigint x
+localvariables	localBigIntInit	context	local bigint x = (bigint) 1
+localvariables	localBigIntDefined	context	local bigint x
+localvariables	localBytesUndef	context	local bytes x
+localvariables	localBytesInit	context	local bytes x = 0xab
+localvariables	localBytesDefined	context	local bytes x
