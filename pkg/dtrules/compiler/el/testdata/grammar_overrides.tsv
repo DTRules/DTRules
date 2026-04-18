@@ -26,7 +26,6 @@ usingblock	usingBlockEntityComma	action	using account, account { set x = 1; }
 usingblock	usingBlockBase	action	using account { set x = 1; }
 setstatement	setStringFromName	action	set s = /tbl
 done	policyStrExpr	raw	policystatement "x";
-done	policyNExpr	raw	policystatement /tbl;
 done	policyIExpr	raw	policystatement 1;
 done	policyFExpr	raw	policystatement 1.0;
 done	policyBExpr	raw	policystatement true;
@@ -178,3 +177,8 @@ bexpr	boolEntityHasaWhere	condition	account has a "rel" where true
 bexpr	boolStartsWithAt	condition	"hello" at 2 starts with "llo"
 dexpr	dateDays	condition	(date) "2020-01-01" + (5 days) is equal to (date) "2020-01-06"
 strexpr	strTableLookup	condition	(string) tbl("a") is equal to "x"
+bexpr	boolValueOfOp	condition	boolean value of isnull("x")
+iexpr	intValueOfOp	condition	long value of cvi(1.0) > 0
+fexpr	floatValueOfOp	condition	double value of cvr(1) > 0.0
+strexpr	strValueOfOp	condition	string value of cvs(1) is equal to "1"
+done	policyNExpr	raw	policystatement $tbl;

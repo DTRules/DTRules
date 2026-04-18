@@ -1,22 +1,4 @@
 rule	label	reason
 bexpr	boolMatchForall	[D] complex multi-array join — `for each x in arr1, exists y in arr2 such that y.<nexpr> == x`; needs nested forall with inner-break primitive or accumulator gymnastics
-bexpr	boolValueOfOp	[D] `boolean value of <operatorstatements>` — operator dispatch returning a bool; needs runtime op understanding
-done	conditionDebugAfter	[F] debug-after wiring — same
-done	conditionDebugBefore	[F] debug-before wiring — outer `done` alternative drops the debug emit
-done	contextDebugBefore	[F] debug-before in context — same
-done	policyBExpr	[F] policystatement emit — what does a compiled policy statement output?
-done	policyDExpr	[F] same as policyBExpr
-done	policyFExpr	[F] same as policyBExpr
-done	policyIExpr	[F] same as policyBExpr
-done	policyNExpr	[F] same as policyBExpr
-done	policyStrExpr	[F] same as policyBExpr
-fexpr	floatValueOfOp	[D] `double value of <operatorstatements>`
-iexpr	intValueOfOp	[D] `long value of <operatorstatements>`
-performstatement	performCatchError	[D] try/catch around perform — uses performcatcherror op (exists); needs emit design
 randomstatements	removeEachWhere	[D] remove-while-iterating: no bespoke op; compose forallr + remove — complex
 setstatement	setBoolFromName	[C] parser ambiguity with setStringFromName; requires symbol table to disambiguate
-strexpr	strValueOfOp	[D] `string value of <operatorstatements>`
-xmlvaluestatements	xmlAddAttr	[F] XML DOM mutation
-xmlvaluestatements	xmlAddAttrEntity	[F] XML DOM mutation
-xmlvaluestatements	xmlSetAttr	[F] XML DOM mutation — used for XML output mapping; not clear if runtime supports
-xmlvaluestatements	xmlSetAttrEntity	[F] XML DOM mutation
