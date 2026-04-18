@@ -17,7 +17,6 @@ package operators
 
 import (
 	"math/rand"
-	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
 )
@@ -43,13 +42,8 @@ func init() {
 	Register("intersection", opIntersection)
 	Register("intersects", opIntersects)
 	Register("addarray", opAddArray)
-	Register("add", opArrayAdd)
 	Register("deepcopy", opDeepCopy)
-	Register("tokenize", opTokenize)
-	Register("findmatch", opFindMatch)
 	Register("cleararray", opClearArray)
-	Register("find_by_field", opFindByField)
-	Alias("find_by_field", "findbyfield")
 }
 
 // opNewArray: ( -- array ) creates a new empty array
@@ -59,26 +53,6 @@ func opNewArray(state dtrules.State) error {
 		return err
 	}
 	return state.DataPush(arr)
-}
-
-// opArrayAdd: ( element array -- ) adds element to array
-// This is the reverse argument order from addto, matching "element array ADD" syntax.
-// Use case: account eligible_accounts ADD
-func opArrayAdd(state dtrules.State) error {
-	arrayObj, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	element, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	arr, err := arrayObj.RArrayValue()
-	if err != nil {
-		return err
-	}
-	arr.Add(element)
-	return nil
 }
 
 // opAddTo: ( array element -- ) adds element to array
@@ -619,139 +593,6 @@ func opDeepCopy(state dtrules.State) error {
 	return state.DataPush(newArr)
 }
 
-// opTokenize: ( string1 string2 -- array ) splits string1 by string2 regex
-func opTokenize(state dtrules.State) error {
-	patternObj, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	strObj, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-
-	pattern := patternObj.StringValue()
-	str := ""
-	if strObj.Type() != dtrules.TypeNull {
-		str = strings.TrimSpace(strObj.StringValue())
-	}
-
-	result, err := dtrules.NewArray(state.GetSession(), false, false)
-	if err != nil {
-		return err
-	}
-
-	tokens := strings.Split(str, pattern)
-	for _, t := range tokens {
-		result.Add(dtrules.NewRString(t))
-	}
-
-	return state.DataPush(result)
-}
-
-// opFindMatch: ( name1 value1 name2 value2 name3 value3 array -- entity boolean )
-// Finds entity in array matching all non-null name/value pairs
-func opFindMatch(state dtrules.State) error {
-	arrayObj, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	v3, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	n3, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	v2, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	n2, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	v1, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	n1, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-
-	arr, err := arrayObj.RArrayValue()
-	if err != nil {
-		return err
-	}
-
-	for _, ie := range arr.GetIterator() {
-		e, err := ie.REntityValue()
-		if err != nil {
-			continue
-		}
-
-		// Check n3/v3 if n3 is not null
-		if n3.Type() != dtrules.TypeNull {
-			name, err := n3.RNameValue()
-			if err != nil {
-				return err
-			}
-			v, err := e.Get(name)
-			if err != nil {
-				continue
-			}
-			eq, eqErr := v.Equals(v3)
-			if eqErr != nil || !eq {
-				continue
-			}
-		}
-
-		// Check n2/v2 if n2 is not null
-		if n2.Type() != dtrules.TypeNull {
-			name, err := n2.RNameValue()
-			if err != nil {
-				return err
-			}
-			v, err := e.Get(name)
-			if err != nil {
-				continue
-			}
-			eq, eqErr := v.Equals(v2)
-			if eqErr != nil || !eq {
-				continue
-			}
-		}
-
-		// Check n1/v1 if n1 is not null
-		if n1.Type() != dtrules.TypeNull {
-			name, err := n1.RNameValue()
-			if err != nil {
-				return err
-			}
-			v, err := e.Get(name)
-			if err != nil {
-				continue
-			}
-			eq, eqErr := v.Equals(v1)
-			if eqErr != nil || !eq {
-				continue
-			}
-		}
-
-		// Found match
-		if err := state.DataPush(e.(dtrules.Object)); err != nil {
-			return err
-		}
-		return state.DataPush(dtrules.GetRBoolean(true))
-	}
-
-	if err := state.DataPush(dtrules.GetRNull()); err != nil {
-		return err
-	}
-	return state.DataPush(dtrules.GetRBoolean(false))
-}
 
 // opClearArray: ( array -- ) removes all elements from array
 func opClearArray(state dtrules.State) error {
@@ -767,62 +608,3 @@ func opClearArray(state dtrules.State) error {
 	return nil
 }
 
-// opFindByField: ( array field_name value -- entity|null )
-// Searches array of entities for one where field equals value.
-// Returns the matching entity or null if not found.
-// Use case: delegate_url accounts FIND_BY_FIELD
-func opFindByField(state dtrules.State) error {
-	value, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	fieldNameObj, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	arrayObj, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-
-	arr, err := arrayObj.RArrayValue()
-	if err != nil {
-		return err
-	}
-
-	// Get field name - could be string or RName
-	var fieldName *dtrules.RName
-	switch fieldNameObj.Type() {
-	case dtrules.TypeName:
-		fieldName, err = fieldNameObj.RNameValue()
-		if err != nil {
-			return err
-		}
-	case dtrules.TypeString:
-		fieldName = dtrules.GetRName(fieldNameObj.StringValue())
-	default:
-		return dtrules.NewRulesError("Type Error", "find_by_field", "field name must be string or name")
-	}
-
-	// Search through array for matching entity
-	for _, elem := range arr.GetIterator() {
-		e, err := elem.REntityValue()
-		if err != nil {
-			continue // Skip non-entities
-		}
-
-		v, err := e.Get(fieldName)
-		if err != nil {
-			continue // Field doesn't exist
-		}
-
-		eq, eqErr := v.Equals(value)
-		if eqErr == nil && eq {
-			// Found match
-			return state.DataPush(e.(dtrules.Object))
-		}
-	}
-
-	// No match found
-	return state.DataPush(dtrules.GetRNull())
-}

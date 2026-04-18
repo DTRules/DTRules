@@ -3403,19 +3403,14 @@ func (e *PostfixEmitter) VisitPrintArray(ctx *PrintArrayContext) interface{} {
 // Relationship and Entity Tests
 // ============================================================================
 
+// VisitBoolEntityIsOf: `<e1> is <type> of <e2>` — the findmatch/relationship
+// lookup op this used to call was removed alongside the hash-table ops. The
+// emit now produces an elstmterror so the form parses but errors at runtime
+// with a clear message until a replacement relationship primitive lands.
 func (e *PostfixEmitter) VisitBoolEntityIsOf(ctx *BoolEntityIsOfContext) interface{} {
-	// "eexpr IS strexpr OF eexpr" e.g., "client is the parent of ThisClient"
-	// Java pattern: /source client /target 0 local@ /type parent relationships findmatch swap pop
-	e.emit("/source")
-	e.Visit(ctx.Eexpr(0)) // source entity (client)
-	e.emit("/target")
-	e.Visit(ctx.Eexpr(1)) // target entity (ThisClient)
-	e.emit("/type")
-	e.Visit(ctx.Strexpr()) // relationship type (parent)
-	e.emit("relationships")
-	e.emit("findmatch")
-	e.emit("swap")
-	e.emit("pop")
+	e.emit("\"relationship-is-of form is not supported (findmatch was removed)\"")
+	e.emit("elstmterror")
+	e.emit("false")
 	return nil
 }
 

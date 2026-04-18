@@ -69,7 +69,9 @@ func init() {
 	Register("get", opGet)
 	Register("find", opFind)
 	Register("xdef", opXDef)
-	Register("createentity", opCreateEntity)
+	// `createentity` is an alias for `newentity` — they construct an entity
+	// instance by name through the session's factory. Same runtime behavior.
+	Alias("newentity", "createentity")
 	Register("findcreateentity", opFindCreateEntity)
 	Alias("findcreateentity", "fce")
 
@@ -88,53 +90,6 @@ func init() {
 	// at compile time; runtime dispatch goes through OpError/OpWarn opcodes
 	Register("elstmterror", opELStmtError)
 	Register("elstmtwarn", opELStmtWarn)
-
-	// Policy statements
-	Register("policystatements", opPolicyStatements)
-}
-
-// policyStatementsProvider is implemented by states that can provide the current decision table
-type policyStatementsProvider interface {
-	GetCurrentTable() interface{}
-}
-
-// policyStatementsSource is implemented by decision tables that have policy statements
-type policyStatementsSource interface {
-	GetRPolicyStatements() []dtrules.Object
-}
-
-// opPolicyStatements: ( -- array ) pushes the policy statements from the current decision table
-func opPolicyStatements(state dtrules.State) error {
-	// Try to get policy statements from the current decision table context
-	if provider, ok := state.(policyStatementsProvider); ok {
-		if table := provider.GetCurrentTable(); table != nil {
-			if src, ok := table.(policyStatementsSource); ok {
-				stmts := src.GetRPolicyStatements()
-				if stmts != nil {
-					arr, err := dtrules.NewArrayWithElements(state.GetSession(), true, stmts, false)
-					if err != nil {
-						return err
-					}
-					return state.DataPush(arr)
-				}
-			}
-		}
-	}
-	// Fallback: return empty array when no decision table context
-	arr, err := dtrules.NewArray(state.GetSession(), true, false)
-	if err != nil {
-		return err
-	}
-
-	// Push the array first (matches Java behavior)
-	if err := state.DataPush(arr); err != nil {
-		return err
-	}
-
-	// NOTE: Policy statements feature not yet implemented in Go
-	// TODO: Implement policy statements feature when ActionNode and DecisionTable interfaces are ready
-	// For now, just return the empty array that was already pushed
-	return nil
 }
 
 // opPop: ( a -- ) removes top element
@@ -583,23 +538,6 @@ func opXDef(state dtrules.State) error {
 		return dtrules.UndefinedError("xdef", name.StringValue()+" is undefined")
 	}
 	return nil
-}
-
-// opCreateEntity: ( name -- entity ) creates a new entity instance
-func opCreateEntity(state dtrules.State) error {
-	nameObj, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	name, err := nameObj.RNameValue()
-	if err != nil {
-		return err
-	}
-	entity, err := state.GetSession().CreateEntity(name)
-	if err != nil {
-		return err
-	}
-	return state.DataPush(entity.(dtrules.Object))
 }
 
 // opFindCreateEntity: ( name id -- entity ) finds existing entity by id, or creates a new one

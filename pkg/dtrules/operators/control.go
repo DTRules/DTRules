@@ -47,7 +47,6 @@ func init() {
 	Alias("log_warning", "logwarning")
 	Register("forfirst", opForFirst)
 	Register("forfirstelse", opForFirstElse)
-	Register("entityforall", opEntityForAll)
 	Register("allocate", opAllocate)
 	Alias("allocate", "cpush")
 	Register("deallocate", opDeallocate)
@@ -534,42 +533,6 @@ func opForFirstElse(state dtrules.State) error {
 	return body2.Execute(state)
 }
 
-// opEntityForAll: ( body entity -- ) executes body for each attribute in entity
-func opEntityForAll(state dtrules.State) error {
-	entityObj, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	body, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-
-	entity, err := entityObj.REntityValue()
-	if err != nil {
-		return err
-	}
-
-	names := entity.GetAttributeNames()
-	for _, name := range names {
-		value, err := entity.Get(name)
-		if err != nil {
-			continue
-		}
-		if value != nil {
-			if err := state.DataPush(name); err != nil {
-				return err
-			}
-			if err := state.DataPush(value); err != nil {
-				return err
-			}
-			if err := body.Execute(state); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
 
 // opAllocate: ( value -- ) pushes value to control stack
 func opAllocate(state dtrules.State) error {
