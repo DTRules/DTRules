@@ -37,13 +37,14 @@ func init() {
 	Alias("monthsbetween", "numberofmonths")
 	Register("yearsbetween", opYearsBetween)
 	Alias("yearsbetween", "numberofyears")
-	Register("datecmp", opDateCmp)
 	Register("firstofmonth", opFirstOfMonth)
 	Register("firstofyear", opFirstOfYear)
 	Register("endofmonth", opEndOfMonth)
-	Register("yearof", opYearOf)
-	Register("monthof", opMonthOf)
-	Register("dayof", opDayOf)
+	// yearof/monthof/dayof are aliases for getyear/getmonth/getday —
+	// identical implementation, kept for DSL/author convenience.
+	Alias("getyear", "yearof")
+	Alias("getmonth", "monthof")
+	Alias("getday", "dayof")
 	Register("getdaysinyear", opGetDaysInYear)
 	Register("getdaysinmonth", opGetDaysInMonth)
 	Register("getdayofmonth", opGetDayOfMonth)
@@ -292,38 +293,6 @@ func opYearsBetween(state dtrules.State) error {
 	return state.DataPush(dtrules.GetRIntegerValueFromInt(years))
 }
 
-// opDateCmp: ( date1 date2 -- n ) compares two dates, returns -1, 0, or 1
-func opDateCmp(state dtrules.State) error {
-	date2Obj, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	date1Obj, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-
-	t1, err := date1Obj.TimeValue()
-	if err != nil {
-		return err
-	}
-	t2, err := date2Obj.TimeValue()
-	if err != nil {
-		return err
-	}
-
-	var result int
-	if t1.Before(t2) {
-		result = -1
-	} else if t1.After(t2) {
-		result = 1
-	} else {
-		result = 0
-	}
-
-	return state.DataPush(dtrules.GetRIntegerValueFromInt(result))
-}
-
 // opFirstOfMonth: ( date -- date2 ) returns first day of the month
 func opFirstOfMonth(state dtrules.State) error {
 	dateObj, err := state.DataPop()
@@ -366,46 +335,6 @@ func opEndOfMonth(state dtrules.State) error {
 	nextMonth := time.Date(t.Year(), t.Month()+1, 1, 0, 0, 0, 0, t.Location())
 	result := nextMonth.AddDate(0, 0, -1)
 	return state.DataPush(dtrules.GetRTime(result))
-}
-
-// opYearOf: ( date -- int ) returns the year of the date
-func opYearOf(state dtrules.State) error {
-	dateObj, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	t, err := dateObj.TimeValue()
-	if err != nil {
-		return err
-	}
-	return state.DataPush(dtrules.GetRIntegerValueFromInt(t.Year()))
-}
-
-// opMonthOf: ( date -- int ) returns the month of the date (0-11 for Java compat)
-func opMonthOf(state dtrules.State) error {
-	dateObj, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	t, err := dateObj.TimeValue()
-	if err != nil {
-		return err
-	}
-	// Java Calendar months are 0-11
-	return state.DataPush(dtrules.GetRIntegerValueFromInt(int(t.Month()) - 1))
-}
-
-// opDayOf: ( date -- int ) returns the day of month
-func opDayOf(state dtrules.State) error {
-	dateObj, err := state.DataPop()
-	if err != nil {
-		return err
-	}
-	t, err := dateObj.TimeValue()
-	if err != nil {
-		return err
-	}
-	return state.DataPush(dtrules.GetRIntegerValueFromInt(t.Day()))
 }
 
 // opGetDaysInYear: ( date -- int ) returns number of days in year (365 or 366)
