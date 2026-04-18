@@ -1,0 +1,15 @@
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<setattribute tag='age' RAttribute='age' enclosure='applicant' type='integer'></setattribute>
+			<setattribute tag='score' RAttribute='score' enclosure='applicant' type='integer'></setattribute>
+			<createentity entity='applicant' tag='applicant' id='id'></createentity>
+		</map>
+		<entities>
+			<entity name='applicant' number='1'></entity>
+		</entities>
+		<initialization>
+			<initialentity entity='applicant' epush='true'></initialentity>
+		</initialization>
+	</XMLtoEDD>
+</mapping>
