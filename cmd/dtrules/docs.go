@@ -2163,6 +2163,34 @@ Flags:
   --from-xml     Force XML-authored path   (XML → Excel → XML)
   --dry-run      Show what would change without writing files
   -v, --verbose  Verbose output
+  -q, --quiet    Suppress build summary unless there are drops
+
+
+Build Summary
+-------------
+After every build, dtrules prints a structured summary proving round-trip
+preservation. The summary shows artifact counts and any drops:
+
+  Build Summary
+  =============
+
+  Import step (Excel → XML):
+    tables=3  actions=12  conditions=8  entities=5  mappings=0
+    compiled=20
+    files-written=4
+    drops: none
+
+  Result: OK — no drops
+
+If any EL expression fails to compile, the drop is named precisely:
+
+  drops: 1
+    table="CO_IncomeTax"  col=0  item="action 3"  reason=<compile error>
+
+  Result: FAIL — 1 drop(s) detected
+
+The build exits non-zero when drops are present so CI pipelines fail fast.
+Use -q (--quiet) to suppress the summary on clean builds.
 
 
 Excel-Authored Path (default when .xlsx is newer)
