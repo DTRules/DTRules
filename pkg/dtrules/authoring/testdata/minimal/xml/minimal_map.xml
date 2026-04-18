@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<!-- Applicant mappings -->
+			<setattribute tag='age' RAttribute='age' enclosure='applicant' type='integer'></setattribute>
+			<setattribute tag='eligible' RAttribute='eligible' enclosure='applicant' type='boolean'></setattribute>
+		</map>
+	</XMLtoEDD>
+</mapping>
