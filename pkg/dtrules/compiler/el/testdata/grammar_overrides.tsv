@@ -70,3 +70,9 @@ localvariables	localBytesUndef	context	local bytes x
 localvariables	localBytesInit	context	local bytes x = 0xab
 localvariables	localBytesDefined	context	local bytes x
 setstatement	setStringFromName	action	set s = $tbl
+bexpr	boolArrayIncludes	condition	accounts includes account
+bexpr	boolArrayDoesInclude	condition	accounts does include account
+bexpr	boolArrayNotInclude	condition	accounts does not include account
+bexpr	boolDateBefore	condition	(date) "2020-01-01" is before (date) "2020-01-02"
+bexpr	boolDateAfter	condition	(date) "2020-01-02" is after (date) "2020-01-01"
+bexpr	boolDateBetween	condition	(date) "2020-01-01" is between (date) "2020-01-01" and (date) "2020-01-02"

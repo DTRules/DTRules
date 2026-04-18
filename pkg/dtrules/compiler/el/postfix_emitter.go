@@ -2585,6 +2585,119 @@ func (e *PostfixEmitter) VisitSetBoolFromName(ctx *SetBoolFromNameContext) inter
 	return nil
 }
 
+// Bexpr emitters — simple single-op translations.
+
+// String comparisons: emit `<l> <r> s<op>` using the s<, s>, s<=, s>= ops.
+func (e *PostfixEmitter) VisitBoolStrGt(ctx *BoolStrGtContext) interface{} {
+	e.Visit(ctx.Strexpr(0))
+	e.Visit(ctx.Strexpr(1))
+	e.emit("s>")
+	return nil
+}
+func (e *PostfixEmitter) VisitBoolStrLt(ctx *BoolStrLtContext) interface{} {
+	e.Visit(ctx.Strexpr(0))
+	e.Visit(ctx.Strexpr(1))
+	e.emit("s<")
+	return nil
+}
+func (e *PostfixEmitter) VisitBoolStrGte(ctx *BoolStrGteContext) interface{} {
+	e.Visit(ctx.Strexpr(0))
+	e.Visit(ctx.Strexpr(1))
+	e.emit("s>=")
+	return nil
+}
+func (e *PostfixEmitter) VisitBoolStrLte(ctx *BoolStrLteContext) interface{} {
+	e.Visit(ctx.Strexpr(0))
+	e.Visit(ctx.Strexpr(1))
+	e.emit("s<=")
+	return nil
+}
+
+// VisitBoolStartsWith: `<s1> starts with <s2>` → `<s1> <s2> startswith`.
+func (e *PostfixEmitter) VisitBoolStartsWith(ctx *BoolStartsWithContext) interface{} {
+	e.Visit(ctx.Strexpr(0))
+	e.Visit(ctx.Strexpr(1))
+	e.emit("startswith")
+	return nil
+}
+
+// VisitBoolMatches: `<s1> matches <s2>` → `<s1> <s2> regexmatch`.
+func (e *PostfixEmitter) VisitBoolMatches(ctx *BoolMatchesContext) interface{} {
+	e.Visit(ctx.Strexpr(0))
+	e.Visit(ctx.Strexpr(1))
+	e.emit("regexmatch")
+	return nil
+}
+
+// VisitBoolDateBetween: `<d1> is between <d2> and <d3>` →
+// `<d1> <d2> d>= <d1> <d3> d<= and`. Inclusive range on both endpoints.
+func (e *PostfixEmitter) VisitBoolDateBetween(ctx *BoolDateBetweenContext) interface{} {
+	e.Visit(ctx.Dexpr(0))
+	e.Visit(ctx.Dexpr(1))
+	e.emit("d>=")
+	e.Visit(ctx.Dexpr(0))
+	e.Visit(ctx.Dexpr(2))
+	e.emit("d<=")
+	e.emit("and")
+	return nil
+}
+
+// Entity in context: `<entity> is in context` → `/<entity> incontext`.
+func (e *PostfixEmitter) VisitBoolEntityInContext(ctx *BoolEntityInContextContext) interface{} {
+	e.emit("/" + ctx.TypedEntity().GetText())
+	e.emit("incontext")
+	return nil
+}
+func (e *PostfixEmitter) VisitBoolEntityNotInContext(ctx *BoolEntityNotInContextContext) interface{} {
+	e.emit("/" + ctx.TypedEntity().GetText())
+	e.emit("incontext")
+	e.emit("not")
+	return nil
+}
+func (e *PostfixEmitter) VisitBoolStrEntityInContext(ctx *BoolStrEntityInContextContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("incontext")
+	return nil
+}
+func (e *PostfixEmitter) VisitBoolStrEntityNotInContext(ctx *BoolStrEntityNotInContextContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("incontext")
+	e.emit("not")
+	return nil
+}
+
+// Rhetorical question forms (`does X?` / `is X?` / `was X?`) just evaluate
+// the wrapped bexpr.
+func (e *PostfixEmitter) VisitBoolDoesQuestion(ctx *BoolDoesQuestionContext) interface{} {
+	return e.Visit(ctx.Bexpr())
+}
+func (e *PostfixEmitter) VisitBoolIsQuestion(ctx *BoolIsQuestionContext) interface{} {
+	return e.Visit(ctx.Bexpr())
+}
+func (e *PostfixEmitter) VisitBoolWasQuestion(ctx *BoolWasQuestionContext) interface{} {
+	return e.Visit(ctx.Bexpr())
+}
+
+// (boolean) <indx-or-str> cast.
+func (e *PostfixEmitter) VisitBoolFromIndex(ctx *BoolFromIndexContext) interface{} {
+	e.Visit(ctx.IndxExpr())
+	e.emit("cvb")
+	return nil
+}
+func (e *PostfixEmitter) VisitBoolFromStr(ctx *BoolFromStrContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("cvb")
+	return nil
+}
+
+// Boolean array-at: `boolean <arr>[<i>]` → `<arr> <i> getat`.
+func (e *PostfixEmitter) VisitBoolArrayAt(ctx *BoolArrayAtContext) interface{} {
+	e.emit(ctx.TypedArray().GetText())
+	e.Visit(ctx.Iexpr())
+	e.emit("getat")
+	return nil
+}
+
 // Randomstatements emitters. Array mutation statements.
 
 // VisitRemoveAtIndex: `remove <iexpr> element from <arrayExpr> array`.
