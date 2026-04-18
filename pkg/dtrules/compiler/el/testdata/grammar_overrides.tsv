@@ -102,3 +102,16 @@ dexpr	dateFirstOfMonth	condition	first of months of (date) "2020-01-01" is equal
 dexpr	dateEndOfMonth	condition	end of months of (date) "2020-01-01" is equal to (date) "2020-01-01"
 dexpr	dateEarliestAfter	condition	earliest of arr after (date) "2020-01-01" is equal to (date) "2020-01-01"
 dexpr	dateTableLookup	condition	(date) tbl("x") is equal to (date) "2020-01-01"
+bytesexpr	bytesLiteral	condition	0xab == 0xab
+bytesexpr	bytesTyped	condition	bs == 0xab
+bytesexpr	bytesParen	condition	(0xab) == 0xab
+bytesexpr	bytesConcat	condition	0xab + 0xab == 0xab
+bytesexpr	bytesSlice	condition	0xab from 1 to 2 == 0xab
+bytesexpr	bytesSha256	condition	sha256 of 0xab == 0xab
+bytesexpr	bytesKeccak256	condition	keccak256 of 0xab == 0xab
+bytesexpr	bytesRipemd160	condition	ripemd160 of 0xab == 0xab
+bytesexpr	bytesSha3	condition	sha3 of 0xab == 0xab
+bytesexpr	bytesCvHex	condition	bytes of hex "ab" == 0xab
+bytesexpr	bytesCvBase58Check	condition	bytes of base58check "x" == 0xab
+bytesexpr	bytesCvBech32	condition	bytes of bech32 "x" == 0xab
+bytesexpr	bytesCvBigInt	condition	bytes of bigint (bigint) 1 size 1 == 0xab
