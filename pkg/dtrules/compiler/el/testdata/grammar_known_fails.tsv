@@ -11,7 +11,6 @@ addtostatement	addNumToDestDup	[B] dup-destination: similar pattern — addNumTo
 addtostatement	addStrNoDups	[B] member-check-add: emit `<arr> <s> add_no_dups`
 addtostatement	addStrNoDupsDup	[B] member-check-add × 2 destinations
 addtostatement	addStrToDestDup	[B] dup-destination: `<s> dup <d1> swap addto <d2> swap addto`
-addtostatement	subtractNum	[B] parallels addNumToDest but subtract; emit `<n> negate <subtodest>` where subtodest emits `<field> + /field xdef`
 arrayExpr2	arrayName	[E] helper — `(array) NAME` parse-ambiguous; reachable only in specific cast positions
 arrayList	arrayListFloatSingle	[E] helper — only valid inside an array-literal / operatorlist context
 arrayList	arrayListIntSingle	[E] helper — only valid inside an array-literal / operatorlist context
@@ -29,15 +28,10 @@ bexpr	boolThereIsNoInEntityWhere	[B] parallel to InEntityWhere + not
 bexpr	boolThereIsNoWhere	[B] parallel to boolThereIsWhere + not
 bexpr	boolThereIsWhere	[B] existence+where: emit `/<entityName> isdefined { <bexpr> } { false } ifelse`
 bexpr	boolValueOfOp	[D] `boolean value of <operatorstatements>` — operator dispatch returning a bool; needs runtime op understanding
-bigexpr	bigFromBytes	[A] trivial: emit `<bytesexpr> bytesbigint`
-bigexpr	bigFromFloat	[A] trivial: emit `<fexpr> cvbi`
-bigexpr	bigFromInt	[A] trivial: emit `<iexpr> cvbi`
-bigexpr	bigFromStr	[A] trivial: emit `<strexpr> cvbi`
 blist	blistMulti	[E] helper — only reachable inside strexpr EQ blist; tested via boolStrEqList
 blist	blistOr	[E] helper — only reachable inside strexpr EQ blist
 blistIc	blistIcMulti	[E] helper — only reachable inside strexpr EQ_IGNORE_CASE blistIc
 blistIc	blistIcOr	[E] helper — only reachable inside strexpr EQ_IGNORE_CASE blistIc
-contextForTable	contextFor	[A] delegates to forctl; Visit forctl missing — add trivial Visit
 dexpr	dateDays	[C] `( 5 days )` form — needs specific literal syntax
 done	conditionDebugAfter	[F] debug-after wiring — same
 done	conditionDebugBefore	[F] debug-before wiring — outer `done` alternative drops the debug emit
@@ -51,16 +45,11 @@ done	policyStrExpr	[F] same as policyBExpr
 eexpr	entityFirst	[B] find-first entity: use opForfirst where scope is the enclosing entity stack
 eexpr	entityFirstIn	[B] find-first in array: `<arr> { <b> } forfirst` with result on data stack
 eexpr	entityTableLookup	[D] typed-table lookup: `(entity) <tbl>(<list>)` — parallel to strTableLookup
-errorstatement	errorStmt	[A] trivial: emit `<strexpr> error`
-fexpr	floatLiteral	[C] float literal — corpus DSL "1.0" alone isn't a valid condition
 fexpr	floatValueOfOp	[D] `double value of <operatorstatements>`
 iexpr	intValueOfOp	[D] `long value of <operatorstatements>`
 includeSearch	includeDate	[E] helper — only reachable inside arrayExpr INCLUDES includeSearch
 includeSearch	includeNumber	[E] helper — only reachable inside arrayExpr INCLUDES includeSearch
 includeSearch	includeString	[E] helper — only reachable inside arrayExpr INCLUDES includeSearch
-nexpr	nameOf	[A] trivial: emit `<eexpr> entityname`
-nexpr	nameTheName	[A] trivial: emit `<strexpr> cvn`
-nexpr	nameUsing	[A] needs small think: push entity, evaluate nexpr, pop entity (parallel to boolUsing)
 operatorlist	opListFloat	[E] helper — only reachable inside DOUBLE VALUE OF operatorstatements
 operatorlist	opListFloatSingle	[E] helper — only reachable inside DOUBLE VALUE OF operatorstatements
 operatorlist	opListInt	[E] helper — only reachable inside LONG VALUE OF operatorstatements
@@ -70,13 +59,8 @@ operatorlist	opListStrSingle	[E] helper — only reachable inside STRING VALUE O
 performstatement	performCatchError	[D] try/catch around perform — uses performcatcherror op (exists); needs emit design
 possessiveRef	colonChain	[E] helper chain — `:Entity:field` nexpr form; reached via boolNameEq etc.
 possessiveRef	possessiveChain	[E] helper chain — `entity`s field` nexpr form; reached via boolNameEq etc.
-randomstatements	clearArray	[C] unreachable via action DSL — parser picks clearstatement which has no label; DSL refinement or grammar reorder
 randomstatements	removeEachWhere	[D] remove-while-iterating: no bespoke op; compose forallr + remove — complex
-randomstatements	removeName	[C] nexpr form: needs `$name` not `/tbl`
-randomstatements	sortAscending	[C] nexpr form: needs `$name` not `/tbl`
-randomstatements	sortDescending	[C] nexpr form: needs `$name` not `/tbl`
 setstatement	setBoolFromName	[C] parser ambiguity with setStringFromName; requires symbol table to disambiguate
-strexpr	strFromIndex	[C] indxExpr helper — test DSL needs a real array-index construction
 strexpr	strTableLookup	[D] typed-table lookup: `(string) <tbl>(<list>)` — needs table op
 strexpr	strValueOfOp	[D] `string value of <operatorstatements>`
 subtodest	subDestColon	[E] helper sub-rule — parallels addtodest/addDestColon
@@ -85,7 +69,6 @@ subtodest	subDestPossessiveLong	[E] helper sub-rule — parallels addtodest/addD
 tablelist	tableListMulti	[E] helper — only reachable inside typedTable LPAREN tablelist RPAREN
 tablelist	tableListSingle	[E] helper — only reachable inside typedTable LPAREN tablelist RPAREN
 texpr	tableNew	[D] `new <s> table of <s>` — newtable op exists, need emit
-warnstatement	warnStmt	[A] trivial: emit `<strexpr> log_warning`
 xmlvaluestatements	xmlAddAttr	[F] XML DOM mutation
 xmlvaluestatements	xmlAddAttrEntity	[F] XML DOM mutation
 xmlvaluestatements	xmlSetAttr	[F] XML DOM mutation — used for XML output mapping; not clear if runtime supports

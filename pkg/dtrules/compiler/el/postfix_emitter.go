@@ -2715,6 +2715,89 @@ func (e *PostfixEmitter) VisitBoolStrIsNotOneOf(ctx *BoolStrIsNotOneOfContext) i
 	return nil
 }
 
+// VisitForctl: `for <leftIexpr> = <number>; <bexpr>; <statement>`.
+// Context-position only (reachable via contextForTable/contextFor). The
+// outer table body is on the data stack when this runs. Emit:
+//   init: <number> cvi leftIexpr-assign
+//   loop: { dup execute <statement> } { <bexpr> } while pop
+// The body block dups the table body and executes it, then runs the
+// increment statement; the test block evaluates bexpr. After while consumes
+// body and test, the surviving outer body is dropped with pop.
+func (e *PostfixEmitter) VisitForctl(ctx *ForctlContext) interface{} {
+	// init — coerce number to int and assign via leftIexpr.
+	e.Visit(ctx.Number())
+	e.emit("cvi")
+	e.Visit(ctx.LeftIexpr())
+	// body block
+	e.emit("{")
+	e.emit("dup")
+	e.emit("execute")
+	e.Visit(ctx.Statement())
+	e.emit("}")
+	// test block
+	e.emit("{")
+	e.Visit(ctx.Bexpr())
+	e.emit("}")
+	e.emit("while")
+	e.emit("pop")
+	return nil
+}
+
+// Nexpr emitters.
+
+// VisitNameTheName: `the name <strexpr>` → `<strexpr> cvn`. Converts a string
+// into a name reference.
+func (e *PostfixEmitter) VisitNameTheName(ctx *NameTheNameContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("cvn")
+	return nil
+}
+
+// VisitNameUsing: `using <eexpr> ( <nexpr> )` — push eexpr onto entity stack,
+// resolve nexpr with it in scope, pop entity while preserving the name
+// value. Parallels boolUsing.
+func (e *PostfixEmitter) VisitNameUsing(ctx *NameUsingContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("entitypush")
+	e.Visit(ctx.Nexpr())
+	e.emit("entitypop")
+	e.emit("swap")
+	e.emit("pop")
+	return nil
+}
+
+// Subtodest emitters. Mirror addtodest but subtract. `<value> <subtodest>`
+// expects the rhs value on the stack, then runs field - value and stores.
+// Because `-` is a -b operator, we swap before subtracting to get field-value
+// rather than value-field.
+func (e *PostfixEmitter) VisitSubDestLong(ctx *SubDestLongContext) interface{} {
+	name := ctx.TypedLong().GetText()
+	e.emit(name)
+	e.emit("swap")
+	e.emit("-")
+	e.emit("/" + name)
+	e.emit("xdef")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitSubDestDouble(ctx *SubDestDoubleContext) interface{} {
+	name := ctx.TypedDouble().GetText()
+	e.emit(name)
+	e.emit("swap")
+	e.emit("f-")
+	e.emit("/" + name)
+	e.emit("xdef")
+	return nil
+}
+
+// VisitSubtractNum: `subtract <number> from <subtodest>` → push the number,
+// then delegate to subtodest which computes field - value and stores.
+func (e *PostfixEmitter) VisitSubtractNum(ctx *SubtractNumContext) interface{} {
+	e.Visit(ctx.Number())
+	e.Visit(ctx.Subtodest())
+	return nil
+}
+
 // Datestatement emitters. Adjust a date field in place: fetch, compute new
 // date, store back. Subtract negates the count before calling adddays.
 
@@ -2958,6 +3041,15 @@ func (e *PostfixEmitter) VisitRemoveEntity(ctx *RemoveEntityContext) interface{}
 func (e *PostfixEmitter) VisitRandomizeArray(ctx *RandomizeArrayContext) interface{} {
 	e.Visit(ctx.ArrayExpr())
 	e.emit("randomize")
+	return nil
+}
+
+// VisitClearstatement: `clear <arrayExpr>`. The statement-level alternative
+// takes precedence over randomstatements/clearArray in the parser, so we
+// mirror the clearArray emit here.
+func (e *PostfixEmitter) VisitClearstatement(ctx *ClearstatementContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.emit("cleararray")
 	return nil
 }
 
