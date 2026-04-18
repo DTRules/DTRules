@@ -22,6 +22,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	dtrsync "github.com/DTRules/DTRules/pkg/dtrules/sync"
 )
 
 // captureBuildOutput runs the CLI with the given args and captures stdout/stderr.
@@ -373,5 +375,109 @@ func TestBuildFromXMLTouchProducesCanonicalOutput(t *testing.T) {
 
 	if len(before) != len(after) {
 		t.Errorf("second --from-xml --dry-run changed file count: before=%d after=%d", len(before), len(after))
+	}
+}
+
+// =============================================================================
+// Issue #555: static analysis tests
+// =============================================================================
+
+const staticAnalysisFixtureEDD = `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+  <entity name="job" access="rw">
+    <field name="status" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+    <field name="result" type="double" subtype="" access="rw" input="" default_value="0" comment=""></field>
+    <field name="orphan" type="double" subtype="" access="rw" input="" default_value="0" comment="never used"></field>
+  </entity>
+</entity_data_dictionary>
+`
+
+// staticAnalysisFixtureDT has column 1 with no X in any action row.
+const staticAnalysisFixtureDT = `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+<decision_table>
+<table_name>StaticAnalysisFixture</table_name>
+<xls_file>fixture.xlsx</xls_file>
+<attribute_fields><Type>FIRST</Type><COMMENTS></COMMENTS><TABLE_NUMBER>1</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+  <condition_details>
+    <condition_number>1</condition_number>
+    <condition_comment>active check</condition_comment>
+    <condition_dsl>job.status is equal to "active"</condition_dsl>
+    <condition_postfix></condition_postfix>
+    <condition_column column_number="1" column_value="Y"></condition_column>
+    <condition_column column_number="2" column_value="N"></condition_column>
+  </condition_details>
+</conditions>
+<actions>
+  <action_details>
+    <action_number>1</action_number>
+    <action_comment>set result</action_comment>
+    <action_dsl>set job.result to 1</action_dsl>
+    <action_postfix></action_postfix>
+    <action_column column_number="2" column_value="X"></action_column>
+  </action_details>
+</actions>
+</decision_table>
+</decision_tables>
+`
+
+// TestStaticAnalysis_NoActionColumn verifies that runStaticAnalysis emits a
+// no-op column warning when a column has no X in any action row.
+func TestStaticAnalysis_NoActionColumn(t *testing.T) {
+	dir := t.TempDir()
+
+	if err := os.WriteFile(filepath.Join(dir, "fixture_edd.xml"), []byte(staticAnalysisFixtureEDD), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "fixture_dt.xml"), []byte(staticAnalysisFixtureDT), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	step := &dtrsync.StepSummary{}
+	runStaticAnalysis(dir, step)
+
+	if len(step.Warnings) == 0 {
+		t.Error("expected at least one warning from static analysis, got none")
+	}
+
+	found := false
+	for _, w := range step.Warnings {
+		if strings.Contains(w.Reason, "no actions") || strings.Contains(w.Item, "no-op column") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected no-op column warning, got %v", step.Warnings)
+	}
+}
+
+// TestStaticAnalysis_UnusedEDDField verifies that an EDD field never
+// referenced in any DT produces an unused warning.
+func TestStaticAnalysis_UnusedEDDField(t *testing.T) {
+	dir := t.TempDir()
+
+	if err := os.WriteFile(filepath.Join(dir, "fixture_edd.xml"), []byte(staticAnalysisFixtureEDD), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "fixture_dt.xml"), []byte(staticAnalysisFixtureDT), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	step := &dtrsync.StepSummary{}
+	runStaticAnalysis(dir, step)
+
+	found := false
+	for _, w := range step.Warnings {
+		if strings.Contains(w.Reason, "unused EDD field") && strings.Contains(w.Reason, "orphan") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected unused EDD field warning for job.orphan, got %v", step.Warnings)
 	}
 }

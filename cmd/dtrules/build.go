@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/DTRules/DTRules/pkg/dtrules/analysis"
 	"github.com/DTRules/DTRules/pkg/dtrules/compiler/el"
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
 	dtrsync "github.com/DTRules/DTRules/pkg/dtrules/sync"
@@ -302,6 +303,7 @@ func (c *CLI) runExcelAuthoredBuild(xmlDir, excelDir string, opts *buildOptions)
 	summary := &dtrsync.BuildSummary{
 		ImportStep: importStatsToStep(importer.TakeStats()),
 	}
+	runStaticAnalysis(xmlDir, summary.ImportStep)
 	printBuildSummary(summary, opts.quiet)
 
 	fmt.Println("Build complete.")
@@ -399,6 +401,7 @@ func (c *CLI) runXMLAuthoredBuild(xmlDir, excelDir string, opts *buildOptions) i
 		ExportStep: exportStatsToStep(exportStats),
 		ImportStep: importStatsToStep(importer2.TakeStats()),
 	}
+	runStaticAnalysis(xmlDir, summary.ImportStep)
 	printBuildSummary(summary, opts.quiet)
 
 	fmt.Println("Build complete.")
@@ -519,6 +522,263 @@ func (c *CLI) syncMAPFiles(xmlDir, excelDir, direction string, verbose bool) err
 		}
 		return nil
 	})
+}
+
+// runStaticAnalysis walks xmlDir, runs per-table and EDD usage checks, and
+// appends warnings to step. Errors are non-fatal and printed to stderr.
+func runStaticAnalysis(xmlDir string, step *dtrsync.StepSummary) {
+	if err := filepath.WalkDir(xmlDir, func(path string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		if !strings.HasSuffix(d.Name(), "_dt.xml") {
+			return nil
+		}
+		data, readErr := os.ReadFile(path)
+		if readErr != nil {
+			return nil
+		}
+		dt, parseErr := excel.UnmarshalDecisionTablesXML(data)
+		if parseErr != nil {
+			return nil
+		}
+		for i := range dt.Tables {
+			table := &dt.Tables[i]
+			conds, acts, maxCol := buildAnalysisInputs(table)
+			warns := analyzeTableStructure(table.TableName, conds, acts, maxCol)
+			for _, w := range warns {
+				step.AddWarning(w.table, w.column, w.kind, w.reason)
+			}
+		}
+		return nil
+	}); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: static analysis walk error: %v\n", err)
+	}
+
+	eddWarns, err := analysis.AnalyzeEDDUsage(xmlDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: EDD analysis error: %v\n", err)
+		return
+	}
+	for _, w := range eddWarns {
+		step.AddWarning("", 0, w.Field, w.Reason)
+	}
+}
+
+type analysisWarn struct {
+	table  string
+	column int
+	kind   string
+	reason string
+}
+
+type analysisCondRow struct {
+	dsl  string
+	cols []string
+}
+
+type analysisActRow struct {
+	dsl  string
+	cols []string
+}
+
+var analysisNegationPairs = [][2]string{
+	{" is equal to ", " is not equal to "},
+	{" is not equal to ", " is equal to "},
+	{" > ", " <= "},
+	{" <= ", " > "},
+	{" < ", " >= "},
+	{" >= ", " < "},
+}
+
+func analysisDSLNegation(a, b string) bool {
+	a = strings.TrimSpace(a)
+	b = strings.TrimSpace(b)
+	for _, pair := range analysisNegationPairs {
+		if strings.Contains(a, pair[0]) && strings.Contains(b, pair[1]) {
+			aBase := strings.Replace(a, pair[0], "\x00", 1)
+			bBase := strings.Replace(b, pair[1], "\x00", 1)
+			if aBase == bBase {
+				return true
+			}
+		}
+	}
+	if strings.HasPrefix(b, "not ") && strings.TrimPrefix(b, "not ") == a {
+		return true
+	}
+	if strings.HasPrefix(a, "not ") && strings.TrimPrefix(a, "not ") == b {
+		return true
+	}
+	return false
+}
+
+// buildAnalysisInputs converts a DecisionTableXML into column arrays for analysis.
+func buildAnalysisInputs(table *excel.DecisionTableXML) ([]analysisCondRow, []analysisActRow, int) {
+	maxCol := 0
+	for _, c := range table.Conditions {
+		for _, cv := range c.Columns {
+			if cv.Number > maxCol {
+				maxCol = cv.Number
+			}
+		}
+	}
+	for _, a := range table.Actions {
+		for _, cv := range a.Columns {
+			if cv.Number > maxCol {
+				maxCol = cv.Number
+			}
+		}
+	}
+
+	conditions := make([]analysisCondRow, len(table.Conditions))
+	for i, c := range table.Conditions {
+		row := analysisCondRow{dsl: c.DSL, cols: make([]string, maxCol)}
+		for j := range row.cols {
+			row.cols[j] = "-"
+		}
+		for _, cv := range c.Columns {
+			if cv.Number >= 1 && cv.Number <= maxCol {
+				row.cols[cv.Number-1] = cv.Value
+			}
+		}
+		conditions[i] = row
+	}
+
+	actions := make([]analysisActRow, len(table.Actions))
+	for i, a := range table.Actions {
+		row := analysisActRow{dsl: a.DSL, cols: make([]string, maxCol)}
+		for _, cv := range a.Columns {
+			if cv.Number >= 1 && cv.Number <= maxCol {
+				row.cols[cv.Number-1] = cv.Value
+			}
+		}
+		actions[i] = row
+	}
+
+	return conditions, actions, maxCol
+}
+
+// analyzeTableStructure runs Parts 1+2 of static analysis on a single table.
+func analyzeTableStructure(tableName string, conditions []analysisCondRow, actions []analysisActRow, maxCol int) []analysisWarn {
+	if maxCol == 0 {
+		return nil
+	}
+
+	var warnings []analysisWarn
+
+	// Part 1a: no-action columns
+	for col := 0; col < maxCol; col++ {
+		hasAction := false
+		for _, a := range actions {
+			if col < len(a.cols) && strings.ToUpper(strings.TrimSpace(a.cols[col])) == "X" {
+				hasAction = true
+				break
+			}
+		}
+		if !hasAction {
+			warnings = append(warnings, analysisWarn{
+				table:  tableName,
+				column: col + 1,
+				kind:   "no-op column",
+				reason: fmt.Sprintf("column %d is redundant (no actions)", col+1),
+			})
+		}
+	}
+
+	// Build per-column constraint and action profiles for subsumption check.
+	type profile struct {
+		constraints map[int]string
+		actionSet   map[int]bool
+	}
+	profiles := make([]profile, maxCol)
+	for col := 0; col < maxCol; col++ {
+		p := profile{
+			constraints: make(map[int]string),
+			actionSet:   make(map[int]bool),
+		}
+		for row, c := range conditions {
+			v := ""
+			if col < len(c.cols) {
+				v = strings.ToUpper(strings.TrimSpace(c.cols[col]))
+			}
+			if v == "Y" || v == "N" {
+				p.constraints[row] = v
+			}
+		}
+		for row, a := range actions {
+			if col < len(a.cols) && strings.ToUpper(strings.TrimSpace(a.cols[col])) == "X" {
+				p.actionSet[row] = true
+			}
+		}
+		profiles[col] = p
+	}
+
+	// Part 1b: subsumed columns
+	for a := 0; a < maxCol; a++ {
+		if len(profiles[a].actionSet) == 0 {
+			continue
+		}
+		for b := 0; b < maxCol; b++ {
+			if a == b {
+				continue
+			}
+			bSubsumesA := true
+			for row, bVal := range profiles[b].constraints {
+				aVal, ok := profiles[a].constraints[row]
+				if !ok || aVal != bVal {
+					bSubsumesA = false
+					break
+				}
+			}
+			if bSubsumesA {
+				for row := range profiles[a].actionSet {
+					if !profiles[b].actionSet[row] {
+						bSubsumesA = false
+						break
+					}
+				}
+			}
+			if bSubsumesA && len(profiles[b].constraints) < len(profiles[a].constraints) {
+				warnings = append(warnings, analysisWarn{
+					table:  tableName,
+					column: a + 1,
+					kind:   "no-op column",
+					reason: fmt.Sprintf("column %d is redundant (subsumed by column %d)", a+1, b+1),
+				})
+				break
+			}
+		}
+	}
+
+	// Part 2: unreachable columns — mutually exclusive Y conditions
+	for col := 0; col < maxCol; col++ {
+		var yRows []int
+		for row, c := range conditions {
+			v := ""
+			if col < len(c.cols) {
+				v = strings.ToUpper(strings.TrimSpace(c.cols[col]))
+			}
+			if v == "Y" {
+				yRows = append(yRows, row)
+			}
+		}
+		found := false
+		for i := 0; i < len(yRows) && !found; i++ {
+			for j := i + 1; j < len(yRows) && !found; j++ {
+				if analysisDSLNegation(conditions[yRows[i]].dsl, conditions[yRows[j]].dsl) {
+					warnings = append(warnings, analysisWarn{
+						table:  tableName,
+						column: col + 1,
+						kind:   "unreachable column",
+						reason: fmt.Sprintf("column %d can never match (conditions %d and %d are mutually exclusive)", col+1, yRows[i]+1, yRows[j]+1),
+					})
+					found = true
+				}
+			}
+		}
+	}
+
+	return warnings
 }
 
 func (c *CLI) printBuildUsage() {
