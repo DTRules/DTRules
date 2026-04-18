@@ -3403,6 +3403,157 @@ func (e *PostfixEmitter) VisitPrintArray(ctx *PrintArrayContext) interface{} {
 // Relationship and Entity Tests
 // ============================================================================
 
+// VisitOperatorstatements: `<typedOperator> ( <operatorlist> )` — push all
+// args (operatorlist is a comma-separated list of exprs, emitted in order),
+// then the operator name as an executable token. The runtime's executable-
+// name dispatch finds the op and invokes it.
+func (e *PostfixEmitter) VisitOperatorstatements(ctx *OperatorstatementsContext) interface{} {
+	e.Visit(ctx.Operatorlist())
+	e.emit(ctx.TypedOperator().GetText())
+	return nil
+}
+
+// VisitPerformCatchError: `perform <T1> and onerror add <e> to context
+// and perform <T2>`. opPerformCatchError signature is (table errtable
+// errentity --), so push /<T1>, /<T2>, /<e> as literal names then call the op.
+func (e *PostfixEmitter) VisitPerformCatchError(ctx *PerformCatchErrorContext) interface{} {
+	e.emit("/" + ctx.TypedDecisionTable(0).GetText())
+	e.emit("/" + ctx.TypedDecisionTable(1).GetText())
+	e.emit("/" + ctx.Eexpr().GetText())
+	e.emit("performcatcherror")
+	return nil
+}
+
+// XML DOM mutation statements. No runtime support — emit elstmterror so the
+// forms parse but fail loudly at runtime.
+func (e *PostfixEmitter) VisitXmlSetAttr(ctx *XmlSetAttrContext) interface{} {
+	e.emit("\"xml mutation unsupported — xmlvaluestatements have no runtime\"")
+	e.emit("elstmterror")
+	return nil
+}
+func (e *PostfixEmitter) VisitXmlSetAttrEntity(ctx *XmlSetAttrEntityContext) interface{} {
+	e.emit("\"xml mutation unsupported — xmlvaluestatements have no runtime\"")
+	e.emit("elstmterror")
+	return nil
+}
+func (e *PostfixEmitter) VisitXmlAddAttr(ctx *XmlAddAttrContext) interface{} {
+	e.emit("\"xml mutation unsupported — xmlvaluestatements have no runtime\"")
+	e.emit("elstmterror")
+	return nil
+}
+func (e *PostfixEmitter) VisitXmlAddAttrEntity(ctx *XmlAddAttrEntityContext) interface{} {
+	e.emit("\"xml mutation unsupported — xmlvaluestatements have no runtime\"")
+	e.emit("elstmterror")
+	return nil
+}
+
+// Policy statement dispatch. The runtime's `opPolicyStatements` was removed
+// (#669) — authoring-side `policystatement <expr>;` now compiles to evaluate
+// the expression and discard the result. Policy-statement collection is
+// handled cmd-side from the XML, not at runtime.
+func (e *PostfixEmitter) VisitPolicyBExpr(ctx *PolicyBExprContext) interface{} {
+	e.Visit(ctx.Bexpr())
+	e.emit("pop")
+	return nil
+}
+func (e *PostfixEmitter) VisitPolicyIExpr(ctx *PolicyIExprContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.emit("pop")
+	return nil
+}
+func (e *PostfixEmitter) VisitPolicyFExpr(ctx *PolicyFExprContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.emit("pop")
+	return nil
+}
+func (e *PostfixEmitter) VisitPolicyDExpr(ctx *PolicyDExprContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("pop")
+	return nil
+}
+func (e *PostfixEmitter) VisitPolicyNExpr(ctx *PolicyNExprContext) interface{} {
+	e.Visit(ctx.Nexpr())
+	e.emit("pop")
+	return nil
+}
+func (e *PostfixEmitter) VisitPolicyStrExpr(ctx *PolicyStrExprContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("pop")
+	return nil
+}
+
+// Debug-statement wiring inside done-level alternatives. The grammar allows
+// `condition debug "msg"; <cond>;` and `condition <cond>; debug "msg";` and
+// the context analog. Each emits the debug statement first (or after) then
+// the main body, separated by the explicit semicolon which the statement
+// list handles.
+func (e *PostfixEmitter) VisitConditionDebugBefore(ctx *ConditionDebugBeforeContext) interface{} {
+	e.Visit(ctx.Debugstatement())
+	e.Visit(ctx.Bexpr())
+	return nil
+}
+func (e *PostfixEmitter) VisitConditionDebugAfter(ctx *ConditionDebugAfterContext) interface{} {
+	e.Visit(ctx.Bexpr())
+	e.Visit(ctx.Debugstatement())
+	return nil
+}
+func (e *PostfixEmitter) VisitContextDebugBefore(ctx *ContextDebugBeforeContext) interface{} {
+	e.Visit(ctx.Debugstatement())
+	e.Visit(ctx.ContextForTable())
+	return nil
+}
+
+// Operatorlist helpers — labeled alternatives need explicit Visit methods
+// to cascade properly through ANTLR's override dispatch (same bug class as
+// #626 / forallctl). Each variant emits its expression(s) in order.
+func (e *PostfixEmitter) VisitOpListFloatSingle(ctx *OpListFloatSingleContext) interface{} {
+	return e.Visit(ctx.Fexpr())
+}
+func (e *PostfixEmitter) VisitOpListIntSingle(ctx *OpListIntSingleContext) interface{} {
+	return e.Visit(ctx.Iexpr())
+}
+func (e *PostfixEmitter) VisitOpListStrSingle(ctx *OpListStrSingleContext) interface{} {
+	return e.Visit(ctx.Strexpr())
+}
+func (e *PostfixEmitter) VisitOpListFloat(ctx *OpListFloatContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.Visit(ctx.Operatorlist())
+	return nil
+}
+func (e *PostfixEmitter) VisitOpListInt(ctx *OpListIntContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.Visit(ctx.Operatorlist())
+	return nil
+}
+func (e *PostfixEmitter) VisitOpListStr(ctx *OpListStrContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.Visit(ctx.Operatorlist())
+	return nil
+}
+
+// `<type> VALUE OF <operatorstatements>` — evaluate the operator call and
+// coerce the result to the named type.
+func (e *PostfixEmitter) VisitBoolValueOfOp(ctx *BoolValueOfOpContext) interface{} {
+	e.Visit(ctx.Operatorstatements())
+	e.emit("cvb")
+	return nil
+}
+func (e *PostfixEmitter) VisitIntValueOfOp(ctx *IntValueOfOpContext) interface{} {
+	e.Visit(ctx.Operatorstatements())
+	e.emit("cvi")
+	return nil
+}
+func (e *PostfixEmitter) VisitFloatValueOfOp(ctx *FloatValueOfOpContext) interface{} {
+	e.Visit(ctx.Operatorstatements())
+	e.emit("cvr")
+	return nil
+}
+func (e *PostfixEmitter) VisitStrValueOfOp(ctx *StrValueOfOpContext) interface{} {
+	e.Visit(ctx.Operatorstatements())
+	e.emit("cvs")
+	return nil
+}
+
 // VisitStrTableLookup / VisitTableNew — the hash-table ops were removed;
 // the grammar still parses these forms. Emit an elstmterror so the compile
 // succeeds (non-empty postfix) but the runtime raises a clear error.
