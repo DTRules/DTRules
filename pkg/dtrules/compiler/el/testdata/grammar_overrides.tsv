@@ -157,3 +157,12 @@ randomstatements	removeName	action	remove $tbl from accounts array
 randomstatements	sortAscending	action	sort accounts in ascending order by $tbl
 randomstatements	sortDescending	action	sort accounts in descending order by $tbl
 randomstatements	clearArray	action	clear accounts
+addtostatement	addEntityToDestDup	action	add account to x and to y
+addtostatement	addStrToDestDup	action	add "x" to x and to y
+addtostatement	addNumToDestDup	action	add 5 to x and to y
+addtostatement	addDateToDestDup	action	add (date) "2020-01-01" to x and to y
+addtostatement	addEntityNoDups	action	add account if not member to accounts
+addtostatement	addStrNoDups	action	add "x" if not member to accounts
+addtostatement	addEntityNoDupsDup	action	add account if not member to accounts and to accounts
+addtostatement	addStrNoDupsDup	action	add "x" if not member to accounts and to accounts
+addtostatement	addArrayNoMember	action	add accounts to accounts if not member
