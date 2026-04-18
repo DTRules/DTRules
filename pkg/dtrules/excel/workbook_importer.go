@@ -159,6 +159,18 @@ func (w *WorkbookImporter) importWorkbookWithSource(excelPath, xlsFile, relPath 
 			continue
 		}
 		if table != nil {
+			// Compile EL expressions and record stats/drops before attaching metadata.
+			if err := w.dtImporter.compileTableEL(table); err != nil {
+				if w.verbose {
+					fmt.Printf("  EL compilation warning in %s: %v\n", sheet, err)
+				}
+			}
+			// Accumulate table/action/condition counts into stats.
+			if w.stats != nil {
+				w.stats.Tables++
+				w.stats.Actions += len(table.Actions)
+				w.stats.Conditions += len(table.Conditions)
+			}
 			// Attach source metadata
 			table.Source = &SourceXML{
 				RelativePath: srcRelPath,
