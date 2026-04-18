@@ -2715,6 +2715,120 @@ func (e *PostfixEmitter) VisitBoolStrIsNotOneOf(ctx *BoolStrIsNotOneOfContext) i
 	return nil
 }
 
+// Addtostatement dup-destination + no-dups family. opAddTo signature is
+// (array element --); opAddArray signature is (array1 array2 bool --) where
+// bool=false means skip duplicates; the Contains-then-Add pattern for a
+// single element is the built-in add_no_dups op.
+//
+// Pattern for value-to-two-destinations: push value, dup, add to dest1, then
+// add the remaining copy to dest2. addtodest's emit for typed-array dests is
+// `<field> swap addto` — i.e. expects value already on stack, swaps so addto
+// sees (array, value), consumes. The dup-form sequence becomes:
+//     <value> dup <dest1> swap addto <dest2> swap addto
+// Same shape works for entity / string / number / date values.
+
+// VisitAddDateToDest: `add <dexpr> to <addtodest>`. Non-dup counterpart —
+// was previously falling through and the default visit emitted the wrong
+// shape (arithmetic `+` instead of addto). Now uses the same swap+addto
+// pattern as AddEntityToDest.
+func (e *PostfixEmitter) VisitAddDateToDest(ctx *AddDateToDestContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Addtodest())
+	e.emit("swap")
+	e.emit("addto")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitAddEntityToDestDup(ctx *AddEntityToDestDupContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("dup")
+	e.Visit(ctx.Addtodest(0))
+	e.emit("swap")
+	e.emit("addto")
+	e.Visit(ctx.Addtodest(1))
+	e.emit("swap")
+	e.emit("addto")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitAddStrToDestDup(ctx *AddStrToDestDupContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("dup")
+	e.Visit(ctx.Addtodest(0))
+	e.emit("swap")
+	e.emit("addto")
+	e.Visit(ctx.Addtodest(1))
+	e.emit("swap")
+	e.emit("addto")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitAddDateToDestDup(ctx *AddDateToDestDupContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("dup")
+	e.Visit(ctx.Addtodest(0))
+	e.emit("swap")
+	e.emit("addto")
+	e.Visit(ctx.Addtodest(1))
+	e.emit("swap")
+	e.emit("addto")
+	return nil
+}
+
+// VisitAddNumToDestDup — number variant uses the same pattern. addtodest's
+// emit for numeric targets does `<field> + /<field> xdef`, which expects the
+// value below the field on the stack. For dup-form we can't cleanly reuse
+// addtodest because each dest mutation is stateful. Emit two explicit
+// accumulations on the named targets.
+func (e *PostfixEmitter) VisitAddNumToDestDup(ctx *AddNumToDestDupContext) interface{} {
+	e.Visit(ctx.Number())
+	e.emit("dup")
+	e.Visit(ctx.Addtodest(0))
+	e.Visit(ctx.Addtodest(1))
+	return nil
+}
+
+// VisitAddEntityNoDups: `add <e> if not member to <arr>` → `<arr> <e> add_no_dups`.
+func (e *PostfixEmitter) VisitAddEntityNoDups(ctx *AddEntityNoDupsContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.Visit(ctx.Eexpr())
+	e.emit("add_no_dups")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitAddStrNoDups(ctx *AddStrNoDupsContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("add_no_dups")
+	return nil
+}
+
+// Dup-destination no-dups variants: add element to each of two destinations
+// if not already member. Dup the element and call add_no_dups on each.
+func (e *PostfixEmitter) VisitAddEntityNoDupsDup(ctx *AddEntityNoDupsDupContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("dup")
+	e.Visit(ctx.ArrayExpr(0))
+	e.emit("swap")
+	e.emit("add_no_dups")
+	e.Visit(ctx.ArrayExpr(1))
+	e.emit("swap")
+	e.emit("add_no_dups")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitAddStrNoDupsDup(ctx *AddStrNoDupsDupContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("dup")
+	e.Visit(ctx.ArrayExpr(0))
+	e.emit("swap")
+	e.emit("add_no_dups")
+	e.Visit(ctx.ArrayExpr(1))
+	e.emit("swap")
+	e.emit("add_no_dups")
+	return nil
+}
+
 // VisitForctl: `for <leftIexpr> = <number>; <bexpr>; <statement>`.
 // Context-position only (reachable via contextForTable/contextFor). The
 // outer table body is on the data stack when this runs. Emit:

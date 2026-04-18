@@ -2,15 +2,6 @@ rule	label	reason
 addtodest	addDestColon	[E] helper sub-rule — no top-level compile path; tested inside addtostatement
 addtodest	addDestPossessiveDouble	[E] helper sub-rule — POSSESSIVE prefix is bound to parent addtostatement
 addtodest	addDestPossessiveLong	[E] helper sub-rule — POSSESSIVE prefix is bound to parent addtostatement
-addtostatement	addArrayNoMember	[B] array-into-array with member check: iterate source, add_no_dups each into dest
-addtostatement	addDateToDestDup	[B] dup-destination: `<d> dup <d1> swap addto <d2> swap addto`
-addtostatement	addEntityNoDups	[B] member-check-add: emit `<arr> <e> add_no_dups`
-addtostatement	addEntityNoDupsDup	[B] member-check-add × 2 destinations
-addtostatement	addEntityToDestDup	[B] dup-destination: emit `<e> dup <d1> swap addto <d2> swap addto`
-addtostatement	addNumToDestDup	[B] dup-destination: similar pattern — addNumToDest is different so need to study
-addtostatement	addStrNoDups	[B] member-check-add: emit `<arr> <s> add_no_dups`
-addtostatement	addStrNoDupsDup	[B] member-check-add × 2 destinations
-addtostatement	addStrToDestDup	[B] dup-destination: `<s> dup <d1> swap addto <d2> swap addto`
 arrayExpr2	arrayName	[E] helper — `(array) NAME` parse-ambiguous; reachable only in specific cast positions
 arrayList	arrayListFloatSingle	[E] helper — only valid inside an array-literal / operatorlist context
 arrayList	arrayListIntSingle	[E] helper — only valid inside an array-literal / operatorlist context
