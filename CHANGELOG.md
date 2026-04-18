@@ -1,5 +1,79 @@
 # DTRules Changelog
 
+## v1.6.4 — 2026-04-18
+
+Minor release. A complete Go authoring SDK for DTRules projects: typed mutation, EL validation, execution, replay-to-breakpoint debugging, test scenarios, coverage, regression diff. Consumers no longer need to touch XML. Backward-compatible.
+
+### `pkg/dtrules/authoring` — new public package
+
+Open a project, mutate it via typed structs with EL-at-the-boundary validation, run test scenarios, assert outcomes and traces, diff against a prior version, save back through the canonical build pipeline.
+
+```go
+p, _ := authoring.OpenProject("./my_project")
+
+// Mutate a table
+tbl := p.Table("Compute_Eligibility")
+_ = tbl.AddCondition(authoring.Condition{DSL: "applicant.age >= 65"})
+_ = tbl.AddAction(authoring.Action{DSL: "set applicant.eligible = true"})
+_ = tbl.AddColumn(map[int]string{1: "Y"}, []int{1})
+
+// Run a scenario
+s := &authoring.Scenario{
+    Name: "senior eligible",
+    EntryTable: "Compute_Eligibility",
+    Inputs:   map[string]any{"applicant.age": 70},
+    Expected: map[string]any{"applicant.eligible": true},
+}
+r := s.Run(p)
+if !r.Pass { /* r.Failures names the attributes */ }
+
+_ = p.Save()
+```
+
+### Sub-features
+
+- **EL validation** (`CheckCondition`, `CheckAction`, `CheckContext`) — compile a single expression with a symbol table, return position-annotated errors. (#591)
+- **Typed Table view** with per-artifact mutations (`AddCondition`, `UpdateAction`, etc.) and atomic column operations (`AddColumn`, `UpdateColumn`) so the table can never be left partially edited. (#592)
+- **Typed EDD view** (`Entity`, `Attribute`) with type and default validation. (#593)
+- **Typed Mapping view** with cross-artifact EDD validation: every `SetAttribute` mapping entry is checked against the EDD's entity+attribute+type. (#594)
+- **Execute + Stepper** — run a table against loaded test data, get a trace, or step invocation-by-invocation. (#596)
+- **Trace replay + debug session** — `Project.ResumeAt(trace, index)` pauses before any invocation in the original trace; `DebugSession` exposes `EntityStack`, `Resolve`, `Step`, `Continue`, and `SetAttribute` for what-if exploration. Deterministic replay; no back-step (earlier points via another `ResumeAt`). (#603)
+- **Scenario struct + AssertState** — one-call pass/fail with structured failures. (#606)
+- **Trace assertions** — `AssertVisited`, `AssertNotVisited`, `AssertSequence` on `RunTrace`. (#607)
+- **`dtrules docs authoring`** — embedded doc topic; the SDK is discoverable from the CLI. (#608)
+- **Batch scenario runner** — `Project.RunAllScenarios(dir)` reads every `*.json` and produces `BatchResult` with per-scenario pass/fail. (#609)
+- **Table dependency graph** — `Table.Dependencies()` and `Table.Callers()` for impact analysis. (#610)
+- **Scenario coverage** — `Cover(project, results)` returns which tables/columns were exercised and which weren't. (#611)
+- **Regression diff** — `Diff(p1, p2, scenarios)` names the attributes that diverge between two project versions. (#612)
+- **`TableInvocation.Column` populated** — `AssertVisited("Foo", 2)` and per-column coverage actually work. (#620 hotfix of the trace infrastructure.)
+
+### Hardening
+
+- Real-project round-trip tests on `sampleprojects/TaxReturn`.
+- Destructive ops (`DeleteCondition`, `DeleteColumn`, `DeleteEntity`-with-references) tested.
+- `SetAttribute` type-validates against the EDD.
+- `LoadTestData` on malformed input returns clear errors without panic.
+- Idempotent save (minimal + execute + TaxReturn fixtures).
+- Fixed a non-idempotency bug in the DT XML postfix writer found by these tests.
+- Coverage on `pkg/dtrules/authoring`: 81.4%.
+
+### Issues closed
+
+#591, #592, #593, #594, #596, #601, #603, #605, #606, #607, #608, #609, #610, #611, #612, #620.
+
+### Consumer impact
+
+Downstream repos (Accumulate staking, TaxReturn authoring work) can now:
+- Write rule changes via typed Go calls instead of XML edits.
+- Express test suites as Scenario structs with pass/fail assertions.
+- Validate EL before committing a change.
+- Debug execution by pausing at any trace point and inspecting entity state.
+- Regression-diff a refactor against the prior version to prove behavior is unchanged.
+
+Raw XML editing is still supported but discouraged — round-trip silently normalizes legacy prose-DSL to warnings (per #504/#583). Authoring SDK is the recommended path.
+
+---
+
 ## v1.6.3 — 2026-04-17
 
 Patch release. Visible build summary, silent-drop bug fixed, static analysis warnings, and a safety net against "scoped tests pass but full build fails" mistakes. No breaking changes.
