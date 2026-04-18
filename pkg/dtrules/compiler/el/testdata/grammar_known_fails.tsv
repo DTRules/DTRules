@@ -81,31 +81,14 @@ bytesexpr	bytesSha256	triage — sweep surfaced this label as failing; check if 
 bytesexpr	bytesSha3	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 bytesexpr	bytesSlice	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 contextForTable	contextCtx	real emit fall-through — Visit method missing or under-implemented; followup
-contextForTable	contextDebug	real emit fall-through — Visit method missing or under-implemented; followup
 contextForTable	contextFor	real emit fall-through — Visit method missing or under-implemented; followup
 contextForTable	contextLocal	real emit fall-through — Visit method missing or under-implemented; followup
-contextstatement	addToContextFor	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-contextstatement	addToContextOf	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 datestatement	dateAddDays	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 datestatement	dateAddMonths	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 datestatement	dateAddYears	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 datestatement	dateSubDays	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 datestatement	dateSubMonths	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 datestatement	dateSubYears	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-debugstatement	debugArray	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-debugstatement	debugBool	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-debugstatement	debugDate	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-debugstatement	debugEntity	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-debugstatement	debugFloat	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-debugstatement	debugInt	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-debugstatement	debugStr	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-debugstatement	printArray	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-debugstatement	printBool	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-debugstatement	printDate	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-debugstatement	printEntity	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-debugstatement	printFloat	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-debugstatement	printInt	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-debugstatement	printStr	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 dexpr	dateCurrentDate	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 dexpr	dateDays	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 dexpr	dateEarliestAfter	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
@@ -160,9 +143,6 @@ iexpr	intMonthsBetween	triage — sweep surfaced this label as failing; check if
 iexpr	intValueOfOp	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 iexpr	intYearOf	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 iexpr	intYearsBetween	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-ifcontinue	ifElse	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-ifcontinue	ifElseIf	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-ifcontinue	ifEnd	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 includeSearch	includeDate	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 includeSearch	includeNumber	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 includeSearch	includeString	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
