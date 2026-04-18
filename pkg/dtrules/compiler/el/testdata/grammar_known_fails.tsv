@@ -1,92 +1,92 @@
 rule	label	reason
-addtodest	addDestColon	helper rule; no top-level compile path (tested via parent addtostatement)
-addtodest	addDestPossessiveDouble	helper rule; possessive form requires parent context
-addtodest	addDestPossessiveLong	helper rule; possessive form requires parent context
-addtostatement	addArrayNoMember	DSL sample needs refinement — 'if not member' operand shape
-addtostatement	addDateToDestDup	real emit fall-through — VisitAddDateToDestDup missing
-addtostatement	addEntityNoDups	DSL sample needs refinement
-addtostatement	addEntityNoDupsDup	DSL sample needs refinement
-addtostatement	addEntityToDestDup	real emit fall-through — VisitAddEntityToDestDup missing
-addtostatement	addNumToDestDup	real emit fall-through — VisitAddNumToDestDup missing
-addtostatement	addStrNoDups	DSL sample needs refinement
-addtostatement	addStrNoDupsDup	DSL sample needs refinement
-addtostatement	addStrToDestDup	real emit fall-through — VisitAddStrToDestDup missing
-addtostatement	subtractNum	real emit fall-through — VisitSubtractNum missing
-arrayExpr2	arrayName	DSL sample needs refinement — (array) typecast shape
-arrayList	arrayListFloatSingle	helper rule; only valid inside an array list context
-arrayList	arrayListIntSingle	helper rule; only valid inside an array list context
-arrayList	arrayListNameSingle	helper rule; only valid inside an array list context
-arrayList	arrayListStrSingle	helper rule; only valid inside an array list context
-bexpr	boolAllHave	real emit fall-through — VisitBoolAllHave missing
-bexpr	boolEntityHasaWhere	real emit fall-through — VisitBoolEntityHasaWhere missing
-bexpr	boolMatchForall	DSL sample needs refinement
-bexpr	boolOneOfHasa	real emit fall-through — VisitBoolOneOfHasa missing
-bexpr	boolStartsWithAt	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolThereIsInArrayWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolThereIsInEntityWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolThereIsNoInArrayWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolThereIsNoInEntityWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolThereIsNoWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolThereIsWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolValueOfOp	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bigexpr	bigFromBytes	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bigexpr	bigFromFloat	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bigexpr	bigFromInt	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bigexpr	bigFromStr	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-blist	blistMulti	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-blist	blistOr	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-blistIc	blistIcMulti	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-blistIc	blistIcOr	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-contextForTable	contextFor	real emit fall-through — Visit method missing or under-implemented; followup
-dexpr	dateDays	DSL refinement — `( 5 days )` form tricky; need literal days-count construction
-done	conditionDebugAfter	real emit fall-through — Visit method missing or under-implemented; followup
-done	conditionDebugBefore	real emit fall-through — Visit method missing or under-implemented; followup
-done	contextDebugBefore	real emit fall-through — Visit method missing or under-implemented; followup
-done	policyBExpr	real emit fall-through — Visit method missing or under-implemented; followup
-done	policyDExpr	real emit fall-through — Visit method missing or under-implemented; followup
-done	policyFExpr	real emit fall-through — Visit method missing or under-implemented; followup
-done	policyIExpr	real emit fall-through — Visit method missing or under-implemented; followup
-done	policyNExpr	real emit fall-through — Visit method missing or under-implemented; followup
-done	policyStrExpr	real emit fall-through — Visit method missing or under-implemented; followup
-eexpr	entityFirst	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-eexpr	entityFirstIn	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-eexpr	entityTableLookup	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-errorstatement	errorStmt	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-fexpr	floatLiteral	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-fexpr	floatValueOfOp	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-iexpr	intValueOfOp	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-includeSearch	includeDate	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-includeSearch	includeNumber	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-includeSearch	includeString	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-nexpr	nameOf	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-nexpr	nameTheName	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-nexpr	nameUsing	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-operatorlist	opListFloat	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-operatorlist	opListFloatSingle	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-operatorlist	opListInt	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-operatorlist	opListIntSingle	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-operatorlist	opListStr	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-operatorlist	opListStrSingle	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-performstatement	performCatchError	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-possessiveRef	colonChain	real emit fall-through — Visit method missing or under-implemented; followup
-possessiveRef	possessiveChain	real emit fall-through — Visit method missing or under-implemented; followup
-randomstatements	clearArray	unreachable via ordinary DSL — `clear <arr>` dispatches to clearstatement, not randomstatements.clearArray; DSL-path followup
-randomstatements	removeEachWhere	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-randomstatements	removeName	DSL refinement — nexpr literal /tbl not valid in remove-from-array position
-randomstatements	sortAscending	DSL refinement — nexpr /tbl not valid after by
-randomstatements	sortDescending	DSL refinement — nexpr /tbl not valid after by
-setstatement	setBoolFromName	parser-ambiguity with setStringFromName — requires declared bool symbol to disambiguate; DSL refinement followup
-strexpr	strFromIndex	DSL refinement — `(string) indxExpr` requires specific helper-rule context
-strexpr	strTableLookup	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-strexpr	strValueOfOp	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-subtodest	subDestColon	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-subtodest	subDestPossessiveDouble	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-subtodest	subDestPossessiveLong	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-tablelist	tableListMulti	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-tablelist	tableListSingle	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-texpr	tableNew	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-warnstatement	warnStmt	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-xmlvaluestatements	xmlAddAttr	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-xmlvaluestatements	xmlAddAttrEntity	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-xmlvaluestatements	xmlSetAttr	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-xmlvaluestatements	xmlSetAttrEntity	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
+addtodest	addDestColon	[E] helper sub-rule — no top-level compile path; tested inside addtostatement
+addtodest	addDestPossessiveDouble	[E] helper sub-rule — POSSESSIVE prefix is bound to parent addtostatement
+addtodest	addDestPossessiveLong	[E] helper sub-rule — POSSESSIVE prefix is bound to parent addtostatement
+addtostatement	addArrayNoMember	[B] array-into-array with member check: iterate source, add_no_dups each into dest
+addtostatement	addDateToDestDup	[B] dup-destination: `<d> dup <d1> swap addto <d2> swap addto`
+addtostatement	addEntityNoDups	[B] member-check-add: emit `<arr> <e> add_no_dups`
+addtostatement	addEntityNoDupsDup	[B] member-check-add × 2 destinations
+addtostatement	addEntityToDestDup	[B] dup-destination: emit `<e> dup <d1> swap addto <d2> swap addto`
+addtostatement	addNumToDestDup	[B] dup-destination: similar pattern — addNumToDest is different so need to study
+addtostatement	addStrNoDups	[B] member-check-add: emit `<arr> <s> add_no_dups`
+addtostatement	addStrNoDupsDup	[B] member-check-add × 2 destinations
+addtostatement	addStrToDestDup	[B] dup-destination: `<s> dup <d1> swap addto <d2> swap addto`
+addtostatement	subtractNum	[B] parallels addNumToDest but subtract; emit `<n> negate <subtodest>` where subtodest emits `<field> + /field xdef`
+arrayExpr2	arrayName	[E] helper — `(array) NAME` parse-ambiguous; reachable only in specific cast positions
+arrayList	arrayListFloatSingle	[E] helper — only valid inside an array-literal / operatorlist context
+arrayList	arrayListIntSingle	[E] helper — only valid inside an array-literal / operatorlist context
+arrayList	arrayListNameSingle	[E] helper — only valid inside an array-literal / operatorlist context
+arrayList	arrayListStrSingle	[E] helper — only valid inside an array-literal / operatorlist context
+bexpr	boolAllHave	[B] universal quantifier: `not (exists <arr> where not <b>)` — iterate, short-circuit false
+bexpr	boolEntityHasaWhere	[B] attribute-filter: push entity, check attribute exists, eval where
+bexpr	boolMatchForall	[B] complex multi-array join — needs design
+bexpr	boolOneOfHasa	[B] existential quantifier: iterate, short-circuit true
+bexpr	boolStartsWithAt	[B] substring + startswith: `<s> <i> <s> stringlength <i> - substring <s2> startswith`
+bexpr	boolThereIsInArrayWhere	[B] array-scoped existence: iterate, return true on first match, else false
+bexpr	boolThereIsInEntityWhere	[B] entity-scoped existence: push enclosing entity, then check
+bexpr	boolThereIsNoInArrayWhere	[B] parallel to InArrayWhere + not
+bexpr	boolThereIsNoInEntityWhere	[B] parallel to InEntityWhere + not
+bexpr	boolThereIsNoWhere	[B] parallel to boolThereIsWhere + not
+bexpr	boolThereIsWhere	[B] existence+where: emit `/<entityName> isdefined { <bexpr> } { false } ifelse`
+bexpr	boolValueOfOp	[D] `boolean value of <operatorstatements>` — operator dispatch returning a bool; needs runtime op understanding
+bigexpr	bigFromBytes	[A] trivial: emit `<bytesexpr> bytesbigint`
+bigexpr	bigFromFloat	[A] trivial: emit `<fexpr> cvbi`
+bigexpr	bigFromInt	[A] trivial: emit `<iexpr> cvbi`
+bigexpr	bigFromStr	[A] trivial: emit `<strexpr> cvbi`
+blist	blistMulti	[E] helper — only reachable inside strexpr EQ blist; tested via boolStrEqList
+blist	blistOr	[E] helper — only reachable inside strexpr EQ blist
+blistIc	blistIcMulti	[E] helper — only reachable inside strexpr EQ_IGNORE_CASE blistIc
+blistIc	blistIcOr	[E] helper — only reachable inside strexpr EQ_IGNORE_CASE blistIc
+contextForTable	contextFor	[A] delegates to forctl; Visit forctl missing — add trivial Visit
+dexpr	dateDays	[C] `( 5 days )` form — needs specific literal syntax
+done	conditionDebugAfter	[F] debug-after wiring — same
+done	conditionDebugBefore	[F] debug-before wiring — outer `done` alternative drops the debug emit
+done	contextDebugBefore	[F] debug-before in context — same
+done	policyBExpr	[F] policystatement emit — what does a compiled policy statement output?
+done	policyDExpr	[F] same as policyBExpr
+done	policyFExpr	[F] same as policyBExpr
+done	policyIExpr	[F] same as policyBExpr
+done	policyNExpr	[F] same as policyBExpr
+done	policyStrExpr	[F] same as policyBExpr
+eexpr	entityFirst	[B] find-first entity: use opForfirst where scope is the enclosing entity stack
+eexpr	entityFirstIn	[B] find-first in array: `<arr> { <b> } forfirst` with result on data stack
+eexpr	entityTableLookup	[D] typed-table lookup: `(entity) <tbl>(<list>)` — parallel to strTableLookup
+errorstatement	errorStmt	[A] trivial: emit `<strexpr> error`
+fexpr	floatLiteral	[C] float literal — corpus DSL "1.0" alone isn't a valid condition
+fexpr	floatValueOfOp	[D] `double value of <operatorstatements>`
+iexpr	intValueOfOp	[D] `long value of <operatorstatements>`
+includeSearch	includeDate	[E] helper — only reachable inside arrayExpr INCLUDES includeSearch
+includeSearch	includeNumber	[E] helper — only reachable inside arrayExpr INCLUDES includeSearch
+includeSearch	includeString	[E] helper — only reachable inside arrayExpr INCLUDES includeSearch
+nexpr	nameOf	[A] trivial: emit `<eexpr> entityname`
+nexpr	nameTheName	[A] trivial: emit `<strexpr> cvn`
+nexpr	nameUsing	[A] needs small think: push entity, evaluate nexpr, pop entity (parallel to boolUsing)
+operatorlist	opListFloat	[E] helper — only reachable inside DOUBLE VALUE OF operatorstatements
+operatorlist	opListFloatSingle	[E] helper — only reachable inside DOUBLE VALUE OF operatorstatements
+operatorlist	opListInt	[E] helper — only reachable inside LONG VALUE OF operatorstatements
+operatorlist	opListIntSingle	[E] helper — only reachable inside LONG VALUE OF operatorstatements
+operatorlist	opListStr	[E] helper — only reachable inside STRING VALUE OF operatorstatements
+operatorlist	opListStrSingle	[E] helper — only reachable inside STRING VALUE OF operatorstatements
+performstatement	performCatchError	[D] try/catch around perform — uses performcatcherror op (exists); needs emit design
+possessiveRef	colonChain	[E] helper chain — `:Entity:field` nexpr form; reached via boolNameEq etc.
+possessiveRef	possessiveChain	[E] helper chain — `entity`s field` nexpr form; reached via boolNameEq etc.
+randomstatements	clearArray	[C] unreachable via action DSL — parser picks clearstatement which has no label; DSL refinement or grammar reorder
+randomstatements	removeEachWhere	[D] remove-while-iterating: no bespoke op; compose forallr + remove — complex
+randomstatements	removeName	[C] nexpr form: needs `$name` not `/tbl`
+randomstatements	sortAscending	[C] nexpr form: needs `$name` not `/tbl`
+randomstatements	sortDescending	[C] nexpr form: needs `$name` not `/tbl`
+setstatement	setBoolFromName	[C] parser ambiguity with setStringFromName; requires symbol table to disambiguate
+strexpr	strFromIndex	[C] indxExpr helper — test DSL needs a real array-index construction
+strexpr	strTableLookup	[D] typed-table lookup: `(string) <tbl>(<list>)` — needs table op
+strexpr	strValueOfOp	[D] `string value of <operatorstatements>`
+subtodest	subDestColon	[E] helper sub-rule — parallels addtodest/addDestColon
+subtodest	subDestPossessiveDouble	[E] helper sub-rule — parallels addtodest/addDestPossessiveDouble
+subtodest	subDestPossessiveLong	[E] helper sub-rule — parallels addtodest/addDestPossessiveLong
+tablelist	tableListMulti	[E] helper — only reachable inside typedTable LPAREN tablelist RPAREN
+tablelist	tableListSingle	[E] helper — only reachable inside typedTable LPAREN tablelist RPAREN
+texpr	tableNew	[D] `new <s> table of <s>` — newtable op exists, need emit
+warnstatement	warnStmt	[A] trivial: emit `<strexpr> log_warning`
+xmlvaluestatements	xmlAddAttr	[F] XML DOM mutation
+xmlvaluestatements	xmlAddAttrEntity	[F] XML DOM mutation
+xmlvaluestatements	xmlSetAttr	[F] XML DOM mutation — used for XML output mapping; not clear if runtime supports
+xmlvaluestatements	xmlSetAttrEntity	[F] XML DOM mutation
