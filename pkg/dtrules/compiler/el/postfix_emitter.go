@@ -2715,6 +2715,67 @@ func (e *PostfixEmitter) VisitBoolStrIsNotOneOf(ctx *BoolStrIsNotOneOfContext) i
 	return nil
 }
 
+// Datestatement emitters. Adjust a date field in place: fetch, compute new
+// date, store back. Subtract negates the count before calling adddays.
+
+func (e *PostfixEmitter) VisitDateAddDays(ctx *DateAddDaysContext) interface{} {
+	name := ctx.TypedDate().GetText()
+	e.emit(name)
+	e.Visit(ctx.Number())
+	e.emit("adddays")
+	e.emit("/" + name)
+	e.emit("xdef")
+	return nil
+}
+func (e *PostfixEmitter) VisitDateAddMonths(ctx *DateAddMonthsContext) interface{} {
+	name := ctx.TypedDate().GetText()
+	e.emit(name)
+	e.Visit(ctx.Number())
+	e.emit("addmonths")
+	e.emit("/" + name)
+	e.emit("xdef")
+	return nil
+}
+func (e *PostfixEmitter) VisitDateAddYears(ctx *DateAddYearsContext) interface{} {
+	name := ctx.TypedDate().GetText()
+	e.emit(name)
+	e.Visit(ctx.Number())
+	e.emit("addyears")
+	e.emit("/" + name)
+	e.emit("xdef")
+	return nil
+}
+func (e *PostfixEmitter) VisitDateSubDays(ctx *DateSubDaysContext) interface{} {
+	name := ctx.TypedDate().GetText()
+	e.emit(name)
+	e.Visit(ctx.Number())
+	e.emit("negate")
+	e.emit("adddays")
+	e.emit("/" + name)
+	e.emit("xdef")
+	return nil
+}
+func (e *PostfixEmitter) VisitDateSubMonths(ctx *DateSubMonthsContext) interface{} {
+	name := ctx.TypedDate().GetText()
+	e.emit(name)
+	e.Visit(ctx.Number())
+	e.emit("negate")
+	e.emit("addmonths")
+	e.emit("/" + name)
+	e.emit("xdef")
+	return nil
+}
+func (e *PostfixEmitter) VisitDateSubYears(ctx *DateSubYearsContext) interface{} {
+	name := ctx.TypedDate().GetText()
+	e.emit(name)
+	e.Visit(ctx.Number())
+	e.emit("negate")
+	e.emit("addyears")
+	e.emit("/" + name)
+	e.emit("xdef")
+	return nil
+}
+
 // Iexpr emitters — date-derived integer forms.
 
 func (e *PostfixEmitter) VisitIntDaysInYear(ctx *IntDaysInYearContext) interface{} {

@@ -38,12 +38,6 @@ blist	blistOr	DSL sample needs refinement OR real emit fall-through — triage i
 blistIc	blistIcMulti	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 blistIc	blistIcOr	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 contextForTable	contextFor	real emit fall-through — Visit method missing or under-implemented; followup
-datestatement	dateAddDays	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-datestatement	dateAddMonths	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-datestatement	dateAddYears	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-datestatement	dateSubDays	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-datestatement	dateSubMonths	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
-datestatement	dateSubYears	triage — sweep surfaced this label as failing; check if DSL sample is incorrect or if a Visit method is missing
 dexpr	dateDays	DSL refinement — `( 5 days )` form tricky; need literal days-count construction
 done	conditionDebugAfter	real emit fall-through — Visit method missing or under-implemented; followup
 done	conditionDebugBefore	real emit fall-through — Visit method missing or under-implemented; followup
