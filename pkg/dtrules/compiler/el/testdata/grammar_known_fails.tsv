@@ -18,38 +18,17 @@ arrayList	arrayListIntSingle	helper rule; only valid inside an array list contex
 arrayList	arrayListNameSingle	helper rule; only valid inside an array list context
 arrayList	arrayListStrSingle	helper rule; only valid inside an array list context
 bexpr	boolAllHave	real emit fall-through — VisitBoolAllHave missing
-bexpr	boolArrayAt	real emit fall-through — VisitBoolArrayAt missing
-bexpr	boolArrayDoesInclude	DSL sample needs refinement — includes <includeSearch>
-bexpr	boolArrayIncludes	DSL sample needs refinement — includes <includeSearch>
-bexpr	boolArrayNotInclude	DSL sample needs refinement — does not include <includeSearch>
-bexpr	boolDateAfter	DSL sample needs refinement — date literal vs dexpr
-bexpr	boolDateBefore	DSL sample needs refinement — date literal vs dexpr
-bexpr	boolDateBetween	DSL sample needs refinement — date literal vs dexpr
-bexpr	boolDoesQuestion	real emit fall-through — VisitBoolDoesQuestion missing
 bexpr	boolEntityHasaWhere	real emit fall-through — VisitBoolEntityHasaWhere missing
-bexpr	boolEntityInContext	real emit fall-through — VisitBoolEntityInContext missing
-bexpr	boolEntityNotInContext	real emit fall-through — VisitBoolEntityNotInContext missing
-bexpr	boolFromIndex	real emit fall-through — VisitBoolFromIndex missing
-bexpr	boolFromStr	real emit fall-through — VisitBoolFromStr missing
-bexpr	boolIsQuestion	real emit fall-through — VisitBoolIsQuestion missing
 bexpr	boolMatchForall	DSL sample needs refinement
-bexpr	boolMatches	real emit fall-through — VisitBoolMatches missing
 bexpr	boolNameEq	DSL sample needs refinement — /literal-name vs nexpr shape
 bexpr	boolNameEqStr	DSL sample needs refinement
 bexpr	boolNameNeq	DSL sample needs refinement
 bexpr	boolNameNeqStr	DSL sample needs refinement
 bexpr	boolOneOfHasa	real emit fall-through — VisitBoolOneOfHasa missing
 bexpr	boolPlusOrMinus	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolStartsWith	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolStartsWithAt	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolStrEntityInContext	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolStrEntityNotInContext	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolStrGt	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolStrGte	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolStrIsNotOneOf	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolStrIsOneOf	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolStrLt	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolStrLte	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolThereIsInArrayWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolThereIsInEntityWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolThereIsNoInArrayWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
@@ -58,7 +37,6 @@ bexpr	boolThereIsNoWhere	DSL sample needs refinement OR real emit fall-through �
 bexpr	boolThereIsWhere	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolUsing	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolValueOfOp	DSL sample needs refinement OR real emit fall-through — triage in follow-up
-bexpr	boolWasQuestion	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bexpr	boolWithinPercent	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bigexpr	bigFromBytes	DSL sample needs refinement OR real emit fall-through — triage in follow-up
 bigexpr	bigFromFloat	DSL sample needs refinement OR real emit fall-through — triage in follow-up
