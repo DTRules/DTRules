@@ -36,6 +36,7 @@ var docTopics = map[string]string{
 	"architecture":    docArchitecture,
 	"embedding":       docEmbedding,
 	"workflow":        docWorkflow,
+	"authoring":       docAuthoring,
 }
 
 func runDocs(args []string) error {
@@ -84,6 +85,7 @@ func printDocIndex() {
 		"architecture":    "Dev-time vs deploy-time layouts (files on disk vs single embedded binary)",
 		"embedding":       "Embed DTRules rules into a single Go binary via //go:embed (no xlsx or xml at runtime)",
 		"workflow":        "Development workflow with Excel and XML",
+		"authoring":       "Go authoring SDK: open, edit, execute, and test projects programmatically",
 	}
 
 	for _, t := range topics {
@@ -2509,4 +2511,227 @@ See Also
   dtrules docs el          EL syntax reference
   dtrules docs operators   All operators including bytes
   dtrules docs bigint      Arbitrary-precision integers
+`
+
+const docAuthoring = `Authoring SDK
+=============
+
+The authoring SDK is a typed Go package at
+github.com/DTRules/DTRules/pkg/dtrules/authoring
+for opening, editing, executing, and testing DTRules projects. It is the
+recommended way to interact with rules programmatically. Editing raw XML
+is explicitly discouraged: the round-trip serialiser may reformat or reorder
+elements, and the authoring API validates every EL expression at the API
+boundary before any file is touched.
+
+
+Import
+------
+
+  import "github.com/DTRules/DTRules/pkg/dtrules/authoring"
+
+
+Worked Example
+--------------
+
+  package main
+
+  import (
+      "fmt"
+      "log"
+
+      "github.com/DTRules/DTRules/pkg/dtrules/authoring"
+  )
+
+  func main() {
+      // 1. Open a project directory (must contain xml/ with *_dt.xml and *_edd.xml).
+      p, err := authoring.OpenProject("/path/to/MyProject")
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      // 2. Inspect what tables exist.
+      fmt.Println("tables:", p.Tables())
+
+      // 3. Retrieve a specific table and inspect its conditions.
+      tbl := p.Table("EligibilityCheck")
+      if tbl == nil {
+          log.Fatal("table not found")
+      }
+      for _, c := range tbl.Conditions {
+          fmt.Printf("  cond %d: %s\n", c.Number, c.DSL)
+      }
+
+      // 4. Mutate an action — EL is validated before the change is committed.
+      err = tbl.UpdateAction(1, authoring.Action{
+          Comment: "set approved flag",
+          DSL:     "applicant.approved = true",
+          Columns: map[int]bool{1: true, 2: false},
+      })
+      if err != nil {
+          log.Fatal("invalid EL:", err)
+      }
+
+      // 5. Add a new rule column: condition 1 must be Y, fire action 1.
+      err = tbl.AddColumn(
+          map[int]string{1: "Y"},
+          []int{1},
+      )
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      // 6. Set attributes programmatically and execute the entry table.
+      p.SetAttribute("applicant", "age", 30)
+      p.SetAttribute("applicant", "income", 55000)
+
+      trace, err := p.ExecuteEntry("EligibilityCheck")
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      // 7. Assert the output.
+      if trace.FinalState["applicant.approved"] != "true" {
+          log.Fatal("expected approved=true, got", trace.FinalState["applicant.approved"])
+      }
+      fmt.Println("approved:", trace.FinalState["applicant.approved"])
+
+      // 8. Persist the edits back to disk.
+      if err := p.Save(); err != nil {
+          log.Fatal(err)
+      }
+  }
+
+
+API Reference
+-------------
+
+Project
+  OpenProject(path string) (*Project, error)
+      Load project from directory. Reads all *_dt.xml and *_edd.xml files.
+
+  (*Project).Save() error
+      Write all in-memory mutations back to disk as canonical XML.
+
+  (*Project).Tables() []string
+      List names of all loaded decision tables.
+
+  (*Project).Table(name string) *Table
+      Return typed view of a named table, or nil if not found.
+
+  (*Project).AddTable(name string) (*Table, error)
+      Create a new empty decision table.
+
+  (*Project).DeleteTable(name string) error
+      Remove a decision table by name.
+
+  (*Project).EDD() *EDD
+      Return EDD view (lazily loaded).
+
+  (*Project).Mapping() (*Mapping, error)
+      Return Mapping view (lazily loaded from *_map.xml).
+
+  (*Project).LoadTestData(path string) error
+      Populate entity state from an XML test-data file via the project _map.xml.
+
+  (*Project).SetAttribute(entityName, attribute string, value any) error
+      Set an entity attribute (bool, int, int64, float64, string supported).
+
+  (*Project).ResetState()
+      Clear entity state; keeps EDD/DT loaded so they do not need reloading.
+
+  (*Project).ExecuteEntry(tableName string) (*RunTrace, error)
+      Execute entry table and return a full trace of all table invocations.
+
+  (*Project).ResumeAt(trace *RunTrace, idx int) (*DebugSession, error)
+      Replay trace up to invocation idx and return a live DebugSession paused there.
+
+Table
+  (*Table).AddCondition(c Condition) error
+  (*Table).UpdateCondition(num int, c Condition) error
+  (*Table).DeleteCondition(num int) error
+
+  (*Table).AddAction(a Action) error
+  (*Table).UpdateAction(num int, a Action) error
+  (*Table).DeleteAction(num int) error
+
+  (*Table).AddInitialAction(a InitialAction) error
+  (*Table).UpdateInitialAction(idx int, a InitialAction) error
+  (*Table).DeleteInitialAction(idx int) error
+
+  (*Table).AddContext(c Context) error
+  (*Table).UpdateContext(idx int, c Context) error
+  (*Table).DeleteContext(idx int) error
+
+  (*Table).AddColumn(conditions map[int]string, actions []int) error
+  (*Table).UpdateColumn(col int, conditions map[int]string, actions []int) error
+  (*Table).DeleteColumn(col int) error
+
+  (*Table).Execute(p *Project) (*ExecutionTrace, error)
+      Run this table against current project state and return a step trace.
+
+  (*Table).NewStepper(p *Project) *Stepper
+      Create a Stepper for step-by-step condition/action evaluation.
+
+EDD
+  (*Project).EDD() *EDD
+  (*EDD).Entities() []Entity
+  (*EDD).AddEntity(name string) (*Entity, error)
+  (*Entity).AddAttribute(a Attribute) error
+  (*Entity).UpdateAttribute(name string, a Attribute) error
+  (*Entity).DeleteAttribute(name string) error
+  (*Project).DeleteEntity(name string) error
+      Checked deletion: rejected if any decision table references the entity.
+
+Mapping
+  (*Project).Mapping() (*Mapping, error)
+  (*Mapping).Entries() []SetAttribute
+  (*Mapping).AddEntry(e SetAttribute) error
+  (*Mapping).UpdateEntry(tag string, e SetAttribute) error
+  (*Mapping).DeleteEntry(tag string) error
+  (*Mapping).Save() error
+
+DebugSession
+  (*Project).ResumeAt(trace *RunTrace, idx int) (*DebugSession, error)
+  (*DebugSession).EntityStack() []EntityView
+  (*DebugSession).Resolve(name string) (any, string, error)
+  (*DebugSession).Step() (*TableInvocation, error)
+  (*DebugSession).Continue() (*RunTrace, error)
+  (*DebugSession).SetAttribute(entityName, attribute string, value any) error
+  (*DebugSession).Close()
+
+EL Validation
+  CheckCondition(el string, symbols map[string]string) (postfix string, err error)
+  CheckAction(el string, symbols map[string]string) (postfix string, err error)
+  CheckContext(el string, symbols map[string]string) (postfix string, err error)
+      Compile EL to postfix without executing. Used internally by all mutations.
+      Call directly to validate EL before adding it to a table.
+
+
+Full Reference
+--------------
+
+  go doc github.com/DTRules/DTRules/pkg/dtrules/authoring
+
+
+Anti-Patterns
+-------------
+
+Do NOT edit *_dt.xml or *_edd.xml files with a text editor or XML library
+directly. The authoring API:
+  - validates EL before any file is written
+  - maintains consistent attribute ordering
+  - preserves sync-manifest state
+
+Direct XML edits bypass all of these guarantees and may corrupt round-trip
+semantics enforced by "dtrules build".
+
+
+See Also
+--------
+  dtrules docs el              EL expression syntax
+  dtrules docs decision-tables Decision table structure
+  dtrules docs edd             Entity Data Dictionary reference
+  dtrules docs mapping         Mapping file reference
+  dtrules docs embedding       Deploy rules in a single Go binary
 `
