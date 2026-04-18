@@ -429,13 +429,6 @@ func minimalEDDXML() string {
 // TestBuildFromXML_ImportStepReportsCompileDrop verifies that a broken action_dsl
 // in the XML causes the Import step to record a named drop and exit non-zero.
 func TestBuildFromXML_ImportStepReportsCompileDrop(t *testing.T) {
-	// Skipped pending #585: the DT importer writes action_comment text into
-	// the DSL field during combined-workbook parsing. With that clobber, an
-	// author's distinct "garbage" DSL is replaced by the comment text before
-	// compileTableEL ever sees it, so compile failures look like
-	// legacy-prose (DSL==Comment) and get classified as warnings, not drops.
-	// Once #585 is fixed, re-enable this test.
-	t.Skip("blocked on #585: import clobbers action_dsl with action_comment; re-enable after fix")
 
 	tmpDir := t.TempDir()
 	xmlDir := filepath.Join(tmpDir, "xml")
