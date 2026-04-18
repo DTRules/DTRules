@@ -2715,6 +2715,87 @@ func (e *PostfixEmitter) VisitBoolStrIsNotOneOf(ctx *BoolStrIsNotOneOfContext) i
 	return nil
 }
 
+// Iexpr emitters — date-derived integer forms.
+
+func (e *PostfixEmitter) VisitIntDaysInYear(ctx *IntDaysInYearContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("getdaysinyear")
+	return nil
+}
+func (e *PostfixEmitter) VisitIntDaysInMonth(ctx *IntDaysInMonthContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("getdaysinmonth")
+	return nil
+}
+func (e *PostfixEmitter) VisitIntDayOfMonth(ctx *IntDayOfMonthContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("getdayofmonth")
+	return nil
+}
+func (e *PostfixEmitter) VisitIntDaysBetween(ctx *IntDaysBetweenContext) interface{} {
+	e.Visit(ctx.Dexpr(0))
+	e.Visit(ctx.Dexpr(1))
+	e.emit("daysbetween")
+	return nil
+}
+func (e *PostfixEmitter) VisitIntMonthsBetween(ctx *IntMonthsBetweenContext) interface{} {
+	e.Visit(ctx.Dexpr(0))
+	e.Visit(ctx.Dexpr(1))
+	e.emit("monthsbetween")
+	return nil
+}
+func (e *PostfixEmitter) VisitIntYearsBetween(ctx *IntYearsBetweenContext) interface{} {
+	e.Visit(ctx.Dexpr(0))
+	e.Visit(ctx.Dexpr(1))
+	e.emit("yearsbetween")
+	return nil
+}
+func (e *PostfixEmitter) VisitIntYearOf(ctx *IntYearOfContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("yearof")
+	return nil
+}
+
+// Strexpr emitters.
+
+// VisitStrConcatName: `<s> + <nexpr>` → `<s> <n> cvs concat`.
+func (e *PostfixEmitter) VisitStrConcatName(ctx *StrConcatNameContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.Visit(ctx.Nexpr())
+	e.emit("cvs")
+	e.emit("concat")
+	return nil
+}
+
+// VisitStrFromIndex: `(string) <indx>` → `<indx> cvs`.
+func (e *PostfixEmitter) VisitStrFromIndex(ctx *StrFromIndexContext) interface{} {
+	e.Visit(ctx.IndxExpr())
+	e.emit("cvs")
+	return nil
+}
+
+// VisitStrValueOfInt / Float / Date / Bool: emit value-to-string cast.
+func (e *PostfixEmitter) VisitStrValueOfInt(ctx *StrValueOfIntContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.emit("cvs")
+	return nil
+}
+func (e *PostfixEmitter) VisitStrValueOfFloat(ctx *StrValueOfFloatContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.emit("cvs")
+	return nil
+}
+func (e *PostfixEmitter) VisitStrValueOfDate(ctx *StrValueOfDateContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("cvs")
+	return nil
+}
+func (e *PostfixEmitter) VisitStrValueOfBool(ctx *StrValueOfBoolContext) interface{} {
+	e.Visit(ctx.Bexpr())
+	e.emit("cvs")
+	return nil
+}
+
 // Eexpr emitters.
 
 // VisitEntityIndex: eexpr as an indxExpr (array/index form). Just delegate.
