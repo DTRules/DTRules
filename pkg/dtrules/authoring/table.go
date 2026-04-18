@@ -33,6 +33,7 @@ type Table struct {
 
 	xml     *excel.DecisionTableXML
 	symbols map[string]string
+	project *Project // nil when constructed outside a project context
 }
 
 // Context holds a context entity reference for a decision table.
@@ -70,6 +71,13 @@ func newTable(x *excel.DecisionTableXML, symbols map[string]string) *Table {
 		symbols: symbols,
 	}
 	t.syncFromXML()
+	return t
+}
+
+// newTableWithProject builds a Table view linked to its owning project (enables Callers).
+func newTableWithProject(x *excel.DecisionTableXML, symbols map[string]string, p *Project) *Table {
+	t := newTable(x, symbols)
+	t.project = p
 	return t
 }
 

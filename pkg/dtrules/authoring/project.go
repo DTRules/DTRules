@@ -65,6 +65,26 @@ func OpenProject(path string) (*Project, error) {
 	return p, nil
 }
 
+// NewInMemoryProject creates an empty project rooted at dir. An xml/ subdirectory
+// is created automatically. No files are read from disk.
+func NewInMemoryProject(dir string) (*Project, error) {
+	xmlDir := filepath.Join(dir, "xml")
+	if err := os.MkdirAll(xmlDir, 0755); err != nil {
+		return nil, fmt.Errorf("mkdir xml: %w", err)
+	}
+	p := &Project{
+		xmlDir:  xmlDir,
+		symbols: make(map[string]string),
+		dtFiles: []dtFileEntry{
+			{
+				path:   filepath.Join(xmlDir, "tables_dt.xml"),
+				tables: &excel.DecisionTablesXML{},
+			},
+		},
+	}
+	return p, nil
+}
+
 // loadEDD parses *_edd.xml files and extracts field names+types for validation.
 func (p *Project) loadEDD(xmlDir string) error {
 	entries, err := filepath.Glob(filepath.Join(xmlDir, "*_edd.xml"))
@@ -175,7 +195,7 @@ func (p *Project) Table(name string) *Table {
 	for fi := range p.dtFiles {
 		for ti := range p.dtFiles[fi].tables.Tables {
 			if p.dtFiles[fi].tables.Tables[ti].TableName == name {
-				return newTable(&p.dtFiles[fi].tables.Tables[ti], p.symbols)
+				return newTableWithProject(&p.dtFiles[fi].tables.Tables[ti], p.symbols, p)
 			}
 		}
 	}
@@ -208,7 +228,7 @@ func (p *Project) AddTable(name string) (*Table, error) {
 	// Append to the first file
 	p.dtFiles[0].tables.Tables = append(p.dtFiles[0].tables.Tables, xmlTable)
 	last := &p.dtFiles[0].tables.Tables[len(p.dtFiles[0].tables.Tables)-1]
-	return newTable(last, p.symbols), nil
+	return newTableWithProject(last, p.symbols, p), nil
 }
 
 // DeleteEntity removes the named entity from the EDD, checking that no loaded
