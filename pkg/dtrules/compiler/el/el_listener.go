@@ -1,4 +1,4 @@
-// Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
+// Code generated from /tmp/wt-623/pkg/dtrules/compiler/el/EL.g4 by ANTLR 4.13.2. DO NOT EDIT.
 
 package el // EL
 import "github.com/antlr4-go/antlr/v4"
@@ -1009,6 +1009,12 @@ type ELListener interface {
 	// EnterStrConcatName is called when entering the strConcatName production.
 	EnterStrConcatName(c *StrConcatNameContext)
 
+	// EnterFloatMinOfFloat is called when entering the floatMinOfFloat production.
+	EnterFloatMinOfFloat(c *FloatMinOfFloatContext)
+
+	// EnterFloatMaxIntOf is called when entering the floatMaxIntOf production.
+	EnterFloatMaxIntOf(c *FloatMaxIntOfContext)
+
 	// EnterFloatAddFloat is called when entering the floatAddFloat production.
 	EnterFloatAddFloat(c *FloatAddFloatContext)
 
@@ -1017,6 +1023,9 @@ type ELListener interface {
 
 	// EnterFloatMulFloat is called when entering the floatMulFloat production.
 	EnterFloatMulFloat(c *FloatMulFloatContext)
+
+	// EnterFloatMaxOfFloat is called when entering the floatMaxOfFloat production.
+	EnterFloatMaxOfFloat(c *FloatMaxOfFloatContext)
 
 	// EnterFloatDivFloat is called when entering the floatDivFloat production.
 	EnterFloatDivFloat(c *FloatDivFloatContext)
@@ -1027,8 +1036,14 @@ type ELListener interface {
 	// EnterFloatRoundedTo is called when entering the floatRoundedTo production.
 	EnterFloatRoundedTo(c *FloatRoundedToContext)
 
+	// EnterFloatMinIntOf is called when entering the floatMinIntOf production.
+	EnterFloatMinIntOf(c *FloatMinIntOfContext)
+
 	// EnterFloatAddInt is called when entering the floatAddInt production.
 	EnterFloatAddInt(c *FloatAddIntContext)
+
+	// EnterFloatMinOfIntComma is called when entering the floatMinOfIntComma production.
+	EnterFloatMinOfIntComma(c *FloatMinOfIntCommaContext)
 
 	// EnterFloatTableLookup is called when entering the floatTableLookup production.
 	EnterFloatTableLookup(c *FloatTableLookupContext)
@@ -1036,11 +1051,17 @@ type ELListener interface {
 	// EnterFloatSubFloat is called when entering the floatSubFloat production.
 	EnterFloatSubFloat(c *FloatSubFloatContext)
 
+	// EnterFloatMinIntOfComma is called when entering the floatMinIntOfComma production.
+	EnterFloatMinIntOfComma(c *FloatMinIntOfCommaContext)
+
 	// EnterFloatLiteral is called when entering the floatLiteral production.
 	EnterFloatLiteral(c *FloatLiteralContext)
 
 	// EnterFloatMulBy is called when entering the floatMulBy production.
 	EnterFloatMulBy(c *FloatMulByContext)
+
+	// EnterFloatMaxOfIntComma is called when entering the floatMaxOfIntComma production.
+	EnterFloatMaxOfIntComma(c *FloatMaxOfIntCommaContext)
 
 	// EnterFloatUsing is called when entering the floatUsing production.
 	EnterFloatUsing(c *FloatUsingContext)
@@ -1072,8 +1093,14 @@ type ELListener interface {
 	// EnterFloatDivBy is called when entering the floatDivBy production.
 	EnterFloatDivBy(c *FloatDivByContext)
 
+	// EnterFloatMinOfInt is called when entering the floatMinOfInt production.
+	EnterFloatMinOfInt(c *FloatMinOfIntContext)
+
 	// EnterFloatFromIndex is called when entering the floatFromIndex production.
 	EnterFloatFromIndex(c *FloatFromIndexContext)
+
+	// EnterFloatMaxIntOfComma is called when entering the floatMaxIntOfComma production.
+	EnterFloatMaxIntOfComma(c *FloatMaxIntOfCommaContext)
 
 	// EnterFloatRounded is called when entering the floatRounded production.
 	EnterFloatRounded(c *FloatRoundedContext)
@@ -1096,11 +1123,20 @@ type ELListener interface {
 	// EnterFloatFromStr is called when entering the floatFromStr production.
 	EnterFloatFromStr(c *FloatFromStrContext)
 
+	// EnterFloatMinOfFloatComma is called when entering the floatMinOfFloatComma production.
+	EnterFloatMinOfFloatComma(c *FloatMinOfFloatCommaContext)
+
 	// EnterFloatAbs is called when entering the floatAbs production.
 	EnterFloatAbs(c *FloatAbsContext)
 
+	// EnterFloatMaxOfFloatComma is called when entering the floatMaxOfFloatComma production.
+	EnterFloatMaxOfFloatComma(c *FloatMaxOfFloatCommaContext)
+
 	// EnterFloatNegate is called when entering the floatNegate production.
 	EnterFloatNegate(c *FloatNegateContext)
+
+	// EnterFloatMaxOfInt is called when entering the floatMaxOfInt production.
+	EnterFloatMaxOfInt(c *FloatMaxOfIntContext)
 
 	// EnterFloatSumOf is called when entering the floatSumOf production.
 	EnterFloatSumOf(c *FloatSumOfContext)
@@ -1117,11 +1153,17 @@ type ELListener interface {
 	// EnterIntIndexOf is called when entering the intIndexOf production.
 	EnterIntIndexOf(c *IntIndexOfContext)
 
+	// EnterIntMinOfComma is called when entering the intMinOfComma production.
+	EnterIntMinOfComma(c *IntMinOfCommaContext)
+
 	// EnterIntNumberOf is called when entering the intNumberOf production.
 	EnterIntNumberOf(c *IntNumberOfContext)
 
 	// EnterIntNumberOfWhere is called when entering the intNumberOfWhere production.
 	EnterIntNumberOfWhere(c *IntNumberOfWhereContext)
+
+	// EnterIntMaxOf is called when entering the intMaxOf production.
+	EnterIntMaxOf(c *IntMaxOfContext)
 
 	// EnterIntParen is called when entering the intParen production.
 	EnterIntParen(c *IntParenContext)
@@ -1134,6 +1176,9 @@ type ELListener interface {
 
 	// EnterIntYearsBetween is called when entering the intYearsBetween production.
 	EnterIntYearsBetween(c *IntYearsBetweenContext)
+
+	// EnterIntMaxOfComma is called when entering the intMaxOfComma production.
+	EnterIntMaxOfComma(c *IntMaxOfCommaContext)
 
 	// EnterIntValueOfOp is called when entering the intValueOfOp production.
 	EnterIntValueOfOp(c *IntValueOfOpContext)
@@ -1194,6 +1239,9 @@ type ELListener interface {
 
 	// EnterIntAbs is called when entering the intAbs production.
 	EnterIntAbs(c *IntAbsContext)
+
+	// EnterIntMinOf is called when entering the intMinOf production.
+	EnterIntMinOf(c *IntMinOfContext)
 
 	// EnterIntDaysInMonth is called when entering the intDaysInMonth production.
 	EnterIntDaysInMonth(c *IntDaysInMonthContext)
@@ -2743,6 +2791,12 @@ type ELListener interface {
 	// ExitStrConcatName is called when exiting the strConcatName production.
 	ExitStrConcatName(c *StrConcatNameContext)
 
+	// ExitFloatMinOfFloat is called when exiting the floatMinOfFloat production.
+	ExitFloatMinOfFloat(c *FloatMinOfFloatContext)
+
+	// ExitFloatMaxIntOf is called when exiting the floatMaxIntOf production.
+	ExitFloatMaxIntOf(c *FloatMaxIntOfContext)
+
 	// ExitFloatAddFloat is called when exiting the floatAddFloat production.
 	ExitFloatAddFloat(c *FloatAddFloatContext)
 
@@ -2751,6 +2805,9 @@ type ELListener interface {
 
 	// ExitFloatMulFloat is called when exiting the floatMulFloat production.
 	ExitFloatMulFloat(c *FloatMulFloatContext)
+
+	// ExitFloatMaxOfFloat is called when exiting the floatMaxOfFloat production.
+	ExitFloatMaxOfFloat(c *FloatMaxOfFloatContext)
 
 	// ExitFloatDivFloat is called when exiting the floatDivFloat production.
 	ExitFloatDivFloat(c *FloatDivFloatContext)
@@ -2761,8 +2818,14 @@ type ELListener interface {
 	// ExitFloatRoundedTo is called when exiting the floatRoundedTo production.
 	ExitFloatRoundedTo(c *FloatRoundedToContext)
 
+	// ExitFloatMinIntOf is called when exiting the floatMinIntOf production.
+	ExitFloatMinIntOf(c *FloatMinIntOfContext)
+
 	// ExitFloatAddInt is called when exiting the floatAddInt production.
 	ExitFloatAddInt(c *FloatAddIntContext)
+
+	// ExitFloatMinOfIntComma is called when exiting the floatMinOfIntComma production.
+	ExitFloatMinOfIntComma(c *FloatMinOfIntCommaContext)
 
 	// ExitFloatTableLookup is called when exiting the floatTableLookup production.
 	ExitFloatTableLookup(c *FloatTableLookupContext)
@@ -2770,11 +2833,17 @@ type ELListener interface {
 	// ExitFloatSubFloat is called when exiting the floatSubFloat production.
 	ExitFloatSubFloat(c *FloatSubFloatContext)
 
+	// ExitFloatMinIntOfComma is called when exiting the floatMinIntOfComma production.
+	ExitFloatMinIntOfComma(c *FloatMinIntOfCommaContext)
+
 	// ExitFloatLiteral is called when exiting the floatLiteral production.
 	ExitFloatLiteral(c *FloatLiteralContext)
 
 	// ExitFloatMulBy is called when exiting the floatMulBy production.
 	ExitFloatMulBy(c *FloatMulByContext)
+
+	// ExitFloatMaxOfIntComma is called when exiting the floatMaxOfIntComma production.
+	ExitFloatMaxOfIntComma(c *FloatMaxOfIntCommaContext)
 
 	// ExitFloatUsing is called when exiting the floatUsing production.
 	ExitFloatUsing(c *FloatUsingContext)
@@ -2806,8 +2875,14 @@ type ELListener interface {
 	// ExitFloatDivBy is called when exiting the floatDivBy production.
 	ExitFloatDivBy(c *FloatDivByContext)
 
+	// ExitFloatMinOfInt is called when exiting the floatMinOfInt production.
+	ExitFloatMinOfInt(c *FloatMinOfIntContext)
+
 	// ExitFloatFromIndex is called when exiting the floatFromIndex production.
 	ExitFloatFromIndex(c *FloatFromIndexContext)
+
+	// ExitFloatMaxIntOfComma is called when exiting the floatMaxIntOfComma production.
+	ExitFloatMaxIntOfComma(c *FloatMaxIntOfCommaContext)
 
 	// ExitFloatRounded is called when exiting the floatRounded production.
 	ExitFloatRounded(c *FloatRoundedContext)
@@ -2830,11 +2905,20 @@ type ELListener interface {
 	// ExitFloatFromStr is called when exiting the floatFromStr production.
 	ExitFloatFromStr(c *FloatFromStrContext)
 
+	// ExitFloatMinOfFloatComma is called when exiting the floatMinOfFloatComma production.
+	ExitFloatMinOfFloatComma(c *FloatMinOfFloatCommaContext)
+
 	// ExitFloatAbs is called when exiting the floatAbs production.
 	ExitFloatAbs(c *FloatAbsContext)
 
+	// ExitFloatMaxOfFloatComma is called when exiting the floatMaxOfFloatComma production.
+	ExitFloatMaxOfFloatComma(c *FloatMaxOfFloatCommaContext)
+
 	// ExitFloatNegate is called when exiting the floatNegate production.
 	ExitFloatNegate(c *FloatNegateContext)
+
+	// ExitFloatMaxOfInt is called when exiting the floatMaxOfInt production.
+	ExitFloatMaxOfInt(c *FloatMaxOfIntContext)
 
 	// ExitFloatSumOf is called when exiting the floatSumOf production.
 	ExitFloatSumOf(c *FloatSumOfContext)
@@ -2851,11 +2935,17 @@ type ELListener interface {
 	// ExitIntIndexOf is called when exiting the intIndexOf production.
 	ExitIntIndexOf(c *IntIndexOfContext)
 
+	// ExitIntMinOfComma is called when exiting the intMinOfComma production.
+	ExitIntMinOfComma(c *IntMinOfCommaContext)
+
 	// ExitIntNumberOf is called when exiting the intNumberOf production.
 	ExitIntNumberOf(c *IntNumberOfContext)
 
 	// ExitIntNumberOfWhere is called when exiting the intNumberOfWhere production.
 	ExitIntNumberOfWhere(c *IntNumberOfWhereContext)
+
+	// ExitIntMaxOf is called when exiting the intMaxOf production.
+	ExitIntMaxOf(c *IntMaxOfContext)
 
 	// ExitIntParen is called when exiting the intParen production.
 	ExitIntParen(c *IntParenContext)
@@ -2868,6 +2958,9 @@ type ELListener interface {
 
 	// ExitIntYearsBetween is called when exiting the intYearsBetween production.
 	ExitIntYearsBetween(c *IntYearsBetweenContext)
+
+	// ExitIntMaxOfComma is called when exiting the intMaxOfComma production.
+	ExitIntMaxOfComma(c *IntMaxOfCommaContext)
 
 	// ExitIntValueOfOp is called when exiting the intValueOfOp production.
 	ExitIntValueOfOp(c *IntValueOfOpContext)
@@ -2928,6 +3021,9 @@ type ELListener interface {
 
 	// ExitIntAbs is called when exiting the intAbs production.
 	ExitIntAbs(c *IntAbsContext)
+
+	// ExitIntMinOf is called when exiting the intMinOf production.
+	ExitIntMinOf(c *IntMinOfContext)
 
 	// ExitIntDaysInMonth is called when exiting the intDaysInMonth production.
 	ExitIntDaysInMonth(c *IntDaysInMonthContext)

@@ -595,6 +595,18 @@ fexpr
     | fexpr ROUNDED TO iexpr DECIMAL_PLACES                 # floatRoundedTo
     | fexpr ROUNDED TO iexpr DECIMAL_PLACES WITH_BOUNDRY fexpr # floatRoundedBoundry
     | SUM_OF typedDouble IN arrayExpr                       # floatSumOf
+    | MINIMUM fexpr AND fexpr                               # floatMinOfFloat
+    | MINIMUM fexpr AND iexpr                               # floatMinOfInt
+    | MINIMUM iexpr AND fexpr                               # floatMinIntOf
+    | MINIMUM fexpr COMMA fexpr                             # floatMinOfFloatComma
+    | MINIMUM fexpr COMMA iexpr                             # floatMinOfIntComma
+    | MINIMUM iexpr COMMA fexpr                             # floatMinIntOfComma
+    | MAXIMUM fexpr AND fexpr                               # floatMaxOfFloat
+    | MAXIMUM fexpr AND iexpr                               # floatMaxOfInt
+    | MAXIMUM iexpr AND fexpr                               # floatMaxIntOf
+    | MAXIMUM fexpr COMMA fexpr                             # floatMaxOfFloatComma
+    | MAXIMUM fexpr COMMA iexpr                             # floatMaxOfIntComma
+    | MAXIMUM iexpr COMMA fexpr                             # floatMaxIntOfComma
     ;
 
 iexpr
@@ -636,6 +648,10 @@ iexpr
     | GET YEAROF dexpr                                      # intYearOf
     | LONG VALUE OF operatorstatements                      # intValueOfOp
     | SUM_OF iexpr IN arrayExpr                             # intSumOf
+    | MINIMUM iexpr AND iexpr                               # intMinOf
+    | MINIMUM iexpr COMMA iexpr                             # intMinOfComma
+    | MAXIMUM iexpr AND iexpr                               # intMaxOf
+    | MAXIMUM iexpr COMMA iexpr                             # intMaxOfComma
     ;
 
 bigexpr
@@ -1084,6 +1100,8 @@ MATCH               : 'match' ;
 MATCHES             : 'matches' ;
 ONERROR             : 'on' WS+ 'error' ;
 ABSOLUTEVALUE       : 'absolute' WS+ 'value' ;
+MINIMUM             : 'minimum' WS+ 'of' | 'smaller' WS+ 'of' ;
+MAXIMUM             : 'maximum' WS+ 'of' | 'larger' WS+ 'of' ;
 HASA                : 'has' WS+ ('a' | 'an') ;
 DESCENDINGORDER     : 'descending' WS+ 'order'? ;
 ASCENDINGORDER      : 'ascending' WS+ 'order'? ;

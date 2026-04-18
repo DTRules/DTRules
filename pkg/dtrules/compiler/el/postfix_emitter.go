@@ -1095,6 +1095,34 @@ func (e *PostfixEmitter) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface
 	return nil
 }
 
+func (e *PostfixEmitter) VisitIntMinOf(ctx *IntMinOfContext) interface{} {
+	e.Visit(ctx.Iexpr(0))
+	e.Visit(ctx.Iexpr(1))
+	e.emit("min")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntMinOfComma(ctx *IntMinOfCommaContext) interface{} {
+	e.Visit(ctx.Iexpr(0))
+	e.Visit(ctx.Iexpr(1))
+	e.emit("min")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntMaxOf(ctx *IntMaxOfContext) interface{} {
+	e.Visit(ctx.Iexpr(0))
+	e.Visit(ctx.Iexpr(1))
+	e.emit("max")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntMaxOfComma(ctx *IntMaxOfCommaContext) interface{} {
+	e.Visit(ctx.Iexpr(0))
+	e.Visit(ctx.Iexpr(1))
+	e.emit("max")
+	return nil
+}
+
 // ============================================================================
 // Float Expression Visitors
 // ============================================================================
@@ -1207,6 +1235,90 @@ func (e *PostfixEmitter) VisitFloatParen(ctx *FloatParenContext) interface{} {
 func (e *PostfixEmitter) VisitFloatRounded(ctx *FloatRoundedContext) interface{} {
 	e.Visit(ctx.Fexpr())
 	e.emit("round")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatMinOfFloat(ctx *FloatMinOfFloatContext) interface{} {
+	e.Visit(ctx.Fexpr(0))
+	e.Visit(ctx.Fexpr(1))
+	e.emit("fmin")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatMinOfInt(ctx *FloatMinOfIntContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("fmin")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatMinIntOf(ctx *FloatMinIntOfContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.Visit(ctx.Fexpr())
+	e.emit("fmin")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatMinOfFloatComma(ctx *FloatMinOfFloatCommaContext) interface{} {
+	e.Visit(ctx.Fexpr(0))
+	e.Visit(ctx.Fexpr(1))
+	e.emit("fmin")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatMinOfIntComma(ctx *FloatMinOfIntCommaContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("fmin")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatMinIntOfComma(ctx *FloatMinIntOfCommaContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.Visit(ctx.Fexpr())
+	e.emit("fmin")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatMaxOfFloat(ctx *FloatMaxOfFloatContext) interface{} {
+	e.Visit(ctx.Fexpr(0))
+	e.Visit(ctx.Fexpr(1))
+	e.emit("fmax")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatMaxOfInt(ctx *FloatMaxOfIntContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("fmax")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatMaxIntOf(ctx *FloatMaxIntOfContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.Visit(ctx.Fexpr())
+	e.emit("fmax")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatMaxOfFloatComma(ctx *FloatMaxOfFloatCommaContext) interface{} {
+	e.Visit(ctx.Fexpr(0))
+	e.Visit(ctx.Fexpr(1))
+	e.emit("fmax")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatMaxOfIntComma(ctx *FloatMaxOfIntCommaContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("fmax")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatMaxIntOfComma(ctx *FloatMaxIntOfCommaContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.Visit(ctx.Fexpr())
+	e.emit("fmax")
 	return nil
 }
 
