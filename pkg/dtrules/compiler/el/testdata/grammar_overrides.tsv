@@ -177,3 +177,4 @@ bexpr	boolThereIsNoInArrayWhere	condition	there is no account in accounts where 
 bexpr	boolEntityHasaWhere	condition	account has a "rel" where true
 bexpr	boolStartsWithAt	condition	"hello" at 2 starts with "llo"
 dexpr	dateDays	condition	(date) "2020-01-01" + (5 days) is equal to (date) "2020-01-06"
+strexpr	strTableLookup	condition	(string) tbl("a") is equal to "x"
