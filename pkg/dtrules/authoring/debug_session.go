@@ -32,6 +32,7 @@ type TableInvocation struct {
 	Index      int               // Position in the flat pre-order list
 	TableName  string            // Name of the invoked table
 	Depth      int               // Call depth (0 = entry table, 1 = called by entry, etc.)
+	Column     int               // Column that triggered this invocation (0 = entry or unknown)
 	StartState map[string]string // Entity attribute snapshot before execution
 	EndState   map[string]string // Entity attribute snapshot after execution
 }
