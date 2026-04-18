@@ -1,5 +1,14 @@
 # DTRules Changelog
 
+## v1.6.5 — 2026-04-18
+
+Patch release. Four bugs the staking team filed against v1.6.4, all with regression tests.
+
+- **`for all entity.array` compiled to empty postfix** (#626) — `PostfixEmitter` only overrode the non-labeled `VisitContextForallCtl` wrapper; the `forallSimple` labeled alternative fell through to the base visitor and emitted nothing. An empty context left `rcontext = nil`, so `Execute` skipped the forall loop and the table body ran once with no element entity on the stack ("not defined by any Entity on the Entity Stack"). Fixed by adding `VisitForallSimple` that emits `dup <array> forall pop`.
+- **`LoadTestData` skipped mapping `<initialization>`** (#625) — authoring-SDK test-data loader didn't process the mapping's init section, so entities declared there never hit the stack before conditions ran.
+- **`the minimum of / maximum of` action syntax** (#623) — grammar added for the two sugar forms; both compile to the existing min/max operators.
+- **Spurious `cvi` in bigint arithmetic** (#624) — the emitter inserted `cvi` after subtraction/addition even when both operands were bigint, silently truncating to int64. Suppressed when both operands resolve to bigint.
+
 ## v1.6.4 — 2026-04-18
 
 Minor release. A complete Go authoring SDK for DTRules projects: typed mutation, EL validation, execution, replay-to-breakpoint debugging, test scenarios, coverage, regression diff. Consumers no longer need to touch XML. Backward-compatible.
