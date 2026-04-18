@@ -1,0 +1,560 @@
+rule	label	entry	dsl
+done	emptyAction	raw	action ;
+done	emptyCondition	raw	condition ;
+done	emptyContext	raw	context ;
+done	emptyPolicyStatement	raw	policystatement ;
+done	actionStatement	raw	action set x = 1; ;
+done	conditionExpr	raw	condition true ;
+done	conditionDebugBefore	raw	condition debug "hi" ; true ;
+done	conditionDebugAfter	raw	condition true ; debug "hi" ;
+done	contextStatement	raw	context for all accounts ;
+done	contextDebugBefore	raw	context debug "hi" ; for all accounts ;
+done	policyStrExpr	raw	policystatement "x" ;
+done	policyNExpr	raw	policystatement /tbl ;
+done	policyIExpr	raw	policystatement 1 ;
+done	policyFExpr	raw	policystatement 1.0 ;
+done	policyBExpr	raw	policystatement true ;
+done	policyDExpr	raw	policystatement 2020-01-01 ;
+usingblock	usingBlockEntity	action	account using account { set x = 1; };
+usingblock	usingBlockEntityComma	action	account , using account { set x = 1; };
+usingblock	usingBlockBase	action	{ set x = 1; };
+possessiveRef	possessiveChain	condition	's 's
+possessiveRef	colonChain	condition	: account : 's
+contextForTable	contextDebug	context	debug "hi"
+contextForTable	contextFor	context	for i = 0; i < 3; i++
+contextForTable	contextForallCtl	context	for all accounts
+contextForTable	contextForfirst	context	for first of accounts where true
+contextForTable	contextCtx	context	contextstatement
+contextForTable	contextLocal	context	with local string s
+localvariables	localEntityUndef	context	local entity undefinedIdent
+localvariables	localEntityInit	context	local entity undefinedIdent = account
+localvariables	localEntityDefined	context	local entity account
+localvariables	localLongUndef	context	local int undefinedIdent
+localvariables	localLongInit	context	local int undefinedIdent = 5
+localvariables	localLongDefined	context	local int n
+localvariables	localDoubleUndef	context	local double undefinedIdent
+localvariables	localDoubleInit	context	local double undefinedIdent = 5
+localvariables	localDoubleDefined	context	local double d
+localvariables	localBoolUndef	context	local boolean undefinedIdent
+localvariables	localBoolInit	context	local boolean undefinedIdent = true
+localvariables	localBoolDefined	context	local boolean b
+localvariables	localDateUndef	context	local 2020-01-01 undefinedIdent
+localvariables	localDateInit	context	local 2020-01-01 undefinedIdent = 2020-01-01
+localvariables	localDateDefined	context	local 2020-01-01 dt
+localvariables	localArrayUndef	context	local array undefinedIdent
+localvariables	localArrayInit	context	local array undefinedIdent = accounts
+localvariables	localArrayDefined	context	local array arr
+localvariables	localStringUndef	context	local "hello" undefinedIdent
+localvariables	localStringInit	context	local "hello" undefinedIdent = "x"
+localvariables	localStringDefined	context	local "hello" s
+localvariables	localBigIntUndef	context	local bigint undefinedIdent
+localvariables	localBigIntInit	context	local bigint undefinedIdent = 1
+localvariables	localBigIntDefined	context	local bigint typedBigInt
+localvariables	localBytesUndef	context	local bytes undefinedIdent
+localvariables	localBytesInit	context	local bytes undefinedIdent = 0xab
+localvariables	localBytesDefined	context	local bytes typedBytes
+ifstatement	ifThen	action	if true then { set x = 1; } endif;
+ifstatement	ifThenElse	action	if true then { set x = 1; } else { set x = 1; } endif;
+forallctl	forallSimple	context	for all accounts
+forallctl	forallAllowRemove	context	for all accounts allowing array to be removed
+forallctl	forallInEntity	context	for all accounts in account
+forallctl	forallInEntityAllowRemove	context	for all accounts in account allowing array to be removed
+forallctl	forallInEntityWhere	context	for all accounts in account where true
+forallctl	forallWhere	context	for all accounts where true
+forallctl	forallWhereAllowRemove	context	for all accounts where true allowing array to be removed
+forallblock	forallBlockSimple	condition	accounts { set x = 1; }
+forallblock	forallBlockWhere	condition	accounts where true { set x = 1; }
+foreachblock	foreachSimple	action	account in accounts { set x = 1; };
+foreachblock	foreachWhere	action	account in accounts where true { set x = 1; };
+foreachblock	foreachIts	action	account and its account in accounts { set x = 1; };
+foreachblock	foreachItsWhere	action	account and its account in accounts where true { set x = 1; };
+forfirstctl	forfirstOf	context	for first of accounts where true
+forfirstctl	forfirstOfIts	context	for first of accounts and its account where true
+forfirstctl	forfirstIn	context	for first in accounts where true
+firstblock	firstBlockElse	action	for first of accounts where true then { set x = 1; } else if none are found { set x = 1; } endff;
+firstblock	firstBlockSimple	action	for first of accounts where true then { set x = 1; } endff;
+firstblock	firstBlockItsElse	action	for first of accounts and its account where true then { set x = 1; } else if none are found { set x = 1; } endff;
+block	blockCurly	action	{ set x = 1; };
+block	blockUsing	action	using using account { set x = 1; };
+block	blockGforall	action	{ set x = 1; } for all accounts;
+block	blockForall	action	for all for all accounts { set x = 1; };
+block	blockForeach	action	for each for each acc in accounts { set x = 1; };
+block	blockFirst	action	for first of accounts where true then { set x = 1; } endff;
+block	blockIf	action	if if true then { set x = 1; } endif;
+block	blockStatement	action	statement;
+leftIexpr	leftIexprSimple	condition	n
+leftIexpr	leftIexprColon	condition	colonRef leftIexpr
+leftFexpr	leftFexprSimple	condition	d
+leftFexpr	leftFexprColon	condition	colonRef leftFexpr
+leftBexpr	leftBexprSimple	condition	b
+leftBexpr	leftBexprColon	condition	colonRef leftBexpr
+leftEexpr	leftEexprSimple	condition	account
+leftEexpr	leftEexprColon	condition	colonRef leftEexpr
+leftStrexpr	leftStrexprSimple	condition	s
+leftStrexpr	leftStrexprColon	condition	colonRef leftStrexpr
+leftDexpr	leftDexprSimple	condition	dt
+leftDexpr	leftDexprColon	condition	colonRef leftDexpr
+leftTexpr	leftTexprSimple	condition	tbl
+leftTexpr	leftTexprColon	condition	colonRef leftTexpr
+leftBigexpr	leftBigexprSimple	condition	typedBigInt
+leftBigexpr	leftBigexprColon	condition	colonRef leftBigexpr
+leftArrayRef	leftArraySimple	condition	arr
+leftArrayRef	leftArrayColon	condition	colonRef leftArrayRef
+setstatement	setInt	action	set leftIexpr = 5;
+setstatement	setFloat	action	set leftFexpr = 5;
+setstatement	setBool	action	set leftBexpr = true;
+setstatement	setEntity	action	set leftEexpr = account;
+setstatement	setString	action	set leftStrexpr = "x";
+setstatement	setStringFromNumber	action	set leftStrexpr = 5;
+setstatement	setStringFromDate	action	set leftStrexpr = 2020-01-01;
+setstatement	setStringFromName	action	set leftStrexpr = /tbl;
+setstatement	setStringFromTable	action	set leftStrexpr = texpr;
+setstatement	setBoolFromName	action	set leftBexpr = /tbl;
+setstatement	setDate	action	set leftDexpr = 2020-01-01;
+setstatement	setTable	action	set leftTexpr = texpr;
+setstatement	setArrayEntity	action	set leftArrayRef = account;
+setstatement	setArrayString	action	set leftArrayRef = "x";
+setstatement	setArrayFloat	action	set leftArrayRef = 1.0;
+setstatement	setArrayInt	action	set leftArrayRef = 1;
+setstatement	setArrayDate	action	set leftArrayRef = 2020-01-01;
+setstatement	setArrayArray	action	set leftArrayRef = accounts;
+setstatement	setBigInt	action	set leftBigexpr = 1;
+setstatement	incrementLong	action	increment n;
+setstatement	incrementDouble	action	increment d;
+setstatement	decrementLong	action	decrement n;
+setstatement	decrementDouble	action	decrement d;
+performstatement	performCatchError	action	perform dt and on error add account to context and perform dt;
+performstatement	performDT	action	dt;
+performstatement	performDTExplicit	action	perform dt;
+performstatement	performName	action	perform x;
+errorstatement	errorStmt	condition	error "x"
+warnstatement	warnStmt	condition	warn "x"
+debugstatement	debugStr	context	debug "x"
+debugstatement	debugBool	context	debug true
+debugstatement	debugInt	context	debug 1
+debugstatement	debugFloat	context	debug 1.0
+debugstatement	debugEntity	context	debug account
+debugstatement	debugDate	context	debug 2020-01-01
+debugstatement	debugArray	context	debug accounts
+debugstatement	printStr	context	print "x"
+debugstatement	printBool	context	print true
+debugstatement	printInt	context	print 1
+debugstatement	printFloat	context	print 1.0
+debugstatement	printEntity	context	print account
+debugstatement	printDate	context	print 2020-01-01
+debugstatement	printArray	context	print accounts
+ifcontinue	ifEnd	condition	endif
+ifcontinue	ifElse	condition	else set x = 1; endif
+ifcontinue	ifElseIf	condition	else if if true then { set x = 1; } endif
+addtodest2	addDestArray2	condition	accounts
+addtodest2	addDestLong2	condition	n
+addtodest2	addDestDouble2	condition	d
+addtodest	addDestArray	action	accounts;
+addtodest	addDestLong	action	n;
+addtodest	addDestDouble	action	d;
+addtodest	addDestColon	action	colonRef addtodest2;
+addtodest	addDestPossessiveLong	action	's n;
+addtodest	addDestPossessiveDouble	action	's d;
+subtodest	subDestLong	action	n;
+subtodest	subDestDouble	action	d;
+subtodest	subDestColon	action	colonRef addtodest2;
+subtodest	subDestPossessiveLong	action	's n;
+subtodest	subDestPossessiveDouble	action	's d;
+addtostatement	addArrayNoMember	action	add accounts to accounts if not member s;
+addtostatement	addArrayToArray	action	add accounts to accounts;
+addtostatement	addEntityToDest	action	add account to x;
+addtostatement	addEntityToDestDup	action	add account to x and to x;
+addtostatement	addStrToDest	action	add "x" to x;
+addtostatement	addStrToDestDup	action	add "x" to x and to x;
+addtostatement	addDateToDest	action	add 2020-01-01 to x;
+addtostatement	addDateToDestDup	action	add 2020-01-01 to x and to x;
+addtostatement	addNumToDest	action	add 5 to x;
+addtostatement	addNumToDestDup	action	add 5 to x and to x;
+addtostatement	subtractNum	action	subtract 5 from x;
+addtostatement	addEntityNoDups	action	add account if not member s to accounts;
+addtostatement	addEntityNoDupsDup	action	add account if not member s to accounts and to accounts;
+addtostatement	addStrNoDups	action	add "x" if not member s to accounts;
+addtostatement	addStrNoDupsDup	action	add "x" if not member s to accounts and to accounts;
+contextstatement	addToContextOf	condition	add account to context of this table
+contextstatement	addToContextFor	condition	add account to context for this table
+randomstatements	removeAtIndex	action	remove 1 element from accounts array;
+randomstatements	removeEachWhere	action	remove each account from accounts where true;
+randomstatements	removeName	action	remove /tbl from accounts array;
+randomstatements	removeString	action	remove "x" from accounts array;
+randomstatements	removeEntity	action	remove account from accounts array;
+randomstatements	randomizeArray	action	randomize accounts;
+randomstatements	clearArray	action	clear accounts;
+randomstatements	sortAscending	action	sort accounts in ascending order by /tbl;
+randomstatements	sortDescending	action	sort accounts in descending order by /tbl;
+operatorlist	opListStr	action	"x" , x;
+operatorlist	opListInt	action	1 , x;
+operatorlist	opListFloat	action	1.0 , x;
+operatorlist	opListEntity	action	account , x;
+operatorlist	opListStrSingle	action	"x";
+operatorlist	opListIntSingle	action	1;
+operatorlist	opListFloatSingle	action	1.0;
+operatorlist	opListEntitySingle	action	account;
+xmlvaluestatements	xmlSetAttr	action	typedXmlValue : set attribute "x" = xmlvalues;
+xmlvaluestatements	xmlSetAttrEntity	action	account : set attribute "x" = xmlvalues;
+xmlvaluestatements	xmlAddAttr	action	typedXmlValue : add attribute "x" = xmlvalues;
+xmlvaluestatements	xmlAddAttrEntity	action	account : add attribute "x" = xmlvalues;
+arrayExpr	arrayPolicyStatements	condition	policy statements includes account
+arrayExpr	arrayColonRef	condition	colonRef arr includes account
+arrayExpr	arrayBase	condition	accounts includes account
+arrayExpr2	arrayMap	condition	map accounts through texpr includes account
+arrayExpr2	arrayParen	condition	( accounts ) includes account
+arrayExpr2	arrayTyped	condition	arr includes account
+arrayExpr2	arrayName	condition	( array ) x includes account
+arrayExpr2	arrayCopy	condition	get copy of accounts includes account
+arrayExpr2	arrayCopySimple	condition	copy of accounts includes account
+arrayExpr2	arrayDeepCopy	condition	get deep copy of accounts includes account
+arrayExpr2	arrayDeepCopySimple	condition	deep copy of accounts includes account
+arrayExpr2	arrayLiteral	condition	arrayLit includes account
+arrayExpr2	arrayOfValues	condition	array of values [ x ] includes account
+arrayExpr2	arrayTokenize	condition	tokenize "x" by "x" includes account
+arrayList	arrayListStr	condition	x , "x"
+arrayList	arrayListInt	condition	x , 1
+arrayList	arrayListEntity	condition	x , account
+arrayList	arrayListFloat	condition	x , 1.0
+arrayList	arrayListName	condition	x , /tbl
+arrayList	arrayListArray	condition	x , accounts
+arrayList	arrayListBool	condition	x , true
+arrayList	arrayListBoolSingle	condition	true
+arrayList	arrayListArraySingle	condition	accounts
+arrayList	arrayListNameSingle	condition	/tbl
+arrayList	arrayListFloatSingle	condition	1.0
+arrayList	arrayListEntitySingle	condition	account
+arrayList	arrayListIntSingle	condition	1
+arrayList	arrayListStrSingle	condition	"x"
+eexpr	entityTyped	condition	there is account where true
+eexpr	entityParen	condition	there is ( account ) where true
+eexpr	entityIndex	condition	there is indxExpr where true
+eexpr	entityNewName	condition	there is new /tbl entity where true
+eexpr	entityNewTyped	condition	there is new account entity where true
+eexpr	entityClone	condition	there is clone of account where true
+eexpr	entityColonRef	condition	there is colonRef account where true
+eexpr	entityTableLookup	condition	there is ( entity ) tbl ( tablelist ) where true
+eexpr	entityFirstIn	condition	there is first account in accounts where true where true
+eexpr	entityFirst	condition	there is first account where true where true
+eexpr	entityRelationship	condition	there is "x" of account where true
+datestatement	dateSubYears	action	subtract 5 year s from dt;
+datestatement	dateSubMonths	action	subtract 5 month s from dt;
+datestatement	dateSubDays	action	subtract 5 day s from dt;
+datestatement	dateAddYears	action	add 5 year s to dt;
+datestatement	dateAddMonths	action	add 5 month s to dt;
+datestatement	dateAddDays	action	add 5 day s to dt;
+dexpr	dateParen	condition	( 2020-01-01 ) is equal to 2020-01-01
+dexpr	dateTyped	condition	dt is equal to 2020-01-01
+dexpr	dateFromStrCast	condition	( 2020-01-01 ) "x" is equal to 2020-01-01
+dexpr	dateFromStrFunc	condition	2020-01-01 ( "x" ) is equal to 2020-01-01
+dexpr	dateFromIndex	condition	( 2020-01-01 ) indxExpr is equal to 2020-01-01
+dexpr	dateFromArrayAt	condition	( 2020-01-01 ) arr [ 1 ] is equal to 2020-01-01
+dexpr	dateUsing	condition	using account ( 2020-01-01 ) is equal to 2020-01-01
+dexpr	dateColonRef	condition	colonRef dt is equal to 2020-01-01
+dexpr	dateDays	condition	( 5 day s ) is equal to 2020-01-01
+dexpr	dateAdd	condition	2020-01-01 + 2020-01-01 is equal to 2020-01-01
+dexpr	dateSub	condition	2020-01-01 - 2020-01-01 is equal to 2020-01-01
+dexpr	dateTableLookup	condition	( 2020-01-01 ) tbl ( tablelist ) is equal to 2020-01-01
+dexpr	dateCurrentDate	condition	current date is equal to 2020-01-01
+dexpr	dateExprSubYears	condition	subtract 5 year s from 2020-01-01 is equal to 2020-01-01
+dexpr	dateExprSubMonths	condition	subtract 5 month s from 2020-01-01 is equal to 2020-01-01
+dexpr	dateExprSubDays	condition	subtract 5 day s from 2020-01-01 is equal to 2020-01-01
+dexpr	dateExprAddYears	condition	add 5 year s to 2020-01-01 is equal to 2020-01-01
+dexpr	dateExprAddMonths	condition	add 5 month s to 2020-01-01 is equal to 2020-01-01
+dexpr	dateExprAddDays	condition	add 5 day s to 2020-01-01 is equal to 2020-01-01
+dexpr	dateMinusYears	condition	2020-01-01 - 5 year s is equal to 2020-01-01
+dexpr	dateMinusMonths	condition	2020-01-01 - 5 month s is equal to 2020-01-01
+dexpr	dateMinusDays	condition	2020-01-01 - 5 day s is equal to 2020-01-01
+dexpr	datePlusYears	condition	2020-01-01 + 5 year s is equal to 2020-01-01
+dexpr	datePlusMonths	condition	2020-01-01 + 5 month s is equal to 2020-01-01
+dexpr	datePlusDays	condition	2020-01-01 + 5 day s is equal to 2020-01-01
+dexpr	dateFirstOfYear	condition	first of year s of 2020-01-01 is equal to 2020-01-01
+dexpr	dateFirstOfMonth	condition	first of month s of 2020-01-01 is equal to 2020-01-01
+dexpr	dateEndOfMonth	condition	end of month s of 2020-01-01 is equal to 2020-01-01
+dexpr	dateEarliestAfter	condition	earliest of accounts after 2020-01-01 is equal to 2020-01-01
+nexpr	nameTyped	condition	nm EQ /tbl
+nexpr	nameOf	condition	nameof account EQ /tbl
+nexpr	nameTheName	condition	the name "x" EQ /tbl
+nexpr	nameArrayAt	condition	x arr [ 1 ] EQ /tbl
+nexpr	nameLiteral	condition	x EQ /tbl
+nexpr	nameUsing	condition	using account ( /tbl ) EQ /tbl
+nexpr	nameColonRef	condition	colonRef nm EQ /tbl
+nexpr	nameFromStr	condition	( x ) "x" EQ /tbl
+tablelist	tableListMulti	condition	"x" , tablelist
+tablelist	tableListSingle	condition	"x"
+texpr	tableTyped	condition	tbl
+texpr	tableNew	condition	new "x" table of "x"
+strexpr	strAttrOf	condition	attribute "x" of account is equal to "x"
+strexpr	strMappingKey	condition	mapping key is equal to "x"
+strexpr	strXmlValue	condition	typedXmlValue is equal to "x"
+strexpr	strXmlAttr	condition	typedXmlValue : get attribute "x" is equal to "x"
+strexpr	strSubstring	condition	substring of "x" from 1 to 1 is equal to "x"
+strexpr	strTableInfo	condition	table information is equal to "x"
+strexpr	strValueOfOp	condition	"hello" value of operatorstatements is equal to "x"
+strexpr	strTableLookup	condition	( "hello" ) texpr ( tablelist ) is equal to "x"
+strexpr	strTyped	condition	s is equal to "x"
+strexpr	strColonRef	condition	colonRef "x" is equal to "x"
+strexpr	strLiteral	condition	" " is equal to "x"
+strexpr	strConcat	condition	"x" + "x" is equal to "x"
+strexpr	strValueOfFloat	condition	"hello" value of 1.0 is equal to "x"
+strexpr	strValueOfInt	condition	"hello" value of 1 is equal to "x"
+strexpr	strValueOfDate	condition	"hello" value of 2020-01-01 is equal to "x"
+strexpr	strValueOfBool	condition	"hello" value of boolean true is equal to "x"
+strexpr	strParen	condition	( "x" ) is equal to "x"
+strexpr	strConcatInt	condition	"x" + 1 is equal to "x"
+strexpr	strConcatFloat	condition	"x" + 1.0 is equal to "x"
+strexpr	strConcatName	condition	"x" + /tbl is equal to "x"
+strexpr	strConcatEntity	condition	"x" + account is equal to "x"
+strexpr	strConcatDate	condition	"x" + 2020-01-01 is equal to "x"
+strexpr	strConcatArray	condition	"x" + accounts is equal to "x"
+strexpr	strConcatNull	condition	"x" + typedNull is equal to "x"
+strexpr	strConcatInvalid	condition	"x" + typedInvalid is equal to "x"
+strexpr	strTrim	condition	trim ( "x" ) is equal to "x"
+strexpr	strFromIndex	condition	( "hello" ) indxExpr is equal to "x"
+strexpr	strToLower	condition	change "x" to lower case is equal to "x"
+strexpr	strToUpper	condition	change "x" to upper case is equal to "x"
+strexpr	strTimestamp	condition	get current timestamp is equal to "x"
+strexpr	strUsing	condition	using account ( "x" ) is equal to "x"
+strexpr	strRelationship	condition	relationship between account and account is equal to "x"
+strexpr	strHexOfBytes	condition	0xdeadbeef of 0xab is equal to "x"
+strexpr	strBase58CheckOfBytes	condition	base58check of 0xab version 1 is equal to "x"
+strexpr	strBech32OfBytes	condition	bech32 of 0xab hrp "x" is equal to "x"
+fexpr	floatLiteral	condition	. > 0.0
+fexpr	floatColonRef	condition	colonRef d > 0.0
+fexpr	floatTyped	condition	d > 0.0
+fexpr	floatFromStr	condition	( double ) "x" > 0.0
+fexpr	floatFromInt	condition	( double ) 1 > 0.0
+fexpr	floatTableLookup	condition	( double ) tbl ( tablelist ) > 0.0
+fexpr	floatMulInt	condition	1.0 * 1 > 0.0
+fexpr	intMulFloat	condition	1 * 1.0 > 0.0
+fexpr	floatMulFloat	condition	1.0 * 1.0 > 0.0
+fexpr	floatDivInt	condition	1.0 / 1 > 0.0
+fexpr	intDivFloat	condition	1 / 1.0 > 0.0
+fexpr	floatDivFloat	condition	1.0 / 1.0 > 0.0
+fexpr	floatAddInt	condition	1.0 + 1 > 0.0
+fexpr	floatAddFloat	condition	1.0 + 1.0 > 0.0
+fexpr	intAddFloat	condition	1 + 1.0 > 0.0
+fexpr	floatSubInt	condition	1.0 - 1 > 0.0
+fexpr	intSubFloat	condition	1 - 1.0 > 0.0
+fexpr	floatSubFloat	condition	1.0 - 1.0 > 0.0
+fexpr	floatNegate	condition	- 1.0 > 0.0
+fexpr	floatParen	condition	( 1.0 ) > 0.0
+fexpr	floatFromIndex	condition	( double ) indxExpr > 0.0
+fexpr	floatAddTo	condition	add to d 5 > 0.0
+fexpr	floatSubFrom	condition	subtract from d 5 > 0.0
+fexpr	floatMulBy	condition	multiply d by 5 > 0.0
+fexpr	floatDivBy	condition	/ d by 5 > 0.0
+fexpr	floatAbs	condition	absolute value of 1.0 > 0.0
+fexpr	floatUsing	condition	using account ( 1.0 ) > 0.0
+fexpr	floatValueOfOp	condition	double value of operatorstatements > 0.0
+fexpr	floatRounded	condition	1.0 rounded > 0.0
+fexpr	floatRoundedTo	condition	1.0 rounded to 1 decimal places > 0.0
+fexpr	floatRoundedBoundry	condition	1.0 rounded to 1 decimal places with boundry 1.0 > 0.0
+fexpr	floatSumOf	condition	sum of d in accounts > 0.0
+fexpr	floatMinOfFloat	condition	minimum of 1.0 and 1.0 > 0.0
+fexpr	floatMinOfInt	condition	minimum of 1.0 and 1 > 0.0
+fexpr	floatMinIntOf	condition	minimum of 1 and 1.0 > 0.0
+fexpr	floatMinOfFloatComma	condition	minimum of 1.0 , 1.0 > 0.0
+fexpr	floatMinOfIntComma	condition	minimum of 1.0 , 1 > 0.0
+fexpr	floatMinIntOfComma	condition	minimum of 1 , 1.0 > 0.0
+fexpr	floatMaxOfFloat	condition	maximum of 1.0 and 1.0 > 0.0
+fexpr	floatMaxOfInt	condition	maximum of 1.0 and 1 > 0.0
+fexpr	floatMaxIntOf	condition	maximum of 1 and 1.0 > 0.0
+fexpr	floatMaxOfFloatComma	condition	maximum of 1.0 , 1.0 > 0.0
+fexpr	floatMaxOfIntComma	condition	maximum of 1.0 , 1 > 0.0
+fexpr	floatMaxIntOfComma	condition	maximum of 1 , 1.0 > 0.0
+iexpr	intMul	condition	1 * 1 > 0
+iexpr	intDiv	condition	1 / 1 > 0
+iexpr	intAdd	condition	1 + 1 > 0
+iexpr	intSub	condition	1 - 1 > 0
+iexpr	intLiteral	condition	int_literal > 0
+iexpr	intNegate	condition	- 1 > 0
+iexpr	intParen	condition	( 1 ) > 0
+iexpr	intTyped	condition	n > 0
+iexpr	intDaysInYear	condition	get day s in yearof 2020-01-01 > 0
+iexpr	intDaysInMonth	condition	get day s in month s for 2020-01-01 > 0
+iexpr	intDayOfMonth	condition	get day s of month s for 2020-01-01 > 0
+iexpr	intColonRef	condition	colonRef n > 0
+iexpr	intFromIndex	condition	( int ) indxExpr > 0
+iexpr	intFromStr	condition	( int ) "x" > 0
+iexpr	intFromNumber	condition	( int ) 5 > 0
+iexpr	intTableLookup	condition	( int ) tbl ( tablelist ) > 0
+iexpr	intNumberOf	condition	number of accounts > 0
+iexpr	intNumberOfWhere	condition	number of accounts where true > 0
+iexpr	intLengthArray	condition	length of accounts > 0
+iexpr	intLengthStr	condition	length of "x" > 0
+iexpr	intLengthBytes	condition	length of 0xab > 0
+iexpr	intBytesIndex	condition	0xab [ 1 ] > 0
+iexpr	intIndexOf	condition	index of "x" in "x" > 0
+iexpr	intUsingArray	condition	using accounts 5 > 0
+iexpr	intAddTo	condition	add to n 5 > 0
+iexpr	intSubFrom	condition	subtract from n 5 > 0
+iexpr	intMulBy	condition	multiply n by 5 > 0
+iexpr	intDivBy	condition	/ n by 5 > 0
+iexpr	intAbs	condition	absolute value of 1 > 0
+iexpr	intUsing	condition	using account ( 1 ) > 0
+iexpr	intDaysBetween	condition	day s from 2020-01-01 to 2020-01-01 > 0
+iexpr	intMonthsBetween	condition	month s from 2020-01-01 to 2020-01-01 > 0
+iexpr	intYearsBetween	condition	year s from 2020-01-01 to 2020-01-01 > 0
+iexpr	intYearOf	condition	get yearof 2020-01-01 > 0
+iexpr	intValueOfOp	condition	int value of operatorstatements > 0
+iexpr	intSumOf	condition	sum of 1 in accounts > 0
+iexpr	intMinOf	condition	minimum of 1 and 1 > 0
+iexpr	intMinOfComma	condition	minimum of 1 , 1 > 0
+iexpr	intMaxOf	condition	maximum of 1 and 1 > 0
+iexpr	intMaxOfComma	condition	maximum of 1 , 1 > 0
+bigexpr	bigMul	condition	1 * 1 > 0
+bigexpr	bigDiv	condition	1 / 1 > 0
+bigexpr	bigAdd	condition	1 + 1 > 0
+bigexpr	bigSub	condition	1 - 1 > 0
+bigexpr	bigNegate	condition	- 1 > 0
+bigexpr	bigParen	condition	( 1 ) > 0
+bigexpr	bigTyped	condition	typedBigInt > 0
+bigexpr	bigColonRef	condition	colonRef typedBigInt > 0
+bigexpr	bigFromStr	condition	( bigint ) "x" > 0
+bigexpr	bigFromInt	condition	( bigint ) 1 > 0
+bigexpr	bigFromFloat	condition	( bigint ) 1.0 > 0
+bigexpr	bigUsing	condition	using account ( 1 ) > 0
+bigexpr	bigAbs	condition	absolute value of 1 > 0
+bigexpr	bigFromBytes	condition	bigint of bytes 0xab > 0
+bytesexpr	bytesLiteral	condition	0x bytes== 0xab
+bytesexpr	bytesTyped	condition	typedBytes bytes== 0xab
+bytesexpr	bytesColonRef	condition	colonRef typedBytes bytes== 0xab
+bytesexpr	bytesParen	condition	( 0xab ) bytes== 0xab
+bytesexpr	bytesConcat	condition	0xab + 0xab bytes== 0xab
+bytesexpr	bytesSlice	condition	0xab from 1 to 1 bytes== 0xab
+bytesexpr	bytesSha256	condition	sha256 of 0xab bytes== 0xab
+bytesexpr	bytesKeccak256	condition	keccak256 of 0xab bytes== 0xab
+bytesexpr	bytesRipemd160	condition	ripemd160 of 0xab bytes== 0xab
+bytesexpr	bytesSha3	condition	sha3 of 0xab bytes== 0xab
+bytesexpr	bytesCvHex	condition	bytes of 0xdeadbeef "x" bytes== 0xab
+bytesexpr	bytesCvBase58Check	condition	bytes of base58check "x" bytes== 0xab
+bytesexpr	bytesCvBech32	condition	bytes of bech32 "x" bytes== 0xab
+bytesexpr	bytesCvBigInt	condition	bytes of bigint 1 size 1 bytes== 0xab
+includeSearch	includeNumber	condition	value 5
+includeSearch	includeDate	condition	2020-01-01 2020-01-01
+includeSearch	includeEntity	condition	account
+includeSearch	includeString	condition	"hello" "x"
+blist	blistMulti	condition	"x" , "a"
+blist	blistOr	condition	or "x"
+blistIc	blistIcMulti	condition	"x" , "a"
+blistIc	blistIcOr	condition	or "x"
+bexpr	boolArrayNotInclude	condition	accounts does not include 5
+bexpr	boolArrayDoesInclude	condition	accounts does include 5
+bexpr	boolArrayIncludes	condition	accounts includes 5
+bexpr	boolMatchForall	condition	there is match for all accounts to /tbl in accounts
+bexpr	boolThereIsWhere	condition	there is account where true
+bexpr	boolThereIsInEntityWhere	condition	there is account in account where true
+bexpr	boolThereIsInArrayWhere	condition	there is account in accounts where true
+bexpr	boolThereIsNoWhere	condition	there is no account where true
+bexpr	boolThereIsNoInEntityWhere	condition	there is no account in account where true
+bexpr	boolThereIsNoInArrayWhere	condition	there is no account in accounts where true
+bexpr	boolAllHave	condition	all accounts have true
+bexpr	boolOneOfHasa	condition	one of accounts has a true
+bexpr	boolEntityNotHas	condition	account does not have "x"
+bexpr	boolEntityHasa	condition	account has a "x"
+bexpr	boolEntityHasaWhere	condition	account has a "x" where true
+bexpr	boolEntityIsOf	condition	account is "x" of account
+bexpr	boolWithinPercent	condition	1.0 is with in 5 percent of 1.0
+bexpr	boolPlusOrMinus	condition	1.0 is plus or minus 5 of 1.0
+bexpr	boolNameEq	condition	/tbl == /tbl
+bexpr	boolNameEqStr	condition	/tbl == "x"
+bexpr	boolNameNeq	condition	/tbl != /tbl
+bexpr	boolNameNeqStr	condition	/tbl != "x"
+bexpr	boolIntEq	condition	1 == 1
+bexpr	boolFloatEqInt	condition	1.0 == 1
+bexpr	boolIntEqFloat	condition	1 == 1.0
+bexpr	boolFloatEq	condition	1.0 == 1.0
+bexpr	boolIntNeq	condition	1 != 1
+bexpr	boolFloatNeqInt	condition	1.0 != 1
+bexpr	boolIntNeqFloat	condition	1 != 1.0
+bexpr	boolFloatNeq	condition	1.0 != 1.0
+bexpr	boolIntGt	condition	1 > 1
+bexpr	boolFloatGtInt	condition	1.0 > 1
+bexpr	boolIntGtFloat	condition	1 > 1.0
+bexpr	boolFloatGt	condition	1.0 > 1.0
+bexpr	boolIntGte	condition	1 >= 1
+bexpr	boolFloatGteInt	condition	1.0 >= 1
+bexpr	boolIntGteFloat	condition	1 >= 1.0
+bexpr	boolFloatGte	condition	1.0 >= 1.0
+bexpr	boolIntLt	condition	1 < 1
+bexpr	boolFloatLtInt	condition	1.0 < 1
+bexpr	boolIntLtFloat	condition	1 < 1.0
+bexpr	boolFloatLt	condition	1.0 < 1.0
+bexpr	boolIntLte	condition	1 <= 1
+bexpr	boolFloatLteInt	condition	1.0 <= 1
+bexpr	boolIntLteFloat	condition	1 <= 1.0
+bexpr	boolFloatLte	condition	1.0 <= 1.0
+bexpr	boolBigEq	condition	1 == 1
+bexpr	boolBigNeq	condition	1 != 1
+bexpr	boolBigGt	condition	1 > 1
+bexpr	boolBigGte	condition	1 >= 1
+bexpr	boolBigLt	condition	1 < 1
+bexpr	boolBigLte	condition	1 <= 1
+bexpr	boolBytesEq	condition	0xab == 0xab
+bexpr	boolBytesNeq	condition	0xab != 0xab
+bexpr	boolTyped	condition	b
+bexpr	boolColonRef	condition	colonRef b
+bexpr	boolLiteral	condition	true
+bexpr	boolStrEqIcList	condition	"x" is equal to ignore case "a"
+bexpr	boolStrEqList	condition	"x" == "a"
+bexpr	boolStrEq	condition	"x" == "x"
+bexpr	boolStrNeq	condition	"x" != "x"
+bexpr	boolStrIs	condition	"x" is "x"
+bexpr	boolStrIsNot	condition	"x" is not "x"
+bexpr	boolStrEqIc	condition	"x" is equal to ignore case "x"
+bexpr	boolStrNeqIc	condition	"x" is not equal to ignore case "x"
+bexpr	boolStartsWithAt	condition	"x" at 1 starts with "x"
+bexpr	boolStartsWith	condition	"x" starts with "x"
+bexpr	boolStrIsOneOf	condition	"x" is one of accounts
+bexpr	boolStrIsNotOneOf	condition	"x" is not one of accounts
+bexpr	boolDoesQuestion	condition	does true ?
+bexpr	boolIsQuestion	condition	is true ?
+bexpr	boolWasQuestion	condition	was true ?
+bexpr	boolStrGt	condition	"x" > "x"
+bexpr	boolStrLt	condition	"x" < "x"
+bexpr	boolStrGte	condition	"x" >= "x"
+bexpr	boolStrLte	condition	"x" <= "x"
+bexpr	boolMatches	condition	"x" matches "x"
+bexpr	boolTypedIsLiteral	condition	b is true
+bexpr	boolTypedIsNotLiteral	condition	b is not true
+bexpr	boolColonIsLiteral	condition	colonRef b is true
+bexpr	boolColonIsNotLiteral	condition	colonRef b is not true
+bexpr	boolBoolEq	condition	true == true
+bexpr	boolBoolNeq	condition	true != true
+bexpr	boolAnd	condition	true and true
+bexpr	boolOr	condition	true or true
+bexpr	boolNot	condition	not true
+bexpr	boolBexprIsNull	condition	true is null
+bexpr	boolBexprIsNotNull	condition	true is not null
+bexpr	boolNumIsNull	condition	5 is null
+bexpr	boolNumIsNotNull	condition	5 is not null
+bexpr	boolDateIsNull	condition	2020-01-01 is null
+bexpr	boolArrayIsNull	condition	accounts is null
+bexpr	boolStrIsNull	condition	"x" is null
+bexpr	boolEntityIsNull	condition	account is null
+bexpr	boolDateIsNotNull	condition	2020-01-01 is not null
+bexpr	boolArrayIsNotNull	condition	accounts is not null
+bexpr	boolStrIsNotNull	condition	"x" is not null
+bexpr	boolEntityIsNotNull	condition	account is not null
+bexpr	boolUsing	condition	using account ( true )
+bexpr	boolParen	condition	( true )
+bexpr	boolFromIndex	condition	( boolean ) indxExpr
+bexpr	boolFromStr	condition	( boolean ) "x"
+bexpr	boolArrayAt	condition	boolean arr [ 1 ]
+bexpr	boolDateEq	condition	2020-01-01 == 2020-01-01
+bexpr	boolDateLt	condition	2020-01-01 < 2020-01-01
+bexpr	boolDateBefore	condition	2020-01-01 is before 2020-01-01
+bexpr	boolDateGt	condition	2020-01-01 > 2020-01-01
+bexpr	boolDateAfter	condition	2020-01-01 is after 2020-01-01
+bexpr	boolDateGte	condition	2020-01-01 >= 2020-01-01
+bexpr	boolDateLte	condition	2020-01-01 <= 2020-01-01
+bexpr	boolDateBetween	condition	2020-01-01 is between 2020-01-01 and 2020-01-01
+bexpr	boolEntityEq	condition	account == account
+bexpr	boolEntityNeq	condition	account != account
+bexpr	boolEntityNotInContext	condition	account entity is not in context
+bexpr	boolEntityInContext	condition	account entity is in context
+bexpr	boolStrEntityInContext	condition	"x" entity is in context
+bexpr	boolStrEntityNotInContext	condition	"x" entity is not in context
+bexpr	boolValueOfOp	condition	boolean value of operatorstatements
+bexpr	boolFunction	condition	typedBoolFunction
