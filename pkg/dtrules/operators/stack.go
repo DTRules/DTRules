@@ -17,6 +17,7 @@ package operators
 
 import (
 	"log"
+	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
 )
@@ -658,16 +659,53 @@ func opCvr(state dtrules.State) error {
 }
 
 // opCvb: ( obj -- boolean ) converts to boolean
+// opCvb: ( obj -- boolean ) coerces to boolean with strict rules:
+//   - RBoolean: passthrough
+//   - string: case-insensitive "true"/"false"/"yes"/"no"/"y"/"n"/"t"/"f"/"0"/"1" → bool; else error
+//   - numeric (int / bigint / double): 0 → false, non-zero → true
+//   - any other type: error
+//
+// Replaces the older behavior that silently returned null on any coercion
+// failure. `(boolean) <expr>` now fails loudly on a value it can't interpret
+// rather than producing a mystery null downstream.
 func opCvb(state dtrules.State) error {
 	obj, err := state.DataPop()
 	if err != nil {
 		return err
 	}
-	v, err := obj.RBooleanValue()
-	if err != nil {
-		return state.DataPush(dtrules.GetRNull())
+	t := obj.Type()
+	switch t {
+	case dtrules.TypeBoolean:
+		return state.DataPush(obj)
+	case dtrules.TypeString:
+		s := strings.ToLower(strings.TrimSpace(obj.StringValue()))
+		switch s {
+		case "true", "yes", "y", "t", "1":
+			return state.DataPush(dtrules.True)
+		case "false", "no", "n", "f", "0":
+			return state.DataPush(dtrules.False)
+		}
+		return dtrules.TypeCheckError("cvb", "cannot coerce string "+obj.StringValue()+" to boolean")
+	case dtrules.TypeInteger:
+		i, err := obj.LongValue()
+		if err != nil {
+			return err
+		}
+		return state.DataPush(dtrules.GetRBoolean(i != 0))
+	case dtrules.TypeDouble:
+		d, err := obj.DoubleValue()
+		if err != nil {
+			return err
+		}
+		return state.DataPush(dtrules.GetRBoolean(d != 0))
+	case dtrules.TypeBigInt:
+		b, err := obj.RBigIntValue()
+		if err != nil {
+			return err
+		}
+		return state.DataPush(dtrules.GetRBoolean(b.BigIntValue().Sign() != 0))
 	}
-	return state.DataPush(v)
+	return dtrules.TypeCheckError("cvb", "cannot coerce "+t.GetName().StringValue()+" to boolean")
 }
 
 // opCve: ( obj -- entity ) converts to entity
