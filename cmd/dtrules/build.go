@@ -21,7 +21,7 @@ import (
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
-	"github.com/DTRules/DTRules/pkg/dtrules/sync"
+	dtrsync "github.com/DTRules/DTRules/pkg/dtrules/sync"
 )
 
 // buildOptions holds parsed options for the build command.
@@ -31,6 +31,7 @@ type buildOptions struct {
 	fromExcel bool
 	dryRun    bool
 	verbose   bool
+	quiet     bool
 	xmlDir    string
 	excelDir  string
 }
@@ -51,6 +52,8 @@ func (c *CLI) runBuild(args []string) int {
 			opts.dryRun = true
 		case "-v", "--verbose":
 			opts.verbose = true
+		case "-q", "--quiet":
+			opts.quiet = true
 		case "--xml-dir":
 			if i+1 < len(args) {
 				opts.xmlDir = args[i+1]
@@ -146,7 +149,7 @@ func detectAuthoringPath(xmlDir, excelDir string, opts *buildOptions) (string, e
 		return "xml", nil
 	}
 
-	syncer := sync.NewSyncerWithOptions(xmlDir, excelDir, sync.DefaultOptions())
+	syncer := dtrsync.NewSyncerWithOptions(xmlDir, excelDir, dtrsync.DefaultOptions())
 	syncer.SetUseCombinedWorkbooks(true)
 	importer := excel.NewWorkbookImporter()
 	syncer.SetWorkbookImporter(&workbookImporterAdapter{impl: importer})
@@ -159,14 +162,72 @@ func detectAuthoringPath(xmlDir, excelDir string, opts *buildOptions) (string, e
 	}
 
 	switch direction {
-	case sync.ExcelToXML:
+	case dtrsync.ExcelToXML:
 		return "excel", nil
-	case sync.XMLToExcel:
+	case dtrsync.XMLToExcel:
 		return "xml", nil
 	default:
 		// No sync needed — re-compile from existing Excel to produce execution XML
 		return "none", nil
 	}
+}
+
+// importStatsToStep converts an excel.ImportStats to a dtrsync.StepSummary.
+func importStatsToStep(s *excel.ImportStats) *dtrsync.StepSummary {
+	if s == nil {
+		return &dtrsync.StepSummary{}
+	}
+	step := &dtrsync.StepSummary{
+		Tables:       s.Tables,
+		Actions:      s.Actions,
+		Conditions:   s.Conditions,
+		Entities:     s.Entities,
+		Mappings:     s.Mappings,
+		Compiled:     s.Compiled,
+		FilesWritten: s.Files,
+	}
+	for _, d := range s.Drops {
+		step.Drops = append(step.Drops, dtrsync.Drop{
+			Table:  d.Table,
+			Column: d.Column,
+			Item:   d.Item,
+			Reason: d.Reason,
+		})
+	}
+	return step
+}
+
+// exportStatsToStep converts an excel.ExportStats to a dtrsync.StepSummary.
+func exportStatsToStep(s *excel.ExportStats) *dtrsync.StepSummary {
+	if s == nil {
+		return &dtrsync.StepSummary{}
+	}
+	step := &dtrsync.StepSummary{
+		Tables:          s.Tables,
+		Actions:         s.Actions,
+		Conditions:      s.Conditions,
+		Entities:        s.Entities,
+		Mappings:        s.Mappings,
+		PostfixStripped: s.PostfixStripped,
+		FilesWritten:    s.Files,
+	}
+	for _, d := range s.Drops {
+		step.Drops = append(step.Drops, dtrsync.Drop{
+			Table:  d.Table,
+			Column: d.Column,
+			Item:   d.Item,
+			Reason: d.Reason,
+		})
+	}
+	return step
+}
+
+// printBuildSummary prints the build summary unless quiet mode suppresses it.
+func printBuildSummary(summary *dtrsync.BuildSummary, quiet bool) {
+	if quiet && !summary.HasErrors() {
+		return
+	}
+	fmt.Print(summary.Format())
 }
 
 // runExcelAuthoredBuild: Excel → XML (import + EL compile).
@@ -175,14 +236,15 @@ func (c *CLI) runExcelAuthoredBuild(xmlDir, excelDir string, opts *buildOptions)
 	fmt.Println("Build: Excel-authored path")
 	fmt.Println("  Importing Excel → XML (compiling EL expressions)...")
 
-	syncOpts := sync.DefaultOptions()
+	syncOpts := dtrsync.DefaultOptions()
 	syncOpts.Verbose = opts.verbose
 
-	syncer := sync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
+	syncer := dtrsync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
 	syncer.SetUseCombinedWorkbooks(true)
 
 	importer := excel.NewWorkbookImporter()
 	importer.SetVerbose(opts.verbose)
+	importer.ResetStats()
 	syncer.SetWorkbookImporter(&workbookImporterAdapter{impl: importer})
 
 	wbExporter := excel.NewWorkbookExporter()
@@ -219,7 +281,15 @@ func (c *CLI) runExcelAuthoredBuild(xmlDir, excelDir string, opts *buildOptions)
 		fmt.Fprintf(os.Stderr, "Warning: MAP sync error: %v\n", err)
 	}
 
+	summary := &dtrsync.BuildSummary{
+		ImportStep: importStatsToStep(importer.TakeStats()),
+	}
+	printBuildSummary(summary, opts.quiet)
+
 	fmt.Println("Build complete.")
+	if summary.HasErrors() {
+		return 1
+	}
 	return 0
 }
 
@@ -230,11 +300,11 @@ func (c *CLI) runXMLAuthoredBuild(xmlDir, excelDir string, opts *buildOptions) i
 	// Step 1: Export XML → Excel
 	fmt.Println("  Step 1/2: Exporting XML → Excel...")
 
-	syncOpts := sync.DefaultOptions()
+	syncOpts := dtrsync.DefaultOptions()
 	syncOpts.Verbose = opts.verbose
 	syncOpts.ConflictResolution = "prefer-xml"
 
-	syncer := sync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
+	syncer := dtrsync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
 	syncer.SetUseCombinedWorkbooks(true)
 
 	importer := excel.NewWorkbookImporter()
@@ -243,6 +313,7 @@ func (c *CLI) runXMLAuthoredBuild(xmlDir, excelDir string, opts *buildOptions) i
 
 	wbExporter := excel.NewWorkbookExporter()
 	wbExporter.SetVerbose(opts.verbose)
+	wbExporter.ResetStats()
 	syncer.SetExporter(&workbookExporterAdapter{impl: wbExporter})
 
 	if err := os.MkdirAll(excelDir, 0755); err != nil {
@@ -267,14 +338,17 @@ func (c *CLI) runXMLAuthoredBuild(xmlDir, excelDir string, opts *buildOptions) i
 		fmt.Printf("  Exported %d workbook(s) to Excel.\n", result.XMLToExcelCount)
 	}
 
+	exportStats := wbExporter.TakeStats()
+
 	// Step 2: Re-import Excel → XML to normalize formatting and compile EL
 	fmt.Println("  Step 2/2: Re-importing Excel → XML (normalizing + compiling EL)...")
 
-	syncer2 := sync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
+	syncer2 := dtrsync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
 	syncer2.SetUseCombinedWorkbooks(true)
 
 	importer2 := excel.NewWorkbookImporter()
 	importer2.SetVerbose(opts.verbose)
+	importer2.ResetStats()
 	syncer2.SetWorkbookImporter(&workbookImporterAdapter{impl: importer2})
 
 	wbExporter2 := excel.NewWorkbookExporter()
@@ -303,7 +377,16 @@ func (c *CLI) runXMLAuthoredBuild(xmlDir, excelDir string, opts *buildOptions) i
 		fmt.Fprintf(os.Stderr, "Warning: MAP sync error: %v\n", err)
 	}
 
+	summary := &dtrsync.BuildSummary{
+		ExportStep: exportStatsToStep(exportStats),
+		ImportStep: importStatsToStep(importer2.TakeStats()),
+	}
+	printBuildSummary(summary, opts.quiet)
+
 	fmt.Println("Build complete.")
+	if summary.HasErrors() {
+		return 1
+	}
 	return 0
 }
 
@@ -314,11 +397,11 @@ func (c *CLI) runBuildDryRun(xmlDir, excelDir, authoringPath string, opts *build
 		return 0
 	}
 
-	syncOpts := sync.DefaultOptions()
+	syncOpts := dtrsync.DefaultOptions()
 	syncOpts.Verbose = opts.verbose
 	syncOpts.DryRun = true
 
-	syncer := sync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
+	syncer := dtrsync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
 	syncer.SetUseCombinedWorkbooks(true)
 
 	importer := excel.NewWorkbookImporter()
@@ -335,7 +418,7 @@ func (c *CLI) runBuildDryRun(xmlDir, excelDir, authoringPath string, opts *build
 
 	fmt.Printf("[dry-run] Detected direction: %s\n", direction)
 	for _, wb := range workbooks {
-		if wb.Direction != sync.NoSync {
+		if wb.Direction != dtrsync.NoSync {
 			fmt.Printf("[dry-run]   %s → %s\n", filepath.Base(wb.ExcelPath), wb.Direction)
 		}
 	}
@@ -427,6 +510,10 @@ Runs the full normalize-and-compile pipeline. Detects whether Excel or XML
 files are newer and runs the appropriate path. Both paths end with canonical
 Excel files and compiled execution XML on disk.
 
+After every build a structured summary is printed showing table/action/condition
+counts and any drops (EL compile errors, structural problems). The build exits
+non-zero if any drops are detected.
+
 Arguments:
   path                Project directory to build (default: .)
 
@@ -437,6 +524,7 @@ Options:
   --from-xml          Force XML-authored path (XML → Excel → XML)
   --dry-run           Report what would change without writing files
   -v, --verbose       Verbose output
+  -q, --quiet         Suppress summary unless there are drops
 
 Directory resolution (highest to lowest priority):
   1. --xml-dir / --excel-dir flags

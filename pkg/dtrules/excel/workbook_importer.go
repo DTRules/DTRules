@@ -36,6 +36,7 @@ type WorkbookImporter struct {
 	dtImporter  *DTImporter
 	eddImporter *EDDImporter
 	verbose     bool
+	stats       *ImportStats // accumulated stats across all ImportWorkbookToDir calls
 }
 
 // NewWorkbookImporter creates a new workbook importer.
@@ -44,6 +45,20 @@ func NewWorkbookImporter() *WorkbookImporter {
 		dtImporter:  NewDTImporter(),
 		eddImporter: NewEDDImporter(),
 	}
+}
+
+// ResetStats resets the accumulated import statistics.
+func (w *WorkbookImporter) ResetStats() {
+	w.stats = &ImportStats{}
+	w.dtImporter.SetStats(w.stats)
+}
+
+// TakeStats returns the accumulated import statistics and resets the collector.
+func (w *WorkbookImporter) TakeStats() *ImportStats {
+	s := w.stats
+	w.stats = nil
+	w.dtImporter.SetStats(nil)
+	return s
 }
 
 // SetVerbose enables verbose output during import.
@@ -761,6 +776,9 @@ func (w *WorkbookImporter) ImportWorkbookToDir(excelPath, xmlDir string) (dtPath
 		if err := w.dtImporter.WriteXML(result.DTables, dtPath); err != nil {
 			return "", "", fmt.Errorf("failed to write DT XML: %w", err)
 		}
+		if w.stats != nil {
+			w.stats.Files++
+		}
 	}
 
 	// Write EDD XML if it has entities
@@ -768,6 +786,10 @@ func (w *WorkbookImporter) ImportWorkbookToDir(excelPath, xmlDir string) (dtPath
 		eddPath = filepath.Join(xmlDir, baseName+"_edd.xml")
 		if err := w.eddImporter.WriteXML(result.EDD, eddPath); err != nil {
 			return "", "", fmt.Errorf("failed to write EDD XML: %w", err)
+		}
+		if w.stats != nil {
+			w.stats.Entities += len(result.EDD.Entities)
+			w.stats.Files++
 		}
 	}
 

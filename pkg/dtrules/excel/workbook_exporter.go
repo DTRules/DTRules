@@ -15,6 +15,7 @@
 package excel
 
 import (
+	"encoding/xml"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -28,6 +29,7 @@ import (
 // and using the Exporter to generate Excel files.
 type WorkbookExporter struct {
 	verbose bool
+	stats   *ExportStats // accumulated stats across all export calls
 }
 
 // NewWorkbookExporter creates a new workbook exporter.
@@ -38,6 +40,18 @@ func NewWorkbookExporter() *WorkbookExporter {
 // SetVerbose enables verbose output during export.
 func (w *WorkbookExporter) SetVerbose(v bool) {
 	w.verbose = v
+}
+
+// ResetStats resets the accumulated export statistics.
+func (w *WorkbookExporter) ResetStats() {
+	w.stats = &ExportStats{}
+}
+
+// TakeStats returns the accumulated export statistics and resets the collector.
+func (w *WorkbookExporter) TakeStats() *ExportStats {
+	s := w.stats
+	w.stats = nil
+	return s
 }
 
 // ExportDecisionTable exports a decision table XML file to Excel.
@@ -187,6 +201,21 @@ func (w *WorkbookExporter) ExportCombined(dtPath, eddPath, excelPath string) err
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
+	// Count postfix blocks that will be stripped (exist in XML, not in Excel).
+	if dtPath != "" {
+		if stripped, tables, actions, conditions := countPostfixInDTXML(dtPath); w.stats != nil {
+			w.stats.PostfixStripped += stripped
+			w.stats.Tables += tables
+			w.stats.Actions += actions
+			w.stats.Conditions += conditions
+		}
+	}
+	if eddPath != "" {
+		if entities := countEntitiesInEDDXML(eddPath); w.stats != nil {
+			w.stats.Entities += entities
+		}
+	}
+
 	// Create exporter
 	exporter := NewExporter(rs)
 
@@ -195,12 +224,73 @@ func (w *WorkbookExporter) ExportCombined(dtPath, eddPath, excelPath string) err
 		return fmt.Errorf("failed to export combined workbook: %w", err)
 	}
 
+	if w.stats != nil {
+		w.stats.Files++
+	}
+
 	if w.verbose {
 		fmt.Printf("  Exported %d decision tables, %d entities\n",
 			len(rs.GetDecisionTableNames()), len(rs.GetEntityNames()))
 	}
 
 	return nil
+}
+
+// countPostfixInDTXML parses a DT XML file and returns the count of non-empty postfix
+// blocks (which will be stripped when exported to Excel), plus table/action/condition counts.
+func countPostfixInDTXML(dtPath string) (stripped, tables, actions, conditions int) {
+	data, err := os.ReadFile(dtPath)
+	if err != nil {
+		return
+	}
+	var dt DecisionTablesXML
+	if err := unmarshalDTXML(data, &dt); err != nil {
+		return
+	}
+	tables = len(dt.Tables)
+	for _, t := range dt.Tables {
+		actions += len(t.Actions)
+		conditions += len(t.Conditions)
+		for _, a := range t.Actions {
+			if a.Postfix != "" {
+				stripped++
+			}
+		}
+		for _, c := range t.Conditions {
+			if c.Postfix != "" {
+				stripped++
+			}
+		}
+		for _, ia := range t.InitialActions {
+			if ia.Postfix != "" {
+				stripped++
+			}
+		}
+	}
+	return
+}
+
+// countEntitiesInEDDXML parses an EDD XML file and returns the entity count.
+func countEntitiesInEDDXML(eddPath string) int {
+	data, err := os.ReadFile(eddPath)
+	if err != nil {
+		return 0
+	}
+	var edd EDDXML
+	if err := unmarshalEDDXML(data, &edd); err != nil {
+		return 0
+	}
+	return len(edd.Entities)
+}
+
+// unmarshalDTXML parses a DT XML byte slice into a DecisionTablesXML struct.
+func unmarshalDTXML(data []byte, out *DecisionTablesXML) error {
+	return xml.Unmarshal(data, out)
+}
+
+// unmarshalEDDXML parses an EDD XML byte slice into an EDDXML struct.
+func unmarshalEDDXML(data []byte, out *EDDXML) error {
+	return xml.Unmarshal(data, out)
 }
 
 // findCorrespondingEDD attempts to find an EDD file that corresponds to a DT file.

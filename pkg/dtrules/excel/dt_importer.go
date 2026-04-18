@@ -30,10 +30,11 @@ import (
 
 // DTImporter imports decision tables from Excel files.
 type DTImporter struct {
-	verbose     bool
-	compileEL   bool                         // If true, compile EL expressions to postfix
-	elCompiler  ELCompiler                   // Optional EL compiler
-	symbols     map[string]string            // Symbol table for EL compilation
+	verbose    bool
+	compileEL  bool              // If true, compile EL expressions to postfix
+	elCompiler ELCompiler        // Optional EL compiler
+	symbols    map[string]string // Symbol table for EL compilation
+	stats      *ImportStats      // Accumulated import statistics (nil = not collecting)
 }
 
 // ELCompiler defines the interface for compiling EL expressions to postfix.
@@ -73,6 +74,11 @@ func (i *DTImporter) SetSymbols(symbols map[string]string) {
 	if i.elCompiler != nil {
 		i.elCompiler.SetSymbols(symbols)
 	}
+}
+
+// SetStats attaches an ImportStats collector. Pass nil to disable collection.
+func (i *DTImporter) SetStats(s *ImportStats) {
+	i.stats = s
 }
 
 // SourceXML records the Excel workbook and sheet from which an artifact was imported.
@@ -191,6 +197,11 @@ func (i *DTImporter) importDecisionTablesWithSource(filename, xlsFile, relPath s
 				SheetNumber:  sheetIdx + 1, // 1-based
 			}
 			tables.Tables = append(tables.Tables, *table)
+			if i.stats != nil {
+				i.stats.Tables++
+				i.stats.Actions += len(table.Actions)
+				i.stats.Conditions += len(table.Conditions)
+			}
 		}
 	}
 
@@ -890,9 +901,16 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 			postfix, err := i.elCompiler.CompileAction(action.DSL)
 			if err != nil {
 				errors = append(errors, fmt.Sprintf("initial action %d: %v", idx+1, err))
+				if i.stats != nil {
+					i.stats.AddDrop(table.TableName, 0,
+						fmt.Sprintf("initial action %d", idx+1), err.Error())
+				}
 				continue
 			}
 			action.Postfix = postfix
+			if i.stats != nil {
+				i.stats.Compiled++
+			}
 		}
 	}
 
@@ -903,9 +921,16 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 			postfix, err := i.elCompiler.CompileCondition(cond.DSL)
 			if err != nil {
 				errors = append(errors, fmt.Sprintf("condition %s: %v", cond.Number, err))
+				if i.stats != nil {
+					i.stats.AddDrop(table.TableName, 0,
+						fmt.Sprintf("condition %s", cond.Number), err.Error())
+				}
 				continue
 			}
 			cond.Postfix = postfix
+			if i.stats != nil {
+				i.stats.Compiled++
+			}
 		}
 	}
 
@@ -916,9 +941,16 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 			postfix, err := i.elCompiler.CompileAction(action.DSL)
 			if err != nil {
 				errors = append(errors, fmt.Sprintf("action %s: %v", action.Number, err))
+				if i.stats != nil {
+					i.stats.AddDrop(table.TableName, 0,
+						fmt.Sprintf("action %s", action.Number), err.Error())
+				}
 				continue
 			}
 			action.Postfix = postfix
+			if i.stats != nil {
+				i.stats.Compiled++
+			}
 		}
 	}
 
