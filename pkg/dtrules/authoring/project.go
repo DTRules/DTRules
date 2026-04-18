@@ -30,6 +30,7 @@ type Project struct {
 	xmlDir    string
 	dtFiles   []dtFileEntry // one entry per loaded _dt.xml file
 	symbols   map[string]string
+	edd       *EDD // lazily loaded
 }
 
 // dtFileEntry tracks a single decision-table XML file and its in-memory model.
@@ -154,7 +155,7 @@ func (p *Project) Save() error {
 			return fmt.Errorf("failed to write %s: %w", entry.path, err)
 		}
 	}
-	return nil
+	return p.SaveEDD()
 }
 
 // Tables lists the names of every decision table in the project.
@@ -207,6 +208,12 @@ func (p *Project) AddTable(name string) (*Table, error) {
 	p.dtFiles[0].tables.Tables = append(p.dtFiles[0].tables.Tables, xmlTable)
 	last := &p.dtFiles[0].tables.Tables[len(p.dtFiles[0].tables.Tables)-1]
 	return newTable(last, p.symbols), nil
+}
+
+// DeleteEntity removes the named entity from the EDD, checking that no loaded
+// decision table references it as a context first.
+func (p *Project) DeleteEntity(name string) error {
+	return p.EDD().deleteEntityChecked(name, p.dtFiles)
 }
 
 // DeleteTable removes the named table.
