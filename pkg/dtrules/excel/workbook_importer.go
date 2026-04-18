@@ -67,6 +67,13 @@ func (w *WorkbookImporter) SetVerbose(v bool) {
 	w.dtImporter.SetVerbose(v)
 }
 
+// SetELCompiler wires an EL compiler into the inner DT importer so the
+// build summary can report compile failures as named drops instead of
+// silently passing uncompilable DSL through.
+func (w *WorkbookImporter) SetELCompiler(c ELCompiler) {
+	w.dtImporter.SetELCompiler(c)
+}
+
 // ImportWorkbook reads a single Excel file and extracts both DT and EDD sheets.
 // It detects sheet types automatically:
 // - EDD sheet: Sheet named "EDD" OR first row has headers "Entity, Attribute, Type, SubType..."

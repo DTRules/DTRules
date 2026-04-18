@@ -20,9 +20,19 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/DTRules/DTRules/pkg/dtrules/compiler/el"
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
 	dtrsync "github.com/DTRules/DTRules/pkg/dtrules/sync"
 )
+
+// newWorkbookImporter builds a WorkbookImporter with a live EL compiler
+// wired in. Any action_dsl / condition_dsl that fails to compile is recorded
+// as a named drop in the build summary instead of silently passing through.
+func newWorkbookImporter() *excel.WorkbookImporter {
+	imp := excel.NewWorkbookImporter()
+	imp.SetELCompiler(el.NewCompiler())
+	return imp
+}
 
 // buildOptions holds parsed options for the build command.
 type buildOptions struct {
@@ -151,7 +161,7 @@ func detectAuthoringPath(xmlDir, excelDir string, opts *buildOptions) (string, e
 
 	syncer := dtrsync.NewSyncerWithOptions(xmlDir, excelDir, dtrsync.DefaultOptions())
 	syncer.SetUseCombinedWorkbooks(true)
-	importer := excel.NewWorkbookImporter()
+	importer := newWorkbookImporter()
 	syncer.SetWorkbookImporter(&workbookImporterAdapter{impl: importer})
 	exporter := excel.NewWorkbookExporter()
 	syncer.SetExporter(&workbookExporterAdapter{impl: exporter})
@@ -242,7 +252,7 @@ func (c *CLI) runExcelAuthoredBuild(xmlDir, excelDir string, opts *buildOptions)
 	syncer := dtrsync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
 	syncer.SetUseCombinedWorkbooks(true)
 
-	importer := excel.NewWorkbookImporter()
+	importer := newWorkbookImporter()
 	importer.SetVerbose(opts.verbose)
 	importer.ResetStats()
 	syncer.SetWorkbookImporter(&workbookImporterAdapter{impl: importer})
@@ -307,7 +317,7 @@ func (c *CLI) runXMLAuthoredBuild(xmlDir, excelDir string, opts *buildOptions) i
 	syncer := dtrsync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
 	syncer.SetUseCombinedWorkbooks(true)
 
-	importer := excel.NewWorkbookImporter()
+	importer := newWorkbookImporter()
 	importer.SetVerbose(opts.verbose)
 	syncer.SetWorkbookImporter(&workbookImporterAdapter{impl: importer})
 
@@ -346,7 +356,7 @@ func (c *CLI) runXMLAuthoredBuild(xmlDir, excelDir string, opts *buildOptions) i
 	syncer2 := dtrsync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
 	syncer2.SetUseCombinedWorkbooks(true)
 
-	importer2 := excel.NewWorkbookImporter()
+	importer2 := newWorkbookImporter()
 	importer2.SetVerbose(opts.verbose)
 	importer2.ResetStats()
 	syncer2.SetWorkbookImporter(&workbookImporterAdapter{impl: importer2})
@@ -404,7 +414,7 @@ func (c *CLI) runBuildDryRun(xmlDir, excelDir, authoringPath string, opts *build
 	syncer := dtrsync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
 	syncer.SetUseCombinedWorkbooks(true)
 
-	importer := excel.NewWorkbookImporter()
+	importer := newWorkbookImporter()
 	syncer.SetWorkbookImporter(&workbookImporterAdapter{impl: importer})
 
 	wbExporter := excel.NewWorkbookExporter()
