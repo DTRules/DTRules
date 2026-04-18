@@ -263,16 +263,43 @@ func (m *Mapping) SingletonEntityNames() []string {
 	return names
 }
 
-// LoadDataAndPushSingletons loads XML data and pushes all cardinality-1 entities
-// onto the entity stack so they are available for rule evaluation.
+// LoadDataAndPushSingletons loads XML data and pushes entities onto the entity
+// stack. Two push mechanisms are applied:
+//  1. Each entity named in <initialentity epush='true'> (entitystack) is pushed
+//     in order; if the entity exists in the loaded data that instance is used,
+//     otherwise a fresh entity is created. This handles singleton params that may
+//     not appear in the data XML.
+//  2. Remaining cardinality-1 entities found in the data that were not already
+//     pushed via entitystack are also pushed.
 func (m *Mapping) LoadDataAndPushSingletons(r io.Reader) error {
 	loader := newDataLoader(m)
 	if err := loader.Load(r); err != nil {
 		return err
 	}
-	// Push singleton entities in deterministic order
+
+	pushed := make(map[string]bool)
+
+	// Push entities from the initialization stack in declared order.
+	for _, name := range m.entitystack {
+		if entity, ok := loader.entities[name]; ok {
+			m.state.EntityPush(entity)
+		} else {
+			rname := dtrules.GetRName(name)
+			if rname == nil {
+				return fmt.Errorf("invalid entity name in initialization: %s", name)
+			}
+			entity, err := m.session.CreateEntity(rname)
+			if err != nil {
+				return fmt.Errorf("create initialization entity %s: %w", name, err)
+			}
+			m.state.EntityPush(entity)
+		}
+		pushed[name] = true
+	}
+
+	// Push remaining cardinality-1 entities found in the loaded data.
 	for name, card := range m.entities {
-		if card != "1" {
+		if card != "1" || pushed[name] {
 			continue
 		}
 		entity, ok := loader.entities[name]

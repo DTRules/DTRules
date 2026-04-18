@@ -582,3 +582,22 @@ func goValueToDTRules(v any) (dtrules.Object, error) {
 		return nil, fmt.Errorf("unsupported value type %T", v)
 	}
 }
+
+// EntityStackNames returns the entity names currently on the entity stack,
+// ordered from top (index 0) to bottom.
+func (p *Project) EntityStackNames() []string {
+	if p.execSt == nil {
+		return nil
+	}
+	state := p.execSt.state
+	depth := state.EntityDepth()
+	names := make([]string, 0, depth)
+	for i := 0; i < depth; i++ {
+		ent, err := state.EntityFetch(i)
+		if err != nil {
+			continue
+		}
+		names = append(names, ent.GetName().StringValue())
+	}
+	return names
+}

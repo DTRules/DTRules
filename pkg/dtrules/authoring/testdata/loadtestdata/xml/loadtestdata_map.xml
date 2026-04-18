@@ -1,0 +1,14 @@
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<setattribute tag='age' RAttribute='age' enclosure='job' type='integer'></setattribute>
+			<createentity entity='job' tag='job' id='id'></createentity>
+		</map>
+		<entities>
+			<entity name='job' number='1'></entity>
+		</entities>
+		<initialization>
+			<initialentity entity='job' epush='true'></initialentity>
+		</initialization>
+	</XMLtoEDD>
+</mapping>
