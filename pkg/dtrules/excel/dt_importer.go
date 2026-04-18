@@ -346,7 +346,7 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 	for _, action := range table.InitialActions {
 		f.WriteString("<initial_action>\n")
 		f.WriteString(fmt.Sprintf("<initial_action_dsl>%s</initial_action_dsl>\n", xmlEscape(action.DSL)))
-		f.WriteString(fmt.Sprintf("<action_postfix>\n%s\n</action_postfix>\n", xmlEscape(action.Postfix)))
+		f.WriteString(fmt.Sprintf("<action_postfix>\n%s\n</action_postfix>\n", xmlEscape(strings.TrimSpace(action.Postfix))))
 		f.WriteString("</initial_action>\n")
 	}
 	f.WriteString("</initial_actions>\n")
@@ -358,7 +358,7 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 		f.WriteString(fmt.Sprintf("<condition_number>%s</condition_number>\n", xmlEscape(cond.Number)))
 		f.WriteString(fmt.Sprintf("<condition_comment>%s</condition_comment>\n", xmlEscape(cond.Comment)))
 		f.WriteString(fmt.Sprintf("<condition_dsl>%s</condition_dsl>\n", xmlEscape(cond.DSL)))
-		f.WriteString(fmt.Sprintf("<condition_postfix>\n%s\n</condition_postfix>\n", xmlEscape(cond.Postfix)))
+		f.WriteString(fmt.Sprintf("<condition_postfix>\n%s\n</condition_postfix>\n", xmlEscape(strings.TrimSpace(cond.Postfix))))
 		for _, col := range cond.Columns {
 			f.WriteString(fmt.Sprintf("<condition_column column_number=\"%d\" column_value=\"%s\"></condition_column>\n",
 				col.Number, xmlEscape(col.Value)))
@@ -374,7 +374,7 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 		f.WriteString(fmt.Sprintf("<action_number>%s</action_number>\n", xmlEscape(action.Number)))
 		f.WriteString(fmt.Sprintf("<action_comment>%s</action_comment>\n", xmlEscape(action.Comment)))
 		f.WriteString(fmt.Sprintf("<action_dsl>%s</action_dsl>\n", xmlEscape(action.DSL)))
-		f.WriteString(fmt.Sprintf("<action_postfix>\n%s\n</action_postfix>\n", xmlEscape(action.Postfix)))
+		f.WriteString(fmt.Sprintf("<action_postfix>\n%s\n</action_postfix>\n", xmlEscape(strings.TrimSpace(action.Postfix))))
 		for _, col := range action.Columns {
 			f.WriteString(fmt.Sprintf("<action_column column_number=\"%d\" column_value=\"%s\"></action_column>\n",
 				col.Number, xmlEscape(col.Value)))
