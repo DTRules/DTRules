@@ -13,7 +13,6 @@ blist	blistMulti	[E] helper — only reachable inside strexpr EQ blist; tested v
 blist	blistOr	[E] helper — only reachable inside strexpr EQ blist
 blistIc	blistIcMulti	[E] helper — only reachable inside strexpr EQ_IGNORE_CASE blistIc
 blistIc	blistIcOr	[E] helper — only reachable inside strexpr EQ_IGNORE_CASE blistIc
-dexpr	dateDays	[C] `( 5 days )` form — needs specific literal syntax
 done	conditionDebugAfter	[F] debug-after wiring — same
 done	conditionDebugBefore	[F] debug-before wiring — outer `done` alternative drops the debug emit
 done	contextDebugBefore	[F] debug-before in context — same
