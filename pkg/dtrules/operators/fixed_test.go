@@ -15,6 +15,7 @@
 package operators
 
 import (
+	"math"
 	"strings"
 	"testing"
 
@@ -87,6 +88,52 @@ func TestFpMulTruncatesTowardZero(t *testing.T) {
 	}
 }
 
+func TestFpSubOperator(t *testing.T) {
+	state := newFixedTestState()
+	pushFp(t, state, "3.75")
+	pushFp(t, state, "1.50")
+	if err := mustOp(t, "fp-").Execute(state); err != nil {
+		t.Fatal(err)
+	}
+	if got := popFpString(t, state); got != "2.25000000" {
+		t.Errorf("3.75 - 1.5 = %q, want 2.25000000", got)
+	}
+}
+
+func TestFpAbsOperator(t *testing.T) {
+	state := newFixedTestState()
+	pushFp(t, state, "-1.23456789")
+	if err := mustOp(t, "fpabs").Execute(state); err != nil {
+		t.Fatal(err)
+	}
+	if got := popFpString(t, state); got != "1.23456789" {
+		t.Errorf("fpabs(-1.23456789) = %q, want 1.23456789", got)
+	}
+}
+
+func TestFpNegateOperator(t *testing.T) {
+	state := newFixedTestState()
+	pushFp(t, state, "1.5")
+	if err := mustOp(t, "fpnegate").Execute(state); err != nil {
+		t.Fatal(err)
+	}
+	if got := popFpString(t, state); got != "-1.50000000" {
+		t.Errorf("fpnegate(1.5) = %q, want -1.50000000", got)
+	}
+}
+
+func TestFpTruncOperator(t *testing.T) {
+	state := newFixedTestState()
+	pushFp(t, state, "-1.99999999")
+	if err := mustOp(t, "fptrunc").Execute(state); err != nil {
+		t.Fatal(err)
+	}
+	// Truncate toward zero: -1.99999999 → -1.00000000 (not -2)
+	if got := popFpString(t, state); got != "-1.00000000" {
+		t.Errorf("fptrunc(-1.99999999) = %q, want -1.00000000 (truncate toward zero)", got)
+	}
+}
+
 func TestFpDivByZeroErrors(t *testing.T) {
 	state := newFixedTestState()
 	pushFp(t, state, "1")
@@ -143,26 +190,66 @@ func TestFpAddRejectsDouble(t *testing.T) {
 // fp comparison operators
 // =============================================================================
 
-func TestFpEqualAndLess(t *testing.T) {
+// runFpCmp pushes a and b onto the stack, runs op, and returns the boolean on top.
+func runFpCmp(t *testing.T, op, a, b string) bool {
+	t.Helper()
 	state := newFixedTestState()
-	pushFp(t, state, "1.5")
-	pushFp(t, state, "1.5")
-	if err := mustOp(t, "fp==").Execute(state); err != nil {
+	pushFp(t, state, a)
+	pushFp(t, state, b)
+	if err := mustOp(t, op).Execute(state); err != nil {
+		t.Fatalf("%s: %v", op, err)
+	}
+	top, err := state.DataPop()
+	if err != nil {
 		t.Fatal(err)
 	}
-	top, _ := state.DataPop()
-	if b, _ := top.BooleanValue(); !b {
-		t.Error("fp==: 1.5 == 1.5 should be true")
+	got, err := top.BooleanValue()
+	if err != nil {
+		t.Fatal(err)
 	}
+	return got
+}
 
-	pushFp(t, state, "1.5")
-	pushFp(t, state, "2.5")
-	if err := mustOp(t, "fp<").Execute(state); err != nil {
-		t.Fatal(err)
+// TestFpComparisonOperators exercises every registered fp comparison operator
+// on a matrix of positive/negative/equal/zero-crossing pairs so a dispatch-
+// table typo on any of fp==, fp!=, fp<, fp<=, fp>, fp>= would fail.
+func TestFpComparisonOperators(t *testing.T) {
+	type tri struct {
+		lt, eq, gt bool // expected for left vs right
 	}
-	top, _ = state.DataPop()
-	if b, _ := top.BooleanValue(); !b {
-		t.Error("fp<: 1.5 < 2.5 should be true")
+	cases := []struct {
+		a, b string
+		want tri
+	}{
+		{"1.5", "1.5", tri{eq: true}},
+		{"1.5", "2.5", tri{lt: true}},
+		{"2.5", "1.5", tri{gt: true}},
+		{"-1.5", "1.5", tri{lt: true}},
+		{"0.00000001", "0", tri{gt: true}},
+		{"-0.00000001", "0", tri{lt: true}},
+	}
+	for _, c := range cases {
+		name := c.a + "_vs_" + c.b
+		t.Run(name, func(t *testing.T) {
+			if got, want := runFpCmp(t, "fp==", c.a, c.b), c.want.eq; got != want {
+				t.Errorf("fp== %s %s: got %v, want %v", c.a, c.b, got, want)
+			}
+			if got, want := runFpCmp(t, "fp!=", c.a, c.b), !c.want.eq; got != want {
+				t.Errorf("fp!= %s %s: got %v, want %v", c.a, c.b, got, want)
+			}
+			if got, want := runFpCmp(t, "fp<", c.a, c.b), c.want.lt; got != want {
+				t.Errorf("fp< %s %s: got %v, want %v", c.a, c.b, got, want)
+			}
+			if got, want := runFpCmp(t, "fp<=", c.a, c.b), c.want.lt || c.want.eq; got != want {
+				t.Errorf("fp<= %s %s: got %v, want %v", c.a, c.b, got, want)
+			}
+			if got, want := runFpCmp(t, "fp>", c.a, c.b), c.want.gt; got != want {
+				t.Errorf("fp> %s %s: got %v, want %v", c.a, c.b, got, want)
+			}
+			if got, want := runFpCmp(t, "fp>=", c.a, c.b), c.want.gt || c.want.eq; got != want {
+				t.Errorf("fp>= %s %s: got %v, want %v", c.a, c.b, got, want)
+			}
+		})
 	}
 }
 
@@ -248,6 +335,47 @@ func TestCvfpIdempotent(t *testing.T) {
 	}
 	if got := popFpString(t, state); got != "1.50000000" {
 		t.Errorf("cvfp(fp 1.5) = %q", got)
+	}
+}
+
+func TestCvfpFromNaNErrors(t *testing.T) {
+	state := newFixedTestState()
+	state.DataPush(dtrules.GetRDoubleValue(math.NaN()))
+	if err := mustOp(t, "cvfp").Execute(state); err == nil {
+		t.Error("expected cvfp to reject NaN")
+	}
+}
+
+func TestCvfpFromInfErrors(t *testing.T) {
+	for _, f := range []float64{math.Inf(1), math.Inf(-1)} {
+		state := newFixedTestState()
+		state.DataPush(dtrules.GetRDoubleValue(f))
+		if err := mustOp(t, "cvfp").Execute(state); err == nil {
+			t.Errorf("expected cvfp to reject %v", f)
+		}
+	}
+}
+
+// TestCvfpFromUnsupportedTypeErrors guards the `default:` arm of opCvFixed —
+// boolean, entity, array, null, etc. must all error rather than silently
+// snap onto the grid.
+func TestCvfpFromUnsupportedTypeErrors(t *testing.T) {
+	unsupported := []dtrules.Object{
+		dtrules.GetRBoolean(true),
+		dtrules.GetRNull(),
+	}
+	for _, obj := range unsupported {
+		state := newFixedTestState()
+		state.DataPush(obj)
+		err := mustOp(t, "cvfp").Execute(state)
+		if err == nil {
+			t.Errorf("expected cvfp to reject %s", obj.Type().String())
+			continue
+		}
+		if !strings.Contains(err.Error(), "cannot convert") {
+			t.Errorf("cvfp %s error should mention 'cannot convert': %v",
+				obj.Type().String(), err)
+		}
 	}
 }
 

@@ -298,6 +298,40 @@ func TestFixedOverflowOnAdd(t *testing.T) {
 	}
 }
 
+func TestFixedOverflowOnSub(t *testing.T) {
+	// Near-max-positive minus near-max-negative exceeds the bound: subtraction
+	// needs its own overflow check because it can't be reached via Add alone.
+	near := new(big.Int).Sub(fixedBound, big.NewInt(1))
+	pos, err := GetRFixedFromMantissa(near)
+	if err != nil {
+		t.Fatal(err)
+	}
+	neg, err := GetRFixedFromMantissa(new(big.Int).Neg(near))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := pos.Sub(neg); err == nil {
+		t.Error("expected overflow error on Sub of near-max-pos − near-max-neg")
+	}
+}
+
+func TestFixedMulTruncatesToZero(t *testing.T) {
+	// 0.00000001 × 0.00000001 = 0.0000000000000001 → truncated to 0 on the
+	// 10^-8 grid. Guards the "small but non-zero operands yield exactly zero"
+	// boundary where sub-satoshi multiplication silently vanishes.
+	a := mustFp(t, "0.00000001")
+	r, err := a.Mul(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := r.StringValue(); got != "0.00000000" {
+		t.Errorf("0.00000001² on 10^-8 grid: got %q, want 0.00000000", got)
+	}
+	if r.Sign() != 0 {
+		t.Errorf("expected Sign 0 after truncate-to-zero, got %d", r.Sign())
+	}
+}
+
 // =============================================================================
 // Compare and Equals — mixed-type promotion
 // =============================================================================

@@ -1039,6 +1039,58 @@ func TestJSONEDDLoaderBigIntDefaultValue(t *testing.T) {
 	}
 }
 
+// TestJSONEDDLoaderFixedDefaultValue guards the TypeFixed arm of
+// JSONEDDLoader.computeDefaultValue — fp fields declared in JSON EDD must
+// pick up the default value as an RFixed on the 10^-8 grid (parallels
+// the XML-EDD coverage in TestEDDLoaderFixedDefaultValue).
+func TestJSONEDDLoaderFixedDefaultValue(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewJSONEDDLoader(nil, factory)
+
+	jsonData := `{
+		"entities": [
+			{
+				"name": "pool",
+				"access": "rw",
+				"fields": [
+					{"name": "amount",   "type": "fixed", "access": "rw", "defaultValue": "1680748.45091643"},
+					{"name": "rate",     "type": "fixed", "access": "rw", "defaultValue": "0.00250000"},
+					{"name": "negative", "type": "fixed", "access": "rw", "defaultValue": "-0.00000001"}
+				]
+			}
+		]
+	}`
+
+	if err := loader.Load(strings.NewReader(jsonData)); err != nil {
+		t.Fatalf("Load JSON EDD with fixed fields: %v", err)
+	}
+
+	ent, _ := factory.GetReferenceEntity(dtrules.GetRName("pool"))
+	if ent == nil {
+		t.Fatal("expected pool entity")
+	}
+	expect := map[string]string{
+		"amount":   "1680748.45091643",
+		"rate":     "0.00250000",
+		"negative": "-0.00000001",
+	}
+	for name, want := range expect {
+		v, err := ent.Get(dtrules.GetRName(name))
+		if err != nil {
+			t.Errorf("Get(%s): %v", name, err)
+			continue
+		}
+		fp, ok := v.(*dtrules.RFixed)
+		if !ok {
+			t.Errorf("%s: expected RFixed default, got %T", name, v)
+			continue
+		}
+		if got := fp.StringValue(); got != want {
+			t.Errorf("%s default: got %q, want %q", name, got, want)
+		}
+	}
+}
+
 // TestGoValueToDTRulesObjectLargeNumber tests that large numeric strings
 // that exceed float64 precision are handled appropriately
 func TestGoValueToDTRulesObjectLargeNumber(t *testing.T) {
