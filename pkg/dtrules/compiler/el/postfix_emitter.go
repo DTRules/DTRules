@@ -1052,9 +1052,32 @@ func (e *PostfixEmitter) VisitIntParen(ctx *IntParenContext) interface{} {
 	return nil
 }
 
+// VisitIntNumberOf: `number of <arrayExpr>`. Uses the same runtime op as
+// `length of <arrayExpr>` — `length` — since there's no separate
+// `numberof` operator registered. Previously emitted `numberof`, which
+// resolved to an executable-name lookup and failed at runtime.
 func (e *PostfixEmitter) VisitIntNumberOf(ctx *IntNumberOfContext) interface{} {
 	e.Visit(ctx.ArrayExpr())
-	e.emit("numberof")
+	e.emit("length")
+	return nil
+}
+
+// VisitIntNumberOfWhere: `number of <arrayExpr> where <bexpr>` — count
+// elements matching bexpr. Emit a count-accumulator fold: seed 0, iterate
+// the array with forall (auto-pushes element entity), and for each element
+// increment the accumulator when bexpr is true.
+func (e *PostfixEmitter) VisitIntNumberOfWhere(ctx *IntNumberOfWhereContext) interface{} {
+	e.emit("0")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("{")
+	e.Visit(ctx.Bexpr())
+	e.emit("{")
+	e.emit("1")
+	e.emit("+")
+	e.emit("}")
+	e.emit("if")
+	e.emit("}")
+	e.emit("forall")
 	return nil
 }
 

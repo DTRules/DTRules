@@ -338,8 +338,12 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 	}
 	f.WriteString("</attribute_fields>\n")
 
-	// Contexts
-	f.WriteString(fmt.Sprintf("<contexts>%s</contexts>\n", xmlEscape(table.Contexts)))
+	// Contexts. The in-memory `Contexts` field is a raw newline-separated
+	// string (one DSL statement per line, as Excel stores it). The loader,
+	// however, expects a structured `<context_details>` form. Split on
+	// newlines and emit one <context_details> entry per non-empty line;
+	// the loader compiles the DSL to postfix at load time.
+	writeContextsXML(f, table.Contexts)
 
 	// Initial actions
 	f.WriteString("<initial_actions>\n")
@@ -398,6 +402,36 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 }
 
 // xmlEscape escapes special XML characters.
+// writeContextsXML emits the <contexts>…</contexts> block in the structured
+// form the loader expects. Raw text with no statements produces a
+// self-empty element; each newline-separated non-empty line becomes a
+// <context_details> entry with an empty postfix (the loader compiles the
+// DSL on load). An entirely non-empty string with no newlines is treated as
+// a single context statement.
+func writeContextsXML(f *os.File, contexts string) {
+	text := strings.TrimSpace(contexts)
+	if text == "" {
+		f.WriteString("<contexts></contexts>\n")
+		return
+	}
+	f.WriteString("<contexts>\n")
+	num := 0
+	for _, line := range strings.Split(text, "\n") {
+		dsl := strings.TrimSpace(line)
+		if dsl == "" {
+			continue
+		}
+		num++
+		f.WriteString("<context_details>\n")
+		f.WriteString(fmt.Sprintf("<context_number>%d</context_number>\n", num))
+		f.WriteString("<context_comment></context_comment>\n")
+		f.WriteString(fmt.Sprintf("<context_dsl>%s</context_dsl>\n", xmlEscape(dsl)))
+		f.WriteString("<context_postfix></context_postfix>\n")
+		f.WriteString("</context_details>\n")
+	}
+	f.WriteString("</contexts>\n")
+}
+
 func xmlEscape(s string) string {
 	s = strings.ReplaceAll(s, "&", "&amp;")
 	s = strings.ReplaceAll(s, "<", "&lt;")
