@@ -1,5 +1,33 @@
 # DTRules Changelog
 
+## v1.7.1 — 2026-04-19
+
+Patch release. Two integration fixes uncovered by staking's v1.7.0 upgrade.
+
+- **Loader now wires the EDD symbol table into the EL compiler** (#675).
+  `RuleSet.LoadDecisionTables` builds a flat `field` / `entity.field` → type
+  map from the factory's registered reference entities and passes it into
+  the loader's compiler. Without this the compiler's `getExprType()`
+  defaulted every operand to integer, so `bigint_field × integer_field`
+  compiled to plain `*` with a trailing `cvi` — silently truncating the
+  product to int64. After the fix the emit is
+  `<left> <right> cvbi b* cvbi /target xdef`, preserving bigint semantics.
+
+  Cascade: every symbol-table-driven emit path (`cvb`/`cvs`
+  disambiguation in `VisitSetStringFromName` from v1.7.0, typed set/add
+  field-type conversions) was previously receiving an empty symbol table
+  via the runtime loader path; all now work as designed.
+
+- **Loader always recompiles context DSL when it's valid EL** (#676).
+  Previously the loader used stored context postfix verbatim when
+  present, which meant compiler fixes (e.g. the v1.7.0 forallctl
+  overhaul) didn't reach tables with cached stale postfix without a
+  manual `dtrules build` step. Now a fresh compile always wins when DSL
+  is valid; prose / comment-only DSL still falls back to stored postfix,
+  matching the softer policy the condition and action paths already use.
+  A mismatch between the fresh compile and the stored postfix is logged
+  so users know to run `dtrules build` to refresh the XML on disk.
+
 ## v1.7.0 — 2026-04-18
 
 Minor release with breaking changes. Drives the EL grammar sweep to zero
