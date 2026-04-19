@@ -128,6 +128,9 @@ localvariables
     | LOCAL BIGINT undefinedIdent                           # localBigIntUndef
     | LOCAL BIGINT undefinedIdent ASSIGN bigexpr            # localBigIntInit
     | LOCAL BIGINT typedBigInt                              # localBigIntDefined
+    | LOCAL FIXED undefinedIdent                            # localFixedUndef
+    | LOCAL FIXED undefinedIdent ASSIGN iexpr               # localFixedInit
+    | LOCAL FIXED typedLong                                 # localFixedDefined
     | LOCAL BYTES undefinedIdent                            # localBytesUndef
     | LOCAL BYTES undefinedIdent ASSIGN bytesexpr           # localBytesInit
     | LOCAL BYTES typedBytes                                # localBytesDefined
@@ -616,6 +619,7 @@ iexpr
     // Addition/subtraction have lower precedence (listed after)
     | iexpr PLUS iexpr                                      # intAdd
     | iexpr MINUS iexpr                                     # intSub
+    | FP_LITERAL                                            # fixedLiteral
     | INT_LITERAL                                           # intLiteral
     | MINUS iexpr                                           # intNegate
     | LPAREN iexpr RPAREN                                   # intParen
@@ -628,6 +632,10 @@ iexpr
     | LPAREN LONG RPAREN strexpr                            # intFromStr
     | LPAREN LONG RPAREN number                             # intFromNumber
     | LPAREN LONG RPAREN typedTable LPAREN tablelist RPAREN # intTableLookup
+    | LPAREN FIXED RPAREN strexpr                           # fixedFromStr
+    | LPAREN FIXED RPAREN iexpr                             # fixedFromNumber
+    | LPAREN FIXED RPAREN fexpr                             # fixedFromFloat
+    | LPAREN FIXED RPAREN indxExpr                          # fixedFromIndex
     | NUMBEROF arrayExpr                                    # intNumberOf
     | NUMBEROF arrayExpr WHERE bexpr                        # intNumberOfWhere
     | LENGTH OF arrayExpr                                   # intLengthArray
@@ -934,6 +942,7 @@ ENTITY              : 'entity' ;
 ARRAY               : 'array' ;
 TABLE               : 'table' ;
 BIGINT              : 'bigint' | 'biginteger' ;
+FIXED               : 'fixed' ;
 BYTES               : 'bytes' ;
 SHA256              : 'sha256' ;
 KECCAK256           : 'keccak256' ;
@@ -1114,6 +1123,12 @@ NAMEOF              : 'nameof' ;
 AT                  : 'at' ;
 
 // Literals
+// FP_LITERAL must precede FLOAT_LITERAL / INT_LITERAL so the fp/FP suffix is
+// consumed here rather than split into FLOAT_LITERAL + IDENT.
+FP_LITERAL          : DIGIT+ '.' DIGIT* 'fp'
+                    | DIGIT* '.' DIGIT+ 'fp'
+                    | DIGIT+ 'fp'
+                    ;
 INT_LITERAL         : DIGIT+ ;
 FLOAT_LITERAL       : DIGIT+ '.' DIGIT* | DIGIT* '.' DIGIT+ ;
 STRING_LITERAL      : '"' ~["]* '"' | '\'' ~[']* '\'' ;

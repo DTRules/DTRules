@@ -1,4 +1,4 @@
-// Code generated from /tmp/wt-623/pkg/dtrules/compiler/el/EL.g4 by ANTLR 4.13.2. DO NOT EDIT.
+// Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package el // EL
 import "github.com/antlr4-go/antlr/v4"
@@ -174,6 +174,15 @@ type ELListener interface {
 
 	// EnterLocalBigIntDefined is called when entering the localBigIntDefined production.
 	EnterLocalBigIntDefined(c *LocalBigIntDefinedContext)
+
+	// EnterLocalFixedUndef is called when entering the localFixedUndef production.
+	EnterLocalFixedUndef(c *LocalFixedUndefContext)
+
+	// EnterLocalFixedInit is called when entering the localFixedInit production.
+	EnterLocalFixedInit(c *LocalFixedInitContext)
+
+	// EnterLocalFixedDefined is called when entering the localFixedDefined production.
+	EnterLocalFixedDefined(c *LocalFixedDefinedContext)
 
 	// EnterLocalBytesUndef is called when entering the localBytesUndef production.
 	EnterLocalBytesUndef(c *LocalBytesUndefContext)
@@ -1165,6 +1174,9 @@ type ELListener interface {
 	// EnterIntMaxOf is called when entering the intMaxOf production.
 	EnterIntMaxOf(c *IntMaxOfContext)
 
+	// EnterFixedLiteral is called when entering the fixedLiteral production.
+	EnterFixedLiteral(c *FixedLiteralContext)
+
 	// EnterIntParen is called when entering the intParen production.
 	EnterIntParen(c *IntParenContext)
 
@@ -1186,6 +1198,9 @@ type ELListener interface {
 	// EnterIntTableLookup is called when entering the intTableLookup production.
 	EnterIntTableLookup(c *IntTableLookupContext)
 
+	// EnterFixedFromStr is called when entering the fixedFromStr production.
+	EnterFixedFromStr(c *FixedFromStrContext)
+
 	// EnterIntSumOf is called when entering the intSumOf production.
 	EnterIntSumOf(c *IntSumOfContext)
 
@@ -1194,6 +1209,15 @@ type ELListener interface {
 
 	// EnterIntLengthArray is called when entering the intLengthArray production.
 	EnterIntLengthArray(c *IntLengthArrayContext)
+
+	// EnterFixedFromNumber is called when entering the fixedFromNumber production.
+	EnterFixedFromNumber(c *FixedFromNumberContext)
+
+	// EnterFixedFromFloat is called when entering the fixedFromFloat production.
+	EnterFixedFromFloat(c *FixedFromFloatContext)
+
+	// EnterFixedFromIndex is called when entering the fixedFromIndex production.
+	EnterFixedFromIndex(c *FixedFromIndexContext)
 
 	// EnterIntDayOfMonth is called when entering the intDayOfMonth production.
 	EnterIntDayOfMonth(c *IntDayOfMonthContext)
@@ -1956,6 +1980,15 @@ type ELListener interface {
 
 	// ExitLocalBigIntDefined is called when exiting the localBigIntDefined production.
 	ExitLocalBigIntDefined(c *LocalBigIntDefinedContext)
+
+	// ExitLocalFixedUndef is called when exiting the localFixedUndef production.
+	ExitLocalFixedUndef(c *LocalFixedUndefContext)
+
+	// ExitLocalFixedInit is called when exiting the localFixedInit production.
+	ExitLocalFixedInit(c *LocalFixedInitContext)
+
+	// ExitLocalFixedDefined is called when exiting the localFixedDefined production.
+	ExitLocalFixedDefined(c *LocalFixedDefinedContext)
 
 	// ExitLocalBytesUndef is called when exiting the localBytesUndef production.
 	ExitLocalBytesUndef(c *LocalBytesUndefContext)
@@ -2947,6 +2980,9 @@ type ELListener interface {
 	// ExitIntMaxOf is called when exiting the intMaxOf production.
 	ExitIntMaxOf(c *IntMaxOfContext)
 
+	// ExitFixedLiteral is called when exiting the fixedLiteral production.
+	ExitFixedLiteral(c *FixedLiteralContext)
+
 	// ExitIntParen is called when exiting the intParen production.
 	ExitIntParen(c *IntParenContext)
 
@@ -2968,6 +3004,9 @@ type ELListener interface {
 	// ExitIntTableLookup is called when exiting the intTableLookup production.
 	ExitIntTableLookup(c *IntTableLookupContext)
 
+	// ExitFixedFromStr is called when exiting the fixedFromStr production.
+	ExitFixedFromStr(c *FixedFromStrContext)
+
 	// ExitIntSumOf is called when exiting the intSumOf production.
 	ExitIntSumOf(c *IntSumOfContext)
 
@@ -2976,6 +3015,15 @@ type ELListener interface {
 
 	// ExitIntLengthArray is called when exiting the intLengthArray production.
 	ExitIntLengthArray(c *IntLengthArrayContext)
+
+	// ExitFixedFromNumber is called when exiting the fixedFromNumber production.
+	ExitFixedFromNumber(c *FixedFromNumberContext)
+
+	// ExitFixedFromFloat is called when exiting the fixedFromFloat production.
+	ExitFixedFromFloat(c *FixedFromFloatContext)
+
+	// ExitFixedFromIndex is called when exiting the fixedFromIndex production.
+	ExitFixedFromIndex(c *FixedFromIndexContext)
 
 	// ExitIntDayOfMonth is called when exiting the intDayOfMonth production.
 	ExitIntDayOfMonth(c *IntDayOfMonthContext)

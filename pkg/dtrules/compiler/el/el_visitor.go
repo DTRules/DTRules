@@ -1,4 +1,4 @@
-// Code generated from /tmp/wt-623/pkg/dtrules/compiler/el/EL.g4 by ANTLR 4.13.2. DO NOT EDIT.
+// Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package el // EL
 import "github.com/antlr4-go/antlr/v4"
@@ -174,6 +174,15 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#localBigIntDefined.
 	VisitLocalBigIntDefined(ctx *LocalBigIntDefinedContext) interface{}
+
+	// Visit a parse tree produced by ELParser#localFixedUndef.
+	VisitLocalFixedUndef(ctx *LocalFixedUndefContext) interface{}
+
+	// Visit a parse tree produced by ELParser#localFixedInit.
+	VisitLocalFixedInit(ctx *LocalFixedInitContext) interface{}
+
+	// Visit a parse tree produced by ELParser#localFixedDefined.
+	VisitLocalFixedDefined(ctx *LocalFixedDefinedContext) interface{}
 
 	// Visit a parse tree produced by ELParser#localBytesUndef.
 	VisitLocalBytesUndef(ctx *LocalBytesUndefContext) interface{}
@@ -1165,6 +1174,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#intMaxOf.
 	VisitIntMaxOf(ctx *IntMaxOfContext) interface{}
 
+	// Visit a parse tree produced by ELParser#fixedLiteral.
+	VisitFixedLiteral(ctx *FixedLiteralContext) interface{}
+
 	// Visit a parse tree produced by ELParser#intParen.
 	VisitIntParen(ctx *IntParenContext) interface{}
 
@@ -1186,6 +1198,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#intTableLookup.
 	VisitIntTableLookup(ctx *IntTableLookupContext) interface{}
 
+	// Visit a parse tree produced by ELParser#fixedFromStr.
+	VisitFixedFromStr(ctx *FixedFromStrContext) interface{}
+
 	// Visit a parse tree produced by ELParser#intSumOf.
 	VisitIntSumOf(ctx *IntSumOfContext) interface{}
 
@@ -1194,6 +1209,15 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#intLengthArray.
 	VisitIntLengthArray(ctx *IntLengthArrayContext) interface{}
+
+	// Visit a parse tree produced by ELParser#fixedFromNumber.
+	VisitFixedFromNumber(ctx *FixedFromNumberContext) interface{}
+
+	// Visit a parse tree produced by ELParser#fixedFromFloat.
+	VisitFixedFromFloat(ctx *FixedFromFloatContext) interface{}
+
+	// Visit a parse tree produced by ELParser#fixedFromIndex.
+	VisitFixedFromIndex(ctx *FixedFromIndexContext) interface{}
 
 	// Visit a parse tree produced by ELParser#intDayOfMonth.
 	VisitIntDayOfMonth(ctx *IntDayOfMonthContext) interface{}
