@@ -129,7 +129,7 @@ func (e *PostfixEmitter) typeConverter(fieldType string) string {
 	case TypeEntity:
 		return "cve"
 	case TypeDate:
-		return "cvd"
+		return "cvdate"
 	case TypeBigInt:
 		return "cvbi"
 	case TypeBytes:
@@ -355,7 +355,7 @@ func (e *PostfixEmitter) emitTypeAwareAddSub(fieldName, op string) {
 		}
 		e.emit("b" + op)
 	case TypeDouble:
-		e.emit("cvr")
+		e.emit("cvd")
 		e.emit(fieldName)
 		if op == "-" {
 			e.emit("swap")
@@ -2153,7 +2153,7 @@ func (e *PostfixEmitter) VisitLocalDoubleInit(ctx *LocalDoubleInitContext) inter
 	name := ctx.UndefinedIdent().GetText()
 	e.declareLocal(name, TypeDouble)
 	e.Visit(ctx.Number())
-	e.emit("cvr")
+	e.emit("cvd")
 	e.emit("allocate")
 	e.emit("execute")
 	e.emit("deallocate")
@@ -3480,7 +3480,7 @@ func (e *PostfixEmitter) VisitBoolPlusOrMinus(ctx *BoolPlusOrMinusContext) inter
 	e.emit("f-")
 	e.emit("fabs")
 	e.Visit(ctx.Number())
-	e.emit("cvr")
+	e.emit("cvd")
 	e.emit("f<=")
 	return nil
 }
@@ -3497,7 +3497,7 @@ func (e *PostfixEmitter) VisitBoolWithinPercent(ctx *BoolWithinPercentContext) i
 	e.emit("100.0")
 	e.emit("f*")
 	e.Visit(ctx.Number())
-	e.emit("cvr")
+	e.emit("cvd")
 	e.emit("f<=")
 	return nil
 }
@@ -3868,7 +3868,7 @@ func (e *PostfixEmitter) VisitIntValueOfOp(ctx *IntValueOfOpContext) interface{}
 }
 func (e *PostfixEmitter) VisitFloatValueOfOp(ctx *FloatValueOfOpContext) interface{} {
 	e.Visit(ctx.Operatorstatements())
-	e.emit("cvr")
+	e.emit("cvd")
 	return nil
 }
 func (e *PostfixEmitter) VisitStrValueOfOp(ctx *StrValueOfOpContext) interface{} {
