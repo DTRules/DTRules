@@ -129,7 +129,7 @@ func (e *PostfixEmitter) typeConverter(fieldType string) string {
 	case TypeEntity:
 		return "cve"
 	case TypeDate:
-		return "cvd"
+		return "cvdate"
 	case TypeBigInt:
 		return "cvbi"
 	case TypeBytes:
@@ -355,7 +355,7 @@ func (e *PostfixEmitter) emitTypeAwareAddSub(fieldName, op string) {
 		}
 		e.emit("b" + op)
 	case TypeDouble:
-		e.emit("cvr")
+		e.emit("cvd")
 		e.emit(fieldName)
 		if op == "-" {
 			e.emit("swap")
@@ -2178,7 +2178,7 @@ func (e *PostfixEmitter) VisitLocalDoubleInit(ctx *LocalDoubleInitContext) inter
 	name := ctx.UndefinedIdent().GetText()
 	e.declareLocal(name, TypeDouble)
 	e.Visit(ctx.Number())
-	e.emit("cvr")
+	e.emit("cvd")
 	e.emit("allocate")
 	e.emit("execute")
 	e.emit("deallocate")
@@ -2820,7 +2820,7 @@ func (e *PostfixEmitter) VisitIfElseIf(ctx *IfElseIfContext) interface{} {
 // emitOneForField pushes the literal "1" (or "1.0" for double-typed fields)
 // as the RHS value for increment / decrement statements. Double needs the
 // decimal form so the subsequent f+ / f- op can consume a double rather
-// than integer-truncating through cvr.
+// than integer-truncating through cvd.
 func (e *PostfixEmitter) emitOneForField(fieldName string) {
 	if e.lookupType(fieldName) == TypeDouble {
 		e.emit("1.0")
@@ -3497,7 +3497,7 @@ func (e *PostfixEmitter) VisitBoolEntityHasaWhere(ctx *BoolEntityHasaWhereContex
 }
 
 // VisitBoolPlusOrMinus: `<f1> is plus or minus <n> of <f2>` →
-// `|f1 - f2| <= n`. The `number` may be int or float; `cvr` coerces to
+// `|f1 - f2| <= n`. The `number` may be int or float; `cvd` coerces to
 // double for the comparison.
 func (e *PostfixEmitter) VisitBoolPlusOrMinus(ctx *BoolPlusOrMinusContext) interface{} {
 	e.Visit(ctx.Fexpr(0))
@@ -3505,7 +3505,7 @@ func (e *PostfixEmitter) VisitBoolPlusOrMinus(ctx *BoolPlusOrMinusContext) inter
 	e.emit("f-")
 	e.emit("fabs")
 	e.Visit(ctx.Number())
-	e.emit("cvr")
+	e.emit("cvd")
 	e.emit("f<=")
 	return nil
 }
@@ -3522,7 +3522,7 @@ func (e *PostfixEmitter) VisitBoolWithinPercent(ctx *BoolWithinPercentContext) i
 	e.emit("100.0")
 	e.emit("f*")
 	e.Visit(ctx.Number())
-	e.emit("cvr")
+	e.emit("cvd")
 	e.emit("f<=")
 	return nil
 }
@@ -3893,7 +3893,7 @@ func (e *PostfixEmitter) VisitIntValueOfOp(ctx *IntValueOfOpContext) interface{}
 }
 func (e *PostfixEmitter) VisitFloatValueOfOp(ctx *FloatValueOfOpContext) interface{} {
 	e.Visit(ctx.Operatorstatements())
-	e.emit("cvr")
+	e.emit("cvd")
 	return nil
 }
 func (e *PostfixEmitter) VisitStrValueOfOp(ctx *StrValueOfOpContext) interface{} {

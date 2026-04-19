@@ -75,13 +75,22 @@ func init() {
 	Register("findcreateentity", opFindCreateEntity)
 	Alias("findcreateentity", "fce")
 
-	// Type conversions
+	// Type conversions.
+	//
+	// Naming: the letter after `cv` is the target type's short code. Until
+	// #694 was fixed, `cvd` was misleadingly the date converter and the
+	// emitter was emitting `cvd` for double-typed fields — so every
+	// `set <double> = <expr>` stored null. Now `cvd` is double and the
+	// explicit `cvdate` is the date converter. `cvr` remains as a
+	// back-compat alias of `cvd` (some stored postfix predates this
+	// rename).
 	Register("cvi", opCvi)
-	Register("cvr", opCvr)
+	Register("cvd", opCvd) // double
+	Alias("cvd", "cvr")
 	Register("cvb", opCvb)
 	Register("cve", opCve)
 	Register("cvn", opCvn)
-	Register("cvd", opCvd)
+	Register("cvdate", opCvDate) // date
 
 	// Error handling (legacy two-arg form)
 	Register("error", opError)
@@ -583,8 +592,11 @@ func opCvi(state dtrules.State) error {
 	return state.DataPush(v)
 }
 
-// opCvr: ( obj -- double ) converts to double
-func opCvr(state dtrules.State) error {
+// opCvd: ( obj -- double ) converts to double. The `d` is "double"; the
+// date counterpart is spelled `cvdate`. Before #694 this function was
+// named opCvr and `cvd` was mis-registered to the date converter below,
+// so every `set <double> = <expr>` rule was silently storing null.
+func opCvd(state dtrules.State) error {
 	obj, err := state.DataPop()
 	if err != nil {
 		return err
@@ -678,8 +690,9 @@ func opCvn(state dtrules.State) error {
 	return state.DataPush(v)
 }
 
-// opCvd: ( obj -- date ) converts to date
-func opCvd(state dtrules.State) error {
+// opCvDate: ( obj -- date ) converts to date. Renamed from opCvd per
+// #694; the symbol `cvd` now refers to the double converter above.
+func opCvDate(state dtrules.State) error {
 	obj, err := state.DataPop()
 	if err != nil {
 		return err

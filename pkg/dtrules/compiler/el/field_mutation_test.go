@@ -77,7 +77,7 @@ func TestFieldMutation_AddTo(t *testing.T) {
 		{
 			dsl:     "add 1 to count",
 			mustHit: []string{"+", "/count xdef"},
-			mustNot: []string{"fp+", "b+", "f+", "cvfp", "cvbi", "cvr"},
+			mustNot: []string{"fp+", "b+", "f+", "cvfp", "cvbi", "cvd"},
 		},
 		{
 			dsl:     "add 1 to total",
@@ -86,7 +86,7 @@ func TestFieldMutation_AddTo(t *testing.T) {
 		},
 		{
 			dsl:     "add 1.5 to rate",
-			mustHit: []string{"cvr", "f+", "/rate xdef"},
+			mustHit: []string{"cvd", "f+", "/rate xdef"},
 			mustNot: []string{"fp+", "b+"},
 		},
 		{
@@ -104,7 +104,7 @@ func TestFieldMutation_SubtractFrom(t *testing.T) {
 		{
 			dsl:     "subtract 1 from count",
 			mustHit: []string{"swap", "-", "/count xdef"},
-			mustNot: []string{"fp-", "b-", "f-", "cvfp", "cvbi", "cvr"},
+			mustNot: []string{"fp-", "b-", "f-", "cvfp", "cvbi", "cvd"},
 		},
 		{
 			dsl:     "subtract 1 from total",
@@ -113,7 +113,7 @@ func TestFieldMutation_SubtractFrom(t *testing.T) {
 		},
 		{
 			dsl:     "subtract 0.5 from rate",
-			mustHit: []string{"cvr", "f-", "/rate xdef"},
+			mustHit: []string{"cvd", "f-", "/rate xdef"},
 			mustNot: []string{"fp-", "b-"},
 		},
 		{
@@ -138,7 +138,7 @@ func TestFieldMutation_Increment(t *testing.T) {
 			// Semantically identical to the old `count 1 + /count xdef`
 			// since integer + is commutative.
 			mustHit: []string{"1 count", " + ", "/count xdef"},
-			mustNot: []string{"fp+", "b+", "f+", "cvfp", "cvbi", "cvr"},
+			mustNot: []string{"fp+", "b+", "f+", "cvfp", "cvbi", "cvd"},
 		},
 		{
 			dsl:     "increment total",
@@ -147,7 +147,7 @@ func TestFieldMutation_Increment(t *testing.T) {
 		},
 		{
 			dsl:     "increment rate",
-			mustHit: []string{"1.0", "cvr", "f+", "/rate xdef"},
+			mustHit: []string{"1.0", "cvd", "f+", "/rate xdef"},
 			mustNot: []string{"fp+", "b+", "rate 1 +"},
 		},
 		{
@@ -175,7 +175,7 @@ func TestFieldMutation_Decrement(t *testing.T) {
 		},
 		{
 			dsl:     "decrement rate",
-			mustHit: []string{"1.0", "cvr", "f-", "/rate xdef"},
+			mustHit: []string{"1.0", "cvd", "f-", "/rate xdef"},
 			mustNot: []string{"fp-", "rate 1 -"},
 		},
 		{
