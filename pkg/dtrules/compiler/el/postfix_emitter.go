@@ -2568,11 +2568,20 @@ func (e *PostfixEmitter) VisitDecrementDouble(ctx *DecrementDoubleContext) inter
 	return nil
 }
 
-// VisitSetStringFromName: `set <leftStrexpr> = <nexpr>`. Convert the resolved
-// name reference to a string.
+// VisitSetStringFromName: `set <left> = <nexpr>`. The parser commits to
+// this alternative for any IDENT target (setBoolFromName is structurally
+// indistinguishable at parse time), so disambiguate here: look up the
+// target field's type in the symbol table and emit the matching coercion
+// (cvb for bool, cvs otherwise). `leftStrexpr` / `leftBexpr` both resolve
+// to `/<name> xdef` so the left emit is identical regardless.
 func (e *PostfixEmitter) VisitSetStringFromName(ctx *SetStringFromNameContext) interface{} {
 	e.Visit(ctx.Nexpr())
-	e.emit("cvs")
+	fieldName := ctx.LeftStrexpr().GetText()
+	if e.lookupType(fieldName) == TypeBoolean {
+		e.emit("cvb")
+	} else {
+		e.emit("cvs")
+	}
 	e.Visit(ctx.LeftStrexpr())
 	return nil
 }

@@ -1,2 +1,1 @@
 rule	label	reason
-setstatement	setBoolFromName	[C] parser ambiguity with setStringFromName; requires symbol table to disambiguate
