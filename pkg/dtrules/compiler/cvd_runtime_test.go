@@ -17,13 +17,48 @@ package compiler
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
+	"github.com/DTRules/DTRules/pkg/dtrules/entity"
 	"github.com/DTRules/DTRules/pkg/dtrules/interpreter"
 
 	// Pull in operator registrations.
 	_ "github.com/DTRules/DTRules/pkg/dtrules/operators"
 )
+
+// stubDateParser parses ISO-8601 date strings. Inlined rather than
+// imported from pkg/dtrules/session because session imports compiler
+// (creating a test-time import cycle). A minimal stub is enough for
+// the cvdate end-to-end test.
+type stubDateParser struct{}
+
+func (stubDateParser) GetDate(s string) (time.Time, error) {
+	return time.Parse("2006-01-02", s)
+}
+func (stubDateParser) Parse(s string) (time.Time, error) {
+	return time.Parse("2006-01-02", s)
+}
+
+// datedSession is a minimal Session wired with a working date parser
+// so cvdate can parse strings end-to-end.
+type datedSession struct {
+	factory *entity.Factory
+}
+
+func newDatedSession() *datedSession {
+	return &datedSession{factory: entity.NewFactory(nil)}
+}
+func (s *datedSession) GetState() dtrules.State                 { return nil }
+func (s *datedSession) GetEntityFactory() dtrules.EntityFactory { return s.factory }
+func (s *datedSession) GetUniqueID() int                        { return 1 }
+func (s *datedSession) GetDateParser() dtrules.DateParser       { return stubDateParser{} }
+func (s *datedSession) GetRuleSet() dtrules.RuleSet             { return nil }
+func (s *datedSession) CreateEntity(n *dtrules.RName) (dtrules.Entity, error) {
+	return s.factory.CreateEntity(s, n)
+}
+func (s *datedSession) Compile(e string) (dtrules.Object, error) { return nil, nil }
+func (s *datedSession) GetEntityByID(id int) dtrules.Entity      { return nil }
 
 // Issue #694: before the rename, the EL emitter's typeConverter emitted
 // `"cvd"` for TypeDouble but the registered `cvd` op was the Date
@@ -128,17 +163,53 @@ func TestCvrLegacyAlias(t *testing.T) {
 	}
 }
 
-// TestCvdate_Registered ensures the renamed `cvdate` op is findable
-// via the operator registry. End-to-end execution with a non-date
-// input would need a real DateParser on the session (the mock
-// session returns nil, and the op panics on that path — pre-existing
-// behavior, not caused by the rename). A simple registry-lookup
-// test guards the rename without triggering the unrelated nil-parser
-// panic.
+// TestCvdate_ParsesString exercises the renamed cvdate op end-to-end
+// with a real DateParser: a parseable date string leaves an RDate on
+// the stack, an unparseable string leaves null. The compile-level
+// tests above would pass even if cvdate were mis-registered to e.g.
+// opCvd (double converter); this runtime test pins the op's actual
+// behavior.
+func TestCvdate_ParsesString(t *testing.T) {
+	// Parseable date → RDate.
+	sess := newDatedSession()
+	c := NewCompiler(sess, sess.factory)
+	code, err := c.Compile("\"2024-01-15\" cvdate")
+	if err != nil {
+		t.Fatalf("compile: %v", err)
+	}
+	state := interpreter.NewDTState(sess)
+	if err := code.Execute(state); err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+	top, err := state.DataPop()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if top.Type() != dtrules.TypeDate {
+		t.Errorf("cvdate(\"2024-01-15\") type=%s, want date", top.Type().String())
+	}
+
+	// Unparseable string → null (op's documented error behavior).
+	sess2 := newDatedSession()
+	c2 := NewCompiler(sess2, sess2.factory)
+	code2, err := c2.Compile("\"not a date\" cvdate")
+	if err != nil {
+		t.Fatalf("compile: %v", err)
+	}
+	state2 := interpreter.NewDTState(sess2)
+	if err := code2.Execute(state2); err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+	top2, _ := state2.DataPop()
+	if top2.Type() != dtrules.TypeNull {
+		t.Errorf("cvdate(\"not a date\") type=%s, want null", top2.Type().String())
+	}
+}
+
+// TestCvdate_Registered is a lightweight sanity check that the new
+// name resolves via the registry (kept alongside the end-to-end
+// TestCvdate_ParsesString as a cheap compile-only guard).
 func TestCvdate_Registered(t *testing.T) {
-	// Compile succeeds iff cvdate resolves. The old name `cvd` for the
-	// date converter no longer exists (reassigned to double); only
-	// `cvdate` should work.
 	c := newTestCompiler()
 	_, err := c.Compile("cvdate")
 	if err != nil {
