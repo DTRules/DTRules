@@ -143,11 +143,71 @@ func (e *PostfixEmitter) typeConverter(fieldType string) string {
 	}
 }
 
-// getExprType determines the type of an integer expression by examining its structure.
-// Returns TypeBigInt if the expression involves bigint variables, otherwise TypeInteger.
+// isFixedLiteralText reports whether a string is the full text of a numeric
+// literal with an `fp`/`FP` suffix. Accepts an optional leading sign, digits,
+// at most one decimal point, and the required `fp` suffix. Composite
+// expressions (containing spaces, operators, etc.) are rejected — those
+// aren't literals even if they contain one inside.
+func isFixedLiteralText(text string) bool {
+	if len(text) < 3 {
+		return false
+	}
+	if !strings.EqualFold(text[len(text)-2:], "fp") {
+		return false
+	}
+	body := text[:len(text)-2]
+	if body == "" {
+		return false
+	}
+	// Optional leading sign
+	if body[0] == '-' || body[0] == '+' {
+		body = body[1:]
+	}
+	if body == "" {
+		return false
+	}
+	seenDot := false
+	seenDigit := false
+	for i := 0; i < len(body); i++ {
+		switch c := body[i]; {
+		case c >= '0' && c <= '9':
+			seenDigit = true
+		case c == '.':
+			if seenDot {
+				return false
+			}
+			seenDot = true
+		default:
+			return false
+		}
+	}
+	return seenDigit
+}
+
+// getExprType determines the type of an integer expression by examining its
+// structure. Returns TypeFixed when an fp-suffixed literal is involved,
+// TypeBigInt when a bigint variable is, otherwise TypeInteger.
 func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 	if ctx == nil {
 		return TypeInteger
+	}
+
+	// fp-suffixed literals anywhere in an iexpr or fexpr position: e.g.
+	// `ap.count + 1.5fp`, `1.5fp + 2.5fp`, `dp.rate * 2.0fp`. The grammar
+	// doesn't recognize `fp` as a suffix — the lexer splits `1.5fp` into
+	// `1.5` (FLOAT_LITERAL) + `fp` (typedLong IDENT), and the parser glues
+	// them back together as a compound iexpr. Without this check the
+	// composite reads as an integer, the arithmetic emits plain `+` / `*`,
+	// and the RFixed is silently truncated via LongValue at runtime.
+	//
+	// We check the raw text of the whole context — if it's numeric with
+	// an `fp`/`FP` suffix, the author wrote an fp literal. Matches pure
+	// literals only; composite expressions contain operators (`+`, space)
+	// that disqualify them.
+	if pr, ok := ctx.(antlr.ParserRuleContext); ok {
+		if text := pr.GetText(); isFixedLiteralText(text) {
+			return TypeFixed
+		}
 	}
 
 	// Check for typed integer context (variable reference)

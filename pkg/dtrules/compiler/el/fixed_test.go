@@ -215,6 +215,65 @@ func TestMixedTypeComparison_PromotesToWidest(t *testing.T) {
 	}
 }
 
+// TestFixedLiteral_InIntContext_PreservesPrecision is the reproducer for the
+// most severe precision bug found in the deep review: when an fp-suffixed
+// literal appears alongside an integer operand, the grammar routes the
+// expression through iexpr (not fexpr), and the emitter's type inference
+// previously read the literal as an integer. The compiled postfix then used
+// plain `+` / `*`, and at runtime the RFixed's LongValue truncated the
+// fractional part silently. Now the emitter sees the `fp` suffix on the
+// literal's raw text and promotes the integer side via cvfp.
+func TestFixedLiteral_InIntContext_PreservesPrecision(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{
+		"ap.count": "integer",
+		"wp.total": "fixed",
+	})
+	postfix, err := c.CompileAction("set wp.total = ap.count + 1.5fp")
+	if err != nil {
+		t.Fatalf("compile error: %v", err)
+	}
+	if !strings.Contains(postfix, "cvfp") {
+		t.Errorf("expected integer side promoted via cvfp, got: %s", postfix)
+	}
+	if !strings.Contains(postfix, "fp+") {
+		t.Errorf("expected fp+ (not plain +), got: %s", postfix)
+	}
+	// The old buggy emission would have a lone ` + ` between ap.count and
+	// 1.5fp — guard against regression.
+	if strings.Contains(postfix, "count 1.5fp +") {
+		t.Errorf("plain `+` between int and fp literal would silently truncate: %s", postfix)
+	}
+}
+
+// TestFixedLiteral_PureFpArithmetic_UsesFpOps covers the case where both
+// operands are fp literals — same root cause as the mixed case, different
+// trigger. Without the fix, `1.5fp + 2.5fp` compiled to plain `+` and lost
+// the fractional parts of both operands.
+func TestFixedLiteral_PureFpArithmetic_UsesFpOps(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{"wp.total": "fixed"})
+	cases := []struct {
+		dsl, want string
+	}{
+		{"set wp.total = 1.5fp + 2.5fp", "fp+"},
+		{"set wp.total = 1.5fp * 2.0fp", "fp*"},
+		{"set wp.total = 3.75fp - 1.5fp", "fp-"},
+		{"set wp.total = 1.5fp / 3.0fp", "fp/"},
+	}
+	for _, c2 := range cases {
+		t.Run(c2.want, func(t *testing.T) {
+			postfix, err := c.CompileAction(c2.dsl)
+			if err != nil {
+				t.Fatalf("compile %q: %v", c2.dsl, err)
+			}
+			if !strings.Contains(postfix, c2.want) {
+				t.Errorf("expected %s, got: %s", c2.want, postfix)
+			}
+		})
+	}
+}
+
 // TestStringComparison_UnchangedByNumericDispatch is a regression guard on
 // BoolName{Eq,Neq}: string-vs-string name compares must still land on the
 // existing streq/`streq not` fallback. The numeric-dispatch branch is only

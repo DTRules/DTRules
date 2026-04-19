@@ -40,6 +40,9 @@ func init() {
 
 	Register("abs", opAbs)
 	Register("negate", opNegate)
+	// The EL postfix emitter emits `neg` (not `negate`) for integer negation
+	// in VisitIntNegate; alias it so `-<int_expr>` works at runtime.
+	Alias("negate", "neg")
 
 	// Float operations
 	Register("f+", opFAdd)
