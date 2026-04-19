@@ -1,4 +1,2 @@
 rule	label	reason
-bexpr	boolMatchForall	[D] complex multi-array join — `for each x in arr1, exists y in arr2 such that y.<nexpr> == x`; needs nested forall with inner-break primitive or accumulator gymnastics
-randomstatements	removeEachWhere	[D] remove-while-iterating: no bespoke op; compose forallr + remove — complex
 setstatement	setBoolFromName	[C] parser ambiguity with setStringFromName; requires symbol table to disambiguate
