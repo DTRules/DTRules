@@ -453,3 +453,107 @@ func TestBigIntArithmetic_UnchangedByFixedRefactor(t *testing.T) {
 		t.Errorf("unexpected fp in pure-bigint postfix: %s", postfix)
 	}
 }
+
+// TestFixedCast_FromString verifies `(fixed) "X"` emits "X" cvfp.
+func TestFixedCast_FromString(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{"wp.total": "fixed"})
+	postfix, err := c.CompileAction(`set wp.total = (fixed) "1.5"`)
+	if err != nil {
+		t.Fatalf("compile error: %v", err)
+	}
+	if !strings.Contains(postfix, `"1.5" cvfp`) {
+		t.Errorf(`expected "1.5" cvfp, got: %s`, postfix)
+	}
+}
+
+// TestFixedCast_FromInt verifies `(fixed) 100` emits 100 cvfp.
+func TestFixedCast_FromInt(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{"wp.total": "fixed"})
+	postfix, err := c.CompileAction("set wp.total = (fixed) 100")
+	if err != nil {
+		t.Fatalf("compile error: %v", err)
+	}
+	if !strings.Contains(postfix, "100 cvfp") {
+		t.Errorf("expected 100 cvfp, got: %s", postfix)
+	}
+}
+
+// TestLocalFixed_Undef declares `local fixed x` and verifies the local is
+// registered at index 0 with TypeFixed.
+func TestLocalFixed_Undef(t *testing.T) {
+	c := NewCompiler()
+	if _, err := c.CompileContext("local fixed x"); err != nil {
+		t.Fatalf("compile error: %v", err)
+	}
+	lv, ok := c.emitter.lookupLocal("x")
+	if !ok {
+		t.Fatalf("expected x registered as local")
+	}
+	if lv.Index != 0 {
+		t.Errorf("expected index 0, got %d", lv.Index)
+	}
+	if lv.Type != TypeFixed {
+		t.Errorf("expected TypeFixed, got %s", lv.Type)
+	}
+}
+
+// TestLocalFixed_InitFromCast declares `local fixed x = (fixed) 100` and
+// verifies the emitted postfix includes `100 cvfp` followed by an allocate/
+// execute/deallocate pop (the stack-frame allocation dance) and assigns to
+// local 0. Stronger invariants are checked by the locals-table assertion.
+func TestLocalFixed_InitFromCast(t *testing.T) {
+	c := NewCompiler()
+	postfix, err := c.CompileContext("local fixed x = (fixed) 100")
+	if err != nil {
+		t.Fatalf("compile error: %v", err)
+	}
+	if !strings.Contains(postfix, "100 cvfp") {
+		t.Errorf("expected 100 cvfp, got: %s", postfix)
+	}
+	lv, ok := c.emitter.lookupLocal("x")
+	if !ok || lv.Type != TypeFixed {
+		t.Fatalf("expected x of TypeFixed, got ok=%v lv=%+v", ok, lv)
+	}
+}
+
+// TestLocalFixed_InitFromFpLiteral declares `local fixed x = 1.5fp` and
+// verifies it emits the literal as-is (no cvfp needed — the literal is
+// already fp-typed).
+func TestLocalFixed_InitFromFpLiteral(t *testing.T) {
+	c := NewCompiler()
+	postfix, err := c.CompileContext("local fixed x = 1.5fp")
+	if err != nil {
+		t.Fatalf("compile error: %v", err)
+	}
+	if !strings.Contains(postfix, "1.5fp") {
+		t.Errorf("expected 1.5fp literal in postfix, got: %s", postfix)
+	}
+	// FP literal is already fp — no cast needed.
+	if strings.Contains(postfix, "1.5fp cvfp") {
+		t.Errorf("unexpected cvfp on fp-literal init: %s", postfix)
+	}
+	lv, ok := c.emitter.lookupLocal("x")
+	if !ok || lv.Type != TypeFixed {
+		t.Fatalf("expected x of TypeFixed, got ok=%v lv=%+v", ok, lv)
+	}
+}
+
+// TestFpLiteral_ViaGrammar verifies FP_LITERAL is lexed as a single token —
+// this is the post-#689 path that replaces the old FLOAT_LITERAL+IDENT
+// reassembly.
+func TestFpLiteral_ViaGrammar(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{"wp.total": "fixed"})
+	postfix, err := c.CompileAction("set wp.total = 1.5fp + 2.5fp")
+	if err != nil {
+		t.Fatalf("compile error: %v", err)
+	}
+	if !strings.Contains(postfix, "1.5fp") || !strings.Contains(postfix, "2.5fp") {
+		t.Errorf("expected fp literals preserved, got: %s", postfix)
+	}
+	if !strings.Contains(postfix, "fp+") {
+		t.Errorf("expected fp+ op, got: %s", postfix)
+	}
+}

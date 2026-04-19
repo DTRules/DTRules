@@ -1,4 +1,4 @@
-// Code generated from /tmp/wt-623/pkg/dtrules/compiler/el/EL.g4 by ANTLR 4.13.2. DO NOT EDIT.
+// Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package el // EL
 import "github.com/antlr4-go/antlr/v4"
@@ -355,6 +355,24 @@ func (s *BaseELListener) EnterLocalBigIntDefined(ctx *LocalBigIntDefinedContext)
 
 // ExitLocalBigIntDefined is called when production localBigIntDefined is exited.
 func (s *BaseELListener) ExitLocalBigIntDefined(ctx *LocalBigIntDefinedContext) {}
+
+// EnterLocalFixedUndef is called when production localFixedUndef is entered.
+func (s *BaseELListener) EnterLocalFixedUndef(ctx *LocalFixedUndefContext) {}
+
+// ExitLocalFixedUndef is called when production localFixedUndef is exited.
+func (s *BaseELListener) ExitLocalFixedUndef(ctx *LocalFixedUndefContext) {}
+
+// EnterLocalFixedInit is called when production localFixedInit is entered.
+func (s *BaseELListener) EnterLocalFixedInit(ctx *LocalFixedInitContext) {}
+
+// ExitLocalFixedInit is called when production localFixedInit is exited.
+func (s *BaseELListener) ExitLocalFixedInit(ctx *LocalFixedInitContext) {}
+
+// EnterLocalFixedDefined is called when production localFixedDefined is entered.
+func (s *BaseELListener) EnterLocalFixedDefined(ctx *LocalFixedDefinedContext) {}
+
+// ExitLocalFixedDefined is called when production localFixedDefined is exited.
+func (s *BaseELListener) ExitLocalFixedDefined(ctx *LocalFixedDefinedContext) {}
 
 // EnterLocalBytesUndef is called when production localBytesUndef is entered.
 func (s *BaseELListener) EnterLocalBytesUndef(ctx *LocalBytesUndefContext) {}
@@ -2336,6 +2354,12 @@ func (s *BaseELListener) EnterIntMaxOf(ctx *IntMaxOfContext) {}
 // ExitIntMaxOf is called when production intMaxOf is exited.
 func (s *BaseELListener) ExitIntMaxOf(ctx *IntMaxOfContext) {}
 
+// EnterFixedLiteral is called when production fixedLiteral is entered.
+func (s *BaseELListener) EnterFixedLiteral(ctx *FixedLiteralContext) {}
+
+// ExitFixedLiteral is called when production fixedLiteral is exited.
+func (s *BaseELListener) ExitFixedLiteral(ctx *FixedLiteralContext) {}
+
 // EnterIntParen is called when production intParen is entered.
 func (s *BaseELListener) EnterIntParen(ctx *IntParenContext) {}
 
@@ -2378,6 +2402,12 @@ func (s *BaseELListener) EnterIntTableLookup(ctx *IntTableLookupContext) {}
 // ExitIntTableLookup is called when production intTableLookup is exited.
 func (s *BaseELListener) ExitIntTableLookup(ctx *IntTableLookupContext) {}
 
+// EnterFixedFromStr is called when production fixedFromStr is entered.
+func (s *BaseELListener) EnterFixedFromStr(ctx *FixedFromStrContext) {}
+
+// ExitFixedFromStr is called when production fixedFromStr is exited.
+func (s *BaseELListener) ExitFixedFromStr(ctx *FixedFromStrContext) {}
+
 // EnterIntSumOf is called when production intSumOf is entered.
 func (s *BaseELListener) EnterIntSumOf(ctx *IntSumOfContext) {}
 
@@ -2395,6 +2425,24 @@ func (s *BaseELListener) EnterIntLengthArray(ctx *IntLengthArrayContext) {}
 
 // ExitIntLengthArray is called when production intLengthArray is exited.
 func (s *BaseELListener) ExitIntLengthArray(ctx *IntLengthArrayContext) {}
+
+// EnterFixedFromNumber is called when production fixedFromNumber is entered.
+func (s *BaseELListener) EnterFixedFromNumber(ctx *FixedFromNumberContext) {}
+
+// ExitFixedFromNumber is called when production fixedFromNumber is exited.
+func (s *BaseELListener) ExitFixedFromNumber(ctx *FixedFromNumberContext) {}
+
+// EnterFixedFromFloat is called when production fixedFromFloat is entered.
+func (s *BaseELListener) EnterFixedFromFloat(ctx *FixedFromFloatContext) {}
+
+// ExitFixedFromFloat is called when production fixedFromFloat is exited.
+func (s *BaseELListener) ExitFixedFromFloat(ctx *FixedFromFloatContext) {}
+
+// EnterFixedFromIndex is called when production fixedFromIndex is entered.
+func (s *BaseELListener) EnterFixedFromIndex(ctx *FixedFromIndexContext) {}
+
+// ExitFixedFromIndex is called when production fixedFromIndex is exited.
+func (s *BaseELListener) ExitFixedFromIndex(ctx *FixedFromIndexContext) {}
 
 // EnterIntDayOfMonth is called when production intDayOfMonth is entered.
 func (s *BaseELListener) EnterIntDayOfMonth(ctx *IntDayOfMonthContext) {}

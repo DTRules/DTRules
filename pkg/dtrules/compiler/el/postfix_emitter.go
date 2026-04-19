@@ -143,71 +143,21 @@ func (e *PostfixEmitter) typeConverter(fieldType string) string {
 	}
 }
 
-// isFixedLiteralText reports whether a string is the full text of a numeric
-// literal with an `fp`/`FP` suffix. Accepts an optional leading sign, digits,
-// at most one decimal point, and the required `fp` suffix. Composite
-// expressions (containing spaces, operators, etc.) are rejected — those
-// aren't literals even if they contain one inside.
-func isFixedLiteralText(text string) bool {
-	if len(text) < 3 {
-		return false
-	}
-	if !strings.EqualFold(text[len(text)-2:], "fp") {
-		return false
-	}
-	body := text[:len(text)-2]
-	if body == "" {
-		return false
-	}
-	// Optional leading sign
-	if body[0] == '-' || body[0] == '+' {
-		body = body[1:]
-	}
-	if body == "" {
-		return false
-	}
-	seenDot := false
-	seenDigit := false
-	for i := 0; i < len(body); i++ {
-		switch c := body[i]; {
-		case c >= '0' && c <= '9':
-			seenDigit = true
-		case c == '.':
-			if seenDot {
-				return false
-			}
-			seenDot = true
-		default:
-			return false
-		}
-	}
-	return seenDigit
-}
-
 // getExprType determines the type of an integer expression by examining its
-// structure. Returns TypeFixed when an fp-suffixed literal is involved,
-// TypeBigInt when a bigint variable is, otherwise TypeInteger.
+// structure. Returns TypeFixed for FP_LITERAL and (fixed)-cast nodes and for
+// fixed-typed references; TypeBigInt for bigint references; otherwise
+// TypeInteger.
 func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 	if ctx == nil {
 		return TypeInteger
 	}
 
-	// fp-suffixed literals anywhere in an iexpr or fexpr position: e.g.
-	// `ap.count + 1.5fp`, `1.5fp + 2.5fp`, `dp.rate * 2.0fp`. The grammar
-	// doesn't recognize `fp` as a suffix — the lexer splits `1.5fp` into
-	// `1.5` (FLOAT_LITERAL) + `fp` (typedLong IDENT), and the parser glues
-	// them back together as a compound iexpr. Without this check the
-	// composite reads as an integer, the arithmetic emits plain `+` / `*`,
-	// and the RFixed is silently truncated via LongValue at runtime.
-	//
-	// We check the raw text of the whole context — if it's numeric with
-	// an `fp`/`FP` suffix, the author wrote an fp literal. Matches pure
-	// literals only; composite expressions contain operators (`+`, space)
-	// that disqualify them.
-	if pr, ok := ctx.(antlr.ParserRuleContext); ok {
-		if text := pr.GetText(); isFixedLiteralText(text) {
-			return TypeFixed
-		}
+	// FP_LITERAL (e.g. `1.5fp`) and (fixed) casts are fixed-typed directly
+	// from the parse tree — no raw-text inspection needed.
+	switch ctx.(type) {
+	case *FixedLiteralContext, *FixedFromStrContext, *FixedFromNumberContext,
+		*FixedFromFloatContext, *FixedFromIndexContext:
+		return TypeFixed
 	}
 
 	// Check for typed integer context (variable reference)
@@ -1243,31 +1193,56 @@ func (e *PostfixEmitter) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface
 	return nil
 }
 
+// minMaxOp picks the correct op name for a numeric min/max dispatch.
+// The fp path uses the dedicated fpmin/fpmax ops so precision is kept
+// on the 10⁻⁸ grid.
+//
+// No dedicated `bmin` / `bmax` ops exist, so bigint targets fall back
+// to the integer `min` / `max` — which calls IntValue() on both
+// operands and errors for any bigint exceeding int64 range. That's
+// a pre-existing bug independent of this PR; fixing it cleanly
+// requires registering `bmin` / `bmax` operators that dispatch via
+// RBigInt.Compare. Tracked as a follow-up.
+func minMaxOp(target, intOp, fpOp string) string {
+	if target == TypeFixed {
+		return fpOp
+	}
+	return intOp
+}
+
 func (e *PostfixEmitter) VisitIntMinOf(ctx *IntMinOfContext) interface{} {
-	e.Visit(ctx.Iexpr(0))
-	e.Visit(ctx.Iexpr(1))
-	e.emit("min")
+	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
+	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	e.emitWithTypeConversion(l, target)
+	e.emitWithTypeConversion(r, target)
+	e.emit(minMaxOp(target, "min", "fpmin"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMinOfComma(ctx *IntMinOfCommaContext) interface{} {
-	e.Visit(ctx.Iexpr(0))
-	e.Visit(ctx.Iexpr(1))
-	e.emit("min")
+	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
+	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	e.emitWithTypeConversion(l, target)
+	e.emitWithTypeConversion(r, target)
+	e.emit(minMaxOp(target, "min", "fpmin"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMaxOf(ctx *IntMaxOfContext) interface{} {
-	e.Visit(ctx.Iexpr(0))
-	e.Visit(ctx.Iexpr(1))
-	e.emit("max")
+	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
+	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	e.emitWithTypeConversion(l, target)
+	e.emitWithTypeConversion(r, target)
+	e.emit(minMaxOp(target, "max", "fpmax"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMaxOfComma(ctx *IntMaxOfCommaContext) interface{} {
-	e.Visit(ctx.Iexpr(0))
-	e.Visit(ctx.Iexpr(1))
-	e.emit("max")
+	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
+	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	e.emitWithTypeConversion(l, target)
+	e.emitWithTypeConversion(r, target)
+	e.emit(minMaxOp(target, "max", "fpmax"))
 	return nil
 }
 
@@ -1437,6 +1412,45 @@ func fexprIsFixed(e *PostfixEmitter, ctx interface{ GetText() string }) bool {
 		return true
 	}
 	return e.lookupType(text) == TypeFixed
+}
+
+// isFixedLiteralText reports whether text is a valid fp literal like
+// "1.5fp", "0fp", or "100.0FP" — digit sequence (optional leading sign,
+// optional single dot) followed by a case-insensitive "fp" suffix.
+// Restored after #699 cleanup left a dangling caller in fexprIsFixed.
+func isFixedLiteralText(text string) bool {
+	if len(text) < 3 {
+		return false
+	}
+	if !strings.EqualFold(text[len(text)-2:], "fp") {
+		return false
+	}
+	body := text[:len(text)-2]
+	if body == "" {
+		return false
+	}
+	if body[0] == '-' || body[0] == '+' {
+		body = body[1:]
+	}
+	if body == "" {
+		return false
+	}
+	seenDot := false
+	seenDigit := false
+	for i := 0; i < len(body); i++ {
+		switch c := body[i]; {
+		case c >= '0' && c <= '9':
+			seenDigit = true
+		case c == '.':
+			if seenDot {
+				return false
+			}
+			seenDot = true
+		default:
+			return false
+		}
+	}
+	return seenDigit
 }
 
 // VisitFloatRounded / VisitFloatRoundedTo / VisitFloatRoundedBoundry:
@@ -2319,14 +2333,14 @@ func (e *PostfixEmitter) VisitIncludeDate(ctx *IncludeDateContext) interface{} {
 // ============================================================================
 
 func (e *PostfixEmitter) VisitPerformDT(ctx *PerformDTContext) interface{} {
-	// Just emit the table name - no executetable needed
-	e.Visit(ctx.TypedDecisionTable())
+	e.emit("/" + ctx.TypedDecisionTable().GetText())
+	e.emit("performtable")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitPerformDTExplicit(ctx *PerformDTExplicitContext) interface{} {
-	// Just emit the table name - no executetable needed
-	e.Visit(ctx.TypedDecisionTable())
+	e.emit("/" + ctx.TypedDecisionTable().GetText())
+	e.emit("performtable")
 	return nil
 }
 
@@ -4899,5 +4913,71 @@ func (e *PostfixEmitter) VisitLocalBytesInit(ctx *LocalBytesInitContext) interfa
 
 func (e *PostfixEmitter) VisitLocalBytesDefined(ctx *LocalBytesDefinedContext) interface{} {
 	e.emit(ctx.TypedBytes().GetText())
+	return nil
+}
+
+// ============================================================================
+// Fixed-Point Expression Visitors
+// ============================================================================
+
+// VisitFixedLiteral emits an FP_LITERAL token verbatim (e.g. `1.5fp`). The
+// runtime compiler recognizes the `fp` suffix and constructs an RFixed.
+func (e *PostfixEmitter) VisitFixedLiteral(ctx *FixedLiteralContext) interface{} {
+	e.emit(ctx.GetText())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFixedFromStr(ctx *FixedFromStrContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("cvfp")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFixedFromNumber(ctx *FixedFromNumberContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.emit("cvfp")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFixedFromFloat(ctx *FixedFromFloatContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.emit("cvfp")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFixedFromIndex(ctx *FixedFromIndexContext) interface{} {
+	e.Visit(ctx.IndxExpr())
+	e.emit("cvfp")
+	return nil
+}
+
+// ============================================================================
+// Fixed-Point Local Variable Declaration Visitors
+// ============================================================================
+
+func (e *PostfixEmitter) VisitLocalFixedUndef(ctx *LocalFixedUndefContext) interface{} {
+	name := ctx.UndefinedIdent().GetText()
+	e.declareLocal(name, TypeFixed)
+	e.emit("null")
+	e.emit("allocate")
+	e.emit("execute")
+	e.emit("deallocate")
+	e.emit("pop")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitLocalFixedInit(ctx *LocalFixedInitContext) interface{} {
+	name := ctx.UndefinedIdent().GetText()
+	e.declareLocal(name, TypeFixed)
+	e.emitWithTypeConversion(ctx.Iexpr(), TypeFixed)
+	e.emit("allocate")
+	e.emit("execute")
+	e.emit("deallocate")
+	e.emit("pop")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitLocalFixedDefined(ctx *LocalFixedDefinedContext) interface{} {
+	e.emit(ctx.TypedLong().GetText())
 	return nil
 }
