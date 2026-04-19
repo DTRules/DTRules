@@ -202,7 +202,7 @@ func writeDTXMLContexts(f *excelize.File, sheet string, dt *DecisionTableXML, ro
 	row++
 
 	if dt.Contexts != "" {
-		contexts := strings.Split(dt.Contexts, ",")
+		contexts := strings.Split(string(dt.Contexts), ",")
 		for i, ctx := range contexts {
 			ctx = strings.TrimSpace(ctx)
 			f.SetCellValue(sheet, cellName(1, row), i+1)

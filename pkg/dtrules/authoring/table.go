@@ -17,6 +17,7 @@ package authoring
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
 )
@@ -87,8 +88,18 @@ func (t *Table) syncFromXML() {
 	t.Policy = t.xml.AttributeFields.Type
 
 	t.Contexts = nil
-	if t.xml.Contexts != "" {
-		t.Contexts = []Context{{DSL: t.xml.Contexts}}
+	// The XML form stores contexts as a newline-joined string. Split so a
+	// multi-statement `<contexts>` round-trips through the typed view with
+	// one Context entry per statement.
+	raw := strings.TrimSpace(string(t.xml.Contexts))
+	if raw != "" {
+		for _, line := range strings.Split(raw, "\n") {
+			line = strings.TrimSpace(line)
+			if line == "" {
+				continue
+			}
+			t.Contexts = append(t.Contexts, Context{DSL: line})
+		}
 	}
 
 	t.InitialActions = nil
@@ -133,7 +144,11 @@ func (t *Table) syncToXML() {
 	t.xml.AttributeFields.Type = t.Policy
 
 	if len(t.Contexts) > 0 {
-		t.xml.Contexts = t.Contexts[0].DSL
+		lines := make([]string, 0, len(t.Contexts))
+		for _, c := range t.Contexts {
+			lines = append(lines, c.DSL)
+		}
+		t.xml.Contexts = excel.ContextsField(strings.Join(lines, "\n"))
 	} else {
 		t.xml.Contexts = ""
 	}

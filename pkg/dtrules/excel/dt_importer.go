@@ -101,12 +101,60 @@ type DecisionTableXML struct {
 	TableName        string               `xml:"table_name"`
 	XLSFile          string               `xml:"xls_file"`
 	AttributeFields  AttributeFieldsXML   `xml:"attribute_fields"`
-	Contexts         string               `xml:"contexts"`
+	Contexts         ContextsField        `xml:"contexts"`
 	InitialActions   []InitialActionXML   `xml:"initial_actions>initial_action"`
 	Conditions       []ConditionXML       `xml:"conditions>condition_details"`
 	Actions          []ActionXML          `xml:"actions>action_details"`
 	PolicyStatements []PolicyStatementXML `xml:"policy_statements>policy_statement"`
 	ELCompiled       bool                 `xml:"el_compiled,attr"` // True if postfix was generated from EL
+}
+
+// ContextsField is the in-memory shape of a table's <contexts> element. It
+// carries a newline-joined DSL string — the simplest representation that
+// matches how Excel stores contexts — and knows how to round-trip through
+// both the legacy raw-text form and the structured <context_details> form
+// the loader expects.
+//
+//	Legacy (Excel import intermediate):
+//	  <contexts>for all accounts</contexts>
+//
+//	Loader (structured):
+//	  <contexts>
+//	    <context_details>
+//	      <context_dsl>for all accounts</context_dsl>
+//	      ...
+//	    </context_details>
+//	  </contexts>
+//
+// Unmarshalling tolerates both: structured <context_details> children have
+// their DSL extracted and joined with newlines; raw text is taken verbatim.
+// Marshalling emits the structured form so the loader can read it back.
+type ContextsField string
+
+// UnmarshalXML accepts either the raw-text or structured form and collapses
+// the result into a newline-joined DSL string so existing string-shaped
+// consumers (table.Contexts, syncFromXML) keep working.
+func (c *ContextsField) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var tmp struct {
+		InnerXML string `xml:",innerxml"`
+		Details  []struct {
+			DSL string `xml:"context_dsl"`
+		} `xml:"context_details"`
+	}
+	if err := d.DecodeElement(&tmp, &start); err != nil {
+		return err
+	}
+	if len(tmp.Details) > 0 {
+		lines := make([]string, 0, len(tmp.Details))
+		for _, det := range tmp.Details {
+			lines = append(lines, det.DSL)
+		}
+		*c = ContextsField(strings.Join(lines, "\n"))
+		return nil
+	}
+	// No <context_details> children — treat inner XML as raw text.
+	*c = ContextsField(strings.TrimSpace(tmp.InnerXML))
+	return nil
 }
 
 // AttributeFieldsXML holds metadata fields for the table.
@@ -408,8 +456,8 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 // <context_details> entry with an empty postfix (the loader compiles the
 // DSL on load). An entirely non-empty string with no newlines is treated as
 // a single context statement.
-func writeContextsXML(f *os.File, contexts string) {
-	text := strings.TrimSpace(contexts)
+func writeContextsXML(f *os.File, contexts ContextsField) {
+	text := strings.TrimSpace(string(contexts))
 	if text == "" {
 		f.WriteString("<contexts></contexts>\n")
 		return
@@ -721,9 +769,9 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 				if len(row) > 2 && firstCell != "" {
 					// Contexts are typically comma-separated entity names
 					if table.Contexts == "" {
-						table.Contexts = strings.TrimSpace(row[2])
+						table.Contexts = ContextsField(strings.TrimSpace(row[2]))
 					} else {
-						table.Contexts += "," + strings.TrimSpace(row[2])
+						table.Contexts = ContextsField(string(table.Contexts) + "," + strings.TrimSpace(row[2]))
 					}
 				}
 				if len(row) == 0 || firstCell == "" {

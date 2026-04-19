@@ -3824,25 +3824,31 @@ func (e *PostfixEmitter) VisitAddArrayToArray(ctx *AddArrayToArrayContext) inter
 		}
 	}
 
-	// Determine if source is a single entity or an array
-	// Check source type from EDD
+	// Determine if source is a single entity or an array. The parser sees
+	// `ADD <IDENT> TO <IDENT>` as arrayExpr TO arrayExpr because
+	// typedEntity and typedArray both come from IDENT — so this visitor is
+	// the default landing spot for both `add entity X to array Y` and
+	// `add array A to array B`. Use the symbol table to distinguish when
+	// present. If unknown, default to the single-element-to-array pattern
+	// (addto) since that's the overwhelmingly common case in practice;
+	// array-to-array merge requires explicitly typed arrays in the EDD.
 	srcExpr := ctx.ArrayExpr(0)
-	srcIsArray := true // Default to array
+	srcIsArray := false // Default to entity-to-array (safer)
 
 	if baseCtx, ok := srcExpr.(*ArrayBaseContext); ok {
 		if arrayExpr2 := baseCtx.ArrayExpr2(); arrayExpr2 != nil {
 			if typedCtx, ok := arrayExpr2.(*ArrayTypedContext); ok {
 				srcName := typedCtx.TypedArray().GetText()
 				srcType := e.lookupType(srcName)
-				// If source is entity type, not array
-				if srcType == TypeEntity {
-					srcIsArray = false
+				// If source is explicitly an array, use array merge.
+				if srcType == TypeArray {
+					srcIsArray = true
 				}
 			}
 		}
 	}
 
-	// If source is a single entity and dest is an array field, use swap addto
+	// Single-element → array: emit `swap addto`.
 	if !srcIsArray {
 		e.Visit(ctx.ArrayExpr(0))
 		e.Visit(ctx.ArrayExpr(1))
@@ -3851,7 +3857,7 @@ func (e *PostfixEmitter) VisitAddArrayToArray(ctx *AddArrayToArrayContext) inter
 		return nil
 	}
 
-	// Default: array-to-array addition
+	// Array-to-array merge (source is declared array in the EDD).
 	e.Visit(ctx.ArrayExpr(0))
 	e.Visit(ctx.ArrayExpr(1))
 	e.emit("true")
