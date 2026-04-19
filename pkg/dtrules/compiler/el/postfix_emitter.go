@@ -1414,6 +1414,45 @@ func fexprIsFixed(e *PostfixEmitter, ctx interface{ GetText() string }) bool {
 	return e.lookupType(text) == TypeFixed
 }
 
+// isFixedLiteralText reports whether text is a valid fp literal like
+// "1.5fp", "0fp", or "100.0FP" — digit sequence (optional leading sign,
+// optional single dot) followed by a case-insensitive "fp" suffix.
+// Restored after #699 cleanup left a dangling caller in fexprIsFixed.
+func isFixedLiteralText(text string) bool {
+	if len(text) < 3 {
+		return false
+	}
+	if !strings.EqualFold(text[len(text)-2:], "fp") {
+		return false
+	}
+	body := text[:len(text)-2]
+	if body == "" {
+		return false
+	}
+	if body[0] == '-' || body[0] == '+' {
+		body = body[1:]
+	}
+	if body == "" {
+		return false
+	}
+	seenDot := false
+	seenDigit := false
+	for i := 0; i < len(body); i++ {
+		switch c := body[i]; {
+		case c >= '0' && c <= '9':
+			seenDigit = true
+		case c == '.':
+			if seenDot {
+				return false
+			}
+			seenDot = true
+		default:
+			return false
+		}
+	}
+	return seenDigit
+}
+
 // VisitFloatRounded / VisitFloatRoundedTo / VisitFloatRoundedBoundry:
 // the three `<fexpr> rounded [...]` grammar alternatives. The pre-fix
 // state was:
