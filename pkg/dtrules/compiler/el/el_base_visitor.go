@@ -1,4 +1,4 @@
-// Code generated from /tmp/wt-623/pkg/dtrules/compiler/el/EL.g4 by ANTLR 4.13.2. DO NOT EDIT.
+// Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package el // EL
 import "github.com/antlr4-go/antlr/v4"
@@ -228,6 +228,18 @@ func (v *BaseELVisitor) VisitLocalBigIntInit(ctx *LocalBigIntInitContext) interf
 }
 
 func (v *BaseELVisitor) VisitLocalBigIntDefined(ctx *LocalBigIntDefinedContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitLocalFixedUndef(ctx *LocalFixedUndefContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitLocalFixedInit(ctx *LocalFixedInitContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitLocalFixedDefined(ctx *LocalFixedDefinedContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1551,6 +1563,10 @@ func (v *BaseELVisitor) VisitIntMaxOf(ctx *IntMaxOfContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitFixedLiteral(ctx *FixedLiteralContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitIntParen(ctx *IntParenContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1579,6 +1595,10 @@ func (v *BaseELVisitor) VisitIntTableLookup(ctx *IntTableLookupContext) interfac
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitFixedFromStr(ctx *FixedFromStrContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitIntSumOf(ctx *IntSumOfContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1588,6 +1608,18 @@ func (v *BaseELVisitor) VisitIntDiv(ctx *IntDivContext) interface{} {
 }
 
 func (v *BaseELVisitor) VisitIntLengthArray(ctx *IntLengthArrayContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFixedFromNumber(ctx *FixedFromNumberContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFixedFromFloat(ctx *FixedFromFloatContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFixedFromIndex(ctx *FixedFromIndexContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
