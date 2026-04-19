@@ -339,24 +339,37 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		builder.SetFilePath(table.AttributeFields.FilePath)
 	}
 
-	// Process contexts - use postfix if available
+	// Process contexts. Prefer a fresh compile from DSL so compiler bug
+	// fixes (e.g. #626 / #632 / v1.7.0) propagate without requiring a
+	// manual `dtrules build` step. If DSL is present but doesn't compile
+	// as valid EL (prose descriptions, legacy hand-authored postfix-only
+	// tables, comment-only DSL), fall back to the stored postfix.
 	contexts := make([]string, len(table.Contexts.Contexts))
 	contextsPostfix := make([]string, len(table.Contexts.Contexts))
 	contextsComment := make([]string, len(table.Contexts.Contexts))
 	for i, ctx := range table.Contexts.Contexts {
 		dsl := ctx.GetDSL()
 		contexts[i] = dsl
-		postfix := strings.TrimSpace(ctx.Postfix)
+		stored := strings.TrimSpace(ctx.Postfix)
+		dslTrimmed := strings.TrimSpace(dsl)
 
-		// Auto-compile EL DSL to postfix if postfix is empty
-		if postfix == "" && strings.TrimSpace(dsl) != "" {
+		if dslTrimmed != "" && !isCommentLine(dslTrimmed) {
 			compiled, err := l.elCompiler.CompileContext(dsl)
-			if err != nil {
+			switch {
+			case err == nil:
+				if stored != "" && stored != strings.TrimSpace(compiled) {
+					log.Printf("loader: context %d ('%s') — recompiled postfix differs from stored; using fresh compile. Run `dtrules build` to refresh the XML.", i+1, dsl)
+				}
+				contextsPostfix[i] = compiled
+			case stored != "":
+				log.Printf("loader: context %d ('%s') is not valid EL, using existing postfix: %v", i+1, dsl, err)
+				contextsPostfix[i] = stored
+			default:
 				return fmt.Errorf("failed to compile EL context %d ('%s'): %w", i+1, dsl, err)
 			}
-			postfix = compiled
+		} else {
+			contextsPostfix[i] = stored
 		}
-		contextsPostfix[i] = postfix
 		contextsComment[i] = ctx.Comment
 	}
 
