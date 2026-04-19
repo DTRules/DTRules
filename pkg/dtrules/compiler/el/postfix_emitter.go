@@ -1380,9 +1380,75 @@ func (e *PostfixEmitter) VisitFloatParen(ctx *FloatParenContext) interface{} {
 	return nil
 }
 
+// VisitFloatAbs / VisitIntAbs: `absolute value of <expr>`. The grammar has
+// three separate labeled alternatives (floatAbs / intAbs / bigAbs); before
+// this commit only bigAbs had a visitor, so intAbs and floatAbs fell
+// through to the default child visit — which emitted nothing at all,
+// leaving the enclosing `set` with an empty RHS.
+//
+// For intAbs with a declared-fp field we also want fpabs rather than
+// the plain `abs` op, so the int path looks at the resolved type. For
+// floatAbs we similarly look at the inner text to catch fp literals;
+// typical fp fields route through intAbs (typedLong wins), not here.
+func (e *PostfixEmitter) VisitIntAbs(ctx *IntAbsContext) interface{} {
+	inner := ctx.Iexpr()
+	e.Visit(inner)
+	switch e.getExprType(inner) {
+	case TypeFixed:
+		e.emit("fpabs")
+	case TypeBigInt:
+		e.emit("babs")
+	case TypeDouble:
+		e.emit("fabs")
+	default:
+		e.emit("abs")
+	}
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatAbs(ctx *FloatAbsContext) interface{} {
+	inner := ctx.Fexpr()
+	e.Visit(inner)
+	if isFixedLiteralText(inner.GetText()) {
+		e.emit("fpabs")
+		return nil
+	}
+	e.emit("fabs")
+	return nil
+}
+
+// VisitFloatRounded / VisitFloatRoundedTo / VisitFloatRoundedBoundry:
+// the three `<fexpr> rounded [...]` grammar alternatives. The pre-fix
+// state was:
+//   - VisitFloatRounded emitted `fexpr round` — but `round` was never a
+//     registered operator, so every `X rounded` rule failed at runtime.
+//   - VisitFloatRoundedTo and VisitFloatRoundedBoundry had no visitors
+//     at all, so the default child visit produced empty postfix.
+//
+// All three now route through the registered `roundto` operator which
+// takes `(number places boundary -- result)`. Defaults: 0 decimal places
+// and 0.5 boundary (half-up rounding) when the DSL doesn't specify.
 func (e *PostfixEmitter) VisitFloatRounded(ctx *FloatRoundedContext) interface{} {
 	e.Visit(ctx.Fexpr())
-	e.emit("round")
+	e.emit("0")
+	e.emit("0.5")
+	e.emit("roundto")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatRoundedTo(ctx *FloatRoundedToContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("0.5")
+	e.emit("roundto")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatRoundedBoundry(ctx *FloatRoundedBoundryContext) interface{} {
+	e.Visit(ctx.Fexpr(0))
+	e.Visit(ctx.Iexpr())
+	e.Visit(ctx.Fexpr(1))
+	e.emit("roundto")
 	return nil
 }
 
