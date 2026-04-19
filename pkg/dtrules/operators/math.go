@@ -16,6 +16,7 @@
 package operators
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -395,6 +396,28 @@ func opRoundTo(state dtrules.State) error {
 		return err
 	}
 
+	// Reject inputs that would produce garbage output:
+	//   - NaN/Inf number or boundary: int(NaN|Inf) is implementation-
+	//     defined in Go.
+	//   - |places| > 15: 10^16 loses integer precision in float64, and
+	//     `number *= scale` overflows to Inf for any nonzero input.
+	//     Real rounding never needs more than a handful of digits;
+	//     silently producing garbage is worse than a loud error.
+	if math.IsNaN(number) || math.IsInf(number, 0) {
+		return dtrules.NewRulesError("Math Exception", "roundto",
+			"cannot round NaN or Inf")
+	}
+	if math.IsNaN(boundary) || math.IsInf(boundary, 0) {
+		return dtrules.NewRulesError("Math Exception", "roundto",
+			"boundary must be finite")
+	}
+	const maxPlaces = 15
+	if places > maxPlaces || places < -maxPlaces {
+		return dtrules.NewRulesError("Math Exception", "roundto",
+			fmt.Sprintf("places out of range (got %d, must be in [-%d, %d])",
+				places, maxPlaces, maxPlaces))
+	}
+
 	round := func(n, b float64) float64 {
 		v := float64(int(n)) // Integer portion
 		if b >= 1 {
@@ -413,17 +436,26 @@ func opRoundTo(state dtrules.State) error {
 		return v
 	}
 
-	// Use int64 to prevent overflow on 32-bit systems
-	if places > 0 {
-		scale := float64(int64(10) * int64(places))
-		number *= scale
-		number = round(number, boundary)
+	// Scale is 10^|places|, not 10*|places| (the historic bug). For
+	// places=2 we want to round to the nearest 0.01, which means scaling
+	// by 100 before rounding to integer and scaling back down. The old
+	// `10*places` gave 20 instead of 100, so `rounded to 2 decimal places`
+	// actually rounded to the nearest 0.05 — wrong. The places=0 branch
+	// also had a division-by-zero (scale was -10*0 = 0).
+	//
+	// places >= 0: multiply up by 10^places, round, divide back.
+	// places  < 0: divide down by 10^|places| to round to the nearest
+	//              10^|places|, then multiply back.
+	if places < 0 {
+		scale := math.Pow(10, float64(-places))
 		number /= scale
+		number = round(number, boundary)
+		number *= scale
 	} else {
-		scale := float64(int64(-10) * int64(places))
-		number /= scale
-		number = round(number, boundary)
+		scale := math.Pow(10, float64(places))
 		number *= scale
+		number = round(number, boundary)
+		number /= scale
 	}
 
 	return state.DataPush(dtrules.GetRDoubleValue(number))

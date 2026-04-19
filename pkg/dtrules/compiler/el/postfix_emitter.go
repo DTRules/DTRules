@@ -326,6 +326,52 @@ func (e *PostfixEmitter) emitTypeCast(srcType, targetType string) {
 	}
 }
 
+// emitTypeAwareAddSub emits the store-back sequence for a field mutation
+// (`add value to field` or `subtract value from field`) where the value is
+// already pushed onto the data stack by the caller. Looks up the field's
+// declared type and emits the correct typed op (fp+/fp-, b+/b-, f+/f-, +/-)
+// after promoting the value to match. Subtract orders the operands so the
+// result is `field - value`, matching DTRules' existing semantics.
+//
+// op is "+" for add, "-" for sub. Any other op panics — intentional; this
+// helper is not meant to grow.
+func (e *PostfixEmitter) emitTypeAwareAddSub(fieldName, op string) {
+	if op != "+" && op != "-" {
+		panic("emitTypeAwareAddSub: op must be + or -")
+	}
+	switch e.lookupType(fieldName) {
+	case TypeFixed:
+		e.emit("cvfp")
+		e.emit(fieldName)
+		if op == "-" {
+			e.emit("swap")
+		}
+		e.emit("fp" + op)
+	case TypeBigInt:
+		e.emit("cvbi")
+		e.emit(fieldName)
+		if op == "-" {
+			e.emit("swap")
+		}
+		e.emit("b" + op)
+	case TypeDouble:
+		e.emit("cvr")
+		e.emit(fieldName)
+		if op == "-" {
+			e.emit("swap")
+		}
+		e.emit("f" + op)
+	default:
+		e.emit(fieldName)
+		if op == "-" {
+			e.emit("swap")
+		}
+		e.emit(op)
+	}
+	e.emit("/" + fieldName)
+	e.emit("xdef")
+}
+
 // identNumericType returns the EDD/local-declared type of a name reference
 // if it resolves to an integer, bigint, or fixed field. Returns "" for
 // anything else (string, boolean, entity, double, unknown). Double is
@@ -1334,9 +1380,125 @@ func (e *PostfixEmitter) VisitFloatParen(ctx *FloatParenContext) interface{} {
 	return nil
 }
 
+// VisitFloatAbs / VisitIntAbs: `absolute value of <expr>`. The grammar has
+// three separate labeled alternatives (floatAbs / intAbs / bigAbs); before
+// this commit only bigAbs had a visitor, so intAbs and floatAbs fell
+// through to the default child visit — which emitted nothing at all,
+// leaving the enclosing `set` with an empty RHS.
+//
+// For intAbs with a declared-fp field we also want fpabs rather than
+// the plain `abs` op, so the int path looks at the resolved type. For
+// floatAbs we similarly look at the inner text to catch fp literals;
+// typical fp fields route through intAbs (typedLong wins), not here.
+func (e *PostfixEmitter) VisitIntAbs(ctx *IntAbsContext) interface{} {
+	inner := ctx.Iexpr()
+	e.Visit(inner)
+	switch e.getExprType(inner) {
+	case TypeFixed:
+		e.emit("fpabs")
+	case TypeBigInt:
+		e.emit("babs")
+	case TypeDouble:
+		e.emit("fabs")
+	default:
+		e.emit("abs")
+	}
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatAbs(ctx *FloatAbsContext) interface{} {
+	inner := ctx.Fexpr()
+	e.Visit(inner)
+	// fp operands reach FloatAbs when a fp-declared field is referenced
+	// inside a fexpr context (grammar picks typedDouble over typedLong
+	// depending on surrounding rules). Emit fpabs so the value stays on
+	// the 10⁻⁸ grid; otherwise the fabs op coerces to float64 first and
+	// silently loses fractional precision.
+	if fexprIsFixed(e, inner) {
+		e.emit("fpabs")
+		return nil
+	}
+	e.emit("fabs")
+	return nil
+}
+
+// fexprIsFixed reports whether a fexpr context resolves to an fp-typed
+// value — either a literal with `fp` suffix or a name that maps to
+// TypeFixed in the symbol / local table.
+func fexprIsFixed(e *PostfixEmitter, ctx interface{ GetText() string }) bool {
+	if ctx == nil {
+		return false
+	}
+	text := ctx.GetText()
+	if isFixedLiteralText(text) {
+		return true
+	}
+	if lv, ok := e.lookupLocal(text); ok && lv.Type == TypeFixed {
+		return true
+	}
+	return e.lookupType(text) == TypeFixed
+}
+
+// VisitFloatRounded / VisitFloatRoundedTo / VisitFloatRoundedBoundry:
+// the three `<fexpr> rounded [...]` grammar alternatives. The pre-fix
+// state was:
+//   - VisitFloatRounded emitted `fexpr round` — but `round` was never a
+//     registered operator, so every `X rounded` rule failed at runtime.
+//   - VisitFloatRoundedTo and VisitFloatRoundedBoundry had no visitors
+//     at all, so the default child visit produced empty postfix.
+//
+// All three now route through the registered `roundto` operator which
+// takes `(number places boundary -- result)`. Defaults: 0 decimal places
+// and 0.5 boundary (half-up rounding) when the DSL doesn't specify.
+// VisitFloatRounded: `<fexpr> rounded`. For a double operand, route
+// through the registered `roundto` op with default places=0 and
+// boundary=0.5 (half-up). For an fp operand, `rounded` without an
+// explicit `to N decimal places` clause is "truncate the fractional
+// part" — emit `fptrunc` so the result stays exactly on the 10⁻⁸
+// grid instead of coercing through float64.
 func (e *PostfixEmitter) VisitFloatRounded(ctx *FloatRoundedContext) interface{} {
 	e.Visit(ctx.Fexpr())
-	e.emit("round")
+	if fexprIsFixed(e, ctx.Fexpr()) {
+		e.emit("fptrunc")
+		return nil
+	}
+	e.emit("0")
+	e.emit("0.5")
+	e.emit("roundto")
+	return nil
+}
+
+// VisitFloatRoundedTo: `<fexpr> rounded to N decimal places`. No fp-
+// equivalent operator exists for rounding to N fractional places, so
+// fp operands are rejected with a clear runtime error pointing to
+// the explicit `(double)` cast. Rule authors who truly need fp
+// rounding to N places should cast the fp value first (accepting the
+// precision concession) or wait for a dedicated `fpround` op.
+func (e *PostfixEmitter) VisitFloatRoundedTo(ctx *FloatRoundedToContext) interface{} {
+	if fexprIsFixed(e, ctx.Fexpr()) {
+		e.emit("\"rounded to N decimal places not supported on fixed-point values; use (double) cast if precision loss is acceptable\"")
+		e.emit("elstmterror")
+		return nil
+	}
+	e.Visit(ctx.Fexpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("0.5")
+	e.emit("roundto")
+	return nil
+}
+
+// VisitFloatRoundedBoundry: `<fexpr> rounded to N decimal places with
+// boundry B`. Same fp-rejection rationale as VisitFloatRoundedTo.
+func (e *PostfixEmitter) VisitFloatRoundedBoundry(ctx *FloatRoundedBoundryContext) interface{} {
+	if fexprIsFixed(e, ctx.Fexpr(0)) {
+		e.emit("\"rounded to N decimal places with boundry not supported on fixed-point values; use (double) cast if precision loss is acceptable\"")
+		e.emit("elstmterror")
+		return nil
+	}
+	e.Visit(ctx.Fexpr(0))
+	e.Visit(ctx.Iexpr())
+	e.Visit(ctx.Fexpr(1))
+	e.emit("roundto")
 	return nil
 }
 
@@ -2630,72 +2792,50 @@ func (e *PostfixEmitter) VisitIfElseIf(ctx *IfElseIfContext) interface{} {
 // the emit fetches the current value, adjusts by 1, and stores back using the
 // same /<name> xdef pattern leftIexprSimple uses.
 
-func (e *PostfixEmitter) VisitIncrementLong(ctx *IncrementLongContext) interface{} {
-	name := ctx.TypedLong().GetText()
-	// typedLong matches any IDENT; the declared field type tells us which
-	// numeric family to use. Without this check, incrementing a fixed or
-	// bigint field emits plain `+` and truncates via LongValue() at runtime.
-	switch e.lookupType(name) {
-	case TypeFixed:
-		e.emit(name)
-		e.emit("1")
-		e.emit("cvfp")
-		e.emit("fp+")
-	case TypeBigInt:
-		e.emit(name)
-		e.emit("1")
-		e.emit("cvbi")
-		e.emit("b+")
-	default:
-		e.emit(name)
-		e.emit("1")
-		e.emit("+")
+// emitOneForField pushes the literal "1" (or "1.0" for double-typed fields)
+// as the RHS value for increment / decrement statements. Double needs the
+// decimal form so the subsequent f+ / f- op can consume a double rather
+// than integer-truncating through cvr.
+func (e *PostfixEmitter) emitOneForField(fieldName string) {
+	if e.lookupType(fieldName) == TypeDouble {
+		e.emit("1.0")
+		return
 	}
-	e.emit("/" + name)
-	e.emit("xdef")
+	e.emit("1")
+}
+
+func (e *PostfixEmitter) VisitIncrementLong(ctx *IncrementLongContext) interface{} {
+	// typedLong matches any IDENT; the declared field type tells us which
+	// numeric family to use. Without this check, incrementing a fixed,
+	// bigint, or double field would emit plain `+` and truncate via
+	// LongValue() at runtime.
+	name := ctx.TypedLong().GetText()
+	e.emitOneForField(name)
+	e.emitTypeAwareAddSub(name, "+")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIncrementDouble(ctx *IncrementDoubleContext) interface{} {
+	// typedDouble is also just IDENT — this alternative is rarely reached
+	// (typedLong wins first), but when it is we honor the declared field
+	// type the same way IncrementLong does.
 	name := ctx.TypedDouble().GetText()
-	e.emit(name)
-	e.emit("1.0")
-	e.emit("f+")
-	e.emit("/" + name)
-	e.emit("xdef")
+	e.emitOneForField(name)
+	e.emitTypeAwareAddSub(name, "+")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitDecrementLong(ctx *DecrementLongContext) interface{} {
 	name := ctx.TypedLong().GetText()
-	switch e.lookupType(name) {
-	case TypeFixed:
-		e.emit(name)
-		e.emit("1")
-		e.emit("cvfp")
-		e.emit("fp-")
-	case TypeBigInt:
-		e.emit(name)
-		e.emit("1")
-		e.emit("cvbi")
-		e.emit("b-")
-	default:
-		e.emit(name)
-		e.emit("1")
-		e.emit("-")
-	}
-	e.emit("/" + name)
-	e.emit("xdef")
+	e.emitOneForField(name)
+	e.emitTypeAwareAddSub(name, "-")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitDecrementDouble(ctx *DecrementDoubleContext) interface{} {
 	name := ctx.TypedDouble().GetText()
-	e.emit(name)
-	e.emit("1.0")
-	e.emit("f-")
-	e.emit("/" + name)
-	e.emit("xdef")
+	e.emitOneForField(name)
+	e.emitTypeAwareAddSub(name, "-")
 	return nil
 }
 
@@ -3022,44 +3162,15 @@ func (e *PostfixEmitter) VisitNameUsing(ctx *NameUsingContext) interface{} {
 
 // Subtodest emitters. Mirror addtodest but subtract. `<value> <subtodest>`
 // expects the rhs value on the stack, then runs field - value and stores.
-// Because `-` is a -b operator, we swap before subtracting to get field-value
-// rather than value-field.
+// Dispatch through emitTypeAwareAddSub so fixed / bigint / double targets
+// don't silently truncate via plain `-`.
 func (e *PostfixEmitter) VisitSubDestLong(ctx *SubDestLongContext) interface{} {
-	name := ctx.TypedLong().GetText()
-	// typedLong matches any IDENT; pick the numeric family based on the
-	// field's declared type. A plain `-` would truncate fixed or bigint
-	// operands via LongValue() at runtime — silent precision / range loss.
-	// Caller (VisitSubtractNum) has already pushed the value; stack shape
-	// is [value]. Emit `<field> swap <cast-on-value> <op>` so the subtract
-	// computes field − value (not value − field) at the correct type.
-	switch e.lookupType(name) {
-	case TypeFixed:
-		e.emit(name)
-		e.emit("swap")
-		e.emit("cvfp")
-		e.emit("fp-")
-	case TypeBigInt:
-		e.emit(name)
-		e.emit("swap")
-		e.emit("cvbi")
-		e.emit("b-")
-	default:
-		e.emit(name)
-		e.emit("swap")
-		e.emit("-")
-	}
-	e.emit("/" + name)
-	e.emit("xdef")
+	e.emitTypeAwareAddSub(ctx.TypedLong().GetText(), "-")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitSubDestDouble(ctx *SubDestDoubleContext) interface{} {
-	name := ctx.TypedDouble().GetText()
-	e.emit(name)
-	e.emit("swap")
-	e.emit("f-")
-	e.emit("/" + name)
-	e.emit("xdef")
+	e.emitTypeAwareAddSub(ctx.TypedDouble().GetText(), "-")
 	return nil
 }
 
@@ -3875,76 +3986,47 @@ func (e *PostfixEmitter) VisitDateMinusYears(ctx *DateMinusYearsContext) interfa
 // ============================================================================
 
 func (e *PostfixEmitter) VisitAddArrayToArray(ctx *AddArrayToArrayContext) interface{} {
-	// Check if this is actually a numeric add to a possessive field
-	// Pattern: add <value> to <entity>'s <field>
-	// The parser matches this as arrayExpr TO arrayExpr, but if the destination
-	// is a possessive with a numeric field, we should emit arithmetic
+	// The parser steers `add <value> to <field>` through this visitor when
+	// both sides look like arrayExpr (the first matching alternative in the
+	// addtostatement rule). If the destination actually resolves to a
+	// declared numeric field, emit the typed store-back via the shared
+	// helper so fixed and bigint targets don't get plain `+` (which would
+	// truncate via LongValue at runtime).
 
 	destExpr := ctx.ArrayExpr(1)
 
-	// Check if destination is colonRef (possessive pattern)
+	// Possessive pattern: `add X to <entity>'s <field>` →
+	//   <value> <entity> entitypush <addSubSequence> entitypop
 	if colonRefCtx, ok := destExpr.(*ArrayColonRefContext); ok {
-		colonRef := colonRefCtx.ColonRef()
-		possRef := colonRef.PossessiveRef()
-
-		// Get the field name from typedArray
 		fieldName := colonRefCtx.TypedArray().GetText()
-		fieldType := e.lookupType(fieldName)
-
-		// If field is numeric, use arithmetic pattern
-		if fieldType == TypeInteger || fieldType == TypeLong || fieldType == TypeDouble {
-			// Emit the value first
+		if isNumericType(e.lookupType(fieldName)) {
 			e.Visit(ctx.ArrayExpr(0))
-
-			// Handle possessive chain for entity reference
-			if possChain, ok := possRef.(*PossessiveChainContext); ok {
+			if possChain, ok := colonRefCtx.ColonRef().PossessiveRef().(*PossessiveChainContext); ok {
 				tokens := possChain.AllPOSSESSIVE()
 				if len(tokens) > 0 {
 					poss := tokens[0].GetText()
-					entityName := poss[:len(poss)-2] // Remove 's suffix
-
-					if e.emitLocalRef(entityName) {
-						// emitLocalRef already emitted "<index> local@"
-					} else {
+					entityName := poss[:len(poss)-2] // strip 's
+					if !e.emitLocalRef(entityName) {
 						e.emit(entityName)
 					}
 				}
 			}
-
 			e.emit("entitypush")
-			e.emit(fieldName)
-			if fieldType == TypeDouble {
-				e.emit("f+")
-			} else {
-				e.emit("+")
-			}
-			e.emit("/" + fieldName)
-			e.emit("xdef")
+			e.emitTypeAwareAddSub(fieldName, "+")
 			e.emit("entitypop")
 			return nil
 		}
 	}
 
-	// Check if destination is a simple field (arrayBase -> arrayExpr2 -> typedArray)
-	// Pattern: add <value> to <entity.field>
+	// Bare-IDENT numeric destination: `add X to <field>` →
+	//   <value> <addSubSequence>
 	if baseCtx, ok := destExpr.(*ArrayBaseContext); ok {
 		if arrayExpr2 := baseCtx.ArrayExpr2(); arrayExpr2 != nil {
 			if typedCtx, ok := arrayExpr2.(*ArrayTypedContext); ok {
 				fieldName := typedCtx.TypedArray().GetText()
-				fieldType := e.lookupType(fieldName)
-
-				// If field is numeric, use arithmetic pattern
-				if fieldType == TypeInteger || fieldType == TypeLong || fieldType == TypeDouble {
-					// Emit value and field, then arithmetic
+				if isNumericType(e.lookupType(fieldName)) {
 					e.Visit(ctx.ArrayExpr(0))
-					e.emit(fieldName)
-					if fieldType == TypeDouble {
-						e.emit("f+")
-					} else {
-						e.emit("+")
-					}
-					e.emit("/" + fieldName)
-					e.emit("xdef")
+					e.emitTypeAwareAddSub(fieldName, "+")
 					return nil
 				}
 			}
@@ -4024,28 +4106,52 @@ func (e *PostfixEmitter) VisitAddNumToDest(ctx *AddNumToDestContext) interface{}
 	return nil
 }
 
+// isNumericType reports whether a declared EDD type string is one of the
+// four numeric types the field-mutation visitors know how to dispatch on.
+func isNumericType(t string) bool {
+	switch t {
+	case TypeInteger, TypeLong, TypeBigInt, TypeDouble, TypeFixed:
+		return true
+	}
+	return false
+}
+
+// VisitAddDestArray is the default landing spot for bare-IDENT add-to
+// targets: `arrayExpr2` wins the grammar alternative ordering over
+// typedLong/typedDouble. Dispatch here on the declared field type:
+//
+//   - numeric (integer / bigint / double / fixed): emit the type-aware
+//     store-back sequence via emitTypeAwareAddSub.
+//   - array or unknown: fall through to the single-element-into-array
+//     pattern (`value array swap addto`).
+//
+// Before this fix, all bare-IDENT numeric targets compiled to just
+// `value field` with no op or xdef — the statement was essentially a no-op
+// at runtime and the field was never updated.
 func (e *PostfixEmitter) VisitAddDestArray(ctx *AddDestArrayContext) interface{} {
+	if arrTyped, ok := ctx.ArrayExpr2().(*ArrayTypedContext); ok {
+		name := arrTyped.TypedArray().GetText()
+		switch e.lookupType(name) {
+		case TypeInteger, TypeLong, TypeBigInt, TypeDouble, TypeFixed:
+			e.emitTypeAwareAddSub(name, "+")
+			return nil
+		}
+	}
+	// Real array target (or unknown; default to single-element append for
+	// consistency with VisitAddArrayToArray's overwhelmingly-common case).
 	e.Visit(ctx.ArrayExpr2())
+	e.emit("swap")
+	e.emit("addto")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitAddDestLong(ctx *AddDestLongContext) interface{} {
-	// Pattern: field + /field xdef
-	fieldName := ctx.TypedLong().GetText()
-	e.emit(fieldName)
-	e.emit("+")
-	e.emit("/" + fieldName)
-	e.emit("xdef")
+	e.emitTypeAwareAddSub(ctx.TypedLong().GetText(), "+")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitAddDestDouble(ctx *AddDestDoubleContext) interface{} {
-	// Pattern: field f+ /field xdef
-	fieldName := ctx.TypedDouble().GetText()
-	e.emit(fieldName)
-	e.emit("f+")
-	e.emit("/" + fieldName)
-	e.emit("xdef")
+	e.emitTypeAwareAddSub(ctx.TypedDouble().GetText(), "+")
 	return nil
 }
 
