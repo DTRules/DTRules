@@ -3413,6 +3413,59 @@ func (e *PostfixEmitter) VisitOperatorstatements(ctx *OperatorstatementsContext)
 	return nil
 }
 
+// VisitRemoveEachWhere: `remove each <eexpr> from <arrayExpr> where <bexpr>`
+// — iterate in reverse (forallr is safer under removal), and for each
+// element whose bexpr holds, call `remove(arr, element)`. We keep a second
+// copy of the array on the data stack below forallr's operands so the body
+// can reach it with `dup`; the element comes from the entity stack via
+// `0 entityfetch`.
+func (e *PostfixEmitter) VisitRemoveEachWhere(ctx *RemoveEachWhereContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.emit("dup")
+	e.emit("{")
+	e.Visit(ctx.Bexpr())
+	e.emit("{")
+	e.emit("dup")
+	e.emit("0")
+	e.emit("entityfetch")
+	e.emit("remove")
+	e.emit("}")
+	e.emit("if")
+	e.emit("}")
+	e.emit("swap")
+	e.emit("forallr")
+	e.emit("pop")
+	return nil
+}
+
+// VisitBoolMatchForall: `there is match for all <arr1> to <nexpr> in <arr2>`
+// — every element of arr1 has a match in arr2 via the nexpr attribute.
+// Emitted as nested folds: outer AND-accumulator over arr1, inner OR-
+// accumulator over arr2 comparing y.<nexpr> to x (fetched from entity
+// stack at depth 1). Semantic approximation; runtime correctness depends
+// on the specific types of arr1/arr2/nexpr.
+func (e *PostfixEmitter) VisitBoolMatchForall(ctx *BoolMatchForallContext) interface{} {
+	e.emit("true")
+	e.Visit(ctx.ArrayExpr(0))
+	e.emit("{")
+	// Inner existence check over arr2
+	e.emit("false")
+	e.Visit(ctx.ArrayExpr(1))
+	e.emit("{")
+	e.Visit(ctx.Nexpr())     // y.<nexpr>
+	e.emit("1")              // depth 1 = outer element x
+	e.emit("entityfetch")
+	e.emit("==")
+	e.emit("or")
+	e.emit("}")
+	e.emit("forall")
+	// AND with outer accumulator
+	e.emit("and")
+	e.emit("}")
+	e.emit("forall")
+	return nil
+}
+
 // VisitPerformCatchError: `perform <T1> and onerror add <e> to context
 // and perform <T2>`. opPerformCatchError signature is (table errtable
 // errentity --), so push /<T1>, /<T2>, /<e> as literal names then call the op.

@@ -182,3 +182,4 @@ iexpr	intValueOfOp	condition	long value of cvi(1.0) > 0
 fexpr	floatValueOfOp	condition	double value of cvr(1) > 0.0
 strexpr	strValueOfOp	condition	string value of cvs(1) is equal to "1"
 done	policyNExpr	raw	policystatement $tbl;
+bexpr	boolMatchForall	condition	there is match for all accounts to $tbl in accounts
