@@ -298,6 +298,16 @@ func (l *jsonDataLoader) convertToAttributeType(attrType AttributeType, body str
 		}
 		return dtrules.GetRBigIntFromInt64(0)
 
+	case TypeFixed:
+		// Fixed-point values must come in as strings to preserve the 10^-8
+		// grid exactly; a JSON number would go through float64 and lose
+		// precision on sub-satoshi amounts.
+		if v, err := dtrules.GetRFixedFromString(body); err == nil {
+			return v
+		}
+		zero, _ := dtrules.GetRFixedFromInt64(0)
+		return zero
+
 	default:
 		return dtrules.NewRString(body)
 	}

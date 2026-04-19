@@ -117,6 +117,41 @@ func TestCompileDouble(t *testing.T) {
 	}
 }
 
+func TestCompileFixedLiteral(t *testing.T) {
+	cases := []struct {
+		src  string
+		want string
+	}{
+		{"1.5fp", "1.50000000"},
+		{"-0.00000001fp", "-0.00000001"},
+		{"1000000FP", "1000000.00000000"},
+		{"0fp", "0.00000000"},
+	}
+	for _, c := range cases {
+		t.Run(c.src, func(t *testing.T) {
+			comp := newTestCompiler()
+			result, err := comp.Compile(c.src)
+			if err != nil {
+				t.Fatalf("Compile(%q): %v", c.src, err)
+			}
+			arr, err := result.ArrayValue()
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(arr) != 1 {
+				t.Fatalf("expected 1 element, got %d", len(arr))
+			}
+			fp, ok := arr[0].(*dtrules.RFixed)
+			if !ok {
+				t.Fatalf("expected RFixed, got %T", arr[0])
+			}
+			if got := fp.StringValue(); got != c.want {
+				t.Errorf("compiled %q = %q, want %q", c.src, got, c.want)
+			}
+		})
+	}
+}
+
 func TestCompileString(t *testing.T) {
 	c := newTestCompiler()
 

@@ -70,6 +70,72 @@ func TestEntityFactory(t *testing.T) {
 	}
 }
 
+// TestEntityPutFixedCoercion guards the TypeFixed branch of REntity.Put:
+// integer and bigint values assigned to a fixed-typed field must coerce to
+// RFixed via PromoteToRFixed; double values must error per the "no silent
+// down-coercion" principle shared with the bigint wiring (#675).
+func TestEntityPutFixedCoercion(t *testing.T) {
+	factory := NewFactory(nil)
+	entityName := dtrules.GetRName("pool")
+	refEntity, _ := factory.FindCreateRefEntity(false, entityName)
+
+	zero, _ := dtrules.GetRFixedFromInt64(0)
+	refEntity.AddAttribute(dtrules.GetRName("amount"), "",
+		zero, true, true, dtrules.TypeFixed, "", "", "", "")
+
+	amountName := dtrules.GetRName("amount")
+
+	t.Run("int promotes to RFixed", func(t *testing.T) {
+		if err := refEntity.Put(amountName, dtrules.GetRIntegerValue(42)); err != nil {
+			t.Fatalf("Put integer: %v", err)
+		}
+		v, _ := refEntity.Get(amountName)
+		fp, ok := v.(*dtrules.RFixed)
+		if !ok {
+			t.Fatalf("stored value should be RFixed, got %T", v)
+		}
+		if got := fp.StringValue(); got != "42.00000000" {
+			t.Errorf("int 42 → %q, want 42.00000000", got)
+		}
+	})
+
+	t.Run("bigint promotes to RFixed", func(t *testing.T) {
+		if err := refEntity.Put(amountName, dtrules.GetRBigIntFromInt64(1_000_000)); err != nil {
+			t.Fatalf("Put bigint: %v", err)
+		}
+		v, _ := refEntity.Get(amountName)
+		fp, ok := v.(*dtrules.RFixed)
+		if !ok {
+			t.Fatalf("stored value should be RFixed, got %T", v)
+		}
+		if got := fp.StringValue(); got != "1000000.00000000" {
+			t.Errorf("bigint 1e6 → %q, want 1000000.00000000", got)
+		}
+	})
+
+	t.Run("double is rejected — requires explicit cvfp", func(t *testing.T) {
+		err := refEntity.Put(amountName, dtrules.GetRDoubleValue(1.5))
+		if err == nil {
+			t.Fatal("Put of double into fixed field must error")
+		}
+	})
+
+	t.Run("RFixed passes through unchanged", func(t *testing.T) {
+		fp, _ := dtrules.GetRFixedFromString("3.14159265")
+		if err := refEntity.Put(amountName, fp); err != nil {
+			t.Fatalf("Put fp: %v", err)
+		}
+		v, _ := refEntity.Get(amountName)
+		got, ok := v.(*dtrules.RFixed)
+		if !ok {
+			t.Fatalf("stored value should be RFixed, got %T", v)
+		}
+		if got.StringValue() != "3.14159265" {
+			t.Errorf("fp passthrough: got %q, want 3.14159265", got.StringValue())
+		}
+	})
+}
+
 func TestEntityAttributes(t *testing.T) {
 	factory := NewFactory(nil)
 	entityName := dtrules.GetRName("person")

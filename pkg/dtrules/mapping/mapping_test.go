@@ -304,6 +304,8 @@ func TestAttributeTypes(t *testing.T) {
 		{"bigint", TypeBigInt},
 		{"biginteger", TypeBigInt},
 		{"BIGINT", TypeBigInt},
+		{"fixed", TypeFixed},
+		{"FIXED", TypeFixed},
 		{"unknown", TypeNone},
 		{"", TypeNone},
 	}
@@ -418,6 +420,36 @@ func TestBigIntJSONDataLoading(t *testing.T) {
 	err = m.LoadDataJSON(strings.NewReader(dataJSON))
 	if err != nil {
 		t.Fatalf("LoadDataJSON failed: %v", err)
+	}
+}
+
+// TestFixedJSONConvertToAttributeType directly exercises the TypeFixed arm of
+// jsonDataLoader.convertToAttributeType — the runtime JSON data path that
+// parses fp values from strings to preserve the 10^-8 grid.
+func TestFixedJSONConvertToAttributeType(t *testing.T) {
+	session := newMockSession()
+	m := NewMapping(session)
+	l := newJSONDataLoader(m)
+
+	cases := []struct {
+		body string
+		want string
+	}{
+		{"1680748.45091643", "1680748.45091643"},
+		{"-0.00000001", "-0.00000001"},
+		{"0", "0.00000000"},
+	}
+	for _, c := range cases {
+		t.Run(c.body, func(t *testing.T) {
+			obj := l.convertToAttributeType(TypeFixed, c.body, c.body)
+			fp, ok := obj.(*dtrules.RFixed)
+			if !ok {
+				t.Fatalf("expected *RFixed, got %T", obj)
+			}
+			if got := fp.StringValue(); got != c.want {
+				t.Errorf("convertToAttributeType(%q) = %q, want %q", c.body, got, c.want)
+			}
+		})
 	}
 }
 

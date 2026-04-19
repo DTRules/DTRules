@@ -87,6 +87,7 @@ const (
 	TypeArray
 	TypeXMLValue
 	TypeBigInt
+	TypeFixed
 )
 
 // ParseAttributeType converts a string type to AttributeType.
@@ -110,6 +111,8 @@ func ParseAttributeType(s string) AttributeType {
 		return TypeXMLValue
 	case "bigint", "biginteger":
 		return TypeBigInt
+	case "fixed":
+		return TypeFixed
 	default:
 		return TypeNone
 	}

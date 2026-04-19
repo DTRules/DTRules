@@ -25,6 +25,16 @@ import (
 	"github.com/DTRules/DTRules/pkg/dtrules/operators"
 )
 
+// hasFixedSuffix reports whether token ends in an `fp` or `FP` suffix of at
+// least one preceding character. Used to detect fixed-point numeric literals
+// like "1.50000000fp" before attempting integer or double parsing.
+func hasFixedSuffix(token string) bool {
+	if len(token) < 3 {
+		return false
+	}
+	return strings.EqualFold(token[len(token)-2:], "fp")
+}
+
 // Compiler compiles postfix expressions into executable code.
 type Compiler struct {
 	session dtrules.Session
@@ -176,6 +186,13 @@ func (c *Compiler) compileToken(token string) (dtrules.Object, error) {
 		b, err := dtrules.NewRBytesFromHex(token)
 		if err == nil {
 			return b, nil
+		}
+	}
+
+	// Try as fixed-point (numeric token with an `fp`/`FP` suffix).
+	if hasFixedSuffix(token) {
+		if fp, err := dtrules.GetRFixedFromString(token); err == nil {
+			return fp, nil
 		}
 	}
 

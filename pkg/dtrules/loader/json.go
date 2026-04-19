@@ -232,6 +232,10 @@ func (l *JSONEDDLoader) computeDefaultValue(defaultStr string, rtype *dtrules.RT
 		if v, err := dtrules.GetRBigIntFromString(defaultStr); err == nil {
 			return v
 		}
+	case dtrules.TypeFixed:
+		if v, err := dtrules.GetRFixedFromString(defaultStr); err == nil {
+			return v
+		}
 	}
 
 	return dtrules.GetRNull()

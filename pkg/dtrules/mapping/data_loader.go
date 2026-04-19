@@ -320,6 +320,16 @@ func (l *dataLoader) setAttribute(pending pendingAttrib, body string, createdEnt
 		}
 		value = dtrules.GetRDoubleValue(val)
 
+	case TypeFixed:
+		if body == "" {
+			body = "0"
+		}
+		fp, err := dtrules.GetRFixedFromString(body)
+		if err != nil {
+			return fmt.Errorf("failed to parse fixed value %q: %w", body, err)
+		}
+		value = fp
+
 	case TypeBoolean:
 		if body == "" {
 			body = "false"

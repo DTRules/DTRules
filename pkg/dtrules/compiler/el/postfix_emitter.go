@@ -134,6 +134,8 @@ func (e *PostfixEmitter) typeConverter(fieldType string) string {
 		return "cvbi"
 	case TypeBytes:
 		return "cvbytes"
+	case TypeFixed:
+		return "cvfp"
 	case TypeArray, TypeName, TypeXmlValue:
 		return "" // No conversion needed
 	default:
@@ -141,11 +143,71 @@ func (e *PostfixEmitter) typeConverter(fieldType string) string {
 	}
 }
 
-// getExprType determines the type of an integer expression by examining its structure.
-// Returns TypeBigInt if the expression involves bigint variables, otherwise TypeInteger.
+// isFixedLiteralText reports whether a string is the full text of a numeric
+// literal with an `fp`/`FP` suffix. Accepts an optional leading sign, digits,
+// at most one decimal point, and the required `fp` suffix. Composite
+// expressions (containing spaces, operators, etc.) are rejected — those
+// aren't literals even if they contain one inside.
+func isFixedLiteralText(text string) bool {
+	if len(text) < 3 {
+		return false
+	}
+	if !strings.EqualFold(text[len(text)-2:], "fp") {
+		return false
+	}
+	body := text[:len(text)-2]
+	if body == "" {
+		return false
+	}
+	// Optional leading sign
+	if body[0] == '-' || body[0] == '+' {
+		body = body[1:]
+	}
+	if body == "" {
+		return false
+	}
+	seenDot := false
+	seenDigit := false
+	for i := 0; i < len(body); i++ {
+		switch c := body[i]; {
+		case c >= '0' && c <= '9':
+			seenDigit = true
+		case c == '.':
+			if seenDot {
+				return false
+			}
+			seenDot = true
+		default:
+			return false
+		}
+	}
+	return seenDigit
+}
+
+// getExprType determines the type of an integer expression by examining its
+// structure. Returns TypeFixed when an fp-suffixed literal is involved,
+// TypeBigInt when a bigint variable is, otherwise TypeInteger.
 func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 	if ctx == nil {
 		return TypeInteger
+	}
+
+	// fp-suffixed literals anywhere in an iexpr or fexpr position: e.g.
+	// `ap.count + 1.5fp`, `1.5fp + 2.5fp`, `dp.rate * 2.0fp`. The grammar
+	// doesn't recognize `fp` as a suffix — the lexer splits `1.5fp` into
+	// `1.5` (FLOAT_LITERAL) + `fp` (typedLong IDENT), and the parser glues
+	// them back together as a compound iexpr. Without this check the
+	// composite reads as an integer, the arithmetic emits plain `+` / `*`,
+	// and the RFixed is silently truncated via LongValue at runtime.
+	//
+	// We check the raw text of the whole context — if it's numeric with
+	// an `fp`/`FP` suffix, the author wrote an fp literal. Matches pure
+	// literals only; composite expressions contain operators (`+`, space)
+	// that disqualify them.
+	if pr, ok := ctx.(antlr.ParserRuleContext); ok {
+		if text := pr.GetText(); isFixedLiteralText(text) {
+			return TypeFixed
+		}
 	}
 
 	// Check for typed integer context (variable reference)
@@ -189,24 +251,17 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 		}
 	}
 
-	// For compound expressions, check children recursively
+	// For compound expressions, propagate the widest operand type
+	// (Fixed > BigInt > Integer).
 	switch c := ctx.(type) {
 	case *IntAddContext:
-		if e.getExprType(c.Iexpr(0)) == TypeBigInt || e.getExprType(c.Iexpr(1)) == TypeBigInt {
-			return TypeBigInt
-		}
+		return promoteArithType(e.getExprType(c.Iexpr(0)), e.getExprType(c.Iexpr(1)))
 	case *IntSubContext:
-		if e.getExprType(c.Iexpr(0)) == TypeBigInt || e.getExprType(c.Iexpr(1)) == TypeBigInt {
-			return TypeBigInt
-		}
+		return promoteArithType(e.getExprType(c.Iexpr(0)), e.getExprType(c.Iexpr(1)))
 	case *IntMulContext:
-		if e.getExprType(c.Iexpr(0)) == TypeBigInt || e.getExprType(c.Iexpr(1)) == TypeBigInt {
-			return TypeBigInt
-		}
+		return promoteArithType(e.getExprType(c.Iexpr(0)), e.getExprType(c.Iexpr(1)))
 	case *IntDivContext:
-		if e.getExprType(c.Iexpr(0)) == TypeBigInt || e.getExprType(c.Iexpr(1)) == TypeBigInt {
-			return TypeBigInt
-		}
+		return promoteArithType(e.getExprType(c.Iexpr(0)), e.getExprType(c.Iexpr(1)))
 	case *IntNegateContext:
 		return e.getExprType(c.Iexpr())
 	case *IntParenContext:
@@ -216,20 +271,78 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 	return TypeInteger
 }
 
-// isBigIntExpr returns true if the expression involves bigint types.
-func (e *PostfixEmitter) isBigIntExpr(ctx antlr.ParseTree) bool {
-	return e.getExprType(ctx) == TypeBigInt
+// promoteArithType returns the widest type for a mixed-type integer
+// arithmetic or comparison expression: Fixed > BigInt > Integer.
+func promoteArithType(a, b string) string {
+	if a == TypeFixed || b == TypeFixed {
+		return TypeFixed
+	}
+	if a == TypeBigInt || b == TypeBigInt {
+		return TypeBigInt
+	}
+	return TypeInteger
 }
 
-// emitWithBigIntConversion emits an integer expression, converting to bigint if needed.
-// If the expression is integer but we need bigint (for mixed-type operations),
-// it emits a cvbi conversion after the expression.
-func (e *PostfixEmitter) emitWithBigIntConversion(ctx antlr.ParseTree, needsBigInt bool) {
-	exprType := e.getExprType(ctx)
-	e.Visit(ctx)
-	if needsBigInt && exprType != TypeBigInt {
-		e.emit("cvbi")
+// arithOp picks the correct postfix opcode for an arithmetic or comparison
+// operation based on the promoted expression type.
+func arithOp(target, intOp, bigOp, fpOp string) string {
+	switch target {
+	case TypeFixed:
+		return fpOp
+	case TypeBigInt:
+		return bigOp
+	default:
+		return intOp
 	}
+}
+
+// emitWithTypeConversion emits an integer-family expression and casts the
+// result to targetType on the stack. Handles int→bigint, int→fixed, and
+// bigint→fixed promotions. Same-type targets emit no cast.
+func (e *PostfixEmitter) emitWithTypeConversion(ctx antlr.ParseTree, targetType string) {
+	srcType := e.getExprType(ctx)
+	e.Visit(ctx)
+	e.emitTypeCast(srcType, targetType)
+}
+
+// emitTypeCast emits the postfix cast op needed to convert a stack value of
+// srcType into targetType. Same-type is a no-op. Only the three implicit
+// numeric promotions are handled (int→bigint, int→fixed, bigint→fixed);
+// double→fixed requires explicit cvfp and lands here only as a pre-cast
+// source, never as a target.
+func (e *PostfixEmitter) emitTypeCast(srcType, targetType string) {
+	if srcType == targetType {
+		return
+	}
+	switch targetType {
+	case TypeBigInt:
+		if srcType == TypeInteger {
+			e.emit("cvbi")
+		}
+	case TypeFixed:
+		if srcType == TypeInteger || srcType == TypeBigInt {
+			e.emit("cvfp")
+		}
+	}
+}
+
+// identNumericType returns the EDD/local-declared type of a name reference
+// if it resolves to an integer, bigint, or fixed field. Returns "" for
+// anything else (string, boolean, entity, double, unknown). Double is
+// intentionally excluded so fixed ↔ double comparisons stay on the legacy
+// string-compare path rather than silently snapping onto the 10^-8 grid.
+func (e *PostfixEmitter) identNumericType(name string) string {
+	if lv, ok := e.lookupLocal(name); ok {
+		switch lv.Type {
+		case TypeInteger, TypeLong, TypeBigInt, TypeFixed:
+			return lv.Type
+		}
+	}
+	switch t := e.lookupType(name); t {
+	case TypeInteger, TypeLong, TypeBigInt, TypeFixed:
+		return t
+	}
+	return ""
 }
 
 // Emit returns the accumulated postfix output.
@@ -304,18 +417,10 @@ func (e *PostfixEmitter) VisitBoolIntEq(ctx *BoolIntEqContext) interface{} {
 		return nil
 	}
 
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b==")
-	} else {
-		e.emit("==")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, "==", "b==", "fp=="))
 	return nil
 }
 
@@ -330,16 +435,15 @@ func (e *PostfixEmitter) VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{} {
 		return nil
 	}
 
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	switch target {
+	case TypeFixed:
+		e.emit("fp!=")
+	case TypeBigInt:
 		e.emit("b!=")
-	} else {
+	default:
 		e.emit("==")
 		e.emit("not")
 	}
@@ -348,69 +452,37 @@ func (e *PostfixEmitter) VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolIntGt(ctx *BoolIntGtContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b>")
-	} else {
-		e.emit(">")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, ">", "b>", "fp>"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitBoolIntGte(ctx *BoolIntGteContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b>=")
-	} else {
-		e.emit(">=")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, ">=", "b>=", "fp>="))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitBoolIntLt(ctx *BoolIntLtContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b<")
-	} else {
-		e.emit("<")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, "<", "b<", "fp<"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitBoolIntLte(ctx *BoolIntLteContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b<=")
-	} else {
-		e.emit("<=")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, "<=", "b<=", "fp<="))
 	return nil
 }
 
@@ -786,6 +858,21 @@ func (e *PostfixEmitter) VisitBoolNameEq(ctx *BoolNameEqContext) interface{} {
 		return nil
 	}
 
+	// Numeric names: the grammar routes `field == field` to this nexpr
+	// visitor regardless of type, so fixed/bigint/integer comparisons used
+	// to fall through to `streq` — correct only for values whose decimal
+	// string forms happen to match. Dispatch to the proper family with
+	// Fixed > BigInt > Integer promotion when both sides are numeric.
+	if t0, t1 := e.identNumericType(name0), e.identNumericType(name1); t0 != "" && t1 != "" {
+		target := promoteArithType(t0, t1)
+		e.Visit(ctx.Nexpr(0))
+		e.emitTypeCast(t0, target)
+		e.Visit(ctx.Nexpr(1))
+		e.emitTypeCast(t1, target)
+		e.emit(arithOp(target, "==", "b==", "fp=="))
+		return nil
+	}
+
 	isEntity := false
 	if lv, ok := e.lookupLocal(name0); ok && lv.Type == TypeEntity {
 		isEntity = true
@@ -817,6 +904,27 @@ func (e *PostfixEmitter) VisitBoolNameNeq(ctx *BoolNameNeqContext) interface{} {
 		e.Visit(ctx.Nexpr(0))
 		e.Visit(ctx.Nexpr(1))
 		e.emit("bytes!=")
+		return nil
+	}
+
+	// Numeric names: dispatch to the proper inequality family. Same
+	// Fixed > BigInt > Integer promotion as BoolNameEq; fp!= and b!=
+	// are distinct ops, integer falls back to the historic `== not`.
+	if t0, t1 := e.identNumericType(name0), e.identNumericType(name1); t0 != "" && t1 != "" {
+		target := promoteArithType(t0, t1)
+		e.Visit(ctx.Nexpr(0))
+		e.emitTypeCast(t0, target)
+		e.Visit(ctx.Nexpr(1))
+		e.emitTypeCast(t1, target)
+		switch target {
+		case TypeFixed:
+			e.emit("fp!=")
+		case TypeBigInt:
+			e.emit("b!=")
+		default:
+			e.emit("==")
+			e.emit("not")
+		}
 		return nil
 	}
 
@@ -969,80 +1077,51 @@ func (e *PostfixEmitter) VisitIntAdd(ctx *IntAddContext) interface{} {
 		return nil
 	}
 
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b+")
-	} else {
-		e.emit("+")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, "+", "b+", "fp+"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntSub(ctx *IntSubContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b-")
-	} else {
-		e.emit("-")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, "-", "b-", "fp-"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMul(ctx *IntMulContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b*")
-	} else {
-		e.emit("*")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, "*", "b*", "fp*"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntDiv(ctx *IntDivContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b/")
-	} else {
-		e.emit("/")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, "/", "b/", "fp/"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntNegate(ctx *IntNegateContext) interface{} {
 	expr := ctx.Iexpr()
-	isBigInt := e.isBigIntExpr(expr)
+	exprType := e.getExprType(expr)
 	e.Visit(expr)
-	if isBigInt {
+	switch exprType {
+	case TypeFixed:
+		e.emit("fpnegate")
+	case TypeBigInt:
 		e.emit("bnegate")
-	} else {
-		e.emit("neg")
+	default:
+		e.emit("negate")
 	}
 	return nil
 }
@@ -2553,9 +2632,25 @@ func (e *PostfixEmitter) VisitIfElseIf(ctx *IfElseIfContext) interface{} {
 
 func (e *PostfixEmitter) VisitIncrementLong(ctx *IncrementLongContext) interface{} {
 	name := ctx.TypedLong().GetText()
-	e.emit(name)
-	e.emit("1")
-	e.emit("+")
+	// typedLong matches any IDENT; the declared field type tells us which
+	// numeric family to use. Without this check, incrementing a fixed or
+	// bigint field emits plain `+` and truncates via LongValue() at runtime.
+	switch e.lookupType(name) {
+	case TypeFixed:
+		e.emit(name)
+		e.emit("1")
+		e.emit("cvfp")
+		e.emit("fp+")
+	case TypeBigInt:
+		e.emit(name)
+		e.emit("1")
+		e.emit("cvbi")
+		e.emit("b+")
+	default:
+		e.emit(name)
+		e.emit("1")
+		e.emit("+")
+	}
 	e.emit("/" + name)
 	e.emit("xdef")
 	return nil
@@ -2573,9 +2668,22 @@ func (e *PostfixEmitter) VisitIncrementDouble(ctx *IncrementDoubleContext) inter
 
 func (e *PostfixEmitter) VisitDecrementLong(ctx *DecrementLongContext) interface{} {
 	name := ctx.TypedLong().GetText()
-	e.emit(name)
-	e.emit("1")
-	e.emit("-")
+	switch e.lookupType(name) {
+	case TypeFixed:
+		e.emit(name)
+		e.emit("1")
+		e.emit("cvfp")
+		e.emit("fp-")
+	case TypeBigInt:
+		e.emit(name)
+		e.emit("1")
+		e.emit("cvbi")
+		e.emit("b-")
+	default:
+		e.emit(name)
+		e.emit("1")
+		e.emit("-")
+	}
 	e.emit("/" + name)
 	e.emit("xdef")
 	return nil
@@ -2918,9 +3026,28 @@ func (e *PostfixEmitter) VisitNameUsing(ctx *NameUsingContext) interface{} {
 // rather than value-field.
 func (e *PostfixEmitter) VisitSubDestLong(ctx *SubDestLongContext) interface{} {
 	name := ctx.TypedLong().GetText()
-	e.emit(name)
-	e.emit("swap")
-	e.emit("-")
+	// typedLong matches any IDENT; pick the numeric family based on the
+	// field's declared type. A plain `-` would truncate fixed or bigint
+	// operands via LongValue() at runtime — silent precision / range loss.
+	// Caller (VisitSubtractNum) has already pushed the value; stack shape
+	// is [value]. Emit `<field> swap <cast-on-value> <op>` so the subtract
+	// computes field − value (not value − field) at the correct type.
+	switch e.lookupType(name) {
+	case TypeFixed:
+		e.emit(name)
+		e.emit("swap")
+		e.emit("cvfp")
+		e.emit("fp-")
+	case TypeBigInt:
+		e.emit(name)
+		e.emit("swap")
+		e.emit("cvbi")
+		e.emit("b-")
+	default:
+		e.emit(name)
+		e.emit("swap")
+		e.emit("-")
+	}
 	e.emit("/" + name)
 	e.emit("xdef")
 	return nil
