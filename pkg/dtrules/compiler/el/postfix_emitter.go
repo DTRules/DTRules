@@ -1121,7 +1121,7 @@ func (e *PostfixEmitter) VisitIntNegate(ctx *IntNegateContext) interface{} {
 	case TypeBigInt:
 		e.emit("bnegate")
 	default:
-		e.emit("neg")
+		e.emit("negate")
 	}
 	return nil
 }

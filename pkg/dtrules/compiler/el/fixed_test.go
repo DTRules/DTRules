@@ -274,6 +274,28 @@ func TestFixedLiteral_PureFpArithmetic_UsesFpOps(t *testing.T) {
 	}
 }
 
+// TestIntegerNegation_EmitsNegate guards the pre-existing bug where
+// VisitIntNegate emitted `neg` — an operator name that was never
+// registered — so every rule doing `-<int_expr>` failed at runtime.
+// The fix was at the root: the emitter now emits `negate`, the operator
+// that actually exists. This test asserts the emission, not a runtime
+// alias, so any regression back to `neg` is caught at compile time.
+func TestIntegerNegation_EmitsNegate(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{"ap.count": "integer"})
+	postfix, err := c.CompileAction("set ap.count = - ap.count")
+	if err != nil {
+		t.Fatalf("compile error: %v", err)
+	}
+	if !strings.Contains(postfix, "negate") {
+		t.Errorf("expected `negate` for integer negation, got: %s", postfix)
+	}
+	// Pin the regression: the old buggy emission would have a lone ` neg`.
+	if strings.Contains(postfix, " neg ") || strings.HasSuffix(postfix, " neg") {
+		t.Errorf("emitter regressed to unregistered `neg`: %s", postfix)
+	}
+}
+
 // TestStringComparison_UnchangedByNumericDispatch is a regression guard on
 // BoolName{Eq,Neq}: string-vs-string name compares must still land on the
 // existing streq/`streq not` fallback. The numeric-dispatch branch is only

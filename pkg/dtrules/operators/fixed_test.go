@@ -379,33 +379,6 @@ func TestCvfpFromUnsupportedTypeErrors(t *testing.T) {
 	}
 }
 
-// TestNegOperatorRegistered guards the pre-existing `-<int_expr>` bug found
-// in the deep review: VisitIntNegate emits `neg`, but no operator by that
-// name was registered, so every integer negation failed at runtime with
-// `The Name 'neg' was not defined`. Fixed by aliasing `neg` → `negate` in
-// math.go's init(). Pushing a value, running neg, and checking the result
-// is -value asserts the alias is wired correctly end-to-end.
-func TestNegOperatorRegistered(t *testing.T) {
-	state := newFixedTestState()
-	if err := state.DataPush(dtrules.GetRIntegerValue(5)); err != nil {
-		t.Fatal(err)
-	}
-	if err := mustOp(t, "neg").Execute(state); err != nil {
-		t.Fatalf("neg must be registered so integer negation works: %v", err)
-	}
-	top, err := state.DataPop()
-	if err != nil {
-		t.Fatal(err)
-	}
-	v, err := top.IntValue()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if v != -5 {
-		t.Errorf("neg(5) = %d, want -5", v)
-	}
-}
-
 // TestCvbOnFixed guards cvb → boolean coercion for RFixed, matching the
 // "0 → false, non-zero → true" rule the op applies to integer and bigint.
 func TestCvbOnFixed(t *testing.T) {
