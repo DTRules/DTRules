@@ -1243,31 +1243,51 @@ func (e *PostfixEmitter) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface
 	return nil
 }
 
+// minMaxOp picks the correct op name for a numeric min/max dispatch.
+// There's no dedicated bmin/bmax runtime op, so bigint falls back to
+// the polymorphic min/max (which dispatches via Object.Compare). The
+// fp path goes through the dedicated fpmin/fpmax so precision is kept
+// on the 10⁻⁸ grid.
+func minMaxOp(target, intOp, fpOp string) string {
+	if target == TypeFixed {
+		return fpOp
+	}
+	return intOp
+}
+
 func (e *PostfixEmitter) VisitIntMinOf(ctx *IntMinOfContext) interface{} {
-	e.Visit(ctx.Iexpr(0))
-	e.Visit(ctx.Iexpr(1))
-	e.emit("min")
+	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
+	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	e.emitWithTypeConversion(l, target)
+	e.emitWithTypeConversion(r, target)
+	e.emit(minMaxOp(target, "min", "fpmin"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMinOfComma(ctx *IntMinOfCommaContext) interface{} {
-	e.Visit(ctx.Iexpr(0))
-	e.Visit(ctx.Iexpr(1))
-	e.emit("min")
+	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
+	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	e.emitWithTypeConversion(l, target)
+	e.emitWithTypeConversion(r, target)
+	e.emit(minMaxOp(target, "min", "fpmin"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMaxOf(ctx *IntMaxOfContext) interface{} {
-	e.Visit(ctx.Iexpr(0))
-	e.Visit(ctx.Iexpr(1))
-	e.emit("max")
+	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
+	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	e.emitWithTypeConversion(l, target)
+	e.emitWithTypeConversion(r, target)
+	e.emit(minMaxOp(target, "max", "fpmax"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMaxOfComma(ctx *IntMaxOfCommaContext) interface{} {
-	e.Visit(ctx.Iexpr(0))
-	e.Visit(ctx.Iexpr(1))
-	e.emit("max")
+	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
+	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	e.emitWithTypeConversion(l, target)
+	e.emitWithTypeConversion(r, target)
+	e.emit(minMaxOp(target, "max", "fpmax"))
 	return nil
 }
 
