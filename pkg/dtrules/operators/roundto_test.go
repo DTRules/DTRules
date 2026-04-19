@@ -16,6 +16,7 @@ package operators
 
 import (
 	"math"
+	"strings"
 	"testing"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -89,5 +90,57 @@ func TestRoundToScale(t *testing.T) {
 					c.number, c.places, c.boundary, got, c.want)
 			}
 		})
+	}
+}
+
+// TestRoundToRejectsGarbage guards the hardening checks added in the
+// review follow-up: NaN, Inf, and extreme `places` values used to
+// produce garbage output (int(NaN) is implementation-defined; 10^16
+// loses integer precision in float64). These inputs now error loudly
+// rather than silently returning wrong numbers.
+func TestRoundToRejectsGarbage(t *testing.T) {
+	cases := []struct {
+		name                     string
+		number, boundary         float64
+		places                   int64
+		expectErrContains        string
+	}{
+		{"NaN number", math.NaN(), 0.5, 2, "NaN or Inf"},
+		{"+Inf number", math.Inf(1), 0.5, 2, "NaN or Inf"},
+		{"-Inf number", math.Inf(-1), 0.5, 2, "NaN or Inf"},
+		{"NaN boundary", 1.0, math.NaN(), 2, "boundary"},
+		{"Inf boundary", 1.0, math.Inf(1), 2, "boundary"},
+		{"places too large", 1.0, 0.5, 16, "out of range"},
+		{"places too negative", 1.0, 0.5, -16, "out of range"},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			state := newTestState()
+			state.DataPush(dtrules.GetRDoubleValue(c.number))
+			state.DataPush(dtrules.GetRIntegerValue(c.places))
+			state.DataPush(dtrules.GetRDoubleValue(c.boundary))
+			op, _ := Get(dtrules.GetRName("roundto"))
+			err := op.Execute(state)
+			if err == nil {
+				t.Fatalf("expected error for %s", c.name)
+			}
+			if !strings.Contains(err.Error(), c.expectErrContains) {
+				t.Errorf("error should mention %q: %v", c.expectErrContains, err)
+			}
+		})
+	}
+}
+
+// TestRoundToBoundaryMaxPlaces — 15 places is accepted (just below the
+// hardening threshold) so legitimate high-precision rounding still works.
+func TestRoundToBoundaryMaxPlaces(t *testing.T) {
+	state := newTestState()
+	state.DataPush(dtrules.GetRDoubleValue(1.123456789012345))
+	state.DataPush(dtrules.GetRIntegerValue(15))
+	state.DataPush(dtrules.GetRDoubleValue(0.5))
+	op, _ := Get(dtrules.GetRName("roundto"))
+	if err := op.Execute(state); err != nil {
+		t.Fatalf("places=15 should be accepted: %v", err)
 	}
 }

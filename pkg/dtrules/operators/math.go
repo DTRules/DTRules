@@ -16,6 +16,7 @@
 package operators
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -393,6 +394,28 @@ func opRoundTo(state dtrules.State) error {
 	number, err := numberObj.DoubleValue()
 	if err != nil {
 		return err
+	}
+
+	// Reject inputs that would produce garbage output:
+	//   - NaN/Inf number or boundary: int(NaN|Inf) is implementation-
+	//     defined in Go.
+	//   - |places| > 15: 10^16 loses integer precision in float64, and
+	//     `number *= scale` overflows to Inf for any nonzero input.
+	//     Real rounding never needs more than a handful of digits;
+	//     silently producing garbage is worse than a loud error.
+	if math.IsNaN(number) || math.IsInf(number, 0) {
+		return dtrules.NewRulesError("Math Exception", "roundto",
+			"cannot round NaN or Inf")
+	}
+	if math.IsNaN(boundary) || math.IsInf(boundary, 0) {
+		return dtrules.NewRulesError("Math Exception", "roundto",
+			"boundary must be finite")
+	}
+	const maxPlaces = 15
+	if places > maxPlaces || places < -maxPlaces {
+		return dtrules.NewRulesError("Math Exception", "roundto",
+			fmt.Sprintf("places out of range (got %d, must be in [-%d, %d])",
+				places, maxPlaces, maxPlaces))
 	}
 
 	round := func(n, b float64) float64 {

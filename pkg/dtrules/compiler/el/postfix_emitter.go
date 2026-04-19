@@ -1409,12 +1409,34 @@ func (e *PostfixEmitter) VisitIntAbs(ctx *IntAbsContext) interface{} {
 func (e *PostfixEmitter) VisitFloatAbs(ctx *FloatAbsContext) interface{} {
 	inner := ctx.Fexpr()
 	e.Visit(inner)
-	if isFixedLiteralText(inner.GetText()) {
+	// fp operands reach FloatAbs when a fp-declared field is referenced
+	// inside a fexpr context (grammar picks typedDouble over typedLong
+	// depending on surrounding rules). Emit fpabs so the value stays on
+	// the 10⁻⁸ grid; otherwise the fabs op coerces to float64 first and
+	// silently loses fractional precision.
+	if fexprIsFixed(e, inner) {
 		e.emit("fpabs")
 		return nil
 	}
 	e.emit("fabs")
 	return nil
+}
+
+// fexprIsFixed reports whether a fexpr context resolves to an fp-typed
+// value — either a literal with `fp` suffix or a name that maps to
+// TypeFixed in the symbol / local table.
+func fexprIsFixed(e *PostfixEmitter, ctx interface{ GetText() string }) bool {
+	if ctx == nil {
+		return false
+	}
+	text := ctx.GetText()
+	if isFixedLiteralText(text) {
+		return true
+	}
+	if lv, ok := e.lookupLocal(text); ok && lv.Type == TypeFixed {
+		return true
+	}
+	return e.lookupType(text) == TypeFixed
 }
 
 // VisitFloatRounded / VisitFloatRoundedTo / VisitFloatRoundedBoundry:
@@ -1428,15 +1450,36 @@ func (e *PostfixEmitter) VisitFloatAbs(ctx *FloatAbsContext) interface{} {
 // All three now route through the registered `roundto` operator which
 // takes `(number places boundary -- result)`. Defaults: 0 decimal places
 // and 0.5 boundary (half-up rounding) when the DSL doesn't specify.
+// VisitFloatRounded: `<fexpr> rounded`. For a double operand, route
+// through the registered `roundto` op with default places=0 and
+// boundary=0.5 (half-up). For an fp operand, `rounded` without an
+// explicit `to N decimal places` clause is "truncate the fractional
+// part" — emit `fptrunc` so the result stays exactly on the 10⁻⁸
+// grid instead of coercing through float64.
 func (e *PostfixEmitter) VisitFloatRounded(ctx *FloatRoundedContext) interface{} {
 	e.Visit(ctx.Fexpr())
+	if fexprIsFixed(e, ctx.Fexpr()) {
+		e.emit("fptrunc")
+		return nil
+	}
 	e.emit("0")
 	e.emit("0.5")
 	e.emit("roundto")
 	return nil
 }
 
+// VisitFloatRoundedTo: `<fexpr> rounded to N decimal places`. No fp-
+// equivalent operator exists for rounding to N fractional places, so
+// fp operands are rejected with a clear runtime error pointing to
+// the explicit `(double)` cast. Rule authors who truly need fp
+// rounding to N places should cast the fp value first (accepting the
+// precision concession) or wait for a dedicated `fpround` op.
 func (e *PostfixEmitter) VisitFloatRoundedTo(ctx *FloatRoundedToContext) interface{} {
+	if fexprIsFixed(e, ctx.Fexpr()) {
+		e.emit("\"rounded to N decimal places not supported on fixed-point values; use (double) cast if precision loss is acceptable\"")
+		e.emit("elstmterror")
+		return nil
+	}
 	e.Visit(ctx.Fexpr())
 	e.Visit(ctx.Iexpr())
 	e.emit("0.5")
@@ -1444,7 +1487,14 @@ func (e *PostfixEmitter) VisitFloatRoundedTo(ctx *FloatRoundedToContext) interfa
 	return nil
 }
 
+// VisitFloatRoundedBoundry: `<fexpr> rounded to N decimal places with
+// boundry B`. Same fp-rejection rationale as VisitFloatRoundedTo.
 func (e *PostfixEmitter) VisitFloatRoundedBoundry(ctx *FloatRoundedBoundryContext) interface{} {
+	if fexprIsFixed(e, ctx.Fexpr(0)) {
+		e.emit("\"rounded to N decimal places with boundry not supported on fixed-point values; use (double) cast if precision loss is acceptable\"")
+		e.emit("elstmterror")
+		return nil
+	}
 	e.Visit(ctx.Fexpr(0))
 	e.Visit(ctx.Iexpr())
 	e.Visit(ctx.Fexpr(1))

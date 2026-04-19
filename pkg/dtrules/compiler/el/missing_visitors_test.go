@@ -64,6 +64,94 @@ func TestAbsoluteValue_AllTypes(t *testing.T) {
 	}
 }
 
+// TestFpOperandThroughFexpr_UsesFpAbs guards against the precision-leak
+// bug surfaced in the post-fix review: if an fp field reaches FloatAbs
+// via the fexpr path (grammar picks typedDouble when the enclosing
+// target is double), my first attempt at VisitFloatAbs only checked
+// isFixedLiteralText on the raw text — which rejects bare field names
+// like `wp.amount`. It then emitted `fabs` and silently coerced the fp
+// value to float64 at runtime. The fix extends the check to consult
+// the symbol / local table for TypeFixed.
+func TestFpOperandThroughFexpr_UsesFpAbs(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{
+		"wp.amount": TypeFixed,
+		"dp.rate":   TypeDouble,
+	})
+	postfix, err := c.CompileAction("set dp.rate = absolute value of wp.amount")
+	if err != nil {
+		t.Fatalf("compile error: %v", err)
+	}
+	if !strings.Contains(postfix, "fpabs") {
+		t.Errorf("expected fpabs for fp operand via fexpr, got: %s", postfix)
+	}
+	if strings.Contains(postfix, " fabs ") || strings.HasSuffix(postfix, " fabs") {
+		t.Errorf("fabs would silently truncate fp value: %s", postfix)
+	}
+}
+
+// TestRoundedFp_UsesFpTruncOrErrors guards the corresponding precision-
+// leak fix in the rounded family. `<fp> rounded` (no places) becomes
+// fptrunc — correct and exact on the 10⁻⁸ grid. `<fp> rounded to N
+// places [with boundry B]` emits elstmterror because no fpround op
+// exists; rule authors must cast to double explicitly to opt into the
+// precision loss.
+func TestRoundedFp_UsesFpTruncOrErrors(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{
+		"wp.amount": TypeFixed,
+		"dp.rate":   TypeDouble,
+	})
+	cases := []struct {
+		dsl     string
+		mustHit []string
+		mustNot []string
+	}{
+		{
+			// `rounded` without places → fptrunc for fp (no coercion).
+			dsl:     "set dp.rate = wp.amount rounded",
+			mustHit: []string{"fptrunc"},
+			mustNot: []string{"roundto"},
+		},
+		{
+			// `rounded to N places` → elstmterror (no fpround op).
+			dsl:     "set dp.rate = wp.amount rounded to 2 decimal places",
+			mustHit: []string{"elstmterror"},
+			mustNot: []string{"roundto", " fabs"},
+		},
+		{
+			// `rounded to N with boundry B` → elstmterror.
+			dsl:     "set dp.rate = wp.amount rounded to 4 decimal places with boundry 0.25",
+			mustHit: []string{"elstmterror"},
+			mustNot: []string{"roundto"},
+		},
+		// Double case unchanged — regression guard.
+		{
+			dsl:     "set dp.rate = dp.rate rounded to 2 decimal places",
+			mustHit: []string{"roundto"},
+			mustNot: []string{"fptrunc", "elstmterror"},
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.dsl, func(t *testing.T) {
+			postfix, err := c.CompileAction(tc.dsl)
+			if err != nil {
+				t.Fatalf("compile: %v", err)
+			}
+			for _, want := range tc.mustHit {
+				if !strings.Contains(postfix, want) {
+					t.Errorf("expected %q, got: %s", want, postfix)
+				}
+			}
+			for _, bad := range tc.mustNot {
+				if strings.Contains(postfix, bad) {
+					t.Errorf("unexpected %q: %s", bad, postfix)
+				}
+			}
+		})
+	}
+}
+
 // TestRounded_UsesRegisteredOp guards that all three rounded-family
 // visitors emit the registered `roundto` op rather than the previously-
 // emitted (unregistered) `round`. `roundto` signature is
