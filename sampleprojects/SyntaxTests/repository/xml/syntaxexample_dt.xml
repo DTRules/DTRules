@@ -860,7 +860,7 @@ effectiveDate endofmonth cvd /currentDate xdef
 <initial_action_requirement />
 <initial_action_dsl>set effectiveDate = earliest of cases after currentDate</initial_action_dsl>
 <initial_action_postfix>
-currentDate dup &gt;r { { pop pop i i } over i d&gt; if pop } cases dup false sortarray for r&gt; pop cvd /effectiveDate xdef  
+currentDate dup &gt;r { { pop pop i i } over i d&gt; if pop } cases dup true sortarray for r&gt; pop cvd /effectiveDate xdef  
 </initial_action_postfix></initial_action_details></initial_actions>
 <conditions />
 <actions /></decision_table>

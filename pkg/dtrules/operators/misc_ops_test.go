@@ -111,27 +111,23 @@ func arrayInts(t *testing.T, arr *dtrules.RArray) []int64 {
 	return out
 }
 
-// TestSortArrayAscendingDescending pins bubble-sort output for both
-// directions. Note the parameter sense is inverted from its name: the
-// sampleproject passes `false` to get ascending order (see
-// SyntaxTests/xml/syntaxexample_dt.xml: "earliest of cases after
-// currentDate" → `false sortarray for`). Pin that sense — a rewrite
-// that "fixes" the parameter name without updating the .xml would
-// silently flip sampleproject output.
+// TestSortArrayAscendingDescending — asc=true produces ascending,
+// asc=false produces descending. Matches the parameter name and the
+// cross-language "ascending" convention (Pandas sort_values(ascending=True)).
 func TestSortArrayAscendingDescending(t *testing.T) {
 	state := newTestState()
 	for _, tc := range []struct {
-		name  string
-		param bool
-		want  []int64
+		name string
+		asc  bool
+		want []int64
 	}{
-		{"false_produces_ascending", false, []int64{1, 2, 3, 5, 8}},
-		{"true_produces_descending", true, []int64{8, 5, 3, 2, 1}},
+		{"ascending", true, []int64{1, 2, 3, 5, 8}},
+		{"descending", false, []int64{8, 5, 3, 2, 1}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			arr := mustArray(t, state, 5, 3, 8, 1, 2)
 			state.DataPush(arr)
-			state.DataPush(dtrules.GetRBoolean(tc.param))
+			state.DataPush(dtrules.GetRBoolean(tc.asc))
 			o, _ := Get(dtrules.GetRName("sortarray"))
 			if err := o.Execute(state); err != nil {
 				t.Fatalf("sortarray: %v", err)

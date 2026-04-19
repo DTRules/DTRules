@@ -17,6 +17,7 @@ package operators
 
 import (
 	"math/rand"
+	"sort"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
 )
@@ -280,7 +281,8 @@ func opCopyElements(state dtrules.State) error {
 	return nil
 }
 
-// opSortArray: ( array boolean -- ) sorts array elements (ascending if boolean is true)
+// opSortArray: ( array boolean -- ) sorts array elements in place.
+// asc=true → ascending, asc=false → descending.
 func opSortArray(state dtrules.State) error {
 	ascObj, err := state.DataPop()
 	if err != nil {
@@ -299,29 +301,27 @@ func opSortArray(state dtrules.State) error {
 		return err
 	}
 
-	// Bubble sort
 	elements := arr.GetIterator()
-	size := len(elements)
-	direction := 1
-	if !asc {
-		direction = -1
-	}
-
-	for i := 0; i < size-1; i++ {
-		for j := 0; j < size-1-i; j++ {
-			cmp, err := elements[j+1].Compare(elements[j])
-			if err != nil {
-				return err
-			}
-			if cmp == direction {
-				elements[j], elements[j+1] = elements[j+1], elements[j]
-			}
+	var cmpErr error
+	sort.SliceStable(elements, func(i, j int) bool {
+		if cmpErr != nil {
+			return false
 		}
-	}
-	return nil
+		cmp, err := elements[i].Compare(elements[j])
+		if err != nil {
+			cmpErr = err
+			return false
+		}
+		if asc {
+			return cmp < 0
+		}
+		return cmp > 0
+	})
+	return cmpErr
 }
 
-// opSortEntities: ( array field boolean -- ) sorts entities by field value
+// opSortEntities: ( array field boolean -- ) sorts entities by field value in place.
+// asc=true → ascending, asc=false → descending.
 func opSortEntities(state dtrules.State) error {
 	ascObj, err := state.DataPop()
 	if err != nil {
@@ -350,45 +350,42 @@ func opSortEntities(state dtrules.State) error {
 	}
 
 	elements := arr.GetIterator()
-	size := len(elements)
-	greaterThan := 1
-	if !asc {
-		greaterThan = -1
-	}
-
-	for i := 0; i < size; i++ {
-		done := true
-		for j := 0; j < size-1-i; j++ {
-			e1, err := elements[j].REntityValue()
-			if err != nil {
-				return err
-			}
-			e2, err := elements[j+1].REntityValue()
-			if err != nil {
-				return err
-			}
-			v1, err := e1.Get(name)
-			if err != nil {
-				return err
-			}
-			v2, err := e2.Get(name)
-			if err != nil {
-				return err
-			}
-			cmp, err := v1.Compare(v2)
-			if err != nil {
-				return err
-			}
-			if cmp == greaterThan {
-				elements[j], elements[j+1] = elements[j+1], elements[j]
-				done = false
-			}
+	var cmpErr error
+	sort.SliceStable(elements, func(i, j int) bool {
+		if cmpErr != nil {
+			return false
 		}
-		if done {
-			return nil
+		e1, err := elements[i].REntityValue()
+		if err != nil {
+			cmpErr = err
+			return false
 		}
-	}
-	return nil
+		e2, err := elements[j].REntityValue()
+		if err != nil {
+			cmpErr = err
+			return false
+		}
+		v1, err := e1.Get(name)
+		if err != nil {
+			cmpErr = err
+			return false
+		}
+		v2, err := e2.Get(name)
+		if err != nil {
+			cmpErr = err
+			return false
+		}
+		cmp, err := v1.Compare(v2)
+		if err != nil {
+			cmpErr = err
+			return false
+		}
+		if asc {
+			return cmp < 0
+		}
+		return cmp > 0
+	})
+	return cmpErr
 }
 
 // opAddNoDups: ( array item -- ) adds item to array if not already present
