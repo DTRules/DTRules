@@ -1,5 +1,31 @@
 # DTRules Changelog
 
+## v1.7.3 — 2026-04-19
+
+Patch release. Two more staking integration fixes.
+
+- **`<context_details>` preserved on authoring SDK round-trip** (#681 / PR
+  #682). My v1.7.2 fix taught `DTImporter.WriteXML` to emit structured
+  `<context_details>` entries, but `DecisionTableXML.Contexts` stayed
+  typed as `string`, so the decoder couldn't read the structured form
+  back — `OpenProject → Save → Reopen` silently dropped every `for all`
+  context. `Contexts` is now a typed string `ContextsField` with a
+  custom `UnmarshalXML` that tolerates both the legacy raw-text form and
+  the structured form, collapsing structured children into a newline-
+  joined DSL string. The authoring SDK's `syncFromXML` now splits
+  multi-line input into multiple `Context` entries (was keeping only the
+  first).
+
+- **`add entity to array` defaults to `swap addto`, not `addarray`**
+  (#680 / PR #682). `VisitAddArrayToArray` used to default
+  `srcIsArray = true` when the symbol table was empty; the
+  `CheckAction(..., nil)` path (used in authoring checks and some tests)
+  never gets a symbol table, so it always hit the wrong default. Now
+  the default is the single-element-into-array pattern, which is the
+  overwhelmingly common case in practice. Array-to-array merge
+  (`addarray` with `true`) still works when the source is explicitly
+  declared as `array` in the EDD.
+
 ## v1.7.2 — 2026-04-19
 
 Patch release. Two more staking integration fixes.
