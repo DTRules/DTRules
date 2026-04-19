@@ -1,5 +1,31 @@
 # DTRules Changelog
 
+## v1.7.2 — 2026-04-19
+
+Patch release. Two more staking integration fixes.
+
+- **Authoring SDK writes loader-compatible `<context_details>`** (#678).
+  `DTImporter.WriteXML` previously emitted `<contexts>raw-text</contexts>`
+  — the Excel-import intermediate form — but the loader expects
+  `<context_details>` entries with per-statement child elements. Round-
+  tripping through the authoring SDK produced XML the loader couldn't
+  parse (staking worked around it with a fix-contexts.py post-process).
+  Now the writer splits the raw Contexts string on newlines and emits one
+  `<context_details>` entry per statement with an empty postfix; the
+  loader compiles the DSL on load via the v1.7.1 recompile-on-load path.
+
+- **`number of <arr>` emits `length`, not `numberof`** (#678). There is
+  no `numberof` op registered; the mismatched token resolved to an
+  executable-name lookup and failed at runtime. Now emits `length`.
+  Also adds `VisitIntNumberOfWhere` for `number of <arr> where <b>` —
+  a count-accumulator fold.
+
+- Staking's third report (`add entity to array` emitting `addarray`
+  instead of `addto`) was already fixed in v1.7.1 — wiring the EDD
+  symbol table into the loader's EL compiler lets the existing
+  type-detection in `VisitAddArrayToArray` see `srcType == TypeEntity`
+  and emit `swap addto` correctly.
+
 ## v1.7.1 — 2026-04-19
 
 Patch release. Two integration fixes uncovered by staking's v1.7.0 upgrade.
