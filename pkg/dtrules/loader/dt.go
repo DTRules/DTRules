@@ -50,6 +50,18 @@ func NewDTLoader(session dtrules.Session, factory *entity.Factory) *DTLoader {
 	}
 }
 
+// SetSymbols wires an EDD-derived symbol table (map of field name → type)
+// into the EL compiler so arithmetic type promotion (bigint × int → bigint,
+// etc.) can fire during runtime DSL compilation. Without this, the loader
+// compiles every EL expression as if all operands were integers and loses
+// access to the bigint / double / bytes promotion paths.
+//
+// Call this after `rs.LoadEDD(...)` and before `rs.LoadDecisionTables(...)`
+// so the symbol table is populated when tables are compiled.
+func (l *DTLoader) SetSymbols(symbols map[string]string) {
+	l.elCompiler.SetSymbols(symbols)
+}
+
 // Structures matching the DTRules decision table format (XML and JSON)
 
 // DTFile represents the root decision_tables element

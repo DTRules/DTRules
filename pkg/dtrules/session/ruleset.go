@@ -100,7 +100,32 @@ func (rs *RuleSet) LoadDecisionTables(r io.Reader) error {
 	}
 
 	dtLoader := loader.NewDTLoader(tempSession, rs.entityFactory)
+	// Build the symbol table from the EDD so the EL compiler can pick the
+	// right arithmetic dispatch (bigint × int → bigint, etc.) when the DSL
+	// references typed fields. Without this the compiler defaults to integer
+	// arithmetic for every iexpr × iexpr multiply and loses type promotion.
+	dtLoader.SetSymbols(rs.buildSymbolTable())
 	return dtLoader.Load(r)
+}
+
+// buildSymbolTable walks the entity factory's registered reference entities
+// and returns a flat map of "entity.field" and "field" → type-name suitable
+// for the EL compiler's SetSymbols.
+func (rs *RuleSet) buildSymbolTable() map[string]string {
+	symbols := map[string]string{}
+	for _, ent := range rs.entityFactory.GetRefEntities() {
+		entityName := ent.GetName().StringValue()
+		for _, entry := range ent.GetEntries() {
+			if entry.Type == nil {
+				continue
+			}
+			fieldName := entry.Attribute.StringValue()
+			typeName := entry.Type.GetName().StringValue()
+			symbols[fieldName] = typeName
+			symbols[entityName+"."+fieldName] = typeName
+		}
+	}
+	return symbols
 }
 
 // LoadFromDirectory loads all XML files from a directory.
