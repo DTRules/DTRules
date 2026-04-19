@@ -167,6 +167,8 @@ func TestAllOperatorsRegistered(t *testing.T) {
 	"fp>",
 	"fp>=",
 	"fpabs",
+	"fpmax",
+	"fpmin",
 	"fpnegate",
 	"fptrunc",
 	"get",
