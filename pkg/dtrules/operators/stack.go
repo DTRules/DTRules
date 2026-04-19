@@ -642,6 +642,12 @@ func opCvb(state dtrules.State) error {
 			return err
 		}
 		return state.DataPush(dtrules.GetRBoolean(b.BigIntValue().Sign() != 0))
+	case dtrules.TypeFixed:
+		v, err := obj.BooleanValue()
+		if err != nil {
+			return err
+		}
+		return state.DataPush(dtrules.GetRBoolean(v))
 	}
 	return dtrules.TypeCheckError("cvb", "cannot coerce "+t.GetName().StringValue()+" to boolean")
 }

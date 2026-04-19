@@ -236,22 +236,6 @@ func arithOp(target, intOp, bigOp, fpOp string) string {
 	}
 }
 
-// isBigIntExpr returns true if the expression involves bigint types.
-func (e *PostfixEmitter) isBigIntExpr(ctx antlr.ParseTree) bool {
-	return e.getExprType(ctx) == TypeBigInt
-}
-
-// emitWithBigIntConversion emits an integer expression, converting to bigint if needed.
-// If the expression is integer but we need bigint (for mixed-type operations),
-// it emits a cvbi conversion after the expression.
-func (e *PostfixEmitter) emitWithBigIntConversion(ctx antlr.ParseTree, needsBigInt bool) {
-	exprType := e.getExprType(ctx)
-	e.Visit(ctx)
-	if needsBigInt && exprType != TypeBigInt {
-		e.emit("cvbi")
-	}
-}
-
 // emitWithTypeConversion emits an integer-family expression and casts the
 // result to targetType on the stack. Handles int→bigint, int→fixed, and
 // bigint→fixed promotions. Same-type targets emit no cast.

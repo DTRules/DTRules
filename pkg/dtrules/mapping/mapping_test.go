@@ -304,6 +304,8 @@ func TestAttributeTypes(t *testing.T) {
 		{"bigint", TypeBigInt},
 		{"biginteger", TypeBigInt},
 		{"BIGINT", TypeBigInt},
+		{"fixed", TypeFixed},
+		{"FIXED", TypeFixed},
 		{"unknown", TypeNone},
 		{"", TypeNone},
 	}

@@ -149,6 +149,8 @@ func normalizeType(t string) string {
 		return TypeBigInt
 	case "bytes":
 		return TypeBytes
+	case "fixed":
+		return TypeFixed
 	default:
 		return t
 	}

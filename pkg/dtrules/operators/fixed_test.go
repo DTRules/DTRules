@@ -250,3 +250,39 @@ func TestCvfpIdempotent(t *testing.T) {
 		t.Errorf("cvfp(fp 1.5) = %q", got)
 	}
 }
+
+// TestCvbOnFixed guards cvb → boolean coercion for RFixed, matching the
+// "0 → false, non-zero → true" rule the op applies to integer and bigint.
+func TestCvbOnFixed(t *testing.T) {
+	cases := []struct {
+		lit  string
+		want bool
+	}{
+		{"0", false},
+		{"0.00000000", false},
+		{"0.00000001", true},
+		{"-0.00000001", true},
+		{"1.5", true},
+		{"-1.5", true},
+	}
+	for _, c := range cases {
+		t.Run(c.lit, func(t *testing.T) {
+			state := newFixedTestState()
+			pushFp(t, state, c.lit)
+			if err := mustOp(t, "cvb").Execute(state); err != nil {
+				t.Fatalf("cvb: %v", err)
+			}
+			top, err := state.DataPop()
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, err := top.BooleanValue()
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got != c.want {
+				t.Errorf("cvb(%sfp) = %v, want %v", c.lit, got, c.want)
+			}
+		})
+	}
+}
