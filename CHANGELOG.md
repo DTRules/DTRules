@@ -1,5 +1,50 @@
 # DTRules Changelog
 
+## v1.8.0 — 2026-04-19
+
+Minor release. New numeric type for blockchain / token math.
+
+- **RFixed — 256-bit fixed-point type** (PR #684). Adds a new numeric
+  type `fixed` for amounts and rates on a 10⁻⁸ decimal grid. Signed
+  256-bit mantissa (~5.78 × 10⁵⁹ whole-token headroom), truncate-
+  toward-zero on multiply/divide, exact add/sub, symmetric overflow
+  bounds. Literal form `1.5fp`. StringValue always renders exactly 8
+  fractional digits so XML round-trips are bit-exact.
+
+  Closes the precision gap that previously forced staking to use
+  float64: every intermediate stays on the grid, so the final total
+  can't drift from what the blockchain expects. Rejects `0.1` →
+  `0.09999999`-style snapping by requiring an explicit `cvfp` cast
+  for double operands; integer and bigint auto-promote exactly.
+
+  Full stack shipped in one PR:
+
+  - **Type** (`pkg/dtrules/fixed.go`) — RFixed with Add/Sub/Mul/Div/
+    Neg/Abs/Trunc, Equals/Compare, and every Object-interface
+    conversion (IntValue/LongValue/DoubleValue/RIntegerValue/
+    RDoubleValue/RBigIntValue truncate toward zero).
+
+  - **Operators** (`pkg/dtrules/operators/fixed.go`) — `fp+ fp- fp* fp/
+    fpabs fpnegate fptrunc fp== fp!= fp> fp>= fp< fp<= cvfp`.
+
+  - **Literal parsing** — `1.5fp` / `1.50000000FP` recognized by both
+    compile paths (bytecode and Object), with strict digit validation
+    (rejects `--1`, bare `fp`).
+
+  - **EL dispatch** (`pkg/dtrules/compiler/el/postfix_emitter.go`) —
+    the whole 11-visitor integer family (Add/Sub/Mul/Div/Negate + six
+    comparisons) now shares `promoteArithType` + `emitWithType-
+    Conversion` helpers. Fixed > BigInt > Integer priority, with
+    `cvfp` promotion inserted automatically for mixed operands.
+    Per the labeled-alternative rule, the whole family was fixed at
+    once to avoid the partial-fix hazard from #675.
+
+  - **EDD / XML / JSON round-trip** — loader parses `type='fixed'`
+    fields and RFixed default values; runtime XML/JSON data paths
+    parse fp values from strings (never float64); entity Put coerces
+    int/bigint to fp and rejects double, matching the #675 principle
+    that silent down-coercion is always an error.
+
 ## v1.7.3 — 2026-04-19
 
 Patch release. Two more staking integration fixes.
