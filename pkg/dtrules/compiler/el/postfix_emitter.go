@@ -276,12 +276,48 @@ func (e *PostfixEmitter) emitTypeCast(srcType, targetType string) {
 	}
 }
 
+// mutationType returns the declared numeric type for a mutation target,
+// checking the local-variable table before the EDD symbol table. Locals
+// shadow entity fields in the postfix emitter's scope, so a `local bigint
+// x` must dispatch as bigint even if the EDD also has an `x` symbol.
+// Returns "" when no declared type is found.
+func (e *PostfixEmitter) mutationType(name string) string {
+	if lv, ok := e.lookupLocal(name); ok {
+		return lv.Type
+	}
+	return e.lookupType(name)
+}
+
+// emitFieldPush pushes the current value of a mutation target onto the
+// data stack. For declared locals it emits `<index> local@`; for entity
+// fields it emits the bare name (which the postfix runtime resolves via
+// the current entity frame).
+func (e *PostfixEmitter) emitFieldPush(name string) {
+	if !e.emitLocalRef(name) {
+		e.emit(name)
+	}
+}
+
+// emitFieldStore stores the top-of-stack value back into a mutation
+// target. For declared locals it emits `<index> local!`; for entity
+// fields it emits `/<name> xdef`.
+func (e *PostfixEmitter) emitFieldStore(name string) {
+	if !e.emitLocalAssign(name) {
+		e.emit("/" + name)
+		e.emit("xdef")
+	}
+}
+
 // emitTypeAwareAddSub emits the store-back sequence for a field mutation
 // (`add value to field` or `subtract value from field`) where the value is
-// already pushed onto the data stack by the caller. Looks up the field's
-// declared type and emits the correct typed op (fp+/fp-, b+/b-, f+/f-, +/-)
-// after promoting the value to match. Subtract orders the operands so the
-// result is `field - value`, matching DTRules' existing semantics.
+// already pushed onto the data stack by the caller. Looks up the target's
+// declared type (local first, then EDD symbol table) and emits the correct
+// typed op (fp+/fp-, b+/b-, f+/f-, +/-) after promoting the value to
+// match. Subtract orders the operands so the result is `field - value`,
+// matching DTRules' existing semantics. The read (push current value) and
+// write (store-back) both route through emitFieldPush / emitFieldStore so
+// locals dispatch to `<index> local@` / `<index> local!` while entity
+// fields keep the bare-name / xdef forms.
 //
 // op is "+" for add, "-" for sub. Any other op panics — intentional; this
 // helper is not meant to grow.
@@ -289,37 +325,36 @@ func (e *PostfixEmitter) emitTypeAwareAddSub(fieldName, op string) {
 	if op != "+" && op != "-" {
 		panic("emitTypeAwareAddSub: op must be + or -")
 	}
-	switch e.lookupType(fieldName) {
+	switch e.mutationType(fieldName) {
 	case TypeFixed:
 		e.emit("cvfp")
-		e.emit(fieldName)
+		e.emitFieldPush(fieldName)
 		if op == "-" {
 			e.emit("swap")
 		}
 		e.emit("fp" + op)
 	case TypeBigInt:
 		e.emit("cvbi")
-		e.emit(fieldName)
+		e.emitFieldPush(fieldName)
 		if op == "-" {
 			e.emit("swap")
 		}
 		e.emit("b" + op)
 	case TypeDouble:
 		e.emit("cvd")
-		e.emit(fieldName)
+		e.emitFieldPush(fieldName)
 		if op == "-" {
 			e.emit("swap")
 		}
 		e.emit("f" + op)
 	default:
-		e.emit(fieldName)
+		e.emitFieldPush(fieldName)
 		if op == "-" {
 			e.emit("swap")
 		}
 		e.emit(op)
 	}
-	e.emit("/" + fieldName)
-	e.emit("xdef")
+	e.emitFieldStore(fieldName)
 }
 
 // identNumericType returns the EDD/local-declared type of a name reference
@@ -2811,7 +2846,7 @@ func (e *PostfixEmitter) VisitIfElseIf(ctx *IfElseIfContext) interface{} {
 // decimal form so the subsequent f+ / f- op can consume a double rather
 // than integer-truncating through cvd.
 func (e *PostfixEmitter) emitOneForField(fieldName string) {
-	if e.lookupType(fieldName) == TypeDouble {
+	if e.mutationType(fieldName) == TypeDouble {
 		e.emit("1.0")
 		return
 	}
@@ -4038,7 +4073,7 @@ func (e *PostfixEmitter) VisitAddArrayToArray(ctx *AddArrayToArrayContext) inter
 		if arrayExpr2 := baseCtx.ArrayExpr2(); arrayExpr2 != nil {
 			if typedCtx, ok := arrayExpr2.(*ArrayTypedContext); ok {
 				fieldName := typedCtx.TypedArray().GetText()
-				if isNumericType(e.lookupType(fieldName)) {
+				if isNumericType(e.mutationType(fieldName)) {
 					e.Visit(ctx.ArrayExpr(0))
 					e.emitTypeAwareAddSub(fieldName, "+")
 					return nil
@@ -4145,7 +4180,7 @@ func isNumericType(t string) bool {
 func (e *PostfixEmitter) VisitAddDestArray(ctx *AddDestArrayContext) interface{} {
 	if arrTyped, ok := ctx.ArrayExpr2().(*ArrayTypedContext); ok {
 		name := arrTyped.TypedArray().GetText()
-		switch e.lookupType(name) {
+		switch e.mutationType(name) {
 		case TypeInteger, TypeLong, TypeBigInt, TypeDouble, TypeFixed:
 			e.emitTypeAwareAddSub(name, "+")
 			return nil
