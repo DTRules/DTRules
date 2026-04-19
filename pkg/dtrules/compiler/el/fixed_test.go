@@ -123,14 +123,12 @@ func TestFixedNegation_EmitsFpNegate(t *testing.T) {
 	}
 }
 
-// TestFixedComparisonOperators exercises the full comparison family on the
-// VisitBoolInt* visitors that my refactor touched. `>=` and `<=` are the
-// paths this test is specifically guarding — they share the same dispatch
-// code as `>` and `<` (already covered) but route to distinct operators.
-//
-// Note: the grammar routes `!=` between two plain field refs to a string-
-// compare path (`streq not`), not BoolIntNeq, so that specific combination
-// is a separate concern tracked as a follow-up.
+// TestFixedComparisonOperators_AllEmitFpOps covers the full comparison
+// family. The `==` / `!=` cases specifically exercise the BoolName*
+// numeric-dispatch path (the grammar routes `field CMP field` through the
+// nexpr visitors regardless of type); `<`, `<=`, `>`, `>=` exercise the
+// iexpr-routed BoolInt* visitors. A dispatch typo on any of them would
+// fail.
 func TestFixedComparisonOperators_AllEmitFpOps(t *testing.T) {
 	c := NewCompiler()
 	c.SetSymbols(stakingFixedSymbols())
@@ -139,6 +137,8 @@ func TestFixedComparisonOperators_AllEmitFpOps(t *testing.T) {
 		dsl  string
 		want string
 	}{
+		{"wp.reward_per_block == wp.staker_balance", "fp=="},
+		{"wp.reward_per_block != wp.staker_balance", "fp!="},
 		{"wp.reward_per_block > wp.staker_balance", "fp>"},
 		{"wp.reward_per_block >= wp.staker_balance", "fp>="},
 		{"wp.reward_per_block < wp.staker_balance", "fp<"},
@@ -153,26 +153,87 @@ func TestFixedComparisonOperators_AllEmitFpOps(t *testing.T) {
 			if !strings.Contains(postfix, c2.want) {
 				t.Errorf("expected %s in postfix, got: %s", c2.want, postfix)
 			}
+			// The string-compare fallback must not leak in — that was the
+			// pre-fix behavior BoolName{Eq,Neq} had for numeric operands.
+			if strings.Contains(postfix, "streq") {
+				t.Errorf("unexpected streq for numeric compare: %s", postfix)
+			}
 		})
 	}
 }
 
-// TestIntegerNotEqual_UnchangedByFixedRefactor is a regression guard on my
-// VisitBoolIntNeq refactor: when both operands are plain integers, the
-// emitter must still fall back to the historic `== not` pattern, not
-// accidentally emit `fp!=` or `b!=`.
-func TestIntegerNotEqual_UnchangedByFixedRefactor(t *testing.T) {
+// TestBigIntComparison_NameDispatch guards that the numeric-name dispatch
+// also lights up for pure bigint comparisons — previously bigint == bigint
+// via two field refs fell through to streq (documented in the pre-fix
+// TestBigIntComparisonWithLocalVariables).
+func TestBigIntComparison_NameDispatch(t *testing.T) {
 	c := NewCompiler()
 	c.SetSymbols(map[string]string{
-		"ap.count":  "integer",
-		"ap.amount": "integer",
+		"bp.a": "bigint",
+		"bp.b": "bigint",
 	})
-	postfix, err := c.CompileCondition("ap.count != ap.amount")
+	cases := []struct {
+		dsl, want string
+	}{
+		{"bp.a == bp.b", "b=="},
+		{"bp.a != bp.b", "b!="},
+	}
+	for _, c2 := range cases {
+		t.Run(c2.want, func(t *testing.T) {
+			postfix, err := c.CompileCondition(c2.dsl)
+			if err != nil {
+				t.Fatalf("compile %q: %v", c2.dsl, err)
+			}
+			if !strings.Contains(postfix, c2.want) {
+				t.Errorf("expected %s, got: %s", c2.want, postfix)
+			}
+			if strings.Contains(postfix, "streq") {
+				t.Errorf("bigint compare must not emit streq: %s", postfix)
+			}
+		})
+	}
+}
+
+// TestMixedTypeComparison_PromotesToWidest verifies that a mixed numeric
+// comparison on the BoolName path picks the widest type and emits the
+// right cast on the narrower side.
+func TestMixedTypeComparison_PromotesToWidest(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{
+		"wp.amount": "fixed",
+		"ap.count":  "integer",
+	})
+	postfix, err := c.CompileCondition("wp.amount == ap.count")
 	if err != nil {
 		t.Fatalf("compile error: %v", err)
 	}
+	if !strings.Contains(postfix, "cvfp") {
+		t.Errorf("expected cvfp promotion in postfix, got: %s", postfix)
+	}
+	if !strings.Contains(postfix, "fp==") {
+		t.Errorf("expected fp== after promotion, got: %s", postfix)
+	}
+}
+
+// TestStringComparison_UnchangedByNumericDispatch is a regression guard on
+// BoolName{Eq,Neq}: string-vs-string name compares must still land on the
+// existing streq/`streq not` fallback. The numeric-dispatch branch is only
+// meant to intercept when BOTH operands are declared numeric.
+func TestStringComparison_UnchangedByNumericDispatch(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{
+		"p.first_name": "string",
+		"p.last_name":  "string",
+	})
+	postfix, err := c.CompileCondition("p.first_name != p.last_name")
+	if err != nil {
+		t.Fatalf("compile error: %v", err)
+	}
+	if !strings.Contains(postfix, "streq") {
+		t.Errorf("string != must keep emitting streq: %s", postfix)
+	}
 	if strings.Contains(postfix, "fp!=") || strings.Contains(postfix, "b!=") {
-		t.Errorf("pure-int != must not emit fp!=/b!=: %s", postfix)
+		t.Errorf("string compare must not emit numeric ops: %s", postfix)
 	}
 }
 

@@ -242,6 +242,15 @@ func arithOp(target, intOp, bigOp, fpOp string) string {
 func (e *PostfixEmitter) emitWithTypeConversion(ctx antlr.ParseTree, targetType string) {
 	srcType := e.getExprType(ctx)
 	e.Visit(ctx)
+	e.emitTypeCast(srcType, targetType)
+}
+
+// emitTypeCast emits the postfix cast op needed to convert a stack value of
+// srcType into targetType. Same-type is a no-op. Only the three implicit
+// numeric promotions are handled (int→bigint, int→fixed, bigint→fixed);
+// double→fixed requires explicit cvfp and lands here only as a pre-cast
+// source, never as a target.
+func (e *PostfixEmitter) emitTypeCast(srcType, targetType string) {
 	if srcType == targetType {
 		return
 	}
@@ -255,6 +264,25 @@ func (e *PostfixEmitter) emitWithTypeConversion(ctx antlr.ParseTree, targetType 
 			e.emit("cvfp")
 		}
 	}
+}
+
+// identNumericType returns the EDD/local-declared type of a name reference
+// if it resolves to an integer, bigint, or fixed field. Returns "" for
+// anything else (string, boolean, entity, double, unknown). Double is
+// intentionally excluded so fixed ↔ double comparisons stay on the legacy
+// string-compare path rather than silently snapping onto the 10^-8 grid.
+func (e *PostfixEmitter) identNumericType(name string) string {
+	if lv, ok := e.lookupLocal(name); ok {
+		switch lv.Type {
+		case TypeInteger, TypeLong, TypeBigInt, TypeFixed:
+			return lv.Type
+		}
+	}
+	switch t := e.lookupType(name); t {
+	case TypeInteger, TypeLong, TypeBigInt, TypeFixed:
+		return t
+	}
+	return ""
 }
 
 // Emit returns the accumulated postfix output.
@@ -770,6 +798,21 @@ func (e *PostfixEmitter) VisitBoolNameEq(ctx *BoolNameEqContext) interface{} {
 		return nil
 	}
 
+	// Numeric names: the grammar routes `field == field` to this nexpr
+	// visitor regardless of type, so fixed/bigint/integer comparisons used
+	// to fall through to `streq` — correct only for values whose decimal
+	// string forms happen to match. Dispatch to the proper family with
+	// Fixed > BigInt > Integer promotion when both sides are numeric.
+	if t0, t1 := e.identNumericType(name0), e.identNumericType(name1); t0 != "" && t1 != "" {
+		target := promoteArithType(t0, t1)
+		e.Visit(ctx.Nexpr(0))
+		e.emitTypeCast(t0, target)
+		e.Visit(ctx.Nexpr(1))
+		e.emitTypeCast(t1, target)
+		e.emit(arithOp(target, "==", "b==", "fp=="))
+		return nil
+	}
+
 	isEntity := false
 	if lv, ok := e.lookupLocal(name0); ok && lv.Type == TypeEntity {
 		isEntity = true
@@ -801,6 +844,27 @@ func (e *PostfixEmitter) VisitBoolNameNeq(ctx *BoolNameNeqContext) interface{} {
 		e.Visit(ctx.Nexpr(0))
 		e.Visit(ctx.Nexpr(1))
 		e.emit("bytes!=")
+		return nil
+	}
+
+	// Numeric names: dispatch to the proper inequality family. Same
+	// Fixed > BigInt > Integer promotion as BoolNameEq; fp!= and b!=
+	// are distinct ops, integer falls back to the historic `== not`.
+	if t0, t1 := e.identNumericType(name0), e.identNumericType(name1); t0 != "" && t1 != "" {
+		target := promoteArithType(t0, t1)
+		e.Visit(ctx.Nexpr(0))
+		e.emitTypeCast(t0, target)
+		e.Visit(ctx.Nexpr(1))
+		e.emitTypeCast(t1, target)
+		switch target {
+		case TypeFixed:
+			e.emit("fp!=")
+		case TypeBigInt:
+			e.emit("b!=")
+		default:
+			e.emit("==")
+			e.emit("not")
+		}
 		return nil
 	}
 

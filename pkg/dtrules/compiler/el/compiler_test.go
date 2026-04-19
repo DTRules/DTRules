@@ -451,8 +451,9 @@ func TestBigIntComparisonOperators(t *testing.T) {
 }
 
 // TestBigIntComparisonWithLocalVariables tests comparison operations on local bigint variables.
-// The emitter is now type-aware and emits bigint operators when operands are known to be bigint.
-// Note: Equality uses streq when parsed as string comparison (depends on grammar rule match).
+// The emitter is now type-aware across the whole comparison family — BoolName{Eq,Neq}
+// dispatch to numeric compares when both operands resolve to a numeric type, so
+// bigint equality now uses b== rather than the stringwise streq fallback.
 func TestBigIntComparisonWithLocalVariables(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -461,12 +462,12 @@ func TestBigIntComparisonWithLocalVariables(t *testing.T) {
 		expected  string
 	}{
 		{
-			// Note: This uses streq because the parser sees two identifiers
-			// and defaults to string comparison for == operator
-			name:      "local bigint equality uses streq",
+			// BoolNameEq now detects the local-declared bigint type and emits
+			// a bigint compare instead of the old streq fallback.
+			name:      "local bigint equality uses bigint b==",
 			context:   "local bigint x = (bigint) 10;",
 			condition: "x == x",
-			expected:  "0 local@ 0 local@ streq",
+			expected:  "0 local@ 0 local@ b==",
 		},
 		{
 			// The emitter detects that x is bigint and emits b> operator
