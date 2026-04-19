@@ -296,6 +296,96 @@ func TestIntegerNegation_EmitsNegate(t *testing.T) {
 	}
 }
 
+// TestFixedIncrement_PreservesPrecision guards the silent-truncation bug in
+// VisitIncrementLong: `increment <field>` used to emit `field 1 + /field
+// xdef` regardless of the field's declared type. For fp fields, the plain
+// `+` truncates via LongValue(). Now the visitor dispatches on the field's
+// EDD type and emits fp+ / b+ with the appropriate cast on the `1`.
+func TestFixedIncrement_PreservesPrecision(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{"wp.amount": "fixed"})
+	postfix, err := c.CompileAction("increment wp.amount")
+	if err != nil {
+		t.Fatalf("compile error: %v", err)
+	}
+	if !strings.Contains(postfix, "fp+") {
+		t.Errorf("expected fp+ for fp-field increment, got: %s", postfix)
+	}
+	if !strings.Contains(postfix, "cvfp") {
+		t.Errorf("expected cvfp on the `1` literal, got: %s", postfix)
+	}
+	// Regression pin: old buggy emission ended with `1 +` before xdef.
+	if strings.Contains(postfix, "1 + /") {
+		t.Errorf("plain + on fp increment would silently truncate: %s", postfix)
+	}
+}
+
+// TestFixedDecrement_PreservesPrecision — parallel to increment.
+func TestFixedDecrement_PreservesPrecision(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{"wp.amount": "fixed"})
+	postfix, err := c.CompileAction("decrement wp.amount")
+	if err != nil {
+		t.Fatalf("compile error: %v", err)
+	}
+	if !strings.Contains(postfix, "fp-") {
+		t.Errorf("expected fp- for fp-field decrement, got: %s", postfix)
+	}
+	if strings.Contains(postfix, "1 - /") {
+		t.Errorf("plain - on fp decrement would silently truncate: %s", postfix)
+	}
+}
+
+// TestFixedSubtractFrom_PreservesPrecision guards VisitSubDestLong: the
+// `subtract <value> from <field>` pattern compiled to `field swap -`
+// regardless of target type. For fp fields, `-` truncates. Now the visitor
+// emits `field swap cvfp fp-` so integer RHS values are promoted and the
+// subtract happens at fp precision.
+func TestFixedSubtractFrom_PreservesPrecision(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{"wp.amount": "fixed"})
+	cases := []struct {
+		dsl, wantOp string
+	}{
+		{"subtract 1.5fp from wp.amount", "fp-"}, // fp literal RHS
+		{"subtract 1 from wp.amount", "fp-"},     // integer RHS — must promote
+	}
+	for _, c2 := range cases {
+		t.Run(c2.dsl, func(t *testing.T) {
+			postfix, err := c.CompileAction(c2.dsl)
+			if err != nil {
+				t.Fatalf("compile error: %v", err)
+			}
+			if !strings.Contains(postfix, c2.wantOp) {
+				t.Errorf("expected %s in postfix, got: %s", c2.wantOp, postfix)
+			}
+			if !strings.Contains(postfix, "cvfp") {
+				t.Errorf("expected cvfp cast in postfix, got: %s", postfix)
+			}
+			// Plain `-` on the fp field is the bug we're guarding.
+			if strings.Contains(postfix, "swap - /") {
+				t.Errorf("plain swap - on fp field would silently truncate: %s", postfix)
+			}
+		})
+	}
+}
+
+// TestIntegerIncrement_UnchangedByFixedDispatch guards that plain integer
+// fields still emit the historic `field 1 + /field xdef` pattern after the
+// fp / bigint dispatch was added to VisitIncrementLong.
+func TestIntegerIncrement_UnchangedByFixedDispatch(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{"ap.count": "integer"})
+	postfix, err := c.CompileAction("increment ap.count")
+	if err != nil {
+		t.Fatalf("compile error: %v", err)
+	}
+	if strings.Contains(postfix, "fp+") || strings.Contains(postfix, "b+") ||
+		strings.Contains(postfix, "cvfp") || strings.Contains(postfix, "cvbi") {
+		t.Errorf("pure-int increment must not emit fp/b ops: %s", postfix)
+	}
+}
+
 // TestStringComparison_UnchangedByNumericDispatch is a regression guard on
 // BoolName{Eq,Neq}: string-vs-string name compares must still land on the
 // existing streq/`streq not` fallback. The numeric-dispatch branch is only

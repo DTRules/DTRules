@@ -2632,9 +2632,25 @@ func (e *PostfixEmitter) VisitIfElseIf(ctx *IfElseIfContext) interface{} {
 
 func (e *PostfixEmitter) VisitIncrementLong(ctx *IncrementLongContext) interface{} {
 	name := ctx.TypedLong().GetText()
-	e.emit(name)
-	e.emit("1")
-	e.emit("+")
+	// typedLong matches any IDENT; the declared field type tells us which
+	// numeric family to use. Without this check, incrementing a fixed or
+	// bigint field emits plain `+` and truncates via LongValue() at runtime.
+	switch e.lookupType(name) {
+	case TypeFixed:
+		e.emit(name)
+		e.emit("1")
+		e.emit("cvfp")
+		e.emit("fp+")
+	case TypeBigInt:
+		e.emit(name)
+		e.emit("1")
+		e.emit("cvbi")
+		e.emit("b+")
+	default:
+		e.emit(name)
+		e.emit("1")
+		e.emit("+")
+	}
 	e.emit("/" + name)
 	e.emit("xdef")
 	return nil
@@ -2652,9 +2668,22 @@ func (e *PostfixEmitter) VisitIncrementDouble(ctx *IncrementDoubleContext) inter
 
 func (e *PostfixEmitter) VisitDecrementLong(ctx *DecrementLongContext) interface{} {
 	name := ctx.TypedLong().GetText()
-	e.emit(name)
-	e.emit("1")
-	e.emit("-")
+	switch e.lookupType(name) {
+	case TypeFixed:
+		e.emit(name)
+		e.emit("1")
+		e.emit("cvfp")
+		e.emit("fp-")
+	case TypeBigInt:
+		e.emit(name)
+		e.emit("1")
+		e.emit("cvbi")
+		e.emit("b-")
+	default:
+		e.emit(name)
+		e.emit("1")
+		e.emit("-")
+	}
 	e.emit("/" + name)
 	e.emit("xdef")
 	return nil
@@ -2997,9 +3026,28 @@ func (e *PostfixEmitter) VisitNameUsing(ctx *NameUsingContext) interface{} {
 // rather than value-field.
 func (e *PostfixEmitter) VisitSubDestLong(ctx *SubDestLongContext) interface{} {
 	name := ctx.TypedLong().GetText()
-	e.emit(name)
-	e.emit("swap")
-	e.emit("-")
+	// typedLong matches any IDENT; pick the numeric family based on the
+	// field's declared type. A plain `-` would truncate fixed or bigint
+	// operands via LongValue() at runtime — silent precision / range loss.
+	// Caller (VisitSubtractNum) has already pushed the value; stack shape
+	// is [value]. Emit `<field> swap <cast-on-value> <op>` so the subtract
+	// computes field − value (not value − field) at the correct type.
+	switch e.lookupType(name) {
+	case TypeFixed:
+		e.emit(name)
+		e.emit("swap")
+		e.emit("cvfp")
+		e.emit("fp-")
+	case TypeBigInt:
+		e.emit(name)
+		e.emit("swap")
+		e.emit("cvbi")
+		e.emit("b-")
+	default:
+		e.emit(name)
+		e.emit("swap")
+		e.emit("-")
+	}
 	e.emit("/" + name)
 	e.emit("xdef")
 	return nil
