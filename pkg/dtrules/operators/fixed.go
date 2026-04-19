@@ -38,6 +38,8 @@ func init() {
 	Register("fpabs", opFixedAbs)
 	Register("fpnegate", opFixedNegate)
 	Register("fptrunc", opFixedTrunc)
+	Register("fpmin", opFixedMin)
+	Register("fpmax", opFixedMax)
 
 	// Fixed-point comparison
 	Register("fp==", opFixedEqual)
@@ -162,6 +164,38 @@ func opFixedTrunc(state dtrules.State) error {
 		return err
 	}
 	return state.DataPush(a.Trunc())
+}
+
+// opFixedMin returns the lesser of two fp values: ( a b -- min(a,b) )
+func opFixedMin(state dtrules.State) error {
+	a, b, err := popFixedPair(state)
+	if err != nil {
+		return err
+	}
+	c, err := a.Compare(b)
+	if err != nil {
+		return err
+	}
+	if c <= 0 {
+		return state.DataPush(a)
+	}
+	return state.DataPush(b)
+}
+
+// opFixedMax returns the greater of two fp values: ( a b -- max(a,b) )
+func opFixedMax(state dtrules.State) error {
+	a, b, err := popFixedPair(state)
+	if err != nil {
+		return err
+	}
+	c, err := a.Compare(b)
+	if err != nil {
+		return err
+	}
+	if c >= 0 {
+		return state.DataPush(a)
+	}
+	return state.DataPush(b)
 }
 
 func opFixedCompare(state dtrules.State, want func(int) bool) error {

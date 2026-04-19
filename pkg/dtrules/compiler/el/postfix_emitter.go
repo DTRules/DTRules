@@ -1243,31 +1243,56 @@ func (e *PostfixEmitter) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface
 	return nil
 }
 
+// minMaxOp picks the correct op name for a numeric min/max dispatch.
+// The fp path uses the dedicated fpmin/fpmax ops so precision is kept
+// on the 10⁻⁸ grid.
+//
+// No dedicated `bmin` / `bmax` ops exist, so bigint targets fall back
+// to the integer `min` / `max` — which calls IntValue() on both
+// operands and errors for any bigint exceeding int64 range. That's
+// a pre-existing bug independent of this PR; fixing it cleanly
+// requires registering `bmin` / `bmax` operators that dispatch via
+// RBigInt.Compare. Tracked as a follow-up.
+func minMaxOp(target, intOp, fpOp string) string {
+	if target == TypeFixed {
+		return fpOp
+	}
+	return intOp
+}
+
 func (e *PostfixEmitter) VisitIntMinOf(ctx *IntMinOfContext) interface{} {
-	e.Visit(ctx.Iexpr(0))
-	e.Visit(ctx.Iexpr(1))
-	e.emit("min")
+	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
+	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	e.emitWithTypeConversion(l, target)
+	e.emitWithTypeConversion(r, target)
+	e.emit(minMaxOp(target, "min", "fpmin"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMinOfComma(ctx *IntMinOfCommaContext) interface{} {
-	e.Visit(ctx.Iexpr(0))
-	e.Visit(ctx.Iexpr(1))
-	e.emit("min")
+	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
+	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	e.emitWithTypeConversion(l, target)
+	e.emitWithTypeConversion(r, target)
+	e.emit(minMaxOp(target, "min", "fpmin"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMaxOf(ctx *IntMaxOfContext) interface{} {
-	e.Visit(ctx.Iexpr(0))
-	e.Visit(ctx.Iexpr(1))
-	e.emit("max")
+	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
+	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	e.emitWithTypeConversion(l, target)
+	e.emitWithTypeConversion(r, target)
+	e.emit(minMaxOp(target, "max", "fpmax"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMaxOfComma(ctx *IntMaxOfCommaContext) interface{} {
-	e.Visit(ctx.Iexpr(0))
-	e.Visit(ctx.Iexpr(1))
-	e.emit("max")
+	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
+	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	e.emitWithTypeConversion(l, target)
+	e.emitWithTypeConversion(r, target)
+	e.emit(minMaxOp(target, "max", "fpmax"))
 	return nil
 }
 
