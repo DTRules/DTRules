@@ -1,5 +1,124 @@
 # DTRules Changelog
 
+## v1.7.0 — 2026-04-18
+
+Minor release with breaking changes. Drives the EL grammar sweep to zero
+known failures (266 → 0), reworks boolean coercion, and removes a batch of
+unused runtime ops plus the hash-table machinery.
+
+### Grammar sweep: 100% coverage
+
+PR #634 landed a sweep that compiles every labeled alternative in `EL.g4`
+through the compiler and asserts non-empty postfix. After 25 PRs over this
+release cycle, every one of the 565 labeled alternatives now produces valid
+postfix. A new `grammar_helpers.tsv` exempts 30 grammar-fragment rules
+(addtodest, blist, includeSearch, operatorlist, possessiveRef, arrayList,
+tablelist, etc.) that aren't reachable from a top-level compile entry —
+they're tested via parent-rule labels that wrap them.
+
+New Visit methods span the whole grammar: forfirstctl/foreachblock/
+firstblock/block/usingblock families (#650), debugstatement + ifElseIf
+(#651), all dup-destination and no-dups add variants (#663), quantifier
+and there-is bexpr family (#664), operatorstatements dispatch and ValueOf*
+coercions (#671), policy-statement pop emits (#671), debug-before/after
+wiring (#671), performCatchError (#671), removeEachWhere and boolMatchForall
+nested forall (#672), and a symbol-driven `cvb` override in
+VisitSetStringFromName so `set b = $name` picks the right coercion when the
+target is declared boolean (#673).
+
+A coverage guard test reads `EL.g4` and fails if any new `#label` lands
+without a corpus entry. An unexpected-pass guard shrinks `known_fails.tsv`
+automatically when fixes unblock previously-failing labels.
+
+### Breaking: hash tables removed (#668)
+
+`RTable` and the 8 operators (`newtable`, `tableget`/`tput`, `tableput`/
+`tget`, `tablekeys`, `tablevalues`, `tablecontains`, `tableremove`,
+`tablesize`) are deleted. `Object.RTableValue()` removed from the interface
+and every implementation. `dtrules.TypeTable` and its aliases (`map`,
+`dict`, `dictionary`, `hash`) gone. Bytecode `OpNewTable`/`OpTableGet`/
+`OpTablePut` removed. `ruleset.AttrTypeTable` removed.
+
+The grammar still parses `typedTable`/`texpr`/`tablelist`/`local table`,
+but the emits for those forms now produce `elstmterror` at runtime with a
+clear message. No sampleproject used hash tables — every `TABLE` reference
+in `sampleprojects/**/*.xml` was for _decision tables_, which are a
+different concept and completely unaffected.
+
+### Breaking: unused ops nuked, aliased pairs consolidated (#669)
+
+Removed (no callers or subsumed by other ops):
+
+- `entityforall`       — iterate entity attributes
+- `find_by_field` / `findbyfield` — array find-by-attribute
+- `findmatch`          — relationship lookup (only used by `boolEntityIsOf`;
+                         that emit now produces `elstmterror`)
+- `add` (opArrayAdd)   — reverse-order alternative to `addto`
+- `tokenize`           — string regex split (`split` covers the use case)
+- `datecmp`            — three-way date compare
+- `roundto`            — numeric rounding with an unused 3-arg signature
+- `policystatements`   — stub op that returned an empty array; policy-
+                         statement collection happens cmd-side from the XML
+
+Consolidated (identical implementations → aliases):
+
+- `createentity` → alias for `newentity`
+- `yearof`       → alias for `getyear`
+- `monthof`      → alias for `getmonth`
+- `dayof`        → alias for `getday`
+
+**Behavior note**: `monthof` previously returned 0-11 (Java-compat); now
+returns 1-12 to match `getmonth`. No sampleproject used `monthof`, so safe
+to align.
+
+### Breaking: `cvb` strict coercion (#667)
+
+`(boolean) <expr>` no longer silently returns null on coercion failure.
+New rules:
+
+| Input | Result |
+|---|---|
+| RBoolean | passthrough |
+| string `"true"`/`"yes"`/`"y"`/`"t"`/`"1"` (case-insensitive, trimmed) | true |
+| string `"false"`/`"no"`/`"n"`/`"f"`/`"0"` | false |
+| other strings | error |
+| integer/double/bigint zero | false |
+| integer/double/bigint non-zero | true |
+| any other type | error |
+
+Previously a `(boolean) <value>` on an uninterpretable type returned null
+silently; the null then flowed several ops downstream before failing with
+a mystery "No Boolean value exists for this type." Now the cast site
+itself fails loudly.
+
+### Other
+
+- Fixed silent fall-through of `AddDateToDest` (#663) — was defaulting to
+  an arithmetic `+` emit via VisitChildren instead of the `addto` pattern
+  used by AddEntity/Str/NumToDest.
+- Many DSL-sample refinements across localvariables, dexpr, bytesexpr,
+  eexpr, strexpr, iexpr corpus entries where the generator produced forms
+  the parser rejected.
+
+### Issues closed
+
+- Epic #635 (drive EL grammar sweep known_fails to zero)
+- #636–#649 (per-rule followups from the epic)
+
+### Upgrade
+
+```
+go install github.com/DTRules/DTRules/cmd/dtrules@v1.7.0
+```
+
+Existing EL DSL continues to compile unchanged. Rules relying on:
+- hash-table ops will need to restructure around arrays + entity-attribute
+  lookup
+- the removed ops (findmatch, tokenize, roundto, datecmp, find_by_field,
+  policystatements) will need to use the surviving equivalents
+- `(boolean) <value>` on unusual types will now error where it used to
+  silently produce null
+
 ## v1.6.6 — 2026-04-18
 
 Patch release. Completes #626 by covering every labeled alternative of `forallctl` in `PostfixEmitter`.
