@@ -15,6 +15,7 @@
 package operators
 
 import (
+	"errors"
 	"math"
 	"strings"
 	"testing"
@@ -457,6 +458,12 @@ func TestFpMinMax_PromoteIntOperand(t *testing.T) {
 // cast; the op must error rather than silently coerce via DoubleValue.
 // Same spirit as #684's double→fp rejection across the rest of the fp
 // operator family.
+//
+// Strengthened per review: asserts the error is a typed *RulesError
+// with the expected ErrorType, not just that its Error() string
+// happens to contain `cvfp`. A future refactor could change the
+// message wording without changing the rejection behavior — the
+// typed-error check pins the semantic contract.
 func TestFpMinMax_RejectDouble(t *testing.T) {
 	state := newFixedTestState()
 	pushFp(t, state, "1.5")
@@ -467,6 +474,15 @@ func TestFpMinMax_RejectDouble(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected fpmin to reject double operand")
 	}
+	var rErr *dtrules.RulesError
+	if !errors.As(err, &rErr) {
+		t.Fatalf("expected *RulesError, got %T: %v", err, err)
+	}
+	if rErr.ErrorType != "Conversion Error" {
+		t.Errorf("expected ErrorType=\"Conversion Error\", got %q", rErr.ErrorType)
+	}
+	// Keep the cvfp-mention assertion as a secondary guard — useful
+	// signal for rule authors, not just a type-check.
 	if !strings.Contains(err.Error(), "cvfp") {
 		t.Errorf("error should mention cvfp: %v", err)
 	}
