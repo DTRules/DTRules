@@ -28,3 +28,4 @@ arrayExpr2	arrayName	bexpr	helper: (array) NAME cast; reachable only in specific
 tablelist	tableListMulti	strexpr	hash tables removed — helper rule unreachable
 tablelist	tableListSingle	strexpr	hash tables removed — helper rule unreachable
 texpr	tableNew	strexpr	hash tables removed — texpr reachable only via typedTable lookup form
+setstatement	setBoolFromName	setstatement	unreachable grammar alt — parser commits to setStringFromName for any IDENT target; emit disambiguates via symbol-table type (cvb for bool, cvs otherwise)
