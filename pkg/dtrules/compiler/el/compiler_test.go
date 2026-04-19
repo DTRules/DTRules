@@ -116,7 +116,7 @@ func TestCompileAction(t *testing.T) {
 		{
 			name:     "perform table",
 			el:       "perform Calculate_Tax;",
-			expected: "Calculate_Tax", // Just table name, no executetable
+			expected: "/Calculate_Tax performtable",
 		},
 	}
 

@@ -2078,14 +2078,14 @@ func (e *PostfixEmitter) VisitIncludeDate(ctx *IncludeDateContext) interface{} {
 // ============================================================================
 
 func (e *PostfixEmitter) VisitPerformDT(ctx *PerformDTContext) interface{} {
-	// Just emit the table name - no executetable needed
-	e.Visit(ctx.TypedDecisionTable())
+	e.emit("/" + ctx.TypedDecisionTable().GetText())
+	e.emit("performtable")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitPerformDTExplicit(ctx *PerformDTExplicitContext) interface{} {
-	// Just emit the table name - no executetable needed
-	e.Visit(ctx.TypedDecisionTable())
+	e.emit("/" + ctx.TypedDecisionTable().GetText())
+	e.emit("performtable")
 	return nil
 }
 
