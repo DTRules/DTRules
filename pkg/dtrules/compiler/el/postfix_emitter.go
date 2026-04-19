@@ -2795,7 +2795,7 @@ func (e *PostfixEmitter) VisitIfElseIf(ctx *IfElseIfContext) interface{} {
 // emitOneForField pushes the literal "1" (or "1.0" for double-typed fields)
 // as the RHS value for increment / decrement statements. Double needs the
 // decimal form so the subsequent f+ / f- op can consume a double rather
-// than integer-truncating through cvr.
+// than integer-truncating through cvd.
 func (e *PostfixEmitter) emitOneForField(fieldName string) {
 	if e.lookupType(fieldName) == TypeDouble {
 		e.emit("1.0")
@@ -3472,7 +3472,7 @@ func (e *PostfixEmitter) VisitBoolEntityHasaWhere(ctx *BoolEntityHasaWhereContex
 }
 
 // VisitBoolPlusOrMinus: `<f1> is plus or minus <n> of <f2>` →
-// `|f1 - f2| <= n`. The `number` may be int or float; `cvr` coerces to
+// `|f1 - f2| <= n`. The `number` may be int or float; `cvd` coerces to
 // double for the comparison.
 func (e *PostfixEmitter) VisitBoolPlusOrMinus(ctx *BoolPlusOrMinusContext) interface{} {
 	e.Visit(ctx.Fexpr(0))
