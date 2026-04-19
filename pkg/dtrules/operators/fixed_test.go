@@ -381,6 +381,97 @@ func TestCvfpFromUnsupportedTypeErrors(t *testing.T) {
 
 // TestCvbOnFixed guards cvb → boolean coercion for RFixed, matching the
 // "0 → false, non-zero → true" rule the op applies to integer and bigint.
+// TestFpMinOperator / TestFpMaxOperator exercise the fpmin / fpmax ops
+// directly through the stack, independent of the compile-level dispatch.
+// Without these tests a dispatch-table typo (e.g. pointing fpmin at
+// opFixedAdd) would pass every other test in the suite.
+func TestFpMinOperator(t *testing.T) {
+	cases := []struct {
+		a, b, want string
+	}{
+		{"1.5", "2.5", "1.50000000"},
+		{"2.5", "1.5", "1.50000000"},
+		{"-1.0", "1.0", "-1.00000000"},
+		{"1.5", "1.5", "1.50000000"},
+		{"0.00000001", "0", "0.00000000"},
+	}
+	for _, c := range cases {
+		t.Run(c.a+"_min_"+c.b, func(t *testing.T) {
+			state := newFixedTestState()
+			pushFp(t, state, c.a)
+			pushFp(t, state, c.b)
+			if err := mustOp(t, "fpmin").Execute(state); err != nil {
+				t.Fatal(err)
+			}
+			if got := popFpString(t, state); got != c.want {
+				t.Errorf("fpmin(%q, %q) = %q, want %q", c.a, c.b, got, c.want)
+			}
+		})
+	}
+}
+
+func TestFpMaxOperator(t *testing.T) {
+	cases := []struct {
+		a, b, want string
+	}{
+		{"1.5", "2.5", "2.50000000"},
+		{"2.5", "1.5", "2.50000000"},
+		{"-1.0", "1.0", "1.00000000"},
+		{"1.5", "1.5", "1.50000000"},
+		{"0.00000001", "0", "0.00000001"},
+	}
+	for _, c := range cases {
+		t.Run(c.a+"_max_"+c.b, func(t *testing.T) {
+			state := newFixedTestState()
+			pushFp(t, state, c.a)
+			pushFp(t, state, c.b)
+			if err := mustOp(t, "fpmax").Execute(state); err != nil {
+				t.Fatal(err)
+			}
+			if got := popFpString(t, state); got != c.want {
+				t.Errorf("fpmax(%q, %q) = %q, want %q", c.a, c.b, got, c.want)
+			}
+		})
+	}
+}
+
+// TestFpMinMax_PromoteIntOperand verifies that an integer pushed alongside
+// an fp value is auto-promoted (via popFixedPair → PromoteToRFixed) before
+// the compare. Matches how the compile-level dispatch inserts cvfp before
+// invoking the op.
+func TestFpMinMax_PromoteIntOperand(t *testing.T) {
+	state := newFixedTestState()
+	pushFp(t, state, "1.5")
+	if err := state.DataPush(dtrules.GetRIntegerValue(3)); err != nil {
+		t.Fatal(err)
+	}
+	if err := mustOp(t, "fpmax").Execute(state); err != nil {
+		t.Fatal(err)
+	}
+	if got := popFpString(t, state); got != "3.00000000" {
+		t.Errorf("fpmax(1.5fp, 3) = %q, want 3.00000000", got)
+	}
+}
+
+// TestFpMinMax_RejectDouble — double operands require an explicit cvfp
+// cast; the op must error rather than silently coerce via DoubleValue.
+// Same spirit as #684's double→fp rejection across the rest of the fp
+// operator family.
+func TestFpMinMax_RejectDouble(t *testing.T) {
+	state := newFixedTestState()
+	pushFp(t, state, "1.5")
+	if err := state.DataPush(dtrules.GetRDoubleValue(2.5)); err != nil {
+		t.Fatal(err)
+	}
+	err := mustOp(t, "fpmin").Execute(state)
+	if err == nil {
+		t.Fatal("expected fpmin to reject double operand")
+	}
+	if !strings.Contains(err.Error(), "cvfp") {
+		t.Errorf("error should mention cvfp: %v", err)
+	}
+}
+
 func TestCvbOnFixed(t *testing.T) {
 	cases := []struct {
 		lit  string

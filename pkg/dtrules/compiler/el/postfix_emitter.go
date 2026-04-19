@@ -1244,10 +1244,15 @@ func (e *PostfixEmitter) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface
 }
 
 // minMaxOp picks the correct op name for a numeric min/max dispatch.
-// There's no dedicated bmin/bmax runtime op, so bigint falls back to
-// the polymorphic min/max (which dispatches via Object.Compare). The
-// fp path goes through the dedicated fpmin/fpmax so precision is kept
+// The fp path uses the dedicated fpmin/fpmax ops so precision is kept
 // on the 10⁻⁸ grid.
+//
+// No dedicated `bmin` / `bmax` ops exist, so bigint targets fall back
+// to the integer `min` / `max` — which calls IntValue() on both
+// operands and errors for any bigint exceeding int64 range. That's
+// a pre-existing bug independent of this PR; fixing it cleanly
+// requires registering `bmin` / `bmax` operators that dispatch via
+// RBigInt.Compare. Tracked as a follow-up.
 func minMaxOp(target, intOp, fpOp string) string {
 	if target == TypeFixed {
 		return fpOp
