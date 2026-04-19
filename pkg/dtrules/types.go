@@ -137,6 +137,7 @@ var (
 	TypeMark          *RType
 	TypeBigInt        *RType
 	TypeBytes         *RType
+	TypeFixed         *RType
 )
 
 func init() {
@@ -156,6 +157,7 @@ func init() {
 	TypeMark = NewType("mark")
 	TypeBigInt = NewType("bigint")
 	TypeBytes = NewType("bytes")
+	TypeFixed = NewType("fixed")
 
 	// Register common type aliases
 	registerTypeAlias("float", TypeDouble)

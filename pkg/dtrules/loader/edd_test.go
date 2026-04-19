@@ -474,6 +474,52 @@ func TestEDDLoaderBigIntDefaultValue(t *testing.T) {
 	}
 }
 
+func TestEDDLoaderFixedDefaultValue(t *testing.T) {
+	factory := entity.NewFactory(nil)
+	loader := NewEDDLoader(nil, factory)
+
+	xml := `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="1.0">
+  <entity name="staking" access="rw">
+    <field name="amount" type="fixed" access="rw" default_value="1680748.45091643"/>
+    <field name="rate" type="fixed" access="rw" default_value="0.00250000"/>
+    <field name="zero" type="fixed" access="rw" default_value="0"/>
+    <field name="negative" type="fixed" access="rw" default_value="-0.00000001"/>
+  </entity>
+</entity_data_dictionary>`
+
+	if err := loader.Load(strings.NewReader(xml)); err != nil {
+		t.Fatalf("Failed to load EDD with fixed default values: %v", err)
+	}
+
+	stakingEntity, _ := factory.GetReferenceEntity(dtrules.GetRName("staking"))
+	if stakingEntity == nil {
+		t.Fatal("Expected staking entity to be created")
+	}
+
+	cases := map[string]string{
+		"amount":   "1680748.45091643",
+		"rate":     "0.00250000",
+		"zero":     "0.00000000",
+		"negative": "-0.00000001",
+	}
+	for field, want := range cases {
+		v, err := stakingEntity.Get(dtrules.GetRName(field))
+		if err != nil {
+			t.Errorf("Get(%s): %v", field, err)
+			continue
+		}
+		fp, ok := v.(*dtrules.RFixed)
+		if !ok {
+			t.Errorf("%s: expected RFixed default, got %T", field, v)
+			continue
+		}
+		if got := fp.StringValue(); got != want {
+			t.Errorf("%s default: got %q, want %q", field, got, want)
+		}
+	}
+}
+
 func TestEDDLoaderBigIntInvalidDefaultValue(t *testing.T) {
 	factory := entity.NewFactory(nil)
 	loader := NewEDDLoader(nil, factory)

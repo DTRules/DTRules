@@ -351,6 +351,10 @@ func (l *EDDLoader) computeDefaultValue(defaultStr string, rtype *dtrules.RType)
 		if v, err := dtrules.GetRBigIntFromString(defaultStr); err == nil {
 			return v
 		}
+	case dtrules.TypeFixed:
+		if v, err := dtrules.GetRFixedFromString(defaultStr); err == nil {
+			return v
+		}
 	}
 
 	return dtrules.GetRNull()

@@ -36,6 +36,7 @@ const (
 	TypeXmlValue = "xmlvalue"
 	TypeBigInt   = "bigint"
 	TypeBytes    = "bytes"
+	TypeFixed    = "fixed"
 )
 
 // EDDFile represents the root entity_data_dictionary element

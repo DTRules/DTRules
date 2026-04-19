@@ -134,6 +134,8 @@ func (e *PostfixEmitter) typeConverter(fieldType string) string {
 		return "cvbi"
 	case TypeBytes:
 		return "cvbytes"
+	case TypeFixed:
+		return "cvfp"
 	case TypeArray, TypeName, TypeXmlValue:
 		return "" // No conversion needed
 	default:
@@ -189,24 +191,17 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 		}
 	}
 
-	// For compound expressions, check children recursively
+	// For compound expressions, propagate the widest operand type
+	// (Fixed > BigInt > Integer).
 	switch c := ctx.(type) {
 	case *IntAddContext:
-		if e.getExprType(c.Iexpr(0)) == TypeBigInt || e.getExprType(c.Iexpr(1)) == TypeBigInt {
-			return TypeBigInt
-		}
+		return promoteArithType(e.getExprType(c.Iexpr(0)), e.getExprType(c.Iexpr(1)))
 	case *IntSubContext:
-		if e.getExprType(c.Iexpr(0)) == TypeBigInt || e.getExprType(c.Iexpr(1)) == TypeBigInt {
-			return TypeBigInt
-		}
+		return promoteArithType(e.getExprType(c.Iexpr(0)), e.getExprType(c.Iexpr(1)))
 	case *IntMulContext:
-		if e.getExprType(c.Iexpr(0)) == TypeBigInt || e.getExprType(c.Iexpr(1)) == TypeBigInt {
-			return TypeBigInt
-		}
+		return promoteArithType(e.getExprType(c.Iexpr(0)), e.getExprType(c.Iexpr(1)))
 	case *IntDivContext:
-		if e.getExprType(c.Iexpr(0)) == TypeBigInt || e.getExprType(c.Iexpr(1)) == TypeBigInt {
-			return TypeBigInt
-		}
+		return promoteArithType(e.getExprType(c.Iexpr(0)), e.getExprType(c.Iexpr(1)))
 	case *IntNegateContext:
 		return e.getExprType(c.Iexpr())
 	case *IntParenContext:
@@ -214,6 +209,31 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 	}
 
 	return TypeInteger
+}
+
+// promoteArithType returns the widest type for a mixed-type integer
+// arithmetic or comparison expression: Fixed > BigInt > Integer.
+func promoteArithType(a, b string) string {
+	if a == TypeFixed || b == TypeFixed {
+		return TypeFixed
+	}
+	if a == TypeBigInt || b == TypeBigInt {
+		return TypeBigInt
+	}
+	return TypeInteger
+}
+
+// arithOp picks the correct postfix opcode for an arithmetic or comparison
+// operation based on the promoted expression type.
+func arithOp(target, intOp, bigOp, fpOp string) string {
+	switch target {
+	case TypeFixed:
+		return fpOp
+	case TypeBigInt:
+		return bigOp
+	default:
+		return intOp
+	}
 }
 
 // isBigIntExpr returns true if the expression involves bigint types.
@@ -229,6 +249,27 @@ func (e *PostfixEmitter) emitWithBigIntConversion(ctx antlr.ParseTree, needsBigI
 	e.Visit(ctx)
 	if needsBigInt && exprType != TypeBigInt {
 		e.emit("cvbi")
+	}
+}
+
+// emitWithTypeConversion emits an integer-family expression and casts the
+// result to targetType on the stack. Handles int→bigint, int→fixed, and
+// bigint→fixed promotions. Same-type targets emit no cast.
+func (e *PostfixEmitter) emitWithTypeConversion(ctx antlr.ParseTree, targetType string) {
+	srcType := e.getExprType(ctx)
+	e.Visit(ctx)
+	if srcType == targetType {
+		return
+	}
+	switch targetType {
+	case TypeBigInt:
+		if srcType == TypeInteger {
+			e.emit("cvbi")
+		}
+	case TypeFixed:
+		if srcType == TypeInteger || srcType == TypeBigInt {
+			e.emit("cvfp")
+		}
 	}
 }
 
@@ -304,18 +345,10 @@ func (e *PostfixEmitter) VisitBoolIntEq(ctx *BoolIntEqContext) interface{} {
 		return nil
 	}
 
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b==")
-	} else {
-		e.emit("==")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, "==", "b==", "fp=="))
 	return nil
 }
 
@@ -330,16 +363,15 @@ func (e *PostfixEmitter) VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{} {
 		return nil
 	}
 
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	switch target {
+	case TypeFixed:
+		e.emit("fp!=")
+	case TypeBigInt:
 		e.emit("b!=")
-	} else {
+	default:
 		e.emit("==")
 		e.emit("not")
 	}
@@ -348,69 +380,37 @@ func (e *PostfixEmitter) VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolIntGt(ctx *BoolIntGtContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b>")
-	} else {
-		e.emit(">")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, ">", "b>", "fp>"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitBoolIntGte(ctx *BoolIntGteContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b>=")
-	} else {
-		e.emit(">=")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, ">=", "b>=", "fp>="))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitBoolIntLt(ctx *BoolIntLtContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b<")
-	} else {
-		e.emit("<")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, "<", "b<", "fp<"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitBoolIntLte(ctx *BoolIntLteContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b<=")
-	} else {
-		e.emit("<=")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, "<=", "b<=", "fp<="))
 	return nil
 }
 
@@ -969,79 +969,50 @@ func (e *PostfixEmitter) VisitIntAdd(ctx *IntAddContext) interface{} {
 		return nil
 	}
 
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b+")
-	} else {
-		e.emit("+")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, "+", "b+", "fp+"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntSub(ctx *IntSubContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b-")
-	} else {
-		e.emit("-")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, "-", "b-", "fp-"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMul(ctx *IntMulContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b*")
-	} else {
-		e.emit("*")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, "*", "b*", "fp*"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntDiv(ctx *IntDivContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	leftIsBigInt := e.isBigIntExpr(left)
-	rightIsBigInt := e.isBigIntExpr(right)
-	needsBigInt := leftIsBigInt || rightIsBigInt
-
-	e.emitWithBigIntConversion(left, needsBigInt)
-	e.emitWithBigIntConversion(right, needsBigInt)
-
-	if needsBigInt {
-		e.emit("b/")
-	} else {
-		e.emit("/")
-	}
+	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, "/", "b/", "fp/"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntNegate(ctx *IntNegateContext) interface{} {
 	expr := ctx.Iexpr()
-	isBigInt := e.isBigIntExpr(expr)
+	exprType := e.getExprType(expr)
 	e.Visit(expr)
-	if isBigInt {
+	switch exprType {
+	case TypeFixed:
+		e.emit("fpnegate")
+	case TypeBigInt:
 		e.emit("bnegate")
-	} else {
+	default:
 		e.emit("neg")
 	}
 	return nil

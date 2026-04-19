@@ -96,6 +96,14 @@ func (c *Compiler) compileTokenToBytecode(bc *dtrules.BytecodeChunk, token strin
 		return nil
 	}
 
+	// Try as fixed-point (numeric token with an `fp`/`FP` suffix).
+	if hasFixedSuffix(token) {
+		if fp, err := dtrules.GetRFixedFromString(token); err == nil {
+			bc.EmitPushConstant(dtrules.NewValueObject(fp))
+			return nil
+		}
+	}
+
 	// Try as integer
 	if i, err := dtrules.GetRIntegerValueFromString(token); err == nil {
 		v, _ := i.LongValue()

@@ -309,6 +309,8 @@ func (e *REntity) Put(name *dtrules.RName, value dtrules.Object) error {
 			value, err = value.RTimeValue()
 		case dtrules.TypeBigInt.GetID():
 			value, err = value.RBigIntValue()
+		case dtrules.TypeFixed.GetID():
+			value, err = dtrules.PromoteToRFixed(value)
 		}
 		if err != nil {
 			return err
