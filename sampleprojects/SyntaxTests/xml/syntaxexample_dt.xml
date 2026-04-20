@@ -35,16 +35,14 @@ You can instead have the two context statements:
 <context_details>
 <context_number />
 <context_comment />
-<context_dsl>For all cases in the job allowing cases to be removed</context_dsl>
+<context_dsl>for all job.cases</context_dsl>
 <context_postfix>
-dup job  entitypush cases forallr entitypop pop 
 </context_postfix></context_details>
 <context_details>
 <context_number />
 <context_comment />
-<context_dsl>Add the case.address to the context of this table</context_dsl>
+<context_dsl>for all job.cases</context_dsl>
 <context_postfix>
-case.address entitypush execute entitypop 
 </context_postfix></context_details>
 <context_details>
 <context_number>4</context_number>

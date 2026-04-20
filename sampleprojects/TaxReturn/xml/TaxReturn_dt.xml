@@ -990,9 +990,8 @@ property.rental_net_income result.total_rental_income f+ /result.total_rental_in
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process each income entity</context_comment>
-<context_dsl>for all income entities</context_dsl>
+<context_dsl>for all job.incomes</context_dsl>
 <context_postfix>
-{ /Process_Other_Income executetable } job.incomes forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -5125,13 +5124,8 @@ result.total_social_security 0.85 f* /result.taxable_social_security xdef
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process each income entity for capital gains</context_comment>
-<context_dsl>for all income entities</context_dsl>
+<context_dsl>for all job.incomes</context_dsl>
 <context_postfix>
-0.0 /result.total_long_term_gains xdef
-0.0 /result.total_short_term_gains xdef
-0.0 /result.total_qualified_dividends xdef
-"CAPITAL GAINS (Schedule D)" job.audit_trail swap addto
-{ /Process_Capital_Gains executetable } job.incomes forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -8272,13 +8266,8 @@ result.total_foreign_taxes_paid result.foreign_tax_credit_limit fmin /result.for
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process each foreign earned income record</context_comment>
-<context_dsl>for all foreign earned income records</context_dsl>
+<context_dsl>for all job.foreign_earned_incomes</context_dsl>
 <context_postfix>
-0.0 /result.total_foreign_earned_income xdef
-0.0 /result.foreign_earned_income_exclusion xdef
-0.0 /result.foreign_housing_exclusion xdef
-"Processing Form 2555 Foreign Earned Income Exclusion (IRC 911)" job.audit_trail swap addto
-{ /Process_Foreign_Earned_Income executetable } job.foreign_earned_incomes forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -8605,11 +8594,8 @@ false /early_distribution.subject_to_penalty xdef
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process each child unearned income record</context_comment>
-<context_dsl>for all child unearned income records</context_dsl>
+<context_dsl>for all job.child_unearned_incomes</context_dsl>
 <context_postfix>
-0.0 /result.total_kiddie_tax xdef
-"Processing Form 8615 Kiddie Tax (IRC 1(g))" job.audit_trail swap addto
-{ /Process_Kiddie_Tax executetable } job.child_unearned_incomes forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -8673,11 +8659,8 @@ false /child_unearned_income.subject_to_kiddie_tax xdef
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process elderly/disabled records</context_comment>
-<context_dsl>for all elderly/disabled records</context_dsl>
+<context_dsl>for all job.elderly_disabled</context_dsl>
 <context_postfix>
-0.0 /result.elderly_disabled_credit xdef
-"Processing Schedule R Credit for Elderly/Disabled (IRC 22)" job.audit_trail swap addto
-{ /Calculate_Elderly_Disabled_Credit executetable } job.elderly_disabled forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -9457,10 +9440,6 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 <TABLE_NUMBER>39900</TABLE_NUMBER>
 </attribute_fields>
 <contexts>
-<context>
-<context_formal>state_tax_result</context_formal>
-<context_dsl>State tax result to process</context_dsl>
-</context>
 </contexts>
 <initial_actions>
 <initial_action>
@@ -11660,11 +11639,8 @@ result.schedule_h_social_security_tax result.schedule_h_medicare_tax f+ result.s
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process each taxpayer for combat zone exclusion</context_comment>
-<context_dsl>for all taxpayers with military service</context_dsl>
+<context_dsl>for all taxpayers whose is_military == true</context_dsl>
 <context_postfix>
-0.0 /result.total_combat_zone_exclusion xdef
-"Processing Combat Zone Pay Exclusion (IRC § 112)" job.audit_trail swap addto
-{ /Calculate_Combat_Zone_Pay_Exclusion executetable } job.taxpayers forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -11779,11 +11755,8 @@ result.total_combat_zone_exclusion taxpayer.combat_zone_exclusion f+ /result.tot
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process military moving expenses</context_comment>
-<context_dsl>for all military taxpayers</context_dsl>
+<context_dsl>for all taxpayers whose is_military == true</context_dsl>
 <context_postfix>
-0.0 /result.military_moving_expense_deduction xdef
-"Processing Military Moving Expense Deduction" job.audit_trail swap addto
-{ /Calculate_Military_Moving_Expenses executetable } job.taxpayers forall
 </context_postfix>
 </context_details>
 </contexts>

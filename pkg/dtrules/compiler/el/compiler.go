@@ -175,6 +175,14 @@ func (c *Compiler) compile(el string) (string, error) {
 		return "", fmt.Errorf("parse errors: %s", strings.Join(errorListener.errors, "; "))
 	}
 
+	// EOF anchor: the parser may accept a prefix of the input and silently
+	// drop trailing tokens. Fail loudly if any remain so authors see broken DSL
+	// rather than quietly wrong postfix.
+	if tok := tokens.LA(1); tok != antlr.TokenEOF {
+		rest := tokens.GetTextFromInterval(antlr.NewInterval(tokens.Index(), tokens.Size()-1))
+		return "", fmt.Errorf("unexpected tokens after parse: %s", strings.TrimSpace(rest))
+	}
+
 	// Emit postfix using persistent emitter (preserves local variable state)
 	c.emitter.Reset() // Reset output buffer but preserve locals
 	c.emitter.Visit(tree)
