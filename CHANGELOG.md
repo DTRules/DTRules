@@ -2,48 +2,144 @@
 
 ## v1.8.0 — 2026-04-19
 
-Minor release. New numeric type for blockchain / token math.
+Minor release. Introduces the `fixed` numeric type for blockchain / token math,
+a first-class fp grammar front-end, and hardens the compiler / loader around
+type-aware mutations, `for all <type> entities`, and EOF anchoring. Two
+operator renames ship as breaking changes — see "Breaking changes" below.
 
-- **RFixed — 256-bit fixed-point type** (PR #684). Adds a new numeric
-  type `fixed` for amounts and rates on a 10⁻⁸ decimal grid. Signed
-  256-bit mantissa (~5.78 × 10⁵⁹ whole-token headroom), truncate-
-  toward-zero on multiply/divide, exact add/sub, symmetric overflow
-  bounds. Literal form `1.5fp`. StringValue always renders exactly 8
-  fractional digits so XML round-trips are bit-exact.
+## Breaking changes
 
-  Closes the precision gap that previously forced staking to use
-  float64: every intermediate stays on the grid, so the final total
-  can't drift from what the blockchain expects. Rejects `0.1` →
-  `0.09999999`-style snapping by requiring an explicit `cvfp` cast
-  for double operands; integer and bigint auto-promote exactly.
+- **`cvd` is now the double converter; `cvdate` is the new date converter**
+  (#694, PR #695). Historically `cvd` was the DATE cast. That was the only
+  cv* op whose target type didn't match its letter, and it confused every
+  type-dispatch path in the compiler (notably the v1.7.x set/field-mutation
+  family). `cvd` now means double; `cvr` is an alias retained for backward
+  compatibility in hand-written postfix; the date cast moved to the new
+  `cvdate` op. Any rule file that emits raw postfix (not EL) calling `cvd`
+  and expects date semantics WILL break — recompile from EL, or rename
+  `cvd` → `cvdate` in the stored postfix.
 
-  Full stack shipped in one PR:
+- **`sortarray asc=true` now produces ascending order** (#696, PR #701).
+  The flag semantics were inverted: `asc=true` previously produced a
+  descending sort and `asc=false` produced ascending. Both halves of the
+  comparator, and every call site in the test suite, were written against
+  that inversion, so the bug stayed hidden. Fixed to match the parameter
+  name. External rules that called `sortarray ... true` expecting
+  descending will see flipped output — swap the boolean. The implementation
+  also replaced the bubble sort with `sort.SliceStable` for stability and
+  complexity.
 
-  - **Type** (`pkg/dtrules/fixed.go`) — RFixed with Add/Sub/Mul/Div/
-    Neg/Abs/Trunc, Equals/Compare, and every Object-interface
-    conversion (IntValue/LongValue/DoubleValue/RIntegerValue/
-    RDoubleValue/RBigIntValue truncate toward zero).
+## Fixed-point (new type)
 
-  - **Operators** (`pkg/dtrules/operators/fixed.go`) — `fp+ fp- fp* fp/
-    fpabs fpnegate fptrunc fp== fp!= fp> fp>= fp< fp<= cvfp`.
+- **`RFixed` — 256-bit fixed-point type** (#684). Adds the `fixed` numeric
+  type for amounts and rates on a 10⁻⁸ decimal grid. Signed 256-bit
+  mantissa (~5.78 × 10⁵⁹ whole-token headroom), truncate-toward-zero on
+  multiply/divide, exact add/sub, symmetric overflow bounds. Literal form
+  `1.5fp`. StringValue always renders exactly 8 fractional digits so XML
+  and JSON round-trips are bit-exact.
 
-  - **Literal parsing** — `1.5fp` / `1.50000000FP` recognized by both
-    compile paths (bytecode and Object), with strict digit validation
-    (rejects `--1`, bare `fp`).
+  Closes the precision gap that previously forced staking to use float64:
+  every intermediate stays on the grid, so the final total can't drift
+  from what the blockchain expects. Rejects `0.1 → 0.09999999`-style
+  snapping by requiring an explicit `cvfp` cast for double operands;
+  integer and bigint auto-promote exactly.
 
-  - **EL dispatch** (`pkg/dtrules/compiler/el/postfix_emitter.go`) —
-    the whole 11-visitor integer family (Add/Sub/Mul/Div/Negate + six
-    comparisons) now shares `promoteArithType` + `emitWithType-
-    Conversion` helpers. Fixed > BigInt > Integer priority, with
-    `cvfp` promotion inserted automatically for mixed operands.
-    Per the labeled-alternative rule, the whole family was fixed at
-    once to avoid the partial-fix hazard from #675.
+  Runtime: RFixed value type with Add/Sub/Mul/Div/Neg/Abs/Trunc,
+  Equals/Compare, and every Object-interface conversion (truncate toward
+  zero). Operators: `fp+ fp- fp* fp/ fpabs fpnegate fptrunc fp== fp!=
+  fp> fp>= fp< fp<= cvfp`. EDD/XML/JSON loaders parse `type='fixed'`
+  fields and fp values from strings (never float64).
 
-  - **EDD / XML / JSON round-trip** — loader parses `type='fixed'`
-    fields and RFixed default values; runtime XML/JSON data paths
-    parse fp values from strings (never float64); entity Put coerces
-    int/bigint to fp and rejects double, matching the #675 principle
-    that silent down-coercion is always an error.
+- **`fpmin` / `fpmax` + type-aware Min/Max dispatch** (#688, PR #692).
+  Adds `fpmin` and `fpmax` ops, and teaches the EL `maximum`/`minimum`
+  visitors to dispatch by operand type so `the maximum of a and b` emits
+  `fpmax` when both are fp, `bmax` when both are bigint, and the existing
+  int/double dispatch otherwise.
+
+- **First-class fp grammar front-end** (#689, PR #699). Adds the
+  `FP_LITERAL` lexer token (`1.5fp`, `100.0FP`, etc.) and `fpexpr`
+  productions. `local fixed x` and `(fixed) expr` are now parsed in the
+  grammar itself rather than recognized ad-hoc. Strict digit validation
+  (at most 8 fractional digits; rejects `--1`, bare `fp`) moved into the
+  lexer.
+
+## Compiler / EL
+
+- **Type-aware field-mutation visitors** (#686, PR #690). The
+  increment/decrement/add-to/subtract-from action family now dispatches
+  by the target field's declared type — fp fields emit fp ops, bigint
+  fields emit bigint ops, double fields emit double ops. Previously
+  everything collapsed to integer with a trailing `cvi`, silently
+  truncating bigint and fp mutations. Per the labeled-alternative rule,
+  the whole family was fixed at once.
+
+- **Missing fexpr visitors** (#687, PR #691). Added visitors for the
+  double alternatives that had no `postfix_emitter.go` implementation:
+  `absolute value`, `rounded`, `rounded to N`, and `rounded … with
+  boundry B`. Previously the parser accepted these but the emitter
+  dropped the subtree, producing wrong postfix.
+
+- **Field-mutation visitors dispatch locals vs entity fields** (#693,
+  PR #698). The same mutation family now emits `N local!` for local
+  slots and `<field> xdef` for entity fields, rather than always
+  assuming entity-field semantics. Hand-written `increment myLocal`
+  code used to silently do nothing.
+
+- **`set` statement dispatches locals and typed targets** (#709, PR
+  #710). `set local = expr` now uses the local-slot machinery. Typed
+  entity-field assignments insert the correct conversion op based on
+  declared target type (including fp).
+
+- **`for all <type> entities` grammar + EDD resolver** (#703, PR #707).
+  The `forall` statement now accepts a type keyword (`for all customer
+  entities where …`). The resolver consults the EDD to enumerate all
+  entities of the given type from the current context.
+
+- **EOF anchor in the compiler** (#703, PR #708). The EL grammar now
+  requires EOF at the top of `done`, so trailing tokens after an
+  otherwise-valid statement produce a loud parse error instead of being
+  silently discarded. The broken context DSL in `context_details` that
+  this exposed was rewritten as part of the same PR.
+
+## Operators / runtime
+
+- See **Breaking changes** above for `cvd` / `cvdate` (#694, PR #695)
+  and `sortarray` (#696, PR #701).
+
+## Infrastructure / tests
+
+- **CI scope aligned with `make check`** (#700). CI now runs `go build
+  ./...` (full module) + `go vet` + the scoped test suite, matching the
+  project's local "done" signal. Also fixes a perform-table emit
+  discovered while bringing CI into line.
+
+- **Hotfix: `isFixedLiteralText` restored; fpmin/fpmax pinned in the
+  registration test** (#702). The operator-registration matrix now
+  includes every fp operator so additions can't regress silently.
+
+- **Excel directories generated for 7 XML-only sample projects** (#705,
+  PR #706). `dtrules build` now has a consistent starting point for
+  every sample.
+
+- **Behavior matrices** landed across the release covering all 233
+  operators, the full `cv*` conversion matrix, datetime, hash, stack,
+  bytes, entity, local-frame, sortarray, and string ordering. These
+  are the harness that caught the `cvd` and `sortarray` breakers.
+
+## Migration notes
+
+- **`cvd` in stored postfix**: recompile the rule set from EL, or rename
+  `cvd` → `cvdate` in any hand-authored postfix that relied on date
+  semantics. Rules whose `cvd` calls were always numeric (the vast
+  majority) need no change.
+- **`sortarray asc=true` / `asc=false`**: flip the flag. Rules that
+  relied on the previous inverted semantics were wrong-by-parameter-
+  name; the fix now matches the parameter's advertised meaning.
+- **Silent fp or bigint truncation in mutations**: if you had actions
+  like `increment bigint_field` or `add to fp_field 1.5fp` that
+  appeared to work but produced int64-truncated values, they will now
+  run at full precision. Verify expected values if those mutations are
+  tested against golden outputs.
 
 ## v1.7.3 — 2026-04-19
 

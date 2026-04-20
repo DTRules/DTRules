@@ -147,3 +147,58 @@ func TestDocumentation_AuthoringInIndex(t *testing.T) {
 		t.Fatal("authoring topic not found in docTopics map")
 	}
 }
+
+func TestDocumentation_FixedTopic(t *testing.T) {
+	doc, ok := docTopics["fixed"]
+	if !ok {
+		t.Fatal("fixed topic not registered in docTopics")
+	}
+	if doc == "" {
+		t.Fatal("fixed topic is empty")
+	}
+	required := []string{"8-decimal", "1.5fp", "fp+", "cvfp", "(fixed)", "local fixed"}
+	for _, term := range required {
+		if !strings.Contains(doc, term) {
+			t.Errorf("fixed doc missing required term: %q", term)
+		}
+	}
+}
+
+func TestDocumentation_OperatorsHasFixedPointSection(t *testing.T) {
+	doc, ok := docTopics["operators"]
+	if !ok {
+		t.Fatal("operators topic not registered in docTopics")
+	}
+	required := []string{"Fixed-Point Operators", "fp+", "fpmin", "fpmax", "cvfp"}
+	for _, term := range required {
+		if !strings.Contains(doc, term) {
+			t.Errorf("operators doc missing required fixed-point term: %q", term)
+		}
+	}
+}
+
+func TestDocumentation_ELLiteralsMentionsFixed(t *testing.T) {
+	doc, ok := docTopics["el"]
+	if !ok {
+		t.Fatal("el topic not registered in docTopics")
+	}
+	if !strings.Contains(doc, "fp") {
+		t.Error("el doc literals section should mention fp suffix")
+	}
+	if !strings.Contains(doc, "1.5fp") {
+		t.Error("el doc should include a 1.5fp literal example")
+	}
+}
+
+func TestDocumentation_EDDTypeTableHasFixed(t *testing.T) {
+	doc, ok := docTopics["edd"]
+	if !ok {
+		t.Fatal("edd topic not registered in docTopics")
+	}
+	if !strings.Contains(doc, "fixed") {
+		t.Error("edd type table should list 'fixed'")
+	}
+	if !strings.Contains(doc, "0.0fp") {
+		t.Error("edd type table should show 0.0fp default")
+	}
+}
