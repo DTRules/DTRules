@@ -34,7 +34,5 @@ jobs:
     - name: Build CLI
       run: go build -o build/dtrules ./cmd/dtrules/
 
-    # NOTE: The "validate CHIP" step was removed because the CHIP
-    # sampleproject has no excel/ directory and `dtrules validate`
-    # requires one by default. Re-add once CHIP has an excel/ root or
-    # a --skip-excel flag lands.
+    - name: Validate CHIP sampleproject
+      run: ./build/dtrules validate sampleprojects/CHIP
