@@ -451,7 +451,7 @@ Natural language forms (`is greater than`, `at or above`, etc.) compile identica
 #### Date from string
 
 **Syntax**: `(date) strexpr` or `date(strexpr)`
-**Semantics**: Parse a string into a date value. Postfix: `cvd`.
+**Semantics**: Parse a string into a date value. Postfix: `cvdate`.
 
 The parser accepts both pure dates and full timestamps. Formats tried in order:
 - RFC 3339 with nanoseconds: `2026-04-17T21:05:30.123456789Z`
@@ -462,10 +462,10 @@ The parser accepts both pure dates and full timestamps. Formats tried in order:
 Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize as RFC 3339.
 
 **Example (EL)**: `(date)"2024-01-01" is before current date`
-**Compiled postfix**: `"2024-01-01" cvd currentdate d<`
+**Compiled postfix**: `"2024-01-01" cvdate currentdate d<`
 
 **Example (EL with timestamp)**: `(date)"2026-04-17T21:05:30Z" is before current date`
-**Compiled postfix**: `"2026-04-17T21:05:30Z" cvd currentdate d<`
+**Compiled postfix**: `"2026-04-17T21:05:30Z" cvdate currentdate d<`
 
 #### Date arithmetic (date plus/minus days/months/years)
 
@@ -965,7 +965,7 @@ The type-conversion operators used in set statements:
 | `boolean`   | `cvb`        |
 | `string`    | `cvs`        |
 | `entity`    | `cve`        |
-| `date`      | `cvd`        |
+| `date`      | `cvdate`     |
 | `bigint`    | `cvbi`       |
 | `fixed`     | `cvfp`       |
 

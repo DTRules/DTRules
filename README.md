@@ -122,7 +122,7 @@ DTRules/
 │   ├── sync/           # Excel/XML synchronization
 │   ├── excel/          # Excel import/export
 │   ├── session/        # Rule execution sessions
-│   ├── operators/      # 179+ built-in operators
+│   ├── operators/      # 233+ built-in operators
 │   └── ...             # Core engine packages
 ├── examples/
 │   └── embedded-app/   # Example embedded application
