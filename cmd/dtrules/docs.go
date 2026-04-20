@@ -24,6 +24,7 @@ import (
 var docTopics = map[string]string{
 	"bigint":          docBigInt,
 	"bytes":           docBytes,
+	"fixed":           docFixed,
 	"el":              docEL,
 	"xml-format":      docXMLFormat,
 	"edd":             docEDD,
@@ -73,6 +74,7 @@ func printDocIndex() {
 	descriptions := map[string]string{
 		"bigint":          "Arbitrary-precision integer support for financial calculations",
 		"bytes":           "Immutable byte sequences with constant-time equality (blockchain / token use cases)",
+		"fixed":           "256-bit fixed-point type (10^-8 grid) for token/staking/blockchain decimal math",
 		"el":              "Expression Language syntax (REQUIRED for all tables)",
 		"xml-format":      "XML file format specification (EDD and DT)",
 		"edd":             "Entity Data Dictionary - defining entities and fields",
@@ -132,6 +134,7 @@ Literals
 --------
 Integer:       42     -7     0     1000000
 Double:        3.14   0.044  100.0
+Fixed:         1.5fp   0fp   100.0FP   (8-decimal fixed-point, see 'docs fixed')
 String:        "hello"   'single quoted'   "John's tax"
 Boolean:       true   false   default   otherwise   always
                perform when called
@@ -255,6 +258,67 @@ Cast to bigint:
     (bigint) 3.14                                from double (truncates)
 
 See 'dtrules docs bigint' for full bigint documentation.
+
+
+Fixed Expressions (fpexpr)
+---------------------------
+Fixed is a signed 256-bit fixed-point decimal type on a 10^-8 grid.
+Target use: token amounts, staking rewards, fee/rate math — any place
+float64 drift is unacceptable.
+
+Literal syntax:
+    1.5fp                          mantissa 150_000_000 (case-insensitive fp)
+    0fp                            zero
+    100.0FP                        mantissa 10_000_000_000
+    -0.00000001fp                  smallest negative value
+
+At most 8 fractional digits in a literal (more is a compile-time error).
+
+Arithmetic:
+    a + b                          addition (exact)
+    a - b                          subtraction (exact)
+    a * b                          multiplication (truncate toward zero)
+    a / b                          division (truncate toward zero)
+    -a                             negation
+    absolute value of a            absolute value
+
+Cast to fixed:
+    (fixed) 42                     from integer (exact, auto-scaled)
+    (fixed) myBigInt               from bigint (exact, range-checked)
+    (fixed) 3.14                   from double — explicit cast required
+    (fixed) "1.25"                 parse string
+
+Comparisons (exact mantissa compare — no epsilon needed):
+    a == b    a != b
+    a > b     a >= b
+    a < b     a <= b
+
+Fixed-specific operators:
+    fpmin a b                      minimum of two fp values
+    fpmax a b                      maximum of two fp values
+    fptrunc a                      truncate fractional part toward zero
+
+Mutating variants (action context):
+    add to myFixed 1.5fp
+    subtract from myFixed 0.25fp
+    multiply myFixed by 2fp
+    divide myFixed by 3fp
+    increment myFixed              adds 1.00000000
+    decrement myFixed              subtracts 1.00000000
+
+Local variable:
+    local fixed rate = 0.05fp
+    local fixed x
+
+EDD field declaration:
+    <field name="reward_rate" type="fixed" default_value="0.05fp"/>
+
+Interactions with other numerics:
+    int + fixed    -> fixed (exact)
+    bigint + fixed -> fixed (exact, range-checked)
+    double + fixed -> ERROR — use explicit (fixed) cast
+
+See 'dtrules docs fixed' for full fixed documentation.
 
 
 Bytes Expressions (bytesexpr)
@@ -1027,6 +1091,7 @@ Type      Default    Description                    Example Values
 string    ""         Text values                    "hello", "John Doe"
 integer   0          Whole numbers                  42, -7, 1000000
 double    0.0        Decimal numbers                3.14, -0.5, 100.0
+fixed     0.0fp      8-decimal fixed-point          1.5fp, 100.00000000fp
 boolean   false      True/false values              true, false
 date      null       Date values                    2024-01-15
 bigint    0          Arbitrary-precision integer    123456789012345678901234567890
@@ -1595,6 +1660,78 @@ Comparisons (same operators as integer/double):
     amount < other      amount <= other
 
 See 'dtrules docs bigint' for full bigint documentation.
+
+
+Fixed-Point Operators
+---------------------
+Fixed (` + "`fixed`" + `) is a signed 256-bit decimal type on a 10^-8 grid.
+Add/subtract are exact; multiply/divide truncate toward zero onto the
+grid. Mixed int/bigint operands auto-promote; double requires an
+explicit ` + "`(fixed)`" + ` cast.
+
+Arithmetic:
+    a + b                           addition (exact) → fp
+    a - b                           subtraction (exact) → fp
+    a * b                           multiplication (truncate toward zero) → fp
+    a / b                           division (truncate toward zero) → fp
+    -a                              unary negation → fp
+    absolute value of a             absolute value → fp
+
+Comparisons (exact mantissa compare):
+    a == b   a is equal to b                       → boolean
+    a != b   a is not equal to b                   → boolean
+    a > b    a is greater than b                   → boolean
+    a >= b   a is greater than or equal to b       → boolean
+    a < b    a is less than b                      → boolean
+    a <= b   a is less than or equal to b          → boolean
+
+Fixed-specific operators:
+    fpmin a b                       minimum of two fp values → fp
+    fpmax a b                       maximum of two fp values → fp
+    fptrunc a                       truncate fractional part toward zero → fp
+    fpabs a                         absolute value → fp
+    fpnegate a                      unary negation → fp
+
+Mutating shortcuts (action statements):
+    increment myFixed               myFixed += 1.00000000
+    decrement myFixed               myFixed -= 1.00000000
+    add to myFixed 1.5fp
+    subtract from myFixed 0.25fp
+    multiply myFixed by 2fp
+    divide myFixed by 3fp
+
+Cast to fixed:
+    (fixed) 42                      from integer (exact)
+    (fixed) myBigInt                from bigint (exact, range-checked)
+    (fixed) 3.14                    from double (truncate, explicit only)
+    (fixed) "1.25"                  parse decimal string
+
+Cast fixed to other types:
+    (long)   myFixed                fp → integer (truncate toward zero)
+    (double) myFixed                fp → double (may lose precision)
+    (bigint) myFixed                fp → bigint (truncate toward zero)
+    (string) myFixed                fp → string, always 8 fractional digits
+
+Internal operator reference (emitted by the EL compiler):
+
+    fp+, fpadd          Add two fp values (exact)
+    fp-, fpsub          Subtract two fp values (exact)
+    fp*, fpmul          Multiply two fp values (truncate toward zero)
+    fp/, fpdiv          Divide two fp values (truncate toward zero)
+    fpabs               Absolute value
+    fpnegate            Unary negation
+    fptrunc             Truncate fractional part toward zero
+    fpmin               Minimum of two fp values
+    fpmax               Maximum of two fp values
+    fp==                Equality
+    fp!=, fp<>          Inequality
+    fp>                 Greater than
+    fp>=                Greater than or equal
+    fp<                 Less than
+    fp<=                Less than or equal
+    cvfp                Cast top-of-stack to fp (int/bigint/double/string)
+
+See 'dtrules docs fixed' for the full fixed-point documentation.
 
 
 Bytes Operators
@@ -2403,6 +2540,263 @@ See Also
   dtrules docs edd         Entity field definitions
   dtrules docs operators   All operators including bigint
   dtrules docs bytes       Immutable byte sequences
+  dtrules docs fixed       Fixed-point decimal type
+`
+
+const docFixed = `Fixed - 256-bit Fixed-Point Decimals
+====================================
+
+Fixed (type keyword ` + "`fixed`" + `) is a signed 256-bit fixed-point numeric type
+backed by an integer mantissa on the 10^-8 grid. It exists for
+token amounts, staking rewards, fee/rate math, and any blockchain-adjacent
+calculation where float64 drift is unacceptable and bigint (integer-only)
+is insufficient.
+
+Precision: exactly 8 fractional digits (8-decimal fixed-point). The
+internal representation is an integer mantissa M with the implicit
+meaning M × 10^-8.
+
+Mantissa range: |M| < 2^255 — symmetric about zero so that negating any
+representable value is always representable.
+
+
+When to Use
+-----------
+- Token amounts with sub-integer precision (e.g. 1.50000000 ACME).
+- Staking reward math where each intermediate must stay on the
+  blockchain's fixed grid.
+- Rates, fees, percentages that need predictable decimal rounding.
+- Anywhere a double would silently snap (e.g. "0.1" stored as
+  0.09999999...) and corrupt an invariant.
+
+Use double (` + "`fexpr`" + `) for statistics, approximate scoring, or anything
+where rounding to 8 places is acceptable. Use bigint for exact integer
+arithmetic without a fractional part.
+
+
+Literal Syntax
+--------------
+A fp literal is a decimal number followed by a case-insensitive ` + "`fp`" + `
+suffix:
+
+    1.5fp                   mantissa 150_000_000
+    0fp                     zero, mantissa 0
+    100.0FP                 mantissa 10_000_000_000
+    -0.00000001fp           smallest negative value (mantissa -1)
+    12345.67890000fp        exact — trailing zeros preserved
+
+Rules:
+- The decimal point is optional (` + "`0fp`" + ` and ` + "`42fp`" + ` are valid).
+- At most 8 fractional digits — more is a compile-time error (no silent
+  truncation of a user-written literal).
+- The ` + "`fp`" + ` suffix is case-insensitive (` + "`FP`" + `, ` + "`Fp`" + `, ` + "`fP`" + ` all work).
+- No underscores or thousands separators.
+
+
+Local Variable Declarations
+---------------------------
+Declare a fp local with ` + "`local fixed`" + `:
+
+    local fixed x                    uninitialized (mantissa 0)
+    local fixed rate = 0.05fp
+    local fixed principal = (fixed) input.amount_string
+    local fixed earned = (fixed) 42
+
+Reads and writes go through the same slot machinery as other typed
+locals.
+
+
+Casts
+-----
+Explicit cast with ` + "`(fixed)`" + ` — the value on top of the stack becomes fp:
+
+    (fixed) 42                  integer to fp (exact, auto-scaled)
+    (fixed) myBigInt            bigint to fp (exact, range-checked)
+    (fixed) "1.25"              parse decimal string to fp
+    (fixed) 3.14                DOUBLE to fp — explicit cast required
+
+Double -> fixed REQUIRES the explicit ` + "`(fixed)`" + ` cast. There is no implicit
+promotion because most finite decimals (0.1, 0.2, 0.05, ...) have no exact
+float64 representation — silently snapping them to the fp grid would bake
+float error into a "precise" calculation. The cast truncates toward zero
+onto the 10^-8 grid and range-checks the mantissa.
+
+Integer -> fixed and bigint -> fixed DO auto-promote in mixed arithmetic,
+because both conversions are exact.
+
+Reverse casts:
+
+    (long) myFixed              fp to integer (truncate toward zero)
+    (double) myFixed            fp to double (may lose precision)
+    (bigint) myFixed            fp to bigint (truncate toward zero)
+    (string) myFixed            fp to string (always 8 fractional digits)
+
+
+Arithmetic Operators
+--------------------
+Standard arithmetic works on fp operands (mixed int/bigint are promoted
+via ` + "`cvfp`" + `):
+
+    a + b                       addition (exact)
+    a - b                       subtraction (exact)
+    a * b                       multiplication (truncate toward zero)
+    a / b                       division (truncate toward zero)
+    -a                          unary negation
+    absolute value of a         |a|
+
+Add and subtract cannot lose precision — mantissas are added/subtracted
+directly and only overflow is checked. Multiply and divide must rescale
+by 10^8; when the exact result has a ninth decimal digit, it is
+truncated toward zero (never rounded away from zero, never banker's-
+rounded). That rule is deliberate — it matches how on-chain fixed-point
+math typically settles.
+
+Mutating variants in action cells:
+
+    add to myFixed 1.5fp
+    subtract from myFixed 0.25fp
+    multiply myFixed by 2fp
+    divide myFixed by 3fp
+    increment myFixed           adds 1.00000000
+    decrement myFixed           subtracts 1.00000000
+
+Extra fp-specific operators:
+
+    fpabs                       absolute value
+    fpnegate                    unary negation
+    fptrunc                     truncate fractional part toward zero
+                                (result is fp with .00000000)
+    fpmin                       minimum of two fp values
+    fpmax                       maximum of two fp values
+
+All fp operators are registered with both symbolic (` + "`fp+`" + `) and word-
+form (` + "`fpadd`" + `) names — use whichever reads better in context.
+
+
+Comparison Operators
+--------------------
+Standard comparisons between fp operands:
+
+    a == b      fp equality
+    a != b      fp inequality
+    a > b
+    a >= b
+    a < b
+    a <= b
+
+Equality is exact mantissa comparison, so ` + "`0.10000000fp == 0.1fp`" + ` is
+true. Unlike double, there is no need for an epsilon.
+
+
+Conversion Helpers
+------------------
+The ` + "`cvfp`" + ` operator is the underlying cast operator — the EL
+compiler emits it whenever a ` + "`(fixed)`" + ` cast or auto-promotion is needed.
+Rarely needed at the EL level, but listed here for completeness:
+
+    cvfp                        top-of-stack value -> fp
+                                - fixed  : identity
+                                - int    : exact
+                                - bigint : exact (range-checked)
+                                - double : truncate toward zero on grid
+                                - string : parse decimal literal
+
+
+Interaction with Other Numeric Types
+------------------------------------
+Promotion rules in mixed arithmetic (fp + int, fp + bigint, etc.):
+
+    fixed + integer       -> fixed  (integer auto-promoted)
+    fixed + bigint        -> fixed  (bigint auto-promoted, range-checked)
+    fixed + double        -> ERROR: explicit (fixed) cast required
+
+When a ` + "`set`" + ` target is a fp field and the right-hand side is int or
+bigint, the compiler inserts ` + "`cvfp`" + ` automatically so the assignment is
+exact. When the RHS is double, the compiler rejects the assignment and
+asks for an explicit cast.
+
+
+Overflow and Error Semantics
+----------------------------
+- Add/subtract: overflow when the resulting mantissa crosses 2^255.
+  Returns a Math Exception; the value is NOT silently wrapped.
+- Multiply: the 256-bit product is scaled down by 10^8 with truncate-
+  toward-zero; if the final mantissa exceeds 2^255, overflow error.
+- Divide: division by zero raises a Math Exception.
+- Cast: a bigint or string whose value exceeds the 256-bit range raises
+  a Math Exception at cast time.
+- Cast from double: NaN or Inf raises a Math Exception.
+
+Rendering: ` + "`(string) myFixed`" + ` always emits the sign, the integer
+part, a decimal point, and exactly eight fractional digits. That means
+` + "`0.5fp`" + ` round-trips to ` + "`\"0.50000000\"`" + ` — bit-exact for XML / JSON
+storage.
+
+
+EDD Field Declaration
+---------------------
+<entity name="staking" readonly="false">
+    <field name="reward_rate"   type="fixed" default_value="0.05fp"/>
+    <field name="principal"     type="fixed" default_value="0fp"/>
+    <field name="total_reward"  type="fixed" default_value="0fp"/>
+</entity>
+
+Default values use the same literal syntax as EL source. The loader
+parses them once at startup; a malformed default is a load-time error.
+
+
+JSON / XML Round-Trip
+---------------------
+Fixed values are represented as decimal strings in JSON (never as numbers —
+native JSON numbers go through float64 and would lose precision):
+
+{
+    "staking": {
+        "reward_rate":  "0.05000000",
+        "principal":    "100.00000000",
+        "total_reward": "5.00000000"
+    }
+}
+
+The runtime parses strings directly into the mantissa without any float
+intermediate step. Output always renders 8 fractional digits.
+
+
+Example: Staking Reward Step
+----------------------------
+Context:
+    local fixed rate       = 0.05fp
+    local fixed principal  = (fixed) input.amount_string
+
+Action:
+    set result.reward = rate * principal
+
+For principal = 1000.00000000 and rate = 0.05000000, the result is
+50.00000000 — exact, grid-aligned, and bit-identical whether you
+compute it in EL, in Go, or on-chain.
+
+
+Best Practices
+--------------
+1. Use ` + "`fixed`" + ` for anything where "decimal precision" is a
+   correctness requirement, not just presentation.
+2. Store fp values as decimal strings in JSON and databases. Do NOT
+   serialize as a native number.
+3. Prefer ` + "`fpmin`" + ` / ` + "`fpmax`" + ` over manual ` + "`if`" + ` chains — the operators
+   are typed and won't accidentally fall back to integer comparison.
+4. If you must bring in a double (e.g. from legacy input), make the
+   ` + "`(fixed)`" + ` cast explicit and document the precision loss at that
+   boundary.
+5. Avoid chaining divides when you can factor them: ` + "`a * b / c`" + `
+   truncates once; ` + "`(a / c) * b`" + ` truncates twice.
+
+
+See Also
+--------
+  dtrules docs el          EL syntax reference
+  dtrules docs edd         Entity field definitions (fixed is a valid type)
+  dtrules docs operators   All operators including the fp* family
+  dtrules docs bigint      Arbitrary-precision integers
 `
 
 const docBytes = `Bytes - Immutable Byte Sequences

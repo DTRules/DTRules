@@ -87,7 +87,9 @@ func popFixedOne(state dtrules.State) (*dtrules.RFixed, error) {
 	return dtrules.PromoteToRFixed(a)
 }
 
-// opFixedAdd adds two fixed values: ( a b -- a+b )
+// opFixedAdd: ( a b -- a+b ) adds two RFixed values exactly.
+// Both operands must be fp; int/bigint are auto-promoted via popFixedPair.
+// Returns a Math Exception if the resulting mantissa exceeds |m| < 2^255.
 func opFixedAdd(state dtrules.State) error {
 	a, b, err := popFixedPair(state)
 	if err != nil {
@@ -100,7 +102,9 @@ func opFixedAdd(state dtrules.State) error {
 	return state.DataPush(r)
 }
 
-// opFixedSub subtracts two fixed values: ( a b -- a-b )
+// opFixedSub: ( a b -- a-b ) subtracts two RFixed values exactly.
+// Both operands must be fp; int/bigint are auto-promoted. Returns a
+// Math Exception if the resulting mantissa exceeds |m| < 2^255.
 func opFixedSub(state dtrules.State) error {
 	a, b, err := popFixedPair(state)
 	if err != nil {
@@ -113,7 +117,10 @@ func opFixedSub(state dtrules.State) error {
 	return state.DataPush(r)
 }
 
-// opFixedMul multiplies two fixed values with truncate-toward-zero: ( a b -- a*b )
+// opFixedMul: ( a b -- a*b ) multiplies two RFixed values with truncate-
+// toward-zero rescaling onto the 10^-8 grid. Both operands must be fp;
+// int/bigint are auto-promoted. Returns a Math Exception if the final
+// mantissa exceeds |m| < 2^255.
 func opFixedMul(state dtrules.State) error {
 	a, b, err := popFixedPair(state)
 	if err != nil {
@@ -126,7 +133,10 @@ func opFixedMul(state dtrules.State) error {
 	return state.DataPush(r)
 }
 
-// opFixedDiv divides two fixed values with truncate-toward-zero: ( a b -- a/b )
+// opFixedDiv: ( a b -- a/b ) divides two RFixed values with truncate-
+// toward-zero rescaling onto the 10^-8 grid. Both operands must be fp;
+// int/bigint are auto-promoted. Returns a Math Exception on divide by
+// zero or if the result exceeds |m| < 2^255.
 func opFixedDiv(state dtrules.State) error {
 	a, b, err := popFixedPair(state)
 	if err != nil {
@@ -139,7 +149,9 @@ func opFixedDiv(state dtrules.State) error {
 	return state.DataPush(r)
 }
 
-// opFixedAbs returns absolute value: ( a -- |a| )
+// opFixedAbs: ( a -- |a| ) returns the absolute value of an RFixed.
+// Because the mantissa range is symmetric (|m| < 2^255), abs is always
+// representable and never overflows.
 func opFixedAbs(state dtrules.State) error {
 	a, err := popFixedOne(state)
 	if err != nil {
@@ -148,7 +160,8 @@ func opFixedAbs(state dtrules.State) error {
 	return state.DataPush(a.Abs())
 }
 
-// opFixedNegate negates a fixed value: ( a -- -a )
+// opFixedNegate: ( a -- -a ) negates an RFixed. The mantissa range is
+// symmetric, so negation never overflows.
 func opFixedNegate(state dtrules.State) error {
 	a, err := popFixedOne(state)
 	if err != nil {
@@ -157,7 +170,9 @@ func opFixedNegate(state dtrules.State) error {
 	return state.DataPush(a.Neg())
 }
 
-// opFixedTrunc truncates fractional part toward zero: ( a -- trunc(a) )
+// opFixedTrunc: ( a -- trunc(a) ) truncates the fractional part toward
+// zero. Returns an RFixed whose mantissa is a multiple of 10^8 (i.e.
+// the value has exactly .00000000 fractional digits).
 func opFixedTrunc(state dtrules.State) error {
 	a, err := popFixedOne(state)
 	if err != nil {
@@ -166,7 +181,9 @@ func opFixedTrunc(state dtrules.State) error {
 	return state.DataPush(a.Trunc())
 }
 
-// opFixedMin returns the lesser of two fp values: ( a b -- min(a,b) )
+// opFixedMin: ( a b -- min(a,b) ) returns the lesser of two RFixed values.
+// Both operands must be fp; int/bigint are auto-promoted. When the two
+// values compare equal, the first operand (a) is returned.
 func opFixedMin(state dtrules.State) error {
 	a, b, err := popFixedPair(state)
 	if err != nil {
@@ -182,7 +199,9 @@ func opFixedMin(state dtrules.State) error {
 	return state.DataPush(b)
 }
 
-// opFixedMax returns the greater of two fp values: ( a b -- max(a,b) )
+// opFixedMax: ( a b -- max(a,b) ) returns the greater of two RFixed values.
+// Both operands must be fp; int/bigint are auto-promoted. When the two
+// values compare equal, the first operand (a) is returned.
 func opFixedMax(state dtrules.State) error {
 	a, b, err := popFixedPair(state)
 	if err != nil {
@@ -210,26 +229,33 @@ func opFixedCompare(state dtrules.State, want func(int) bool) error {
 	return state.DataPush(dtrules.GetRBoolean(want(c)))
 }
 
+// opFixedEqual: ( a b -- bool ) exact mantissa equality. Both operands
+// must be fp; int/bigint are auto-promoted.
 func opFixedEqual(state dtrules.State) error {
 	return opFixedCompare(state, func(c int) bool { return c == 0 })
 }
 
+// opFixedNotEqual: ( a b -- bool ) exact mantissa inequality.
 func opFixedNotEqual(state dtrules.State) error {
 	return opFixedCompare(state, func(c int) bool { return c != 0 })
 }
 
+// opFixedGreater: ( a b -- bool ) returns a > b.
 func opFixedGreater(state dtrules.State) error {
 	return opFixedCompare(state, func(c int) bool { return c > 0 })
 }
 
+// opFixedGreaterEqual: ( a b -- bool ) returns a >= b.
 func opFixedGreaterEqual(state dtrules.State) error {
 	return opFixedCompare(state, func(c int) bool { return c >= 0 })
 }
 
+// opFixedLess: ( a b -- bool ) returns a < b.
 func opFixedLess(state dtrules.State) error {
 	return opFixedCompare(state, func(c int) bool { return c < 0 })
 }
 
+// opFixedLessEqual: ( a b -- bool ) returns a <= b.
 func opFixedLessEqual(state dtrules.State) error {
 	return opFixedCompare(state, func(c int) bool { return c <= 0 })
 }

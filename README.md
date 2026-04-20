@@ -13,6 +13,7 @@ DTRules is a production-ready rules engine that allows business analysts and pol
 - **High Performance** - 130x faster operator lookup, 24x faster arithmetic vs Java
 - **CLI Tool** - Validate, test, and execute rules from command line
 - **Bidirectional Sync** - Excel ↔ XML synchronization with change tracking
+- **Fixed-Point Decimals** - 256-bit `fixed` type for token, staking, and blockchain math without float drift (`dtrules docs fixed`)
 - **Embedded Documentation** - `dtrules docs` for AI and developers
 
 ### Production Use
@@ -121,7 +122,7 @@ DTRules/
 │   ├── sync/           # Excel/XML synchronization
 │   ├── excel/          # Excel import/export
 │   ├── session/        # Rule execution sessions
-│   ├── operators/      # 179+ built-in operators
+│   ├── operators/      # 233+ built-in operators
 │   └── ...             # Core engine packages
 ├── examples/
 │   └── embedded-app/   # Example embedded application

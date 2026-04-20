@@ -30,7 +30,9 @@ Expression Language (EL) is the human-readable syntax used in DTRules condition,
    - [xml set attribute](#xml-set-attribute)
 8. [Map / Filter / Sum / There-is](#map--filter--sum--there-is)
 9. [Local Variables](#local-variables)
-10. [Grammar Appendix](#grammar-appendix)
+10. [Fixed Type](#fixed-type)
+11. [Bytes Type](#bytes-type)
+12. [Grammar Appendix](#grammar-appendix)
 
 ---
 
@@ -134,6 +136,7 @@ DTRules supports the following primitive and composite types. Each type keyword 
 | `string`            | UTF-8 string                             |
 | `date` / `time`     | Represented as milliseconds since epoch  |
 | `bigint` / `biginteger` | Arbitrary-precision integer          |
+| `fixed`             | 256-bit fixed-point, 8 decimal digits (see [Fixed Type](#fixed-type)) |
 | `bytes`             | Immutable byte sequence (hex, constant-time equality) |
 | `name`              | Symbol/name value (e.g., `$foo`)        |
 | `entity`            | Reference to a DTRules entity            |
@@ -218,6 +221,17 @@ EL supports standard arithmetic on integers, doubles, and bigints. The emitter m
 **Compiled postfix**: `result.large_amount constants.limit b>=`
 
 **BigInt equality**: uses `streq` (values compared as strings by default) or `b==` if both are bigint.
+
+#### Fixed-point arithmetic
+
+**Syntax**: `fpexpr OP fpexpr` where OP is `+`, `-`, `*`, `/`
+**Semantics**: Fixed-point arithmetic on a 10^-8 grid. Add/sub are exact; multiply/divide truncate toward zero. Postfix operators: `fp+`, `fp-`, `fp*`, `fp/`.
+**Example (EL)**: `staking.principal * staking.reward_rate >= 0fp` (both fields declared `fixed` in EDD)
+**Compiled postfix**: `staking.principal staking.reward_rate fp* 0fp fp>=`
+
+**Promotion**: mixed `int + fixed` or `bigint + fixed` auto-promote the non-fp operand through `cvfp` (exact). Mixed `double + fixed` is a compile-time error — use an explicit `(fixed)` cast.
+
+**Fixed equality**: uses `fp==` / `fp!=` on the mantissa directly — no epsilon. `0.10000000fp == 0.1fp` is true.
 
 #### Rounding
 
@@ -437,7 +451,7 @@ Natural language forms (`is greater than`, `at or above`, etc.) compile identica
 #### Date from string
 
 **Syntax**: `(date) strexpr` or `date(strexpr)`
-**Semantics**: Parse a string into a date value. Postfix: `cvd`.
+**Semantics**: Parse a string into a date value. Postfix: `cvdate`.
 
 The parser accepts both pure dates and full timestamps. Formats tried in order:
 - RFC 3339 with nanoseconds: `2026-04-17T21:05:30.123456789Z`
@@ -448,10 +462,10 @@ The parser accepts both pure dates and full timestamps. Formats tried in order:
 Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize as RFC 3339.
 
 **Example (EL)**: `(date)"2024-01-01" is before current date`
-**Compiled postfix**: `"2024-01-01" cvd currentdate d<`
+**Compiled postfix**: `"2024-01-01" cvdate currentdate d<`
 
 **Example (EL with timestamp)**: `(date)"2026-04-17T21:05:30Z" is before current date`
-**Compiled postfix**: `"2026-04-17T21:05:30Z" cvd currentdate d<`
+**Compiled postfix**: `"2026-04-17T21:05:30Z" cvdate currentdate d<`
 
 #### Date arithmetic (date plus/minus days/months/years)
 
@@ -951,8 +965,9 @@ The type-conversion operators used in set statements:
 | `boolean`   | `cvb`        |
 | `string`    | `cvs`        |
 | `entity`    | `cve`        |
-| `date`      | `cvd`        |
+| `date`      | `cvdate`     |
 | `bigint`    | `cvbi`       |
+| `fixed`     | `cvfp`       |
 
 ---
 
@@ -1169,6 +1184,8 @@ local date myvar = current date
 local entity myvar = person
 local array myvar
 local bigint myvar = 1000000
+local fixed myvar
+local fixed myvar = 1.5fp
 local bytes myvar
 local bytes myvar = 0xdeadbeef
 ```
@@ -1183,6 +1200,7 @@ local bytes myvar = 0xdeadbeef
 | `local boolean myvar = true`    | `true cvb allocate execute deallocate pop` (slot 0)      |
 | `local entity myvar = person`   | `person cve allocate execute deallocate pop` (slot 0)    |
 | `local bigint myvar = 1000000`  | `1000000 cvbi allocate execute deallocate pop` (slot 0)  |
+| `local fixed myvar = 1.5fp`     | `1.5fp cvfp allocate execute deallocate pop` (slot 0)    |
 | `local bytes myvar`             | `null allocate execute deallocate pop` (slot 0)          |
 | `local bytes myvar = 0xdeadbeef` | `0xdeadbeef cvbytes allocate execute deallocate pop` (slot 0) |
 
@@ -1196,6 +1214,82 @@ Postfix: `0.0 cvr allocate execute deallocate pop`
 
 Action referencing it: `running_total + bracket.rate * result.taxable_income`
 → `0 local@ bracket.rate result.taxable_income * +`
+
+---
+
+## Fixed Type
+
+Fixed (`fixed`) is a signed 256-bit fixed-point decimal type on a 10^-8 grid. It exists for token amounts, staking rewards, and any blockchain-adjacent math where float64 drift is unacceptable. Internal representation is an integer mantissa M; the value is `M × 10^-8`. Mantissa range: `|M| < 2^255` (symmetric).
+
+For the full user-facing reference, see `dtrules docs fixed`.
+
+### Literal
+
+**Syntax**: `FP_LITERAL` — a decimal number followed by a case-insensitive `fp` suffix (`1.5fp`, `0fp`, `100.0FP`, `-0.00000001fp`). At most 8 fractional digits is a compile-time requirement; more is rejected by the lexer, not silently truncated.
+**Semantics**: Pushes an `RFixed` value with the parsed mantissa.
+
+**Example (EL)**: `staking.reward_rate >= 0.05fp` (reward_rate declared `fixed` in EDD)
+**Compiled postfix**: `staking.reward_rate 0.05fp fp>=`
+
+### Arithmetic
+
+**Syntax**: `fpexpr OP fpexpr` where OP is `+`, `-`, `*`, `/`.
+**Semantics**: Add/sub are exact; multiply/divide rescale by 10^8 and truncate toward zero.
+**Postfix operators**: `fp+`, `fp-`, `fp*`, `fp/`.
+
+**Example (EL)**: `principal * rate` (both `fixed`)
+**Compiled postfix**: `principal rate fp*`
+
+### Casts
+
+**Syntax**: `(fixed) expr`.
+**Semantics**: Emits `cvfp` after the operand. Accepts fixed (identity), integer (exact), bigint (exact, range-checked), double (truncate on grid — required to be explicit), and string (decimal parse).
+
+**Example (EL)**: `(fixed) input.amount_string` → `input.amount_string cvfp`
+**Example (EL)**: `(fixed) 42` → `42 cvfp`
+
+Reverse casts use the existing conversion ops:
+
+| Target type | Conversion op from fixed |
+|-------------|--------------------------|
+| `long`      | `cvi`                    |
+| `double`    | `cvd`                    |
+| `bigint`    | `cvbi`                   |
+| `string`    | `cvs` — always 8 fractional digits |
+
+### Comparison
+
+**Syntax**: standard comparison operators between two `fpexpr` operands.
+**Postfix operators**: `fp==`, `fp!=` (alias `fp<>`), `fp>`, `fp>=`, `fp<`, `fp<=`.
+**Semantics**: exact mantissa comparison.
+
+### Operators reference
+
+| EL form                           | Postfix     |
+|-----------------------------------|-------------|
+| `a + b`, `a - b`, `a * b`, `a / b` | `fp+`, `fp-`, `fp*`, `fp/` |
+| `-a`                              | `fpnegate`  |
+| `absolute value of a`             | `fpabs`     |
+| `fpmin a b`                       | `fpmin`     |
+| `fpmax a b`                       | `fpmax`     |
+| `(fixed) expr`                    | `cvfp`      |
+
+### Local variables
+
+```
+local fixed rate = 0.05fp
+local fixed principal
+```
+
+Compiled postfix: `0.05fp cvfp allocate execute deallocate pop`.
+
+### EDD declaration
+
+```xml
+<field name="reward_rate" type="fixed" default_value="0.05fp"/>
+```
+
+Defaults use the same literal syntax as EL source.
 
 ---
 
@@ -1386,6 +1480,7 @@ Key production names referenced in this document:
 | `iexpr`               | Integer expression                    |
 | `fexpr`               | Float (double) expression             |
 | `bigexpr`             | BigInt expression                     |
+| `fpexpr`              | Fixed-point expression                |
 | `strexpr`             | String expression                     |
 | `dexpr`               | Date expression                       |
 | `eexpr`               | Entity expression                     |
@@ -1442,5 +1537,6 @@ Key production names referenced in this document:
 | `leftDexpr`           | Date left-value                       |
 | `leftArrayRef`        | Array left-value                      |
 | `leftBigexpr`         | BigInt left-value                     |
+| `leftFpexpr`          | Fixed-point left-value                |
 
 See `EL.g4` for the complete grammar with all alternatives and lexer rules.
