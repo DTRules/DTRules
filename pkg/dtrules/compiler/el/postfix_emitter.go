@@ -2509,14 +2509,20 @@ func (e *PostfixEmitter) VisitStatement(ctx *StatementContext) interface{} {
 // Set Statement Visitors
 // ============================================================================
 
+// resolveSetTarget returns the declared type for a set-statement target. It
+// checks locals first (via mutationType) so `local fixed amount` dispatches
+// as fixed even if the EDD has an `amount` entity field, then falls back to
+// the grammar-inferred default when neither source has a declared type.
+func (e *PostfixEmitter) resolveSetTarget(name, defaultType string) string {
+	if t := e.mutationType(name); t != "" {
+		return t
+	}
+	return defaultType
+}
+
 func (e *PostfixEmitter) VisitSetInt(ctx *SetIntContext) interface{} {
 	e.Visit(ctx.Number())
-	// Look up the target field type, default to integer from grammar context
-	leftField := ctx.LeftIexpr().GetText()
-	fieldType := e.lookupType(leftField)
-	if fieldType == "" {
-		fieldType = TypeInteger
-	}
+	fieldType := e.resolveSetTarget(ctx.LeftIexpr().GetText(), TypeInteger)
 	if conv := e.typeConverter(fieldType); conv != "" {
 		e.emit(conv)
 	}
@@ -2526,12 +2532,7 @@ func (e *PostfixEmitter) VisitSetInt(ctx *SetIntContext) interface{} {
 
 func (e *PostfixEmitter) VisitSetFloat(ctx *SetFloatContext) interface{} {
 	e.Visit(ctx.Number())
-	// Look up the target field type, default to double from grammar context
-	leftField := ctx.LeftFexpr().GetText()
-	fieldType := e.lookupType(leftField)
-	if fieldType == "" {
-		fieldType = TypeDouble
-	}
+	fieldType := e.resolveSetTarget(ctx.LeftFexpr().GetText(), TypeDouble)
 	if conv := e.typeConverter(fieldType); conv != "" {
 		e.emit(conv)
 	}
@@ -2541,12 +2542,7 @@ func (e *PostfixEmitter) VisitSetFloat(ctx *SetFloatContext) interface{} {
 
 func (e *PostfixEmitter) VisitSetBool(ctx *SetBoolContext) interface{} {
 	e.Visit(ctx.Bexpr())
-	// Look up the target field type, default to boolean from grammar context
-	leftField := ctx.LeftBexpr().GetText()
-	fieldType := e.lookupType(leftField)
-	if fieldType == "" {
-		fieldType = TypeBoolean
-	}
+	fieldType := e.resolveSetTarget(ctx.LeftBexpr().GetText(), TypeBoolean)
 	if conv := e.typeConverter(fieldType); conv != "" {
 		e.emit(conv)
 	}
@@ -2556,12 +2552,7 @@ func (e *PostfixEmitter) VisitSetBool(ctx *SetBoolContext) interface{} {
 
 func (e *PostfixEmitter) VisitSetEntity(ctx *SetEntityContext) interface{} {
 	e.Visit(ctx.Eexpr())
-	// Look up the target field type, default to entity from grammar context
-	leftField := ctx.LeftEexpr().GetText()
-	fieldType := e.lookupType(leftField)
-	if fieldType == "" {
-		fieldType = TypeEntity
-	}
+	fieldType := e.resolveSetTarget(ctx.LeftEexpr().GetText(), TypeEntity)
 	if conv := e.typeConverter(fieldType); conv != "" {
 		e.emit(conv)
 	}
@@ -2571,12 +2562,7 @@ func (e *PostfixEmitter) VisitSetEntity(ctx *SetEntityContext) interface{} {
 
 func (e *PostfixEmitter) VisitSetString(ctx *SetStringContext) interface{} {
 	e.Visit(ctx.Strexpr())
-	// Look up the target field type, default to string from grammar context
-	leftField := ctx.LeftStrexpr().GetText()
-	fieldType := e.lookupType(leftField)
-	if fieldType == "" {
-		fieldType = TypeString
-	}
+	fieldType := e.resolveSetTarget(ctx.LeftStrexpr().GetText(), TypeString)
 	if conv := e.typeConverter(fieldType); conv != "" {
 		e.emit(conv)
 	}
@@ -2586,12 +2572,7 @@ func (e *PostfixEmitter) VisitSetString(ctx *SetStringContext) interface{} {
 
 func (e *PostfixEmitter) VisitSetDate(ctx *SetDateContext) interface{} {
 	e.Visit(ctx.Dexpr())
-	// Look up the target field type, default to date from grammar context
-	leftField := ctx.LeftDexpr().GetText()
-	fieldType := e.lookupType(leftField)
-	if fieldType == "" {
-		fieldType = TypeDate
-	}
+	fieldType := e.resolveSetTarget(ctx.LeftDexpr().GetText(), TypeDate)
 	if conv := e.typeConverter(fieldType); conv != "" {
 		e.emit(conv)
 	}
@@ -2599,45 +2580,38 @@ func (e *PostfixEmitter) VisitSetDate(ctx *SetDateContext) interface{} {
 	return nil
 }
 
+// Left*Simple visitors route through emitFieldStore so declared locals get
+// `<index> local!` while entity fields keep `/<name> xdef`. Without this,
+// `set <local> = ...` would error at runtime because xdef can't resolve a
+// name that isn't on the entity stack.
+
 func (e *PostfixEmitter) VisitLeftIexprSimple(ctx *LeftIexprSimpleContext) interface{} {
-	// Emit left value format: /<fieldname> xdef
-	e.emit("/" + ctx.TypedLong().GetText())
-	e.emit("xdef")
+	e.emitFieldStore(ctx.TypedLong().GetText())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitLeftFexprSimple(ctx *LeftFexprSimpleContext) interface{} {
-	// Emit left value format: /<fieldname> xdef
-	e.emit("/" + ctx.TypedDouble().GetText())
-	e.emit("xdef")
+	e.emitFieldStore(ctx.TypedDouble().GetText())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitLeftBexprSimple(ctx *LeftBexprSimpleContext) interface{} {
-	// Emit left value format: /<fieldname> xdef
-	e.emit("/" + ctx.TypedBoolean().GetText())
-	e.emit("xdef")
+	e.emitFieldStore(ctx.TypedBoolean().GetText())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitLeftEexprSimple(ctx *LeftEexprSimpleContext) interface{} {
-	// Emit left value format: /<fieldname> xdef
-	e.emit("/" + ctx.TypedEntity().GetText())
-	e.emit("xdef")
+	e.emitFieldStore(ctx.TypedEntity().GetText())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitLeftStrexprSimple(ctx *LeftStrexprSimpleContext) interface{} {
-	// Emit left value format: /<fieldname> xdef
-	e.emit("/" + ctx.TypedString().GetText())
-	e.emit("xdef")
+	e.emitFieldStore(ctx.TypedString().GetText())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitLeftDexprSimple(ctx *LeftDexprSimpleContext) interface{} {
-	// Emit left value format: /<fieldname> xdef
-	e.emit("/" + ctx.TypedDate().GetText())
-	e.emit("xdef")
+	e.emitFieldStore(ctx.TypedDate().GetText())
 	return nil
 }
 
@@ -2957,7 +2931,7 @@ func (e *PostfixEmitter) VisitDecrementDouble(ctx *DecrementDoubleContext) inter
 func (e *PostfixEmitter) VisitSetStringFromName(ctx *SetStringFromNameContext) interface{} {
 	e.Visit(ctx.Nexpr())
 	fieldName := ctx.LeftStrexpr().GetText()
-	if e.lookupType(fieldName) == TypeBoolean {
+	if e.mutationType(fieldName) == TypeBoolean {
 		e.emit("cvb")
 	} else {
 		e.emit("cvs")
@@ -4766,12 +4740,7 @@ func (e *PostfixEmitter) VisitLocalBigIntDefined(ctx *LocalBigIntDefinedContext)
 
 func (e *PostfixEmitter) VisitSetBigInt(ctx *SetBigIntContext) interface{} {
 	e.Visit(ctx.Bigexpr())
-	// Look up the target field type, default to bigint from grammar context
-	leftField := ctx.LeftBigexpr().GetText()
-	fieldType := e.lookupType(leftField)
-	if fieldType == "" {
-		fieldType = TypeBigInt
-	}
+	fieldType := e.resolveSetTarget(ctx.LeftBigexpr().GetText(), TypeBigInt)
 	if conv := e.typeConverter(fieldType); conv != "" {
 		e.emit(conv)
 	}
@@ -4780,9 +4749,7 @@ func (e *PostfixEmitter) VisitSetBigInt(ctx *SetBigIntContext) interface{} {
 }
 
 func (e *PostfixEmitter) VisitLeftBigexprSimple(ctx *LeftBigexprSimpleContext) interface{} {
-	// Emit left value format: /<fieldname> xdef
-	e.emit("/" + ctx.TypedBigInt().GetText())
-	e.emit("xdef")
+	e.emitFieldStore(ctx.TypedBigInt().GetText())
 	return nil
 }
 
