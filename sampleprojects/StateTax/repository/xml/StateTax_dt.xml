@@ -554,13 +554,7 @@ true cvb /taxpayer.bracket_applied xdef
 <COMMENTS>Builds result entity with all computed tax values</COMMENTS>
 <POLICY_REFERENCE /></attribute_fields>
 <contexts>
-<context_details>
-<context_number>1</context_number>
-<context_comment>Create result entity for this table's context</context_comment>
-<context_dsl>add a new result entity to the context of this table</context_dsl>
-<context_postfix>
-/result createentity entitypush
-</context_postfix></context_details></contexts>
+</contexts>
 <initial_actions />
 <conditions>
 <condition_details>

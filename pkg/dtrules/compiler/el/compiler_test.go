@@ -930,3 +930,16 @@ func TestBigIntMixedTypePromotion(t *testing.T) {
 		})
 	}
 }
+
+// TestCompile_RejectsTrailingTokens pins that extra tokens after a successful
+// parse surface as a compile error instead of being silently dropped.
+func TestCompile_RejectsTrailingTokens(t *testing.T) {
+	c := NewCompiler()
+	out, err := c.CompileContext("for all income extra junk")
+	if err == nil {
+		t.Fatalf("expected error on trailing tokens, got postfix %q", out)
+	}
+	if !strings.Contains(err.Error(), "unexpected tokens") {
+		t.Errorf("expected 'unexpected tokens' in error, got: %v", err)
+	}
+}

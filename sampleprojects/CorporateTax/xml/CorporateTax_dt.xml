@@ -1057,14 +1057,6 @@
 <TABLE_NUMBER>1000</TABLE_NUMBER>
 </attribute_fields>
 <contexts>
-<context_details>
-<context_number>1</context_number>
-<context_comment>Add a new result entity to the context of this table</context_comment>
-<context_dsl>add a new result entity to the context of this table</context_dsl>
-<context_postfix>
-/result createentity entitypush
-</context_postfix>
-</context_details>
 </contexts>
 <initial_actions>
 <initial_action>

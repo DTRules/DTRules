@@ -897,9 +897,8 @@ property.rental_net_income result.total_rental_income f+ /result.total_rental_in
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process each income entity</context_comment>
-<context_dsl>for all income entities</context_dsl>
+<context_dsl>for all job.incomes</context_dsl>
 <context_postfix>
-{ /Process_Other_Income executetable } job.incomes forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -4643,13 +4642,8 @@ result.total_social_security 0.85 f* /result.taxable_social_security xdef
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process each income entity for capital gains</context_comment>
-<context_dsl>for all income entities</context_dsl>
+<context_dsl>for all job.incomes</context_dsl>
 <context_postfix>
-0.0 /result.total_long_term_gains xdef
-0.0 /result.total_short_term_gains xdef
-0.0 /result.total_qualified_dividends xdef
-"CAPITAL GAINS (Schedule D)" job.audit_trail swap addto
-{ /Process_Capital_Gains executetable } job.incomes forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -7763,11 +7757,8 @@ false /early_distribution.subject_to_penalty xdef
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process each child unearned income record</context_comment>
-<context_dsl>for all child unearned income records</context_dsl>
+<context_dsl>for all job.child_unearned_incomes</context_dsl>
 <context_postfix>
-0.0 /result.total_kiddie_tax xdef
-"Processing Form 8615 Kiddie Tax (IRC 1(g))" job.audit_trail swap addto
-{ /Process_Kiddie_Tax executetable } job.child_unearned_incomes forall
 </context_postfix>
 </context_details>
 </contexts>
@@ -7829,11 +7820,8 @@ false /child_unearned_income.subject_to_kiddie_tax xdef
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process elderly/disabled records</context_comment>
-<context_dsl>for all elderly/disabled records</context_dsl>
+<context_dsl>for all job.elderly_disabled</context_dsl>
 <context_postfix>
-0.0 /result.elderly_disabled_credit xdef
-"Processing Schedule R Credit for Elderly/Disabled (IRC 22)" job.audit_trail swap addto
-{ /Calculate_Elderly_Disabled_Credit executetable } job.elderly_disabled forall
 </context_postfix>
 </context_details>
 </contexts>
