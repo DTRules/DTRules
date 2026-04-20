@@ -35,6 +35,7 @@ type PostfixEmitter struct {
 	symbols   map[string]string   // symbol table for type resolution from EDD
 	locals    map[string]LocalVar // local variable stack frame indices
 	localCnt  int                 // next available local variable index
+	resolveCollection func(entityType string) (ownerEntity, fieldName string, err error)
 }
 
 // NewPostfixEmitter creates a new postfix emitter.
@@ -50,6 +51,13 @@ func NewPostfixEmitter() *PostfixEmitter {
 // SetSymbols sets the symbol table for type resolution.
 func (e *PostfixEmitter) SetSymbols(symbols map[string]string) {
 	e.symbols = symbols
+}
+
+// SetCollectionResolver registers the callback used by the
+// `for all <type> entities` DSL form to turn a bare entity-type name into the
+// owning array's `<owner>.<field>` path.
+func (e *PostfixEmitter) SetCollectionResolver(fn func(entityType string) (string, string, error)) {
+	e.resolveCollection = fn
 }
 
 // declareLocal registers a local variable and returns its stack frame index.
@@ -2004,6 +2012,58 @@ func (e *PostfixEmitter) VisitForallWhereAllowRemove(ctx *ForallWhereAllowRemove
 	e.emit("if")
 	e.emit("}")
 	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	e.emit("pop")
+	return nil
+}
+
+// resolveEntitiesCollection looks up the `<owner>.<field>` path for a bare
+// entity-type name via the registered collection resolver. On any error it
+// records the emission error and returns the empty string.
+func (e *PostfixEmitter) resolveEntitiesCollection(entityType string) string {
+	if e.resolveCollection == nil {
+		e.emitError("for all %s entities: no collection resolver registered", entityType)
+		return ""
+	}
+	owner, field, err := e.resolveCollection(entityType)
+	if err != nil {
+		e.emitError("%v", err)
+		return ""
+	}
+	return owner + "." + field
+}
+
+// VisitForallTypeEntities: `for all <type> entities` — rewrites to the
+// EDD-declared owning collection as `dup <owner>.<field> forall pop`.
+func (e *PostfixEmitter) VisitForallTypeEntities(ctx *ForallTypeEntitiesContext) interface{} {
+	path := e.resolveEntitiesCollection(ctx.TypedEntity().GetText())
+	if path == "" {
+		return nil
+	}
+	e.emit("dup")
+	e.emit(path)
+	e.emit("forall")
+	e.emit("pop")
+	return nil
+}
+
+// VisitForallTypeEntitiesWhere: `for all <type> entities where <bexpr>` —
+// mirrors the `forallWhere` wrapped-block shape, substituting the resolved
+// `<owner>.<field>` for the array expression.
+func (e *PostfixEmitter) VisitForallTypeEntitiesWhere(ctx *ForallTypeEntitiesWhereContext) interface{} {
+	path := e.resolveEntitiesCollection(ctx.TypedEntity().GetText())
+	if path == "" {
+		return nil
+	}
+	e.emit("{")
+	e.emit("{")
+	e.emit("dup")
+	e.emit("execute")
+	e.emit("}")
+	e.Visit(ctx.Bexpr())
+	e.emit("if")
+	e.emit("}")
+	e.emit(path)
 	e.emit("forall")
 	e.emit("pop")
 	return nil

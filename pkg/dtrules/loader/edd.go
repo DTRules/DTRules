@@ -364,3 +364,62 @@ func (l *EDDLoader) computeDefaultValue(defaultStr string, rtype *dtrules.RType)
 func (l *EDDLoader) GetErrors() []error {
 	return l.errors
 }
+
+// CollectionRef describes one owner-entity / field-name pair where an array
+// of a given subtype is declared in the EDD.
+type CollectionRef struct {
+	OwnerEntity string
+	FieldName   string
+}
+
+// BuildCollectionIndex walks every reference entity in the factory and
+// records, for each array-typed field with a non-empty subtype, the
+// (ownerEntity, fieldName) pair. The returned map is keyed by the lower-cased
+// subtype (the entity-type name of the array elements).
+//
+// Used by the EL compiler to resolve `for all <type> entities` to the
+// canonical `<owner>.<field>` path.
+func BuildCollectionIndex(factory *entity.Factory) map[string][]CollectionRef {
+	idx := map[string][]CollectionRef{}
+	for _, ent := range factory.GetRefEntities() {
+		ownerName := strings.ToLower(ent.GetName().StringValue())
+		for _, entry := range ent.GetEntries() {
+			if entry.Type == nil || entry.Type != dtrules.TypeArray {
+				continue
+			}
+			subtype := strings.TrimSpace(entry.SubType)
+			if subtype == "" {
+				continue
+			}
+			key := strings.ToLower(subtype)
+			idx[key] = append(idx[key], CollectionRef{
+				OwnerEntity: ownerName,
+				FieldName:   strings.ToLower(entry.Attribute.StringValue()),
+			})
+		}
+	}
+	return idx
+}
+
+// MakeCollectionResolver returns a resolver closure over the given index
+// suitable for handing to the EL compiler. When multiple owners declare a
+// collection of the same subtype, the resolver returns an error listing all
+// candidates; when none match, it returns a "no collection registered for
+// type" error.
+func MakeCollectionResolver(idx map[string][]CollectionRef) func(entityType string) (string, string, error) {
+	return func(entityType string) (string, string, error) {
+		key := strings.ToLower(strings.TrimSpace(entityType))
+		refs, ok := idx[key]
+		if !ok || len(refs) == 0 {
+			return "", "", fmt.Errorf("no collection registered for type %q", entityType)
+		}
+		if len(refs) > 1 {
+			candidates := make([]string, len(refs))
+			for i, r := range refs {
+				candidates[i] = r.OwnerEntity + "." + r.FieldName
+			}
+			return "", "", fmt.Errorf("ambiguous collection for type %q: candidates [%s]", entityType, strings.Join(candidates, ", "))
+		}
+		return refs[0].OwnerEntity, refs[0].FieldName, nil
+	}
+}

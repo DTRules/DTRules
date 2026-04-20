@@ -291,6 +291,14 @@ func (v *BaseELVisitor) VisitForallWhereAllowRemove(ctx *ForallWhereAllowRemoveC
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitForallTypeEntities(ctx *ForallTypeEntitiesContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitForallTypeEntitiesWhere(ctx *ForallTypeEntitiesWhereContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitForallBlockSimple(ctx *ForallBlockSimpleContext) interface{} {
 	return v.VisitChildren(ctx)
 }

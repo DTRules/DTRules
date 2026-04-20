@@ -149,6 +149,8 @@ forallctl
     | FORALL arrayExpr IN eexpr WHERE bexpr                 # forallInEntityWhere
     | FORALL arrayExpr WHERE bexpr                          # forallWhere
     | FORALL arrayExpr WHERE bexpr ALLOWING ARRAY TOBEREMOVED # forallWhereAllowRemove
+    | FORALL typedEntity ENTITIES                           # forallTypeEntities
+    | FORALL typedEntity ENTITIES WHERE bexpr               # forallTypeEntitiesWhere
     ;
 
 forallblock
@@ -939,6 +941,7 @@ DOUBLE              : 'double' ;
 LONG                : 'int' | 'long' ;
 STRING              : 'string' ;
 ENTITY              : 'entity' ;
+ENTITIES            : 'entities' ;
 ARRAY               : 'array' ;
 TABLE               : 'table' ;
 BIGINT              : 'bigint' | 'biginteger' ;
