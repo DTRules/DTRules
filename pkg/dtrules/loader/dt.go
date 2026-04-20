@@ -62,6 +62,13 @@ func (l *DTLoader) SetSymbols(symbols map[string]string) {
 	l.elCompiler.SetSymbols(symbols)
 }
 
+// SetCollectionResolver wires an EDD-backed resolver for the
+// `for all <type> entities` DSL form, turning a bare entity-type name into
+// the `<owner>.<field>` path of the array that owns entities of that type.
+func (l *DTLoader) SetCollectionResolver(fn el.CollectionResolver) {
+	l.elCompiler.SetCollectionResolver(fn)
+}
+
 // Structures matching the DTRules decision table format (XML and JSON)
 
 // DTFile represents the root decision_tables element

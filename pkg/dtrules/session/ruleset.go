@@ -105,6 +105,9 @@ func (rs *RuleSet) LoadDecisionTables(r io.Reader) error {
 	// references typed fields. Without this the compiler defaults to integer
 	// arithmetic for every iexpr × iexpr multiply and loses type promotion.
 	dtLoader.SetSymbols(rs.buildSymbolTable())
+	// Build a subtype → owner.field index so `for all <type> entities`
+	// can resolve to the EDD-declared collection at compile time.
+	dtLoader.SetCollectionResolver(loader.MakeCollectionResolver(loader.BuildCollectionIndex(rs.entityFactory)))
 	return dtLoader.Load(r)
 }
 

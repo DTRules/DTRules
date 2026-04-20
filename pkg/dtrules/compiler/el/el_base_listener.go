@@ -446,6 +446,18 @@ func (s *BaseELListener) EnterForallWhereAllowRemove(ctx *ForallWhereAllowRemove
 // ExitForallWhereAllowRemove is called when production forallWhereAllowRemove is exited.
 func (s *BaseELListener) ExitForallWhereAllowRemove(ctx *ForallWhereAllowRemoveContext) {}
 
+// EnterForallTypeEntities is called when production forallTypeEntities is entered.
+func (s *BaseELListener) EnterForallTypeEntities(ctx *ForallTypeEntitiesContext) {}
+
+// ExitForallTypeEntities is called when production forallTypeEntities is exited.
+func (s *BaseELListener) ExitForallTypeEntities(ctx *ForallTypeEntitiesContext) {}
+
+// EnterForallTypeEntitiesWhere is called when production forallTypeEntitiesWhere is entered.
+func (s *BaseELListener) EnterForallTypeEntitiesWhere(ctx *ForallTypeEntitiesWhereContext) {}
+
+// ExitForallTypeEntitiesWhere is called when production forallTypeEntitiesWhere is exited.
+func (s *BaseELListener) ExitForallTypeEntitiesWhere(ctx *ForallTypeEntitiesWhereContext) {}
+
 // EnterForallBlockSimple is called when production forallBlockSimple is entered.
 func (s *BaseELListener) EnterForallBlockSimple(ctx *ForallBlockSimpleContext) {}
 

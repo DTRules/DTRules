@@ -220,6 +220,12 @@ type ELListener interface {
 	// EnterForallWhereAllowRemove is called when entering the forallWhereAllowRemove production.
 	EnterForallWhereAllowRemove(c *ForallWhereAllowRemoveContext)
 
+	// EnterForallTypeEntities is called when entering the forallTypeEntities production.
+	EnterForallTypeEntities(c *ForallTypeEntitiesContext)
+
+	// EnterForallTypeEntitiesWhere is called when entering the forallTypeEntitiesWhere production.
+	EnterForallTypeEntitiesWhere(c *ForallTypeEntitiesWhereContext)
+
 	// EnterForallBlockSimple is called when entering the forallBlockSimple production.
 	EnterForallBlockSimple(c *ForallBlockSimpleContext)
 
@@ -2025,6 +2031,12 @@ type ELListener interface {
 
 	// ExitForallWhereAllowRemove is called when exiting the forallWhereAllowRemove production.
 	ExitForallWhereAllowRemove(c *ForallWhereAllowRemoveContext)
+
+	// ExitForallTypeEntities is called when exiting the forallTypeEntities production.
+	ExitForallTypeEntities(c *ForallTypeEntitiesContext)
+
+	// ExitForallTypeEntitiesWhere is called when exiting the forallTypeEntitiesWhere production.
+	ExitForallTypeEntitiesWhere(c *ForallTypeEntitiesWhereContext)
 
 	// ExitForallBlockSimple is called when exiting the forallBlockSimple production.
 	ExitForallBlockSimple(c *ForallBlockSimpleContext)

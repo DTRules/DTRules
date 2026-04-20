@@ -53,6 +53,20 @@ func (c *Compiler) SetSymbols(symbols map[string]string) {
 	c.emitter.SetSymbols(symbols)
 }
 
+// CollectionResolver maps an entity-type name (the element type of an array
+// field in the EDD) to the fully qualified `owner.field` path of the array
+// that contains entities of that type. If more than one collection holds
+// entities of the requested type, the resolver must return an error listing
+// every candidate so the author can disambiguate.
+type CollectionResolver func(entityType string) (ownerEntity, fieldName string, err error)
+
+// SetCollectionResolver wires a resolver that the `for all <type> entities`
+// DSL form uses to rewrite a bare type name to its EDD-declared owning
+// collection.
+func (c *Compiler) SetCollectionResolver(fn CollectionResolver) {
+	c.emitter.SetCollectionResolver(fn)
+}
+
 // CompileCondition compiles an EL condition expression to postfix.
 // The input should be a boolean expression like "applicant.age >= 18".
 func (c *Compiler) CompileCondition(el string) (string, error) {

@@ -220,6 +220,12 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#forallWhereAllowRemove.
 	VisitForallWhereAllowRemove(ctx *ForallWhereAllowRemoveContext) interface{}
 
+	// Visit a parse tree produced by ELParser#forallTypeEntities.
+	VisitForallTypeEntities(ctx *ForallTypeEntitiesContext) interface{}
+
+	// Visit a parse tree produced by ELParser#forallTypeEntitiesWhere.
+	VisitForallTypeEntitiesWhere(ctx *ForallTypeEntitiesWhereContext) interface{}
+
 	// Visit a parse tree produced by ELParser#forallBlockSimple.
 	VisitForallBlockSimple(ctx *ForallBlockSimpleContext) interface{}
 
