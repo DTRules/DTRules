@@ -1,6 +1,6 @@
 # DTRules Changelog
 
-## v1.8.1 — 2026-04-19
+## v1.8.1 — 2026-04-20
 
 - **`for all <array> as <alias>` iteration alias** (#712). Adds an `as
   <alias>` clause to `for all` that binds each iteration entity to a local
