@@ -92,6 +92,36 @@ func (e *PostfixEmitter) emitLocalRef(name string) bool {
 	return false
 }
 
+// emitAliasFieldAccess tries to resolve `head.tail` where head is a local
+// entity alias introduced by `for all <arr> as <alias>`. When it is, the
+// emitter produces `<N> local@ /<tail> get` so the attribute is fetched from
+// the aliased entity rather than the entity stack. Returns true on a hit.
+//
+// `for all <arr> as <alias>` deliberately does NOT push the iteration entity
+// on the entity stack, so field references qualified by the alias are the
+// only way to reach it. That breaks the bare-name lookup path used by
+// non-aliased forall bodies, which this helper restores via the local slot.
+func (e *PostfixEmitter) emitAliasFieldAccess(name string) bool {
+	idx := strings.Index(name, ".")
+	if idx <= 0 {
+		return false
+	}
+	head := name[:idx]
+	tail := name[idx+1:]
+	if tail == "" || strings.Contains(tail, ".") {
+		return false
+	}
+	lv, ok := e.lookupLocal(head)
+	if !ok || lv.Type != TypeEntity {
+		return false
+	}
+	e.emit(fmt.Sprintf("%d", lv.Index))
+	e.emit("local@")
+	e.emit("/" + tail)
+	e.emit("get")
+	return true
+}
+
 // emitLocalAssign emits a local variable assignment: "<index> local!"
 func (e *PostfixEmitter) emitLocalAssign(name string) bool {
 	if v, ok := e.lookupLocal(name); ok {
@@ -1830,6 +1860,9 @@ func (e *PostfixEmitter) VisitArrayCopySimple(ctx *ArrayCopySimpleContext) inter
 
 func (e *PostfixEmitter) VisitTypedEntity(ctx *TypedEntityContext) interface{} {
 	name := ctx.GetText()
+	if e.emitAliasFieldAccess(name) {
+		return nil
+	}
 	// Check if this is a local variable - emit stack frame access
 	if !e.emitLocalRef(name) {
 		e.emit(name)
@@ -1839,6 +1872,9 @@ func (e *PostfixEmitter) VisitTypedEntity(ctx *TypedEntityContext) interface{} {
 
 func (e *PostfixEmitter) VisitTypedLong(ctx *TypedLongContext) interface{} {
 	name := ctx.GetText()
+	if e.emitAliasFieldAccess(name) {
+		return nil
+	}
 	// Check if this is a local variable - emit stack frame access
 	if !e.emitLocalRef(name) {
 		e.emit(name)
@@ -1848,6 +1884,9 @@ func (e *PostfixEmitter) VisitTypedLong(ctx *TypedLongContext) interface{} {
 
 func (e *PostfixEmitter) VisitTypedDouble(ctx *TypedDoubleContext) interface{} {
 	name := ctx.GetText()
+	if e.emitAliasFieldAccess(name) {
+		return nil
+	}
 	// Check if this is a local variable - emit stack frame access
 	if !e.emitLocalRef(name) {
 		e.emit(name)
@@ -1857,6 +1896,9 @@ func (e *PostfixEmitter) VisitTypedDouble(ctx *TypedDoubleContext) interface{} {
 
 func (e *PostfixEmitter) VisitTypedString(ctx *TypedStringContext) interface{} {
 	name := ctx.GetText()
+	if e.emitAliasFieldAccess(name) {
+		return nil
+	}
 	// Check if this is a local variable - emit stack frame access
 	if !e.emitLocalRef(name) {
 		e.emit(name)
@@ -1866,6 +1908,9 @@ func (e *PostfixEmitter) VisitTypedString(ctx *TypedStringContext) interface{} {
 
 func (e *PostfixEmitter) VisitTypedBoolean(ctx *TypedBooleanContext) interface{} {
 	name := ctx.GetText()
+	if e.emitAliasFieldAccess(name) {
+		return nil
+	}
 	// Check if this is a local variable - emit stack frame access
 	if !e.emitLocalRef(name) {
 		e.emit(name)
@@ -1875,6 +1920,9 @@ func (e *PostfixEmitter) VisitTypedBoolean(ctx *TypedBooleanContext) interface{}
 
 func (e *PostfixEmitter) VisitTypedDate(ctx *TypedDateContext) interface{} {
 	name := ctx.GetText()
+	if e.emitAliasFieldAccess(name) {
+		return nil
+	}
 	// Check if this is a local variable - emit stack frame access
 	if !e.emitLocalRef(name) {
 		e.emit(name)
@@ -1884,6 +1932,9 @@ func (e *PostfixEmitter) VisitTypedDate(ctx *TypedDateContext) interface{} {
 
 func (e *PostfixEmitter) VisitTypedArray(ctx *TypedArrayContext) interface{} {
 	name := ctx.GetText()
+	if e.emitAliasFieldAccess(name) {
+		return nil
+	}
 	// Check if this is a local variable - emit stack frame access
 	if !e.emitLocalRef(name) {
 		e.emit(name)
@@ -1893,6 +1944,9 @@ func (e *PostfixEmitter) VisitTypedArray(ctx *TypedArrayContext) interface{} {
 
 func (e *PostfixEmitter) VisitTypedTable(ctx *TypedTableContext) interface{} {
 	name := ctx.GetText()
+	if e.emitAliasFieldAccess(name) {
+		return nil
+	}
 	// Check if this is a local variable - emit stack frame access
 	if !e.emitLocalRef(name) {
 		e.emit(name)
@@ -1902,6 +1956,9 @@ func (e *PostfixEmitter) VisitTypedTable(ctx *TypedTableContext) interface{} {
 
 func (e *PostfixEmitter) VisitTypedName(ctx *TypedNameContext) interface{} {
 	name := ctx.GetText()
+	if e.emitAliasFieldAccess(name) {
+		return nil
+	}
 	// Check if this is a local variable - emit stack frame access
 	if !e.emitLocalRef(name) {
 		e.emit(name)
@@ -2066,6 +2123,97 @@ func (e *PostfixEmitter) VisitForallTypeEntitiesWhere(ctx *ForallTypeEntitiesWhe
 	e.emit(path)
 	e.emit("forall")
 	e.emit("pop")
+	return nil
+}
+
+// VisitForallAs: `for all <array> as <alias>` (#712).
+//
+// Binds each iteration entity to a local-entity slot named `alias` instead of
+// pushing it on the entity stack. This makes nested same-list iterations
+// non-shadowing: `for all taxpayers as parent { for all taxpayers as child
+// where child.parent_id == parent.id ... }` — both `parent.*` and `child.*`
+// resolve through distinct local slots.
+//
+// Emit shape:
+//
+//	null allocate execute deallocate pop     # declare local entity slot N
+//	dup                                      # save outer body
+//	{ <N> local! dup execute }               # wrapper: stash element, run body
+//	<arr>
+//	for                                      # ( body array -- ), each iter
+//	                                         # pushes element on data stack
+//	pop                                      # drop the saved outer body
+//
+// `for` is used instead of `forall` because `for` pushes the element on the
+// data stack, which the wrapper needs in order to store it into the alias
+// local with `local!`. `forall` would push on the entity stack, which the
+// issue explicitly forbids when `as` is used.
+func (e *PostfixEmitter) VisitForallAs(ctx *ForallAsContext) interface{} {
+	alias := ctx.UndefinedIdent().GetText()
+	if err := e.checkAliasName(alias); err != nil {
+		e.emitError("%v", err)
+		return nil
+	}
+	idx := e.declareLocal(alias, TypeEntity)
+	e.emit("null")
+	e.emit("allocate")
+	e.emit("execute")
+	e.emit("deallocate")
+	e.emit("pop")
+	e.emit("dup")
+	e.emit("{")
+	e.emit(fmt.Sprintf("%d", idx))
+	e.emit("local!")
+	e.emit("dup")
+	e.emit("execute")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("for")
+	e.emit("pop")
+	return nil
+}
+
+// VisitForallAsWhere: `for all <array> as <alias> where <bexpr>` (#712).
+// Same binding shape as forallAs, but the body only runs when the predicate
+// holds. The predicate is evaluated AFTER the alias slot is populated so
+// `<alias>.<field>` references inside the where-clause resolve correctly.
+func (e *PostfixEmitter) VisitForallAsWhere(ctx *ForallAsWhereContext) interface{} {
+	alias := ctx.UndefinedIdent().GetText()
+	if err := e.checkAliasName(alias); err != nil {
+		e.emitError("%v", err)
+		return nil
+	}
+	idx := e.declareLocal(alias, TypeEntity)
+	e.emit("null")
+	e.emit("allocate")
+	e.emit("execute")
+	e.emit("deallocate")
+	e.emit("pop")
+	e.emit("dup")
+	e.emit("{")
+	e.emit(fmt.Sprintf("%d", idx))
+	e.emit("local!")
+	e.emit("{")
+	e.emit("dup")
+	e.emit("execute")
+	e.emit("}")
+	e.Visit(ctx.Bexpr())
+	e.emit("if")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("for")
+	e.emit("pop")
+	return nil
+}
+
+// checkAliasName rejects aliases that collide with an existing EDD symbol
+// (typically an entity type name). A collision would break reference
+// resolution because `<alias>.<field>` would be ambiguous with the existing
+// `<entity>.<field>` path registered in the symbol table.
+func (e *PostfixEmitter) checkAliasName(name string) error {
+	if t := e.lookupType(name); t != "" {
+		return fmt.Errorf("alias %q collides with existing symbol (type %s)", name, t)
+	}
 	return nil
 }
 
@@ -4695,6 +4843,9 @@ func (e *PostfixEmitter) VisitBigAbs(ctx *BigAbsContext) interface{} {
 
 func (e *PostfixEmitter) VisitTypedBigInt(ctx *TypedBigIntContext) interface{} {
 	name := ctx.GetText()
+	if e.emitAliasFieldAccess(name) {
+		return nil
+	}
 	// Check if this is a local variable - emit stack frame access
 	if !e.emitLocalRef(name) {
 		e.emit(name)
@@ -4926,6 +5077,9 @@ func (e *PostfixEmitter) VisitBigFromBytes(ctx *BigFromBytesContext) interface{}
 
 func (e *PostfixEmitter) VisitTypedBytes(ctx *TypedBytesContext) interface{} {
 	name := ctx.GetText()
+	if e.emitAliasFieldAccess(name) {
+		return nil
+	}
 	if !e.emitLocalRef(name) {
 		e.emit(name)
 	}

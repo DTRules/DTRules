@@ -151,6 +151,8 @@ forallctl
     | FORALL arrayExpr WHERE bexpr ALLOWING ARRAY TOBEREMOVED # forallWhereAllowRemove
     | FORALL typedEntity ENTITIES                           # forallTypeEntities
     | FORALL typedEntity ENTITIES WHERE bexpr               # forallTypeEntitiesWhere
+    | FORALL arrayExpr AS undefinedIdent                    # forallAs
+    | FORALL arrayExpr AS undefinedIdent WHERE bexpr        # forallAsWhere
     ;
 
 forallblock
@@ -1124,6 +1126,7 @@ THROUGH             : 'through' ;
 YEAROF              : 'yearof' ;
 NAMEOF              : 'nameof' ;
 AT                  : 'at' ;
+AS                  : 'as' ;
 
 // Literals
 // FP_LITERAL must precede FLOAT_LITERAL / INT_LITERAL so the fp/FP suffix is

@@ -1,6 +1,7 @@
 // Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
-package el // EL
+package el
+
 import "github.com/antlr4-go/antlr/v4"
 
 // A complete Visitor for a parse tree produced by ELParser.
@@ -225,6 +226,12 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#forallTypeEntitiesWhere.
 	VisitForallTypeEntitiesWhere(ctx *ForallTypeEntitiesWhereContext) interface{}
+
+	// Visit a parse tree produced by ELParser#forallAs.
+	VisitForallAs(ctx *ForallAsContext) interface{}
+
+	// Visit a parse tree produced by ELParser#forallAsWhere.
+	VisitForallAsWhere(ctx *ForallAsWhereContext) interface{}
 
 	// Visit a parse tree produced by ELParser#forallBlockSimple.
 	VisitForallBlockSimple(ctx *ForallBlockSimpleContext) interface{}
