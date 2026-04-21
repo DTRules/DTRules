@@ -1,6 +1,7 @@
 // Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
-package el // EL
+package el
+
 import "github.com/antlr4-go/antlr/v4"
 
 // ELListener is a complete listener for a parse tree produced by ELParser.
@@ -225,6 +226,12 @@ type ELListener interface {
 
 	// EnterForallTypeEntitiesWhere is called when entering the forallTypeEntitiesWhere production.
 	EnterForallTypeEntitiesWhere(c *ForallTypeEntitiesWhereContext)
+
+	// EnterForallAs is called when entering the forallAs production.
+	EnterForallAs(c *ForallAsContext)
+
+	// EnterForallAsWhere is called when entering the forallAsWhere production.
+	EnterForallAsWhere(c *ForallAsWhereContext)
 
 	// EnterForallBlockSimple is called when entering the forallBlockSimple production.
 	EnterForallBlockSimple(c *ForallBlockSimpleContext)
@@ -2037,6 +2044,12 @@ type ELListener interface {
 
 	// ExitForallTypeEntitiesWhere is called when exiting the forallTypeEntitiesWhere production.
 	ExitForallTypeEntitiesWhere(c *ForallTypeEntitiesWhereContext)
+
+	// ExitForallAs is called when exiting the forallAs production.
+	ExitForallAs(c *ForallAsContext)
+
+	// ExitForallAsWhere is called when exiting the forallAsWhere production.
+	ExitForallAsWhere(c *ForallAsWhereContext)
 
 	// ExitForallBlockSimple is called when exiting the forallBlockSimple production.
 	ExitForallBlockSimple(c *ForallBlockSimpleContext)

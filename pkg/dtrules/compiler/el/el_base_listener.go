@@ -1,6 +1,7 @@
 // Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
-package el // EL
+package el
+
 import "github.com/antlr4-go/antlr/v4"
 
 // BaseELListener is a complete listener for a parse tree produced by ELParser.
@@ -457,6 +458,18 @@ func (s *BaseELListener) EnterForallTypeEntitiesWhere(ctx *ForallTypeEntitiesWhe
 
 // ExitForallTypeEntitiesWhere is called when production forallTypeEntitiesWhere is exited.
 func (s *BaseELListener) ExitForallTypeEntitiesWhere(ctx *ForallTypeEntitiesWhereContext) {}
+
+// EnterForallAs is called when production forallAs is entered.
+func (s *BaseELListener) EnterForallAs(ctx *ForallAsContext) {}
+
+// ExitForallAs is called when production forallAs is exited.
+func (s *BaseELListener) ExitForallAs(ctx *ForallAsContext) {}
+
+// EnterForallAsWhere is called when production forallAsWhere is entered.
+func (s *BaseELListener) EnterForallAsWhere(ctx *ForallAsWhereContext) {}
+
+// ExitForallAsWhere is called when production forallAsWhere is exited.
+func (s *BaseELListener) ExitForallAsWhere(ctx *ForallAsWhereContext) {}
 
 // EnterForallBlockSimple is called when production forallBlockSimple is entered.
 func (s *BaseELListener) EnterForallBlockSimple(ctx *ForallBlockSimpleContext) {}

@@ -1,5 +1,26 @@
 # DTRules Changelog
 
+## v1.8.1 — 2026-04-19
+
+- **`for all <array> as <alias>` iteration alias** (#712). Adds an `as
+  <alias>` clause to `for all` that binds each iteration entity to a local
+  entity slot instead of pushing it on the entity stack. The alias is the
+  only way to reach the current iteration entity, which makes nested
+  same-list iterations non-shadowing:
+
+  ```
+  for all taxpayers as parent
+      for all taxpayers as child where child.parent_id == parent.id
+          // body can see both parent.* and child.*
+  ```
+
+  `<alias>.<field>` references resolve through the local slot via `<N>
+  local@ /<field> get` — no `entitypush`/`entitypop` bracketing, no
+  entity-stack shadowing. A `where`-clause variant (`for all X as y where
+  y.active`) evaluates the predicate after the slot is populated, so alias
+  references work inside the guard. Aliases that collide with an existing
+  EDD symbol are rejected at compile time.
+
 ## v1.8.0 — 2026-04-19
 
 Minor release. Introduces the `fixed` numeric type for blockchain / token math,

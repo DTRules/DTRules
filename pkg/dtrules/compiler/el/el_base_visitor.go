@@ -1,6 +1,7 @@
 // Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
-package el // EL
+package el
+
 import "github.com/antlr4-go/antlr/v4"
 
 type BaseELVisitor struct {
@@ -296,6 +297,14 @@ func (v *BaseELVisitor) VisitForallTypeEntities(ctx *ForallTypeEntitiesContext) 
 }
 
 func (v *BaseELVisitor) VisitForallTypeEntitiesWhere(ctx *ForallTypeEntitiesWhereContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitForallAs(ctx *ForallAsContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitForallAsWhere(ctx *ForallAsWhereContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
