@@ -12,7 +12,7 @@
 <contexts />
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize SD tax calculation</action_dsl>
+<action_dsl>add "SOUTH DAKOTA FORM SD-1040 - State Income Tax Calculation" to job.audit_trail; set result.sd_agi = result.agi; set result.sd_bracket_1_tax = 0; set result.sd_bracket_2_tax = 0</action_dsl>
 <action_postfix>
 "SOUTH DAKOTA FORM SD-1040 - State Income Tax Calculation" job.audit_trail swap addto
 result.agi /result.sd_agi xdef
@@ -60,7 +60,7 @@ job.filing_status head_of_household streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate SD tax MFJ; Calculate SD tax with MFJ standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_dsl>add "  Starting Federal AGI: $" + result.sd_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.sd_standard_deduction = sd_standard_deduction_mfj; add "  Standard Deduction (MFJ): $" + result.sd_standard_deduction to job.audit_trail; set result.sd_taxable_income = the maximum of (result.sd_agi - result.sd_standard_deduction) and 0; add "  SD Taxable Income: $" + result.sd_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; if result.sd_taxable_income &gt; sd_bracket_2_threshold_mfj then { set result.sd_bracket_1_tax = sd_bracket_2_threshold_mfj * sd_bracket_1_rate; set result.sd_bracket_2_tax = (result.sd_taxable_income - sd_bracket_2_threshold_mfj) * sd_bracket_2_rate; } else { set result.sd_bracket_1_tax = result.sd_taxable_income * sd_bracket_1_rate; } endif; set result.sd_tax = result.sd_bracket_1_tax + result.sd_bracket_2_tax; add "  Total SD Tax: $" + result.sd_tax + " (South Dakota Form SD-1040)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.sd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 sd_standard_deduction_mfj /result.sd_standard_deduction xdef
@@ -84,7 +84,7 @@ result.sd_bracket_1_tax result.sd_bracket_2_tax f+ /result.sd_tax xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate SD tax Single; Calculate SD tax with Single standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_dsl>add "  Starting Federal AGI: $" + result.sd_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.sd_standard_deduction = sd_standard_deduction_single; add "  Standard Deduction (Single): $" + result.sd_standard_deduction to job.audit_trail; set result.sd_taxable_income = the maximum of (result.sd_agi - result.sd_standard_deduction) and 0; add "  SD Taxable Income: $" + result.sd_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; if result.sd_taxable_income &gt; sd_bracket_2_threshold_single then { set result.sd_bracket_1_tax = sd_bracket_2_threshold_single * sd_bracket_1_rate; set result.sd_bracket_2_tax = (result.sd_taxable_income - sd_bracket_2_threshold_single) * sd_bracket_2_rate; } else { set result.sd_bracket_1_tax = result.sd_taxable_income * sd_bracket_1_rate; } endif; set result.sd_tax = result.sd_bracket_1_tax + result.sd_bracket_2_tax; add "  Total SD Tax: $" + result.sd_tax + " (South Dakota Form SD-1040)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.sd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 sd_standard_deduction_single /result.sd_standard_deduction xdef
@@ -108,7 +108,7 @@ result.sd_bracket_1_tax result.sd_bracket_2_tax f+ /result.sd_tax xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate SD tax HOH; Calculate SD tax with HOH standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_dsl>add "  Starting Federal AGI: $" + result.sd_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.sd_standard_deduction = sd_standard_deduction_single; add "  Standard Deduction (HOH uses Single): $" + result.sd_standard_deduction to job.audit_trail; set result.sd_taxable_income = the maximum of (result.sd_agi - result.sd_standard_deduction) and 0; add "  SD Taxable Income: $" + result.sd_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; if result.sd_taxable_income &gt; sd_bracket_2_threshold_hoh then { set result.sd_bracket_1_tax = sd_bracket_2_threshold_hoh * sd_bracket_1_rate; set result.sd_bracket_2_tax = (result.sd_taxable_income - sd_bracket_2_threshold_hoh) * sd_bracket_2_rate; } else { set result.sd_bracket_1_tax = result.sd_taxable_income * sd_bracket_1_rate; } endif; set result.sd_tax = result.sd_bracket_1_tax + result.sd_bracket_2_tax; add "  Total SD Tax: $" + result.sd_tax + " (South Dakota Form SD-1040)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.sd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 sd_standard_deduction_single /result.sd_standard_deduction xdef
