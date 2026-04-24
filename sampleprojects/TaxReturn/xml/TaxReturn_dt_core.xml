@@ -2511,9 +2511,9 @@ Calculate_Foreign_Tax_Credit
 <action_details>
 <action_number>10</action_number>
 <action_comment>Calculate DC First-Time Homebuyer Credit (Form 8859)</action_comment>
-<action_dsl>Calculate_DC_Homebuyer_Credit</action_dsl>
+<action_dsl>DC_Homebuyer_Credit</action_dsl>
 <action_postfix>
-/Calculate_DC_Homebuyer_Credit executetable
+/DC_Homebuyer_Credit executetable
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -9229,7 +9229,7 @@ true
 <action_number>1</action_number>
 <action_comment>Dispatch to AL tax calculation</action_comment>
 <action_postfix>
-Calculate_AL_Tax execute
+AL_Tax execute
 </action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
@@ -9239,7 +9239,7 @@ Calculate_AL_Tax execute
 <action_number>2</action_number>
 <action_comment>Dispatch to AK tax calculation</action_comment>
 <action_postfix>
-Calculate_AK_Tax execute
+AK_Tax execute
 </action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
@@ -9249,7 +9249,7 @@ Calculate_AK_Tax execute
 <action_number>3</action_number>
 <action_comment>Dispatch to AR tax calculation</action_comment>
 <action_postfix>
-Calculate_AR_Tax execute
+AR_Tax execute
 </action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
@@ -9259,7 +9259,7 @@ Calculate_AR_Tax execute
 <action_number>4</action_number>
 <action_comment>Dispatch to AZ tax calculation</action_comment>
 <action_postfix>
-Calculate_AZ_Tax execute
+AZ_Tax execute
 </action_postfix>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
@@ -9269,7 +9269,7 @@ Calculate_AZ_Tax execute
 <action_number>5</action_number>
 <action_comment>Dispatch to CA tax calculation</action_comment>
 <action_postfix>
-Calculate_CA_Tax execute
+CA_Tax execute
 </action_postfix>
 <action_column column_number="5" column_value="X"></action_column>
 </action_details>
@@ -9279,7 +9279,7 @@ Calculate_CA_Tax execute
 <action_number>6</action_number>
 <action_comment>Dispatch to CO tax calculation</action_comment>
 <action_postfix>
-Calculate_CO_Tax execute
+CO_Tax execute
 </action_postfix>
 <action_column column_number="6" column_value="X"></action_column>
 </action_details>
@@ -9289,7 +9289,7 @@ Calculate_CO_Tax execute
 <action_number>7</action_number>
 <action_comment>Dispatch to CT tax calculation</action_comment>
 <action_postfix>
-Calculate_CT_Tax execute
+CT_Tax execute
 </action_postfix>
 <action_column column_number="7" column_value="X"></action_column>
 </action_details>
@@ -9299,7 +9299,7 @@ Calculate_CT_Tax execute
 <action_number>8</action_number>
 <action_comment>Dispatch to DC tax calculation</action_comment>
 <action_postfix>
-Calculate_DC_Tax execute
+DC_Tax execute
 </action_postfix>
 <action_column column_number="8" column_value="X"></action_column>
 </action_details>
@@ -9309,7 +9309,7 @@ Calculate_DC_Tax execute
 <action_number>9</action_number>
 <action_comment>Dispatch to DE tax calculation</action_comment>
 <action_postfix>
-Calculate_DE_Tax execute
+DE_Tax execute
 </action_postfix>
 <action_column column_number="9" column_value="X"></action_column>
 </action_details>
@@ -9319,7 +9319,7 @@ Calculate_DE_Tax execute
 <action_number>10</action_number>
 <action_comment>Dispatch to FL tax calculation</action_comment>
 <action_postfix>
-Calculate_FL_Tax execute
+FL_Tax execute
 </action_postfix>
 <action_column column_number="10" column_value="X"></action_column>
 </action_details>
@@ -9329,7 +9329,7 @@ Calculate_FL_Tax execute
 <action_number>11</action_number>
 <action_comment>Dispatch to GA tax calculation</action_comment>
 <action_postfix>
-Calculate_GA_Tax execute
+GA_Tax execute
 </action_postfix>
 <action_column column_number="11" column_value="X"></action_column>
 </action_details>
@@ -9339,7 +9339,7 @@ Calculate_GA_Tax execute
 <action_number>12</action_number>
 <action_comment>Dispatch to HI tax calculation</action_comment>
 <action_postfix>
-Calculate_HI_Tax execute
+HI_Tax execute
 </action_postfix>
 <action_column column_number="12" column_value="X"></action_column>
 </action_details>
@@ -9349,7 +9349,7 @@ Calculate_HI_Tax execute
 <action_number>13</action_number>
 <action_comment>Dispatch to IA tax calculation</action_comment>
 <action_postfix>
-Calculate_IA_Tax execute
+IA_Tax execute
 </action_postfix>
 <action_column column_number="13" column_value="X"></action_column>
 </action_details>
@@ -9359,7 +9359,7 @@ Calculate_IA_Tax execute
 <action_number>14</action_number>
 <action_comment>Dispatch to ID tax calculation</action_comment>
 <action_postfix>
-Calculate_ID_Tax execute
+ID_Tax execute
 </action_postfix>
 <action_column column_number="14" column_value="X"></action_column>
 </action_details>
@@ -9369,7 +9369,7 @@ Calculate_ID_Tax execute
 <action_number>15</action_number>
 <action_comment>Dispatch to IL tax calculation</action_comment>
 <action_postfix>
-Calculate_IL_Tax execute
+IL_Tax execute
 </action_postfix>
 <action_column column_number="15" column_value="X"></action_column>
 </action_details>
@@ -9379,7 +9379,7 @@ Calculate_IL_Tax execute
 <action_number>16</action_number>
 <action_comment>Dispatch to IN tax calculation</action_comment>
 <action_postfix>
-Calculate_IN_Tax execute
+IN_Tax execute
 </action_postfix>
 <action_column column_number="16" column_value="X"></action_column>
 </action_details>
@@ -9389,7 +9389,7 @@ Calculate_IN_Tax execute
 <action_number>17</action_number>
 <action_comment>Dispatch to KS tax calculation</action_comment>
 <action_postfix>
-Calculate_KS_Tax execute
+KS_Tax execute
 </action_postfix>
 <action_column column_number="17" column_value="X"></action_column>
 </action_details>
@@ -9399,7 +9399,7 @@ Calculate_KS_Tax execute
 <action_number>18</action_number>
 <action_comment>Dispatch to KY tax calculation</action_comment>
 <action_postfix>
-Calculate_KY_Tax execute
+KY_Tax execute
 </action_postfix>
 <action_column column_number="18" column_value="X"></action_column>
 </action_details>
@@ -9409,7 +9409,7 @@ Calculate_KY_Tax execute
 <action_number>19</action_number>
 <action_comment>Dispatch to LA tax calculation</action_comment>
 <action_postfix>
-Calculate_LA_Tax execute
+LA_Tax execute
 </action_postfix>
 <action_column column_number="19" column_value="X"></action_column>
 </action_details>
@@ -9419,7 +9419,7 @@ Calculate_LA_Tax execute
 <action_number>20</action_number>
 <action_comment>Dispatch to MA tax calculation</action_comment>
 <action_postfix>
-Calculate_MA_Tax execute
+MA_Tax execute
 </action_postfix>
 <action_column column_number="20" column_value="X"></action_column>
 </action_details>
@@ -9429,7 +9429,7 @@ Calculate_MA_Tax execute
 <action_number>21</action_number>
 <action_comment>Dispatch to MD tax calculation</action_comment>
 <action_postfix>
-Calculate_MD_Tax execute
+MD_Tax execute
 </action_postfix>
 <action_column column_number="21" column_value="X"></action_column>
 </action_details>
@@ -9439,7 +9439,7 @@ Calculate_MD_Tax execute
 <action_number>22</action_number>
 <action_comment>Dispatch to ME tax calculation</action_comment>
 <action_postfix>
-Calculate_ME_Tax execute
+ME_Tax execute
 </action_postfix>
 <action_column column_number="22" column_value="X"></action_column>
 </action_details>
@@ -9449,7 +9449,7 @@ Calculate_ME_Tax execute
 <action_number>23</action_number>
 <action_comment>Dispatch to MI tax calculation</action_comment>
 <action_postfix>
-Calculate_MI_Tax execute
+MI_Tax execute
 </action_postfix>
 <action_column column_number="23" column_value="X"></action_column>
 </action_details>
@@ -9459,7 +9459,7 @@ Calculate_MI_Tax execute
 <action_number>24</action_number>
 <action_comment>Dispatch to MN tax calculation</action_comment>
 <action_postfix>
-Calculate_MN_Tax execute
+MN_Tax execute
 </action_postfix>
 <action_column column_number="24" column_value="X"></action_column>
 </action_details>
@@ -9469,7 +9469,7 @@ Calculate_MN_Tax execute
 <action_number>25</action_number>
 <action_comment>Dispatch to MO tax calculation</action_comment>
 <action_postfix>
-Calculate_MO_Tax execute
+MO_Tax execute
 </action_postfix>
 <action_column column_number="25" column_value="X"></action_column>
 </action_details>
@@ -9479,7 +9479,7 @@ Calculate_MO_Tax execute
 <action_number>26</action_number>
 <action_comment>Dispatch to MS tax calculation</action_comment>
 <action_postfix>
-Calculate_MS_Tax execute
+MS_Tax execute
 </action_postfix>
 <action_column column_number="26" column_value="X"></action_column>
 </action_details>
@@ -9489,7 +9489,7 @@ Calculate_MS_Tax execute
 <action_number>27</action_number>
 <action_comment>Dispatch to MT tax calculation</action_comment>
 <action_postfix>
-Calculate_MT_Tax execute
+MT_Tax execute
 </action_postfix>
 <action_column column_number="27" column_value="X"></action_column>
 </action_details>
@@ -9499,7 +9499,7 @@ Calculate_MT_Tax execute
 <action_number>28</action_number>
 <action_comment>Dispatch to NC tax calculation</action_comment>
 <action_postfix>
-Calculate_NC_Tax execute
+NC_Tax execute
 </action_postfix>
 <action_column column_number="28" column_value="X"></action_column>
 </action_details>
@@ -9509,7 +9509,7 @@ Calculate_NC_Tax execute
 <action_number>29</action_number>
 <action_comment>Dispatch to ND tax calculation</action_comment>
 <action_postfix>
-Calculate_ND_Tax execute
+ND_Tax execute
 </action_postfix>
 <action_column column_number="29" column_value="X"></action_column>
 </action_details>
@@ -9519,7 +9519,7 @@ Calculate_ND_Tax execute
 <action_number>30</action_number>
 <action_comment>Dispatch to NE tax calculation</action_comment>
 <action_postfix>
-Calculate_NE_Tax execute
+NE_Tax execute
 </action_postfix>
 <action_column column_number="30" column_value="X"></action_column>
 </action_details>
@@ -9529,7 +9529,7 @@ Calculate_NE_Tax execute
 <action_number>31</action_number>
 <action_comment>Dispatch to NH tax calculation</action_comment>
 <action_postfix>
-Calculate_NH_Tax execute
+NH_Tax execute
 </action_postfix>
 <action_column column_number="31" column_value="X"></action_column>
 </action_details>
@@ -9539,7 +9539,7 @@ Calculate_NH_Tax execute
 <action_number>32</action_number>
 <action_comment>Dispatch to NJ tax calculation</action_comment>
 <action_postfix>
-Calculate_NJ_Tax execute
+NJ_Tax execute
 </action_postfix>
 <action_column column_number="32" column_value="X"></action_column>
 </action_details>
@@ -9549,7 +9549,7 @@ Calculate_NJ_Tax execute
 <action_number>33</action_number>
 <action_comment>Dispatch to NM tax calculation</action_comment>
 <action_postfix>
-Calculate_NM_Tax execute
+NM_Tax execute
 </action_postfix>
 <action_column column_number="33" column_value="X"></action_column>
 </action_details>
@@ -9559,7 +9559,7 @@ Calculate_NM_Tax execute
 <action_number>34</action_number>
 <action_comment>Dispatch to NV tax calculation</action_comment>
 <action_postfix>
-Calculate_NV_Tax execute
+NV_Tax execute
 </action_postfix>
 <action_column column_number="34" column_value="X"></action_column>
 </action_details>
@@ -9569,7 +9569,7 @@ Calculate_NV_Tax execute
 <action_number>35</action_number>
 <action_comment>Dispatch to NY tax calculation</action_comment>
 <action_postfix>
-Calculate_NY_Tax execute
+NY_Tax execute
 </action_postfix>
 <action_column column_number="35" column_value="X"></action_column>
 </action_details>
@@ -9579,7 +9579,7 @@ Calculate_NY_Tax execute
 <action_number>36</action_number>
 <action_comment>Dispatch to OH tax calculation</action_comment>
 <action_postfix>
-Calculate_OH_Tax execute
+OH_Tax execute
 </action_postfix>
 <action_column column_number="36" column_value="X"></action_column>
 </action_details>
@@ -9589,7 +9589,7 @@ Calculate_OH_Tax execute
 <action_number>37</action_number>
 <action_comment>Dispatch to OK tax calculation</action_comment>
 <action_postfix>
-Calculate_OK_Tax execute
+OK_Tax execute
 </action_postfix>
 <action_column column_number="37" column_value="X"></action_column>
 </action_details>
@@ -9599,7 +9599,7 @@ Calculate_OK_Tax execute
 <action_number>38</action_number>
 <action_comment>Dispatch to OR tax calculation</action_comment>
 <action_postfix>
-Calculate_OR_Tax execute
+OR_Tax execute
 </action_postfix>
 <action_column column_number="38" column_value="X"></action_column>
 </action_details>
@@ -9609,7 +9609,7 @@ Calculate_OR_Tax execute
 <action_number>39</action_number>
 <action_comment>Dispatch to PA tax calculation</action_comment>
 <action_postfix>
-Calculate_PA_Tax execute
+PA_Tax execute
 </action_postfix>
 <action_column column_number="39" column_value="X"></action_column>
 </action_details>
@@ -9619,7 +9619,7 @@ Calculate_PA_Tax execute
 <action_number>40</action_number>
 <action_comment>Dispatch to RI tax calculation</action_comment>
 <action_postfix>
-Calculate_RI_Tax execute
+RI_Tax execute
 </action_postfix>
 <action_column column_number="40" column_value="X"></action_column>
 </action_details>
@@ -9629,7 +9629,7 @@ Calculate_RI_Tax execute
 <action_number>41</action_number>
 <action_comment>Dispatch to SC tax calculation</action_comment>
 <action_postfix>
-Calculate_SC_Tax execute
+SC_Tax execute
 </action_postfix>
 <action_column column_number="41" column_value="X"></action_column>
 </action_details>
@@ -9639,7 +9639,7 @@ Calculate_SC_Tax execute
 <action_number>42</action_number>
 <action_comment>Dispatch to SD tax calculation</action_comment>
 <action_postfix>
-Calculate_SD_Tax execute
+SD_Tax execute
 </action_postfix>
 <action_column column_number="42" column_value="X"></action_column>
 </action_details>
@@ -9649,7 +9649,7 @@ Calculate_SD_Tax execute
 <action_number>43</action_number>
 <action_comment>Dispatch to TN tax calculation</action_comment>
 <action_postfix>
-Calculate_TN_Tax execute
+TN_Tax execute
 </action_postfix>
 <action_column column_number="43" column_value="X"></action_column>
 </action_details>
@@ -9659,7 +9659,7 @@ Calculate_TN_Tax execute
 <action_number>44</action_number>
 <action_comment>Dispatch to TX tax calculation</action_comment>
 <action_postfix>
-Calculate_TX_Tax execute
+TX_Tax execute
 </action_postfix>
 <action_column column_number="44" column_value="X"></action_column>
 </action_details>
@@ -9669,7 +9669,7 @@ Calculate_TX_Tax execute
 <action_number>45</action_number>
 <action_comment>Dispatch to UT tax calculation</action_comment>
 <action_postfix>
-Calculate_UT_Tax execute
+UT_Tax execute
 </action_postfix>
 <action_column column_number="45" column_value="X"></action_column>
 </action_details>
@@ -9679,7 +9679,7 @@ Calculate_UT_Tax execute
 <action_number>46</action_number>
 <action_comment>Dispatch to VA tax calculation</action_comment>
 <action_postfix>
-Calculate_VA_Tax execute
+VA_Tax execute
 </action_postfix>
 <action_column column_number="46" column_value="X"></action_column>
 </action_details>
@@ -9689,7 +9689,7 @@ Calculate_VA_Tax execute
 <action_number>47</action_number>
 <action_comment>Dispatch to VT tax calculation</action_comment>
 <action_postfix>
-Calculate_VT_Tax execute
+VT_Tax execute
 </action_postfix>
 <action_column column_number="47" column_value="X"></action_column>
 </action_details>
@@ -9699,7 +9699,7 @@ Calculate_VT_Tax execute
 <action_number>48</action_number>
 <action_comment>Dispatch to WA tax calculation</action_comment>
 <action_postfix>
-Calculate_WA_Tax execute
+WA_Tax execute
 </action_postfix>
 <action_column column_number="48" column_value="X"></action_column>
 </action_details>
@@ -9709,7 +9709,7 @@ Calculate_WA_Tax execute
 <action_number>49</action_number>
 <action_comment>Dispatch to WI tax calculation</action_comment>
 <action_postfix>
-Calculate_WI_Tax execute
+WI_Tax execute
 </action_postfix>
 <action_column column_number="49" column_value="X"></action_column>
 </action_details>
@@ -9719,7 +9719,7 @@ Calculate_WI_Tax execute
 <action_number>50</action_number>
 <action_comment>Dispatch to WV tax calculation</action_comment>
 <action_postfix>
-Calculate_WV_Tax execute
+WV_Tax execute
 </action_postfix>
 <action_column column_number="50" column_value="X"></action_column>
 </action_details>
@@ -9729,7 +9729,7 @@ Calculate_WV_Tax execute
 <action_number>51</action_number>
 <action_comment>Dispatch to WY tax calculation</action_comment>
 <action_postfix>
-Calculate_WY_Tax execute
+WY_Tax execute
 </action_postfix>
 <action_column column_number="51" column_value="X"></action_column>
 </action_details>

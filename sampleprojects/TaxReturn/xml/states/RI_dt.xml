@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 43901: Calculate_RI_Military_Retirement_Exclusion -->
+<!-- TABLE 43901: RI_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_RI_Military_Retirement_Exclusion</table_name>
+<table_name>RI_Military_Retirement_Exclusion</table_name>
 <xls_file>RI.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -29,9 +29,9 @@
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 43900: Calculate_RI_Tax -->
+<!-- TABLE 43900: RI_Tax -->
 <decision_table>
-<table_name>Calculate_RI_Tax</table_name>
+<table_name>RI_Tax</table_name>
 <xls_file>RI.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

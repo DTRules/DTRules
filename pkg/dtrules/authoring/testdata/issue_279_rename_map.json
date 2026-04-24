@@ -1,0 +1,647 @@
+{
+  "description": "Issue #279: state-scoped table renames. Rule: for each table whose name contains a state code as a token, move the state code to the front and keep the rest of the tokens. Tables in TaxReturn_dt.xml are also moved to states/<XX>_dt.xml. Sorted longest-old-name first so call-site replacement is safe from substring overlaps.",
+  "mappings": [
+    {
+      "old": "Calculate_OR_Military_Retirement_Subtraction",
+      "new": "OR_Military_Retirement_Subtraction",
+      "state": "OR",
+      "source": "OR_dt.xml"
+    },
+    {
+      "old": "Calculate_CA_Military_Retirement_Exemption",
+      "new": "CA_Military_Retirement_Exemption",
+      "state": "CA",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_AL_Military_Retirement_Exclusion",
+      "new": "AL_Military_Retirement_Exclusion",
+      "state": "AL",
+      "source": "AL_dt.xml"
+    },
+    {
+      "old": "Calculate_AR_Military_Retirement_Exclusion",
+      "new": "AR_Military_Retirement_Exclusion",
+      "state": "AR",
+      "source": "AR_dt.xml"
+    },
+    {
+      "old": "Calculate_AZ_Military_Retirement_Exclusion",
+      "new": "AZ_Military_Retirement_Exclusion",
+      "state": "AZ",
+      "source": "AZ_dt.xml"
+    },
+    {
+      "old": "Calculate_CO_Military_Retirement_Exemption",
+      "new": "CO_Military_Retirement_Exemption",
+      "state": "CO",
+      "source": "CO_dt.xml"
+    },
+    {
+      "old": "Calculate_CT_Military_Retirement_Exclusion",
+      "new": "CT_Military_Retirement_Exclusion",
+      "state": "CT",
+      "source": "CT_dt.xml"
+    },
+    {
+      "old": "Calculate_DC_Military_Retirement_Exemption",
+      "new": "DC_Military_Retirement_Exemption",
+      "state": "DC",
+      "source": "DC_dt.xml"
+    },
+    {
+      "old": "Calculate_DE_Military_Retirement_Exemption",
+      "new": "DE_Military_Retirement_Exemption",
+      "state": "DE",
+      "source": "DE_dt.xml"
+    },
+    {
+      "old": "Calculate_GA_Military_Retirement_Exemption",
+      "new": "GA_Military_Retirement_Exemption",
+      "state": "GA",
+      "source": "GA_dt.xml"
+    },
+    {
+      "old": "Calculate_HI_Military_Retirement_Exclusion",
+      "new": "HI_Military_Retirement_Exclusion",
+      "state": "HI",
+      "source": "HI_dt.xml"
+    },
+    {
+      "old": "Calculate_IA_Military_Retirement_Exclusion",
+      "new": "IA_Military_Retirement_Exclusion",
+      "state": "IA",
+      "source": "IA_dt.xml"
+    },
+    {
+      "old": "Calculate_ID_Military_Retirement_Exemption",
+      "new": "ID_Military_Retirement_Exemption",
+      "state": "ID",
+      "source": "ID_dt.xml"
+    },
+    {
+      "old": "Calculate_IL_Military_Retirement_Exclusion",
+      "new": "IL_Military_Retirement_Exclusion",
+      "state": "IL",
+      "source": "IL_dt.xml"
+    },
+    {
+      "old": "Calculate_IN_Military_Retirement_Exclusion",
+      "new": "IN_Military_Retirement_Exclusion",
+      "state": "IN",
+      "source": "IN_dt.xml"
+    },
+    {
+      "old": "Calculate_KS_Military_Retirement_Exclusion",
+      "new": "KS_Military_Retirement_Exclusion",
+      "state": "KS",
+      "source": "KS_dt.xml"
+    },
+    {
+      "old": "Calculate_KY_Military_Retirement_Exemption",
+      "new": "KY_Military_Retirement_Exemption",
+      "state": "KY",
+      "source": "KY_dt.xml"
+    },
+    {
+      "old": "Calculate_LA_Military_Retirement_Exclusion",
+      "new": "LA_Military_Retirement_Exclusion",
+      "state": "LA",
+      "source": "LA_dt.xml"
+    },
+    {
+      "old": "Calculate_MA_Military_Retirement_Exclusion",
+      "new": "MA_Military_Retirement_Exclusion",
+      "state": "MA",
+      "source": "MA_dt.xml"
+    },
+    {
+      "old": "Calculate_MD_Military_Retirement_Exclusion",
+      "new": "MD_Military_Retirement_Exclusion",
+      "state": "MD",
+      "source": "MD_dt.xml"
+    },
+    {
+      "old": "Calculate_ME_Military_Retirement_Exclusion",
+      "new": "ME_Military_Retirement_Exclusion",
+      "state": "ME",
+      "source": "ME_dt.xml"
+    },
+    {
+      "old": "Calculate_MI_Military_Retirement_Exclusion",
+      "new": "MI_Military_Retirement_Exclusion",
+      "state": "MI",
+      "source": "MI_dt.xml"
+    },
+    {
+      "old": "Calculate_MN_Military_Retirement_Exclusion",
+      "new": "MN_Military_Retirement_Exclusion",
+      "state": "MN",
+      "source": "MN_dt.xml"
+    },
+    {
+      "old": "Calculate_MO_Military_Retirement_Exclusion",
+      "new": "MO_Military_Retirement_Exclusion",
+      "state": "MO",
+      "source": "MO_dt.xml"
+    },
+    {
+      "old": "Calculate_MS_Military_Retirement_Exclusion",
+      "new": "MS_Military_Retirement_Exclusion",
+      "state": "MS",
+      "source": "MS_dt.xml"
+    },
+    {
+      "old": "Calculate_MT_Military_Retirement_Deduction",
+      "new": "MT_Military_Retirement_Deduction",
+      "state": "MT",
+      "source": "MT_dt.xml"
+    },
+    {
+      "old": "Calculate_NC_Military_Retirement_Exclusion",
+      "new": "NC_Military_Retirement_Exclusion",
+      "state": "NC",
+      "source": "NC_dt.xml"
+    },
+    {
+      "old": "Calculate_ND_Military_Retirement_Exclusion",
+      "new": "ND_Military_Retirement_Exclusion",
+      "state": "ND",
+      "source": "ND_dt.xml"
+    },
+    {
+      "old": "Calculate_NE_Military_Retirement_Exclusion",
+      "new": "NE_Military_Retirement_Exclusion",
+      "state": "NE",
+      "source": "NE_dt.xml"
+    },
+    {
+      "old": "Calculate_NJ_Military_Retirement_Exclusion",
+      "new": "NJ_Military_Retirement_Exclusion",
+      "state": "NJ",
+      "source": "NJ_dt.xml"
+    },
+    {
+      "old": "Calculate_NM_Military_Retirement_Exclusion",
+      "new": "NM_Military_Retirement_Exclusion",
+      "state": "NM",
+      "source": "NM_dt.xml"
+    },
+    {
+      "old": "Calculate_NY_Military_Retirement_Exclusion",
+      "new": "NY_Military_Retirement_Exclusion",
+      "state": "NY",
+      "source": "NY_dt.xml"
+    },
+    {
+      "old": "Calculate_OH_Military_Retirement_Exclusion",
+      "new": "OH_Military_Retirement_Exclusion",
+      "state": "OH",
+      "source": "OH_dt.xml"
+    },
+    {
+      "old": "Calculate_OK_Military_Retirement_Exclusion",
+      "new": "OK_Military_Retirement_Exclusion",
+      "state": "OK",
+      "source": "OK_dt.xml"
+    },
+    {
+      "old": "Calculate_RI_Military_Retirement_Exclusion",
+      "new": "RI_Military_Retirement_Exclusion",
+      "state": "RI",
+      "source": "RI_dt.xml"
+    },
+    {
+      "old": "Calculate_SC_Military_Retirement_Exclusion",
+      "new": "SC_Military_Retirement_Exclusion",
+      "state": "SC",
+      "source": "SC_dt.xml"
+    },
+    {
+      "old": "Calculate_UT_Military_Retirement_Exclusion",
+      "new": "UT_Military_Retirement_Exclusion",
+      "state": "UT",
+      "source": "UT_dt.xml"
+    },
+    {
+      "old": "Calculate_VA_Military_Retirement_Exemption",
+      "new": "VA_Military_Retirement_Exemption",
+      "state": "VA",
+      "source": "VA_dt.xml"
+    },
+    {
+      "old": "Calculate_VT_Military_Retirement_Exemption",
+      "new": "VT_Military_Retirement_Exemption",
+      "state": "VT",
+      "source": "VT_dt.xml"
+    },
+    {
+      "old": "Calculate_WI_Military_Retirement_Exclusion",
+      "new": "WI_Military_Retirement_Exclusion",
+      "state": "WI",
+      "source": "WI_dt.xml"
+    },
+    {
+      "old": "Calculate_WV_Military_Retirement_Exclusion",
+      "new": "WV_Military_Retirement_Exclusion",
+      "state": "WV",
+      "source": "WV_dt.xml"
+    },
+    {
+      "old": "Calculate_CO_Pension_Subtraction",
+      "new": "CO_Pension_Subtraction",
+      "state": "CO",
+      "source": "CO_dt.xml"
+    },
+    {
+      "old": "Calculate_DC_Homebuyer_Credit",
+      "new": "DC_Homebuyer_Credit",
+      "state": "DC",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Apply_NY_Tax_Brackets_Single",
+      "new": "NY_Apply_Tax_Brackets_Single",
+      "state": "NY",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_CA_Renter_Credit",
+      "new": "CA_Renter_Credit",
+      "state": "CA",
+      "source": "CA_dt.xml"
+    },
+    {
+      "old": "Calculate_SC_Tax_Brackets",
+      "new": "SC_Tax_Brackets",
+      "state": "SC",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Apply_NY_Tax_Brackets_MFJ",
+      "new": "NY_Apply_Tax_Brackets_MFJ",
+      "state": "NY",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_AL_Tax_Single",
+      "new": "AL_Tax_Single",
+      "state": "AL",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_AL_Tax_MFJ",
+      "new": "AL_Tax_MFJ",
+      "state": "AL",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_CO_EITC",
+      "new": "CO_EITC",
+      "state": "CO",
+      "source": "CO_dt.xml"
+    },
+    {
+      "old": "Calculate_IL_Tax",
+      "new": "IL_Tax",
+      "state": "IL",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_HI_Tax",
+      "new": "HI_Tax",
+      "state": "HI",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_NH_Tax",
+      "new": "NH_Tax",
+      "state": "NH",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_KS_Tax",
+      "new": "KS_Tax",
+      "state": "KS",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_MT_Tax",
+      "new": "MT_Tax",
+      "state": "MT",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_NV_Tax",
+      "new": "NV_Tax",
+      "state": "NV",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_OH_Tax",
+      "new": "OH_Tax",
+      "state": "OH",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_PA_Tax",
+      "new": "PA_Tax",
+      "state": "PA",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_CA_AGI",
+      "new": "CA_AGI",
+      "state": "CA",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_CA_Tax",
+      "new": "CA_Tax",
+      "state": "CA",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_DE_Tax",
+      "new": "DE_Tax",
+      "state": "DE",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_AL_Tax",
+      "new": "AL_Tax",
+      "state": "AL",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_SD_Tax",
+      "new": "SD_Tax",
+      "state": "SD",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_GA_Tax",
+      "new": "GA_Tax",
+      "state": "GA",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_NE_Tax",
+      "new": "NE_Tax",
+      "state": "NE",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_TN_Tax",
+      "new": "TN_Tax",
+      "state": "TN",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_MS_Tax",
+      "new": "MS_Tax",
+      "state": "MS",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_DC_Tax",
+      "new": "DC_Tax",
+      "state": "DC",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_SC_Tax",
+      "new": "SC_Tax",
+      "state": "SC",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_ID_Tax",
+      "new": "ID_Tax",
+      "state": "ID",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_WI_Tax",
+      "new": "WI_Tax",
+      "state": "WI",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_MI_Tax",
+      "new": "MI_Tax",
+      "state": "MI",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_MO_Tax",
+      "new": "MO_Tax",
+      "state": "MO",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_NY_Tax",
+      "new": "NY_Tax",
+      "state": "NY",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_ME_Tax",
+      "new": "ME_Tax",
+      "state": "ME",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_ND_Tax",
+      "new": "ND_Tax",
+      "state": "ND",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_NJ_Tax",
+      "new": "NJ_Tax",
+      "state": "NJ",
+      "source": "TaxReturn_dt.xml"
+    },
+    {
+      "old": "Calculate_AK_Tax",
+      "new": "AK_Tax",
+      "state": "AK",
+      "source": "AK_dt.xml"
+    },
+    {
+      "old": "Calculate_AR_Tax",
+      "new": "AR_Tax",
+      "state": "AR",
+      "source": "AR_dt.xml"
+    },
+    {
+      "old": "Calculate_AS_Tax",
+      "new": "AS_Tax",
+      "state": "AS",
+      "source": "AS_dt.xml"
+    },
+    {
+      "old": "Calculate_AZ_Tax",
+      "new": "AZ_Tax",
+      "state": "AZ",
+      "source": "AZ_dt.xml"
+    },
+    {
+      "old": "Calculate_CO_Tax",
+      "new": "CO_Tax",
+      "state": "CO",
+      "source": "CO_dt.xml"
+    },
+    {
+      "old": "Calculate_CT_Tax",
+      "new": "CT_Tax",
+      "state": "CT",
+      "source": "CT_dt.xml"
+    },
+    {
+      "old": "Calculate_FL_Tax",
+      "new": "FL_Tax",
+      "state": "FL",
+      "source": "FL_dt.xml"
+    },
+    {
+      "old": "Calculate_GU_Tax",
+      "new": "GU_Tax",
+      "state": "GU",
+      "source": "GU_dt.xml"
+    },
+    {
+      "old": "Calculate_IA_Tax",
+      "new": "IA_Tax",
+      "state": "IA",
+      "source": "IA_dt.xml"
+    },
+    {
+      "old": "Calculate_IN_Tax",
+      "new": "IN_Tax",
+      "state": "IN",
+      "source": "IN_dt.xml"
+    },
+    {
+      "old": "Calculate_KY_Tax",
+      "new": "KY_Tax",
+      "state": "KY",
+      "source": "KY_dt.xml"
+    },
+    {
+      "old": "Calculate_LA_Tax",
+      "new": "LA_Tax",
+      "state": "LA",
+      "source": "LA_dt.xml"
+    },
+    {
+      "old": "Calculate_MA_Tax",
+      "new": "MA_Tax",
+      "state": "MA",
+      "source": "MA_dt.xml"
+    },
+    {
+      "old": "Calculate_MD_Tax",
+      "new": "MD_Tax",
+      "state": "MD",
+      "source": "MD_dt.xml"
+    },
+    {
+      "old": "Calculate_MN_Tax",
+      "new": "MN_Tax",
+      "state": "MN",
+      "source": "MN_dt.xml"
+    },
+    {
+      "old": "Calculate_MP_Tax",
+      "new": "MP_Tax",
+      "state": "MP",
+      "source": "MP_dt.xml"
+    },
+    {
+      "old": "Calculate_NC_Tax",
+      "new": "NC_Tax",
+      "state": "NC",
+      "source": "NC_dt.xml"
+    },
+    {
+      "old": "Calculate_NM_Tax",
+      "new": "NM_Tax",
+      "state": "NM",
+      "source": "NM_dt.xml"
+    },
+    {
+      "old": "Calculate_OK_Tax",
+      "new": "OK_Tax",
+      "state": "OK",
+      "source": "OK_dt.xml"
+    },
+    {
+      "old": "Calculate_OR_Tax",
+      "new": "OR_Tax",
+      "state": "OR",
+      "source": "OR_dt.xml"
+    },
+    {
+      "old": "Calculate_PR_Tax",
+      "new": "PR_Tax",
+      "state": "PR",
+      "source": "PR_dt.xml"
+    },
+    {
+      "old": "Calculate_RI_Tax",
+      "new": "RI_Tax",
+      "state": "RI",
+      "source": "RI_dt.xml"
+    },
+    {
+      "old": "Calculate_TX_Tax",
+      "new": "TX_Tax",
+      "state": "TX",
+      "source": "TX_dt.xml"
+    },
+    {
+      "old": "Calculate_UT_Tax",
+      "new": "UT_Tax",
+      "state": "UT",
+      "source": "UT_dt.xml"
+    },
+    {
+      "old": "Calculate_VA_Tax",
+      "new": "VA_Tax",
+      "state": "VA",
+      "source": "VA_dt.xml"
+    },
+    {
+      "old": "Calculate_VI_Tax",
+      "new": "VI_Tax",
+      "state": "VI",
+      "source": "VI_dt.xml"
+    },
+    {
+      "old": "Calculate_VT_Tax",
+      "new": "VT_Tax",
+      "state": "VT",
+      "source": "VT_dt.xml"
+    },
+    {
+      "old": "Calculate_WA_Tax",
+      "new": "WA_Tax",
+      "state": "WA",
+      "source": "WA_dt.xml"
+    },
+    {
+      "old": "Calculate_WV_Tax",
+      "new": "WV_Tax",
+      "state": "WV",
+      "source": "WV_dt.xml"
+    },
+    {
+      "old": "Calculate_WY_Tax",
+      "new": "WY_Tax",
+      "state": "WY",
+      "source": "WY_dt.xml"
+    }
+  ]
+}

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 42300: Calculate_UT_Tax -->
+<!-- TABLE 42300: UT_Tax -->
 <decision_table>
-<table_name>Calculate_UT_Tax</table_name>
+<table_name>UT_Tax</table_name>
 <xls_file>UT.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -32,9 +32,9 @@ Head of household
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 42301: Calculate_UT_Military_Retirement_Exclusion -->
+<!-- TABLE 42301: UT_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_UT_Military_Retirement_Exclusion</table_name>
+<table_name>UT_Military_Retirement_Exclusion</table_name>
 <xls_file>UT.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

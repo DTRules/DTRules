@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 43100: Calculate_NM_Tax -->
+<!-- TABLE 43100: NM_Tax -->
 <decision_table>
-<table_name>Calculate_NM_Tax</table_name>
+<table_name>NM_Tax</table_name>
 <xls_file>NM.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -32,9 +32,9 @@ Head of household
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 43101: Calculate_NM_Military_Retirement_Exclusion -->
+<!-- TABLE 43101: NM_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_NM_Military_Retirement_Exclusion</table_name>
+<table_name>NM_Military_Retirement_Exclusion</table_name>
 <xls_file>NM.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

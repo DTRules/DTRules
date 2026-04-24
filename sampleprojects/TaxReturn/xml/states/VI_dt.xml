@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 50100: Calculate_VI_Tax -->
+<!-- TABLE 50100: VI_Tax -->
 <decision_table>
-<table_name>Calculate_VI_Tax</table_name>
+<table_name>VI_Tax</table_name>
 <xls_file>VI.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

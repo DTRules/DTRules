@@ -1,4 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
+<decision_table>
+<table_name>PA_Tax</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Pennsylvania state income tax calculation. Implements flat 3.07% tax on 8 classes of income. NO standard deduction, NO exemptions. ALL retirement income excluded. Per 72 P.S. § 7302-7303 (2025).</COMMENTS>
+<TABLE_NUMBER>47000</TABLE_NUMBER>
+</attribute_fields>
+
+<contexts />
+
+<initial_actions>
+<initial_action>
+<action_dsl>Initialize Pennsylvania tax calculation</action_dsl>
+<action_postfix>
+"Pennsylvania Tax Calculation Started" job.audit_trail swap addto
+0.0 /result.pa_taxable_compensation xdef
+0.0 /result.pa_taxable_interest xdef
+0.0 /result.pa_taxable_dividends xdef
+0.0 /result.pa_taxable_net_profits xdef
+0.0 /result.pa_taxable_gains xdef
+0.0 /result.pa_taxable_rents_royalties xdef
+0.0 /result.pa_taxable_estate_trust xdef
+0.0 /result.pa_taxable_gambling xdef
+0.0 /result.pa_total_income xdef
+0.0 /result.pa_tax xdef
+0.0 /result.pa_military_retirement_exclusion xdef
+0.0 /result.pa_social_security_exclusion xdef
+0.0 /result.pa_pension_exclusion xdef
+0.0 /result.pa_ira_exclusion xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always execute</condition_comment>
+<condition_dsl>true</condition_dsl>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate all 8 PA income classes and apply 3.07% flat tax</action_comment>
+<action_postfix>
+
+result.military_retirement_pay 0 gt
+{
+  result.military_retirement_pay /result.pa_military_retirement_exclusion xdef
+  "PA military retirement exclusion: $" result.pa_military_retirement_exclusion cvs strconcat job.audit_trail swap addto
+} if
+result.total_w2_wages result.pa_military_retirement_exclusion sub 0 max /result.pa_taxable_compensation xdef
+"PA Class 1 Compensation: $" result.pa_taxable_compensation cvs strconcat job.audit_trail swap addto
+
+
+result.total_interest_income 0 max /result.pa_taxable_interest xdef
+
+
+result.total_ordinary_dividends 0 max /result.pa_taxable_dividends xdef
+
+
+result.total_schedule_c_income 0 max /result.pa_taxable_net_profits xdef
+
+
+result.net_capital_gain 0 max /result.pa_taxable_gains xdef
+
+
+result.total_rental_income 0 max /result.pa_taxable_rents_royalties xdef
+
+
+0.0 /result.pa_taxable_estate_trust xdef
+
+
+result.gambling_winnings 0 max /result.pa_taxable_gambling xdef
+
+
+result.total_social_security 0 gt
+{
+  result.total_social_security /result.pa_social_security_exclusion xdef
+  "PA Social Security exclusion (100%): $" result.pa_social_security_exclusion cvs strconcat job.audit_trail swap addto
+} if
+
+
+result.pa_taxable_compensation
+result.pa_taxable_interest add
+result.pa_taxable_dividends add
+result.pa_taxable_net_profits add
+result.pa_taxable_gains add
+result.pa_taxable_rents_royalties add
+result.pa_taxable_estate_trust add
+result.pa_taxable_gambling add
+/result.pa_total_income xdef
+
+"PA Total Income (8 classes): $" result.pa_total_income cvs strconcat job.audit_trail swap addto
+
+
+result.pa_total_income result.pa_tax_rate mul /result.pa_tax xdef
+result.pa_tax /result.state_tax_liability xdef
+
+"PA tax calculated (3.07% flat): $" result.pa_tax cvs strconcat " (on $" strconcat result.pa_total_income cvs strconcat " - NO deductions)" strconcat job.audit_trail swap addto
+"Pennsylvania Tax Calculation Completed" job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+
+</decision_table>
 </decision_tables>

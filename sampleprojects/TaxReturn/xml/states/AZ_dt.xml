@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 40301: Calculate_AZ_Military_Retirement_Exclusion -->
+<!-- TABLE 40301: AZ_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_AZ_Military_Retirement_Exclusion</table_name>
+<table_name>AZ_Military_Retirement_Exclusion</table_name>
 <xls_file>AZ.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -21,9 +21,9 @@
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 40300: Calculate_AZ_Tax -->
+<!-- TABLE 40300: AZ_Tax -->
 <decision_table>
-<table_name>Calculate_AZ_Tax</table_name>
+<table_name>AZ_Tax</table_name>
 <xls_file>AZ.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

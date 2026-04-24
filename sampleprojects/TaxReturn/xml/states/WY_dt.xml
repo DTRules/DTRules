@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 45000: Calculate_WY_Tax -->
+<!-- TABLE 45000: WY_Tax -->
 <decision_table>
-<table_name>Calculate_WY_Tax</table_name>
+<table_name>WY_Tax</table_name>
 <xls_file>WY.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

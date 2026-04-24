@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 41301: Calculate_IA_Military_Retirement_Exclusion -->
+<!-- TABLE 41301: IA_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_IA_Military_Retirement_Exclusion</table_name>
+<table_name>IA_Military_Retirement_Exclusion</table_name>
 <xls_file>IA.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -21,9 +21,9 @@
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 41300: Calculate_IA_Tax -->
+<!-- TABLE 41300: IA_Tax -->
 <decision_table>
-<table_name>Calculate_IA_Tax</table_name>
+<table_name>IA_Tax</table_name>
 <xls_file>IA.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

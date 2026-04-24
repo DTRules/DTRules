@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 41790: Calculate_KY_Military_Retirement_Exemption -->
+<!-- TABLE 41790: KY_Military_Retirement_Exemption -->
 <decision_table>
-<table_name>Calculate_KY_Military_Retirement_Exemption</table_name>
+<table_name>KY_Military_Retirement_Exemption</table_name>
 <xls_file>KY.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -29,9 +29,9 @@
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 41800: Calculate_KY_Tax -->
+<!-- TABLE 41800: KY_Tax -->
 <decision_table>
-<table_name>Calculate_KY_Tax</table_name>
+<table_name>KY_Tax</table_name>
 <xls_file>KY.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 43500: Calculate_OH_Military_Retirement_Exclusion -->
+<!-- TABLE 43500: OH_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_OH_Military_Retirement_Exclusion</table_name>
+<table_name>OH_Military_Retirement_Exclusion</table_name>
 <xls_file>OH.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -26,6 +26,126 @@
 </action_details>
 </actions>
 <policy_statements>
+</policy_statements>
+</decision_table>
+
+<decision_table>
+<table_name>OH_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Ohio state income tax per Form IT-1040. Ohio uses progressive tax brackets: 0% on income up to $26,050, 2.75% on income from $26,051 to $100,000, and 3.125% on income above $100,000. Personal exemptions vary by AGI: $2,350 (AGI up to $40,000), $2,100 (AGI $40,001 to $80,000), $1,850 (AGI over $80,000). Exemptions are per person (taxpayer, spouse, dependents) and phase out starting at $750,000 MAGI.</COMMENTS>
+<TABLE_NUMBER>44700</TABLE_NUMBER>
+</attribute_fields>
+<contexts />
+<initial_actions>
+<initial_action>
+<action_dsl>Initialize OH tax calculation</action_dsl>
+<action_postfix>
+"OHIO FORM IT-1040 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.oh_agi xdef
+0 /result.oh_bracket_1_tax xdef
+0 /result.oh_bracket_2_tax xdef
+0 /result.oh_bracket_3_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Calculate number of people for exemptions</condition_comment>
+<condition_dsl>Count taxpayers and dependents</condition_dsl>
+<condition_postfix>
+job.taxpayers arraysize job.dependents arraysize + local@ num_people &gt;
+num_people 1 &gt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate OH tax with exemptions; Calculate Ohio AGI, apply tiered exemptions, calculate progressive tax</action_comment>
+<action_dsl />
+<action_postfix>
+"  Starting Federal AGI: $" result.oh_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+result.oh_agi oh_exemption_phaseout_threshold f&gt;= if
+  0 /result.oh_exemption_amount xdef
+  "  Personal Exemption: $0 (AGI &gt;= $750,000 - phased out)" job.audit_trail swap addto
+else
+  result.oh_agi oh_exemption_threshold_high f&gt; if
+    oh_exemption_high /result.oh_exemption_amount xdef
+  else
+    result.oh_agi oh_exemption_threshold_low f&gt; if
+      oh_exemption_mid /result.oh_exemption_amount xdef
+    else
+      oh_exemption_low /result.oh_exemption_amount xdef
+    endif
+  endif
+  "  Personal Exemption: $" result.oh_exemption_amount cvs strconcat " per person" strconcat job.audit_trail swap addto
+endif
+num_people result.oh_exemption_amount f* /result.oh_exemption_total xdef
+"  Total Exemptions: " num_people cvs strconcat " x $" strconcat result.oh_exemption_amount cvs strconcat " = $" strconcat result.oh_exemption_total cvs strconcat strconcat job.audit_trail swap addto
+result.oh_agi result.oh_exemption_total f- 0 fmax /result.oh_taxable_income xdef
+"  Ohio Taxable Income: $" result.oh_taxable_income cvs strconcat " (AGI - Exemptions)" strconcat job.audit_trail swap addto
+result.oh_taxable_income oh_bracket_2_threshold f&gt; if
+  oh_bracket_1_threshold oh_bracket_1_rate f* /result.oh_bracket_1_tax xdef
+  oh_bracket_2_threshold oh_bracket_1_threshold f- oh_bracket_2_rate f* /result.oh_bracket_2_tax xdef
+  result.oh_taxable_income oh_bracket_2_threshold f- oh_bracket_3_rate f* /result.oh_bracket_3_tax xdef
+  "  Bracket 1 (0% on $0-$26,050): $" result.oh_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (2.75% on $26,051-$100,000): $" result.oh_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 3 (3.125% above $100,000): $" result.oh_bracket_3_tax cvs strconcat job.audit_trail swap addto
+else
+  result.oh_taxable_income oh_bracket_1_threshold f&gt; if
+    oh_bracket_1_threshold oh_bracket_1_rate f* /result.oh_bracket_1_tax xdef
+    result.oh_taxable_income oh_bracket_1_threshold f- oh_bracket_2_rate f* /result.oh_bracket_2_tax xdef
+    "  Bracket 1 (0% on $0-$26,050): $" result.oh_bracket_1_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 2 (2.75% on $26,051-$" result.oh_taxable_income cvs strconcat "): $" strconcat result.oh_bracket_2_tax cvs strconcat strconcat job.audit_trail swap addto
+  else
+    result.oh_taxable_income oh_bracket_1_rate f* /result.oh_bracket_1_tax xdef
+    "  Bracket 1 (0% on $0-$" result.oh_taxable_income cvs strconcat "): $" strconcat result.oh_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
+  endif
+endif
+result.oh_bracket_1_tax result.oh_bracket_2_tax f+ result.oh_bracket_3_tax f+ /result.oh_tax xdef
+"  Total Ohio Tax: $" result.oh_tax cvs strconcat " (Form IT-1040)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No exemptions - unlikely case; Calculate OH tax without exemptions</action_comment>
+<action_dsl />
+<action_postfix>
+"  Ohio AGI: $" result.oh_agi cvs strconcat job.audit_trail swap addto
+result.oh_agi 0 fmax /result.oh_taxable_income xdef
+result.oh_taxable_income oh_bracket_2_threshold f&gt; if
+  oh_bracket_1_threshold oh_bracket_1_rate f* /result.oh_bracket_1_tax xdef
+  oh_bracket_2_threshold oh_bracket_1_threshold f- oh_bracket_2_rate f* /result.oh_bracket_2_tax xdef
+  result.oh_taxable_income oh_bracket_2_threshold f- oh_bracket_3_rate f* /result.oh_bracket_3_tax xdef
+else
+  result.oh_taxable_income oh_bracket_1_threshold f&gt; if
+    oh_bracket_1_threshold oh_bracket_1_rate f* /result.oh_bracket_1_tax xdef
+    result.oh_taxable_income oh_bracket_1_threshold f- oh_bracket_2_rate f* /result.oh_bracket_2_tax xdef
+  else
+    result.oh_taxable_income oh_bracket_1_rate f* /result.oh_bracket_1_tax xdef
+  endif
+endif
+result.oh_bracket_1_tax result.oh_bracket_2_tax f+ result.oh_bracket_3_tax f+ /result.oh_tax xdef
+"  Ohio Tax: $" result.oh_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Ohio progressive tax with tiered exemptions</policy_description>
+<policy_statement_postfix>"Ohio progressive tax with tiered personal exemptions per Form IT-1040"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Ohio tax without exemptions</policy_description>
+<policy_statement_postfix>"Ohio tax calculated without exemptions"</policy_statement_postfix>
+</policy_statement>
 </policy_statements>
 </decision_table>
 </decision_tables>

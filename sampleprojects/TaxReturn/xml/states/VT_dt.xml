@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 44790: Calculate_VT_Military_Retirement_Exemption -->
+<!-- TABLE 44790: VT_Military_Retirement_Exemption -->
 <decision_table>
-<table_name>Calculate_VT_Military_Retirement_Exemption</table_name>
+<table_name>VT_Military_Retirement_Exemption</table_name>
 <xls_file>VT.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -37,9 +37,9 @@ AGI ≥ $175,000; AGI ≥ $175,000 (no exemption)
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 44800: Calculate_VT_Tax -->
+<!-- TABLE 44800: VT_Tax -->
 <decision_table>
-<table_name>Calculate_VT_Tax</table_name>
+<table_name>VT_Tax</table_name>
 <xls_file>VT.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

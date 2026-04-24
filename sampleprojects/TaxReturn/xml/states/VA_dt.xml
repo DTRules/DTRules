@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 44590: Calculate_VA_Military_Retirement_Exemption -->
+<!-- TABLE 44590: VA_Military_Retirement_Exemption -->
 <decision_table>
-<table_name>Calculate_VA_Military_Retirement_Exemption</table_name>
+<table_name>VA_Military_Retirement_Exemption</table_name>
 <xls_file>VA.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -29,9 +29,9 @@
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 44600: Calculate_VA_Tax -->
+<!-- TABLE 44600: VA_Tax -->
 <decision_table>
-<table_name>Calculate_VA_Tax</table_name>
+<table_name>VA_Tax</table_name>
 <xls_file>VA.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
