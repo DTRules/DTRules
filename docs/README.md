@@ -1,27 +1,35 @@
 # DTRules Documentation
 
-This directory contains comprehensive documentation for DTRules. The project has implementations in **Java**, **Go**, and **Assembly**.
+DTRules is a Go-primary rules engine. The authoritative CLI-usage
+walkthrough lives inside the `dtrules` binary itself — run `dtrules
+docs cli` after installing. The Java implementation is archived under
+`legacy/java/` and no longer maintained.
 
 ## Quick Links
 
 | I want to... | Go here |
 |--------------|---------|
-| Get started quickly | [Quick Start (Java)](QUICKSTART.md) or [Quick Start (UI)](../QUICKSTART-UI.md) |
+| Get started with the CLI | `dtrules docs cli` (embedded) — or [`QUICKSTART.md`](QUICKSTART.md) for pointers |
 | Build from source | [Building Guide](BUILDING.md) |
-| Learn the expression language | [EL Reference](EL-REFERENCE.md) |
+| Learn the expression language | `dtrules docs el` or [EL Reference](EL-REFERENCE.md) |
 | Write decision tables in XML | [Decision Table XML Format](decision-table-xml-format.md) |
 | Understand the architecture | [Architecture Guide](ARCHITECTURE.md) |
-| Use the Go implementation | [Go README](../go/README.md) |
 
 ---
 
 ## Getting Started
 
-| Document | Description |
-|----------|-------------|
-| [Quick Start (Java)](QUICKSTART.md) | Step-by-step guide to running your first DTRules project |
-| [Quick Start (UI)](../QUICKSTART-UI.md) | Get the visual UI running in 5 minutes |
-| [Building from Source](BUILDING.md) | Detailed build instructions and IDE setup |
+The in-binary topics are the freshest — prefer them over the .md files
+for day-to-day use:
+
+| Source | Topic |
+|--------|-------|
+| `dtrules docs cli` | CLI install, init, build, validate, verify walkthrough |
+| `dtrules docs workflow` | `dtrules build` pipeline deep-dive |
+| `dtrules docs el` | Expression Language reference |
+| `dtrules docs edd` | Entity Data Dictionary |
+| `dtrules docs operators` | Every runtime operator with examples |
+| [`BUILDING.md`](BUILDING.md) | Build the binary from source (contributors) |
 
 ---
 
