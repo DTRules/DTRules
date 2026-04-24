@@ -1161,8 +1161,8 @@ result.standard_deduction /result.total_deduction xdef
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Married Filing Jointly or Qualifying Surviving Spouse; job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS" [Hard: stored postfix uses non-lazy `... streq ... streq or`; EL `or` emits short-circuit `{ pop e2 } over not if`, so DSL cannot round-trip byte-identical — deferred pending compiler option for non-lazy `or`]</condition_comment>
-<condition_dsl />
+<condition_comment>Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
+<condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
 <condition_postfix>
 job.filing_status MFJ streq job.filing_status QSS streq or
 </condition_postfix>
@@ -1592,8 +1592,8 @@ property_taxes 0 local@ f+ 0 local!
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Deduction is state or local tax; deduction.category is state_income_tax or local_tax [Hard: stored postfix uses bare `category` (implicit entity-context field lookup) plus non-lazy `... streq ... streq or`; EL emits qualified `deduction.category` and short-circuit `or`, so DSL cannot round-trip byte-identical — deferred pending compiler support for implicit-entity tokens and non-lazy `or`]</condition_comment>
-<condition_dsl />
+<condition_comment>Deduction is state or local tax</condition_comment>
+<condition_dsl>deduction.category is equal to "state_income_tax" or deduction.category is equal to "local_tax"</condition_dsl>
 <condition_postfix>
 category "state_income_tax" streq category "local_tax" streq or
 </condition_postfix>
@@ -1739,8 +1739,8 @@ type "primary_residence" streq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Process primary residence; otherwise [Hard: stored postfix is a bare table token `Calculate_Mortgage_Interest_For_Property` (no `performtable` op); EL `perform X` emits `/X performtable`, so DSL cannot round-trip byte-identical — deferred pending compiler support for bare-table invocation]</action_comment>
-<action_dsl />
+<action_comment>Process primary residence</action_comment>
+<action_dsl>perform Calculate_Mortgage_Interest_For_Property</action_dsl>
 <action_postfix>
 Calculate_Mortgage_Interest_For_Property
 </action_postfix>
@@ -1825,8 +1825,8 @@ deduction.allowed_amount result.total_itemized f+ /result.total_itemized xdef
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Deduction is charity category; deduction.category is charity or charitable_cash [Hard: stored postfix uses bare `category` (implicit entity-context field lookup) plus non-lazy `... streq ... streq or`; EL emits qualified `deduction.category` and short-circuit `or`, so DSL cannot round-trip byte-identical — deferred pending compiler support for implicit-entity tokens and non-lazy `or`]</condition_comment>
-<condition_dsl />
+<condition_comment>Deduction is charity category</condition_comment>
+<condition_dsl>deduction.category is equal to "charity" or deduction.category is equal to "charitable_cash"</condition_dsl>
 <condition_postfix>
 category "charity" streq category "charitable_cash" streq or
 </condition_postfix>
@@ -1959,8 +1959,8 @@ is_appreciated_property true eq holding_period "long_term" streq and
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Capital gain property - use FMV with 30% AGI limit; set noncash_contribution.deduction_amount = fair_market_value, set noncash_contribution.agi_limitation = 0.30 [Hard: stored postfix stores `fair_market_value` directly without `cvd` and uses bare `description`/`donee_organization` (implicit entity-context lookups) in a multi-line `cvs strconcat` audit build; EL `set` emits `cvd` and qualifies names, so DSL cannot round-trip byte-identical — deferred pending compiler support for bare entity-context tokens and skip-cvd on typed inputs]</action_comment>
-<action_dsl />
+<action_comment>Capital gain property - use FMV with 30% AGI limit</action_comment>
+<action_dsl>set noncash_contribution.deduction_amount = noncash_contribution.fair_market_value; set noncash_contribution.agi_limitation = 0.30; add noncash_contribution.deduction_amount to result.total_noncash_charitable; add "  Noncash (Section B, 30% limit): $" + noncash_contribution.deduction_amount + " - " + noncash_contribution.description + " to " + noncash_contribution.donee_organization to job.audit_trail</action_dsl>
 <action_postfix>
 fair_market_value /noncash_contribution.deduction_amount xdef
 0.30 /noncash_contribution.agi_limitation xdef
@@ -1971,8 +1971,8 @@ noncash_contribution.deduction_amount result.total_noncash_charitable f+ /result
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Ordinary income property or short-term - use lesser of FMV or basis; set noncash_contribution.deduction_amount = the minimum of fair_market_value and cost_basis [Hard: stored postfix uses bare `fair_market_value`/`cost_basis`/`description`/`donee_organization` (implicit entity-context) plus non-fmin `min` op and omits `cvd` on assignment; EL `the minimum of a and b` emits `fmin` with qualified names and inserts `cvd`, so DSL cannot round-trip byte-identical — deferred pending compiler support]</action_comment>
-<action_dsl />
+<action_comment>Ordinary income property or short-term - use lesser of FMV or basis</action_comment>
+<action_dsl>set noncash_contribution.deduction_amount = the minimum of noncash_contribution.fair_market_value and noncash_contribution.cost_basis; set noncash_contribution.agi_limitation = 0.50; add noncash_contribution.deduction_amount to result.total_noncash_charitable; add "  Noncash (Section B, basis limited): $" + noncash_contribution.deduction_amount + " - " + noncash_contribution.description + " to " + noncash_contribution.donee_organization to job.audit_trail</action_dsl>
 <action_postfix>
 fair_market_value cost_basis min /noncash_contribution.deduction_amount xdef
 0.50 /noncash_contribution.agi_limitation xdef
@@ -1983,8 +1983,8 @@ noncash_contribution.deduction_amount result.total_noncash_charitable f+ /result
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Section A - capital gain property under $5,000, use FMV with 30% limit; set noncash_contribution.deduction_amount = fair_market_value with 30% AGI limit [Hard: same constraints as action 1 — bare implicit-entity tokens plus a `cvs strconcat` audit-line chain, and no `cvd` on assignment; EL cannot round-trip byte-identical — deferred pending compiler support]</action_comment>
-<action_dsl />
+<action_comment>Section A - capital gain property under $5,000, use FMV with 30% limit</action_comment>
+<action_dsl>set noncash_contribution.deduction_amount = noncash_contribution.fair_market_value; set noncash_contribution.agi_limitation = 0.30; add noncash_contribution.deduction_amount to result.total_noncash_charitable; add "  Noncash (Section A, capital gain, 30% limit): $" + noncash_contribution.deduction_amount + " - " + noncash_contribution.description + " to " + noncash_contribution.donee_organization to job.audit_trail</action_dsl>
 <action_postfix>
 fair_market_value /noncash_contribution.deduction_amount xdef
 0.30 /noncash_contribution.agi_limitation xdef
@@ -1995,8 +1995,8 @@ noncash_contribution.deduction_amount result.total_noncash_charitable f+ /result
 </action_details>
 <action_details>
 <action_number>4</action_number>
-<action_comment>Section A - ordinary property under $5,000, use FMV with 50% limit; set noncash_contribution.deduction_amount = fair_market_value with 50% AGI limit [Hard: same constraints as action 1 — bare implicit-entity tokens plus a `cvs strconcat` audit-line chain, and no `cvd` on assignment; EL cannot round-trip byte-identical — deferred pending compiler support]</action_comment>
-<action_dsl />
+<action_comment>Section A - ordinary property under $5,000, use FMV with 50% limit</action_comment>
+<action_dsl>set noncash_contribution.deduction_amount = noncash_contribution.fair_market_value; set noncash_contribution.agi_limitation = 0.50; add noncash_contribution.deduction_amount to result.total_noncash_charitable; add "  Noncash (Section A, ordinary, 50% limit): $" + noncash_contribution.deduction_amount + " - " + noncash_contribution.description + " to " + noncash_contribution.donee_organization to job.audit_trail</action_dsl>
 <action_postfix>
 fair_market_value /noncash_contribution.deduction_amount xdef
 0.50 /noncash_contribution.agi_limitation xdef
