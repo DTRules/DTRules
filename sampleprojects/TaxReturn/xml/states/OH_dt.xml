@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
-<action_dsl>No military retirement pay - no exclusion</action_dsl>
+<action_dsl>/* No military retirement pay - no exclusion. */</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -40,7 +40,7 @@
 <contexts />
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize OH tax calculation</action_dsl>
+<action_dsl>add "OHIO FORM IT-1040 - State Income Tax Calculation" to job.audit_trail; set result.oh_agi = result.agi; set result.oh_bracket_1_tax = 0; set result.oh_bracket_2_tax = 0; set result.oh_bracket_3_tax = 0</action_dsl>
 <action_postfix>
 "OHIO FORM IT-1040 - State Income Tax Calculation" job.audit_trail swap addto
 result.agi /result.oh_agi xdef
@@ -54,7 +54,7 @@ result.agi /result.oh_agi xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Calculate number of people for exemptions</condition_comment>
-<condition_dsl>Count taxpayers and dependents</condition_dsl>
+<condition_dsl>number of job.taxpayers + number of job.dependents &gt;= 1</condition_dsl>
 <condition_postfix>
 job.taxpayers arraysize job.dependents arraysize + local@ num_people &gt;
 num_people 1 &gt;=
@@ -67,7 +67,7 @@ num_people 1 &gt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate OH tax with exemptions; Calculate Ohio AGI, apply tiered exemptions, calculate progressive tax</action_comment>
-<action_dsl />
+<action_dsl>add "  Starting Federal AGI: $" + result.oh_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.oh_exemption_amount = oh_exemption_low; if result.oh_agi &gt; oh_exemption_threshold_low then set result.oh_exemption_amount = oh_exemption_mid; endif; if result.oh_agi &gt; oh_exemption_threshold_high then set result.oh_exemption_amount = oh_exemption_high; endif; if result.oh_agi &gt;= oh_exemption_phaseout_threshold then set result.oh_exemption_amount = 0; endif; set result.oh_exemption_total = (number of job.taxpayers + number of job.dependents) * result.oh_exemption_amount; add "  Personal Exemption: $" + result.oh_exemption_amount + " per person" to job.audit_trail; add "  Total Exemptions: " + (number of job.taxpayers + number of job.dependents) + " x $" + result.oh_exemption_amount + " = $" + result.oh_exemption_total to job.audit_trail; set result.oh_taxable_income = the maximum of (result.oh_agi - result.oh_exemption_total) and 0; add "  Ohio Taxable Income: $" + result.oh_taxable_income + " (AGI - Exemptions)" to job.audit_trail; set result.oh_bracket_1_tax = (the minimum of result.oh_taxable_income and oh_bracket_1_threshold) * oh_bracket_1_rate; set result.oh_bracket_2_tax = (the maximum of ((the minimum of result.oh_taxable_income and oh_bracket_2_threshold) - oh_bracket_1_threshold) and 0.0) * oh_bracket_2_rate; set result.oh_bracket_3_tax = (the maximum of (result.oh_taxable_income - oh_bracket_2_threshold) and 0.0) * oh_bracket_3_rate; set result.oh_tax = result.oh_bracket_1_tax + result.oh_bracket_2_tax + result.oh_bracket_3_tax; add "  Bracket 1 (0% on $0-$26,050): $" + result.oh_bracket_1_tax to job.audit_trail; add "  Bracket 2 (2.75% on $26,051-$100,000): $" + result.oh_bracket_2_tax to job.audit_trail; add "  Bracket 3 (3.125% above $100,000): $" + result.oh_bracket_3_tax to job.audit_trail; add "  Total Ohio Tax: $" + result.oh_tax + " (Form IT-1040)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.oh_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 result.oh_agi oh_exemption_phaseout_threshold f&gt;= if
@@ -115,7 +115,7 @@ result.oh_bracket_1_tax result.oh_bracket_2_tax f+ result.oh_bracket_3_tax f+ /r
 <action_details>
 <action_number>2</action_number>
 <action_comment>No exemptions - unlikely case; Calculate OH tax without exemptions</action_comment>
-<action_dsl />
+<action_dsl>add "  Ohio AGI: $" + result.oh_agi to job.audit_trail; set result.oh_taxable_income = the maximum of result.oh_agi and 0; set result.oh_bracket_1_tax = (the minimum of result.oh_taxable_income and oh_bracket_1_threshold) * oh_bracket_1_rate; set result.oh_bracket_2_tax = (the maximum of ((the minimum of result.oh_taxable_income and oh_bracket_2_threshold) - oh_bracket_1_threshold) and 0.0) * oh_bracket_2_rate; set result.oh_bracket_3_tax = (the maximum of (result.oh_taxable_income - oh_bracket_2_threshold) and 0.0) * oh_bracket_3_rate; set result.oh_tax = result.oh_bracket_1_tax + result.oh_bracket_2_tax + result.oh_bracket_3_tax; add "  Ohio Tax: $" + result.oh_tax to job.audit_trail</action_dsl>
 <action_postfix>
 "  Ohio AGI: $" result.oh_agi cvs strconcat job.audit_trail swap addto
 result.oh_agi 0 fmax /result.oh_taxable_income xdef
