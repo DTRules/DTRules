@@ -24,6 +24,7 @@ import (
 var docTopics = map[string]string{
 	"bigint":          docBigInt,
 	"bytes":           docBytes,
+	"cli":             docCLI,
 	"fixed":           docFixed,
 	"el":              docEL,
 	"xml-format":      docXMLFormat,
@@ -74,6 +75,7 @@ func printDocIndex() {
 	descriptions := map[string]string{
 		"bigint":          "Arbitrary-precision integer support for financial calculations",
 		"bytes":           "Immutable byte sequences with constant-time equality (blockchain / token use cases)",
+		"cli":             "Getting started with the dtrules binary: install, init, build, validate, verify",
 		"fixed":           "256-bit fixed-point type (10^-8 grid) for token/staking/blockchain decimal math",
 		"el":              "Expression Language syntax (REQUIRED for all tables)",
 		"xml-format":      "XML file format specification (EDD and DT)",
@@ -3128,4 +3130,264 @@ See Also
   dtrules docs edd             Entity Data Dictionary reference
   dtrules docs mapping         Mapping file reference
   dtrules docs embedding       Deploy rules in a single Go binary
+`
+
+const docCLI = `DTRules CLI — Getting Started with the Binary
+==============================================
+
+The ` + "`dtrules`" + ` binary is a single self-contained CLI covering the full
+authoring-to-deployment workflow. This topic walks through every
+subcommand in the order a typical user hits them.
+
+
+Install
+-------
+
+Option 1 — go install (requires Go 1.21+):
+
+    go install github.com/DTRules/DTRules/cmd/dtrules@latest
+
+Verify:
+
+    dtrules version
+
+Option 2 — build from source (useful when hacking on the binary):
+
+    git clone https://github.com/DTRules/DTRules.git
+    cd DTRules
+    make build        # binary lands at ./build/dtrules
+    make install      # installs to $GOPATH/bin
+
+
+Top-level command map
+---------------------
+
+    dtrules init       Scaffold a new project directory
+    dtrules build      Normalize + compile rules (Excel <-> XML)
+    dtrules sync       Fine-grained Excel/XML sync (status/check/import/export/auto)
+    dtrules validate   Check project structure + EL compliance
+    dtrules verify     CI gate: assert committed XML matches a fresh build
+    dtrules docs       This documentation
+    dtrules version    Version, commit, build date
+
+Run any command with no arguments to see usage for that command.
+
+
+1. Start a new project — dtrules init
+--------------------------------------
+
+    mkdir MyRules && cd MyRules
+    dtrules init
+
+Creates:
+
+    MyRules/
+    ├── excel/        # your Excel authoring sources (system of record)
+    ├── xml/          # compiled XML artifacts (generated from Excel)
+    └── testfiles/    # scenario JSONs for tests
+
+An empty project is ready. You can now open 'excel/' in Excel and add
+a ` + "`<name>.xlsx`" + ` for your decision tables and a ` + "`<name>_map.xlsx`" + `
+for input mapping, following the conventions in:
+
+    dtrules docs project-layout
+    dtrules docs decision-tables
+    dtrules docs edd
+
+
+2. Author rules — two paths
+----------------------------
+
+DTRules supports two authoring styles:
+
+  (a) Excel-authored (recommended) — analysts edit .xlsx; the build
+      generates .xml.
+  (b) XML-authored — developers edit .xml directly; the build
+      regenerates .xlsx to keep Excel as the system of record.
+
+Either way, write conditions and actions in EL (Expression Language):
+
+    dtrules docs el
+
+Never hand-author postfix or bytecode — those are internal compilation
+targets.
+
+
+3. Compile — dtrules build
+---------------------------
+
+Run this after any edit:
+
+    dtrules build
+
+The build auto-detects which side changed and runs the correct
+pipeline. Every build ends with canonical .xlsx on disk and compiled
+execution .xml on disk — the two stay in sync bit-for-bit.
+
+Useful flags:
+
+    --from-excel      Force Excel → XML (for Excel-authored workflow)
+    --from-xml        Force XML → Excel → XML (for XML-authored workflow)
+    --dry-run         Show what would change without writing files
+    --verbose, -v     Show each intermediate step
+    --quiet, -q       Only show output on drops or errors
+
+After a successful build, dtrules prints a Build Summary like:
+
+    Build Summary
+    =============
+    Import step (Excel → XML):
+      tables=3  actions=12  conditions=8  entities=5  mappings=0
+      compiled=20
+      files-written=4
+      drops: none
+
+    Export step (XML → Excel):
+      tables=3  files-written=2
+      drops: none
+
+Watch the "drops:" line — any non-"none" value means something in your
+Excel didn't survive the round-trip. Fix before committing.
+
+See:
+
+    dtrules docs workflow        # build pipeline deep-dive
+
+
+4. Check structure and EL — dtrules validate
+---------------------------------------------
+
+    dtrules validate
+
+Runs structural checks:
+
+  • project directory layout matches conventions
+  • every decision table's condition_dsl / action_dsl / context_dsl
+    parses as valid EL
+  • referenced entity types and fields exist in the EDD
+
+Flags:
+
+    --xml-dir <path>     Override XML directory
+    --excel-dir <path>   Override Excel directory
+
+Use --xml-dir when the XML lives outside the conventional layout; the
+tool will still require excel/ because Excel is the system of record.
+
+If your project has no excel/ yet (rare — most sampleprojects do),
+generate one first with:
+
+    dtrules build --from-xml <projectRoot>
+
+
+5. Gate CI — dtrules verify
+----------------------------
+
+    dtrules verify [path]
+
+Designed for CI / pre-commit hooks. Asserts that ` + "`dtrules build`" + ` on
+the committed Excel reproduces the committed XML exactly. Fails (exit
+non-zero) on any drift.
+
+Flags:
+
+    --strict   Also fail on warnings (e.g., missing <source> headers)
+    --diff     On failure, print the diff between committed and built
+
+Typical pre-commit hook:
+
+    #!/bin/sh
+    dtrules verify . --strict || exit 1
+
+verify is strictly more pedantic than validate — validate catches EL
+errors, verify catches round-trip drift.
+
+
+6. Fine-grained sync — dtrules sync
+------------------------------------
+
+    dtrules sync <subcommand>
+
+Subcommands:
+
+    status   Show the sync state of every Excel / XML pair
+    check    Exit non-zero if any file has pending user edits
+    import   Excel → XML (same as ` + "`build --from-excel`" + `)
+    export   XML → Excel (fails if Excel has unsaved edits)
+    auto     Pick direction by newer mtime and sync
+
+Most users just run ` + "`dtrules build`" + `; ` + "`dtrules sync`" + ` is for
+scripting edge cases (e.g., staged merges, forensic auditing).
+
+
+7. Version info — dtrules version
+----------------------------------
+
+    dtrules version
+
+Prints version, commit SHA, and build date. CI pipelines can grep for
+a version string to pin tool expectations.
+
+
+Typical workflows
+-----------------
+
+  New analyst, starting fresh:
+
+      dtrules init
+      # open excel/, fill in decision tables
+      dtrules build
+      dtrules validate
+      git commit -am 'initial rules'
+
+  Iterative rule edit:
+
+      # edit excel/<your>.xlsx
+      dtrules build
+      dtrules verify        # sanity check before commit
+      git commit -am 'adjust tax bracket'
+
+  CI integration:
+
+      - run: go install github.com/DTRules/DTRules/cmd/dtrules@v1.8.1
+      - run: dtrules verify --strict .
+      - run: go test ./...
+
+  XML-authored debugging:
+
+      # a developer edited xml/ directly
+      dtrules build --from-xml .
+      dtrules validate
+      # Excel is regenerated — commit both sides
+
+
+Common errors
+-------------
+
+  "excel/ directory not found"
+      Project lacks Excel authoring files. Either run
+      ` + "`dtrules build --from-xml .`" + ` to bootstrap Excel from XML, or
+      pass --excel-dir to point at a non-default location.
+
+  "parse errors: mismatched input ..."
+      An EL expression in a decision table didn't compile.
+      ` + "`dtrules validate`" + ` shows the file and line.
+      See: ` + "`dtrules docs el`" + `.
+
+  "round-trip drift: build summary shows drops"
+      Something in Excel didn't survive compilation. Usually a
+      malformed condition column or a type the loader rejects.
+      Fix the Excel cell, rebuild.
+
+
+Where to go next
+----------------
+
+    dtrules docs workflow        # dtrules build pipeline deep-dive
+    dtrules docs el              # EL grammar
+    dtrules docs edd             # Entity Data Dictionary
+    dtrules docs decision-tables # condition/action table shape
+    dtrules docs operators       # runtime operator reference
+    dtrules docs embedding       # ship a Go binary with rules baked in
+    dtrules docs authoring       # programmatic SDK
 `
