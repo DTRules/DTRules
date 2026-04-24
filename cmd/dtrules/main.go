@@ -79,6 +79,7 @@ var subcommands = map[string]bool{
 	"docs":     true,
 	"table":    true,
 	"edd":      true,
+	"mcp":      true,
 }
 
 func main() {

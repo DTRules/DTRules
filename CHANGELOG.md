@@ -59,6 +59,35 @@
   without parsing prose. The MCP server over this surface ships
   separately as #717.
 
+- **Model Context Protocol server** (#717). Adds `dtrules mcp`, a
+  stdio MCP server exposing the JSON authoring surface from #716 as
+  MCP tools callable by agent clients such as Claude Code. Wire
+  format is newline-delimited JSON-RPC 2.0 on stdin/stdout.
+  Protocol version `2024-11-05`. See
+  [spec.modelcontextprotocol.io](https://spec.modelcontextprotocol.io).
+
+  ```
+  dtrules mcp                         # project defaults to cwd
+  dtrules mcp --project /path/to/prj  # explicit
+  ```
+
+  Tools exposed:
+
+  - Read: `table_list`, `table_get`, `table_schema`, `edd_get`,
+    `edd_schema`, `project_validate`.
+  - Write: `table_put`, `table_patch`, `edd_put`, `edd_patch`.
+
+  Each tool call is stateless: the server reopens the project,
+  applies the op, saves, and discards — so concurrent clients and
+  external edits to XML are safe by construction. EL compilation
+  happens on save, and compile failures surface as MCP tool errors
+  with the structured `{error, hint, detail}` payload from #716.
+
+  Implementation note: the JSON-RPC framing is hand-rolled (~130
+  lines) rather than pulled from an external SDK, since the
+  protocol surface we expose is tiny and adding a dependency for
+  it would have a higher long-term cost than the framing code.
+
 ## v1.8.1 — 2026-04-20
 
 - **`for all <array> as <alias>` iteration alias** (#712). Adds an `as
