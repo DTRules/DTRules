@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 44700: Calculate_WA_Tax -->
+<!-- TABLE 44700: WA_Tax -->
 <decision_table>
-<table_name>Calculate_WA_Tax</table_name>
+<table_name>WA_Tax</table_name>
 <xls_file>WA.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

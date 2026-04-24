@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 40790: Calculate_DE_Military_Retirement_Exemption -->
+<!-- TABLE 40790: DE_Military_Retirement_Exemption -->
 <decision_table>
-<table_name>Calculate_DE_Military_Retirement_Exemption</table_name>
+<table_name>DE_Military_Retirement_Exemption</table_name>
 <xls_file>DE.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -29,4 +29,232 @@
 </policy_statements>
 </decision_table>
 
+<decision_table>
+<table_name>DE_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Delaware state income tax per Form 200-01. Delaware uses progressive tax brackets with 7 rates: 0% on first $2,000, 2.2% on $2,000-$5,000, 3.9% on $5,000-$10,000, 4.8% on $10,000-$20,000, 5.2% on $20,000-$25,000, 5.55% on $25,000-$60,000, 6.6% above $60,000. Starting with federal AGI, applies standard deduction based on filing status ($3,250 Single, $6,500 MFJ), then calculates tax using progressive brackets.</COMMENTS>
+<TABLE_NUMBER>46100</TABLE_NUMBER>
+</attribute_fields>
+<contexts />
+<initial_actions>
+<initial_action>
+<action_dsl>Initialize DE tax calculation</action_dsl>
+<action_postfix>
+"DELAWARE FORM 200-01 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.de_agi xdef
+0 /result.de_bracket_1_tax xdef
+0 /result.de_bracket_2_tax xdef
+0 /result.de_bracket_3_tax xdef
+0 /result.de_bracket_4_tax xdef
+0 /result.de_bracket_5_tax xdef
+0 /result.de_bracket_6_tax xdef
+0 /result.de_bracket_7_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_dsl>job.filing_status is equal to "married_filing_jointly"</condition_dsl>
+<condition_postfix>
+job.filing_status married_filing_jointly streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate DE tax MFJ; Calculate DE tax with MFJ standard deduction and progressive brackets</action_comment>
+<action_dsl />
+<action_postfix>
+"  Starting Federal AGI: $" result.de_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+de_standard_deduction_mfj /result.de_standard_deduction xdef
+"  Standard Deduction (MFJ): $" result.de_standard_deduction cvs strconcat job.audit_trail swap addto
+result.de_agi result.de_standard_deduction f- 0 fmax /result.de_taxable_income xdef
+"  DE Taxable Income: $" result.de_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.de_taxable_income de_bracket_7_threshold f&gt; if
+  de_bracket_2_threshold de_bracket_1_rate f* /result.de_bracket_1_tax xdef
+  de_bracket_3_threshold de_bracket_2_threshold f- de_bracket_2_rate f* /result.de_bracket_2_tax xdef
+  de_bracket_4_threshold de_bracket_3_threshold f- de_bracket_3_rate f* /result.de_bracket_3_tax xdef
+  de_bracket_5_threshold de_bracket_4_threshold f- de_bracket_4_rate f* /result.de_bracket_4_tax xdef
+  de_bracket_6_threshold de_bracket_5_threshold f- de_bracket_5_rate f* /result.de_bracket_5_tax xdef
+  de_bracket_7_threshold de_bracket_6_threshold f- de_bracket_6_rate f* /result.de_bracket_6_tax xdef
+  result.de_taxable_income de_bracket_7_threshold f- de_bracket_7_rate f* /result.de_bracket_7_tax xdef
+  "  Bracket 1 (0% on $0-$2,000): $" result.de_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (2.2% on $2,000-$5,000): $" result.de_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 3 (3.9% on $5,000-$10,000): $" result.de_bracket_3_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 4 (4.8% on $10,000-$20,000): $" result.de_bracket_4_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 5 (5.2% on $20,000-$25,000): $" result.de_bracket_5_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 6 (5.55% on $25,000-$60,000): $" result.de_bracket_6_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 7 (6.6% above $60,000): $" result.de_bracket_7_tax cvs strconcat job.audit_trail swap addto
+else
+  result.de_taxable_income de_bracket_6_threshold f&gt; if
+    de_bracket_2_threshold de_bracket_1_rate f* /result.de_bracket_1_tax xdef
+    de_bracket_3_threshold de_bracket_2_threshold f- de_bracket_2_rate f* /result.de_bracket_2_tax xdef
+    de_bracket_4_threshold de_bracket_3_threshold f- de_bracket_3_rate f* /result.de_bracket_3_tax xdef
+    de_bracket_5_threshold de_bracket_4_threshold f- de_bracket_4_rate f* /result.de_bracket_4_tax xdef
+    de_bracket_6_threshold de_bracket_5_threshold f- de_bracket_5_rate f* /result.de_bracket_5_tax xdef
+    result.de_taxable_income de_bracket_6_threshold f- de_bracket_6_rate f* /result.de_bracket_6_tax xdef
+    "  Bracket 1 (0% on $0-$2,000): $" result.de_bracket_1_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 2 (2.2% on $2,000-$5,000): $" result.de_bracket_2_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 3 (3.9% on $5,000-$10,000): $" result.de_bracket_3_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 4 (4.8% on $10,000-$20,000): $" result.de_bracket_4_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 5 (5.2% on $20,000-$25,000): $" result.de_bracket_5_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 6 (5.55% on $25,000-$" result.de_taxable_income cvs strconcat "): $" strconcat result.de_bracket_6_tax cvs strconcat strconcat job.audit_trail swap addto
+  else
+    result.de_taxable_income de_bracket_5_threshold f&gt; if
+      de_bracket_2_threshold de_bracket_1_rate f* /result.de_bracket_1_tax xdef
+      de_bracket_3_threshold de_bracket_2_threshold f- de_bracket_2_rate f* /result.de_bracket_2_tax xdef
+      de_bracket_4_threshold de_bracket_3_threshold f- de_bracket_3_rate f* /result.de_bracket_3_tax xdef
+      de_bracket_5_threshold de_bracket_4_threshold f- de_bracket_4_rate f* /result.de_bracket_4_tax xdef
+      result.de_taxable_income de_bracket_5_threshold f- de_bracket_5_rate f* /result.de_bracket_5_tax xdef
+      "  Bracket 1 (0% on $0-$2,000): $" result.de_bracket_1_tax cvs strconcat job.audit_trail swap addto
+      "  Bracket 2 (2.2% on $2,000-$5,000): $" result.de_bracket_2_tax cvs strconcat job.audit_trail swap addto
+      "  Bracket 3 (3.9% on $5,000-$10,000): $" result.de_bracket_3_tax cvs strconcat job.audit_trail swap addto
+      "  Bracket 4 (4.8% on $10,000-$20,000): $" result.de_bracket_4_tax cvs strconcat job.audit_trail swap addto
+      "  Bracket 5 (5.2% on $20,000-$" result.de_taxable_income cvs strconcat "): $" strconcat result.de_bracket_5_tax cvs strconcat strconcat job.audit_trail swap addto
+    else
+      result.de_taxable_income de_bracket_4_threshold f&gt; if
+        de_bracket_2_threshold de_bracket_1_rate f* /result.de_bracket_1_tax xdef
+        de_bracket_3_threshold de_bracket_2_threshold f- de_bracket_2_rate f* /result.de_bracket_2_tax xdef
+        de_bracket_4_threshold de_bracket_3_threshold f- de_bracket_3_rate f* /result.de_bracket_3_tax xdef
+        result.de_taxable_income de_bracket_4_threshold f- de_bracket_4_rate f* /result.de_bracket_4_tax xdef
+        "  Bracket 1 (0% on $0-$2,000): $" result.de_bracket_1_tax cvs strconcat job.audit_trail swap addto
+        "  Bracket 2 (2.2% on $2,000-$5,000): $" result.de_bracket_2_tax cvs strconcat job.audit_trail swap addto
+        "  Bracket 3 (3.9% on $5,000-$10,000): $" result.de_bracket_3_tax cvs strconcat job.audit_trail swap addto
+        "  Bracket 4 (4.8% on $10,000-$" result.de_taxable_income cvs strconcat "): $" strconcat result.de_bracket_4_tax cvs strconcat strconcat job.audit_trail swap addto
+      else
+        result.de_taxable_income de_bracket_3_threshold f&gt; if
+          de_bracket_2_threshold de_bracket_1_rate f* /result.de_bracket_1_tax xdef
+          de_bracket_3_threshold de_bracket_2_threshold f- de_bracket_2_rate f* /result.de_bracket_2_tax xdef
+          result.de_taxable_income de_bracket_3_threshold f- de_bracket_3_rate f* /result.de_bracket_3_tax xdef
+          "  Bracket 1 (0% on $0-$2,000): $" result.de_bracket_1_tax cvs strconcat job.audit_trail swap addto
+          "  Bracket 2 (2.2% on $2,000-$5,000): $" result.de_bracket_2_tax cvs strconcat job.audit_trail swap addto
+          "  Bracket 3 (3.9% on $5,000-$" result.de_taxable_income cvs strconcat "): $" strconcat result.de_bracket_3_tax cvs strconcat strconcat job.audit_trail swap addto
+        else
+          result.de_taxable_income de_bracket_2_threshold f&gt; if
+            de_bracket_2_threshold de_bracket_1_rate f* /result.de_bracket_1_tax xdef
+            result.de_taxable_income de_bracket_2_threshold f- de_bracket_2_rate f* /result.de_bracket_2_tax xdef
+            "  Bracket 1 (0% on $0-$2,000): $" result.de_bracket_1_tax cvs strconcat job.audit_trail swap addto
+            "  Bracket 2 (2.2% on $2,000-$" result.de_taxable_income cvs strconcat "): $" strconcat result.de_bracket_2_tax cvs strconcat strconcat job.audit_trail swap addto
+          else
+            result.de_taxable_income de_bracket_1_rate f* /result.de_bracket_1_tax xdef
+            "  Bracket 1 (0% on $0-$" result.de_taxable_income cvs strconcat "): $" strconcat result.de_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
+          endif
+        endif
+      endif
+    endif
+  endif
+endif
+result.de_bracket_1_tax result.de_bracket_2_tax f+ result.de_bracket_3_tax f+ result.de_bracket_4_tax f+ result.de_bracket_5_tax f+ result.de_bracket_6_tax f+ result.de_bracket_7_tax f+ /result.de_tax xdef
+"  Total DE Tax: $" result.de_tax cvs strconcat " (Form 200-01)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate DE tax Single/other; Calculate DE tax with Single standard deduction and progressive brackets</action_comment>
+<action_dsl />
+<action_postfix>
+"  Starting Federal AGI: $" result.de_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+de_standard_deduction_single /result.de_standard_deduction xdef
+"  Standard Deduction (Single): $" result.de_standard_deduction cvs strconcat job.audit_trail swap addto
+result.de_agi result.de_standard_deduction f- 0 fmax /result.de_taxable_income xdef
+"  DE Taxable Income: $" result.de_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
+result.de_taxable_income de_bracket_7_threshold f&gt; if
+  de_bracket_2_threshold de_bracket_1_rate f* /result.de_bracket_1_tax xdef
+  de_bracket_3_threshold de_bracket_2_threshold f- de_bracket_2_rate f* /result.de_bracket_2_tax xdef
+  de_bracket_4_threshold de_bracket_3_threshold f- de_bracket_3_rate f* /result.de_bracket_3_tax xdef
+  de_bracket_5_threshold de_bracket_4_threshold f- de_bracket_4_rate f* /result.de_bracket_4_tax xdef
+  de_bracket_6_threshold de_bracket_5_threshold f- de_bracket_5_rate f* /result.de_bracket_5_tax xdef
+  de_bracket_7_threshold de_bracket_6_threshold f- de_bracket_6_rate f* /result.de_bracket_6_tax xdef
+  result.de_taxable_income de_bracket_7_threshold f- de_bracket_7_rate f* /result.de_bracket_7_tax xdef
+  "  Bracket 1 (0% on $0-$2,000): $" result.de_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (2.2% on $2,000-$5,000): $" result.de_bracket_2_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 3 (3.9% on $5,000-$10,000): $" result.de_bracket_3_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 4 (4.8% on $10,000-$20,000): $" result.de_bracket_4_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 5 (5.2% on $20,000-$25,000): $" result.de_bracket_5_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 6 (5.55% on $25,000-$60,000): $" result.de_bracket_6_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 7 (6.6% above $60,000): $" result.de_bracket_7_tax cvs strconcat job.audit_trail swap addto
+else
+  result.de_taxable_income de_bracket_6_threshold f&gt; if
+    de_bracket_2_threshold de_bracket_1_rate f* /result.de_bracket_1_tax xdef
+    de_bracket_3_threshold de_bracket_2_threshold f- de_bracket_2_rate f* /result.de_bracket_2_tax xdef
+    de_bracket_4_threshold de_bracket_3_threshold f- de_bracket_3_rate f* /result.de_bracket_3_tax xdef
+    de_bracket_5_threshold de_bracket_4_threshold f- de_bracket_4_rate f* /result.de_bracket_4_tax xdef
+    de_bracket_6_threshold de_bracket_5_threshold f- de_bracket_5_rate f* /result.de_bracket_5_tax xdef
+    result.de_taxable_income de_bracket_6_threshold f- de_bracket_6_rate f* /result.de_bracket_6_tax xdef
+    "  Bracket 1 (0% on $0-$2,000): $" result.de_bracket_1_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 2 (2.2% on $2,000-$5,000): $" result.de_bracket_2_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 3 (3.9% on $5,000-$10,000): $" result.de_bracket_3_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 4 (4.8% on $10,000-$20,000): $" result.de_bracket_4_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 5 (5.2% on $20,000-$25,000): $" result.de_bracket_5_tax cvs strconcat job.audit_trail swap addto
+    "  Bracket 6 (5.55% on $25,000-$" result.de_taxable_income cvs strconcat "): $" strconcat result.de_bracket_6_tax cvs strconcat strconcat job.audit_trail swap addto
+  else
+    result.de_taxable_income de_bracket_5_threshold f&gt; if
+      de_bracket_2_threshold de_bracket_1_rate f* /result.de_bracket_1_tax xdef
+      de_bracket_3_threshold de_bracket_2_threshold f- de_bracket_2_rate f* /result.de_bracket_2_tax xdef
+      de_bracket_4_threshold de_bracket_3_threshold f- de_bracket_3_rate f* /result.de_bracket_3_tax xdef
+      de_bracket_5_threshold de_bracket_4_threshold f- de_bracket_4_rate f* /result.de_bracket_4_tax xdef
+      result.de_taxable_income de_bracket_5_threshold f- de_bracket_5_rate f* /result.de_bracket_5_tax xdef
+      "  Bracket 1 (0% on $0-$2,000): $" result.de_bracket_1_tax cvs strconcat job.audit_trail swap addto
+      "  Bracket 2 (2.2% on $2,000-$5,000): $" result.de_bracket_2_tax cvs strconcat job.audit_trail swap addto
+      "  Bracket 3 (3.9% on $5,000-$10,000): $" result.de_bracket_3_tax cvs strconcat job.audit_trail swap addto
+      "  Bracket 4 (4.8% on $10,000-$20,000): $" result.de_bracket_4_tax cvs strconcat job.audit_trail swap addto
+      "  Bracket 5 (5.2% on $20,000-$" result.de_taxable_income cvs strconcat "): $" strconcat result.de_bracket_5_tax cvs strconcat strconcat job.audit_trail swap addto
+    else
+      result.de_taxable_income de_bracket_4_threshold f&gt; if
+        de_bracket_2_threshold de_bracket_1_rate f* /result.de_bracket_1_tax xdef
+        de_bracket_3_threshold de_bracket_2_threshold f- de_bracket_2_rate f* /result.de_bracket_2_tax xdef
+        de_bracket_4_threshold de_bracket_3_threshold f- de_bracket_3_rate f* /result.de_bracket_4_tax xdef
+        result.de_taxable_income de_bracket_4_threshold f- de_bracket_4_rate f* /result.de_bracket_4_tax xdef
+        "  Bracket 1 (0% on $0-$2,000): $" result.de_bracket_1_tax cvs strconcat job.audit_trail swap addto
+        "  Bracket 2 (2.2% on $2,000-$5,000): $" result.de_bracket_2_tax cvs strconcat job.audit_trail swap addto
+        "  Bracket 3 (3.9% on $5,000-$10,000): $" result.de_bracket_3_tax cvs strconcat job.audit_trail swap addto
+        "  Bracket 4 (4.8% on $10,000-$" result.de_taxable_income cvs strconcat "): $" strconcat result.de_bracket_4_tax cvs strconcat strconcat job.audit_trail swap addto
+      else
+        result.de_taxable_income de_bracket_3_threshold f&gt; if
+          de_bracket_2_threshold de_bracket_1_rate f* /result.de_bracket_1_tax xdef
+          de_bracket_3_threshold de_bracket_2_threshold f- de_bracket_2_rate f* /result.de_bracket_2_tax xdef
+          result.de_taxable_income de_bracket_3_threshold f- de_bracket_3_rate f* /result.de_bracket_3_tax xdef
+          "  Bracket 1 (0% on $0-$2,000): $" result.de_bracket_1_tax cvs strconcat job.audit_trail swap addto
+          "  Bracket 2 (2.2% on $2,000-$5,000): $" result.de_bracket_2_tax cvs strconcat job.audit_trail swap addto
+          "  Bracket 3 (3.9% on $5,000-$" result.de_taxable_income cvs strconcat "): $" strconcat result.de_bracket_3_tax cvs strconcat strconcat job.audit_trail swap addto
+        else
+          result.de_taxable_income de_bracket_2_threshold f&gt; if
+            de_bracket_2_threshold de_bracket_1_rate f* /result.de_bracket_1_tax xdef
+            result.de_taxable_income de_bracket_2_threshold f- de_bracket_2_rate f* /result.de_bracket_2_tax xdef
+            "  Bracket 1 (0% on $0-$2,000): $" result.de_bracket_1_tax cvs strconcat job.audit_trail swap addto
+            "  Bracket 2 (2.2% on $2,000-$" result.de_taxable_income cvs strconcat "): $" strconcat result.de_bracket_2_tax cvs strconcat strconcat job.audit_trail swap addto
+          else
+            result.de_taxable_income de_bracket_1_rate f* /result.de_bracket_1_tax xdef
+            "  Bracket 1 (0% on $0-$" result.de_taxable_income cvs strconcat "): $" strconcat result.de_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
+          endif
+        endif
+      endif
+    endif
+  endif
+endif
+result.de_bracket_1_tax result.de_bracket_2_tax f+ result.de_bracket_3_tax f+ result.de_bracket_4_tax f+ result.de_bracket_5_tax f+ result.de_bracket_6_tax f+ result.de_bracket_7_tax f+ /result.de_tax xdef
+"  Total DE Tax: $" result.de_tax cvs strconcat " (Form 200-01)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>DE progressive tax MFJ with standard deduction</policy_description>
+<policy_statement_postfix>"Delaware progressive tax for MFJ per Form 200-01"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>DE progressive tax Single with standard deduction</policy_description>
+<policy_statement_postfix>"Delaware progressive tax for Single per Form 200-01"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
 </decision_tables>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 41601: Calculate_KS_Military_Retirement_Exclusion -->
+<!-- TABLE 41601: KS_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_KS_Military_Retirement_Exclusion</table_name>
+<table_name>KS_Military_Retirement_Exclusion</table_name>
 <xls_file>KS.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -21,4 +21,101 @@
 </policy_statements>
 </decision_table>
 
+<decision_table>
+<table_name>KS_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Kansas state income tax per Form K-40. Kansas uses progressive tax brackets: 5.20% on first bracket, 5.58% above threshold. Senate Bill 1 (2024) consolidated three brackets into two. Starting with federal AGI, applies standard deduction and personal exemptions based on filing status, then calculates tax using progressive brackets.</COMMENTS>
+<TABLE_NUMBER>44400</TABLE_NUMBER>
+</attribute_fields>
+<contexts />
+<initial_actions>
+<initial_action>
+<action_dsl>Initialize KS tax calculation</action_dsl>
+<action_postfix>
+"KANSAS FORM K-40 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.ks_agi xdef
+0 /result.ks_bracket_1_tax xdef
+0 /result.ks_bracket_2_tax xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Married Filing Jointly</condition_comment>
+<condition_dsl>job.filing_status is equal to "married_filing_jointly"</condition_dsl>
+<condition_postfix>
+job.filing_status married_filing_jointly streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate KS tax MFJ; Calculate KS tax with MFJ standard deduction, personal exemptions, and progressive brackets</action_comment>
+<action_dsl />
+<action_postfix>
+"  Starting Federal AGI: $" result.ks_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+ks_standard_deduction_mfj /result.ks_standard_deduction xdef
+"  Standard Deduction (MFJ): $" result.ks_standard_deduction cvs strconcat job.audit_trail swap addto
+ks_personal_exemption_mfj job.dependents length ks_dependent_exemption i* i+ /result.ks_personal_exemption_total xdef
+"  Personal Exemptions ($18,320 + $" ks_dependent_exemption cvs strconcat " * " strconcat job.dependents length cvs strconcat "): $" strconcat result.ks_personal_exemption_total cvs strconcat job.audit_trail swap addto
+result.ks_agi result.ks_standard_deduction f- result.ks_personal_exemption_total i2f f- 0 fmax /result.ks_taxable_income xdef
+"  KS Taxable Income: $" result.ks_taxable_income cvs strconcat " (AGI - Std Deduction - Exemptions)" strconcat job.audit_trail swap addto
+result.ks_taxable_income ks_bracket_2_threshold_mfj f&gt; if
+  ks_bracket_2_threshold_mfj ks_bracket_1_rate f* /result.ks_bracket_1_tax xdef
+  result.ks_taxable_income ks_bracket_2_threshold_mfj f- ks_bracket_2_rate f* /result.ks_bracket_2_tax xdef
+  "  Bracket 1 (5.20% on $0-$46,000): $" result.ks_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (5.58% above $46,000): $" result.ks_bracket_2_tax cvs strconcat job.audit_trail swap addto
+else
+  result.ks_taxable_income ks_bracket_1_rate f* /result.ks_bracket_1_tax xdef
+  "  Bracket 1 (5.20% on $0-$" result.ks_taxable_income cvs strconcat "): $" strconcat result.ks_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
+endif
+result.ks_bracket_1_tax result.ks_bracket_2_tax f+ /result.ks_tax xdef
+"  Total KS Tax: $" result.ks_tax cvs strconcat " (Form K-40)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate KS tax Single/other; Calculate KS tax with Single standard deduction, personal exemptions, and progressive brackets</action_comment>
+<action_dsl />
+<action_postfix>
+"  Starting Federal AGI: $" result.ks_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+ks_standard_deduction_single /result.ks_standard_deduction xdef
+"  Standard Deduction (Single): $" result.ks_standard_deduction cvs strconcat job.audit_trail swap addto
+ks_personal_exemption_single job.dependents length ks_dependent_exemption i* i+ /result.ks_personal_exemption_total xdef
+"  Personal Exemptions ($9,160 + $" ks_dependent_exemption cvs strconcat " * " strconcat job.dependents length cvs strconcat "): $" strconcat result.ks_personal_exemption_total cvs strconcat job.audit_trail swap addto
+result.ks_agi result.ks_standard_deduction f- result.ks_personal_exemption_total i2f f- 0 fmax /result.ks_taxable_income xdef
+"  KS Taxable Income: $" result.ks_taxable_income cvs strconcat " (AGI - Std Deduction - Exemptions)" strconcat job.audit_trail swap addto
+result.ks_taxable_income ks_bracket_2_threshold_single f&gt; if
+  ks_bracket_2_threshold_single ks_bracket_1_rate f* /result.ks_bracket_1_tax xdef
+  result.ks_taxable_income ks_bracket_2_threshold_single f- ks_bracket_2_rate f* /result.ks_bracket_2_tax xdef
+  "  Bracket 1 (5.20% on $0-$23,000): $" result.ks_bracket_1_tax cvs strconcat job.audit_trail swap addto
+  "  Bracket 2 (5.58% above $23,000): $" result.ks_bracket_2_tax cvs strconcat job.audit_trail swap addto
+else
+  result.ks_taxable_income ks_bracket_1_rate f* /result.ks_bracket_1_tax xdef
+  "  Bracket 1 (5.20% on $0-$" result.ks_taxable_income cvs strconcat "): $" strconcat result.ks_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
+endif
+result.ks_bracket_1_tax result.ks_bracket_2_tax f+ /result.ks_tax xdef
+"  Total KS Tax: $" result.ks_tax cvs strconcat " (Form K-40)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>KS progressive tax MFJ with standard deduction and personal exemptions</policy_description>
+<policy_statement_postfix>"Kansas progressive tax for MFJ per Form K-40"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>KS progressive tax Single with standard deduction and personal exemptions</policy_description>
+<policy_statement_postfix>"Kansas progressive tax for Single per Form K-40"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
 </decision_tables>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 40701: Calculate_CT_Military_Retirement_Exclusion -->
+<!-- TABLE 40701: CT_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_CT_Military_Retirement_Exclusion</table_name>
+<table_name>CT_Military_Retirement_Exclusion</table_name>
 <xls_file>CT.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -21,9 +21,9 @@
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 40700: Calculate_CT_Tax -->
+<!-- TABLE 40700: CT_Tax -->
 <decision_table>
-<table_name>Calculate_CT_Tax</table_name>
+<table_name>CT_Tax</table_name>
 <xls_file>CT.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

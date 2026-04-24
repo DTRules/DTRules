@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 43601: Calculate_OK_Military_Retirement_Exclusion -->
+<!-- TABLE 43601: OK_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_OK_Military_Retirement_Exclusion</table_name>
+<table_name>OK_Military_Retirement_Exclusion</table_name>
 <xls_file>OK.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -29,9 +29,9 @@
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 43600: Calculate_OK_Tax -->
+<!-- TABLE 43600: OK_Tax -->
 <decision_table>
-<table_name>Calculate_OK_Tax</table_name>
+<table_name>OK_Tax</table_name>
 <xls_file>OK.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

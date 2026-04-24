@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 42301: Calculate_MN_Military_Retirement_Exclusion -->
+<!-- TABLE 42301: MN_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_MN_Military_Retirement_Exclusion</table_name>
+<table_name>MN_Military_Retirement_Exclusion</table_name>
 <xls_file>MN.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -21,9 +21,9 @@
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 42300: Calculate_MN_Tax -->
+<!-- TABLE 42300: MN_Tax -->
 <decision_table>
-<table_name>Calculate_MN_Tax</table_name>
+<table_name>MN_Tax</table_name>
 <xls_file>MN.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

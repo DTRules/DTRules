@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 5790: Calculate_CO_Military_Retirement_Exemption -->
+<!-- TABLE 5790: CO_Military_Retirement_Exemption -->
 <decision_table>
-<table_name>Calculate_CO_Military_Retirement_Exemption</table_name>
+<table_name>CO_Military_Retirement_Exemption</table_name>
 <xls_file>CO.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -37,9 +37,9 @@ Age 65 or older
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 5791: Calculate_CO_Pension_Subtraction -->
+<!-- TABLE 5791: CO_Pension_Subtraction -->
 <decision_table>
-<table_name>Calculate_CO_Pension_Subtraction</table_name>
+<table_name>CO_Pension_Subtraction</table_name>
 <xls_file>CO.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -65,9 +65,9 @@ Age 65 or older
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 5792: Calculate_CO_Tax -->
+<!-- TABLE 5792: CO_Tax -->
 <decision_table>
-<table_name>Calculate_CO_Tax</table_name>
+<table_name>CO_Tax</table_name>
 <xls_file>CO.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -85,9 +85,9 @@ Age 65 or older
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 40601: Calculate_CO_EITC -->
+<!-- TABLE 40601: CO_EITC -->
 <decision_table>
-<table_name>Calculate_CO_EITC</table_name>
+<table_name>CO_EITC</table_name>
 <xls_file>CO.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 43651: Calculate_OR_Military_Retirement_Subtraction -->
+<!-- TABLE 43651: OR_Military_Retirement_Subtraction -->
 <decision_table>
-<table_name>Calculate_OR_Military_Retirement_Subtraction</table_name>
+<table_name>OR_Military_Retirement_Subtraction</table_name>
 <xls_file>OR.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -66,9 +66,9 @@ has_service_before_1991 == true AND has_service_after_1991 == true
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 43650: Calculate_OR_Tax -->
+<!-- TABLE 43650: OR_Tax -->
 <decision_table>
-<table_name>Calculate_OR_Tax</table_name>
+<table_name>OR_Tax</table_name>
 <xls_file>OR.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

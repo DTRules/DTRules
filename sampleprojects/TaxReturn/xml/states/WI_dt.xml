@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 44901: Calculate_WI_Military_Retirement_Exclusion -->
+<!-- TABLE 44901: WI_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_WI_Military_Retirement_Exclusion</table_name>
+<table_name>WI_Military_Retirement_Exclusion</table_name>
 <xls_file>WI.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -29,4 +29,131 @@
 </policy_statements>
 </decision_table>
 
+<decision_table>
+<table_name>WI_Tax</table_name>
+<xls_file>State.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculates Wisconsin state income tax per Form 1. Wisconsin uses progressive tax brackets with rates from 3.5% to 9.8% (2025). Starting with federal AGI, applies standard deduction, calculates tax using progressive brackets based on filing status. Includes retirement income exclusion for taxpayers age 67+.</COMMENTS>
+<TABLE_NUMBER>44000</TABLE_NUMBER>
+</attribute_fields>
+<contexts />
+<initial_actions>
+<initial_action>
+<action_dsl>Initialize WI tax calculation</action_dsl>
+<action_postfix>
+"WISCONSIN FORM 1 - State Income Tax Calculation" job.audit_trail swap addto
+result.agi /result.wi_agi xdef
+</action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Filing status is MFJ</condition_comment>
+<condition_dsl>job.filing_status is equal to "married_joint"</condition_dsl>
+<condition_postfix>
+job.filing_status married_joint streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate WI tax for Married Filing Jointly; Calculate Wisconsin tax using MFJ brackets and deductions</action_comment>
+<action_dsl />
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+0 local@ wi_retirement_subtraction &gt;
+{ dup type income_type &gt; income_type "pension" streq income_type "ira_distribution" streq or income_type "social_security" streq or if job.taxpayers { dup age wi_retirement_age_threshold f&gt;= if wi_retirement_exclusion_mfj wi_retirement_subtraction f+ local@ wi_retirement_subtraction &gt; endif } forall wi_retirement_subtraction 0 f&gt; if dup gross_amount wi_retirement_subtraction fmin wi_retirement_subtraction f- local@ wi_retirement_subtraction &gt; result.wi_agi dup gross_amount wi_retirement_subtraction f+ fmin f- /result.wi_agi xdef endif endif } job.incomes forall
+wi_retirement_subtraction 0 f&gt; if
+  "  Retirement Income Exclusion (age 67+): -$" wi_retirement_subtraction cvs strconcat job.audit_trail swap addto
+endif
+"  Wisconsin AGI: $" result.wi_agi cvs strconcat " (Form 1 Line 13)" strconcat job.audit_trail swap addto
+result.wi_agi wi_standard_deduction_mfj f- 0 fmax /result.wi_taxable_income xdef
+"  Standard Deduction: -$" wi_standard_deduction_mfj cvs strconcat job.audit_trail swap addto
+"  Wisconsin Taxable Income: $" result.wi_taxable_income cvs strconcat " (Form 1 Line 15)" strconcat job.audit_trail swap addto
+0 local@ wi_tax &gt;
+result.wi_taxable_income local@ taxable_income &gt;
+taxable_income wi_bracket_1_mfj f&lt;= if
+  taxable_income wi_tax_rate_1 f* local@ wi_tax &gt;
+else
+  taxable_income wi_bracket_2_mfj f&lt;= if
+    wi_bracket_1_mfj wi_tax_rate_1 f* taxable_income wi_bracket_1_mfj f- wi_tax_rate_2 f* f+ local@ wi_tax &gt;
+  else
+    taxable_income wi_bracket_3_mfj f&lt;= if
+      wi_bracket_1_mfj wi_tax_rate_1 f* wi_bracket_2_mfj wi_bracket_1_mfj f- wi_tax_rate_2 f* f+ taxable_income wi_bracket_2_mfj f- wi_tax_rate_3 f* f+ local@ wi_tax &gt;
+    else
+      taxable_income wi_bracket_4_mfj f&lt;= if
+        wi_bracket_1_mfj wi_tax_rate_1 f* wi_bracket_2_mfj wi_bracket_1_mfj f- wi_tax_rate_2 f* f+ wi_bracket_3_mfj wi_bracket_2_mfj f- wi_tax_rate_3 f* f+ taxable_income wi_bracket_3_mfj f- wi_tax_rate_4 f* f+ local@ wi_tax &gt;
+      else
+        wi_bracket_1_mfj wi_tax_rate_1 f* wi_bracket_2_mfj wi_bracket_1_mfj f- wi_tax_rate_2 f* f+ wi_bracket_3_mfj wi_bracket_2_mfj f- wi_tax_rate_3 f* f+ wi_bracket_4_mfj wi_bracket_3_mfj f- wi_tax_rate_4 f* f+ taxable_income wi_bracket_4_mfj f- wi_tax_rate_5 f* f+ local@ wi_tax &gt;
+      endif
+    endif
+  endif
+endif
+wi_tax /result.wi_tax xdef
+"  Wisconsin Tax (progressive brackets): $" result.wi_tax cvs strconcat " (Form 1 Line 19)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate WI tax for Single or MFS; Calculate Wisconsin tax using Single/MFS brackets and deductions</action_comment>
+<action_dsl />
+<action_postfix>
+"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
+0 local@ wi_retirement_subtraction &gt;
+job.filing_status single streq local@ is_single &gt;
+{ dup type income_type &gt; income_type "pension" streq income_type "ira_distribution" streq or income_type "social_security" streq or if job.taxpayers { dup age wi_retirement_age_threshold f&gt;= if is_single if wi_retirement_exclusion_single else wi_retirement_exclusion_single 2 f/ endif wi_retirement_subtraction f+ local@ wi_retirement_subtraction &gt; endif } forall wi_retirement_subtraction 0 f&gt; if dup gross_amount wi_retirement_subtraction fmin wi_retirement_subtraction f- local@ wi_retirement_subtraction &gt; result.wi_agi dup gross_amount wi_retirement_subtraction f+ fmin f- /result.wi_agi xdef endif endif } job.incomes forall
+wi_retirement_subtraction 0 f&gt; if
+  "  Retirement Income Exclusion (age 67+): -$" wi_retirement_subtraction cvs strconcat job.audit_trail swap addto
+endif
+"  Wisconsin AGI: $" result.wi_agi cvs strconcat " (Form 1 Line 13)" strconcat job.audit_trail swap addto
+is_single if wi_standard_deduction_single else wi_standard_deduction_single 2 f/ endif local@ wi_std_ded &gt;
+result.wi_agi wi_std_ded f- 0 fmax /result.wi_taxable_income xdef
+"  Standard Deduction: -$" wi_std_ded cvs strconcat job.audit_trail swap addto
+"  Wisconsin Taxable Income: $" result.wi_taxable_income cvs strconcat " (Form 1 Line 15)" strconcat job.audit_trail swap addto
+0 local@ wi_tax &gt;
+result.wi_taxable_income local@ taxable_income &gt;
+is_single if wi_bracket_1_single else wi_bracket_1_mfs endif local@ b1 &gt;
+is_single if wi_bracket_2_single else wi_bracket_2_mfs endif local@ b2 &gt;
+is_single if wi_bracket_3_single else wi_bracket_3_mfs endif local@ b3 &gt;
+is_single if wi_bracket_4_single else wi_bracket_4_mfs endif local@ b4 &gt;
+taxable_income b1 f&lt;= if
+  taxable_income wi_tax_rate_1 f* local@ wi_tax &gt;
+else
+  taxable_income b2 f&lt;= if
+    b1 wi_tax_rate_1 f* taxable_income b1 f- wi_tax_rate_2 f* f+ local@ wi_tax &gt;
+  else
+    taxable_income b3 f&lt;= if
+      b1 wi_tax_rate_1 f* b2 b1 f- wi_tax_rate_2 f* f+ taxable_income b2 f- wi_tax_rate_3 f* f+ local@ wi_tax &gt;
+    else
+      taxable_income b4 f&lt;= if
+        b1 wi_tax_rate_1 f* b2 b1 f- wi_tax_rate_2 f* f+ b3 b2 f- wi_tax_rate_3 f* f+ taxable_income b3 f- wi_tax_rate_4 f* f+ local@ wi_tax &gt;
+      else
+        b1 wi_tax_rate_1 f* b2 b1 f- wi_tax_rate_2 f* f+ b3 b2 f- wi_tax_rate_3 f* f+ b4 b3 f- wi_tax_rate_4 f* f+ taxable_income b4 f- wi_tax_rate_5 f* f+ local@ wi_tax &gt;
+      endif
+    endif
+  endif
+endif
+wi_tax /result.wi_tax xdef
+"  Wisconsin Tax (progressive brackets): $" result.wi_tax cvs strconcat " (Form 1 Line 19)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Wisconsin progressive tax for MFJ</policy_description>
+<policy_statement_postfix>"Wisconsin progressive tax for Married Filing Jointly per Form 1"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Wisconsin progressive tax for Single/MFS</policy_description>
+<policy_statement_postfix>"Wisconsin progressive tax for Single or Married Filing Separately per Form 1"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
 </decision_tables>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 42051: Calculate_MD_Military_Retirement_Exclusion -->
+<!-- TABLE 42051: MD_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_MD_Military_Retirement_Exclusion</table_name>
+<table_name>MD_Military_Retirement_Exclusion</table_name>
 <xls_file>MD.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -46,9 +46,9 @@ age &gt;= 55
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 42050: Calculate_MD_Tax -->
+<!-- TABLE 42050: MD_Tax -->
 <decision_table>
-<table_name>Calculate_MD_Tax</table_name>
+<table_name>MD_Tax</table_name>
 <xls_file>MD.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 50000: Calculate_PR_Tax -->
+<!-- TABLE 50000: PR_Tax -->
 <decision_table>
-<table_name>Calculate_PR_Tax</table_name>
+<table_name>PR_Tax</table_name>
 <xls_file>PR.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 50400: Calculate_MP_Tax -->
+<!-- TABLE 50400: MP_Tax -->
 <decision_table>
-<table_name>Calculate_MP_Tax</table_name>
+<table_name>MP_Tax</table_name>
 <xls_file>MP.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

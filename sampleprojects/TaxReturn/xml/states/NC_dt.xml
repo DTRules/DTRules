@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 43000: Calculate_NC_Tax -->
+<!-- TABLE 43000: NC_Tax -->
 <decision_table>
-<table_name>Calculate_NC_Tax</table_name>
+<table_name>NC_Tax</table_name>
 <xls_file>NC.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -69,9 +69,9 @@ Calculate NC tax: taxable income × 4.25%
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 43050: Calculate_NC_Military_Retirement_Exclusion -->
+<!-- TABLE 43050: NC_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_NC_Military_Retirement_Exclusion</table_name>
+<table_name>NC_Military_Retirement_Exclusion</table_name>
 <xls_file>NC.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

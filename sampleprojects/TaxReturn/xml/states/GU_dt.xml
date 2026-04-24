@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 50200: Calculate_GU_Tax -->
+<!-- TABLE 50200: GU_Tax -->
 <decision_table>
-<table_name>Calculate_GU_Tax</table_name>
+<table_name>GU_Tax</table_name>
 <xls_file>GU.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

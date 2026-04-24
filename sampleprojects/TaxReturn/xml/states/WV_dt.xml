@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 44851: Calculate_WV_Military_Retirement_Exclusion -->
+<!-- TABLE 44851: WV_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_WV_Military_Retirement_Exclusion</table_name>
+<table_name>WV_Military_Retirement_Exclusion</table_name>
 <xls_file>WV.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -29,9 +29,9 @@
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 44850: Calculate_WV_Tax -->
+<!-- TABLE 44850: WV_Tax -->
 <decision_table>
-<table_name>Calculate_WV_Tax</table_name>
+<table_name>WV_Tax</table_name>
 <xls_file>WV.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

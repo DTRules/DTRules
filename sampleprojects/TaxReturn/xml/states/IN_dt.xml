@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 41501: Calculate_IN_Military_Retirement_Exclusion -->
+<!-- TABLE 41501: IN_Military_Retirement_Exclusion -->
 <decision_table>
-<table_name>Calculate_IN_Military_Retirement_Exclusion</table_name>
+<table_name>IN_Military_Retirement_Exclusion</table_name>
 <xls_file>IN.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -21,9 +21,9 @@
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 41500: Calculate_IN_Tax -->
+<!-- TABLE 41500: IN_Tax -->
 <decision_table>
-<table_name>Calculate_IN_Tax</table_name>
+<table_name>IN_Tax</table_name>
 <xls_file>IN.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
