@@ -681,7 +681,7 @@ Calculate_SE_Tax
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>SE net profit meets threshold for SE tax; taxpayer.se_net_profit &gt;= se_threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>taxpayer.se_net_profit &gt;= se_threshold</condition_dsl>
 <condition_postfix>taxpayer.se_net_profit se_threshold &gt;=</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
