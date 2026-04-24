@@ -7,7 +7,7 @@
 <xls_file>AZ.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Arizona military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per ARS § 43-1022 (2025).</COMMENTS>
+<COMMENTS>Arizona military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per ARS § 43-1022 (2025). Skeleton table: needs authorship. Conditions/actions intentionally empty pending follow-up; do not invent exclusion logic without researching ARS § 43-1022. See issue #446.</COMMENTS>
 <TABLE_NUMBER>40301</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -27,7 +27,7 @@
 <xls_file>AZ.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Arizona state income tax calculation. Implements flat 2.5% tax structure with standard deductions per AZ tax code (2025).</COMMENTS>
+<COMMENTS>Arizona state income tax calculation. Implements flat 2.5% tax structure with standard deductions per AZ tax code (2025). Skeleton table: filing-status conditions are populated as real EL but tax-calculation actions are intentionally empty pending authorship — postfix is empty and az_taxable_income plumbing is not yet wired through. Constants live in AZ_edd.xml (az_tax_rate, az_standard_deduction_*). See issue #446.</COMMENTS>
 <TABLE_NUMBER>40300</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -37,7 +37,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly</condition_comment>
-<condition_dsl>Filing status is Married Filing Jointly</condition_dsl>
+<condition_dsl>job.filing_status is equal to "MFJ"</condition_dsl>
 <condition_postfix>
 Filing status is MFJ
 </condition_postfix>
@@ -45,7 +45,7 @@ Filing status is MFJ
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
-<condition_dsl>Filing status is Head of Household</condition_dsl>
+<condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
 <condition_postfix>
 Filing status is HOH
 </condition_postfix>
@@ -55,7 +55,7 @@ Filing status is HOH
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate AZ tax for MFJ</action_comment>
-<action_dsl>Calculate AZ tax for MFJ</action_dsl>
+<action_dsl />
 <action_postfix>
 
 </action_postfix>
@@ -63,7 +63,7 @@ Filing status is HOH
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate AZ tax for Head of Household</action_comment>
-<action_dsl>Calculate AZ tax for Head of Household</action_dsl>
+<action_dsl />
 <action_postfix>
 
 </action_postfix>

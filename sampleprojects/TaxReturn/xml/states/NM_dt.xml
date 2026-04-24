@@ -7,7 +7,7 @@
 <xls_file>NM.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>New Mexico state income tax calculation. Implements progressive tax structure with LICTR per NM tax code (2025). Source: NM TRD.</COMMENTS>
+<COMMENTS>New Mexico state income tax calculation. Implements progressive tax structure with LICTR per NM tax code (2025). Source: NM TRD. Skeleton table: only the HOH filing-status condition is populated as real EL; remaining conditions, all actions, and the 6-bracket calculation plus LICTR rebate are intentionally empty pending authorship. Constants exist in NM_edd.xml. See issue #446.</COMMENTS>
 <TABLE_NUMBER>43100</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -38,7 +38,7 @@ Head of household
 <xls_file>NM.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>New Mexico military retirement exclusion calculation. NM allows up to $30,000 exemption on military retirement pay for 2025-2026. Honors MSRRA and SCRA per federal law. Source: MOAA State Report Card.</COMMENTS>
+<COMMENTS>New Mexico military retirement exclusion calculation. NM allows up to $30,000 exemption on military retirement pay for 2025-2026. Honors MSRRA and SCRA per federal law. Source: MOAA State Report Card. Skeleton table: needs authorship. Conditions/actions intentionally empty pending follow-up; nm_military_retirement_exemption is declared in NM_edd.xml but exclusion logic is not wired up. See issue #446.</COMMENTS>
 <TABLE_NUMBER>43101</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
