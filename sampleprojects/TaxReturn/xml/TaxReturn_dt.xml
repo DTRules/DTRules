@@ -3230,7 +3230,7 @@ result.total_payments result.total_tax &gt;
 <action_details>
 <action_number>2</action_number>
 <action_comment>Log total tax and payments; add tax summary to job.audit_trail</action_comment>
-<action_dsl />
+<action_dsl>add "  Line 24 - Total Tax: $" + result.total_tax to job.audit_trail; add "  Line 33 - Total Payments: $" + result.total_payments to job.audit_trail</action_dsl>
 <action_postfix>
 "  Line 24 - Total Tax: $" result.total_tax cvs strconcat job.audit_trail swap addto
 "  Line 33 - Total Payments: $" result.total_payments cvs strconcat job.audit_trail swap addto
@@ -3851,7 +3851,7 @@ job.expected_agi null neq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Run all validations with guards for each expected value</action_comment>
-<action_dsl />
+<action_dsl>if job.expected_agi is not null then { perform Validate_AGI; } endif if job.expected_taxable_income is not null then { perform Validate_Taxable_Income; } endif if job.expected_total_tax is not null then { perform Validate_Total_Tax; } endif perform Validate_Summary</action_dsl>
 <action_postfix>
 { Validate_AGI } job.expected_agi isnull not if
 { Validate_Taxable_Income } job.expected_taxable_income isnull not if
@@ -3863,7 +3863,7 @@ Validate_Summary
 <action_details>
 <action_number>2</action_number>
 <action_comment>No expected values; add "No expected values provided" to job.audit_trail</action_comment>
-<action_dsl />
+<action_dsl>add "  No expected values provided - validation skipped" to job.audit_trail</action_dsl>
 <action_postfix>
 "  No expected values provided - validation skipped" job.audit_trail swap addto
 </action_postfix>
@@ -3900,7 +3900,7 @@ result.agi job.expected_agi f- fabs 1.0 &lt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>AGI validation passed; add AGI pass message to job.audit_trail</action_comment>
-<action_dsl />
+<action_dsl>add "  PASS: AGI = $" + result.agi to job.audit_trail</action_dsl>
 <action_postfix>
 "  PASS: AGI = $" result.agi cvs strconcat job.audit_trail swap addto
 </action_postfix>
@@ -3909,7 +3909,7 @@ result.agi job.expected_agi f- fabs 1.0 &lt;=
 <action_details>
 <action_number>2</action_number>
 <action_comment>AGI validation failed; add AGI mismatch to job.audit_trail, set result.validation_passed = false</action_comment>
-<action_dsl />
+<action_dsl>add "  FAIL: AGI mismatch - calculated $" + result.agi + " vs expected $" + job.expected_agi to job.audit_trail; set result.validation_passed = false</action_dsl>
 <action_postfix>
 "  FAIL: AGI mismatch - calculated $" result.agi cvs strconcat " vs expected $" strconcat job.expected_agi cvs strconcat job.audit_trail swap addto
 false /result.validation_passed xdef
@@ -3947,7 +3947,7 @@ result.taxable_income job.expected_taxable_income f- fabs 1.0 &lt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>Taxable income validation passed; add taxable income pass message to job.audit_trail</action_comment>
-<action_dsl />
+<action_dsl>add "  PASS: Taxable Income = $" + result.taxable_income to job.audit_trail</action_dsl>
 <action_postfix>
 "  PASS: Taxable Income = $" result.taxable_income cvs strconcat job.audit_trail swap addto
 </action_postfix>
@@ -3956,7 +3956,7 @@ result.taxable_income job.expected_taxable_income f- fabs 1.0 &lt;=
 <action_details>
 <action_number>2</action_number>
 <action_comment>Taxable income validation failed; add taxable income mismatch to job.audit_trail, set result.validation_passed = false</action_comment>
-<action_dsl />
+<action_dsl>add "  FAIL: Taxable income mismatch - calculated $" + result.taxable_income + " vs expected $" + job.expected_taxable_income to job.audit_trail; set result.validation_passed = false</action_dsl>
 <action_postfix>
 "  FAIL: Taxable income mismatch - calculated $" result.taxable_income cvs strconcat " vs expected $" strconcat job.expected_taxable_income cvs strconcat job.audit_trail swap addto
 false /result.validation_passed xdef
@@ -3994,7 +3994,7 @@ result.total_tax job.expected_total_tax f- fabs 1.0 &lt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>Total tax validation passed; add total tax pass message to job.audit_trail</action_comment>
-<action_dsl />
+<action_dsl>add "  PASS: Total Tax = $" + result.total_tax to job.audit_trail</action_dsl>
 <action_postfix>
 "  PASS: Total Tax = $" result.total_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
@@ -4003,7 +4003,7 @@ result.total_tax job.expected_total_tax f- fabs 1.0 &lt;=
 <action_details>
 <action_number>2</action_number>
 <action_comment>Total tax validation failed; add total tax mismatch to job.audit_trail, set result.validation_passed = false</action_comment>
-<action_dsl />
+<action_dsl>add "  FAIL: Total tax mismatch - calculated $" + result.total_tax + " vs expected $" + job.expected_total_tax to job.audit_trail; set result.validation_passed = false</action_dsl>
 <action_postfix>
 "  FAIL: Total tax mismatch - calculated $" result.total_tax cvs strconcat " vs expected $" strconcat job.expected_total_tax cvs strconcat job.audit_trail swap addto
 false /result.validation_passed xdef
