@@ -2843,7 +2843,7 @@ Process_Clean_Vehicle_Credit
 <action_details>
 <action_number>18</action_number>
 <action_comment>Sum total credits; set result.total_credits = sum of all nonrefundable credit amounts (education credit less AOTC refundable portion)</action_comment>
-<action_dsl />
+<action_dsl>set result.total_credits = result.total_ctc + result.total_odc + result.education_credit - result.total_aotc_refundable + result.cdcc_credit + result.savers_credit + result.energy_efficiency_credit + result.clean_energy_credit + result.premium_tax_credit + result.foreign_tax_credit + result.dc_homebuyer_credit + result.mortgage_interest_credit + result.energy_appliance_credit + result.general_business_credit_used + result.prior_year_amt_credit + result.total_adoption_credit + result.elderly_disabled_credit + result.total_clean_vehicle_credit; add "  Total Credits: $" + result.total_credits to job.audit_trail</action_dsl>
 <action_postfix>
 result.total_ctc result.total_odc f+ result.education_credit f+ result.total_aotc_refundable f-
 result.cdcc_credit f+ result.savers_credit f+ result.energy_efficiency_credit f+ result.clean_energy_credit f+
@@ -2895,7 +2895,7 @@ result.total_clean_vehicle_credit f+ /result.total_credits xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly or Qualifying Surviving Spouse; job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_comment>
-<condition_dsl />
+<condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
 <condition_postfix>
 job.filing_status MFJ streq job.filing_status QSS streq or
 </condition_postfix>
@@ -2953,7 +2953,7 @@ result.ctc_before_phaseout 0 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Set MFJ threshold and calculate values; set result.ctc_threshold = constants.ctc_phase_out_mfj</action_comment>
-<action_dsl />
+<action_dsl>set result.ctc_threshold = constants.ctc_phase_out_mfj; set result.agi_over_threshold = result.agi - result.ctc_threshold</action_dsl>
 <action_postfix>
 constants.ctc_phase_out_mfj /result.ctc_threshold xdef
 result.agi result.ctc_threshold f- /result.agi_over_threshold xdef
@@ -2965,7 +2965,7 @@ result.agi result.ctc_threshold f- /result.agi_over_threshold xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Set Single threshold and calculate values; set result.ctc_threshold = constants.ctc_phase_out_single</action_comment>
-<action_dsl />
+<action_dsl>set result.ctc_threshold = constants.ctc_phase_out_single; set result.agi_over_threshold = result.agi - result.ctc_threshold</action_dsl>
 <action_postfix>
 constants.ctc_phase_out_single /result.ctc_threshold xdef
 result.agi result.ctc_threshold f- /result.agi_over_threshold xdef
@@ -2977,7 +2977,7 @@ result.agi result.ctc_threshold f- /result.agi_over_threshold xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate phase-out reduction for MFJ with credits over threshold; set result.ctc_phase_out_reduction = ($50 per $1000 over threshold), reduce credits proportionally</action_comment>
-<action_dsl />
+<action_dsl>set result.ctc_phase_out_reduction = the minimum of (the ceiling of (result.agi_over_threshold / 1000.0)) * constants.ctc_phase_out_rate and result.ctc_before_phaseout; set result.ctc_after_phaseout = the maximum of (result.ctc_before_phaseout - result.ctc_phase_out_reduction) and 0.0; set result.total_ctc = the floor of (result.ctc_after_phaseout / result.ctc_before_phaseout * result.total_ctc); set result.total_odc = the floor of (result.ctc_after_phaseout / result.ctc_before_phaseout * result.total_odc); add "  CTC Phase-out (IRC 24(b)) MFJ: AGI $" + result.agi + " exceeds threshold $" + result.ctc_threshold to job.audit_trail</action_dsl>
 <action_postfix>
 result.agi_over_threshold 1000.0 fdiv ceiling constants.ctc_phase_out_rate f* result.ctc_before_phaseout fmin /result.ctc_phase_out_reduction xdef
 result.ctc_before_phaseout result.ctc_phase_out_reduction f- 0.0 fmax /result.ctc_after_phaseout xdef
@@ -2992,7 +2992,7 @@ result.ctc_after_phaseout result.ctc_before_phaseout fdiv result.total_odc f* fl
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate phase-out reduction for Single with credits over threshold; set result.ctc_phase_out_reduction = ($50 per $1000 over threshold), reduce credits proportionally</action_comment>
-<action_dsl />
+<action_dsl>set result.ctc_phase_out_reduction = the minimum of (the ceiling of (result.agi_over_threshold / 1000.0)) * constants.ctc_phase_out_rate and result.ctc_before_phaseout; set result.ctc_after_phaseout = the maximum of (result.ctc_before_phaseout - result.ctc_phase_out_reduction) and 0.0; set result.total_ctc = the floor of (result.ctc_after_phaseout / result.ctc_before_phaseout * result.total_ctc); set result.total_odc = the floor of (result.ctc_after_phaseout / result.ctc_before_phaseout * result.total_odc); add "  CTC Phase-out (IRC 24(b)) Single: AGI $" + result.agi + " exceeds threshold $" + result.ctc_threshold to job.audit_trail</action_dsl>
 <action_postfix>
 result.agi_over_threshold 1000.0 fdiv ceiling constants.ctc_phase_out_rate f* result.ctc_before_phaseout fmin /result.ctc_phase_out_reduction xdef
 result.ctc_before_phaseout result.ctc_phase_out_reduction f- 0.0 fmax /result.ctc_after_phaseout xdef
@@ -3007,7 +3007,7 @@ result.ctc_after_phaseout result.ctc_before_phaseout fdiv result.total_odc f* fl
 <action_details>
 <action_number>5</action_number>
 <action_comment>AGI over threshold but no credits to reduce; set result.ctc_phase_out_reduction = 0, set result.ctc_after_phaseout = 0</action_comment>
-<action_dsl />
+<action_dsl>set result.ctc_phase_out_reduction = 0; set result.ctc_after_phaseout = 0</action_dsl>
 <action_postfix>
 result.agi_over_threshold 1000.0 fdiv ceiling constants.ctc_phase_out_rate f* 0.0 fmin /result.ctc_phase_out_reduction xdef
 0.0 /result.ctc_after_phaseout xdef
@@ -3331,7 +3331,7 @@ result.total_w2_wages result.total_se_income f+ 0 &gt;
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>3+ qualifying children; EITC qualifying children 3 or more</condition_comment>
-<condition_dsl />
+<condition_dsl>result.eitc_qualifying_children &gt;= 3</condition_dsl>
 <condition_postfix>
 result.eitc_qualifying_children 3 &gt;=
 </condition_postfix>
@@ -3348,7 +3348,7 @@ result.eitc_qualifying_children 3 &gt;=
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>2 qualifying children; result.eitc_qualifying_children == 2</condition_comment>
-<condition_dsl />
+<condition_dsl>result.eitc_qualifying_children == 2</condition_dsl>
 <condition_postfix>
 result.eitc_qualifying_children 2 ==
 </condition_postfix>
@@ -3365,7 +3365,7 @@ result.eitc_qualifying_children 2 ==
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>1 qualifying child; result.eitc_qualifying_children == 1</condition_comment>
-<condition_dsl />
+<condition_dsl>result.eitc_qualifying_children == 1</condition_dsl>
 <condition_postfix>
 result.eitc_qualifying_children 1 ==
 </condition_postfix>
@@ -3382,7 +3382,7 @@ result.eitc_qualifying_children 1 ==
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>0 qualifying children; result.eitc_qualifying_children == 0</condition_comment>
-<condition_dsl />
+<condition_dsl>result.eitc_qualifying_children == 0</condition_dsl>
 <condition_postfix>
 result.eitc_qualifying_children 0 ==
 </condition_postfix>
@@ -3399,7 +3399,7 @@ result.eitc_qualifying_children 0 ==
 <condition_details>
 <condition_number>6</condition_number>
 <condition_comment>AGI below phase-out threshold (3+ children); AGI at or below threshold for 3+ children</condition_comment>
-<condition_dsl />
+<condition_dsl>result.agi &lt;= eitc_threshold_mfj_3</condition_dsl>
 <condition_postfix>
 result.agi eitc_threshold_mfj_3 &lt;=
 </condition_postfix>
@@ -3416,7 +3416,7 @@ result.agi eitc_threshold_mfj_3 &lt;=
 <condition_details>
 <condition_number>7</condition_number>
 <condition_comment>AGI below phase-out threshold (2 children); AGI at or below threshold for 2 children</condition_comment>
-<condition_dsl />
+<condition_dsl>result.agi &lt;= eitc_threshold_mfj_2</condition_dsl>
 <condition_postfix>
 result.agi eitc_threshold_mfj_2 &lt;=
 </condition_postfix>
@@ -3433,7 +3433,7 @@ result.agi eitc_threshold_mfj_2 &lt;=
 <condition_details>
 <condition_number>8</condition_number>
 <condition_comment>AGI below phase-out threshold (1 child); AGI at or below threshold for 1 child</condition_comment>
-<condition_dsl />
+<condition_dsl>result.agi &lt;= eitc_threshold_mfj_1</condition_dsl>
 <condition_postfix>
 result.agi eitc_threshold_mfj_1 &lt;=
 </condition_postfix>
@@ -3450,7 +3450,7 @@ result.agi eitc_threshold_mfj_1 &lt;=
 <condition_details>
 <condition_number>9</condition_number>
 <condition_comment>AGI below phase-out threshold (0 children); AGI at or below threshold for 0 children</condition_comment>
-<condition_dsl />
+<condition_dsl>result.agi &lt;= eitc_threshold_mfj_0</condition_dsl>
 <condition_postfix>
 result.agi eitc_threshold_mfj_0 &lt;=
 </condition_postfix>
@@ -3479,7 +3479,7 @@ eitc_max_3_children /result.eitc xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>EITC 3+ children - phase-out; EITC for 3+ children with phase-out per IRC 32</action_comment>
-<action_dsl />
+<action_dsl>set result.eitc = the maximum of (eitc_max_3_children - (result.agi - eitc_threshold_mfj_3) * 0.2106) and 0; add "  EITC (3+ children): $" + result.eitc + " (phase-out applied) per Schedule EIC, IRC 32" to job.audit_trail</action_dsl>
 <action_postfix>
 eitc_max_3_children result.agi eitc_threshold_mfj_3 f- 0.2106 f* f- 0 fmax /result.eitc xdef
 "  EITC (3+ children): $" result.eitc cvs strconcat " (phase-out applied) per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
@@ -3499,7 +3499,7 @@ eitc_max_2_children /result.eitc xdef
 <action_details>
 <action_number>4</action_number>
 <action_comment>EITC 2 children - phase-out; EITC for 2 children with phase-out per IRC 32</action_comment>
-<action_dsl />
+<action_dsl>set result.eitc = the maximum of (eitc_max_2_children - (result.agi - eitc_threshold_mfj_2) * 0.2106) and 0; add "  EITC (2 children): $" + result.eitc + " (phase-out applied) per Schedule EIC, IRC 32" to job.audit_trail</action_dsl>
 <action_postfix>
 eitc_max_2_children result.agi eitc_threshold_mfj_2 f- 0.2106 f* f- 0 fmax /result.eitc xdef
 "  EITC (2 children): $" result.eitc cvs strconcat " (phase-out applied) per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
@@ -3519,7 +3519,7 @@ eitc_max_1_child /result.eitc xdef
 <action_details>
 <action_number>6</action_number>
 <action_comment>EITC 1 child - phase-out; EITC for 1 child with phase-out per IRC 32</action_comment>
-<action_dsl />
+<action_dsl>set result.eitc = the maximum of (eitc_max_1_child - (result.agi - eitc_threshold_mfj_1) * 0.1598) and 0; add "  EITC (1 child): $" + result.eitc + " (phase-out applied) per Schedule EIC, IRC 32" to job.audit_trail</action_dsl>
 <action_postfix>
 eitc_max_1_child result.agi eitc_threshold_mfj_1 f- 0.1598 f* f- 0 fmax /result.eitc xdef
 "  EITC (1 child): $" result.eitc cvs strconcat " (phase-out applied) per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
@@ -3539,7 +3539,7 @@ eitc_max_0_children /result.eitc xdef
 <action_details>
 <action_number>8</action_number>
 <action_comment>EITC 0 children - phase-out; EITC for 0 children with phase-out per IRC 32</action_comment>
-<action_dsl />
+<action_dsl>set result.eitc = the maximum of (eitc_max_0_children - (result.agi - eitc_threshold_mfj_0) * 0.0765) and 0; add "  EITC (0 children): $" + result.eitc + " (phase-out applied) per Schedule EIC, IRC 32" to job.audit_trail</action_dsl>
 <action_postfix>
 eitc_max_0_children result.agi eitc_threshold_mfj_0 f- 0.0765 f* f- 0 fmax /result.eitc xdef
 "  EITC (0 children): $" result.eitc cvs strconcat " (phase-out applied) per Schedule EIC, IRC 32" strconcat job.audit_trail swap addto
@@ -3596,7 +3596,7 @@ perform when called
 <action_details>
 <action_number>1</action_number>
 <action_comment>Log education credit total; add education credit summary to job.audit_trail, showing AOTC split</action_comment>
-<action_dsl />
+<action_dsl>add "  Total Education Credits: $" + result.education_credit to job.audit_trail; add "    AOTC Refundable (40%, max $1,000): $" + result.total_aotc_refundable + " per IRC 25A(i)(5)" to job.audit_trail; add "    AOTC Nonrefundable (60%): $" + result.total_aotc_nonrefundable + " per IRC 25A(i)(6)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Total Education Credits: $" result.education_credit cvs strconcat job.audit_trail swap addto
 "    AOTC Refundable (40%, max $1,000): $" result.total_aotc_refundable cvs strconcat " per IRC 25A(i)(5)" strconcat job.audit_trail swap addto
@@ -3677,7 +3677,7 @@ result.agi llc_phase_out_mfj &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate AOTC (full amount); AOTC: 100% of first $2000 + 25% of next $2000, split into refundable (40%, max $1,000) and nonrefundable (60%)</action_comment>
-<action_dsl />
+<action_dsl>set dependent.education_credit = the minimum of ((the minimum of dependent.qualified_expenses and 2000.0) + (the maximum of (dependent.qualified_expenses - 2000.0) and 0.0) * 0.25) and aotc_max; set result.total_aotc_refundable = result.total_aotc_refundable + (the minimum of (dependent.education_credit * 0.40) and 1000); set result.total_aotc_nonrefundable = result.total_aotc_nonrefundable + dependent.education_credit * 0.60; set result.education_credit = result.education_credit + dependent.education_credit; add "  AOTC for " + dependent.name + ": $" + dependent.education_credit + " per Form 8863, IRC 25A(i)" to job.audit_trail</action_dsl>
 <action_postfix>
 dependent.qualified_expenses 2000.0 fmin dependent.qualified_expenses 2000.0 f- 0.0 fmax 0.25 f* f+ aotc_max fmin /dependent.education_credit xdef
 dependent.education_credit 0.40 f* 1000 fmin result.total_aotc_refundable f+ /result.total_aotc_refundable xdef
@@ -3690,7 +3690,7 @@ dependent.education_credit result.education_credit f+ /result.education_credit x
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate AOTC with phase-out; AOTC with AGI phase-out reduction, split into refundable (40%, max $1,000) and nonrefundable (60%)</action_comment>
-<action_dsl />
+<action_dsl>set dependent.education_credit = the minimum of ((the minimum of dependent.qualified_expenses and 2000.0) + (the maximum of (dependent.qualified_expenses - 2000.0) and 0.0) * 0.25) and aotc_max; set dependent.education_credit = dependent.education_credit * (aotc_phase_out_end_mfj - result.agi) / (aotc_phase_out_end_mfj - aotc_phase_out_mfj); set result.total_aotc_refundable = result.total_aotc_refundable + (the minimum of (dependent.education_credit * 0.40) and 1000); set result.total_aotc_nonrefundable = result.total_aotc_nonrefundable + dependent.education_credit * 0.60; set result.education_credit = result.education_credit + dependent.education_credit; add "  AOTC for " + dependent.name + ": $" + dependent.education_credit + " (phase-out applied) per Form 8863, IRC 25A(i)" to job.audit_trail</action_dsl>
 <action_postfix>
 dependent.qualified_expenses 2000.0 fmin dependent.qualified_expenses 2000.0 f- 0.0 fmax 0.25 f* f+ aotc_max fmin /dependent.education_credit xdef
 dependent.education_credit aotc_phase_out_end_mfj result.agi f- aotc_phase_out_end_mfj aotc_phase_out_mfj f- fdiv f* /dependent.education_credit xdef
@@ -3704,7 +3704,7 @@ dependent.education_credit result.education_credit f+ /result.education_credit x
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate LLC (full amount); LLC: 20% of qualified expenses up to $2000</action_comment>
-<action_dsl />
+<action_dsl>set dependent.education_credit = the minimum of (dependent.qualified_expenses * 0.20) and llc_max; set result.education_credit = result.education_credit + dependent.education_credit; add "  LLC for " + dependent.name + ": $" + dependent.education_credit + " per Form 8863, IRC 25A(c)" to job.audit_trail</action_dsl>
 <action_postfix>
 dependent.qualified_expenses 0.20 f* llc_max fmin /dependent.education_credit xdef
 dependent.education_credit result.education_credit f+ /result.education_credit xdef
@@ -3715,7 +3715,7 @@ dependent.education_credit result.education_credit f+ /result.education_credit x
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate LLC with phase-out; LLC with AGI phase-out reduction</action_comment>
-<action_dsl />
+<action_dsl>set dependent.education_credit = the minimum of (dependent.qualified_expenses * 0.20) and llc_max; set dependent.education_credit = dependent.education_credit * (llc_phase_out_end_mfj - result.agi) / (llc_phase_out_end_mfj - llc_phase_out_mfj); set result.education_credit = result.education_credit + dependent.education_credit; add "  LLC for " + dependent.name + ": $" + dependent.education_credit + " (phase-out applied) per Form 8863, IRC 25A(c)" to job.audit_trail</action_dsl>
 <action_postfix>
 dependent.qualified_expenses 0.20 f* llc_max fmin /dependent.education_credit xdef
 dependent.education_credit llc_phase_out_end_mfj result.agi f- llc_phase_out_end_mfj llc_phase_out_mfj f- fdiv f* /dependent.education_credit xdef
@@ -3782,7 +3782,7 @@ result.total_se_income 0 &gt;
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Taxable income below threshold (simplified calculation); taxable_income before QBI below $394,600 MFJ threshold (2025)</condition_comment>
-<condition_dsl />
+<condition_dsl>result.agi - result.total_deduction &lt;= 394600</condition_dsl>
 <condition_postfix>
 result.agi result.total_deduction f- 394600 &lt;=
 </condition_postfix>
@@ -6365,7 +6365,7 @@ result.total_medical_expenses result.medical_expense_floor f- 0 fmax /result.med
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has 2+ qualifying persons; result.qualifying_care_persons &gt; 1</condition_comment>
-<condition_dsl />
+<condition_dsl>result.qualifying_care_persons &gt; 1</condition_dsl>
 <condition_postfix>result.qualifying_care_persons 1 &gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -6374,7 +6374,7 @@ result.total_medical_expenses result.medical_expense_floor f- 0 fmax /result.med
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has 1 qualifying person; result.qualifying_care_persons == 1</condition_comment>
-<condition_dsl />
+<condition_dsl>result.qualifying_care_persons == 1</condition_dsl>
 <condition_postfix>result.qualifying_care_persons 1 ==</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
@@ -6400,7 +6400,7 @@ constants.cdcc_expense_limit_1 /result.cdcc_expense_limit xdef
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_dsl />
+<action_dsl>set result.cdcc_allowed_expenses = the minimum of result.total_care_expenses and result.cdcc_expense_limit; set result.cdcc_rate_reductions = the floor of the maximum of ((result.agi - constants.cdcc_rate_reduction_start) / constants.cdcc_rate_reduction_increment) and 0; set result.cdcc_rate = the maximum of (constants.cdcc_max_rate - result.cdcc_rate_reductions * 0.01) and constants.cdcc_min_rate; set result.cdcc_credit = result.cdcc_allowed_expenses * result.cdcc_rate; set result.total_credits = result.total_credits + result.cdcc_credit; add "  CDCC Credit: $" + result.cdcc_credit to job.audit_trail</action_dsl>
 <action_postfix>
 result.total_care_expenses result.cdcc_expense_limit fmin /result.cdcc_allowed_expenses xdef
 result.agi constants.cdcc_rate_reduction_start f- constants.cdcc_rate_reduction_increment fdiv 0 fmax floor /result.cdcc_rate_reductions xdef
@@ -6485,7 +6485,7 @@ result.cdcc_credit result.total_credits f+ /result.total_credits xdef
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_dsl />
+<action_dsl>set result.qualifying_care_persons = result.qualifying_care_persons + 1; set result.total_care_expenses = result.total_care_expenses + dependent.care_expenses; set dependent.qualifies_for_cdcc = true</action_dsl>
 <action_postfix>
 result.qualifying_care_persons 1 + /result.qualifying_care_persons xdef
 dependent.care_expenses result.total_care_expenses f+ /result.total_care_expenses xdef
@@ -6496,7 +6496,7 @@ true /dependent.qualifies_for_cdcc xdef
 <action_comment>increment qualifying_person_count, add dependent.care_expenses to total</action_comment></action_details>
 <action_details>
 <action_number>2</action_number>
-<action_dsl />
+<action_dsl>set dependent.qualifies_for_cdcc = false</action_dsl>
 <action_postfix>
 false /dependent.qualifies_for_cdcc xdef
 </action_postfix>
@@ -6594,7 +6594,7 @@ false /dependent.qualifies_for_cdcc xdef
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>AGI at 50% tier for MFJ; result.agi &lt;= savers_credit_50pct_threshold_mfj</condition_comment>
-<condition_dsl />
+<condition_dsl>result.agi &lt;= constants.savers_50_percent_mfj</condition_dsl>
 <condition_postfix>result.agi constants.savers_50_percent_mfj &lt;=</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -6604,7 +6604,7 @@ false /dependent.qualifies_for_cdcc xdef
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>AGI at 20% tier for MFJ; result.agi &lt;= savers_credit_20pct_threshold_mfj</condition_comment>
-<condition_dsl />
+<condition_dsl>result.agi &lt;= constants.savers_20_percent_mfj</condition_dsl>
 <condition_postfix>result.agi constants.savers_20_percent_mfj &lt;=</condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -6613,7 +6613,7 @@ false /dependent.qualifies_for_cdcc xdef
 <condition_details>
 <condition_number>6</condition_number>
 <condition_comment>AGI at 10% tier for MFJ; result.agi &lt;= savers_credit_10pct_threshold_mfj</condition_comment>
-<condition_dsl />
+<condition_dsl>result.agi &lt;= constants.savers_10_percent_mfj</condition_dsl>
 <condition_postfix>result.agi constants.savers_10_percent_mfj &lt;=</condition_postfix>
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
@@ -6621,7 +6621,7 @@ false /dependent.qualifies_for_cdcc xdef
 <condition_details>
 <condition_number>7</condition_number>
 <condition_comment>AGI at 50% tier for HOH; result.agi &lt;= savers_credit_50pct_threshold_hoh</condition_comment>
-<condition_dsl />
+<condition_dsl>result.agi &lt;= constants.savers_50_percent_hoh</condition_dsl>
 <condition_postfix>result.agi constants.savers_50_percent_hoh &lt;=</condition_postfix>
 <condition_column column_number="5" column_value="Y" />
 <condition_column column_number="6" column_value="N" />
@@ -6631,7 +6631,7 @@ false /dependent.qualifies_for_cdcc xdef
 <condition_details>
 <condition_number>8</condition_number>
 <condition_comment>AGI at 20% tier for HOH; result.agi &lt;= savers_credit_20pct_threshold_hoh</condition_comment>
-<condition_dsl />
+<condition_dsl>result.agi &lt;= constants.savers_20_percent_hoh</condition_dsl>
 <condition_postfix>result.agi constants.savers_20_percent_hoh &lt;=</condition_postfix>
 <condition_column column_number="6" column_value="Y" />
 <condition_column column_number="7" column_value="N" />
@@ -6640,7 +6640,7 @@ false /dependent.qualifies_for_cdcc xdef
 <condition_details>
 <condition_number>9</condition_number>
 <condition_comment>AGI at 10% tier for HOH; result.agi &lt;= savers_credit_10pct_threshold_hoh</condition_comment>
-<condition_dsl />
+<condition_dsl>result.agi &lt;= constants.savers_10_percent_hoh</condition_dsl>
 <condition_postfix>result.agi constants.savers_10_percent_hoh &lt;=</condition_postfix>
 <condition_column column_number="7" column_value="Y" />
 <condition_column column_number="8" column_value="N" />
@@ -6648,7 +6648,7 @@ false /dependent.qualifies_for_cdcc xdef
 <condition_details>
 <condition_number>10</condition_number>
 <condition_comment>AGI at 50% tier for Single; result.agi &lt;= savers_credit_50pct_threshold_single</condition_comment>
-<condition_dsl />
+<condition_dsl>result.agi &lt;= constants.savers_50_percent_single</condition_dsl>
 <condition_postfix>result.agi constants.savers_50_percent_single &lt;=</condition_postfix>
 <condition_column column_number="9" column_value="Y" />
 <condition_column column_number="10" column_value="N" />
@@ -6658,7 +6658,7 @@ false /dependent.qualifies_for_cdcc xdef
 <condition_details>
 <condition_number>11</condition_number>
 <condition_comment>AGI at 20% tier for Single; result.agi &lt;= savers_credit_20pct_threshold_single</condition_comment>
-<condition_dsl />
+<condition_dsl>result.agi &lt;= constants.savers_20_percent_single</condition_dsl>
 <condition_postfix>result.agi constants.savers_20_percent_single &lt;=</condition_postfix>
 <condition_column column_number="10" column_value="Y" />
 <condition_column column_number="11" column_value="N" />
@@ -6667,7 +6667,7 @@ false /dependent.qualifies_for_cdcc xdef
 <condition_details>
 <condition_number>12</condition_number>
 <condition_comment>AGI at 10% tier for Single; result.agi &lt;= savers_credit_10pct_threshold_single</condition_comment>
-<condition_dsl />
+<condition_dsl>result.agi &lt;= constants.savers_10_percent_single</condition_dsl>
 <condition_postfix>result.agi constants.savers_10_percent_single &lt;=</condition_postfix>
 <condition_column column_number="11" column_value="Y" />
 <condition_column column_number="12" column_value="N" />
@@ -6818,7 +6818,7 @@ result.savers_credit result.total_credits f+ /result.total_credits xdef
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_dsl />
+<action_dsl>set result.total_savers_contribution = result.total_savers_contribution + (the minimum of (taxpayer.traditional_ira_contribution + taxpayer.roth_ira_contribution) and constants.savers_credit_max_contribution)</action_dsl>
 <action_postfix>
 taxpayer.traditional_ira_contribution taxpayer.roth_ira_contribution f+ constants.savers_credit_max_contribution fmin result.total_savers_contribution f+ /result.total_savers_contribution xdef
 </action_postfix>
@@ -6877,7 +6877,7 @@ result.energy_efficiency_credit constants.energy_efficiency_annual_limit fmin /r
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_dsl />
+<action_dsl>add "  Clean Energy Credit (25D): $" + result.clean_energy_credit to job.audit_trail; add "  Energy Efficiency Credit (25C): $" + result.energy_efficiency_credit to job.audit_trail; set result.total_credits = result.total_credits + result.clean_energy_credit + result.energy_efficiency_credit</action_dsl>
 <action_postfix>
 "  Clean Energy Credit (25D): $" result.clean_energy_credit cvs strconcat job.audit_trail swap addto
 "  Energy Efficiency Credit (25C): $" result.energy_efficiency_credit cvs strconcat job.audit_trail swap addto
@@ -6887,7 +6887,7 @@ result.clean_energy_credit result.energy_efficiency_credit f+ result.total_credi
 <action_comment>add energy credit summary to job.audit_trail</action_comment></action_details>
 <action_details>
 <action_number>2</action_number>
-<action_dsl />
+<action_dsl>add "  No qualifying energy improvements" to job.audit_trail</action_dsl>
 <action_postfix>
 "  No qualifying energy improvements" job.audit_trail swap addto
 </action_postfix>
@@ -7005,7 +7005,7 @@ result.total_rental_loss result.rental_loss_allowed f- /result.suspended_passive
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_dsl />
+<action_dsl>add "  Total rental loss: $" + result.total_rental_loss to job.audit_trail; add "  Allowance after phaseout: $" + result.pal_reduced_allowance to job.audit_trail; add "  Loss allowed: $" + result.rental_loss_allowed to job.audit_trail; add "  Suspended loss: $" + result.suspended_passive_loss to job.audit_trail</action_dsl>
 <action_postfix>
 "  Total rental loss: $" result.total_rental_loss cvs strconcat job.audit_trail swap addto
 "  Allowance after phaseout: $" result.pal_reduced_allowance cvs strconcat job.audit_trail swap addto
@@ -7130,7 +7130,7 @@ result.taxable_income result.salt_deduction f+ /result.amti xdef
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_dsl />
+<action_dsl>set result.amt_exemption_reduction = the maximum of ((result.amti - amt_phaseout_mfj) * 0.25) and 0; set result.amt_exemption = the maximum of (amt_exemption_mfj - result.amt_exemption_reduction) and 0; set result.amt_base = the maximum of (result.amti - result.amt_exemption) and 0; set result.amt_tax = (the minimum of result.amt_base and constants.amt_rate_threshold) * constants.amt_rate_low + (the maximum of (result.amt_base - constants.amt_rate_threshold) and 0) * constants.amt_rate_high; set result.amt_owed = the maximum of (result.amt_tax - result.total_tax_before_credits) and 0; add "  AMT Owed (MFJ): $" + result.amt_owed + " (excess over regular tax)" to job.audit_trail</action_dsl>
 <action_postfix>
 result.amti amt_phaseout_mfj f- 0.25 f* 0 fmax /result.amt_exemption_reduction xdef
 amt_exemption_mfj result.amt_exemption_reduction f- 0 fmax /result.amt_exemption xdef
@@ -7147,7 +7147,7 @@ result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 <action_comment>set result.amt_owed = (amti - exemption) * amt_rate (MFJ)</action_comment></action_details>
 <action_details>
 <action_number>2</action_number>
-<action_dsl />
+<action_dsl>set result.amt_exemption_reduction = the maximum of ((result.amti - amt_phaseout_mfs) * 0.25) and 0; set result.amt_exemption = the maximum of (amt_exemption_mfs - result.amt_exemption_reduction) and 0; set result.amt_base = the maximum of (result.amti - result.amt_exemption) and 0; set result.amt_tax = (the minimum of result.amt_base and constants.amt_rate_threshold) * constants.amt_rate_low + (the maximum of (result.amt_base - constants.amt_rate_threshold) and 0) * constants.amt_rate_high; set result.amt_owed = the maximum of (result.amt_tax - result.total_tax_before_credits) and 0; add "  AMT Owed (MFS): $" + result.amt_owed + " (excess over regular tax)" to job.audit_trail</action_dsl>
 <action_postfix>
 result.amti amt_phaseout_mfs f- 0.25 f* 0 fmax /result.amt_exemption_reduction xdef
 amt_exemption_mfs result.amt_exemption_reduction f- 0 fmax /result.amt_exemption xdef
@@ -7164,7 +7164,7 @@ result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 <action_comment>set result.amt_owed = (amti - exemption) * amt_rate (MFS)</action_comment></action_details>
 <action_details>
 <action_number>3</action_number>
-<action_dsl />
+<action_dsl>set result.amt_exemption_reduction = the maximum of ((result.amti - amt_phaseout_single) * 0.25) and 0; set result.amt_exemption = the maximum of (amt_exemption_single - result.amt_exemption_reduction) and 0; set result.amt_base = the maximum of (result.amti - result.amt_exemption) and 0; set result.amt_tax = (the minimum of result.amt_base and constants.amt_rate_threshold) * constants.amt_rate_low + (the maximum of (result.amt_base - constants.amt_rate_threshold) and 0) * constants.amt_rate_high; set result.amt_owed = the maximum of (result.amt_tax - result.total_tax_before_credits) and 0; add "  AMT Owed (Single/HOH): $" + result.amt_owed + " (excess over regular tax)" to job.audit_trail</action_dsl>
 <action_postfix>
 result.amti amt_phaseout_single f- 0.25 f* 0 fmax /result.amt_exemption_reduction xdef
 amt_exemption_single result.amt_exemption_reduction f- 0 fmax /result.amt_exemption xdef
@@ -7255,7 +7255,7 @@ result.max_ptc job.advance_ptc_received f- /result.net_ptc xdef
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_dsl />
+<action_dsl>add "  Household size: " + job.household_size to job.audit_trail; add "  FPL: $" + result.fpl_amount to job.audit_trail; add "  Income as % of FPL: " + result.fpl_percentage + "%" to job.audit_trail; add "  Max PTC: $" + result.max_ptc to job.audit_trail; add "  Advance PTC received: $" + job.advance_ptc_received to job.audit_trail</action_dsl>
 <action_postfix>
 "  Household size: " job.household_size cvs strconcat job.audit_trail swap addto
 "  FPL: $" result.fpl_amount cvs strconcat job.audit_trail swap addto
