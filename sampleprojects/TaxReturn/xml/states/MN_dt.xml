@@ -46,8 +46,8 @@ Filing Status is MFJ
 <actions>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate MN tax for Married Filing Jointly using progressive brackets</action_comment>
-<action_dsl>add "  MN_Tax MFJ: progressive bracket calculation not yet implemented" to job.audit_trail</action_dsl>
+<action_comment>Calculate MN tax for Married Filing Jointly using progressive brackets. HARD: postfix is empty — MN progressive bracket calculation not yet authored. Same situation as #496 Part 2; brackets/rates/standard deduction need research before EL can be written.</action_comment>
+<action_dsl />
 <action_postfix>
 
 </action_postfix>

@@ -91,8 +91,8 @@ job.filing_status head_of_household streq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate ND tax MFJ; Calculate ND tax with MFJ standard deduction and progressive brackets</action_comment>
-<action_dsl>add "  Starting Federal AGI: $" + result.nd_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.nd_standard_deduction = nd_standard_deduction_mfj; add "  Standard Deduction (MFJ): $" + result.nd_standard_deduction to job.audit_trail; set result.nd_taxable_income = the maximum of (result.nd_agi - result.nd_standard_deduction) and 0; add "  ND Taxable Income: $" + result.nd_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; if result.nd_taxable_income &gt; nd_bracket_3_threshold_mfj then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_mfj * nd_bracket_1_rate; set result.nd_bracket_2_tax = (nd_bracket_3_threshold_mfj - nd_bracket_2_threshold_mfj) * nd_bracket_2_rate; set result.nd_bracket_3_tax = (result.nd_taxable_income - nd_bracket_3_threshold_mfj) * nd_bracket_3_rate; } else { if result.nd_taxable_income &gt; nd_bracket_2_threshold_mfj then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_mfj * nd_bracket_1_rate; set result.nd_bracket_2_tax = (result.nd_taxable_income - nd_bracket_2_threshold_mfj) * nd_bracket_2_rate; } else { set result.nd_bracket_1_tax = result.nd_taxable_income * nd_bracket_1_rate; } endif; } endif; set result.nd_tax = result.nd_bracket_1_tax + result.nd_bracket_2_tax + result.nd_bracket_3_tax; add "  Total ND Tax: $" + result.nd_tax + " (Form ND-1)" to job.audit_trail</action_dsl>
+<action_comment>Calculate ND tax MFJ; Calculate ND tax with MFJ standard deduction and progressive brackets. HARD: 3-tier progressive bracket math (0%/1.95%/2.5% at MFJ thresholds) — same situation as #496 Part 2. Postfix is authoritative for now.</action_comment>
+<action_dsl />
 <action_postfix>
 "  Starting Federal AGI: $" result.nd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 nd_standard_deduction_mfj /result.nd_standard_deduction xdef
@@ -124,8 +124,8 @@ result.nd_bracket_1_tax result.nd_bracket_2_tax f+ result.nd_bracket_3_tax f+ /r
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate ND tax Single; Calculate ND tax with Single standard deduction and progressive brackets</action_comment>
-<action_dsl>add "  Starting Federal AGI: $" + result.nd_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.nd_standard_deduction = nd_standard_deduction_single; add "  Standard Deduction (Single): $" + result.nd_standard_deduction to job.audit_trail; set result.nd_taxable_income = the maximum of (result.nd_agi - result.nd_standard_deduction) and 0; add "  ND Taxable Income: $" + result.nd_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; if result.nd_taxable_income &gt; nd_bracket_3_threshold_single then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_single * nd_bracket_1_rate; set result.nd_bracket_2_tax = (nd_bracket_3_threshold_single - nd_bracket_2_threshold_single) * nd_bracket_2_rate; set result.nd_bracket_3_tax = (result.nd_taxable_income - nd_bracket_3_threshold_single) * nd_bracket_3_rate; } else { if result.nd_taxable_income &gt; nd_bracket_2_threshold_single then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_single * nd_bracket_1_rate; set result.nd_bracket_2_tax = (result.nd_taxable_income - nd_bracket_2_threshold_single) * nd_bracket_2_rate; } else { set result.nd_bracket_1_tax = result.nd_taxable_income * nd_bracket_1_rate; } endif; } endif; set result.nd_tax = result.nd_bracket_1_tax + result.nd_bracket_2_tax + result.nd_bracket_3_tax; add "  Total ND Tax: $" + result.nd_tax + " (Form ND-1)" to job.audit_trail</action_dsl>
+<action_comment>Calculate ND tax Single; Calculate ND tax with Single standard deduction and progressive brackets. HARD: 3-tier progressive bracket math (0%/1.95%/2.5% at Single thresholds) — same situation as #496 Part 2. Postfix is authoritative for now.</action_comment>
+<action_dsl />
 <action_postfix>
 "  Starting Federal AGI: $" result.nd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 nd_standard_deduction_single /result.nd_standard_deduction xdef
@@ -157,8 +157,8 @@ result.nd_bracket_1_tax result.nd_bracket_2_tax f+ result.nd_bracket_3_tax f+ /r
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Calculate ND tax HOH; Calculate ND tax with HOH standard deduction and progressive brackets</action_comment>
-<action_dsl>add "  Starting Federal AGI: $" + result.nd_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.nd_standard_deduction = nd_standard_deduction_hoh; add "  Standard Deduction (HOH): $" + result.nd_standard_deduction to job.audit_trail; set result.nd_taxable_income = the maximum of (result.nd_agi - result.nd_standard_deduction) and 0; add "  ND Taxable Income: $" + result.nd_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; if result.nd_taxable_income &gt; nd_bracket_3_threshold_hoh then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_hoh * nd_bracket_1_rate; set result.nd_bracket_2_tax = (nd_bracket_3_threshold_hoh - nd_bracket_2_threshold_hoh) * nd_bracket_2_rate; set result.nd_bracket_3_tax = (result.nd_taxable_income - nd_bracket_3_threshold_hoh) * nd_bracket_3_rate; } else { if result.nd_taxable_income &gt; nd_bracket_2_threshold_hoh then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_hoh * nd_bracket_1_rate; set result.nd_bracket_2_tax = (result.nd_taxable_income - nd_bracket_2_threshold_hoh) * nd_bracket_2_rate; } else { set result.nd_bracket_1_tax = result.nd_taxable_income * nd_bracket_1_rate; } endif; } endif; set result.nd_tax = result.nd_bracket_1_tax + result.nd_bracket_2_tax + result.nd_bracket_3_tax; add "  Total ND Tax: $" + result.nd_tax + " (Form ND-1)" to job.audit_trail</action_dsl>
+<action_comment>Calculate ND tax HOH; Calculate ND tax with HOH standard deduction and progressive brackets. HARD: 3-tier progressive bracket math (0%/1.95%/2.5% at HOH thresholds) — same situation as #496 Part 2. Postfix is authoritative for now.</action_comment>
+<action_dsl />
 <action_postfix>
 "  Starting Federal AGI: $" result.nd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 nd_standard_deduction_hoh /result.nd_standard_deduction xdef
@@ -190,8 +190,8 @@ result.nd_bracket_1_tax result.nd_bracket_2_tax f+ result.nd_bracket_3_tax f+ /r
 </action_details>
 <action_details>
 <action_number>4</action_number>
-<action_comment>Calculate ND tax MFS/other; Calculate ND tax with MFS standard deduction and progressive brackets</action_comment>
-<action_dsl>add "  Starting Federal AGI: $" + result.nd_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.nd_standard_deduction = nd_standard_deduction_mfs; add "  Standard Deduction (MFS): $" + result.nd_standard_deduction to job.audit_trail; set result.nd_taxable_income = the maximum of (result.nd_agi - result.nd_standard_deduction) and 0; add "  ND Taxable Income: $" + result.nd_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; if result.nd_taxable_income &gt; nd_bracket_3_threshold_mfs then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_mfs * nd_bracket_1_rate; set result.nd_bracket_2_tax = (nd_bracket_3_threshold_mfs - nd_bracket_2_threshold_mfs) * nd_bracket_2_rate; set result.nd_bracket_3_tax = (result.nd_taxable_income - nd_bracket_3_threshold_mfs) * nd_bracket_3_rate; } else { if result.nd_taxable_income &gt; nd_bracket_2_threshold_mfs then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_mfs * nd_bracket_1_rate; set result.nd_bracket_2_tax = (result.nd_taxable_income - nd_bracket_2_threshold_mfs) * nd_bracket_2_rate; } else { set result.nd_bracket_1_tax = result.nd_taxable_income * nd_bracket_1_rate; } endif; } endif; set result.nd_tax = result.nd_bracket_1_tax + result.nd_bracket_2_tax + result.nd_bracket_3_tax; add "  Total ND Tax: $" + result.nd_tax + " (Form ND-1)" to job.audit_trail</action_dsl>
+<action_comment>Calculate ND tax MFS/other; Calculate ND tax with MFS standard deduction and progressive brackets. HARD: 3-tier progressive bracket math (0%/1.95%/2.5% at MFS thresholds) — same situation as #496 Part 2. Postfix is authoritative for now.</action_comment>
+<action_dsl />
 <action_postfix>
 "  Starting Federal AGI: $" result.nd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 nd_standard_deduction_mfs /result.nd_standard_deduction xdef

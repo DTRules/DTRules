@@ -56,8 +56,8 @@ job.filing_status married_filing_jointly streq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate KS tax MFJ; Calculate KS tax with MFJ standard deduction, personal exemptions, and progressive brackets</action_comment>
-<action_dsl>add "  Starting Federal AGI: $" + result.ks_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.ks_standard_deduction = ks_standard_deduction_mfj; add "  Standard Deduction (MFJ): $" + result.ks_standard_deduction to job.audit_trail; set result.ks_personal_exemption_total = ks_personal_exemption_mfj + (number of job.dependents) * ks_dependent_exemption; add "  Personal Exemptions: $" + result.ks_personal_exemption_total to job.audit_trail; set result.ks_taxable_income = the maximum of (result.ks_agi - result.ks_standard_deduction - result.ks_personal_exemption_total) and 0; add "  KS Taxable Income: $" + result.ks_taxable_income + " (AGI - Std Deduction - Exemptions)" to job.audit_trail; if result.ks_taxable_income &gt; ks_bracket_2_threshold_mfj then { set result.ks_bracket_1_tax = ks_bracket_2_threshold_mfj * ks_bracket_1_rate; set result.ks_bracket_2_tax = (result.ks_taxable_income - ks_bracket_2_threshold_mfj) * ks_bracket_2_rate; } else { set result.ks_bracket_1_tax = result.ks_taxable_income * ks_bracket_1_rate; } endif; set result.ks_tax = result.ks_bracket_1_tax + result.ks_bracket_2_tax; add "  Total KS Tax: $" + result.ks_tax + " (Form K-40)" to job.audit_trail</action_dsl>
+<action_comment>Calculate KS tax MFJ; Calculate KS tax with MFJ standard deduction, personal exemptions, and progressive brackets. HARD: 2-tier progressive bracket math (5.20%/5.58% above $46,000 MFJ threshold) — same situation as #496 Part 2; bracket cumulative cascade left for follow-up authorship. Postfix is authoritative for now.</action_comment>
+<action_dsl />
 <action_postfix>
 "  Starting Federal AGI: $" result.ks_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 ks_standard_deduction_mfj /result.ks_standard_deduction xdef
@@ -82,8 +82,8 @@ result.ks_bracket_1_tax result.ks_bracket_2_tax f+ /result.ks_tax xdef
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate KS tax Single/other; Calculate KS tax with Single standard deduction, personal exemptions, and progressive brackets</action_comment>
-<action_dsl>add "  Starting Federal AGI: $" + result.ks_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.ks_standard_deduction = ks_standard_deduction_single; add "  Standard Deduction (Single): $" + result.ks_standard_deduction to job.audit_trail; set result.ks_personal_exemption_total = ks_personal_exemption_single + (number of job.dependents) * ks_dependent_exemption; add "  Personal Exemptions: $" + result.ks_personal_exemption_total to job.audit_trail; set result.ks_taxable_income = the maximum of (result.ks_agi - result.ks_standard_deduction - result.ks_personal_exemption_total) and 0; add "  KS Taxable Income: $" + result.ks_taxable_income + " (AGI - Std Deduction - Exemptions)" to job.audit_trail; if result.ks_taxable_income &gt; ks_bracket_2_threshold_single then { set result.ks_bracket_1_tax = ks_bracket_2_threshold_single * ks_bracket_1_rate; set result.ks_bracket_2_tax = (result.ks_taxable_income - ks_bracket_2_threshold_single) * ks_bracket_2_rate; } else { set result.ks_bracket_1_tax = result.ks_taxable_income * ks_bracket_1_rate; } endif; set result.ks_tax = result.ks_bracket_1_tax + result.ks_bracket_2_tax; add "  Total KS Tax: $" + result.ks_tax + " (Form K-40)" to job.audit_trail</action_dsl>
+<action_comment>Calculate KS tax Single/other; Calculate KS tax with Single standard deduction, personal exemptions, and progressive brackets. HARD: 2-tier progressive bracket math (5.20%/5.58% above $23,000 Single threshold) — same situation as #496 Part 2; bracket cumulative cascade left for follow-up authorship. Postfix is authoritative for now.</action_comment>
+<action_dsl />
 <action_postfix>
 "  Starting Federal AGI: $" result.ks_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 ks_standard_deduction_single /result.ks_standard_deduction xdef
