@@ -2912,23 +2912,33 @@ See Also
 const docAuthoring = `Authoring SDK
 =============
 
+Overview
+--------
+
 The authoring SDK is a typed Go package at
 github.com/DTRules/DTRules/pkg/dtrules/authoring
 for opening, editing, executing, and testing DTRules projects. It is the
 recommended way to interact with rules programmatically. Editing raw XML
-is explicitly discouraged: the round-trip serialiser may reformat or reorder
+is discouraged: the round-trip serialiser may reformat or reorder
 elements, and the authoring API validates every EL expression at the API
 boundary before any file is touched.
 
+Reach for this SDK when you want to script bulk edits, run regression
+scenarios, measure coverage, or drive the debugger from Go. If you are
+coming from another language, use the JSON CLI or MCP server described
+in "Programmatic access from outside Go" below — they expose the same
+surface without requiring Go.
 
-Import
-------
+Import:
 
   import "github.com/DTRules/DTRules/pkg/dtrules/authoring"
 
 
 Worked Example
 --------------
+
+This example opens a project, mutates a table, loads test data, and runs
+a scenario end to end. Every mutation validates EL before writing.
 
   package main
 
@@ -2940,25 +2950,19 @@ Worked Example
   )
 
   func main() {
-      // 1. Open a project directory (must contain xml/ with *_dt.xml and *_edd.xml).
+      // Open a project directory (must contain xml/ with *_dt.xml, *_edd.xml).
       p, err := authoring.OpenProject("/path/to/MyProject")
       if err != nil {
           log.Fatal(err)
       }
 
-      // 2. Inspect what tables exist.
-      fmt.Println("tables:", p.Tables())
-
-      // 3. Retrieve a specific table and inspect its conditions.
+      // Inspect a table.
       tbl := p.Table("EligibilityCheck")
       if tbl == nil {
           log.Fatal("table not found")
       }
-      for _, c := range tbl.Conditions {
-          fmt.Printf("  cond %d: %s\n", c.Number, c.DSL)
-      }
 
-      // 4. Mutate an action — EL is validated before the change is committed.
+      // Mutate an action — EL is validated before the change is committed.
       err = tbl.UpdateAction(1, authoring.Action{
           Comment: "set approved flag",
           DSL:     "applicant.approved = true",
@@ -2968,16 +2972,8 @@ Worked Example
           log.Fatal("invalid EL:", err)
       }
 
-      // 5. Add a new rule column: condition 1 must be Y, fire action 1.
-      err = tbl.AddColumn(
-          map[int]string{1: "Y"},
-          []int{1},
-      )
-      if err != nil {
-          log.Fatal(err)
-      }
-
-      // 6. Set attributes programmatically and execute the entry table.
+      // Option A — set state directly and execute.
+      p.ResetState()
       p.SetAttribute("applicant", "age", 30)
       p.SetAttribute("applicant", "income", 55000)
 
@@ -2985,35 +2981,47 @@ Worked Example
       if err != nil {
           log.Fatal(err)
       }
-
-      // 7. Assert the output.
-      if trace.FinalState["applicant.approved"] != "true" {
-          log.Fatal("expected approved=true, got", trace.FinalState["applicant.approved"])
-      }
       fmt.Println("approved:", trace.FinalState["applicant.approved"])
 
-      // 8. Persist the edits back to disk.
+      // Option B — load test data from the project's _map.xml + XML file.
+      if err := p.LoadTestData("testfiles/TestScenarios/basic.xml"); err != nil {
+          log.Fatal(err)
+      }
+      _, _ = p.ExecuteEntry("EligibilityCheck")
+
+      // Option C — run every scenario JSON under a directory and aggregate.
+      batch, err := p.RunAllScenarios("testfiles/scenarios")
+      if err != nil {
+          log.Fatal(err)
+      }
+      fmt.Println(batch.Summary())
+
+      // Persist the edits back to disk.
       if err := p.Save(); err != nil {
           log.Fatal(err)
       }
   }
 
 
-API Reference
--------------
+Opening and Saving
+------------------
 
-Project
   OpenProject(path string) (*Project, error)
-      Load project from directory. Reads all *_dt.xml and *_edd.xml files.
+      Load a project from a directory containing an xml/ subdirectory.
+      Reads every *_dt.xml and lazily prepares the EDD and Mapping.
 
   (*Project).Save() error
-      Write all in-memory mutations back to disk as canonical XML.
+      Write all in-memory decision-table mutations back to disk as
+      canonical XML. The EDD is saved separately via SaveEDD.
+
+  (*Project).SaveEDD() error
+      Persist EDD mutations back to *_edd.xml.
 
   (*Project).Tables() []string
-      List names of all loaded decision tables.
+      Names of every loaded decision table.
 
   (*Project).Table(name string) *Table
-      Return typed view of a named table, or nil if not found.
+      Typed view of a table, or nil if not found.
 
   (*Project).AddTable(name string) (*Table, error)
       Create a new empty decision table.
@@ -3021,93 +3029,253 @@ Project
   (*Project).DeleteTable(name string) error
       Remove a decision table by name.
 
+
+Editing Tables
+--------------
+
+Every table mutation compiles its EL text to postfix first (via
+CheckCondition / CheckAction / CheckContext). A bad expression returns
+an error and the table is not touched — callers can safely retry.
+
+  Conditions:
+    (*Table).AddCondition(c Condition) error
+    (*Table).UpdateCondition(num int, c Condition) error
+    (*Table).DeleteCondition(num int) error
+
+  Actions (numbered, appear in columns):
+    (*Table).AddAction(a Action) error
+    (*Table).UpdateAction(num int, a Action) error
+    (*Table).DeleteAction(num int) error
+
+  Initial actions (run once before the column grid):
+    (*Table).AddInitialAction(a InitialAction) error
+    (*Table).UpdateInitialAction(idx int, a InitialAction) error
+    (*Table).DeleteInitialAction(idx int) error
+
+  Context statements:
+    (*Table).AddContext(c Context) error
+    (*Table).UpdateContext(idx int, c Context) error
+    (*Table).DeleteContext(idx int) error
+
+  Columns (rule cells — condition cell is "Y"/"N"/" ", actions fire by number):
+    (*Table).AddColumn(conditions map[int]string, actions []int) error
+    (*Table).UpdateColumn(col int, conditions map[int]string, actions []int) error
+    (*Table).DeleteColumn(col int) error
+    (*Table).Columns() int
+
+Typical edit — add a new rule to an existing table:
+
+  tbl := p.Table("ApproveLoan")
+  err := tbl.AddColumn(
+      map[int]string{1: "Y", 2: "N"}, // c1=Y, c2=N, others blank
+      []int{3},                        // fire action 3
+  )
+  if err != nil {
+      return fmt.Errorf("add column: %w", err)
+  }
+
+
+Editing the EDD
+---------------
+
   (*Project).EDD() *EDD
-      Return EDD view (lazily loaded).
+      Lazy view of the entity data dictionary.
 
-  (*Project).Mapping() (*Mapping, error)
-      Return Mapping view (lazily loaded from *_map.xml).
-
-  (*Project).LoadTestData(path string) error
-      Populate entity state from an XML test-data file via the project _map.xml.
-
-  (*Project).SetAttribute(entityName, attribute string, value any) error
-      Set an entity attribute (bool, int, int64, float64, string supported).
-
-  (*Project).ResetState()
-      Clear entity state; keeps EDD/DT loaded so they do not need reloading.
-
-  (*Project).ExecuteEntry(tableName string) (*RunTrace, error)
-      Execute entry table and return a full trace of all table invocations.
-
-  (*Project).ResumeAt(trace *RunTrace, idx int) (*DebugSession, error)
-      Replay trace up to invocation idx and return a live DebugSession paused there.
-
-Table
-  (*Table).AddCondition(c Condition) error
-  (*Table).UpdateCondition(num int, c Condition) error
-  (*Table).DeleteCondition(num int) error
-
-  (*Table).AddAction(a Action) error
-  (*Table).UpdateAction(num int, a Action) error
-  (*Table).DeleteAction(num int) error
-
-  (*Table).AddInitialAction(a InitialAction) error
-  (*Table).UpdateInitialAction(idx int, a InitialAction) error
-  (*Table).DeleteInitialAction(idx int) error
-
-  (*Table).AddContext(c Context) error
-  (*Table).UpdateContext(idx int, c Context) error
-  (*Table).DeleteContext(idx int) error
-
-  (*Table).AddColumn(conditions map[int]string, actions []int) error
-  (*Table).UpdateColumn(col int, conditions map[int]string, actions []int) error
-  (*Table).DeleteColumn(col int) error
-
-  (*Table).Execute(p *Project) (*ExecutionTrace, error)
-      Run this table against current project state and return a step trace.
-
-  (*Table).NewStepper(p *Project) *Stepper
-      Create a Stepper for step-by-step condition/action evaluation.
-
-EDD
-  (*Project).EDD() *EDD
-  (*EDD).Entities() []Entity
+  (*EDD).Entities() []*Entity
+  (*EDD).Entity(name string) *Entity
   (*EDD).AddEntity(name string) (*Entity, error)
+  (*EDD).DeleteEntity(name string) error
+      Checked deletion: rejected if any DT references the entity.
+
   (*Entity).AddAttribute(a Attribute) error
   (*Entity).UpdateAttribute(name string, a Attribute) error
   (*Entity).DeleteAttribute(name string) error
-  (*Project).DeleteEntity(name string) error
-      Checked deletion: rejected if any decision table references the entity.
 
-Mapping
+The Attribute struct carries all field metadata:
+
+  type Attribute struct {
+      Name, Type, Subtype, Default, Access, Input, Comment string
+  }
+
+After editing, call (*Project).SaveEDD() to persist.
+
+
+Editing the Mapping
+-------------------
+
   (*Project).Mapping() (*Mapping, error)
+      Load the first *_map.xml in the project. Returns an error if no
+      map file exists.
+
   (*Mapping).Entries() []SetAttribute
   (*Mapping).AddEntry(e SetAttribute) error
   (*Mapping).UpdateEntry(tag string, e SetAttribute) error
   (*Mapping).DeleteEntry(tag string) error
-  (*Mapping).Save() error
 
-DebugSession
-  (*Project).ResumeAt(trace *RunTrace, idx int) (*DebugSession, error)
-  (*DebugSession).EntityStack() []EntityView
-  (*DebugSession).Resolve(name string) (any, string, error)
-  (*DebugSession).Step() (*TableInvocation, error)
-  (*DebugSession).Continue() (*RunTrace, error)
-  (*DebugSession).SetAttribute(entityName, attribute string, value any) error
-  (*DebugSession).Close()
+Mapping entries connect XML-encoded test data to EDD attributes:
 
-EL Validation
-  CheckCondition(el string, symbols map[string]string) (postfix string, err error)
-  CheckAction(el string, symbols map[string]string) (postfix string, err error)
-  CheckContext(el string, symbols map[string]string) (postfix string, err error)
-      Compile EL to postfix without executing. Used internally by all mutations.
-      Call directly to validate EL before adding it to a table.
+  type SetAttribute struct {
+      Tag, RAttribute, Enclosure, Type string
+  }
 
 
-Full Reference
+Executing Rules
+---------------
+
+Set state, then run. State is retained across calls until you reset it.
+
+  (*Project).SetAttribute(entityName, attribute string, value any) error
+      Value may be bool, int, int64, float64, or string.
+  (*Project).ResetState()
+      Clear entity state; EDD/DT stay loaded.
+  (*Project).EntityStackNames() []string
+      Names of writable entities currently on the stack.
+
+  (*Project).EvalCondition(el string) (bool, error)
+      Compile and evaluate an EL boolean expression against current state.
+  (*Project).EvalAction(el string) ([]AttributeChange, error)
+      Compile and evaluate an EL action; returns the diff vs prior state.
+
+  (*Table).Execute(p *Project) (*ExecutionTrace, error)
+      Run a single table against current state and return a step-level trace.
+  (*Table).NewStepper(p *Project) *Stepper
+      Cursor-style execution: call Next() to advance, Current() to inspect.
+
+  (*Project).ExecuteEntry(tableName string) (*RunTrace, error)
+      Run the entry table and every descendant it calls, returning a
+      flattened pre-order list of TableInvocations with before/after
+      entity snapshots. This is the trace used by coverage and debug.
+
+
+Test Data
+---------
+
+  (*Project).LoadTestData(path string) error
+      Populate entity state from an XML test-data file via the project's
+      _map.xml. The mapping defines how XML tags become entity fields.
+  (*Project).LoadTestDataReader(mapReader, dataReader io.Reader) error
+      Same, but from in-memory io.Reader pairs (useful in tests).
+
+
+Batch testing
+-------------
+
+Scenarios are JSON files with inputs, an entry table, and expected
+final state. Use them for regression suites.
+
+  type ScenarioFile struct {
+      Name       string
+      EntryTable string
+      Inputs     map[string]any    // "entity.attribute" -> value
+      Expected   map[string]any
+  }
+
+  (*Project).RunAllScenarios(dir string) (*BatchResult, error)
+      Walk dir non-recursively, load every *.json as a ScenarioFile, run
+      each against p, and return an aggregate BatchResult.
+
+  (*BatchResult).AllPassed() bool
+  (*BatchResult).Summary() string
+
+  (*Scenario).Run(p *Project) *ScenarioResult
+      Run a programmatically constructed Scenario. ResetState is called
+      first so runs are isolated.
+
+  AssertState(actual, expected map[string]any) []AssertionFailure
+      Compare two state maps with normalising string/number/bool equality.
+
+
+Coverage
+--------
+
+  Cover(p *Project, results []ScenarioResult) *CoverageReport
+      Walks the RunTrace of every result and records which tables and
+      columns were exercised.
+
+  type CoverageReport struct {
+      ExercisedTables  map[string]bool
+      ExercisedColumns map[string]map[int]int
+      UntouchedTables  []string
+      UntouchedColumns map[string][]int
+  }
+  (*CoverageReport).Summary() string
+
+
+Diff
+----
+
+Run a scenario suite against two project versions and report the
+attributes whose final values diverge — useful for pre/post refactor
+regression checks.
+
+  Diff(p1, p2 *Project, scenarios []*Scenario) *DiffReport
+  (*DiffReport).Summary() string
+
+  type DiffReport struct {
+      Total    int
+      Matching int
+      Diverged []ScenarioDivergence
+  }
+
+
+Dependency Graph
+----------------
+
+  (*Table).Dependencies() []string
+      Names of tables this table invokes (statically scanned from every
+      condition, action, initial-action and context DSL text).
+  (*Table).Callers() []string
+      Names of tables that invoke this one.
+
+
+Debug Stepping
 --------------
 
-  go doc github.com/DTRules/DTRules/pkg/dtrules/authoring
+ExecuteEntry records a RunTrace of every invocation. ResumeAt replays
+that trace up to a chosen invocation and hands you a live DebugSession
+paused there.
+
+  (*Project).ResumeAt(trace *RunTrace, idx int) (*DebugSession, error)
+
+  (*DebugSession).EntityStack() []EntityView
+  (*DebugSession).Resolve(name string) (any, string, error)
+      Look up "entity.attribute" or bare attribute against current stack.
+  (*DebugSession).NextInvocation() *TableInvocation
+      Peek at the next invocation without advancing.
+  (*DebugSession).Step() (*TableInvocation, error)
+      Advance one invocation, return the one just executed.
+  (*DebugSession).Continue() (*RunTrace, error)
+      Run to completion and return the final trace.
+  (*DebugSession).SetAttribute(entityName, attribute string, value any) error
+      Rewrite state mid-session, e.g. to explore a what-if branch.
+  (*DebugSession).Close()
+
+
+EL Validation
+-------------
+
+Pre-check an EL expression without mutating anything:
+
+  CheckCondition(el string, symbols map[string]string) (postfix string, err error)
+  CheckAction(el string, symbols map[string]string)    (postfix string, err error)
+  CheckContext(el string, symbols map[string]string)   (postfix string, err error)
+
+All three compile EL to postfix using the same pipeline as
+Add/UpdateCondition etc. Call them directly to validate user-supplied
+EL before queueing a mutation.
+
+
+Trace Assertions
+----------------
+
+For scenario tests you usually want to assert on the shape of execution
+rather than just the final state.
+
+  (*RunTrace).AssertVisited(table string, column int) error
+      Pass column=0 to match any column.
+  (*RunTrace).AssertNotVisited(table string) error
+  (*RunTrace).AssertSequence(tables []string) error
+      Tables must appear in the given order (non-contiguous is fine).
 
 
 Anti-Patterns
@@ -3123,8 +3291,62 @@ Direct XML edits bypass all of these guarantees and may corrupt round-trip
 semantics enforced by "dtrules build".
 
 
+Programmatic access from outside Go
+-----------------------------------
+
+The authoring SDK is Go-only, but v1.9.1 ships two wrappers that expose
+the same table/EDD read/write surface over stable interfaces so agents
+and tools in any language can drive DTRules.
+
+1. JSON CLI — "dtrules table" and "dtrules edd"
+
+   Every subcommand takes --project <path> and reads or writes one
+   table or the EDD as a JSON document. Schemas are stable and
+   published via the schema subcommand.
+
+     dtrules table list     --project P
+     dtrules table get      --project P --name T
+     dtrules table put      --project P --name T < table.json
+     dtrules table patch    --project P --name T --op set-condition-cell ...
+     dtrules table schema
+     dtrules edd  get       --project P
+     dtrules edd  put       --project P < edd.json
+     dtrules edd  patch     --project P --op add-entity ...
+     dtrules edd  schema
+
+   Errors surface as a structured {error, hint, detail} payload on
+   stderr and a non-zero exit code. See "dtrules docs cli" for the
+   full reference.
+
+2. MCP server — "dtrules mcp"
+
+   A stdio JSON-RPC 2.0 server (MCP protocol version 2024-11-05) that
+   exposes the same operations as MCP tools. Wire it into Claude Code
+   or any other MCP client with:
+
+     dtrules mcp --project /path/to/MyProject
+
+   The ten tools exposed match the JSON CLI one-for-one:
+
+     Reads:  table_list, table_get, table_schema,
+             edd_get, edd_schema, project_validate
+     Writes: table_put, table_patch, edd_put, edd_patch
+
+   Every tool call is stateless: the server opens the project, applies
+   the op, saves, and discards the project handle. Concurrent clients
+   and external XML edits are safe by construction. Tool errors carry
+   the same {error, hint, detail} payload as the CLI.
+
+
+Full Reference
+--------------
+
+  go doc github.com/DTRules/DTRules/pkg/dtrules/authoring
+
+
 See Also
 --------
+  dtrules docs cli             JSON CLI reference (table / edd subcommands)
   dtrules docs el              EL expression syntax
   dtrules docs decision-tables Decision table structure
   dtrules docs edd             Entity Data Dictionary reference
