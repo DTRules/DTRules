@@ -46,8 +46,8 @@ Filing Status is MFJ
 <actions>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate MN tax for Married Filing Jointly using progressive brackets. HARD: postfix is empty — MN progressive bracket calculation not yet authored. Same situation as #496 Part 2; brackets/rates/standard deduction need research before EL can be written.</action_comment>
-<action_dsl />
+<action_comment>Calculate MN taxable income for MFJ (subtract MN MFJ standard deduction from federal AGI). Bracket math (4-tier 5.35/6.80/7.85/9.85 per MN_edd) deferred until full MN_Tax structure is authored — only this MFJ branch is wired today.</action_comment>
+<action_dsl>set result.mn_taxable_income = the maximum of (result.agi - mn_standard_deduction_joint) and 0.0; add "  MN Taxable Income (MFJ): $" + result.mn_taxable_income + " (AGI - Std Deduction)" to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>
