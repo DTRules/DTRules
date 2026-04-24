@@ -32,7 +32,7 @@
 <contexts />
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize Michigan tax calculation</action_dsl>
+<action_dsl>set result.mi_state_tax = 0.0; set result.mi_taxable_income = 0.0; set result.mi_deduction = 0.0; set result.mi_exemptions = 0.0; set result.mi_retirement_subtraction = 0.0; add "Michigan State Tax Calculation (TABLE 41300)" to job.audit_trail</action_dsl>
 <action_postfix>
 0.0 /result.mi_state_tax xdef
 0.0 /result.mi_taxable_income xdef
@@ -68,8 +68,8 @@ job.state "MI" streq not
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate MI tax with flat 4.25% rate; Calculate Michigan deductions, exemptions, and apply 4.25% flat tax rate</action_comment>
-<action_dsl />
+<action_comment>Calculate MI tax with flat 4.25% rate; Calculate Michigan deductions, exemptions, and apply 4.25% flat tax rate. NOTE: postfix loops over job.taxpayers for age-67+ standard-deduction selection and retirement-income subtraction; EL grammar has no inline forall in actions. The EL form uses the plain personal exemption per taxpayer and assumes result.mi_retirement_subtraction is set elsewhere (e.g. via a context iteration).</action_comment>
+<action_dsl>set result.mi_deduction = 0.0; if result.deduction_used is equal to "itemized" then set result.mi_deduction = result.total_itemized; endif; set result.mi_exemptions = mi_personal_exemption * (number of job.taxpayers); set result.mi_taxable_income = the maximum of (result.agi - result.mi_deduction - result.mi_exemptions - result.mi_retirement_subtraction) and 0; set result.mi_state_tax = result.mi_taxable_income * mi_tax_rate; add "  Michigan AGI (same as Federal AGI): $" + result.agi to job.audit_trail; add "  Michigan Deduction: $" + result.mi_deduction to job.audit_trail; add "  Michigan Personal Exemptions: $" + result.mi_exemptions to job.audit_trail; add "  Michigan Retirement Subtraction: $" + result.mi_retirement_subtraction to job.audit_trail; add "  Michigan Taxable Income: $" + result.mi_taxable_income to job.audit_trail; add "  MI Tax (4.25% on $" + result.mi_taxable_income + "): $" + result.mi_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
 0.0 /result.mi_deduction xdef
 result.deduction_used "itemized" streq {

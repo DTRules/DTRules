@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
-<action_dsl>No military retirement pay - no exclusion</action_dsl>
+<action_dsl>/* No military retirement pay - no exclusion. */</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -40,7 +40,7 @@
 <contexts />
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize WI tax calculation</action_dsl>
+<action_dsl>add "WISCONSIN FORM 1 - State Income Tax Calculation" to job.audit_trail; set result.wi_agi = result.agi</action_dsl>
 <action_postfix>
 "WISCONSIN FORM 1 - State Income Tax Calculation" job.audit_trail swap addto
 result.agi /result.wi_agi xdef
@@ -62,8 +62,8 @@ job.filing_status married_joint streq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate WI tax for Married Filing Jointly; Calculate Wisconsin tax using MFJ brackets and deductions</action_comment>
-<action_dsl />
+<action_comment>Calculate WI tax for Married Filing Jointly; Calculate Wisconsin tax using MFJ brackets and deductions. NOTE: postfix loops over job.incomes/job.taxpayers to apply the age-67+ retirement income exclusion before computing wi_agi; EL grammar has no inline forall in actions, so the EL form assumes wi_agi is already set with any retirement subtraction applied.</action_comment>
+<action_dsl>add "  Starting Federal AGI: $" + result.agi + " (Form 1040 Line 11)" to job.audit_trail; add "  Wisconsin AGI: $" + result.wi_agi + " (Form 1 Line 13)" to job.audit_trail; set result.wi_taxable_income = the maximum of (result.wi_agi - wi_standard_deduction_mfj) and 0; add "  Standard Deduction: -$" + wi_standard_deduction_mfj to job.audit_trail; add "  Wisconsin Taxable Income: $" + result.wi_taxable_income + " (Form 1 Line 15)" to job.audit_trail; set result.wi_bracket_1_tax = (the minimum of result.wi_taxable_income and wi_bracket_1_mfj) * wi_tax_rate_1; set result.wi_bracket_2_tax = (the maximum of ((the minimum of result.wi_taxable_income and wi_bracket_2_mfj) - wi_bracket_1_mfj) and 0.0) * wi_tax_rate_2; set result.wi_bracket_3_tax = (the maximum of ((the minimum of result.wi_taxable_income and wi_bracket_3_mfj) - wi_bracket_2_mfj) and 0.0) * wi_tax_rate_3; set result.wi_bracket_4_tax = (the maximum of ((the minimum of result.wi_taxable_income and wi_bracket_4_mfj) - wi_bracket_3_mfj) and 0.0) * wi_tax_rate_4; set result.wi_bracket_5_tax = (the maximum of (result.wi_taxable_income - wi_bracket_4_mfj) and 0.0) * wi_tax_rate_5; set result.wi_tax = result.wi_bracket_1_tax + result.wi_bracket_2_tax + result.wi_bracket_3_tax + result.wi_bracket_4_tax + result.wi_bracket_5_tax; add "  Wisconsin Tax (progressive brackets): $" + result.wi_tax + " (Form 1 Line 19)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 0 local@ wi_retirement_subtraction &gt;
@@ -101,8 +101,8 @@ wi_tax /result.wi_tax xdef
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate WI tax for Single or MFS; Calculate Wisconsin tax using Single/MFS brackets and deductions</action_comment>
-<action_dsl />
+<action_comment>Calculate WI tax for Single or MFS; Calculate Wisconsin tax using Single/MFS brackets and deductions. NOTE: postfix loops over job.incomes/job.taxpayers to apply the age-67+ retirement income exclusion (halved for MFS) before computing wi_agi; EL grammar has no inline forall in actions, so the EL form assumes wi_agi is already set. MFS uses Single brackets and standard deduction halved.</action_comment>
+<action_dsl>add "  Starting Federal AGI: $" + result.agi + " (Form 1040 Line 11)" to job.audit_trail; add "  Wisconsin AGI: $" + result.wi_agi + " (Form 1 Line 13)" to job.audit_trail; set result.wi_std_deduction = wi_standard_deduction_single; if job.filing_status is not equal to "single" then set result.wi_std_deduction = wi_standard_deduction_single / 2; endif; set result.wi_taxable_income = the maximum of (result.wi_agi - result.wi_std_deduction) and 0; add "  Standard Deduction: -$" + result.wi_std_deduction to job.audit_trail; add "  Wisconsin Taxable Income: $" + result.wi_taxable_income + " (Form 1 Line 15)" to job.audit_trail; set result.wi_bracket_limit_1 = wi_bracket_1_single; set result.wi_bracket_limit_2 = wi_bracket_2_single; set result.wi_bracket_limit_3 = wi_bracket_3_single; set result.wi_bracket_limit_4 = wi_bracket_4_single; if job.filing_status is not equal to "single" then set result.wi_bracket_limit_1 = wi_bracket_1_mfs; endif; if job.filing_status is not equal to "single" then set result.wi_bracket_limit_2 = wi_bracket_2_mfs; endif; if job.filing_status is not equal to "single" then set result.wi_bracket_limit_3 = wi_bracket_3_mfs; endif; if job.filing_status is not equal to "single" then set result.wi_bracket_limit_4 = wi_bracket_4_mfs; endif; set result.wi_bracket_1_tax = (the minimum of result.wi_taxable_income and result.wi_bracket_limit_1) * wi_tax_rate_1; set result.wi_bracket_2_tax = (the maximum of ((the minimum of result.wi_taxable_income and result.wi_bracket_limit_2) - result.wi_bracket_limit_1) and 0.0) * wi_tax_rate_2; set result.wi_bracket_3_tax = (the maximum of ((the minimum of result.wi_taxable_income and result.wi_bracket_limit_3) - result.wi_bracket_limit_2) and 0.0) * wi_tax_rate_3; set result.wi_bracket_4_tax = (the maximum of ((the minimum of result.wi_taxable_income and result.wi_bracket_limit_4) - result.wi_bracket_limit_3) and 0.0) * wi_tax_rate_4; set result.wi_bracket_5_tax = (the maximum of (result.wi_taxable_income - result.wi_bracket_limit_4) and 0.0) * wi_tax_rate_5; set result.wi_tax = result.wi_bracket_1_tax + result.wi_bracket_2_tax + result.wi_bracket_3_tax + result.wi_bracket_4_tax + result.wi_bracket_5_tax; add "  Wisconsin Tax (progressive brackets): $" + result.wi_tax + " (Form 1 Line 19)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 0 local@ wi_retirement_subtraction &gt;

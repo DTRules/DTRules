@@ -32,7 +32,7 @@
 <contexts />
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize IL tax calculation</action_dsl>
+<action_dsl>add "ILLINOIS FORM IL-1040 - State Income Tax Calculation" to job.audit_trail; set result.il_agi = result.agi</action_dsl>
 <action_postfix>
 "ILLINOIS FORM IL-1040 - State Income Tax Calculation" job.audit_trail swap addto
 0 local@ num_people &gt;
@@ -44,7 +44,7 @@ result.agi /result.il_agi xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Calculate number of people</condition_comment>
-<condition_dsl>Count taxpayers and dependents</condition_dsl>
+<condition_dsl>number of job.taxpayers + number of job.dependents &gt;= 1</condition_dsl>
 <condition_postfix>
 job.taxpayers arraysize job.dependents arraysize + local@ num_people &gt;
 num_people 1 &gt;=
@@ -56,8 +56,8 @@ num_people 1 &gt;=
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate IL tax with exemptions; Calculate Illinois AGI, apply exemptions, calculate tax at 4.95%</action_comment>
-<action_dsl />
+<action_comment>Calculate IL tax with exemptions; Calculate Illinois AGI, apply exemptions, calculate tax at 4.95%. NOTE: postfix loops over job.incomes to subtract retirement-type income (pension/IRA/social_security) from il_agi; EL grammar has no inline forall in actions, so that subtraction is omitted from the EL form. Add a context-level iteration if behavioral parity is required.</action_comment>
+<action_dsl>add "  Starting Federal AGI: $" + result.agi + " (Form 1040 Line 11)" to job.audit_trail; add "  Illinois AGI: $" + result.il_agi + " (Form IL-1040 Line 11)" to job.audit_trail; set result.il_exemption_total = (number of job.taxpayers + number of job.dependents) * il_personal_exemption; add "  Personal Exemptions: " + (number of job.taxpayers + number of job.dependents) + " x $" + il_personal_exemption + " = $" + result.il_exemption_total to job.audit_trail; set result.il_taxable_income = the maximum of (result.il_agi - result.il_exemption_total) and 0; add "  Illinois Taxable Income: $" + result.il_taxable_income + " (AGI - Exemptions)" to job.audit_trail; set result.il_tax = result.il_taxable_income * il_tax_rate; add "  Illinois Tax (4.95%): $" + result.il_tax + " (Form IL-1040 Line 13)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 result.agi local@ il_retirement_subtraction &gt;
@@ -80,7 +80,7 @@ result.il_taxable_income il_tax_rate f* /result.il_tax xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>No exemptions - unlikely case; Calculate IL tax without exemptions</action_comment>
-<action_dsl />
+<action_dsl>add "  Illinois AGI: $" + result.il_agi to job.audit_trail; set result.il_taxable_income = the maximum of result.il_agi and 0; set result.il_tax = result.il_taxable_income * il_tax_rate; add "  Illinois Tax (4.95%): $" + result.il_tax to job.audit_trail</action_dsl>
 <action_postfix>
 "  Illinois AGI: $" result.il_agi cvs strconcat job.audit_trail swap addto
 result.il_agi 0 fmax /result.il_taxable_income xdef
