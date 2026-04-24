@@ -1,6 +1,21 @@
 # DTRules Changelog
 
-## v1.9.1 — 2026-04-24
+## v1.9.0 — 2026-04-24
+
+- **`for all X as <alias>` now executes at runtime** (#714). v1.8.1 shipped
+  the `as`-alias grammar with compile-only tests; the emitted postfix
+  immediately consumed the table body once (via `null allocate execute
+  deallocate pop`) before the iteration started, so `alias.field` in the
+  body never saw a populated slot. The emit now reserves the slot with
+  `null allocate`, runs the wrapper per element inside the `for` loop, and
+  releases the slot afterwards. Three additional fixes land alongside:
+  `opGet` normalizes `/name` literals to the executable interned form
+  (matching `Find`) so `<N> local@ /<field> get` actually reads the
+  attribute; the loader resets the EL compiler's local-slot table between
+  tables so indices start at zero per table; and `VisitTypedXmlValue` now
+  runs the alias-access check, because the grammar routes bare IDENTs
+  through `typedXmlValue` inside `strexpr` (e.g. string concatenation).
+  Execution-based tests land in `pkg/dtrules/authoring/forall_as_runtime_test.go`.
 
 - **JSON-first CLI for decision tables and the EDD** (#716). Adds a
   `dtrules table` and `dtrules edd` subcommand surface that wraps the

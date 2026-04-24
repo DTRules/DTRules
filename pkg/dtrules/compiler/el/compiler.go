@@ -53,6 +53,15 @@ func (c *Compiler) SetSymbols(symbols map[string]string) {
 	c.emitter.SetSymbols(symbols)
 }
 
+// ResetLocals clears per-table local variable state (names + slot indices).
+// Callers that reuse a Compiler across multiple tables must call this between
+// tables so slot indices don't bleed across independent compilation scopes.
+// Within a single table, locals persist across Context/Condition/Action calls
+// so a condition can see the slot declared by the context.
+func (c *Compiler) ResetLocals() {
+	c.emitter.ResetLocals()
+}
+
 // CollectionResolver maps an entity-type name (the element type of an array
 // field in the EDD) to the fully qualified `owner.field` path of the array
 // that contains entities of that type. If more than one collection holds

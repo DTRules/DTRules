@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- Form A: basic as-alias — read a field via the alias. -->
+<decision_table el_compiled="true">
+<table_name>FA_Basic</table_name>
+<xls_file>forall_as_dt.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>1</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>as-alias</context_comment>
+<context_dsl>for all calculation_context.accounts as acct</context_dsl>
+<context_postfix></context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>always</condition_comment>
+<condition_dsl>acct.balance &gt; 0</condition_dsl>
+<condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>sum balance</action_comment>
+<action_dsl>set calculation_context.total_balance = calculation_context.total_balance + acct.balance</action_dsl>
+<action_postfix></action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- Form B: as-alias with where-clause reading alias field. -->
+<decision_table el_compiled="true">
+<table_name>FA_Where</table_name>
+<xls_file>forall_as_dt.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>2</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>as-alias where</context_comment>
+<context_dsl>for all calculation_context.accounts as acct where acct.has_staking_authority == true</context_dsl>
+<context_postfix></context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>always</condition_comment>
+<condition_dsl>acct.balance &gt;= 0</condition_dsl>
+<condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>count</action_comment>
+<action_dsl>set calculation_context.processed_count = calculation_context.processed_count + 1</action_dsl>
+<action_postfix></action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- Form C: nested non-shadowing. Outer `parent`, inner `child`, pair them by label. -->
+<decision_table el_compiled="true">
+<table_name>FA_Nested</table_name>
+<xls_file>forall_as_dt.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>3</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>outer</context_comment>
+<context_dsl>for all calculation_context.accounts as outer_a</context_dsl>
+<context_postfix></context_postfix>
+</context_details>
+<context_details>
+<context_number>2</context_number>
+<context_comment>inner</context_comment>
+<context_dsl>for all calculation_context.accounts as inner_a where inner_a.balance &gt; outer_a.balance</context_dsl>
+<context_postfix></context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>always</condition_comment>
+<condition_dsl>inner_a.balance &gt;= 0</condition_dsl>
+<condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>record pair</action_comment>
+<action_dsl>set calculation_context.audit = calculation_context.audit + outer_a.label + "&lt;" + inner_a.label + ";"</action_dsl>
+<action_postfix></action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- Form D: regression — non-alias path still works. -->
+<decision_table el_compiled="true">
+<table_name>FA_NoAlias</table_name>
+<xls_file>forall_as_dt.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>4</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>non-alias</context_comment>
+<context_dsl>for all calculation_context.accounts</context_dsl>
+<context_postfix></context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>always</condition_comment>
+<condition_dsl>staking_account.balance &gt; 0</condition_dsl>
+<condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="Y"></condition_column>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>sum balance</action_comment>
+<action_dsl>set calculation_context.total_balance = calculation_context.total_balance + staking_account.balance</action_dsl>
+<action_postfix></action_postfix>
+<action_column column_number="1" column_value="X"></action_column>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+</decision_tables>

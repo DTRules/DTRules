@@ -333,6 +333,13 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	// Create the decision table using the builder
 	builder := decisiontable.NewBuilder(name.StringValue(), l.session)
 
+	// Each table has its own local-variable namespace. Clear any locals left
+	// over from the previous table so slot indices start at 0 — within this
+	// table, the context, conditions, and actions share the same emitter
+	// state so `<alias>.<field>` declared in the context resolves in the
+	// condition/action passes.
+	l.elCompiler.ResetLocals()
+
 	// Set table type
 	builder.SetTypeFromString(table.AttributeFields.GetType())
 

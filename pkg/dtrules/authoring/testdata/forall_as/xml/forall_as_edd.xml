@@ -1,0 +1,15 @@
+<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+	<entity name='calculation_context' access='rw' comment=''>
+		<field name='calculation_context' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='accounts' type='array' subtype='staking_account' access='r' input='' default_value='' comment='Array of staking accounts'></field>
+		<field name='processed_count' type='integer' subtype='' access='rw' input='' default_value='0' comment='Count of processed accounts'></field>
+		<field name='total_balance' type='integer' subtype='' access='rw' input='' default_value='0' comment='Sum of balances'></field>
+		<field name='audit' type='string' subtype='' access='rw' input='' default_value='' comment='Pair-wise audit string'></field>
+	</entity>
+	<entity name='staking_account' access='rw' comment=''>
+		<field name='staking_account' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
+		<field name='has_staking_authority' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Whether this account has staking authority'></field>
+		<field name='balance' type='integer' subtype='' access='rw' input='' default_value='0' comment='Account balance'></field>
+		<field name='label' type='string' subtype='' access='rw' input='' default_value='' comment='Label'></field>
+	</entity>
+</entity_data_dictionary>
