@@ -169,7 +169,7 @@ func TestMCPToolsList(t *testing.T) {
 		"table_list": true, "table_get": true, "table_put": true,
 		"table_patch": true, "table_schema": true,
 		"edd_get": true, "edd_put": true, "edd_patch": true, "edd_schema": true,
-		"project_validate": true,
+		"project_validate": true, "project_diagnostics": true,
 	}
 	for _, tool := range tools {
 		tm := tool.(map[string]interface{})
@@ -350,6 +350,56 @@ func TestMCPTableSchema(t *testing.T) {
 	text, _ := content[0].(map[string]interface{})["text"].(string)
 	if !strings.Contains(text, "DTRulesTable") {
 		t.Errorf("expected TableJSON schema in response, got %q", text)
+	}
+}
+
+func TestMCPProjectDiagnostics(t *testing.T) {
+	dir := writeDupXMLProject(t, map[string][]string{
+		"001_a_dt.xml": {"Foo"},
+		"002_b_dt.xml": {"Foo"},
+	})
+	rpc := newMCPRPC(t, dir)
+	defer rpc.close()
+
+	resp := rpc.call("tools/call", map[string]interface{}{
+		"name":      "project_diagnostics",
+		"arguments": map[string]interface{}{},
+	})
+	result := mustResult(t, resp)
+	structured, ok := result["structuredContent"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected structuredContent, got %v", result)
+	}
+	diags, _ := structured["diagnostics"].([]interface{})
+	if len(diags) != 1 {
+		t.Fatalf("want 1 diagnostic, got %d: %+v", len(diags), diags)
+	}
+	d := diags[0].(map[string]interface{})
+	if d["kind"] != "duplicate_table" {
+		t.Errorf("kind = %v, want duplicate_table", d["kind"])
+	}
+	if d["original_name"] != "Foo" || d["assigned_name"] != "Foo-1" {
+		t.Errorf("unexpected diagnostic: %+v", d)
+	}
+}
+
+func TestMCPProjectDiagnosticsClean(t *testing.T) {
+	dir := copyProject(t, "../../sampleprojects/CHIP")
+	rpc := newMCPRPC(t, dir)
+	defer rpc.close()
+
+	resp := rpc.call("tools/call", map[string]interface{}{
+		"name":      "project_diagnostics",
+		"arguments": map[string]interface{}{},
+	})
+	result := mustResult(t, resp)
+	structured, ok := result["structuredContent"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected structuredContent, got %v", result)
+	}
+	diags, _ := structured["diagnostics"].([]interface{})
+	if len(diags) != 0 {
+		t.Errorf("CHIP project should have no duplicates, got %+v", diags)
 	}
 }
 

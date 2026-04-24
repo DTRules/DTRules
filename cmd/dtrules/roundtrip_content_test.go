@@ -82,11 +82,18 @@ func hashDir(t *testing.T, root string) map[string]string {
 // All xlsx files are touched to be slightly older than xml files (so the sync
 // system sees "no change needed" by default), and callers can selectively
 // bump specific files newer.
+//
+// TaxReturn currently ships with duplicate <table_name> definitions across its
+// XML files (TaxReturn_dt.xml vs NNN_*_dt.xml) — this is the motivating bug
+// for issue #722 and will be resolved in a follow-up. These tests assert
+// unrelated round-trip behavior, so we opt out of the #722 compile-time gate
+// via DTRULES_ALLOW_DUPLICATE_TABLES until TaxReturn is deduplicated.
 func copyAndMakeFresh(t *testing.T) string {
 	t.Helper()
 	if _, err := os.Stat(taxReturnDir); err != nil {
 		t.Skip("TaxReturn sample project not found")
 	}
+	t.Setenv("DTRULES_ALLOW_DUPLICATE_TABLES", "1")
 	tmpDir := t.TempDir()
 	if err := copyDir(taxReturnDir, tmpDir); err != nil {
 		t.Fatalf("copyDir: %v", err)

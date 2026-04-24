@@ -1,5 +1,39 @@
 # DTRules Changelog
 
+## Unreleased
+
+- **Detect duplicate decision-table names across XML files** (#722). Decision
+  table names are keys for `perform`, `executetable`, the JSON CLI, MCP
+  server, and every consumer of `authoring.Project.Table(name)`. When two
+  files declared the same `<table_name>`, the loader previously picked one
+  by load order and silently dropped the rest. The fix is a three-layer
+  gate:
+
+  1. **Edit-time, tolerant.** `authoring.OpenProject` keeps loading
+     successfully but renames each duplicate after the first (by sorted
+     filepath order) to `<name>-1`, `<name>-2`, .... Every rename is
+     recorded as a `Diagnostic` (`Project.Diagnostics()`) and the new name
+     persists when `Project.Save()` runs — so the condition becomes visible
+     in git rather than being swallowed.
+  2. **JSON CLI / MCP surface.** `dtrules project diagnostics --project <path>`
+     emits the diagnostics list (exits 0 regardless of count). MCP gains a
+     matching `project_diagnostics` tool.
+  3. **Compile-time, strict.** `dtrules build`, `dtrules validate`, and
+     `dtrules verify` fail non-zero when any table name matches the
+     reserved `^(.+)-(\d+)$` marker or when two files declare the same
+     real name. The suffix is grammar-invalid as an `IDENT` (per the EL
+     grammar research on #722), so no rule author can accidentally
+     `perform` a dup marker.
+
+  Runtime loader behavior is unchanged — production rulesets that already
+  resolved duplicates before this release continue to load.
+
+  The TaxReturn sampleproject ships with pre-existing duplicates that
+  motivated this work; deduplicating them is tracked as a follow-up.
+  Tests that assert unrelated round-trip behavior over TaxReturn now set
+  `DTRULES_ALLOW_DUPLICATE_TABLES=1` to opt out of the compile-time
+  gate.
+
 ## v1.9.0 — 2026-04-24
 
 - **`for all X as <alias>` now executes at runtime** (#714). v1.8.1 shipped
