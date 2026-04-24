@@ -107,6 +107,17 @@ func (c *CLI) runVerify(args []string) int {
 
 	var failures []verifyFailure
 
+	// Check 0: unique table names (compile-time gate for #722 `-N` markers).
+	if dirExists(xmlDir) {
+		dupFindings, err := checkNoDupMarkers(xmlDir)
+		if err != nil {
+			failures = append(failures, verifyFailure{kind: "dup", message: fmt.Sprintf("dup scan error: %v", err)})
+		}
+		for _, f := range dupFindings {
+			failures = append(failures, verifyFailure{kind: "dup", message: strings.TrimRight(f.Message(), "\n")})
+		}
+	}
+
 	// Check 1: build idempotency
 	buildFails := checkBuildIdempotency(absPath, xmlDir, excelDir, opts)
 	failures = append(failures, buildFails...)

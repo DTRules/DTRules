@@ -126,6 +126,14 @@ func (c *CLI) runBuild(args []string) int {
 		return 1
 	}
 
+	if findings, err := checkNoDupMarkers(xmlDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Error scanning for duplicate table names: %v\n", err)
+		return 1
+	} else if len(findings) > 0 {
+		writeDupFindings(os.Stderr, findings)
+		return 1
+	}
+
 	if opts.dryRun {
 		fmt.Printf("[dry-run] Would run %s-authored build in %s\n", path, absPath)
 		return c.runBuildDryRun(xmlDir, excelDir, path, opts)

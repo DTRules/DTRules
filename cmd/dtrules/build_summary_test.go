@@ -293,6 +293,9 @@ func TestBuildFromXML_ImportStepReportsNonZeroCounts(t *testing.T) {
 	if _, err := os.Stat(taxReturnDir); err != nil {
 		t.Skip("TaxReturn sample project not found")
 	}
+	// TaxReturn has unresolved duplicate <table_name> entries (tracked by #722);
+	// this test asserts unrelated import-step bookkeeping.
+	t.Setenv("DTRULES_ALLOW_DUPLICATE_TABLES", "1")
 	srcXMLDir := filepath.Join(taxReturnDir, "xml")
 	if _, err := os.Stat(srcXMLDir); err != nil {
 		t.Skip("TaxReturn xml dir not found")

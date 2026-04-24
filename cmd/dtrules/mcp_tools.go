@@ -95,6 +95,11 @@ func buildToolDefs() []mcpToolDef {
 			Description: "Run structural and EL-compliance validation on the project. Returns a structured report.",
 			InputSchema: schemaProjectOnly(),
 		},
+		{
+			Name:        "project_diagnostics",
+			Description: "Return authoring-time diagnostics (e.g. duplicate_table renames) for the project as JSON.",
+			InputSchema: schemaProjectOnly(),
+		},
 	}
 }
 
@@ -137,6 +142,8 @@ func (s *mcpServer) callTool(name string, args json.RawMessage) (map[string]inte
 		return mcpTextResult(eddSchemaJSON), nil
 	case "project_validate":
 		return s.toolProjectValidate(project)
+	case "project_diagnostics":
+		return s.toolProjectDiagnostics(project)
 	default:
 		return nil, newToolError("invalid_command", "check tools/list", fmt.Sprintf("unknown tool %q", name))
 	}
@@ -216,6 +223,18 @@ func (s *mcpServer) toolProjectValidate(project string) (map[string]interface{},
 		}
 	}
 	return mcpJSONResult(report)
+}
+
+func (s *mcpServer) toolProjectDiagnostics(project string) (map[string]interface{}, error) {
+	p, err := authoring.OpenProject(project)
+	if err != nil {
+		return nil, newToolError("io_error", "project must contain an xml/ directory", err.Error())
+	}
+	diags := p.Diagnostics()
+	if diags == nil {
+		diags = []authoring.Diagnostic{}
+	}
+	return mcpJSONResult(map[string]interface{}{"diagnostics": diags})
 }
 
 // --- write tools ---
