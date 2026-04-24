@@ -1,41 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 26200: Calculate_Partnership_Audit_Tax -->
-<decision_table>
-<table_name>Calculate_Partnership_Audit_Tax</table_name>
-<xls_file>098_Calculate_Partnership_Audit_Tax_dt.xlsx</xls_file>
-<attribute_fields>
-<Type>ALL</Type>
-<COMMENTS>Calculate Partner's Additional Reporting Year Tax per Form 8978 and IRC 6226. For BBA partnership audit adjustments pushed out to partners.</COMMENTS>
-<TABLE_NUMBER>26200</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Has income adjustments</condition_comment>
-<condition_dsl>Partnership audit has income adjustments</condition_dsl>
-<condition_postfix>
-
-</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-</condition_details>
-</conditions>
-<actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment></action_comment>
-<action_dsl>Calculate mortgage interest credit</action_dsl>
-<action_postfix>
-
-</action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-</action_details>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
 </decision_tables>

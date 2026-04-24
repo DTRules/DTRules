@@ -2,9 +2,6 @@
 <decision_tables>
 
 
-
-
-
 <decision_table>
 <table_name>Compute_Tax_Return</table_name>
 <xls_file>Income.xls</xls_file>
@@ -287,9 +284,6 @@ Validate_Results
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Gross_Income</table_name>
 <xls_file>Income.xls</xls_file>
@@ -478,9 +472,6 @@ Calculate_SS_Taxability
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Process_W2_Income</table_name>
 <xls_file>Income.xls</xls_file>
@@ -593,9 +584,6 @@ result.senior_count 1 + /result.senior_count xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Process_Self_Employment</table_name>
 <xls_file>Income.xls</xls_file>
@@ -679,9 +667,6 @@ Calculate_SE_Tax
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_SE_Tax</table_name>
 <xls_file>Income.xls</xls_file>
@@ -744,9 +729,6 @@ taxpayer.se_tax se_deduction_rate f* /taxpayer.se_tax_deduction xdef
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -845,9 +827,6 @@ vehicle.vehicle_deduction taxpayer.se_expenses f+ /taxpayer.se_expenses xdef
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -975,9 +954,6 @@ property.rental_net_income result.total_rental_income f+ /result.total_rental_in
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Process_Other_Income</table_name>
 <xls_file>Income.xls</xls_file>
@@ -1036,9 +1012,6 @@ income.tax_withheld result.total_payments f+ /result.total_payments xdef
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -1104,9 +1077,6 @@ taxpayer.se_tax_deduction result.total_adjustments f+ /result.total_adjustments 
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -1176,9 +1146,6 @@ result.standard_deduction /result.total_deduction xdef
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -1320,9 +1287,6 @@ result.senior_count 1.0 f* constants.additional_std_deduction_single f* result.s
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Itemized_Deductions</table_name>
 <xls_file>Deductions.xls</xls_file>
@@ -1425,9 +1389,6 @@ endif
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -1573,9 +1534,6 @@ effective_salt_cap result.total_itemized f+ /result.total_itemized xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Sum_Primary_Residence_Tax</table_name>
 <xls_file>Deductions.xls</xls_file>
@@ -1621,9 +1579,6 @@ property_taxes 0 local@ f+ 0 local!
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Sum_SALT_Deduction</table_name>
 <xls_file>Deductions.xls</xls_file>
@@ -1667,9 +1622,6 @@ amount 0 local@ f+ 0 local!
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -1762,9 +1714,6 @@ property.mortgage_interest_deductible result.total_itemized f+ /result.total_ite
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Filter_Primary_Residence</table_name>
 <xls_file>Deductions.xls</xls_file>
@@ -1808,9 +1757,6 @@ Calculate_Mortgage_Interest_For_Property
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -1866,9 +1812,6 @@ deduction.allowed_amount result.total_itemized f+ /result.total_itemized xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Filter_Charity_Deduction</table_name>
 <xls_file>Deductions.xls</xls_file>
@@ -1914,9 +1857,6 @@ deduction.allowed_amount result.total_itemized f+ /result.total_itemized xdef
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -1980,9 +1920,6 @@ result.total_noncash_charitable result.total_itemized f+ /result.total_itemized 
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -2090,9 +2027,6 @@ noncash_contribution.deduction_amount result.total_noncash_charitable f+ /result
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Taxable_Income</table_name>
 <xls_file>TaxableIncome.xls</xls_file>
@@ -2147,9 +2081,6 @@ result.agi result.total_deduction f- result.qbi_deduction f- 0.0 fmax /result.ta
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -2261,9 +2192,6 @@ result.regular_tax result.capital_gains_tax f+ result.se_tax f+ result.niit_tax 
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Apply_Tax_Brackets</table_name>
 <xls_file>TaxCredits.xls</xls_file>
@@ -2327,9 +2255,6 @@ Apply_Tax_Brackets_Single
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -2530,9 +2455,6 @@ result.taxable_income bracket_6_mfj f- bracket_7_rate f* f+
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Apply_Tax_Brackets_Single</table_name>
 <xls_file>TaxCredits.xls</xls_file>
@@ -2729,9 +2651,6 @@ result.taxable_income bracket_6_single f- bracket_7_rate f* f+
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -2962,9 +2881,6 @@ result.total_clean_vehicle_credit f+ /result.total_credits xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_CTC_Phase_Out</table_name>
 <xls_file>MajorCredits.xls</xls_file>
@@ -3141,9 +3057,6 @@ result.ctc_before_phaseout /result.ctc_after_phaseout xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Child_Tax_Credit</table_name>
 <xls_file>MajorCredits.xls</xls_file>
@@ -3244,9 +3157,6 @@ dependent.odc_amount result.total_odc f+ /result.total_odc xdef
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -3378,9 +3288,6 @@ result.total_tax result.total_payments f- /result.refund_or_owed xdef
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -3654,9 +3561,6 @@ eitc_max_0_children result.agi eitc_threshold_mfj_0 f- 0.0765 f* f- 0 fmax /resu
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Education_Credits</table_name>
 <xls_file>MajorCredits.xls</xls_file>
@@ -3703,10 +3607,6 @@ perform when called
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
-
 
 
 <decision_table>
@@ -3858,9 +3758,6 @@ dependent.education_credit result.education_credit f+ /result.education_credit x
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_QBI_Deduction</table_name>
 <xls_file>TaxableIncome.xls</xls_file>
@@ -3920,9 +3817,6 @@ result.agi result.total_deduction f- result.qbi_deduction f- 0.20 f* result.qbi_
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Validate_Results</table_name>
 <xls_file>Validation.xls</xls_file>
@@ -3980,9 +3874,6 @@ Validate_Summary
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Validate_AGI</table_name>
 <xls_file>Validation.xls</xls_file>
@@ -4028,9 +3919,6 @@ false /result.validation_passed xdef
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -4080,9 +3968,6 @@ false /result.validation_passed xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Validate_Total_Tax</table_name>
 <xls_file>Validation.xls</xls_file>
@@ -4130,9 +4015,6 @@ false /result.validation_passed xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Validate_Summary</table_name>
 <xls_file>Validation.xls</xls_file>
@@ -4177,10 +4059,6 @@ result.validation_passed true beq
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
-
 
 
 <decision_table>
@@ -4433,9 +4311,6 @@ pop
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_OBBBA_Deductions</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -4509,10 +4384,6 @@ result.tips_deduction result.overtime_deduction f+ result.senior_deduction f+ /r
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
-
 
 
 <decision_table>
@@ -4635,11 +4506,6 @@ result.total_tip_income constants.tips_deduction_max fmin /result.tips_deduction
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
-
-
 
 
 <decision_table>
@@ -4773,11 +4639,6 @@ result.total_overtime_income constants.overtime_deduction_max_single fmin /resul
 </decision_table>
 
 
-
-
-
-
-
 <decision_table>
 <table_name>Calculate_Senior_Deduction</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -4898,9 +4759,6 @@ result.senior_count 1.0 f* constants.senior_deduction_amount f* /result.senior_d
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -5109,9 +4967,6 @@ result.total_social_security 0.85 f* /result.taxable_social_security xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Process_Capital_Gains</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -5214,9 +5069,6 @@ income.gross_amount result.total_qualified_dividends f+ /result.total_qualified_
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -5328,9 +5180,6 @@ deallocate pop
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Apply_CG_Brackets_MFJ</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -5404,11 +5253,6 @@ deallocate pop
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
-
-
 
 
 <decision_table>
@@ -5486,7 +5330,6 @@ deallocate pop
 </decision_table>
 
 
-
 <decision_table>
 <table_name>Apply_CG_Brackets_Single</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -5560,9 +5403,6 @@ deallocate pop
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -5768,9 +5608,6 @@ result.magi_for_niit niit_threshold_single f- result.net_investment_income fmin 
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Additional_Medicare_Tax</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -5936,9 +5773,6 @@ result.wages_for_additional_medicare additional_medicare_threshold_single f- add
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -6139,9 +5973,6 @@ deallocate pop deallocate pop
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_HSA_Deduction</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -6277,9 +6108,6 @@ taxpayer.hsa_contribution hsa_limit_self fmin result.hsa_deduction f+ /result.hs
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -6429,9 +6257,6 @@ deallocate pop deallocate pop
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Educator_Expenses</table_name>
 <table_number>54</table_number>
@@ -6469,9 +6294,6 @@ result.total_adjustments result.educator_expense_deduction f+ /result.total_adju
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -6513,9 +6335,6 @@ result.total_medical_expenses result.medical_expense_floor f- 0 fmax /result.med
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -6624,8 +6443,6 @@ result.cdcc_credit result.total_credits f+ /result.total_credits xdef
 </decision_table>
 
 
-
-
 <decision_table>
 <table_name>Count_CDCC_Qualifying_Person</table_name>
 <xls_file>TaxCredits.xls</xls_file>
@@ -6697,9 +6514,6 @@ false /dependent.qualifies_for_cdcc xdef
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -6981,8 +6795,6 @@ result.savers_credit result.total_credits f+ /result.total_credits xdef
 </decision_table>
 
 
-
-
 <decision_table>
 <table_name>Sum_Savers_Contribution</table_name>
 <xls_file>TaxCredits.xls</xls_file>
@@ -7020,8 +6832,6 @@ taxpayer.traditional_ira_contribution taxpayer.roth_ira_contribution f+ constant
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
 
 
 <decision_table>
@@ -7093,8 +6903,6 @@ result.clean_energy_credit result.energy_efficiency_credit f+ result.total_credi
 </decision_table>
 
 
-
-
 <decision_table>
 <table_name>Calculate_Energy_Credit_Per_Improvement</table_name>
 <xls_file>TaxCredits.xls</xls_file>
@@ -7146,8 +6954,6 @@ energy_improvement.cost constants.energy_efficiency_rate f* result.energy_effici
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
 
 
 <decision_table>
@@ -7226,8 +7032,6 @@ result.total_rental_loss result.rental_loss_allowed f- /result.suspended_passive
 </decision_table>
 
 
-
-
 <decision_table>
 <table_name>Sum_Rental_Loss</table_name>
 <xls_file>TaxCredits.xls</xls_file>
@@ -7280,9 +7084,6 @@ property.rental_net_income fnegate result.total_rental_loss f+ /result.total_ren
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -7394,8 +7195,6 @@ result.amt_tax result.total_tax_before_credits f- 0 fmax /result.amt_owed xdef
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
 
 
 <decision_table>
@@ -7523,9 +7322,6 @@ job.advance_ptc_received /result.ptc_repayment xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Process_K1_Income</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -7583,9 +7379,6 @@ k1.qbi_income result.total_k1_qbi f+ /result.total_k1_qbi xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_K1_SE_Tax</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -7637,9 +7430,6 @@ k1_se_tax se_deduction_rate f* result.total_adjustments f+ /result.total_adjustm
 </action_details>
 </actions>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -7699,9 +7489,6 @@ ira.distribution_amount result.total_ira_distributions f+ /result.total_ira_dist
 <action_comment>for all IRA accounts perform Process_IRA_Basis</action_comment></action_details>
 </actions>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -7766,9 +7553,6 @@ result.taxable_conversions result.total_other_income f+ /result.total_other_inco
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Process_Farm_Income</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -7823,9 +7607,6 @@ farm.net_profit result.net_farm_profit f+ /result.net_farm_profit xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Farm_SE_Tax</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -7877,9 +7658,6 @@ result.farm_se_tax se_deduction_rate f* result.total_adjustments f+ /result.tota
 </action_details>
 </actions>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -7996,9 +7774,6 @@ sale.section_1231_gain 0 &lt; { sale.section_1231_gain fnegate result.total_1231
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Section_1231</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -8069,9 +7844,6 @@ result.net_1231_gain_loss result.total_other_income f+ /result.total_other_incom
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Process_Foreign_Income</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -8121,9 +7893,6 @@ foreign.foreign_taxes_paid foreign.foreign_taxes_withheld f+ result.total_foreig
 </action_details>
 </actions>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -8184,9 +7953,6 @@ result.total_foreign_taxes_paid result.foreign_tax_credit_limit fmin /result.for
 </action_details>
 </actions>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -8251,9 +8017,6 @@ result.total_foreign_taxes_paid result.foreign_tax_credit_limit fmin /result.for
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Process_Foreign_Earned_Income</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -8312,97 +8075,6 @@ false /foreign_earned_income.qualifies_exclusion xdef
 </decision_table>
 
 
-
-
-
-<decision_table>
-<table_name>Calculate_Mortgage_Interest_Credit</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
-<attribute_fields>
-<Type>ALL</Type>
-<COMMENTS>Calculates Mortgage Interest Credit for holders of Mortgage Credit Certificates (MCC). Credit = mortgage interest paid x MCC rate. Limited to $2,000. Reduces Schedule A mortgage interest deduction. Excess carries forward per Form 8396.</COMMENTS>
-<TABLE_NUMBER>8400</TABLE_NUMBER>
-</attribute_fields>
-<contexts>
-<context_details>
-<context_number>1</context_number>
-<context_comment>Process each property for MCC</context_comment>
-<context_dsl>for all properties</context_dsl>
-<context_postfix>
-{ /Calculate_Mortgage_Interest_Credit executetable } job.properties forall
-</context_postfix>
-</context_details>
-</contexts>
-<initial_actions>
-<initial_action>
-<action_dsl>Initialize mortgage interest credit</action_dsl>
-<action_postfix>
-0.0 /result.mortgage_interest_credit xdef
-0.0 /result.carryforward_mortgage_credit xdef
-0.0 /result.mortgage_interest_deduction_reduction xdef
-</action_postfix>
-</initial_action>
-</initial_actions>
-<conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Property has MCC</condition_comment>
-<condition_dsl>property.has_mortgage_credit_certificate equals true</condition_dsl>
-<condition_postfix>property.has_mortgage_credit_certificate</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-</condition_details>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>MCC rate is valid; property.mcc_rate &gt; 0 and &lt;= 0.50</condition_comment>
-<condition_dsl />
-<condition_postfix>property.mcc_rate 0 &gt; property.mcc_rate 0.50 &lt;= and</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
-<condition_comment>Has mortgage interest paid</condition_comment>
-<condition_dsl>Mortgage interest paid &gt; 0</condition_dsl>
-<condition_postfix>
-property.mortgage_interest_paid 0 &gt; property.mortgage_interest_paid property.mortgage_interest if 0 &gt;
-</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-</condition_details>
-</conditions>
-<actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment>Calculate mortgage interest credit; Calculate MCC credit and adjust deduction</action_comment>
-<action_dsl />
-<action_postfix>
-property.mortgage_interest_paid 0 &gt; property.mortgage_interest_paid property.mortgage_interest if local@ interest_paid &gt;
-interest_paid property.mcc_rate f* /property.mcc_credit xdef
-property.mcc_credit 2000 fmin /property.mcc_credit_allowed xdef
-property.mcc_credit_allowed result.mortgage_interest_credit f+ /result.mortgage_interest_credit xdef
-property.mcc_credit_allowed /result.mortgage_interest_deduction_reduction xdef
-"  MCC credit calculated: $" property.mcc_credit_allowed cvs strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value="X" />
-</action_details>
-<action_details>
-<action_number>2</action_number>
-<action_comment>No MCC credit; Property does not qualify for MCC</action_comment>
-<action_dsl />
-<action_postfix>
-0.0 /property.mcc_credit_allowed xdef
-</action_postfix>
-<action_column column_number="2" column_value="X" />
-</action_details>
-</actions>
-<policy_statements />
-</decision_table>
-
-
-
-
-
 <decision_table>
 <table_name>Process_Installment_Sales</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -8454,9 +8126,6 @@ installment_sale.interest_received result.total_installment_interest f+ /result.
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -8512,9 +8181,6 @@ like_kind_exchange.deferred_gain result.total_like_kind_deferred f+ /result.tota
 </action_details>
 </actions>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -8579,9 +8245,6 @@ false /early_distribution.subject_to_penalty xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Process_Kiddie_Tax</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -8644,9 +8307,6 @@ false /child_unearned_income.subject_to_kiddie_tax xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Elderly_Disabled_Credit</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -8706,9 +8366,6 @@ false /elderly_disabled.qualifies xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Estimated_Tax_Penalty</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -8755,9 +8412,6 @@ estimated_payment.required_payment estimated_payment.payment_amount f- 0 fmax /e
 </action_details>
 </actions>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -8819,9 +8473,6 @@ casualty_loss.deductible_loss result.total_casualty_loss f+ /result.total_casual
 </action_details>
 </actions>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -8889,9 +8540,6 @@ false /clean_vehicle.qualifies xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Process_Adoption_Credit</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -8940,9 +8588,6 @@ adoption.credit_allowed result.total_adoption_credit f+ /result.total_adoption_c
 <action_comment>set result.adoption_credit = qualified_expenses (up to limit)</action_comment></action_details>
 </actions>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -9004,9 +8649,6 @@ household_employee.total_household_tax result.total_household_tax f+ /result.tot
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Process_NOL_Carryover</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -9054,9 +8696,6 @@ nol_carryover.remaining_carryover result.nol_carryforward_remaining f+ /result.n
 <action_comment>set result.nol_deduction = carryforward_amount (80% of taxable income limit)</action_comment></action_details>
 </actions>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -9124,9 +8763,6 @@ mortgage_credit_certificate.current_year_credit result.mortgage_interest_credit 
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Prior_Year_AMT_Credit</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -9187,9 +8823,6 @@ prior_year_amt.carryforward_remaining result.amt_credit_carryforward f+ /result.
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Partnership_Audit_Tax</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -9247,9 +8880,6 @@ partnership_audit.total_amount_due result.partnership_audit_tax f+ /result.partn
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Energy_Appliance_Credit</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -9300,9 +8930,6 @@ taxpayer.energy_efficient_appliances_produced 0 &gt;
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -9364,9 +8991,6 @@ unreported_tips.total_fica_on_tips result.unreported_tips_tax f+ /result.unrepor
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_LIHTC_Recapture</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -9426,9 +9050,6 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 </action_details>
 </actions>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -9517,11 +9138,6 @@ result.total_deductions /state_tax_result.allocated_deductions xdef
 </decision_table>
 
 
-
-
-
-
-
 <decision_table>
 <table_name>Allocate_Income_By_State</table_name>
 <xls_file>State.xls</xls_file>
@@ -9607,8 +9223,6 @@ done
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
 
 
 <decision_table>
@@ -9718,10 +9332,6 @@ endif
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
-
 
 
 <decision_table>
@@ -10234,9 +9844,6 @@ Calculate_SC_Tax
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Dispatch_Territory_Tax</table_name>
 <xls_file>Territory.xls</xls_file>
@@ -10427,9 +10034,6 @@ Calculate_MP_Tax
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_IL_Tax</table_name>
 <xls_file>State.xls</xls_file>
@@ -10510,10 +10114,6 @@ result.il_taxable_income il_tax_rate f* /result.il_tax xdef
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
-
 
 
 <decision_table>
@@ -10709,8 +10309,6 @@ hi_tax /result.hi_tax xdef
 </decision_table>
 
 
-
-
 <decision_table>
 <table_name>Calculate_NH_Tax</table_name>
 <xls_file>State.xls</xls_file>
@@ -10825,9 +10423,6 @@ result.nh_bracket_1_tax result.nh_bracket_2_tax f+ result.nh_bracket_3_tax f+ /r
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_KS_Tax</table_name>
 <xls_file>State.xls</xls_file>
@@ -10925,10 +10520,6 @@ result.ks_bracket_1_tax result.ks_bracket_2_tax f+ /result.ks_tax xdef
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
-
 
 
 <decision_table>
@@ -11075,9 +10666,6 @@ result.mt_bracket_1_tax result.mt_bracket_2_tax f+ /result.mt_tax xdef
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -11254,9 +10842,6 @@ result.nv_bracket_1_tax result.nv_bracket_2_tax f+ result.nv_bracket_3_tax f+ /r
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_General_Business_Credit</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -11344,9 +10929,6 @@ result.general_business_credit_carryforward 0 &gt; { "  GBC carryforward: $" res
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Kiddie_Tax</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -11388,9 +10970,6 @@ always
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -11526,11 +11105,6 @@ false /dependent.subject_to_kiddie_tax xdef
 </decision_table>
 
 
-
-
-
-
-
 <decision_table>
 <table_name>Calculate_Schedule_H</table_name>
 <xls_file>TaxReturn_dt.xls</xls_file>
@@ -11615,16 +11189,6 @@ result.schedule_h_social_security_tax result.schedule_h_medicare_tax f+ result.s
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
-
-
-
-
-
-
-
 
 
 <decision_table>
@@ -11740,9 +11304,6 @@ result.total_combat_zone_exclusion taxpayer.combat_zone_exclusion f+ /result.tot
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_Military_Moving_Expenses</table_name>
 <xls_file>Military.xls</xls_file>
@@ -11833,9 +11394,6 @@ taxpayer.is_military true eq {
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Coordinate_Military_And_Foreign_Income</table_name>
 <xls_file>Military.xls</xls_file>
@@ -11912,9 +11470,6 @@ result.total_combat_zone_exclusion result.foreign_earned_income_exclusion f+
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -12036,8 +11591,6 @@ result.oh_bracket_1_tax result.oh_bracket_2_tax f+ result.oh_bracket_3_tax f+ /r
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
 
 
 <decision_table>
@@ -12310,10 +11863,6 @@ job.audit_trail swap addto
 </actions>
 
 </decision_table>
-
-
-
-
 
 
 <decision_table>
@@ -12750,8 +12299,6 @@ ca_taxable_income result.ca_bracket_7_limit_joint gt
 } if
 
 
-
-
 ca_taxable_income result.ca_bracket_8_limit_joint gt
 {
   ca_taxable_income result.ca_bracket_9_limit_joint min result.ca_bracket_8_limit_joint sub
@@ -12792,9 +12339,6 @@ job.audit_trail swap addto
 </actions>
 
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -13027,10 +12571,6 @@ result.de_bracket_1_tax result.de_bracket_2_tax f+ result.de_bracket_3_tax f+ re
 </decision_table>
 
 
-
-
-
-
 <decision_table>
 <table_name>Calculate_AL_Tax</table_name>
 <xls_file>StateTax.xls</xls_file>
@@ -13091,8 +12631,6 @@ Calculate_AL_Tax_Single
 </actions>
 <policy_statements />
 </decision_table>
-
-
 
 
 <decision_table>
@@ -13170,8 +12708,6 @@ result.al_state_tax "  Alabama tax (all brackets): $" swap f$ concat job.audit_t
 </decision_table>
 
 
-
-
 <decision_table>
 <table_name>Calculate_AL_Tax_MFJ</table_name>
 <xls_file>StateTax.xls</xls_file>
@@ -13245,9 +12781,6 @@ result.al_state_tax "  Alabama tax (all brackets): $" swap f$ concat job.audit_t
 </actions>
 <policy_statements />
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -13396,9 +12929,6 @@ result.sd_bracket_1_tax result.sd_bracket_2_tax f+ /result.sd_tax xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_GA_Tax</table_name>
 <xls_file>State.xls</xls_file>
@@ -13472,12 +13002,6 @@ result.ga_taxable_income ga_tax_rate f* /result.ga_tax xdef
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
-
-
-
 
 
 <decision_table>
@@ -13617,10 +13141,6 @@ result.ne_bracket_1_tax result.ne_bracket_2_tax f+ result.ne_bracket_3_tax f+ re
 </decision_table>
 
 
-
-
-
-
 <decision_table>
 <table_name>Calculate_TN_Tax</table_name>
 <xls_file>State.xls</xls_file>
@@ -13733,7 +13253,6 @@ result.tn_bracket_1_tax result.tn_bracket_2_tax f+ result.tn_bracket_3_tax f+ /r
 </policy_statement>
 </policy_statements>
 </decision_table>
-
 
 
 <decision_table>
@@ -13882,10 +13401,6 @@ result.ms_bracket_1_tax result.ms_bracket_2_tax f+ /result.ms_tax xdef
 </decision_table>
 
 
-
-
-
-
 <decision_table>
 <table_name>Calculate_Other_State_Tax_Credit</table_name>
 <xls_file>State.xls</xls_file>
@@ -13987,11 +13502,6 @@ endif
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
-
-
 
 
 <decision_table>
@@ -14189,10 +13699,6 @@ dc_calculated_tax /result.dc_tax xdef
 </decision_table>
 
 
-
-
-
-
 <decision_table>
 <table_name>Calculate_SC_Tax</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -14246,9 +13752,6 @@ Calculate_SC_Tax_Brackets
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -14383,10 +13886,6 @@ result.sc_taxable_income sc_bracket_2 f- sc_rate_3 f* f+
 </policy_statements>
 
 
-
-
-
-
 <decision_table>
 <table_name>Calculate_ID_Tax</table_name>
 <xls_file>State.xls</xls_file>
@@ -14504,9 +14003,6 @@ result.id_tax_before_credits result.id_food_tax_credit_total f- 0 fmax /result.i
 </decision_table>
 
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -14638,10 +14134,6 @@ wi_tax /result.wi_tax xdef
 </decision_table>
 
 
-
-
-
-
 <decision_table>
 <table_name>Calculate_MI_Tax</table_name>
 <xls_file>Other.xls</xls_file>
@@ -14740,10 +14232,6 @@ result.mi_taxable_income mi_tax_rate f* /result.mi_state_tax xdef
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
-
 
 
 <decision_table>
@@ -15069,8 +14557,6 @@ endif
 </decision_table>
 
 
-
-
 <decision_table>
 <table_name>Apply_NY_Tax_Brackets_Single</table_name>
 <xls_file>State.xls</xls_file>
@@ -15329,9 +14815,6 @@ result.ny_taxable_income ny_rate1 f* /result.ny_tax xdef
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -15594,9 +15077,6 @@ result.ny_taxable_income ny_rate1 f* /result.ny_tax xdef
 </decision_table>
 
 
-
-
-
 <decision_table>
 <table_name>Calculate_NY_Tax</table_name>
 <xls_file>State.xls</xls_file>
@@ -15700,9 +15180,6 @@ Apply_NY_Tax_Brackets_MFJ
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
@@ -15961,10 +15438,6 @@ endif
 </decision_table>
 
 
-
-
-
-
 <decision_table>
 <table_name>Calculate_ND_Tax</table_name>
 <xls_file>State.xls</xls_file>
@@ -16177,9 +15650,6 @@ result.nd_bracket_1_tax result.nd_bracket_2_tax f+ result.nd_bracket_3_tax f+ /r
 </policy_statement>
 </policy_statements>
 </decision_table>
-
-
-
 
 
 <decision_table>
