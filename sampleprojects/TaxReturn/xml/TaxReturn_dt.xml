@@ -2132,8 +2132,8 @@ Calculate_Capital_Gains_Tax
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Add SE tax from all taxpayers; set result.se_tax = the sum of taxpayer.se_tax for all taxpayers</action_comment>
-<action_dsl />
+<action_comment>Add SE tax from all taxpayers</action_comment>
+<action_dsl>set result.se_tax = sum of se_tax in job.taxpayers; add "  SE Tax (Schedule SE): $" + result.se_tax to job.audit_trail</action_dsl>
 <action_postfix>
 0.0 { se_tax + } job.taxpayers forall /result.se_tax xdef
 "  SE Tax (Schedule SE): $" result.se_tax cvs strconcat job.audit_trail swap addto
@@ -2205,8 +2205,8 @@ result.regular_tax result.capital_gains_tax f+ result.se_tax f+ result.niit_tax 
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Married Filing Jointly; job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_comment>
-<condition_dsl />
+<condition_comment>Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
+<condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
 <condition_postfix>
 job.filing_status MFJ streq job.filing_status QSS streq or
 </condition_postfix>
@@ -5095,8 +5095,8 @@ result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Has preferential rate income; result.ltcg_and_qualified_dividends &gt; 0</condition_comment>
-<condition_dsl />
+<condition_comment>Has preferential rate income (LTCG + qualified dividends &gt; 0)</condition_comment>
+<condition_dsl>result.total_long_term_gains + result.total_qualified_dividends &gt; 0</condition_dsl>
 <condition_postfix>
 result.total_long_term_gains result.total_qualified_dividends f+ 0 &gt;
 </condition_postfix>
@@ -5474,8 +5474,8 @@ job.filing_status MFS streq
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
-<condition_comment>MAGI exceeds MFJ threshold ($250k); result.magi &gt; niit_threshold_mfj</condition_comment>
-<condition_dsl />
+<condition_comment>MAGI exceeds MFJ threshold ($250k)</condition_comment>
+<condition_dsl>result.magi_for_niit &gt; niit_threshold_mfj</condition_dsl>
 <condition_postfix>
 result.magi_for_niit niit_threshold_mfj &gt;
 </condition_postfix>
@@ -5489,8 +5489,8 @@ result.magi_for_niit niit_threshold_mfj &gt;
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
-<condition_comment>MAGI exceeds MFS threshold ($125k); result.magi &gt; niit_threshold_mfs</condition_comment>
-<condition_dsl />
+<condition_comment>MAGI exceeds MFS threshold ($125k)</condition_comment>
+<condition_dsl>result.magi_for_niit &gt; niit_threshold_mfs</condition_dsl>
 <condition_postfix>
 result.magi_for_niit niit_threshold_mfs &gt;
 </condition_postfix>
@@ -5504,8 +5504,8 @@ result.magi_for_niit niit_threshold_mfs &gt;
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
-<condition_comment>MAGI exceeds Single threshold ($200k); result.magi &gt; niit_threshold_single</condition_comment>
-<condition_dsl />
+<condition_comment>MAGI exceeds Single threshold ($200k)</condition_comment>
+<condition_dsl>result.magi_for_niit &gt; niit_threshold_single</condition_dsl>
 <condition_postfix>
 result.magi_for_niit niit_threshold_single &gt;
 </condition_postfix>
@@ -5554,8 +5554,8 @@ result.magi_for_niit niit_threshold_single f- result.net_investment_income fmin 
 </action_details>
 <action_details>
 <action_number>4</action_number>
-<action_comment>No NIIT - below threshold; MAGI below threshold - no NIIT</action_comment>
-<action_dsl />
+<action_comment>No NIIT - MAGI below threshold</action_comment>
+<action_dsl>set result.niit_tax = 0; add "  NIIT: $0 - MAGI below threshold" to job.audit_trail</action_dsl>
 <action_postfix>
 0.0 /result.niit_tax xdef
 "  NIIT: $0 - MAGI below threshold" job.audit_trail swap addto
