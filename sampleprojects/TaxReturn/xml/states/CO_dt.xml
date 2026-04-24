@@ -7,7 +7,7 @@
 <xls_file>CO.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Colorado military retirement exemption (2025). Age-based: Under 55 = $15k, 55-64 = $20k, 65+ = $24k. Honors MSRRA and SCRA. Source: MOAA State Report Card, Colorado DOR.</COMMENTS>
+<COMMENTS>Colorado military retirement exemption (2025). Age-based: Under 55 = $15k, 55-64 = $20k, 65+ = $24k. Honors MSRRA and SCRA. Source: MOAA State Report Card, Colorado DOR. Skeleton table: conditions populated as real EL but actions block intentionally empty pending authorship — exemption assignment to result.co_military_retirement_exemption not yet wired up. See issue #446.</COMMENTS>
 <TABLE_NUMBER>5790</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -43,7 +43,7 @@ Age 65 or older
 <xls_file>CO.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Colorado pension/annuity subtraction (2025). Age-based: 55-64 = $20k, 65+ = $24k. Applies to pension and annuity income not already excluded (e.g., not military retirement which has separate exemption). Source: Colorado DOR Form DR 0104.</COMMENTS>
+<COMMENTS>Colorado pension/annuity subtraction (2025). Age-based: 55-64 = $20k, 65+ = $24k. Applies to pension and annuity income not already excluded (e.g., not military retirement which has separate exemption). Source: Colorado DOR Form DR 0104. Skeleton table: condition populated as real EL but actions block intentionally empty pending authorship — subtraction assignment to result.co_pension_subtraction not yet wired up. See issue #446.</COMMENTS>
 <TABLE_NUMBER>5791</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -71,7 +71,7 @@ Age 65 or older
 <xls_file>CO.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Colorado state income tax calculation (2025). Flat 4.40% rate applied to federal AGI with Colorado-specific adjustments: add state tax refunds, subtract Social Security, military retirement, and pension/annuity subtractions. Source: Colorado DOR Form DR 0104.</COMMENTS>
+<COMMENTS>Colorado state income tax calculation (2025). Flat 4.40% rate applied to federal AGI with Colorado-specific adjustments: add state tax refunds, subtract Social Security, military retirement, and pension/annuity subtractions. Source: Colorado DOR Form DR 0104. Skeleton table: needs authorship. Conditions/actions intentionally empty pending follow-up; constants already exist in CO_edd.xml (co_tax_rate, co_taxable_income, co_tax) but the rule logic is not yet wired up. See issue #446.</COMMENTS>
 <TABLE_NUMBER>5792</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -91,7 +91,7 @@ Age 65 or older
 <xls_file>CO.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Colorado Earned Income Tax Credit. Refundable credit equal to 35-50% of federal EITC. Minimum 35%, up to 50% based on economic growth. Expanded eligibility to age 18+ and ITIN holders. Per Colorado DOR 2025. Source: https://tax.colorado.gov/ctc-eitc</COMMENTS>
+<COMMENTS>Colorado Earned Income Tax Credit. Refundable credit equal to 35-50% of federal EITC. Minimum 35%, up to 50% based on economic growth. Expanded eligibility to age 18+ and ITIN holders. Per Colorado DOR 2025. Source: https://tax.colorado.gov/ctc-eitc. Skeleton table: needs authorship. Conditions/actions intentionally empty pending follow-up; CO EITC rate (35-50%) is not yet declared in CO_edd.xml and the credit-application logic is not wired up. See issue #446.</COMMENTS>
 <TABLE_NUMBER>40601</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>

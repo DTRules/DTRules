@@ -7,7 +7,7 @@
 <xls_file>UT.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Utah state income tax calculation. Implements flat 4.5% rate with Taxpayer Tax Credit and Social Security exemption per Utah tax code (2025). Source: Utah State Tax Commission.</COMMENTS>
+<COMMENTS>Utah state income tax calculation. Implements flat 4.5% rate with Taxpayer Tax Credit and Social Security exemption per Utah tax code (2025). Source: Utah State Tax Commission. Skeleton table: only the HOH filing-status condition is populated as real EL; remaining conditions, all actions, and the taxpayer-credit phaseout logic are intentionally empty pending authorship. Constants live in UT_edd.xml. See issue #446.</COMMENTS>
 <TABLE_NUMBER>42300</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -38,7 +38,7 @@ Head of household
 <xls_file>UT.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Utah military retirement exclusion calculation. UT allows up to $10,000 exemption on military retirement pay with income caps: Single $50k, Joint $65k AGI. Must choose between military retirement or Social Security exemption. Honors MSRRA and SCRA per federal law. Source: MOAA State Report Card.</COMMENTS>
+<COMMENTS>Utah military retirement exclusion calculation. UT allows up to $10,000 exemption on military retirement pay with income caps: Single $50k, Joint $65k AGI. Must choose between military retirement or Social Security exemption. Honors MSRRA and SCRA per federal law. Source: MOAA State Report Card. Skeleton table: only the joint-AGI-cap condition is populated as real EL; remaining conditions, all actions, and the SS-vs-military mutual-exclusion logic are intentionally empty pending authorship. Constants live in UT_edd.xml. See issue #446.</COMMENTS>
 <TABLE_NUMBER>42301</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
