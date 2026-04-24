@@ -34,6 +34,24 @@
   `DTRULES_ALLOW_DUPLICATE_TABLES=1` to opt out of the compile-time
   gate.
 
+- **TaxReturn sampleproject: partial dedup of decision-table names**
+  (follow-up to #722). Part 1 of the cleanup: 115 of 139 duplicates
+  resolved. 114 `NNN_*_dt.xml` per-table files under
+  `sampleprojects/TaxReturn/xml/` were uncompiled Excel-extraction stubs
+  whose `<condition_postfix>`/`<action_postfix>` bodies were empty while
+  the compiled copies lived in `TaxReturn_dt.xml`; each stub file is now
+  an empty `<decision_tables/>` container and the compiled versions in
+  the aggregate remain authoritative. The in-file duplicate of
+  `Calculate_Mortgage_Interest_Credit` in `TaxReturn_dt.xml` is reduced
+  to one copy: the per-certificate IRC 25 / Form 8396 implementation
+  (TABLE_NUMBER 26000, `SpecialForms.xls`) is kept; the older
+  property-iterating copy (TABLE_NUMBER 8400) is deleted. The remaining
+  24 duplicates (23 between `TaxReturn_dt.xml` and `states/XX_dt.xml`,
+  plus one in-file copy of `Calculate_CO_Tax` in `states/CO_dt.xml`) are
+  tracked in #724; they require per-state content decisions because
+  several state files carry richer or divergent implementations.
+  `DTRULES_ALLOW_DUPLICATE_TABLES=1` stays set in CI until #724 lands.
+
 ## v1.9.0 — 2026-04-24
 
 - **`for all X as <alias>` now executes at runtime** (#714). v1.8.1 shipped
