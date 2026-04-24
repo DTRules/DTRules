@@ -690,7 +690,7 @@ Calculate_SE_Tax
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate SE tax with proper SS wage base cap and Medicare component; Calculate SE tax: SS component (12.4% up to wage base) + Medicare component (2.9% all income)</action_comment>
+<action_comment>Calculate SE tax with proper SS wage base cap and Medicare component; Calculate SE tax: SS component (12.4% up to wage base) + Medicare component (2.9% all income). EL translation intentionally deferred: postfix uses dup/exch to reuse taxpayer.se_net_profit * se_income_multiplier, and fmin/fmax to cap at the remaining SS wage base; a straightforward EL rewrite would not reproduce this stack-manipulation pattern.</action_comment>
 <action_dsl />
 <action_postfix>
 taxpayer.se_net_profit se_income_multiplier f* dup
