@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
@@ -146,6 +147,51 @@ func TestDiagnostics_SaveAndReopenPersists(t *testing.T) {
 	}
 	if p2.Table("Foo") == nil || p2.Table("Foo-1") == nil {
 		t.Errorf("expected both Foo and Foo-1 after reopen; tables=%v", p2.Tables())
+	}
+}
+
+// TestDiagnostics_NestedDTFile verifies that _dt.xml files in nested
+// subdirectories (e.g. xml/states/CO_dt.xml) are discovered by OpenProject
+// and participate in duplicate detection — matching the recursive walk
+// `dtrules verify` performs.
+func TestDiagnostics_NestedDTFile(t *testing.T) {
+	root := t.TempDir()
+	xmlDir := filepath.Join(root, "xml")
+	statesDir := filepath.Join(xmlDir, "states")
+	if err := os.MkdirAll(statesDir, 0755); err != nil {
+		t.Fatalf("mkdir states: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(xmlDir, "agg_dt.xml"),
+		[]byte(dupTableXML("Foo")), 0644); err != nil {
+		t.Fatalf("write agg_dt.xml: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(statesDir, "CO_dt.xml"),
+		[]byte(dupTableXML("Foo")), 0644); err != nil {
+		t.Fatalf("write states/CO_dt.xml: %v", err)
+	}
+
+	p, err := authoring.OpenProject(root)
+	if err != nil {
+		t.Fatalf("OpenProject: %v", err)
+	}
+
+	// Both tables should have been discovered (one renamed as duplicate).
+	if p.Table("Foo") == nil {
+		t.Errorf("expected Foo to be loaded from agg_dt.xml")
+	}
+	if p.Table("Foo-1") == nil {
+		t.Errorf("expected Foo-1 to be loaded from states/CO_dt.xml (nested dir)")
+	}
+
+	diags := p.Diagnostics()
+	if len(diags) != 1 {
+		t.Fatalf("expected 1 duplicate diagnostic across nested files, got %d: %+v", len(diags), diags)
+	}
+	if diags[0].OriginalName != "Foo" || diags[0].AssignedName != "Foo-1" {
+		t.Errorf("unexpected diagnostic: %+v", diags[0])
+	}
+	if !strings.Contains(diags[0].File, "states") {
+		t.Errorf("expected diagnostic to point at nested file, got %q", diags[0].File)
 	}
 }
 

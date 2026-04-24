@@ -1,23 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 42800: Calculate_NV_Tax -->
-<decision_table>
-<table_name>Calculate_NV_Tax</table_name>
-<xls_file>NV.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Nevada state income tax calculation. Nevada has no state income tax, so this table sets liability to $0.</COMMENTS>
-<TABLE_NUMBER>42800</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
 </decision_tables>

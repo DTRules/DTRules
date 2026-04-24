@@ -85,26 +85,6 @@ Age 65 or older
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 5792: Calculate_CO_Tax -->
-<decision_table>
-<table_name>Calculate_CO_Tax</table_name>
-<xls_file>CO.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Colorado state income tax calculation (2025). Flat 4.40% rate applied to federal AGI with Colorado-specific adjustments: add state tax refunds, subtract Social Security, military retirement, and pension/annuity subtractions. Source: Colorado DOR Form DR 0104.</COMMENTS>
-<TABLE_NUMBER>5792</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
-
 <!-- TABLE 40601: Calculate_CO_EITC -->
 <decision_table>
 <table_name>Calculate_CO_EITC</table_name>

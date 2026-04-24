@@ -29,39 +29,4 @@
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 42700: Calculate_NE_Tax -->
-<decision_table>
-<table_name>Calculate_NE_Tax</table_name>
-<xls_file>NE.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Nebraska state income tax calculation. Implements progressive tax structure with 4 brackets per Nebraska Department of Revenue (2025).</COMMENTS>
-<TABLE_NUMBER>42700</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Filing status is Married Filing Jointly</condition_comment>
-<condition_dsl>job.filing_status is equal to &quot;married_filing_jointly&quot;</condition_dsl>
-<condition_postfix>
-Filing Status is MFJ
-</condition_postfix>
-</condition_details>
-</conditions>
-<actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Calculate NE tax for Married Filing Jointly using progressive brackets</action_comment>
-<action_dsl>Calculate NE tax for Married Filing Jointly using progressive brackets</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
 </decision_tables>

@@ -21,23 +21,4 @@
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 41400: Calculate_IL_Tax -->
-<decision_table>
-<table_name>Calculate_IL_Tax</table_name>
-<xls_file>IL.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Illinois state income tax calculation. Implements flat 4.95% tax structure per IL tax code (2025).</COMMENTS>
-<TABLE_NUMBER>41400</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
 </decision_tables>
