@@ -430,6 +430,16 @@ func (e *PostfixEmitter) Reset() {
 	e.errors = nil
 }
 
+// ResetLocals clears the local variable state (names + slot counter).
+// Call this between tables to prevent slot indices from bleeding across
+// independent compilation scopes. Within a single table — the context,
+// conditions, actions — locals must persist so `<alias>.<field>` in a
+// condition can see the slot declared in the context.
+func (e *PostfixEmitter) ResetLocals() {
+	e.locals = make(map[string]LocalVar)
+	e.localCnt = 0
+}
+
 // emit adds a token to the output.
 func (e *PostfixEmitter) emit(token string) {
 	if e.output.Len() > 0 {
@@ -1695,7 +1705,17 @@ func (e *PostfixEmitter) VisitStrTyped(ctx *StrTypedContext) interface{} {
 }
 
 func (e *PostfixEmitter) VisitTypedXmlValue(ctx *TypedXmlValueContext) interface{} {
-	e.emit(ctx.GetText())
+	name := ctx.GetText()
+	// Alias field access: `<alias>.<field>` where alias is a local entity
+	// slot declared by `for all X as alias` (#712, #714). Must be checked
+	// here because the grammar prefers typedXmlValue over typedString for
+	// bare IDENTs in strexpr, so `outer_a.label + ";"` routes here.
+	if e.emitAliasFieldAccess(name) {
+		return nil
+	}
+	if !e.emitLocalRef(name) {
+		e.emit(name)
+	}
 	return nil
 }
 
@@ -2126,7 +2146,7 @@ func (e *PostfixEmitter) VisitForallTypeEntitiesWhere(ctx *ForallTypeEntitiesWhe
 	return nil
 }
 
-// VisitForallAs: `for all <array> as <alias>` (#712).
+// VisitForallAs: `for all <array> as <alias>` (#712, #714).
 //
 // Binds each iteration entity to a local-entity slot named `alias` instead of
 // pushing it on the entity stack. This makes nested same-list iterations
@@ -2134,15 +2154,20 @@ func (e *PostfixEmitter) VisitForallTypeEntitiesWhere(ctx *ForallTypeEntitiesWhe
 // where child.parent_id == parent.id ... }` — both `parent.*` and `child.*`
 // resolve through distinct local slots.
 //
-// Emit shape:
+// The context wraps the table call so the data stack holds the body block on
+// entry: `{ /T executetable } <ctx-postfix>`. The shape below keeps the slot
+// reserved across the whole iteration (so `local!`/`local@` are valid every
+// element) and runs the body once per element, never once before the loop.
 //
-//	null allocate execute deallocate pop     # declare local entity slot N
-//	dup                                      # save outer body
-//	{ <N> local! dup execute }               # wrapper: stash element, run body
-//	<arr>
-//	for                                      # ( body array -- ), each iter
-//	                                         # pushes element on data stack
-//	pop                                      # drop the saved outer body
+// Emit shape (body is on top of data stack at entry):
+//
+//	null allocate                          # reserve slot N (ctrl push null)
+//	{ <N> local! dup execute }             # wrapper: stash elem, dup body, run
+//	<arr>                                  # iteration array
+//	for                                    # ( body array -- ), per iter:
+//	                                       #   pushes elem, runs wrapper
+//	deallocate pop                         # release slot, drop the null
+//	pop                                    # drop the body that survived `for`
 //
 // `for` is used instead of `forall` because `for` pushes the element on the
 // data stack, which the wrapper needs in order to store it into the alias
@@ -2157,10 +2182,6 @@ func (e *PostfixEmitter) VisitForallAs(ctx *ForallAsContext) interface{} {
 	idx := e.declareLocal(alias, TypeEntity)
 	e.emit("null")
 	e.emit("allocate")
-	e.emit("execute")
-	e.emit("deallocate")
-	e.emit("pop")
-	e.emit("dup")
 	e.emit("{")
 	e.emit(fmt.Sprintf("%d", idx))
 	e.emit("local!")
@@ -2169,11 +2190,13 @@ func (e *PostfixEmitter) VisitForallAs(ctx *ForallAsContext) interface{} {
 	e.emit("}")
 	e.Visit(ctx.ArrayExpr())
 	e.emit("for")
+	e.emit("deallocate")
+	e.emit("pop")
 	e.emit("pop")
 	return nil
 }
 
-// VisitForallAsWhere: `for all <array> as <alias> where <bexpr>` (#712).
+// VisitForallAsWhere: `for all <array> as <alias> where <bexpr>` (#712, #714).
 // Same binding shape as forallAs, but the body only runs when the predicate
 // holds. The predicate is evaluated AFTER the alias slot is populated so
 // `<alias>.<field>` references inside the where-clause resolve correctly.
@@ -2186,10 +2209,6 @@ func (e *PostfixEmitter) VisitForallAsWhere(ctx *ForallAsWhereContext) interface
 	idx := e.declareLocal(alias, TypeEntity)
 	e.emit("null")
 	e.emit("allocate")
-	e.emit("execute")
-	e.emit("deallocate")
-	e.emit("pop")
-	e.emit("dup")
 	e.emit("{")
 	e.emit(fmt.Sprintf("%d", idx))
 	e.emit("local!")
@@ -2202,6 +2221,8 @@ func (e *PostfixEmitter) VisitForallAsWhere(ctx *ForallAsWhereContext) interface
 	e.emit("}")
 	e.Visit(ctx.ArrayExpr())
 	e.emit("for")
+	e.emit("deallocate")
+	e.emit("pop")
 	e.emit("pop")
 	return nil
 }

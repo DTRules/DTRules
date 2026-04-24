@@ -477,7 +477,10 @@ func opEntityFetch(state dtrules.State) error {
 	return state.DataPush(entity.(dtrules.Object))
 }
 
-// opGet: ( entity attribute -- value ) gets attribute from entity
+// opGet: ( entity attribute -- value ) gets attribute from entity.
+// Literal names like `/balance` parse as non-executable RNames, but entity
+// attributes are keyed by the executable partner, so we normalize via
+// `GetRName(name.GetName())` to match — same convention as Find.
 func opGet(state dtrules.State) error {
 	nameObj, err := state.DataPop()
 	if err != nil {
@@ -495,7 +498,11 @@ func opGet(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	value, err := entity.Get(name)
+	attrName := dtrules.GetRName(name.GetName())
+	if attrName == nil {
+		return dtrules.UndefinedError("Get", "invalid attribute name: "+name.GetName())
+	}
+	value, err := entity.Get(attrName)
 	if err != nil {
 		return err
 	}

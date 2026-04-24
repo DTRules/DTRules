@@ -33,7 +33,12 @@ func TestForallAs_BasicEmit(t *testing.T) {
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
-	want := "null allocate execute deallocate pop dup { 0 local! dup execute } taxpayer.incomes for pop"
+	// Shape (body is on top of data stack at entry):
+	//   null allocate              — reserve slot 0 (ctrl push null)
+	//   { 0 local! dup execute }   — wrapper: stash elem, dup body, run
+	//   <arr> for                  — iterate
+	//   deallocate pop pop         — release slot, drop null, drop body
+	want := "null allocate { 0 local! dup execute } taxpayer.incomes for deallocate pop pop"
 	if got != want {
 		t.Errorf("\nwant: %s\ngot:  %s", want, got)
 	}
@@ -56,7 +61,7 @@ func TestForallAs_WhereClause(t *testing.T) {
 	// The body should only run when the predicate holds, and the alias
 	// slot is populated BEFORE the predicate is evaluated so `inc.amount`
 	// resolves via the local slot.
-	want := "null allocate execute deallocate pop dup { 0 local! { dup execute } 0 local@ /amount get 0 > if } taxpayer.incomes for pop"
+	want := "null allocate { 0 local! { dup execute } 0 local@ /amount get 0 > if } taxpayer.incomes for deallocate pop pop"
 	if got != want {
 		t.Errorf("\nwant: %s\ngot:  %s", want, got)
 	}

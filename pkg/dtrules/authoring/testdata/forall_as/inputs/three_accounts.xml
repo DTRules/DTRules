@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<calculation_context>
+  <processed_count>0</processed_count>
+  <total_balance>0</total_balance>
+  <audit></audit>
+  <staking_account>
+    <has_staking_authority>true</has_staking_authority>
+    <balance>100</balance>
+    <label>A</label>
+  </staking_account>
+  <staking_account>
+    <has_staking_authority>false</has_staking_authority>
+    <balance>200</balance>
+    <label>B</label>
+  </staking_account>
+  <staking_account>
+    <has_staking_authority>true</has_staking_authority>
+    <balance>300</balance>
+    <label>C</label>
+  </staking_account>
+</calculation_context>
