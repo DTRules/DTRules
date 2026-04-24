@@ -56,8 +56,7 @@
 
   Every non-zero exit writes a JSON error record to stderr with
   `error` / `path` / `hint` / `detail` fields, so agents can react
-  without parsing prose. The MCP server over this surface ships
-  separately as #717.
+  without parsing prose. The MCP server over this surface is the next bullet (#717).
 
 - **Model Context Protocol server** (#717). Adds `dtrules mcp`, a
   stdio MCP server exposing the JSON authoring surface from #716 as
@@ -87,6 +86,8 @@
   lines) rather than pulled from an external SDK, since the
   protocol surface we expose is tiny and adding a dependency for
   it would have a higher long-term cost than the framing code.
+
+- **Documentation: `dtrules docs cli` (new) and `dtrules docs authoring` (expanded)** (#715, #720). The `cli` topic is a task-oriented walkthrough of the binary — install, init, build, validate, verify, and typical workflows. The `authoring` topic is reorganized by task and surfaces ~10 previously-undocumented SDK methods plus the new JSON CLI and MCP wrapper surfaces.
 
 ## v1.8.1 — 2026-04-20
 
