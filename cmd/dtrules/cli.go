@@ -106,6 +106,10 @@ func (c *CLI) Run(args []string) int {
 		return c.runVersion()
 	case "docs":
 		return c.runDocs(cmdArgs)
+	case "table":
+		return c.runTable(cmdArgs)
+	case "edd":
+		return c.runEDD(cmdArgs)
 	case "help", "-h", "--help":
 		c.printUsage()
 		return 0
@@ -127,6 +131,8 @@ Commands:
   sync      Synchronize Excel and XML files (status/check/auto)
   init      Initialize a DTRules project structure
   validate  Validate decision tables and EDD
+  table     JSON-first decision-table read/write (for AI agents)
+  edd       JSON-first entity data dictionary read/write (for AI agents)
   docs      Show embedded documentation (for AI and developers)
   version   Show version information
   help      Show this help message
