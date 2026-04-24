@@ -51,7 +51,7 @@ result.agi /result.wi_agi xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Filing status is MFJ</condition_comment>
-<condition_dsl>job.filing_status is equal to "married_joint"</condition_dsl>
+<condition_dsl>Filing status is Married Filing Jointly</condition_dsl>
 <condition_postfix>
 job.filing_status married_joint streq
 </condition_postfix>
@@ -63,7 +63,7 @@ job.filing_status married_joint streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate WI tax for Married Filing Jointly; Calculate Wisconsin tax using MFJ brackets and deductions</action_comment>
-<action_dsl />
+<action_dsl>Calculate Wisconsin tax for MFJ: apply age-67+ retirement exclusion, MFJ standard deduction, then progressive MFJ brackets (3.5%, 4.4%, 5.3%, 6.2%, 7.65%)</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 0 local@ wi_retirement_subtraction &gt;
@@ -102,7 +102,7 @@ wi_tax /result.wi_tax xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate WI tax for Single or MFS; Calculate Wisconsin tax using Single/MFS brackets and deductions</action_comment>
-<action_dsl />
+<action_dsl>Calculate Wisconsin tax for Single or MFS: apply age-67+ retirement exclusion (halved for MFS), Single/MFS standard deduction, then progressive Single/MFS brackets (3.5%, 4.4%, 5.3%, 6.2%, 7.65%)</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 0 local@ wi_retirement_subtraction &gt;

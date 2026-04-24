@@ -67,7 +67,7 @@ num_people 1 &gt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate OH tax with exemptions; Calculate Ohio AGI, apply tiered exemptions, calculate progressive tax</action_comment>
-<action_dsl />
+<action_dsl>Calculate Ohio tax: apply AGI-tiered personal exemption per person, then progressive brackets (0%, 2.75%, 3.125%)</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.oh_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 result.oh_agi oh_exemption_phaseout_threshold f&gt;= if
@@ -115,7 +115,7 @@ result.oh_bracket_1_tax result.oh_bracket_2_tax f+ result.oh_bracket_3_tax f+ /r
 <action_details>
 <action_number>2</action_number>
 <action_comment>No exemptions - unlikely case; Calculate OH tax without exemptions</action_comment>
-<action_dsl />
+<action_dsl>Calculate Ohio tax using progressive brackets (0%, 2.75%, 3.125%) without personal exemptions</action_dsl>
 <action_postfix>
 "  Ohio AGI: $" result.oh_agi cvs strconcat job.audit_trail swap addto
 result.oh_agi 0 fmax /result.oh_taxable_income xdef

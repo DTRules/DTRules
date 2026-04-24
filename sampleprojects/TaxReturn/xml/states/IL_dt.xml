@@ -57,7 +57,7 @@ num_people 1 &gt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate IL tax with exemptions; Calculate Illinois AGI, apply exemptions, calculate tax at 4.95%</action_comment>
-<action_dsl />
+<action_dsl>Calculate Illinois tax: subtract retirement income, apply personal exemptions, then 4.95% flat rate</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 result.agi local@ il_retirement_subtraction &gt;
@@ -80,7 +80,7 @@ result.il_taxable_income il_tax_rate f* /result.il_tax xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>No exemptions - unlikely case; Calculate IL tax without exemptions</action_comment>
-<action_dsl />
+<action_dsl>Calculate Illinois tax at 4.95% flat rate without personal exemptions</action_dsl>
 <action_postfix>
 "  Illinois AGI: $" result.il_agi cvs strconcat job.audit_trail swap addto
 result.il_agi 0 fmax /result.il_taxable_income xdef

@@ -27,7 +27,7 @@
 <xls_file>IN.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Indiana state income tax calculation. Implements flat 3.00% tax structure with personal exemptions per IN tax code (2025).</COMMENTS>
+<COMMENTS>Indiana state income tax calculation. Implements flat 3.00% tax structure with personal exemptions per IN tax code (2025). Skeleton table: needs authorship. Bracket/rate constants and personal exemption logic not yet researched or wired up; the conditions/actions blocks are intentionally empty pending follow-up. See issue #459 and Indiana Department of Revenue references before implementing.</COMMENTS>
 <TABLE_NUMBER>41500</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>

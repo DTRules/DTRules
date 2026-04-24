@@ -69,7 +69,7 @@ job.state "MI" streq not
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate MI tax with flat 4.25% rate; Calculate Michigan deductions, exemptions, and apply 4.25% flat tax rate</action_comment>
-<action_dsl />
+<action_dsl>Calculate Michigan tax: apply itemized or age-67+ standard deduction, personal exemptions, retirement subtraction, then 4.25% flat rate</action_dsl>
 <action_postfix>
 0.0 /result.mi_deduction xdef
 result.deduction_used "itemized" streq {
