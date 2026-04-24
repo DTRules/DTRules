@@ -1,23 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 44100: Calculate_SD_Tax -->
-<decision_table>
-<table_name>Calculate_SD_Tax</table_name>
-<xls_file>SD.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>South Dakota state income tax calculation. SD has no state income tax (2025).</COMMENTS>
-<TABLE_NUMBER>44100</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
 </decision_tables>

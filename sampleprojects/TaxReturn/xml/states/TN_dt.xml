@@ -1,23 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 44200: Calculate_TN_Tax -->
-<decision_table>
-<table_name>Calculate_TN_Tax</table_name>
-<xls_file>TN.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Tennessee state income tax calculation. TN has no state income tax - this table simply sets state_tax_liability to 0.</COMMENTS>
-<TABLE_NUMBER>44200</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
 </decision_tables>

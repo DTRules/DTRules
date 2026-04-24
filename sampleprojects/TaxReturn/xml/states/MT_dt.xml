@@ -56,23 +56,4 @@ is_mt_new_resident == true AND years_since_separation &lt;= 5
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 42550: Calculate_MT_Tax -->
-<decision_table>
-<table_name>Calculate_MT_Tax</table_name>
-<xls_file>MT.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Montana state income tax calculation. Implements progressive 5-bracket tax structure per MT tax code (2025).</COMMENTS>
-<TABLE_NUMBER>42550</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
 </decision_tables>

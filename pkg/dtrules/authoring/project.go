@@ -126,14 +126,28 @@ func (p *Project) loadEDD(xmlDir string) error {
 	return nil
 }
 
-// loadDTFiles reads all *_dt.xml files from xmlDir.
+// loadDTFiles recursively reads all *_dt.xml files under xmlDir. It walks
+// nested subdirectories (e.g. xml/states/CO_dt.xml) so authoring operations
+// see the same file set as the verify pipeline.
 func (p *Project) loadDTFiles(xmlDir string) error {
-	entries, err := filepath.Glob(filepath.Join(xmlDir, "*_dt.xml"))
-	if err != nil {
-		return fmt.Errorf("failed to list dt files: %w", err)
+	var dtPaths []string
+	walkErr := filepath.WalkDir(xmlDir, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		if strings.HasSuffix(path, "_dt.xml") {
+			dtPaths = append(dtPaths, path)
+		}
+		return nil
+	})
+	if walkErr != nil {
+		return fmt.Errorf("failed to list dt files: %w", walkErr)
 	}
 
-	for _, path := range entries {
+	for _, path := range dtPaths {
 		data, err := os.ReadFile(path)
 		if err != nil {
 			return fmt.Errorf("failed to read %s: %w", path, err)
@@ -145,26 +159,32 @@ func (p *Project) loadDTFiles(xmlDir string) error {
 		p.dtFiles = append(p.dtFiles, dtFileEntry{path: path, tables: &tables})
 	}
 
-	// If no _dt.xml files found, try any _dt.xml suffix-less XML files
+	// If no _dt.xml files found, try any *.xml files that carry decision_tables.
 	if len(p.dtFiles) == 0 {
-		all, _ := filepath.Glob(filepath.Join(xmlDir, "*.xml"))
-		for _, path := range all {
-			if strings.HasSuffix(path, "_edd.xml") || strings.HasSuffix(path, "_map.xml") {
-				continue
+		_ = filepath.WalkDir(xmlDir, func(path string, d os.DirEntry, err error) error {
+			if err != nil || d.IsDir() {
+				return nil
 			}
-			data, err := os.ReadFile(path)
-			if err != nil {
-				continue
+			if !strings.HasSuffix(path, ".xml") {
+				return nil
+			}
+			if strings.HasSuffix(path, "_edd.xml") || strings.HasSuffix(path, "_map.xml") {
+				return nil
+			}
+			data, readErr := os.ReadFile(path)
+			if readErr != nil {
+				return nil
 			}
 			if !strings.Contains(string(data), "<decision_tables") {
-				continue
+				return nil
 			}
 			var tables excel.DecisionTablesXML
 			if err := xml.Unmarshal(data, &tables); err != nil {
-				continue
+				return nil
 			}
 			p.dtFiles = append(p.dtFiles, dtFileEntry{path: path, tables: &tables})
-		}
+			return nil
+		})
 	}
 
 	return nil

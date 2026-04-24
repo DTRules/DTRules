@@ -29,31 +29,4 @@
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 43000: Calculate_NJ_Tax -->
-<decision_table>
-<table_name>Calculate_NJ_Tax</table_name>
-<xls_file>NJ.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>New Jersey state income tax calculation. Implements progressive tax structure per NJ tax code (2025).</COMMENTS>
-<TABLE_NUMBER>43000</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Calculate NJ tax - Progressive 8 brackets (MFJ)</action_comment>
-<action_dsl>Calculate NJ tax - Progressive 8 brackets (MFJ)</action_dsl>
-<action_postfix>
-
-</action_postfix>
-</action_details>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
 </decision_tables>

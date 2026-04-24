@@ -23,14 +23,6 @@ jobs:
         run: go build -o /tmp/dtrules ./cmd/dtrules/
 
       - name: Verify TaxReturn
-        # TaxReturn ships with duplicate <table_name> entries across its per-
-        # table XML files and the legacy aggregate files. #722 added a
-        # compile-time gate that rejects those; the follow-up work to
-        # deduplicate TaxReturn uses the new `dtrules project diagnostics`
-        # surface and lands in a separate PR. The env-var escape hatch keeps
-        # this CI step green until then. Remove once TaxReturn is clean.
-        env:
-          DTRULES_ALLOW_DUPLICATE_TABLES: "1"
         run: /tmp/dtrules verify sampleprojects/TaxReturn
 
       - name: Verify KidAid (if excel/ present)

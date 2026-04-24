@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+- **TaxReturn sampleproject: finish decision-table dedup** (#724, follow-up to
+  #722 / #725). Resolves the remaining 24 duplicates. For each of the 22
+  state-file copies of `Calculate_XX_Tax` / `Calculate_CA_Military_Retirement_Exemption`
+  the state-file version carried empty or DSL-echoed `<action_postfix>` /
+  `<condition_postfix>` bodies (zero runnable postfix tokens across all 22),
+  while the aggregate copy in `TaxReturn_dt.xml` carried compiled, runnable
+  postfix — so the duplicate block is deleted from `sampleprojects/TaxReturn/xml/states/XX_dt.xml`
+  and the aggregate remains authoritative. The second byte-identical copy of
+  `Calculate_CO_Tax` in `states/CO_dt.xml` is removed in-place. The CI
+  escape hatch `DTRULES_ALLOW_DUPLICATE_TABLES=1` is removed from the
+  `Verify TaxReturn` step in `.github/workflows/verify.yml`; `dtrules verify
+  sampleprojects/TaxReturn` now exits 0.
+
+- **`authoring.OpenProject` walks `xml/` recursively for `_dt.xml` files**
+  (#724). Previously `loadDTFiles` used a flat `filepath.Glob` of `xml/*.xml`,
+  so nested files like `xml/states/CO_dt.xml` were invisible to the authoring
+  SDK — and therefore to `dtrules project diagnostics`. `dtrules verify` has
+  always walked recursively, so the two surfaces disagreed. The loader now
+  uses `filepath.WalkDir`, matching the verify pipeline. Covered by
+  `TestDiagnostics_NestedDTFile`.
+
 - **Detect duplicate decision-table names across XML files** (#722). Decision
   table names are keys for `perform`, `executetable`, the JSON CLI, MCP
   server, and every consumer of `authoring.Project.Table(name)`. When two
