@@ -1,5 +1,49 @@
 # DTRules Changelog
 
+## v1.9.1 — 2026-04-24
+
+- **JSON-first CLI for decision tables and the EDD** (#716). Adds a
+  `dtrules table` and `dtrules edd` subcommand surface that wraps the
+  existing `pkg/dtrules/authoring` SDK behind a JSON-in / JSON-out
+  interface optimized for AI agents.
+
+  Read:
+
+  ```
+  dtrules table list --project <path>
+  dtrules table get <name> --project <path>
+  dtrules table schema [--patch]
+  dtrules edd  get     --project <path>
+  dtrules edd  schema  [--patch]
+  ```
+
+  Write whole documents (EL is compiled and validated before save):
+
+  ```
+  dtrules table put <name> --project <path> < table.json
+  dtrules edd  put         --project <path> < edd.json
+  ```
+
+  Targeted patches — one op per invocation, keyed on `op`:
+
+  ```
+  echo '{"op":"set-condition-cell","condition_number":1,"column":2,"value":"Y"}' \
+    | dtrules table patch <name> --project <path>
+  ```
+
+  Table patch ops: `set-name`, `set-policy`, `set-condition-cell`,
+  `set-action-cell`, `add-column`, `update-column`, `delete-column`,
+  `add-condition`, `update-condition`, `update-condition-dsl`,
+  `delete-condition`, and the matching `*-action`,
+  `*-initial-action`, `*-context` families. EDD patch ops:
+  `add-entity`, `delete-entity`, `add-field`, `update-field`,
+  `delete-field`, `set-comment`.
+
+  Every non-zero exit writes a JSON error record to stderr with
+  `error` / `path` / `hint` / `detail` fields, so agents can react
+  without parsing prose. The MCP server over this surface ships
+  separately as #717.
+
 ## v1.8.1 — 2026-04-20
 
 - **`for all <array> as <alias>` iteration alias** (#712). Adds an `as
