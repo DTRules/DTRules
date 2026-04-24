@@ -7,7 +7,7 @@
 <xls_file>IA.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Iowa military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per Iowa Code § 422.7 (2025).</COMMENTS>
+<COMMENTS>Iowa military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per Iowa Code § 422.7 (2025). NEEDS AUTHORSHIP: skeleton table — conditions, actions, and exclusion logic not yet implemented.</COMMENTS>
 <TABLE_NUMBER>41301</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -27,7 +27,7 @@
 <xls_file>IA.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Iowa state income tax calculation. Implements progressive tax structure per IA tax code (2025).</COMMENTS>
+<COMMENTS>Iowa state income tax calculation. Implements progressive tax structure per IA tax code (2025). NEEDS AUTHORSHIP: skeleton table — brackets, rates, standard deductions, and filing-status logic not yet researched or implemented.</COMMENTS>
 <TABLE_NUMBER>41300</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>

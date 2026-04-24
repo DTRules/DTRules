@@ -7,7 +7,7 @@
 <xls_file>ND.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>North Dakota military retirement pay exclusion. Full exemption for all military retirement income (Group B). MSRRA compliant. SCRA compliant. SBP payments fully exempt.</COMMENTS>
+<COMMENTS>North Dakota military retirement pay exclusion. Full exemption for all military retirement income (Group B). MSRRA compliant. SCRA compliant. SBP payments fully exempt. NEEDS AUTHORSHIP: skeleton table — only stub "no exclusion" action present; conditions and full exclusion logic not yet implemented.</COMMENTS>
 <TABLE_NUMBER>43201</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
-<action_dsl>No military retirement pay - no exclusion</action_dsl>
+<action_dsl>add "  No military retirement pay - no exclusion" to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -40,7 +40,7 @@
 <contexts />
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize ND tax calculation</action_dsl>
+<action_dsl>add "NORTH DAKOTA FORM ND-1 - State Income Tax Calculation" to job.audit_trail; set result.nd_agi = result.agi; set result.nd_bracket_1_tax = 0; set result.nd_bracket_2_tax = 0; set result.nd_bracket_3_tax = 0</action_dsl>
 <action_postfix>
 "NORTH DAKOTA FORM ND-1 - State Income Tax Calculation" job.audit_trail swap addto
 result.agi /result.nd_agi xdef
@@ -92,7 +92,7 @@ job.filing_status head_of_household streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate ND tax MFJ; Calculate ND tax with MFJ standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_dsl>add "  Starting Federal AGI: $" + result.nd_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.nd_standard_deduction = nd_standard_deduction_mfj; add "  Standard Deduction (MFJ): $" + result.nd_standard_deduction to job.audit_trail; set result.nd_taxable_income = the maximum of (result.nd_agi - result.nd_standard_deduction) and 0; add "  ND Taxable Income: $" + result.nd_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; if result.nd_taxable_income &gt; nd_bracket_3_threshold_mfj then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_mfj * nd_bracket_1_rate; set result.nd_bracket_2_tax = (nd_bracket_3_threshold_mfj - nd_bracket_2_threshold_mfj) * nd_bracket_2_rate; set result.nd_bracket_3_tax = (result.nd_taxable_income - nd_bracket_3_threshold_mfj) * nd_bracket_3_rate; } else { if result.nd_taxable_income &gt; nd_bracket_2_threshold_mfj then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_mfj * nd_bracket_1_rate; set result.nd_bracket_2_tax = (result.nd_taxable_income - nd_bracket_2_threshold_mfj) * nd_bracket_2_rate; } else { set result.nd_bracket_1_tax = result.nd_taxable_income * nd_bracket_1_rate; } endif; } endif; set result.nd_tax = result.nd_bracket_1_tax + result.nd_bracket_2_tax + result.nd_bracket_3_tax; add "  Total ND Tax: $" + result.nd_tax + " (Form ND-1)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.nd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 nd_standard_deduction_mfj /result.nd_standard_deduction xdef
@@ -125,7 +125,7 @@ result.nd_bracket_1_tax result.nd_bracket_2_tax f+ result.nd_bracket_3_tax f+ /r
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate ND tax Single; Calculate ND tax with Single standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_dsl>add "  Starting Federal AGI: $" + result.nd_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.nd_standard_deduction = nd_standard_deduction_single; add "  Standard Deduction (Single): $" + result.nd_standard_deduction to job.audit_trail; set result.nd_taxable_income = the maximum of (result.nd_agi - result.nd_standard_deduction) and 0; add "  ND Taxable Income: $" + result.nd_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; if result.nd_taxable_income &gt; nd_bracket_3_threshold_single then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_single * nd_bracket_1_rate; set result.nd_bracket_2_tax = (nd_bracket_3_threshold_single - nd_bracket_2_threshold_single) * nd_bracket_2_rate; set result.nd_bracket_3_tax = (result.nd_taxable_income - nd_bracket_3_threshold_single) * nd_bracket_3_rate; } else { if result.nd_taxable_income &gt; nd_bracket_2_threshold_single then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_single * nd_bracket_1_rate; set result.nd_bracket_2_tax = (result.nd_taxable_income - nd_bracket_2_threshold_single) * nd_bracket_2_rate; } else { set result.nd_bracket_1_tax = result.nd_taxable_income * nd_bracket_1_rate; } endif; } endif; set result.nd_tax = result.nd_bracket_1_tax + result.nd_bracket_2_tax + result.nd_bracket_3_tax; add "  Total ND Tax: $" + result.nd_tax + " (Form ND-1)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.nd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 nd_standard_deduction_single /result.nd_standard_deduction xdef
@@ -158,7 +158,7 @@ result.nd_bracket_1_tax result.nd_bracket_2_tax f+ result.nd_bracket_3_tax f+ /r
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate ND tax HOH; Calculate ND tax with HOH standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_dsl>add "  Starting Federal AGI: $" + result.nd_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.nd_standard_deduction = nd_standard_deduction_hoh; add "  Standard Deduction (HOH): $" + result.nd_standard_deduction to job.audit_trail; set result.nd_taxable_income = the maximum of (result.nd_agi - result.nd_standard_deduction) and 0; add "  ND Taxable Income: $" + result.nd_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; if result.nd_taxable_income &gt; nd_bracket_3_threshold_hoh then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_hoh * nd_bracket_1_rate; set result.nd_bracket_2_tax = (nd_bracket_3_threshold_hoh - nd_bracket_2_threshold_hoh) * nd_bracket_2_rate; set result.nd_bracket_3_tax = (result.nd_taxable_income - nd_bracket_3_threshold_hoh) * nd_bracket_3_rate; } else { if result.nd_taxable_income &gt; nd_bracket_2_threshold_hoh then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_hoh * nd_bracket_1_rate; set result.nd_bracket_2_tax = (result.nd_taxable_income - nd_bracket_2_threshold_hoh) * nd_bracket_2_rate; } else { set result.nd_bracket_1_tax = result.nd_taxable_income * nd_bracket_1_rate; } endif; } endif; set result.nd_tax = result.nd_bracket_1_tax + result.nd_bracket_2_tax + result.nd_bracket_3_tax; add "  Total ND Tax: $" + result.nd_tax + " (Form ND-1)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.nd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 nd_standard_deduction_hoh /result.nd_standard_deduction xdef
@@ -191,7 +191,7 @@ result.nd_bracket_1_tax result.nd_bracket_2_tax f+ result.nd_bracket_3_tax f+ /r
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate ND tax MFS/other; Calculate ND tax with MFS standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_dsl>add "  Starting Federal AGI: $" + result.nd_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.nd_standard_deduction = nd_standard_deduction_mfs; add "  Standard Deduction (MFS): $" + result.nd_standard_deduction to job.audit_trail; set result.nd_taxable_income = the maximum of (result.nd_agi - result.nd_standard_deduction) and 0; add "  ND Taxable Income: $" + result.nd_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; if result.nd_taxable_income &gt; nd_bracket_3_threshold_mfs then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_mfs * nd_bracket_1_rate; set result.nd_bracket_2_tax = (nd_bracket_3_threshold_mfs - nd_bracket_2_threshold_mfs) * nd_bracket_2_rate; set result.nd_bracket_3_tax = (result.nd_taxable_income - nd_bracket_3_threshold_mfs) * nd_bracket_3_rate; } else { if result.nd_taxable_income &gt; nd_bracket_2_threshold_mfs then { set result.nd_bracket_1_tax = nd_bracket_2_threshold_mfs * nd_bracket_1_rate; set result.nd_bracket_2_tax = (result.nd_taxable_income - nd_bracket_2_threshold_mfs) * nd_bracket_2_rate; } else { set result.nd_bracket_1_tax = result.nd_taxable_income * nd_bracket_1_rate; } endif; } endif; set result.nd_tax = result.nd_bracket_1_tax + result.nd_bracket_2_tax + result.nd_bracket_3_tax; add "  Total ND Tax: $" + result.nd_tax + " (Form ND-1)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.nd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 nd_standard_deduction_mfs /result.nd_standard_deduction xdef
