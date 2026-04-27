@@ -34,8 +34,8 @@
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>In bracket 1 only; AL taxable income at or below $1,000</condition_comment>
-<condition_dsl />
+<condition_comment>In bracket 1 only; AL taxable income at or below $1,000. NOTE: postfix uses al_bracket_1_mfj which is not in AL_edd — EDD authorship needed; EL uses al_bracket_1_limit_joint.</condition_comment>
+<condition_dsl>result.al_taxable_income &lt;= al_bracket_1_limit_joint</condition_dsl>
 <condition_postfix>
 result.al_taxable_income al_bracket_1_mfj &lt;=
 </condition_postfix>
@@ -45,8 +45,8 @@ result.al_taxable_income al_bracket_1_mfj &lt;=
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>In bracket 2; AL taxable income at or below $6,000</condition_comment>
-<condition_dsl />
+<condition_comment>In bracket 2; AL taxable income at or below $6,000. NOTE: postfix uses al_bracket_2_mfj which is not in AL_edd — EL uses al_bracket_2_limit_joint.</condition_comment>
+<condition_dsl>result.al_taxable_income &lt;= al_bracket_2_limit_joint</condition_dsl>
 <condition_postfix>
 result.al_taxable_income al_bracket_2_mfj &lt;=
 </condition_postfix>
@@ -68,8 +68,8 @@ result.al_state_tax "  Alabama tax (2% bracket): $" swap f$ concat job.audit_tra
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Bracket 2 tax (2% + 4%); set result.al_state_tax = ($1,000 * 0.02) + (excess * 0.04)</action_comment>
-<action_dsl />
+<action_comment>Bracket 2 tax (2% + 4%); set result.al_state_tax = ($1,000 * 0.02) + (excess * 0.04). NOTE: postfix uses al_bracket_1_mfj / al_tax_rate_1 / al_tax_rate_2 not in AL_edd — EL uses al_bracket_1_limit_joint / al_bracket_1_rate / al_bracket_2_rate.</action_comment>
+<action_dsl>set result.al_state_tax = al_bracket_1_limit_joint * al_bracket_1_rate + (result.al_taxable_income - al_bracket_1_limit_joint) * al_bracket_2_rate; add "  Alabama tax (2% + 4% brackets): $" + result.al_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
 al_bracket_1_mfj al_tax_rate_1 f*
 result.al_taxable_income al_bracket_1_mfj f- al_tax_rate_2 f* f+
@@ -80,8 +80,8 @@ result.al_state_tax "  Alabama tax (2% + 4% brackets): $" swap f$ concat job.aud
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Bracket 3 tax (2% + 4% + 5%); set result.al_state_tax = ($1,000 * 0.02) + ($5,000 * 0.04) + (excess * 0.05)</action_comment>
-<action_dsl />
+<action_comment>Bracket 3 tax (2% + 4% + 5%); set result.al_state_tax = ($1,000 * 0.02) + ($5,000 * 0.04) + (excess * 0.05). NOTE: postfix uses al_bracket_*_mfj / al_tax_rate_* not in AL_edd — EL uses al_bracket_*_limit_joint / al_bracket_*_rate.</action_comment>
+<action_dsl>set result.al_state_tax = al_bracket_1_limit_joint * al_bracket_1_rate + (al_bracket_2_limit_joint - al_bracket_1_limit_joint) * al_bracket_2_rate + (result.al_taxable_income - al_bracket_2_limit_joint) * al_bracket_3_rate; add "  Alabama tax (all brackets): $" + result.al_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
 al_bracket_1_mfj al_tax_rate_1 f*
 al_bracket_2_mfj al_bracket_1_mfj f- al_tax_rate_2 f* f+
@@ -108,8 +108,8 @@ result.al_state_tax "  Alabama tax (all brackets): $" swap f$ concat job.audit_t
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>In bracket 1 only; AL taxable income at or below $500</condition_comment>
-<condition_dsl />
+<condition_comment>In bracket 1 only; AL taxable income at or below $500. NOTE: postfix uses al_bracket_1_single which is not in AL_edd — EL uses al_bracket_1_limit_single.</condition_comment>
+<condition_dsl>result.al_taxable_income &lt;= al_bracket_1_limit_single</condition_dsl>
 <condition_postfix>
 result.al_taxable_income al_bracket_1_single &lt;=
 </condition_postfix>
@@ -119,8 +119,8 @@ result.al_taxable_income al_bracket_1_single &lt;=
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>In bracket 2; AL taxable income at or below $3,000</condition_comment>
-<condition_dsl />
+<condition_comment>In bracket 2; AL taxable income at or below $3,000. NOTE: postfix uses al_bracket_2_single which is not in AL_edd — EL uses al_bracket_2_limit_single.</condition_comment>
+<condition_dsl>result.al_taxable_income &lt;= al_bracket_2_limit_single</condition_dsl>
 <condition_postfix>
 result.al_taxable_income al_bracket_2_single &lt;=
 </condition_postfix>
@@ -142,8 +142,8 @@ result.al_state_tax "  Alabama tax (2% bracket): $" swap f$ concat job.audit_tra
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Bracket 2 tax (2% + 4%); set result.al_state_tax = ($500 * 0.02) + (excess * 0.04)</action_comment>
-<action_dsl />
+<action_comment>Bracket 2 tax (2% + 4%); set result.al_state_tax = ($500 * 0.02) + (excess * 0.04). NOTE: EL uses al_bracket_*_limit_single / al_bracket_*_rate per AL_edd; postfix names diverge.</action_comment>
+<action_dsl>set result.al_state_tax = al_bracket_1_limit_single * al_bracket_1_rate + (result.al_taxable_income - al_bracket_1_limit_single) * al_bracket_2_rate; add "  Alabama tax (2% + 4% brackets): $" + result.al_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
 al_bracket_1_single al_tax_rate_1 f*
 result.al_taxable_income al_bracket_1_single f- al_tax_rate_2 f* f+
@@ -154,8 +154,8 @@ result.al_state_tax "  Alabama tax (2% + 4% brackets): $" swap f$ concat job.aud
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Bracket 3 tax (2% + 4% + 5%); set result.al_state_tax = ($500 * 0.02) + ($2,500 * 0.04) + (excess * 0.05)</action_comment>
-<action_dsl />
+<action_comment>Bracket 3 tax (2% + 4% + 5%); set result.al_state_tax = ($500 * 0.02) + ($2,500 * 0.04) + (excess * 0.05). NOTE: EL uses al_bracket_*_limit_single / al_bracket_*_rate per AL_edd.</action_comment>
+<action_dsl>set result.al_state_tax = al_bracket_1_limit_single * al_bracket_1_rate + (al_bracket_2_limit_single - al_bracket_1_limit_single) * al_bracket_2_rate + (result.al_taxable_income - al_bracket_2_limit_single) * al_bracket_3_rate; add "  Alabama tax (all brackets): $" + result.al_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
 al_bracket_1_single al_tax_rate_1 f*
 al_bracket_2_single al_bracket_1_single f- al_tax_rate_2 f* f+
@@ -180,7 +180,7 @@ result.al_state_tax "  Alabama tax (all brackets): $" swap f$ concat job.audit_t
 <contexts />
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize Alabama tax calculation and compute AL taxable income</action_dsl>
+<action_dsl>set result.al_state_tax = 0.0; add "ALABAMA STATE TAX" to job.audit_trail; if job.filing_status == "MFJ" || job.filing_status == "HOH" then set result.al_taxable_income = the maximum of (result.agi - al_standard_deduction_joint - al_exemption_joint) and 0; else set result.al_taxable_income = the maximum of (result.agi - al_standard_deduction_single - al_exemption_single) and 0; endif; add "  Alabama taxable income: $" + result.al_taxable_income to job.audit_trail</action_dsl>
 <action_postfix>
 0.0 /result.al_state_tax xdef
 "ALABAMA STATE TAX" job.audit_trail swap addto
@@ -199,7 +199,7 @@ result.al_taxable_income "  Alabama taxable income: $" swap f$ concat job.audit_
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>MFJ or HOH filing status; filing_status is MFJ or HOH</condition_comment>
-<condition_dsl />
+<condition_dsl>job.filing_status == "MFJ" || job.filing_status == "HOH"</condition_dsl>
 <condition_postfix>
 job.filing_status MFJ == job.filing_status HOH == or
 </condition_postfix>
@@ -211,7 +211,7 @@ job.filing_status MFJ == job.filing_status HOH == or
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate AL tax using MFJ brackets; executeTable Calculate_AL_Tax_MFJ</action_comment>
-<action_dsl />
+<action_dsl>perform AL_Tax_MFJ</action_dsl>
 <action_postfix>
 AL_Tax_MFJ
 </action_postfix>
@@ -220,7 +220,7 @@ AL_Tax_MFJ
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate AL tax using Single brackets; executeTable Calculate_AL_Tax_Single</action_comment>
-<action_dsl />
+<action_dsl>perform AL_Tax_Single</action_dsl>
 <action_postfix>
 AL_Tax_Single
 </action_postfix>

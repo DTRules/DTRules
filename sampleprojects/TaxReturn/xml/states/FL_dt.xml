@@ -12,6 +12,13 @@
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
+<initial_action>
+<action_dsl>set result.fl_tax = 0; add "  FL has no state income tax: $0" to job.audit_trail</action_dsl>
+<action_postfix>
+0 /result.fl_tax xdef
+"  FL has no state income tax: $0" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
 </initial_actions>
 <conditions>
 </conditions>

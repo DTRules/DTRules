@@ -37,7 +37,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Married Filing Jointly or Head of Household; filing_status == &quot;married_filing_jointly&quot; OR filing_status == &quot;head_of_household&quot;</condition_comment>
-<condition_dsl>Filing status is Married Filing Jointly or Head of Household; filing_status == &quot;married_filing_jointly&quot; OR filing_status == &quot;head_of_household&quot;</condition_dsl>
+<condition_dsl>job.filing_status == "married_filing_jointly" || job.filing_status == "head_of_household"</condition_dsl>
 <condition_postfix>
 
 </condition_postfix>
@@ -49,7 +49,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate LA tax with joint/HOH standard deduction</action_comment>
-<action_dsl>Calculate LA tax with joint/HOH standard deduction</action_dsl>
+<action_dsl>set result.la_standard_deduction = la_standard_deduction_joint; set result.la_taxable_income = the maximum of (result.agi - result.la_standard_deduction) and 0.0; set result.la_tax = result.la_taxable_income * la_tax_rate; add "  LA flat tax (3%, MFJ/HOH std deduction): $" + result.la_tax to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>
