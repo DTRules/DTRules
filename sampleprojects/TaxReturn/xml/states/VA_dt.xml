@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exemption</action_comment>
-<action_dsl>No military retirement pay - no exemption</action_dsl>
+<action_dsl>/* No military retirement pay - no exemption. */</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -45,7 +45,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Single</condition_comment>
-<condition_dsl>Single</condition_dsl>
+<condition_dsl>job.filing_status is equal to "Single"</condition_dsl>
 <condition_postfix>
 filing_status == &quot;Single&quot;
 </condition_postfix>
@@ -53,7 +53,7 @@ filing_status == &quot;Single&quot;
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Head of Household</condition_comment>
-<condition_dsl>Head of Household</condition_dsl>
+<condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
 <condition_postfix>
 filing_status == &quot;HOH&quot;
 </condition_postfix>
@@ -61,7 +61,7 @@ filing_status == &quot;HOH&quot;
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Married Filing Separately</condition_comment>
-<condition_dsl>Married Filing Separately</condition_dsl>
+<condition_dsl>job.filing_status is equal to "MFS"</condition_dsl>
 <condition_postfix>
 filing_status == &quot;MFS&quot;
 </condition_postfix>
@@ -71,7 +71,7 @@ filing_status == &quot;MFS&quot;
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate Virginia progressive tax - Single</action_comment>
-<action_dsl>Calculate Virginia progressive tax - Single</action_dsl>
+<action_dsl>add "VIRGINIA FORM 760 - State Income Tax Calculation (Single)" to job.audit_trail; set result.va_agi = result.agi; set result.va_standard_deduction = va_standard_deduction_single; set result.va_taxable_income = the maximum of (result.va_agi - result.va_standard_deduction) and 0.0; set result.va_bracket_1_tax = (the minimum of result.va_taxable_income and va_bracket_1_limit) * va_bracket_1_rate; set result.va_bracket_2_tax = (the maximum of ((the minimum of result.va_taxable_income and va_bracket_2_limit) - va_bracket_1_limit) and 0.0) * va_bracket_2_rate; set result.va_bracket_3_tax = (the maximum of ((the minimum of result.va_taxable_income and va_bracket_3_limit) - va_bracket_2_limit) and 0.0) * va_bracket_3_rate; set result.va_bracket_4_tax = (the maximum of (result.va_taxable_income - va_bracket_3_limit) and 0.0) * va_bracket_4_rate; set result.va_tax = result.va_bracket_1_tax + result.va_bracket_2_tax + result.va_bracket_3_tax + result.va_bracket_4_tax; add "  VA Tax (Progressive 2%-5.75%): $" + result.va_tax to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -79,7 +79,7 @@ filing_status == &quot;MFS&quot;
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate Virginia progressive tax - HOH</action_comment>
-<action_dsl>Calculate Virginia progressive tax - HOH</action_dsl>
+<action_dsl>add "VIRGINIA FORM 760 - State Income Tax Calculation (HOH)" to job.audit_trail; set result.va_agi = result.agi; set result.va_standard_deduction = va_standard_deduction_hoh; set result.va_taxable_income = the maximum of (result.va_agi - result.va_standard_deduction) and 0.0; set result.va_bracket_1_tax = (the minimum of result.va_taxable_income and va_bracket_1_limit) * va_bracket_1_rate; set result.va_bracket_2_tax = (the maximum of ((the minimum of result.va_taxable_income and va_bracket_2_limit) - va_bracket_1_limit) and 0.0) * va_bracket_2_rate; set result.va_bracket_3_tax = (the maximum of ((the minimum of result.va_taxable_income and va_bracket_3_limit) - va_bracket_2_limit) and 0.0) * va_bracket_3_rate; set result.va_bracket_4_tax = (the maximum of (result.va_taxable_income - va_bracket_3_limit) and 0.0) * va_bracket_4_rate; set result.va_tax = result.va_bracket_1_tax + result.va_bracket_2_tax + result.va_bracket_3_tax + result.va_bracket_4_tax; add "  VA Tax (Progressive 2%-5.75%): $" + result.va_tax to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -87,7 +87,7 @@ filing_status == &quot;MFS&quot;
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate Virginia progressive tax - MFS</action_comment>
-<action_dsl>Calculate Virginia progressive tax - MFS</action_dsl>
+<action_dsl>add "VIRGINIA FORM 760 - State Income Tax Calculation (MFS)" to job.audit_trail; set result.va_agi = result.agi; set result.va_standard_deduction = va_standard_deduction_mfs; set result.va_taxable_income = the maximum of (result.va_agi - result.va_standard_deduction) and 0.0; set result.va_bracket_1_tax = (the minimum of result.va_taxable_income and va_bracket_1_limit) * va_bracket_1_rate; set result.va_bracket_2_tax = (the maximum of ((the minimum of result.va_taxable_income and va_bracket_2_limit) - va_bracket_1_limit) and 0.0) * va_bracket_2_rate; set result.va_bracket_3_tax = (the maximum of ((the minimum of result.va_taxable_income and va_bracket_3_limit) - va_bracket_2_limit) and 0.0) * va_bracket_3_rate; set result.va_bracket_4_tax = (the maximum of (result.va_taxable_income - va_bracket_3_limit) and 0.0) * va_bracket_4_rate; set result.va_tax = result.va_bracket_1_tax + result.va_bracket_2_tax + result.va_bracket_3_tax + result.va_bracket_4_tax; add "  VA Tax (Progressive 2%-5.75%): $" + result.va_tax to job.audit_trail</action_dsl>
 <action_postfix>
 
 </action_postfix>

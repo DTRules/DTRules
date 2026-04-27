@@ -57,7 +57,7 @@ Age 65 or older
 <contexts />
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize GA tax calculation</action_dsl>
+<action_dsl>add "GEORGIA FORM 500 - State Income Tax Calculation" to job.audit_trail; set result.ga_agi = result.agi</action_dsl>
 <action_postfix>
 "GEORGIA FORM 500 - State Income Tax Calculation" job.audit_trail swap addto
 result.agi /result.ga_agi xdef
@@ -68,7 +68,7 @@ result.agi /result.ga_agi xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_dsl>Filing status is MFJ</condition_dsl>
+<condition_dsl>job.filing_status is equal to "MFJ"</condition_dsl>
 <condition_postfix>
 job.filing_status MFJ streq
 </condition_postfix>
@@ -79,8 +79,8 @@ job.filing_status MFJ streq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate GA tax for MFJ; Apply MFJ standard deduction ($24,000) and calculate tax at 5.19%</action_comment>
-<action_dsl />
+<action_comment>Calculate GA tax for MFJ; Apply MFJ standard deduction ($24,000) and calculate tax at 5.19%. NOTE: GA_edd lacks ga_standard_deduction_{mfj,single} and ga_tax_rate constants (only military exemption fields are defined); EL uses the postfix-named symbols.</action_comment>
+<action_dsl>add "  Starting Federal AGI: $" + result.ga_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.ga_standard_deduction = ga_standard_deduction_mfj; add "  Standard Deduction (MFJ): $" + result.ga_standard_deduction + " (Form 500 Line 9)" to job.audit_trail; set result.ga_taxable_income = the maximum of (result.ga_agi - result.ga_standard_deduction) and 0.0; add "  Georgia Taxable Income: $" + result.ga_taxable_income + " (AGI - Standard Deduction)" to job.audit_trail; set result.ga_tax = result.ga_taxable_income * ga_tax_rate; add "  Georgia Tax (5.19%): $" + result.ga_tax + " (Form 500 Line 16)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.ga_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 ga_standard_deduction_mfj /result.ga_standard_deduction xdef
@@ -94,8 +94,8 @@ result.ga_taxable_income ga_tax_rate f* /result.ga_tax xdef
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate GA tax for Single/HOH; Apply Single/HOH standard deduction ($12,000) and calculate tax at 5.19%</action_comment>
-<action_dsl />
+<action_comment>Calculate GA tax for Single/HOH; Apply Single/HOH standard deduction ($12,000) and calculate tax at 5.19%. NOTE: GA_edd lacks ga_standard_deduction_{mfj,single} and ga_tax_rate constants; EL uses postfix-named symbols.</action_comment>
+<action_dsl>add "  Starting Federal AGI: $" + result.ga_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.ga_standard_deduction = ga_standard_deduction_single; add "  Standard Deduction (Single/HOH): $" + result.ga_standard_deduction + " (Form 500 Line 9)" to job.audit_trail; set result.ga_taxable_income = the maximum of (result.ga_agi - result.ga_standard_deduction) and 0.0; add "  Georgia Taxable Income: $" + result.ga_taxable_income + " (AGI - Standard Deduction)" to job.audit_trail; set result.ga_tax = result.ga_taxable_income * ga_tax_rate; add "  Georgia Tax (5.19%): $" + result.ga_tax + " (Form 500 Line 16)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.ga_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 ga_standard_deduction_single /result.ga_standard_deduction xdef

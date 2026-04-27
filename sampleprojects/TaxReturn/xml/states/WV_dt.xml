@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
-<action_dsl>No military retirement pay - no exclusion</action_dsl>
+<action_dsl>/* No military retirement pay - no exclusion. */</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -35,7 +35,7 @@
 <xls_file>WV.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>West Virginia state income tax calculation. Implements progressive tax structure with 5 brackets per WV Tax Division (2025).</COMMENTS>
+<COMMENTS>West Virginia state income tax calculation. Implements progressive tax structure with 5 brackets per WV Tax Division (2025). Skeleton table — needs authorship (no conditions or actions defined yet).</COMMENTS>
 <TABLE_NUMBER>44850</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
