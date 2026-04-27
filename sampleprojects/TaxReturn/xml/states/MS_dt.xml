@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
-<action_dsl>No military retirement pay - no exclusion</action_dsl>
+<action_dsl>/* No military retirement pay - no exclusion. */</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -40,7 +40,7 @@
 <contexts />
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize MS tax calculation</action_dsl>
+<action_dsl>add "MISSISSIPPI FORM 80-105 - State Income Tax Calculation" to job.audit_trail; set result.ms_agi = result.agi; set result.ms_bracket_1_tax = 0; set result.ms_bracket_2_tax = 0</action_dsl>
 <action_postfix>
 "MISSISSIPPI FORM 80-105 - State Income Tax Calculation" job.audit_trail swap addto
 result.agi /result.ms_agi xdef
@@ -87,8 +87,8 @@ job.filing_status head_of_household streq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate MS tax MFJ; Calculate MS tax with MFJ standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_comment>Calculate MS tax MFJ; Calculate MS tax with MFJ standard deduction and 2-tier brackets (0% on first $10,000, 4.4% above). NOTE: postfix uses ms_standard_deduction_mfj / ms_zero_bracket / ms_tax_rate which are not declared in MS_edd; EL uses MS_edd-declared ms_standard_deduction_joint / ms_bracket_1_limit / ms_bracket_2_rate.</action_comment>
+<action_dsl>add "  Starting Federal AGI: $" + result.ms_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.ms_standard_deduction = ms_standard_deduction_joint; add "  Standard Deduction (MFJ): $" + result.ms_standard_deduction to job.audit_trail; set result.ms_taxable_income = the maximum of (result.ms_agi - result.ms_standard_deduction) and 0.0; add "  MS Taxable Income: $" + result.ms_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; set result.ms_bracket_1_tax = 0; set result.ms_bracket_2_tax = (the maximum of (result.ms_taxable_income - ms_bracket_1_limit) and 0.0) * ms_bracket_2_rate; set result.ms_tax = result.ms_bracket_1_tax + result.ms_bracket_2_tax; add "  Bracket 1 (0% on $0-$10,000): $" + result.ms_bracket_1_tax to job.audit_trail; add "  Bracket 2 (4.4% above $10,000): $" + result.ms_bracket_2_tax to job.audit_trail; add "  Total MS Tax: $" + result.ms_tax + " (Mississippi Form 80-105)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.ms_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 ms_standard_deduction_mfj /result.ms_standard_deduction xdef
@@ -111,8 +111,8 @@ result.ms_bracket_1_tax result.ms_bracket_2_tax f+ /result.ms_tax xdef
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate MS tax Single; Calculate MS tax with Single standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_comment>Calculate MS tax Single; Calculate MS tax with Single standard deduction and 2-tier brackets (0% on first $10,000, 4.4% above).</action_comment>
+<action_dsl>add "  Starting Federal AGI: $" + result.ms_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.ms_standard_deduction = ms_standard_deduction_single; add "  Standard Deduction (Single): $" + result.ms_standard_deduction to job.audit_trail; set result.ms_taxable_income = the maximum of (result.ms_agi - result.ms_standard_deduction) and 0.0; add "  MS Taxable Income: $" + result.ms_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; set result.ms_bracket_1_tax = 0; set result.ms_bracket_2_tax = (the maximum of (result.ms_taxable_income - ms_bracket_1_limit) and 0.0) * ms_bracket_2_rate; set result.ms_tax = result.ms_bracket_1_tax + result.ms_bracket_2_tax; add "  Bracket 1 (0% on $0-$10,000): $" + result.ms_bracket_1_tax to job.audit_trail; add "  Bracket 2 (4.4% above $10,000): $" + result.ms_bracket_2_tax to job.audit_trail; add "  Total MS Tax: $" + result.ms_tax + " (Mississippi Form 80-105)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.ms_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 ms_standard_deduction_single /result.ms_standard_deduction xdef
@@ -135,8 +135,8 @@ result.ms_bracket_1_tax result.ms_bracket_2_tax f+ /result.ms_tax xdef
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Calculate MS tax HOH; Calculate MS tax with HOH standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_comment>Calculate MS tax HOH; Calculate MS tax with HOH standard deduction and 2-tier brackets (0% on first $10,000, 4.4% above).</action_comment>
+<action_dsl>add "  Starting Federal AGI: $" + result.ms_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.ms_standard_deduction = ms_standard_deduction_hoh; add "  Standard Deduction (HOH): $" + result.ms_standard_deduction to job.audit_trail; set result.ms_taxable_income = the maximum of (result.ms_agi - result.ms_standard_deduction) and 0.0; add "  MS Taxable Income: $" + result.ms_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; set result.ms_bracket_1_tax = 0; set result.ms_bracket_2_tax = (the maximum of (result.ms_taxable_income - ms_bracket_1_limit) and 0.0) * ms_bracket_2_rate; set result.ms_tax = result.ms_bracket_1_tax + result.ms_bracket_2_tax; add "  Bracket 1 (0% on $0-$10,000): $" + result.ms_bracket_1_tax to job.audit_trail; add "  Bracket 2 (4.4% above $10,000): $" + result.ms_bracket_2_tax to job.audit_trail; add "  Total MS Tax: $" + result.ms_tax + " (Mississippi Form 80-105)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.ms_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 ms_standard_deduction_hoh /result.ms_standard_deduction xdef

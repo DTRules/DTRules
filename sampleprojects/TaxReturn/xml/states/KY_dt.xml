@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay</action_comment>
-<action_dsl>No military retirement pay</action_dsl>
+<action_dsl>/* No military retirement pay - no exemption. */</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -35,7 +35,7 @@
 <xls_file>KY.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Kentucky state income tax calculation. Implements flat 4% tax structure with $3,270 standard deduction per KY tax code (2025).</COMMENTS>
+<COMMENTS>Kentucky state income tax calculation. Implements flat 4% tax structure with $3,270 standard deduction per KY tax code (2025). Skeleton — needs authorship: no conditions/actions defined yet. EDD declares ky_tax_rate (0.04), ky_standard_deduction (3270), ky_taxable_income, ky_state_tax. Once a row is authored, EL form: action_dsl="set result.ky_taxable_income = the maximum of (result.agi - ky_standard_deduction) and 0.0; set result.ky_state_tax = result.ky_taxable_income * ky_tax_rate; add &quot;  KY tax (flat 4%): $&quot; + result.ky_state_tax to job.audit_trail".</COMMENTS>
 <TABLE_NUMBER>41800</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
