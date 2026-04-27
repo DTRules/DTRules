@@ -19,7 +19,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay</action_comment>
-<action_dsl>No military retirement pay</action_dsl>
+<action_dsl>/* No military retirement pay. */</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -40,7 +40,7 @@
 <contexts />
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize DE tax calculation</action_dsl>
+<action_dsl>add "DELAWARE FORM 200-01 - State Income Tax Calculation" to job.audit_trail; set result.de_agi = result.agi; set result.de_bracket_1_tax = 0; set result.de_bracket_2_tax = 0; set result.de_bracket_3_tax = 0; set result.de_bracket_4_tax = 0; set result.de_bracket_5_tax = 0; set result.de_bracket_6_tax = 0; set result.de_bracket_7_tax = 0</action_dsl>
 <action_postfix>
 "DELAWARE FORM 200-01 - State Income Tax Calculation" job.audit_trail swap addto
 result.agi /result.de_agi xdef
@@ -70,7 +70,7 @@ job.filing_status married_filing_jointly streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate DE tax MFJ; Calculate DE tax with MFJ standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_dsl>add "  Starting Federal AGI: $" + result.de_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.de_standard_deduction = de_standard_deduction_joint; add "  Standard Deduction (MFJ): $" + result.de_standard_deduction to job.audit_trail; set result.de_taxable_income = the maximum of (result.de_agi - result.de_standard_deduction) and 0.0; add "  DE Taxable Income: $" + result.de_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; set result.de_bracket_1_tax = (the minimum of result.de_taxable_income and de_bracket_1_limit) * de_bracket_1_rate; set result.de_bracket_2_tax = (the maximum of ((the minimum of result.de_taxable_income and de_bracket_2_limit) - de_bracket_1_limit) and 0.0) * de_bracket_2_rate; set result.de_bracket_3_tax = (the maximum of ((the minimum of result.de_taxable_income and de_bracket_3_limit) - de_bracket_2_limit) and 0.0) * de_bracket_3_rate; set result.de_bracket_4_tax = (the maximum of ((the minimum of result.de_taxable_income and de_bracket_4_limit) - de_bracket_3_limit) and 0.0) * de_bracket_4_rate; set result.de_bracket_5_tax = (the maximum of ((the minimum of result.de_taxable_income and de_bracket_5_limit) - de_bracket_4_limit) and 0.0) * de_bracket_5_rate; set result.de_bracket_6_tax = (the maximum of ((the minimum of result.de_taxable_income and de_bracket_6_limit) - de_bracket_5_limit) and 0.0) * de_bracket_6_rate; set result.de_bracket_7_tax = (the maximum of (result.de_taxable_income - de_bracket_6_limit) and 0.0) * de_bracket_7_rate; set result.de_tax = result.de_bracket_1_tax + result.de_bracket_2_tax + result.de_bracket_3_tax + result.de_bracket_4_tax + result.de_bracket_5_tax + result.de_bracket_6_tax + result.de_bracket_7_tax; add "  Total DE Tax: $" + result.de_tax + " (Form 200-01)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.de_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 de_standard_deduction_mfj /result.de_standard_deduction xdef
@@ -159,7 +159,7 @@ result.de_bracket_1_tax result.de_bracket_2_tax f+ result.de_bracket_3_tax f+ re
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate DE tax Single/other; Calculate DE tax with Single standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_dsl>add "  Starting Federal AGI: $" + result.de_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.de_standard_deduction = de_standard_deduction_single; add "  Standard Deduction (Single): $" + result.de_standard_deduction to job.audit_trail; set result.de_taxable_income = the maximum of (result.de_agi - result.de_standard_deduction) and 0.0; add "  DE Taxable Income: $" + result.de_taxable_income + " (AGI - Std Deduction)" to job.audit_trail; set result.de_bracket_1_tax = (the minimum of result.de_taxable_income and de_bracket_1_limit) * de_bracket_1_rate; set result.de_bracket_2_tax = (the maximum of ((the minimum of result.de_taxable_income and de_bracket_2_limit) - de_bracket_1_limit) and 0.0) * de_bracket_2_rate; set result.de_bracket_3_tax = (the maximum of ((the minimum of result.de_taxable_income and de_bracket_3_limit) - de_bracket_2_limit) and 0.0) * de_bracket_3_rate; set result.de_bracket_4_tax = (the maximum of ((the minimum of result.de_taxable_income and de_bracket_4_limit) - de_bracket_3_limit) and 0.0) * de_bracket_4_rate; set result.de_bracket_5_tax = (the maximum of ((the minimum of result.de_taxable_income and de_bracket_5_limit) - de_bracket_4_limit) and 0.0) * de_bracket_5_rate; set result.de_bracket_6_tax = (the maximum of ((the minimum of result.de_taxable_income and de_bracket_6_limit) - de_bracket_5_limit) and 0.0) * de_bracket_6_rate; set result.de_bracket_7_tax = (the maximum of (result.de_taxable_income - de_bracket_6_limit) and 0.0) * de_bracket_7_rate; set result.de_tax = result.de_bracket_1_tax + result.de_bracket_2_tax + result.de_bracket_3_tax + result.de_bracket_4_tax + result.de_bracket_5_tax + result.de_bracket_6_tax + result.de_bracket_7_tax; add "  Total DE Tax: $" + result.de_tax + " (Form 200-01)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.de_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 de_standard_deduction_single /result.de_standard_deduction xdef

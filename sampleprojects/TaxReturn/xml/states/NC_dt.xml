@@ -29,7 +29,7 @@ Filing status is Head of Household
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Default case (Married Filing Separately, etc.)</condition_comment>
-<condition_dsl>otherwise</condition_dsl>
+<condition_dsl>job.filing_status is not equal to "MFJ" and job.filing_status is not equal to "Single" and job.filing_status is not equal to "HOH"</condition_dsl>
 <condition_postfix>
 Default case (Married Filing Separately, etc.)
 </condition_postfix>
@@ -51,7 +51,7 @@ Calculate NC AGI (Federal AGI minus subtractions)
 <action_details>
 <action_number>5</action_number>
 <action_comment>Calculate NC taxable income (NC AGI - standard deduction, minimum 0)</action_comment>
-<action_dsl>set result.nc_taxable_income = (result.nc_agi - result.nc_total_deduction) max 0</action_dsl>
+<action_dsl>set result.nc_taxable_income = the maximum of (result.nc_agi - result.nc_total_deduction) and 0</action_dsl>
 <action_postfix>
 Calculate NC taxable income (NC AGI - standard deduction, minimum 0)
 </action_postfix>
@@ -75,7 +75,7 @@ Calculate NC tax: taxable income × 4.25%
 <xls_file>NC.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>North Carolina military retirement pay exclusion. Full exemption for 20+ years of service or medical retirement (Group B). Changed from partial to full exemption in 2021. MSRRA compliant. SCRA compliant. SBP payments fully exempt.</COMMENTS>
+<COMMENTS>North Carolina military retirement pay exclusion. Full exemption for 20+ years of service or medical retirement (Group B). Changed from partial to full exemption in 2021. MSRRA compliant. SCRA compliant. SBP payments fully exempt. Skeleton table — needs authorship (no conditions or actions defined yet).</COMMENTS>
 <TABLE_NUMBER>43050</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>

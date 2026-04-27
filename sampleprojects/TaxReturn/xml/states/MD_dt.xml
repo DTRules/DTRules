@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Age 55 or older</condition_comment>
-<condition_dsl>Age 55 or older</condition_dsl>
+<condition_dsl>taxpayer.age &gt;= 55</condition_dsl>
 <condition_postfix>
 age &gt;= 55
 </condition_postfix>
@@ -28,7 +28,7 @@ age &gt;= 55
 <action_details>
 <action_number>2</action_number>
 <action_comment>Apply MD $12,500 military retirement exemption (under age 55)</action_comment>
-<action_dsl>Apply MD $12,500 military retirement exemption (under age 55)</action_dsl>
+<action_dsl>/* Apply MD $12,500 military retirement exemption (under age 55). Per-iteration; no-op at table level. */</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -36,7 +36,7 @@ age &gt;= 55
 <action_details>
 <action_number>3</action_number>
 <action_comment>No military retirement pay - no exemption</action_comment>
-<action_dsl>No military retirement pay - no exemption</action_dsl>
+<action_dsl>/* No military retirement pay - no exemption. */</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -52,7 +52,7 @@ age &gt;= 55
 <xls_file>MD.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Maryland state income tax calculation. Implements progressive 8-bracket tax structure per MD tax code (2025).</COMMENTS>
+<COMMENTS>Maryland state income tax calculation. Implements progressive 8-bracket tax structure per MD tax code (2025). Skeleton table — needs authorship (no conditions or actions defined yet).</COMMENTS>
 <TABLE_NUMBER>42050</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>

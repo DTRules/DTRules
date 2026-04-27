@@ -17,7 +17,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Age 62 or older</condition_comment>
-<condition_dsl>Age 62 or older</condition_dsl>
+<condition_dsl>taxpayer.age &gt;= 62</condition_dsl>
 <condition_postfix>
 age &gt;= 62
 </condition_postfix>
@@ -28,7 +28,7 @@ age &gt;= 62
 <action_details>
 <action_number>2</action_number>
 <action_comment>No DC military retirement exemption (age &lt; 62)</action_comment>
-<action_dsl>No DC military retirement exemption (age &lt; 62)</action_dsl>
+<action_dsl>/* No DC military retirement exemption (age &lt; 62). */</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -36,7 +36,7 @@ age &gt;= 62
 <action_details>
 <action_number>3</action_number>
 <action_comment>No military retirement pay</action_comment>
-<action_dsl>No military retirement pay</action_dsl>
+<action_dsl>/* No military retirement pay. */</action_dsl>
 <action_postfix>
 
 </action_postfix>
@@ -57,7 +57,7 @@ age &gt;= 62
 <contexts />
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize DC tax calculation</action_dsl>
+<action_dsl>add "WASHINGTON DC FORM D-40 - State Income Tax Calculation" to job.audit_trail; set result.dc_agi = result.agi; set result.dc_bracket_1_tax = 0; set result.dc_bracket_2_tax = 0; set result.dc_bracket_3_tax = 0; set result.dc_bracket_4_tax = 0; set result.dc_bracket_5_tax = 0; set result.dc_bracket_6_tax = 0; set result.dc_bracket_7_tax = 0</action_dsl>
 <action_postfix>
 "WASHINGTON DC FORM D-40 - State Income Tax Calculation" job.audit_trail swap addto
 result.agi /result.dc_agi xdef
@@ -68,7 +68,7 @@ result.agi /result.dc_agi xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Single or Married Filing Separately; job.filing_status is "Single" or "MFS"</condition_comment>
-<condition_dsl />
+<condition_dsl>job.filing_status is equal to "Single" or job.filing_status is equal to "MFS"</condition_dsl>
 <condition_postfix>
 job.filing_status Single streq job.filing_status MFS streq or
 </condition_postfix>
@@ -79,7 +79,7 @@ job.filing_status Single streq job.filing_status MFS streq or
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Head of Household</condition_comment>
-<condition_dsl>job.filing_status is "HOH"</condition_dsl>
+<condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
 <condition_postfix>
 job.filing_status HOH streq
 </condition_postfix>
@@ -90,7 +90,7 @@ job.filing_status HOH streq
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Married Filing Jointly or Qualifying Widow(er); job.filing_status is "MFJ" or "QW"</condition_comment>
-<condition_dsl />
+<condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QW"</condition_dsl>
 <condition_postfix>
 job.filing_status MFJ streq job.filing_status QW streq or
 </condition_postfix>
@@ -103,7 +103,7 @@ job.filing_status MFJ streq job.filing_status QW streq or
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate DC tax for Single/MFS; Apply DC standard deduction (Single/MFS) and calculate progressive tax</action_comment>
-<action_dsl />
+<action_dsl>add "  Starting Federal AGI: $" + result.dc_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.dc_standard_deduction_amount = dc_standard_deduction_single; add "  Standard Deduction (Single/MFS): -$" + result.dc_standard_deduction_amount + " (Form D-40)" to job.audit_trail; set result.dc_taxable_income = the maximum of (result.dc_agi - result.dc_standard_deduction_amount) and 0.0; add "  DC Taxable Income: $" + result.dc_taxable_income + " (AGI - Standard Deduction)" to job.audit_trail; set result.dc_bracket_1_tax = (the minimum of result.dc_taxable_income and dc_bracket_1_limit) * dc_bracket_1_rate; set result.dc_bracket_2_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_2_limit) - dc_bracket_1_limit) and 0.0) * dc_bracket_2_rate; set result.dc_bracket_3_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_3_limit) - dc_bracket_2_limit) and 0.0) * dc_bracket_3_rate; set result.dc_bracket_4_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_4_limit) - dc_bracket_3_limit) and 0.0) * dc_bracket_4_rate; set result.dc_bracket_5_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_5_limit) - dc_bracket_4_limit) and 0.0) * dc_bracket_5_rate; set result.dc_bracket_6_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_6_limit) - dc_bracket_5_limit) and 0.0) * dc_bracket_6_rate; set result.dc_bracket_7_tax = (the maximum of (result.dc_taxable_income - dc_bracket_6_limit) and 0.0) * dc_bracket_7_rate; set result.dc_tax = result.dc_bracket_1_tax + result.dc_bracket_2_tax + result.dc_bracket_3_tax + result.dc_bracket_4_tax + result.dc_bracket_5_tax + result.dc_bracket_6_tax + result.dc_bracket_7_tax; add "  DC Tax (Progressive 4%-10.75%): $" + result.dc_tax + " (Form D-40)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.dc_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 dc_standard_deduction_single /result.dc_standard_deduction_amount xdef
@@ -144,7 +144,7 @@ dc_calculated_tax /result.dc_tax xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate DC tax for HOH; Apply DC standard deduction (HOH) and calculate progressive tax</action_comment>
-<action_dsl />
+<action_dsl>add "  Starting Federal AGI: $" + result.dc_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.dc_standard_deduction_amount = dc_standard_deduction_hoh; add "  Standard Deduction (HOH): -$" + result.dc_standard_deduction_amount + " (Form D-40)" to job.audit_trail; set result.dc_taxable_income = the maximum of (result.dc_agi - result.dc_standard_deduction_amount) and 0.0; add "  DC Taxable Income: $" + result.dc_taxable_income + " (AGI - Standard Deduction)" to job.audit_trail; set result.dc_bracket_1_tax = (the minimum of result.dc_taxable_income and dc_bracket_1_limit) * dc_bracket_1_rate; set result.dc_bracket_2_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_2_limit) - dc_bracket_1_limit) and 0.0) * dc_bracket_2_rate; set result.dc_bracket_3_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_3_limit) - dc_bracket_2_limit) and 0.0) * dc_bracket_3_rate; set result.dc_bracket_4_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_4_limit) - dc_bracket_3_limit) and 0.0) * dc_bracket_4_rate; set result.dc_bracket_5_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_5_limit) - dc_bracket_4_limit) and 0.0) * dc_bracket_5_rate; set result.dc_bracket_6_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_6_limit) - dc_bracket_5_limit) and 0.0) * dc_bracket_6_rate; set result.dc_bracket_7_tax = (the maximum of (result.dc_taxable_income - dc_bracket_6_limit) and 0.0) * dc_bracket_7_rate; set result.dc_tax = result.dc_bracket_1_tax + result.dc_bracket_2_tax + result.dc_bracket_3_tax + result.dc_bracket_4_tax + result.dc_bracket_5_tax + result.dc_bracket_6_tax + result.dc_bracket_7_tax; add "  DC Tax (Progressive 4%-10.75%): $" + result.dc_tax + " (Form D-40)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.dc_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 dc_standard_deduction_hoh /result.dc_standard_deduction_amount xdef
@@ -185,7 +185,7 @@ dc_calculated_tax /result.dc_tax xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate DC tax for MFJ/QW; Apply DC standard deduction (MFJ/QW) and calculate progressive tax</action_comment>
-<action_dsl />
+<action_dsl>add "  Starting Federal AGI: $" + result.dc_agi + " (Form 1040 Line 11)" to job.audit_trail; set result.dc_standard_deduction_amount = dc_standard_deduction_joint; add "  Standard Deduction (MFJ/QW): -$" + result.dc_standard_deduction_amount + " (Form D-40)" to job.audit_trail; set result.dc_taxable_income = the maximum of (result.dc_agi - result.dc_standard_deduction_amount) and 0.0; add "  DC Taxable Income: $" + result.dc_taxable_income + " (AGI - Standard Deduction)" to job.audit_trail; set result.dc_bracket_1_tax = (the minimum of result.dc_taxable_income and dc_bracket_1_limit) * dc_bracket_1_rate; set result.dc_bracket_2_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_2_limit) - dc_bracket_1_limit) and 0.0) * dc_bracket_2_rate; set result.dc_bracket_3_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_3_limit) - dc_bracket_2_limit) and 0.0) * dc_bracket_3_rate; set result.dc_bracket_4_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_4_limit) - dc_bracket_3_limit) and 0.0) * dc_bracket_4_rate; set result.dc_bracket_5_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_5_limit) - dc_bracket_4_limit) and 0.0) * dc_bracket_5_rate; set result.dc_bracket_6_tax = (the maximum of ((the minimum of result.dc_taxable_income and dc_bracket_6_limit) - dc_bracket_5_limit) and 0.0) * dc_bracket_6_rate; set result.dc_bracket_7_tax = (the maximum of (result.dc_taxable_income - dc_bracket_6_limit) and 0.0) * dc_bracket_7_rate; set result.dc_tax = result.dc_bracket_1_tax + result.dc_bracket_2_tax + result.dc_bracket_3_tax + result.dc_bracket_4_tax + result.dc_bracket_5_tax + result.dc_bracket_6_tax + result.dc_bracket_7_tax; add "  DC Tax (Progressive 4%-10.75%): $" + result.dc_tax + " (Form D-40)" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.dc_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 dc_standard_deduction_mfj /result.dc_standard_deduction_amount xdef
@@ -251,7 +251,7 @@ dc_calculated_tax /result.dc_tax xdef
 <contexts />
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize DC homebuyer credit</action_dsl>
+<action_dsl>set result.dc_homebuyer_credit = 0.0</action_dsl>
 <action_postfix>
 0.0 /result.dc_homebuyer_credit xdef
 </action_postfix>
@@ -261,7 +261,7 @@ dc_calculated_tax /result.dc_tax xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Purchased DC home as first-time buyer</condition_comment>
-<condition_dsl>job.purchased_dc_home_first_time equals true</condition_dsl>
+<condition_dsl>job.purchased_dc_home_first_time</condition_dsl>
 <condition_postfix>job.purchased_dc_home_first_time</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -279,7 +279,7 @@ dc_calculated_tax /result.dc_tax xdef
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate DC homebuyer credit; Calculate DC credit (lesser of $5,000 or purchase price)</action_comment>
-<action_dsl />
+<action_dsl>add "Calculating DC First-Time Homebuyer Credit (Form 8859)" to job.audit_trail; set result.dc_homebuyer_credit = the minimum of 5000.0 and job.dc_home_purchase_price; add "  Purchase price: $" + job.dc_home_purchase_price to job.audit_trail; add "  DC Homebuyer Credit: $" + result.dc_homebuyer_credit to job.audit_trail</action_dsl>
 <action_postfix>
 "Calculating DC First-Time Homebuyer Credit (Form 8859)" job.audit_trail swap addto
 5000.0 job.dc_home_purchase_price fmin /result.dc_homebuyer_credit xdef
@@ -291,7 +291,7 @@ dc_calculated_tax /result.dc_tax xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>No DC homebuyer credit; DC homebuyer credit not applicable</action_comment>
-<action_dsl />
+<action_dsl>add "DC Homebuyer Credit not applicable" to job.audit_trail</action_dsl>
 <action_postfix>
 "DC Homebuyer Credit not applicable" job.audit_trail swap addto
 </action_postfix>
