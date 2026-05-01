@@ -1,6 +1,7 @@
 // Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
-package el // EL
+package el
+
 import "github.com/antlr4-go/antlr/v4"
 
 // ELListener is a complete listener for a parse tree produced by ELParser.
@@ -808,74 +809,47 @@ type ELListener interface {
 	// EnterDateFromStrCast is called when entering the dateFromStrCast production.
 	EnterDateFromStrCast(c *DateFromStrCastContext)
 
-	// EnterDateTableLookup is called when entering the dateTableLookup production.
-	EnterDateTableLookup(c *DateTableLookupContext)
-
 	// EnterDateExprSubMonths is called when entering the dateExprSubMonths production.
 	EnterDateExprSubMonths(c *DateExprSubMonthsContext)
 
-	// EnterDatePlusYears is called when entering the datePlusYears production.
-	EnterDatePlusYears(c *DatePlusYearsContext)
+	// EnterDateFirstOfWeekStartingInZone is called when entering the dateFirstOfWeekStartingInZone production.
+	EnterDateFirstOfWeekStartingInZone(c *DateFirstOfWeekStartingInZoneContext)
 
-	// EnterDateMinusDays is called when entering the dateMinusDays production.
-	EnterDateMinusDays(c *DateMinusDaysContext)
+	// EnterDateNewYMDhmsInZone is called when entering the dateNewYMDhmsInZone production.
+	EnterDateNewYMDhmsInZone(c *DateNewYMDhmsInZoneContext)
 
-	// EnterDateExprAddYears is called when entering the dateExprAddYears production.
-	EnterDateExprAddYears(c *DateExprAddYearsContext)
-
-	// EnterDateTyped is called when entering the dateTyped production.
-	EnterDateTyped(c *DateTypedContext)
+	// EnterDateEndOfQuarter is called when entering the dateEndOfQuarter production.
+	EnterDateEndOfQuarter(c *DateEndOfQuarterContext)
 
 	// EnterDateFirstOfYear is called when entering the dateFirstOfYear production.
 	EnterDateFirstOfYear(c *DateFirstOfYearContext)
 
-	// EnterDateEndOfMonthInZone is called when entering the dateEndOfMonthInZone production.
-	EnterDateEndOfMonthInZone(c *DateEndOfMonthInZoneContext)
-
-	// EnterDateFirstOfMonth is called when entering the dateFirstOfMonth production.
-	EnterDateFirstOfMonth(c *DateFirstOfMonthContext)
-
-	// EnterDateExprSubYears is called when entering the dateExprSubYears production.
-	EnterDateExprSubYears(c *DateExprSubYearsContext)
-
-	// EnterDateCurrentDate is called when entering the dateCurrentDate production.
-	EnterDateCurrentDate(c *DateCurrentDateContext)
+	// EnterDateEndOfWeekInZone is called when entering the dateEndOfWeekInZone production.
+	EnterDateEndOfWeekInZone(c *DateEndOfWeekInZoneContext)
 
 	// EnterDateAdd is called when entering the dateAdd production.
 	EnterDateAdd(c *DateAddContext)
 
-	// EnterDateFirstOfMonthInZone is called when entering the dateFirstOfMonthInZone production.
-	EnterDateFirstOfMonthInZone(c *DateFirstOfMonthInZoneContext)
-
 	// EnterDateFromIndex is called when entering the dateFromIndex production.
 	EnterDateFromIndex(c *DateFromIndexContext)
-
-	// EnterDateExprAddDays is called when entering the dateExprAddDays production.
-	EnterDateExprAddDays(c *DateExprAddDaysContext)
-
-	// EnterDateMinusYears is called when entering the dateMinusYears production.
-	EnterDateMinusYears(c *DateMinusYearsContext)
 
 	// EnterDatePlusMonths is called when entering the datePlusMonths production.
 	EnterDatePlusMonths(c *DatePlusMonthsContext)
 
-	// EnterDateMinusMonths is called when entering the dateMinusMonths production.
-	EnterDateMinusMonths(c *DateMinusMonthsContext)
-
 	// EnterDateCurrentDateInZone is called when entering the dateCurrentDateInZone production.
 	EnterDateCurrentDateInZone(c *DateCurrentDateInZoneContext)
 
-	// EnterDateFirstOfYearInZone is called when entering the dateFirstOfYearInZone production.
-	EnterDateFirstOfYearInZone(c *DateFirstOfYearInZoneContext)
+	// EnterDateEndOfYearInZone is called when entering the dateEndOfYearInZone production.
+	EnterDateEndOfYearInZone(c *DateEndOfYearInZoneContext)
 
-	// EnterDateEndOfMonth is called when entering the dateEndOfMonth production.
-	EnterDateEndOfMonth(c *DateEndOfMonthContext)
-
-	// EnterDateUsing is called when entering the dateUsing production.
-	EnterDateUsing(c *DateUsingContext)
+	// EnterDateNewYMDInZone is called when entering the dateNewYMDInZone production.
+	EnterDateNewYMDInZone(c *DateNewYMDInZoneContext)
 
 	// EnterDateExprAddMonths is called when entering the dateExprAddMonths production.
 	EnterDateExprAddMonths(c *DateExprAddMonthsContext)
+
+	// EnterDateEndOfYear is called when entering the dateEndOfYear production.
+	EnterDateEndOfYear(c *DateEndOfYearContext)
 
 	// EnterDateEarliestAfter is called when entering the dateEarliestAfter production.
 	EnterDateEarliestAfter(c *DateEarliestAfterContext)
@@ -889,20 +863,101 @@ type ELListener interface {
 	// EnterDateColonRef is called when entering the dateColonRef production.
 	EnterDateColonRef(c *DateColonRefContext)
 
+	// EnterDateEndOfWeekStartingInZone is called when entering the dateEndOfWeekStartingInZone production.
+	EnterDateEndOfWeekStartingInZone(c *DateEndOfWeekStartingInZoneContext)
+
+	// EnterDateFirstOfQuarter is called when entering the dateFirstOfQuarter production.
+	EnterDateFirstOfQuarter(c *DateFirstOfQuarterContext)
+
 	// EnterDateSub is called when entering the dateSub production.
 	EnterDateSub(c *DateSubContext)
-
-	// EnterDateDays is called when entering the dateDays production.
-	EnterDateDays(c *DateDaysContext)
 
 	// EnterDateExprSubDays is called when entering the dateExprSubDays production.
 	EnterDateExprSubDays(c *DateExprSubDaysContext)
 
-	// EnterDateInZone is called when entering the dateInZone production.
-	EnterDateInZone(c *DateInZoneContext)
-
 	// EnterDateFromArrayAt is called when entering the dateFromArrayAt production.
 	EnterDateFromArrayAt(c *DateFromArrayAtContext)
+
+	// EnterDateFirstOfQuarterInZone is called when entering the dateFirstOfQuarterInZone production.
+	EnterDateFirstOfQuarterInZone(c *DateFirstOfQuarterInZoneContext)
+
+	// EnterDateTableLookup is called when entering the dateTableLookup production.
+	EnterDateTableLookup(c *DateTableLookupContext)
+
+	// EnterDateFirstOfWeek is called when entering the dateFirstOfWeek production.
+	EnterDateFirstOfWeek(c *DateFirstOfWeekContext)
+
+	// EnterDateEndOfWeek is called when entering the dateEndOfWeek production.
+	EnterDateEndOfWeek(c *DateEndOfWeekContext)
+
+	// EnterDatePlusYears is called when entering the datePlusYears production.
+	EnterDatePlusYears(c *DatePlusYearsContext)
+
+	// EnterDateMinusDays is called when entering the dateMinusDays production.
+	EnterDateMinusDays(c *DateMinusDaysContext)
+
+	// EnterDateExprAddYears is called when entering the dateExprAddYears production.
+	EnterDateExprAddYears(c *DateExprAddYearsContext)
+
+	// EnterDateTyped is called when entering the dateTyped production.
+	EnterDateTyped(c *DateTypedContext)
+
+	// EnterDateEndOfQuarterInZone is called when entering the dateEndOfQuarterInZone production.
+	EnterDateEndOfQuarterInZone(c *DateEndOfQuarterInZoneContext)
+
+	// EnterDateEndOfMonthInZone is called when entering the dateEndOfMonthInZone production.
+	EnterDateEndOfMonthInZone(c *DateEndOfMonthInZoneContext)
+
+	// EnterDateFirstOfMonth is called when entering the dateFirstOfMonth production.
+	EnterDateFirstOfMonth(c *DateFirstOfMonthContext)
+
+	// EnterDateExprSubYears is called when entering the dateExprSubYears production.
+	EnterDateExprSubYears(c *DateExprSubYearsContext)
+
+	// EnterDateEndOfWeekStarting is called when entering the dateEndOfWeekStarting production.
+	EnterDateEndOfWeekStarting(c *DateEndOfWeekStartingContext)
+
+	// EnterDateCurrentDate is called when entering the dateCurrentDate production.
+	EnterDateCurrentDate(c *DateCurrentDateContext)
+
+	// EnterDateFirstOfMonthInZone is called when entering the dateFirstOfMonthInZone production.
+	EnterDateFirstOfMonthInZone(c *DateFirstOfMonthInZoneContext)
+
+	// EnterDateNewYMDhmsInZoneWithDST is called when entering the dateNewYMDhmsInZoneWithDST production.
+	EnterDateNewYMDhmsInZoneWithDST(c *DateNewYMDhmsInZoneWithDSTContext)
+
+	// EnterDateNewYMDInZoneWithDST is called when entering the dateNewYMDInZoneWithDST production.
+	EnterDateNewYMDInZoneWithDST(c *DateNewYMDInZoneWithDSTContext)
+
+	// EnterDateExprAddDays is called when entering the dateExprAddDays production.
+	EnterDateExprAddDays(c *DateExprAddDaysContext)
+
+	// EnterDateMinusYears is called when entering the dateMinusYears production.
+	EnterDateMinusYears(c *DateMinusYearsContext)
+
+	// EnterDateMinusMonths is called when entering the dateMinusMonths production.
+	EnterDateMinusMonths(c *DateMinusMonthsContext)
+
+	// EnterDateFirstOfYearInZone is called when entering the dateFirstOfYearInZone production.
+	EnterDateFirstOfYearInZone(c *DateFirstOfYearInZoneContext)
+
+	// EnterDateEndOfMonth is called when entering the dateEndOfMonth production.
+	EnterDateEndOfMonth(c *DateEndOfMonthContext)
+
+	// EnterDateUsing is called when entering the dateUsing production.
+	EnterDateUsing(c *DateUsingContext)
+
+	// EnterDateFirstOfWeekInZone is called when entering the dateFirstOfWeekInZone production.
+	EnterDateFirstOfWeekInZone(c *DateFirstOfWeekInZoneContext)
+
+	// EnterDateFirstOfWeekStarting is called when entering the dateFirstOfWeekStarting production.
+	EnterDateFirstOfWeekStarting(c *DateFirstOfWeekStartingContext)
+
+	// EnterDateDays is called when entering the dateDays production.
+	EnterDateDays(c *DateDaysContext)
+
+	// EnterDateInZone is called when entering the dateInZone production.
+	EnterDateInZone(c *DateInZoneContext)
 
 	// EnterNameTyped is called when entering the nameTyped production.
 	EnterNameTyped(c *NameTypedContext)
@@ -939,6 +994,9 @@ type ELListener interface {
 
 	// EnterTableNew is called when entering the tableNew production.
 	EnterTableNew(c *TableNewContext)
+
+	// EnterStrFormatDateInZone is called when entering the strFormatDateInZone production.
+	EnterStrFormatDateInZone(c *StrFormatDateInZoneContext)
 
 	// EnterStrXmlValue is called when entering the strXmlValue production.
 	EnterStrXmlValue(c *StrXmlValueContext)
@@ -984,6 +1042,9 @@ type ELListener interface {
 
 	// EnterStrColonRef is called when entering the strColonRef production.
 	EnterStrColonRef(c *StrColonRefContext)
+
+	// EnterStrFormatDate is called when entering the strFormatDate production.
+	EnterStrFormatDate(c *StrFormatDateContext)
 
 	// EnterStrLiteral is called when entering the strLiteral production.
 	EnterStrLiteral(c *StrLiteralContext)
@@ -1180,6 +1241,9 @@ type ELListener interface {
 	// EnterIntYearOf is called when entering the intYearOf production.
 	EnterIntYearOf(c *IntYearOfContext)
 
+	// EnterIntSecondOfInZone is called when entering the intSecondOfInZone production.
+	EnterIntSecondOfInZone(c *IntSecondOfInZoneContext)
+
 	// EnterIntNumberOfWhere is called when entering the intNumberOfWhere production.
 	EnterIntNumberOfWhere(c *IntNumberOfWhereContext)
 
@@ -1194,6 +1258,9 @@ type ELListener interface {
 
 	// EnterIntYearsBetween is called when entering the intYearsBetween production.
 	EnterIntYearsBetween(c *IntYearsBetweenContext)
+
+	// EnterIntSecondOf is called when entering the intSecondOf production.
+	EnterIntSecondOf(c *IntSecondOfContext)
 
 	// EnterIntLengthArray is called when entering the intLengthArray production.
 	EnterIntLengthArray(c *IntLengthArrayContext)
@@ -1237,6 +1304,9 @@ type ELListener interface {
 	// EnterIntDaysInMonth is called when entering the intDaysInMonth production.
 	EnterIntDaysInMonth(c *IntDaysInMonthContext)
 
+	// EnterIntDayOfWeek is called when entering the intDayOfWeek production.
+	EnterIntDayOfWeek(c *IntDayOfWeekContext)
+
 	// EnterIntBytesIndex is called when entering the intBytesIndex production.
 	EnterIntBytesIndex(c *IntBytesIndexContext)
 
@@ -1251,6 +1321,9 @@ type ELListener interface {
 
 	// EnterIntIndexOf is called when entering the intIndexOf production.
 	EnterIntIndexOf(c *IntIndexOfContext)
+
+	// EnterIntWeekOfYear is called when entering the intWeekOfYear production.
+	EnterIntWeekOfYear(c *IntWeekOfYearContext)
 
 	// EnterIntMinOfComma is called when entering the intMinOfComma production.
 	EnterIntMinOfComma(c *IntMinOfCommaContext)
@@ -1300,6 +1373,12 @@ type ELListener interface {
 	// EnterIntDaysInMonthInZone is called when entering the intDaysInMonthInZone production.
 	EnterIntDaysInMonthInZone(c *IntDaysInMonthInZoneContext)
 
+	// EnterIntDayOfWeekInZone is called when entering the intDayOfWeekInZone production.
+	EnterIntDayOfWeekInZone(c *IntDayOfWeekInZoneContext)
+
+	// EnterIntWeekOfYearInZone is called when entering the intWeekOfYearInZone production.
+	EnterIntWeekOfYearInZone(c *IntWeekOfYearInZoneContext)
+
 	// EnterIntDaysBetween is called when entering the intDaysBetween production.
 	EnterIntDaysBetween(c *IntDaysBetweenContext)
 
@@ -1312,8 +1391,14 @@ type ELListener interface {
 	// EnterIntLengthStr is called when entering the intLengthStr production.
 	EnterIntLengthStr(c *IntLengthStrContext)
 
+	// EnterIntHourOfInZone is called when entering the intHourOfInZone production.
+	EnterIntHourOfInZone(c *IntHourOfInZoneContext)
+
 	// EnterIntAbs is called when entering the intAbs production.
 	EnterIntAbs(c *IntAbsContext)
+
+	// EnterIntMinuteOfInZone is called when entering the intMinuteOfInZone production.
+	EnterIntMinuteOfInZone(c *IntMinuteOfInZoneContext)
 
 	// EnterIntColonRef is called when entering the intColonRef production.
 	EnterIntColonRef(c *IntColonRefContext)
@@ -1321,8 +1406,14 @@ type ELListener interface {
 	// EnterIntSubFrom is called when entering the intSubFrom production.
 	EnterIntSubFrom(c *IntSubFromContext)
 
+	// EnterIntMinuteOf is called when entering the intMinuteOf production.
+	EnterIntMinuteOf(c *IntMinuteOfContext)
+
 	// EnterIntLengthBytes is called when entering the intLengthBytes production.
 	EnterIntLengthBytes(c *IntLengthBytesContext)
+
+	// EnterIntHourOf is called when entering the intHourOf production.
+	EnterIntHourOf(c *IntHourOfContext)
 
 	// EnterBigAbs is called when entering the bigAbs production.
 	EnterBigAbs(c *BigAbsContext)
@@ -1438,6 +1529,9 @@ type ELListener interface {
 	// EnterBlistIcOr is called when entering the blistIcOr production.
 	EnterBlistIcOr(c *BlistIcOrContext)
 
+	// EnterBoolSameCalendarQuarter is called when entering the boolSameCalendarQuarter production.
+	EnterBoolSameCalendarQuarter(c *BoolSameCalendarQuarterContext)
+
 	// EnterBoolIntLteFloat is called when entering the boolIntLteFloat production.
 	EnterBoolIntLteFloat(c *BoolIntLteFloatContext)
 
@@ -1537,6 +1631,9 @@ type ELListener interface {
 	// EnterBoolDateIsNull is called when entering the boolDateIsNull production.
 	EnterBoolDateIsNull(c *BoolDateIsNullContext)
 
+	// EnterBoolSameCalendarYear is called when entering the boolSameCalendarYear production.
+	EnterBoolSameCalendarYear(c *BoolSameCalendarYearContext)
+
 	// EnterBoolEntityInContext is called when entering the boolEntityInContext production.
 	EnterBoolEntityInContext(c *BoolEntityInContextContext)
 
@@ -1597,8 +1694,14 @@ type ELListener interface {
 	// EnterBoolIntGt is called when entering the boolIntGt production.
 	EnterBoolIntGt(c *BoolIntGtContext)
 
+	// EnterBoolSameCalendarMonth is called when entering the boolSameCalendarMonth production.
+	EnterBoolSameCalendarMonth(c *BoolSameCalendarMonthContext)
+
 	// EnterBoolFloatLte is called when entering the boolFloatLte production.
 	EnterBoolFloatLte(c *BoolFloatLteContext)
+
+	// EnterBoolSameCalendarWeekStarting is called when entering the boolSameCalendarWeekStarting production.
+	EnterBoolSameCalendarWeekStarting(c *BoolSameCalendarWeekStartingContext)
 
 	// EnterBoolBigLte is called when entering the boolBigLte production.
 	EnterBoolBigLte(c *BoolBigLteContext)
@@ -1753,6 +1856,9 @@ type ELListener interface {
 	// EnterBoolFloatEqInt is called when entering the boolFloatEqInt production.
 	EnterBoolFloatEqInt(c *BoolFloatEqIntContext)
 
+	// EnterBoolSameCalendarDay is called when entering the boolSameCalendarDay production.
+	EnterBoolSameCalendarDay(c *BoolSameCalendarDayContext)
+
 	// EnterBoolIntNeq is called when entering the boolIntNeq production.
 	EnterBoolIntNeq(c *BoolIntNeqContext)
 
@@ -1785,6 +1891,9 @@ type ELListener interface {
 
 	// EnterBoolStrNeq is called when entering the boolStrNeq production.
 	EnterBoolStrNeq(c *BoolStrNeqContext)
+
+	// EnterBoolSameCalendarWeek is called when entering the boolSameCalendarWeek production.
+	EnterBoolSameCalendarWeek(c *BoolSameCalendarWeekContext)
 
 	// EnterBoolMatchForall is called when entering the boolMatchForall production.
 	EnterBoolMatchForall(c *BoolMatchForallContext)
@@ -2653,74 +2762,47 @@ type ELListener interface {
 	// ExitDateFromStrCast is called when exiting the dateFromStrCast production.
 	ExitDateFromStrCast(c *DateFromStrCastContext)
 
-	// ExitDateTableLookup is called when exiting the dateTableLookup production.
-	ExitDateTableLookup(c *DateTableLookupContext)
-
 	// ExitDateExprSubMonths is called when exiting the dateExprSubMonths production.
 	ExitDateExprSubMonths(c *DateExprSubMonthsContext)
 
-	// ExitDatePlusYears is called when exiting the datePlusYears production.
-	ExitDatePlusYears(c *DatePlusYearsContext)
+	// ExitDateFirstOfWeekStartingInZone is called when exiting the dateFirstOfWeekStartingInZone production.
+	ExitDateFirstOfWeekStartingInZone(c *DateFirstOfWeekStartingInZoneContext)
 
-	// ExitDateMinusDays is called when exiting the dateMinusDays production.
-	ExitDateMinusDays(c *DateMinusDaysContext)
+	// ExitDateNewYMDhmsInZone is called when exiting the dateNewYMDhmsInZone production.
+	ExitDateNewYMDhmsInZone(c *DateNewYMDhmsInZoneContext)
 
-	// ExitDateExprAddYears is called when exiting the dateExprAddYears production.
-	ExitDateExprAddYears(c *DateExprAddYearsContext)
-
-	// ExitDateTyped is called when exiting the dateTyped production.
-	ExitDateTyped(c *DateTypedContext)
+	// ExitDateEndOfQuarter is called when exiting the dateEndOfQuarter production.
+	ExitDateEndOfQuarter(c *DateEndOfQuarterContext)
 
 	// ExitDateFirstOfYear is called when exiting the dateFirstOfYear production.
 	ExitDateFirstOfYear(c *DateFirstOfYearContext)
 
-	// ExitDateEndOfMonthInZone is called when exiting the dateEndOfMonthInZone production.
-	ExitDateEndOfMonthInZone(c *DateEndOfMonthInZoneContext)
-
-	// ExitDateFirstOfMonth is called when exiting the dateFirstOfMonth production.
-	ExitDateFirstOfMonth(c *DateFirstOfMonthContext)
-
-	// ExitDateExprSubYears is called when exiting the dateExprSubYears production.
-	ExitDateExprSubYears(c *DateExprSubYearsContext)
-
-	// ExitDateCurrentDate is called when exiting the dateCurrentDate production.
-	ExitDateCurrentDate(c *DateCurrentDateContext)
+	// ExitDateEndOfWeekInZone is called when exiting the dateEndOfWeekInZone production.
+	ExitDateEndOfWeekInZone(c *DateEndOfWeekInZoneContext)
 
 	// ExitDateAdd is called when exiting the dateAdd production.
 	ExitDateAdd(c *DateAddContext)
 
-	// ExitDateFirstOfMonthInZone is called when exiting the dateFirstOfMonthInZone production.
-	ExitDateFirstOfMonthInZone(c *DateFirstOfMonthInZoneContext)
-
 	// ExitDateFromIndex is called when exiting the dateFromIndex production.
 	ExitDateFromIndex(c *DateFromIndexContext)
-
-	// ExitDateExprAddDays is called when exiting the dateExprAddDays production.
-	ExitDateExprAddDays(c *DateExprAddDaysContext)
-
-	// ExitDateMinusYears is called when exiting the dateMinusYears production.
-	ExitDateMinusYears(c *DateMinusYearsContext)
 
 	// ExitDatePlusMonths is called when exiting the datePlusMonths production.
 	ExitDatePlusMonths(c *DatePlusMonthsContext)
 
-	// ExitDateMinusMonths is called when exiting the dateMinusMonths production.
-	ExitDateMinusMonths(c *DateMinusMonthsContext)
-
 	// ExitDateCurrentDateInZone is called when exiting the dateCurrentDateInZone production.
 	ExitDateCurrentDateInZone(c *DateCurrentDateInZoneContext)
 
-	// ExitDateFirstOfYearInZone is called when exiting the dateFirstOfYearInZone production.
-	ExitDateFirstOfYearInZone(c *DateFirstOfYearInZoneContext)
+	// ExitDateEndOfYearInZone is called when exiting the dateEndOfYearInZone production.
+	ExitDateEndOfYearInZone(c *DateEndOfYearInZoneContext)
 
-	// ExitDateEndOfMonth is called when exiting the dateEndOfMonth production.
-	ExitDateEndOfMonth(c *DateEndOfMonthContext)
-
-	// ExitDateUsing is called when exiting the dateUsing production.
-	ExitDateUsing(c *DateUsingContext)
+	// ExitDateNewYMDInZone is called when exiting the dateNewYMDInZone production.
+	ExitDateNewYMDInZone(c *DateNewYMDInZoneContext)
 
 	// ExitDateExprAddMonths is called when exiting the dateExprAddMonths production.
 	ExitDateExprAddMonths(c *DateExprAddMonthsContext)
+
+	// ExitDateEndOfYear is called when exiting the dateEndOfYear production.
+	ExitDateEndOfYear(c *DateEndOfYearContext)
 
 	// ExitDateEarliestAfter is called when exiting the dateEarliestAfter production.
 	ExitDateEarliestAfter(c *DateEarliestAfterContext)
@@ -2734,20 +2816,101 @@ type ELListener interface {
 	// ExitDateColonRef is called when exiting the dateColonRef production.
 	ExitDateColonRef(c *DateColonRefContext)
 
+	// ExitDateEndOfWeekStartingInZone is called when exiting the dateEndOfWeekStartingInZone production.
+	ExitDateEndOfWeekStartingInZone(c *DateEndOfWeekStartingInZoneContext)
+
+	// ExitDateFirstOfQuarter is called when exiting the dateFirstOfQuarter production.
+	ExitDateFirstOfQuarter(c *DateFirstOfQuarterContext)
+
 	// ExitDateSub is called when exiting the dateSub production.
 	ExitDateSub(c *DateSubContext)
-
-	// ExitDateDays is called when exiting the dateDays production.
-	ExitDateDays(c *DateDaysContext)
 
 	// ExitDateExprSubDays is called when exiting the dateExprSubDays production.
 	ExitDateExprSubDays(c *DateExprSubDaysContext)
 
-	// ExitDateInZone is called when exiting the dateInZone production.
-	ExitDateInZone(c *DateInZoneContext)
-
 	// ExitDateFromArrayAt is called when exiting the dateFromArrayAt production.
 	ExitDateFromArrayAt(c *DateFromArrayAtContext)
+
+	// ExitDateFirstOfQuarterInZone is called when exiting the dateFirstOfQuarterInZone production.
+	ExitDateFirstOfQuarterInZone(c *DateFirstOfQuarterInZoneContext)
+
+	// ExitDateTableLookup is called when exiting the dateTableLookup production.
+	ExitDateTableLookup(c *DateTableLookupContext)
+
+	// ExitDateFirstOfWeek is called when exiting the dateFirstOfWeek production.
+	ExitDateFirstOfWeek(c *DateFirstOfWeekContext)
+
+	// ExitDateEndOfWeek is called when exiting the dateEndOfWeek production.
+	ExitDateEndOfWeek(c *DateEndOfWeekContext)
+
+	// ExitDatePlusYears is called when exiting the datePlusYears production.
+	ExitDatePlusYears(c *DatePlusYearsContext)
+
+	// ExitDateMinusDays is called when exiting the dateMinusDays production.
+	ExitDateMinusDays(c *DateMinusDaysContext)
+
+	// ExitDateExprAddYears is called when exiting the dateExprAddYears production.
+	ExitDateExprAddYears(c *DateExprAddYearsContext)
+
+	// ExitDateTyped is called when exiting the dateTyped production.
+	ExitDateTyped(c *DateTypedContext)
+
+	// ExitDateEndOfQuarterInZone is called when exiting the dateEndOfQuarterInZone production.
+	ExitDateEndOfQuarterInZone(c *DateEndOfQuarterInZoneContext)
+
+	// ExitDateEndOfMonthInZone is called when exiting the dateEndOfMonthInZone production.
+	ExitDateEndOfMonthInZone(c *DateEndOfMonthInZoneContext)
+
+	// ExitDateFirstOfMonth is called when exiting the dateFirstOfMonth production.
+	ExitDateFirstOfMonth(c *DateFirstOfMonthContext)
+
+	// ExitDateExprSubYears is called when exiting the dateExprSubYears production.
+	ExitDateExprSubYears(c *DateExprSubYearsContext)
+
+	// ExitDateEndOfWeekStarting is called when exiting the dateEndOfWeekStarting production.
+	ExitDateEndOfWeekStarting(c *DateEndOfWeekStartingContext)
+
+	// ExitDateCurrentDate is called when exiting the dateCurrentDate production.
+	ExitDateCurrentDate(c *DateCurrentDateContext)
+
+	// ExitDateFirstOfMonthInZone is called when exiting the dateFirstOfMonthInZone production.
+	ExitDateFirstOfMonthInZone(c *DateFirstOfMonthInZoneContext)
+
+	// ExitDateNewYMDhmsInZoneWithDST is called when exiting the dateNewYMDhmsInZoneWithDST production.
+	ExitDateNewYMDhmsInZoneWithDST(c *DateNewYMDhmsInZoneWithDSTContext)
+
+	// ExitDateNewYMDInZoneWithDST is called when exiting the dateNewYMDInZoneWithDST production.
+	ExitDateNewYMDInZoneWithDST(c *DateNewYMDInZoneWithDSTContext)
+
+	// ExitDateExprAddDays is called when exiting the dateExprAddDays production.
+	ExitDateExprAddDays(c *DateExprAddDaysContext)
+
+	// ExitDateMinusYears is called when exiting the dateMinusYears production.
+	ExitDateMinusYears(c *DateMinusYearsContext)
+
+	// ExitDateMinusMonths is called when exiting the dateMinusMonths production.
+	ExitDateMinusMonths(c *DateMinusMonthsContext)
+
+	// ExitDateFirstOfYearInZone is called when exiting the dateFirstOfYearInZone production.
+	ExitDateFirstOfYearInZone(c *DateFirstOfYearInZoneContext)
+
+	// ExitDateEndOfMonth is called when exiting the dateEndOfMonth production.
+	ExitDateEndOfMonth(c *DateEndOfMonthContext)
+
+	// ExitDateUsing is called when exiting the dateUsing production.
+	ExitDateUsing(c *DateUsingContext)
+
+	// ExitDateFirstOfWeekInZone is called when exiting the dateFirstOfWeekInZone production.
+	ExitDateFirstOfWeekInZone(c *DateFirstOfWeekInZoneContext)
+
+	// ExitDateFirstOfWeekStarting is called when exiting the dateFirstOfWeekStarting production.
+	ExitDateFirstOfWeekStarting(c *DateFirstOfWeekStartingContext)
+
+	// ExitDateDays is called when exiting the dateDays production.
+	ExitDateDays(c *DateDaysContext)
+
+	// ExitDateInZone is called when exiting the dateInZone production.
+	ExitDateInZone(c *DateInZoneContext)
 
 	// ExitNameTyped is called when exiting the nameTyped production.
 	ExitNameTyped(c *NameTypedContext)
@@ -2784,6 +2947,9 @@ type ELListener interface {
 
 	// ExitTableNew is called when exiting the tableNew production.
 	ExitTableNew(c *TableNewContext)
+
+	// ExitStrFormatDateInZone is called when exiting the strFormatDateInZone production.
+	ExitStrFormatDateInZone(c *StrFormatDateInZoneContext)
 
 	// ExitStrXmlValue is called when exiting the strXmlValue production.
 	ExitStrXmlValue(c *StrXmlValueContext)
@@ -2829,6 +2995,9 @@ type ELListener interface {
 
 	// ExitStrColonRef is called when exiting the strColonRef production.
 	ExitStrColonRef(c *StrColonRefContext)
+
+	// ExitStrFormatDate is called when exiting the strFormatDate production.
+	ExitStrFormatDate(c *StrFormatDateContext)
 
 	// ExitStrLiteral is called when exiting the strLiteral production.
 	ExitStrLiteral(c *StrLiteralContext)
@@ -3025,6 +3194,9 @@ type ELListener interface {
 	// ExitIntYearOf is called when exiting the intYearOf production.
 	ExitIntYearOf(c *IntYearOfContext)
 
+	// ExitIntSecondOfInZone is called when exiting the intSecondOfInZone production.
+	ExitIntSecondOfInZone(c *IntSecondOfInZoneContext)
+
 	// ExitIntNumberOfWhere is called when exiting the intNumberOfWhere production.
 	ExitIntNumberOfWhere(c *IntNumberOfWhereContext)
 
@@ -3039,6 +3211,9 @@ type ELListener interface {
 
 	// ExitIntYearsBetween is called when exiting the intYearsBetween production.
 	ExitIntYearsBetween(c *IntYearsBetweenContext)
+
+	// ExitIntSecondOf is called when exiting the intSecondOf production.
+	ExitIntSecondOf(c *IntSecondOfContext)
 
 	// ExitIntLengthArray is called when exiting the intLengthArray production.
 	ExitIntLengthArray(c *IntLengthArrayContext)
@@ -3082,6 +3257,9 @@ type ELListener interface {
 	// ExitIntDaysInMonth is called when exiting the intDaysInMonth production.
 	ExitIntDaysInMonth(c *IntDaysInMonthContext)
 
+	// ExitIntDayOfWeek is called when exiting the intDayOfWeek production.
+	ExitIntDayOfWeek(c *IntDayOfWeekContext)
+
 	// ExitIntBytesIndex is called when exiting the intBytesIndex production.
 	ExitIntBytesIndex(c *IntBytesIndexContext)
 
@@ -3096,6 +3274,9 @@ type ELListener interface {
 
 	// ExitIntIndexOf is called when exiting the intIndexOf production.
 	ExitIntIndexOf(c *IntIndexOfContext)
+
+	// ExitIntWeekOfYear is called when exiting the intWeekOfYear production.
+	ExitIntWeekOfYear(c *IntWeekOfYearContext)
 
 	// ExitIntMinOfComma is called when exiting the intMinOfComma production.
 	ExitIntMinOfComma(c *IntMinOfCommaContext)
@@ -3145,6 +3326,12 @@ type ELListener interface {
 	// ExitIntDaysInMonthInZone is called when exiting the intDaysInMonthInZone production.
 	ExitIntDaysInMonthInZone(c *IntDaysInMonthInZoneContext)
 
+	// ExitIntDayOfWeekInZone is called when exiting the intDayOfWeekInZone production.
+	ExitIntDayOfWeekInZone(c *IntDayOfWeekInZoneContext)
+
+	// ExitIntWeekOfYearInZone is called when exiting the intWeekOfYearInZone production.
+	ExitIntWeekOfYearInZone(c *IntWeekOfYearInZoneContext)
+
 	// ExitIntDaysBetween is called when exiting the intDaysBetween production.
 	ExitIntDaysBetween(c *IntDaysBetweenContext)
 
@@ -3157,8 +3344,14 @@ type ELListener interface {
 	// ExitIntLengthStr is called when exiting the intLengthStr production.
 	ExitIntLengthStr(c *IntLengthStrContext)
 
+	// ExitIntHourOfInZone is called when exiting the intHourOfInZone production.
+	ExitIntHourOfInZone(c *IntHourOfInZoneContext)
+
 	// ExitIntAbs is called when exiting the intAbs production.
 	ExitIntAbs(c *IntAbsContext)
+
+	// ExitIntMinuteOfInZone is called when exiting the intMinuteOfInZone production.
+	ExitIntMinuteOfInZone(c *IntMinuteOfInZoneContext)
 
 	// ExitIntColonRef is called when exiting the intColonRef production.
 	ExitIntColonRef(c *IntColonRefContext)
@@ -3166,8 +3359,14 @@ type ELListener interface {
 	// ExitIntSubFrom is called when exiting the intSubFrom production.
 	ExitIntSubFrom(c *IntSubFromContext)
 
+	// ExitIntMinuteOf is called when exiting the intMinuteOf production.
+	ExitIntMinuteOf(c *IntMinuteOfContext)
+
 	// ExitIntLengthBytes is called when exiting the intLengthBytes production.
 	ExitIntLengthBytes(c *IntLengthBytesContext)
+
+	// ExitIntHourOf is called when exiting the intHourOf production.
+	ExitIntHourOf(c *IntHourOfContext)
 
 	// ExitBigAbs is called when exiting the bigAbs production.
 	ExitBigAbs(c *BigAbsContext)
@@ -3283,6 +3482,9 @@ type ELListener interface {
 	// ExitBlistIcOr is called when exiting the blistIcOr production.
 	ExitBlistIcOr(c *BlistIcOrContext)
 
+	// ExitBoolSameCalendarQuarter is called when exiting the boolSameCalendarQuarter production.
+	ExitBoolSameCalendarQuarter(c *BoolSameCalendarQuarterContext)
+
 	// ExitBoolIntLteFloat is called when exiting the boolIntLteFloat production.
 	ExitBoolIntLteFloat(c *BoolIntLteFloatContext)
 
@@ -3382,6 +3584,9 @@ type ELListener interface {
 	// ExitBoolDateIsNull is called when exiting the boolDateIsNull production.
 	ExitBoolDateIsNull(c *BoolDateIsNullContext)
 
+	// ExitBoolSameCalendarYear is called when exiting the boolSameCalendarYear production.
+	ExitBoolSameCalendarYear(c *BoolSameCalendarYearContext)
+
 	// ExitBoolEntityInContext is called when exiting the boolEntityInContext production.
 	ExitBoolEntityInContext(c *BoolEntityInContextContext)
 
@@ -3442,8 +3647,14 @@ type ELListener interface {
 	// ExitBoolIntGt is called when exiting the boolIntGt production.
 	ExitBoolIntGt(c *BoolIntGtContext)
 
+	// ExitBoolSameCalendarMonth is called when exiting the boolSameCalendarMonth production.
+	ExitBoolSameCalendarMonth(c *BoolSameCalendarMonthContext)
+
 	// ExitBoolFloatLte is called when exiting the boolFloatLte production.
 	ExitBoolFloatLte(c *BoolFloatLteContext)
+
+	// ExitBoolSameCalendarWeekStarting is called when exiting the boolSameCalendarWeekStarting production.
+	ExitBoolSameCalendarWeekStarting(c *BoolSameCalendarWeekStartingContext)
 
 	// ExitBoolBigLte is called when exiting the boolBigLte production.
 	ExitBoolBigLte(c *BoolBigLteContext)
@@ -3598,6 +3809,9 @@ type ELListener interface {
 	// ExitBoolFloatEqInt is called when exiting the boolFloatEqInt production.
 	ExitBoolFloatEqInt(c *BoolFloatEqIntContext)
 
+	// ExitBoolSameCalendarDay is called when exiting the boolSameCalendarDay production.
+	ExitBoolSameCalendarDay(c *BoolSameCalendarDayContext)
+
 	// ExitBoolIntNeq is called when exiting the boolIntNeq production.
 	ExitBoolIntNeq(c *BoolIntNeqContext)
 
@@ -3630,6 +3844,9 @@ type ELListener interface {
 
 	// ExitBoolStrNeq is called when exiting the boolStrNeq production.
 	ExitBoolStrNeq(c *BoolStrNeqContext)
+
+	// ExitBoolSameCalendarWeek is called when exiting the boolSameCalendarWeek production.
+	ExitBoolSameCalendarWeek(c *BoolSameCalendarWeekContext)
 
 	// ExitBoolMatchForall is called when exiting the boolMatchForall production.
 	ExitBoolMatchForall(c *BoolMatchForallContext)

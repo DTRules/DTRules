@@ -5509,3 +5509,76 @@ func (e *PostfixEmitter) VisitLocalFixedDefined(ctx *LocalFixedDefinedContext) i
 	e.emit(ctx.TypedLong().GetText())
 	return nil
 }
+
+// Phase 4 of #743: format(date, layout) [in zone Z] visitors. Stack order
+// matches the runtime ops: date layout [zone] -- string.
+
+func (e *PostfixEmitter) VisitStrFormatDate(ctx *StrFormatDateContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("dateformat")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitStrFormatDateInZone(ctx *StrFormatDateInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr(0))
+	e.Visit(ctx.Strexpr(1))
+	e.emit("dateformatinzone")
+	return nil
+}
+
+// Phase 4 of #743: `new date Y, M, D[, h, m, s] in zone Z [with dst_rule R]`
+// constructor visitors. Hour/minute/second default to 0 in the YMD-only
+// forms; the runtime op signature is the same so the emitter pushes
+// literal zeros to fill the slots.
+//
+// Stack signature for newdateinzone:           ( y mo d h mi s zone )
+// Stack signature for newdateinzonewithdst:    ( y mo d h mi s zone rule )
+
+func (e *PostfixEmitter) VisitDateNewYMDInZone(ctx *DateNewYMDInZoneContext) interface{} {
+	e.Visit(ctx.Iexpr(0))
+	e.Visit(ctx.Iexpr(1))
+	e.Visit(ctx.Iexpr(2))
+	e.emit("0")
+	e.emit("0")
+	e.emit("0")
+	e.Visit(ctx.Strexpr())
+	e.emit("newdateinzone")
+	return nil
+}
+
+
+
+func (e *PostfixEmitter) VisitDateNewYMDInZoneWithDST(ctx *DateNewYMDInZoneWithDSTContext) interface{} {
+	e.Visit(ctx.Iexpr(0))
+	e.Visit(ctx.Iexpr(1))
+	e.Visit(ctx.Iexpr(2))
+	e.emit("0")
+	e.emit("0")
+	e.emit("0")
+	e.Visit(ctx.Strexpr(0))
+	e.Visit(ctx.Strexpr(1))
+	e.emit("newdateinzonewithdst")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateNewYMDhmsInZone(ctx *DateNewYMDhmsInZoneContext) interface{} {
+	for i := 0; i < 6; i++ {
+		e.Visit(ctx.Iexpr(i))
+	}
+	e.Visit(ctx.Strexpr())
+	e.emit("newdateinzone")
+	return nil
+}
+
+
+func (e *PostfixEmitter) VisitDateNewYMDhmsInZoneWithDST(ctx *DateNewYMDhmsInZoneWithDSTContext) interface{} {
+	for i := 0; i < 6; i++ {
+		e.Visit(ctx.Iexpr(i))
+	}
+	e.Visit(ctx.Strexpr(0))
+	e.Visit(ctx.Strexpr(1))
+	e.emit("newdateinzonewithdst")
+	return nil
+}
