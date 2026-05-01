@@ -67,9 +67,12 @@ func opNow(state dtrules.State) error {
 }
 
 // opToday: ( -- date ) pushes today's date (midnight)
+//
+// Phase 1 of #743: anchored to UTC so the result does not depend on the
+// server's local timezone. Phase 2+ will introduce explicit `in zone` syntax.
 func opToday(state dtrules.State) error {
-	now := time.Now()
-	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	now := time.Now().UTC()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 	return state.DataPush(dtrules.GetRTime(today))
 }
 
@@ -106,6 +109,9 @@ func opNewDate(state dtrules.State) error {
 }
 
 // opGetYear: ( date -- year ) gets the year from a date
+//
+// Phase 1 of #743: extraction is performed in UTC so the result is stable
+// regardless of the input date's stored zone or the server's local zone.
 func opGetYear(state dtrules.State) error {
 	dateObj, err := state.DataPop()
 	if err != nil {
@@ -115,10 +121,13 @@ func opGetYear(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
+	t = t.UTC()
 	return state.DataPush(dtrules.GetRIntegerValueFromInt(t.Year()))
 }
 
 // opGetMonth: ( date -- month ) gets the month from a date (1-12)
+//
+// Phase 1 of #743: extraction is performed in UTC.
 func opGetMonth(state dtrules.State) error {
 	dateObj, err := state.DataPop()
 	if err != nil {
@@ -128,10 +137,13 @@ func opGetMonth(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
+	t = t.UTC()
 	return state.DataPush(dtrules.GetRIntegerValueFromInt(int(t.Month())))
 }
 
 // opGetDay: ( date -- day ) gets the day of month from a date
+//
+// Phase 1 of #743: extraction is performed in UTC.
 func opGetDay(state dtrules.State) error {
 	dateObj, err := state.DataPop()
 	if err != nil {
@@ -141,6 +153,7 @@ func opGetDay(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
+	t = t.UTC()
 	return state.DataPush(dtrules.GetRIntegerValueFromInt(t.Day()))
 }
 
@@ -294,6 +307,9 @@ func opYearsBetween(state dtrules.State) error {
 }
 
 // opFirstOfMonth: ( date -- date2 ) returns first day of the month
+//
+// Phase 1 of #743: input is normalized to UTC and the bucket is constructed
+// in UTC, so first-of-month is consistent regardless of the input's zone.
 func opFirstOfMonth(state dtrules.State) error {
 	dateObj, err := state.DataPop()
 	if err != nil {
@@ -303,11 +319,14 @@ func opFirstOfMonth(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	result := time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, t.Location())
+	t = t.UTC()
+	result := time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, time.UTC)
 	return state.DataPush(dtrules.GetRTime(result))
 }
 
 // opFirstOfYear: ( date -- date2 ) returns first day of the year
+//
+// Phase 1 of #743: input is normalized to UTC.
 func opFirstOfYear(state dtrules.State) error {
 	dateObj, err := state.DataPop()
 	if err != nil {
@@ -317,11 +336,14 @@ func opFirstOfYear(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	result := time.Date(t.Year(), 1, 1, 0, 0, 0, 0, t.Location())
+	t = t.UTC()
+	result := time.Date(t.Year(), 1, 1, 0, 0, 0, 0, time.UTC)
 	return state.DataPush(dtrules.GetRTime(result))
 }
 
 // opEndOfMonth: ( date -- date2 ) returns last day of the month
+//
+// Phase 1 of #743: input is normalized to UTC.
 func opEndOfMonth(state dtrules.State) error {
 	dateObj, err := state.DataPop()
 	if err != nil {
@@ -331,13 +353,17 @@ func opEndOfMonth(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
+	t = t.UTC()
 	// Go to next month, then subtract one day
-	nextMonth := time.Date(t.Year(), t.Month()+1, 1, 0, 0, 0, 0, t.Location())
+	nextMonth := time.Date(t.Year(), t.Month()+1, 1, 0, 0, 0, 0, time.UTC)
 	result := nextMonth.AddDate(0, 0, -1)
 	return state.DataPush(dtrules.GetRTime(result))
 }
 
 // opGetDaysInYear: ( date -- int ) returns number of days in year (365 or 366)
+//
+// Phase 1 of #743: year is read in UTC so the leap-year decision matches
+// the UTC calendar regardless of the input's stored zone.
 func opGetDaysInYear(state dtrules.State) error {
 	dateObj, err := state.DataPop()
 	if err != nil {
@@ -347,7 +373,7 @@ func opGetDaysInYear(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	year := t.Year()
+	year := t.UTC().Year()
 	// Check if leap year
 	if (year%4 == 0 && year%100 != 0) || (year%400 == 0) {
 		return state.DataPush(dtrules.GetRIntegerValueFromInt(366))
@@ -356,6 +382,9 @@ func opGetDaysInYear(state dtrules.State) error {
 }
 
 // opGetDaysInMonth: ( date -- int ) returns number of days in month
+//
+// Phase 1 of #743: month/year are read in UTC so the count reflects the
+// UTC calendar month rather than the input's stored zone.
 func opGetDaysInMonth(state dtrules.State) error {
 	dateObj, err := state.DataPop()
 	if err != nil {
@@ -365,13 +394,16 @@ func opGetDaysInMonth(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
+	t = t.UTC()
 	// Go to first of next month and subtract a day to get last day of current month
-	nextMonth := time.Date(t.Year(), t.Month()+1, 1, 0, 0, 0, 0, t.Location())
+	nextMonth := time.Date(t.Year(), t.Month()+1, 1, 0, 0, 0, 0, time.UTC)
 	lastDay := nextMonth.AddDate(0, 0, -1)
 	return state.DataPush(dtrules.GetRIntegerValueFromInt(lastDay.Day()))
 }
 
 // opGetDayOfMonth: ( date -- int ) returns day of month
+//
+// Phase 1 of #743: extraction is performed in UTC.
 func opGetDayOfMonth(state dtrules.State) error {
 	dateObj, err := state.DataPop()
 	if err != nil {
@@ -381,6 +413,7 @@ func opGetDayOfMonth(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
+	t = t.UTC()
 	return state.DataPush(dtrules.GetRIntegerValueFromInt(t.Day()))
 }
 
