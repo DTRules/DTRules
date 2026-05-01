@@ -489,6 +489,9 @@ dexpr
     | dexpr PLUS dexpr                                      # dateAdd
     | dexpr MINUS dexpr                                     # dateSub
     | LPAREN DATE RPAREN typedTable LPAREN tablelist RPAREN # dateTableLookup
+    // Phase 2 of #743: in-zone alts must precede their plain counterparts so
+    // ANTLR matches the longer form first.
+    | CURRENT_DATE INZONE strexpr                           # dateCurrentDateInZone
     | CURRENT_DATE                                          # dateCurrentDate
     | SUBTRACT number YEARS FROM dexpr                      # dateExprSubYears
     | SUBTRACT number MONTHS FROM dexpr                     # dateExprSubMonths
@@ -502,10 +505,16 @@ dexpr
     | dexpr PLUS number YEARS                               # datePlusYears
     | dexpr PLUS number MONTHS                              # datePlusMonths
     | dexpr PLUS number DAYS                                # datePlusDays
+    | FIRST OF YEARS OF dexpr INZONE strexpr                # dateFirstOfYearInZone
     | FIRST OF YEARS OF dexpr                               # dateFirstOfYear
+    | FIRST OF MONTHS OF dexpr INZONE strexpr               # dateFirstOfMonthInZone
     | FIRST OF MONTHS OF dexpr                              # dateFirstOfMonth
+    | END OF MONTHS OF dexpr INZONE strexpr                 # dateEndOfMonthInZone
     | END OF MONTHS OF dexpr                                # dateEndOfMonth
     | EARLIEST OF arrayExpr AFTER dexpr                     # dateEarliestAfter
+    // Phase 2 of #743: rewrap any date in a zone for downstream extraction.
+    // Listed last so the more specific alternatives above are matched first.
+    | dexpr INZONE strexpr                                  # dateInZone
     ;
 
 nexpr
@@ -628,8 +637,12 @@ iexpr
     | MINUS iexpr                                           # intNegate
     | LPAREN iexpr RPAREN                                   # intParen
     | typedLong                                             # intTyped
+    // Phase 2 of #743: in-zone variants matched first.
+    | GET DAYS IN YEAROF dexpr INZONE strexpr               # intDaysInYearInZone
     | GET DAYS IN YEAROF dexpr                              # intDaysInYear
+    | GET DAYS IN MONTHS FOR dexpr INZONE strexpr           # intDaysInMonthInZone
     | GET DAYS IN MONTHS FOR dexpr                          # intDaysInMonth
+    | GET DAYS OF MONTHS FOR dexpr INZONE strexpr           # intDayOfMonthInZone
     | GET DAYS OF MONTHS FOR dexpr                          # intDayOfMonth
     | colonRef typedLong                                    # intColonRef
     | LPAREN LONG RPAREN indxExpr                           # intFromIndex
@@ -657,6 +670,7 @@ iexpr
     | DAYS FROM dexpr TO dexpr                              # intDaysBetween
     | MONTHS FROM dexpr TO dexpr                            # intMonthsBetween
     | YEARS FROM dexpr TO dexpr                             # intYearsBetween
+    | GET YEAROF dexpr INZONE strexpr                       # intYearOfInZone
     | GET YEAROF dexpr                                      # intYearOf
     | LONG VALUE OF operatorstatements                      # intValueOfOp
     | SUM_OF iexpr IN arrayExpr                             # intSumOf
@@ -963,6 +977,11 @@ SIZE                : 'size' ;
 // Current date/time
 CURRENT_TIMESTAMP   : 'current' WS+ 'timestamp' ;
 CURRENT_DATE        : 'current' WS+ 'date' ;
+
+// Phase 2 of #743: explicit timezone DSL — `<dexpr> in zone <strexpr>`.
+// Single token so the natural-language phrase can't be split across other
+// rules that consume IN.
+INZONE              : 'in' WS+ 'zone' ;
 
 // Punctuation
 SEMI                : ';' ;

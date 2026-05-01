@@ -114,6 +114,10 @@ type EDDField struct {
 	Input        string `xml:"input,attr" json:"input,omitempty"`
 	DefaultValue string `xml:"default_value,attr" json:"default_value,omitempty"`
 	Comment      string `xml:"comment,attr" json:"comment,omitempty"`
+	// Timezone is the IANA name or ISO offset declared for date fields
+	// (Phase 2 of #743). When set, tz-naïve default-value strings are
+	// parsed in this zone instead of UTC.
+	Timezone string `xml:"timezone,attr,omitempty" json:"timezone,omitempty"`
 }
 
 // Load loads an EDD from an io.Reader.
@@ -280,8 +284,9 @@ func (l *EDDLoader) processField(refEntity *entity.REntity, field *EDDField) err
 		return fmt.Errorf("invalid field name syntax: %s", field.Name)
 	}
 
-	// Compute default value
-	defaultValue := l.computeDefaultValue(field.DefaultValue, rtype)
+	// Compute default value, applying field-level timezone (Phase 2 of #743)
+	// when a date field declares one.
+	defaultValue := l.computeDefaultValue(field.DefaultValue, rtype, field.Timezone)
 
 	// Add the attribute
 	errStr := refEntity.AddAttribute(
@@ -302,8 +307,11 @@ func (l *EDDLoader) processField(refEntity *entity.REntity, field *EDDField) err
 	return nil
 }
 
-// computeDefaultValue computes the default value for a given type.
-func (l *EDDLoader) computeDefaultValue(defaultStr string, rtype *dtrules.RType) dtrules.Object {
+// computeDefaultValue computes the default value for a given type. The
+// tzName argument (Phase 2 of #743) is the field's declared timezone — when
+// non-empty and the type is date, tz-naïve default strings are interpreted
+// in that zone instead of UTC.
+func (l *EDDLoader) computeDefaultValue(defaultStr string, rtype *dtrules.RType, tzName string) dtrules.Object {
 	// For array types, always create an empty array even if no default value
 	if rtype == dtrules.TypeArray {
 		if l.session != nil {
@@ -336,6 +344,11 @@ func (l *EDDLoader) computeDefaultValue(defaultStr string, rtype *dtrules.RType)
 	case dtrules.TypeDate:
 		if l.session != nil {
 			if d, err := dtrules.GetRDate(l.session, defaultStr); err == nil {
+				if tzName != "" {
+					if rd, ok := dtrules.RebaseDateInZone(d, tzName); ok {
+						return rd
+					}
+				}
 				return d
 			}
 		}
