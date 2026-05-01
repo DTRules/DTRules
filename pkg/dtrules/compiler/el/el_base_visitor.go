@@ -1083,6 +1083,18 @@ func (v *BaseELVisitor) VisitDateExprSubMonths(ctx *DateExprSubMonthsContext) in
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitDateFirstOfWeekStartingInZone(ctx *DateFirstOfWeekStartingInZoneContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitDateFirstOfWeek(ctx *DateFirstOfWeekContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitDateEndOfWeek(ctx *DateEndOfWeekContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitDatePlusYears(ctx *DatePlusYearsContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1099,7 +1111,15 @@ func (v *BaseELVisitor) VisitDateTyped(ctx *DateTypedContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitDateEndOfQuarter(ctx *DateEndOfQuarterContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitDateFirstOfYear(ctx *DateFirstOfYearContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitDateEndOfQuarterInZone(ctx *DateEndOfQuarterInZoneContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1111,7 +1131,15 @@ func (v *BaseELVisitor) VisitDateFirstOfMonth(ctx *DateFirstOfMonthContext) inte
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitDateEndOfWeekInZone(ctx *DateEndOfWeekInZoneContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitDateExprSubYears(ctx *DateExprSubYearsContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitDateEndOfWeekStarting(ctx *DateEndOfWeekStartingContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1151,6 +1179,10 @@ func (v *BaseELVisitor) VisitDateCurrentDateInZone(ctx *DateCurrentDateInZoneCon
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitDateEndOfYearInZone(ctx *DateEndOfYearInZoneContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitDateFirstOfYearInZone(ctx *DateFirstOfYearInZoneContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1163,7 +1195,19 @@ func (v *BaseELVisitor) VisitDateUsing(ctx *DateUsingContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitDateFirstOfWeekInZone(ctx *DateFirstOfWeekInZoneContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitDateExprAddMonths(ctx *DateExprAddMonthsContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitDateFirstOfWeekStarting(ctx *DateFirstOfWeekStartingContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitDateEndOfYear(ctx *DateEndOfYearContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1180,6 +1224,14 @@ func (v *BaseELVisitor) VisitDateParen(ctx *DateParenContext) interface{} {
 }
 
 func (v *BaseELVisitor) VisitDateColonRef(ctx *DateColonRefContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitDateEndOfWeekStartingInZone(ctx *DateEndOfWeekStartingInZoneContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitDateFirstOfQuarter(ctx *DateFirstOfQuarterContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1200,6 +1252,10 @@ func (v *BaseELVisitor) VisitDateInZone(ctx *DateInZoneContext) interface{} {
 }
 
 func (v *BaseELVisitor) VisitDateFromArrayAt(ctx *DateFromArrayAtContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitDateFirstOfQuarterInZone(ctx *DateFirstOfQuarterInZoneContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1571,6 +1627,10 @@ func (v *BaseELVisitor) VisitIntYearOf(ctx *IntYearOfContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitIntSecondOfInZone(ctx *IntSecondOfInZoneContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitIntNumberOfWhere(ctx *IntNumberOfWhereContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1588,6 +1648,10 @@ func (v *BaseELVisitor) VisitIntParen(ctx *IntParenContext) interface{} {
 }
 
 func (v *BaseELVisitor) VisitIntYearsBetween(ctx *IntYearsBetweenContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitIntSecondOf(ctx *IntSecondOfContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1647,6 +1711,10 @@ func (v *BaseELVisitor) VisitIntDaysInMonth(ctx *IntDaysInMonthContext) interfac
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitIntDayOfWeek(ctx *IntDayOfWeekContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1664,6 +1732,10 @@ func (v *BaseELVisitor) VisitIntAdd(ctx *IntAddContext) interface{} {
 }
 
 func (v *BaseELVisitor) VisitIntIndexOf(ctx *IntIndexOfContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitIntWeekOfYear(ctx *IntWeekOfYearContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1731,6 +1803,14 @@ func (v *BaseELVisitor) VisitIntDaysInMonthInZone(ctx *IntDaysInMonthInZoneConte
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitIntDayOfWeekInZone(ctx *IntDayOfWeekInZoneContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitIntWeekOfYearInZone(ctx *IntWeekOfYearInZoneContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitIntDaysBetween(ctx *IntDaysBetweenContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1747,7 +1827,15 @@ func (v *BaseELVisitor) VisitIntLengthStr(ctx *IntLengthStrContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitIntHourOfInZone(ctx *IntHourOfInZoneContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitIntAbs(ctx *IntAbsContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitIntMinuteOfInZone(ctx *IntMinuteOfInZoneContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1759,7 +1847,15 @@ func (v *BaseELVisitor) VisitIntSubFrom(ctx *IntSubFromContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitIntMinuteOf(ctx *IntMinuteOfContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitIntLengthBytes(ctx *IntLengthBytesContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitIntHourOf(ctx *IntHourOfContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1915,6 +2011,10 @@ func (v *BaseELVisitor) VisitBlistIcOr(ctx *BlistIcOrContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBoolSameCalendarQuarter(ctx *BoolSameCalendarQuarterContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBoolIntLteFloat(ctx *BoolIntLteFloatContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -2047,6 +2147,10 @@ func (v *BaseELVisitor) VisitBoolDateIsNull(ctx *BoolDateIsNullContext) interfac
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBoolSameCalendarYear(ctx *BoolSameCalendarYearContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBoolEntityInContext(ctx *BoolEntityInContextContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -2127,7 +2231,15 @@ func (v *BaseELVisitor) VisitBoolIntGt(ctx *BoolIntGtContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBoolSameCalendarMonth(ctx *BoolSameCalendarMonthContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBoolFloatLte(ctx *BoolFloatLteContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBoolSameCalendarWeekStarting(ctx *BoolSameCalendarWeekStartingContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2335,6 +2447,10 @@ func (v *BaseELVisitor) VisitBoolFloatEqInt(ctx *BoolFloatEqIntContext) interfac
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBoolSameCalendarDay(ctx *BoolSameCalendarDayContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -2376,6 +2492,10 @@ func (v *BaseELVisitor) VisitBoolEntityIsNotNull(ctx *BoolEntityIsNotNullContext
 }
 
 func (v *BaseELVisitor) VisitBoolStrNeq(ctx *BoolStrNeqContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBoolSameCalendarWeek(ctx *BoolSameCalendarWeekContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

@@ -511,6 +511,23 @@ dexpr
     | FIRST OF MONTHS OF dexpr                              # dateFirstOfMonth
     | END OF MONTHS OF dexpr INZONE strexpr                 # dateEndOfMonthInZone
     | END OF MONTHS OF dexpr                                # dateEndOfMonth
+    // Phase 3 of #743: week/quarter/year buckets. Long forms (with optional
+    // STARTING / INZONE clauses) listed before plain so ANTLR matches them
+    // first.
+    | FIRST OF WEEKS OF dexpr STARTING strexpr INZONE strexpr   # dateFirstOfWeekStartingInZone
+    | FIRST OF WEEKS OF dexpr STARTING strexpr                  # dateFirstOfWeekStarting
+    | FIRST OF WEEKS OF dexpr INZONE strexpr                    # dateFirstOfWeekInZone
+    | FIRST OF WEEKS OF dexpr                                   # dateFirstOfWeek
+    | END OF WEEKS OF dexpr STARTING strexpr INZONE strexpr     # dateEndOfWeekStartingInZone
+    | END OF WEEKS OF dexpr STARTING strexpr                    # dateEndOfWeekStarting
+    | END OF WEEKS OF dexpr INZONE strexpr                      # dateEndOfWeekInZone
+    | END OF WEEKS OF dexpr                                     # dateEndOfWeek
+    | FIRST OF QUARTERS OF dexpr INZONE strexpr                 # dateFirstOfQuarterInZone
+    | FIRST OF QUARTERS OF dexpr                                # dateFirstOfQuarter
+    | END OF QUARTERS OF dexpr INZONE strexpr                   # dateEndOfQuarterInZone
+    | END OF QUARTERS OF dexpr                                  # dateEndOfQuarter
+    | END OF YEARS OF dexpr INZONE strexpr                      # dateEndOfYearInZone
+    | END OF YEARS OF dexpr                                     # dateEndOfYear
     | EARLIEST OF arrayExpr AFTER dexpr                     # dateEarliestAfter
     // Phase 2 of #743: rewrap any date in a zone for downstream extraction.
     // Listed last so the more specific alternatives above are matched first.
@@ -672,6 +689,17 @@ iexpr
     | YEARS FROM dexpr TO dexpr                             # intYearsBetween
     | GET YEAROF dexpr INZONE strexpr                       # intYearOfInZone
     | GET YEAROF dexpr                                      # intYearOf
+    // Phase 3 of #743: time-component extractors. In-zone alts listed first.
+    | GET HOUROF dexpr INZONE strexpr                       # intHourOfInZone
+    | GET HOUROF dexpr                                      # intHourOf
+    | GET MINUTEOF dexpr INZONE strexpr                     # intMinuteOfInZone
+    | GET MINUTEOF dexpr                                    # intMinuteOf
+    | GET SECONDOF dexpr INZONE strexpr                     # intSecondOfInZone
+    | GET SECONDOF dexpr                                    # intSecondOf
+    | GET DAYOFWEEK OF dexpr INZONE strexpr                 # intDayOfWeekInZone
+    | GET DAYOFWEEK OF dexpr                                # intDayOfWeek
+    | GET WEEKOFYEAR OF dexpr INZONE strexpr                # intWeekOfYearInZone
+    | GET WEEKOFYEAR OF dexpr                               # intWeekOfYear
     | LONG VALUE OF operatorstatements                      # intValueOfOp
     | SUM_OF iexpr IN arrayExpr                             # intSumOf
     | MINIMUM iexpr AND iexpr                               # intMinOf
@@ -893,6 +921,17 @@ bexpr
     | dexpr GTE dexpr                                       # boolDateGte
     | dexpr LTE dexpr                                       # boolDateLte
     | dexpr IS BETWEEN dexpr AND dexpr                      # boolDateBetween
+
+    // Phase 3 of #743: calendar comparisons. `the` is skipped by ARTICLE so
+    // the surface phrase `is the same calendar day as ...` lexes as
+    // `IS SAME CALENDAR DAYS AS ...`. INZONE strexpr is mandatory at the
+    // grammar level — there is no plain alt.
+    | dexpr IS SAME CALENDAR DAYS AS dexpr INZONE strexpr                       # boolSameCalendarDay
+    | dexpr IS SAME CALENDAR WEEKS AS dexpr STARTING strexpr INZONE strexpr     # boolSameCalendarWeekStarting
+    | dexpr IS SAME CALENDAR WEEKS AS dexpr INZONE strexpr                      # boolSameCalendarWeek
+    | dexpr IS SAME CALENDAR MONTHS AS dexpr INZONE strexpr                     # boolSameCalendarMonth
+    | dexpr IS SAME CALENDAR QUARTERS AS dexpr INZONE strexpr                   # boolSameCalendarQuarter
+    | dexpr IS SAME CALENDAR YEARS AS dexpr INZONE strexpr                      # boolSameCalendarYear
 
     // Entity comparisons
     | eexpr EQ eexpr                                        # boolEntityEq
@@ -1123,6 +1162,10 @@ ALLOWING            : 'allowing' ;
 HAVE                : 'have' ;
 YEARS               : 'year' 's'? ;
 MONTHS              : 'month' 's'? ;
+// Phase 3 of #743: week/quarter unit tokens for bucket and calendar-comparison
+// ops. Must precede IDENT so the natural-language form lexes correctly.
+WEEKS               : 'week' 's'? ;
+QUARTERS            : 'quarter' 's'? ;
 TOKENIZE            : 'tokenize' ;
 TOBEREMOVED         : 'to' WS+ 'be' WS+ 'removed' ;
 TABLEINFORMATION    : 'table' WS+ 'information' ;
@@ -1143,6 +1186,16 @@ MAP                 : 'map' ;
 MAPPINGKEY          : 'mapping' WS+ 'key' ;
 THROUGH             : 'through' ;
 YEAROF              : 'yearof' ;
+// Phase 3 of #743: time-component / calendar tokens. Single tokens (mirroring
+// YEAROF) so the lexer doesn't have to disambiguate against IDENT.
+HOUROF              : 'hourof' ;
+MINUTEOF            : 'minuteof' ;
+SECONDOF            : 'secondof' ;
+DAYOFWEEK           : 'day' WS+ 'of' WS+ 'week' | 'dayofweek' ;
+WEEKOFYEAR          : 'week' WS+ 'of' WS+ 'year' | 'weekofyear' ;
+STARTING            : 'starting' ;
+SAME                : 'same' ;
+CALENDAR            : 'calendar' ;
 NAMEOF              : 'nameof' ;
 AT                  : 'at' ;
 AS                  : 'as' ;

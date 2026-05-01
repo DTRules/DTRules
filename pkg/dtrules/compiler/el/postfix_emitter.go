@@ -1843,6 +1843,105 @@ func (e *PostfixEmitter) VisitDateEndOfMonthInZone(ctx *DateEndOfMonthInZoneCont
 	return nil
 }
 
+// Phase 3 of #743: week/quarter/year bucket visitors. The starting-day form
+// pushes the day-name string before the zone, so the runtime op pops zone,
+// then start-day, then date.
+
+func (e *PostfixEmitter) VisitDateFirstOfWeek(ctx *DateFirstOfWeekContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("firstofweek")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateFirstOfWeekInZone(ctx *DateFirstOfWeekInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("firstofweekinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateFirstOfWeekStarting(ctx *DateFirstOfWeekStartingContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("firstofweekstarting")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateFirstOfWeekStartingInZone(ctx *DateFirstOfWeekStartingInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr(0))
+	e.Visit(ctx.Strexpr(1))
+	e.emit("firstofweekstartinginzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateEndOfWeek(ctx *DateEndOfWeekContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("endofweek")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateEndOfWeekInZone(ctx *DateEndOfWeekInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("endofweekinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateEndOfWeekStarting(ctx *DateEndOfWeekStartingContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("endofweekstarting")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateEndOfWeekStartingInZone(ctx *DateEndOfWeekStartingInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr(0))
+	e.Visit(ctx.Strexpr(1))
+	e.emit("endofweekstartinginzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateFirstOfQuarter(ctx *DateFirstOfQuarterContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("firstofquarter")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateFirstOfQuarterInZone(ctx *DateFirstOfQuarterInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("firstofquarterinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateEndOfQuarter(ctx *DateEndOfQuarterContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("endofquarter")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateEndOfQuarterInZone(ctx *DateEndOfQuarterInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("endofquarterinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateEndOfYear(ctx *DateEndOfYearContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("endofyear")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateEndOfYearInZone(ctx *DateEndOfYearInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("endofyearinzone")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitDateAdd(ctx *DateAddContext) interface{} {
 	e.Visit(ctx.Dexpr(0))
 	e.Visit(ctx.Dexpr(1))
@@ -3213,6 +3312,60 @@ func (e *PostfixEmitter) VisitBoolDateBetween(ctx *BoolDateBetweenContext) inter
 	return nil
 }
 
+// Phase 3 of #743: calendar comparison visitors. Each pushes the two dates,
+// then the zone (and the start-day for week comparisons), and emits the
+// samecalendar* op. INZONE is mandatory at the grammar level so there is no
+// non-zone variant.
+
+func (e *PostfixEmitter) VisitBoolSameCalendarDay(ctx *BoolSameCalendarDayContext) interface{} {
+	e.Visit(ctx.Dexpr(0))
+	e.Visit(ctx.Dexpr(1))
+	e.Visit(ctx.Strexpr())
+	e.emit("samecalendardayinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolSameCalendarWeek(ctx *BoolSameCalendarWeekContext) interface{} {
+	e.Visit(ctx.Dexpr(0))
+	e.Visit(ctx.Dexpr(1))
+	e.Visit(ctx.Strexpr())
+	e.emit("samecalendarweekinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolSameCalendarWeekStarting(ctx *BoolSameCalendarWeekStartingContext) interface{} {
+	e.Visit(ctx.Dexpr(0))
+	e.Visit(ctx.Dexpr(1))
+	e.Visit(ctx.Strexpr(0))
+	e.Visit(ctx.Strexpr(1))
+	e.emit("samecalendarweekstartinginzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolSameCalendarMonth(ctx *BoolSameCalendarMonthContext) interface{} {
+	e.Visit(ctx.Dexpr(0))
+	e.Visit(ctx.Dexpr(1))
+	e.Visit(ctx.Strexpr())
+	e.emit("samecalendarmonthinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolSameCalendarQuarter(ctx *BoolSameCalendarQuarterContext) interface{} {
+	e.Visit(ctx.Dexpr(0))
+	e.Visit(ctx.Dexpr(1))
+	e.Visit(ctx.Strexpr())
+	e.emit("samecalendarquarterinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolSameCalendarYear(ctx *BoolSameCalendarYearContext) interface{} {
+	e.Visit(ctx.Dexpr(0))
+	e.Visit(ctx.Dexpr(1))
+	e.Visit(ctx.Strexpr())
+	e.emit("samecalendaryearinzone")
+	return nil
+}
+
 // Entity in context: `<entity> is in context` → `/<entity> incontext`.
 func (e *PostfixEmitter) VisitBoolEntityInContext(ctx *BoolEntityInContextContext) interface{} {
 	e.emit("/" + ctx.TypedEntity().GetText())
@@ -3604,6 +3757,73 @@ func (e *PostfixEmitter) VisitIntYearOfInZone(ctx *IntYearOfInZoneContext) inter
 	e.Visit(ctx.Dexpr())
 	e.Visit(ctx.Strexpr())
 	e.emit("yearofinzone")
+	return nil
+}
+
+// Phase 3 of #743: time-component / dayofweek / weekofyear extractors.
+
+func (e *PostfixEmitter) VisitIntHourOf(ctx *IntHourOfContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("gethour")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntHourOfInZone(ctx *IntHourOfInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("gethourinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntMinuteOf(ctx *IntMinuteOfContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("getminute")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntMinuteOfInZone(ctx *IntMinuteOfInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("getminuteinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntSecondOf(ctx *IntSecondOfContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("getsecond")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntSecondOfInZone(ctx *IntSecondOfInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("getsecondinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntDayOfWeek(ctx *IntDayOfWeekContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("getdayofweek")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntDayOfWeekInZone(ctx *IntDayOfWeekInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("getdayofweekinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntWeekOfYear(ctx *IntWeekOfYearContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("getweekofyear")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntWeekOfYearInZone(ctx *IntWeekOfYearInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("getweekofyearinzone")
 	return nil
 }
 
