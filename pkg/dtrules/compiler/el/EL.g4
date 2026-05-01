@@ -529,6 +529,13 @@ dexpr
     | END OF YEARS OF dexpr INZONE strexpr                      # dateEndOfYearInZone
     | END OF YEARS OF dexpr                                     # dateEndOfYear
     | EARLIEST OF arrayExpr AFTER dexpr                     # dateEarliestAfter
+    // Phase 4 of #743: explicit `new date Y, M, D[, h, m, s] in zone <s>
+    // [with dst_rule <s>]` constructor. The longer with-dst-rule forms must
+    // precede the plain forms so ANTLR matches the larger production first.
+    | NEW DATE iexpr COMMA iexpr COMMA iexpr COMMA iexpr COMMA iexpr COMMA iexpr INZONE strexpr WITH_DST_RULE strexpr   # dateNewYMDhmsInZoneWithDST
+    | NEW DATE iexpr COMMA iexpr COMMA iexpr COMMA iexpr COMMA iexpr COMMA iexpr INZONE strexpr                         # dateNewYMDhmsInZone
+    | NEW DATE iexpr COMMA iexpr COMMA iexpr INZONE strexpr WITH_DST_RULE strexpr                                       # dateNewYMDInZoneWithDST
+    | NEW DATE iexpr COMMA iexpr COMMA iexpr INZONE strexpr                                                             # dateNewYMDInZone
     // Phase 2 of #743: rewrap any date in a zone for downstream extraction.
     // Listed last so the more specific alternatives above are matched first.
     | dexpr INZONE strexpr                                  # dateInZone
@@ -591,6 +598,11 @@ strexpr
     | HEX OF bytesexpr                                      # strHexOfBytes
     | BASE58CHECK OF bytesexpr VERSION iexpr                # strBase58CheckOfBytes
     | BECH32 OF bytesexpr HRP strexpr                       # strBech32OfBytes
+    // Phase 4 of #743: explicit `format(<dexpr>, <strexpr>) [in zone <s>]`
+    // for audit-trail rendering. Layout is a Go time.Format reference
+    // string. In-zone alt listed first so the longer match wins.
+    | FORMAT LPAREN dexpr COMMA strexpr RPAREN INZONE strexpr   # strFormatDateInZone
+    | FORMAT LPAREN dexpr COMMA strexpr RPAREN                  # strFormatDate
     ;
 
 fexpr
@@ -1021,6 +1033,13 @@ CURRENT_DATE        : 'current' WS+ 'date' ;
 // Single token so the natural-language phrase can't be split across other
 // rules that consume IN.
 INZONE              : 'in' WS+ 'zone' ;
+
+// Phase 4 of #743: explicit DST disambiguation clause for component
+// constructors and an explicit format() builtin. WITH_DST_RULE is a single
+// token so the surface phrase can't be split across other rules that
+// consume WITH or WITHIN.
+WITH_DST_RULE       : 'with' WS+ 'dst_rule' ;
+FORMAT              : 'format' ;
 
 // Punctuation
 SEMI                : ';' ;
