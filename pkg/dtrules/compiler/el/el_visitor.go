@@ -814,6 +814,15 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#dateExprSubMonths.
 	VisitDateExprSubMonths(ctx *DateExprSubMonthsContext) interface{}
 
+	// Visit a parse tree produced by ELParser#dateFirstOfWeekStartingInZone.
+	VisitDateFirstOfWeekStartingInZone(ctx *DateFirstOfWeekStartingInZoneContext) interface{}
+
+	// Visit a parse tree produced by ELParser#dateFirstOfWeek.
+	VisitDateFirstOfWeek(ctx *DateFirstOfWeekContext) interface{}
+
+	// Visit a parse tree produced by ELParser#dateEndOfWeek.
+	VisitDateEndOfWeek(ctx *DateEndOfWeekContext) interface{}
+
 	// Visit a parse tree produced by ELParser#datePlusYears.
 	VisitDatePlusYears(ctx *DatePlusYearsContext) interface{}
 
@@ -826,8 +835,14 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#dateTyped.
 	VisitDateTyped(ctx *DateTypedContext) interface{}
 
+	// Visit a parse tree produced by ELParser#dateEndOfQuarter.
+	VisitDateEndOfQuarter(ctx *DateEndOfQuarterContext) interface{}
+
 	// Visit a parse tree produced by ELParser#dateFirstOfYear.
 	VisitDateFirstOfYear(ctx *DateFirstOfYearContext) interface{}
+
+	// Visit a parse tree produced by ELParser#dateEndOfQuarterInZone.
+	VisitDateEndOfQuarterInZone(ctx *DateEndOfQuarterInZoneContext) interface{}
 
 	// Visit a parse tree produced by ELParser#dateEndOfMonthInZone.
 	VisitDateEndOfMonthInZone(ctx *DateEndOfMonthInZoneContext) interface{}
@@ -835,8 +850,14 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#dateFirstOfMonth.
 	VisitDateFirstOfMonth(ctx *DateFirstOfMonthContext) interface{}
 
+	// Visit a parse tree produced by ELParser#dateEndOfWeekInZone.
+	VisitDateEndOfWeekInZone(ctx *DateEndOfWeekInZoneContext) interface{}
+
 	// Visit a parse tree produced by ELParser#dateExprSubYears.
 	VisitDateExprSubYears(ctx *DateExprSubYearsContext) interface{}
+
+	// Visit a parse tree produced by ELParser#dateEndOfWeekStarting.
+	VisitDateEndOfWeekStarting(ctx *DateEndOfWeekStartingContext) interface{}
 
 	// Visit a parse tree produced by ELParser#dateCurrentDate.
 	VisitDateCurrentDate(ctx *DateCurrentDateContext) interface{}
@@ -865,6 +886,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#dateCurrentDateInZone.
 	VisitDateCurrentDateInZone(ctx *DateCurrentDateInZoneContext) interface{}
 
+	// Visit a parse tree produced by ELParser#dateEndOfYearInZone.
+	VisitDateEndOfYearInZone(ctx *DateEndOfYearInZoneContext) interface{}
+
 	// Visit a parse tree produced by ELParser#dateFirstOfYearInZone.
 	VisitDateFirstOfYearInZone(ctx *DateFirstOfYearInZoneContext) interface{}
 
@@ -874,8 +898,17 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#dateUsing.
 	VisitDateUsing(ctx *DateUsingContext) interface{}
 
+	// Visit a parse tree produced by ELParser#dateFirstOfWeekInZone.
+	VisitDateFirstOfWeekInZone(ctx *DateFirstOfWeekInZoneContext) interface{}
+
 	// Visit a parse tree produced by ELParser#dateExprAddMonths.
 	VisitDateExprAddMonths(ctx *DateExprAddMonthsContext) interface{}
+
+	// Visit a parse tree produced by ELParser#dateFirstOfWeekStarting.
+	VisitDateFirstOfWeekStarting(ctx *DateFirstOfWeekStartingContext) interface{}
+
+	// Visit a parse tree produced by ELParser#dateEndOfYear.
+	VisitDateEndOfYear(ctx *DateEndOfYearContext) interface{}
 
 	// Visit a parse tree produced by ELParser#dateEarliestAfter.
 	VisitDateEarliestAfter(ctx *DateEarliestAfterContext) interface{}
@@ -888,6 +921,12 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#dateColonRef.
 	VisitDateColonRef(ctx *DateColonRefContext) interface{}
+
+	// Visit a parse tree produced by ELParser#dateEndOfWeekStartingInZone.
+	VisitDateEndOfWeekStartingInZone(ctx *DateEndOfWeekStartingInZoneContext) interface{}
+
+	// Visit a parse tree produced by ELParser#dateFirstOfQuarter.
+	VisitDateFirstOfQuarter(ctx *DateFirstOfQuarterContext) interface{}
 
 	// Visit a parse tree produced by ELParser#dateSub.
 	VisitDateSub(ctx *DateSubContext) interface{}
@@ -903,6 +942,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#dateFromArrayAt.
 	VisitDateFromArrayAt(ctx *DateFromArrayAtContext) interface{}
+
+	// Visit a parse tree produced by ELParser#dateFirstOfQuarterInZone.
+	VisitDateFirstOfQuarterInZone(ctx *DateFirstOfQuarterInZoneContext) interface{}
 
 	// Visit a parse tree produced by ELParser#nameTyped.
 	VisitNameTyped(ctx *NameTypedContext) interface{}
@@ -1180,6 +1222,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#intYearOf.
 	VisitIntYearOf(ctx *IntYearOfContext) interface{}
 
+	// Visit a parse tree produced by ELParser#intSecondOfInZone.
+	VisitIntSecondOfInZone(ctx *IntSecondOfInZoneContext) interface{}
+
 	// Visit a parse tree produced by ELParser#intNumberOfWhere.
 	VisitIntNumberOfWhere(ctx *IntNumberOfWhereContext) interface{}
 
@@ -1194,6 +1239,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#intYearsBetween.
 	VisitIntYearsBetween(ctx *IntYearsBetweenContext) interface{}
+
+	// Visit a parse tree produced by ELParser#intSecondOf.
+	VisitIntSecondOf(ctx *IntSecondOfContext) interface{}
 
 	// Visit a parse tree produced by ELParser#intLengthArray.
 	VisitIntLengthArray(ctx *IntLengthArrayContext) interface{}
@@ -1237,6 +1285,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#intDaysInMonth.
 	VisitIntDaysInMonth(ctx *IntDaysInMonthContext) interface{}
 
+	// Visit a parse tree produced by ELParser#intDayOfWeek.
+	VisitIntDayOfWeek(ctx *IntDayOfWeekContext) interface{}
+
 	// Visit a parse tree produced by ELParser#intBytesIndex.
 	VisitIntBytesIndex(ctx *IntBytesIndexContext) interface{}
 
@@ -1251,6 +1302,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#intIndexOf.
 	VisitIntIndexOf(ctx *IntIndexOfContext) interface{}
+
+	// Visit a parse tree produced by ELParser#intWeekOfYear.
+	VisitIntWeekOfYear(ctx *IntWeekOfYearContext) interface{}
 
 	// Visit a parse tree produced by ELParser#intMinOfComma.
 	VisitIntMinOfComma(ctx *IntMinOfCommaContext) interface{}
@@ -1300,6 +1354,12 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#intDaysInMonthInZone.
 	VisitIntDaysInMonthInZone(ctx *IntDaysInMonthInZoneContext) interface{}
 
+	// Visit a parse tree produced by ELParser#intDayOfWeekInZone.
+	VisitIntDayOfWeekInZone(ctx *IntDayOfWeekInZoneContext) interface{}
+
+	// Visit a parse tree produced by ELParser#intWeekOfYearInZone.
+	VisitIntWeekOfYearInZone(ctx *IntWeekOfYearInZoneContext) interface{}
+
 	// Visit a parse tree produced by ELParser#intDaysBetween.
 	VisitIntDaysBetween(ctx *IntDaysBetweenContext) interface{}
 
@@ -1312,8 +1372,14 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#intLengthStr.
 	VisitIntLengthStr(ctx *IntLengthStrContext) interface{}
 
+	// Visit a parse tree produced by ELParser#intHourOfInZone.
+	VisitIntHourOfInZone(ctx *IntHourOfInZoneContext) interface{}
+
 	// Visit a parse tree produced by ELParser#intAbs.
 	VisitIntAbs(ctx *IntAbsContext) interface{}
+
+	// Visit a parse tree produced by ELParser#intMinuteOfInZone.
+	VisitIntMinuteOfInZone(ctx *IntMinuteOfInZoneContext) interface{}
 
 	// Visit a parse tree produced by ELParser#intColonRef.
 	VisitIntColonRef(ctx *IntColonRefContext) interface{}
@@ -1321,8 +1387,14 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#intSubFrom.
 	VisitIntSubFrom(ctx *IntSubFromContext) interface{}
 
+	// Visit a parse tree produced by ELParser#intMinuteOf.
+	VisitIntMinuteOf(ctx *IntMinuteOfContext) interface{}
+
 	// Visit a parse tree produced by ELParser#intLengthBytes.
 	VisitIntLengthBytes(ctx *IntLengthBytesContext) interface{}
+
+	// Visit a parse tree produced by ELParser#intHourOf.
+	VisitIntHourOf(ctx *IntHourOfContext) interface{}
 
 	// Visit a parse tree produced by ELParser#bigAbs.
 	VisitBigAbs(ctx *BigAbsContext) interface{}
@@ -1438,6 +1510,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#blistIcOr.
 	VisitBlistIcOr(ctx *BlistIcOrContext) interface{}
 
+	// Visit a parse tree produced by ELParser#boolSameCalendarQuarter.
+	VisitBoolSameCalendarQuarter(ctx *BoolSameCalendarQuarterContext) interface{}
+
 	// Visit a parse tree produced by ELParser#boolIntLteFloat.
 	VisitBoolIntLteFloat(ctx *BoolIntLteFloatContext) interface{}
 
@@ -1537,6 +1612,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolDateIsNull.
 	VisitBoolDateIsNull(ctx *BoolDateIsNullContext) interface{}
 
+	// Visit a parse tree produced by ELParser#boolSameCalendarYear.
+	VisitBoolSameCalendarYear(ctx *BoolSameCalendarYearContext) interface{}
+
 	// Visit a parse tree produced by ELParser#boolEntityInContext.
 	VisitBoolEntityInContext(ctx *BoolEntityInContextContext) interface{}
 
@@ -1597,8 +1675,14 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolIntGt.
 	VisitBoolIntGt(ctx *BoolIntGtContext) interface{}
 
+	// Visit a parse tree produced by ELParser#boolSameCalendarMonth.
+	VisitBoolSameCalendarMonth(ctx *BoolSameCalendarMonthContext) interface{}
+
 	// Visit a parse tree produced by ELParser#boolFloatLte.
 	VisitBoolFloatLte(ctx *BoolFloatLteContext) interface{}
+
+	// Visit a parse tree produced by ELParser#boolSameCalendarWeekStarting.
+	VisitBoolSameCalendarWeekStarting(ctx *BoolSameCalendarWeekStartingContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolBigLte.
 	VisitBoolBigLte(ctx *BoolBigLteContext) interface{}
@@ -1753,6 +1837,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolFloatEqInt.
 	VisitBoolFloatEqInt(ctx *BoolFloatEqIntContext) interface{}
 
+	// Visit a parse tree produced by ELParser#boolSameCalendarDay.
+	VisitBoolSameCalendarDay(ctx *BoolSameCalendarDayContext) interface{}
+
 	// Visit a parse tree produced by ELParser#boolIntNeq.
 	VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{}
 
@@ -1785,6 +1872,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#boolStrNeq.
 	VisitBoolStrNeq(ctx *BoolStrNeqContext) interface{}
+
+	// Visit a parse tree produced by ELParser#boolSameCalendarWeek.
+	VisitBoolSameCalendarWeek(ctx *BoolSameCalendarWeekContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolMatchForall.
 	VisitBoolMatchForall(ctx *BoolMatchForallContext) interface{}
