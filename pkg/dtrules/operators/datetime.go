@@ -59,6 +59,205 @@ func init() {
 	Register("days", opDays)
 	Register("months", opMonths)
 	Register("years", opYears)
+
+	// Phase 2 of #743: explicit timezone variants. Each pops a zone string
+	// from the data stack first, then any prior date arg, and operates in
+	// the resolved zone. Plain ops above stay UTC-anchored.
+	Register("todayinzone", opTodayInZone)
+	Register("currentdateinzone", opCurrentDateInZone)
+	Register("dateinzone", opDateInZone)
+	Register("getyearinzone", opGetYearInZone)
+	Alias("getyearinzone", "yearofinzone")
+	Register("firstofmonthinzone", opFirstOfMonthInZone)
+	Register("firstofyearinzone", opFirstOfYearInZone)
+	Register("endofmonthinzone", opEndOfMonthInZone)
+	Register("getdaysinyearinzone", opGetDaysInYearInZone)
+	Register("getdaysinmonthinzone", opGetDaysInMonthInZone)
+	Register("getdayofmonthinzone", opGetDayOfMonthInZone)
+}
+
+// popZone pops a zone string from the data stack and resolves it. Used by
+// the *inzone family of operators introduced in Phase 2 of #743.
+func popZone(state dtrules.State) (*time.Location, error) {
+	zoneObj, err := state.DataPop()
+	if err != nil {
+		return nil, err
+	}
+	return dtrules.ResolveZone(zoneObj.StringValue())
+}
+
+// opTodayInZone: ( zone -- date ) pushes today's date in the given zone.
+func opTodayInZone(state dtrules.State) error {
+	loc, err := popZone(state)
+	if err != nil {
+		return err
+	}
+	now := time.Now().In(loc)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+	return state.DataPush(dtrules.GetRTime(today))
+}
+
+// opCurrentDateInZone: ( zone -- date ) pushes the current instant interpreted
+// in the given zone. Same instant as `current date`, but stamped with the
+// requested location so downstream extraction reads the local calendar.
+func opCurrentDateInZone(state dtrules.State) error {
+	loc, err := popZone(state)
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRTime(time.Now().In(loc)))
+}
+
+// opDateInZone: ( date zone -- date ) returns the same instant rewrapped in
+// the given zone. Used by the `<dexpr> in zone <strexpr>` rewrap form so
+// component extractions read the local calendar.
+func opDateInZone(state dtrules.State) error {
+	loc, err := popZone(state)
+	if err != nil {
+		return err
+	}
+	dateObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	t, err := dateObj.TimeValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRTime(t.In(loc)))
+}
+
+// opGetYearInZone: ( date zone -- year ) extracts the year in the given zone.
+func opGetYearInZone(state dtrules.State) error {
+	loc, err := popZone(state)
+	if err != nil {
+		return err
+	}
+	dateObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	t, err := dateObj.TimeValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRIntegerValueFromInt(t.In(loc).Year()))
+}
+
+// opFirstOfMonthInZone: ( date zone -- date ) first-of-month bucket in zone.
+func opFirstOfMonthInZone(state dtrules.State) error {
+	loc, err := popZone(state)
+	if err != nil {
+		return err
+	}
+	dateObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	t, err := dateObj.TimeValue()
+	if err != nil {
+		return err
+	}
+	t = t.In(loc)
+	result := time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, loc)
+	return state.DataPush(dtrules.GetRTime(result))
+}
+
+// opFirstOfYearInZone: ( date zone -- date ) first-of-year bucket in zone.
+func opFirstOfYearInZone(state dtrules.State) error {
+	loc, err := popZone(state)
+	if err != nil {
+		return err
+	}
+	dateObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	t, err := dateObj.TimeValue()
+	if err != nil {
+		return err
+	}
+	t = t.In(loc)
+	result := time.Date(t.Year(), 1, 1, 0, 0, 0, 0, loc)
+	return state.DataPush(dtrules.GetRTime(result))
+}
+
+// opEndOfMonthInZone: ( date zone -- date ) last-day-of-month bucket in zone.
+func opEndOfMonthInZone(state dtrules.State) error {
+	loc, err := popZone(state)
+	if err != nil {
+		return err
+	}
+	dateObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	t, err := dateObj.TimeValue()
+	if err != nil {
+		return err
+	}
+	t = t.In(loc)
+	nextMonth := time.Date(t.Year(), t.Month()+1, 1, 0, 0, 0, 0, loc)
+	result := nextMonth.AddDate(0, 0, -1)
+	return state.DataPush(dtrules.GetRTime(result))
+}
+
+// opGetDaysInYearInZone: ( date zone -- int ) days-in-year in the given zone.
+func opGetDaysInYearInZone(state dtrules.State) error {
+	loc, err := popZone(state)
+	if err != nil {
+		return err
+	}
+	dateObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	t, err := dateObj.TimeValue()
+	if err != nil {
+		return err
+	}
+	year := t.In(loc).Year()
+	if (year%4 == 0 && year%100 != 0) || (year%400 == 0) {
+		return state.DataPush(dtrules.GetRIntegerValueFromInt(366))
+	}
+	return state.DataPush(dtrules.GetRIntegerValueFromInt(365))
+}
+
+// opGetDaysInMonthInZone: ( date zone -- int ) days-in-month in the given zone.
+func opGetDaysInMonthInZone(state dtrules.State) error {
+	loc, err := popZone(state)
+	if err != nil {
+		return err
+	}
+	dateObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	t, err := dateObj.TimeValue()
+	if err != nil {
+		return err
+	}
+	t = t.In(loc)
+	nextMonth := time.Date(t.Year(), t.Month()+1, 1, 0, 0, 0, 0, loc)
+	lastDay := nextMonth.AddDate(0, 0, -1)
+	return state.DataPush(dtrules.GetRIntegerValueFromInt(lastDay.Day()))
+}
+
+// opGetDayOfMonthInZone: ( date zone -- int ) day-of-month read in zone.
+func opGetDayOfMonthInZone(state dtrules.State) error {
+	loc, err := popZone(state)
+	if err != nil {
+		return err
+	}
+	dateObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	t, err := dateObj.TimeValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRIntegerValueFromInt(t.In(loc).Day()))
 }
 
 // opNow: ( -- date ) pushes the current date/time

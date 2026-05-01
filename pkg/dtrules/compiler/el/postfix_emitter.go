@@ -1804,6 +1804,45 @@ func (e *PostfixEmitter) VisitDateCurrentDate(ctx *DateCurrentDateContext) inter
 	return nil
 }
 
+// Phase 2 of #743: explicit timezone visitors. Each pushes its arguments in
+// the order the runtime op expects (date — if any — first, then the zone
+// strexpr) and emits the *inzone op. Without these the labeled alternatives
+// would fall through to VisitChildren, which silently drops the op.
+
+func (e *PostfixEmitter) VisitDateCurrentDateInZone(ctx *DateCurrentDateInZoneContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("currentdateinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateInZone(ctx *DateInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("dateinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateFirstOfYearInZone(ctx *DateFirstOfYearInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("firstofyearinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateFirstOfMonthInZone(ctx *DateFirstOfMonthInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("firstofmonthinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateEndOfMonthInZone(ctx *DateEndOfMonthInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("endofmonthinzone")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitDateAdd(ctx *DateAddContext) interface{} {
 	e.Visit(ctx.Dexpr(0))
 	e.Visit(ctx.Dexpr(1))
@@ -3533,6 +3572,38 @@ func (e *PostfixEmitter) VisitIntYearsBetween(ctx *IntYearsBetweenContext) inter
 func (e *PostfixEmitter) VisitIntYearOf(ctx *IntYearOfContext) interface{} {
 	e.Visit(ctx.Dexpr())
 	e.emit("yearof")
+	return nil
+}
+
+// Phase 2 of #743: in-zone integer extractors. Mirror the layout of their
+// plain counterparts above and emit the *inzone op so the runtime can read
+// components in the requested zone.
+
+func (e *PostfixEmitter) VisitIntDaysInYearInZone(ctx *IntDaysInYearInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("getdaysinyearinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntDaysInMonthInZone(ctx *IntDaysInMonthInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("getdaysinmonthinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntDayOfMonthInZone(ctx *IntDayOfMonthInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("getdayofmonthinzone")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntYearOfInZone(ctx *IntYearOfInZoneContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("yearofinzone")
 	return nil
 }
 
