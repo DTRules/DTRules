@@ -1,6 +1,52 @@
 # DTRules Changelog
 
-## Unreleased
+## v1.10.0 — 2026-05-02
+
+Headline: explicit timezone DSL for every tz-dependent date operator (#743).
+
+- **Timezone DSL — `in zone <strexpr>` on every date op** (#743; phases 1–4
+  in PRs #744, #745, #746, #747). Implicit-timezone behavior across `today`,
+  `firstofmonth` / `firstofyear` / `endofmonth`, and `getyear` / `getmonth` /
+  `getday` was a silent-correctness foot-gun: server-local timezone leaked
+  into rule output, so the same instant produced different calendar
+  components on different hosts. v1.10.0 fixes the bugs and adds explicit
+  DSL primitives so authors can be self-describing about which zone a date
+  question is asking in.
+
+  - **Phase 1 — UTC anchor (#744).** Every previously-implicit-timezone
+    op normalizes to UTC. Adds `<default_timezone>` element to
+    `DTRules.xml` (defaults to UTC when absent). Tax-test baseline
+    unchanged.
+
+  - **Phase 2 — `in zone <strexpr>` clause (#745).** Construction
+    (`date "2026-04-15" in zone "America/New_York"`, `new date Y, M, D
+    in zone <expr>`, `current date in zone taxpayer.timezone`),
+    conversion (rewrap an existing date for component extraction), and
+    component extraction (`year of <date> in zone "UTC"`) all accept
+    the clause. Resolver chain: IANA name via `time.LoadLocation` →
+    ISO 8601 fixed offset (`+HH:MM` / `-HH:MM` / `Z`) → error with a
+    pointer to both forms. Field-level `<field timezone="..."/>`
+    declares the assumed zone for tz-naïve string parses on that
+    field. No built-in regional aliases — authors declare project
+    aliases as EDD `string` constants.
+
+  - **Phase 3 — calendar comparison + week/quarter ops (#746).**
+    New comparison ops, every one taking `in zone Z`:
+    `same_calendar_day_as`, `same_calendar_week_as` (with
+    `starting "Monday"|"Sunday"`), `same_calendar_month_as`,
+    `same_calendar_quarter_as`, `same_calendar_year_as`. Existing
+    `d<` / `d==` / `d>` remain instant comparisons. New bucket ops
+    `firstofweek` / `endofweek` / `firstofquarter` / `endofquarter`.
+    New extraction ops `getdayofweek` / `getweekofyear` / `gethour` /
+    `getminute` / `getsecond`.
+
+  - **Phase 4 — `format(date, layout)` + DST policy (#747).** New
+    `format(date, layout)` and `format(date, layout) in zone Z` render
+    a date with an explicit zone and a Go-style layout string, suitable
+    for audit trails and CSV output. New
+    `with dst_rule "earlier" | "later" | "error"` clause governs
+    ambiguous and impossible local times at DST transitions
+    (default: `error`, forces the author to clarify).
 
 - **TaxReturn sampleproject: finish decision-table dedup** (#724, follow-up to
   #722 / #725). Resolves the remaining 24 duplicates. For each of the 22
