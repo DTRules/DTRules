@@ -81,13 +81,16 @@ func TestTaxReturnResults(t *testing.T) {
 		t.Fatalf("Failed to find job entity: %v", err)
 	}
 
-	// Expected values based on test data (updated 2026-03-26):
+	// Expected values based on test data (updated 2026-05-11):
 	// Includes: unemployment, gambling, alimony, state tax refund
 	// AOTC refundable portion properly split (40%/60%)
 	// Enhanced credit calculations
+	// Standard deduction reflects OBBBA Section 13404 (2025-2028):
+	// MFJ raised from $30,000 to $31,500, dropping taxable income by
+	// $1,500 and total tax by $330 (22% bracket) vs pre-OBBBA values.
 	expectedAGI := 252515.105850
-	expectedTaxable := 195375.105850
-	expectedTax := 35603.897309
+	expectedTaxable := 193875.105850
+	expectedTax := 35273.897309
 	expectedRefund := 0.0
 
 	// Get computed results

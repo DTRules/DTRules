@@ -933,6 +933,8 @@
 		<field name="research_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Research Credit (Form 6765)"></field>
 		<field name="safe_harbor_met" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Safe harbor exception met"></field>
 		<field name="salt_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="SALT deduction amount (for AMT add-back)"></field>
+		<field name="total_salt_collected" type="double" subtype="" access="rw" input="" default_value="0" comment="Sum of property taxes + state/local tax deductions before SALT cap (intermediate result)"></field>
+		<field name="effective_salt_cap" type="double" subtype="" access="rw" input="" default_value="0" comment="SALT cap after MAGI-based phaseout (intermediate result)"></field>
 		<field name="savers_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Saver Credit (Form 8880)"></field>
 		<field name="savers_credit_rate" type="double" subtype="" access="rw" input="" default_value="0" comment="Saver Credit rate (0.50, 0.20, 0.10, or 0)"></field>
 		<field name="schedule_h_futa_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="FUTA tax on household employees (Schedule H)"></field>

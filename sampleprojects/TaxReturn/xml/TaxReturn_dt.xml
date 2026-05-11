@@ -1451,141 +1451,132 @@ endif
 <xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculates State and Local Tax (SALT) deduction including state income tax, real estate taxes, and personal property taxes. SALT is capped at $10,000 per IRC Section 164(b)(6)(B) as amended by TCJA Section 11042. Texas has no state income tax.</COMMENTS>
+<COMMENTS>Calculates State and Local Tax (SALT) deduction per IRC §164(b)(6)(B). For 2025-2028 OBBBA raised the cap from $10,000 (TCJA) to $40,000 with a phase-out: MAGI above $500,000 reduces the cap by 30% per dollar over the threshold, floored at $10,000 once MAGI hits $600,000. This top-level table is now a simple dispatcher: it resets intermediate fields, sums all SALT components into result.total_salt_collected via two helper tables (Sum_Primary_Residence_Tax over job.properties, Sum_SALT_Deduction over job.deductions), computes the effective cap via Calculate_Effective_SALT_Cap, then picks min(collected, cap) and adds it to result.total_itemized.</COMMENTS>
 <TABLE_NUMBER>3210</TABLE_NUMBER>
 </attribute_fields>
-<contexts>
-<context_details>
-<context_number>1</context_number>
-<context_comment>Calculate total SALT from property taxes and deductions</context_comment>
-<context_dsl>local double salt_total = sum of property_taxes + state/local tax deductions</context_dsl>
-<context_postfix>
-0.0 allocate
-{ Sum_Primary_Residence_Tax performaliased } job.properties forall
-{ Sum_SALT_Deduction performaliased } job.deductions forall
-0 local@ cve deallocate pop
-</context_postfix>
-</context_details>
-<context_details>
-<context_number>2</context_number>
-<context_comment>Calculate SALT cap with high-income phaseout</context_comment>
-<context_dsl>local double effective_salt_cap = salt_cap adjusted for MAGI phaseout</context_dsl>
-<context_postfix>
-result.agi salt_phaseout_start f&lt;= {
-  salt_cap /effective_salt_cap local
-} {
-  result.agi salt_phaseout_end f&gt;= {
-    salt_reduced_cap /effective_salt_cap local
-  } {
-    result.agi salt_phaseout_start f- salt_phaseout_rate f*
-    salt_cap swap f- salt_reduced_cap fmax /effective_salt_cap local
-  } ifelse
-} ifelse
-</context_postfix>
-</context_details>
-</contexts>
-<initial_actions />
+<contexts />
+<initial_actions>
+<initial_action>
+<action_dsl>set result.salt_deduction = 0; set result.total_salt_collected = 0; set result.effective_salt_cap = 0; perform Sum_Primary_Residence_Tax; perform Sum_SALT_Deduction; perform Calculate_Effective_SALT_Cap</action_dsl>
+<action_postfix>
+0 /result.salt_deduction xdef
+0 /result.total_salt_collected xdef
+0 /result.effective_salt_cap xdef
+/Sum_Primary_Residence_Tax performtable
+/Sum_SALT_Deduction performtable
+/Calculate_Effective_SALT_Cap performtable
+</action_postfix>
+<action_comment>Reset SALT outputs, then aggregate SALT components and compute the effective MAGI-adjusted cap. Each helper owns its own for-all-* context.</action_comment></initial_action>
+</initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>State has income tax</condition_comment>
-<condition_dsl>job.has_state_income_tax == true</condition_dsl>
+<condition_comment>Collected SALT exceeds the effective cap -- the cap binds and clamps the deduction</condition_comment>
+<condition_dsl>result.total_salt_collected &gt; result.effective_salt_cap</condition_dsl>
 <condition_postfix>
-job.has_state_income_tax true beq
+result.total_salt_collected result.effective_salt_cap &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
-</condition_details>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Total SALT exceeds effective cap</condition_comment>
-<condition_dsl>salt_total &gt; effective_salt_cap</condition_dsl>
-<condition_postfix>
-0 local@ effective_salt_cap &gt;
-</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Apply SALT cap with state income tax</action_comment>
-<action_dsl>set result.salt_deduction = salt_cap</action_dsl>
+<action_comment>Cap binds -- limit deduction to the effective cap and log per IRC 164(b)(6)(B)</action_comment>
+<action_dsl>set result.salt_deduction = result.effective_salt_cap; set result.total_itemized = result.total_itemized + result.effective_salt_cap; add "  SALT (capped): $" + result.salt_deduction + " (collected $" + result.total_salt_collected + ", effective cap $" + result.effective_salt_cap + ") per IRC 164(b)(6)(B)" to job.audit_trail</action_dsl>
 <action_postfix>
-"  State and Local Taxes (SALT):" job.audit_trail swap addto
-"    State Income Tax: (applicable)" job.audit_trail swap addto
-"    Real Estate Taxes: $" 0 local@ cvs strconcat " (Line 5b, IRC 164(a)(1))" strconcat job.audit_trail swap addto
-"    Effective SALT cap (with phaseout): $" effective_salt_cap cvs strconcat job.audit_trail swap addto
-"    Total SALT LIMITED TO $" effective_salt_cap cvs strconcat " per IRC 164(b)(6)(B)" strconcat job.audit_trail swap addto
-effective_salt_cap /result.salt_deduction xdef
-effective_salt_cap result.total_itemized f+ /result.total_itemized xdef
+result.effective_salt_cap /result.salt_deduction xdef
+result.total_itemized result.effective_salt_cap f+ /result.total_itemized xdef
+"  SALT (capped): $" result.salt_deduction cvs strconcat " (collected $" strconcat result.total_salt_collected cvs strconcat ", effective cap $" strconcat result.effective_salt_cap cvs strconcat ") per IRC 164(b)(6)(B)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>6</action_number>
-<action_comment>Calculate Delaware state tax</action_comment>
-<action_dsl>perform DE_Tax</action_dsl>
+<action_number>2</action_number>
+<action_comment>Collected SALT is under the cap -- deduct the full collected amount</action_comment>
+<action_dsl>set result.salt_deduction = result.total_salt_collected; set result.total_itemized = result.total_itemized + result.total_salt_collected; add "  SALT (under cap): $" + result.salt_deduction + " (effective cap $" + result.effective_salt_cap + ")" to job.audit_trail</action_dsl>
 <action_postfix>
-DE_Tax
+result.total_salt_collected /result.salt_deduction xdef
+result.total_itemized result.total_salt_collected f+ /result.total_itemized xdef
+"  SALT (under cap): $" result.salt_deduction cvs strconcat " (effective cap $" strconcat result.effective_salt_cap cvs strconcat ")" strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="6" column_value="X" />
+<action_column column_number="2" column_value="X" />
 </action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>SALT deduction limited per IRC 164(b)(6)(B). 2025-2028 cap is $40,000 with a 30% phase-out above $500,000 MAGI down to a $10,000 floor (OBBBA 2025).</policy_description>
+<policy_statement_postfix>"SALT deduction limited per IRC 164(b)(6)(B); 2025-2028 cap is $40,000 with 30% phase-out above $500,000 MAGI down to a $10,000 floor (OBBBA 2025)"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
 
+
+<decision_table>
+<table_name>Calculate_Effective_SALT_Cap</table_name>
+<xls_file>Deductions.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Computes result.effective_salt_cap from the MAGI phase-out. For 2025-2028 (OBBBA), the cap starts at $40,000 below result.agi == salt_phaseout_start, phases out at salt_phaseout_rate per dollar of MAGI above the threshold, and floors at salt_reduced_cap once MAGI reaches salt_phaseout_end.</COMMENTS>
+<TABLE_NUMBER>3211</TABLE_NUMBER>
+</attribute_fields>
+<contexts />
+<initial_actions />
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Below the phase-out threshold -- full SALT cap applies</condition_comment>
+<condition_dsl>result.agi &lt;= salt_phaseout_start</condition_dsl>
+<condition_postfix>
+result.agi salt_phaseout_start &lt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>At or above the phase-out end -- cap is fully reduced to the floor</condition_comment>
+<condition_dsl>result.agi &gt;= salt_phaseout_end</condition_dsl>
+<condition_postfix>
+result.agi salt_phaseout_end &gt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Full SALT cap (no phase-out)</action_comment>
+<action_dsl>set result.effective_salt_cap = salt_cap</action_dsl>
+<action_postfix>
+salt_cap /result.effective_salt_cap xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>No state income tax, apply cap if needed</action_comment>
-<action_dsl>set result.salt_deduction = salt_cap</action_dsl>
+<action_comment>Floor: phase-out complete, cap drops to salt_reduced_cap</action_comment>
+<action_dsl>set result.effective_salt_cap = salt_reduced_cap</action_dsl>
 <action_postfix>
-"  State and Local Taxes (SALT) - " job.state strconcat " (No State Income Tax):" strconcat job.audit_trail swap addto
-"    Real Estate Taxes: $" 0 local@ cvs strconcat " (Line 5b, IRC 164(a)(1))" strconcat job.audit_trail swap addto
-"    Effective SALT cap (with phaseout): $" effective_salt_cap cvs strconcat job.audit_trail swap addto
-"    Total SALT LIMITED TO $" effective_salt_cap cvs strconcat " per IRC 164(b)(6)(B)" strconcat job.audit_trail swap addto
-effective_salt_cap /result.salt_deduction xdef
-effective_salt_cap result.total_itemized f+ /result.total_itemized xdef
+salt_reduced_cap /result.effective_salt_cap xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Full SALT with state income tax (under cap)</action_comment>
-<action_dsl>set result.salt_deduction = salt_total</action_dsl>
+<action_comment>In phase-out range: linear reduction down to floor</action_comment>
+<action_dsl>set result.effective_salt_cap = the maximum of (salt_cap - (result.agi - salt_phaseout_start) * salt_phaseout_rate) and salt_reduced_cap</action_dsl>
 <action_postfix>
-"  State and Local Taxes (SALT):" job.audit_trail swap addto
-"    Total SALT: $" 0 local@ cvs strconcat " (under $" strconcat effective_salt_cap cvs strconcat " cap)" strconcat job.audit_trail swap addto
-0 local@ /result.salt_deduction xdef
-0 local@ result.total_itemized f+ /result.total_itemized xdef
+salt_cap result.agi salt_phaseout_start f- salt_phaseout_rate f* f- salt_reduced_cap fmax /result.effective_salt_cap xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
-<action_details>
-<action_number>4</action_number>
-<action_comment>Full SALT no state income tax (under cap)</action_comment>
-<action_dsl>set result.salt_deduction = property_tax_total</action_dsl>
-<action_postfix>
-"  State and Local Taxes (SALT) - " job.state strconcat " (No State Income Tax):" strconcat job.audit_trail swap addto
-"    Property Taxes: $" 0 local@ cvs strconcat " (under $" strconcat effective_salt_cap cvs strconcat " cap)" strconcat job.audit_trail swap addto
-0 local@ /result.salt_deduction xdef
-0 local@ result.total_itemized f+ /result.total_itemized xdef
-</action_postfix>
-<action_column column_number="4" column_value="X" />
-</action_details>
 </actions>
-<policy_statements>
-<policy_statement column="1">
-<policy_description>SALT deduction limited to $10,000 per IRC 164(b)(6)(B), TCJA Section 11042</policy_description>
-<policy_statement_postfix>"SALT deduction limited to $10,000 per IRC 164(b)(6)(B) as amended by TCJA Section 11042"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="2">
-<policy_description>Property taxes only (no state income tax); limited per IRC 164(b)(6)(B)</policy_description>
-<policy_statement_postfix>"Property taxes only (no state income tax in " job.state cvs strconcat "); limited per IRC 164(b)(6)(B)" strconcat</policy_statement_postfix>
-</policy_statement>
-</policy_statements>
+<policy_statements />
 </decision_table>
 
 
@@ -1594,18 +1585,27 @@ effective_salt_cap result.total_itemized f+ /result.total_itemized xdef
 <xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Helper table for SALT calculation. Adds property tax to running total if property is primary residence.</COMMENTS>
+<COMMENTS>Iterates job.properties and adds property_taxes for every primary residence into result.total_salt_collected. Called once from Calculate_SALT_Deduction; the caller is responsible for zeroing result.total_salt_collected first.</COMMENTS>
 <TABLE_NUMBER>3215</TABLE_NUMBER>
 </attribute_fields>
-<contexts />
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Iterate per property so each primary residence's tax can be accumulated</context_comment>
+<context_dsl>for all properties</context_dsl>
+<context_postfix>
+{ /Sum_Primary_Residence_Tax executetable } job.properties forall
+</context_postfix>
+</context_details>
+</contexts>
 <initial_actions />
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Property is primary residence</condition_comment>
+<condition_comment>Property is the taxpayer's primary residence -- its property tax counts toward SALT</condition_comment>
 <condition_dsl>property.type is equal to "primary_residence"</condition_dsl>
 <condition_postfix>
-type "primary_residence" streq
+property.type "primary_residence" streq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -1614,16 +1614,16 @@ type "primary_residence" streq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Add property tax to total</action_comment>
-<action_dsl>add property.property_taxes to salt_total</action_dsl>
+<action_comment>Accumulate this property's property_taxes onto result.total_salt_collected</action_comment>
+<action_dsl>add property.property_taxes to result.total_salt_collected</action_dsl>
 <action_postfix>
-property_taxes 0 local@ f+ 0 local!
+result.total_salt_collected property.property_taxes f+ /result.total_salt_collected xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Skip non-primary residence; otherwise</action_comment>
+<action_comment>Property is not a primary residence -- skip (rental/second-home property taxes are deducted elsewhere)</action_comment>
 <action_dsl />
 <action_postfix>
 </action_postfix>
@@ -1639,18 +1639,27 @@ property_taxes 0 local@ f+ 0 local!
 <xls_file>Deductions.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Helper table for SALT calculation. Adds state and local tax deductions to running total.</COMMENTS>
+<COMMENTS>Iterates job.deductions and adds every state-income-tax or local-tax deduction.amount onto result.total_salt_collected. Called once from Calculate_SALT_Deduction (the caller is responsible for any prior zeroing).</COMMENTS>
 <TABLE_NUMBER>3216</TABLE_NUMBER>
 </attribute_fields>
-<contexts />
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Iterate per deduction so each state/local tax line can be accumulated</context_comment>
+<context_dsl>for all deductions</context_dsl>
+<context_postfix>
+{ /Sum_SALT_Deduction executetable } job.deductions forall
+</context_postfix>
+</context_details>
+</contexts>
 <initial_actions />
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Deduction is state or local tax</condition_comment>
-<condition_dsl>deduction.category is equal to "state_income_tax" or deduction.category is equal to "local_tax"</condition_dsl>
+<condition_comment>Deduction is a state-income-tax or local-tax line</condition_comment>
+<condition_dsl>deduction.category is equal to "state_income_tax" OR deduction.category is equal to "local_tax"</condition_dsl>
 <condition_postfix>
-category "state_income_tax" streq category "local_tax" streq or
+deduction.category "state_income_tax" streq deduction.category "local_tax" streq or
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -1659,16 +1668,16 @@ category "state_income_tax" streq category "local_tax" streq or
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Add SALT deduction to total</action_comment>
-<action_dsl>add taxpayer.state_tax_paid to salt_total</action_dsl>
+<action_comment>Accumulate this deduction's amount onto result.total_salt_collected</action_comment>
+<action_dsl>add deduction.amount to result.total_salt_collected</action_dsl>
 <action_postfix>
-amount 0 local@ f+ 0 local!
+result.total_salt_collected deduction.amount f+ /result.total_salt_collected xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Skip non-SALT deduction; otherwise</action_comment>
+<action_comment>Deduction is not a state/local tax line -- skip (handled by another deduction category)</action_comment>
 <action_dsl />
 <action_postfix>
 </action_postfix>
