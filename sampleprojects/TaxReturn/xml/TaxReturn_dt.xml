@@ -797,10 +797,10 @@ taxpayer.se_tax se_deduction_rate f* /taxpayer.se_tax_deduction xdef
 <contexts>
 <context_details>
 <context_number>1</context_number>
-<context_comment>Process vehicles for current taxpayer</context_comment>
-<context_dsl>for all vehicles where taxpayer_id matches current taxpayer</context_dsl>
+<context_comment>Iterate vehicles belonging to the taxpayer currently in scope. The outer caller (Process_Self_Employment) already sets `taxpayer` via its for-all-taxpayers context.</context_comment>
+<context_dsl>for all vehicles where vehicle.taxpayer_id == taxpayer.id</context_dsl>
 <context_postfix>
-{ Filter_Taxpayer_Vehicle performaliased } job.vehicles forall
+{ dup taxpayer_id taxpayer.id == if } job.vehicles forall pop
 </context_postfix>
 </context_details>
 </contexts>
