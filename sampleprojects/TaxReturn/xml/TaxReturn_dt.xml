@@ -3188,7 +3188,6 @@ result.total_aotc_refundable result.total_payments f+ /result.total_payments xde
 "  Line 27 - EITC: $" result.eitc cvs strconcat job.audit_trail swap addto
 "  Line 28 - ACTC (refundable): $" result.total_actc cvs strconcat job.audit_trail swap addto
 "  Line 29 - AOTC (refundable portion): $" result.total_aotc_refundable cvs strconcat " per IRC 25A(i)(5)" strconcat job.audit_trail swap addto
-MI_Tax
 </action_postfix>
 <action_comment>set result.total_tax = tax_before_credits - nonrefundable_credits + ptc_repayment, add refundable credits to payments</action_comment></initial_action>
 </initial_actions>
