@@ -441,10 +441,65 @@ result.total_w2_wages result.total_se_income f+ result.total_rental_income f+ re
 </action_details>
 <action_details>
 <action_number>14</action_number>
-<action_comment>Calculate AGI adjustments (Schedule 1 Part II)</action_comment>
+<action_comment>Calculate AGI adjustments (Schedule 1 Part II) -- per-taxpayer SE tax deduction</action_comment>
 <action_dsl>perform Calculate_AGI_Adjustments</action_dsl>
 <action_postfix>
-Calculate_AGI_Adjustments
+/Calculate_AGI_Adjustments performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>14</action_number>
+<action_comment>Schedule 1 Line 11 - Educator expense deduction (IRC 62(a)(2)(D))</action_comment>
+<action_dsl>perform Calculate_Educator_Expenses</action_dsl>
+<action_postfix>
+/Calculate_Educator_Expenses performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>14</action_number>
+<action_comment>OBBBA 2025 above-the-line deductions (tips / overtime / senior)</action_comment>
+<action_dsl>perform Calculate_OBBBA_Deductions</action_dsl>
+<action_postfix>
+/Calculate_OBBBA_Deductions performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>14</action_number>
+<action_comment>Schedule 1 Line 20 - IRA deduction (Publication 590-A, IRC 219)</action_comment>
+<action_dsl>perform Calculate_IRA_Deduction</action_dsl>
+<action_postfix>
+/Calculate_IRA_Deduction performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>14</action_number>
+<action_comment>Schedule 1 Line 13 - HSA deduction (Form 8889, IRC 223)</action_comment>
+<action_dsl>perform Calculate_HSA_Deduction</action_dsl>
+<action_postfix>
+/Calculate_HSA_Deduction performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>14</action_number>
+<action_comment>Schedule 1 Line 21 - Student loan interest (Publication 970, IRC 221)</action_comment>
+<action_dsl>perform Calculate_Student_Loan_Deduction</action_dsl>
+<action_postfix>
+/Calculate_Student_Loan_Deduction performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>14</action_number>
+<action_comment>Sum above-the-line deductions into total_adjustments</action_comment>
+<action_dsl>set result.total_adjustments = result.total_adjustments + result.total_obbba_deductions + result.ira_deduction + result.hsa_deduction + result.student_loan_deduction + result.educator_expense_deduction</action_dsl>
+<action_postfix>
+result.total_adjustments result.total_obbba_deductions f+ result.ira_deduction f+ result.hsa_deduction f+ result.student_loan_deduction f+ result.educator_expense_deduction f+ /result.total_adjustments xdef
+"  Line 26 - Total Adjustments: $" result.total_adjustments cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -6259,14 +6314,19 @@ deallocate pop deallocate pop
 <decision_table>
 <table_name>Calculate_Educator_Expenses</table_name>
 <table_number>54</table_number>
-<table_description>Calculate educator expense deduction for K-12 teachers</table_description>
-<contexts />
-<initial_actions>
-<initial_action>
-<initial_action_dsl>set result.educator_deduction = 0</initial_action_dsl>
-<initial_action_postfix>0 /result.educator_expense_deduction xdef</initial_action_postfix>
-</initial_action>
-</initial_actions>
+<table_description>Calculate educator expense deduction for K-12 teachers (Schedule 1 Line 11). Iterates per taxpayer and accumulates into result.educator_expense_deduction; the field's EDD default of 0 provides the initial value.</table_description>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Iterate per taxpayer; each pass conditionally adds to result.educator_expense_deduction</context_comment>
+<context_dsl>for all taxpayers</context_dsl>
+<context_postfix>
+{ /Calculate_Educator_Expenses executetable } job.taxpayers forall
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions />
+
 <conditions>
 <condition_details>
 <condition_dsl />

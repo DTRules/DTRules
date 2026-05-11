@@ -252,52 +252,55 @@ func TestOBBBADeductions(t *testing.T) {
 		expectedTax     float64
 		expectedRefund  float64
 	}{
+		// Standard deduction for 2025 reflects OBBBA Section 13404 enhancement
+		// (effective 2025-2028): Single $15,750, MFJ $31,500, HOH $23,625 --
+		// $750/$1,500 above the pre-OBBBA Rev. Proc. 2024-40 amounts.
 		{
 			name:            "Tips_Single_Server",
 			file:            "TestCase_OBBBA_01_Tips_Single_Server.xml",
 			expectedAGI:     40000, // $65k - $25k tips deduction
-			expectedTaxable: 25000, // AGI - $15k std deduction (2025)
-			expectedTax:     2762,  // 2025 Single brackets on $25k
+			expectedTaxable: 24250, // AGI - $15,750 OBBBA std deduction (Single)
+			expectedTax:     2672,  // 2025 Single brackets on $24,250
 			expectedRefund:  0,
 		},
 		{
 			name:            "Overtime_MFJ_Factory",
 			file:            "TestCase_OBBBA_02_Overtime_MFJ_Factory.xml",
 			expectedAGI:     97000, // $115k - $18k overtime
-			expectedTaxable: 67000, // AGI - $30k std (2025)
-			expectedTax:     5363,  // 2025 MFJ brackets - $2.2k CTC (OBBBA)
+			expectedTaxable: 65500, // AGI - $31,500 OBBBA std deduction (MFJ)
+			expectedTax:     5183,  // 2025 MFJ brackets - $2.2k CTC (OBBBA)
 			expectedRefund:  0,
 		},
 		{
 			name:            "Senior_SS_MFJ",
 			file:            "TestCase_OBBBA_03_Senior_SS_MFJ.xml",
 			expectedAGI:     48000, // $60k (SS+pension) - $12k senior deduction
-			expectedTaxable: 14800, // $48k - $33.2k std (includes 2x$1600 for 65+)
-			expectedTax:     1480,  // 10% of $14,800
+			expectedTaxable: 13300, // $48k - $34.7k std ($31.5k MFJ + 2x$1.6k for 65+)
+			expectedTax:     1330,  // 10% of $13,300
 			expectedRefund:  0,
 		},
 		{
 			name:            "Tips_Overtime_Combined",
 			file:            "TestCase_OBBBA_04_Tips_Overtime_Combined.xml",
 			expectedAGI:     55000, // $88k - $25k tips - $8k overtime
-			expectedTaxable: 40000, // AGI - $15k std (2025)
-			expectedTax:     4562,  // 2025 Single brackets on $40k
+			expectedTaxable: 39250, // AGI - $15,750 OBBBA std deduction (Single)
+			expectedTax:     4472,  // 2025 Single brackets on $39,250
 			expectedRefund:  0,
 		},
 		{
 			name:            "Tips_Phaseout",
 			file:            "TestCase_OBBBA_05_Tips_Phaseout.xml",
 			expectedAGI:     170000, // No deduction - phased out
-			expectedTaxable: 155000, // AGI - $15k std (2025)
-			expectedTax:     30047,  // 2025 Single brackets on $155k
+			expectedTaxable: 154250, // AGI - $15,750 OBBBA std deduction (Single)
+			expectedTax:     29867,  // 2025 Single brackets on $154,250
 			expectedRefund:  0,
 		},
 		{
 			name:            "Working_Senior_Tips",
 			file:            "TestCase_OBBBA_06_Working_Senior_Tips.xml",
 			expectedAGI:     34000, // $52k - $12k tips - $6k senior
-			expectedTaxable: 17000, // AGI - $17k std (includes $2k extra for 65+ single)
-			expectedTax:     1802,  // 2025 Single brackets on $17k
+			expectedTaxable: 16250, // AGI - $17.75k std ($15.75k Single + $2k for 65+)
+			expectedTax:     1712,  // 2025 Single brackets on $16,250
 			expectedRefund:  0,
 		},
 	}
