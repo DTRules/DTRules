@@ -1085,19 +1085,14 @@ func TestSouthCarolinaTax(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			rs := session.NewRuleSet("TaxReturn")
 
-			eddFile, err := os.Open(filepath.Join(xmlDir, "TaxReturn_edd.xml"))
-			if err != nil {
-				t.Fatalf("Failed to open EDD: %v", err)
+			// LoadFromDirectory picks up xml/ AND xml/states/ so that
+			// state-specific tables (SC_Tax etc.) are registered before
+			// Dispatch_State_Tax tries to perform them. The earlier
+			// LoadEDD + LoadDecisionTables form only loaded the top-level
+			// files and left state tables undefined.
+			if err := rs.LoadFromDirectory(xmlDir); err != nil {
+				t.Fatalf("LoadFromDirectory: %v", err)
 			}
-			defer eddFile.Close()
-			rs.LoadEDD(eddFile)
-
-			dtFile, err := os.Open(filepath.Join(xmlDir, "TaxReturn_dt.xml"))
-			if err != nil {
-				t.Fatalf("Failed to open DT: %v", err)
-			}
-			defer dtFile.Close()
-			rs.LoadDecisionTables(dtFile)
 
 			sess, err := rs.NewSession()
 			if err != nil {

@@ -9812,7 +9812,7 @@ NJ_Tax
 <action_comment>Calculate South Carolina state tax</action_comment>
 <action_dsl>perform SC_Tax</action_dsl>
 <action_postfix>
-SC_Tax
+/SC_Tax performtable
 </action_postfix>
 <action_column column_number="13" column_value="X" />
 </action_details>

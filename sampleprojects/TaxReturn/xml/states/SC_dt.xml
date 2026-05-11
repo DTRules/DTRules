@@ -43,7 +43,7 @@
 <context_comment>Calculate SC taxable income with standard deduction. Hard: EL context grammar lacks inline if/else for branching on filing_status; postfix uses ifelse with allocate/execute/deallocate stack manipulation. Postfix retained as source of truth.</context_comment>
 <context_dsl />
 <context_postfix>
-{ sc_standard_deduction_mfj }
+{ sc_standard_deduction_joint }
 { sc_standard_deduction_single }
 job.filing_status "MFJ" streq job.filing_status "QSS" streq or
 ifelse
@@ -58,10 +58,10 @@ deallocate pop
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>In bracket 1 only (0%); sc_taxable_income at or below sc_bracket_1</condition_comment>
+<condition_comment>In bracket 1 only (0%); sc_taxable_income at or below sc_bracket_1_limit</condition_comment>
 <condition_dsl>result.sc_taxable_income &lt;= sc_bracket_1_limit</condition_dsl>
 <condition_postfix>
-result.sc_taxable_income sc_bracket_1 &lt;=
+result.sc_taxable_income sc_bracket_1_limit &lt;=
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -70,10 +70,10 @@ result.sc_taxable_income sc_bracket_1 &lt;=
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>In bracket 2 (3%); sc_taxable_income at or below sc_bracket_2</condition_comment>
+<condition_comment>In bracket 2 (3%); sc_taxable_income at or below sc_bracket_2_limit</condition_comment>
 <condition_dsl>result.sc_taxable_income &lt;= sc_bracket_2_limit</condition_dsl>
 <condition_postfix>
-result.sc_taxable_income sc_bracket_2 &lt;=
+result.sc_taxable_income sc_bracket_2_limit &lt;=
 </condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
@@ -85,7 +85,7 @@ result.sc_taxable_income sc_bracket_2 &lt;=
 <condition_comment>In bracket 3 (6%)</condition_comment>
 <condition_dsl>result.sc_taxable_income &gt; sc_bracket_2_limit</condition_dsl>
 <condition_postfix>
-result.sc_taxable_income sc_bracket_2 &gt;
+result.sc_taxable_income sc_bracket_2_limit &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
@@ -120,7 +120,7 @@ result.sc_taxable_income 0 &lt;=
 <action_comment>Bracket 2 tax (3%); set result.sc_state_tax = (income - $3,560) * 3%</action_comment>
 <action_dsl>set result.sc_state_tax = (result.sc_taxable_income - sc_bracket_1_limit) * sc_bracket_2_rate</action_dsl>
 <action_postfix>
-result.sc_taxable_income sc_bracket_1 f- sc_rate_2 f* /result.sc_state_tax xdef
+result.sc_taxable_income sc_bracket_1_limit f- sc_bracket_2_rate f* /result.sc_state_tax xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -129,8 +129,8 @@ result.sc_taxable_income sc_bracket_1 f- sc_rate_2 f* /result.sc_state_tax xdef
 <action_comment>Bracket 3 tax (6%); set result.sc_state_tax = $428.10 + (income - $17,830) * 6%</action_comment>
 <action_dsl>set result.sc_state_tax = (sc_bracket_2_limit - sc_bracket_1_limit) * sc_bracket_2_rate + (result.sc_taxable_income - sc_bracket_2_limit) * sc_bracket_3_rate</action_dsl>
 <action_postfix>
-sc_bracket_2 sc_bracket_1 f- sc_rate_2 f*
-result.sc_taxable_income sc_bracket_2 f- sc_rate_3 f* f+
+sc_bracket_2_limit sc_bracket_1_limit f- sc_bracket_2_rate f*
+result.sc_taxable_income sc_bracket_2_limit f- sc_bracket_3_rate f* f+
 /result.sc_state_tax xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
