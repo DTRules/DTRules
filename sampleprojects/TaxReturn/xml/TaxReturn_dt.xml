@@ -4901,13 +4901,13 @@ result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xde
 <condition_postfix>
 result.total_social_security 0 &gt;
 </condition_postfix>
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="Y" />
+<condition_column column_number="5" column_value="Y" />
 <condition_column column_number="6" column_value="Y" />
 <condition_column column_number="7" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="Y" />
-<condition_column column_number="5" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4916,48 +4916,48 @@ result.total_social_security 0 &gt;
 <condition_postfix>
 job.filing_status MFJ streq
 </condition_postfix>
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="7" column_value="-" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>MFJ provisional income at or below base amount ($32k); provisional_income at or below MFJ base amount</condition_comment>
-<condition_dsl />
+<condition_dsl>result.provisional_income &lt;= ss_base_amount_mfj</condition_dsl>
 <condition_postfix>
 result.provisional_income ss_base_amount_mfj le
 </condition_postfix>
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
 <condition_column column_number="6" column_value="-" />
 <condition_column column_number="7" column_value="-" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>MFJ provisional income at or below additional amount ($44k); provisional_income at or below MFJ additional amount</condition_comment>
-<condition_dsl />
+<condition_dsl>result.provisional_income &lt;= ss_additional_amount_mfj</condition_dsl>
 <condition_postfix>
 result.provisional_income ss_additional_amount_mfj le
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="-" />
 <condition_column column_number="5" column_value="-" />
 <condition_column column_number="6" column_value="-" />
 <condition_column column_number="7" column_value="-" />
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>Single provisional income at or below base amount ($25k); provisional_income at or below Single base amount</condition_comment>
-<condition_dsl />
+<condition_dsl>result.provisional_income &lt;= ss_base_amount_single</condition_dsl>
 <condition_postfix>
 result.provisional_income ss_base_amount_single le
 </condition_postfix>
@@ -4972,7 +4972,7 @@ result.provisional_income ss_base_amount_single le
 <condition_details>
 <condition_number>6</condition_number>
 <condition_comment>Single provisional income at or below additional amount ($34k); provisional_income at or below Single additional amount</condition_comment>
-<condition_dsl />
+<condition_dsl>result.provisional_income &lt;= ss_additional_amount_single</condition_dsl>
 <condition_postfix>
 result.provisional_income ss_additional_amount_single le
 </condition_postfix>
@@ -4995,8 +4995,8 @@ result.provisional_income ss_additional_amount_single le
 0.0 /result.taxable_social_security xdef
 "  SS Taxable: 0% - Provisional income below base amount" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
 <action_column column_number="4" column_value="X" />
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
