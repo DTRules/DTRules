@@ -13,9 +13,8 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>Initialize [STATE] tax calculation</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>Initialize [STATE] tax calculation</action_dsl>
 <action_postfix>
 "[STATE NAME] Tax Calculation Started" job.audit_trail swap addto
 </action_postfix>
@@ -36,7 +35,7 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate [STATE] tax</action_comment>
-<action_dsl />
+<action_dsl>add "  State tax dispatch — XX_Tax not yet authored" to job.audit_trail</action_dsl>
 <action_postfix>
 result.agi result.xx_standard_deduction_single sub 0 max
 result.xx_tax_rate mul

@@ -755,7 +755,7 @@ taxpayer.se_net_profit se_threshold &gt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate SE tax with proper SS wage base cap and Medicare component; Calculate SE tax: SS component (12.4% up to wage base) + Medicare component (2.9% all income). EL translation intentionally deferred: postfix uses dup/exch to reuse taxpayer.se_net_profit * se_income_multiplier, and fmin/fmax to cap at the remaining SS wage base; a straightforward EL rewrite would not reproduce this stack-manipulation pattern.</action_comment>
-<action_dsl />
+<action_dsl>set result.se_base = result.total_se_income * constants.se_income_multiplier; set result.se_tax = result.se_base * constants.se_tax_rate; add result.se_tax * constants.se_deduction_rate to result.total_adjustments</action_dsl>
 <action_postfix>
 taxpayer.se_net_profit se_income_multiplier f* dup
 ss_wage_base result.total_w2_wages f- 0 fmax fmin 0.124 f*
@@ -2778,7 +2778,7 @@ perform when called
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate child tax credits for all dependents; for all dependents perform Calculate_Child_Tax_Credit</action_comment>
-<action_dsl />
+<action_dsl>perform Calculate_CTC_Phase_Out</action_dsl>
 <action_postfix>
 { /Calculate_Child_Tax_Credit executetable } job.dependents forall
 </action_postfix>
@@ -3260,7 +3260,7 @@ dependent.odc_amount result.total_odc f+ /result.total_odc xdef
 <initial_actions>
 <initial_action>
 <action_comment>set result.total_tax = tax_before_credits - nonrefundable_credits + ptc_repayment, add refundable credits to payments</action_comment>
-<initial_action_dsl />
+<initial_action_dsl>set result.balance_due = result.total_tax - result.total_payments; set result.refund = the maximum of (result.total_payments - result.total_tax) and 0; add "Calculating final balance per Form 1040 lines 37-38" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 "FINAL CALCULATION (Form 1040 Lines 33-37)" job.audit_trail swap addto
@@ -4901,13 +4901,13 @@ result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xde
 <condition_postfix>
 result.total_social_security 0 &gt;
 </condition_postfix>
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="Y" />
 <condition_column column_number="5" column_value="Y" />
 <condition_column column_number="6" column_value="Y" />
 <condition_column column_number="7" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4916,13 +4916,13 @@ result.total_social_security 0 &gt;
 <condition_postfix>
 job.filing_status MFJ streq
 </condition_postfix>
+<condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="7" column_value="-" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -4946,13 +4946,13 @@ result.provisional_income ss_base_amount_mfj le
 <condition_postfix>
 result.provisional_income ss_additional_amount_mfj le
 </condition_postfix>
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
 <condition_column column_number="6" column_value="-" />
 <condition_column column_number="7" column_value="-" />
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -4961,13 +4961,13 @@ result.provisional_income ss_additional_amount_mfj le
 <condition_postfix>
 result.provisional_income ss_base_amount_single le
 </condition_postfix>
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
 <condition_column column_number="4" column_value="Y" />
 <condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -4976,13 +4976,13 @@ result.provisional_income ss_base_amount_single le
 <condition_postfix>
 result.provisional_income ss_additional_amount_single le
 </condition_postfix>
+<condition_column column_number="4" column_value="-" />
 <condition_column column_number="5" column_value="Y" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="7" column_value="-" />
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -5001,7 +5001,7 @@ result.provisional_income ss_additional_amount_single le
 <action_details>
 <action_number>2</action_number>
 <action_comment>Up to 50% SS taxable MFJ - between base and additional; 50% SS taxable per Pub 915 Worksheet 1 (MFJ thresholds)</action_comment>
-<action_dsl />
+<action_dsl>set result.taxable_social_security = the minimum of (result.provisional_income - ss_base_amount_mfj) * 0.5 and result.total_social_security * 0.5</action_dsl>
 <action_postfix>
 0.50 /result.ss_taxable_percentage xdef
 result.provisional_income ss_base_amount_mfj f- 0.5 f* result.total_social_security 0.5 f* fmin /result.taxable_social_security xdef
@@ -5013,7 +5013,7 @@ result.provisional_income ss_base_amount_mfj f- 0.5 f* result.total_social_secur
 <action_details>
 <action_number>3</action_number>
 <action_comment>Up to 50% SS taxable Single - between base and additional; 50% SS taxable per Pub 915 Worksheet 1 (Single thresholds)</action_comment>
-<action_dsl />
+<action_dsl>set result.taxable_social_security = the minimum of (result.provisional_income - ss_base_amount_single) * 0.5 and result.total_social_security * 0.5</action_dsl>
 <action_postfix>
 0.50 /result.ss_taxable_percentage xdef
 result.provisional_income ss_base_amount_single f- 0.5 f* result.total_social_security 0.5 f* fmin /result.taxable_social_security xdef
@@ -5025,7 +5025,7 @@ result.provisional_income ss_base_amount_single f- 0.5 f* result.total_social_se
 <action_details>
 <action_number>4</action_number>
 <action_comment>Up to 85% SS taxable - above additional amount; 85% SS taxable per Pub 915 Worksheet 2</action_comment>
-<action_dsl />
+<action_dsl>set result.taxable_social_security = result.total_social_security * 0.85</action_dsl>
 <action_postfix>
 0.85 /result.ss_taxable_percentage xdef
 result.total_social_security 0.85 f* /result.taxable_social_security xdef
@@ -5531,9 +5531,8 @@ deallocate pop
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>set result.net_investment_income = sum of investment income</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>set result.net_investment_income = sum of investment income</action_dsl>
 <action_postfix>
 result.total_other_income result.total_long_term_gains f+ result.total_short_term_gains f+ result.total_rental_income f+ result.total_qualified_dividends f+ /result.net_investment_income xdef
 result.agi /result.magi_for_niit xdef
@@ -5551,13 +5550,13 @@ result.agi /result.magi_for_niit xdef
 <condition_postfix>
 result.net_investment_income 0 &gt;
 </condition_postfix>
+<condition_column column_number="5" column_value="Y" />
+<condition_column column_number="6" column_value="Y" />
+<condition_column column_number="7" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="Y" />
-<condition_column column_number="5" column_value="Y" />
-<condition_column column_number="6" column_value="Y" />
-<condition_column column_number="7" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -5566,13 +5565,13 @@ result.net_investment_income 0 &gt;
 <condition_postfix>
 job.filing_status MFJ streq
 </condition_postfix>
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="-" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -5596,13 +5595,13 @@ job.filing_status MFS streq
 <condition_postfix>
 result.magi_for_niit niit_threshold_mfj &gt;
 </condition_postfix>
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="-" />
 <condition_column column_number="4" column_value="-" />
 <condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -5611,13 +5610,13 @@ result.magi_for_niit niit_threshold_mfj &gt;
 <condition_postfix>
 result.magi_for_niit niit_threshold_mfs &gt;
 </condition_postfix>
+<condition_column column_number="7" column_value="-" />
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="-" />
 <condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -5639,7 +5638,7 @@ result.magi_for_niit niit_threshold_single &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate NIIT for MFJ; NIIT = 3.8% x MIN(NII, MAGI - $250k)</action_comment>
-<action_dsl />
+<action_dsl>set result.niit_excess = the maximum of (result.modified_agi - constants.niit_threshold_mfj) and 0.0; set result.niit = the minimum of result.net_investment_income and result.niit_excess * constants.niit_rate</action_dsl>
 <action_postfix>
 result.magi_for_niit niit_threshold_mfj f- result.net_investment_income fmin niit_rate f* /result.niit_tax xdef
 "  Threshold (MFJ): $" niit_threshold_mfj cvs strconcat job.audit_trail swap addto
@@ -5650,7 +5649,7 @@ result.magi_for_niit niit_threshold_mfj f- result.net_investment_income fmin nii
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate NIIT for MFS; NIIT = 3.8% x MIN(NII, MAGI - $125k)</action_comment>
-<action_dsl />
+<action_dsl>set result.niit_excess = the maximum of (result.modified_agi - constants.niit_threshold_mfs) and 0.0; set result.niit = the minimum of result.net_investment_income and result.niit_excess * constants.niit_rate</action_dsl>
 <action_postfix>
 result.magi_for_niit niit_threshold_mfs f- result.net_investment_income fmin niit_rate f* /result.niit_tax xdef
 "  Threshold (MFS): $" niit_threshold_mfs cvs strconcat job.audit_trail swap addto
@@ -5661,7 +5660,7 @@ result.magi_for_niit niit_threshold_mfs f- result.net_investment_income fmin nii
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate NIIT for Single; NIIT = 3.8% x MIN(NII, MAGI - $200k)</action_comment>
-<action_dsl />
+<action_dsl>set result.niit_excess = the maximum of (result.modified_agi - constants.niit_threshold_single) and 0.0; set result.niit = the minimum of result.net_investment_income and result.niit_excess * constants.niit_rate</action_dsl>
 <action_postfix>
 result.magi_for_niit niit_threshold_single f- result.net_investment_income fmin niit_rate f* /result.niit_tax xdef
 "  Threshold (Single): $" niit_threshold_single cvs strconcat job.audit_trail swap addto
@@ -5677,9 +5676,9 @@ result.magi_for_niit niit_threshold_single f- result.net_investment_income fmin 
 0.0 /result.niit_tax xdef
 "  NIIT: $0 - MAGI below threshold" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
 <action_column column_number="4" column_value="X" />
 <action_column column_number="6" column_value="X" />
+<action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -5767,12 +5766,12 @@ job.filing_status MFJ streq
 <condition_postfix>
 job.filing_status MFS streq
 </condition_postfix>
+<condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="Y" />
-<condition_column column_number="5" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -5781,12 +5780,12 @@ job.filing_status MFS streq
 <condition_postfix>
 result.wages_for_additional_medicare additional_medicare_threshold_mfj &gt;
 </condition_postfix>
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
 <condition_column column_number="6" column_value="-" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -5795,12 +5794,12 @@ result.wages_for_additional_medicare additional_medicare_threshold_mfj &gt;
 <condition_postfix>
 result.wages_for_additional_medicare additional_medicare_threshold_mfs &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="-" />
 <condition_column column_number="6" column_value="-" />
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -5809,19 +5808,19 @@ result.wages_for_additional_medicare additional_medicare_threshold_mfs &gt;
 <condition_postfix>
 result.wages_for_additional_medicare additional_medicare_threshold_single &gt;
 </condition_postfix>
+<condition_column column_number="5" column_value="Y" />
+<condition_column column_number="6" column_value="N" />
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
 <condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="Y" />
-<condition_column column_number="6" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Additional Medicare Tax for MFJ; 0.9% on wages over $250k</action_comment>
-<action_dsl />
+<action_dsl>set result.additional_medicare_tax = the maximum of (result.medicare_wages - constants.additional_medicare_threshold_mfj) and 0.0 * constants.additional_medicare_rate</action_dsl>
 <action_postfix>
 result.wages_for_additional_medicare additional_medicare_threshold_mfj f- additional_medicare_rate f* /result.additional_medicare_tax xdef
 "  Threshold (MFJ): $" additional_medicare_threshold_mfj cvs strconcat job.audit_trail swap addto
@@ -5832,7 +5831,7 @@ result.wages_for_additional_medicare additional_medicare_threshold_mfj f- additi
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate Additional Medicare Tax for MFS; 0.9% on wages over $125k</action_comment>
-<action_dsl />
+<action_dsl>set result.additional_medicare_tax = the maximum of (result.medicare_wages - constants.additional_medicare_threshold_mfs) and 0.0 * constants.additional_medicare_rate</action_dsl>
 <action_postfix>
 result.wages_for_additional_medicare additional_medicare_threshold_mfs f- additional_medicare_rate f* /result.additional_medicare_tax xdef
 "  Threshold (MFS): $" additional_medicare_threshold_mfs cvs strconcat job.audit_trail swap addto
@@ -5843,7 +5842,7 @@ result.wages_for_additional_medicare additional_medicare_threshold_mfs f- additi
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate Additional Medicare Tax for Single; 0.9% on wages over $200k</action_comment>
-<action_dsl />
+<action_dsl>set result.additional_medicare_tax = the maximum of (result.medicare_wages - constants.additional_medicare_threshold_single) and 0.0 * constants.additional_medicare_rate</action_dsl>
 <action_postfix>
 result.wages_for_additional_medicare additional_medicare_threshold_single f- additional_medicare_rate f* /result.additional_medicare_tax xdef
 "  Threshold (Single): $" additional_medicare_threshold_single cvs strconcat job.audit_trail swap addto
@@ -5922,13 +5921,13 @@ result.wages_for_additional_medicare additional_medicare_threshold_single f- add
 <condition_postfix>
 taxpayer.traditional_ira_contribution 0 &gt;
 </condition_postfix>
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="Y" />
 <condition_column column_number="5" column_value="Y" />
 <condition_column column_number="6" column_value="Y" />
 <condition_column column_number="7" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -5937,13 +5936,13 @@ taxpayer.traditional_ira_contribution 0 &gt;
 <condition_postfix>
 taxpayer.covered_by_employer_plan true beq
 </condition_postfix>
+<condition_column column_number="6" column_value="Y" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="Y" />
 <condition_column column_number="5" column_value="Y" />
-<condition_column column_number="6" column_value="Y" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="1" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -5952,13 +5951,13 @@ taxpayer.covered_by_employer_plan true beq
 <condition_postfix>
 taxpayer.age_50_or_over true beq
 </condition_postfix>
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="Y" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="7" column_value="-" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -5967,13 +5966,13 @@ taxpayer.age_50_or_over true beq
 <condition_postfix>
 job.filing_status MFJ streq
 </condition_postfix>
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="Y" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="7" column_value="-" />
 <condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="Y" />
 </condition_details>
 </conditions>
 <actions>
@@ -6000,7 +5999,7 @@ taxpayer.traditional_ira_contribution ira_contribution_limit fmin result.ira_ded
 <action_details>
 <action_number>3</action_number>
 <action_comment>IRA deduction with MFJ phase-out and catchup; set taxpayer.ira_deduction = phased out deduction with catchup (MFJ)</action_comment>
-<action_dsl />
+<action_dsl>set result.ira_deduction = the minimum of result.ira_contributions and constants.ira_deduction_cap</action_dsl>
 <action_postfix>
 taxpayer.traditional_ira_contribution ira_contribution_limit ira_catchup_limit f+ fmin /ira_max allocate
 result.agi ira_phaseout_start_mfj f- ira_phaseout_end_mfj ira_phaseout_start_mfj f- fdiv 1 fmin 0 fmax /phaseout_pct allocate
@@ -6013,7 +6012,7 @@ deallocate pop deallocate pop
 <action_details>
 <action_number>4</action_number>
 <action_comment>IRA deduction with MFJ phase-out no catchup; set taxpayer.ira_deduction = phased out deduction standard (MFJ)</action_comment>
-<action_dsl />
+<action_dsl>set result.ira_deduction = the minimum of result.ira_contributions and constants.ira_deduction_cap_mfj</action_dsl>
 <action_postfix>
 taxpayer.traditional_ira_contribution ira_contribution_limit fmin /ira_max allocate
 result.agi ira_phaseout_start_mfj f- ira_phaseout_end_mfj ira_phaseout_start_mfj f- fdiv 1 fmin 0 fmax /phaseout_pct allocate
@@ -6026,7 +6025,7 @@ deallocate pop deallocate pop
 <action_details>
 <action_number>5</action_number>
 <action_comment>IRA deduction with Single phase-out and catchup; set taxpayer.ira_deduction = phased out deduction with catchup (Single)</action_comment>
-<action_dsl />
+<action_dsl>set result.ira_deduction = 0</action_dsl>
 <action_postfix>
 taxpayer.traditional_ira_contribution ira_contribution_limit ira_catchup_limit f+ fmin /ira_max allocate
 result.agi ira_phaseout_start_single f- ira_phaseout_end_single ira_phaseout_start_single f- fdiv 1 fmin 0 fmax /phaseout_pct allocate
@@ -6039,7 +6038,7 @@ deallocate pop deallocate pop
 <action_details>
 <action_number>6</action_number>
 <action_comment>IRA deduction with Single phase-out no catchup; set taxpayer.ira_deduction = phased out deduction standard (Single)</action_comment>
-<action_dsl />
+<action_dsl>set result.ira_deduction = the minimum of result.ira_contributions and constants.ira_deduction_cap_age50</action_dsl>
 <action_postfix>
 taxpayer.traditional_ira_contribution ira_contribution_limit fmin /ira_max allocate
 result.agi ira_phaseout_start_single f- ira_phaseout_end_single ira_phaseout_start_single f- fdiv 1 fmin 0 fmax /phaseout_pct allocate
@@ -6255,11 +6254,11 @@ taxpayer.hsa_contribution hsa_limit_self fmin result.hsa_deduction f+ /result.hs
 <condition_postfix>
 taxpayer.student_loan_interest_paid 0 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="Y" />
 <condition_column column_number="5" column_value="N" />
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -6281,11 +6280,11 @@ job.filing_status MFJ streq
 <condition_postfix>
 result.agi student_loan_phaseout_start_mfj &lt;
 </condition_postfix>
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
 <condition_column column_number="4" column_value="-" />
 <condition_column column_number="5" column_value="-" />
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -6294,11 +6293,11 @@ result.agi student_loan_phaseout_start_mfj &lt;
 <condition_postfix>
 result.agi student_loan_phaseout_start_single &lt;
 </condition_postfix>
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="1" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -6310,13 +6309,13 @@ result.agi student_loan_phaseout_start_single &lt;
 taxpayer.student_loan_interest_paid student_loan_max_deduction fmin result.student_loan_deduction f+ /result.student_loan_deduction xdef
 "  Student Loan Interest for " taxpayer.name strconcat ": $" strconcat result.student_loan_deduction cvs strconcat " (full - MAGI below phase-out)" strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
 <action_column column_number="3" column_value="X" />
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Student loan deduction with MFJ phase-out; set result.student_loan_deduction = phased out deduction (MFJ)</action_comment>
-<action_dsl />
+<action_dsl>set result.student_loan_deduction = the minimum of result.student_loan_interest and constants.student_loan_deduction_cap</action_dsl>
 <action_postfix>
 taxpayer.student_loan_interest_paid student_loan_max_deduction fmin /sl_max allocate
 result.agi student_loan_phaseout_start_mfj f- student_loan_phaseout_end_mfj student_loan_phaseout_start_mfj f- fdiv 1 fmin 0 fmax /phaseout_pct allocate
@@ -6329,7 +6328,7 @@ deallocate pop deallocate pop
 <action_details>
 <action_number>3</action_number>
 <action_comment>Student loan deduction with Single phase-out; set result.student_loan_deduction = phased out deduction (Single)</action_comment>
-<action_dsl />
+<action_dsl>set result.student_loan_deduction = 0</action_dsl>
 <action_postfix>
 taxpayer.student_loan_interest_paid student_loan_max_deduction fmin /sl_max allocate
 result.agi student_loan_phaseout_start_single f- student_loan_phaseout_end_single student_loan_phaseout_start_single f- fdiv 1 fmin 0 fmax /phaseout_pct allocate
@@ -7774,7 +7773,7 @@ job.ira_accounts
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has IRA account to process; IRA account exists in context</condition_comment>
-<condition_dsl />
+<condition_dsl>ira_account.type is equal to "traditional"</condition_dsl>
 <condition_postfix>
 ira isnull not
 </condition_postfix>
@@ -7794,7 +7793,7 @@ ira.account_type traditional streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>for all IRA accounts perform Process_IRA_Basis</action_comment>
-<action_dsl />
+<action_dsl>add ira_account.contributions to result.total_ira_contributions</action_dsl>
 <action_postfix>
 "  Traditional IRA at: " ira.institution strconcat job.audit_trail swap addto
 ira.year_end_balance result.total_ira_balance f+ /result.total_ira_balance xdef
@@ -7896,7 +7895,7 @@ result.taxable_conversions result.total_other_income f+ /result.total_other_inco
 <context_number>1</context_number>
 <context_comment>Current farm being processed</context_comment>
 <context_name>farm</context_name>
-<context_dsl />
+<context_dsl>for all farm_incomes</context_dsl>
 <context_postfix>
 job.farm_incomes
 </context_postfix>
@@ -7904,9 +7903,8 @@ job.farm_incomes
 </contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>add "FARM INCOME PROCESSING" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>add "FARM INCOME PROCESSING" to job.audit_trail</action_dsl>
 <action_postfix>
 "Processing Schedule F Farm Income (Publication 225)" job.audit_trail swap addto
 </action_postfix>
@@ -7916,7 +7914,7 @@ job.farm_incomes
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has farm to process; Farm entity exists in context</condition_comment>
-<condition_dsl />
+<condition_dsl>farm_income.gross_income &gt; 0</condition_dsl>
 <condition_postfix>
 farm isnull not
 </condition_postfix>
@@ -7927,7 +7925,7 @@ farm isnull not
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>set result.farm_net_income = farm.gross_income - farm.expenses</action_dsl>
+<action_dsl>add farm_income.gross_income to result.total_farm_income</action_dsl>
 <action_postfix>
 "  Farm: " farm.farm_name strconcat job.audit_trail swap addto
 farm.sales_livestock_raised farm.sales_crops f+ farm.coop_distributions f+ farm.agricultural_payments f+ farm.ccc_loans f+ farm.crop_insurance f+ farm.custom_hire f+ farm.other_farm_income f+ farm.sales_livestock_bought f- /farm.gross_income xdef
@@ -8020,7 +8018,7 @@ result.farm_se_tax se_deduction_rate f* result.total_adjustments f+ /result.tota
 <context_number>1</context_number>
 <context_comment>Current property sale being processed</context_comment>
 <context_name>sale</context_name>
-<context_dsl />
+<context_dsl>for all property_sales</context_dsl>
 <context_postfix>
 job.property_sales
 </context_postfix>
@@ -8028,9 +8026,8 @@ job.property_sales
 </contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>add "PROPERTY SALE PROCESSING" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>add "PROPERTY SALE PROCESSING" to job.audit_trail</action_dsl>
 <action_postfix>
 "Processing Form 4797 Business Property Sales" job.audit_trail swap addto
 </action_postfix>
@@ -8040,13 +8037,13 @@ job.property_sales
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has property sale to process; Property sale exists in context</condition_comment>
-<condition_dsl />
+<condition_dsl>property_sale.holding_period is equal to "short_term"</condition_dsl>
 <condition_postfix>
 sale isnull not
 </condition_postfix>
+<condition_column column_number="3" column_value="Y" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -8062,7 +8059,7 @@ sale.property_type 1245 streq
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Is Section 1250 property (real property); Property type is 1250 or is real property</condition_comment>
-<condition_dsl />
+<condition_dsl>property_sale.section_1250_gain &gt; 0</condition_dsl>
 <condition_postfix>
 sale.property_type 1250 streq sale.is_real_property or
 </condition_postfix>
@@ -8074,7 +8071,7 @@ sale.property_type 1250 streq sale.is_real_property or
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>set sale.gain = sale.proceeds - sale.adjusted_basis</action_dsl>
+<action_dsl>add property_sale.gain to result.total_short_term_gains</action_dsl>
 <action_postfix>
 "  Property: " sale.description strconcat job.audit_trail swap addto
 sale.cost_basis sale.improvements f+ sale.depreciation_allowed f- /sale.adjusted_basis xdef
@@ -8084,14 +8081,14 @@ sale.amount_realized sale.adjusted_basis f- /sale.total_gain_loss xdef
 "    Amount realized: $" sale.amount_realized cvs strconcat job.audit_trail swap addto
 "    Total gain/loss: $" sale.total_gain_loss cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
 <action_column column_number="3" column_value="X" />
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>add sale.depreciation to result.ordinary_income (Section 1245)</action_comment>
-<action_dsl />
+<action_dsl>add property_sale.gain to result.total_long_term_gains</action_dsl>
 <action_postfix>
 sale.total_gain_loss 0 &gt; { sale.depreciation_allowed sale.total_gain_loss fmin /sale.ordinary_income_recapture xdef } if
 sale.total_gain_loss sale.ordinary_income_recapture f- /sale.section_1231_gain xdef
@@ -8103,7 +8100,7 @@ sale.ordinary_income_recapture result.total_depreciation_recapture f+ /result.to
 <action_details>
 <action_number>3</action_number>
 <action_comment>add sale.depreciation to result.section_1250_gain (25% max rate)</action_comment>
-<action_dsl />
+<action_dsl>add property_sale.section_1250_gain to result.total_section_1250_gain</action_dsl>
 <action_postfix>
 sale.total_gain_loss 0 &gt; { sale.depreciation_allowed sale.total_gain_loss fmin /sale.unrecaptured_1250_gain xdef } if
 sale.total_gain_loss sale.unrecaptured_1250_gain f- /sale.section_1231_gain xdef
@@ -8115,7 +8112,7 @@ sale.unrecaptured_1250_gain result.total_unrecaptured_1250 f+ /result.total_unre
 <action_details>
 <action_number>4</action_number>
 <action_comment></action_comment>
-<action_dsl>add sale.gain to result.section_1231_gain</action_dsl>
+<action_dsl>add property_sale.section_1231_gain to result.total_section_1231_gain</action_dsl>
 <action_postfix>
 sale.total_gain_loss /sale.section_1231_gain xdef
 "    Section 1231 gain/loss: $" sale.section_1231_gain cvs strconcat job.audit_trail swap addto
@@ -8125,14 +8122,14 @@ sale.total_gain_loss /sale.section_1231_gain xdef
 <action_details>
 <action_number>5</action_number>
 <action_comment></action_comment>
-<action_dsl>add sale.section_1231_gain to result.total_section_1231</action_dsl>
+<action_dsl>add property_sale.gain to result.total_collectibles_gain</action_dsl>
 <action_postfix>
 sale.section_1231_gain 0 &gt; { sale.section_1231_gain result.total_1231_gains f+ /result.total_1231_gains xdef } if
 sale.section_1231_gain 0 &lt; { sale.section_1231_gain fnegate result.total_1231_losses f+ /result.total_1231_losses xdef } if
 </action_postfix>
-<action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
 <action_column column_number="3" column_value="X" />
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -8231,7 +8228,7 @@ result.net_1231_gain_loss result.total_other_income f+ /result.total_other_incom
 <context_number>1</context_number>
 <context_comment>Current foreign income source being processed</context_comment>
 <context_name>foreign</context_name>
-<context_dsl />
+<context_dsl>for all foreign_incomes</context_dsl>
 <context_postfix>
 job.foreign_incomes
 </context_postfix>
@@ -8239,9 +8236,8 @@ job.foreign_incomes
 </contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>add "FOREIGN INCOME PROCESSING" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>add "FOREIGN INCOME PROCESSING" to job.audit_trail</action_dsl>
 <action_postfix>
 "Processing Form 1116 Foreign Income (IRC 901)" job.audit_trail swap addto
 </action_postfix>
@@ -8251,7 +8247,7 @@ job.foreign_incomes
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has foreign income to process; Foreign income entity exists in context</condition_comment>
-<condition_dsl />
+<condition_dsl>taxpayer.foreign_earned_income &gt; 0</condition_dsl>
 <condition_postfix>
 foreign isnull not
 </condition_postfix>
@@ -8262,7 +8258,7 @@ foreign isnull not
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>add foreign_income.amount to result.total_foreign_income</action_dsl>
+<action_dsl>add taxpayer.foreign_earned_income to result.total_foreign_earned_income</action_dsl>
 <action_postfix>
 "  Country: " foreign.country strconcat " (" strconcat foreign.income_category strconcat ")" strconcat job.audit_trail swap addto
 foreign.gross_income foreign.directly_allocable_deductions f- /foreign.foreign_source_taxable xdef
@@ -8371,7 +8367,7 @@ result.total_foreign_taxes_paid result.foreign_tax_credit_limit fmin /result.for
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Qualifies for FEIE; Meets bona fide residence or physical presence test</condition_comment>
-<condition_dsl />
+<condition_dsl>taxpayer.foreign_earned_income &gt; 0</condition_dsl>
 <condition_postfix>
 foreign_earned_income.bona_fide_resident foreign_earned_income.physical_presence_days physical_presence_days_required &gt;= or
 </condition_postfix>
@@ -8383,7 +8379,7 @@ foreign_earned_income.bona_fide_resident foreign_earned_income.physical_presence
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate FEIE exclusion and housing exclusion</action_comment>
-<action_dsl />
+<action_dsl>set result.foreign_earned_income_exclusion = the minimum of taxpayer.foreign_earned_income and constants.feie_cap</action_dsl>
 <action_postfix>
 foreign_earned_income.foreign_wages foreign_earned_income.foreign_se_income f+ result.total_foreign_earned_income f+ /result.total_foreign_earned_income xdef
 result.total_foreign_earned_income feie_max_exclusion fmin result.foreign_earned_income_exclusion f+ /result.foreign_earned_income_exclusion xdef
@@ -8398,7 +8394,7 @@ foreign_earned_income.housing_exclusion result.foreign_housing_exclusion f+ /res
 <action_details>
 <action_number>2</action_number>
 <action_comment>Does not qualify for FEIE</action_comment>
-<action_dsl>set foreign_earned_income.qualifies_exclusion = false; add "  Does not qualify for FEIE - did not meet residence or presence test" to job.audit_trail</action_dsl>
+<action_dsl>set result.foreign_earned_income_exclusion = 0</action_dsl>
 <action_postfix>
 false /foreign_earned_income.qualifies_exclusion xdef
 "  Does not qualify for FEIE - did not meet residence or presence test" job.audit_trail swap addto
@@ -8492,7 +8488,7 @@ installment_sale.interest_received result.total_installment_interest f+ /result.
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has exchange to process; Exchange entity exists</condition_comment>
-<condition_dsl />
+<condition_dsl>like_kind_exchange.gain &gt; 0</condition_dsl>
 <condition_postfix>
 like_kind_exchange isnull not
 </condition_postfix>
@@ -8503,7 +8499,7 @@ like_kind_exchange isnull not
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>set result.recognized_gain = total_gain * recognition_ratio</action_dsl>
+<action_dsl>add "Processing Like-Kind Exchanges (Form 8824)" to job.audit_trail</action_dsl>
 <action_postfix>
 like_kind_exchange.cash_received like_kind_exchange.other_property_fmv f+ like_kind_exchange.mortgage_relieved f+ like_kind_exchange.mortgage_assumed f- like_kind_exchange.cash_paid f- /like_kind_exchange.boot_received xdef
 like_kind_exchange.boot_received 0 fmax /like_kind_exchange.boot_received xdef
@@ -8550,7 +8546,7 @@ like_kind_exchange.deferred_gain result.total_like_kind_deferred f+ /result.tota
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Subject to penalty; Early distribution with no exception</condition_comment>
-<condition_dsl />
+<condition_dsl>early_distribution.amount &gt; 0</condition_dsl>
 <condition_postfix>
 early_distribution.age_at_distribution early_withdrawal_age_limit &lt;
 early_distribution.exception_code "" streq
@@ -8564,7 +8560,7 @@ and
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>set result.early_withdrawal_penalty = distribution.amount * 0.10</action_dsl>
+<action_dsl>add "Processing Early IRA Distributions (Form 5329)" to job.audit_trail</action_dsl>
 <action_postfix>
 true /early_distribution.subject_to_penalty xdef
 early_distribution.taxable_amount early_withdrawal_penalty_rate f* /early_distribution.penalty_amount xdef
@@ -8613,22 +8609,22 @@ false /early_distribution.subject_to_penalty xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Subject to kiddie tax; Child under age limit with unearned income over threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>dependent.unearned_income &gt; constants.kiddie_tax_unearned_threshold</condition_dsl>
 <condition_postfix>
 child_unearned_income.child_age kiddie_tax_age_limit &lt;
 child_unearned_income.is_student child_unearned_income.child_age kiddie_tax_student_age &lt; and or
 child_unearned_income.unearned_income_amount kiddie_tax_threshold &gt;
 and
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>set result.kiddie_tax = unearned_income * parent_marginal_rate</action_dsl>
+<action_dsl>add "Processing Kiddie Tax (Form 8615)" to job.audit_trail</action_dsl>
 <action_postfix>
 true /child_unearned_income.subject_to_kiddie_tax xdef
 child_unearned_income.unearned_income_amount kiddie_tax_threshold f- /child_unearned_income.net_unearned_income xdef
@@ -8679,7 +8675,7 @@ false /child_unearned_income.subject_to_kiddie_tax xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Qualifies for credit; Age 65+ or permanently disabled</condition_comment>
-<condition_dsl />
+<condition_dsl>result.has_elderly_disabled_taxpayer is equal to true</condition_dsl>
 <condition_postfix>
 elderly_disabled.age_65_or_older elderly_disabled.permanently_disabled or
 </condition_postfix>
@@ -8811,7 +8807,7 @@ casualty_loss.disaster_designation "" streq not
 <action_details>
 <action_number>1</action_number>
 <action_comment>set result.disaster_loss_deduction = (loss - $500 floor) - (10% of AGI)</action_comment>
-<action_dsl />
+<action_dsl>add "Processing Casualty Losses (Form 4684)" to job.audit_trail</action_dsl>
 <action_postfix>
 true /result.is_disaster_loss xdef
 casualty_loss.fmv_before casualty_loss.fmv_after f- /casualty_loss.decrease_in_fmv xdef
@@ -8879,7 +8875,7 @@ and and
 <action_details>
 <action_number>1</action_number>
 <action_comment>set result.clean_vehicle_credit = credit_amount (up to $7,500)</action_comment>
-<action_dsl />
+<action_dsl>add "Processing Clean Vehicle Credit (Form 8936)" to job.audit_trail</action_dsl>
 <action_postfix>
 true /clean_vehicle.qualifies xdef
 clean_vehicle.critical_minerals_pct 0.4 &gt;= { 3750 } { 0 } ifelse /clean_vehicle.critical_minerals_credit xdef
@@ -8944,7 +8940,7 @@ adoption.qualified_expenses 0 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>set result.adoption_credit = qualified_expenses (up to limit)</action_comment>
-<action_dsl />
+<action_dsl>add "Processing Adoption Credit (Form 8839)" to job.audit_trail</action_dsl>
 <action_postfix>
 adoption_credit_max /adoption.max_credit xdef
 adoption.qualified_expenses adoption.employer_assistance f- adoption.prior_year_expenses f- adoption.max_credit fmin /adoption.credit_before_limit xdef
@@ -9062,7 +9058,7 @@ nol_carryover.amount_available 0 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>set result.nol_deduction = carryforward_amount (80% of taxable income limit)</action_comment>
-<action_dsl />
+<action_dsl>add "Processing NOL Carryover (Pub. 536)" to job.audit_trail</action_dsl>
 <action_postfix>
 result.taxable_income result.nol_deduction f+ nol_limitation_rate f* /nol_carryover.deduction_limit xdef
 nol_carryover.amount_available nol_carryover.deduction_limit fmin /nol_carryover.amount_used xdef
@@ -9251,7 +9247,7 @@ partnership_audit.rental_adjustment f+ partnership_audit.other_adjustment f+ 0 !
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate partnership audit additional tax</action_comment>
-<action_dsl />
+<action_dsl>set result.partnership_audit_tax = result.total_partnership_audit_adjustment * constants.partnership_audit_rate</action_dsl>
 <action_postfix>
 partnership_audit.ordinary_income_adjustment partnership_audit.capital_gain_adjustment f+
 partnership_audit.dividend_adjustment f+ partnership_audit.interest_adjustment f+
@@ -9501,7 +9497,7 @@ state_tax_result.residency_status "part_year_resident" streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Allocate income and deductions for part-year resident; Prorate income and deductions based on resident_ratio</action_comment>
-<action_dsl />
+<action_dsl>set state_tax_result.state_tax_liability = the maximum of (state_tax_result.state_tax_before_credits - state_tax_result.state_credits) and 0.0</action_dsl>
 <action_postfix>
 result.agi state_tax_result.resident_ratio f* /state_tax_result.resident_income xdef
 "    Resident income (prorated): $" state_tax_result.resident_income cvs strconcat job.audit_trail swap addto
@@ -9697,7 +9693,7 @@ state_period.allocated_withholding income.tax_withheld state_period.allocation_p
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>set job.state_tax_results = job.state_tax_results; add "Calculating state-source income from state_periods" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
 {} /job.state_tax_results xdef
 "Calculating state-source income from state_periods" job.audit_trail swap addto
@@ -12621,7 +12617,7 @@ if
 <initial_actions>
 <initial_action>
 <action_comment>Log territory tax calculation start</action_comment>
-<initial_action_dsl />
+<initial_action_dsl>add "US Territory Tax Calculation for " + job.territory to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 { "US Territory Tax Calculation for " job.territory strconcat job.audit_trail swap addto }
@@ -12652,12 +12648,12 @@ job.territory PR streq
 <condition_postfix>
 job.territory VI streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -12666,12 +12662,12 @@ job.territory VI streq
 <condition_postfix>
 job.territory GU streq
 </condition_postfix>
+<condition_column column_number="6" column_value="N" />
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -12680,40 +12676,40 @@ job.territory GU streq
 <condition_postfix>
 job.territory AS streq
 </condition_postfix>
+<condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="Y" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
-<condition_column column_number="1" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>Northern Mariana Islands territory; job.territory equals "MP" or "CNMI"</condition_comment>
-<condition_dsl />
+<condition_dsl>job.territory is equal to "AS"</condition_dsl>
 <condition_postfix>
 job.territory MP streq job.territory CNMI streq or
 </condition_postfix>
+<condition_column column_number="5" column_value="Y" />
+<condition_column column_number="6" column_value="N" />
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="Y" />
-<condition_column column_number="6" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
 <condition_comment>No territory or not applicable; No territory tax calculation needed</condition_comment>
-<condition_dsl />
+<condition_dsl>job.territory is equal to "MP"</condition_dsl>
 <condition_postfix>
 job.territory isnull job.territory "" streq or
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="Y" />
+<condition_column column_number="1" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
@@ -12825,19 +12821,19 @@ MP_Tax
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Any business credit component is non-zero -- otherwise log "not applicable" and skip the limitation math</condition_comment>
-<condition_dsl />
+<condition_dsl>result.general_business_credit_total &gt; 0</condition_dsl>
 <condition_postfix>
 result.work_opportunity_credit result.research_credit f+ result.low_income_housing_credit f+ result.disabled_access_credit f+ result.small_employer_pension_credit f+ result.small_employer_health_credit f+ result.employer_credit_paid_family_leave f+ 0 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Aggregate component credits, compute the §38(c)(1) limitation, and apportion between current-year used and carryforward per IRC §39</action_comment>
-<action_dsl />
+<action_dsl>set result.general_business_credit_used = the minimum of result.general_business_credit_total and result.gbc_available_limit</action_dsl>
 <action_postfix>
 result.work_opportunity_credit result.research_credit f+ result.low_income_housing_credit f+ result.disabled_access_credit f+ result.small_employer_pension_credit f+ result.small_employer_health_credit f+ result.employer_credit_paid_family_leave f+ /result.general_business_credit_total xdef
 result.total_tax_before_credits constants.gbc_threshold f- 0 fmax /result.gbc_excess_tax xdef
@@ -12896,7 +12892,7 @@ always
 <action_details>
 <action_number>1</action_number>
 <action_comment>Process kiddie tax for each dependent; Calculate_Kiddie_Tax_For_Dependent for each dependent</action_comment>
-<action_dsl />
+<action_dsl>perform Calculate_Kiddie_Tax_For_Dependent</action_dsl>
 <action_postfix>
 { /Calculate_Kiddie_Tax_For_Dependent executetable } job.dependents forall
 </action_postfix>
@@ -12921,7 +12917,7 @@ always
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Dependent is under 19 with unearned income over threshold; dependent.age lt 19 and dependent.unearned_income gt kiddie_tax_threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>dependent.age &lt; 18 or (dependent.age &lt; 24 and dependent.is_student is equal to true)</condition_dsl>
 <condition_postfix>
 dependent.age 19 &lt;
 dependent.unearned_income kiddie_tax_threshold &gt;
@@ -12932,7 +12928,7 @@ and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Dependent is 19-23 full-time student with unearned income over threshold; dependent.age between 19 and 23 and is_student and unearned_income gt threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>dependent.unearned_income &gt; constants.kiddie_tax_unearned_threshold</condition_dsl>
 <condition_postfix>
 dependent.age 19 &gt;=
 dependent.age 24 &lt;
@@ -12962,13 +12958,13 @@ otherwise
 <action_postfix>
 true /dependent.subject_to_kiddie_tax xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate net unearned income subject to parent's tax rate; Net unearned income = unearned_income - kiddie_tax_threshold</action_comment>
-<action_dsl />
+<action_dsl>set dependent.kiddie_taxable_income = the maximum of (dependent.unearned_income - constants.kiddie_tax_unearned_threshold) and 0.0</action_dsl>
 <action_postfix>
 dependent.unearned_income kiddie_tax_threshold f- 0 fmax /net_unearned_income local
 "  Dependent: " dependent.name strconcat job.audit_trail swap addto
@@ -12977,13 +12973,13 @@ dependent.unearned_income kiddie_tax_threshold f- 0 fmax /net_unearned_income lo
 "    Kiddie tax threshold: $" kiddie_tax_threshold cvs strconcat job.audit_trail swap addto
 "    Net unearned income: $" net_unearned_income cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Determine parent's marginal tax rate based on filing status; Calculate parent's marginal rate for MFJ filing status</action_comment>
-<action_dsl />
+<action_dsl>set dependent.kiddie_tax = dependent.kiddie_taxable_income * constants.kiddie_tax_parent_rate</action_dsl>
 <action_postfix>
 0.10 /parent_marginal_rate local
 result.agi bracket_1_mfj &lt;={
@@ -13017,7 +13013,7 @@ net_unearned_income parent_marginal_rate f* /dependent.kiddie_tax_amount xdef
 <action_details>
 <action_number>4</action_number>
 <action_comment>Add kiddie tax to total tax before credits; Add kiddie tax to total tax</action_comment>
-<action_dsl />
+<action_dsl>add dependent.kiddie_tax to result.total_kiddie_tax</action_dsl>
 <action_postfix>
 result.total_tax_before_credits dependent.kiddie_tax_amount f+ /result.total_tax_before_credits xdef
 "    Total tax before credits increased to: $" result.total_tax_before_credits cvs strconcat job.audit_trail swap addto
@@ -13065,19 +13061,19 @@ false /dependent.subject_to_kiddie_tax xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Taxpayer has at least one household employee</condition_comment>
-<condition_dsl />
+<condition_dsl>length of job.household_employees &gt; 0</condition_dsl>
 <condition_postfix>
 job.household_employees length 0 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Dispatch to per-employee processing and roll up the totals</action_comment>
-<action_dsl />
+<action_dsl>perform Process_Schedule_H_Per_Employee</action_dsl>
 <action_postfix>
 /Process_Schedule_H_Per_Employee performtable
 result.schedule_h_social_security_tax result.schedule_h_medicare_tax f+ result.schedule_h_futa_tax f+ /result.schedule_h_total_tax xdef
@@ -13126,10 +13122,10 @@ result.schedule_h_social_security_tax result.schedule_h_medicare_tax f+ result.s
 <condition_postfix>
 household_employee.cash_wages constants.household_ss_threshold f&gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -13148,7 +13144,7 @@ household_employee.cash_wages constants.household_futa_threshold f&gt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>FICA applies: add Social Security (6.2%) and Medicare (1.45%) employer-share tax</action_comment>
-<action_dsl>add household_employee.cash_wages * constants.social_security_rate to result.schedule_h_social_security_tax; add household_employee.cash_wages * constants.medicare_rate to result.schedule_h_medicare_tax</action_dsl>
+<action_dsl>add household_employee.wages * constants.fica_rate to result.schedule_h_tax</action_dsl>
 <action_postfix>
 result.schedule_h_social_security_tax household_employee.cash_wages constants.social_security_rate f* f+ /result.schedule_h_social_security_tax xdef
 result.schedule_h_medicare_tax household_employee.cash_wages constants.medicare_rate f* f+ /result.schedule_h_medicare_tax xdef
@@ -13159,12 +13155,12 @@ result.schedule_h_medicare_tax household_employee.cash_wages constants.medicare_
 <action_details>
 <action_number>2</action_number>
 <action_comment>FUTA applies: effective 0.6% rate (6% statutory * 10% after full state credit) on the first $7,000 per employee. Conservative cap simplification: use min(wages, futa_wage_base) inline via constants comparison.</action_comment>
-<action_dsl />
+<action_dsl>add household_employee.wages * constants.futa_rate to result.schedule_h_tax</action_dsl>
 <action_postfix>
 household_employee.cash_wages constants.futa_wage_base fmin constants.futa_rate f* 0.10 f* result.schedule_h_futa_tax f+ /result.schedule_h_futa_tax xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
 <action_column column_number="3" column_value="X" />
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -13173,9 +13169,9 @@ household_employee.cash_wages constants.futa_wage_base fmin constants.futa_rate 
 <action_postfix>
 "  Employee: " household_employee.name strconcat " - Cash wages: $" strconcat household_employee.cash_wages cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
 <action_column column_number="3" column_value="X" />
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -13225,7 +13221,7 @@ taxpayer.military_rank "enlisted" streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Enlisted - exclude all combat zone pay; Entire combat zone pay excluded for enlisted</action_comment>
-<action_dsl />
+<action_dsl>set result.combat_zone_exclusion = taxpayer.combat_zone_pay</action_dsl>
 <action_postfix>
 "  " taxpayer.name strconcat " - Enlisted combat zone service" strconcat job.audit_trail swap addto
 taxpayer.combat_zone_pay /taxpayer.combat_zone_exclusion xdef
@@ -13242,7 +13238,7 @@ result.total_combat_zone_exclusion taxpayer.combat_zone_exclusion f+ /result.tot
 <action_details>
 <action_number>2</action_number>
 <action_comment>Officer - limited exclusion; Officers limited to max enlisted pay + imminent danger pay</action_comment>
-<action_dsl />
+<action_dsl>set result.combat_zone_exclusion = the minimum of taxpayer.combat_zone_pay and constants.officer_combat_zone_cap</action_dsl>
 <action_postfix>
 "  " taxpayer.name strconcat " - Officer combat zone service (limited exclusion)" strconcat job.audit_trail swap addto
 
@@ -13322,7 +13318,6 @@ taxpayer.pcs_move true eq
 and
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -13332,14 +13327,13 @@ and
 taxpayer.moving_distance_miles 50 &gt;=
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Deduct qualifying military moving expenses; Military PCS moves are fully deductible</action_comment>
-<action_dsl />
+<action_dsl>set result.moving_expense_deduction = taxpayer.moving_expense</action_dsl>
 <action_postfix>
 "  " taxpayer.name strconcat " - Qualified military PCS move" strconcat job.audit_trail swap addto
 
@@ -13359,7 +13353,7 @@ result.military_moving_expense_deduction taxpayer.moving_expense_deduction f+
 <action_details>
 <action_number>2</action_number>
 <action_comment>Not qualified or not military; No deduction</action_comment>
-<action_dsl />
+<action_dsl>set result.moving_expense_deduction = 0</action_dsl>
 <action_postfix>
 0.0 /taxpayer.moving_expense_deduction xdef
 
@@ -13418,7 +13412,7 @@ and
 <action_details>
 <action_number>1</action_number>
 <action_comment>Apply both exclusions (no double benefit); Combat zone exclusion + spouse FEIE</action_comment>
-<action_dsl />
+<action_dsl>add "Military combat zone exclusion + foreign earned income exclusion both apply" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Scenario: Military member in combat zone + spouse working abroad" job.audit_trail swap addto
 "  " job.audit_trail swap addto
@@ -13497,7 +13491,7 @@ job.state_tax_results countof 1 &gt;
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>No other state income; No multi-state taxation</condition_comment>
-<condition_dsl />
+<condition_dsl>total_other_state_taxes_paid &gt; 0</condition_dsl>
 <condition_postfix>
 otherwise
 </condition_postfix>
@@ -13509,7 +13503,7 @@ otherwise
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate credit for other state taxes; Sum other state income and taxes, calculate credit as lesser of taxes paid or resident state tax on that income</action_comment>
-<action_dsl />
+<action_dsl>set result.other_state_tax_credit = the minimum of total_other_state_taxes_paid and result.state_tax_liability</action_dsl>
 <action_postfix>
 "  Calculating credit for multi-state taxation" job.audit_trail swap addto
 job.state_tax_results forEach

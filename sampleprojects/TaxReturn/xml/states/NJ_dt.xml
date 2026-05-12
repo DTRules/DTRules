@@ -29,7 +29,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>set result.nj_tax = 0; set result.nj_exemption_total = 0; set result.nj_taxable_income = 0; set result.nj_agi = result.agi; set result.nj_exemption_total = length of job.taxpayers * nj_personal_exemption + length of job.dependents * nj_dependent_exemption; set result.nj_taxable_income = the maximum of (result.nj_agi - result.nj_exemption_total) and 0; add "NEW JERSEY FORM NJ-1040 - State Income Tax Calculation" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
 "NEW JERSEY FORM NJ-1040 - State Income Tax Calculation" job.audit_trail swap addto
 0 /result.nj_tax xdef

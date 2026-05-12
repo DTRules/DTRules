@@ -13,7 +13,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.nv_state_tax = 0; add "  Nevada (no state income tax)" to job.audit_trail</initial_action_dsl>
+<initial_action_dsl>set result.nv_state_tax = 0; add "Nevada (no state income tax)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 "NEVADA - State Income Tax Calculation" job.audit_trail swap addto
@@ -28,7 +28,7 @@ result.agi /result.nv_agi xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
-<condition_dsl>job.filing_status is equal to "married_filing_jointly"</condition_dsl>
+<condition_dsl>true</condition_dsl>
 <condition_postfix>
 job.filing_status married_filing_jointly streq
 </condition_postfix>
@@ -54,16 +54,16 @@ job.filing_status single streq
 <condition_postfix>
 job.filing_status head_of_household streq
 </condition_postfix>
+<condition_column column_number="3" column_value="Y" />
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate NV tax MFJ; Calculate NV tax with MFJ standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_dsl>set result.nv_state_tax = 0</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.nv_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 nv_standard_deduction_mfj /result.nv_standard_deduction xdef
@@ -96,7 +96,7 @@ result.nv_bracket_1_tax result.nv_bracket_2_tax f+ result.nv_bracket_3_tax f+ /r
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate NV tax Single; Calculate NV tax with Single standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_dsl>set result.nv_state_tax = 0</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.nv_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 nv_standard_deduction_single /result.nv_standard_deduction xdef
@@ -129,7 +129,7 @@ result.nv_bracket_1_tax result.nv_bracket_2_tax f+ result.nv_bracket_3_tax f+ /r
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate NV tax HOH; Calculate NV tax with HOH standard deduction and progressive brackets</action_comment>
-<action_dsl />
+<action_dsl>set result.nv_state_tax = 0</action_dsl>
 <action_postfix>
 "  Starting Federal AGI: $" result.nv_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
 nv_standard_deduction_hoh /result.nv_standard_deduction xdef
