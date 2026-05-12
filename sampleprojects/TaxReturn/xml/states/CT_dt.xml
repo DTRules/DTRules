@@ -1,59 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 40701: CT_Military_Retirement_Exclusion -->
-<decision_table>
-<table_name>CT_Military_Retirement_Exclusion</table_name>
-<xls_file>CT.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Connecticut military retirement income exclusion. Provides 100% exclusion for military retirement pay, SBP payments, and National Guard/Reserve pay. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per CT Gen. Stat. § 12-701 (2025).</COMMENTS>
-<TABLE_NUMBER>40701</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
-
-<!-- TABLE 40700: CT_Tax -->
+<!-- TABLE 50476: CT_Tax -->
 <decision_table>
 <table_name>CT_Tax</table_name>
 <xls_file>CT.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Connecticut state income tax calculation. Implements progressive tax structure with 7 brackets per CT Department of Revenue Services (2025).</COMMENTS>
-<TABLE_NUMBER>40700</TABLE_NUMBER>
+<COMMENTS>Connecticut state income tax (2025). Simplified top-marginal-rate implementation per Conn. Gen. Stat. § 12-700: tax = max(AGI - filing-status std ded, 0) x 6.99%. Standard deductions: $0 Single/MFS, $24,000 MFJ/QSS, $19,000 HOH. Real brackets are a follow-up. Writes result.computed_state_tax and result.computed_state_taxable_income.</COMMENTS>
+<TABLE_NUMBER>50476</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
+<initial_action>
+<action_comment>Reset and log</action_comment>
+<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Connecticut Tax Calculation (top marginal 6.99%)" to job.audit_trail</initial_action_dsl>
+<initial_action_postfix></initial_action_postfix>
+<action_postfix>
+0.0 /result.computed_state_tax xdef
+0.0 /result.computed_state_taxable_income xdef
+"  Connecticut Tax Calculation (top marginal 6.99%)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Filing status is Married Filing Jointly</condition_comment>
-<condition_dsl>Filing status is Married Filing Jointly</condition_dsl>
+<condition_number>1</condition_number>
+<condition_comment>Filing status is Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
+<condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
 <condition_postfix>
-Filing Status is MFJ
+job.filing_status "MFJ" streq job.filing_status "QSS" streq or
 </condition_postfix>
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Filing status is Head of Household</condition_comment>
+<condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
+<condition_postfix>
+job.filing_status "HOH" streq
+</condition_postfix>
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
-<action_number>2</action_number>
-<action_comment>Calculate CT tax for Married Filing Jointly using progressive brackets</action_comment>
-<action_dsl>Calculate CT tax for Married Filing Jointly using progressive brackets</action_dsl>
+<action_number>1</action_number>
+<action_comment>MFJ/QSS: $24,000 std ded, 6.99%</action_comment>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 24000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0699</action_dsl>
 <action_postfix>
-
+result.agi 24000.0 f- 0.0 fmax /result.computed_state_taxable_income xdef
+result.computed_state_taxable_income 0.0699 f* /result.computed_state_tax xdef
+"  CT MFJ taxable income (AGI - $24,000): $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"  CT state tax (6.99%): $" result.computed_state_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>HOH: $19,000 std ded, 6.99%</action_comment>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 19000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0699</action_dsl>
+<action_postfix>
+result.agi 19000.0 f- 0.0 fmax /result.computed_state_taxable_income xdef
+result.computed_state_taxable_income 0.0699 f* /result.computed_state_tax xdef
+"  CT HOH taxable income (AGI - $19,000): $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"  CT state tax (6.99%): $" result.computed_state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Default (Single/MFS): $0 std ded, 6.99%</action_comment>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 0.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0699</action_dsl>
+<action_postfix>
+result.agi 0.0 f- 0.0 fmax /result.computed_state_taxable_income xdef
+result.computed_state_taxable_income 0.0699 f* /result.computed_state_tax xdef
+"  CT Single/MFS taxable income (AGI - $0): $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"  CT state tax (6.99%): $" result.computed_state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>CT MFJ: 6.99% x max(AGI - $24,000, 0) per Conn. Gen. Stat. § 12-700</policy_description>
+<policy_statement_postfix>"Connecticut MFJ top-marginal-rate approximation per Conn. Gen. Stat. § 12-700"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>CT HOH: 6.99% x max(AGI - $19,000, 0) per Conn. Gen. Stat. § 12-700</policy_description>
+<policy_statement_postfix>"Connecticut HOH top-marginal-rate approximation per Conn. Gen. Stat. § 12-700"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>CT Single/MFS: 6.99% x max(AGI - $0, 0) per Conn. Gen. Stat. § 12-700</policy_description>
+<policy_statement_postfix>"Connecticut Single/MFS top-marginal-rate approximation per Conn. Gen. Stat. § 12-700"</policy_statement_postfix>
+</policy_statement>
 </policy_statements>
 </decision_table>
 </decision_tables>

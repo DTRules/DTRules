@@ -1,7 +1,6 @@
 // Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package el
-
 import "github.com/antlr4-go/antlr/v4"
 
 // BaseELListener is a complete listener for a parse tree produced by ELParser.
@@ -140,6 +139,12 @@ func (s *BaseELListener) EnterStatement(ctx *StatementContext) {}
 
 // ExitStatement is called when production statement is exited.
 func (s *BaseELListener) ExitStatement(ctx *StatementContext) {}
+
+// EnterCreateEntityAs is called when production createEntityAs is entered.
+func (s *BaseELListener) EnterCreateEntityAs(ctx *CreateEntityAsContext) {}
+
+// ExitCreateEntityAs is called when production createEntityAs is exited.
+func (s *BaseELListener) ExitCreateEntityAs(ctx *CreateEntityAsContext) {}
 
 // EnterUsingBlockEntity is called when production usingBlockEntity is entered.
 func (s *BaseELListener) EnterUsingBlockEntity(ctx *UsingBlockEntityContext) {}
@@ -854,6 +859,12 @@ func (s *BaseELListener) EnterPerformCatchError(ctx *PerformCatchErrorContext) {
 
 // ExitPerformCatchError is called when production performCatchError is exited.
 func (s *BaseELListener) ExitPerformCatchError(ctx *PerformCatchErrorContext) {}
+
+// EnterPerformDynamicTable is called when production performDynamicTable is entered.
+func (s *BaseELListener) EnterPerformDynamicTable(ctx *PerformDynamicTableContext) {}
+
+// ExitPerformDynamicTable is called when production performDynamicTable is exited.
+func (s *BaseELListener) ExitPerformDynamicTable(ctx *PerformDynamicTableContext) {}
 
 // EnterPerformDT is called when production performDT is entered.
 func (s *BaseELListener) EnterPerformDT(ctx *PerformDTContext) {}

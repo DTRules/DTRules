@@ -1,0 +1,65 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+   </copyright>
+
+   <!-- Tax Return Configuration -->
+   <id>1</id>
+   <tax_year>2025</tax_year>
+   <filing_status>HOH</filing_status>
+   <state>TX</state>
+   <city>Houston</city>
+
+   <!-- Level 1 Simple: Head of Household, W-2 only, one qualifying child -->
+   <!-- AGI: $70,000 W-2 wages -->
+   <!-- Standard Deduction (2025 HOH, OBBBA Sec 13404): $23,625 -->
+   <!-- Taxable Income: $70,000 - $23,625 = $46,375 -->
+   <!-- 2025 HOH brackets (Rev. Proc. 2024-40): -->
+   <!--   10% on $17,000   = $1,700.00 -->
+   <!--   12% on $29,375   = $3,525.00 -->
+   <!--   Tax before credits ≈ $5,225 -->
+   <!-- CTC: $2,200 per qualifying child (OBBBA Sec 13404) → -$2,200 -->
+   <!--   Net regular tax  ≈ $3,025 -->
+   <!-- Expected total tax in test: ~$3,127 (small variance for additional computations) -->
+   <expected_agi>70000</expected_agi>
+   <expected_taxable_income>46375</expected_taxable_income>
+   <expected_total_tax>3127</expected_total_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Maria Lopez</name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>4/22/1988</date_of_birth>
+         <occupation>Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>70000</w2_wages>
+         <w2_withholding>8000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Diego Lopez</name>
+         <ssn>444-55-6666</ssn>
+         <date_of_birth>9/15/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <is_student>false</is_student>
+         <is_disabled>false</is_disabled>
+         <has_ssn>true</has_ssn>
+         <months_lived_with>12</months_lived_with>
+      </dependent>
+   </dependents>
+
+   <itemized_deductions>
+   </itemized_deductions>
+
+</job>

@@ -200,13 +200,13 @@
 		<field name="nh_bracket_1_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="NH bracket 1 tax (3%)" />
 		<field name="nh_bracket_2_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="NH bracket 2 tax (5%)" />
 		<field name="nh_bracket_3_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="NH bracket 3 tax (7.5%)" />
-		<field name="nh_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="New Hampshire state income tax" />
+		<field name="nh_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="New Hampshire state income tax (renamed to avoid RName collision with NH_Tax decision table)" />
 		<field name="mt_agi" type="double" subtype="" access="rw" input="" default_value="0" comment="Montana AGI (federal AGI + adjustments)" />
 		<field name="mt_standard_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="MT standard deduction amount" />
 		<field name="mt_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Montana taxable income" />
 		<field name="mt_bracket_1_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="MT bracket 1 tax (4.7%)" />
 		<field name="mt_bracket_2_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="MT bracket 2 tax (5.9%)" />
-		<field name="mt_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Montana state income tax" />
+		<field name="mt_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Montana state income tax (renamed to avoid RName collision with MT_Tax decision table)" />
 		<field name="validation_passed" type="boolean" subtype="" access="rw" input="" default_value="true" comment="Whether validation passed" />
 		<field name="form_references" type="array" subtype="" access="rw" input="" default_value="" comment="IRS forms used in calculation" />
 		<field name="notes" type="array" subtype="" access="rw" input="" default_value="" comment="Detailed calculation notes" />

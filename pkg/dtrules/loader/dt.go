@@ -175,21 +175,39 @@ type DTInitialActions struct {
 	Actions []DTInitialAction `xml:"initial_action" json:"initial_action"`
 }
 
-// DTInitialAction represents a single initial action
+// DTInitialAction represents a single initial action. Two DSL/postfix tag
+// shapes are accepted to cover both the original Excel-import convention
+// (action_dsl/action_postfix on <initial_action>) and the EL-aware
+// authoring SDK form (initial_action_dsl/initial_action_postfix).
 type DTInitialAction struct {
-	Number      int    `xml:"action_number" json:"action_number"`
-	Comment     string `xml:"action_comment" json:"action_comment,omitempty"`
-	DSL         string `xml:"initial_action_dsl" json:"initial_action_dsl,omitempty"`
-	Description string `xml:"action_description" json:"action_description"`
-	Postfix     string `xml:"action_postfix" json:"action_postfix"`
+	Number             int    `xml:"action_number" json:"action_number"`
+	Comment            string `xml:"action_comment" json:"action_comment,omitempty"`
+	DSL                string `xml:"initial_action_dsl" json:"initial_action_dsl,omitempty"`
+	ActionDSL          string `xml:"action_dsl" json:"action_dsl,omitempty"`
+	Description        string `xml:"action_description" json:"action_description"`
+	Postfix            string `xml:"action_postfix" json:"action_postfix"`
+	InitialActPostfix  string `xml:"initial_action_postfix" json:"initial_action_postfix,omitempty"`
 }
 
-// GetDSL returns the DSL expression, preferring DSL over Description for backward compatibility.
+// GetDSL returns the first non-empty DSL field, preferring initial_action_dsl
+// over action_dsl over action_description for backward compatibility.
 func (a *DTInitialAction) GetDSL() string {
 	if a.DSL != "" {
 		return a.DSL
 	}
+	if a.ActionDSL != "" {
+		return a.ActionDSL
+	}
 	return a.Description
+}
+
+// GetPostfix returns the postfix expression from whichever XML tag form is
+// populated.
+func (a *DTInitialAction) GetPostfix() string {
+	if a.Postfix != "" {
+		return a.Postfix
+	}
+	return a.InitialActPostfix
 }
 
 // DTConditions represents the conditions section
@@ -321,8 +339,11 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	// Use GetTableName() which checks both attribute and element forms
 	tableName := strings.TrimSpace(table.GetTableName())
 
-	// Check for legacy postfix (hand-coded without EL descriptions)
-	if l.detectLegacyPostfix(table) {
+	// Check for legacy postfix (hand-coded without EL descriptions). The
+	// flag is propagated to the built RDecisionTable below; the runtime
+	// refuses to execute tables with this flag set.
+	legacy := l.detectLegacyPostfix(table)
+	if legacy {
 		l.warnLegacyPostfix(tableName, table.XlsFile)
 	}
 	name := dtrules.GetRName(tableName)
@@ -395,7 +416,7 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	for i, action := range table.InitialActions.Actions {
 		dsl := action.GetDSL()
 		initialActions[i] = dsl
-		postfix := strings.TrimSpace(action.Postfix)
+		postfix := strings.TrimSpace(action.GetPostfix())
 
 		// Auto-compile EL DSL to postfix if postfix is empty or only comments
 		dslTrimmed := strings.TrimSpace(dsl)
@@ -584,6 +605,18 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	dt, err := builder.Build(state)
 	if err != nil {
 		return fmt.Errorf("failed to build decision table %s: %w", name.StringValue(), err)
+	}
+
+	// Mark the built table if it's legacy-postfix-only so Execute /
+	// ExecuteTable will refuse to run it. The runtime treats this as a
+	// hard block; the operator must author EL DSL for at least one row to
+	// unblock.
+	if legacy {
+		reason := "loaded from " + table.XlsFile
+		if first := decisiontable.FirstHandCodedElement(collectPostfixEntries(table)); first != "" {
+			reason = reason + "; " + first + " has hand-coded postfix without EL DSL"
+		}
+		dt.SetHandCodedPostfix(true, reason)
 	}
 
 	// Register the decision table with the factory
@@ -943,55 +976,49 @@ func (l *DTLoader) GetErrors() []error {
 	return l.errors
 }
 
-// detectLegacyPostfix checks if a table has hand-coded postfix without EL DSL.
-// A table is considered legacy if it has postfix but no EL DSL in
-// its conditions, actions, or contexts.
-func (l *DTLoader) detectLegacyPostfix(table *DTTable) bool {
-	hasPostfix := false
-	hasDSL := false
-
-	// Check conditions
+// collectPostfixEntries builds the analysis-package PostfixEntry slice for
+// every element of a DTTable: contexts, initial actions, conditions, and
+// actions. Used to feed the canonical detector in
+// decisiontable.HasAnyHandCodedPostfix / CheckHandCodedPostfix.
+func collectPostfixEntries(table *DTTable) []decisiontable.PostfixEntry {
+	var entries []decisiontable.PostfixEntry
+	for i, ctx := range table.Contexts.Contexts {
+		entries = append(entries, decisiontable.PostfixEntry{
+			Kind: "context", Number: i + 1,
+			DSL:     ctx.GetDSL(),
+			Postfix: ctx.Postfix,
+		})
+	}
+	for i, action := range table.InitialActions.Actions {
+		entries = append(entries, decisiontable.PostfixEntry{
+			Kind: "initial_action", Number: i + 1,
+			DSL:     action.GetDSL(),
+			Postfix: action.GetPostfix(),
+		})
+	}
 	for _, cond := range table.Conditions.Conditions {
-		if strings.TrimSpace(cond.Postfix) != "" {
-			hasPostfix = true
-		}
-		if strings.TrimSpace(cond.GetDSL()) != "" {
-			hasDSL = true
-		}
+		entries = append(entries, decisiontable.PostfixEntry{
+			Kind: "condition", Number: cond.Number,
+			DSL:     cond.GetDSL(),
+			Postfix: cond.Postfix,
+		})
 	}
-
-	// Check actions
-	for _, action := range table.Actions.Actions {
-		if strings.TrimSpace(action.Postfix) != "" {
-			hasPostfix = true
-		}
-		if strings.TrimSpace(action.GetDSL()) != "" {
-			hasDSL = true
-		}
+	for _, act := range table.Actions.Actions {
+		entries = append(entries, decisiontable.PostfixEntry{
+			Kind: "action", Number: act.Number,
+			DSL:     act.GetDSL(),
+			Postfix: act.Postfix,
+		})
 	}
+	return entries
+}
 
-	// Check initial actions
-	for _, action := range table.InitialActions.Actions {
-		if strings.TrimSpace(action.Postfix) != "" {
-			hasPostfix = true
-		}
-		if strings.TrimSpace(action.GetDSL()) != "" {
-			hasDSL = true
-		}
-	}
-
-	// Check contexts
-	for _, ctx := range table.Contexts.Contexts {
-		if strings.TrimSpace(ctx.Postfix) != "" {
-			hasPostfix = true
-		}
-		if strings.TrimSpace(ctx.GetDSL()) != "" {
-			hasDSL = true
-		}
-	}
-
-	// Legacy: has postfix but no DSL
-	return hasPostfix && !hasDSL
+// detectLegacyPostfix reports whether a table has hand-coded postfix without
+// any EL DSL — i.e. it would refuse to execute under the runtime's
+// hand-coded-postfix gate. Delegates to decisiontable.HasAnyHandCodedPostfix
+// so the loader and analyzer agree on the rule.
+func (l *DTLoader) detectLegacyPostfix(table *DTTable) bool {
+	return decisiontable.HasAnyHandCodedPostfix(collectPostfixEntries(table))
 }
 
 // warnLegacyPostfix logs a warning about a table with hand-coded postfix.

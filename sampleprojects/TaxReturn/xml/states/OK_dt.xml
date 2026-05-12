@@ -11,22 +11,17 @@
 <TABLE_NUMBER>43601</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
+<initial_actions></initial_actions>
+<conditions></conditions>
 <actions>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
 <action_dsl>set result.ok_military_retirement_exemption = 0</action_dsl>
-<action_postfix>
-
-</action_postfix>
+<action_postfix></action_postfix>
 </action_details>
 </actions>
-<policy_statements>
-</policy_statements>
+<policy_statements></policy_statements>
 </decision_table>
 
 <!-- TABLE 43600: OK_Tax -->
@@ -39,15 +34,14 @@
 <TABLE_NUMBER>43600</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-</initial_actions>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married filing jointly</condition_comment>
 <condition_dsl>job.filing_status is equal to "MFJ"</condition_dsl>
 <condition_postfix>
-filing_status == &quot;MFJ&quot;
+filing_status == "MFJ"
 </condition_postfix>
 </condition_details>
 <condition_details>
@@ -55,7 +49,7 @@ filing_status == &quot;MFJ&quot;
 <condition_comment>Head of household</condition_comment>
 <condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
 <condition_postfix>
-filing_status == &quot;HOH&quot;
+filing_status == "HOH"
 </condition_postfix>
 </condition_details>
 <condition_details>
@@ -63,7 +57,7 @@ filing_status == &quot;HOH&quot;
 <condition_comment>Married filing separately</condition_comment>
 <condition_dsl>job.filing_status is equal to "MFS"</condition_dsl>
 <condition_postfix>
-filing_status == &quot;MFS&quot;
+filing_status == "MFS"
 </condition_postfix>
 </condition_details>
 </conditions>
@@ -72,28 +66,21 @@ filing_status == &quot;MFS&quot;
 <action_number>2</action_number>
 <action_comment>Calculate Oklahoma tax - Married filing jointly (progressive brackets with personal exemption credit)</action_comment>
 <action_dsl />
-<action_postfix>
-
-</action_postfix>
+<action_postfix></action_postfix>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate Oklahoma tax - Head of household (progressive brackets with personal exemption credit)</action_comment>
 <action_dsl />
-<action_postfix>
-
-</action_postfix>
+<action_postfix></action_postfix>
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate Oklahoma tax - Married filing separately (progressive brackets with personal exemption credit)</action_comment>
 <action_dsl />
-<action_postfix>
-
-</action_postfix>
+<action_postfix></action_postfix>
 </action_details>
 </actions>
-<policy_statements>
-</policy_statements>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

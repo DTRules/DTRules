@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
+<!-- TABLE 45900: TN_Tax -->
 <decision_table>
 <table_name>TN_Tax</table_name>
 <xls_file>State.xls</xls_file>
@@ -9,10 +10,11 @@
 <COMMENTS>Calculates Tennessee state income tax per hypothetical Form TN-1040. Tennessee uses progressive tax brackets: 2% on first $50,000, 4% on $50,000-$100,000, 6% above $100,000. Starting with federal AGI, applies standard deduction based on filing status ($6,000 Single, $12,000 MFJ), then calculates tax using progressive brackets.</COMMENTS>
 <TABLE_NUMBER>45900</TABLE_NUMBER>
 </attribute_fields>
-<contexts />
+<contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl>set result.tn_tax = 0; add "  TN has no state income tax: $0" to job.audit_trail</action_dsl>
+<initial_action_dsl>set result.tn_tax = 0; add "  Tennessee (no state income tax)" to job.audit_trail</initial_action_dsl>
+<initial_action_postfix></initial_action_postfix>
 <action_postfix>
 "TENNESSEE FORM TN-1040 - State Income Tax Calculation" job.audit_trail swap addto
 result.agi /result.tn_agi xdef

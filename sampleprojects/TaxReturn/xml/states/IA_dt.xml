@@ -1,43 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 41301: IA_Military_Retirement_Exclusion -->
-<decision_table>
-<table_name>IA_Military_Retirement_Exclusion</table_name>
-<xls_file>IA.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Iowa military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per Iowa Code § 422.7 (2025). NEEDS AUTHORSHIP: skeleton table — conditions, actions, and exclusion logic not yet implemented.</COMMENTS>
-<TABLE_NUMBER>41301</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
-</decision_table>
-
-<!-- TABLE 41300: IA_Tax -->
+<!-- TABLE 51600: IA_Tax -->
 <decision_table>
 <table_name>IA_Tax</table_name>
 <xls_file>IA.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Iowa state income tax calculation. Implements progressive tax structure per IA tax code (2025). NEEDS AUTHORSHIP: skeleton table — brackets, rates, standard deductions, and filing-status logic not yet researched or implemented.</COMMENTS>
-<TABLE_NUMBER>41300</TABLE_NUMBER>
+<COMMENTS>Iowa state income tax (2025). Simplified top-marginal-rate implementation per Iowa Code § 422.5: tax = max(AGI - $0 std ded, 0) x 3.8%. Real brackets are a follow-up. Writes result.computed_state_tax and result.computed_state_taxable_income.</COMMENTS>
+<TABLE_NUMBER>51600</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
+<initial_action>
+<action_comment>Reset and log</action_comment>
+<initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Iowa Tax Calculation (top marginal 3.8%)" to job.audit_trail</initial_action_dsl>
+<initial_action_postfix></initial_action_postfix>
+<action_postfix>
+0.0 /result.computed_state_tax xdef
+0.0 /result.computed_state_taxable_income xdef
+"  Iowa Tax Calculation (top marginal 3.8%)" job.audit_trail swap addto
+</action_postfix>
+</initial_action>
 </initial_actions>
 <conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always</condition_comment>
+<condition_dsl>true</condition_dsl>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
 </conditions>
 <actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>IA tax = max(AGI - $0, 0) x 3.8%</action_comment>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 0.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.038</action_dsl>
+<action_postfix>
+result.agi 0.0 f- 0.0 fmax /result.computed_state_taxable_income xdef
+result.computed_state_taxable_income 0.038 f* /result.computed_state_tax xdef
+"  IA taxable income (AGI - $0): $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"  IA state tax (top marginal 3.8%): $" result.computed_state_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>IA: 3.8% x max(AGI - $0, 0) per Iowa Code § 422.5</policy_description>
+<policy_statement_postfix>"Iowa top-marginal-rate approximation per Iowa Code § 422.5"</policy_statement_postfix>
+</policy_statement>
 </policy_statements>
 </decision_table>
 </decision_tables>

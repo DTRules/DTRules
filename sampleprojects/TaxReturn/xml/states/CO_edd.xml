@@ -9,8 +9,8 @@
 		<field name="co_pension_subtraction" type="double" subtype="" access="r" input="" default_value="0.0" comment="CO pension/annuity subtraction (computed based on age)"></field>
 		<field name="co_pension_subtraction_55_to_64" type="double" subtype="" access="r" input="" default_value="20000.0" comment="CO pension/annuity subtraction for taxpayers age 55-64 (2025). Source: Colorado DOR"></field>
 		<field name="co_pension_subtraction_65_plus" type="double" subtype="" access="r" input="" default_value="24000.0" comment="CO pension/annuity subtraction for taxpayers age 65+ (2025). Source: Colorado DOR"></field>
-		<field name="co_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="CO state tax liability"></field>
+		<field name="co_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CO state tax liability"></field>
 		<field name="co_tax_rate" type="double" subtype="" access="r" input="" default_value="0.044" comment="CO flat tax rate 4.40% (2025). Source: Colorado DOR"></field>
-		<field name="co_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="CO taxable income after all adjustments"></field>
+		<field name="co_taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CO taxable income after all adjustments"></field>
 	</entity>
 </entity_data_dictionary>

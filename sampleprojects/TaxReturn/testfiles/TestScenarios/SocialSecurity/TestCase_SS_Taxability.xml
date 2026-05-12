@@ -1,0 +1,50 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com — Social Security Taxability scenario
+      Licensed under the Apache License, Version 2.0 (the "License").
+   </copyright>
+
+   <!-- Tests the up-to-85% Social Security taxability calculation per
+        IRC §86 and Publication 915. Single retiree with modest pension
+        income plus Social Security benefits; combined provisional income
+        crosses the upper threshold ($34,000 Single), so up to 85% of
+        SS becomes taxable.
+
+          W-2 / pension income           = $30,000
+          Social Security benefits       = $24,000
+          1/2 SS benefits for provisional = $12,000
+          Provisional income             = $30,000 + $12,000 = $42,000
+          Single thresholds: $25k (50%), $34k (85%)
+          Provisional > $34,000 → up to 85% taxable
+          Taxable SS ≈ min(85% × $24,000, 85% × ($42k - $34k) + 50% ×
+                            min(SS, $9k)) ≈ ~$15,300 (per worksheet)
+        Test asserts non-zero AGI / taxable_social_security; precise
+        worksheet result depends on the rules' implementation. -->
+
+   <id>1</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>FL</state>
+   <city>Miami</city>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Elena Rodriguez</name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>2/14/1955</date_of_birth>
+         <occupation>Retired Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <is_senior>true</is_senior>
+         <w2_wages>30000</w2_wages>
+         <w2_withholding>3500</w2_withholding>
+         <social_security_income>24000</social_security_income>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents />
+   <itemized_deductions />
+</job>

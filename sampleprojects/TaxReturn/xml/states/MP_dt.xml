@@ -11,33 +11,30 @@
 <TABLE_NUMBER>50400</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-</initial_actions>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Tax amount &gt; $20,000 and &lt;= $100,000; Qualifies for tier 2 rebate (70% on excess)</condition_comment>
-<condition_dsl>result.mp_calculated_tax > 20000 and result.mp_calculated_tax &lt;= 100000</condition_dsl>
+<condition_dsl>result.mp_calculated_tax &gt; 20000 and result.mp_calculated_tax &lt;= 100000</condition_dsl>
 <condition_postfix>
 Tax amount &gt; $20,000 and &lt;= $100,000; Qualifies for tier 2 rebate (70% on excess)
 </condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Tax amount &gt; $100,000; Qualifies for tier 3 rebate (50% on excess over $100k)</condition_comment>
-<condition_dsl>result.mp_calculated_tax > 100000</condition_dsl>
+<condition_dsl>result.mp_calculated_tax &gt; 100000</condition_dsl>
 <condition_postfix>
 Tax amount &gt; $100,000; Qualifies for tier 3 rebate (50% on excess over $100k)
 </condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
+<actions></actions>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

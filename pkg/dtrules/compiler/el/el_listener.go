@@ -1,7 +1,6 @@
 // Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package el
-
 import "github.com/antlr4-go/antlr/v4"
 
 // ELListener is a complete listener for a parse tree produced by ELParser.
@@ -67,6 +66,9 @@ type ELListener interface {
 
 	// EnterStatement is called when entering the statement production.
 	EnterStatement(c *StatementContext)
+
+	// EnterCreateEntityAs is called when entering the createEntityAs production.
+	EnterCreateEntityAs(c *CreateEntityAsContext)
 
 	// EnterUsingBlockEntity is called when entering the usingBlockEntity production.
 	EnterUsingBlockEntity(c *UsingBlockEntityContext)
@@ -424,6 +426,9 @@ type ELListener interface {
 
 	// EnterPerformCatchError is called when entering the performCatchError production.
 	EnterPerformCatchError(c *PerformCatchErrorContext)
+
+	// EnterPerformDynamicTable is called when entering the performDynamicTable production.
+	EnterPerformDynamicTable(c *PerformDynamicTableContext)
 
 	// EnterPerformDT is called when entering the performDT production.
 	EnterPerformDT(c *PerformDTContext)
@@ -2021,6 +2026,9 @@ type ELListener interface {
 	// ExitStatement is called when exiting the statement production.
 	ExitStatement(c *StatementContext)
 
+	// ExitCreateEntityAs is called when exiting the createEntityAs production.
+	ExitCreateEntityAs(c *CreateEntityAsContext)
+
 	// ExitUsingBlockEntity is called when exiting the usingBlockEntity production.
 	ExitUsingBlockEntity(c *UsingBlockEntityContext)
 
@@ -2377,6 +2385,9 @@ type ELListener interface {
 
 	// ExitPerformCatchError is called when exiting the performCatchError production.
 	ExitPerformCatchError(c *PerformCatchErrorContext)
+
+	// ExitPerformDynamicTable is called when exiting the performDynamicTable production.
+	ExitPerformDynamicTable(c *PerformDynamicTableContext)
 
 	// ExitPerformDT is called when exiting the performDT production.
 	ExitPerformDT(c *PerformDTContext)

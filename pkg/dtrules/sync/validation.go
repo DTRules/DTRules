@@ -319,7 +319,7 @@ func validateTable(table *dtTableXML) TableValidationResult {
 		if hasContent(action.GetDSL()) {
 			result.HasELActions = true
 		}
-		if hasContent(action.Postfix) {
+		if hasContent(action.GetPostfix()) {
 			result.HasPostfix = true
 		}
 	}
@@ -383,21 +383,51 @@ func (c *dtContextDetailXML) GetDSL() string {
 	return c.Description
 }
 
+// dtInitialActionsXML decodes the <initial_actions> wrapper. Real DTRules
+// XML uses <initial_action> as the per-entry tag (not <initial_action_details>),
+// and a per-entry DSL/postfix that can be tagged either as <action_dsl>/
+// <action_postfix> (the original Excel-import convention used across the
+// state tables) or <initial_action_dsl>/<initial_action_postfix> (the form
+// the EL-aware authoring SDK emits). Accept both shapes so the legacy-
+// postfix detector doesn't false-positive on either convention.
 type dtInitialActionsXML struct {
-	Actions []dtInitialActionXML `xml:"initial_action_details"`
+	Actions []dtInitialActionXML `xml:"initial_action"`
 }
 
 type dtInitialActionXML struct {
-	Description string `xml:"initial_action_description"`
-	DSL         string `xml:"initial_action_dsl"`
-	Postfix     string `xml:"initial_action_postfix"`
+	Description    string `xml:"initial_action_description"`
+	DSL            string `xml:"initial_action_dsl"`
+	Postfix        string `xml:"initial_action_postfix"`
+	ActionDSL      string `xml:"action_dsl"`
+	ActionPostfix  string `xml:"action_postfix"`
+	ActionComment  string `xml:"action_comment"`
 }
 
+// GetDSL returns the DSL expression with precedence:
+//   - <initial_action_dsl> (modern form),
+//   - <action_dsl> (legacy alternate form),
+//   - <initial_action_description> (legacy description-as-DSL form).
+//
+// <action_comment> is NOT a DSL fallback — it's a human-facing comment and
+// shouldn't make a table look "EL-authored" for purposes of the legacy-
+// postfix detector.
 func (a *dtInitialActionXML) GetDSL() string {
 	if a.DSL != "" {
 		return a.DSL
 	}
+	if a.ActionDSL != "" {
+		return a.ActionDSL
+	}
 	return a.Description
+}
+
+// GetPostfix returns the entry's postfix from whichever tag form is
+// populated.
+func (a *dtInitialActionXML) GetPostfix() string {
+	if a.Postfix != "" {
+		return a.Postfix
+	}
+	return a.ActionPostfix
 }
 
 type dtConditionsXML struct {

@@ -6,7 +6,8 @@
 		<field name="pa_military_retirement_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="PA military retirement exclusion (computed). 100% excluded from PA compensation."></field>
 		<field name="pa_pension_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="PA pension exclusion (computed). 100% excluded from PA income."></field>
 		<field name="pa_social_security_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="PA Social Security exclusion (computed). 100% excluded from PA income."></field>
-		<field name="pa_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="PA income tax (pa_total_income × 3.07%). Source: PA-40 Line 13"></field>
+		<field name="pa_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="PA income tax (pa_total_income × 3.07%). Source: PA-40 Line 13"></field>
+		<field name="pa_state_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="PA state income tax (alias for pa_tax)"></field>
 		<field name="pa_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0307" comment="PA flat tax rate 3.07% (2025). Applies to all 8 income classes. Source: 72 P.S. § 7302"></field>
 		<field name="pa_taxable_compensation" type="double" subtype="" access="r" input="" default_value="0.0" comment="PA Class 1: Compensation (W-2 wages, salaries). Excludes military retirement. Source: 72 P.S. § 7303(a)(1)"></field>
 		<field name="pa_taxable_dividends" type="double" subtype="" access="r" input="" default_value="0.0" comment="PA Class 3: Dividends (1099-DIV). Source: 72 P.S. § 7303(a)(3)"></field>
@@ -16,6 +17,6 @@
 		<field name="pa_taxable_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="PA Class 2: Interest income (1099-INT). Source: 72 P.S. § 7303(a)(2)"></field>
 		<field name="pa_taxable_net_profits" type="double" subtype="" access="r" input="" default_value="0.0" comment="PA Class 4: Net profits from business, profession, or farm (Schedule C/F). Source: 72 P.S. § 7303(a)(4)"></field>
 		<field name="pa_taxable_rents_royalties" type="double" subtype="" access="r" input="" default_value="0.0" comment="PA Class 6: Rents, royalties, patents, copyrights (Schedule E). Source: 72 P.S. § 7303(a)(6)"></field>
-		<field name="pa_total_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Total PA taxable income (sum of 8 classes). Source: PA-40 Line 7"></field>
+		<field name="pa_total_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Total PA taxable income (sum of 8 classes). Source: PA-40 Line 7"></field>
 	</entity>
 </entity_data_dictionary>

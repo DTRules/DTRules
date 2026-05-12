@@ -12,8 +12,9 @@
 		<field name="mi_scra_compliant" type="boolean" subtype="" access="r" input="" default_value="true" comment="MI honors SCRA (Servicemembers Civil Relief Act). Active duty pay exempt if different state of residence"></field>
 		<field name="mi_special_exemption" type="double" subtype="" access="r" input="" default_value="3400.0" comment="MI special exemption (2025)"></field>
 		<field name="mi_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0425" comment="MI flat tax rate 4.25% (2025)"></field>
-		<field name="mi_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="MI taxable income (AGI minus exemptions)"></field>
-		<field name="mi_total_exemption" type="double" subtype="" access="r" input="" default_value="0.0" comment="MI total personal exemptions based on filing status and dependents"></field>
+		<field name="mi_taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="MI taxable income (AGI minus exemptions)"></field>
+		<field name="mi_total_exemption" type="double" subtype="" access="rw" input="" default_value="0.0" comment="MI total personal exemptions based on filing status and dependents"></field>
+		<field name="mi_state_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="MI state income tax (alias for state_tax_liability)"></field>
 		<field name="mi_total_military_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="Total MI military income exclusion (computed). Sum of military retirement and SBP exclusions"></field>
 		<field name="state_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="MI state income tax liability"></field>
 	</entity>

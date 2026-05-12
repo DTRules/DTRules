@@ -70,6 +70,12 @@ type RDecisionTable struct {
 
 	compiled bool // Whether the table has been compiled
 
+	// handCodedPostfix is set by the loader when the table is fully legacy
+	// (any element has postfix, none have EL DSL). Execute/ExecuteTable
+	// refuse to run when this is true — see SetHandCodedPostfix / Execute.
+	handCodedPostfix       bool
+	handCodedPostfixReason string
+
 	// Context setup
 	contexts        []string       // Context entity names
 	contextsPostfix []string       // Compiled postfix for context setup
@@ -174,6 +180,32 @@ func (dt *RDecisionTable) SetTableType(t TableType) {
 // IsCompiled returns whether the table has been compiled
 func (dt *RDecisionTable) IsCompiled() bool {
 	return dt.compiled
+}
+
+// SetHandCodedPostfix marks the table as having hand-coded postfix without
+// matching EL DSL. When set, Execute and ExecuteTable refuse to run the
+// table — the postfix has not been generated from EL and therefore isn't
+// the trusted form. The optional reason string is included in the error
+// returned to the caller; if blank, a default message is used.
+//
+// The loader sets this after compilation by feeding every table element
+// (contexts, initial actions, conditions, actions) through
+// decisiontable.HasOnlyHandCodedPostfix.
+func (dt *RDecisionTable) SetHandCodedPostfix(legacy bool, reason string) {
+	dt.handCodedPostfix = legacy
+	dt.handCodedPostfixReason = reason
+}
+
+// HasHandCodedPostfix reports whether the table is blocked from execution
+// because its postfix was authored by hand without EL DSL.
+func (dt *RDecisionTable) HasHandCodedPostfix() bool {
+	return dt.handCodedPostfix
+}
+
+// HandCodedPostfixReason returns the explanatory text recorded when
+// SetHandCodedPostfix was called.
+func (dt *RDecisionTable) HandCodedPostfixReason() string {
+	return dt.handCodedPostfixReason
 }
 
 // GetMaxCol returns the number of columns
@@ -318,6 +350,9 @@ func (dt *RDecisionTable) Execute(state dtrules.State) error {
 		return dtrules.NewRulesError("Execute", "RDecisionTable",
 			"Decision table "+dt.name.StringValue()+" has not been compiled")
 	}
+	if err := dt.refuseIfHandCodedPostfix("Execute"); err != nil {
+		return err
+	}
 
 	// If there's a context, execute it (the context will call ExecuteTable internally)
 	// If no context, execute the table directly
@@ -334,6 +369,9 @@ func (dt *RDecisionTable) ExecuteTable(state dtrules.State) error {
 	if !dt.compiled {
 		return dtrules.NewRulesError("ExecuteTable", "RDecisionTable",
 			"Decision table "+dt.name.StringValue()+" has not been compiled")
+	}
+	if err := dt.refuseIfHandCodedPostfix("ExecuteTable"); err != nil {
+		return err
 	}
 
 	// Execute initial actions
@@ -352,6 +390,24 @@ func (dt *RDecisionTable) ExecuteTable(state dtrules.State) error {
 	}
 
 	return nil
+}
+
+// refuseIfHandCodedPostfix returns a "Refused" error when the table was
+// loaded with postfix but no EL DSL anywhere. The loader sets the flag
+// via SetHandCodedPostfix; the runtime refuses to execute such tables
+// because their postfix has not been generated from EL and isn't the
+// trusted form. To unblock: author the missing rows in EL via the
+// authoring API (e.g. `dtrules table patch update-action-dsl ...`) and
+// reload.
+func (dt *RDecisionTable) refuseIfHandCodedPostfix(op string) error {
+	if !dt.handCodedPostfix {
+		return nil
+	}
+	msg := "Decision table " + dt.name.StringValue() + " has hand-coded postfix without EL DSL; author in EL before executing"
+	if dt.handCodedPostfixReason != "" {
+		msg = msg + " (" + dt.handCodedPostfixReason + ")"
+	}
+	return dtrules.NewRulesError(op, "RDecisionTable", msg)
 }
 
 // Build compiles and builds the decision tree based on table type

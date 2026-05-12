@@ -6,8 +6,8 @@
 		<field name="ky_military_retirement_taxable" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY taxable military retirement after exemption (computed)"></field>
 		<field name="ky_pension_exclusion" type="double" subtype="" access="r" input="" default_value="31110" comment="KY pension income exclusion per taxpayer (2025)"></field>
 		<field name="ky_standard_deduction" type="double" subtype="" access="r" input="" default_value="3270" comment="KY standard deduction all filing statuses (2025)"></field>
-		<field name="ky_state_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY state income tax liability"></field>
+		<field name="ky_state_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="KY state income tax liability"></field>
 		<field name="ky_tax_rate" type="double" subtype="" access="r" input="" default_value="0.04" comment="KY flat tax rate 4% (2025)"></field>
-		<field name="ky_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY taxable income after deductions"></field>
+		<field name="ky_taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="KY taxable income after deductions"></field>
 	</entity>
 </entity_data_dictionary>

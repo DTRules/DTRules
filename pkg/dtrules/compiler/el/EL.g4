@@ -72,6 +72,11 @@ statement
     | xmlvaluestatements separator
     | errorstatement separator
     | warnstatement separator
+    | createstatement separator
+    ;
+
+createstatement
+    : CREATE typedEntity AS undefinedIdent                  # createEntityAs
     ;
 
 usingblock
@@ -271,6 +276,7 @@ forctl
 
 performstatement
     : PERFORM typedDecisionTable AND ONERROR ADD eexpr TO CONTEXT AND PERFORM typedDecisionTable  # performCatchError
+    | PERFORM TABLE NAMED LPAREN strexpr RPAREN             # performDynamicTable
     | typedDecisionTable                                    # performDT
     | PERFORM typedDecisionTable                            # performDTExplicit
     | PERFORM NAME                                          # performName
@@ -1011,6 +1017,8 @@ ENTITY              : 'entity' ;
 ENTITIES            : 'entities' ;
 ARRAY               : 'array' ;
 TABLE               : 'table' ;
+NAMED               : 'named' ;
+CREATE              : 'create' ;
 BIGINT              : 'bigint' | 'biginteger' ;
 FIXED               : 'fixed' ;
 BYTES               : 'bytes' ;

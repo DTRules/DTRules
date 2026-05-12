@@ -46,8 +46,9 @@
 		<field name="ca_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="10726.0" comment="CA standard deduction head of household $10,726 (2025). Source: CA FTB"></field>
 		<field name="ca_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="10726.0" comment="CA standard deduction married filing jointly $10,726 (2025). Source: CA FTB"></field>
 		<field name="ca_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="5363.0" comment="CA standard deduction single/married filing separately $5,363 (2025). Source: CA FTB"></field>
-		<field name="ca_state_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA state income tax liability before Mental Health Services Tax (computed)"></field>
-		<field name="ca_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA taxable income after deductions (computed)"></field>
-		<field name="ca_total_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA total tax liability including Mental Health Services Tax (computed)"></field>
+		<field name="ca_state_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CA state income tax liability before Mental Health Services Tax (computed)"></field>
+		<field name="ca_taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CA taxable income after deductions (computed)"></field>
+		<field name="ca_total_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CA total tax liability including Mental Health Services Tax (computed)"></field>
+		<field name="ca_mhst" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CA Mental Health Services Tax (1% surtax on taxable income > $1M)"></field>
 	</entity>
 </entity_data_dictionary>

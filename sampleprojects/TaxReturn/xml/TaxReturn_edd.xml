@@ -894,7 +894,7 @@
 		<field name="mt_bracket_1_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="MT bracket 1 tax (4.7%)"></field>
 		<field name="mt_bracket_2_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="MT bracket 2 tax (5.9%)"></field>
 		<field name="mt_standard_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="MT standard deduction amount"></field>
-		<field name="mt_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Montana state income tax"></field>
+		<field name="mt_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Montana state income tax (renamed from mt_tax to avoid RName collision with MT_Tax decision table)"></field>
 		<field name="mt_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Montana taxable income"></field>
 		<field name="net_1231_gain_loss" type="double" subtype="" access="rw" input="" default_value="0" comment="Net Section 1231 gain/loss"></field>
 		<field name="net_farm_profit" type="double" subtype="" access="rw" input="" default_value="0" comment="Net farm profit/loss (Schedule F Line 34)"></field>
@@ -905,8 +905,10 @@
 		<field name="nh_bracket_2_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="NH bracket 2 tax (5%)"></field>
 		<field name="nh_bracket_3_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="NH bracket 3 tax (7.5%)"></field>
 		<field name="nh_standard_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="NH standard deduction amount"></field>
-		<field name="nh_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="New Hampshire state income tax"></field>
+		<field name="nh_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="New Hampshire state income tax (renamed from nh_tax to avoid RName collision with NH_Tax decision table)"></field>
 		<field name="nh_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="New Hampshire taxable income"></field>
+		<field name="computed_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Shared state-tax output written by XX_Tax tables without per-state result fields. Dispatch_State_Tax copies this to state_tax_result.state_tax_liability."></field>
+		<field name="computed_state_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Shared state-taxable-income output written by XX_Tax tables without per-state result fields."></field>
 		<field name="sc_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="South Carolina state income tax"></field>
 		<field name="sc_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="South Carolina taxable income"></field>
 		<field name="niit_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Net Investment Income Tax (Form 8960)"></field>
@@ -933,6 +935,10 @@
 		<field name="research_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Research Credit (Form 6765)"></field>
 		<field name="safe_harbor_met" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Safe harbor exception met"></field>
 		<field name="salt_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="SALT deduction amount (for AMT add-back)"></field>
+		<field name="total_salt_collected" type="double" subtype="" access="rw" input="" default_value="0" comment="Sum of property taxes + state/local tax deductions before SALT cap (intermediate result)"></field>
+		<field name="effective_salt_cap" type="double" subtype="" access="rw" input="" default_value="0" comment="SALT cap after MAGI-based phaseout (intermediate result)"></field>
+		<field name="gbc_excess_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="GBC: amount of tax_before_credits over gbc_threshold (Form 3800 Part II, intermediate)"></field>
+		<field name="gbc_available_limit" type="double" subtype="" access="rw" input="" default_value="0" comment="GBC: §38(c)(1) limitation = tax - 75% * excess (Form 3800 Part II, intermediate)"></field>
 		<field name="savers_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Saver Credit (Form 8880)"></field>
 		<field name="savers_credit_rate" type="double" subtype="" access="rw" input="" default_value="0" comment="Saver Credit rate (0.50, 0.20, 0.10, or 0)"></field>
 		<field name="schedule_h_futa_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="FUTA tax on household employees (Schedule H)"></field>

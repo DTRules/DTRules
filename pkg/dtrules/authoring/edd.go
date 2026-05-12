@@ -153,7 +153,14 @@ func (e *EDD) DeleteEntity(name string) error {
 func (e *EDD) deleteEntityChecked(name string, dtFiles []dtFileEntry) error {
 	for _, entry := range dtFiles {
 		for _, t := range entry.tables.Tables {
-			for _, ctx := range strings.Split(string(t.Contexts), ",") {
+			// Match either a legacy <context_entity> directive or a DSL
+			// statement that names the entity.
+			for _, ent := range t.Contexts.Entities {
+				if strings.TrimSpace(ent) == name {
+					return fmt.Errorf("cannot delete entity %q: referenced as context in table %q", name, t.TableName)
+				}
+			}
+			for _, ctx := range t.Contexts.DSLLines() {
 				if strings.TrimSpace(ctx) == name {
 					return fmt.Errorf("cannot delete entity %q: referenced as context in table %q", name, t.TableName)
 				}

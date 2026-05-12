@@ -1,0 +1,40 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com — Additional Medicare Tax scenario
+      Licensed under the Apache License, Version 2.0 (the "License").
+   </copyright>
+
+   <!-- Tests the 0.9% Additional Medicare Tax per IRC §3101(b)(2) / Form 8959.
+        Single filer with W-2 wages above the $200,000 threshold.
+        Additional Medicare applies to wages over the threshold.
+
+          W-2 wages                     = $275,000
+          Single threshold              = $200,000
+          Excess wages                  = $75,000
+          Additional Medicare Tax       = 0.9% × $75,000 = $675 -->
+
+   <id>1</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>TX</state>
+   <city>Austin</city>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Robert Williams</name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>11/3/1978</date_of_birth>
+         <occupation>Surgeon</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>275000</w2_wages>
+         <w2_withholding>55000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents />
+   <itemized_deductions />
+</job>

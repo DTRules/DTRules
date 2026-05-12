@@ -11,8 +11,7 @@
 <TABLE_NUMBER>43100</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-</initial_actions>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
@@ -21,15 +20,13 @@
 <condition_postfix>
 Head of household
 </condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
+<actions></actions>
+<policy_statements></policy_statements>
 </decision_table>
 
 <!-- TABLE 43101: NM_Military_Retirement_Exclusion -->
@@ -42,13 +39,9 @@ Head of household
 <TABLE_NUMBER>43101</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

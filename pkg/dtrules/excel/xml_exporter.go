@@ -201,17 +201,32 @@ func writeDTXMLContexts(f *excelize.File, sheet string, dt *DecisionTableXML, ro
 	styler.ApplyHeader(f, sheet, cellName(3, row), cellName(3, row), cellName(3+numCols, row), "DSL: CONTEXTS")
 	row++
 
-	if dt.Contexts != "" {
-		contexts := strings.Split(string(dt.Contexts), ",")
-		for i, ctx := range contexts {
-			ctx = strings.TrimSpace(ctx)
-			f.SetCellValue(sheet, cellName(1, row), i+1)
+	if !dt.Contexts.IsEmpty() {
+		// Emit one Excel row per structured context detail, plus one row per
+		// legacy <context_entity> directive so the user can see / edit both
+		// forms.
+		i := 0
+		for _, ent := range dt.Contexts.Entities {
+			i++
+			f.SetCellValue(sheet, cellName(1, row), i)
 			f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styler.NumberStyle)
-			styler.ApplyBody(f, sheet, cellName(2, row), "")
+			styler.ApplyBody(f, sheet, cellName(2, row), "context_entity")
 			startCell := cellName(3, row)
 			endCell := cellName(3+numCols, row)
 			f.MergeCell(sheet, startCell, endCell)
-			styler.ApplyDSL(f, sheet, startCell, ctx)
+			styler.ApplyDSL(f, sheet, startCell, ent)
+			f.SetCellStyle(sheet, startCell, endCell, styler.DSLStyle)
+			row++
+		}
+		for _, ctx := range dt.Contexts.Details {
+			i++
+			f.SetCellValue(sheet, cellName(1, row), i)
+			f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), styler.NumberStyle)
+			styler.ApplyBody(f, sheet, cellName(2, row), ctx.Comment)
+			startCell := cellName(3, row)
+			endCell := cellName(3+numCols, row)
+			f.MergeCell(sheet, startCell, endCell)
+			styler.ApplyDSL(f, sheet, startCell, ctx.DSL)
 			f.SetCellStyle(sheet, startCell, endCell, styler.DSLStyle)
 			row++
 		}

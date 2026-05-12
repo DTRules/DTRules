@@ -25,33 +25,12 @@ func TestComprehensiveStateTaxes(t *testing.T) {
 	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
-	// Create rule set once for all tests
+	// Create rule set once for all tests; LoadFromDirectory picks up xml/
+	// AND xml/states/ so state-specific tables (AZ_Tax, SC_Tax, etc.) are
+	// registered before Dispatch_State_Tax tries to perform them.
 	rs := session.NewRuleSet("TaxReturn")
-
-	// Load EDD
-	eddPath := filepath.Join(xmlDir, "TaxReturn_edd.xml")
-	eddFile, err := os.Open(eddPath)
-	if err != nil {
-		t.Fatalf("Failed to open EDD: %v", err)
-	}
-	defer eddFile.Close()
-
-	err = rs.LoadEDD(eddFile)
-	if err != nil {
-		t.Fatalf("Failed to load EDD: %v", err)
-	}
-
-	// Load Decision Tables
-	dtPath := filepath.Join(xmlDir, "TaxReturn_dt.xml")
-	dtFile, err := os.Open(dtPath)
-	if err != nil {
-		t.Fatalf("Failed to open DT: %v", err)
-	}
-	defer dtFile.Close()
-
-	err = rs.LoadDecisionTables(dtFile)
-	if err != nil {
-		t.Fatalf("Failed to load DT: %v", err)
+	if err := rs.LoadFromDirectory(xmlDir); err != nil {
+		t.Fatalf("LoadFromDirectory: %v", err)
 	}
 
 	// Define comprehensive state tax test cases
@@ -193,9 +172,10 @@ func TestComprehensiveStateTaxes(t *testing.T) {
 		{"NV", "Nevada_High_Earner", "NV/TestCase_NV_03_High_Income.xml", 0},
 
 		// New Hampshire (#193) - Progressive tax (3% - 7.5%)
-		{"NH", "NewHampshire_Single_W2", "TestCase_NH_01_Single_W2.xml", 500},
-		{"NH", "NewHampshire_MFJ_Two_Brackets", "TestCase_NH_02_MFJ_Two_Brackets.xml", 1000},
-		{"NH", "NewHampshire_High_Income_All_Brackets", "TestCase_NH_03_High_Income_All_Brackets.xml", 3000},
+		// NH Interest & Dividends tax phased to 0% in 2025 (RSA 77); treat as no-tax state.
+		{"NH", "NewHampshire_Single_W2", "TestCase_NH_01_Single_W2.xml", 0},
+		{"NH", "NewHampshire_MFJ_Two_Brackets", "TestCase_NH_02_MFJ_Two_Brackets.xml", 0},
+		{"NH", "NewHampshire_High_Income_All_Brackets", "TestCase_NH_03_High_Income_All_Brackets.xml", 0},
 
 		// New Jersey (#189) - Progressive tax (1.4% - 10.75%)
 		{"NJ", "NewJersey_Single_W2", "NJ/TestCase_NJ_01_Single_W2.xml", 500},
@@ -380,8 +360,13 @@ func TestComprehensiveStateTaxes(t *testing.T) {
 			agi := getFloatAttr(result, "agi")
 			totalTax := getFloatAttr(result, "total_tax")
 
-			// Get state tax results
-			stateTaxResults, _ := result.Get(dtrules.GetRName("state_tax_results"))
+			// Get state tax results — Dispatch_State_Tax populates job.state_tax_results
+			// (the result entity also has a state_tax_results array but it's not
+			// currently populated by the rule pipeline; #446).
+			stateTaxResults, _ := job.Get(dtrules.GetRName("state_tax_results"))
+			if stateTaxResults == nil {
+				stateTaxResults, _ = result.Get(dtrules.GetRName("state_tax_results"))
+			}
 			var stateTax float64
 			if stateTaxResults != nil {
 				stateArr, _ := stateTaxResults.ArrayValue()

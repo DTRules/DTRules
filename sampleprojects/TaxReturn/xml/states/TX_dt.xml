@@ -11,13 +11,9 @@
 <TABLE_NUMBER>44300</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

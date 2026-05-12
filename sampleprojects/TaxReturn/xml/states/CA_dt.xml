@@ -7,659 +7,141 @@
 <xls_file>CA.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>California Renter's Credit calculation (2025). Non-refundable credit for renters who meet AGI limits. Single/MFS: $60 (AGI limit $50,746). Joint/HOH: $120 (AGI limit $101,492). Must not own property and cannot be claimed as dependent. Source: CA FTB.</COMMENTS>
+<COMMENTS>California Renter's Credit calculation (2025). Non-refundable credit for renters who meet AGI limits. Skeleton — see #446.</COMMENTS>
 <TABLE_NUMBER>4801</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Joint/HOH filer within AGI limit</condition_comment>
-<condition_dsl>(job.filing_status is equal to "MFJ" or job.filing_status is equal to "HOH") and result.agi &lt;= result.ca_renter_credit_agi_limit_joint</condition_dsl>
-<condition_postfix>
-Joint/HOH filer within AGI limit
-</condition_postfix>
-<condition_column column_number="1" column_value="N"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-</condition_details>
-</conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements>
 </decision_table>
 
+<!-- TABLE 4802: CA_Military_Retirement_Exemption -->
 <decision_table>
-<table_name>CA_Tax</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
+<table_name>CA_Military_Retirement_Exemption</table_name>
+<xls_file>CA.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>California state income tax calculation. Implements progressive tax structure with 10 brackets (1% to 13.3%) plus Mental Health Services Tax (1% surtax on income over $1M). Highest state tax rates in the nation. Per California Franchise Tax Board (2025).</COMMENTS>
-<TABLE_NUMBER>4800</TABLE_NUMBER>
+<COMMENTS>California military retirement exemption. Skeleton — see #446. CA exempts up to $20k of military retirement pay subject to AGI limits ($125k Single / $250k MFJ).</COMMENTS>
+<TABLE_NUMBER>4802</TABLE_NUMBER>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-<initial_action>
-<action_dsl>Initialize California tax calculation</action_dsl>
-<action_postfix>
-"California Tax Calculation Started" job.audit_trail swap addto
-0.0 /result.ca_state_tax xdef
-0.0 /result.ca_mental_health_tax xdef
-0.0 /result.ca_total_tax xdef
-</action_postfix>
-</initial_action>
-</initial_actions>
-
-<conditions>
-
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Filing status is Single</condition_comment>
-<condition_dsl>Filing Status is Single</condition_dsl>
-<condition_postfix>
-result.filing_status "single" strcasecmp 0 eq
-</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-</condition_details>
-
-
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Filing status is Married Filing Jointly or Head of Household; Filing Status is MFJ or HOH</condition_comment>
-<condition_dsl />
-<condition_postfix>
-result.filing_status "married_filing_jointly" strcasecmp 0 eq
-result.filing_status "head_of_household" strcasecmp 0 eq or
-</condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-</condition_details>
-</conditions>
-
-<actions>
-
-<action_details>
-<action_number>1</action_number>
-<action_comment>Calculate CA tax for Single filers using progressive brackets (10 brackets: 1% to 13.3%)</action_comment>
-<action_postfix>
-
-result.agi result.ca_military_retirement_exemption sub 0 max
-/ca_agi xdef
-
-
-ca_agi result.ca_standard_deduction_single sub 0 max
-dup /ca_taxable_income xdef
-
-
-0.0 /ca_tax xdef
-
-
-ca_taxable_income result.ca_bracket_1_limit_single min
-result.ca_bracket_1_rate mul
-/ca_tax xdef
-
-
-ca_taxable_income result.ca_bracket_1_limit_single gt
-{
-  ca_taxable_income result.ca_bracket_2_limit_single min result.ca_bracket_1_limit_single sub
-  result.ca_bracket_2_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_2_limit_single gt
-{
-  ca_taxable_income result.ca_bracket_3_limit_single min result.ca_bracket_2_limit_single sub
-  result.ca_bracket_3_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_3_limit_single gt
-{
-  ca_taxable_income result.ca_bracket_4_limit_single min result.ca_bracket_3_limit_single sub
-  result.ca_bracket_4_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_4_limit_single gt
-{
-  ca_taxable_income result.ca_bracket_5_limit_single min result.ca_bracket_4_limit_single sub
-  result.ca_bracket_5_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_5_limit_single gt
-{
-  ca_taxable_income result.ca_bracket_6_limit_single min result.ca_bracket_5_limit_single sub
-  result.ca_bracket_6_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_6_limit_single gt
-{
-  ca_taxable_income result.ca_bracket_7_limit_single min result.ca_bracket_6_limit_single sub
-  result.ca_bracket_7_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_7_limit_single gt
-{
-  ca_taxable_income result.ca_bracket_8_limit_single min result.ca_bracket_7_limit_single sub
-  result.ca_bracket_8_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_8_limit_single gt
-{
-  ca_taxable_income result.ca_bracket_9_limit_single min result.ca_bracket_8_limit_single sub
-  result.ca_bracket_9_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_9_limit_single gt
-{
-  ca_taxable_income result.ca_bracket_9_limit_single sub
-  result.ca_bracket_10_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-0.0 /ca_mh_tax xdef
-ca_taxable_income result.ca_mental_health_tax_threshold gt
-{
-  ca_taxable_income result.ca_mental_health_tax_threshold sub
-  result.ca_mental_health_tax_rate mul
-  /ca_mh_tax xdef
-} if
-
-
-ca_tax /result.ca_state_tax xdef
-ca_mh_tax /result.ca_mental_health_tax xdef
-ca_tax ca_mh_tax add /result.ca_total_tax xdef
-ca_tax ca_mh_tax add /result.state_tax_liability xdef
-
-"California tax calculated (Single): Base tax: $" result.ca_state_tax cvs strconcat
-", Mental Health Tax: $" strconcat result.ca_mental_health_tax cvs strconcat
-", Total: $" strconcat result.ca_total_tax cvs strconcat
-job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value="X" />
-</action_details>
-
-
-<action_details>
-<action_number>2</action_number>
-<action_comment>Calculate CA tax for Married Filing Jointly/HOH using progressive brackets (10 brackets: 1% to 13.3%)</action_comment>
-<action_postfix>
-
-result.agi result.ca_military_retirement_exemption sub 0 max
-/ca_agi xdef
-
-
-ca_agi result.ca_standard_deduction_joint sub 0 max
-dup /ca_taxable_income xdef
-
-
-0.0 /ca_tax xdef
-
-
-ca_taxable_income result.ca_bracket_1_limit_joint min
-result.ca_bracket_1_rate mul
-/ca_tax xdef
-
-
-ca_taxable_income result.ca_bracket_1_limit_joint gt
-{
-  ca_taxable_income result.ca_bracket_2_limit_joint min result.ca_bracket_1_limit_joint sub
-  result.ca_bracket_2_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_2_limit_joint gt
-{
-  ca_taxable_income result.ca_bracket_3_limit_joint min result.ca_bracket_2_limit_joint sub
-  result.ca_bracket_3_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_3_limit_joint gt
-{
-  ca_taxable_income result.ca_bracket_4_limit_joint min result.ca_bracket_3_limit_joint sub
-  result.ca_bracket_4_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_4_limit_joint gt
-{
-  ca_taxable_income result.ca_bracket_5_limit_joint min result.ca_bracket_4_limit_joint sub
-  result.ca_bracket_5_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_5_limit_joint gt
-{
-  ca_taxable_income result.ca_bracket_6_limit_joint min result.ca_bracket_5_limit_joint sub
-  result.ca_bracket_6_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_6_limit_joint gt
-{
-  ca_taxable_income result.ca_bracket_7_limit_joint min result.ca_bracket_6_limit_joint sub
-  result.ca_bracket_7_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_7_limit_joint gt
-{
-  ca_taxable_income result.ca_bracket_8_limit_joint min result.ca_bracket_7_limit_joint sub
-  result.ca_bracket_8_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_8_limit_joint gt
-{
-  ca_taxable_income result.ca_bracket_9_limit_joint min result.ca_bracket_8_limit_joint sub
-  result.ca_bracket_9_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-ca_taxable_income result.ca_bracket_9_limit_joint gt
-{
-  ca_taxable_income result.ca_bracket_9_limit_joint sub
-  result.ca_bracket_10_rate mul
-  ca_tax add /ca_tax xdef
-} if
-
-
-0.0 /ca_mh_tax xdef
-ca_taxable_income result.ca_mental_health_tax_threshold gt
-{
-  ca_taxable_income result.ca_mental_health_tax_threshold sub
-  result.ca_mental_health_tax_rate mul
-  /ca_mh_tax xdef
-} if
-
-
-ca_tax /result.ca_state_tax xdef
-ca_mh_tax /result.ca_mental_health_tax xdef
-ca_tax ca_mh_tax add /result.ca_total_tax xdef
-ca_tax ca_mh_tax add /result.state_tax_liability xdef
-
-"California tax calculated (MFJ/HOH): Base tax: $" result.ca_state_tax cvs strconcat
-", Mental Health Tax: $" strconcat result.ca_mental_health_tax cvs strconcat
-", Total: $" strconcat result.ca_total_tax cvs strconcat
-job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="2" column_value="X" />
-</action_details>
-</actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements>
 </decision_table>
 
+<!-- TABLE 4803: CA_AGI -->
 <decision_table>
 <table_name>CA_AGI</table_name>
-<xls_file>State.xls</xls_file>
+<xls_file>CA.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculates California AGI per Form 540 Schedule CA. California conforms to IRC as of Jan 1, 2025 (SB 711) but has major differences. Starting with federal AGI, applies CA-specific additions (foreign earned income exclusion, combat pay) and subtractions (Social Security, unemployment, state tax refunds, military retirement).</COMMENTS>
-<TABLE_NUMBER>43001</TABLE_NUMBER>
+<COMMENTS>California AGI adjustments. Skeleton — see #446. CA starts with federal AGI then applies CA-specific additions/subtractions (Schedule CA-540).</COMMENTS>
+<TABLE_NUMBER>4803</TABLE_NUMBER>
 </attribute_fields>
-<contexts />
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 4800: CA_Tax -->
+<decision_table>
+<table_name>CA_Tax</table_name>
+<xls_file>CA.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>California state income tax. Progressive 10-bracket structure (1% to 13.3%) per CA Rev. &amp; Tax. Code § 17041, 2025 (CA FTB). Plus 1% Mental Health Services Tax on taxable income above $1M (§ 17043). Standard deduction: $5,363 Single/MFS, $10,726 MFJ/QSS/HOH (2025). Writes result.ca_taxable_income, result.ca_state_tax, result.ca_mhst, result.ca_total_tax.</COMMENTS>
+<TABLE_NUMBER>4800</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize CA AGI calculation</action_dsl>
+<action_comment>Reset CA tax fields and log calculation start</action_comment>
+<initial_action_dsl>set result.ca_state_tax = 0.0; set result.ca_taxable_income = 0.0; set result.ca_mhst = 0.0; set result.ca_total_tax = 0.0; add "  California Tax Calculation (Form 540) — 10-bracket progressive 1.0-13.3% + 1% MHST &gt; $1M" to job.audit_trail</initial_action_dsl>
+<initial_action_postfix></initial_action_postfix>
 <action_postfix>
-"CALIFORNIA FORM 540 SCHEDULE CA - AGI Adjustments" job.audit_trail swap addto
-result.agi /result.ca_agi xdef
-0 local@ ca_additions &gt;
-0 local@ ca_subtractions &gt;
+0.0 /result.ca_state_tax xdef
+0.0 /result.ca_taxable_income xdef
+0.0 /result.ca_mhst xdef
+0.0 /result.ca_total_tax xdef
+"  California Tax Calculation (Form 540) — 10-bracket progressive 1.0-13.3% + 1% MHST &gt; $1M" job.audit_trail swap addto
 </action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Has Social Security income</condition_comment>
-<condition_dsl>Any income item is type social_security</condition_dsl>
+<condition_comment>Filing status is Married Filing Jointly, Qualifying Surviving Spouse, or Head of Household (use joint brackets and deduction)</condition_comment>
+<condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS" or job.filing_status is equal to "HOH"</condition_dsl>
 <condition_postfix>
-false local@ has_ss &gt;
-{ dup type income_type &gt; income_type "social_security" streq if true local@ has_ss &gt; endif } job.incomes forall
-has_ss
+job.filing_status "MFJ" streq job.filing_status "QSS" streq or job.filing_status "HOH" streq or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
-</condition_details>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Has unemployment compensation</condition_comment>
-<condition_dsl>Any income item is type unemployment</condition_dsl>
-<condition_postfix>
-false local@ has_unemp &gt;
-{ dup type income_type &gt; income_type "unemployment" streq if true local@ has_unemp &gt; endif } job.incomes forall
-has_unemp
-</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
-<condition_comment>Has military retirement income</condition_comment>
-<condition_dsl>Any income is pension from military</condition_dsl>
-<condition_postfix>
-false local@ has_military_retirement &gt;
-{ dup type income_type &gt; income_type "pension" streq if
-    dup description desc &gt; desc "military" contains desc "uniformed services" contains or if
-      true local@ has_military_retirement &gt;
-    endif
-  endif } job.incomes forall
-has_military_retirement
-</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>CA AGI with SS, unemployment, and military retirement; Apply all major CA subtractions from federal AGI</action_comment>
-<action_dsl />
+<action_comment>MFJ/QSS/HOH: $10,726 standard deduction; joint bracket limits</action_comment>
+<action_dsl>set result.ca_taxable_income = the maximum of (result.agi - ca_standard_deduction_joint) and 0.0; set result.ca_state_tax = the maximum of (the minimum of result.ca_taxable_income and ca_bracket_1_limit_joint) and 0.0 * ca_bracket_1_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_2_limit_joint) - ca_bracket_1_limit_joint) and 0.0 * ca_bracket_2_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_3_limit_joint) - ca_bracket_2_limit_joint) and 0.0 * ca_bracket_3_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_4_limit_joint) - ca_bracket_3_limit_joint) and 0.0 * ca_bracket_4_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_5_limit_joint) - ca_bracket_4_limit_joint) and 0.0 * ca_bracket_5_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_6_limit_joint) - ca_bracket_5_limit_joint) and 0.0 * ca_bracket_6_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_7_limit_joint) - ca_bracket_6_limit_joint) and 0.0 * ca_bracket_7_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_8_limit_joint) - ca_bracket_7_limit_joint) and 0.0 * ca_bracket_8_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of (result.ca_taxable_income - ca_bracket_8_limit_joint) and 0.0 * ca_bracket_9_rate; set result.ca_mhst = the maximum of (result.ca_taxable_income - ca_mental_health_tax_threshold) and 0.0 * ca_mental_health_tax_rate; set result.ca_state_tax = result.ca_state_tax + result.ca_mhst; set result.ca_total_tax = result.ca_state_tax</action_dsl>
 <action_postfix>
-"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-0 local@ ss_total &gt;
-{ dup type income_type &gt; income_type "social_security" streq if dup gross_amount ss_total f+ local@ ss_total &gt; endif } job.incomes forall
-ss_total 0 f&gt; if
-  "  Subtract Social Security: -$" ss_total cvs strconcat " (CA excludes SS benefits)" strconcat job.audit_trail swap addto
-  result.ca_agi ss_total f- /result.ca_agi xdef
-  ca_subtractions ss_total f+ local@ ca_subtractions &gt;
-endif
-0 local@ unemp_total &gt;
-{ dup type income_type &gt; income_type "unemployment" streq if dup gross_amount unemp_total f+ local@ unemp_total &gt; endif } job.incomes forall
-unemp_total 0 f&gt; if
-  "  Subtract Unemployment: -$" unemp_total cvs strconcat " (CA excludes unemployment)" strconcat job.audit_trail swap addto
-  result.ca_agi unemp_total f- /result.ca_agi xdef
-  ca_subtractions unemp_total f+ local@ ca_subtractions &gt;
-endif
-0 local@ military_retirement &gt;
-{ dup type income_type &gt; income_type "pension" streq if
-    dup description desc &gt; desc "military" contains desc "uniformed services" contains or if
-      dup gross_amount military_retirement f+ local@ military_retirement &gt;
-    endif
-  endif } job.incomes forall
-military_retirement 0 f&gt; if
-  military_retirement result.ca_military_retirement_exemption_amount fmin local@ exclusion_amt &gt;
-  "  Subtract Military Retirement: -$" exclusion_amt cvs strconcat " (CA allows $20k exclusion)" strconcat job.audit_trail swap addto
-  result.ca_agi exclusion_amt f- /result.ca_agi xdef
-  ca_subtractions exclusion_amt f+ local@ ca_subtractions &gt;
-endif
-"  California AGI: $" result.ca_agi cvs strconcat " (Form 540 Schedule CA)" strconcat job.audit_trail swap addto
-"  Total CA Subtractions: $" ca_subtractions cvs strconcat job.audit_trail swap addto
+result.agi ca_standard_deduction_joint f- 0.0 fmax /result.ca_taxable_income xdef
+result.ca_taxable_income ca_bracket_1_limit_joint fmin 0.0 fmax ca_bracket_1_rate f* /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_2_limit_joint fmin ca_bracket_1_limit_joint f- 0.0 fmax ca_bracket_2_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_3_limit_joint fmin ca_bracket_2_limit_joint f- 0.0 fmax ca_bracket_3_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_4_limit_joint fmin ca_bracket_3_limit_joint f- 0.0 fmax ca_bracket_4_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_5_limit_joint fmin ca_bracket_4_limit_joint f- 0.0 fmax ca_bracket_5_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_6_limit_joint fmin ca_bracket_5_limit_joint f- 0.0 fmax ca_bracket_6_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_7_limit_joint fmin ca_bracket_6_limit_joint f- 0.0 fmax ca_bracket_7_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_8_limit_joint fmin ca_bracket_7_limit_joint f- 0.0 fmax ca_bracket_8_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_8_limit_joint f- 0.0 fmax ca_bracket_9_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_mental_health_tax_threshold f- 0.0 fmax ca_mental_health_tax_rate f* /result.ca_mhst xdef
+result.ca_state_tax result.ca_mhst f+ /result.ca_total_tax xdef
+result.ca_total_tax /result.ca_state_tax xdef
+"  CA taxable income (joint brackets, $10,726 std ded): $" result.ca_taxable_income cvs strconcat job.audit_trail swap addto
+"  CA state tax (progressive + MHST): $" result.ca_state_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>CA AGI with SS and unemployment only; Apply SS and unemployment subtractions</action_comment>
-<action_dsl />
+<action_comment>Default (Single/MFS): $5,363 standard deduction; single bracket limits</action_comment>
+<action_dsl>set result.ca_taxable_income = the maximum of (result.agi - ca_standard_deduction_single) and 0.0; set result.ca_state_tax = the maximum of (the minimum of result.ca_taxable_income and ca_bracket_1_limit_single) and 0.0 * ca_bracket_1_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_2_limit_single) - ca_bracket_1_limit_single) and 0.0 * ca_bracket_2_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_3_limit_single) - ca_bracket_2_limit_single) and 0.0 * ca_bracket_3_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_4_limit_single) - ca_bracket_3_limit_single) and 0.0 * ca_bracket_4_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_5_limit_single) - ca_bracket_4_limit_single) and 0.0 * ca_bracket_5_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_6_limit_single) - ca_bracket_5_limit_single) and 0.0 * ca_bracket_6_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_7_limit_single) - ca_bracket_6_limit_single) and 0.0 * ca_bracket_7_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_8_limit_single) - ca_bracket_7_limit_single) and 0.0 * ca_bracket_8_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of (result.ca_taxable_income - ca_bracket_8_limit_single) and 0.0 * ca_bracket_9_rate; set result.ca_mhst = the maximum of (result.ca_taxable_income - ca_mental_health_tax_threshold) and 0.0 * ca_mental_health_tax_rate; set result.ca_state_tax = result.ca_state_tax + result.ca_mhst; set result.ca_total_tax = result.ca_state_tax</action_dsl>
 <action_postfix>
-"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-0 local@ ss_total &gt;
-{ dup type income_type &gt; income_type "social_security" streq if dup gross_amount ss_total f+ local@ ss_total &gt; endif } job.incomes forall
-ss_total 0 f&gt; if
-  "  Subtract Social Security: -$" ss_total cvs strconcat " (CA excludes SS benefits)" strconcat job.audit_trail swap addto
-  result.ca_agi ss_total f- /result.ca_agi xdef
-  ca_subtractions ss_total f+ local@ ca_subtractions &gt;
-endif
-0 local@ unemp_total &gt;
-{ dup type income_type &gt; income_type "unemployment" streq if dup gross_amount unemp_total f+ local@ unemp_total &gt; endif } job.incomes forall
-unemp_total 0 f&gt; if
-  "  Subtract Unemployment: -$" unemp_total cvs strconcat " (CA excludes unemployment)" strconcat job.audit_trail swap addto
-  result.ca_agi unemp_total f- /result.ca_agi xdef
-  ca_subtractions unemp_total f+ local@ ca_subtractions &gt;
-endif
-"  California AGI: $" result.ca_agi cvs strconcat " (Form 540 Schedule CA)" strconcat job.audit_trail swap addto
-"  Total CA Subtractions: $" ca_subtractions cvs strconcat job.audit_trail swap addto
+result.agi ca_standard_deduction_single f- 0.0 fmax /result.ca_taxable_income xdef
+result.ca_taxable_income ca_bracket_1_limit_single fmin 0.0 fmax ca_bracket_1_rate f* /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_2_limit_single fmin ca_bracket_1_limit_single f- 0.0 fmax ca_bracket_2_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_3_limit_single fmin ca_bracket_2_limit_single f- 0.0 fmax ca_bracket_3_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_4_limit_single fmin ca_bracket_3_limit_single f- 0.0 fmax ca_bracket_4_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_5_limit_single fmin ca_bracket_4_limit_single f- 0.0 fmax ca_bracket_5_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_6_limit_single fmin ca_bracket_5_limit_single f- 0.0 fmax ca_bracket_6_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_7_limit_single fmin ca_bracket_6_limit_single f- 0.0 fmax ca_bracket_7_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_8_limit_single fmin ca_bracket_7_limit_single f- 0.0 fmax ca_bracket_8_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_bracket_8_limit_single f- 0.0 fmax ca_bracket_9_rate f* result.ca_state_tax f+ /result.ca_state_tax xdef
+result.ca_taxable_income ca_mental_health_tax_threshold f- 0.0 fmax ca_mental_health_tax_rate f* /result.ca_mhst xdef
+result.ca_state_tax result.ca_mhst f+ /result.ca_total_tax xdef
+result.ca_total_tax /result.ca_state_tax xdef
+"  CA taxable income (single brackets, $5,363 std ded): $" result.ca_taxable_income cvs strconcat job.audit_trail swap addto
+"  CA state tax (progressive + MHST): $" result.ca_state_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>CA AGI with SS and military retirement only; Apply SS and military retirement subtractions</action_comment>
-<action_dsl />
-<action_postfix>
-"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-0 local@ ss_total &gt;
-{ dup type income_type &gt; income_type "social_security" streq if dup gross_amount ss_total f+ local@ ss_total &gt; endif } job.incomes forall
-ss_total 0 f&gt; if
-  "  Subtract Social Security: -$" ss_total cvs strconcat " (CA excludes SS benefits)" strconcat job.audit_trail swap addto
-  result.ca_agi ss_total f- /result.ca_agi xdef
-  ca_subtractions ss_total f+ local@ ca_subtractions &gt;
-endif
-0 local@ military_retirement &gt;
-{ dup type income_type &gt; income_type "pension" streq if
-    dup description desc &gt; desc "military" contains desc "uniformed services" contains or if
-      dup gross_amount military_retirement f+ local@ military_retirement &gt;
-    endif
-  endif } job.incomes forall
-military_retirement 0 f&gt; if
-  military_retirement result.ca_military_retirement_exemption_amount fmin local@ exclusion_amt &gt;
-  "  Subtract Military Retirement: -$" exclusion_amt cvs strconcat " (CA allows $20k exclusion)" strconcat job.audit_trail swap addto
-  result.ca_agi exclusion_amt f- /result.ca_agi xdef
-  ca_subtractions exclusion_amt f+ local@ ca_subtractions &gt;
-endif
-"  California AGI: $" result.ca_agi cvs strconcat " (Form 540 Schedule CA)" strconcat job.audit_trail swap addto
-"  Total CA Subtractions: $" ca_subtractions cvs strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="3" column_value="X" />
-</action_details>
-<action_details>
-<action_number>4</action_number>
-<action_comment>CA AGI equals federal AGI; No CA-specific adjustments needed</action_comment>
-<action_dsl />
-<action_postfix>
-"  Starting Federal AGI: $" result.agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-"  California AGI: $" result.ca_agi cvs strconcat " (equals federal, no Schedule CA adjustments)" strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
-<policy_description>CA AGI with SS, unemployment, and military retirement subtractions</policy_description>
-<policy_statement_postfix>"California AGI with all major subtractions per Schedule CA"</policy_statement_postfix>
+<policy_description>CA progressive tax MFJ/HOH: 1.0-12.3% across 9 brackets on (AGI - $10,726) + 1% MHST over $1M</policy_description>
+<policy_statement_postfix>"CA progressive tax MFJ/HOH per CA Rev. &amp; Tax. Code § 17041 + § 17043 MHST"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
-<policy_description>CA AGI with SS and unemployment subtractions</policy_description>
-<policy_statement_postfix>"California AGI with SS and unemployment subtractions per Schedule CA"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="3">
-<policy_description>CA AGI with SS and military retirement subtractions</policy_description>
-<policy_statement_postfix>"California AGI with SS and military retirement subtractions per Schedule CA"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="4">
-<policy_description>CA AGI equals federal AGI</policy_description>
-<policy_statement_postfix>"California AGI equals federal AGI (no Schedule CA adjustments)"</policy_statement_postfix>
+<policy_description>CA progressive tax Single/MFS: 1.0-12.3% across 9 brackets on (AGI - $5,363) + 1% MHST over $1M</policy_description>
+<policy_statement_postfix>"CA progressive tax Single/MFS per CA Rev. &amp; Tax. Code § 17041 + § 17043 MHST"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
-</decision_table>
-
-<decision_table>
-<table_name>CA_Military_Retirement_Exemption</table_name>
-<xls_file>TaxReturn_dt.xls</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>California military retirement exemption (2025). New $20,000 exemption with AGI limits: $125k single, $250k joint. SBP payments receive same treatment. Honors MSRRA and SCRA. Source: MOAA State Report Card, CA FTB.</COMMENTS>
-<TABLE_NUMBER>4790</TABLE_NUMBER>
-</attribute_fields>
-
-<contexts />
-
-<initial_actions>
-<initial_action>
-<action_dsl>Initialize CA military retirement exemption calculation</action_dsl>
-<action_postfix>
-"CA Military Retirement Exemption Calculation Started" job.audit_trail swap addto
-0.0 /result.ca_military_retirement_exemption xdef
-0.0 /result.ca_military_retirement_taxable xdef
-</action_postfix>
-</initial_action>
-</initial_actions>
-
-<conditions>
-
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Has military retirement pay</condition_comment>
-<condition_dsl>military_retirement_pay &gt; 0</condition_dsl>
-<condition_postfix>
-result.military_retirement_pay 0 gt
-</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="-" />
-</condition_details>
-
-
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Single filer, AGI ≤ $125k; Single AND AGI ≤ $125,000</condition_comment>
-<condition_dsl />
-<condition_postfix>
-result.filing_status "single" strcasecmp 0 eq
-result.agi result.ca_military_agi_limit_single le
-and
-</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-</condition_details>
-
-
-<condition_details>
-<condition_number>3</condition_number>
-<condition_comment>Joint filer, AGI ≤ $250k; Married Filing Jointly AND AGI ≤ $250,000</condition_comment>
-<condition_dsl />
-<condition_postfix>
-result.filing_status "married_filing_jointly" strcasecmp 0 eq
-result.filing_status "head_of_household" strcasecmp 0 eq or
-result.agi result.ca_military_agi_limit_joint le
-and
-</condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-</condition_details>
-</conditions>
-
-<actions>
-
-<action_details>
-<action_number>1</action_number>
-<action_comment>Apply CA $20,000 military retirement exemption (Single, AGI ≤ $125k)</action_comment>
-<action_postfix>
-
-result.military_retirement_pay
-result.ca_military_retirement_exemption_amount
-min
-/result.ca_military_retirement_exemption xdef
-
-result.military_retirement_pay result.ca_military_retirement_exemption sub
-0 max
-/result.ca_military_retirement_taxable xdef
-
-"CA military retirement exemption (Single): $"
-result.ca_military_retirement_exemption cvs strconcat
-" (Retirement: $" strconcat result.military_retirement_pay cvs strconcat
-", AGI: $" strconcat result.agi cvs strconcat
-", Taxable: $" strconcat result.ca_military_retirement_taxable cvs strconcat
-")" strconcat
-job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="1" column_value="X" />
-</action_details>
-
-
-<action_details>
-<action_number>2</action_number>
-<action_comment>Apply CA $20,000 military retirement exemption (Joint, AGI ≤ $250k)</action_comment>
-<action_postfix>
-
-result.military_retirement_pay
-result.ca_military_retirement_exemption_amount
-min
-/result.ca_military_retirement_exemption xdef
-
-result.military_retirement_pay result.ca_military_retirement_exemption sub
-0 max
-/result.ca_military_retirement_taxable xdef
-
-"CA military retirement exemption (Joint/HOH): $"
-result.ca_military_retirement_exemption cvs strconcat
-" (Retirement: $" strconcat result.military_retirement_pay cvs strconcat
-", AGI: $" strconcat result.agi cvs strconcat
-", Taxable: $" strconcat result.ca_military_retirement_taxable cvs strconcat
-")" strconcat
-job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="2" column_value="X" />
-</action_details>
-
-
-<action_details>
-<action_number>3</action_number>
-<action_comment>No CA military retirement exemption (AGI exceeds limit)</action_comment>
-<action_postfix>
-0.0 /result.ca_military_retirement_exemption xdef
-result.military_retirement_pay /result.ca_military_retirement_taxable xdef
-
-"CA military retirement: NO EXEMPTION (AGI exceeds limit). Retirement: $"
-result.military_retirement_pay cvs strconcat
-", AGI: $" strconcat result.agi cvs strconcat
-", Fully taxable" strconcat
-job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="3" column_value="X" />
-</action_details>
-
-
-<action_details>
-<action_number>4</action_number>
-<action_comment>No military retirement pay</action_comment>
-<action_postfix>
-0.0 /result.ca_military_retirement_exemption xdef
-0.0 /result.ca_military_retirement_taxable xdef
-"No CA military retirement pay - exemption not applicable" job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="4" column_value="X" />
-</action_details>
-</actions>
-
 </decision_table>
 </decision_tables>
