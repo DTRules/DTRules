@@ -249,6 +249,30 @@ type State interface {
 
 	// SetANode sets the current action node being executed
 	SetANode(anode interface{})
+
+	// PushLoopFrame is called by every iteration operator (for, forr,
+	// forall, forallr, ...) before its loop runs. It pushes a fresh
+	// iteration counter (starting at 0) onto a per-state loop stack.
+	// Paired with PopLoopFrame on loop exit, including the error path.
+	//
+	// The `firstpass` operator (EL: `first pass`, #764) returns true
+	// when the TOP frame's counter is 0 — i.e. the current iteration of
+	// the innermost active loop.
+	PushLoopFrame()
+
+	// PopLoopFrame removes the top loop-iteration frame.
+	PopLoopFrame()
+
+	// BumpLoopIteration is called by the iteration operator at the end
+	// of each successful iteration of the body. It increments the top
+	// frame's counter so the next pass sees `firstpass` as false.
+	BumpLoopIteration()
+
+	// IsFirstLoopPass reports whether the top loop frame is on its
+	// first iteration. Returns false when no loop is active — the
+	// "first pass" predicate is meaningless outside a loop, so the
+	// safe answer is false.
+	IsFirstLoopPass() bool
 }
 
 // Session represents an execution context.

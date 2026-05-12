@@ -167,6 +167,7 @@ func TestAllOperatorsRegistered(t *testing.T) {
 	"firstofweekstartinginzone",
 	"firstofyear",
 	"firstofyearinzone",
+	"firstpass",
 	"floor",
 	"fmax",
 	"fmin",

@@ -100,6 +100,49 @@ type DTState struct {
 
 	// Last error from ASM helper functions
 	lastError error
+
+	// loopIterations is the iteration counter for each currently-active
+	// loop, deepest last. Iteration operators (for, forr, forall,
+	// forallr, ...) push 0 before their body runs, bump after each
+	// successful iteration, and pop on exit. The `firstpass` operator
+	// (EL: `first pass`, #764) reads the TOP entry — true iff it is 0.
+	// Outside any loop the stack is empty and IsFirstLoopPass returns
+	// false, since "first pass of nothing" has no defensible meaning.
+	loopIterations []int
+}
+
+// PushLoopFrame pushes a fresh iteration counter onto the loop stack.
+// Called by every iteration operator before its body runs.
+func (s *DTState) PushLoopFrame() {
+	s.loopIterations = append(s.loopIterations, 0)
+}
+
+// PopLoopFrame removes the top loop frame. Called on loop exit,
+// including the error path — the iteration operator is responsible
+// for the pop in defer to keep the stack balanced.
+func (s *DTState) PopLoopFrame() {
+	if n := len(s.loopIterations); n > 0 {
+		s.loopIterations = s.loopIterations[:n-1]
+	}
+}
+
+// BumpLoopIteration increments the top frame's iteration counter.
+// Called after each successful body Execute so the next pass sees
+// `firstpass` as false.
+func (s *DTState) BumpLoopIteration() {
+	if n := len(s.loopIterations); n > 0 {
+		s.loopIterations[n-1]++
+	}
+}
+
+// IsFirstLoopPass reports whether the innermost active loop is on its
+// first iteration. False when no loop is active.
+func (s *DTState) IsFirstLoopPass() bool {
+	n := len(s.loopIterations)
+	if n == 0 {
+		return false
+	}
+	return s.loopIterations[n-1] == 0
 }
 
 // NewDTState creates a new interpreter state for the given session.

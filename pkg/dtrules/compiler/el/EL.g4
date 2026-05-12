@@ -868,6 +868,10 @@ bexpr
     // Boolean literals (true, false, default, otherwise, always)
     | RBOOLEAN                                              # boolLiteral
 
+    // First-pass predicate: true on the first iteration of the
+    // innermost active loop in the table's context (#764).
+    | FIRSTPASS                                             # boolFirstPass
+
     // String comparisons
     | strexpr EQ_IGNORE_CASE blistIc                        # boolStrEqIcList
     | strexpr EQ blist                                      # boolStrEqList
@@ -1149,6 +1153,7 @@ ELSEIFNONEAREFOUND  : 'else' WS+ 'if' WS+ 'none' WS+ 'are' WS+ 'found' ;
 
 // Other keywords
 FIRST               : 'first' ;
+FIRSTPASS           : 'first' WS+ 'pass' ;
 OF                  : 'of' ;
 ON                  : 'on' ;
 USING               : 'using' ;

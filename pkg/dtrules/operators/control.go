@@ -59,6 +59,23 @@ func init() {
 	Register("executetable", opExecuteTable)
 	Register("performtable", opPerformTable)
 	Register("performcatcherror", opPerformCatchError)
+	Register("firstpass", opFirstPass)
+}
+
+// opFirstPass: ( -- bool ) pushes true if the innermost active loop is
+// on its first iteration, false otherwise (including when no loop is
+// active). The EL `first pass` predicate (#764) lowers to this op.
+//
+// The op is a pure read of the State's loop-iteration stack maintained
+// by opFor / opForr / opForall / opForallr: they push a fresh counter
+// before the loop runs, bump it after each successful body Execute,
+// and pop on exit. Outside any loop the stack is empty and the result
+// is false — "first pass of nothing" doesn't have a defensible meaning.
+func opFirstPass(state dtrules.State) error {
+	if state.IsFirstLoopPass() {
+		return state.DataPush(dtrules.True)
+	}
+	return state.DataPush(dtrules.False)
 }
 
 // opIf: ( body boolean -- ) executes body if boolean is true
@@ -180,6 +197,8 @@ func opFor(state dtrules.State) error {
 		return err
 	}
 
+	state.PushLoopFrame()
+	defer state.PopLoopFrame()
 	for _, obj := range list.GetIterator() {
 		if err := state.DataPush(obj); err != nil {
 			return err
@@ -187,6 +206,7 @@ func opFor(state dtrules.State) error {
 		if err := body.Execute(state); err != nil {
 			return err
 		}
+		state.BumpLoopIteration()
 	}
 	return nil
 }
@@ -206,6 +226,8 @@ func opForr(state dtrules.State) error {
 		return err
 	}
 
+	state.PushLoopFrame()
+	defer state.PopLoopFrame()
 	for i := arr.Size() - 1; i >= 0; i-- {
 		elem, err := arr.Get(i)
 		if err != nil {
@@ -217,6 +239,7 @@ func opForr(state dtrules.State) error {
 		if err := body.Execute(state); err != nil {
 			return err
 		}
+		state.BumpLoopIteration()
 	}
 	return nil
 }
@@ -237,6 +260,8 @@ func opForall(state dtrules.State) error {
 		return err
 	}
 
+	state.PushLoopFrame()
+	defer state.PopLoopFrame()
 	for _, obj := range arr.GetIterator() {
 		if obj.Type() == dtrules.TypeNull {
 			continue
@@ -254,6 +279,7 @@ func opForall(state dtrules.State) error {
 			return err
 		}
 		state.EntityPop()
+		state.BumpLoopIteration()
 	}
 	return nil
 }
@@ -274,6 +300,8 @@ func opForallr(state dtrules.State) error {
 		return err
 	}
 
+	state.PushLoopFrame()
+	defer state.PopLoopFrame()
 	list := arr.GetIterator()
 	for i := len(list) - 1; i >= 0; i-- {
 		obj := list[i]
@@ -293,6 +321,7 @@ func opForallr(state dtrules.State) error {
 			return err
 		}
 		state.EntityPop()
+		state.BumpLoopIteration()
 	}
 	return nil
 }
