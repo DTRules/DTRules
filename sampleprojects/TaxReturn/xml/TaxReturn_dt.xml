@@ -6393,9 +6393,9 @@ deallocate pop deallocate pop
 <initial_actions></initial_actions>
 <conditions>
 <condition_details>
-<condition_number></condition_number>
+<condition_number>1</condition_number>
 <condition_comment>Is taxpayer an eligible K-12 educator?</condition_comment>
-<condition_dsl />
+<condition_dsl>taxpayer.is_educator is true</condition_dsl>
 <condition_postfix>
 taxpayer.is_educator
 </condition_postfix>
@@ -6405,9 +6405,9 @@ taxpayer.is_educator
 </conditions>
 <actions>
 <action_details>
-<action_number></action_number>
+<action_number>1</action_number>
 <action_comment>set result.educator_deduction = taxpayer.educator_expenses (max $300)</action_comment>
-<action_dsl />
+<action_dsl>set result.educator_expense_deduction = result.educator_expense_deduction + (the minimum of taxpayer.educator_expenses and constants.educator_expense_limit); set result.total_adjustments = result.total_adjustments + result.educator_expense_deduction; add "  Educator Expense for " + taxpayer.name + ": $" + (the minimum of taxpayer.educator_expenses and constants.educator_expense_limit) to job.audit_trail</action_dsl>
 <action_postfix>
 taxpayer.educator_expenses constants.educator_expense_limit fmin result.educator_expense_deduction f+ /result.educator_expense_deduction xdef
 result.total_adjustments result.educator_expense_deduction f+ /result.total_adjustments xdef
@@ -9766,7 +9766,7 @@ state_period.state_code job.state streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Resident-state period: create state_tax_result, mark is_resident=true</action_comment>
-<action_dsl />
+<action_dsl>create state_tax_result as st_result; set st_result.state_code = state_period.state_code; set st_result.is_resident = true; set st_result.state_source_income = state_period.allocated_income; set st_result.state_agi = state_period.allocated_income; set st_result.state_withholding = st_result.state_withholding + state_period.allocated_withholding; add "  Resident state: " + state_period.state_code + " (allocated income $" + state_period.allocated_income + ")" to job.audit_trail; add st_result to job.state_tax_results</action_dsl>
 <action_postfix>
 /state_tax_result createentity /st_result xdef
 state_period.state_code /st_result.state_code xdef
@@ -9782,7 +9782,7 @@ st_result job.state_tax_results swap addto
 <action_details>
 <action_number>2</action_number>
 <action_comment>Non-resident period: create state_tax_result, mark is_resident=false</action_comment>
-<action_dsl />
+<action_dsl>create state_tax_result as st_result; set st_result.state_code = state_period.state_code; set st_result.is_resident = false; set st_result.state_source_income = state_period.allocated_income; set st_result.state_agi = state_period.allocated_income; set st_result.state_withholding = st_result.state_withholding + state_period.allocated_withholding; add "  Non-resident state: " + state_period.state_code + " - source income $" + state_period.allocated_income to job.audit_trail; add st_result to job.state_tax_results</action_dsl>
 <action_postfix>
 /state_tax_result createentity /st_result xdef
 state_period.state_code /st_result.state_code xdef
@@ -9794,6 +9794,196 @@ st_result.state_withholding state_period.allocated_withholding f+ /st_result.sta
 st_result job.state_tax_results swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 39996: Dispatch_MO_HI_Tax -->
+<decision_table>
+<table_name>Dispatch_MO_HI_Tax</table_name>
+<xls_file></xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Per-state dispatcher for MO and HI. Lifted out of Dispatch_State_Tax action 10 where the same dispatch was expressed as two postfix `if` blocks. Expressed here as a normal condition/action matrix so the runtime can drop the legacy hand-coded postfix.</COMMENTS>
+<TABLE_NUMBER>39996</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>State is Missouri</condition_comment>
+<condition_dsl>job.state is equal to "MO"</condition_dsl>
+<condition_postfix>
+job.state "MO" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>State is Hawaii</condition_comment>
+<condition_dsl>job.state is equal to "HI"</condition_dsl>
+<condition_postfix>
+job.state "HI" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Run MO_Tax</action_comment>
+<action_dsl>perform MO_Tax</action_dsl>
+<action_postfix>
+/MO_Tax performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Run HI_Tax</action_comment>
+<action_dsl>perform HI_Tax</action_dsl>
+<action_postfix>
+/HI_Tax performtable
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 39997: Synthesize_State_Tax_Result_If_Empty -->
+<decision_table>
+<table_name>Synthesize_State_Tax_Result_If_Empty</table_name>
+<xls_file></xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Fallback that creates a single state_tax_result for job.state when none was created upstream (i.e. when no state_periods are present and Build_State_Tax_Result_For_Period did not run). Lifted out of Dispatch_State_Tax action 10 where the same conditional create was expressed as a postfix `if` block guarded by `length of job.state_tax_results is equal to 0`.</COMMENTS>
+<TABLE_NUMBER>39997</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>No state_tax_result has been synthesised yet</condition_comment>
+<condition_dsl>length of job.state_tax_results is equal to 0</condition_dsl>
+<condition_postfix>
+job.state_tax_results length 0 eq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Construct the state_tax_result and append it to job.state_tax_results</action_comment>
+<action_dsl>create state_tax_result as st_result; set st_result.state_code = job.state; set st_result.state_agi = result.agi; set st_result.state_tax_before_credits = result.computed_state_tax; set st_result.state_tax_liability = result.computed_state_tax; add st_result to job.state_tax_results</action_dsl>
+<action_postfix>
+/state_tax_result createentity /st_result xdef
+job.state /st_result.state_code xdef
+result.agi /st_result.state_agi xdef
+result.computed_state_tax /st_result.state_tax_before_credits xdef
+result.computed_state_tax /st_result.state_tax_liability xdef
+st_result job.state_tax_results swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 39998: Log_State_Tax_Start -->
+<decision_table>
+<table_name>Log_State_Tax_Start</table_name>
+<xls_file></xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Logs whether this is a single-state or multi-state tax calculation and, in the multi-state case, performs Allocate_Income_By_State. Lifted out of Dispatch_State_Tax's initial_action where the same logic was expressed as a postfix ifelse.</COMMENTS>
+<TABLE_NUMBER>39998</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Single-state return (no state_periods recorded)</condition_comment>
+<condition_dsl>length of job.state_periods is equal to 0</condition_dsl>
+<condition_postfix>
+job.state_periods length 0 eq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Single-state log line</action_comment>
+<action_dsl>add "State Tax Calculation for " + job.state to job.audit_trail</action_dsl>
+<action_postfix>
+"State Tax Calculation for " job.state strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Multi-state log line and per-state allocation</action_comment>
+<action_dsl>add "Multi-State Tax Calculation" to job.audit_trail; perform Allocate_Income_By_State</action_dsl>
+<action_postfix>
+"Multi-State Tax Calculation" job.audit_trail swap addto
+/Allocate_Income_By_State performtable
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 39999: Apply_Part_Year_Allocations -->
+<decision_table>
+<table_name>Apply_Part_Year_Allocations</table_name>
+<xls_file></xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Iterates job.state_tax_results and performs Calculate_Part_Year_Allocation for each. Lifted out of Dispatch_State_Tax's initial_action where the same iteration was expressed as a postfix forall block.</COMMENTS>
+<TABLE_NUMBER>39999</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Iterate per state_tax_result</context_comment>
+<context_dsl>for all job.state_tax_results</context_dsl>
+<context_postfix>
+{ /Apply_Part_Year_Allocations executetable } job.state_tax_results forall
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always fire one column</condition_comment>
+<condition_dsl>perform when called</condition_dsl>
+<condition_postfix>
+perform when called
+</condition_postfix>
+<condition_column column_number="1" column_value="*" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Run the part-year allocator on the current state_tax_result</action_comment>
+<action_dsl>perform Calculate_Part_Year_Allocation</action_dsl>
+<action_postfix>
+/Calculate_Part_Year_Allocation performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -9814,7 +10004,7 @@ st_result job.state_tax_results swap addto
 <initial_actions>
 <initial_action>
 <action_comment>Log state tax calculation start and calculate part-year allocation</action_comment>
-<initial_action_dsl />
+<initial_action_dsl>perform Log_State_Tax_Start; perform Apply_Part_Year_Allocations</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 { "State Tax Calculation for " job.state strconcat job.audit_trail swap addto }
@@ -9836,15 +10026,15 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="6" column_value="N" />
 <condition_column column_number="12" column_value="N" />
-<condition_column column_number="8" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="3" column_value="N" />
 <condition_column column_number="10" column_value="N" />
 <condition_column column_number="5" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="8" column_value="N" />
 <condition_column column_number="9" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
@@ -9858,12 +10048,12 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
+<condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="12" column_value="N" />
-<condition_column column_number="1" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -9875,13 +10065,13 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="12" column_value="N" />
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -9893,7 +10083,6 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="4" column_value="Y" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="7" column_value="N" />
@@ -9901,6 +10090,7 @@ ifelse
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -9912,14 +10102,14 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="12" column_value="N" />
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="Y" />
 <condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="12" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -9931,17 +10121,17 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
 <condition_column column_number="12" column_value="N" />
 <condition_column column_number="9" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="2" column_value="N" />
 <condition_column column_number="7" column_value="N" />
 <condition_column column_number="8" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="6" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="6" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -9954,16 +10144,16 @@ ifelse
 ifelse
 </condition_postfix>
 <condition_column column_number="4" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="1" column_value="N" />
 <condition_column column_number="10" column_value="N" />
+<condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
-<condition_column column_number="7" column_value="Y" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="12" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="5" column_value="N" />
 <condition_column column_number="9" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="7" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>8</condition_number>
@@ -9991,17 +10181,17 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="Y" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="3" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="8" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>10</condition_number>
@@ -10013,62 +10203,62 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="10" column_value="Y" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="4" column_value="N" />
 <condition_column column_number="12" column_value="N" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="10" column_value="Y" />
 </condition_details>
 <condition_details>
-<condition_number>10</condition_number>
+<condition_number>43</condition_number>
 <condition_comment>Hawaii state; state_period.state_code or job.state is equal to "HI"</condition_comment>
-<condition_dsl />
+<condition_dsl>job.state is equal to "HI"</condition_dsl>
 <condition_postfix>
-{ state_period.state_code "NJ" streq }
-{ job.state "NJ" streq }
+{ state_period.state_code "HI" streq }
+{ job.state "HI" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="8" column_value="N" />
 <condition_column column_number="1" column_value="N" />
-<condition_column column_number="10" column_value="Y" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 <condition_column column_number="12" column_value="N" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="10" column_value="Y" />
 <condition_column column_number="5" column_value="N" />
-<condition_column column_number="4" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="7" column_value="N" />
 <condition_column column_number="6" column_value="N" />
 </condition_details>
 <condition_details>
-<condition_number>10</condition_number>
+<condition_number>44</condition_number>
 <condition_comment>New Jersey state; state_period.state_code or job.state is equal to "NJ"</condition_comment>
-<condition_dsl />
+<condition_dsl>job.state is equal to "NJ"</condition_dsl>
 <condition_postfix>
 { state_period.state_code "NJ" streq }
 { job.state "NJ" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="9" column_value="N" />
 <condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="3" column_value="N" />
 <condition_column column_number="11" column_value="Y" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
-<condition_column column_number="10" column_value="N" />
 <condition_column column_number="12" column_value="N" />
 <condition_column column_number="6" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>11</condition_number>
@@ -10082,17 +10272,17 @@ ifelse
 </condition_postfix>
 <condition_column column_number="8" column_value="N" />
 <condition_column column_number="7" column_value="N" />
-<condition_column column_number="3" column_value="N" />
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="13" column_value="Y" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
-<condition_column column_number="12" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="5" column_value="N" />
-<condition_column column_number="14" column_value="N" />
 <condition_column column_number="6" column_value="N" />
-<condition_column column_number="9" column_value="N" />
 <condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
 <condition_column column_number="10" column_value="N" />
 </condition_details>
 <condition_details>
@@ -10105,21 +10295,21 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="7" column_value="N" />
 <condition_column column_number="5" column_value="N" />
-<condition_column column_number="1" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="9" column_value="N" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="15" column_value="N" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="14" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="2" column_value="N" />
 <condition_column column_number="13" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="11" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>13</condition_number>
@@ -10131,22 +10321,22 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="7" column_value="N" />
+<condition_column column_number="12" column_value="N" />
 <condition_column column_number="14" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="15" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="11" column_value="N" />
 <condition_column column_number="16" column_value="N" />
 <condition_column column_number="6" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="15" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>14</condition_number>
@@ -10158,23 +10348,23 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="16" column_value="Y" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="9" column_value="N" />
 <condition_column column_number="15" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="9" column_value="N" />
 <condition_column column_number="17" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="16" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>15</condition_number>
@@ -10186,24 +10376,24 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="8" column_value="N" />
 <condition_column column_number="5" column_value="N" />
-<condition_column column_number="4" column_value="N" />
 <condition_column column_number="18" column_value="N" />
-<condition_column column_number="17" column_value="Y" />
-<condition_column column_number="16" column_value="N" />
 <condition_column column_number="7" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="17" column_value="Y" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="11" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>16</condition_number>
@@ -10215,25 +10405,25 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="1" column_value="N" />
 <condition_column column_number="3" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="5" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="2" column_value="N" />
 <condition_column column_number="10" column_value="N" />
 <condition_column column_number="14" column_value="N" />
-<condition_column column_number="15" column_value="N" />
 <condition_column column_number="16" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="17" column_value="N" />
+<condition_column column_number="1" column_value="N" />
 <condition_column column_number="18" column_value="Y" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="11" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>17</condition_number>
@@ -10245,26 +10435,26 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="19" column_value="Y" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="3" column_value="N" />
 <condition_column column_number="5" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="4" column_value="N" />
+<condition_column column_number="18" column_value="N" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 <condition_column column_number="13" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="14" column_value="N" />
+<condition_column column_number="6" column_value="N" />
 <condition_column column_number="17" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="19" column_value="Y" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="15" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>18</condition_number>
@@ -10276,27 +10466,27 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="2" column_value="N" />
 <condition_column column_number="20" column_value="Y" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="16" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>19</condition_number>
@@ -10308,27 +10498,27 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="1" column_value="N" />
 <condition_column column_number="4" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="21" column_value="Y" />
+<condition_column column_number="16" column_value="N" />
 <condition_column column_number="17" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="Y" />
 <condition_column column_number="13" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="5" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>20</condition_number>
@@ -10340,48 +10530,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="11" column_value="N" />
 <condition_column column_number="39" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="35" column_value="N" />
 <condition_column column_number="1" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="32" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="22" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="28" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="6" column_value="N" />
 <condition_column column_number="12" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="26" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="20" column_value="N" />
 <condition_column column_number="40" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="22" column_value="Y" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="42" column_value="N" />
 <condition_column column_number="38" column_value="N" />
 <condition_column column_number="21" column_value="N" />
-<condition_column column_number="23" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="28" column_value="N" />
 <condition_column column_number="10" column_value="N" />
-<condition_column column_number="31" column_value="N" />
 <condition_column column_number="8" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="11" column_value="N" />
 <condition_column column_number="2" column_value="N" />
-<condition_column column_number="16" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="15" column_value="N" />
 <condition_column column_number="24" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="31" column_value="N" />
 <condition_column column_number="9" column_value="N" />
+<condition_column column_number="16" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>21</condition_number>
@@ -10393,48 +10583,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="27" column_value="N" />
 <condition_column column_number="4" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="40" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="32" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="23" column_value="Y" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="39" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="28" column_value="N" />
-<condition_column column_number="19" column_value="N" />
 <condition_column column_number="8" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="23" column_value="Y" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="13" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>22</condition_number>
@@ -10446,47 +10636,47 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="24" column_value="Y" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="28" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="32" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="40" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="8" column_value="N" />
 <condition_column column_number="42" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="40" column_value="N" />
 <condition_column column_number="15" column_value="N" />
-<condition_column column_number="2" column_value="N" />
 <condition_column column_number="31" column_value="N" />
-<condition_column column_number="5" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="14" column_value="N" />
 <condition_column column_number="23" column_value="N" />
+<condition_column column_number="19" column_value="N" />
 <condition_column column_number="16" column_value="N" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="39" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="34" column_value="N" />
 <condition_column column_number="18" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="24" column_value="Y" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="33" column_value="N" />
 <condition_column column_number="36" column_value="N" />
 </condition_details>
 <condition_details>
@@ -10499,48 +10689,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="40" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="25" column_value="Y" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="39" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="32" column_value="N" />
 <condition_column column_number="28" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="7" column_value="N" />
 <condition_column column_number="27" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="17" column_value="N" />
 <condition_column column_number="21" column_value="N" />
+<condition_column column_number="25" column_value="Y" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="34" column_value="N" />
 <condition_column column_number="15" column_value="N" />
 <condition_column column_number="16" column_value="N" />
-<condition_column column_number="23" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="13" column_value="N" />
 <condition_column column_number="37" column_value="N" />
-<condition_column column_number="6" column_value="N" />
 <condition_column column_number="4" column_value="N" />
+<condition_column column_number="38" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>24</condition_number>
@@ -10552,48 +10742,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="26" column_value="Y" />
 <condition_column column_number="27" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="39" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="40" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="23" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="32" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="38" column_value="N" />
 <condition_column column_number="35" column_value="N" />
-<condition_column column_number="6" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="26" column_value="Y" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="7" column_value="N" />
 <condition_column column_number="5" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="36" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="33" column_value="N" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="20" column_value="N" />
 <condition_column column_number="29" column_value="N" />
 <condition_column column_number="28" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="23" column_value="N" />
 <condition_column column_number="8" column_value="N" />
 <condition_column column_number="34" column_value="N" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="7" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="37" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>25</condition_number>
@@ -10605,48 +10795,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="40" column_value="N" />
 <condition_column column_number="16" column_value="N" />
-<condition_column column_number="31" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="11" column_value="N" />
 <condition_column column_number="22" column_value="N" />
 <condition_column column_number="6" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="Y" />
+<condition_column column_number="24" column_value="N" />
 <condition_column column_number="23" column_value="N" />
 <condition_column column_number="32" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="27" column_value="Y" />
-<condition_column column_number="19" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
 <condition_column column_number="4" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="10" column_value="N" />
 <condition_column column_number="42" column_value="N" />
 <condition_column column_number="30" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="13" column_value="N" />
+<condition_column column_number="41" column_value="N" />
 <condition_column column_number="2" column_value="N" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="28" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="12" column_value="N" />
 <condition_column column_number="39" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="20" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>26</condition_number>
@@ -10658,48 +10848,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="29" column_value="N" />
+<condition_column column_number="40" column_value="N" />
 <condition_column column_number="41" column_value="N" />
-<condition_column column_number="10" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="1" column_value="N" />
 <condition_column column_number="25" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="28" column_value="Y" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="18" column_value="N" />
 <condition_column column_number="24" column_value="N" />
 <condition_column column_number="6" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="40" column_value="N" />
 <condition_column column_number="17" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="4" column_value="N" />
 <condition_column column_number="36" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="32" column_value="N" />
 <condition_column column_number="23" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="28" column_value="Y" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="39" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="11" column_value="N" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="19" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>27</condition_number>
@@ -10711,48 +10901,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="32" column_value="N" />
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="26" column_value="N" />
+<condition_column column_number="13" column_value="N" />
 <condition_column column_number="39" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="31" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="23" column_value="N" />
 <condition_column column_number="40" column_value="N" />
-<condition_column column_number="8" column_value="N" />
 <condition_column column_number="20" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="36" column_value="N" />
 <condition_column column_number="33" column_value="N" />
 <condition_column column_number="28" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="23" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="37" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="31" column_value="N" />
 <condition_column column_number="29" column_value="Y" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="10" column_value="N" />
 <condition_column column_number="11" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="14" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>28</condition_number>
@@ -10764,48 +10954,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="40" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="34" column_value="N" />
 <condition_column column_number="36" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="39" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="30" column_value="Y" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="28" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="12" column_value="N" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="22" column_value="N" />
 <condition_column column_number="17" column_value="N" />
-<condition_column column_number="32" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="28" column_value="N" />
 <condition_column column_number="13" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="12" column_value="N" />
 <condition_column column_number="23" column_value="N" />
-<condition_column column_number="20" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="31" column_value="N" />
 <condition_column column_number="37" column_value="N" />
 <condition_column column_number="8" column_value="N" />
-<condition_column column_number="22" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="11" column_value="N" />
 <condition_column column_number="27" column_value="N" />
 <condition_column column_number="19" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="30" column_value="Y" />
+<condition_column column_number="20" column_value="N" />
 <condition_column column_number="33" column_value="N" />
-<condition_column column_number="38" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="34" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>29</condition_number>
@@ -10817,48 +11007,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="28" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="23" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="41" column_value="N" />
 <condition_column column_number="21" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="24" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="28" column_value="N" />
 <condition_column column_number="29" column_value="N" />
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="17" column_value="N" />
 <condition_column column_number="22" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="31" column_value="Y" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="23" column_value="N" />
 <condition_column column_number="13" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="39" column_value="N" />
 <condition_column column_number="25" column_value="N" />
 <condition_column column_number="37" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="6" column_value="N" />
 <condition_column column_number="7" column_value="N" />
-<condition_column column_number="36" column_value="N" />
 <condition_column column_number="38" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="31" column_value="Y" />
-<condition_column column_number="39" column_value="N" />
-<condition_column column_number="32" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="40" column_value="N" />
+<condition_column column_number="1" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>30</condition_number>
@@ -10870,48 +11060,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="20" column_value="N" />
 <condition_column column_number="23" column_value="N" />
-<condition_column column_number="32" column_value="Y" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="15" column_value="N" />
 <condition_column column_number="40" column_value="N" />
 <condition_column column_number="24" column_value="N" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="28" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="6" column_value="N" />
 <condition_column column_number="25" column_value="N" />
-<condition_column column_number="29" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="6" column_value="N" />
 <condition_column column_number="2" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="20" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
 <condition_column column_number="21" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="11" column_value="N" />
+<condition_column column_number="30" column_value="N" />
 <condition_column column_number="39" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="32" column_value="Y" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="11" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>31</condition_number>
@@ -10923,48 +11113,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="21" column_value="N" />
 <condition_column column_number="6" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="32" column_value="N" />
-<condition_column column_number="33" column_value="Y" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="23" column_value="N" />
 <condition_column column_number="40" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="33" column_value="Y" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="37" column_value="N" />
 <condition_column column_number="14" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="19" column_value="N" />
 <condition_column column_number="11" column_value="N" />
 <condition_column column_number="39" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="28" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="21" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>32</condition_number>
@@ -10976,48 +11166,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="23" column_value="N" />
-<condition_column column_number="40" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="32" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="34" column_value="Y" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="39" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="28" column_value="N" />
-<condition_column column_number="26" column_value="N" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="38" column_value="N" />
 <condition_column column_number="10" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="36" column_value="N" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="17" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="42" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="34" column_value="Y" />
+<condition_column column_number="6" column_value="N" />
 <condition_column column_number="18" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="9" column_value="N" />
 <condition_column column_number="7" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="29" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>33</condition_number>
@@ -11029,48 +11219,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="23" column_value="N" />
+<condition_column column_number="26" column_value="N" />
 <condition_column column_number="32" column_value="N" />
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="28" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="41" column_value="N" />
 <condition_column column_number="31" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="35" column_value="Y" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="20" column_value="N" />
 <condition_column column_number="40" column_value="N" />
 <condition_column column_number="12" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="35" column_value="Y" />
 <condition_column column_number="18" column_value="N" />
-<condition_column column_number="39" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="19" column_value="N" />
 <condition_column column_number="15" column_value="N" />
 <condition_column column_number="5" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="22" column_value="N" />
 <condition_column column_number="33" column_value="N" />
-<condition_column column_number="11" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="10" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>34</condition_number>
@@ -11082,48 +11272,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="1" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="41" column_value="N" />
 <condition_column column_number="38" column_value="N" />
 <condition_column column_number="18" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="36" column_value="Y" />
+<condition_column column_number="27" column_value="N" />
 <condition_column column_number="17" column_value="N" />
 <condition_column column_number="39" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="32" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="40" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="25" column_value="N" />
+<condition_column column_number="12" column_value="N" />
 <condition_column column_number="30" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="28" column_value="N" />
+<condition_column column_number="8" column_value="N" />
 <condition_column column_number="15" column_value="N" />
+<condition_column column_number="36" column_value="Y" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="32" column_value="N" />
 <condition_column column_number="34" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="5" column_value="N" />
 <condition_column column_number="16" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="40" column_value="N" />
 <condition_column column_number="23" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="25" column_value="N" />
 <condition_column column_number="42" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="14" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>35</condition_number>
@@ -11135,48 +11325,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="39" column_value="N" />
-<condition_column column_number="37" column_value="Y" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="40" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="23" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="28" column_value="N" />
 <condition_column column_number="38" column_value="N" />
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="27" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="39" column_value="N" />
 <condition_column column_number="20" column_value="N" />
-<condition_column column_number="15" column_value="N" />
+<condition_column column_number="34" column_value="N" />
 <condition_column column_number="17" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="32" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="6" column_value="N" />
 <condition_column column_number="33" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="37" column_value="Y" />
 <condition_column column_number="25" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="32" column_value="N" />
 <condition_column column_number="10" column_value="N" />
+<condition_column column_number="27" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>36</condition_number>
@@ -11188,48 +11378,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="23" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="40" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="39" column_value="N" />
-<condition_column column_number="38" column_value="Y" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="36" column_value="N" />
 <condition_column column_number="32" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="16" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="39" column_value="N" />
 <condition_column column_number="28" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="34" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="40" column_value="N" />
 <condition_column column_number="18" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="38" column_value="Y" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="17" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>37</condition_number>
@@ -11241,48 +11431,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="39" column_value="Y" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="18" column_value="N" />
 <condition_column column_number="3" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="23" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="28" column_value="N" />
 <condition_column column_number="32" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="2" column_value="N" />
 <condition_column column_number="15" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="40" column_value="N" />
-<condition_column column_number="14" column_value="N" />
 <condition_column column_number="12" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="39" column_value="Y" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="31" column_value="N" />
 <condition_column column_number="30" column_value="N" />
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>38</condition_number>
@@ -11294,48 +11484,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="40" column_value="Y" />
-<condition_column column_number="28" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="6" column_value="N" />
 <condition_column column_number="17" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="23" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="39" column_value="N" />
 <condition_column column_number="22" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="38" column_value="N" />
 <condition_column column_number="42" column_value="N" />
-<condition_column column_number="29" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="2" column_value="N" />
 <condition_column column_number="11" column_value="N" />
 <condition_column column_number="5" column_value="N" />
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="33" column_value="N" />
 <condition_column column_number="1" column_value="N" />
-<condition_column column_number="32" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="31" column_value="N" />
 <condition_column column_number="41" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="15" column_value="N" />
 <condition_column column_number="37" column_value="N" />
-<condition_column column_number="38" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>39</condition_number>
@@ -11347,48 +11537,48 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="24" column_value="N" />
 <condition_column column_number="17" column_value="N" />
-<condition_column column_number="41" column_value="Y" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="39" column_value="N" />
 <condition_column column_number="14" column_value="N" />
-<condition_column column_number="23" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="33" column_value="N" />
 <condition_column column_number="10" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="32" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="34" column_value="N" />
 <condition_column column_number="28" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="40" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="29" column_value="N" />
+<condition_column column_number="26" column_value="N" />
 <condition_column column_number="25" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="37" column_value="N" />
 <condition_column column_number="22" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="41" column_value="Y" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="9" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>40</condition_number>
@@ -11400,50 +11590,50 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="32" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="23" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="44" column_value="N" />
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="27" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="40" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="43" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="42" column_value="Y" />
-<condition_column column_number="39" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="18" column_value="N" />
 <condition_column column_number="12" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 <condition_column column_number="37" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="16" column_value="N" />
+<condition_column column_number="32" column_value="N" />
 <condition_column column_number="28" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="31" column_value="N" />
+<condition_column column_number="30" column_value="N" />
 <condition_column column_number="25" column_value="N" />
-<condition_column column_number="11" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="8" column_value="N" />
 <condition_column column_number="6" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="43" column_value="N" />
+<condition_column column_number="42" column_value="Y" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="44" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>41</condition_number>
@@ -11455,50 +11645,50 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="40" column_value="N" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="37" column_value="N" />
-<condition_column column_number="19" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="44" column_value="N" />
 <condition_column column_number="32" column_value="N" />
 <condition_column column_number="14" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="23" column_value="N" />
 <condition_column column_number="22" column_value="N" />
-<condition_column column_number="17" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="15" column_value="N" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="34" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="27" column_value="N" />
+<condition_column column_number="43" column_value="Y" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="40" column_value="N" />
 <condition_column column_number="35" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="23" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="12" column_value="N" />
 <condition_column column_number="26" column_value="N" />
-<condition_column column_number="28" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="39" column_value="N" />
-<condition_column column_number="1" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="42" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="18" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="15" column_value="N" />
+<condition_column column_number="27" column_value="N" />
 <condition_column column_number="30" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="43" column_value="Y" />
-<condition_column column_number="44" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="36" column_value="N" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="11" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>42</condition_number>
@@ -11510,50 +11700,50 @@ ifelse
 /state_period isdefined
 ifelse
 </condition_postfix>
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="18" column_value="N" />
-<condition_column column_number="26" column_value="N" />
-<condition_column column_number="20" column_value="N" />
-<condition_column column_number="30" column_value="N" />
-<condition_column column_number="40" column_value="N" />
 <condition_column column_number="4" column_value="N" />
-<condition_column column_number="31" column_value="N" />
-<condition_column column_number="38" column_value="N" />
-<condition_column column_number="29" column_value="N" />
-<condition_column column_number="19" column_value="N" />
-<condition_column column_number="32" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="23" column_value="N" />
-<condition_column column_number="36" column_value="N" />
-<condition_column column_number="22" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="39" column_value="N" />
-<condition_column column_number="24" column_value="N" />
-<condition_column column_number="17" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="16" column_value="N" />
-<condition_column column_number="41" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="34" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="35" column_value="N" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="33" column_value="N" />
-<condition_column column_number="44" column_value="Y" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="42" column_value="N" />
-<condition_column column_number="21" column_value="N" />
-<condition_column column_number="37" column_value="N" />
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="28" column_value="N" />
-<condition_column column_number="25" column_value="N" />
-<condition_column column_number="43" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="44" column_value="Y" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="38" column_value="N" />
 <condition_column column_number="27" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="43" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="12" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
@@ -11727,26 +11917,9 @@ ifelse
 <action_column column_number="8" column_value="X" />
 </action_details>
 <action_details>
-<action_number>7</action_number>
-<action_comment>Dynamically dispatch to state tax table; Construct table name Calculate_XX_Tax and execute</action_comment>
-<action_dsl />
-<action_postfix>
-{ state_period.state_code /state_code xdef }
-{ job.state /state_code xdef }
-/state_period isdefined
-ifelse
-"Calculate_" state_code strconcat "_Tax" strconcat /table_name xdef
-{ "  State tax calculation not yet implemented for " state_code strconcat job.audit_trail swap addto }
-{ table_name execute }
-table_name lookupEntity isnull
-ifelse
-</action_postfix>
-<action_column column_number="7" column_value="X" />
-</action_details>
-<action_details>
 <action_number>10</action_number>
 <action_comment>Calculate Missouri / Hawaii state tax — note both states fire on column 10 due to duplicate condition_number=10 in the legacy dispatch. Whichever XX_Tax runs will set result.computed_state_tax based on job.state, so this single action handles both.</action_comment>
-<action_dsl />
+<action_dsl>perform Dispatch_MO_HI_Tax; perform Synthesize_State_Tax_Result_If_Empty; add "  State Income Tax (" + job.state + "):" to job.audit_trail; add "    Taxable Income: $" + result.computed_state_taxable_income to job.audit_trail; add "    State Tax: $" + result.computed_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
 { job.state "MO" streq } { /MO_Tax performtable } if
 { job.state "HI" streq } { /HI_Tax performtable } if
