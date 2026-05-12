@@ -13,21 +13,22 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl />
+<action_comment>Reset UT tax fields and log calculation start</action_comment>
+<initial_action_dsl />
+<initial_action_postfix></initial_action_postfix>
 <action_postfix>
 0.0 /result.ut_tax xdef
 0.0 /result.ut_state_tax xdef
 0.0 /result.ut_taxable_income xdef
 "  Utah Tax Calculation (Form TC-40) — flat 4.5%" job.audit_trail swap addto
 </action_postfix>
-<action_comment>Reset UT tax fields and log calculation start</action_comment>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always compute (UT has no filing-status differences in rate)</condition_comment>
-<condition_dsl />
+<condition_dsl>true</condition_dsl>
 <condition_postfix>
 true
 </condition_postfix>
@@ -38,7 +39,7 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment>UT taxable income = max(AGI − dependent_exemption × #dependents, 0); tax = 4.5% × taxable_income</action_comment>
-<action_dsl />
+<action_dsl>set result.ut_taxable_income = the maximum of (result.agi - length of job.dependents * ut_personal_exemption) and 0.0; set result.ut_tax = result.ut_taxable_income * ut_tax_rate; set result.ut_state_tax = result.ut_tax; add "  UT taxable income (AGI - $2,111 per dependent): $" + result.ut_taxable_income to job.audit_trail; add "  UT state tax (4.5%): $" + result.ut_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
 result.agi job.dependents length cvd ut_personal_exemption f* f- 0.0 fmax /result.ut_taxable_income xdef
 result.ut_taxable_income ut_tax_rate f* /result.ut_tax xdef

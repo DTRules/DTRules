@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
+<!-- TABLE 41700: IL_Tax -->
 <decision_table>
 <table_name>IL_Tax</table_name>
 <xls_file>IL.xlsx</xls_file>
@@ -9,24 +10,25 @@
 <COMMENTS>Illinois state income tax. Flat 4.95% rate (35 ILCS 5/201(b), unchanged since 2017) on AGI minus total personal exemptions. Exemption: $2,850/person × (taxpayers + dependents). Writes result.il_taxable_income and result.il_state_tax.</COMMENTS>
 <TABLE_NUMBER>41700</TABLE_NUMBER>
 </attribute_fields>
-<contexts />
+<contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl />
+<action_comment>Reset IL tax fields and log calculation start</action_comment>
+<initial_action_dsl />
+<initial_action_postfix></initial_action_postfix>
 <action_postfix>
 0.0 /result.il_state_tax xdef
 0.0 /result.il_taxable_income xdef
 0.0 /result.il_total_exemptions xdef
 "  Illinois Tax Calculation (Form IL-1040) — flat 4.95%" job.audit_trail swap addto
 </action_postfix>
-<action_comment>Reset IL tax fields and log calculation start</action_comment>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always compute (IL has no filing-status differences in rate/exemption-per-person)</condition_comment>
-<condition_dsl />
+<condition_dsl>true</condition_dsl>
 <condition_postfix>
 true
 </condition_postfix>
@@ -37,7 +39,7 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment>IL exemptions = $2,850 x (taxpayers + dependents); tax = 4.95% x max(AGI - exemptions, 0)</action_comment>
-<action_dsl />
+<action_dsl>set result.il_total_exemptions = (length of job.taxpayers + length of job.dependents) * il_personal_exemption; set result.il_taxable_income = the maximum of (result.agi - result.il_total_exemptions) and 0.0; set result.il_state_tax = result.il_taxable_income * il_tax_rate; add "  IL exemptions ($2,850 per person): $" + result.il_total_exemptions to job.audit_trail; add "  IL state tax (4.95%): $" + result.il_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
 job.taxpayers length cvd job.dependents length cvd f+ il_personal_exemption f* /result.il_total_exemptions xdef
 result.agi result.il_total_exemptions f- 0.0 fmax /result.il_taxable_income xdef

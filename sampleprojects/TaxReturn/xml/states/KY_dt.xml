@@ -18,9 +18,7 @@
 <action_number>2</action_number>
 <action_comment>No military retirement pay</action_comment>
 <action_dsl>/* No military retirement pay - no exemption. */</action_dsl>
-<action_postfix>
-
-</action_postfix>
+<action_postfix></action_postfix>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -38,20 +36,21 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl />
+<action_comment>Reset KY tax fields and log calculation start</action_comment>
+<initial_action_dsl />
+<initial_action_postfix></initial_action_postfix>
 <action_postfix>
 0.0 /result.ky_state_tax xdef
 0.0 /result.ky_taxable_income xdef
 "  Kentucky Tax Calculation (Form 740) — flat 4.00%" job.audit_trail swap addto
 </action_postfix>
-<action_comment>Reset KY tax fields and log calculation start</action_comment>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always compute (single-column FIRST table; deduction is uniform)</condition_comment>
-<condition_dsl />
+<condition_dsl>true</condition_dsl>
 <condition_postfix>
 true
 </condition_postfix>
@@ -62,7 +61,7 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment>Compute KY taxable income (AGI − $3,270) and 4.00% tax</action_comment>
-<action_dsl />
+<action_dsl>set result.ky_taxable_income = the maximum of (result.agi - ky_standard_deduction) and 0.0; set result.ky_state_tax = result.ky_taxable_income * ky_tax_rate; add "  KY taxable income (AGI - $3,270): $" + result.ky_taxable_income to job.audit_trail; add "  KY state tax (4.00%): $" + result.ky_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
 result.agi ky_standard_deduction f- 0.0 fmax /result.ky_taxable_income xdef
 result.ky_taxable_income ky_tax_rate f* /result.ky_state_tax xdef

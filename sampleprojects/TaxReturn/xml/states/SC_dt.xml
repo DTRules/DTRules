@@ -11,24 +11,20 @@
 <TABLE_NUMBER>44001</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
+<initial_actions></initial_actions>
+<conditions></conditions>
 <actions>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
 <action_dsl>/* No military retirement pay - no exclusion. */</action_dsl>
-<action_postfix>
-
-</action_postfix>
+<action_postfix></action_postfix>
 </action_details>
 </actions>
-<policy_statements>
-</policy_statements>
+<policy_statements></policy_statements>
 </decision_table>
 
+<!-- TABLE 45110: SC_Tax_Brackets -->
 <decision_table>
 <table_name>SC_Tax_Brackets</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -54,7 +50,7 @@ deallocate pop
 </context_postfix>
 </context_details>
 </contexts>
-<initial_actions />
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
@@ -161,6 +157,7 @@ result.sc_taxable_income sc_bracket_2_limit f- sc_bracket_3_rate f* f+
 </policy_statements>
 </decision_table>
 
+<!-- TABLE 45100: SC_Tax -->
 <decision_table>
 <table_name>SC_Tax</table_name>
 <xls_file>SpecialForms.xls</xls_file>
@@ -169,8 +166,8 @@ result.sc_taxable_income sc_bracket_2_limit f- sc_bracket_3_rate f* f+
 <COMMENTS>Calculates South Carolina state income tax. SC has progressive tax brackets: 0% up to $3,560, 3% from $3,561-$17,830, and 6% above $17,830. SC standard deduction is $15,000 (Single) or $30,000 (MFJ).</COMMENTS>
 <TABLE_NUMBER>45100</TABLE_NUMBER>
 </attribute_fields>
-<contexts />
-<initial_actions />
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>

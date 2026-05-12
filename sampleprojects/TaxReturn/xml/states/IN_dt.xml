@@ -29,21 +29,22 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl />
+<action_comment>Reset IN tax fields and log calculation start</action_comment>
+<initial_action_dsl />
+<initial_action_postfix></initial_action_postfix>
 <action_postfix>
 0.0 /result.in_state_tax xdef
 0.0 /result.in_taxable_income xdef
 0.0 /result.in_total_exemptions xdef
 "  Indiana Tax Calculation (Form IT-40) — flat 3.00%" job.audit_trail swap addto
 </action_postfix>
-<action_comment>Reset IN tax fields and log calculation start</action_comment>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always compute (single-column FIRST table)</condition_comment>
-<condition_dsl />
+<condition_dsl>true</condition_dsl>
 <condition_postfix>
 true
 </condition_postfix>
@@ -54,7 +55,7 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment>Compute IN exemptions, taxable income, and flat tax</action_comment>
-<action_dsl />
+<action_dsl>set result.in_total_exemptions = length of job.taxpayers * in_personal_exemption + length of job.dependents * in_dependent_exemption; set result.in_taxable_income = the maximum of (result.agi - result.in_total_exemptions) and 0.0; set result.in_state_tax = result.in_taxable_income * in_tax_rate; add "  IN exemptions: $" + result.in_total_exemptions to job.audit_trail; add "  IN state tax (3.00%): $" + result.in_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
 job.taxpayers length cvd in_personal_exemption f* job.dependents length cvd in_dependent_exemption f* f+ /result.in_total_exemptions xdef
 result.agi result.in_total_exemptions f- 0.0 fmax /result.in_taxable_income xdef

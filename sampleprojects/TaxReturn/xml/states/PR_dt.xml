@@ -11,8 +11,7 @@
 <TABLE_NUMBER>50000</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-</initial_actions>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
@@ -21,13 +20,11 @@
 <condition_postfix>
 Qualifies for Act 60 business benefits; Act 60 business (4% rate)
 </condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
+<actions></actions>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

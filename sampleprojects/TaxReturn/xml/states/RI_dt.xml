@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
+<!-- TABLE 53432: RI_Tax -->
 <decision_table>
 <table_name>RI_Tax</table_name>
 <xls_file>RI.xlsx</xls_file>
@@ -12,31 +13,32 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl />
+<action_comment>Reset and log</action_comment>
+<initial_action_dsl />
+<initial_action_postfix></initial_action_postfix>
 <action_postfix>
 0.0 /result.computed_state_tax xdef
 0.0 /result.computed_state_taxable_income xdef
 "  RhodeIsland Tax Calculation (top marginal 5.99%)" job.audit_trail swap addto
 </action_postfix>
-<action_comment>Reset and log</action_comment>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Filing status is Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
-<condition_dsl />
+<condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
 <condition_postfix>
 job.filing_status "MFJ" streq job.filing_status "QSS" streq or
 </condition_postfix>
+<condition_column column_number="3" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
-<condition_dsl />
+<condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
 <condition_postfix>
 job.filing_status "HOH" streq
 </condition_postfix>
@@ -49,7 +51,7 @@ job.filing_status "HOH" streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>MFJ/QSS: $21,150 std ded, 5.99%</action_comment>
-<action_dsl />
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 21150.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0599</action_dsl>
 <action_postfix>
 result.agi 21150.0 f- 0.0 fmax /result.computed_state_taxable_income xdef
 result.computed_state_taxable_income 0.0599 f* /result.computed_state_tax xdef
@@ -61,7 +63,7 @@ result.computed_state_taxable_income 0.0599 f* /result.computed_state_tax xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>HOH: $15,850 std ded, 5.99%</action_comment>
-<action_dsl />
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 15850.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0599</action_dsl>
 <action_postfix>
 result.agi 15850.0 f- 0.0 fmax /result.computed_state_taxable_income xdef
 result.computed_state_taxable_income 0.0599 f* /result.computed_state_tax xdef
@@ -73,7 +75,7 @@ result.computed_state_taxable_income 0.0599 f* /result.computed_state_tax xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Default (Single/MFS): $10,550 std ded, 5.99%</action_comment>
-<action_dsl />
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 10550.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0599</action_dsl>
 <action_postfix>
 result.agi 10550.0 f- 0.0 fmax /result.computed_state_taxable_income xdef
 result.computed_state_taxable_income 0.0599 f* /result.computed_state_tax xdef

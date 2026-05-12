@@ -29,32 +29,33 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl />
+<action_comment>Reset MA tax fields and log calculation start</action_comment>
+<initial_action_dsl />
+<initial_action_postfix></initial_action_postfix>
 <action_postfix>
 0.0 /result.ma_state_tax xdef
 0.0 /result.ma_taxable_income xdef
 0.0 /result.ma_surtax xdef
 "  Massachusetts Tax Calculation (Form 1) — flat 5.00% + 4% surtax over $1,083,150" job.audit_trail swap addto
 </action_postfix>
-<action_comment>Reset MA tax fields and log calculation start</action_comment>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Filing status is Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
-<condition_dsl />
+<condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
 <condition_postfix>
 job.filing_status "MFJ" streq job.filing_status "QSS" streq or
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
-<condition_dsl />
+<condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
 <condition_postfix>
 job.filing_status "HOH" streq
 </condition_postfix>
@@ -67,7 +68,7 @@ job.filing_status "HOH" streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>MFJ/QSS: exemption $8,800; tax = max(AGI − 8,800, 0) × 5.00% + surtax</action_comment>
-<action_dsl />
+<action_dsl>set result.ma_taxable_income = the maximum of (result.agi - 8800.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
 <action_postfix>
 result.agi ma_exemption_joint f- 0.0 fmax /result.ma_taxable_income xdef
 result.ma_taxable_income ma_tax_rate f* /result.ma_state_tax xdef
@@ -81,7 +82,7 @@ result.ma_state_tax result.ma_surtax f+ /result.ma_state_tax xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>HOH: exemption $6,800; tax = max(AGI − 6,800, 0) × 5.00% + surtax</action_comment>
-<action_dsl />
+<action_dsl>set result.ma_taxable_income = the maximum of (result.agi - 6800.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
 <action_postfix>
 result.agi ma_exemption_hoh f- 0.0 fmax /result.ma_taxable_income xdef
 result.ma_taxable_income ma_tax_rate f* /result.ma_state_tax xdef
@@ -95,7 +96,7 @@ result.ma_state_tax result.ma_surtax f+ /result.ma_state_tax xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Default (Single/MFS): exemption $4,400; tax = max(AGI − 4,400, 0) × 5.00% + surtax</action_comment>
-<action_dsl />
+<action_dsl>set result.ma_taxable_income = the maximum of (result.agi - 4400.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
 <action_postfix>
 result.agi ma_exemption_single f- 0.0 fmax /result.ma_taxable_income xdef
 result.ma_taxable_income ma_tax_rate f* /result.ma_state_tax xdef

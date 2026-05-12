@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
+<!-- TABLE 52628: NH_Tax -->
 <decision_table>
 <table_name>NH_Tax</table_name>
 <xls_file>NH.xlsx</xls_file>
@@ -12,20 +13,21 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl />
+<action_comment>NewHampshire state tax is effectively 0</action_comment>
+<initial_action_dsl />
+<initial_action_postfix></initial_action_postfix>
 <action_postfix>
 0.0 /result.computed_state_tax xdef
 0.0 /result.computed_state_taxable_income xdef
 "  NewHampshire state tax: $0 (RSA 77 (I&amp;D tax phased out 2025))" job.audit_trail swap addto
 </action_postfix>
-<action_comment>NewHampshire state tax is effectively 0</action_comment>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always</condition_comment>
-<condition_dsl />
+<condition_dsl>true</condition_dsl>
 <condition_postfix>
 true
 </condition_postfix>
@@ -36,10 +38,8 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment>No-op (tax already set to 0 in initial action)</action_comment>
-<action_dsl />
-<action_postfix>
-
-</action_postfix>
+<action_dsl>/* no-op: tax already zeroed in initial_action */</action_dsl>
+<action_postfix></action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>

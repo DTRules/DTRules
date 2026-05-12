@@ -11,14 +11,10 @@
 <TABLE_NUMBER>40401</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
-<actions>
-</actions>
-<policy_statements>
-</policy_statements>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements>
 </decision_table>
 
 <!-- TABLE 40400: AR_Tax -->
@@ -31,15 +27,14 @@
 <TABLE_NUMBER>40400</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-</initial_actions>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married filing jointly</condition_comment>
 <condition_dsl>filing_status == "MFJ"</condition_dsl>
 <condition_postfix>
-filing_status == &quot;MFJ&quot;
+filing_status == "MFJ"
 </condition_postfix>
 </condition_details>
 <condition_details>
@@ -47,7 +42,7 @@ filing_status == &quot;MFJ&quot;
 <condition_comment>Head of household</condition_comment>
 <condition_dsl>filing_status == "HOH"</condition_dsl>
 <condition_postfix>
-filing_status == &quot;HOH&quot;
+filing_status == "HOH"
 </condition_postfix>
 </condition_details>
 <condition_details>
@@ -55,7 +50,7 @@ filing_status == &quot;HOH&quot;
 <condition_comment>Married filing separately</condition_comment>
 <condition_dsl>filing_status == "MFS"</condition_dsl>
 <condition_postfix>
-filing_status == &quot;MFS&quot;
+filing_status == "MFS"
 </condition_postfix>
 </condition_details>
 </conditions>
@@ -64,28 +59,21 @@ filing_status == &quot;MFS&quot;
 <action_number>2</action_number>
 <action_comment>Calculate Arkansas tax - Married filing jointly (5-tier progressive: 0%/2%/3%/3.4%/3.9%). NOTE: result.ar_taxable_income / result.ar_state_tax not declared in AR_edd — EDD authorship needed.</action_comment>
 <action_dsl>set result.ar_taxable_income = the maximum of (result.agi - ar_standard_deduction_joint) and 0.0; set result.ar_state_tax = (the minimum of result.ar_taxable_income and ar_bracket_1_limit) * ar_bracket_1_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_2_limit) - ar_bracket_1_limit) and 0.0) * ar_bracket_2_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_3_limit) - ar_bracket_2_limit) and 0.0) * ar_bracket_3_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_4_limit) - ar_bracket_3_limit) and 0.0) * ar_bracket_4_rate + (the maximum of (result.ar_taxable_income - ar_bracket_4_limit) and 0.0) * ar_bracket_5_rate; add "  AR tax (MFJ, 5 brackets): $" + result.ar_state_tax to job.audit_trail</action_dsl>
-<action_postfix>
-
-</action_postfix>
+<action_postfix></action_postfix>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate Arkansas tax - Head of household (5-tier progressive: 0%/2%/3%/3.4%/3.9%).</action_comment>
 <action_dsl>set result.ar_taxable_income = the maximum of (result.agi - ar_standard_deduction_hoh) and 0.0; set result.ar_state_tax = (the minimum of result.ar_taxable_income and ar_bracket_1_limit) * ar_bracket_1_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_2_limit) - ar_bracket_1_limit) and 0.0) * ar_bracket_2_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_3_limit) - ar_bracket_2_limit) and 0.0) * ar_bracket_3_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_4_limit) - ar_bracket_3_limit) and 0.0) * ar_bracket_4_rate + (the maximum of (result.ar_taxable_income - ar_bracket_4_limit) and 0.0) * ar_bracket_5_rate; add "  AR tax (HOH, 5 brackets): $" + result.ar_state_tax to job.audit_trail</action_dsl>
-<action_postfix>
-
-</action_postfix>
+<action_postfix></action_postfix>
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>Calculate Arkansas tax - Married filing separately (5-tier progressive: 0%/2%/3%/3.4%/3.9%).</action_comment>
 <action_dsl>set result.ar_taxable_income = the maximum of (result.agi - ar_standard_deduction_mfs) and 0.0; set result.ar_state_tax = (the minimum of result.ar_taxable_income and ar_bracket_1_limit) * ar_bracket_1_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_2_limit) - ar_bracket_1_limit) and 0.0) * ar_bracket_2_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_3_limit) - ar_bracket_2_limit) and 0.0) * ar_bracket_3_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_4_limit) - ar_bracket_3_limit) and 0.0) * ar_bracket_4_rate + (the maximum of (result.ar_taxable_income - ar_bracket_4_limit) and 0.0) * ar_bracket_5_rate; add "  AR tax (MFS, 5 brackets): $" + result.ar_state_tax to job.audit_trail</action_dsl>
-<action_postfix>
-
-</action_postfix>
+<action_postfix></action_postfix>
 </action_details>
 </actions>
-<policy_statements>
-</policy_statements>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

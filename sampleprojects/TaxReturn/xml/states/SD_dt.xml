@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
+<!-- TABLE 46600: SD_Tax -->
 <decision_table>
 <table_name>SD_Tax</table_name>
 <xls_file>State.xls</xls_file>
@@ -9,9 +10,11 @@
 <COMMENTS>South Dakota does not impose a state income tax (per sd_has_income_tax=false in SD_edd.xml). The hypothetical progressive-bracket postfix stored here is factually incorrect and slated for removal. NEEDS AUTHORSHIP: existing postfix should be replaced with a no-tax stub; for now the EL DSL sets result.sd_tax = 0 to reflect the actual SD policy.</COMMENTS>
 <TABLE_NUMBER>46600</TABLE_NUMBER>
 </attribute_fields>
-<contexts />
+<contexts></contexts>
 <initial_actions>
 <initial_action>
+<initial_action_dsl />
+<initial_action_postfix></initial_action_postfix>
 <action_dsl>add "SOUTH DAKOTA - no state income tax (sd_has_income_tax=false)" to job.audit_trail; set result.sd_agi = result.agi</action_dsl>
 <action_postfix>
 "SOUTH DAKOTA FORM SD-1040 - State Income Tax Calculation" job.audit_trail swap addto

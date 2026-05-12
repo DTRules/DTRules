@@ -10,29 +10,14 @@
 <COMMENTS>Placeholder NJ military retirement exclusion. NJ exempts military pensions per N.J.S.A. 54A:6-26. Full implementation accumulates per-taxpayer military pension income; the current simplification sets the exclusion to 0 unless populated by per-income iteration in a follow-up sub-table.</COMMENTS>
 <TABLE_NUMBER>42250</TABLE_NUMBER>
 </attribute_fields>
-<contexts />
-<initial_actions />
-<conditions />
-<actions />
-<policy_statements />
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements>
 </decision_table>
 
-
-<!-- TABLE 42300: NJ_Tax — top-level dispatcher -->
-<!--
-  Per Form NJ-1040 / N.J.S.A. 54A:1-1 et seq.:
-  1. NJ gross income = federal AGI minus retirement income that NJ exempts
-     (SS, RR retirement, military pensions). The retirement subtraction is
-     left at 0 in this implementation (a Sum_NJ_Retirement_Subtraction
-     helper would iterate job.incomes and accumulate the exempt categories;
-     not required to make the existing NJ test scenarios pass).
-  2. NJ exemptions = (number of taxpayers) * nj_personal_exemption +
-     (number of dependents) * nj_dependent_exemption.
-  3. NJ taxable income = max(0, NJ gross income - exemptions).
-  4. NJ tax: dispatch to NJ_Tax_MFJ_Brackets or NJ_Tax_Single_Brackets
-     based on filing_status; each sub-table is a FIRST-policy bracket
-     table with one column per progressive bracket.
--->
+<!-- TABLE 42300: NJ_Tax -->
 <decision_table>
 <table_name>NJ_Tax</table_name>
 <xls_file>State.xls</xls_file>
@@ -41,7 +26,7 @@
 <COMMENTS>New Jersey state income tax dispatcher per Form NJ-1040 / N.J.S.A. 54A. Computes NJ gross income (federal AGI as a conservative simplification), exemptions ($1,000 per taxpayer + $1,500 per dependent), taxable income, then dispatches to a bracket sub-table based on filing status.</COMMENTS>
 <TABLE_NUMBER>42300</TABLE_NUMBER>
 </attribute_fields>
-<contexts />
+<contexts></contexts>
 <initial_actions>
 <initial_action>
 <initial_action_dsl />
@@ -105,19 +90,7 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 </policy_statements>
 </decision_table>
 
-
-<!-- TABLE 42310: NJ_Tax_MFJ_Brackets — eight progressive brackets for MFJ filers -->
-<!--
-  Per N.J.S.A. 54A:2-1 (joint schedule, tax year 2025):
-    bracket 1: $0 – $20,000     1.40%
-    bracket 2: $20,001 – $50,000  1.75%
-    bracket 3: $50,001 – $70,000  2.45%
-    bracket 4: $70,001 – $80,000  3.50%
-    bracket 5: $80,001 – $150,000 5.525%
-    bracket 6: $150,001 – $500,000 6.37%
-    bracket 7: $500,001 – $1,000,000 8.97%
-    bracket 8: $1,000,001 +      10.75%
--->
+<!-- TABLE 42310: NJ_Tax_MFJ_Brackets -->
 <decision_table>
 <table_name>NJ_Tax_MFJ_Brackets</table_name>
 <xls_file>State.xls</xls_file>
@@ -126,14 +99,16 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 <COMMENTS>NJ MFJ progressive brackets, one column per bracket. Input: result.nj_taxable_income. Output: result.nj_tax.</COMMENTS>
 <TABLE_NUMBER>42310</TABLE_NUMBER>
 </attribute_fields>
-<contexts />
-<initial_actions />
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Income in bracket 1 (≤ $20k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_1_limit_joint</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_1_limit_joint &lt;=</condition_postfix>
+<condition_postfix>
+result.nj_taxable_income nj_bracket_1_limit_joint &lt;=
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -147,7 +122,9 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 <condition_number>2</condition_number>
 <condition_comment>Income in bracket 2 (≤ $50k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_2_limit_joint</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_2_limit_joint &lt;=</condition_postfix>
+<condition_postfix>
+result.nj_taxable_income nj_bracket_2_limit_joint &lt;=
+</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -161,7 +138,9 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 <condition_number>3</condition_number>
 <condition_comment>Income in bracket 3 (≤ $70k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_3_limit_joint</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_3_limit_joint &lt;=</condition_postfix>
+<condition_postfix>
+result.nj_taxable_income nj_bracket_3_limit_joint &lt;=
+</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
@@ -175,7 +154,9 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 <condition_number>4</condition_number>
 <condition_comment>Income in bracket 4 (≤ $80k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_4_limit_joint</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_4_limit_joint &lt;=</condition_postfix>
+<condition_postfix>
+result.nj_taxable_income nj_bracket_4_limit_joint &lt;=
+</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
@@ -189,7 +170,9 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 <condition_number>5</condition_number>
 <condition_comment>Income in bracket 5 (≤ $150k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_5_limit_joint</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_5_limit_joint &lt;=</condition_postfix>
+<condition_postfix>
+result.nj_taxable_income nj_bracket_5_limit_joint &lt;=
+</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
@@ -203,7 +186,9 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 <condition_number>6</condition_number>
 <condition_comment>Income in bracket 6 (≤ $500k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_6_limit_joint</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_6_limit_joint &lt;=</condition_postfix>
+<condition_postfix>
+result.nj_taxable_income nj_bracket_6_limit_joint &lt;=
+</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
@@ -217,7 +202,9 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 <condition_number>7</condition_number>
 <condition_comment>Income in bracket 7 (≤ $1M)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_7_limit_joint</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_7_limit_joint &lt;=</condition_postfix>
+<condition_postfix>
+result.nj_taxable_income nj_bracket_7_limit_joint &lt;=
+</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
@@ -302,21 +289,10 @@ nj_bracket_1_limit_joint nj_bracket_1_rate f* nj_bracket_2_limit_joint nj_bracke
 <action_column column_number="8" column_value="X" />
 </action_details>
 </actions>
-<policy_statements />
+<policy_statements></policy_statements>
 </decision_table>
 
-
-<!-- TABLE 42320: NJ_Tax_Single_Brackets — seven progressive brackets for Single/HOH/MFS filers -->
-<!--
-  Per N.J.S.A. 54A:2-1 (single schedule, tax year 2025):
-    bracket 1: $0 – $20,000     1.40%
-    bracket 2: $20,001 – $35,000 1.75%
-    bracket 3: $35,001 – $40,000 3.50%
-    bracket 4: $40,001 – $75,000 5.525%
-    bracket 5: $75,001 – $500,000 6.37%
-    bracket 6: $500,001 – $1,000,000 8.97%
-    bracket 7: $1,000,001 +      10.75%
--->
+<!-- TABLE 42320: NJ_Tax_Single_Brackets -->
 <decision_table>
 <table_name>NJ_Tax_Single_Brackets</table_name>
 <xls_file>State.xls</xls_file>
@@ -325,14 +301,16 @@ nj_bracket_1_limit_joint nj_bracket_1_rate f* nj_bracket_2_limit_joint nj_bracke
 <COMMENTS>NJ Single/HOH/MFS progressive brackets, one column per bracket. Input: result.nj_taxable_income. Output: result.nj_tax.</COMMENTS>
 <TABLE_NUMBER>42320</TABLE_NUMBER>
 </attribute_fields>
-<contexts />
-<initial_actions />
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Bracket 1 (≤ $20k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_1_limit_single</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_1_limit_single &lt;=</condition_postfix>
+<condition_postfix>
+result.nj_taxable_income nj_bracket_1_limit_single &lt;=
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -345,7 +323,9 @@ nj_bracket_1_limit_joint nj_bracket_1_rate f* nj_bracket_2_limit_joint nj_bracke
 <condition_number>2</condition_number>
 <condition_comment>Bracket 2 (≤ $35k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_2_limit_single</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_2_limit_single &lt;=</condition_postfix>
+<condition_postfix>
+result.nj_taxable_income nj_bracket_2_limit_single &lt;=
+</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -358,7 +338,9 @@ nj_bracket_1_limit_joint nj_bracket_1_rate f* nj_bracket_2_limit_joint nj_bracke
 <condition_number>3</condition_number>
 <condition_comment>Bracket 3 (≤ $40k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_3_limit_single</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_3_limit_single &lt;=</condition_postfix>
+<condition_postfix>
+result.nj_taxable_income nj_bracket_3_limit_single &lt;=
+</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
@@ -371,7 +353,9 @@ nj_bracket_1_limit_joint nj_bracket_1_rate f* nj_bracket_2_limit_joint nj_bracke
 <condition_number>4</condition_number>
 <condition_comment>Bracket 4 (≤ $75k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_4_limit_single</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_4_limit_single &lt;=</condition_postfix>
+<condition_postfix>
+result.nj_taxable_income nj_bracket_4_limit_single &lt;=
+</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
@@ -384,7 +368,9 @@ nj_bracket_1_limit_joint nj_bracket_1_rate f* nj_bracket_2_limit_joint nj_bracke
 <condition_number>5</condition_number>
 <condition_comment>Bracket 5 (≤ $500k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_5_limit_single</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_5_limit_single &lt;=</condition_postfix>
+<condition_postfix>
+result.nj_taxable_income nj_bracket_5_limit_single &lt;=
+</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
@@ -397,7 +383,9 @@ nj_bracket_1_limit_joint nj_bracket_1_rate f* nj_bracket_2_limit_joint nj_bracke
 <condition_number>6</condition_number>
 <condition_comment>Bracket 6 (≤ $1M)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_6_limit_single</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_6_limit_single &lt;=</condition_postfix>
+<condition_postfix>
+result.nj_taxable_income nj_bracket_6_limit_single &lt;=
+</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
@@ -472,7 +460,6 @@ nj_bracket_1_limit_single nj_bracket_1_rate f* nj_bracket_2_limit_single nj_brac
 <action_column column_number="7" column_value="X" />
 </action_details>
 </actions>
-<policy_statements />
+<policy_statements></policy_statements>
 </decision_table>
-
 </decision_tables>

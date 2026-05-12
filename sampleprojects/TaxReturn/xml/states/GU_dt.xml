@@ -11,21 +11,16 @@
 <TABLE_NUMBER>50200</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-</initial_actions>
-<conditions>
-</conditions>
+<initial_actions></initial_actions>
+<conditions></conditions>
 <actions>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Non-resident - requires Form 5074 for allocation</action_comment>
 <action_dsl>Non-resident - requires Form 5074 for allocation</action_dsl>
-<action_postfix>
-
-</action_postfix>
+<action_postfix></action_postfix>
 </action_details>
 </actions>
-<policy_statements>
-</policy_statements>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>
