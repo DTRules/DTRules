@@ -49,31 +49,45 @@ func TestCheckHandCodedPostfix_IgnoresCommentOnlyPostfix(t *testing.T) {
 	}
 }
 
-func TestHasOnlyHandCodedPostfix_TrueWhenAllPostfix(t *testing.T) {
+func TestHasAnyHandCodedPostfix_TrueWhenAllPostfix(t *testing.T) {
 	entries := []PostfixEntry{
 		{Kind: "action", Number: 1, Postfix: "0 /result.x xdef"},
 		{Kind: "action", Number: 2, Postfix: "1 /result.y xdef"},
 	}
-	if !HasOnlyHandCodedPostfix(entries) {
+	if !HasAnyHandCodedPostfix(entries) {
 		t.Error("expected true: all entries are postfix-only")
 	}
 }
 
-func TestHasOnlyHandCodedPostfix_FalseWhenAnyDSL(t *testing.T) {
+// Strict rule (post-2026-05-12): a partially-authored table — some
+// entries in EL, others still in hand-coded postfix — is rejected. Any
+// single offending row fails the whole table.
+func TestHasAnyHandCodedPostfix_TrueWhenMixed(t *testing.T) {
 	entries := []PostfixEntry{
-		{Kind: "action", Number: 1, Postfix: "0 /result.x xdef"},
+		{Kind: "action", Number: 1, Postfix: "0 /result.x xdef"}, // hand-coded
 		{Kind: "action", Number: 2, DSL: "set result.y = 1", Postfix: "1 /result.y xdef"},
 	}
-	if HasOnlyHandCodedPostfix(entries) {
-		t.Error("expected false: at least one entry has DSL")
+	if !HasAnyHandCodedPostfix(entries) {
+		t.Error("expected true: action 1 has hand-coded postfix even though action 2 has DSL")
 	}
 }
 
-func TestHasOnlyHandCodedPostfix_FalseWhenNoPostfix(t *testing.T) {
+// All entries authored in EL — nothing hand-coded, nothing to block.
+func TestHasAnyHandCodedPostfix_FalseWhenAllAuthored(t *testing.T) {
+	entries := []PostfixEntry{
+		{Kind: "action", Number: 1, DSL: "set result.x = 0", Postfix: "0 /result.x xdef"},
+		{Kind: "action", Number: 2, DSL: "set result.y = 1", Postfix: "1 /result.y xdef"},
+	}
+	if HasAnyHandCodedPostfix(entries) {
+		t.Error("expected false: every entry has DSL")
+	}
+}
+
+func TestHasAnyHandCodedPostfix_FalseWhenNoPostfix(t *testing.T) {
 	entries := []PostfixEntry{
 		{Kind: "action", Number: 1, DSL: "set result.x = 0"},
 	}
-	if HasOnlyHandCodedPostfix(entries) {
+	if HasAnyHandCodedPostfix(entries) {
 		t.Error("expected false: no postfix anywhere")
 	}
 }

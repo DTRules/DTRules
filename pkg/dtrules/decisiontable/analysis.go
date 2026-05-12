@@ -109,29 +109,43 @@ func CheckHandCodedPostfix(tableName string, entries []PostfixEntry) []Warning {
 	return ws
 }
 
-// HasOnlyHandCodedPostfix reports whether a table is "fully legacy" — it
-// has at least one hand-coded-postfix element AND zero EL-authored
-// elements anywhere. The runtime treats true here as a hard block: such
-// tables refuse to execute because their postfix has not gone through EL
-// compilation and is therefore not the trusted form.
+// HasAnyHandCodedPostfix reports whether ANY element of the table has
+// hand-coded postfix — non-empty postfix paired with no EL DSL. The
+// runtime treats true here as a hard block: hand-authored postfix
+// bypasses the authoring API, which is the supported edit surface, and
+// risks the next `dtrules build` re-emitting empty postfix from the
+// empty EL DSL. Any single offending element fails the entire table.
 //
-// A partially-authored table (some elements in EL, some still postfix)
-// is NOT blocked here — both forms coexist by design while a table is
-// being migrated. The per-element CheckHandCodedPostfix warnings call
-// out the rows that still need EL.
-func HasOnlyHandCodedPostfix(entries []PostfixEntry) bool {
-	hasPostfix := false
-	hasDSL := false
+// Per-element diagnostics are still available via CheckHandCodedPostfix;
+// the table-level flag here is what the loader plumbs through to
+// RDecisionTable.SetHandCodedPostfix.
+func HasAnyHandCodedPostfix(entries []PostfixEntry) bool {
 	for _, e := range entries {
-		if strings.TrimSpace(e.DSL) != "" {
-			hasDSL = true
-		}
 		postfix := strings.TrimSpace(e.Postfix)
-		if postfix != "" && !isCommentOrEmpty(postfix) {
-			hasPostfix = true
+		if postfix == "" || isCommentOrEmpty(postfix) {
+			continue
+		}
+		if strings.TrimSpace(e.DSL) == "" {
+			return true
 		}
 	}
-	return hasPostfix && !hasDSL
+	return false
+}
+
+// FirstHandCodedElement returns a human-readable description of the first
+// element in `entries` that has hand-coded postfix without EL DSL, or ""
+// if none. Used to enrich the runtime refusal message.
+func FirstHandCodedElement(entries []PostfixEntry) string {
+	for _, e := range entries {
+		postfix := strings.TrimSpace(e.Postfix)
+		if postfix == "" || isCommentOrEmpty(postfix) {
+			continue
+		}
+		if strings.TrimSpace(e.DSL) == "" {
+			return fmt.Sprintf("%s %d", e.Kind, e.Number)
+		}
+	}
+	return ""
 }
 
 // isCommentOrEmpty reports whether a postfix block contains only blank

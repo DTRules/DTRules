@@ -612,7 +612,11 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	// hard block; the operator must author EL DSL for at least one row to
 	// unblock.
 	if legacy {
-		dt.SetHandCodedPostfix(true, "loaded from "+table.XlsFile)
+		reason := "loaded from " + table.XlsFile
+		if first := decisiontable.FirstHandCodedElement(collectPostfixEntries(table)); first != "" {
+			reason = reason + "; " + first + " has hand-coded postfix without EL DSL"
+		}
+		dt.SetHandCodedPostfix(true, reason)
 	}
 
 	// Register the decision table with the factory
@@ -975,7 +979,7 @@ func (l *DTLoader) GetErrors() []error {
 // collectPostfixEntries builds the analysis-package PostfixEntry slice for
 // every element of a DTTable: contexts, initial actions, conditions, and
 // actions. Used to feed the canonical detector in
-// decisiontable.HasOnlyHandCodedPostfix / CheckHandCodedPostfix.
+// decisiontable.HasAnyHandCodedPostfix / CheckHandCodedPostfix.
 func collectPostfixEntries(table *DTTable) []decisiontable.PostfixEntry {
 	var entries []decisiontable.PostfixEntry
 	for i, ctx := range table.Contexts.Contexts {
@@ -1011,10 +1015,10 @@ func collectPostfixEntries(table *DTTable) []decisiontable.PostfixEntry {
 
 // detectLegacyPostfix reports whether a table has hand-coded postfix without
 // any EL DSL — i.e. it would refuse to execute under the runtime's
-// hand-coded-postfix gate. Delegates to decisiontable.HasOnlyHandCodedPostfix
+// hand-coded-postfix gate. Delegates to decisiontable.HasAnyHandCodedPostfix
 // so the loader and analyzer agree on the rule.
 func (l *DTLoader) detectLegacyPostfix(table *DTTable) bool {
-	return decisiontable.HasOnlyHandCodedPostfix(collectPostfixEntries(table))
+	return decisiontable.HasAnyHandCodedPostfix(collectPostfixEntries(table))
 }
 
 // warnLegacyPostfix logs a warning about a table with hand-coded postfix.

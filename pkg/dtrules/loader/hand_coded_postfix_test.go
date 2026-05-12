@@ -125,10 +125,94 @@ func TestLegacyPostfixTable_RefusesExecute(t *testing.T) {
 	}
 }
 
-// TestMixedPostfixDSLTable_ExecutesOK is the negative case: a table that has
-// BOTH postfix AND EL DSL on every element loads and executes. The
-// hand-coded-postfix gate is only meant to block fully-legacy tables.
-func TestMixedPostfixDSLTable_ExecutesOK(t *testing.T) {
+// TestPartiallyAuthoredTable_RefusesExecute: under the strict per-element
+// rule, even a single hand-coded-postfix element in an otherwise
+// EL-authored table is enough to block execution. The authoring API is
+// the supported edit surface; any element bypassing it is rejected.
+func TestPartiallyAuthoredTable_RefusesExecute(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	const eddContent = `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="1.0">
+  <file_metadata><file_path>test/10000</file_path></file_metadata>
+  <entity name="result">
+    <field name="x" type="double" default_value="0.0"/>
+    <field name="y" type="double" default_value="0.0"/>
+  </entity>
+</entity_data_dictionary>`
+
+	const dtContent = `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+  <decision_table>
+    <table_name>Partial_DSL_Postfix</table_name>
+    <xls_file>partial.xls</xls_file>
+    <attribute_fields>
+      <TABLE_NUMBER>10002</TABLE_NUMBER>
+      <Type>FIRST</Type>
+    </attribute_fields>
+    <contexts></contexts>
+    <initial_actions></initial_actions>
+    <conditions>
+      <condition_details>
+        <condition_number>1</condition_number>
+        <condition_dsl>true</condition_dsl>
+        <condition_postfix>true</condition_postfix>
+        <condition_column column_number="1" column_value="Y"/>
+      </condition_details>
+    </conditions>
+    <actions>
+      <action_details>
+        <action_number>1</action_number>
+        <action_dsl>set result.x = 1</action_dsl>
+        <action_postfix>1.0 /result.x xdef</action_postfix>
+        <action_column column_number="1" column_value="X"/>
+      </action_details>
+      <action_details>
+        <action_number>2</action_number>
+        <action_dsl></action_dsl>
+        <action_postfix>2.0 /result.y xdef</action_postfix>
+        <action_column column_number="1" column_value="X"/>
+      </action_details>
+    </actions>
+    <policy_statements></policy_statements>
+  </decision_table>
+</decision_tables>`
+
+	if err := os.WriteFile(filepath.Join(tmpDir, "test_edd.xml"), []byte(eddContent), 0o644); err != nil {
+		t.Fatalf("write edd: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(tmpDir, "test_dt.xml"), []byte(dtContent), 0o644); err != nil {
+		t.Fatalf("write dt: %v", err)
+	}
+
+	rs := session.NewRuleSet("test")
+	if err := loader.LoadRulesFromDirectory(rs, tmpDir); err != nil {
+		t.Fatalf("LoadRulesFromDirectory: %v", err)
+	}
+	dt, _ := rs.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Partial_DSL_Postfix"))
+	rdt, ok := dt.(*decisiontable.RDecisionTable)
+	if !ok {
+		t.Fatalf("expected *RDecisionTable, got %T", dt)
+	}
+	if !rdt.HasHandCodedPostfix() {
+		t.Fatal("strict rule should flag the table — action 2 has postfix without DSL")
+	}
+	if !strings.Contains(rdt.HandCodedPostfixReason(), "action 2") {
+		t.Errorf("reason should name the offending element: %q", rdt.HandCodedPostfixReason())
+	}
+
+	sess, err := rs.NewSession()
+	if err != nil {
+		t.Fatalf("NewSession: %v", err)
+	}
+	if err := rdt.ExecuteTable(sess.GetState()); err == nil {
+		t.Fatal("ExecuteTable should refuse a partially-authored table")
+	}
+}
+
+// TestFullyAuthoredTable_ExecutesOK: every element has DSL — nothing
+// hand-coded — so the table is allowed to execute.
+func TestFullyAuthoredTable_ExecutesOK(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	const eddContent = `<?xml version="1.0" encoding="UTF-8"?>
@@ -142,10 +226,10 @@ func TestMixedPostfixDSLTable_ExecutesOK(t *testing.T) {
 	const dtContent = `<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
   <decision_table>
-    <table_name>Mixed_DSL_Postfix</table_name>
-    <xls_file>mixed.xls</xls_file>
+    <table_name>Fully_Authored</table_name>
+    <xls_file>authored.xls</xls_file>
     <attribute_fields>
-      <TABLE_NUMBER>10002</TABLE_NUMBER>
+      <TABLE_NUMBER>10003</TABLE_NUMBER>
       <Type>FIRST</Type>
     </attribute_fields>
     <contexts></contexts>
@@ -181,12 +265,12 @@ func TestMixedPostfixDSLTable_ExecutesOK(t *testing.T) {
 	if err := loader.LoadRulesFromDirectory(rs, tmpDir); err != nil {
 		t.Fatalf("LoadRulesFromDirectory: %v", err)
 	}
-	dt, _ := rs.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Mixed_DSL_Postfix"))
+	dt, _ := rs.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Fully_Authored"))
 	rdt, ok := dt.(*decisiontable.RDecisionTable)
 	if !ok {
 		t.Fatalf("expected *RDecisionTable, got %T", dt)
 	}
 	if rdt.HasHandCodedPostfix() {
-		t.Error("a table with EL DSL should not be flagged as hand-coded-postfix")
+		t.Error("a fully-authored table should not be flagged")
 	}
 }
