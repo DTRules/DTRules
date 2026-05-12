@@ -14,7 +14,8 @@
 		<field name="nc_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="12750.0" comment="NC standard deduction for single filers (2025)"></field>
 		<field name="nc_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="NC total subtractions from federal AGI (computed)"></field>
 		<field name="nc_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0425" comment="NC flat income tax rate - 4.25% for 2025 (reducing to 3.99% in 2026). Source: NC DOR"></field>
-		<field name="nc_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="NC taxable income after deductions (computed)"></field>
-		<field name="nc_total_deduction" type="double" subtype="" access="r" input="" default_value="0.0" comment="NC total deduction (greater of standard or itemized, computed)"></field>
+		<field name="nc_taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="NC taxable income after deductions (computed)"></field>
+		<field name="nc_total_deduction" type="double" subtype="" access="rw" input="" default_value="0.0" comment="NC total deduction (greater of standard or itemized, computed)"></field>
+		<field name="nc_state_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="NC state income tax (computed). NC taxable income × 4.25% flat rate"></field>
 	</entity>
 </entity_data_dictionary>
