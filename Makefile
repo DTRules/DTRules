@@ -52,14 +52,26 @@ test:
 
 # check: full-module verification that agents must run before declaring a task complete.
 # Excludes ./pkg/dtrules/ root (pre-existing tax-content failures tracked in #520).
-# go vet excludes compiler/el (ANTLR-generated), interpreter (ASM), cmd (pre-existing test ref).
+# Exclusions are explicit. Re-enable a package by adding it to both vet and
+# test target lists below. Current exclusions and why:
+#   - pkg/dtrules/  (root, tests only): pre-existing tax-content failures, #520.
+#   - pkg/dtrules/authoring/  (tests only): pre-existing failures unrelated to
+#     the engine — TestDeleteCondition_RemainingConditionsStay + the forall
+#     tests assume a different scenario layout. Tracked separately.
+#   - pkg/dtrules/compiler/el/  (vet only): ANTLR-generated parser triggers
+#     "unreachable code" diagnostics that aren't worth fighting per-regen.
+#   - pkg/dtrules/interpreter/  (vet only): asm_stubs.go declares extern
+#     symbols that vet can't see implementations for. Build still passes
+#     because amd64-only files are gated by //go:build amd64.
+#   - pkg/dtrules/cmd  (vet only): pre-existing test reference; vet flags it
+#     but tests pass.
 check:
 	@echo "Checking full module build..."
 	go build ./...
-	@echo "Running go vet (pkg packages only)..."
-	go vet ./pkg/dtrules/compiler/ ./pkg/dtrules/decisiontable/... ./pkg/dtrules/encoding/... ./pkg/dtrules/excel/... ./pkg/dtrules/loader/... ./pkg/dtrules/mapping/... ./pkg/dtrules/operators/... ./pkg/dtrules/runtime/... ./pkg/dtrules/session/... ./pkg/dtrules/sync/... ./pkg/dtrules/version/...
-	@echo "Running tests (scoped -- excludes root pkg/dtrules/ known failures)..."
-	go test -count=1 ./cmd/... ./pkg/dtrules/compiler/... ./pkg/dtrules/decisiontable/... ./pkg/dtrules/encoding/... ./pkg/dtrules/excel/... ./pkg/dtrules/interpreter/... ./pkg/dtrules/loader/... ./pkg/dtrules/mapping/... ./pkg/dtrules/operators/... ./pkg/dtrules/runtime/... ./pkg/dtrules/session/... ./pkg/dtrules/sync/... ./pkg/dtrules/version/...
+	@echo "Running go vet..."
+	go vet ./pkg/dtrules/analysis/... ./pkg/dtrules/benchmark/... ./pkg/dtrules/compiler/ ./pkg/dtrules/decisiontable/... ./pkg/dtrules/encoding/... ./pkg/dtrules/entity/... ./pkg/dtrules/excel/... ./pkg/dtrules/loader/... ./pkg/dtrules/mapping/... ./pkg/dtrules/operators/... ./pkg/dtrules/repository/... ./pkg/dtrules/ruleset/... ./pkg/dtrules/runtime/... ./pkg/dtrules/session/... ./pkg/dtrules/sync/... ./pkg/dtrules/testsupport/... ./pkg/dtrules/trace/... ./pkg/dtrules/version/...
+	@echo "Running tests..."
+	go test -count=1 ./cmd/... ./pkg/dtrules/analysis/... ./pkg/dtrules/benchmark/... ./pkg/dtrules/compiler/... ./pkg/dtrules/decisiontable/... ./pkg/dtrules/encoding/... ./pkg/dtrules/entity/... ./pkg/dtrules/excel/... ./pkg/dtrules/interpreter/... ./pkg/dtrules/loader/... ./pkg/dtrules/mapping/... ./pkg/dtrules/operators/... ./pkg/dtrules/repository/... ./pkg/dtrules/ruleset/... ./pkg/dtrules/runtime/... ./pkg/dtrules/session/... ./pkg/dtrules/sync/... ./pkg/dtrules/testsupport/... ./pkg/dtrules/trace/... ./pkg/dtrules/version/...
 	@echo "Running hand-coded-postfix gate (any element with postfix-without-EL-DSL fails)..."
 	go test -count=1 -run "^TestTaxReturn_NoHandCodedPostfix$$" ./pkg/dtrules/
 	@echo "check passed."
