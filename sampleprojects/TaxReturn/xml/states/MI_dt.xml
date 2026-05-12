@@ -30,7 +30,7 @@
 <initial_actions>
 <initial_action>
 <action_comment>Reset MI tax fields and log calculation start</action_comment>
-<initial_action_dsl />
+<initial_action_dsl>set result.mi_state_tax = 0; set result.mi_taxable_income = 0; set result.mi_total_exemption = 0; add "  Michigan Tax Calculation (Form MI-1040) - flat 4.25%" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 0.0 /result.mi_state_tax xdef

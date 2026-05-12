@@ -30,7 +30,7 @@
 <initial_actions>
 <initial_action>
 <action_comment>Reset AZ tax fields and log calculation start</action_comment>
-<initial_action_dsl />
+<initial_action_dsl>set result.az_state_tax = 0; set result.az_taxable_income = 0; add "  Arizona Tax Calculation (Form 140) - flat 2.5%" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 0.0 /result.az_state_tax xdef

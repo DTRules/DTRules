@@ -13,9 +13,8 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>set result.tn_tax = 0; add "  Tennessee (no state income tax)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>set result.tn_tax = 0; add "  TN has no state income tax: $0" to job.audit_trail</action_dsl>
 <action_postfix>
 "TENNESSEE FORM TN-1040 - State Income Tax Calculation" job.audit_trail swap addto
 result.agi /result.tn_agi xdef

@@ -30,7 +30,7 @@
 <initial_actions>
 <initial_action>
 <action_comment>Reset IN tax fields and log calculation start</action_comment>
-<initial_action_dsl />
+<initial_action_dsl>set result.in_state_tax = 0; set result.in_taxable_income = 0; set result.in_total_exemptions = 0; add "  Indiana Tax Calculation (Form IT-40) - flat 3.00%" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 0.0 /result.in_state_tax xdef

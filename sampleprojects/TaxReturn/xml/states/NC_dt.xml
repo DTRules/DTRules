@@ -14,7 +14,7 @@
 <initial_actions>
 <initial_action>
 <action_comment>Reset NC tax fields and log calculation start</action_comment>
-<initial_action_dsl />
+<initial_action_dsl>set result.nc_state_tax = 0; set result.nc_taxable_income = 0; set result.nc_total_deduction = 0; add "  North Carolina Tax Calculation (Form D-400) - flat 4.25%" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 0.0 /result.nc_state_tax xdef

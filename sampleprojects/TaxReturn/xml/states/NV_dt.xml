@@ -13,9 +13,8 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>set result.nv_state_tax = 0; add "  Nevada (no state income tax)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>Initialize NV tax calculation</action_dsl>
 <action_postfix>
 "NEVADA - State Income Tax Calculation" job.audit_trail swap addto
 result.agi /result.nv_agi xdef

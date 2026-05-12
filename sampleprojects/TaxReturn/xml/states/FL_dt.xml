@@ -13,9 +13,8 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>set result.fl_tax = 0; add "  Florida (no state income tax)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>set result.fl_tax = 0; add "  FL has no state income tax: $0" to job.audit_trail</action_dsl>
 <action_postfix>
 0 /result.fl_tax xdef
 "  FL has no state income tax: $0" job.audit_trail swap addto
