@@ -93,10 +93,11 @@ func (t *Table) syncFromXML() {
 	t.Policy = t.xml.AttributeFields.Type
 
 	t.Contexts = nil
+	// Surface every <context_details> entry to the typed view, even ones
+	// whose DSL is empty — they're targets for `update-context` patches
+	// during EL authoring of legacy postfix-only contexts.
 	for _, d := range t.xml.Contexts.Details {
-		if dsl := strings.TrimSpace(d.DSL); dsl != "" {
-			t.Contexts = append(t.Contexts, Context{DSL: dsl})
-		}
+		t.Contexts = append(t.Contexts, Context{DSL: strings.TrimSpace(d.DSL)})
 	}
 
 	t.InitialActions = nil

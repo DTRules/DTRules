@@ -62,7 +62,7 @@
 <initial_actions>
 <initial_action>
 <action_comment>Reset CA tax fields and log calculation start</action_comment>
-<initial_action_dsl />
+<initial_action_dsl>set result.ca_state_tax = 0.0; set result.ca_taxable_income = 0.0; set result.ca_mhst = 0.0; set result.ca_total_tax = 0.0; add "  California Tax Calculation (Form 540) — 10-bracket progressive 1.0-13.3% + 1% MHST &gt; $1M" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 0.0 /result.ca_state_tax xdef

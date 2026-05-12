@@ -7755,7 +7755,7 @@ k1_se_tax se_deduction_rate f* result.total_adjustments f+ /result.total_adjustm
 <context_number>1</context_number>
 <context_comment>Current IRA account being processed</context_comment>
 <context_name>ira</context_name>
-<context_dsl />
+<context_dsl>for all ira_accounts</context_dsl>
 <context_postfix>
 job.ira_accounts
 </context_postfix>
@@ -7763,9 +7763,8 @@ job.ira_accounts
 </contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>add "IRA PROCESSING" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>add "IRA PROCESSING" to job.audit_trail</action_dsl>
 <action_postfix>
 "Processing IRA Accounts (Form 8606)" job.audit_trail swap addto
 </action_postfix>
@@ -8399,7 +8398,7 @@ foreign_earned_income.housing_exclusion result.foreign_housing_exclusion f+ /res
 <action_details>
 <action_number>2</action_number>
 <action_comment>Does not qualify for FEIE</action_comment>
-<action_dsl />
+<action_dsl>set foreign_earned_income.qualifies_exclusion = false; add "  Does not qualify for FEIE - did not meet residence or presence test" to job.audit_trail</action_dsl>
 <action_postfix>
 false /foreign_earned_income.qualifies_exclusion xdef
 "  Does not qualify for FEIE - did not meet residence or presence test" job.audit_trail swap addto
@@ -9292,9 +9291,8 @@ partnership_audit.total_amount_due result.partnership_audit_tax f+ /result.partn
 </contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>Initialize energy appliance credit</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>Initialize energy appliance credit</action_dsl>
 <action_postfix>
 0.0 /result.energy_appliance_credit xdef
 </action_postfix>
@@ -9315,7 +9313,7 @@ taxpayer.energy_efficient_appliances_produced 0 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate energy appliance credit</action_comment>
-<action_dsl />
+<action_dsl>set taxpayer.appliance_credit = 0.0; add "  Energy appliance credit placeholder" to job.audit_trail</action_dsl>
 <action_postfix>
 0.0 /taxpayer.appliance_credit xdef
 "  Energy appliance credit placeholder" job.audit_trail swap addto
@@ -9468,9 +9466,8 @@ lihtc_recapture.total_recapture_tax result.lihtc_recapture_tax f+ /result.lihtc_
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>Initialize part-year calculation</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>Initialize part-year calculation</action_dsl>
 <action_postfix>
 state_tax_result.residency_status "part_year_resident" streq if
   "  Part-Year Resident Calculation for " state_tax_result.state_code strconcat job.audit_trail swap addto
@@ -9519,7 +9516,7 @@ state_tax_result.resident_income state_tax_result.non_resident_income f+ /state_
 <action_details>
 <action_number>2</action_number>
 <action_comment>Full-year resident or non-resident; No allocation needed</action_comment>
-<action_dsl />
+<action_dsl>set state_tax_result.resident_months = 12; set state_tax_result.resident_ratio = 1.0; set state_tax_result.state_agi = result.agi; set state_tax_result.resident_income = 0; set state_tax_result.non_resident_income = 0; set state_tax_result.allocated_deductions = result.total_deductions</action_dsl>
 <action_postfix>
 12 /state_tax_result.resident_months xdef
 1.0 /state_tax_result.resident_ratio xdef
@@ -12815,7 +12812,7 @@ MP_Tax
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>set result.general_business_credit_total = 0; set result.general_business_credit_used = 0; set result.general_business_credit_carryforward = 0; add "GENERAL BUSINESS CREDIT (Form 3800)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
 0 /result.general_business_credit_total xdef
 0 /result.general_business_credit_used xdef
@@ -12961,7 +12958,7 @@ otherwise
 <action_details>
 <action_number>1</action_number>
 <action_comment>Mark dependent subject to kiddie tax; Set kiddie tax flag to true</action_comment>
-<action_dsl />
+<action_dsl>set dependent.subject_to_kiddie_tax = true</action_dsl>
 <action_postfix>
 true /dependent.subject_to_kiddie_tax xdef
 </action_postfix>
@@ -13014,8 +13011,8 @@ net_unearned_income parent_marginal_rate f* /dependent.kiddie_tax_amount xdef
 "    Parent's marginal tax rate: " parent_marginal_rate 100 f* cvs strconcat "%" strconcat job.audit_trail swap addto
 "    Kiddie tax amount: $" dependent.kiddie_tax_amount cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -13031,7 +13028,7 @@ result.total_tax_before_credits dependent.kiddie_tax_amount f+ /result.total_tax
 <action_details>
 <action_number>5</action_number>
 <action_comment>Kiddie tax does not apply - initialize to zero; No kiddie tax applicable</action_comment>
-<action_dsl />
+<action_dsl>set dependent.subject_to_kiddie_tax = false; set dependent.kiddie_tax_amount = 0.0</action_dsl>
 <action_postfix>
 false /dependent.subject_to_kiddie_tax xdef
 0.0 /dependent.kiddie_tax_amount xdef
@@ -13054,7 +13051,7 @@ false /dependent.subject_to_kiddie_tax xdef
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>set result.schedule_h_social_security_tax = 0; set result.schedule_h_medicare_tax = 0; set result.schedule_h_futa_tax = 0; set result.schedule_h_total_tax = 0; add "SCHEDULE H - Household Employment Taxes" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
 0 /result.schedule_h_social_security_tax xdef
 0 /result.schedule_h_medicare_tax xdef
@@ -13213,8 +13210,6 @@ household_employee.cash_wages constants.futa_wage_base fmin constants.futa_rate 
 taxpayer.combat_zone_service true eq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="" />
-<condition_column column_number="3" column_value="" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -13224,8 +13219,6 @@ taxpayer.combat_zone_service true eq
 taxpayer.military_rank "enlisted" streq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="" />
-<condition_column column_number="3" column_value="" />
 </condition_details>
 </conditions>
 <actions>
@@ -13275,7 +13268,7 @@ result.total_combat_zone_exclusion taxpayer.combat_zone_exclusion f+ /result.tot
 <action_details>
 <action_number>3</action_number>
 <action_comment>No combat zone service; No exclusion</action_comment>
-<action_dsl />
+<action_dsl>set taxpayer.combat_zone_exclusion = 0.0</action_dsl>
 <action_postfix>
 0.0 /taxpayer.combat_zone_exclusion xdef
 </action_postfix>
@@ -13401,9 +13394,8 @@ taxpayer.is_military true eq {
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>Initialize coordination of military and foreign income</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>Initialize coordination of military and foreign income</action_dsl>
 <action_postfix>
 "Coordinating Military Combat Zone and Foreign Earned Income Exclusions" job.audit_trail swap addto
 </action_postfix>
@@ -13420,7 +13412,6 @@ job.foreign_earned_incomes length 0 &gt;
 and
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="" />
 </condition_details>
 </conditions>
 <actions>
@@ -13450,7 +13441,7 @@ result.total_combat_zone_exclusion result.foreign_earned_income_exclusion f+
 <action_details>
 <action_number>2</action_number>
 <action_comment>No coordination needed; Only one type of exclusion or none</action_comment>
-<action_dsl />
+<action_dsl>set result.combined_military_foreign_exclusion = 0.0</action_dsl>
 <action_postfix>
 0.0 /result.combined_military_foreign_exclusion xdef
 </action_postfix>
