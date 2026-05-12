@@ -60,6 +60,8 @@ check:
 	go vet ./pkg/dtrules/compiler/ ./pkg/dtrules/decisiontable/... ./pkg/dtrules/encoding/... ./pkg/dtrules/excel/... ./pkg/dtrules/loader/... ./pkg/dtrules/mapping/... ./pkg/dtrules/operators/... ./pkg/dtrules/runtime/... ./pkg/dtrules/session/... ./pkg/dtrules/sync/... ./pkg/dtrules/version/...
 	@echo "Running tests (scoped -- excludes root pkg/dtrules/ known failures)..."
 	go test -count=1 ./cmd/... ./pkg/dtrules/compiler/... ./pkg/dtrules/decisiontable/... ./pkg/dtrules/encoding/... ./pkg/dtrules/excel/... ./pkg/dtrules/interpreter/... ./pkg/dtrules/loader/... ./pkg/dtrules/mapping/... ./pkg/dtrules/operators/... ./pkg/dtrules/runtime/... ./pkg/dtrules/session/... ./pkg/dtrules/sync/... ./pkg/dtrules/version/...
+	@echo "Running EL-compliance regression test (catches tables that reintroduce hand-coded postfix)..."
+	go test -count=1 -run "^TestTaxReturn_NoLegacyPostfix$$" ./pkg/dtrules/
 	@echo "check passed."
 
 version:

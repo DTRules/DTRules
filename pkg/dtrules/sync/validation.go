@@ -403,6 +403,14 @@ type dtInitialActionXML struct {
 	ActionComment  string `xml:"action_comment"`
 }
 
+// GetDSL returns the DSL expression with precedence:
+//   - <initial_action_dsl> (modern form),
+//   - <action_dsl> (legacy alternate form),
+//   - <initial_action_description> (legacy description-as-DSL form).
+//
+// <action_comment> is NOT a DSL fallback — it's a human-facing comment and
+// shouldn't make a table look "EL-authored" for purposes of the legacy-
+// postfix detector.
 func (a *dtInitialActionXML) GetDSL() string {
 	if a.DSL != "" {
 		return a.DSL
@@ -410,10 +418,7 @@ func (a *dtInitialActionXML) GetDSL() string {
 	if a.ActionDSL != "" {
 		return a.ActionDSL
 	}
-	if a.Description != "" {
-		return a.Description
-	}
-	return a.ActionComment
+	return a.Description
 }
 
 // GetPostfix returns the entry's postfix from whichever tag form is
