@@ -10015,10 +10015,25 @@ ifelse
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>California state tax — CA_Tax, CA_AGI, and CA_Military_Retirement_Exemption all reference fields (result.ca_agi, result.filing_status, etc.) not present on the EDD entity stack; calling them crashes. Disabled until those tables are repaired (see #446). The dispatch logs and skips so OBBBA/baseline tests using state=CA keep passing.</action_comment>
-<action_dsl />
+<action_comment>Calculate California state tax (9-bracket progressive + MHST)</action_comment>
+<action_dsl>perform CA_Tax</action_dsl>
 <action_postfix>
-"  California state tax skipped — CA_Tax tables reference undefined fields; see #446." job.audit_trail swap addto
+/CA_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.ca_state_tax /state_tax_before_credits xdef
+  result.ca_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  California State Income Tax:" job.audit_trail swap addto
+"    CA Taxable Income: $" result.ca_taxable_income cvs strconcat job.audit_trail swap addto
+"    CA State Tax: $" result.ca_state_tax cvs strconcat " (progressive per CA Rev. &amp; Tax. Code § 17041 + § 17043 MHST)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
