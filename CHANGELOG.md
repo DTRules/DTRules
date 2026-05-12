@@ -1,5 +1,81 @@
 # DTRules Changelog
 
+## v1.11.0 — 2026-05-12
+
+Headline: strict hand-coded-postfix runtime gate; TaxReturn cleared to
+zero violations; two new EL grammar primitives close the last real
+gaps (#769).
+
+- **Strict hand-coded-postfix runtime block.** The interpreter now
+  refuses to execute any decision table whose elements carry postfix
+  without matching EL DSL. Hand-edited postfix bypasses the authoring
+  API, which is the supported edit surface, and risks the next
+  `dtrules build` re-emitting empty postfix from the empty DSL — so
+  the loader flags any such table at load time and `Execute` /
+  `ExecuteTable` return an error before running. A project-level
+  test (`TestTaxReturn_NoHandCodedPostfix`) enforces zero violations
+  across the TaxReturn sample on every CI run, plumbed into
+  `make check`.
+
+- **EL: `create <type-name> as <local-name>`.** Constructs a fresh
+  entity instance of the named type and binds it to a local. Lowers
+  to `/typeName createentity /localName xdef`. The local is then a
+  valid target for `set <local>.<field> = X` (via the existing
+  setEntityField path) and `add <local> to <collection>` (existing
+  `addto`). Closes the entity-creation-in-action-bodies gap that 4
+  TaxReturn dispatch elements were using as hand-coded postfix
+  (Build_State_Tax_Result_For_Period actions 1 + 2;
+  Dispatch_State_Tax initial_action 1 + action 10).
+
+- **EL: `perform table named (<string-expression>)`.** Runtime
+  resolution of a decision-table name from a string expression.
+  Lowers to `<expr> performtable` — the existing
+  `RString.RNameValue` coercion handles the string→name step.
+  No `otherwise` clause: an unknown table at runtime is a normal
+  undefined-table error, the same path a typo in a literal `perform`
+  takes. Conditional fallback for unknown values belongs in the
+  decision-table structure (an explicit "unknown" column with its
+  own logging action), not in the action body.
+
+- **Authoring API round-trip preservation.** `update-condition-dsl`,
+  `update-action-dsl`, `update-context`, `update-initial-action`,
+  and `add-`/`delete-` ops now preserve every unmodeled XML field on
+  round-trip: hand-coded postfix on still-flagged elements, comments,
+  `<context_entity>` directives, both modern (`<initial_action_dsl>`)
+  and legacy (`<action_dsl>` inside `<initial_action>`) tag
+  conventions, and `"-"` "don't care" column values. The earlier
+  syncToXML rewrote these and broke runtime semantics; the typed view
+  now matches against the original XML by Number/index before
+  emitting.
+
+- **TaxReturn cleared from ~266 hand-coded-postfix elements to 0.**
+  Authoring rounds 1–7 cover the bulk; the final 10 split as:
+  4 entity-creation elements closed by Gap A above; 1 dynamic
+  dispatch closed by Gap B above; 1 broken-context restructure in
+  SC_Tax_Brackets (helper table `SC_Compute_Taxable_Income` lifts
+  the filing-status branch); 1 Dispatch_State_Tax initial_action
+  restructure (`Log_State_Tax_Start` + `Apply_Part_Year_Allocations`
+  helpers replace the postfix ifelse + nested forall); 1 MO/HI
+  combined dispatch split into `Dispatch_MO_HI_Tax` +
+  `Synthesize_State_Tax_Result_If_Empty` helpers; 2 duplicate
+  `condition_number=10` rows renumbered (HI → 43, NJ → 44) and
+  their stale "NJ" postfix corrected; 2 empty-number-tag data fixes
+  in Calculate_Educator_Expenses; 1 dead action_number=7 dropped
+  (it built `Calculate_<state>_Tax` names that match no table in
+  the project).
+
+- **41-state dispatch coverage.** Every state with income tax now
+  has a wired `XX_Tax` table in `Dispatch_State_Tax`.
+  `TestComprehensiveStateTaxes` is 135/135 across single, MFJ, and
+  high-earner scenarios in every state plus DC. The territory stubs
+  (AS, LA, MP, NM, PR, VI) and several states still use
+  top-marginal-rate approximations rather than full brackets —
+  tracked by #178.
+
+- **Closes #496** (EL DSL for tax-computation tables 022-026) and
+  **#499** (EL DSL for special-forms tables 040-101). Every element
+  with postfix in TaxReturn now carries matching EL DSL.
+
 ## v1.10.0 — 2026-05-02
 
 Headline: explicit timezone DSL for every tz-dependent date operator (#743).
