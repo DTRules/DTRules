@@ -1,0 +1,51 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+   </copyright>
+
+   <!-- Tax Return Configuration -->
+   <id>1</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>TX</state>
+   <city>Houston</city>
+
+   <!-- Level 1 Simple: Single filer, W-2 only, standard deduction -->
+   <!-- AGI: $65,000 W-2 wages -->
+   <!-- Standard Deduction (2025 Single, OBBBA Sec 13404): $15,750 -->
+   <!-- Taxable Income: $65,000 - $15,750 = $49,250 -->
+   <!-- 2025 Single brackets (Rev. Proc. 2024-40): -->
+   <!--   10% on $11,925           = $1,192.50 -->
+   <!--   12% on $36,550           = $4,386.00 -->
+   <!--   22% on $775              = $170.50 -->
+   <!--   Total                    ≈ $5,749 -->
+   <expected_agi>65000</expected_agi>
+   <expected_taxable_income>49250</expected_taxable_income>
+   <expected_total_tax>5749</expected_total_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Sarah Johnson</name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>5/10/1990</date_of_birth>
+         <occupation>Engineer</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>65000</w2_wages>
+         <w2_withholding>7000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+   </dependents>
+
+   <itemized_deductions>
+   </itemized_deductions>
+
+</job>

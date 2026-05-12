@@ -1,0 +1,48 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com — Net Investment Income Tax scenario
+      Licensed under the Apache License, Version 2.0 (the "License").
+   </copyright>
+
+   <!-- Tests the 3.8% Net Investment Income Tax per IRC §1411 / Form 8960.
+        Single filer with combined W-2 + investment income that pushes
+        MAGI above the $200,000 Single threshold; NIIT applies to the
+        LESSER of NII or MAGI over the threshold.
+
+          W-2 wages                     = $180,000
+          Interest income               = $15,000
+          Qualified dividends           = $10,000
+          Long-term capital gains       = $25,000
+          Net investment income         = $50,000
+          MAGI                          = $230,000
+          MAGI over threshold ($200k)   = $30,000
+          NIIT                          = 3.8% × min($50k, $30k) = $1,140 -->
+
+   <id>1</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>TX</state>
+   <city>Houston</city>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Priya Patel</name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>6/30/1980</date_of_birth>
+         <occupation>Investment Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>180000</w2_wages>
+         <w2_withholding>30000</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <interest_income>15000</interest_income>
+         <qualified_dividends>10000</qualified_dividends>
+         <long_term_capital_gains>25000</long_term_capital_gains>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents />
+   <itemized_deductions />
+</job>

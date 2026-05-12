@@ -1,0 +1,50 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com — Qualified Dividends scenario
+      Licensed under the Apache License, Version 2.0 (the "License").
+   </copyright>
+
+   <!-- Tests qualified dividend preferential tax treatment per IRC §1(h)
+        and Schedule D Tax Worksheet. Single filer with W-2 wages plus a
+        meaningful qualified dividend amount; falls in the middle 15%
+        bracket for preferential income.
+
+          W-2 wages                     = $60,000
+          Qualified dividends           = $8,000
+          AGI                           = $68,000
+          Standard deduction (Single)   = $15,750
+          Taxable income                ≈ $52,250
+          2025 Single LTCG/QD brackets:
+            0%   up to $48,350
+            15%  $48,351 – $533,400
+            20%  above
+          Qualified dividends taxed at 0% on first $48,350 - other ordinary
+          taxable income, balance at 15%. Practical effect: most of the
+          $8k falls in the 0%/15% mix. -->
+
+   <id>1</id>
+   <tax_year>2025</tax_year>
+   <filing_status>SINGLE</filing_status>
+   <state>TX</state>
+   <city>Dallas</city>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Michael Chen</name>
+         <ssn>111-22-3333</ssn>
+         <date_of_birth>8/12/1982</date_of_birth>
+         <occupation>Analyst</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>60000</w2_wages>
+         <w2_withholding>7500</w2_withholding>
+         <se_gross_income>0</se_gross_income>
+         <qualified_dividends>8000</qualified_dividends>
+         <estimated_payments>0</estimated_payments>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents />
+   <itemized_deductions />
+</job>
