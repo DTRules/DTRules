@@ -99,6 +99,7 @@ type DecisionTablesXML struct {
 type DecisionTableXML struct {
 	Source           *SourceXML           `xml:"source,omitempty"`
 	TableName        string               `xml:"table_name"`
+	TableDescription string               `xml:"table_description,omitempty"`
 	XLSFile          string               `xml:"xls_file"`
 	AttributeFields  AttributeFieldsXML   `xml:"attribute_fields"`
 	Contexts         ContextsField        `xml:"contexts"`
@@ -110,50 +111,112 @@ type DecisionTableXML struct {
 }
 
 // ContextsField is the in-memory shape of a table's <contexts> element. It
-// carries a newline-joined DSL string — the simplest representation that
-// matches how Excel stores contexts — and knows how to round-trip through
-// both the legacy raw-text form and the structured <context_details> form
-// the loader expects.
+// preserves every nested element on a complete round-trip:
 //
-//	Legacy (Excel import intermediate):
-//	  <contexts>for all accounts</contexts>
+//	<contexts>
+//	  <context_entity>state_period</context_entity>     <!-- legacy iterator hint -->
+//	  <context_details>
+//	    <context_number>1</context_number>
+//	    <context_comment>Iterate ...</context_comment>
+//	    <context_name>...</context_name>                <!-- optional -->
+//	    <context_description>...</context_description>  <!-- optional -->
+//	    <context_dsl>for all accounts</context_dsl>
+//	    <context_postfix>{ ... } job.accounts forall</context_postfix>
+//	  </context_details>
+//	</contexts>
 //
-//	Loader (structured):
-//	  <contexts>
-//	    <context_details>
-//	      <context_dsl>for all accounts</context_dsl>
-//	      ...
-//	    </context_details>
-//	  </contexts>
-//
-// Unmarshalling tolerates both: structured <context_details> children have
-// their DSL extracted and joined with newlines; raw text is taken verbatim.
-// Marshalling emits the structured form so the loader can read it back.
-type ContextsField string
+// Unmarshalling also tolerates the legacy raw-text form
+// (`<contexts>for all accounts</contexts>`) by promoting each non-empty line
+// to a `ContextDetailXML` with a sequential number. Marshalling emits
+// `<context_entity>` elements first, then a `<context_details>` block per
+// entry.
+type ContextsField struct {
+	// Entities are the legacy `<context_entity>X</context_entity>` directives
+	// that hint the table iterates over an entity collection. The loader
+	// doesn't actively compile these (it expects a structured `<context_details>`
+	// with `for all X` DSL), but they're preserved so existing tables don't
+	// silently lose data on a round-trip.
+	Entities []string
+	// Details are the structured per-context entries.
+	Details []ContextDetailXML
+}
 
-// UnmarshalXML accepts either the raw-text or structured form and collapses
-// the result into a newline-joined DSL string so existing string-shaped
-// consumers (table.Contexts, syncFromXML) keep working.
+// ContextDetailXML represents one structured `<context_details>` block.
+type ContextDetailXML struct {
+	Number      int    `xml:"context_number,omitempty"`
+	Comment     string `xml:"context_comment"`
+	Name        string `xml:"context_name,omitempty"`
+	Description string `xml:"context_description,omitempty"`
+	DSL         string `xml:"context_dsl"`
+	Postfix     string `xml:"context_postfix"`
+}
+
+// IsEmpty reports whether the contexts element has no entities and no details.
+func (c ContextsField) IsEmpty() bool {
+	return len(c.Entities) == 0 && len(c.Details) == 0
+}
+
+// DSLLines returns the DSL strings for each context detail in order. Used by
+// the Excel exporter (xml_exporter.go) to lay out the contexts grid.
+func (c ContextsField) DSLLines() []string {
+	out := make([]string, 0, len(c.Details))
+	for _, d := range c.Details {
+		if dsl := strings.TrimSpace(d.DSL); dsl != "" {
+			out = append(out, dsl)
+		}
+	}
+	return out
+}
+
+// AppendDSL adds a new context detail with the given DSL string and
+// sequential number. Used by Excel-import code paths that read contexts as
+// raw cell values.
+func (c *ContextsField) AppendDSL(dsl string) {
+	c.Details = append(c.Details, ContextDetailXML{
+		Number: len(c.Details) + 1,
+		DSL:    dsl,
+	})
+}
+
+// UnmarshalXML accepts the modern structured form, the legacy
+// raw-text-inside-<contexts> form, and the loose `<context_entity>` directive
+// form. All three round-trip losslessly through subsequent marshals.
 func (c *ContextsField) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	var tmp struct {
-		InnerXML string `xml:",innerxml"`
-		Details  []struct {
-			DSL string `xml:"context_dsl"`
-		} `xml:"context_details"`
+		Entities []string           `xml:"context_entity"`
+		Details  []ContextDetailXML `xml:"context_details"`
+		InnerXML string             `xml:",innerxml"`
 	}
 	if err := d.DecodeElement(&tmp, &start); err != nil {
 		return err
 	}
-	if len(tmp.Details) > 0 {
-		lines := make([]string, 0, len(tmp.Details))
-		for _, det := range tmp.Details {
-			lines = append(lines, det.DSL)
+	c.Entities = tmp.Entities
+	c.Details = tmp.Details
+	// Legacy raw-text fallback: if neither entities nor details were parsed
+	// but the element has content, treat each non-empty line as a single-DSL
+	// context detail. Strips XML comments / surrounding whitespace.
+	if len(c.Entities) == 0 && len(c.Details) == 0 {
+		text := strings.TrimSpace(tmp.InnerXML)
+		// If inner XML contains tags we didn't recognize, don't treat as DSL.
+		if text != "" && !strings.ContainsAny(text, "<>") {
+			for i, line := range strings.Split(text, "\n") {
+				line = strings.TrimSpace(line)
+				if line != "" {
+					c.Details = append(c.Details, ContextDetailXML{
+						Number: i + 1,
+						DSL:    line,
+					})
+				}
+			}
 		}
-		*c = ContextsField(strings.Join(lines, "\n"))
-		return nil
 	}
-	// No <context_details> children — treat inner XML as raw text.
-	*c = ContextsField(strings.TrimSpace(tmp.InnerXML))
+	// Normalize: ensure every detail has a Number assigned for write-back
+	// (even if the source XML didn't include one).
+	for i := range c.Details {
+		if c.Details[i].Number == 0 {
+			c.Details[i].Number = i + 1
+		}
+	}
 	return nil
 }
 
@@ -166,9 +229,36 @@ type AttributeFieldsXML struct {
 }
 
 // InitialActionXML represents an initial action.
+//
+// Two tag conventions coexist in real DTRules XML:
+//
+//   - Modern (EL-aware authoring): <initial_action_dsl> / <initial_action_postfix>
+//   - Legacy (Excel-import emitted): <action_dsl> / <action_postfix>
+//
+// On read, either form is accepted. On write, the modern form is emitted.
+// The Comment field maps to <action_comment>, which both conventions share.
 type InitialActionXML struct {
-	DSL     string `xml:"initial_action_dsl"`
-	Postfix string `xml:"action_postfix"`
+	Comment       string `xml:"action_comment"`
+	DSL           string `xml:"initial_action_dsl"`
+	Postfix       string `xml:"initial_action_postfix"`
+	ActionDSL     string `xml:"action_dsl"`     // legacy alternate of DSL
+	ActionPostfix string `xml:"action_postfix"` // legacy alternate of Postfix
+}
+
+// EffectiveDSL returns the DSL with precedence: modern tag > legacy tag.
+func (a InitialActionXML) EffectiveDSL() string {
+	if a.DSL != "" {
+		return a.DSL
+	}
+	return a.ActionDSL
+}
+
+// EffectivePostfix returns the postfix with precedence: modern > legacy.
+func (a InitialActionXML) EffectivePostfix() string {
+	if a.Postfix != "" {
+		return a.Postfix
+	}
+	return a.ActionPostfix
 }
 
 // ConditionXML represents a condition row with its column values.
@@ -352,141 +442,222 @@ func (i *DTImporter) WriteXML(tables *DecisionTablesXML, filename string) error 
 }
 
 // writeTable writes a single decision table to the file with proper formatting.
+//
+// The emitted XML preserves every field that the in-memory model represents.
+// Empty optional elements (DSL, postfix, comment) are emitted as
+// self-closing tags when empty, matching what the loader expects and what
+// hand-authored XML in the project looks like.
 func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
-	// Table header comment
 	tableNum := table.AttributeFields.TableNumber
 	f.WriteString(fmt.Sprintf("\n<!-- TABLE %s: %s -->\n", tableNum, table.TableName))
 
-	// Write decision_table opening tag with optional el_compiled attribute
 	if table.ELCompiled {
 		f.WriteString("<decision_table el_compiled=\"true\">\n")
 	} else {
 		f.WriteString("<decision_table>\n")
 	}
 
-	// Write <source> as first child if present
 	if table.Source != nil {
 		f.WriteString("<source>\n")
-		f.WriteString(fmt.Sprintf("<relative_path>%s</relative_path>\n", xmlEscape(table.Source.RelativePath)))
-		f.WriteString(fmt.Sprintf("<file_name>%s</file_name>\n", xmlEscape(table.Source.FileName)))
+		f.WriteString(fmt.Sprintf("<relative_path>%s</relative_path>\n", xmlEscapeText(table.Source.RelativePath)))
+		f.WriteString(fmt.Sprintf("<file_name>%s</file_name>\n", xmlEscapeText(table.Source.FileName)))
 		f.WriteString(fmt.Sprintf("<sheet_number>%d</sheet_number>\n", table.Source.SheetNumber))
 		f.WriteString("</source>\n")
 	}
 
-	f.WriteString(fmt.Sprintf("<table_name>%s</table_name>\n", xmlEscape(table.TableName)))
-	f.WriteString(fmt.Sprintf("<xls_file>%s</xls_file>\n", xmlEscape(table.XLSFile)))
+	f.WriteString(fmt.Sprintf("<table_name>%s</table_name>\n", xmlEscapeText(table.TableName)))
+	if table.TableDescription != "" {
+		f.WriteString(fmt.Sprintf("<table_description>%s</table_description>\n", xmlEscapeText(table.TableDescription)))
+	}
+	f.WriteString(fmt.Sprintf("<xls_file>%s</xls_file>\n", xmlEscapeText(table.XLSFile)))
 
 	// Attribute fields
 	f.WriteString("<attribute_fields>\n")
-	f.WriteString(fmt.Sprintf("<Type>%s</Type>\n", xmlEscape(table.AttributeFields.Type)))
-	f.WriteString(fmt.Sprintf("<COMMENTS>%s</COMMENTS>\n", xmlEscape(table.AttributeFields.Comments)))
-	f.WriteString(fmt.Sprintf("<TABLE_NUMBER>%s</TABLE_NUMBER>\n", xmlEscape(table.AttributeFields.TableNumber)))
+	f.WriteString(fmt.Sprintf("<Type>%s</Type>\n", xmlEscapeText(table.AttributeFields.Type)))
+	f.WriteString(fmt.Sprintf("<COMMENTS>%s</COMMENTS>\n", xmlEscapeText(table.AttributeFields.Comments)))
+	f.WriteString(fmt.Sprintf("<TABLE_NUMBER>%s</TABLE_NUMBER>\n", xmlEscapeText(table.AttributeFields.TableNumber)))
 	if table.AttributeFields.FilePath != "" {
-		f.WriteString(fmt.Sprintf("<FILE_PATH>%s</FILE_PATH>\n", xmlEscape(table.AttributeFields.FilePath)))
+		f.WriteString(fmt.Sprintf("<FILE_PATH>%s</FILE_PATH>\n", xmlEscapeText(table.AttributeFields.FilePath)))
 	}
 	f.WriteString("</attribute_fields>\n")
 
-	// Contexts. The in-memory `Contexts` field is a raw newline-separated
-	// string (one DSL statement per line, as Excel stores it). The loader,
-	// however, expects a structured `<context_details>` form. Split on
-	// newlines and emit one <context_details> entry per non-empty line;
-	// the loader compiles the DSL to postfix at load time.
 	writeContextsXML(f, table.Contexts)
 
-	// Initial actions
-	f.WriteString("<initial_actions>\n")
-	for _, action := range table.InitialActions {
-		f.WriteString("<initial_action>\n")
-		f.WriteString(fmt.Sprintf("<initial_action_dsl>%s</initial_action_dsl>\n", xmlEscape(action.DSL)))
-		f.WriteString(fmt.Sprintf("<action_postfix>\n%s\n</action_postfix>\n", xmlEscape(strings.TrimSpace(action.Postfix))))
-		f.WriteString("</initial_action>\n")
+	// Initial actions. Both DSL/postfix tag conventions are accepted on read;
+	// on write we emit the modern <initial_action_dsl> / <initial_action_postfix>
+	// form for new content and preserve whichever form was present for entries
+	// originally read from legacy XML.
+	if len(table.InitialActions) == 0 {
+		f.WriteString("<initial_actions></initial_actions>\n")
+	} else {
+		f.WriteString("<initial_actions>\n")
+		for _, action := range table.InitialActions {
+			f.WriteString("<initial_action>\n")
+			if action.Comment != "" {
+				f.WriteString(fmt.Sprintf("<action_comment>%s</action_comment>\n", xmlEscapeText(action.Comment)))
+			}
+			writeDSLOrPostfix(f, "initial_action_dsl", action.DSL)
+			writeBlockPostfix(f, "initial_action_postfix", action.Postfix)
+			// Preserve legacy alternate tags if they were the originals
+			// (i.e., the modern fields are empty but the legacy fields have
+			// content).
+			if action.DSL == "" && action.ActionDSL != "" {
+				writeDSLOrPostfix(f, "action_dsl", action.ActionDSL)
+			}
+			if action.Postfix == "" && action.ActionPostfix != "" {
+				writeBlockPostfix(f, "action_postfix", action.ActionPostfix)
+			}
+			f.WriteString("</initial_action>\n")
+		}
+		f.WriteString("</initial_actions>\n")
 	}
-	f.WriteString("</initial_actions>\n")
 
 	// Conditions
-	f.WriteString("<conditions>\n")
-	for _, cond := range table.Conditions {
-		f.WriteString("<condition_details>\n")
-		f.WriteString(fmt.Sprintf("<condition_number>%s</condition_number>\n", xmlEscape(cond.Number)))
-		f.WriteString(fmt.Sprintf("<condition_comment>%s</condition_comment>\n", xmlEscape(cond.Comment)))
-		f.WriteString(fmt.Sprintf("<condition_dsl>%s</condition_dsl>\n", xmlEscape(cond.DSL)))
-		f.WriteString(fmt.Sprintf("<condition_postfix>\n%s\n</condition_postfix>\n", xmlEscape(strings.TrimSpace(cond.Postfix))))
-		for _, col := range cond.Columns {
-			f.WriteString(fmt.Sprintf("<condition_column column_number=\"%d\" column_value=\"%s\"></condition_column>\n",
-				col.Number, xmlEscape(col.Value)))
+	if len(table.Conditions) == 0 {
+		f.WriteString("<conditions></conditions>\n")
+	} else {
+		f.WriteString("<conditions>\n")
+		for _, cond := range table.Conditions {
+			f.WriteString("<condition_details>\n")
+			f.WriteString(fmt.Sprintf("<condition_number>%s</condition_number>\n", xmlEscapeText(cond.Number)))
+			f.WriteString(fmt.Sprintf("<condition_comment>%s</condition_comment>\n", xmlEscapeText(cond.Comment)))
+			writeDSLOrPostfix(f, "condition_dsl", cond.DSL)
+			writeBlockPostfix(f, "condition_postfix", cond.Postfix)
+			for _, col := range cond.Columns {
+				f.WriteString(fmt.Sprintf("<condition_column column_number=\"%d\" column_value=\"%s\" />\n",
+					col.Number, xmlEscapeAttr(col.Value)))
+			}
+			f.WriteString("</condition_details>\n")
 		}
-		f.WriteString("</condition_details>\n")
+		f.WriteString("</conditions>\n")
 	}
-	f.WriteString("</conditions>\n")
 
 	// Actions
-	f.WriteString("<actions>\n")
-	for _, action := range table.Actions {
-		f.WriteString("<action_details>\n")
-		f.WriteString(fmt.Sprintf("<action_number>%s</action_number>\n", xmlEscape(action.Number)))
-		f.WriteString(fmt.Sprintf("<action_comment>%s</action_comment>\n", xmlEscape(action.Comment)))
-		f.WriteString(fmt.Sprintf("<action_dsl>%s</action_dsl>\n", xmlEscape(action.DSL)))
-		f.WriteString(fmt.Sprintf("<action_postfix>\n%s\n</action_postfix>\n", xmlEscape(strings.TrimSpace(action.Postfix))))
-		for _, col := range action.Columns {
-			f.WriteString(fmt.Sprintf("<action_column column_number=\"%d\" column_value=\"%s\"></action_column>\n",
-				col.Number, xmlEscape(col.Value)))
+	if len(table.Actions) == 0 {
+		f.WriteString("<actions></actions>\n")
+	} else {
+		f.WriteString("<actions>\n")
+		for _, action := range table.Actions {
+			f.WriteString("<action_details>\n")
+			f.WriteString(fmt.Sprintf("<action_number>%s</action_number>\n", xmlEscapeText(action.Number)))
+			f.WriteString(fmt.Sprintf("<action_comment>%s</action_comment>\n", xmlEscapeText(action.Comment)))
+			writeDSLOrPostfix(f, "action_dsl", action.DSL)
+			writeBlockPostfix(f, "action_postfix", action.Postfix)
+			for _, col := range action.Columns {
+				f.WriteString(fmt.Sprintf("<action_column column_number=\"%d\" column_value=\"%s\" />\n",
+					col.Number, xmlEscapeAttr(col.Value)))
+			}
+			f.WriteString("</action_details>\n")
 		}
-		f.WriteString("</action_details>\n")
+		f.WriteString("</actions>\n")
 	}
-	f.WriteString("</actions>\n")
 
 	// Policy statements
-	f.WriteString("<policy_statements>\n")
-	for _, policy := range table.PolicyStatements {
-		f.WriteString(fmt.Sprintf("<policy_statement column=\"%s\">\n", xmlEscape(policy.Column)))
-		f.WriteString(fmt.Sprintf("<policy_description>%s</policy_description>\n", xmlEscape(policy.Description)))
-		f.WriteString(fmt.Sprintf("<policy_statement_postfix>%s</policy_statement_postfix>\n", xmlEscape(policy.Postfix)))
-		f.WriteString("</policy_statement>\n")
+	if len(table.PolicyStatements) == 0 {
+		f.WriteString("<policy_statements></policy_statements>\n")
+	} else {
+		f.WriteString("<policy_statements>\n")
+		for _, policy := range table.PolicyStatements {
+			f.WriteString(fmt.Sprintf("<policy_statement column=\"%s\">\n", xmlEscapeAttr(policy.Column)))
+			f.WriteString(fmt.Sprintf("<policy_description>%s</policy_description>\n", xmlEscapeText(policy.Description)))
+			f.WriteString(fmt.Sprintf("<policy_statement_postfix>%s</policy_statement_postfix>\n", xmlEscapeText(policy.Postfix)))
+			f.WriteString("</policy_statement>\n")
+		}
+		f.WriteString("</policy_statements>\n")
 	}
-	f.WriteString("</policy_statements>\n")
 
 	f.WriteString("</decision_table>\n")
 	return nil
 }
 
-// xmlEscape escapes special XML characters.
-// writeContextsXML emits the <contexts>…</contexts> block in the structured
-// form the loader expects. Raw text with no statements produces a
-// self-empty element; each newline-separated non-empty line becomes a
-// <context_details> entry with an empty postfix (the loader compiles the
-// DSL on load). An entirely non-empty string with no newlines is treated as
-// a single context statement.
+// writeDSLOrPostfix emits a one-line DSL element. Empty content produces a
+// self-closing tag (e.g. `<condition_dsl />`) which is what hand-authored
+// XML in the project looks like and what the loader treats as "no DSL".
+func writeDSLOrPostfix(f *os.File, tag, content string) {
+	if strings.TrimSpace(content) == "" {
+		f.WriteString(fmt.Sprintf("<%s />\n", tag))
+		return
+	}
+	f.WriteString(fmt.Sprintf("<%s>%s</%s>\n", tag, xmlEscapeText(content), tag))
+}
+
+// writeBlockPostfix emits a postfix-style block. Empty content produces an
+// empty open/close pair, matching the loader-tolerated form. Non-empty
+// content is wrapped with newlines for readability.
+func writeBlockPostfix(f *os.File, tag, content string) {
+	trimmed := strings.TrimSpace(content)
+	if trimmed == "" {
+		f.WriteString(fmt.Sprintf("<%s></%s>\n", tag, tag))
+		return
+	}
+	f.WriteString(fmt.Sprintf("<%s>\n%s\n</%s>\n", tag, xmlEscapeText(trimmed), tag))
+}
+
+// writeContextsXML emits the <contexts>…</contexts> block, preserving the
+// full structure: legacy `<context_entity>` directives first, then one
+// `<context_details>` block per detail with all of its sub-elements.
 func writeContextsXML(f *os.File, contexts ContextsField) {
-	text := strings.TrimSpace(string(contexts))
-	if text == "" {
+	if contexts.IsEmpty() {
 		f.WriteString("<contexts></contexts>\n")
 		return
 	}
 	f.WriteString("<contexts>\n")
-	num := 0
-	for _, line := range strings.Split(text, "\n") {
-		dsl := strings.TrimSpace(line)
-		if dsl == "" {
-			continue
-		}
-		num++
+	for _, ent := range contexts.Entities {
+		f.WriteString(fmt.Sprintf("<context_entity>%s</context_entity>\n", xmlEscapeText(ent)))
+	}
+	for _, d := range contexts.Details {
 		f.WriteString("<context_details>\n")
+		num := d.Number
+		if num == 0 {
+			num = 1
+		}
 		f.WriteString(fmt.Sprintf("<context_number>%d</context_number>\n", num))
-		f.WriteString("<context_comment></context_comment>\n")
-		f.WriteString(fmt.Sprintf("<context_dsl>%s</context_dsl>\n", xmlEscape(dsl)))
-		f.WriteString("<context_postfix></context_postfix>\n")
+		f.WriteString(fmt.Sprintf("<context_comment>%s</context_comment>\n", xmlEscapeText(d.Comment)))
+		if d.Name != "" {
+			f.WriteString(fmt.Sprintf("<context_name>%s</context_name>\n", xmlEscapeText(d.Name)))
+		}
+		if d.Description != "" {
+			f.WriteString(fmt.Sprintf("<context_description>%s</context_description>\n", xmlEscapeText(d.Description)))
+		}
+		if d.DSL == "" {
+			f.WriteString("<context_dsl />\n")
+		} else {
+			f.WriteString(fmt.Sprintf("<context_dsl>%s</context_dsl>\n", xmlEscapeText(d.DSL)))
+		}
+		if d.Postfix == "" {
+			f.WriteString("<context_postfix></context_postfix>\n")
+		} else {
+			f.WriteString(fmt.Sprintf("<context_postfix>\n%s\n</context_postfix>\n", xmlEscapeText(strings.TrimSpace(d.Postfix))))
+		}
 		f.WriteString("</context_details>\n")
 	}
 	f.WriteString("</contexts>\n")
 }
 
-func xmlEscape(s string) string {
+// xmlEscapeText escapes special XML characters for use in element text
+// content. Double-quote characters are left as-is since XML only requires
+// them escaped inside attribute values.
+func xmlEscapeText(s string) string {
+	s = strings.ReplaceAll(s, "&", "&amp;")
+	s = strings.ReplaceAll(s, "<", "&lt;")
+	s = strings.ReplaceAll(s, ">", "&gt;")
+	return s
+}
+
+// xmlEscapeAttr escapes special XML characters for use in attribute values.
+// Includes double-quote escaping since attributes are delimited by ".
+func xmlEscapeAttr(s string) string {
 	s = strings.ReplaceAll(s, "&", "&amp;")
 	s = strings.ReplaceAll(s, "<", "&lt;")
 	s = strings.ReplaceAll(s, ">", "&gt;")
 	s = strings.ReplaceAll(s, "\"", "&quot;")
 	return s
 }
+
+// xmlEscape is retained for backward compatibility with callers that emit
+// quote-delimited attribute values via fmt.Sprintf into the same template.
+// Prefer xmlEscapeText for element text and xmlEscapeAttr for attributes.
+func xmlEscape(s string) string { return xmlEscapeAttr(s) }
 
 // parseSheet parses a single Excel sheet into a decision table.
 func (i *DTImporter) parseSheet(f *excelize.File, sheetName, xlsFile string) (*DecisionTableXML, error) {
@@ -765,14 +936,15 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 		default:
 			switch currentSection {
 			case "contexts":
-				// Context row: number, comment, expression (merged)
+				// Context row: number, comment, expression (merged at col C+).
+				// Each row becomes a structured ContextDetailXML so non-DSL
+				// fields (comment, postfix) round-trip cleanly.
 				if len(row) > 2 && firstCell != "" {
-					// Contexts are typically comma-separated entity names
-					if table.Contexts == "" {
-						table.Contexts = ContextsField(strings.TrimSpace(row[2]))
-					} else {
-						table.Contexts = ContextsField(string(table.Contexts) + "," + strings.TrimSpace(row[2]))
-					}
+					table.Contexts.Details = append(table.Contexts.Details, ContextDetailXML{
+						Number:  len(table.Contexts.Details) + 1,
+						Comment: strings.TrimSpace(safeGet(row, 1)),
+						DSL:     strings.TrimSpace(row[2]),
+					})
 				}
 				if len(row) == 0 || firstCell == "" {
 					currentSection = ""

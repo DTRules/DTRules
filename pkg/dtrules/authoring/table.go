@@ -83,28 +83,25 @@ func newTableWithProject(x *excel.DecisionTableXML, symbols map[string]string, p
 }
 
 // syncFromXML refreshes the typed view from the underlying XML model.
+//
+// The typed view exposes only DSL / comment / column fields; the XML model
+// (postfix, legacy alternate tags, context_entity directives, context number/
+// description, etc.) is preserved on the backing `t.xml` struct so syncToXML
+// can carry it back through write-out.
 func (t *Table) syncFromXML() {
 	t.Name = t.xml.TableName
 	t.Policy = t.xml.AttributeFields.Type
 
 	t.Contexts = nil
-	// The XML form stores contexts as a newline-joined string. Split so a
-	// multi-statement `<contexts>` round-trips through the typed view with
-	// one Context entry per statement.
-	raw := strings.TrimSpace(string(t.xml.Contexts))
-	if raw != "" {
-		for _, line := range strings.Split(raw, "\n") {
-			line = strings.TrimSpace(line)
-			if line == "" {
-				continue
-			}
-			t.Contexts = append(t.Contexts, Context{DSL: line})
+	for _, d := range t.xml.Contexts.Details {
+		if dsl := strings.TrimSpace(d.DSL); dsl != "" {
+			t.Contexts = append(t.Contexts, Context{DSL: dsl})
 		}
 	}
 
 	t.InitialActions = nil
 	for _, ia := range t.xml.InitialActions {
-		t.InitialActions = append(t.InitialActions, InitialAction{DSL: ia.DSL})
+		t.InitialActions = append(t.InitialActions, InitialAction{DSL: ia.EffectiveDSL()})
 	}
 
 	t.Conditions = nil
@@ -138,42 +135,97 @@ func (t *Table) syncFromXML() {
 	}
 }
 
-// syncToXML writes the typed view back into the underlying XML model.
+// syncToXML writes the typed view back into the underlying XML model,
+// preserving every field the typed view doesn't expose (postfix, legacy
+// alternate tag content, context_entity directives, context number/comment/
+// description, …) by matching against the original XML records.
+//
+// Matching rules:
+//   - Conditions / Actions: by `Number`. The typed view rebuilds the slice;
+//     when a typed entry's Number matches an existing XML record the
+//     unmodeled fields from the original are carried through.
+//   - InitialActions: by position. The typed view doesn't expose Number, so
+//     we map index → index. Extra typed entries beyond the original list get
+//     bare records (no postfix); deletions drop the extra originals.
+//   - Contexts: position-by-position over the Details slice. Entities and
+//     all other Detail fields (Number, Comment, Name, Description, Postfix)
+//     are preserved from the original.
 func (t *Table) syncToXML() {
 	t.xml.TableName = t.Name
 	t.xml.AttributeFields.Type = t.Policy
 
-	if len(t.Contexts) > 0 {
-		lines := make([]string, 0, len(t.Contexts))
-		for _, c := range t.Contexts {
-			lines = append(lines, c.DSL)
+	// Contexts: preserve Entities entirely and per-detail unmodeled fields by
+	// position-matching. New typed entries append fresh details.
+	origDetails := t.xml.Contexts.Details
+	newDetails := make([]excel.ContextDetailXML, 0, len(t.Contexts))
+	for i, c := range t.Contexts {
+		entry := excel.ContextDetailXML{Number: i + 1, DSL: c.DSL}
+		if i < len(origDetails) {
+			entry.Number = origDetails[i].Number
+			if entry.Number == 0 {
+				entry.Number = i + 1
+			}
+			entry.Comment = origDetails[i].Comment
+			entry.Name = origDetails[i].Name
+			entry.Description = origDetails[i].Description
+			entry.Postfix = origDetails[i].Postfix
 		}
-		t.xml.Contexts = excel.ContextsField(strings.Join(lines, "\n"))
-	} else {
-		t.xml.Contexts = ""
+		newDetails = append(newDetails, entry)
 	}
+	t.xml.Contexts.Details = newDetails
+	// (t.xml.Contexts.Entities is left untouched — the typed view doesn't
+	// model legacy <context_entity> directives, so they round-trip as-is.)
 
-	t.xml.InitialActions = nil
-	for _, ia := range t.InitialActions {
-		t.xml.InitialActions = append(t.xml.InitialActions, excel.InitialActionXML{DSL: ia.DSL})
+	// Initial actions: match by position to preserve postfix + comment.
+	origInits := t.xml.InitialActions
+	newInits := make([]excel.InitialActionXML, 0, len(t.InitialActions))
+	for i, ia := range t.InitialActions {
+		entry := excel.InitialActionXML{DSL: ia.DSL}
+		if i < len(origInits) {
+			entry.Comment = origInits[i].Comment
+			entry.Postfix = origInits[i].Postfix
+			entry.ActionDSL = origInits[i].ActionDSL
+			entry.ActionPostfix = origInits[i].ActionPostfix
+		}
+		newInits = append(newInits, entry)
 	}
+	t.xml.InitialActions = newInits
 
+	// Conditions: match by Number to preserve postfix.
+	origConds := map[int]excel.ConditionXML{}
+	for _, c := range t.xml.Conditions {
+		n, _ := strconv.Atoi(c.Number)
+		origConds[n] = c
+	}
 	t.xml.Conditions = nil
 	for _, c := range t.Conditions {
 		var cols []excel.ColumnValueXML
+		// Emit explicit Y / N / - values; only skip truly absent (empty)
+		// entries. The dash "-" is a meaningful "don't care" signal and
+		// must be preserved on round-trip.
 		for n, v := range c.Columns {
-			if v != "" && v != "-" {
+			if v != "" {
 				cols = append(cols, excel.ColumnValueXML{Number: n, Value: v})
 			}
 		}
-		t.xml.Conditions = append(t.xml.Conditions, excel.ConditionXML{
+		entry := excel.ConditionXML{
 			Number:  strconv.Itoa(c.Number),
 			Comment: c.Comment,
 			DSL:     c.DSL,
 			Columns: cols,
-		})
+		}
+		if orig, ok := origConds[c.Number]; ok {
+			entry.Postfix = orig.Postfix
+		}
+		t.xml.Conditions = append(t.xml.Conditions, entry)
 	}
 
+	// Actions: match by Number to preserve postfix.
+	origActs := map[int]excel.ActionXML{}
+	for _, a := range t.xml.Actions {
+		n, _ := strconv.Atoi(a.Number)
+		origActs[n] = a
+	}
 	t.xml.Actions = nil
 	for _, a := range t.Actions {
 		var cols []excel.ColumnValueXML
@@ -182,12 +234,16 @@ func (t *Table) syncToXML() {
 				cols = append(cols, excel.ColumnValueXML{Number: n, Value: "X"})
 			}
 		}
-		t.xml.Actions = append(t.xml.Actions, excel.ActionXML{
+		entry := excel.ActionXML{
 			Number:  strconv.Itoa(a.Number),
 			Comment: a.Comment,
 			DSL:     a.DSL,
 			Columns: cols,
-		})
+		}
+		if orig, ok := origActs[a.Number]; ok {
+			entry.Postfix = orig.Postfix
+		}
+		t.xml.Actions = append(t.xml.Actions, entry)
 	}
 }
 
