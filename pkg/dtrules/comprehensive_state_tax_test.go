@@ -25,33 +25,12 @@ func TestComprehensiveStateTaxes(t *testing.T) {
 	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
 
-	// Create rule set once for all tests
+	// Create rule set once for all tests; LoadFromDirectory picks up xml/
+	// AND xml/states/ so state-specific tables (AZ_Tax, SC_Tax, etc.) are
+	// registered before Dispatch_State_Tax tries to perform them.
 	rs := session.NewRuleSet("TaxReturn")
-
-	// Load EDD
-	eddPath := filepath.Join(xmlDir, "TaxReturn_edd.xml")
-	eddFile, err := os.Open(eddPath)
-	if err != nil {
-		t.Fatalf("Failed to open EDD: %v", err)
-	}
-	defer eddFile.Close()
-
-	err = rs.LoadEDD(eddFile)
-	if err != nil {
-		t.Fatalf("Failed to load EDD: %v", err)
-	}
-
-	// Load Decision Tables
-	dtPath := filepath.Join(xmlDir, "TaxReturn_dt.xml")
-	dtFile, err := os.Open(dtPath)
-	if err != nil {
-		t.Fatalf("Failed to open DT: %v", err)
-	}
-	defer dtFile.Close()
-
-	err = rs.LoadDecisionTables(dtFile)
-	if err != nil {
-		t.Fatalf("Failed to load DT: %v", err)
+	if err := rs.LoadFromDirectory(xmlDir); err != nil {
+		t.Fatalf("LoadFromDirectory: %v", err)
 	}
 
 	// Define comprehensive state tax test cases
@@ -380,8 +359,13 @@ func TestComprehensiveStateTaxes(t *testing.T) {
 			agi := getFloatAttr(result, "agi")
 			totalTax := getFloatAttr(result, "total_tax")
 
-			// Get state tax results
-			stateTaxResults, _ := result.Get(dtrules.GetRName("state_tax_results"))
+			// Get state tax results — Dispatch_State_Tax populates job.state_tax_results
+			// (the result entity also has a state_tax_results array but it's not
+			// currently populated by the rule pipeline; #446).
+			stateTaxResults, _ := job.Get(dtrules.GetRName("state_tax_results"))
+			if stateTaxResults == nil {
+				stateTaxResults, _ = result.Get(dtrules.GetRName("state_tax_results"))
+			}
 			var stateTax float64
 			if stateTaxResults != nil {
 				stateArr, _ := stateTaxResults.ArrayValue()

@@ -5,5 +5,7 @@
 		<field name="az_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="31500.0" comment="AZ standard deduction married filing jointly (2025)"></field>
 		<field name="az_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="15750.0" comment="AZ standard deduction single (2025)"></field>
 		<field name="az_tax_rate" type="double" subtype="" access="r" input="" default_value="0.025" comment="AZ flat rate 2.5% (2025)"></field>
+		<field name="az_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="AZ state income tax computed by AZ_Tax (2025)"></field>
+		<field name="az_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="AZ taxable income (AGI minus standard deduction, floored at 0)"></field>
 	</entity>
 </entity_data_dictionary>

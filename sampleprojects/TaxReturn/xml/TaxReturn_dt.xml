@@ -9791,6 +9791,32 @@ ifelse
 <condition_column column_number="11" column_value="N" />
 <condition_column column_number="12" column_value="N" />
 <condition_column column_number="13" column_value="Y" />
+<condition_column column_number="14" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>12</condition_number>
+<condition_comment>Arizona state; state_period.state_code or job.state is equal to "AZ"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code /AZ streq }
+{ job.state /AZ streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="Y" />
 </condition_details>
 </conditions>
 <actions>
@@ -9937,6 +9963,30 @@ NJ_Tax
 /SC_Tax performtable
 </action_postfix>
 <action_column column_number="13" column_value="X" />
+</action_details>
+<action_details>
+<action_number>14</action_number>
+<action_comment>Calculate Arizona state tax (flat 2.5%)</action_comment>
+<action_dsl>perform AZ_Tax</action_dsl>
+<action_postfix>
+/AZ_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.az_state_tax /state_tax_before_credits xdef
+  result.az_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Arizona State Income Tax:" job.audit_trail swap addto
+"    AZ Taxable Income: $" result.az_taxable_income cvs strconcat job.audit_trail swap addto
+"    AZ State Tax: $" result.az_state_tax cvs strconcat " (flat 2.5% per ARS § 43-1011)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="14" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
