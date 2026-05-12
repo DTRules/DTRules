@@ -458,40 +458,12 @@ func (s *Server) handleProjectOpen(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create rule set
-	s.ruleSet = session.NewRuleSet("ui-project")
-
-	// Load EDD files into the rule set for execution
-	for _, eddFile := range s.eddFiles {
-		func() {
-			path := filepath.Join(s.projectPath, eddFile)
-			f, err := os.Open(path)
-			if err != nil {
-				log.Printf("Warning: Failed to open EDD file %s for rule set: %v", eddFile, err)
-				return
-			}
-			defer f.Close()
-			if err := s.ruleSet.LoadEDD(f); err != nil {
-				log.Printf("Warning: Failed to load EDD file %s into rule set: %v", eddFile, err)
-			}
-		}()
-	}
-
-	// Load decision table files into the rule set for execution
-	for _, dtFile := range s.dtFiles {
-		func() {
-			path := filepath.Join(s.projectPath, dtFile)
-			f, err := os.Open(path)
-			if err != nil {
-				log.Printf("Warning: Failed to open DT file %s for rule set: %v", dtFile, err)
-				return
-			}
-			defer f.Close()
-			if err := s.ruleSet.LoadDecisionTables(f); err != nil {
-				log.Printf("Warning: Failed to load DT file %s into rule set: %v", dtFile, err)
-			}
-		}()
-	}
+	// Build the executable rule set from the discovered files. Failures
+	// are logged but non-fatal — the API server prefers to load whatever
+	// is loadable so the UI can show partial state. This is intentionally
+	// different from cmd/dtrules (which fatals); the parity tests at
+	// load_parity_test.go pin both load surfaces to a common contract.
+	s.ruleSet = buildRuleSetFromXML("ui-project", s.projectPath, s.eddFiles, s.dtFiles, logLoadWarning)
 
 	jsonResponse(w, map[string]interface{}{
 		"success":  true,
