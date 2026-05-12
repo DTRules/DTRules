@@ -9957,10 +9957,25 @@ MT_Tax
 </action_details>
 <action_details>
 <action_number>5</action_number>
-<action_comment>Calculate Pennsylvania state tax</action_comment>
+<action_comment>Calculate Pennsylvania state tax (flat 3.07%)</action_comment>
 <action_dsl>perform PA_Tax</action_dsl>
 <action_postfix>
-PA_Tax
+/PA_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.pa_state_tax /state_tax_before_credits xdef
+  result.pa_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Pennsylvania State Income Tax:" job.audit_trail swap addto
+"    PA Total Income: $" result.pa_total_income cvs strconcat job.audit_trail swap addto
+"    PA State Tax: $" result.pa_state_tax cvs strconcat " (flat 3.07% per 72 P.S. § 7302)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="5" column_value="X" />
 </action_details>
