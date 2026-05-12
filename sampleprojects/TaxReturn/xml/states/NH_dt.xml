@@ -3,114 +3,46 @@
 
 <decision_table>
 <table_name>NH_Tax</table_name>
-<xls_file>State.xls</xls_file>
+<xls_file>NH.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculates New Hampshire state income tax per hypothetical Form NH-1040. New Hampshire uses progressive tax brackets: 3% on first $75,000, 5% on $75,000-$150,000, 7.5% above $150,000. Starting with federal AGI, applies standard deduction based on filing status, then calculates tax using progressive brackets with div/int arithmetic only.</COMMENTS>
-<TABLE_NUMBER>42700</TABLE_NUMBER>
+<COMMENTS>NewHampshire state income tax (2025). Effectively no income tax in 2025 (RSA 77 (I&amp;D tax phased out 2025)). Writes result.computed_state_tax = 0.</COMMENTS>
+<TABLE_NUMBER>52628</TABLE_NUMBER>
 </attribute_fields>
-<contexts />
+<contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize NH tax calculation</action_dsl>
+<action_dsl />
 <action_postfix>
-"NEW HAMPSHIRE FORM NH-1040 - State Income Tax Calculation" job.audit_trail swap addto
-result.agi /result.nh_agi xdef
-0 /result.nh_bracket_1_tax xdef
-0 /result.nh_bracket_2_tax xdef
-0 /result.nh_bracket_3_tax xdef
+0.0 /result.computed_state_tax xdef
+0.0 /result.computed_state_taxable_income xdef
+"  NewHampshire state tax: $0 (RSA 77 (I&amp;D tax phased out 2025))" job.audit_trail swap addto
 </action_postfix>
+<action_comment>NewHampshire state tax is effectively 0</action_comment>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Married Filing Jointly</condition_comment>
-<condition_dsl>job.filing_status is equal to "married_filing_jointly"</condition_dsl>
+<condition_comment>Always</condition_comment>
+<condition_dsl />
 <condition_postfix>
-job.filing_status married_filing_jointly streq
+true
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate NH tax MFJ; Calculate NH tax with MFJ standard deduction and progressive brackets</action_comment>
+<action_comment>No-op (tax already set to 0 in initial action)</action_comment>
 <action_dsl />
 <action_postfix>
-"  Starting Federal AGI: $" result.nh_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-nh_standard_deduction_mfj /result.nh_standard_deduction xdef
-"  Standard Deduction (MFJ): $" result.nh_standard_deduction cvs strconcat job.audit_trail swap addto
-result.nh_agi result.nh_standard_deduction f- 0 fmax /result.nh_taxable_income xdef
-"  NH Taxable Income: $" result.nh_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
-result.nh_taxable_income nh_bracket_3_threshold f&gt; if
-  nh_bracket_2_threshold nh_bracket_1_rate f* /result.nh_bracket_1_tax xdef
-  nh_bracket_3_threshold nh_bracket_2_threshold f- nh_bracket_2_rate f* /result.nh_bracket_2_tax xdef
-  result.nh_taxable_income nh_bracket_3_threshold f- nh_bracket_3_rate f* /result.nh_bracket_3_tax xdef
-  "  Bracket 1 (3% on $0-$75,000): $" result.nh_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 2 (5% on $75,000-$150,000): $" result.nh_bracket_2_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 3 (7.5% above $150,000): $" result.nh_bracket_3_tax cvs strconcat job.audit_trail swap addto
-else
-  result.nh_taxable_income nh_bracket_2_threshold f&gt; if
-    nh_bracket_2_threshold nh_bracket_1_rate f* /result.nh_bracket_1_tax xdef
-    result.nh_taxable_income nh_bracket_2_threshold f- nh_bracket_2_rate f* /result.nh_bracket_2_tax xdef
-    "  Bracket 1 (3% on $0-$75,000): $" result.nh_bracket_1_tax cvs strconcat job.audit_trail swap addto
-    "  Bracket 2 (5% on $75,000-$" result.nh_taxable_income cvs strconcat "): $" strconcat result.nh_bracket_2_tax cvs strconcat strconcat job.audit_trail swap addto
-  else
-    result.nh_taxable_income nh_bracket_1_rate f* /result.nh_bracket_1_tax xdef
-    "  Bracket 1 (3% on $0-$" result.nh_taxable_income cvs strconcat "): $" strconcat result.nh_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
-  endif
-endif
-result.nh_bracket_1_tax result.nh_bracket_2_tax f+ result.nh_bracket_3_tax f+ /result.nh_tax xdef
-"  Total NH Tax: $" result.nh_tax cvs strconcat " (Form NH-1040)" strconcat job.audit_trail swap addto
+
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Calculate NH tax Single/other; Calculate NH tax with Single standard deduction and progressive brackets</action_comment>
-<action_dsl />
-<action_postfix>
-"  Starting Federal AGI: $" result.nh_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-nh_standard_deduction_single /result.nh_standard_deduction xdef
-"  Standard Deduction (Single): $" result.nh_standard_deduction cvs strconcat job.audit_trail swap addto
-result.nh_agi result.nh_standard_deduction f- 0 fmax /result.nh_taxable_income xdef
-"  NH Taxable Income: $" result.nh_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
-result.nh_taxable_income nh_bracket_3_threshold f&gt; if
-  nh_bracket_2_threshold nh_bracket_1_rate f* /result.nh_bracket_1_tax xdef
-  nh_bracket_3_threshold nh_bracket_2_threshold f- nh_bracket_2_rate f* /result.nh_bracket_2_tax xdef
-  result.nh_taxable_income nh_bracket_3_threshold f- nh_bracket_3_rate f* /result.nh_bracket_3_tax xdef
-  "  Bracket 1 (3% on $0-$75,000): $" result.nh_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 2 (5% on $75,000-$150,000): $" result.nh_bracket_2_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 3 (7.5% above $150,000): $" result.nh_bracket_3_tax cvs strconcat job.audit_trail swap addto
-else
-  result.nh_taxable_income nh_bracket_2_threshold f&gt; if
-    nh_bracket_2_threshold nh_bracket_1_rate f* /result.nh_bracket_1_tax xdef
-    result.nh_taxable_income nh_bracket_2_threshold f- nh_bracket_2_rate f* /result.nh_bracket_2_tax xdef
-    "  Bracket 1 (3% on $0-$75,000): $" result.nh_bracket_1_tax cvs strconcat job.audit_trail swap addto
-    "  Bracket 2 (5% on $75,000-$" result.nh_taxable_income cvs strconcat "): $" strconcat result.nh_bracket_2_tax cvs strconcat strconcat job.audit_trail swap addto
-  else
-    result.nh_taxable_income nh_bracket_1_rate f* /result.nh_bracket_1_tax xdef
-    "  Bracket 1 (3% on $0-$" result.nh_taxable_income cvs strconcat "): $" strconcat result.nh_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
-  endif
-endif
-result.nh_bracket_1_tax result.nh_bracket_2_tax f+ result.nh_bracket_3_tax f+ /result.nh_tax xdef
-"  Total NH Tax: $" result.nh_tax cvs strconcat " (Form NH-1040)" strconcat job.audit_trail swap addto
-</action_postfix>
-<action_column column_number="2" column_value="X" />
-</action_details>
 </actions>
-<policy_statements>
-<policy_statement column="1">
-<policy_description>NH progressive tax MFJ with standard deduction</policy_description>
-<policy_statement_postfix>"New Hampshire progressive tax for MFJ per Form NH-1040"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="2">
-<policy_description>NH progressive tax Single with standard deduction</policy_description>
-<policy_statement_postfix>"New Hampshire progressive tax for Single per Form NH-1040"</policy_statement_postfix>
-</policy_statement>
-</policy_statements>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

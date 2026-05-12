@@ -71,17 +71,51 @@ Age 65 or older
 <xls_file>CO.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Colorado state income tax calculation (2025). Flat 4.40% rate applied to federal AGI with Colorado-specific adjustments: add state tax refunds, subtract Social Security, military retirement, and pension/annuity subtractions. Source: Colorado DOR Form DR 0104. Skeleton table: needs authorship. Conditions/actions intentionally empty pending follow-up; constants already exist in CO_edd.xml (co_tax_rate, co_taxable_income, co_tax) but the rule logic is not yet wired up. See issue #446.</COMMENTS>
+<COMMENTS>Colorado state income tax (2025). Flat 4.40% rate (C.R.S. § 39-22-104) applied to federal AGI. CO has no standard deduction; tax = AGI * 0.044. Richer CO-specific subtractions (Social Security, military retirement, pension/annuity per CO_Pension_Subtraction / CO_Military_Retirement_Exemption) are computed in the sibling tables and stored separately; they're not subtracted here yet — a follow-up will integrate them. Writes result.co_taxable_income and result.co_tax.</COMMENTS>
 <TABLE_NUMBER>5792</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
+<initial_action>
+<action_dsl />
+<action_postfix>
+0.0 /result.co_tax xdef
+0.0 /result.co_taxable_income xdef
+"  Colorado Tax Calculation (Form DR 0104) — flat 4.40%" job.audit_trail swap addto
+</action_postfix>
+<action_comment>Reset CO tax fields and log calculation start</action_comment>
+</initial_action>
 </initial_actions>
 <conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always (CO has no filing-status differences)</condition_comment>
+<condition_dsl />
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
 </conditions>
 <actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>CO tax = AGI x 4.40%</action_comment>
+<action_dsl />
+<action_postfix>
+result.agi 0.0 fmax /result.co_taxable_income xdef
+result.co_taxable_income co_tax_rate f* /result.co_tax xdef
+"  CO taxable income: $" result.co_taxable_income cvs strconcat job.audit_trail swap addto
+"  CO state tax (flat 4.40%): $" result.co_tax cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>CO flat tax: 4.40% x AGI per C.R.S. § 39-22-104</policy_description>
+<policy_statement_postfix>"CO flat tax per C.R.S. § 39-22-104"</policy_statement_postfix>
+</policy_statement>
 </policy_statements>
 </decision_table>
 

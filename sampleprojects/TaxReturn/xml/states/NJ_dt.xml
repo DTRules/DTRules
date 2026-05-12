@@ -133,7 +133,7 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 <condition_number>1</condition_number>
 <condition_comment>Income in bracket 1 (≤ $20k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_1_limit_joint</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_1_limit_joint f&lt;=</condition_postfix>
+<condition_postfix>result.nj_taxable_income nj_bracket_1_limit_joint &lt;=</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -147,7 +147,7 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 <condition_number>2</condition_number>
 <condition_comment>Income in bracket 2 (≤ $50k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_2_limit_joint</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_2_limit_joint f&lt;=</condition_postfix>
+<condition_postfix>result.nj_taxable_income nj_bracket_2_limit_joint &lt;=</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -161,7 +161,7 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 <condition_number>3</condition_number>
 <condition_comment>Income in bracket 3 (≤ $70k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_3_limit_joint</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_3_limit_joint f&lt;=</condition_postfix>
+<condition_postfix>result.nj_taxable_income nj_bracket_3_limit_joint &lt;=</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
@@ -175,7 +175,7 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 <condition_number>4</condition_number>
 <condition_comment>Income in bracket 4 (≤ $80k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_4_limit_joint</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_4_limit_joint f&lt;=</condition_postfix>
+<condition_postfix>result.nj_taxable_income nj_bracket_4_limit_joint &lt;=</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
@@ -189,7 +189,7 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 <condition_number>5</condition_number>
 <condition_comment>Income in bracket 5 (≤ $150k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_5_limit_joint</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_5_limit_joint f&lt;=</condition_postfix>
+<condition_postfix>result.nj_taxable_income nj_bracket_5_limit_joint &lt;=</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
@@ -203,7 +203,7 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 <condition_number>6</condition_number>
 <condition_comment>Income in bracket 6 (≤ $500k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_6_limit_joint</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_6_limit_joint f&lt;=</condition_postfix>
+<condition_postfix>result.nj_taxable_income nj_bracket_6_limit_joint &lt;=</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
@@ -217,7 +217,7 @@ job.filing_status "married_filing_jointly" streq job.filing_status "MFJ" streq o
 <condition_number>7</condition_number>
 <condition_comment>Income in bracket 7 (≤ $1M)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_7_limit_joint</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_7_limit_joint f&lt;=</condition_postfix>
+<condition_postfix>result.nj_taxable_income nj_bracket_7_limit_joint &lt;=</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
@@ -332,7 +332,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate f* nj_bracket_2_limit_joint nj_bracke
 <condition_number>1</condition_number>
 <condition_comment>Bracket 1 (≤ $20k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_1_limit_single</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_1_limit_single f&lt;=</condition_postfix>
+<condition_postfix>result.nj_taxable_income nj_bracket_1_limit_single &lt;=</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -345,7 +345,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate f* nj_bracket_2_limit_joint nj_bracke
 <condition_number>2</condition_number>
 <condition_comment>Bracket 2 (≤ $35k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_2_limit_single</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_2_limit_single f&lt;=</condition_postfix>
+<condition_postfix>result.nj_taxable_income nj_bracket_2_limit_single &lt;=</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -358,7 +358,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate f* nj_bracket_2_limit_joint nj_bracke
 <condition_number>3</condition_number>
 <condition_comment>Bracket 3 (≤ $40k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_3_limit_single</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_3_limit_single f&lt;=</condition_postfix>
+<condition_postfix>result.nj_taxable_income nj_bracket_3_limit_single &lt;=</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
@@ -371,7 +371,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate f* nj_bracket_2_limit_joint nj_bracke
 <condition_number>4</condition_number>
 <condition_comment>Bracket 4 (≤ $75k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_4_limit_single</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_4_limit_single f&lt;=</condition_postfix>
+<condition_postfix>result.nj_taxable_income nj_bracket_4_limit_single &lt;=</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
@@ -384,7 +384,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate f* nj_bracket_2_limit_joint nj_bracke
 <condition_number>5</condition_number>
 <condition_comment>Bracket 5 (≤ $500k)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_5_limit_single</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_5_limit_single f&lt;=</condition_postfix>
+<condition_postfix>result.nj_taxable_income nj_bracket_5_limit_single &lt;=</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
@@ -397,7 +397,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate f* nj_bracket_2_limit_joint nj_bracke
 <condition_number>6</condition_number>
 <condition_comment>Bracket 6 (≤ $1M)</condition_comment>
 <condition_dsl>result.nj_taxable_income &lt;= nj_bracket_6_limit_single</condition_dsl>
-<condition_postfix>result.nj_taxable_income nj_bracket_6_limit_single f&lt;=</condition_postfix>
+<condition_postfix>result.nj_taxable_income nj_bracket_6_limit_single &lt;=</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />

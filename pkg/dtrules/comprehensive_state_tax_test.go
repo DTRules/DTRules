@@ -172,9 +172,10 @@ func TestComprehensiveStateTaxes(t *testing.T) {
 		{"NV", "Nevada_High_Earner", "NV/TestCase_NV_03_High_Income.xml", 0},
 
 		// New Hampshire (#193) - Progressive tax (3% - 7.5%)
-		{"NH", "NewHampshire_Single_W2", "TestCase_NH_01_Single_W2.xml", 500},
-		{"NH", "NewHampshire_MFJ_Two_Brackets", "TestCase_NH_02_MFJ_Two_Brackets.xml", 1000},
-		{"NH", "NewHampshire_High_Income_All_Brackets", "TestCase_NH_03_High_Income_All_Brackets.xml", 3000},
+		// NH Interest & Dividends tax phased to 0% in 2025 (RSA 77); treat as no-tax state.
+		{"NH", "NewHampshire_Single_W2", "TestCase_NH_01_Single_W2.xml", 0},
+		{"NH", "NewHampshire_MFJ_Two_Brackets", "TestCase_NH_02_MFJ_Two_Brackets.xml", 0},
+		{"NH", "NewHampshire_High_Income_All_Brackets", "TestCase_NH_03_High_Income_All_Brackets.xml", 0},
 
 		// New Jersey (#189) - Progressive tax (1.4% - 10.75%)
 		{"NJ", "NewJersey_Single_W2", "NJ/TestCase_NJ_01_Single_W2.xml", 500},

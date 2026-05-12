@@ -9508,8 +9508,8 @@ ifelse
 <condition_comment>California state; state_period.state_code or job.state is equal to "CA"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /CA streq }
-{ job.state /CA streq }
+{ state_period.state_code "CA" streq }
+{ job.state "CA" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9531,8 +9531,8 @@ ifelse
 <condition_comment>New Hampshire state; state_period.state_code or job.state is equal to "NH"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /NH streq }
-{ job.state /NH streq }
+{ state_period.state_code "NH" streq }
+{ job.state "NH" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9548,8 +9548,8 @@ ifelse
 <condition_comment>Colorado state; state_period.state_code or job.state is equal to "CO"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /CO streq }
-{ job.state /CO streq }
+{ state_period.state_code "CO" streq }
+{ job.state "CO" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9566,8 +9566,8 @@ ifelse
 <condition_comment>Montana state; state_period.state_code or job.state is equal to "MT"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /MT streq }
-{ job.state /MT streq }
+{ state_period.state_code "MT" streq }
+{ job.state "MT" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9585,8 +9585,8 @@ ifelse
 <condition_comment>Pennsylvania state; state_period.state_code or job.state is equal to "PA"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /PA streq }
-{ job.state /PA streq }
+{ state_period.state_code "PA" streq }
+{ job.state "PA" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9604,8 +9604,8 @@ ifelse
 <condition_comment>Delaware state; state_period.state_code or job.state is equal to "DE"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /DE streq }
-{ job.state /DE streq }
+{ state_period.state_code "DE" streq }
+{ job.state "DE" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9626,8 +9626,8 @@ ifelse
 <condition_comment>South Dakota state; state_period.state_code or job.state is equal to "SD"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /SD streq }
-{ job.state /SD streq }
+{ state_period.state_code "SD" streq }
+{ job.state "SD" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9651,22 +9651,22 @@ ifelse
 <condition_dsl />
 <condition_postfix>
 {
-  state_period.state_code /AK streq
-  state_period.state_code /FL streq or
-  state_period.state_code /NV streq or
-  state_period.state_code /SD streq or
-  state_period.state_code /TX streq or
-  state_period.state_code /WA streq or
-  state_period.state_code /WY streq or
+  state_period.state_code "AK" streq
+  state_period.state_code "FL" streq or
+  state_period.state_code "NV" streq or
+  state_period.state_code "SD" streq or
+  state_period.state_code "TX" streq or
+  state_period.state_code "WA" streq or
+  state_period.state_code "WY" streq or
 }
 {
-  job.state /AK streq
-  job.state /FL streq or
-  job.state /NV streq or
-  job.state /SD streq or
-  job.state /TX streq or
-  job.state /WA streq or
-  job.state /WY streq or
+  job.state "AK" streq
+  job.state "FL" streq or
+  job.state "NV" streq or
+  job.state "SD" streq or
+  job.state "TX" streq or
+  job.state "WA" streq or
+  job.state "WY" streq or
 }
 /state_period isdefined
 ifelse
@@ -9688,8 +9688,8 @@ ifelse
 <condition_comment>Missouri state; state_period.state_code or job.state is equal to "MO"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /MO streq }
-{ job.state /MO streq }
+{ state_period.state_code "MO" streq }
+{ job.state "MO" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9710,8 +9710,8 @@ ifelse
 <condition_comment>Hawaii state; state_period.state_code or job.state is equal to "HI"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /HI streq }
-{ job.state /HI streq }
+{ state_period.state_code "HI" streq }
+{ job.state "HI" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9733,8 +9733,8 @@ ifelse
 <condition_comment>New Jersey state; state_period.state_code or job.state is equal to "NJ"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /NJ streq }
-{ job.state /NJ streq }
+{ state_period.state_code "NJ" streq }
+{ job.state "NJ" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9756,8 +9756,8 @@ ifelse
 <condition_comment>South Carolina state; state_period.state_code or job.state is equal to "SC"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /SC streq }
-{ job.state /SC streq }
+{ state_period.state_code "SC" streq }
+{ job.state "SC" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9781,8 +9781,8 @@ ifelse
 <condition_comment>Arizona state; state_period.state_code or job.state is equal to "AZ"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /AZ streq }
-{ job.state /AZ streq }
+{ state_period.state_code "AZ" streq }
+{ job.state "AZ" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9807,8 +9807,8 @@ ifelse
 <condition_comment>Indiana state; state_period.state_code or job.state is equal to "IN"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /IN streq }
-{ job.state /IN streq }
+{ state_period.state_code "IN" streq }
+{ job.state "IN" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9834,8 +9834,8 @@ ifelse
 <condition_comment>Kentucky state; state_period.state_code or job.state is equal to "KY"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /KY streq }
-{ job.state /KY streq }
+{ state_period.state_code "KY" streq }
+{ job.state "KY" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9862,8 +9862,8 @@ ifelse
 <condition_comment>North Carolina state; state_period.state_code or job.state is equal to "NC"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /NC streq }
-{ job.state /NC streq }
+{ state_period.state_code "NC" streq }
+{ job.state "NC" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9891,8 +9891,8 @@ ifelse
 <condition_comment>Massachusetts state; state_period.state_code or job.state is equal to "MA"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /MA streq }
-{ job.state /MA streq }
+{ state_period.state_code "MA" streq }
+{ job.state "MA" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9921,8 +9921,8 @@ ifelse
 <condition_comment>Utah state; state_period.state_code or job.state is equal to "UT"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /UT streq }
-{ job.state /UT streq }
+{ state_period.state_code "UT" streq }
+{ job.state "UT" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9952,8 +9952,8 @@ ifelse
 <condition_comment>Illinois state; state_period.state_code or job.state is equal to "IL"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /IL streq }
-{ job.state /IL streq }
+{ state_period.state_code "IL" streq }
+{ job.state "IL" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -9984,8 +9984,8 @@ ifelse
 <condition_comment>Michigan state; state_period.state_code or job.state is equal to "MI"</condition_comment>
 <condition_dsl />
 <condition_postfix>
-{ state_period.state_code /MI streq }
-{ job.state /MI streq }
+{ state_period.state_code "MI" streq }
+{ job.state "MI" streq }
 /state_period isdefined
 ifelse
 </condition_postfix>
@@ -10010,6 +10010,1145 @@ ifelse
 <condition_column column_number="19" column_value="N" />
 <condition_column column_number="20" column_value="N" />
 <condition_column column_number="21" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>20</condition_number>
+<condition_comment>AL state; state_period.state_code or job.state is equal to "AL"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "AL" streq }
+{ job.state "AL" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="Y" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>21</condition_number>
+<condition_comment>CT state; state_period.state_code or job.state is equal to "CT"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "CT" streq }
+{ job.state "CT" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="Y" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>22</condition_number>
+<condition_comment>DC state; state_period.state_code or job.state is equal to "DC"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "DC" streq }
+{ job.state "DC" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="Y" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>23</condition_number>
+<condition_comment>GA state; state_period.state_code or job.state is equal to "GA"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "GA" streq }
+{ job.state "GA" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="Y" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>24</condition_number>
+<condition_comment>IA state; state_period.state_code or job.state is equal to "IA"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "IA" streq }
+{ job.state "IA" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="Y" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>25</condition_number>
+<condition_comment>ID state; state_period.state_code or job.state is equal to "ID"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "ID" streq }
+{ job.state "ID" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="Y" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>26</condition_number>
+<condition_comment>KS state; state_period.state_code or job.state is equal to "KS"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "KS" streq }
+{ job.state "KS" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="Y" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>27</condition_number>
+<condition_comment>MD state; state_period.state_code or job.state is equal to "MD"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "MD" streq }
+{ job.state "MD" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="Y" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>28</condition_number>
+<condition_comment>ME state; state_period.state_code or job.state is equal to "ME"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "ME" streq }
+{ job.state "ME" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="Y" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>29</condition_number>
+<condition_comment>MN state; state_period.state_code or job.state is equal to "MN"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "MN" streq }
+{ job.state "MN" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="Y" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>30</condition_number>
+<condition_comment>MS state; state_period.state_code or job.state is equal to "MS"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "MS" streq }
+{ job.state "MS" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="Y" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>31</condition_number>
+<condition_comment>ND state; state_period.state_code or job.state is equal to "ND"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "ND" streq }
+{ job.state "ND" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="Y" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>32</condition_number>
+<condition_comment>NE state; state_period.state_code or job.state is equal to "NE"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "NE" streq }
+{ job.state "NE" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="Y" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>33</condition_number>
+<condition_comment>NY state; state_period.state_code or job.state is equal to "NY"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "NY" streq }
+{ job.state "NY" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="Y" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>34</condition_number>
+<condition_comment>OH state; state_period.state_code or job.state is equal to "OH"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "OH" streq }
+{ job.state "OH" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="Y" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>35</condition_number>
+<condition_comment>OR state; state_period.state_code or job.state is equal to "OR"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "OR" streq }
+{ job.state "OR" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="Y" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>36</condition_number>
+<condition_comment>RI state; state_period.state_code or job.state is equal to "RI"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "RI" streq }
+{ job.state "RI" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="Y" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>37</condition_number>
+<condition_comment>VA state; state_period.state_code or job.state is equal to "VA"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "VA" streq }
+{ job.state "VA" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="Y" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>38</condition_number>
+<condition_comment>VT state; state_period.state_code or job.state is equal to "VT"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "VT" streq }
+{ job.state "VT" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="Y" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>39</condition_number>
+<condition_comment>WI state; state_period.state_code or job.state is equal to "WI"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "WI" streq }
+{ job.state "WI" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="Y" />
+<condition_column column_number="42" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>40</condition_number>
+<condition_comment>WV state; state_period.state_code or job.state is equal to "WV"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "WV" streq }
+{ job.state "WV" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="N" />
+<condition_column column_number="17" column_value="N" />
+<condition_column column_number="18" column_value="N" />
+<condition_column column_number="19" column_value="N" />
+<condition_column column_number="20" column_value="N" />
+<condition_column column_number="21" column_value="N" />
+<condition_column column_number="22" column_value="N" />
+<condition_column column_number="23" column_value="N" />
+<condition_column column_number="24" column_value="N" />
+<condition_column column_number="25" column_value="N" />
+<condition_column column_number="26" column_value="N" />
+<condition_column column_number="27" column_value="N" />
+<condition_column column_number="28" column_value="N" />
+<condition_column column_number="29" column_value="N" />
+<condition_column column_number="30" column_value="N" />
+<condition_column column_number="31" column_value="N" />
+<condition_column column_number="32" column_value="N" />
+<condition_column column_number="33" column_value="N" />
+<condition_column column_number="34" column_value="N" />
+<condition_column column_number="35" column_value="N" />
+<condition_column column_number="36" column_value="N" />
+<condition_column column_number="37" column_value="N" />
+<condition_column column_number="38" column_value="N" />
+<condition_column column_number="39" column_value="N" />
+<condition_column column_number="40" column_value="N" />
+<condition_column column_number="41" column_value="N" />
+<condition_column column_number="42" column_value="Y" />
+<condition_column column_number="43" column_value="N" />
+<condition_column column_number="44" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>41</condition_number>
+<condition_comment>HI state; state_period.state_code or job.state is equal to "HI"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "HI" streq }
+{ job.state "HI" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" /><condition_column column_number="2" column_value="N" /><condition_column column_number="3" column_value="N" /><condition_column column_number="4" column_value="N" /><condition_column column_number="5" column_value="N" /><condition_column column_number="6" column_value="N" /><condition_column column_number="7" column_value="N" /><condition_column column_number="8" column_value="N" /><condition_column column_number="9" column_value="N" /><condition_column column_number="10" column_value="N" /><condition_column column_number="11" column_value="N" /><condition_column column_number="12" column_value="N" /><condition_column column_number="13" column_value="N" /><condition_column column_number="14" column_value="N" /><condition_column column_number="15" column_value="N" /><condition_column column_number="16" column_value="N" /><condition_column column_number="17" column_value="N" /><condition_column column_number="18" column_value="N" /><condition_column column_number="19" column_value="N" /><condition_column column_number="20" column_value="N" /><condition_column column_number="21" column_value="N" /><condition_column column_number="22" column_value="N" /><condition_column column_number="23" column_value="N" /><condition_column column_number="24" column_value="N" /><condition_column column_number="25" column_value="N" /><condition_column column_number="26" column_value="N" /><condition_column column_number="27" column_value="N" /><condition_column column_number="28" column_value="N" /><condition_column column_number="29" column_value="N" /><condition_column column_number="30" column_value="N" /><condition_column column_number="31" column_value="N" /><condition_column column_number="32" column_value="N" /><condition_column column_number="33" column_value="N" /><condition_column column_number="34" column_value="N" /><condition_column column_number="35" column_value="N" /><condition_column column_number="36" column_value="N" /><condition_column column_number="37" column_value="N" /><condition_column column_number="38" column_value="N" /><condition_column column_number="39" column_value="N" /><condition_column column_number="40" column_value="N" /><condition_column column_number="41" column_value="N" /><condition_column column_number="42" column_value="N" /><condition_column column_number="43" column_value="Y" /><condition_column column_number="44" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>42</condition_number>
+<condition_comment>MO state; state_period.state_code or job.state is equal to "MO"</condition_comment>
+<condition_dsl />
+<condition_postfix>
+{ state_period.state_code "MO" streq }
+{ job.state "MO" streq }
+/state_period isdefined
+ifelse
+</condition_postfix>
+<condition_column column_number="1" column_value="N" /><condition_column column_number="2" column_value="N" /><condition_column column_number="3" column_value="N" /><condition_column column_number="4" column_value="N" /><condition_column column_number="5" column_value="N" /><condition_column column_number="6" column_value="N" /><condition_column column_number="7" column_value="N" /><condition_column column_number="8" column_value="N" /><condition_column column_number="9" column_value="N" /><condition_column column_number="10" column_value="N" /><condition_column column_number="11" column_value="N" /><condition_column column_number="12" column_value="N" /><condition_column column_number="13" column_value="N" /><condition_column column_number="14" column_value="N" /><condition_column column_number="15" column_value="N" /><condition_column column_number="16" column_value="N" /><condition_column column_number="17" column_value="N" /><condition_column column_number="18" column_value="N" /><condition_column column_number="19" column_value="N" /><condition_column column_number="20" column_value="N" /><condition_column column_number="21" column_value="N" /><condition_column column_number="22" column_value="N" /><condition_column column_number="23" column_value="N" /><condition_column column_number="24" column_value="N" /><condition_column column_number="25" column_value="N" /><condition_column column_number="26" column_value="N" /><condition_column column_number="27" column_value="N" /><condition_column column_number="28" column_value="N" /><condition_column column_number="29" column_value="N" /><condition_column column_number="30" column_value="N" /><condition_column column_number="31" column_value="N" /><condition_column column_number="32" column_value="N" /><condition_column column_number="33" column_value="N" /><condition_column column_number="34" column_value="N" /><condition_column column_number="35" column_value="N" /><condition_column column_number="36" column_value="N" /><condition_column column_number="37" column_value="N" /><condition_column column_number="38" column_value="N" /><condition_column column_number="39" column_value="N" /><condition_column column_number="40" column_value="N" /><condition_column column_number="41" column_value="N" /><condition_column column_number="42" column_value="N" /><condition_column column_number="43" column_value="N" /><condition_column column_number="44" column_value="Y" />
 </condition_details>
 </conditions>
 <actions>
@@ -10040,31 +11179,69 @@ if
 
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate New Hampshire state tax</action_comment>
+<action_comment>Calculate New Hampshire state tax (I&amp;D tax phased out, effectively 0)</action_comment>
 <action_dsl>perform NH_Tax</action_dsl>
 <action_postfix>
-NH_Tax
+/NH_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  New Hampshire State Income Tax: $" result.computed_state_tax cvs strconcat " (Interest &amp; Dividends tax phased out per RSA 77)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Calculate Colorado state tax</action_comment>
+<action_comment>Calculate Colorado state tax (flat 4.40%)</action_comment>
 <action_dsl>perform CO_Tax</action_dsl>
 <action_postfix>
-
-CO_Military_Retirement_Exemption
-CO_Pension_Subtraction
-CO_Tax
+/CO_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.co_tax /state_tax_before_credits xdef
+  result.co_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Colorado State Income Tax: $" result.co_tax cvs strconcat " (flat 4.40% per CO DOR)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 <action_details>
 <action_number>4</action_number>
-<action_comment>Calculate Montana state tax</action_comment>
+<action_comment>Calculate Montana state tax (top marginal 5.9%)</action_comment>
 <action_dsl>perform MT_Tax</action_dsl>
 <action_postfix>
-MT_Tax
+/MT_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Montana State Income Tax:" job.audit_trail swap addto
+"    MT Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    MT State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 5.9% per Mont. Code § 15-30-2103)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="4" column_value="X" />
 </action_details>
@@ -10094,10 +11271,25 @@ if
 </action_details>
 <action_details>
 <action_number>6</action_number>
-<action_comment>Calculate Delaware state tax</action_comment>
+<action_comment>Calculate Delaware state tax (top marginal 6.6%)</action_comment>
 <action_dsl>perform DE_Tax</action_dsl>
 <action_postfix>
-DE_Tax
+/DE_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Delaware State Income Tax:" job.audit_trail swap addto
+"    DE Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    DE State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 6.6% per 30 Del. C. § 1102)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="6" column_value="X" />
 </action_details>
@@ -10141,38 +11333,70 @@ ifelse
 </action_details>
 <action_details>
 <action_number>10</action_number>
-<action_comment>Calculate Missouri state tax</action_comment>
-<action_dsl>perform MO_Tax</action_dsl>
+<action_comment>Calculate Missouri / Hawaii state tax — note both states fire on column 10 due to duplicate condition_number=10 in the legacy dispatch. Whichever XX_Tax runs will set result.computed_state_tax based on job.state, so this single action handles both.</action_comment>
+<action_dsl />
 <action_postfix>
-MO_Tax
-</action_postfix>
-<action_column column_number="10" column_value="X" />
-</action_details>
-<action_details>
-<action_number>10</action_number>
-<action_comment>Calculate Hawaii state tax</action_comment>
-<action_dsl>perform HI_Tax</action_dsl>
-<action_postfix>
-HI_Tax
+{ job.state "MO" streq } { /MO_Tax performtable } if
+{ job.state "HI" streq } { /HI_Tax performtable } if
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  State Income Tax (" job.state strconcat "):" strconcat job.audit_trail swap addto
+"    Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    State Tax: $" result.computed_state_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="10" column_value="X" />
 </action_details>
 
 <action_details>
 <action_number>11</action_number>
-<action_comment>Calculate New Jersey state tax</action_comment>
+<action_comment>Calculate New Jersey state tax (progressive 1.4-10.75%)</action_comment>
 <action_dsl>perform NJ_Tax</action_dsl>
 <action_postfix>
-NJ_Tax
+/NJ_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.nj_tax /state_tax_before_credits xdef
+  result.nj_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  New Jersey State Income Tax: $" result.nj_tax cvs strconcat " (progressive 1.4-10.75% per N.J.S.A. 54A:2-1)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="11" column_value="X" />
 </action_details>
 <action_details>
 <action_number>13</action_number>
-<action_comment>Calculate South Carolina state tax</action_comment>
+<action_comment>Calculate South Carolina state tax (progressive 0%/3%/6%)</action_comment>
 <action_dsl>perform SC_Tax</action_dsl>
 <action_postfix>
 /SC_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.sc_state_tax /state_tax_before_credits xdef
+  result.sc_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
 </action_postfix>
 <action_column column_number="13" column_value="X" />
 </action_details>
@@ -10367,6 +11591,558 @@ if
 "    MI State Tax: $" result.mi_state_tax cvs strconcat " (flat 4.25% per MCL § 206.51)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="21" column_value="X" />
+</action_details>
+<action_details>
+<action_number>22</action_number>
+<action_comment>Calculate Alabama state tax (top marginal 5% per Code of Ala. § 40-18-5)</action_comment>
+<action_dsl>perform AL_Tax</action_dsl>
+<action_postfix>
+/AL_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Alabama State Income Tax:" job.audit_trail swap addto
+"    AL Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    AL State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 5% per Code of Ala. § 40-18-5)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="22" column_value="X" />
+</action_details>
+<action_details>
+<action_number>23</action_number>
+<action_comment>Calculate Connecticut state tax (top marginal 6.99% per Conn. Gen. Stat. § 12-700)</action_comment>
+<action_dsl>perform CT_Tax</action_dsl>
+<action_postfix>
+/CT_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Connecticut State Income Tax:" job.audit_trail swap addto
+"    CT Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    CT State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 6.99% per Conn. Gen. Stat. § 12-700)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="23" column_value="X" />
+</action_details>
+<action_details>
+<action_number>24</action_number>
+<action_comment>Calculate WashingtonDC state tax (top marginal 10.75% per D.C. Code § 47-1806.03)</action_comment>
+<action_dsl>perform DC_Tax</action_dsl>
+<action_postfix>
+/DC_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  WashingtonDC State Income Tax:" job.audit_trail swap addto
+"    DC Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    DC State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 10.75% per D.C. Code § 47-1806.03)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="24" column_value="X" />
+</action_details>
+<action_details>
+<action_number>25</action_number>
+<action_comment>Calculate Georgia state tax (top marginal 5.39% per OCGA § 48-7-20)</action_comment>
+<action_dsl>perform GA_Tax</action_dsl>
+<action_postfix>
+/GA_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Georgia State Income Tax:" job.audit_trail swap addto
+"    GA Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    GA State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 5.39% per OCGA § 48-7-20)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="25" column_value="X" />
+</action_details>
+<action_details>
+<action_number>26</action_number>
+<action_comment>Calculate Iowa state tax (top marginal 3.8% per Iowa Code § 422.5)</action_comment>
+<action_dsl>perform IA_Tax</action_dsl>
+<action_postfix>
+/IA_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Iowa State Income Tax:" job.audit_trail swap addto
+"    IA Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    IA State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 3.8% per Iowa Code § 422.5)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="26" column_value="X" />
+</action_details>
+<action_details>
+<action_number>27</action_number>
+<action_comment>Calculate Idaho state tax (top marginal 5.695% per Idaho Code § 63-3024)</action_comment>
+<action_dsl>perform ID_Tax</action_dsl>
+<action_postfix>
+/ID_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Idaho State Income Tax:" job.audit_trail swap addto
+"    ID Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    ID State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 5.695% per Idaho Code § 63-3024)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="27" column_value="X" />
+</action_details>
+<action_details>
+<action_number>28</action_number>
+<action_comment>Calculate Kansas state tax (top marginal 5.58% per K.S.A. 79-32,110)</action_comment>
+<action_dsl>perform KS_Tax</action_dsl>
+<action_postfix>
+/KS_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Kansas State Income Tax:" job.audit_trail swap addto
+"    KS Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    KS State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 5.58% per K.S.A. 79-32,110)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="28" column_value="X" />
+</action_details>
+<action_details>
+<action_number>29</action_number>
+<action_comment>Calculate Maryland state tax (top marginal 5.75% per Md. Code, Tax-Gen. § 10-105)</action_comment>
+<action_dsl>perform MD_Tax</action_dsl>
+<action_postfix>
+/MD_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Maryland State Income Tax:" job.audit_trail swap addto
+"    MD Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    MD State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 5.75% per Md. Code, Tax-Gen. § 10-105)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="29" column_value="X" />
+</action_details>
+<action_details>
+<action_number>30</action_number>
+<action_comment>Calculate Maine state tax (top marginal 7.15% per 36 M.R.S. § 5111)</action_comment>
+<action_dsl>perform ME_Tax</action_dsl>
+<action_postfix>
+/ME_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Maine State Income Tax:" job.audit_trail swap addto
+"    ME Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    ME State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 7.15% per 36 M.R.S. § 5111)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="30" column_value="X" />
+</action_details>
+<action_details>
+<action_number>31</action_number>
+<action_comment>Calculate Minnesota state tax (top marginal 9.85% per Minn. Stat. § 290.06)</action_comment>
+<action_dsl>perform MN_Tax</action_dsl>
+<action_postfix>
+/MN_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Minnesota State Income Tax:" job.audit_trail swap addto
+"    MN Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    MN State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 9.85% per Minn. Stat. § 290.06)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="31" column_value="X" />
+</action_details>
+<action_details>
+<action_number>32</action_number>
+<action_comment>Calculate Mississippi state tax (top marginal 4.4% per Miss. Code § 27-7-5)</action_comment>
+<action_dsl>perform MS_Tax</action_dsl>
+<action_postfix>
+/MS_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Mississippi State Income Tax:" job.audit_trail swap addto
+"    MS Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    MS State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 4.4% per Miss. Code § 27-7-5)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="32" column_value="X" />
+</action_details>
+<action_details>
+<action_number>33</action_number>
+<action_comment>Calculate NorthDakota state tax (top marginal 2.5% per N.D.C.C. § 57-38-30.3)</action_comment>
+<action_dsl>perform ND_Tax</action_dsl>
+<action_postfix>
+/ND_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  NorthDakota State Income Tax:" job.audit_trail swap addto
+"    ND Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    ND State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 2.5% per N.D.C.C. § 57-38-30.3)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="33" column_value="X" />
+</action_details>
+<action_details>
+<action_number>34</action_number>
+<action_comment>Calculate Nebraska state tax (top marginal 5.84% per Neb. Rev. Stat. § 77-2715)</action_comment>
+<action_dsl>perform NE_Tax</action_dsl>
+<action_postfix>
+/NE_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Nebraska State Income Tax:" job.audit_trail swap addto
+"    NE Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    NE State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 5.84% per Neb. Rev. Stat. § 77-2715)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="34" column_value="X" />
+</action_details>
+<action_details>
+<action_number>35</action_number>
+<action_comment>Calculate NewYork state tax (top marginal 10.9% per N.Y. Tax Law § 601)</action_comment>
+<action_dsl>perform NY_Tax</action_dsl>
+<action_postfix>
+/NY_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  NewYork State Income Tax:" job.audit_trail swap addto
+"    NY Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    NY State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 10.9% per N.Y. Tax Law § 601)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="35" column_value="X" />
+</action_details>
+<action_details>
+<action_number>36</action_number>
+<action_comment>Calculate Ohio state tax (top marginal 3.5% per Ohio Rev. Code § 5747.02)</action_comment>
+<action_dsl>perform OH_Tax</action_dsl>
+<action_postfix>
+/OH_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Ohio State Income Tax:" job.audit_trail swap addto
+"    OH Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    OH State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 3.5% per Ohio Rev. Code § 5747.02)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="36" column_value="X" />
+</action_details>
+<action_details>
+<action_number>37</action_number>
+<action_comment>Calculate Oregon state tax (top marginal 9.9% per ORS § 316.037)</action_comment>
+<action_dsl>perform OR_Tax</action_dsl>
+<action_postfix>
+/OR_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Oregon State Income Tax:" job.audit_trail swap addto
+"    OR Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    OR State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 9.9% per ORS § 316.037)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="37" column_value="X" />
+</action_details>
+<action_details>
+<action_number>38</action_number>
+<action_comment>Calculate RhodeIsland state tax (top marginal 5.99% per R.I. Gen. Laws § 44-30-2.6)</action_comment>
+<action_dsl>perform RI_Tax</action_dsl>
+<action_postfix>
+/RI_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  RhodeIsland State Income Tax:" job.audit_trail swap addto
+"    RI Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    RI State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 5.99% per R.I. Gen. Laws § 44-30-2.6)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="38" column_value="X" />
+</action_details>
+<action_details>
+<action_number>39</action_number>
+<action_comment>Calculate Virginia state tax (top marginal 5.75% per Va. Code § 58.1-320)</action_comment>
+<action_dsl>perform VA_Tax</action_dsl>
+<action_postfix>
+/VA_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Virginia State Income Tax:" job.audit_trail swap addto
+"    VA Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    VA State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 5.75% per Va. Code § 58.1-320)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="39" column_value="X" />
+</action_details>
+<action_details>
+<action_number>40</action_number>
+<action_comment>Calculate Vermont state tax (top marginal 8.75% per 32 V.S.A. § 5822)</action_comment>
+<action_dsl>perform VT_Tax</action_dsl>
+<action_postfix>
+/VT_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Vermont State Income Tax:" job.audit_trail swap addto
+"    VT Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    VT State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 8.75% per 32 V.S.A. § 5822)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="40" column_value="X" />
+</action_details>
+<action_details>
+<action_number>41</action_number>
+<action_comment>Calculate Wisconsin state tax (top marginal 7.65% per Wis. Stat. § 71.06)</action_comment>
+<action_dsl>perform WI_Tax</action_dsl>
+<action_postfix>
+/WI_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Wisconsin State Income Tax:" job.audit_trail swap addto
+"    WI Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    WI State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 7.65% per Wis. Stat. § 71.06)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="41" column_value="X" />
+</action_details>
+<action_details>
+<action_number>42</action_number>
+<action_comment>Calculate WestVirginia state tax (top marginal 4.82% per W. Va. Code § 11-21-4e)</action_comment>
+<action_dsl>perform WV_Tax</action_dsl>
+<action_postfix>
+/WV_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  WestVirginia State Income Tax:" job.audit_trail swap addto
+"    WV Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    WV State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 4.82% per W. Va. Code § 11-21-4e)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="42" column_value="X" />
+</action_details>
+<action_details>
+<action_number>43</action_number>
+<action_comment>Calculate Hawaii state tax (top marginal 11.0% per HRS § 235-51)</action_comment>
+<action_dsl>perform HI_Tax</action_dsl>
+<action_postfix>
+/HI_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Hawaii State Income Tax:" job.audit_trail swap addto
+"    HI Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    HI State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 11.0% per HRS § 235-51)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="43" column_value="X" />
+</action_details>
+<action_details>
+<action_number>44</action_number>
+<action_comment>Calculate Missouri state tax (top marginal 4.95% per Mo. Rev. Stat. § 143.011)</action_comment>
+<action_dsl>perform MO_Tax</action_dsl>
+<action_postfix>
+/MO_Tax performtable
+{
+  /state_tax_result createentity
+  dup entitypush
+  job.state /state_code xdef
+  result.agi /state_agi xdef
+  result.computed_state_tax /state_tax_before_credits xdef
+  result.computed_state_tax /state_tax_liability xdef
+  entitypop pop
+  job.state_tax_results swap addto
+}
+job.state_tax_results length 0 eq
+if
+"  Missouri State Income Tax:" job.audit_trail swap addto
+"    MO Taxable Income: $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
+"    MO State Tax: $" result.computed_state_tax cvs strconcat " (top marginal 4.95% per Mo. Rev. Stat. § 143.011)" strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="44" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
