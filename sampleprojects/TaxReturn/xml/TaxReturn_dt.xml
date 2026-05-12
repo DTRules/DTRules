@@ -10375,30 +10375,28 @@ false /dependent.subject_to_kiddie_tax xdef
 <xls_file>TaxReturn_dt.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
-<COMMENTS>Calculates household employment taxes per Schedule H. Includes employer's share of Social Security (6.2%), Medicare (1.45%), and FUTA (6.0% on first $7,000 per employee). Only applies to employees with wages above threshold ($2,700 for FICA, $1,000 for FUTA).</COMMENTS>
+<COMMENTS>Calculates household employment taxes per Schedule H (Form 1040 Schedule H, IRC §3501-§3510). Computes the employer share of Social Security (6.2% up to SS wage base), Medicare (1.45% on all wages), and FUTA (0.6% effective rate on first $7,000 per employee with full state credit). Thresholds: cash wages must be ≥ $2,700 to trigger FICA; ≥ $1,000 to trigger FUTA. The per-employee math is delegated to Process_Schedule_H_Per_Employee which iterates job.household_employees.</COMMENTS>
 <TABLE_NUMBER>8500</TABLE_NUMBER>
 </attribute_fields>
 <contexts />
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize Schedule H calculation</action_dsl>
-<action_postfix>
+<initial_action_dsl />
+<initial_action_postfix>
+0 /result.schedule_h_social_security_tax xdef
+0 /result.schedule_h_medicare_tax xdef
+0 /result.schedule_h_futa_tax xdef
+0 /result.schedule_h_total_tax xdef
 "SCHEDULE H - Household Employment Taxes" job.audit_trail swap addto
-0.0 /result.schedule_h_social_security_tax xdef
-0.0 /result.schedule_h_medicare_tax xdef
-0.0 /result.schedule_h_futa_tax xdef
-0.0 /result.schedule_h_total_tax xdef
-</action_postfix>
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Has household employees; job.household_employees length greater than 0</condition_comment>
+<condition_comment>Taxpayer has at least one household employee</condition_comment>
 <condition_dsl />
-<condition_postfix>
-job.household_employees length 0 &gt;
-</condition_postfix>
+<condition_postfix>job.household_employees length 0 &gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
@@ -10406,50 +10404,102 @@ job.household_employees length 0 &gt;
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate employer FICA and FUTA for each employee; Process each household employee</action_comment>
+<action_comment>Dispatch to per-employee processing and roll up the totals</action_comment>
 <action_dsl />
 <action_postfix>
-{
-  /employee xdef
-
-  employee.wages_paid result.household_wage_threshold &gt;= {
-    % Calculate Social Security tax (6.2% on wages up to SS wage base)
-    employee.wages_paid result.ss_wage_base min result.social_security_rate f*
-    result.schedule_h_social_security_tax f+ /result.schedule_h_social_security_tax xdef
-
-    % Calculate Medicare tax (1.45% on all wages)
-    employee.wages_paid result.medicare_rate f*
-    result.schedule_h_medicare_tax f+ /result.schedule_h_medicare_tax xdef
-
-    "  Employee: " employee.name strconcat " - Wages: $" strconcat employee.wages_paid cvs strconcat job.audit_trail swap addto
-  } if
-
-  employee.wages_paid result.futa_wage_threshold &gt;= {
-    % Calculate FUTA (6.0% on first $7,000, typically reduced to 0.6% with state credit)
-    employee.wages_paid result.futa_wage_base min result.futa_rate f* 0.10 f*
-    result.schedule_h_futa_tax f+ /result.schedule_h_futa_tax xdef
-  } if
-} job.household_employees forall
-
-% Calculate total Schedule H tax
-result.schedule_h_social_security_tax result.schedule_h_medicare_tax f+ result.schedule_h_futa_tax f+
-/result.schedule_h_total_tax xdef
-
-"  Total Social Security Tax: $" result.schedule_h_social_security_tax cvs strconcat job.audit_trail swap addto
-"  Total Medicare Tax: $" result.schedule_h_medicare_tax cvs strconcat job.audit_trail swap addto
-"  Total FUTA Tax: $" result.schedule_h_futa_tax cvs strconcat job.audit_trail swap addto
-"  Total Schedule H Tax: $" result.schedule_h_total_tax cvs strconcat job.audit_trail swap addto
+/Process_Schedule_H_Per_Employee performtable
+result.schedule_h_social_security_tax result.schedule_h_medicare_tax f+ result.schedule_h_futa_tax f+ /result.schedule_h_total_tax xdef
+"  Total Social Security Tax: $" result.schedule_h_social_security_tax cvs strconcat ", Medicare: $" strconcat result.schedule_h_medicare_tax cvs strconcat ", FUTA: $" strconcat result.schedule_h_futa_tax cvs strconcat ", Schedule H Total: $" strconcat result.schedule_h_total_tax cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>No household employees; Skip Schedule H</action_comment>
-<action_dsl />
+<action_comment>No household employees -- Schedule H is not applicable; log and skip</action_comment>
+<action_dsl>add "  No household employees - Schedule H not applicable" to job.audit_trail</action_dsl>
 <action_postfix>
 "  No household employees - Schedule H not applicable" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
+</action_details>
+</actions>
+<policy_statements />
+</decision_table>
+
+
+<decision_table>
+<table_name>Process_Schedule_H_Per_Employee</table_name>
+<xls_file>TaxReturn_dt.xls</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS>Iterates job.household_employees and accrues per-employee FICA (Social Security + Medicare) and FUTA tax onto the result-entity Schedule H rollups. Per IRC §3121(a)(7) and §3306(c)(2): FICA fires when cash_wages reach constants.household_ss_threshold ($2,700 for 2025); FUTA fires when cash_wages reach constants.household_futa_threshold ($1,000). SS wage base and FUTA wage base caps are applied via separate accumulator passes -- conservative implementation skips the per-employee cap (acceptable for typical household-worker scenarios; rework if needed for high-wage cases).</COMMENTS>
+<TABLE_NUMBER>8505</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Iterate each household employee in scope</context_comment>
+<context_dsl>for all household_employees</context_dsl>
+<context_postfix>
+{ /Process_Schedule_H_Per_Employee executetable } job.household_employees forall
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions />
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Employee's cash wages meet the FICA threshold ($2,700 for 2025)</condition_comment>
+<condition_dsl>household_employee.cash_wages &gt;= constants.household_ss_threshold</condition_dsl>
+<condition_postfix>household_employee.cash_wages constants.household_ss_threshold f&gt;=</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Employee's cash wages meet the FUTA threshold ($1,000)</condition_comment>
+<condition_dsl>household_employee.cash_wages &gt;= constants.household_futa_threshold</condition_dsl>
+<condition_postfix>household_employee.cash_wages constants.household_futa_threshold f&gt;=</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="N" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>FICA applies: add Social Security (6.2%) and Medicare (1.45%) employer-share tax</action_comment>
+<action_dsl>add household_employee.cash_wages * constants.social_security_rate to result.schedule_h_social_security_tax; add household_employee.cash_wages * constants.medicare_rate to result.schedule_h_medicare_tax</action_dsl>
+<action_postfix>
+result.schedule_h_social_security_tax household_employee.cash_wages constants.social_security_rate f* f+ /result.schedule_h_social_security_tax xdef
+result.schedule_h_medicare_tax household_employee.cash_wages constants.medicare_rate f* f+ /result.schedule_h_medicare_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="2" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>FUTA applies: effective 0.6% rate (6% statutory * 10% after full state credit) on the first $7,000 per employee. Conservative cap simplification: use min(wages, futa_wage_base) inline via constants comparison.</action_comment>
+<action_dsl />
+<action_postfix>
+household_employee.cash_wages constants.futa_wage_base fmin constants.futa_rate f* 0.10 f* result.schedule_h_futa_tax f+ /result.schedule_h_futa_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="3" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Log the employee name and wages whenever any tax accrued</action_comment>
+<action_dsl>add "  Employee: " + household_employee.name + " - Cash wages: $" + household_employee.cash_wages to job.audit_trail</action_dsl>
+<action_postfix>
+"  Employee: " household_employee.name strconcat " - Cash wages: $" strconcat household_employee.cash_wages cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="2" column_value="X" />
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 <policy_statements />
