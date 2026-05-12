@@ -7,18 +7,29 @@ DTRules is now a Go-first project. The structure is:
 ```
 DTRules/
 ├── cmd/                    # CLI commands
-│   └── dtrules/           # Main CLI tool
-├── pkg/dtrules/           # Core library
-│   ├── sdk/               # Embeddable SDK
-│   ├── sync/              # Excel/XML sync
+│   ├── api/                # HTTP API server
+│   └── dtrules/            # Main CLI tool
+├── pkg/dtrules/            # Core library
+│   ├── authoring/          # Typed authoring view + Project API
+│   ├── compiler/el/        # ANTLR-based EL → postfix compiler
+│   ├── decisiontable/      # Decision-table model + advisory pass
+│   ├── interpreter/        # Stack-based VM (Go + amd64 ASM)
+│   ├── operators/          # Operator registry
+│   ├── runtime/            # Bytecode executors (Go + nativeasm)
+│   ├── session/            # Execution context
+│   ├── sync/               # Excel/XML sync + validation
 │   └── ...
-├── examples/              # Example applications
-├── sampleprojects/        # Rule sets
-├── legacy/                # Archived code
-│   ├── java/              # Original Java implementation
-│   └── go/                # ASM-dependent Go code
-└── go.mod                 # Module: github.com/DTRules/DTRules
+├── sampleprojects/         # Rule sets (TaxReturn, CHIP, ...)
+├── scripts/                # Project-level scripts (merge-pr, ...)
+├── ui/                     # TypeScript UI surface
+├── legacy/
+│   └── go/                 # ASM-dependent Go code (archived)
+└── go.mod                  # Module: github.com/DTRules/DTRules
 ```
+
+A `pkg/dtrules/sdk` package for embeddable engine wiring is being
+extracted (#757). Until it lands, both CLI binaries (`cmd/dtrules`,
+`cmd/api`) glue the engine pipeline together independently.
 
 ## CRITICAL: Output Redirection
 

@@ -132,10 +132,15 @@ func TryAlias(existing, alias string) error {
 }
 
 // Get returns an operator by name.
+//
+// Lock-free on the read path (#755). The `operators` map is populated
+// during init() — every Register / Alias call happens before main()
+// starts. Once main() runs there is a happens-before edge between all
+// writers and any reader, so a plain map read is race-free even
+// without RLock. Tests don't register operators at runtime; if that
+// ever changes, the write path (Register / Alias / TryAlias) still
+// holds operatorsMu.Lock and the reader would need to re-acquire RLock.
 func Get(name *dtrules.RName) (*Operator, bool) {
-	operatorsMu.RLock()
-	defer operatorsMu.RUnlock()
-
 	op, ok := operators[name]
 	return op, ok
 }

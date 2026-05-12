@@ -2264,8 +2264,10 @@ Decision Table (eligibility_dt.xml):
 </decision_tables>
 
 
-Go Code:
---------
+Go Code (preview — pkg/dtrules/sdk is being extracted, issue #757):
+-------------------------------------------------------------------
+import "github.com/DTRules/DTRules/pkg/dtrules/sdk/engine"
+
 ctx := engine.NewContext()
 ctx.SetEntity("applicant", "age", 25)
 ctx.SetEntity("applicant", "income", 50000.0)
@@ -2278,6 +2280,10 @@ if result.GetBool("eligible") {
 } else {
     fmt.Printf("Denied: %s\n", result.GetString("reason"))
 }
+
+Until the SDK lands, the supported embedding path is to construct
+the engine directly from cmd/dtrules (see cli.go) — both binaries
+in this repo (cmd/dtrules, cmd/api) follow that pattern.
 `
 
 const docWorkflow = `DTRules Development Workflow

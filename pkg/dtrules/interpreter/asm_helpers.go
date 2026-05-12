@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build amd64
+
 package interpreter
 
 import (
@@ -33,121 +35,93 @@ import (
 // access to Go data structures (entity stack, operator table, etc.).
 // ============================================================================
 
-// --- Arithmetic fallbacks (DO NOT REMOVE THESE PANICS) ---
-// These are link targets for the assembly. The assembly handles all type
-// combinations inline with SSE2. If these execute, the assembly is broken.
+// --- Arithmetic / comparison / boolean fallbacks ---
+//
+// These are link targets for the assembly. The SSE2 dispatch in
+// asm_amd64.s handles every type combination inline; assembly never
+// calls these. They exist only because the assembler emits CALL
+// instructions to these symbols that are never reached at runtime,
+// and the Go linker still needs the symbols resolved.
+//
+// They used to `panic()` to surface an assembly invariant violation
+// as a loud failure. That works in a binary, but DTRules is meant to
+// be embedded via `pkg/dtrules/sdk` — panicking inside a library
+// takes the host process down (#756). We record the violation as a
+// non-fatal runtime error via `setASMInvariantError` so the caller
+// of ExecuteBytecodeASM gets an error instead of a crashed process.
+// The "should never run" intent stays loud (every message names the
+// op and points at the responsible asm path).
 
-//go:nosplit
-func goOpAddFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpAddFallback: assembly must handle all type combinations inline")
+// setASMInvariantError stamps state.lastError with a description of
+// the broken assembly invariant. The asm dispatch loop returns
+// non-zero when it sees state.lastError set, so the host application
+// surfaces a normal error rather than a panic.
+func setASMInvariantError(state *DTState, op string) {
+	state.lastError = dtrules.NewRulesError(
+		"ASM Invariant Violation",
+		"asm_helpers."+op+"Fallback",
+		"assembly dispatch fell through to the Go fallback for "+op+
+			" — assembly is expected to handle every type combination inline. "+
+			"This is a bug in asm_amd64.s; please file with the failing rule set.",
+	)
 }
 
 //go:nosplit
-func goOpSubFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpSubFallback: assembly must handle all type combinations inline")
-}
+func goOpAddFallback(state *DTState) { setASMInvariantError(state, "goOpAdd") }
 
 //go:nosplit
-func goOpMulFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpMulFallback: assembly must handle all type combinations inline")
-}
+func goOpSubFallback(state *DTState) { setASMInvariantError(state, "goOpSub") }
+
+//go:nosplit
+func goOpMulFallback(state *DTState) { setASMInvariantError(state, "goOpMul") }
 
 //go:nosplit
 func goOpDivFallback(state *DTState) int {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpDivFallback: assembly must handle all type combinations inline")
+	setASMInvariantError(state, "goOpDiv")
+	return 5 // unknown opcode — see asm_stubs.go return code table
 }
 
 //go:nosplit
-func goOpNegFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpNegFallback: assembly must handle all type combinations inline")
-}
+func goOpNegFallback(state *DTState) { setASMInvariantError(state, "goOpNeg") }
 
 //go:nosplit
-func goOpAbsFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpAbsFallback: assembly must handle all type combinations inline")
-}
+func goOpAbsFallback(state *DTState) { setASMInvariantError(state, "goOpAbs") }
 
 //go:nosplit
-func goOpIncFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpIncFallback: assembly must handle all type combinations inline")
-}
+func goOpIncFallback(state *DTState) { setASMInvariantError(state, "goOpInc") }
 
 //go:nosplit
-func goOpDecFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpDecFallback: assembly must handle all type combinations inline")
-}
-
-// --- Comparison fallbacks (DO NOT REMOVE THESE PANICS) ---
+func goOpDecFallback(state *DTState) { setASMInvariantError(state, "goOpDec") }
 
 //go:nosplit
-func goOpEqFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpEqFallback: assembly must handle all type combinations inline")
-}
+func goOpEqFallback(state *DTState) { setASMInvariantError(state, "goOpEq") }
 
 //go:nosplit
-func goOpNeFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpNeFallback: assembly must handle all type combinations inline")
-}
+func goOpNeFallback(state *DTState) { setASMInvariantError(state, "goOpNe") }
 
 //go:nosplit
-func goOpLtFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpLtFallback: assembly must handle all type combinations inline")
-}
+func goOpLtFallback(state *DTState) { setASMInvariantError(state, "goOpLt") }
 
 //go:nosplit
-func goOpLeFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpLeFallback: assembly must handle all type combinations inline")
-}
+func goOpLeFallback(state *DTState) { setASMInvariantError(state, "goOpLe") }
 
 //go:nosplit
-func goOpGtFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpGtFallback: assembly must handle all type combinations inline")
-}
+func goOpGtFallback(state *DTState) { setASMInvariantError(state, "goOpGt") }
 
 //go:nosplit
-func goOpGeFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpGeFallback: assembly must handle all type combinations inline")
-}
-
-// --- Boolean fallbacks (DO NOT REMOVE THESE PANICS) ---
+func goOpGeFallback(state *DTState) { setASMInvariantError(state, "goOpGe") }
 
 //go:nosplit
-func goOpAndFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpAndFallback: assembly must handle all type combinations inline")
-}
+func goOpAndFallback(state *DTState) { setASMInvariantError(state, "goOpAnd") }
 
 //go:nosplit
-func goOpOrFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpOrFallback: assembly must handle all type combinations inline")
-}
+func goOpOrFallback(state *DTState) { setASMInvariantError(state, "goOpOr") }
 
 //go:nosplit
-func goOpNotFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpNotFallback: assembly must handle all type combinations inline")
-}
+func goOpNotFallback(state *DTState) { setASMInvariantError(state, "goOpNot") }
 
 //go:nosplit
-func goOpXorFallback(state *DTState) {
-	// DO NOT REMOVE THIS PANIC - assembly handles all type fallbacks inline
-	panic("goOpXorFallback: assembly must handle all type combinations inline")
-}
+func goOpXorFallback(state *DTState) { setASMInvariantError(state, "goOpXor") }
 
 // --- Complex opcodes (called by assembly, do real work) ---
 
