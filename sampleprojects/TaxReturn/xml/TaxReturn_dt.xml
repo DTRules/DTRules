@@ -4408,7 +4408,7 @@ pop
 <action_details>
 <action_number>2</action_number>
 <action_comment>No mortgage interest; otherwise</action_comment>
-<action_dsl />
+<action_dsl>perform pop</action_dsl>
 <action_postfix>
 pop
 </action_postfix>
@@ -4527,16 +4527,16 @@ result.total_tip_income 0 &gt;
 <condition_postfix>
 job.filing_status MFJ streq
 </condition_postfix>
+<condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="-" />
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>MFJ income below phase-out threshold ($300k); gross income below MFJ tips phase-out threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>result.gross_income &lt; constants.tips_phaseout_joint</condition_dsl>
 <condition_postfix>
 result.gross_income constants.tips_phaseout_joint &lt;
 </condition_postfix>
@@ -4549,15 +4549,15 @@ result.gross_income constants.tips_phaseout_joint &lt;
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Single income below phase-out threshold ($150k); gross income below Single tips phase-out threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>result.gross_income &lt; constants.tips_phaseout_single</condition_dsl>
 <condition_postfix>
 result.gross_income constants.tips_phaseout_single &lt;
 </condition_postfix>
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="-" />
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -4649,16 +4649,16 @@ result.total_overtime_income 0 &gt;
 <condition_postfix>
 job.filing_status MFJ streq
 </condition_postfix>
+<condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="-" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>MFJ income below phase-out threshold ($300k); gross income below MFJ overtime phase-out threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>result.gross_income &lt; constants.tips_phaseout_joint</condition_dsl>
 <condition_postfix>
 result.gross_income constants.tips_phaseout_joint &lt;
 </condition_postfix>
@@ -4671,15 +4671,15 @@ result.gross_income constants.tips_phaseout_joint &lt;
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Single income below phase-out threshold ($150k); gross income below Single overtime phase-out threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>result.gross_income &lt; constants.tips_phaseout_single</condition_dsl>
 <condition_postfix>
 result.gross_income constants.tips_phaseout_single &lt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="-" />
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -4789,28 +4789,28 @@ job.filing_status MFJ streq
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>MFJ income below phase-out threshold ($150k); gross income below MFJ senior phase-out threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>result.gross_income &lt; constants.senior_phaseout_joint</condition_dsl>
 <condition_postfix>
 result.gross_income constants.senior_phaseout_joint &lt;
 </condition_postfix>
+<condition_column column_number="5" column_value="-" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="-" />
 <condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Single income below phase-out threshold ($75k); gross income below Single senior phase-out threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>result.gross_income &lt; constants.senior_phaseout_single</condition_dsl>
 <condition_postfix>
 result.gross_income constants.senior_phaseout_single &lt;
 </condition_postfix>
+<condition_column column_number="5" column_value="-" />
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -5736,9 +5736,8 @@ result.magi_for_niit niit_threshold_single f- result.net_investment_income fmin 
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>set result.medicare_wages = sum of taxpayer wages</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>set result.medicare_wages = sum of taxpayer wages</action_dsl>
 <action_postfix>
 result.total_w2_wages result.total_se_income f+ /result.wages_for_additional_medicare xdef
 "ADDITIONAL MEDICARE TAX (Form 8959, IRC 3101(b)(2))" job.audit_trail swap addto
@@ -5754,12 +5753,12 @@ result.total_w2_wages result.total_se_income f+ /result.wages_for_additional_med
 <condition_postfix>
 job.filing_status MFJ streq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -5768,31 +5767,31 @@ job.filing_status MFJ streq
 <condition_postfix>
 job.filing_status MFS streq
 </condition_postfix>
+<condition_column column_number="6" column_value="N" />
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="Y" />
 <condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Wages exceed MFJ threshold ($250k); result.total_w2_wages &gt; additional_medicare_threshold_mfj</condition_comment>
-<condition_dsl />
+<condition_dsl>result.wages_for_additional_medicare &gt; additional_medicare_threshold_mfj</condition_dsl>
 <condition_postfix>
 result.wages_for_additional_medicare additional_medicare_threshold_mfj &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
 <condition_column column_number="4" column_value="-" />
 <condition_column column_number="5" column_value="-" />
 <condition_column column_number="6" column_value="-" />
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Wages exceed MFS threshold ($125k); result.total_w2_wages &gt; additional_medicare_threshold_mfs</condition_comment>
-<condition_dsl />
+<condition_dsl>result.wages_for_additional_medicare &gt; additional_medicare_threshold_mfs</condition_dsl>
 <condition_postfix>
 result.wages_for_additional_medicare additional_medicare_threshold_mfs &gt;
 </condition_postfix>
@@ -5806,7 +5805,7 @@ result.wages_for_additional_medicare additional_medicare_threshold_mfs &gt;
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>Wages exceed Single threshold ($200k); result.total_w2_wages &gt; additional_medicare_threshold_single</condition_comment>
-<condition_dsl />
+<condition_dsl>result.wages_for_additional_medicare &gt; additional_medicare_threshold_single</condition_dsl>
 <condition_postfix>
 result.wages_for_additional_medicare additional_medicare_threshold_single &gt;
 </condition_postfix>
@@ -7826,7 +7825,7 @@ ira.distribution_amount result.total_ira_distributions f+ /result.total_ira_dist
 <initial_actions>
 <initial_action>
 <action_comment>add Roth conversion summary to job.audit_trail</action_comment>
-<initial_action_dsl />
+<initial_action_dsl>add "Calculating Roth Conversion Tax (Form 8606 Part II)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 "Calculating Roth Conversion Tax (Form 8606 Part II)" job.audit_trail swap addto
@@ -7961,7 +7960,7 @@ farm.net_profit result.net_farm_profit f+ /result.net_farm_profit xdef
 <initial_actions>
 <initial_action>
 <action_comment>add farm SE tax summary to job.audit_trail</action_comment>
-<initial_action_dsl />
+<initial_action_dsl>add "Calculating Farm Self-Employment Tax (Schedule SE)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 "Calculating Farm Self-Employment Tax (Schedule SE)" job.audit_trail swap addto
@@ -7972,7 +7971,7 @@ farm.net_profit result.net_farm_profit f+ /result.net_farm_profit xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has farm profit subject to SE tax; result.net_farm_profit &gt; se_threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>result.net_farm_profit &gt; se_threshold</condition_dsl>
 <condition_postfix>
 result.net_farm_profit se_threshold &gt;
 </condition_postfix>
@@ -8152,9 +8151,8 @@ sale.section_1231_gain 0 &lt; { sale.section_1231_gain fnegate result.total_1231
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>set result.net_section_1231 = total_gains - total_losses</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>set result.net_section_1231 = total_gains - total_losses</action_dsl>
 <action_postfix>
 "Calculating Net Section 1231 Treatment (IRC 1231)" job.audit_trail swap addto
 result.total_1231_gains result.total_1231_losses f- /result.net_1231_gain_loss xdef
@@ -8176,7 +8174,7 @@ result.net_1231_gain_loss 0 &gt;
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has net Section 1231 loss; Net 1231 loss (negative)</condition_comment>
-<condition_dsl />
+<condition_dsl>result.net_1231_gain_loss &lt; 0</condition_dsl>
 <condition_postfix>
 result.net_1231_gain_loss 0 &lt;
 </condition_postfix>
@@ -8294,7 +8292,7 @@ foreign.foreign_taxes_paid foreign.foreign_taxes_withheld f+ result.total_foreig
 <initial_actions>
 <initial_action>
 <action_comment>add FTC calculation summary to job.audit_trail</action_comment>
-<initial_action_dsl />
+<initial_action_dsl>add "Calculating Foreign Tax Credit (Form 1116, IRC 904)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 "Calculating Foreign Tax Credit (Form 1116, IRC 904)" job.audit_trail swap addto
@@ -8936,7 +8934,7 @@ false /clean_vehicle.qualifies xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has qualified expenses; result.qualified_adoption_expenses &gt; 0</condition_comment>
-<condition_dsl />
+<condition_dsl>adoption.qualified_expenses &gt; 0</condition_dsl>
 <condition_postfix>
 adoption.qualified_expenses 0 &gt;
 </condition_postfix>
@@ -8989,7 +8987,7 @@ adoption.credit_allowed result.total_adoption_credit f+ /result.total_adoption_c
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Wages meet threshold; Cash wages at or above threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>household_employee.cash_wages &gt;= household_ss_threshold</condition_dsl>
 <condition_postfix>
 household_employee.cash_wages household_ss_threshold &gt;=
 </condition_postfix>
@@ -12685,12 +12683,12 @@ job.territory GU streq
 <condition_postfix>
 job.territory AS streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="Y" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
+<condition_column column_number="1" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -12770,7 +12768,7 @@ MP_Tax
 <action_details>
 <action_number>6</action_number>
 <action_comment>No territory tax; log "No territory tax calculation needed"</action_comment>
-<action_dsl />
+<action_dsl>add "  No US territory tax calculation needed" to job.audit_trail</action_dsl>
 <action_postfix>
 "  No US territory tax calculation needed" job.audit_trail swap addto
 </action_postfix>
@@ -12879,7 +12877,7 @@ result.general_business_credit_total result.general_business_credit_used f- /res
 <initial_actions>
 <initial_action>
 <action_comment>Log kiddie tax calculation start</action_comment>
-<initial_action_dsl />
+<initial_action_dsl>add "KIDDIE TAX CALCULATION (Form 8615)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 "KIDDIE TAX CALCULATION (Form 8615)" job.audit_trail swap addto
@@ -13483,9 +13481,8 @@ result.total_combat_zone_exclusion result.foreign_earned_income_exclusion f+
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
+<initial_action_dsl>Initialize other state tax credit calculation</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
-<action_dsl>Initialize other state tax credit calculation</action_dsl>
 <action_postfix>
 "CREDIT FOR TAXES PAID TO OTHER STATES (TABLE 45100)" job.audit_trail swap addto
 0.0 /total_other_state_income xdef
@@ -13513,8 +13510,8 @@ job.state_tax_results countof 1 &gt;
 <condition_postfix>
 otherwise
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="Y" />
+<condition_column column_number="1" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
@@ -13557,7 +13554,7 @@ endif
 <action_details>
 <action_number>2</action_number>
 <action_comment>No credit - single state only; No other state tax credit needed</action_comment>
-<action_dsl />
+<action_dsl>add "  Single state filing - no other state tax credit needed" to job.audit_trail</action_dsl>
 <action_postfix>
 "  Single state filing - no other state tax credit needed" job.audit_trail swap addto
 </action_postfix>
