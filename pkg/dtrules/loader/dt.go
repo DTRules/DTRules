@@ -175,21 +175,39 @@ type DTInitialActions struct {
 	Actions []DTInitialAction `xml:"initial_action" json:"initial_action"`
 }
 
-// DTInitialAction represents a single initial action
+// DTInitialAction represents a single initial action. Two DSL/postfix tag
+// shapes are accepted to cover both the original Excel-import convention
+// (action_dsl/action_postfix on <initial_action>) and the EL-aware
+// authoring SDK form (initial_action_dsl/initial_action_postfix).
 type DTInitialAction struct {
-	Number      int    `xml:"action_number" json:"action_number"`
-	Comment     string `xml:"action_comment" json:"action_comment,omitempty"`
-	DSL         string `xml:"initial_action_dsl" json:"initial_action_dsl,omitempty"`
-	Description string `xml:"action_description" json:"action_description"`
-	Postfix     string `xml:"action_postfix" json:"action_postfix"`
+	Number             int    `xml:"action_number" json:"action_number"`
+	Comment            string `xml:"action_comment" json:"action_comment,omitempty"`
+	DSL                string `xml:"initial_action_dsl" json:"initial_action_dsl,omitempty"`
+	ActionDSL          string `xml:"action_dsl" json:"action_dsl,omitempty"`
+	Description        string `xml:"action_description" json:"action_description"`
+	Postfix            string `xml:"action_postfix" json:"action_postfix"`
+	InitialActPostfix  string `xml:"initial_action_postfix" json:"initial_action_postfix,omitempty"`
 }
 
-// GetDSL returns the DSL expression, preferring DSL over Description for backward compatibility.
+// GetDSL returns the first non-empty DSL field, preferring initial_action_dsl
+// over action_dsl over action_description for backward compatibility.
 func (a *DTInitialAction) GetDSL() string {
 	if a.DSL != "" {
 		return a.DSL
 	}
+	if a.ActionDSL != "" {
+		return a.ActionDSL
+	}
 	return a.Description
+}
+
+// GetPostfix returns the postfix expression from whichever XML tag form is
+// populated.
+func (a *DTInitialAction) GetPostfix() string {
+	if a.Postfix != "" {
+		return a.Postfix
+	}
+	return a.InitialActPostfix
 }
 
 // DTConditions represents the conditions section
@@ -395,7 +413,7 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	for i, action := range table.InitialActions.Actions {
 		dsl := action.GetDSL()
 		initialActions[i] = dsl
-		postfix := strings.TrimSpace(action.Postfix)
+		postfix := strings.TrimSpace(action.GetPostfix())
 
 		// Auto-compile EL DSL to postfix if postfix is empty or only comments
 		dslTrimmed := strings.TrimSpace(dsl)
@@ -972,7 +990,7 @@ func (l *DTLoader) detectLegacyPostfix(table *DTTable) bool {
 
 	// Check initial actions
 	for _, action := range table.InitialActions.Actions {
-		if strings.TrimSpace(action.Postfix) != "" {
+		if strings.TrimSpace(action.GetPostfix()) != "" {
 			hasPostfix = true
 		}
 		if strings.TrimSpace(action.GetDSL()) != "" {

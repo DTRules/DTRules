@@ -319,7 +319,7 @@ func validateTable(table *dtTableXML) TableValidationResult {
 		if hasContent(action.GetDSL()) {
 			result.HasELActions = true
 		}
-		if hasContent(action.Postfix) {
+		if hasContent(action.GetPostfix()) {
 			result.HasPostfix = true
 		}
 	}
@@ -383,21 +383,46 @@ func (c *dtContextDetailXML) GetDSL() string {
 	return c.Description
 }
 
+// dtInitialActionsXML decodes the <initial_actions> wrapper. Real DTRules
+// XML uses <initial_action> as the per-entry tag (not <initial_action_details>),
+// and a per-entry DSL/postfix that can be tagged either as <action_dsl>/
+// <action_postfix> (the original Excel-import convention used across the
+// state tables) or <initial_action_dsl>/<initial_action_postfix> (the form
+// the EL-aware authoring SDK emits). Accept both shapes so the legacy-
+// postfix detector doesn't false-positive on either convention.
 type dtInitialActionsXML struct {
-	Actions []dtInitialActionXML `xml:"initial_action_details"`
+	Actions []dtInitialActionXML `xml:"initial_action"`
 }
 
 type dtInitialActionXML struct {
-	Description string `xml:"initial_action_description"`
-	DSL         string `xml:"initial_action_dsl"`
-	Postfix     string `xml:"initial_action_postfix"`
+	Description    string `xml:"initial_action_description"`
+	DSL            string `xml:"initial_action_dsl"`
+	Postfix        string `xml:"initial_action_postfix"`
+	ActionDSL      string `xml:"action_dsl"`
+	ActionPostfix  string `xml:"action_postfix"`
+	ActionComment  string `xml:"action_comment"`
 }
 
 func (a *dtInitialActionXML) GetDSL() string {
 	if a.DSL != "" {
 		return a.DSL
 	}
-	return a.Description
+	if a.ActionDSL != "" {
+		return a.ActionDSL
+	}
+	if a.Description != "" {
+		return a.Description
+	}
+	return a.ActionComment
+}
+
+// GetPostfix returns the entry's postfix from whichever tag form is
+// populated.
+func (a *dtInitialActionXML) GetPostfix() string {
+	if a.Postfix != "" {
+		return a.Postfix
+	}
+	return a.ActionPostfix
 }
 
 type dtConditionsXML struct {
