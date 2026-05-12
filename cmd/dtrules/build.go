@@ -19,6 +19,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/analysis"
 	"github.com/DTRules/DTRules/pkg/dtrules/compiler/el"
@@ -45,12 +46,20 @@ type buildOptions struct {
 	quiet     bool
 	xmlDir    string
 	excelDir  string
+	// Deployment gate (#768). When set, the build refuses unless a
+	// passing Full Review exists in .dtrules/last-review.json whose
+	// project_hash matches the current XML state.
+	requireReview bool
+	// reviewMaxAge bounds how stale the cached review can be. 24h by
+	// default, override with --max-age (h / m / s).
+	reviewMaxAge time.Duration
 }
 
 // runBuild handles the `dtrules build [path]` command.
 func (c *CLI) runBuild(args []string) int {
 	opts := &buildOptions{
-		path: ".",
+		path:         ".",
+		reviewMaxAge: 24 * time.Hour,
 	}
 
 	for i := 0; i < len(args); i++ {
@@ -65,6 +74,18 @@ func (c *CLI) runBuild(args []string) int {
 			opts.verbose = true
 		case "-q", "--quiet":
 			opts.quiet = true
+		case "--require-review":
+			opts.requireReview = true
+		case "--max-age":
+			if i+1 < len(args) {
+				d, err := time.ParseDuration(args[i+1])
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error: --max-age value %q is not a valid duration (e.g. 24h, 30m): %v\n", args[i+1], err)
+					return 1
+				}
+				opts.reviewMaxAge = d
+				i++
+			}
 		case "--xml-dir":
 			if i+1 < len(args) {
 				opts.xmlDir = args[i+1]
@@ -101,6 +122,16 @@ func (c *CLI) runBuild(args []string) int {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
 		return 1
+	}
+
+	// Deployment gate (#768). When --require-review is set, the build
+	// refuses unless a passing Full Review exists on disk whose hash
+	// matches the current XML state. This is the bright line that keeps
+	// untrusted rule content from shipping.
+	if opts.requireReview {
+		if code := enforceReviewGate(absPath, xmlDir, opts.reviewMaxAge); code != 0 {
+			return code
+		}
 	}
 
 	// Validate directories exist
