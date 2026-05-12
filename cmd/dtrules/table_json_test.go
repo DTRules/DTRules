@@ -93,6 +93,8 @@ func dispatchTable(ctx *tableCmdCtx, args []string) int {
 		return ctx.tablePut(args[1:])
 	case "patch":
 		return ctx.tablePatch(args[1:])
+	case "warnings":
+		return ctx.tableWarnings(args[1:])
 	case "schema":
 		return ctx.tableSchema(args[1:])
 	default:
@@ -207,6 +209,70 @@ func TestTablePutInvalidDSL(t *testing.T) {
 	}
 	if je.Error != "compile_error" {
 		t.Errorf("expected compile_error, got %q", je.Error)
+	}
+}
+
+// TestTableGetIncludesWarnings checks that table_get embeds the
+// authoring-channel warnings array (#761). The shape is locked so that
+// MCP clients can iterate `warnings` unconditionally.
+func TestTableGetIncludesWarnings(t *testing.T) {
+	dir := copyProject(t, "../../sampleprojects/CHIP")
+	out, _, code := runTableCmd(t, dir, []string{"get", "Compute_Eligibility"}, "")
+	if code != 0 {
+		t.Fatalf("exit %d", code)
+	}
+	var raw map[string]interface{}
+	if err := json.Unmarshal([]byte(out), &raw); err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+	if _, ok := raw["warnings"].([]interface{}); !ok {
+		t.Errorf("expected warnings as JSON array, got %T %v",
+			raw["warnings"], raw["warnings"])
+	}
+	// The bare TableJSON fields must still be present at the top level
+	// — TestTableGetJSON parses into a TableJSON directly and depends on
+	// that flat shape.
+	if raw["name"] != "Compute_Eligibility" {
+		t.Errorf("name field missing or wrong: %v", raw["name"])
+	}
+}
+
+// TestTableWarningsCommand exercises `dtrules table warnings <name>`:
+// a read-only fetch of the advisory-pass warnings, used by the agent
+// loop when it wants warnings without re-fetching the whole table.
+func TestTableWarningsCommand(t *testing.T) {
+	dir := copyProject(t, "../../sampleprojects/CHIP")
+	out, se, code := runTableCmd(t, dir, []string{"warnings", "Compute_Eligibility"}, "")
+	if code != 0 {
+		t.Fatalf("exit %d stderr=%s", code, se)
+	}
+	var raw map[string]interface{}
+	if err := json.Unmarshal([]byte(out), &raw); err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+	if raw["table"] != "Compute_Eligibility" {
+		t.Errorf("table field wrong: %v", raw["table"])
+	}
+	if _, ok := raw["warnings"].([]interface{}); !ok {
+		t.Errorf("expected warnings as JSON array, got %T %v",
+			raw["warnings"], raw["warnings"])
+	}
+}
+
+// TestTableWarningsNotFound surfaces a not_found error envelope when
+// the named table doesn't exist — same shape as other table commands.
+func TestTableWarningsNotFound(t *testing.T) {
+	dir := copyProject(t, "../../sampleprojects/CHIP")
+	_, se, code := runTableCmd(t, dir, []string{"warnings", "NoSuchTable"}, "")
+	if code == 0 {
+		t.Fatalf("expected non-zero exit")
+	}
+	var je jsonError
+	if err := json.Unmarshal([]byte(se), &je); err != nil {
+		t.Fatalf("stderr not JSON: %v", err)
+	}
+	if je.Error != "not_found" {
+		t.Errorf("expected not_found, got %q", je.Error)
 	}
 }
 

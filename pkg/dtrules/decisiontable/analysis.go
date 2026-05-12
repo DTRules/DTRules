@@ -19,39 +19,90 @@ import (
 	"strings"
 )
 
-// Warning records a static analysis finding for a decision table.
+// Warning records a static analysis finding for a decision table. Warnings
+// are advisory; the deployment gate ignores them. Errors (parse, EL compile,
+// undefined references, structural validation, EL compliance, hand-coded
+// postfix) flow through other validators and gate deployment separately.
 type Warning struct {
-	Table  string
-	Column int // 1-based, 0 if not column-specific
-	Reason string
-	Kind   string // "no-op column", "unreachable column"
+	Table        string `json:"table"`
+	Column       int    `json:"column"`        // 1-based; 0 if the warning is not column-scoped.
+	ConditionRow int    `json:"condition_row"` // 0-based; -1 if the warning is not row-scoped.
+	Kind         string `json:"kind"`          // e.g. "no-op column", "unreachable column", "redundant condition", "assignment-only table", "hand-coded postfix", "dead condition row".
+	Reason       string `json:"reason"`
 }
 
-// String formats the warning in the canonical WARN form.
+// newWarning is the canonical constructor: every warning starts with
+// ConditionRow=-1 (not row-scoped) and Column=0 (not column-scoped) so
+// callers only set the fields they need.
+func newWarning(table, kind, reason string) Warning {
+	return Warning{Table: table, ConditionRow: -1, Kind: kind, Reason: reason}
+}
+
+// String formats the warning in the canonical WARN form. The leading
+// `WARN <table>:` is constant; the body identifies a column, a row, or
+// neither depending on which scoping fields are set.
 func (w Warning) String() string {
-	if w.Column > 0 {
+	switch {
+	case w.Column > 0 && w.ConditionRow >= 0:
+		return fmt.Sprintf("WARN %s: column %d / condition row %d %s [%s]", w.Table, w.Column, w.ConditionRow+1, w.Reason, w.Kind)
+	case w.Column > 0:
 		return fmt.Sprintf("WARN %s: column %d %s [%s]", w.Table, w.Column, w.Reason, w.Kind)
+	case w.ConditionRow >= 0:
+		return fmt.Sprintf("WARN %s: condition row %d %s [%s]", w.Table, w.ConditionRow+1, w.Reason, w.Kind)
+	default:
+		return fmt.Sprintf("WARN %s: %s [%s]", w.Table, w.Reason, w.Kind)
 	}
-	return fmt.Sprintf("WARN %s: %s [%s]", w.Table, w.Reason, w.Kind)
 }
 
-// AnalyzeTable runs structural checks on a parsed decision table and
-// returns any warnings found. It does not require a compiled table.
+// Inputs bundles the per-table data the advisory pass consumes. The
+// `Inputs`-keyed Analyze entry point is the one to prefer in new code;
+// the older AnalyzeTable signature is kept as a thin shim so existing
+// tests keep compiling.
+type Inputs struct {
+	Name       string         // Table name; appears in every Warning.
+	Policy     string         // "FIRST" or "" — gates policy-specific checks like #762.
+	Conditions []ConditionRow // Per-row DSL + column patterns.
+	Actions    []ActionRow    // Per-row DSL + column patterns.
+	MaxCol     int            // 1-based; tables with 0 columns short-circuit.
+}
+
+// Analyze runs the structural advisory pass on a single table. Returns
+// every applicable warning. Order is grouped by check kind (no-op /
+// subsumed / unreachable / FIRST-policy redundancy / assignment-only)
+// so callers that render warnings inline see related findings together.
 //
-// Part 1: redundant / no-op columns (empty actions, or subsumed by another column).
-// Part 2: unreachable columns (contradictory condition requirements in same column).
+// All checks here are XML-driven and fast — they don't require the tree
+// builder. Tree-based checks (#765, #766) live in a different entry
+// point because they run after compile, not on every authoring edit.
+func Analyze(in Inputs) []Warning {
+	if in.MaxCol == 0 {
+		return nil
+	}
+	var warnings []Warning
+	warnings = append(warnings, checkNoOpColumns(in.Name, in.Actions, in.MaxCol)...)
+	warnings = append(warnings, checkSubsumedColumns(in.Name, in.Conditions, in.Actions, in.MaxCol)...)
+	warnings = append(warnings, checkUnreachableColumns(in.Name, in.Conditions, in.MaxCol)...)
+	if strings.EqualFold(in.Policy, "FIRST") {
+		warnings = append(warnings, checkRedundantFirstPolicy(in.Name, in.Conditions, in.MaxCol)...)
+	}
+	warnings = append(warnings, checkAssignmentOnlyTable(in.Name, in.Actions, in.MaxCol)...)
+	return warnings
+}
+
+// AnalyzeTable is the legacy entry point: structural checks on a parsed
+// decision table, no policy context. New code should use Analyze with
+// the Inputs struct so policy-gated checks (#762) fire.
 //
 // To detect hand-coded postfix (postfix present, no matching EL DSL), use the
 // dedicated CheckHandCodedPostfix entry point — it has different inputs (it
 // needs DSL/postfix pairs for every table element, not just rows + columns).
 func AnalyzeTable(tableName string, conditions []ConditionRow, actions []ActionRow, maxCol int) []Warning {
-	var warnings []Warning
-
-	warnings = append(warnings, checkNoOpColumns(tableName, actions, maxCol)...)
-	warnings = append(warnings, checkSubsumedColumns(tableName, conditions, actions, maxCol)...)
-	warnings = append(warnings, checkUnreachableColumns(tableName, conditions, maxCol)...)
-
-	return warnings
+	return Analyze(Inputs{
+		Name:       tableName,
+		Conditions: conditions,
+		Actions:    actions,
+		MaxCol:     maxCol,
+	})
 }
 
 // ConditionRow holds the DSL text and Y/N pattern for a condition row.
@@ -100,11 +151,14 @@ func CheckHandCodedPostfix(tableName string, entries []PostfixEntry) []Warning {
 		if isCommentOrEmpty(postfix) {
 			continue
 		}
-		ws = append(ws, Warning{
-			Table:  tableName,
-			Reason: fmt.Sprintf("%s %d has hand-coded postfix without EL DSL — author in EL before executing", e.Kind, e.Number),
-			Kind:   "hand-coded postfix",
-		})
+		w := newWarning(tableName, "hand-coded postfix",
+			fmt.Sprintf("%s %d has hand-coded postfix without EL DSL — author in EL before executing", e.Kind, e.Number))
+		// When the offending element is a condition row, surface the row
+		// number on the warning so the authoring UI can pin it to the row.
+		if e.Kind == "condition" && e.Number > 0 {
+			w.ConditionRow = e.Number - 1
+		}
+		ws = append(ws, w)
 	}
 	return ws
 }
@@ -178,12 +232,9 @@ func checkNoOpColumns(tableName string, actions []ActionRow, maxCol int) []Warni
 			}
 		}
 		if !hasAction {
-			warnings = append(warnings, Warning{
-				Table:  tableName,
-				Column: col + 1,
-				Reason: "is redundant (no actions)",
-				Kind:   "no-op column",
-			})
+			w := newWarning(tableName, "no-op column", "is redundant (no actions)")
+			w.Column = col + 1
+			warnings = append(warnings, w)
 		}
 	}
 	return warnings
@@ -254,12 +305,10 @@ func checkSubsumedColumns(tableName string, conditions []ConditionRow, actions [
 				return len(profiles[b].constraints) < len(profiles[a].constraints)
 			}()
 			if bSubsumesA {
-				warnings = append(warnings, Warning{
-					Table:  tableName,
-					Column: a + 1,
-					Reason: fmt.Sprintf("is redundant (subsumed by column %d)", b+1),
-					Kind:   "no-op column",
-				})
+				w := newWarning(tableName, "no-op column",
+					fmt.Sprintf("is redundant (subsumed by column %d)", b+1))
+				w.Column = a + 1
+				warnings = append(warnings, w)
 				break // one subsumer is enough
 			}
 		}
@@ -303,6 +352,231 @@ func isNegationOf(a, b string) bool {
 	return false
 }
 
+// checkRedundantFirstPolicy is the FIRST-policy redundancy check from #762.
+//
+// In a FIRST-policy table, reaching column N means every prior column
+// failed to match. A column "fails" when at least one of its Y/N entries
+// is contradicted by the input. An entry (row R, value V) in column N is
+// *redundant* if it is already implied by:
+//
+//	(a) some prior column M's failure plus
+//	(b) the other Y/N constraints in column N
+//
+// The check is purely structural — it only fires when the implication is
+// provable from the DSL strings and the Y/N matrix, never from runtime
+// semantics. Two patterns trigger it:
+//
+//  1. Column M has the SAME row R with the OPPOSITE value AND every
+//     other Y/N constraint in M matches N's value for that row. Reaching
+//     N then forces R to differ from M, which is exactly N's claim.
+//  2. Column M has a row R' (different from R) constrained to a value
+//     whose DSL is a syntactic negation of N's row R DSL with the same
+//     required value. Same reasoning via the existing isNegationOf helper.
+//
+// Anything more subtle is left for a future SMT-style pass. The issue
+// flags this as the high-false-positive case, so the bar is high.
+func checkRedundantFirstPolicy(tableName string, conditions []ConditionRow, maxCol int) []Warning {
+	// Build per-column constraint maps (row index → "Y" / "N"), skipping
+	// "-" and "*".
+	cols := make([]map[int]string, maxCol)
+	for c := 0; c < maxCol; c++ {
+		m := make(map[int]string)
+		for row, cond := range conditions {
+			if c >= len(cond.Columns) {
+				continue
+			}
+			v := strings.ToUpper(strings.TrimSpace(cond.Columns[c]))
+			if v == "Y" || v == "N" {
+				m[row] = v
+			}
+		}
+		cols[c] = m
+	}
+
+	flip := func(v string) string {
+		if v == "Y" {
+			return "N"
+		}
+		return "Y"
+	}
+
+	var warnings []Warning
+	for n := 1; n < maxCol; n++ {
+		for row, vN := range cols[n] {
+			// Try to prove (row, vN) is implied by some prior column M.
+			for m := 0; m < n; m++ {
+				// Pattern 1: M constrains the same row with the opposite
+				// value; every OTHER Y/N constraint in M is also in N with
+				// the same value. Then M's failure (under N's match) must
+				// be on this row, forcing R = vN.
+				vMSame, hasSame := cols[m][row]
+				if hasSame && vMSame == flip(vN) && impliedByPriorColumn(cols[m], cols[n], row) {
+					warnings = append(warnings, redundantWarning(tableName, n, row, m, vN))
+					goto nextEntry
+				}
+			}
+		nextEntry:
+		}
+	}
+	return warnings
+}
+
+// impliedByPriorColumn returns true when every Y/N entry in M (other
+// than the row R under test) is also constrained in N to the same
+// value. That's the structural premise that lets us treat M's failure
+// as forcing R: every other constraint in M is satisfied by N matching,
+// so M can only have failed on R.
+func impliedByPriorColumn(m, n map[int]string, exceptRow int) bool {
+	for row, vM := range m {
+		if row == exceptRow {
+			continue
+		}
+		vN, ok := n[row]
+		if !ok || vN != vM {
+			return false
+		}
+	}
+	return true
+}
+
+func redundantWarning(tableName string, col, row, byCol int, value string) Warning {
+	w := newWarning(tableName, "redundant condition",
+		fmt.Sprintf("column %d row %d (=%s) is implied by column %d's failure — drop it for clarity",
+			col+1, row+1, value, byCol+1))
+	w.Column = col + 1
+	w.ConditionRow = row
+	return w
+}
+
+// checkAssignmentOnlyTable is the assignment-only-table check from #763.
+//
+// A table is "assignment-only" when every action across every column is
+// a single `set <var> = <expr>` and every column assigns the same set
+// of variables — the table exists solely to pick a value for those
+// variables. These can usually be inlined at the call site (a context
+// statement or a conditional expression), so the table itself is dead
+// weight in the rule set.
+//
+// The check is advisory and conservative: it only fires when the DSL
+// is unambiguously a simple assignment. A table that mixes assignments
+// with `perform`, `add`, `error`, audit-trail lines, or compound
+// statements is left alone. An author may have a legitimate reason to
+// keep an assignment-only table (auditability, decision tracing, tool
+// integration); the warning text reflects that — it suggests inlining
+// but never demands.
+func checkAssignmentOnlyTable(tableName string, actions []ActionRow, maxCol int) []Warning {
+	if len(actions) == 0 || maxCol == 0 {
+		return nil
+	}
+
+	// First per-column pass: collect the variables assigned in that
+	// column's actions. Bail out if any action on any column is not a
+	// pure assignment, or if a column has zero actions (no-op columns
+	// are already flagged by checkNoOpColumns; reporting them again
+	// here would be noise).
+	colVars := make([]map[string]struct{}, maxCol)
+	for c := 0; c < maxCol; c++ {
+		vars := make(map[string]struct{})
+		fired := false
+		for _, a := range actions {
+			if c >= len(a.Columns) || strings.ToUpper(strings.TrimSpace(a.Columns[c])) != "X" {
+				continue
+			}
+			fired = true
+			ok, lhs := assignmentLHS(a.DSL)
+			if !ok {
+				return nil
+			}
+			vars[lhs] = struct{}{}
+		}
+		if !fired {
+			return nil
+		}
+		colVars[c] = vars
+	}
+
+	// Every column must assign the same set of variables. Differing
+	// sets mean the table genuinely branches on which vars it touches,
+	// which doesn't inline cleanly.
+	base := colVars[0]
+	for c := 1; c < maxCol; c++ {
+		if !sameStringSet(base, colVars[c]) {
+			return nil
+		}
+	}
+
+	names := make([]string, 0, len(base))
+	for v := range base {
+		names = append(names, v)
+	}
+	sortStrings(names)
+	w := newWarning(tableName, "assignment-only table",
+		fmt.Sprintf("every column only assigns %v — consider inlining at the call site (a context statement, local, or conditional expression)", names))
+	return []Warning{w}
+}
+
+// assignmentLHS returns (true, varName) when dsl is exactly a single
+// `set <var> = <expr>` statement and nothing else, otherwise (false, "").
+//
+// Detection is intentionally narrow: lowercase keyword, single `=`-with-
+// spaces, no trailing `;` (which would imply multiple statements). EL
+// also has `add X to Y` and `perform X` statement forms — those should
+// fall through and disqualify the table from this check.
+func assignmentLHS(dsl string) (bool, string) {
+	t := strings.TrimSpace(dsl)
+	// A trailing semicolon is fine as long as nothing follows it; treat
+	// `set x = 1;` and `set x = 1` the same. Any further content after
+	// `;` means the table does more than assign — bail.
+	if i := strings.Index(t, ";"); i >= 0 {
+		rest := strings.TrimSpace(t[i+1:])
+		if rest != "" {
+			return false, ""
+		}
+		t = strings.TrimSpace(t[:i])
+	}
+	const setPrefix = "set "
+	if !strings.HasPrefix(strings.ToLower(t), setPrefix) {
+		return false, ""
+	}
+	t = strings.TrimSpace(t[len(setPrefix):])
+	// Find the first ` = ` — `=` standalone could mean equality in
+	// other contexts. Spaces on both sides are the EL convention.
+	idx := strings.Index(t, " = ")
+	if idx <= 0 {
+		return false, ""
+	}
+	lhs := strings.TrimSpace(t[:idx])
+	if lhs == "" {
+		return false, ""
+	}
+	return true, lhs
+}
+
+// sameStringSet returns true when two string-keyed sets contain the
+// same elements. Used to compare per-column assigned-variable sets.
+func sameStringSet(a, b map[string]struct{}) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for k := range a {
+		if _, ok := b[k]; !ok {
+			return false
+		}
+	}
+	return true
+}
+
+// sortStrings is a tiny insertion sort. Used only to give the warning
+// text a stable variable-name ordering so tests can match on the
+// rendered Reason string without flake.
+func sortStrings(s []string) {
+	for i := 1; i < len(s); i++ {
+		for j := i; j > 0 && s[j-1] > s[j]; j-- {
+			s[j-1], s[j] = s[j], s[j-1]
+		}
+	}
+}
+
 // checkUnreachableColumns flags columns where two conditions require Y but
 // their DSL expressions are syntactic negations of each other.
 func checkUnreachableColumns(tableName string, conditions []ConditionRow, maxCol int) []Warning {
@@ -326,12 +600,10 @@ func checkUnreachableColumns(tableName string, conditions []ConditionRow, maxCol
 				dslI := conditions[yRows[i]].DSL
 				dslJ := conditions[yRows[j]].DSL
 				if isNegationOf(dslI, dslJ) {
-					warnings = append(warnings, Warning{
-						Table:  tableName,
-						Column: col + 1,
-						Reason: fmt.Sprintf("can never match (conditions %d and %d are mutually exclusive)", yRows[i]+1, yRows[j]+1),
-						Kind:   "unreachable column",
-					})
+					w := newWarning(tableName, "unreachable column",
+						fmt.Sprintf("can never match (conditions %d and %d are mutually exclusive)", yRows[i]+1, yRows[j]+1))
+					w.Column = col + 1
+					warnings = append(warnings, w)
 					found = true
 				}
 			}

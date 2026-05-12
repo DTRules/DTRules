@@ -167,9 +167,9 @@ func TestMCPToolsList(t *testing.T) {
 	}
 	want := map[string]bool{
 		"table_list": true, "table_get": true, "table_put": true,
-		"table_patch": true, "table_schema": true,
+		"table_patch": true, "table_warnings": true, "table_schema": true,
 		"edd_get": true, "edd_put": true, "edd_patch": true, "edd_schema": true,
-		"project_validate": true, "project_diagnostics": true,
+		"project_validate": true, "project_diagnostics": true, "project_full_review": true,
 	}
 	for _, tool := range tools {
 		tm := tool.(map[string]interface{})
@@ -220,6 +220,39 @@ func TestMCPTableGet(t *testing.T) {
 	}
 	if got := structured["name"]; got != "Compute_Eligibility" {
 		t.Errorf("name: want Compute_Eligibility got %v", got)
+	}
+	// table_get now embeds the advisory-pass warnings array (#761). It
+	// must always be present as a JSON array (possibly empty), never null
+	// — consumers iterate it unconditionally.
+	if _, ok := structured["warnings"].([]interface{}); !ok {
+		t.Errorf("expected warnings to be a JSON array, got %T %v",
+			structured["warnings"], structured["warnings"])
+	}
+}
+
+// TestMCPTableWarnings exercises the new read-only advisory-pass tool
+// (#761). It must return the same `warnings` shape that table_get
+// embeds, plus the table name.
+func TestMCPTableWarnings(t *testing.T) {
+	dir := copyProject(t, "../../sampleprojects/CHIP")
+	rpc := newMCPRPC(t, dir)
+	defer rpc.close()
+
+	resp := rpc.call("tools/call", map[string]interface{}{
+		"name":      "table_warnings",
+		"arguments": map[string]interface{}{"name": "Compute_Eligibility"},
+	})
+	result := mustResult(t, resp)
+	structured, ok := result["structuredContent"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected structuredContent, got %v", result)
+	}
+	if got := structured["table"]; got != "Compute_Eligibility" {
+		t.Errorf("table: want Compute_Eligibility got %v", got)
+	}
+	if _, ok := structured["warnings"].([]interface{}); !ok {
+		t.Errorf("expected warnings to be a JSON array, got %T %v",
+			structured["warnings"], structured["warnings"])
 	}
 }
 

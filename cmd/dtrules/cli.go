@@ -102,6 +102,8 @@ func (c *CLI) Run(args []string) int {
 		return c.runInit(cmdArgs)
 	case "validate":
 		return c.runValidate(cmdArgs)
+	case "review":
+		return c.runReview(cmdArgs)
 	case "version":
 		return c.runVersion()
 	case "docs":
@@ -135,6 +137,7 @@ Commands:
   sync      Synchronize Excel and XML files (status/check/auto)
   init      Initialize a DTRules project structure
   validate  Validate decision tables and EDD
+  review    Run the project-wide Full Review (errors + advisory warnings, deploy gate)
   table     JSON-first decision-table read/write (for AI agents)
   edd       JSON-first entity data dictionary read/write (for AI agents)
   project   Project-level JSON surface (diagnostics, ...)
@@ -148,6 +151,11 @@ Build Command:
   dtrules build --from-excel       Force Excel-authored path
   dtrules build --from-xml         Force XML-authored path
   dtrules build --dry-run          Report what would change without writing
+  dtrules build --require-review   Refuse build unless a fresh passing review exists
+  dtrules build --max-age 24h      Allowed cache age for the required review
+
+Review Command:
+  dtrules review                   Run the project-wide Full Review and persist the report
 
 Documentation:
   dtrules docs                     List available documentation topics

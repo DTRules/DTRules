@@ -66,6 +66,11 @@ func buildToolDefs() []mcpToolDef {
 			InputSchema: schemaTablePatch(),
 		},
 		{
+			Name:        "table_warnings",
+			Description: "Return the per-table advisory warnings (no-op columns, subsumption, unreachable columns, hand-coded postfix, etc.) for a single table as JSON. Warnings are advisory; the deployment gate (project_full_review) ignores them.",
+			InputSchema: schemaProjectAndName("name", "Decision table name."),
+		},
+		{
 			Name:        "table_schema",
 			Description: "Return the JSON Schema for a TableJSON document.",
 			InputSchema: schemaEmpty(),
@@ -100,6 +105,11 @@ func buildToolDefs() []mcpToolDef {
 			Description: "Return authoring-time diagnostics (e.g. duplicate_table renames) for the project as JSON.",
 			InputSchema: schemaProjectOnly(),
 		},
+		{
+			Name:        "project_full_review",
+			Description: "Run the project-wide Full Review (structure + EL compliance + load diagnostics + per-table optimizer + EDD-unused). Persists the report to .dtrules/last-review.json and returns it. The deployment gate (dtrules build --require-review) reads this file. Errors gate deployment; warnings do not.",
+			InputSchema: schemaProjectOnly(),
+		},
 	}
 }
 
@@ -130,6 +140,8 @@ func (s *mcpServer) callTool(name string, args json.RawMessage) (map[string]inte
 		return s.toolTablePut(project, args)
 	case "table_patch":
 		return s.toolTablePatch(project, args)
+	case "table_warnings":
+		return s.toolTableWarnings(project, args)
 	case "table_schema":
 		return mcpTextResult(tableSchemaJSON), nil
 	case "edd_get":
@@ -144,6 +156,8 @@ func (s *mcpServer) callTool(name string, args json.RawMessage) (map[string]inte
 		return s.toolProjectValidate(project)
 	case "project_diagnostics":
 		return s.toolProjectDiagnostics(project)
+	case "project_full_review":
+		return s.toolProjectFullReview(project)
 	default:
 		return nil, newToolError("invalid_command", "check tools/list", fmt.Sprintf("unknown tool %q", name))
 	}
@@ -182,7 +196,38 @@ func (s *mcpServer) toolTableGet(project string, args json.RawMessage) (map[stri
 		return nil, newToolError("not_found", "call table_list to enumerate",
 			fmt.Sprintf("table %q not found", req.Name))
 	}
-	return mcpJSONResult(tableToJSON(t))
+	return mcpJSONResult(tableGetResponse{
+		TableJSON: tableToJSON(t),
+		Warnings:  warningsForJSON(analyzeAuthoringTable(t)),
+	})
+}
+
+// toolTableWarnings is the read-only authoring-channel pass (#761):
+// runs the structural checks against a single table without re-fetching
+// or saving. Mirrors the `dtrules table warnings <name>` CLI.
+func (s *mcpServer) toolTableWarnings(project string, args json.RawMessage) (map[string]interface{}, error) {
+	var req struct {
+		Name string `json:"name"`
+	}
+	if err := json.Unmarshal(args, &req); err != nil {
+		return nil, newToolError("parse_error", "arguments must be a JSON object", err.Error())
+	}
+	if req.Name == "" {
+		return nil, newToolError("invalid_command", "arguments.name is required", "missing table name")
+	}
+	p, err := authoring.OpenProject(project)
+	if err != nil {
+		return nil, newToolError("io_error", "project must contain an xml/ directory", err.Error())
+	}
+	t := p.Table(req.Name)
+	if t == nil {
+		return nil, newToolError("not_found", "call table_list to enumerate",
+			fmt.Sprintf("table %q not found", req.Name))
+	}
+	return mcpJSONResult(map[string]interface{}{
+		"table":    t.Name,
+		"warnings": warningsForJSON(analyzeAuthoringTable(t)),
+	})
 }
 
 func (s *mcpServer) toolEDDGet(project string) (map[string]interface{}, error) {
@@ -223,6 +268,32 @@ func (s *mcpServer) toolProjectValidate(project string) (map[string]interface{},
 		}
 	}
 	return mcpJSONResult(report)
+}
+
+// toolProjectFullReview is the MCP-facing Full Review (#768). It mirrors
+// `dtrules review`: runs every check, persists the report to
+// .dtrules/last-review.json, and returns the same JSON envelope. The
+// deployment gate reads the persisted file separately.
+func (s *mcpServer) toolProjectFullReview(project string) (map[string]interface{}, error) {
+	rep, err := runFullReview(project)
+	if err != nil {
+		// A persist failure is non-fatal — the report is still usable
+		// as a one-off MCP response even if the cache write blew up.
+		// Pass it through unchanged so the caller sees both signals.
+		_ = err
+	}
+	if rep == nil {
+		return nil, newToolError("io_error", "review returned no report", "")
+	}
+	raw, err := json.Marshal(rep)
+	if err != nil {
+		return nil, newToolError("io_error", "could not marshal report", err.Error())
+	}
+	var asMap map[string]interface{}
+	if err := json.Unmarshal(raw, &asMap); err != nil {
+		return nil, newToolError("io_error", "could not remarshal report", err.Error())
+	}
+	return mcpJSONResult(asMap)
 }
 
 func (s *mcpServer) toolProjectDiagnostics(project string) (map[string]interface{}, error) {
@@ -271,7 +342,11 @@ func (s *mcpServer) toolTablePut(project string, args json.RawMessage) (map[stri
 	if err := p.Save(); err != nil {
 		return nil, newToolError("io_error", "save failed", err.Error())
 	}
-	return mcpJSONResult(map[string]interface{}{"status": "updated", "table": req.Table.Name})
+	return mcpJSONResult(map[string]interface{}{
+		"status":   "updated",
+		"table":    req.Table.Name,
+		"warnings": warningsForJSON(analyzeAuthoringTable(t)),
+	})
 }
 
 func (s *mcpServer) toolTablePatch(project string, args json.RawMessage) (map[string]interface{}, error) {
@@ -307,7 +382,12 @@ func (s *mcpServer) toolTablePatch(project string, args json.RawMessage) (map[st
 	if err := p.Save(); err != nil {
 		return nil, newToolError("io_error", "save failed", err.Error())
 	}
-	return mcpJSONResult(map[string]interface{}{"status": "patched", "table": t.Name, "op": op.Op})
+	return mcpJSONResult(map[string]interface{}{
+		"status":   "patched",
+		"table":    t.Name,
+		"op":       op.Op,
+		"warnings": warningsForJSON(analyzeAuthoringTable(t)),
+	})
 }
 
 func (s *mcpServer) toolEDDPut(project string, args json.RawMessage) (map[string]interface{}, error) {

@@ -15,6 +15,7 @@
 package decisiontable
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -147,6 +148,321 @@ func TestAnalyzeTable_UnreachableColumn(t *testing.T) {
 	}
 	if !found {
 		t.Errorf("expected unreachable warning for column 1, got %v", warns)
+	}
+}
+
+// TestWarningJSONShape locks the JSON wire format the authoring channel
+// (#761) returns from table_get/put/patch and the new table_warnings
+// tool. Consumers (MCP clients, the API server) parse this shape, so the
+// field names, the lower-cased keys, and the sentinel values for
+// "not column-scoped" (column=0) and "not row-scoped" (condition_row=-1)
+// must not silently change.
+func TestWarningJSONShape(t *testing.T) {
+	w := newWarning("MyTable", "no-op column", "is redundant (no actions)")
+	w.Column = 4
+	b, err := json.Marshal(w)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	got := string(b)
+	want := `{"table":"MyTable","column":4,"condition_row":-1,"kind":"no-op column","reason":"is redundant (no actions)"}`
+	if got != want {
+		t.Errorf("JSON shape drift:\n  got:  %s\n  want: %s", got, want)
+	}
+}
+
+// TestNewWarning_DefaultsConditionRowToMinusOne verifies the
+// newWarning constructor sets the "not row-scoped" sentinel so callers
+// only have to set ConditionRow when they actually mean a specific row.
+func TestNewWarning_DefaultsConditionRowToMinusOne(t *testing.T) {
+	w := newWarning("T", "kind", "reason")
+	if w.ConditionRow != -1 {
+		t.Errorf("ConditionRow default = %d, want -1", w.ConditionRow)
+	}
+	if w.Column != 0 {
+		t.Errorf("Column default = %d, want 0", w.Column)
+	}
+}
+
+// TestWarningString_AllScopes checks the four ways String() formats a
+// warning depending on which scoping fields are set.
+func TestWarningString_AllScopes(t *testing.T) {
+	cases := []struct {
+		name string
+		w    Warning
+		want string
+	}{
+		{
+			name: "table-scoped only",
+			w:    Warning{Table: "T", ConditionRow: -1, Kind: "k", Reason: "r"},
+			want: "WARN T: r [k]",
+		},
+		{
+			name: "column-scoped",
+			w:    Warning{Table: "T", Column: 2, ConditionRow: -1, Kind: "k", Reason: "r"},
+			want: "WARN T: column 2 r [k]",
+		},
+		{
+			name: "row-scoped",
+			w:    Warning{Table: "T", ConditionRow: 1, Kind: "k", Reason: "r"},
+			want: "WARN T: condition row 2 r [k]",
+		},
+		{
+			name: "cell-scoped (column + row)",
+			w:    Warning{Table: "T", Column: 2, ConditionRow: 0, Kind: "k", Reason: "r"},
+			want: "WARN T: column 2 / condition row 1 r [k]",
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := c.w.String(); got != c.want {
+				t.Errorf("String() = %q, want %q", got, c.want)
+			}
+		})
+	}
+}
+
+// TestAnalyze_RedundantFirstPolicy exercises the FIRST-policy
+// redundant-Y/N check from #762. The canonical example from the issue:
+//
+//	                  c1   c2
+//	income > 100k:    Y    N    ← c2's N is implied by c1 failing
+//	filing = MFJ:     Y    Y
+//
+// When c2 matches with filing=MFJ=Y, c1 (which also required filing=Y)
+// must have failed on the other constraint — so income>100k is forced
+// to N. The explicit N is redundant; the check should flag it.
+func TestAnalyze_RedundantFirstPolicy(t *testing.T) {
+	conditions := makeConditions(
+		[]string{`income > 100k`, `filing = MFJ`},
+		[][]string{
+			{"Y", "N"}, // row 0: c1=Y, c2=N
+			{"Y", "Y"}, // row 1: c1=Y, c2=Y
+		},
+	)
+	actions := makeActions(
+		[]string{`set high_earner_mfj`, `set other_mfj`},
+		[][]string{{"X", ""}, {"", "X"}},
+	)
+	warns := Analyze(Inputs{
+		Name:       "FirstPolicyRedundancy",
+		Policy:     "FIRST",
+		Conditions: conditions,
+		Actions:    actions,
+		MaxCol:     2,
+	})
+	found := false
+	for _, w := range warns {
+		if w.Kind == "redundant condition" && w.Column == 2 && w.ConditionRow == 0 {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("expected redundant-condition warning for col 2 row 1, got %v", warns)
+	}
+}
+
+// TestAnalyze_RedundantFirstPolicy_NonFirstPolicy verifies that the
+// check is gated by Policy=="FIRST". An ALL or unspecified policy must
+// not emit the warning because the failure-implies-X reasoning only
+// holds when prior columns are guaranteed to have failed.
+func TestAnalyze_RedundantFirstPolicy_NonFirstPolicy(t *testing.T) {
+	conditions := makeConditions(
+		[]string{`income > 100k`, `filing = MFJ`},
+		[][]string{{"Y", "N"}, {"Y", "Y"}},
+	)
+	actions := makeActions(
+		[]string{`set a`, `set b`},
+		[][]string{{"X", ""}, {"", "X"}},
+	)
+	for _, policy := range []string{"", "ALL"} {
+		warns := Analyze(Inputs{
+			Name:       "T",
+			Policy:     policy,
+			Conditions: conditions,
+			Actions:    actions,
+			MaxCol:     2,
+		})
+		for _, w := range warns {
+			if w.Kind == "redundant condition" {
+				t.Errorf("policy=%q: did not expect redundant-condition warning, got %v", policy, w)
+			}
+		}
+	}
+}
+
+// TestAnalyze_RedundantFirstPolicy_DistinguishingRow verifies the
+// implication only fires when every OTHER Y/N constraint in the prior
+// column matches the current column. If columns differ on more than
+// the candidate row, removing the candidate doesn't preserve the
+// implication and the entry isn't redundant.
+func TestAnalyze_RedundantFirstPolicy_DistinguishingRow(t *testing.T) {
+	conditions := makeConditions(
+		[]string{`a`, `b`, `c`},
+		[][]string{
+			{"Y", "N"}, // row 0
+			{"Y", "N"}, // row 1 — both columns differ here too, so col2's row0=N is NOT forced
+			{"Y", "Y"}, // row 2
+		},
+	)
+	actions := makeActions(
+		[]string{`set x`, `set y`},
+		[][]string{{"X", ""}, {"", "X"}},
+	)
+	warns := Analyze(Inputs{
+		Name:       "T",
+		Policy:     "FIRST",
+		Conditions: conditions,
+		Actions:    actions,
+		MaxCol:     2,
+	})
+	for _, w := range warns {
+		if w.Kind == "redundant condition" {
+			t.Errorf("did not expect redundant-condition warning when columns differ on multiple rows, got %v", w)
+		}
+	}
+}
+
+// TestAnalyze_AssignmentOnlyTable covers #763: tables that only assign
+// the same variable in every column should be flagged as candidates
+// for inlining.
+func TestAnalyze_AssignmentOnlyTable(t *testing.T) {
+	conditions := makeConditions(
+		[]string{`state == "CA"`, `state == "TX"`},
+		[][]string{
+			{"Y", "N", "N"},
+			{"N", "Y", "N"},
+		},
+	)
+	actions := makeActions(
+		[]string{
+			`set rate = 0.075`,
+			`set rate = 0.0625`,
+			`set rate = 0.05`,
+		},
+		[][]string{
+			{"X", "", ""},
+			{"", "X", ""},
+			{"", "", "X"},
+		},
+	)
+	warns := Analyze(Inputs{
+		Name:       "PickRate",
+		Policy:     "FIRST",
+		Conditions: conditions,
+		Actions:    actions,
+		MaxCol:     3,
+	})
+	found := false
+	for _, w := range warns {
+		if w.Kind == "assignment-only table" && strings.Contains(w.Reason, "rate") {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("expected assignment-only warning naming `rate`, got %v", warns)
+	}
+}
+
+// TestAnalyze_AssignmentOnlyTable_MixedActions: a table with any
+// non-assignment action (add, perform, audit-trail) is NOT
+// assignment-only. The check has to bail.
+func TestAnalyze_AssignmentOnlyTable_MixedActions(t *testing.T) {
+	conditions := makeConditions(
+		[]string{`state == "CA"`},
+		[][]string{{"Y", "N"}},
+	)
+	actions := makeActions(
+		[]string{
+			`set rate = 0.075`,                            // assignment
+			`add "CA processed" to job.audit_trail`,       // not assignment
+		},
+		[][]string{
+			{"X", ""},
+			{"X", "X"}, // audit on both columns
+		},
+	)
+	warns := Analyze(Inputs{
+		Name:       "MixedTable",
+		Policy:     "FIRST",
+		Conditions: conditions,
+		Actions:    actions,
+		MaxCol:     2,
+	})
+	for _, w := range warns {
+		if w.Kind == "assignment-only table" {
+			t.Errorf("did not expect assignment-only warning when actions include audit-trail, got %v", w)
+		}
+	}
+}
+
+// TestAnalyze_AssignmentOnlyTable_DifferentVars: a table where the
+// assigned variable differs per column is NOT a candidate (inlining
+// would lose the branching choice of WHICH variable to set).
+func TestAnalyze_AssignmentOnlyTable_DifferentVars(t *testing.T) {
+	conditions := makeConditions(
+		[]string{`mode == "fast"`},
+		[][]string{{"Y", "N"}},
+	)
+	actions := makeActions(
+		[]string{
+			`set speed = 100`,
+			`set quality = "high"`,
+		},
+		[][]string{
+			{"X", ""},
+			{"", "X"},
+		},
+	)
+	warns := Analyze(Inputs{
+		Name:       "DifferingVars",
+		Policy:     "FIRST",
+		Conditions: conditions,
+		Actions:    actions,
+		MaxCol:     2,
+	})
+	for _, w := range warns {
+		if w.Kind == "assignment-only table" {
+			t.Errorf("did not expect assignment-only warning when columns assign different vars, got %v", w)
+		}
+	}
+}
+
+// TestAssignmentLHS unit-tests the assignment detector. It must accept
+// the EL `set X = Y` form and only that form — `add X to Y`,
+// `perform T`, multi-statement DSL, and `set X to Y` all return false.
+func TestAssignmentLHS(t *testing.T) {
+	cases := []struct {
+		dsl     string
+		wantOK  bool
+		wantLHS string
+	}{
+		{"set rate = 0.075", true, "rate"},
+		{"set rate = 0.075;", true, "rate"},
+		{"  set  rate  =  0.075", true, "rate"},
+		{"SET rate = 0.075", true, "rate"},
+		{"set rate = a + b", true, "rate"},
+		{"set result.tax = result.agi * 0.1", true, "result.tax"},
+		// Compound statement — second statement disqualifies.
+		{"set rate = 0.075; add 1 to count", false, ""},
+		// Other EL forms.
+		{"perform Calculate_Tax", false, ""},
+		{"add 1 to count", false, ""},
+		{"error \"x\"", false, ""},
+		// Malformed.
+		{"", false, ""},
+		{"set", false, ""},
+		{"set rate", false, ""},
+		{"set = 5", false, ""},
+		// EL convention requires spaces around `=`; `set x=5` is not
+		// what the production DSL emits and we don't try to be clever.
+		{"set rate=5", false, ""},
+	}
+	for _, c := range cases {
+		ok, lhs := assignmentLHS(c.dsl)
+		if ok != c.wantOK || lhs != c.wantLHS {
+			t.Errorf("assignmentLHS(%q) = (%v, %q), want (%v, %q)", c.dsl, ok, lhs, c.wantOK, c.wantLHS)
+		}
 	}
 }
 

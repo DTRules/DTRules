@@ -74,6 +74,7 @@ var subcommands = map[string]bool{
 	"internal": true,
 	"init":     true,
 	"validate": true,
+	"review":   true,
 	"version":  true,
 	"help":     true,
 	"docs":     true,
