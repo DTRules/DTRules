@@ -1,7 +1,6 @@
 // Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package el
-
 import "github.com/antlr4-go/antlr/v4"
 
 // A complete Visitor for a parse tree produced by ELParser.
@@ -67,6 +66,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#statement.
 	VisitStatement(ctx *StatementContext) interface{}
+
+	// Visit a parse tree produced by ELParser#createEntityAs.
+	VisitCreateEntityAs(ctx *CreateEntityAsContext) interface{}
 
 	// Visit a parse tree produced by ELParser#usingBlockEntity.
 	VisitUsingBlockEntity(ctx *UsingBlockEntityContext) interface{}
@@ -424,6 +426,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#performCatchError.
 	VisitPerformCatchError(ctx *PerformCatchErrorContext) interface{}
+
+	// Visit a parse tree produced by ELParser#performDynamicTable.
+	VisitPerformDynamicTable(ctx *PerformDynamicTableContext) interface{}
 
 	// Visit a parse tree produced by ELParser#performDT.
 	VisitPerformDT(ctx *PerformDTContext) interface{}

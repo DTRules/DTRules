@@ -2746,6 +2746,34 @@ func (e *PostfixEmitter) VisitPerformDTExplicit(ctx *PerformDTExplicitContext) i
 	return nil
 }
 
+// VisitCreateEntityAs: `create <type-name> as <local-name>` — construct a
+// fresh entity of the named type and bind it to a local name. Lowers to
+// `/typeName createentity /localName xdef`, which matches the postfix
+// idiom used to build state_tax_result instances inside dispatch actions.
+// The type name is emitted as a name literal so the runtime can look up
+// the entity type in the EDD at execute time.
+func (e *PostfixEmitter) VisitCreateEntityAs(ctx *CreateEntityAsContext) interface{} {
+	typeName := ctx.TypedEntity().GetText()
+	localName := ctx.UndefinedIdent().GetText()
+	e.emit("/" + typeName)
+	e.emit("createentity")
+	e.emit("/" + localName)
+	e.emit("xdef")
+	return nil
+}
+
+// VisitPerformDynamicTable: `perform table named (<string-expression>)` —
+// evaluate the expression at runtime, coerce the resulting string to a
+// decision-table name, and execute that table. Lowers to the same postfix
+// that hand-coded dispatches used to write by binding the concatenated
+// name into a local and then calling `execute`, except we skip the local
+// since `performtable` takes the name directly off the data stack.
+func (e *PostfixEmitter) VisitPerformDynamicTable(ctx *PerformDynamicTableContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("performtable")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitErrorStmt(ctx *ErrorStmtContext) interface{} {
 	e.Visit(ctx.Strexpr())
 	e.emit("elstmterror")

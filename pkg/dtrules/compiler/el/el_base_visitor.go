@@ -1,7 +1,6 @@
 // Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package el
-
 import "github.com/antlr4-go/antlr/v4"
 
 type BaseELVisitor struct {
@@ -85,6 +84,10 @@ func (v *BaseELVisitor) VisitSeparator(ctx *SeparatorContext) interface{} {
 }
 
 func (v *BaseELVisitor) VisitStatement(ctx *StatementContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitCreateEntityAs(ctx *CreateEntityAsContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -561,6 +564,10 @@ func (v *BaseELVisitor) VisitForctl(ctx *ForctlContext) interface{} {
 }
 
 func (v *BaseELVisitor) VisitPerformCatchError(ctx *PerformCatchErrorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitPerformDynamicTable(ctx *PerformDynamicTableContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
