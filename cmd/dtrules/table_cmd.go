@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
+	"github.com/DTRules/DTRules/pkg/dtrules/decisiontable"
 )
 
 // jsonError is the single shape every non-zero exit writes to stderr.
@@ -99,13 +100,15 @@ func (c *CLI) runTable(args []string) int {
 		return ctx.tablePut(rest)
 	case "patch":
 		return ctx.tablePatch(rest)
+	case "warnings":
+		return ctx.tableWarnings(rest)
 	case "schema":
 		return ctx.tableSchema(rest)
 	case "help", "-h", "--help":
 		c.printTableUsage()
 		return 0
 	default:
-		return emitErr(ctx.stderr, 1, "invalid_command", "", "known: list|get|put|patch|schema",
+		return emitErr(ctx.stderr, 1, "invalid_command", "", "known: list|get|put|patch|warnings|schema",
 			fmt.Sprintf("unknown table subcommand %q", sub))
 	}
 }
@@ -178,10 +181,25 @@ func (ctx *tableCmdCtx) tableGet(rest []string) int {
 		return emitErr(ctx.stderr, 1, "not_found", "", "check `dtrules table list`",
 			fmt.Sprintf("table %q not found", name))
 	}
-	if err := writeJSON(ctx.stdout, tableToJSON(t)); err != nil {
+	// tableToJSON returns a struct, but the response also embeds the
+	// authoring-channel warnings so the agent loop (#761) sees structural
+	// findings on every read. Empty `warnings` renders as `[]`, never null.
+	payload := tableGetResponse{
+		TableJSON: tableToJSON(t),
+		Warnings:  warningsForJSON(analyzeAuthoringTable(t)),
+	}
+	if err := writeJSON(ctx.stdout, payload); err != nil {
 		return emitErr(ctx.stderr, 1, "io_error", "", "", err.Error())
 	}
 	return 0
+}
+
+// tableGetResponse adds the authoring-channel warnings array to the
+// existing TableJSON shape. Inlined via Go's struct-embedding so JSON
+// field names match the bare TableJSON form when warnings is empty.
+type tableGetResponse struct {
+	TableJSON
+	Warnings []decisiontable.Warning `json:"warnings"`
 }
 
 func (ctx *tableCmdCtx) tablePut(rest []string) int {
@@ -217,7 +235,8 @@ func (ctx *tableCmdCtx) tablePut(rest []string) int {
 	if err := p.Save(); err != nil {
 		return emitErr(ctx.stderr, 1, "io_error", "", "save failed", err.Error())
 	}
-	return writeOK(ctx, "updated", map[string]string{"table": tj.Name})
+	return writeOKWithWarnings(ctx, "updated", map[string]string{"table": tj.Name},
+		analyzeAuthoringTable(t))
 }
 
 func (ctx *tableCmdCtx) tablePatch(rest []string) int {
@@ -248,7 +267,9 @@ func (ctx *tableCmdCtx) tablePatch(rest []string) int {
 	if err := p.Save(); err != nil {
 		return emitErr(ctx.stderr, 1, "io_error", "", "save failed", err.Error())
 	}
-	return writeOK(ctx, "patched", map[string]string{"table": t.Name, "op": patch.Op})
+	return writeOKWithWarnings(ctx, "patched",
+		map[string]string{"table": t.Name, "op": patch.Op},
+		analyzeAuthoringTable(t))
 }
 
 func (ctx *tableCmdCtx) tableSchema(rest []string) int {
@@ -382,6 +403,21 @@ func writeOK(ctx *tableCmdCtx, status string, extras map[string]string) int {
 	return 0
 }
 
+// writeOKWithWarnings is writeOK plus the authoring-channel warnings
+// array. Used by table put / patch responses (#761) so agents see
+// optimizer findings on every write without re-fetching.
+func writeOKWithWarnings(ctx *tableCmdCtx, status string, extras map[string]string, warns []decisiontable.Warning) int {
+	out := map[string]interface{}{"status": status}
+	for k, v := range extras {
+		out[k] = v
+	}
+	out["warnings"] = warningsForJSON(warns)
+	if err := writeJSON(ctx.stdout, out); err != nil {
+		return emitErr(ctx.stderr, 1, "io_error", "", "", err.Error())
+	}
+	return 0
+}
+
 // --- usage ---
 
 func (c *CLI) printTableUsage() {
@@ -389,9 +425,10 @@ func (c *CLI) printTableUsage() {
 
 Commands:
   list                     List decision-table names (JSON).
-  get <name>               Print one table as JSON.
-  put <name>               Replace a table from JSON on stdin.
-  patch <name>             Apply a JSON patch op on stdin.
+  get <name>               Print one table as JSON (includes advisory warnings).
+  put <name>               Replace a table from JSON on stdin (response includes warnings).
+  patch <name>             Apply a JSON patch op on stdin (response includes warnings).
+  warnings <name>          Print the advisory-pass warnings for a table as JSON.
   schema                   Emit JSON Schema for a Table document.
   schema --patch           Emit JSON Schema for a table patch op.
 
