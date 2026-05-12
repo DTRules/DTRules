@@ -1,5 +1,101 @@
 # DTRules Changelog
 
+## v1.12.0 — 2026-05-12
+
+Headline: compiler advisory pass + Full Review deployment gate (#767),
+`first pass` EL predicate (#764), and tech-debt batch that unblocks
+arm64 cross-compile and trims runtime overhead.
+
+- **Decision-table compiler advisory pass (#767, PR #771).** A
+  project-wide static analysis layer that surfaces structural and
+  semantic findings without changing rule behaviour. Errors gate
+  deployment; warnings never do. The pass has two channels:
+
+  - **Per-table authoring channel (#761).** `dtrules table get / put
+    / patch` (CLI + MCP) now embed a `warnings` array on every
+    response. New `dtrules table warnings <name>` CLI and
+    `table_warnings` MCP tool give a read-only fetch. `decisiontable.Warning`
+    gains a stable JSON shape with `ConditionRow` so authoring UIs
+    can pin warnings to specific rows.
+
+  - **Project-wide Full Review (#768).** `dtrules review` CLI and
+    `project_full_review` MCP tool produce a report (structure +
+    EL compliance + load diagnostics + per-table optimizer + EDD-unused).
+    Persisted to `.dtrules/last-review.json`. `dtrules build
+    --require-review` reads the cached report, recomputes the
+    project hash, and refuses unless the report is fresh
+    (`--max-age`, default 24h) and `passed: true`. No `--force`
+    — errors crash deployment, that's the bright line.
+
+  - **New optimizer checks:** `redundant condition` (#762) flags
+    Y/N entries in FIRST-policy tables already implied by a prior
+    column's failure; `assignment-only table` (#763) flags tables
+    where every action is a single `set` and every column assigns
+    the same variables; `unreachable column` and `dead condition
+    row` (#765, #766) use the compiled decision tree (ANode /
+    CNode walks) to catch what the matrix-only checks miss.
+
+- **EL: `first pass` predicate (#764, PR #772).** New boolean
+  expression that returns true on the first iteration of the
+  innermost active loop in the table's context, false on subsequent
+  iterations, and false when no loop is active. Lets authors fold
+  one-shot setup into a regular condition row without writing a
+  degenerate single-assignment table. New `FIRSTPASS` lexer token
+  (`'first' WS+ 'pass'`); new State methods `PushLoopFrame /
+  PopLoopFrame / BumpLoopIteration / IsFirstLoopPass`; iteration
+  ops (`for / forr / forall / forallr`) instrumented to push, bump,
+  and pop. The action-level `for all X perform Y` request (#735)
+  was closed in favour of this predicate plus the existing
+  context-level `for all` pattern.
+
+- **Cross-compile on arm64 (#748, PR #773).** `asm_stubs.go` and
+  `asm_helpers.go` are now gated to `//go:build amd64`, and
+  `asm_fallback.go` (`//go:build !amd64`) routes `ExecuteBytecodeASM`
+  to the pure-Go `ExecuteBytecode` path. The `make release` targets
+  for `linux-arm64` and `darwin-arm64` now build cleanly; before
+  this, they silently failed at link time.
+
+- **Operator registry hot-path (#755, PR #773).** Drop the RWMutex
+  on `operators.Get`. The map is populated at init() and never
+  mutates; `Get` is called from the bytecode `OpName` lookup on
+  every operator dispatch. Race tests pass with the lock removed.
+
+- **ASM fallback panics → errors (#756, PR #773).** Replace 18
+  `panic()` calls in `asm_helpers.go` fallback stubs with
+  `state.lastError = ...` + return code. DTRules is meant to be
+  embedded; panic() takes the host process down. Same loud-failure
+  intent, non-fatal delivery.
+
+- **Authoring API: load parity (#757, PR #774).** Audit raised
+  drift concerns between `cmd/dtrules.loadRuleSet` and
+  `cmd/api`'s inline load block. Rather than extracting an SDK
+  (the two callers have intentionally different error policies —
+  CLI fatals, API logs-and-continues), this release adds parity
+  tests in both packages that pin the load surfaces to a common
+  contract against the CHIP fixture. Behaviour drift in either
+  caller now fails its package's test rather than surfacing later
+  in a downstream call. Extracted `cmd/api/load.go`'s
+  `buildRuleSetFromXML` to make the load logic directly testable.
+
+- **Documentation alignment (#749, #750, PR #773).** Project
+  structure block in `.claude/CLAUDE.md` updated to match the tree:
+  removed nonexistent `examples/`, `legacy/java/`, and the stale
+  `pkg/dtrules/sdk` directory; added `cmd/api`, `authoring`,
+  `compiler/el`, `interpreter`, `runtime`, `scripts`, `ui`, …
+  The `dtrules docs sdk` code sample is annotated as preview, see
+  #757. `make check` now includes 7 previously silently-excluded
+  packages (`analysis`, `benchmark`, `entity`, `repository`,
+  `ruleset`, `testsupport`, `trace`); the Makefile's exclusion
+  block names every remaining skip and why.
+
+- **Dead code removed (#753, #754, PR #773).** Deleted
+  `pkg/dtrules/compiler/eltest/` (0 importers) and
+  `pkg/dtrules/xmlvalue_stub.go` (TODO placeholder, only
+  references were commented-out test code).
+
+- **Closes** #748, #749, #750, #753, #754, #755, #756, #757,
+  #761, #762, #763, #764, #765, #766, #767, #768.
+
 ## v1.11.0 — 2026-05-12
 
 Headline: strict hand-coded-postfix runtime gate; TaxReturn cleared to
