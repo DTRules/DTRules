@@ -11,9 +11,10 @@
 		<field name="in_sbp_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="Indiana Survivor Benefit Plan (SBP) exclusion (computed). 100% of SBP payments exempt"></field>
 		<field name="in_scra_compliant" type="boolean" subtype="" access="r" input="" default_value="true" comment="Indiana honors SCRA (Servicemembers Civil Relief Act). Active duty pay exempt if different state of residence"></field>
 		<field name="in_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0300" comment="Indiana flat income tax rate 3.00% (2025). Reduced from 3.05% in 2024. Source: Indiana Department of Revenue https://www.in.gov/dor/"></field>
-		<field name="in_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Indiana taxable income (computed). AGI minus exemptions"></field>
-		<field name="in_total_exemptions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Indiana total exemptions (computed). Base exemptions + age 65+ if eligible"></field>
+		<field name="in_taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Indiana taxable income (computed). AGI minus exemptions"></field>
+		<field name="in_total_exemptions" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Indiana total exemptions (computed). Base exemptions + age 65+ if eligible"></field>
 		<field name="in_total_military_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="Total Indiana military income exclusion (computed). Sum of military retirement and SBP exclusions"></field>
-		<field name="state_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="Indiana state tax liability (computed). IN taxable income × 3.00% flat rate"></field>
+		<field name="in_state_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Indiana state tax liability (computed). IN taxable income × 3.00% flat rate"></field>
+		<field name="in_dependent_exemption" type="double" subtype="" access="r" input="" default_value="1500.0" comment="Indiana dependent exemption $1,500 per dependent. Source: IN DOR"></field>
 	</entity>
 </entity_data_dictionary>
