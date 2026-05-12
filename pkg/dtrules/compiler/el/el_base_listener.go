@@ -3605,6 +3605,12 @@ func (s *BaseELListener) EnterBoolEntityNotHas(ctx *BoolEntityNotHasContext) {}
 // ExitBoolEntityNotHas is called when production boolEntityNotHas is exited.
 func (s *BaseELListener) ExitBoolEntityNotHas(ctx *BoolEntityNotHasContext) {}
 
+// EnterBoolFirstPass is called when production boolFirstPass is entered.
+func (s *BaseELListener) EnterBoolFirstPass(ctx *BoolFirstPassContext) {}
+
+// ExitBoolFirstPass is called when production boolFirstPass is exited.
+func (s *BaseELListener) ExitBoolFirstPass(ctx *BoolFirstPassContext) {}
+
 // EnterBoolBigGte is called when production boolBigGte is entered.
 func (s *BaseELListener) EnterBoolBigGte(ctx *BoolBigGteContext) {}
 

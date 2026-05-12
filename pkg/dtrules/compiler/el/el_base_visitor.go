@@ -2395,6 +2395,10 @@ func (v *BaseELVisitor) VisitBoolEntityNotHas(ctx *BoolEntityNotHasContext) inte
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBoolFirstPass(ctx *BoolFirstPassContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBoolBigGte(ctx *BoolBigGteContext) interface{} {
 	return v.VisitChildren(ctx)
 }

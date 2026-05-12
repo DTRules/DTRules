@@ -850,6 +850,15 @@ func (e *PostfixEmitter) VisitBoolLiteral(ctx *BoolLiteralContext) interface{} {
 	return nil
 }
 
+// VisitBoolFirstPass: `first pass` (#764) — true on the first iteration
+// of the innermost active loop in the table's context. Lowers to the
+// `firstpass` postfix op, which queries the runtime's loop-iteration
+// stack. With no active loop the op pushes false.
+func (e *PostfixEmitter) VisitBoolFirstPass(ctx *BoolFirstPassContext) interface{} {
+	e.emit("firstpass")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitBoolTyped(ctx *BoolTypedContext) interface{} {
 	e.Visit(ctx.TypedBoolean())
 	return nil

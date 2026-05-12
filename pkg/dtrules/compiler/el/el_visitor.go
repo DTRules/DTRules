@@ -1798,6 +1798,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolEntityNotHas.
 	VisitBoolEntityNotHas(ctx *BoolEntityNotHasContext) interface{}
 
+	// Visit a parse tree produced by ELParser#boolFirstPass.
+	VisitBoolFirstPass(ctx *BoolFirstPassContext) interface{}
+
 	// Visit a parse tree produced by ELParser#boolBigGte.
 	VisitBoolBigGte(ctx *BoolBigGteContext) interface{}
 

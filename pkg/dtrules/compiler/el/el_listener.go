@@ -1798,6 +1798,9 @@ type ELListener interface {
 	// EnterBoolEntityNotHas is called when entering the boolEntityNotHas production.
 	EnterBoolEntityNotHas(c *BoolEntityNotHasContext)
 
+	// EnterBoolFirstPass is called when entering the boolFirstPass production.
+	EnterBoolFirstPass(c *BoolFirstPassContext)
+
 	// EnterBoolBigGte is called when entering the boolBigGte production.
 	EnterBoolBigGte(c *BoolBigGteContext)
 
@@ -3756,6 +3759,9 @@ type ELListener interface {
 
 	// ExitBoolEntityNotHas is called when exiting the boolEntityNotHas production.
 	ExitBoolEntityNotHas(c *BoolEntityNotHasContext)
+
+	// ExitBoolFirstPass is called when exiting the boolFirstPass production.
+	ExitBoolFirstPass(c *BoolFirstPassContext)
 
 	// ExitBoolBigGte is called when exiting the boolBigGte production.
 	ExitBoolBigGte(c *BoolBigGteContext)
