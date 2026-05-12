@@ -1935,7 +1935,7 @@ deduction.allowed_amount result.total_itemized f+ /result.total_itemized xdef
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process each noncash contribution</context_comment>
-<context_dsl>for all noncash contributions</context_dsl>
+<context_dsl>for all noncash_contributions</context_dsl>
 <context_postfix>
 "NONCASH CHARITABLE CONTRIBUTIONS (Form 8283, IRC 170)" job.audit_trail swap addto
 0.0 /result.total_noncash_charitable xdef
@@ -6382,34 +6382,41 @@ result.total_adjustments result.educator_expense_deduction f+ /result.total_adju
 <decision_table>
 <table_name>Calculate_Medical_Expense_Deduction</table_name>
 <table_number>55</table_number>
-<table_description>Calculate medical expense deduction for Schedule A</table_description>
+<table_description>Calculate medical expense deduction for Schedule A Line 4 per IRC §213 and Publication 502. Only medical expenses above 7.5% of AGI are deductible. The total medical expenses across all taxpayers is aggregated by the Sum_Taxpayer_Medical_Expenses helper before this table evaluates its condition / actions.</table_description>
 <contexts />
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.total_medical_expenses = sum of taxpayer medical expenses</initial_action_dsl>
+<initial_action_dsl>set result.total_medical_expenses = 0; set result.medical_expense_floor = 0; set result.medical_expense_deduction = 0; perform Sum_Taxpayer_Medical_Expenses</initial_action_dsl>
 <initial_action_postfix>
-0.0 { medical_expenses + } job.taxpayers forall /result.total_medical_expenses xdef
+0 /result.total_medical_expenses xdef
+0 /result.medical_expense_floor xdef
+0 /result.medical_expense_deduction xdef
+/Sum_Taxpayer_Medical_Expenses performtable
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
-<condition_dsl />
+<condition_number>1</condition_number>
+<condition_comment>Any medical expenses to consider</condition_comment>
+<condition_dsl>result.total_medical_expenses &gt; 0</condition_dsl>
 <condition_postfix>result.total_medical_expenses 0 &gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
-<condition_comment>Are there medical expenses?</condition_comment></condition_details>
+</condition_details>
 </conditions>
 <actions>
 <action_details>
-<action_dsl />
+<action_number>1</action_number>
+<action_comment>Compute the 7.5%-of-AGI floor and the deductible portion per IRC §213(a)</action_comment>
+<action_dsl>set result.medical_expense_floor = result.agi * constants.medical_floor_percentage; set result.medical_expense_deduction = the maximum of (result.total_medical_expenses - result.medical_expense_floor) and 0; add "  Medical Expenses: $" + result.total_medical_expenses + ", Floor (7.5% AGI): $" + result.medical_expense_floor + ", Deductible: $" + result.medical_expense_deduction to job.audit_trail</action_dsl>
 <action_postfix>
 result.agi constants.medical_floor_percentage f* /result.medical_expense_floor xdef
 result.total_medical_expenses result.medical_expense_floor f- 0 fmax /result.medical_expense_deduction xdef
 "  Medical Expenses: $" result.total_medical_expenses cvs strconcat ", Floor (7.5% AGI): $" strconcat result.medical_expense_floor cvs strconcat ", Deductible: $" strconcat result.medical_expense_deduction cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
-<action_comment>set result.medical_deduction = medical_expenses - (result.agi * 0.075)</action_comment></action_details>
+</action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
@@ -6417,6 +6424,49 @@ result.total_medical_expenses result.medical_expense_floor f- 0 fmax /result.med
 <policy_statement_postfix>"Medical expenses deductible to extent exceeding 7.5% of AGI per IRC 213"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
+</decision_table>
+
+
+<decision_table>
+<table_name>Sum_Taxpayer_Medical_Expenses</table_name>
+<xls_file>Deductions.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Iterates job.taxpayers and accumulates each taxpayer.medical_expenses into result.total_medical_expenses. Called once from Calculate_Medical_Expense_Deduction (the caller zeroes the accumulator first).</COMMENTS>
+<TABLE_NUMBER>3205</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Iterate per taxpayer so each spouse's medical expenses can be summed</context_comment>
+<context_dsl>for all taxpayers</context_dsl>
+<context_postfix>
+{ /Sum_Taxpayer_Medical_Expenses executetable } job.taxpayers forall
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions />
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always fire -- one column always-true</condition_comment>
+<condition_dsl>perform when called</condition_dsl>
+<condition_postfix>perform when called</condition_postfix>
+<condition_column column_number="1" column_value="*" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Add this taxpayer's medical_expenses onto the result-wide accumulator</action_comment>
+<action_dsl>add taxpayer.medical_expenses to result.total_medical_expenses</action_dsl>
+<action_postfix>
+result.total_medical_expenses taxpayer.medical_expenses f+ /result.total_medical_expenses xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements />
 </decision_table>
 
 
@@ -6929,7 +6979,7 @@ taxpayer.traditional_ira_contribution taxpayer.roth_ira_contribution f+ constant
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process each energy improvement</context_comment>
-<context_dsl>for all energy improvements</context_dsl>
+<context_dsl>for all energy_improvements</context_dsl>
 <context_postfix>
 0.0 /result.clean_energy_credit xdef
 0.0 /result.energy_efficiency_credit xdef
@@ -8110,7 +8160,7 @@ false /foreign_earned_income.qualifies_exclusion xdef
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process each installment sale</context_comment>
-<context_dsl>for all installment sales</context_dsl>
+<context_dsl>for all installment_sales</context_dsl>
 <context_postfix>
 0.0 /result.total_installment_gain xdef
 0.0 /result.total_installment_interest xdef
@@ -8163,7 +8213,7 @@ installment_sale.interest_received result.total_installment_interest f+ /result.
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process each like-kind exchange</context_comment>
-<context_dsl>for all like-kind exchanges</context_dsl>
+<context_dsl>for all like_kind_exchanges</context_dsl>
 <context_postfix>
 0.0 /result.total_like_kind_recognized xdef
 0.0 /result.total_like_kind_deferred xdef
@@ -8218,7 +8268,7 @@ like_kind_exchange.deferred_gain result.total_like_kind_deferred f+ /result.tota
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process each early distribution</context_comment>
-<context_dsl>for all early distributions</context_dsl>
+<context_dsl>for all early_distributions</context_dsl>
 <context_postfix>
 0.0 /result.total_early_withdrawal_penalty xdef
 "Processing Form 5329 Early Distributions (IRC 72(t))" job.audit_trail swap addto
@@ -8401,7 +8451,7 @@ false /elderly_disabled.qualifies xdef
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process estimated payments</context_comment>
-<context_dsl>for all estimated payments</context_dsl>
+<context_dsl>for all estimated_payments</context_dsl>
 <context_postfix>
 0.0 /result.total_estimated_payments xdef
 0.0 /result.estimated_tax_penalty xdef
@@ -8449,7 +8499,7 @@ estimated_payment.required_payment estimated_payment.payment_amount f- 0 fmax /e
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process casualty losses</context_comment>
-<context_dsl>for all casualty losses</context_dsl>
+<context_dsl>for all casualty_losses</context_dsl>
 <context_postfix>
 0.0 /result.total_casualty_loss xdef
 false /result.is_disaster_loss xdef
@@ -8510,7 +8560,7 @@ casualty_loss.deductible_loss result.total_casualty_loss f+ /result.total_casual
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process clean vehicles</context_comment>
-<context_dsl>for all clean vehicles</context_dsl>
+<context_dsl>for all clean_vehicles</context_dsl>
 <context_postfix>
 0.0 /result.total_clean_vehicle_credit xdef
 "Processing Form 8936 Clean Vehicle Credit (IRC 30D)" job.audit_trail swap addto
@@ -8625,7 +8675,7 @@ adoption.credit_allowed result.total_adoption_credit f+ /result.total_adoption_c
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process household employees</context_comment>
-<context_dsl>for all household employees</context_dsl>
+<context_dsl>for all household_employees</context_dsl>
 <context_postfix>
 0.0 /result.total_household_tax xdef
 "Processing Schedule H Household Employment Taxes" job.audit_trail swap addto
@@ -8684,7 +8734,7 @@ household_employee.total_household_tax result.total_household_tax f+ /result.tot
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process NOL carryovers</context_comment>
-<context_dsl>for all NOL carryovers</context_dsl>
+<context_dsl>for all nol_carryovers</context_dsl>
 <context_postfix>
 0.0 /result.nol_deduction xdef
 0.0 /result.nol_carryforward_remaining xdef
@@ -8733,7 +8783,7 @@ nol_carryover.remaining_carryover result.nol_carryforward_remaining f+ /result.n
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process mortgage credit certificates</context_comment>
-<context_dsl>for all mortgage credit certificates</context_dsl>
+<context_dsl>for all mortgage_credit_certificates</context_dsl>
 <context_postfix>
 0.0 /result.mortgage_interest_credit xdef
 0.0 /result.mortgage_credit_carryforward xdef
@@ -8798,7 +8848,7 @@ mortgage_credit_certificate.current_year_credit result.mortgage_interest_credit 
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process prior year AMT credits</context_comment>
-<context_dsl>for all prior year AMT credits</context_dsl>
+<context_dsl>for all prior_year_amts</context_dsl>
 <context_postfix>
 0.0 /result.prior_year_amt_credit xdef
 0.0 /result.amt_credit_carryforward xdef
@@ -8858,7 +8908,7 @@ prior_year_amt.carryforward_remaining result.amt_credit_carryforward f+ /result.
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process partnership audit adjustments</context_comment>
-<context_dsl>for all partnership audit adjustments</context_dsl>
+<context_dsl>for all partnership_audits</context_dsl>
 <context_postfix>
 0.0 /result.partnership_audit_tax xdef
 "Calculating Partnership Audit Additional Tax (Form 8978, IRC 6226)" job.audit_trail swap addto
@@ -8967,7 +9017,7 @@ taxpayer.energy_efficient_appliances_produced 0 &gt;
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process unreported tips</context_comment>
-<context_dsl>for all unreported tips records</context_dsl>
+<context_dsl>for all unreported_tips_records</context_dsl>
 <context_postfix>
 0.0 /result.unreported_tips_tax xdef
 "Calculating Unreported Tips Tax (Form 4137, IRC 3121(q))" job.audit_trail swap addto
@@ -9026,7 +9076,7 @@ unreported_tips.total_fica_on_tips result.unreported_tips_tax f+ /result.unrepor
 <context_details>
 <context_number>1</context_number>
 <context_comment>Process LIHTC recaptures</context_comment>
-<context_dsl>for all LIHTC recapture events</context_dsl>
+<context_dsl>for all lihtc_recaptures</context_dsl>
 <context_postfix>
 0.0 /result.lihtc_recapture_tax xdef
 "Calculating LIHTC Recapture (Form 8611, IRC 42(j))" job.audit_trail swap addto
