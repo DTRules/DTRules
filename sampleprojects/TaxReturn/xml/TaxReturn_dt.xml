@@ -7460,54 +7460,68 @@ job.advance_ptc_received /result.ptc_repayment xdef
 <xls_file>SpecialForms.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
-<COMMENTS>Process Schedule K-1 income from partnerships, S-corps, and trusts. Categorizes income by type and flows to appropriate forms (Schedule E, B, D).</COMMENTS>
+<COMMENTS>Process Schedule K-1 income from partnerships (Form 1065), S-corps (Form 1120-S), and trusts (Form 1041). Iterates job.k1_incomes; for each k1_income entity, accumulates the per-category totals on `result` so that downstream tables (Schedule E Part II, Schedule B, Schedule D, Schedule SE, QBI under §199A, foreign tax credit) can read them as simple result fields.</COMMENTS>
 <TABLE_NUMBER>19000</TABLE_NUMBER>
 </attribute_fields>
 <contexts>
 <context_details>
-<context_name>k1</context_name>
-<context_comment>Current K-1 being processed</context_comment>
-<context_postfix>job.k1_incomes</context_postfix>
+<context_number>1</context_number>
+<context_comment>Iterate each K-1 received by the taxpayer</context_comment>
+<context_dsl>for all k1_incomes</context_dsl>
+<context_postfix>
+{ /Process_K1_Income executetable } job.k1_incomes forall
+</context_postfix>
 </context_details>
 </contexts>
 <initial_actions>
 <initial_action>
-<action_dsl>add "K-1 PROCESSING" to job.audit_trail</action_dsl>
-<action_postfix>
+<initial_action_dsl>set result.total_k1_ordinary_income = 0; set result.total_k1_rental_income = 0; set result.total_k1_interest = 0; set result.total_k1_dividends = 0; set result.total_k1_qualified_dividends = 0; set result.total_k1_short_term_gain = 0; set result.total_k1_long_term_gain = 0; set result.total_k1_1231_gain = 0; set result.total_k1_se_earnings = 0; set result.total_k1_foreign_taxes = 0; set result.total_k1_qbi = 0; add "Processing Schedule K-1 Income (Schedule E Part II)" to job.audit_trail</initial_action_dsl>
+<initial_action_postfix>
+0 /result.total_k1_ordinary_income xdef
+0 /result.total_k1_rental_income xdef
+0 /result.total_k1_interest xdef
+0 /result.total_k1_dividends xdef
+0 /result.total_k1_qualified_dividends xdef
+0 /result.total_k1_short_term_gain xdef
+0 /result.total_k1_long_term_gain xdef
+0 /result.total_k1_1231_gain xdef
+0 /result.total_k1_se_earnings xdef
+0 /result.total_k1_foreign_taxes xdef
+0 /result.total_k1_qbi xdef
 "Processing Schedule K-1 Income (Schedule E Part II)" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
+</initial_action_postfix>
+<action_comment>Reset every per-K-1 accumulator before iterating, then log the heading. The reset is required because Process_K1_Income may be re-invoked in repeat scenarios and we never want stale accumulator values to leak across runs.</action_comment></initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Has K-1 to process; K-1 entity exists in context</condition_comment>
-<condition_dsl />
-<condition_postfix>k1 isnull not</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<condition_comment>Always-fire single column -- every k1_income iteration accumulates</condition_comment>
+<condition_dsl>perform when called</condition_dsl>
+<condition_postfix>perform when called</condition_postfix>
+<condition_column column_number="1" column_value="*" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_dsl />
+<action_comment>Accumulate every income category from this K-1 record (Box 1-20 plus computed totals) onto the result-entity rollups</action_comment>
+<action_dsl>add k1_income.ordinary_income to result.total_k1_ordinary_income; add k1_income.rental_income to result.total_k1_rental_income; add k1_income.other_rental_income to result.total_k1_rental_income; add k1_income.interest_income to result.total_k1_interest; add k1_income.ordinary_dividends to result.total_k1_dividends; add k1_income.qualified_dividends to result.total_k1_qualified_dividends; add k1_income.short_term_gain to result.total_k1_short_term_gain; add k1_income.long_term_gain to result.total_k1_long_term_gain; add k1_income.section_1231_gain to result.total_k1_1231_gain; add k1_income.se_earnings to result.total_k1_se_earnings; add k1_income.guaranteed_payments_services to result.total_k1_se_earnings; add k1_income.foreign_taxes_paid to result.total_k1_foreign_taxes; add k1_income.qbi_income to result.total_k1_qbi; add "  K-1 from: " + k1_income.entity_name + " (" + k1_income.source_type + ") - Ordinary income: $" + k1_income.ordinary_income to job.audit_trail</action_dsl>
 <action_postfix>
-"  K-1 from: " k1.entity_name strconcat " (" strconcat k1.source_type strconcat ")" strconcat job.audit_trail swap addto
-k1.ordinary_income result.total_k1_ordinary_income f+ /result.total_k1_ordinary_income xdef
-k1.rental_income k1.other_rental_income f+ result.total_k1_rental_income f+ /result.total_k1_rental_income xdef
-k1.interest_income result.total_k1_interest f+ /result.total_k1_interest xdef
-k1.ordinary_dividends result.total_k1_dividends f+ /result.total_k1_dividends xdef
-k1.qualified_dividends result.total_k1_qualified_dividends f+ /result.total_k1_qualified_dividends xdef
-k1.short_term_gain result.total_k1_short_term_gain f+ /result.total_k1_short_term_gain xdef
-k1.long_term_gain result.total_k1_long_term_gain f+ /result.total_k1_long_term_gain xdef
-k1.section_1231_gain result.total_k1_1231_gain f+ /result.total_k1_1231_gain xdef
-k1.se_earnings k1.guaranteed_payments_services f+ result.total_k1_se_earnings f+ /result.total_k1_se_earnings xdef
-k1.foreign_taxes_paid result.total_k1_foreign_taxes f+ /result.total_k1_foreign_taxes xdef
-k1.qbi_income result.total_k1_qbi f+ /result.total_k1_qbi xdef
-"    Ordinary income: $" k1.ordinary_income cvs strconcat job.audit_trail swap addto
+result.total_k1_ordinary_income k1_income.ordinary_income f+ /result.total_k1_ordinary_income xdef
+result.total_k1_rental_income k1_income.rental_income f+ k1_income.other_rental_income f+ /result.total_k1_rental_income xdef
+result.total_k1_interest k1_income.interest_income f+ /result.total_k1_interest xdef
+result.total_k1_dividends k1_income.ordinary_dividends f+ /result.total_k1_dividends xdef
+result.total_k1_qualified_dividends k1_income.qualified_dividends f+ /result.total_k1_qualified_dividends xdef
+result.total_k1_short_term_gain k1_income.short_term_gain f+ /result.total_k1_short_term_gain xdef
+result.total_k1_long_term_gain k1_income.long_term_gain f+ /result.total_k1_long_term_gain xdef
+result.total_k1_1231_gain k1_income.section_1231_gain f+ /result.total_k1_1231_gain xdef
+result.total_k1_se_earnings k1_income.se_earnings f+ k1_income.guaranteed_payments_services f+ /result.total_k1_se_earnings xdef
+result.total_k1_foreign_taxes k1_income.foreign_taxes_paid f+ /result.total_k1_foreign_taxes xdef
+result.total_k1_qbi k1_income.qbi_income f+ /result.total_k1_qbi xdef
+"  K-1 from: " k1_income.entity_name strconcat " (" strconcat k1_income.source_type strconcat ") - Ordinary income: $" strconcat k1_income.ordinary_income cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
-<action_comment>add k1.income to appropriate category totals</action_comment></action_details>
+</action_details>
 </actions>
 </decision_table>
 
@@ -10124,30 +10138,28 @@ MP_Tax
 <xls_file>TaxReturn_dt.xls</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
-<COMMENTS>Calculates General Business Credit per Form 3800. Aggregates component business credits (Forms 5884, 6765, 8586, 8826, 8881, 8941, 8994) and applies limitation based on regular tax liability. Credit limited to net income tax minus greater of: (a) tentative AMT or (b) 25% of regular tax over $25,000. Unused credit carries forward.</COMMENTS>
+<COMMENTS>Calculates the General Business Credit per Form 3800 / IRC §38. Aggregates the seven component credits (Work Opportunity Form 5884, Research 6765, Low-Income Housing 8586, Disabled Access 8826, Small-Employer Pension 8881, Small-Employer Health 8941, Employer Paid Family Leave 8994) into result.general_business_credit_total, then applies the §38(c)(1) limitation: GBC used = min(total, tax_before_credits - max(0, tax_before_credits - gbc_threshold) * (1 - gbc_limitation_percentage)). Excess flows to result.general_business_credit_carryforward (IRC §39).</COMMENTS>
 <TABLE_NUMBER>8600</TABLE_NUMBER>
 </attribute_fields>
 <contexts />
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize GBC calculation</action_dsl>
-<action_postfix>
-0.0 /result.general_business_credit_total xdef
-0.0 /result.general_business_credit_used xdef
-0.0 /result.general_business_credit_carryforward xdef
+<initial_action_dsl />
+<initial_action_postfix>
+0 /result.general_business_credit_total xdef
+0 /result.general_business_credit_used xdef
+0 /result.general_business_credit_carryforward xdef
 "GENERAL BUSINESS CREDIT (Form 3800)" job.audit_trail swap addto
-</action_postfix>
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Any business credits present; Sum of business credits greater than 0</condition_comment>
+<condition_comment>Any business credit component is non-zero -- otherwise log "not applicable" and skip the limitation math</condition_comment>
 <condition_dsl />
 <condition_postfix>
-result.work_opportunity_credit result.research_credit f+ result.low_income_housing_credit f+
-result.disabled_access_credit f+ result.small_employer_pension_credit f+
-result.small_employer_health_credit f+ result.employer_credit_paid_family_leave f+ 0 &gt;
+result.work_opportunity_credit result.research_credit f+ result.low_income_housing_credit f+ result.disabled_access_credit f+ result.small_employer_pension_credit f+ result.small_employer_health_credit f+ result.employer_credit_paid_family_leave f+ 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -10156,46 +10168,22 @@ result.small_employer_health_credit f+ result.employer_credit_paid_family_leave 
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate total GBC (Part I); Sum all component business credits</action_comment>
+<action_comment>Aggregate component credits, compute the §38(c)(1) limitation, and apportion between current-year used and carryforward per IRC §39</action_comment>
 <action_dsl />
 <action_postfix>
-result.work_opportunity_credit result.research_credit f+ result.low_income_housing_credit f+
-result.disabled_access_credit f+ result.small_employer_pension_credit f+
-result.small_employer_health_credit f+ result.employer_credit_paid_family_leave f+ /result.general_business_credit_total xdef
-"  Total component credits: $" result.general_business_credit_total cvs strconcat job.audit_trail swap addto
-result.work_opportunity_credit 0 &gt; { "    Work Opportunity Credit: $" result.work_opportunity_credit cvs strconcat " (Form 5884)" strconcat job.audit_trail swap addto } if
-result.research_credit 0 &gt; { "    Research Credit: $" result.research_credit cvs strconcat " (Form 6765)" strconcat job.audit_trail swap addto } if
-result.low_income_housing_credit 0 &gt; { "    Low-Income Housing Credit: $" result.low_income_housing_credit cvs strconcat " (Form 8586)" strconcat job.audit_trail swap addto } if
-result.disabled_access_credit 0 &gt; { "    Disabled Access Credit: $" result.disabled_access_credit cvs strconcat " (Form 8826)" strconcat job.audit_trail swap addto } if
-result.small_employer_pension_credit 0 &gt; { "    Small Employer Pension Credit: $" result.small_employer_pension_credit cvs strconcat " (Form 8881)" strconcat job.audit_trail swap addto } if
-result.small_employer_health_credit 0 &gt; { "    Small Employer Health Credit: $" result.small_employer_health_credit cvs strconcat " (Form 8941)" strconcat job.audit_trail swap addto } if
-result.employer_credit_paid_family_leave 0 &gt; { "    Employer Paid Family Leave Credit: $" result.employer_credit_paid_family_leave cvs strconcat " (Form 8994)" strconcat job.audit_trail swap addto } if
+result.work_opportunity_credit result.research_credit f+ result.low_income_housing_credit f+ result.disabled_access_credit f+ result.small_employer_pension_credit f+ result.small_employer_health_credit f+ result.employer_credit_paid_family_leave f+ /result.general_business_credit_total xdef
+result.total_tax_before_credits constants.gbc_threshold f- 0 fmax /result.gbc_excess_tax xdef
+result.total_tax_before_credits constants.gbc_limitation_percentage result.gbc_excess_tax f* f- /result.gbc_available_limit xdef
+result.general_business_credit_total result.gbc_available_limit fmin /result.general_business_credit_used xdef
+result.general_business_credit_total result.general_business_credit_used f- /result.general_business_credit_carryforward xdef
+"  Total component credits: $" result.general_business_credit_total cvs strconcat "; GBC used: $" strconcat result.general_business_credit_used cvs strconcat "; carryforward: $" strconcat result.general_business_credit_carryforward cvs strconcat " (Form 3800)" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate GBC limitation (Part II); Apply tax liability limitation</action_comment>
-<action_dsl />
-<action_postfix>
-/tax_before_credits result.total_tax_before_credits def
-/threshold constants.gbc_threshold def
-/limitation_pct constants.gbc_limitation_percentage def
-/gbc_limit tax_before_credits threshold f- 0 max limitation_pct f* tax_before_credits min def
-gbc_limit 0 &lt; { 0 /gbc_limit xdef } if
-"  Tax before credits: $" tax_before_credits cvs strconcat job.audit_trail swap addto
-"  GBC limitation: Lesser of tax liability or 75% of (tax - $25,000) = $" gbc_limit cvs strconcat job.audit_trail swap addto
-result.general_business_credit_total gbc_limit min /result.general_business_credit_used xdef
-result.general_business_credit_total result.general_business_credit_used f- /result.general_business_credit_carryforward xdef
-"  GBC used this year: $" result.general_business_credit_used cvs strconcat job.audit_trail swap addto
-result.general_business_credit_carryforward 0 &gt; { "  GBC carryforward: $" result.general_business_credit_carryforward cvs strconcat " (to next year)" strconcat job.audit_trail swap addto } if
-</action_postfix>
-<action_column column_number="1" column_value="X" />
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>No business credits; Log no GBC applicable</action_comment>
-<action_dsl />
+<action_comment>No component credits were claimed -- log "not applicable"</action_comment>
+<action_dsl>add "No general business credits (Form 3800 not applicable)" to job.audit_trail</action_dsl>
 <action_postfix>
 "No general business credits (Form 3800 not applicable)" job.audit_trail swap addto
 </action_postfix>
