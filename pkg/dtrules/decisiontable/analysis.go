@@ -40,6 +40,10 @@ func (w Warning) String() string {
 //
 // Part 1: redundant / no-op columns (empty actions, or subsumed by another column).
 // Part 2: unreachable columns (contradictory condition requirements in same column).
+//
+// To detect hand-coded postfix (postfix present, no matching EL DSL), use the
+// dedicated CheckHandCodedPostfix entry point — it has different inputs (it
+// needs DSL/postfix pairs for every table element, not just rows + columns).
 func AnalyzeTable(tableName string, conditions []ConditionRow, actions []ActionRow, maxCol int) []Warning {
 	var warnings []Warning
 
@@ -60,6 +64,92 @@ type ConditionRow struct {
 type ActionRow struct {
 	DSL     string
 	Columns []string // indexed by column (0-based), values: "X" or ""
+}
+
+// PostfixEntry pairs an element's EL DSL with its compiled / hand-written
+// postfix, plus a 1-based identifier (row number or sequential index) and a
+// kind label ("context", "initial_action", "condition", "action") used when
+// formatting warnings.
+type PostfixEntry struct {
+	Kind    string // "context", "initial_action", "condition", "action"
+	Number  int    // 1-based number within Kind
+	DSL     string
+	Postfix string
+}
+
+// CheckHandCodedPostfix returns warnings for every table element whose
+// postfix has been authored by hand (non-empty postfix, no EL DSL). DTRules
+// expects EL to be the source of truth; postfix is the compiled artifact.
+// Hand-edited postfix bypasses the authoring path and risks the next
+// `dtrules build` re-emitting an empty postfix from the empty EL DSL.
+//
+// The companion table-level predicate `HasOnlyHandCodedPostfix` collapses
+// these warnings to a single bool that the runtime uses to refuse
+// execution of legacy tables. Per-element warnings are still useful for
+// authoring tools so they can point the user at the exact row that needs
+// EL.
+func CheckHandCodedPostfix(tableName string, entries []PostfixEntry) []Warning {
+	var ws []Warning
+	for _, e := range entries {
+		postfix := strings.TrimSpace(e.Postfix)
+		dsl := strings.TrimSpace(e.DSL)
+		if postfix == "" || dsl != "" {
+			continue
+		}
+		// Skip comment-only or empty-after-strip postfix.
+		if isCommentOrEmpty(postfix) {
+			continue
+		}
+		ws = append(ws, Warning{
+			Table:  tableName,
+			Reason: fmt.Sprintf("%s %d has hand-coded postfix without EL DSL — author in EL before executing", e.Kind, e.Number),
+			Kind:   "hand-coded postfix",
+		})
+	}
+	return ws
+}
+
+// HasOnlyHandCodedPostfix reports whether a table is "fully legacy" — it
+// has at least one hand-coded-postfix element AND zero EL-authored
+// elements anywhere. The runtime treats true here as a hard block: such
+// tables refuse to execute because their postfix has not gone through EL
+// compilation and is therefore not the trusted form.
+//
+// A partially-authored table (some elements in EL, some still postfix)
+// is NOT blocked here — both forms coexist by design while a table is
+// being migrated. The per-element CheckHandCodedPostfix warnings call
+// out the rows that still need EL.
+func HasOnlyHandCodedPostfix(entries []PostfixEntry) bool {
+	hasPostfix := false
+	hasDSL := false
+	for _, e := range entries {
+		if strings.TrimSpace(e.DSL) != "" {
+			hasDSL = true
+		}
+		postfix := strings.TrimSpace(e.Postfix)
+		if postfix != "" && !isCommentOrEmpty(postfix) {
+			hasPostfix = true
+		}
+	}
+	return hasPostfix && !hasDSL
+}
+
+// isCommentOrEmpty reports whether a postfix block contains only blank
+// lines or comments (// or # prefix). Used to ignore postfix bodies that
+// are effectively empty.
+func isCommentOrEmpty(postfix string) bool {
+	for _, line := range strings.Split(postfix, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" || strings.HasPrefix(trimmed, "//") || strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+		// Tolerate /* ... */ block comments that fit on a single line.
+		if strings.HasPrefix(trimmed, "/*") && strings.HasSuffix(trimmed, "*/") {
+			continue
+		}
+		return false
+	}
+	return true
 }
 
 // checkNoOpColumns flags columns with no actions marked X.

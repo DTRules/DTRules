@@ -339,8 +339,11 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	// Use GetTableName() which checks both attribute and element forms
 	tableName := strings.TrimSpace(table.GetTableName())
 
-	// Check for legacy postfix (hand-coded without EL descriptions)
-	if l.detectLegacyPostfix(table) {
+	// Check for legacy postfix (hand-coded without EL descriptions). The
+	// flag is propagated to the built RDecisionTable below; the runtime
+	// refuses to execute tables with this flag set.
+	legacy := l.detectLegacyPostfix(table)
+	if legacy {
 		l.warnLegacyPostfix(tableName, table.XlsFile)
 	}
 	name := dtrules.GetRName(tableName)
@@ -602,6 +605,14 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	dt, err := builder.Build(state)
 	if err != nil {
 		return fmt.Errorf("failed to build decision table %s: %w", name.StringValue(), err)
+	}
+
+	// Mark the built table if it's legacy-postfix-only so Execute /
+	// ExecuteTable will refuse to run it. The runtime treats this as a
+	// hard block; the operator must author EL DSL for at least one row to
+	// unblock.
+	if legacy {
+		dt.SetHandCodedPostfix(true, "loaded from "+table.XlsFile)
 	}
 
 	// Register the decision table with the factory
@@ -961,55 +972,49 @@ func (l *DTLoader) GetErrors() []error {
 	return l.errors
 }
 
-// detectLegacyPostfix checks if a table has hand-coded postfix without EL DSL.
-// A table is considered legacy if it has postfix but no EL DSL in
-// its conditions, actions, or contexts.
-func (l *DTLoader) detectLegacyPostfix(table *DTTable) bool {
-	hasPostfix := false
-	hasDSL := false
-
-	// Check conditions
+// collectPostfixEntries builds the analysis-package PostfixEntry slice for
+// every element of a DTTable: contexts, initial actions, conditions, and
+// actions. Used to feed the canonical detector in
+// decisiontable.HasOnlyHandCodedPostfix / CheckHandCodedPostfix.
+func collectPostfixEntries(table *DTTable) []decisiontable.PostfixEntry {
+	var entries []decisiontable.PostfixEntry
+	for i, ctx := range table.Contexts.Contexts {
+		entries = append(entries, decisiontable.PostfixEntry{
+			Kind: "context", Number: i + 1,
+			DSL:     ctx.GetDSL(),
+			Postfix: ctx.Postfix,
+		})
+	}
+	for i, action := range table.InitialActions.Actions {
+		entries = append(entries, decisiontable.PostfixEntry{
+			Kind: "initial_action", Number: i + 1,
+			DSL:     action.GetDSL(),
+			Postfix: action.GetPostfix(),
+		})
+	}
 	for _, cond := range table.Conditions.Conditions {
-		if strings.TrimSpace(cond.Postfix) != "" {
-			hasPostfix = true
-		}
-		if strings.TrimSpace(cond.GetDSL()) != "" {
-			hasDSL = true
-		}
+		entries = append(entries, decisiontable.PostfixEntry{
+			Kind: "condition", Number: cond.Number,
+			DSL:     cond.GetDSL(),
+			Postfix: cond.Postfix,
+		})
 	}
-
-	// Check actions
-	for _, action := range table.Actions.Actions {
-		if strings.TrimSpace(action.Postfix) != "" {
-			hasPostfix = true
-		}
-		if strings.TrimSpace(action.GetDSL()) != "" {
-			hasDSL = true
-		}
+	for _, act := range table.Actions.Actions {
+		entries = append(entries, decisiontable.PostfixEntry{
+			Kind: "action", Number: act.Number,
+			DSL:     act.GetDSL(),
+			Postfix: act.Postfix,
+		})
 	}
+	return entries
+}
 
-	// Check initial actions
-	for _, action := range table.InitialActions.Actions {
-		if strings.TrimSpace(action.GetPostfix()) != "" {
-			hasPostfix = true
-		}
-		if strings.TrimSpace(action.GetDSL()) != "" {
-			hasDSL = true
-		}
-	}
-
-	// Check contexts
-	for _, ctx := range table.Contexts.Contexts {
-		if strings.TrimSpace(ctx.Postfix) != "" {
-			hasPostfix = true
-		}
-		if strings.TrimSpace(ctx.GetDSL()) != "" {
-			hasDSL = true
-		}
-	}
-
-	// Legacy: has postfix but no DSL
-	return hasPostfix && !hasDSL
+// detectLegacyPostfix reports whether a table has hand-coded postfix without
+// any EL DSL — i.e. it would refuse to execute under the runtime's
+// hand-coded-postfix gate. Delegates to decisiontable.HasOnlyHandCodedPostfix
+// so the loader and analyzer agree on the rule.
+func (l *DTLoader) detectLegacyPostfix(table *DTTable) bool {
+	return decisiontable.HasOnlyHandCodedPostfix(collectPostfixEntries(table))
 }
 
 // warnLegacyPostfix logs a warning about a table with hand-coded postfix.
