@@ -1,5 +1,55 @@
 # DTRules Changelog
 
+## v1.13.0 — 2026-05-13
+
+Headline: proper EDD usage analysis (#776). The regex-only pass that
+flagged every bare-name access as "unused" is now entity-stack-aware
+across every EL iteration form and `using` block.
+
+- **EDD analyzer is entity-stack-aware (#776 phases 1 + 2, PRs #777
+  + #778).** The regex-only pass at `pkg/dtrules/analysis/edd_unused.go`
+  only matched dotted `entity.attr` references. Bare field names
+  inside `for all <field>` contexts — the common idiom for "iterate
+  this array and read fields off each element" — were invisible to
+  it. Every field accessed that way was flagged as a false-positive
+  "unused EDD field." A downstream consumer (staking) reported 97
+  such false positives.
+
+  **Phase 1 (#777):** the analyzer now reads each table's
+  `<context_details>` block, extracts `for all <field>` patterns,
+  resolves the field's declared array subtype against the EDD, and
+  pushes that entity type onto a per-table entity stack. Bare
+  identifiers in conditions/actions then resolve against the
+  topmost entity (innermost-first). The iterating array field itself
+  is also counted as a read so `job.taxpayers` isn't flagged as
+  unused just because the only "read" was the `for all taxpayers`
+  clause.
+
+  **Phase 2 (#778):** coverage extended to every entity-stack push
+  the EL grammar exposes — `for all` / `forall` (no-space form) /
+  `for all … where` / `for all … whose` / `for first of … where` /
+  `for first in … where` / `for each <var> in` /
+  `using <a, b, c> { … }`. These are scanned both in
+  `<context_details>` and inline inside individual DSL fragments,
+  so the pattern staking flagged
+  (`for first of accounts where identity_url == …`) resolves bare
+  names in the where-clause against the iterated entity.
+  Multi-entity `using` blocks (`using a, b { … }` and the no-comma
+  adjacency form `using a b { … }`) are handled; the expression-level
+  type-conversion form `using a (b)` is excluded by the `{` anchor.
+
+  Effect on the in-tree TaxReturn corpus: 1220 → 1193 warnings.
+  Downstream projects with bare-name idioms (staking's 97 reported)
+  should see most of those collapse to genuine unused-field findings.
+
+- **Remaining #776 phases (carried over):** cross-table reference
+  graphs (`perform <Table>` descent), enumeration-bounded dynamic
+  strings for `perform table named (<expr>)`, and a full EL AST
+  walk in place of the regex + keyword-stoplist approximation.
+  Phases 1 + 2 cover the static analysis the engine needs day-to-day;
+  the remaining phases are accuracy / capability improvements
+  layered on top. #776 stays open.
+
 ## v1.12.0 — 2026-05-12
 
 Headline: compiler advisory pass + Full Review deployment gate (#767),
