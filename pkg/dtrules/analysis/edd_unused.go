@@ -226,20 +226,33 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 		}
 
 		for _, table := range tables.Tables {
-			// Determine the entity stack for this table from its
-			// `for all <field>` contexts. Empty when the schema is
-			// nil or no recognizable `for all` clause is present —
-			// the analyzer then falls back to the dotted-only regex
-			// pass, identical to the pre-#776 behaviour.
+			// Determine the table-level entity stack from its
+			// `<context_details>` block. Inline iterations inside
+			// each DSL fragment extend this stack per-fragment.
+			//
+			// Empty when the schema is nil or no recognizable
+			// iteration clause is present — the analyzer then
+			// falls back to the dotted-only regex pass, identical
+			// to the pre-#776 behaviour.
 			entityStack := stackFromContexts(schema, table.Contexts)
 
-			// The iterated field itself is being read by the
-			// `for all` clause. Record it so the analyzer doesn't
-			// flag e.g. `job.taxpayers` as unused just because no
-			// table writes `... = job.taxpayers` outside the context.
+			// The iterated field itself is being read by every
+			// iteration clause (context or inline). Record it so
+			// the analyzer doesn't flag e.g. `job.taxpayers` as
+			// unused just because no table writes
+			// `... = job.taxpayers` outside the context.
 			if schema != nil {
 				for _, c := range table.Contexts {
 					extractIteratedFieldReads(c.DSL, schema, readRefs)
+				}
+				for _, c := range table.Conditions {
+					extractIteratedFieldReads(c.DSL, schema, readRefs)
+				}
+				for _, a := range table.InitialActions {
+					extractIteratedFieldReads(a.DSL, schema, readRefs)
+				}
+				for _, a := range table.Actions {
+					extractIteratedFieldReads(a.DSL, schema, readRefs)
 				}
 			}
 
@@ -248,7 +261,8 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 				extractReads(c.DSL, readRefs)
 				extractReads(c.Postfix, readRefs)
 				if schema != nil {
-					extractBareReads(c.DSL, entityStack, schema, readRefs)
+					local := append(append([]string{}, entityStack...), inlinePushes(c.DSL, schema)...)
+					extractBareReads(c.DSL, local, schema, readRefs)
 				}
 			}
 			// Actions: extract writes explicitly, then reads for non-write positions.
@@ -256,14 +270,16 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 				extractWritesAndReads(a.DSL, writeRefs, readRefs)
 				extractWritesAndReads(a.Postfix, writeRefs, readRefs)
 				if schema != nil {
-					extractBareWritesAndReads(a.DSL, entityStack, schema, writeRefs, readRefs)
+					local := append(append([]string{}, entityStack...), inlinePushes(a.DSL, schema)...)
+					extractBareWritesAndReads(a.DSL, local, schema, writeRefs, readRefs)
 				}
 			}
 			for _, a := range table.Actions {
 				extractWritesAndReads(a.DSL, writeRefs, readRefs)
 				extractWritesAndReads(a.Postfix, writeRefs, readRefs)
 				if schema != nil {
-					extractBareWritesAndReads(a.DSL, entityStack, schema, writeRefs, readRefs)
+					local := append(append([]string{}, entityStack...), inlinePushes(a.DSL, schema)...)
+					extractBareWritesAndReads(a.DSL, local, schema, writeRefs, readRefs)
 				}
 			}
 		}
@@ -272,19 +288,89 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 	return readRefs, writeRefs, err
 }
 
-// forAllPattern matches the EL `for all <field>` and
-// `for all <entity>.<field>` context openers, capturing the
-// fully-qualified field reference. The trailing `where`/`whose`
-// clause is preserved by the parser but doesn't affect which entity
-// type gets pushed.
+// iterationPattern matches every EL construct that pushes an entity
+// onto the runtime entity stack by iterating an array field. The
+// captured group is the iterated field reference (bare or dotted).
+// The trailing `where` / `whose` clause is preserved by the parser
+// but doesn't affect which entity type gets pushed.
 //
-// Examples matched:
+// Variants the regex covers (all case-insensitive):
 //
-//	for all taxpayers
-//	for all job.state_periods
-//	for all taxpayers whose is_self_employed is true
-//	for all incomes where amount > 0
-var forAllPattern = regexp.MustCompile(`(?i)\bfor\s+all\s+([a-z_][a-z0-9_]*(?:\.[a-z_][a-z0-9_]*)?)`)
+//	for all <field>                     — FORALL ctl
+//	forall <field>                      — FORALL ctl (no-space)
+//	for all <field> where <pred>        — FORALL ctl + where
+//	for all <field> whose <pred>        — FORALL ctl + whose
+//	for first of <field> where <pred>   — forfirstOf
+//	for first in <field> where <pred>   — forfirstIn
+//	for each <var> in <field>           — foreach (var is an alias,
+//	                                       not captured — its dotted
+//	                                       references via alias.attr
+//	                                       are caught by the regular
+//	                                       identifierPattern)
+//
+// `for all <field> as <alias>` (forallAs) is matched by the
+// `for all` arm; the `as <alias>` clause becomes part of the trailing
+// text after the captured field and is harmless because we stop at
+// the first identifier (dotted or bare) after the iteration keyword.
+var iterationPattern = regexp.MustCompile(
+	`(?i)\b(?:` +
+		`for\s*all` + // FORALL = 'for' WS* 'all'
+		`|for\s+first\s+(?:of|in)` + // forfirstOf, forfirstIn
+		`|for\s+each\s+[a-z_][a-z0-9_]*\s+in` + // foreach <var> in
+		`)\s+([a-z_][a-z0-9_]*(?:\.[a-z_][a-z0-9_]*)?)`)
+
+// usingPattern matches the statement-level `using <Entity> { ... }` form
+// that pushes one or more named typedEntities onto the entity stack
+// for the duration of the following block. Per the EL grammar:
+//
+//	usingblock
+//	    : typedEntity usingblock                # adjacent (no comma)
+//	    | typedEntity COMMA usingblock          # comma-separated
+//	    | block                                 # terminator
+//
+// So all of these are valid:
+//
+//	using account { ... }
+//	using account, taxpayer { ... }
+//	using account taxpayer { ... }
+//	using account, taxpayer, dependent { ... }
+//
+// The capture group is the comma-or-whitespace separated entity list
+// between `using` and the opening `{`. `splitEntityList` does the
+// final tokenisation. The `{` anchor distinguishes this push form
+// from the expression-level `using a (b)` type-conversion call
+// (which has `(`, not `{`, after the entity name) — that form
+// doesn't push anything onto the entity stack so we want to skip it.
+var usingPattern = regexp.MustCompile(`(?i)\busing\s+([a-z_][a-z0-9_][a-z0-9_,\s]*?)\s*\{`)
+
+// splitEntityList tokenises the `using a, b c` capture group into
+// individual entity names, lowercased. Splits on whitespace and
+// commas; drops empties.
+func splitEntityList(s string) []string {
+	var out []string
+	cur := strings.Builder{}
+	flush := func() {
+		t := strings.TrimSpace(cur.String())
+		if t != "" {
+			out = append(out, strings.ToLower(t))
+		}
+		cur.Reset()
+	}
+	for _, r := range s {
+		if r == ',' || r == ' ' || r == '\t' || r == '\n' || r == '\r' {
+			flush()
+			continue
+		}
+		cur.WriteRune(r)
+	}
+	flush()
+	return out
+}
+
+// forAllPattern is the legacy compatibility alias retained so
+// external callers (and the iterated-field-read recorder below) keep
+// working. New code should reference iterationPattern.
+var forAllPattern = iterationPattern
 
 // contextEntry is the minimal XML projection of a `<context_details>`
 // element that stackFromContexts needs. Named (rather than inline
@@ -292,6 +378,65 @@ var forAllPattern = regexp.MustCompile(`(?i)\bfor\s+all\s+([a-z_][a-z0-9_]*(?:\.
 // struct shape on the fly.
 type contextEntry struct {
 	DSL string `xml:"context_dsl"`
+}
+
+// inlinePushes returns the entity types pushed by iteration or `using`
+// constructs that appear inside a single DSL fragment (condition_dsl,
+// action_dsl, initial_action_dsl). These are additions to the
+// table-level context stack — a condition like
+// `for first of accounts where identity_url == current_delegate_url`
+// pushes the `account` entity for the rest of that DSL string.
+//
+// The implementation is loose: every push found anywhere in the DSL
+// is added to the stack used for the whole DSL. That can attribute a
+// bare name slightly outside its actual lexical scope, but for
+// unused-detection that's safe — over-attribution just counts the
+// field as referenced, which is the correct outcome. False-negatives
+// (a real reference that isn't counted) would re-introduce false
+// "unused" warnings; false-positives here can't.
+func inlinePushes(dsl string, schema *eddSchema) []string {
+	if schema == nil || dsl == "" {
+		return nil
+	}
+	var pushed []string
+
+	// Iteration constructs: for all / forall / for first of /
+	// for first in / for each.
+	for _, m := range iterationPattern.FindAllStringSubmatch(dsl, -1) {
+		if entity := resolveIteratedEntity(strings.ToLower(m[1]), schema); entity != "" {
+			pushed = append(pushed, entity)
+		}
+	}
+
+	// Statement-level `using <a, b, c> { ... }` blocks. All listed
+	// entity names get pushed (innermost-last) for the duration of
+	// the block. Names that don't correspond to a declared entity in
+	// the EDD are dropped silently.
+	for _, m := range usingPattern.FindAllStringSubmatch(dsl, -1) {
+		for _, entity := range splitEntityList(m[1]) {
+			if _, ok := schema.FieldsByEntity[entity]; ok {
+				pushed = append(pushed, entity)
+			}
+		}
+	}
+	return pushed
+}
+
+// resolveIteratedEntity maps a `for all <ref>` capture to the entity
+// type the runtime would push. Dotted refs come straight from
+// ArraySubtype; bare refs are matched against any array field that
+// suffix-matches the bare name. Returns "" when no resolution is
+// possible — the caller drops the push silently.
+func resolveIteratedEntity(ref string, schema *eddSchema) string {
+	if strings.Contains(ref, ".") {
+		return schema.ArraySubtype[ref]
+	}
+	for fqn, sub := range schema.ArraySubtype {
+		if strings.HasSuffix(fqn, "."+ref) {
+			return sub
+		}
+	}
+	return ""
 }
 
 // extractIteratedFieldReads records the iterated array field itself

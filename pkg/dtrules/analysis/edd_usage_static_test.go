@@ -238,6 +238,195 @@ func TestExtractBareReads_SkipsStringsAndKeywords(t *testing.T) {
 	}
 }
 
+// TestInlinePushes covers the iteration / `using` constructs that
+// appear inside a single DSL fragment rather than in a separate
+// `<context_details>` block. The staking project surfaced this case
+// with `for first of accounts where identity_url == current_delegate_url`:
+// the iteration is inside the condition DSL itself, so the
+// context-only resolution from phase 1 would have missed it.
+func TestInlinePushes(t *testing.T) {
+	schema := &eddSchema{
+		ArraySubtype: map[string]string{
+			"job.accounts":    "account",
+			"job.taxpayers":   "taxpayer",
+			"job.state_periods": "state_period",
+		},
+		FieldsByEntity: map[string]map[string]bool{
+			"account":      {"identity_url": true, "balance": true},
+			"taxpayer":     {"agi": true},
+			"state_period": {"state_code": true},
+		},
+	}
+
+	cases := []struct {
+		name string
+		dsl  string
+		want []string
+	}{
+		{
+			name: "for all bare",
+			dsl:  "for all taxpayers",
+			want: []string{"taxpayer"},
+		},
+		{
+			name: "for all dotted",
+			dsl:  "for all job.state_periods",
+			want: []string{"state_period"},
+		},
+		{
+			name: "for first of with where",
+			dsl:  `for first of accounts where identity_url == "https://example.com"`,
+			want: []string{"account"},
+		},
+		{
+			name: "for first in with where",
+			dsl:  `for first in accounts where balance > 0`,
+			want: []string{"account"},
+		},
+		{
+			name: "for each in",
+			dsl:  `for each tp in taxpayers`,
+			want: []string{"taxpayer"},
+		},
+		{
+			name: "forall no space",
+			dsl:  `forall taxpayers`,
+			want: []string{"taxpayer"},
+		},
+		{
+			name: "using block single entity",
+			dsl:  `using taxpayer { agi > 0 }`,
+			want: []string{"taxpayer"},
+		},
+		{
+			name: "using block comma-separated entities",
+			// Per the EL grammar, `usingblock` is recursive:
+			// `typedEntity COMMA usingblock`. Both names should
+			// land on the entity stack innermost-last.
+			dsl:  `using taxpayer, account { agi > 0 and balance > 0 }`,
+			want: []string{"taxpayer", "account"},
+		},
+		{
+			name: "using block adjacent entities (no comma)",
+			// The grammar also allows whitespace-only separation:
+			// `typedEntity usingblock` chains entities without
+			// commas. Same expected pushes.
+			dsl:  `using taxpayer account { agi > 0 }`,
+			want: []string{"taxpayer", "account"},
+		},
+		{
+			name: "expression-level using does NOT push",
+			// `using a (b)` is the expression-level type-conversion
+			// call (e.g., date construction). Doesn't push onto
+			// the entity stack. The regex's `{` anchor excludes it.
+			dsl:  `set d = date "2026-01-01" using taxpayer.timezone (now)`,
+			want: nil,
+		},
+		{
+			name: "multiple pushes in one DSL",
+			dsl:  `for all taxpayers and for first of accounts where balance > 0`,
+			want: []string{"taxpayer", "account"},
+		},
+		{
+			name: "no push",
+			dsl:  `job.state is equal to "CA"`,
+			want: nil,
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got := inlinePushes(c.dsl, schema)
+			if !equalStringSlices(got, c.want) {
+				t.Errorf("inlinePushes(%q) = %v, want %v", c.dsl, got, c.want)
+			}
+		})
+	}
+}
+
+// TestAnalyzeEDDUsage_InlineForFirstOf is the end-to-end test for the
+// pattern staking flagged: a condition contains an inline
+// `for first of <field> where <bare> == <bare>` clause. The bare
+// names inside the where-clause should resolve against the iterated
+// entity, so the EDD fields referenced that way are not flagged as
+// unused.
+func TestAnalyzeEDDUsage_InlineForFirstOf(t *testing.T) {
+	dir := t.TempDir()
+
+	const edd = `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+  <entity name="job" access="rw">
+    <field name="accounts" type="array" subtype="account" access="r" input="" default_value="" comment="">
+    </field>
+    <field name="current_delegate_url" type="string" subtype="" access="r" input="main" default_value="" comment="">
+    </field>
+  </entity>
+  <entity name="account" access="rw">
+    <field name="identity_url" type="string" subtype="" access="r" input="" default_value="" comment="">
+    </field>
+    <field name="balance" type="double" subtype="" access="r" input="" default_value="0" comment="">
+    </field>
+  </entity>
+</entity_data_dictionary>
+`
+
+	const dt = `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+<decision_table>
+<table_name>Pick_Delegate</table_name>
+<xls_file>test.xlsx</xls_file>
+<attribute_fields><Type>FIRST</Type><COMMENTS></COMMENTS><TABLE_NUMBER>1</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+  <condition_details>
+    <condition_number>1</condition_number>
+    <condition_dsl>for first of accounts where identity_url == job.current_delegate_url</condition_dsl>
+    <condition_postfix></condition_postfix>
+    <condition_column column_number="1" column_value="Y"></condition_column>
+  </condition_details>
+</conditions>
+<actions>
+  <action_details>
+    <action_number>1</action_number>
+    <action_dsl>set job.current_delegate_url = identity_url</action_dsl>
+    <action_postfix></action_postfix>
+    <action_column column_number="1" column_value="X"></action_column>
+  </action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+</decision_tables>
+`
+
+	if err := os.WriteFile(filepath.Join(dir, "test_edd.xml"), []byte(edd), 0o644); err != nil {
+		t.Fatalf("write edd: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "test_dt.xml"), []byte(dt), 0o644); err != nil {
+		t.Fatalf("write dt: %v", err)
+	}
+
+	warnings, err := AnalyzeEDDUsage(dir)
+	if err != nil {
+		t.Fatalf("AnalyzeEDDUsage: %v", err)
+	}
+	mustNotBeUnused := []string{
+		"account.identity_url", // bare ref in for-first-of clause
+		"account.balance",      // would be flagged unused, but it's not declared as used here — skip
+		"job.accounts",         // read by the for-first-of clause
+		"job.current_delegate_url",
+	}
+	got := map[string]bool{}
+	for _, w := range warnings {
+		got[w.Field] = true
+	}
+	for _, field := range mustNotBeUnused {
+		if got[field] && field != "account.balance" {
+			t.Errorf("did NOT expect %q flagged unused (referenced via inline for-first-of); got %v",
+				field, warnings)
+		}
+	}
+}
+
 func equalStringSlices(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
