@@ -22,6 +22,8 @@ import (
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/compiler/el"
+	"github.com/DTRules/DTRules/pkg/dtrules/decisiontable"
+	"github.com/DTRules/DTRules/pkg/dtrules/excel"
 )
 
 // runCompile is the `dtrules compile <dir>` handler. It walks *_dt.xml under
@@ -48,12 +50,15 @@ func (c *CLI) runCompile(args []string) int {
 	dryRun := false
 	verbose := false
 	strict := false
+	noAnalyze := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--dry-run":
 			dryRun = true
 		case "--strict":
 			strict = true
+		case "--no-analyze":
+			noAnalyze = true
 		case "-v", "--verbose":
 			verbose = true
 		case "-h", "--help":
@@ -133,6 +138,27 @@ func (c *CLI) runCompile(args []string) int {
 		fmt.Println("(dry run — no files modified)")
 	}
 
+	// Advisory pass: run decisiontable.Analyze on every table in every file.
+	// Same call the build pipeline and `dtrules table warnings` use, so the
+	// warning set is identical across surfaces. This is what makes
+	// `dtrules compile <dir>` a one-stop check on layouts the rest of the
+	// authoring CLI can't reach (no xml/ subdir required) — e.g. library
+	// consumers whose rules live at `pkg/.../rules/` flat.
+	totalWarnings := 0
+	if !noAnalyze {
+		for _, f := range files {
+			ws := analyzeFile(f)
+			if verbose && len(ws) > 0 {
+				fmt.Printf("  %s: warnings=%d\n", f, len(ws))
+			}
+			for _, w := range ws {
+				fmt.Fprintln(os.Stderr, w.String())
+			}
+			totalWarnings += len(ws)
+		}
+		fmt.Printf("advisory: %d warning(s)\n", totalWarnings)
+	}
+
 	if totalErrors > 0 {
 		fmt.Fprintln(os.Stderr, "\nCompile errors:")
 		for _, e := range errLines {
@@ -141,6 +167,30 @@ func (c *CLI) runCompile(args []string) int {
 		return 1
 	}
 	return 0
+}
+
+// analyzeFile parses a *_dt.xml file and runs the advisory pass on every
+// table within it. Returns the aggregated warning slice. Errors during
+// parse short-circuit to an empty slice — the compile step already
+// reported any structural problems, so we don't double-print here.
+func analyzeFile(path string) []decisiontable.Warning {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	dt, err := excel.UnmarshalDecisionTablesXML(data)
+	if err != nil {
+		return nil
+	}
+	var warnings []decisiontable.Warning
+	for i := range dt.Tables {
+		// buildAnalysisInputs (defined in build.go, same package) is the
+		// canonical XML→Inputs conversion. Reusing it keeps the advisory
+		// surface for `dtrules build` and `dtrules compile` bit-for-bit
+		// identical — anything one reports, the other reports.
+		warnings = append(warnings, decisiontable.Analyze(buildAnalysisInputs(&dt.Tables[i]))...)
+	}
+	return warnings
 }
 
 func (c *CLI) printCompileUsage() {
@@ -156,7 +206,14 @@ Options:
   --strict      Refuse to write any file that has at least one compile
                 error (atomic-or-nothing per file). Default writes the
                 successful fills and reports the errors.
-  -v, --verbose Per-file compiled/skipped/error counts.
+  --no-analyze  Skip the advisory pass after compile. Default runs it.
+  -v, --verbose Per-file compiled/skipped/error/warning counts.
+
+By default, after filling postfix this command also runs the advisory
+pass (decisiontable.Analyze) on every table and prints warnings to
+stderr — same warnings the build pipeline and 'dtrules table warnings'
+emit. This makes 'dtrules compile <dir>' a one-stop authoring check
+on layouts the rest of the CLI can't reach (no xml/ subdir required).
 
 Exit codes:
   0  every DSL element compiled (or was already populated/comment-only).

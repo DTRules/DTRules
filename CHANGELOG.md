@@ -1,5 +1,37 @@
 # DTRules Changelog
 
+## v1.14.1 — 2026-05-24
+
+Single-flag follow-up to v1.14.0: `dtrules compile` now runs the
+advisory pass by default so library consumers on flat layouts (no
+`xml/` subdir) can finally see warnings against their tables.
+
+- **`dtrules compile` runs `decisiontable.Analyze` after the
+  postfix-fill loop.** Same call the build pipeline and
+  `dtrules table warnings` use, so the warning set is bit-for-bit
+  identical across surfaces. Output goes to stderr; the
+  `advisory: N warning(s)` summary line goes to stdout.
+
+  This closes the user-visible gap from v1.14.0: `dtrules build`
+  and `dtrules review` require a canonical project layout
+  (`<project>/xml/*_dt.xml`); a consumer like staking whose rules
+  live at `pkg/<...>/rules/staking_dt.xml` flat saw zero warnings
+  from any CLI surface. Now `dtrules compile <rules-dir>` works on
+  any layout — flat or canonical — and surfaces the full advisory
+  set (no-op columns, subsumed columns, FIRST-policy redundant
+  conditions, assignment-only tables, DSL-negation unreachable
+  columns).
+
+  Opt-out via `--no-analyze` for callers that want a pure
+  postfix-fill pass with no advisory output. Compile errors still
+  drive exit code; advisory warnings do not (matching the
+  established "warnings never fail the build" policy from #761).
+
+  Smoke test on staking's `pkg/dtrules/rules/staking_dt.xml`: 41
+  warnings now surface across 9 tables — including the
+  `Calculate_Withholding column 4 row 1 (=Y) is implied by column
+  2's failure` pattern that motivated this whole arc.
+
 ## v1.14.0 — 2026-05-24
 
 Headline: the loader is strictly a postfix consumer. `compiler/el` is
