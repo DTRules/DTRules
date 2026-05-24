@@ -260,18 +260,20 @@ func TestDTTableGetTableNumber(t *testing.T) {
 	}
 }
 
-// TestDTLoaderELAutoCompile tests that EL descriptions are automatically compiled
-// to postfix when the postfix element is empty or missing.
-func TestDTLoaderELAutoCompile(t *testing.T) {
+// TestDTLoaderRejectsDSLWithoutPostfix is the strict-loader contract: EL
+// DSL with no compiled postfix is a stale build and must fail to load.
+// Pre-PR-B the loader silently auto-compiled the DSL at load time; now
+// it refuses, directing the operator to `dtrules build`.
+func TestDTLoaderRejectsDSLWithoutPostfix(t *testing.T) {
 	factory := entity.NewFactory(nil)
 	session := &mockSession{factory: factory}
 	loader := NewDTLoader(session, factory)
 
-	// XML with EL descriptions but no postfix - should auto-compile
+	// XML with EL descriptions but no postfix — must fail.
 	xml := `<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
     <decision_table>
-        <table_name>Test_EL_AutoCompile</table_name>
+        <table_name>Test_StrictNoPostfix</table_name>
         <attribute_fields>
             <Type>First</Type>
         </attribute_fields>
@@ -298,10 +300,15 @@ func TestDTLoaderELAutoCompile(t *testing.T) {
 </decision_tables>`
 
 	err := loader.Load(strings.NewReader(xml))
-	if err != nil {
-		t.Fatalf("Failed to load DT with EL auto-compile: %v", err)
+	if err == nil {
+		t.Fatal("expected load to fail (DSL present, no postfix), got success")
 	}
-	t.Log("Table Test_EL_AutoCompile loaded successfully with auto-compiled EL")
+	if !strings.Contains(err.Error(), "no compiled postfix") {
+		t.Errorf("expected error to mention missing postfix, got: %v", err)
+	}
+	if !strings.Contains(err.Error(), "dtrules build") {
+		t.Errorf("expected error to direct caller to `dtrules build`, got: %v", err)
+	}
 }
 
 // TestDTLoaderELAutoCompileWithExistingPostfix tests that existing postfix is preserved
@@ -348,18 +355,21 @@ func TestDTLoaderELAutoCompileWithExistingPostfix(t *testing.T) {
 	t.Log("Table loaded successfully with existing postfix preserved")
 }
 
-// TestDTLoaderELAutoCompileFallback tests that invalid EL expressions use a fallback.
-// Invalid EL descriptions now log a warning and use a fallback ("true always" for conditions).
-func TestDTLoaderELAutoCompileFallback(t *testing.T) {
+// TestDTLoaderRejectsInvalidDSLWithoutPostfix is the second-tier strict
+// contract: even if the DSL is unparseable (so a previous build would
+// have failed), the strict loader doesn't need to know — it sees the
+// postfix slot is empty and refuses. The error message and direction
+// to the operator stays the same.
+func TestDTLoaderRejectsInvalidDSLWithoutPostfix(t *testing.T) {
 	factory := entity.NewFactory(nil)
 	session := &mockSession{factory: factory}
 	loader := NewDTLoader(session, factory)
 
-	// XML with invalid EL expression - should succeed with fallback
+	// Invalid EL in condition_dsl, no condition_postfix.
 	xml := `<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
     <decision_table>
-        <table_name>Test_EL_Fallback</table_name>
+        <table_name>Test_StrictInvalidDSL</table_name>
         <attribute_fields>
             <Type>First</Type>
         </attribute_fields>
@@ -385,27 +395,25 @@ func TestDTLoaderELAutoCompileFallback(t *testing.T) {
 </decision_tables>`
 
 	err := loader.Load(strings.NewReader(xml))
-	// Should succeed now - invalid EL uses fallback with warning
-	if err != nil {
-		t.Fatalf("Unexpected error (invalid EL should use fallback): %v", err)
+	if err == nil {
+		t.Fatal("expected load to fail (invalid DSL, no postfix), got success")
 	}
-	t.Log("Invalid EL description correctly used fallback")
 }
 
-// TestDTLoaderPreservePostfixComments tests that when EL compilation fails but there's
-// existing postfix (even if comment-only), the original postfix is preserved.
-// This is issue #438 - non-EL descriptions should not overwrite existing postfix.
-func TestDTLoaderPreservePostfixComments(t *testing.T) {
+// TestDTLoaderRejectsCommentOnlyPostfix verifies that a comment-only
+// postfix is still treated as "no postfix" — comments are documentation,
+// not executable code. Pre-PR-B the loader preserved them silently
+// alongside whatever the EL fallback produced; the strict loader rejects
+// the row so the operator authors real EL (or removes the dead DSL).
+func TestDTLoaderRejectsCommentOnlyPostfix(t *testing.T) {
 	factory := entity.NewFactory(nil)
 	session := &mockSession{factory: factory}
 	loader := NewDTLoader(session, factory)
 
-	// XML with invalid EL in action_dsl but comment-only postfix
-	// The postfix comments should be preserved, not replaced with no-op
 	xml := `<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
     <decision_table>
-        <table_name>Test_Preserve_Comments</table_name>
+        <table_name>Test_StrictCommentOnlyPostfix</table_name>
         <attribute_fields>
             <Type>First</Type>
         </attribute_fields>
@@ -417,7 +425,7 @@ func TestDTLoaderPreservePostfixComments(t *testing.T) {
                 <condition_dsl>Check some condition</condition_dsl>
                 <condition_postfix>
 // This is a documentation comment
-// It should be preserved even if DSL is invalid
+// It should NOT count as real postfix
 </condition_postfix>
                 <condition_column column_number="1" column_value="y"/>
             </condition_details>
@@ -428,7 +436,6 @@ func TestDTLoaderPreservePostfixComments(t *testing.T) {
                 <action_dsl>Apportionment will be calculated by tables 7000-7500</action_dsl>
                 <action_postfix>
 // Physical nexus established - filing required
-// Apportionment documentation
 </action_postfix>
                 <action_column column_number="1" column_value="x"/>
             </action_details>
@@ -438,10 +445,9 @@ func TestDTLoaderPreservePostfixComments(t *testing.T) {
 </decision_tables>`
 
 	err := loader.Load(strings.NewReader(xml))
-	if err != nil {
-		t.Fatalf("Unexpected error: %v", err)
+	if err == nil {
+		t.Fatal("expected load to fail (DSL with comment-only postfix), got success")
 	}
-	t.Log("Postfix comments preserved when EL compilation fails")
 }
 
 // TestFilePathLoading tests that FILE_PATH is loaded and stored on the decision table.
