@@ -1037,9 +1037,7 @@ property.rental_net_income result.total_rental_income f+ /result.total_rental_in
 <context_number>1</context_number>
 <context_comment>Process each income entity</context_comment>
 <context_dsl>for all job.incomes</context_dsl>
-<context_postfix>
-
-</context_postfix>
+<context_postfix>dup job.incomes forall pop</context_postfix>
 </context_details>
 </contexts>
 <initial_actions></initial_actions>
@@ -2753,7 +2751,7 @@ result.taxable_income bracket_6_single f- bracket_7_rate f* f+
 <initial_action>
 <action_comment>set result.total_ctc = 0, set result.total_odc = 0, set result.total_actc = 0, set result.total_credits = 0</action_comment>
 <initial_action_dsl>set result.total_ctc = 0, set result.total_odc = 0, set result.total_actc = 0, set result.total_credits = 0</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>0 cvi /result.total_ctc xdef 0 cvi /result.total_odc xdef 0 cvi /result.total_actc xdef 0 cvi /result.total_credits xdef</initial_action_postfix>
 <action_postfix>
 0.0 /result.total_ctc xdef
 0.0 /result.total_odc xdef
@@ -3261,7 +3259,7 @@ dependent.odc_amount result.total_odc f+ /result.total_odc xdef
 <initial_action>
 <action_comment>set result.total_tax = tax_before_credits - nonrefundable_credits + ptc_repayment, add refundable credits to payments</action_comment>
 <initial_action_dsl>set result.balance_due = result.total_tax - result.total_payments; set result.refund = the maximum of (result.total_payments - result.total_tax) and 0; add "Calculating final balance per Form 1040 lines 37-38" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>result.total_tax result.total_payments - cvi /result.balance_due xdef result.total_payments result.total_tax - 0 max cvi /result.refund xdef &quot;Calculating final balance per Form 1040 lines 37-38&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 "FINAL CALCULATION (Form 1040 Lines 33-37)" job.audit_trail swap addto
 result.total_tax_before_credits result.amt_owed f+ /result.tax_before_nonrefundable_credits xdef
@@ -4432,7 +4430,7 @@ pop
 <initial_action>
 <action_comment>set result.tips_deduction = 0, set result.overtime_deduction = 0, set result.senior_deduction = 0</action_comment>
 <initial_action_dsl>set result.tips_deduction = 0, set result.overtime_deduction = 0, set result.senior_deduction = 0</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>0 cvi /result.tips_deduction xdef 0 cvi /result.overtime_deduction xdef 0 cvi /result.senior_deduction xdef</initial_action_postfix>
 <action_postfix>
 0.0 /result.tips_deduction xdef
 0.0 /result.overtime_deduction xdef
@@ -4884,7 +4882,7 @@ result.senior_count 1.0 f* constants.senior_deduction_amount f* /result.senior_d
 <initial_action>
 <action_comment>set result.provisional_income = result.agi + (result.total_social_security * 0.5)</action_comment>
 <initial_action_dsl>set result.provisional_income = result.agi + (result.total_social_security * 0.5)</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>result.agi result.total_social_security 0.5 fmul + cvi /result.provisional_income xdef</initial_action_postfix>
 <action_postfix>
 result.agi result.total_social_security 0.5 f* f+ /result.provisional_income xdef
 "SOCIAL SECURITY TAXABILITY (Publication 915)" job.audit_trail swap addto
@@ -5092,9 +5090,7 @@ result.total_social_security 0.85 f* /result.taxable_social_security xdef
 <context_number>1</context_number>
 <context_comment>Process each income entity for capital gains</context_comment>
 <context_dsl>for all job.incomes</context_dsl>
-<context_postfix>
-
-</context_postfix>
+<context_postfix>dup job.incomes forall pop</context_postfix>
 </context_details>
 </contexts>
 <initial_actions></initial_actions>
@@ -5197,7 +5193,7 @@ income.gross_amount result.total_qualified_dividends f+ /result.total_qualified_
 <initial_action>
 <action_comment>set result.preferential_rate_income = result.total_long_term_gains + result.qualified_dividends</action_comment>
 <initial_action_dsl>set result.preferential_rate_income = result.total_long_term_gains + result.qualified_dividends</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>result.total_long_term_gains result.qualified_dividends + cvi /result.preferential_rate_income xdef</initial_action_postfix>
 <action_postfix>
 result.total_long_term_gains result.total_qualified_dividends f+ allocate
 result.taxable_income 0 local@ f- /result.ordinary_income_for_cg xdef
@@ -6342,7 +6338,7 @@ deallocate pop deallocate pop
 <action_number>4</action_number>
 <action_comment>No student loan interest</action_comment>
 <action_dsl>set result.student_loan_deduction = 0</action_dsl>
-<action_postfix></action_postfix>
+<action_postfix>0 cvi /result.student_loan_deduction xdef</action_postfix>
 <action_column column_number="5" column_value="X" />
 </action_details>
 </actions>
@@ -7104,7 +7100,7 @@ taxpayer.traditional_ira_contribution taxpayer.roth_ira_contribution f+ constant
 <initial_action>
 <action_comment>set result.energy_efficiency_credit = the minimum of credit and annual_limit</action_comment>
 <initial_action_dsl>set result.energy_efficiency_credit = the minimum of credit and annual_limit</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>credit annual_limit min cvi /result.energy_efficiency_credit xdef</initial_action_postfix>
 <action_postfix>
 result.energy_efficiency_credit constants.energy_efficiency_annual_limit fmin /result.energy_efficiency_credit xdef
 </action_postfix>
@@ -7238,7 +7234,7 @@ energy_improvement.cost constants.energy_efficiency_rate f* result.energy_effici
 <initial_action>
 <action_comment>set result.pal_allowance = ($25k - phaseout_reduction)</action_comment>
 <initial_action_dsl>set result.pal_phaseout_reduction = the maximum of (result.agi - constants.rental_loss_phaseout_start) and 0.0 * constants.rental_loss_phaseout_rate; set result.pal_reduced_allowance = the maximum of (constants.rental_loss_allowance - result.pal_phaseout_reduction) and 0.0; set result.rental_loss_allowed = the minimum of result.total_rental_loss and result.pal_reduced_allowance; set result.suspended_passive_loss = result.total_rental_loss - result.rental_loss_allowed</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>result.agi constants.rental_loss_phaseout_start - 0.0 constants.rental_loss_phaseout_rate fmul fmax cvi /result.pal_phaseout_reduction xdef constants.rental_loss_allowance result.pal_phaseout_reduction - 0.0 fmax cvi /result.pal_reduced_allowance xdef result.total_rental_loss result.pal_reduced_allowance min cvi /result.rental_loss_allowed xdef result.total_rental_loss result.rental_loss_allowed - cvi /result.suspended_passive_loss xdef</initial_action_postfix>
 <action_postfix>
 result.agi constants.rental_loss_phaseout_start f- 0 fmax constants.rental_loss_phaseout_rate f* /result.pal_phaseout_reduction xdef
 constants.rental_loss_allowance result.pal_phaseout_reduction f- 0 fmax /result.pal_reduced_allowance xdef
@@ -7694,7 +7690,7 @@ result.total_k1_qbi k1_income.qbi_income f+ /result.total_k1_qbi xdef
 <initial_action>
 <action_comment>add K-1 SE tax summary to job.audit_trail</action_comment>
 <initial_action_dsl>add "Calculating K-1 Self-Employment Tax (Schedule SE)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>&quot;Calculating K-1 Self-Employment Tax (Schedule SE)&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 "Calculating K-1 Self-Employment Tax (Schedule SE)" job.audit_trail swap addto
 </action_postfix>
@@ -7763,7 +7759,7 @@ job.ira_accounts
 <initial_actions>
 <initial_action>
 <initial_action_dsl>add "IRA PROCESSING" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>&quot;IRA PROCESSING&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 "Processing IRA Accounts (Form 8606)" job.audit_trail swap addto
 </action_postfix>
@@ -7824,7 +7820,7 @@ ira.distribution_amount result.total_ira_distributions f+ /result.total_ira_dist
 <initial_action>
 <action_comment>add Roth conversion summary to job.audit_trail</action_comment>
 <initial_action_dsl>add "Calculating Roth Conversion Tax (Form 8606 Part II)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>&quot;Calculating Roth Conversion Tax (Form 8606 Part II)&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 "Calculating Roth Conversion Tax (Form 8606 Part II)" job.audit_trail swap addto
 </action_postfix>
@@ -7904,7 +7900,7 @@ job.farm_incomes
 <initial_actions>
 <initial_action>
 <initial_action_dsl>add "FARM INCOME PROCESSING" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>&quot;FARM INCOME PROCESSING&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 "Processing Schedule F Farm Income (Publication 225)" job.audit_trail swap addto
 </action_postfix>
@@ -7958,7 +7954,7 @@ farm.net_profit result.net_farm_profit f+ /result.net_farm_profit xdef
 <initial_action>
 <action_comment>add farm SE tax summary to job.audit_trail</action_comment>
 <initial_action_dsl>add "Calculating Farm Self-Employment Tax (Schedule SE)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>&quot;Calculating Farm Self-Employment Tax (Schedule SE)&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 "Calculating Farm Self-Employment Tax (Schedule SE)" job.audit_trail swap addto
 </action_postfix>
@@ -8027,7 +8023,7 @@ job.property_sales
 <initial_actions>
 <initial_action>
 <initial_action_dsl>add "PROPERTY SALE PROCESSING" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>&quot;PROPERTY SALE PROCESSING&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 "Processing Form 4797 Business Property Sales" job.audit_trail swap addto
 </action_postfix>
@@ -8148,7 +8144,7 @@ sale.section_1231_gain 0 &lt; { sale.section_1231_gain fnegate result.total_1231
 <initial_actions>
 <initial_action>
 <initial_action_dsl>set result.net_section_1231 = total_gains - total_losses</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>total_gains total_losses - cvi /result.net_section_1231 xdef</initial_action_postfix>
 <action_postfix>
 "Calculating Net Section 1231 Treatment (IRC 1231)" job.audit_trail swap addto
 result.total_1231_gains result.total_1231_losses f- /result.net_1231_gain_loss xdef
@@ -8237,7 +8233,7 @@ job.foreign_incomes
 <initial_actions>
 <initial_action>
 <initial_action_dsl>add "FOREIGN INCOME PROCESSING" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>&quot;FOREIGN INCOME PROCESSING&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 "Processing Form 1116 Foreign Income (IRC 901)" job.audit_trail swap addto
 </action_postfix>
@@ -8288,7 +8284,7 @@ foreign.foreign_taxes_paid foreign.foreign_taxes_withheld f+ result.total_foreig
 <initial_action>
 <action_comment>add FTC calculation summary to job.audit_trail</action_comment>
 <initial_action_dsl>add "Calculating Foreign Tax Credit (Form 1116, IRC 904)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>&quot;Calculating Foreign Tax Credit (Form 1116, IRC 904)&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 "Calculating Foreign Tax Credit (Form 1116, IRC 904)" job.audit_trail swap addto
 </action_postfix>
@@ -8357,9 +8353,7 @@ result.total_foreign_taxes_paid result.foreign_tax_credit_limit fmin /result.for
 <context_number>1</context_number>
 <context_comment>Process each foreign earned income record</context_comment>
 <context_dsl>for all job.foreign_earned_incomes</context_dsl>
-<context_postfix>
-
-</context_postfix>
+<context_postfix>dup job.foreign_earned_incomes forall pop</context_postfix>
 </context_details>
 </contexts>
 <initial_actions></initial_actions>
@@ -8599,9 +8593,7 @@ false /early_distribution.subject_to_penalty xdef
 <context_number>1</context_number>
 <context_comment>Process each child unearned income record</context_comment>
 <context_dsl>for all job.child_unearned_incomes</context_dsl>
-<context_postfix>
-
-</context_postfix>
+<context_postfix>dup job.child_unearned_incomes forall pop</context_postfix>
 </context_details>
 </contexts>
 <initial_actions></initial_actions>
@@ -8665,9 +8657,7 @@ false /child_unearned_income.subject_to_kiddie_tax xdef
 <context_number>1</context_number>
 <context_comment>Process elderly/disabled records</context_comment>
 <context_dsl>for all job.elderly_disabled</context_dsl>
-<context_postfix>
-
-</context_postfix>
+<context_postfix>dup job.elderly_disabled forall pop</context_postfix>
 </context_details>
 </contexts>
 <initial_actions></initial_actions>
@@ -10005,7 +9995,7 @@ perform when called
 <initial_action>
 <action_comment>Log state tax calculation start and calculate part-year allocation</action_comment>
 <initial_action_dsl>perform Log_State_Tax_Start; perform Apply_Part_Year_Allocations</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>/Log_State_Tax_Start performtable /Apply_Part_Year_Allocations performtable</initial_action_postfix>
 <action_postfix>
 { "State Tax Calculation for " job.state strconcat job.audit_trail swap addto }
 { "Multi-State Tax Calculation" job.audit_trail swap addto /Allocate_Income_By_State executetable }
@@ -12791,7 +12781,7 @@ if
 <initial_action>
 <action_comment>Log territory tax calculation start</action_comment>
 <initial_action_dsl>add "US Territory Tax Calculation for " + job.territory to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>&quot;US Territory Tax Calculation for &quot; job.territory strconcat job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 { "US Territory Tax Calculation for " job.territory strconcat job.audit_trail swap addto }
 job.territory isnull not
@@ -13044,7 +13034,7 @@ result.general_business_credit_total result.general_business_credit_used f- /res
 <initial_action>
 <action_comment>Log kiddie tax calculation start</action_comment>
 <initial_action_dsl>add "KIDDIE TAX CALCULATION (Form 8615)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>&quot;KIDDIE TAX CALCULATION (Form 8615)&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 "KIDDIE TAX CALCULATION (Form 8615)" job.audit_trail swap addto
 </action_postfix>
@@ -13364,9 +13354,7 @@ household_employee.cash_wages constants.futa_wage_base fmin constants.futa_rate 
 <context_number>1</context_number>
 <context_comment>Process each taxpayer for combat zone exclusion</context_comment>
 <context_dsl>for all taxpayers whose is_military == true</context_dsl>
-<context_postfix>
-
-</context_postfix>
+<context_postfix>{ { dup execute } is_military true beq if } taxpayers forall pop</context_postfix>
 </context_details>
 </contexts>
 <initial_actions></initial_actions>
@@ -13474,9 +13462,7 @@ result.total_combat_zone_exclusion taxpayer.combat_zone_exclusion f+ /result.tot
 <context_number>1</context_number>
 <context_comment>Process military moving expenses</context_comment>
 <context_dsl>for all taxpayers whose is_military == true</context_dsl>
-<context_postfix>
-
-</context_postfix>
+<context_postfix>{ { dup execute } is_military true beq if } taxpayers forall pop</context_postfix>
 </context_details>
 </contexts>
 <initial_actions></initial_actions>

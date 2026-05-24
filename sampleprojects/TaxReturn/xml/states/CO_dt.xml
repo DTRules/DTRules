@@ -73,7 +73,7 @@ Age 65 or older
 <initial_action>
 <action_comment>Reset CO tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.co_tax = 0; set result.co_taxable_income = 0; add "  Colorado Tax Calculation (Form DR 0104) - flat 4.40%" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>0 cvi /result.co_tax xdef 0 cvi /result.co_taxable_income xdef &quot;  Colorado Tax Calculation (Form DR 0104) - flat 4.40%&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 0.0 /result.co_tax xdef
 0.0 /result.co_taxable_income xdef

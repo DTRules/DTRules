@@ -15,7 +15,7 @@
 <initial_action>
 <action_comment>Reset UT tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.ut_tax = 0; set result.ut_state_tax = 0; set result.ut_taxable_income = 0; add "  Utah Tax Calculation (Form TC-40) - flat 4.5%" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>0 cvi /result.ut_tax xdef 0 cvi /result.ut_state_tax xdef 0 cvi /result.ut_taxable_income xdef &quot;  Utah Tax Calculation (Form TC-40) - flat 4.5%&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 0.0 /result.ut_tax xdef
 0.0 /result.ut_state_tax xdef
