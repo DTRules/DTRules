@@ -90,8 +90,12 @@ func (w *WorkbookExporter) ExportDecisionTable(xmlPath, excelPath string) error 
 		}
 	}
 
-	// Load the decision table
-	if err := rs.LoadDecisionTablesFile(xmlPath); err != nil {
+	// Load the decision table in tolerant mode — the XML-authored build's
+	// export step reads partially-compiled XML to write Excel before the
+	// import step runs the compile. Strict loading would refuse this
+	// mid-pipeline state. The compile drop check that follows on the
+	// import side is what fails the build when EL doesn't parse.
+	if err := rs.LoadDecisionTablesTolerantFile(xmlPath); err != nil {
 		return fmt.Errorf("failed to load decision table: %w", err)
 	}
 
@@ -187,10 +191,12 @@ func (w *WorkbookExporter) ExportCombined(dtPath, eddPath, excelPath string) err
 		}
 	}
 
-	// Load DT (if exists)
+	// Load DT (if exists). Tolerant: see the comment on the matching
+	// load above — export reads XML mid-pipeline, before the build's
+	// compile step has filled in postfix.
 	if dtPath != "" {
 		if _, err := os.Stat(dtPath); err == nil {
-			if err := rs.LoadDecisionTablesFile(dtPath); err != nil {
+			if err := rs.LoadDecisionTablesTolerantFile(dtPath); err != nil {
 				return fmt.Errorf("failed to load decision table: %w", err)
 			}
 		}

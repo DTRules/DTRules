@@ -91,44 +91,37 @@ func (rs *RuleSet) LoadEDDJSON(r io.Reader) error {
 	return jsonLoader.Load(r)
 }
 
-// LoadDecisionTables loads decision tables from a reader.
+// LoadDecisionTables loads decision tables from a reader using the
+// loader's strict policy: every non-comment DSL element must have a
+// compiled postfix or the load fails. Runtime consumers should use
+// this entry point — it guarantees the embedded XML was built before
+// it was shipped.
 func (rs *RuleSet) LoadDecisionTables(r io.Reader) error {
-	// Create a temporary session for loading
+	return rs.loadDecisionTables(r, false)
+}
+
+// LoadDecisionTablesTolerant is for build-time tooling that consumes
+// XML mid-compile (e.g. the export step of `dtrules build --from-xml`,
+// which reads partially-built XML to write Excel). It skips the
+// "DSL with no compiled postfix" load error.
+//
+// Do NOT use this from runtime code — it accepts XML that will crash
+// at execution time when a DSL-described action has no postfix to
+// run. Confined to the build pipeline and the small set of internal
+// tools that pre-process XML before compile.
+func (rs *RuleSet) LoadDecisionTablesTolerant(r io.Reader) error {
+	return rs.loadDecisionTables(r, true)
+}
+
+func (rs *RuleSet) loadDecisionTables(r io.Reader, tolerant bool) error {
 	tempSession := &loadSession{
 		factory:    rs.entityFactory,
 		dateParser: NewDateParser(),
 	}
 
 	dtLoader := loader.NewDTLoader(tempSession, rs.entityFactory)
-	// Build the symbol table from the EDD so the EL compiler can pick the
-	// right arithmetic dispatch (bigint × int → bigint, etc.) when the DSL
-	// references typed fields. Without this the compiler defaults to integer
-	// arithmetic for every iexpr × iexpr multiply and loses type promotion.
-	dtLoader.SetSymbols(rs.buildSymbolTable())
-	// Build a subtype → owner.field index so `for all <type> entities`
-	// can resolve to the EDD-declared collection at compile time.
-	dtLoader.SetCollectionResolver(loader.MakeCollectionResolver(loader.BuildCollectionIndex(rs.entityFactory)))
+	dtLoader.Tolerant = tolerant
 	return dtLoader.Load(r)
-}
-
-// buildSymbolTable walks the entity factory's registered reference entities
-// and returns a flat map of "entity.field" and "field" → type-name suitable
-// for the EL compiler's SetSymbols.
-func (rs *RuleSet) buildSymbolTable() map[string]string {
-	symbols := map[string]string{}
-	for _, ent := range rs.entityFactory.GetRefEntities() {
-		entityName := ent.GetName().StringValue()
-		for _, entry := range ent.GetEntries() {
-			if entry.Type == nil {
-				continue
-			}
-			fieldName := entry.Attribute.StringValue()
-			typeName := entry.Type.GetName().StringValue()
-			symbols[fieldName] = typeName
-			symbols[entityName+"."+fieldName] = typeName
-		}
-	}
-	return symbols
 }
 
 // LoadFromDirectory loads all XML files from a directory.
@@ -168,7 +161,7 @@ func (rs *RuleSet) LoadEDDFile(filePath string) error {
 	return rs.LoadEDD(f)
 }
 
-// LoadDecisionTablesFile loads decision tables from a file path.
+// LoadDecisionTablesFile loads decision tables from a file path (strict).
 func (rs *RuleSet) LoadDecisionTablesFile(filePath string) error {
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -176,6 +169,19 @@ func (rs *RuleSet) LoadDecisionTablesFile(filePath string) error {
 	}
 	defer f.Close()
 	return rs.LoadDecisionTables(f)
+}
+
+// LoadDecisionTablesTolerantFile is the tolerant-mode counterpart for
+// build-time tooling that reads partially-compiled XML. See
+// LoadDecisionTablesTolerant for the contract — do not use this from
+// runtime code paths.
+func (rs *RuleSet) LoadDecisionTablesTolerantFile(filePath string) error {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to open DT file %s: %w", filePath, err)
+	}
+	defer f.Close()
+	return rs.LoadDecisionTablesTolerant(f)
 }
 
 // LoadFromPath loads rules from a path (either a directory or individual files).

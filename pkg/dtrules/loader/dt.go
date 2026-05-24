@@ -25,49 +25,69 @@ import (
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
 	"github.com/DTRules/DTRules/pkg/dtrules/compiler"
-	"github.com/DTRules/DTRules/pkg/dtrules/compiler/el"
 	"github.com/DTRules/DTRules/pkg/dtrules/decisiontable"
 	"github.com/DTRules/DTRules/pkg/dtrules/entity"
 )
 
 // DTLoader loads Decision Table files (XML or JSON).
+//
+// The loader is strictly a *consumer* of pre-compiled postfix. EL DSL is
+// authoritative source text and is the authoring contract; postfix is the
+// compiled artifact and is what the loader executes. Compilation lives in
+// `dtrules build` and `dtrules compile` — never in the load path.
+//
+// When a table element has non-empty, non-comment EL DSL but its
+// `<*_postfix>` is empty or comment-only, the loader returns an error
+// directing the operator to run `dtrules build` (or `dtrules compile`)
+// before embedding the XML. This refusal prevents silent stale-build
+// drift and removes the EL compiler dependency from every consumer's
+// runtime binary.
+//
+// Build-time tooling (the export step of `dtrules build --from-xml`,
+// which loads partially-built XML so it can write Excel) sets
+// `Tolerant=true` to disable the postfix-presence check. Runtime
+// consumers should never use tolerant mode — it accepts XML that will
+// crash at execution time.
 type DTLoader struct {
-	session    dtrules.Session
-	factory    *entity.Factory
-	compiler   *compiler.Compiler
-	elCompiler *el.Compiler
-	errors     []error
+	session  dtrules.Session
+	factory  *entity.Factory
+	compiler *compiler.Compiler
+	errors   []error
+
+	// Tolerant disables the "DSL with no compiled postfix" load error.
+	// Used by build-time tooling that consumes XML mid-compile (export
+	// → re-import pipeline). Default false; runtime consumers stay
+	// strict.
+	Tolerant bool
 }
 
-// NewDTLoader creates a new Decision Table loader.
+// NewDTLoader creates a new Decision Table loader in the default strict mode.
 func NewDTLoader(session dtrules.Session, factory *entity.Factory) *DTLoader {
 	return &DTLoader{
-		session:    session,
-		factory:    factory,
-		compiler:   compiler.NewCompiler(session, factory),
-		elCompiler: el.NewCompiler(),
-		errors:     make([]error, 0),
+		session:  session,
+		factory:  factory,
+		compiler: compiler.NewCompiler(session, factory),
+		errors:   make([]error, 0),
 	}
 }
 
-// SetSymbols wires an EDD-derived symbol table (map of field name → type)
-// into the EL compiler so arithmetic type promotion (bigint × int → bigint,
-// etc.) can fire during runtime DSL compilation. Without this, the loader
-// compiles every EL expression as if all operands were integers and loses
-// access to the bigint / double / bytes promotion paths.
-//
-// Call this after `rs.LoadEDD(...)` and before `rs.LoadDecisionTables(...)`
-// so the symbol table is populated when tables are compiled.
-func (l *DTLoader) SetSymbols(symbols map[string]string) {
-	l.elCompiler.SetSymbols(symbols)
-}
+// SetSymbols is retained as a no-op for source compatibility with callers
+// (notably `session.RuleSet.LoadDecisionTables`). The loader no longer
+// compiles EL — DSL must be pre-compiled to postfix by the build pipeline
+// — so a symbol table here would have nothing to do. Symbol resolution
+// belongs to `dtrules build` / `dtrules compile`, which already build
+// the symbol map from the EDD they load alongside the tables.
+func (l *DTLoader) SetSymbols(_ map[string]string) {}
 
-// SetCollectionResolver wires an EDD-backed resolver for the
-// `for all <type> entities` DSL form, turning a bare entity-type name into
-// the `<owner>.<field>` path of the array that owns entities of that type.
-func (l *DTLoader) SetCollectionResolver(fn el.CollectionResolver) {
-	l.elCompiler.SetCollectionResolver(fn)
-}
+// SetCollectionResolver is retained as a no-op for the same reason as
+// SetSymbols. The `for all <type> entities` DSL form is resolved at
+// authoring time by the EL compiler; at load time we only see the
+// already-resolved postfix.
+//
+// The parameter is typed as `any` so the loader no longer needs to
+// import `compiler/el`. Callers that were passing an
+// `el.CollectionResolver` continue to compile unchanged.
+func (l *DTLoader) SetCollectionResolver(_ any) {}
 
 // Structures matching the DTRules decision table format (XML and JSON)
 
@@ -329,7 +349,14 @@ func (l *DTLoader) Load(r io.Reader) error {
 		for i, err := range l.errors {
 			log.Printf("DT Load Error %d: %v", i+1, err)
 		}
-		return fmt.Errorf("decision table loading completed with %d errors", len(l.errors))
+		// Embed the first error's text in the returned aggregate so
+		// callers and tests see the actionable detail (which table,
+		// which row, "run `dtrules build`") instead of just a count.
+		// Multi-error case keeps the count too.
+		if len(l.errors) == 1 {
+			return fmt.Errorf("decision table loading failed: %w", l.errors[0])
+		}
+		return fmt.Errorf("decision table loading failed with %d errors; first: %w", len(l.errors), l.errors[0])
 	}
 	return nil
 }
@@ -354,13 +381,6 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	// Create the decision table using the builder
 	builder := decisiontable.NewBuilder(name.StringValue(), l.session)
 
-	// Each table has its own local-variable namespace. Clear any locals left
-	// over from the previous table so slot indices start at 0 — within this
-	// table, the context, conditions, and actions share the same emitter
-	// state so `<alias>.<field>` declared in the context resolves in the
-	// condition/action passes.
-	l.elCompiler.ResetLocals()
-
 	// Set table type
 	builder.SetTypeFromString(table.AttributeFields.GetType())
 
@@ -374,11 +394,11 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		builder.SetFilePath(table.AttributeFields.FilePath)
 	}
 
-	// Process contexts. Prefer a fresh compile from DSL so compiler bug
-	// fixes (e.g. #626 / #632 / v1.7.0) propagate without requiring a
-	// manual `dtrules build` step. If DSL is present but doesn't compile
-	// as valid EL (prose descriptions, legacy hand-authored postfix-only
-	// tables, comment-only DSL), fall back to the stored postfix.
+	// Process contexts. The loader consumes pre-compiled postfix; EL DSL
+	// is informational source text only. If DSL is present (non-comment)
+	// but stored postfix is empty, that's a stale build — refuse to load
+	// rather than silently no-op. Comment-only DSL is allowed with empty
+	// postfix (the runtime treats it as a no-op context).
 	contexts := make([]string, len(table.Contexts.Contexts))
 	contextsPostfix := make([]string, len(table.Contexts.Contexts))
 	contextsComment := make([]string, len(table.Contexts.Contexts))
@@ -388,29 +408,18 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		stored := strings.TrimSpace(ctx.Postfix)
 		dslTrimmed := strings.TrimSpace(dsl)
 
-		if dslTrimmed != "" && !isCommentLine(dslTrimmed) {
-			compiled, err := l.elCompiler.CompileContext(dsl)
-			switch {
-			case err == nil:
-				if stored != "" && stored != strings.TrimSpace(compiled) {
-					log.Printf("loader: context %d ('%s') — recompiled postfix differs from stored; using fresh compile. Run `dtrules build` to refresh the XML.", i+1, dsl)
-				}
-				contextsPostfix[i] = compiled
-			case stored != "":
-				log.Printf("loader: context %d ('%s') is not valid EL, using existing postfix: %v", i+1, dsl, err)
-				contextsPostfix[i] = stored
-			default:
-				return fmt.Errorf("failed to compile EL context %d ('%s'): %w", i+1, dsl, err)
-			}
-		} else {
-			contextsPostfix[i] = stored
+		if !l.Tolerant && dslTrimmed != "" && !isCommentLine(dslTrimmed) && stored == "" {
+			return fmt.Errorf("context %d ('%s') has DSL but no compiled postfix in table %s — run `dtrules build` or `dtrules compile` before loading",
+				i+1, dsl, name.StringValue())
 		}
+		contextsPostfix[i] = stored
 		contextsComment[i] = ctx.Comment
 	}
 
 	builder.SetContexts(contexts)
 
-	// Process initial actions
+	// Process initial actions. Same strict policy as contexts: non-comment
+	// DSL paired with an empty postfix is a stale build — refuse to load.
 	initialActions := make([]string, len(table.InitialActions.Actions))
 	initialActionsPostfix := make([]string, len(table.InitialActions.Actions))
 	for i, action := range table.InitialActions.Actions {
@@ -418,27 +427,12 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		initialActions[i] = dsl
 		postfix := strings.TrimSpace(action.GetPostfix())
 
-		// Auto-compile EL DSL to postfix if postfix is empty or only comments
 		dslTrimmed := strings.TrimSpace(dsl)
 		commentTrimmed := strings.TrimSpace(action.Comment)
-		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) && dslTrimmed != commentTrimmed {
-			compiled, err := l.elCompiler.CompileAction(dsl)
-			if err != nil {
-				// DSL is not valid EL - preserve existing postfix if present, otherwise use no-op
-				if postfix != "" {
-					// Keep existing postfix (even if comment-only) - it may contain documentation
-					log.Printf("Warning: Initial action %d ('%s') is not valid EL, using existing postfix: %v",
-						i+1, dsl, err)
-				} else {
-					log.Printf("Warning: Initial action %d ('%s') is not valid EL, using no-op: %v",
-						i+1, dsl, err)
-					// postfix is already "" (no-op)
-				}
-			} else {
-				postfix = compiled
-			}
+		if !l.Tolerant && isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) && dslTrimmed != commentTrimmed {
+			return fmt.Errorf("initial action %d ('%s') has DSL but no compiled postfix in table %s — run `dtrules build` or `dtrules compile` before loading",
+				i+1, dsl, name.StringValue())
 		}
-		// If DSL is a comment, postfix stays as-is (could be empty, which is no-op)
 		initialActionsPostfix[i] = postfix
 	}
 	builder.SetInitialActions(initialActions)
@@ -459,30 +453,18 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		conditions[i] = dsl
 		postfix := strings.TrimSpace(cond.Postfix)
 
-		// Auto-compile EL DSL to postfix if postfix is empty or only comments
 		dslTrimmed := strings.TrimSpace(dsl)
 		commentTrimmed := strings.TrimSpace(cond.Comment)
-		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) && dslTrimmed != commentTrimmed {
-			compiled, err := l.elCompiler.CompileCondition(dsl)
-			if err != nil {
-				// DSL is not valid EL - preserve existing postfix if present, otherwise use fallback
-				if postfix != "" {
-					// Keep existing postfix (even if comment-only) - it may contain documentation
-					log.Printf("Warning: Condition %d ('%s') is not valid EL, using existing postfix: %v",
-						i+1, dsl, err)
-				} else {
-					log.Printf("Warning: Condition %d ('%s') is not valid EL, using 'always true': %v",
-						i+1, dsl, err)
-					postfix = "true always"
-				}
-			} else {
-				postfix = compiled
-			}
-		} else if isEmptyOrCommentOnly(postfix) && isCommentLine(dslTrimmed) {
-			// DSL is a comment - use "true always" as fallback only if no existing postfix
-			if postfix == "" {
-				postfix = "true always"
-			}
+		if !l.Tolerant && isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) && dslTrimmed != commentTrimmed {
+			return fmt.Errorf("condition %d ('%s') has DSL but no compiled postfix in table %s — run `dtrules build` or `dtrules compile` before loading",
+				i+1, dsl, name.StringValue())
+		}
+		// Comment-only DSL with no stored postfix → "true always" so the
+		// table builder still has a parseable condition expression to
+		// emit. This preserves the editor convenience of leaving
+		// documentation rows without postfix.
+		if isEmptyOrCommentOnly(postfix) && isCommentLine(dslTrimmed) && postfix == "" {
+			postfix = "true always"
 		}
 		conditionsPostfix[i] = postfix
 		conditionsComment[i] = cond.Comment
@@ -516,27 +498,12 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		actions[i] = dsl
 		postfix := strings.TrimSpace(action.Postfix)
 
-		// Auto-compile EL DSL to postfix if postfix is empty or only comments
 		dslTrimmed := strings.TrimSpace(dsl)
 		commentTrimmed := strings.TrimSpace(action.Comment)
-		if isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) && dslTrimmed != commentTrimmed {
-			compiled, err := l.elCompiler.CompileAction(dsl)
-			if err != nil {
-				// DSL is not valid EL - preserve existing postfix if present, otherwise use no-op
-				if postfix != "" {
-					// Keep existing postfix (even if comment-only) - it may contain documentation
-					log.Printf("Warning: Action %d ('%s') is not valid EL, using existing postfix: %v",
-						i+1, dsl, err)
-				} else {
-					log.Printf("Warning: Action %d ('%s') is not valid EL, using no-op: %v",
-						i+1, dsl, err)
-					// postfix is already "" (no-op)
-				}
-			} else {
-				postfix = compiled
-			}
+		if !l.Tolerant && isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) && dslTrimmed != commentTrimmed {
+			return fmt.Errorf("action %d ('%s') has DSL but no compiled postfix in table %s — run `dtrules build` or `dtrules compile` before loading",
+				i+1, dsl, name.StringValue())
 		}
-		// If DSL is a comment, postfix stays as-is (could be empty, which is no-op)
 		actionsPostfix[i] = postfix
 		actionsComment[i] = action.Comment
 
