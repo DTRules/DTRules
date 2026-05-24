@@ -32,6 +32,46 @@ Closes the three UX issues left open after v1.14.2's #790 blocker fix:
   branch prints `Nothing to sync — running advisory pass on existing
   XML.` and invokes `runStaticAnalysis` against the current XML.
   Warnings print inline. Cheap, XML-driven, no reason to skip them.
+  Extracted to a top-level `runNoSyncAdvisory(xmlDir)` helper so
+  `TestRunNoSyncAdvisory` can pin the behavior directly, since
+  reaching the "in sync" sync-detection state from a copied fixture
+  is unreliable (mtime/hash drift).
+
+### Also in this release: EL compiler — double-operand dispatch
+
+The sibling of #790 in the EL compiler itself: `promoteArithType` had
+no `TypeDouble` arm, so any expression promoting to Double
+(`double × double`, mixed `int + double`, `the minimum of <double>
+and <double>`) returned `TypeInteger` from the promotion, and
+`arithOp` / `minMaxOp` then emitted the integer family (`*`, `min`,
+`+`, `==`) on operands the runtime stores as `*RDouble`. Crashed
+later at `IntValue` — the same way #790 played out for fixed.
+
+- `promoteArithType` lattice extended to **Fixed > BigInt > Double >
+  Integer**. Two doubles promote to Double; mixed int/double widens
+  to Double.
+- `arithOp(target, intOp, bigOp, dblOp, fpOp)` and
+  `minMaxOp(target, intOp, dblOp, fpOp)` accept a new `dblOp`
+  argument that routes Double targets to the f-prefixed ops
+  (`f+`, `f-`, `fmul`, `fdiv`, `fmin`, `fmax`, `f<`, `f<=`, `f>`,
+  `f>=`, `f!=`).
+- All call sites updated to pass the matching double op. Integer
+  callers still get integer ops; nothing other than the Double path
+  changes.
+- Regression coverage in `double_dispatch_test.go`:
+  `TestDoubleDispatch_Arithmetic`, `_MinMax`,
+  `_OrderingComparisons`, `_NestedExpression`,
+  `_IntegerStillUsesIntOps`.
+
+**Out of scope:** bare-name `==` and `!=` for double operands still
+route through `BoolNameEq` / `BoolNameNeq` whose `identNumericType`
+gate intentionally excludes Double to preserve the legacy
+fixed↔double silent-snap safety. Pure-double `x == y` still falls
+through to `streq` today. Documented as a separate follow-up; needs
+a cross-type-safety check (let pure-double `==` use `f==`, keep
+fixed↔double on `streq` or error). Ordering comparisons
+(`>`, `<`, `>=`, `<=`) go through the IntGt/Lt family which uses
+`promoteArithType` directly and *is* fixed.
 
 ## v1.14.2 — 2026-05-24
 

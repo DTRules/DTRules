@@ -561,3 +561,52 @@ func TestStaticAnalysis_UnusedEDDField(t *testing.T) {
 		t.Errorf("expected unused EDD field warning for job.orphan, got %v", step.Warnings)
 	}
 }
+
+// TestRunNoSyncAdvisory is the #787 regression. The `runBuild` default
+// branch (taken when sync detection returns "none") used to print
+// "Nothing to do: all files are in sync." and exit without running
+// the advisory pass. The fix routes through `runNoSyncAdvisory`,
+// which prints "Nothing to sync — running advisory pass…" and calls
+// `runStaticAnalysis`.
+//
+// We exercise `runNoSyncAdvisory` directly rather than going through
+// the full CLI dispatch because reaching the "none" sync state from
+// a copied project is unreliable (mtime/hash drift). This pins the
+// observable behavior of the fix: the function runs the advisory
+// pass and prints any warnings to stdout.
+func TestRunNoSyncAdvisory(t *testing.T) {
+	dir := t.TempDir()
+	// The fixture has a no-op column (column 1 with no actions) — a
+	// warning the advisory pass must surface. Re-uses the same
+	// fixture as TestStaticAnalysis_NoActionColumn so the assertion
+	// is on identical, well-understood content.
+	if err := os.WriteFile(filepath.Join(dir, "fixture_edd.xml"), []byte(staticAnalysisFixtureEDD), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "fixture_dt.xml"), []byte(staticAnalysisFixtureDT), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Capture stdout: runNoSyncAdvisory writes the "Nothing to sync"
+	// header + the per-warning lines there.
+	stdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+	code := runNoSyncAdvisory(dir)
+	_ = w.Close()
+	os.Stdout = stdout
+	buf := make([]byte, 8192)
+	n, _ := r.Read(buf)
+	out := string(buf[:n])
+
+	if code != 0 {
+		t.Errorf("runNoSyncAdvisory exit=%d; want 0", code)
+	}
+	if !strings.Contains(out, "Nothing to sync") {
+		t.Errorf("expected 'Nothing to sync' marker; got:\n%s", out)
+	}
+	// The fixture's no-op column finding must show up.
+	if !strings.Contains(out, "no-op column") && !strings.Contains(out, "no actions") {
+		t.Errorf("expected advisory pass to surface the no-op column finding; got:\n%s", out)
+	}
+}

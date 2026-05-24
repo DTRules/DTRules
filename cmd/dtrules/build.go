@@ -177,29 +177,40 @@ func (c *CLI) runBuild(args []string) int {
 	case "xml":
 		return c.runXMLAuthoredBuild(xmlDir, excelDir, opts)
 	default:
-		// No sync work needed — but still run the advisory pass against
-		// the current XML so authors get warnings on every invocation
-		// (#787). The pass is XML-driven and cheap; running it
-		// unconditionally matches the "warnings are routed through
-		// decisiontable.Analyze on every authoring surface" contract
-		// from #780. Without this, `dtrules build` on an unchanged
-		// project silently green-lights tables that have real
-		// findings.
-		fmt.Println("Nothing to sync — running advisory pass on existing XML.")
-		step := &dtrsync.StepSummary{}
-		runStaticAnalysis(xmlDir, step)
-		if len(step.Warnings) > 0 {
-			fmt.Printf("\nAdvisory: %d warning(s) found\n", len(step.Warnings))
-			for _, w := range step.Warnings {
-				if w.Table != "" {
-					fmt.Printf("  WARN %s: %s [%s]\n", w.Table, w.Reason, w.Item)
-				} else {
-					fmt.Printf("  WARN %s [%s]\n", w.Reason, w.Item)
-				}
+		return runNoSyncAdvisory(xmlDir)
+	}
+}
+
+// runNoSyncAdvisory is the runBuild branch taken when sync detection
+// returns "none" — both xml/ and excel/ are in agreement and no
+// import/export work is needed. We still run the advisory pass
+// against the current XML so authors get warnings on every
+// invocation (#787). The pass is XML-driven and cheap; running it
+// unconditionally matches the "warnings route through
+// decisiontable.Analyze on every authoring surface" contract from
+// #780. Without it, `dtrules build` on an unchanged project silently
+// green-lights tables that have real findings.
+//
+// Extracted to a top-level function so the no-sync branch can be
+// unit-tested without engineering a fixture that satisfies the
+// CheckSyncCombined "in sync" condition — reaching that branch from
+// a copyProject is unreliable because mtimes and hashes drift on
+// copy. Direct invocation pins the behavior end-to-end.
+func runNoSyncAdvisory(xmlDir string) int {
+	fmt.Println("Nothing to sync — running advisory pass on existing XML.")
+	step := &dtrsync.StepSummary{}
+	runStaticAnalysis(xmlDir, step)
+	if len(step.Warnings) > 0 {
+		fmt.Printf("\nAdvisory: %d warning(s) found\n", len(step.Warnings))
+		for _, w := range step.Warnings {
+			if w.Table != "" {
+				fmt.Printf("  WARN %s: %s [%s]\n", w.Table, w.Reason, w.Item)
+			} else {
+				fmt.Printf("  WARN %s [%s]\n", w.Reason, w.Item)
 			}
 		}
-		return 0
 	}
+	return 0
 }
 
 // detectAuthoringPath returns "excel", "xml", or "none" based on modification times.
