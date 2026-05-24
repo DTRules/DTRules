@@ -1,5 +1,52 @@
 # DTRules Changelog
 
+## v1.14.2 — 2026-05-24
+
+Patch: `dtrules compile` now passes a symbol table to the EL compiler so
+fixed-point operands compile to fixed-point operators. v1.14.x's
+standalone compile path was emitting integer ops on `fixed`-typed
+operands; the strict loader then rejected those at runtime
+(`[Conversion Error] IntValue: No Integer value exists for this type`).
+This blocked staking and any other consumer whose tables use `fixed`
+operands from migrating off v1.12.0.
+
+- **`dtrules compile` discovers `*_edd.xml` near the target, parses out
+  field → type symbols, and calls `el.Compiler.SetSymbols` before the
+  compile loop (#790).** Mirrors what `session.RuleSet.buildSymbolTable`
+  used to do for the in-loader compiler in v1.12.0 (removed in v1.14.0)
+  and what the workbook importer does for the build pipeline. With
+  symbols in play, the EL compiler picks `fp-` / `fpmin` / `cvfp` for
+  fixed operands instead of `-` / `min` / `cvi`.
+
+- **New `--force` flag.** Rewrites existing postfix from a fresh
+  compile (default only fills empty postfix). Use after a compiler
+  fix like this one to refresh stored postfix produced by an earlier
+  buggy version.
+
+- Regression test `TestCompile_FixedOperandsEmitFixedOps` pins the
+  fixed → `fp-` / `fpmin` / `cvfp` behavior end-to-end through the
+  CLI dispatch.
+
+### Known limitation (not in scope for this patch)
+
+The EL compiler's `double` dispatch is less reliable than its `fixed`
+dispatch — `double` operands can still emit integer ops in some
+patterns (notably `the minimum of A and (B * C)`). Affects DTRules'
+own TaxReturn sample project, which still passes its test suite. No
+downstream consumer reported this in #790; tracking separately.
+
+### Migration
+
+Consumers who ran `dtrules compile` against their rules under v1.14.0
+or v1.14.1 should re-run with `--force` to overwrite stale postfix:
+
+```bash
+go get github.com/DTRules/DTRules@v1.14.2
+dtrules compile --force <rules-dir>
+git diff
+git commit -am 'refresh postfix per v1.14.2 #790 fix'
+```
+
 ## v1.14.1 — 2026-05-24
 
 Single-flag follow-up to v1.14.0: `dtrules compile` now runs the
