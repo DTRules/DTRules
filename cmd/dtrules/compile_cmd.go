@@ -15,6 +15,7 @@
 package main
 
 import (
+	"encoding/xml"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -51,6 +52,7 @@ func (c *CLI) runCompile(args []string) int {
 	verbose := false
 	strict := false
 	noAnalyze := false
+	force := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--dry-run":
@@ -59,6 +61,8 @@ func (c *CLI) runCompile(args []string) int {
 			strict = true
 		case "--no-analyze":
 			noAnalyze = true
+		case "--force":
+			force = true
 		case "-v", "--verbose":
 			verbose = true
 		case "-h", "--help":
@@ -114,13 +118,37 @@ func (c *CLI) runCompile(args []string) int {
 	}
 
 	cmp := el.NewCompiler()
+
+	// Wire up the EDD-derived symbol table so the EL compiler picks the
+	// right arithmetic dispatch (fp- / fpmin for fixed operands, f- / fmin
+	// for double, - / min for integer). Without this, every operand
+	// defaults to integer and the emitted postfix uses int ops + `cvi`
+	// conversions that crash at runtime when the actual value is RFixed or
+	// RDouble (#790). The build pipeline's workbook importer already does
+	// this; v1.12.0's in-loader compiler did this; the standalone compile
+	// path needs to do it too.
+	//
+	// EDDs are discovered next to (and recursively under) the target. If
+	// none are found, the compiler proceeds with no symbol table — fine
+	// for projects with no typed operands, but a heads-up is printed so
+	// the user knows type-aware dispatch was skipped.
+	symbols := loadEDDSymbols(target)
+	if len(symbols) > 0 {
+		cmp.SetSymbols(symbols)
+		if verbose {
+			fmt.Printf("loaded %d symbols from EDD\n", len(symbols))
+		}
+	} else if verbose {
+		fmt.Println("no EDD found near target — compile will assume integer-typed operands")
+	}
+
 	totalCompiled := 0
 	totalSkipped := 0
 	totalErrors := 0
 	var errLines []string
 
 	for _, f := range files {
-		filled, skipped, errs := compileFile(cmp, f, dryRun, strict)
+		filled, skipped, errs := compileFile(cmp, f, dryRun, strict, force)
 		totalCompiled += filled
 		totalSkipped += skipped
 		totalErrors += len(errs)
@@ -169,6 +197,71 @@ func (c *CLI) runCompile(args []string) int {
 	return 0
 }
 
+// loadEDDSymbols discovers every *_edd.xml file under root (or alongside
+// root if root is a file) and parses out a flat map of field → type that
+// the EL compiler's SetSymbols expects. Both `<field>` and
+// `<entity>.<field>` keys are emitted so bare-name references and
+// qualified references resolve identically — matching what
+// session.RuleSet.buildSymbolTable used to produce before v1.14.0 made
+// that method unused.
+//
+// Schema is the minimal subset the EL compiler cares about: entity name
+// and the field's `type` attribute. Anything else in the EDD is ignored.
+// Parse errors on individual files are silently skipped — a malformed EDD
+// is the project's problem, not the compile pass's, and the compile will
+// surface it through a downstream parse failure if the DT depends on it.
+func loadEDDSymbols(root string) map[string]string {
+	type eddField struct {
+		Name string `xml:"name,attr"`
+		Type string `xml:"type,attr"`
+	}
+	type eddEntity struct {
+		Name   string     `xml:"name,attr"`
+		Fields []eddField `xml:"field"`
+	}
+	type eddFile struct {
+		Entities []eddEntity `xml:"entity"`
+	}
+
+	// Decide which directory tree to walk. If root is a *_dt.xml file we
+	// look in its containing directory; otherwise we walk root itself.
+	walkDir := root
+	if info, err := os.Stat(root); err == nil && !info.IsDir() {
+		walkDir = filepath.Dir(root)
+	}
+
+	symbols := make(map[string]string)
+	_ = filepath.WalkDir(walkDir, func(p string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil
+		}
+		if !strings.HasSuffix(d.Name(), "_edd.xml") {
+			return nil
+		}
+		data, readErr := os.ReadFile(p)
+		if readErr != nil {
+			return nil
+		}
+		var f eddFile
+		if xml.Unmarshal(data, &f) != nil {
+			return nil
+		}
+		for _, ent := range f.Entities {
+			for _, fld := range ent.Fields {
+				if fld.Name == "" || fld.Type == "" {
+					continue
+				}
+				symbols[fld.Name] = fld.Type
+				if ent.Name != "" {
+					symbols[ent.Name+"."+fld.Name] = fld.Type
+				}
+			}
+		}
+		return nil
+	})
+	return symbols
+}
+
 // analyzeFile parses a *_dt.xml file and runs the advisory pass on every
 // table within it. Returns the aggregated warning slice. Errors during
 // parse short-circuit to an empty slice — the compile step already
@@ -206,6 +299,10 @@ Options:
   --strict      Refuse to write any file that has at least one compile
                 error (atomic-or-nothing per file). Default writes the
                 successful fills and reports the errors.
+  --force       Overwrite existing postfix with a fresh compile. Use
+                after a compiler bug fix (e.g. v1.14.2 #790) to refresh
+                postfix produced by an earlier buggy version. Default
+                only fills empty postfix.
   --no-analyze  Skip the advisory pass after compile. Default runs it.
   -v, --verbose Per-file compiled/skipped/error/warning counts.
 
@@ -238,19 +335,40 @@ advisory pass), use 'dtrules build'.`)
 // avoids any cross-element backtracking. Newlines pass through fine
 // because the character class only excludes `<`.
 type kindPair struct {
-	kind string
-	re   *regexp.Regexp
+	kind    string
+	reEmpty *regexp.Regexp // matches only empty <X_postfix> (default mode)
+	reAny   *regexp.Regexp // matches any <X_postfix> body (--force mode, for refreshing stale postfix)
 }
 
+// Each regex is anchored to a single element kind. `[^<]` inside both DSL
+// and postfix captures keeps us inside the text node — `<` is always
+// entity-encoded inside body content, so this avoids cross-element
+// backtracking.
 var dslPostfixPairs = []kindPair{
-	{"context", regexp.MustCompile(`<context_dsl>([^<]*)</context_dsl>\s*<context_postfix>\s*</context_postfix>`)},
-	{"initial_action", regexp.MustCompile(`<initial_action_dsl>([^<]*)</initial_action_dsl>\s*<initial_action_postfix>\s*</initial_action_postfix>`)},
-	{"action", regexp.MustCompile(`<action_dsl>([^<]*)</action_dsl>\s*<action_postfix>\s*</action_postfix>`)},
-	{"condition", regexp.MustCompile(`<condition_dsl>([^<]*)</condition_dsl>\s*<condition_postfix>\s*</condition_postfix>`)},
+	{
+		"context",
+		regexp.MustCompile(`<context_dsl>([^<]*)</context_dsl>\s*<context_postfix>\s*</context_postfix>`),
+		regexp.MustCompile(`<context_dsl>([^<]*)</context_dsl>\s*<context_postfix>[^<]*</context_postfix>`),
+	},
+	{
+		"initial_action",
+		regexp.MustCompile(`<initial_action_dsl>([^<]*)</initial_action_dsl>\s*<initial_action_postfix>\s*</initial_action_postfix>`),
+		regexp.MustCompile(`<initial_action_dsl>([^<]*)</initial_action_dsl>\s*<initial_action_postfix>[^<]*</initial_action_postfix>`),
+	},
+	{
+		"action",
+		regexp.MustCompile(`<action_dsl>([^<]*)</action_dsl>\s*<action_postfix>\s*</action_postfix>`),
+		regexp.MustCompile(`<action_dsl>([^<]*)</action_dsl>\s*<action_postfix>[^<]*</action_postfix>`),
+	},
+	{
+		"condition",
+		regexp.MustCompile(`<condition_dsl>([^<]*)</condition_dsl>\s*<condition_postfix>\s*</condition_postfix>`),
+		regexp.MustCompile(`<condition_dsl>([^<]*)</condition_dsl>\s*<condition_postfix>[^<]*</condition_postfix>`),
+	},
 }
 
-// compileFile reads f, compiles each DSL→postfix pair with an empty
-// postfix slot, and writes f back. Returns (filled, skipped, errors).
+// compileFile reads f, compiles each DSL→postfix pair, and writes f
+// back. Returns (filled, skipped, errors).
 //
 // In the default mode any successful fills are written even when other
 // elements in the same file failed to compile — the file is improved
@@ -259,7 +377,13 @@ var dslPostfixPairs = []kindPair{
 // With strict=true the file is written only if every non-comment DSL
 // element compiles. Use --strict when you need an atomic guarantee
 // that every element in the file is build-clean (CI gate behavior).
-func compileFile(cmp *el.Compiler, f string, dryRun, strict bool) (int, int, []string) {
+//
+// With force=true any existing postfix is overwritten with a fresh
+// compile result. Use --force after a compiler fix (e.g. v1.14.2's
+// #790 SetSymbols repair) to refresh stored postfix that was produced
+// by an earlier buggy version. Default behavior only fills empty
+// postfix; existing content is preserved as the authoritative form.
+func compileFile(cmp *el.Compiler, f string, dryRun, strict, force bool) (int, int, []string) {
 	data, err := os.ReadFile(f)
 	if err != nil {
 		return 0, 0, []string{fmt.Sprintf("read failed: %v", err)}
@@ -278,10 +402,16 @@ func compileFile(cmp *el.Compiler, f string, dryRun, strict bool) (int, int, []s
 	newData := data
 	for _, kp := range dslPostfixPairs {
 		kind := kp.kind
+		// Pick the regex that matches the operating mode: --force rewrites
+		// any existing postfix; default only fills empty slots.
+		re := kp.reEmpty
+		if force {
+			re = kp.reAny
+		}
 		n := 0
-		newData = kp.re.ReplaceAllFunc(newData, func(match []byte) []byte {
+		newData = re.ReplaceAllFunc(newData, func(match []byte) []byte {
 			n++
-			m := kp.re.FindSubmatch(match)
+			m := re.FindSubmatch(match)
 			if len(m) < 2 {
 				return match
 			}
