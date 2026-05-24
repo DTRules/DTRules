@@ -1,5 +1,38 @@
 # DTRules Changelog
 
+## v1.14.3 — 2026-05-24
+
+Closes the three UX issues left open after v1.14.2's #790 blocker fix:
+
+- **`dtrules review <path>` honors the positional path (#788).** The
+  previous code parsed positional args into a local slice and then
+  discarded it (`_ = parsedArgs`); only `--project` was honored. Now
+  the first positional arg is treated as the project path when no
+  flag is present. `--project` still wins if both are supplied.
+  `TestRunReview_PositionalPath` pins this — runs `runReview <dir>`
+  from a CWD that has no project of its own, asserts the report
+  persisted under `<dir>` (not CWD) with a non-empty, non-SHA256-of-
+  empty `project_hash`.
+
+- **`authoring.OpenProject` accepts flat directories (#791).** The
+  canonical `<path>/xml/*_dt.xml` layout still wins when present;
+  when not, `OpenProject` falls back to scanning `<path>` itself
+  for `*_dt.xml`. This is what makes `dtrules review`,
+  `dtrules table list`, and `dtrules table warnings` reachable for
+  library consumers (e.g. staking) whose rules live next to the Go
+  code that embeds them. Five error-hint strings in `table_cmd.go`
+  and `mcp_tools.go` updated to mention both layouts.
+  `TestOpenProject_FlatLayout`, `_CanonicalLayoutStillWins`, and
+  `_NeitherLayoutErrorsClearly` pin the discovery contract.
+
+- **`dtrules build` runs the advisory pass even on "Nothing to do"
+  (#787).** Previously the build short-circuited with
+  `Nothing to do: all files are in sync.` when sync detected no
+  changes — the advisory pass was skipped entirely. Now the default
+  branch prints `Nothing to sync — running advisory pass on existing
+  XML.` and invokes `runStaticAnalysis` against the current XML.
+  Warnings print inline. Cheap, XML-driven, no reason to skip them.
+
 ## v1.14.2 — 2026-05-24
 
 Patch: `dtrules compile` now passes a symbol table to the EL compiler so

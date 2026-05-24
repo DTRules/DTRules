@@ -41,12 +41,27 @@ type dtFileEntry struct {
 	tables *excel.DecisionTablesXML
 }
 
-// OpenProject loads a DTRules project from path. It looks for an xml/ subdirectory
-// by convention and reads all *_dt.xml files from it.
+// OpenProject loads a DTRules project from path.
+//
+// Layout discovery (in order):
+//
+//  1. `<path>/xml/` — canonical layout. Used by `dtrules init`,
+//     sampleprojects, and the build pipeline. Takes precedence.
+//  2. `<path>` itself contains `*_dt.xml` — flat layout. Used by
+//     library consumers (e.g. staking) whose rules live next to the
+//     Go code that embeds them.
+//
+// Falling back to the flat layout (#791) is what makes `dtrules review`,
+// `dtrules table list`, and `dtrules table warnings` reachable from
+// projects that don't follow the `xml/` convention. The compile path
+// has accepted flat layouts since v1.14.1; the authoring surface now
+// matches.
+//
+// If neither layout matches, returns an error explaining both options.
 func OpenProject(path string) (*Project, error) {
-	xmlDir := filepath.Join(path, "xml")
-	if _, err := os.Stat(xmlDir); err != nil {
-		return nil, fmt.Errorf("no xml/ directory found in %s", path)
+	xmlDir, err := resolveProjectXMLDir(path)
+	if err != nil {
+		return nil, err
 	}
 
 	p := &Project{
@@ -66,6 +81,25 @@ func OpenProject(path string) (*Project, error) {
 	p.resolveDuplicateTableNames()
 
 	return p, nil
+}
+
+// resolveProjectXMLDir returns the directory to scan for *_dt.xml and
+// *_edd.xml. It prefers `<path>/xml/` when present (the canonical
+// layout); otherwise it falls back to `<path>` itself if at least one
+// `*_dt.xml` lives there. Either way the returned directory is
+// guaranteed to contain DT files at load time — callers can treat it
+// as the project's effective XML root.
+func resolveProjectXMLDir(path string) (string, error) {
+	canonical := filepath.Join(path, "xml")
+	if info, err := os.Stat(canonical); err == nil && info.IsDir() {
+		return canonical, nil
+	}
+	// Flat layout: accept `path` itself when it contains *_dt.xml.
+	matches, _ := filepath.Glob(filepath.Join(path, "*_dt.xml"))
+	if len(matches) > 0 {
+		return path, nil
+	}
+	return "", fmt.Errorf("no xml/ subdirectory and no *_dt.xml files found in %s", path)
 }
 
 // NewInMemoryProject creates an empty project rooted at dir. An xml/ subdirectory

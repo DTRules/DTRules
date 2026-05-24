@@ -177,7 +177,27 @@ func (c *CLI) runBuild(args []string) int {
 	case "xml":
 		return c.runXMLAuthoredBuild(xmlDir, excelDir, opts)
 	default:
-		fmt.Println("Nothing to do: all files are in sync.")
+		// No sync work needed — but still run the advisory pass against
+		// the current XML so authors get warnings on every invocation
+		// (#787). The pass is XML-driven and cheap; running it
+		// unconditionally matches the "warnings are routed through
+		// decisiontable.Analyze on every authoring surface" contract
+		// from #780. Without this, `dtrules build` on an unchanged
+		// project silently green-lights tables that have real
+		// findings.
+		fmt.Println("Nothing to sync — running advisory pass on existing XML.")
+		step := &dtrsync.StepSummary{}
+		runStaticAnalysis(xmlDir, step)
+		if len(step.Warnings) > 0 {
+			fmt.Printf("\nAdvisory: %d warning(s) found\n", len(step.Warnings))
+			for _, w := range step.Warnings {
+				if w.Table != "" {
+					fmt.Printf("  WARN %s: %s [%s]\n", w.Table, w.Reason, w.Item)
+				} else {
+					fmt.Printf("  WARN %s [%s]\n", w.Reason, w.Item)
+				}
+			}
+		}
 		return 0
 	}
 }
