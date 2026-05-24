@@ -1,5 +1,103 @@
 # DTRules Changelog
 
+## v1.14.0 — 2026-05-24
+
+Headline: the loader is strictly a postfix consumer. `compiler/el` is
+no longer in the runtime load path; library binaries shrink and every
+load is silent unless something is genuinely wrong. The two-step
+authoring pipeline (`dtrules build` / new `dtrules compile`) is now
+the only place EL DSL is compiled.
+
+- **Loader strict policy (#785).** `pkg/dtrules/loader` no longer
+  imports `compiler/el`. Previously the loader recompiled every DSL
+  element at load time and preferred the fresh compile, which
+  (a) shipped the entire EL grammar/parser/emitter into every
+  consumer's runtime binary, (b) made stored postfix decorative
+  because the loader always overrode it, and (c) spammed
+  `loader: context N (...) — recompiled postfix differs from stored;
+  using fresh compile` warnings that drowned the advisory output
+  authors actually care about while cleaning up tables.
+
+  Now: non-comment DSL paired with empty (or comment-only) postfix is
+  a load error naming the table, the element kind and number, the DSL
+  snippet, and directing the operator to `dtrules build` or
+  `dtrules compile`. `SetSymbols` and `SetCollectionResolver` survive
+  as no-ops for source compatibility with `session.RuleSet`.
+
+  The XML-authored build's export step legitimately reads
+  partially-compiled XML — it loads source to write Excel, then
+  re-imports to compile. `DTLoader.Tolerant`, exposed via
+  `RuleSet.LoadDecisionTablesTolerant` /
+  `LoadDecisionTablesTolerantFile`, disables the postfix-presence
+  check for that path. The workbook exporter opts in; **nothing else
+  does**. Runtime consumers stay strict by default.
+
+- **`dtrules compile` subcommand (#782).** Surgical EL→postfix
+  backfill: walks every `*_dt.xml` under a directory, runs the EL
+  compiler on each non-comment DSL element with an empty
+  `<*_postfix>`, and writes the compiled postfix in place. **No
+  Excel round-trip** — bytes outside the targeted postfix elements
+  are untouched, sidestepping the lossy XML→Excel→XML rewrite that
+  `dtrules build --from-xml` performs. `--strict` flips to
+  atomic-or-nothing per file (for CI gates); default writes
+  successful fills and reports errors as a to-do list.
+  `TEMPLATE_*.xml` is skipped because placeholder content is
+  intentionally not valid EL.
+
+  This is the canonical backfill tool when XML authoring outpaces the
+  build pipeline, or when migrating a project off the loader's
+  (now-removed) recompile fallback.
+
+- **Build & review now route through `decisiontable.Analyze` (#780).**
+  The FIRST-policy redundancy check (#762) and assignment-only-table
+  check (#763) were merged in v1.12.0 but had **zero production
+  callers** — every authoring/build surface went through the legacy
+  `AnalyzeTable` shim, which silently drops the `Policy` field. A
+  FIRST table with obvious "implied by prior column failure" Y entries
+  produced no warnings anywhere. Now:
+
+  - `analyzeAuthoringTable` (used by `dtrules table warnings`,
+    `dtrules table get`, the `project_full_review` MCP tool, and
+    `dtrules review`'s per-table optimizer pass) goes through
+    `decisiontable.Analyze(Inputs{Policy: t.Policy, …})`. FIRST-policy
+    redundancy and assignment-only warnings now actually fire.
+  - `cmd/dtrules/build.go` drops ~200 lines of inlined
+    `analyzeTableStructure` and routes `runStaticAnalysis` through the
+    same `decisiontable.Analyze` call. One source of truth across
+    build, review, and table-warnings.
+
+  Tree-based checks (#765 / #766) still aren't wired anywhere — the
+  load + compile + optimize cost is too high to pay on every build
+  (10-minute timeout reproduced on TaxReturn). Documented for a
+  future `--full` flag.
+
+### Migration for library consumers
+
+Bump to this release and run the backfill once per rules directory:
+
+```bash
+go get github.com/DTRules/DTRules@v1.14.0
+dtrules compile <rules-dir>     # fills postfix from DSL
+git diff                        # review the change
+git commit -am 'compile DSL → postfix'
+```
+
+After that, `session.LoadDecisionTables` is silent on load and the
+runtime no longer pulls `compiler/el` into the binary.
+
+### Sample-project status (intentionally out of scope)
+
+These are tracked separately so they don't gate infrastructure:
+
+- **#781** — 6 `<initial_action>` elements in TaxReturn with prose DSL
+  + hand-coded postfix in legacy `<action_postfix>` aliases. Violates
+  v1.11.0's zero-hand-coded-postfix policy; the auto-recompile
+  fallback was masking them.
+- **#783** — 2 DSL-without-postfix elements in SyntaxTests.
+- **#784** — ~15 test fixtures using the auto-compile pattern.
+
+None of these are on the runtime path that library consumers exercise.
+
 ## v1.13.0 — 2026-05-13
 
 Headline: proper EDD usage analysis (#776). The regex-only pass that
