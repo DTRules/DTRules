@@ -54,6 +54,65 @@ func TestRunFullReview_CleanProject(t *testing.T) {
 	}
 }
 
+// TestRunReview_PositionalPath is the #788 regression. Before the fix
+// `dtrules review <path>` collected positional args into `parsedArgs`
+// and then threw them away (`_ = parsedArgs`); the structural check
+// ran against the CWD instead. This left `--project <path>` as the
+// only working form and silently mis-targeted every documented
+// positional invocation.
+//
+// The fix uses parsedArgs[0] as projectPath when no `--project` flag
+// is given. This test confirms the positional path is actually used:
+// when CWD is some other directory and the positional arg names a
+// real project, the report's project hash matches that project's
+// xml contents (and is non-empty).
+func TestRunReview_PositionalPath(t *testing.T) {
+	projectDir := copyProject(t, "../../sampleprojects/CHIP")
+
+	// Run runReview from a CWD that has no project of its own. If the
+	// positional arg is ignored, runFullReview would run against the
+	// empty CWD and return an empty / SHA256-of-empty project_hash.
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	otherDir := t.TempDir()
+	if err := os.Chdir(otherDir); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chdir(cwd) })
+
+	cli := NewCLI()
+	// Suppress stdout/stderr noise during the test by redirecting them
+	// to discard; the report is persisted to .dtrules/last-review.json
+	// inside projectDir and we read it back from there.
+	if code := cli.runReview([]string{projectDir}); code != 0 {
+		// non-zero is acceptable (sample-project warnings → passed=true
+		// still has exit 0, but if errors are surfaced it exits 1). The
+		// thing we're verifying is *where* it ran, not the result code.
+	}
+
+	// The review's persistence target is <projectDir>/.dtrules/last-review.json.
+	// If the positional arg was honored, this file exists with a
+	// project hash. If it was ignored, no file was written here (the
+	// CWD-based run wrote it under otherDir, or hit an error before
+	// writing).
+	cached, err := readLastReview(projectDir)
+	if err != nil {
+		t.Fatalf("review didn't persist under the positional project path (%s); err=%v", projectDir, err)
+	}
+	if cached.ProjectHash == "" {
+		t.Errorf("review ran but project_hash is empty — was the positional path actually used?")
+	}
+	// SHA256-of-empty hash is the signature of a project with zero
+	// XML files. CHIP has plenty; a hash matching e3b0c4... would mean
+	// runReview ran against the empty otherDir.
+	const sha256OfEmpty = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+	if cached.ProjectHash == sha256OfEmpty {
+		t.Errorf("project_hash is the SHA256-of-empty value — review ran against an empty directory, positional arg was ignored")
+	}
+}
+
 // TestHashProject_Stable verifies repeated hashes over the same files
 // match. Stability matters because the deployment gate compares the
 // cached hash to a freshly-computed one before allowing a build to

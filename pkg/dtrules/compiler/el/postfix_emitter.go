@@ -239,8 +239,8 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 		}
 	}
 
-	// For compound expressions, propagate the widest operand type
-	// (Fixed > BigInt > Integer).
+	// For compound expressions, propagate the widest operand type via
+	// promoteArithType (Fixed > BigInt > Double > Integer).
 	switch c := ctx.(type) {
 	case *IntAddContext:
 		return promoteArithType(e.getExprType(c.Iexpr(0)), e.getExprType(c.Iexpr(1)))
@@ -260,7 +260,20 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 }
 
 // promoteArithType returns the widest type for a mixed-type integer
-// arithmetic or comparison expression: Fixed > BigInt > Integer.
+// arithmetic or comparison expression. Precedence (highest first):
+//
+//	Fixed > BigInt > Double > Integer
+//
+// Double sits below BigInt because BigInt is the lossless-large-integer
+// type and silently snapping a bigint operand to a double's mantissa
+// would discard precision. Double sits above Integer because mixing
+// `int_field + 0.5` is the standard widening case (int → double).
+//
+// Two doubles produce a double — closes #790's sibling gap where
+// double × double was returning Integer and the emitter then picked
+// integer ops (`*`, `min`, `cvi`) on operands the runtime stored as
+// `*RDouble`, crashing later with `IntValue: No Integer value exists
+// for this type`.
 func promoteArithType(a, b string) string {
 	if a == TypeFixed || b == TypeFixed {
 		return TypeFixed
@@ -268,17 +281,30 @@ func promoteArithType(a, b string) string {
 	if a == TypeBigInt || b == TypeBigInt {
 		return TypeBigInt
 	}
+	if a == TypeDouble || b == TypeDouble {
+		return TypeDouble
+	}
 	return TypeInteger
 }
 
 // arithOp picks the correct postfix opcode for an arithmetic or comparison
 // operation based on the promoted expression type.
-func arithOp(target, intOp, bigOp, fpOp string) string {
+// arithOp picks the right operator name for the promoted target type.
+// Caller passes the per-family op names; we route Fixed → fpOp,
+// BigInt → bigOp, Double → dblOp, Integer (or unknown) → intOp.
+//
+// Adding the dblOp parameter closes the dispatch gap that made
+// `double × double` (or any expression promoting to Double via
+// `promoteArithType`) emit integer ops — runtime then crashed on
+// `IntValue` because the operands were `*RDouble`.
+func arithOp(target, intOp, bigOp, dblOp, fpOp string) string {
 	switch target {
 	case TypeFixed:
 		return fpOp
 	case TypeBigInt:
 		return bigOp
+	case TypeDouble:
+		return dblOp
 	default:
 		return intOp
 	}
@@ -499,7 +525,7 @@ func (e *PostfixEmitter) VisitBoolIntEq(ctx *BoolIntEqContext) interface{} {
 	target := promoteArithType(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, "==", "b==", "fp=="))
+	e.emit(arithOp(target, "==", "b==", "f==", "fp=="))
 	return nil
 }
 
@@ -522,6 +548,8 @@ func (e *PostfixEmitter) VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{} {
 		e.emit("fp!=")
 	case TypeBigInt:
 		e.emit("b!=")
+	case TypeDouble:
+		e.emit("f!=")
 	default:
 		e.emit("==")
 		e.emit("not")
@@ -534,7 +562,7 @@ func (e *PostfixEmitter) VisitBoolIntGt(ctx *BoolIntGtContext) interface{} {
 	target := promoteArithType(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, ">", "b>", "fp>"))
+	e.emit(arithOp(target, ">", "b>", "f>", "fp>"))
 	return nil
 }
 
@@ -543,7 +571,7 @@ func (e *PostfixEmitter) VisitBoolIntGte(ctx *BoolIntGteContext) interface{} {
 	target := promoteArithType(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, ">=", "b>=", "fp>="))
+	e.emit(arithOp(target, ">=", "b>=", "f>=", "fp>="))
 	return nil
 }
 
@@ -552,7 +580,7 @@ func (e *PostfixEmitter) VisitBoolIntLt(ctx *BoolIntLtContext) interface{} {
 	target := promoteArithType(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, "<", "b<", "fp<"))
+	e.emit(arithOp(target, "<", "b<", "f<", "fp<"))
 	return nil
 }
 
@@ -561,7 +589,7 @@ func (e *PostfixEmitter) VisitBoolIntLte(ctx *BoolIntLteContext) interface{} {
 	target := promoteArithType(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, "<=", "b<=", "fp<="))
+	e.emit(arithOp(target, "<=", "b<=", "f<=", "fp<="))
 	return nil
 }
 
@@ -957,7 +985,7 @@ func (e *PostfixEmitter) VisitBoolNameEq(ctx *BoolNameEqContext) interface{} {
 		e.emitTypeCast(t0, target)
 		e.Visit(ctx.Nexpr(1))
 		e.emitTypeCast(t1, target)
-		e.emit(arithOp(target, "==", "b==", "fp=="))
+		e.emit(arithOp(target, "==", "b==", "f==", "fp=="))
 		return nil
 	}
 
@@ -1168,7 +1196,7 @@ func (e *PostfixEmitter) VisitIntAdd(ctx *IntAddContext) interface{} {
 	target := promoteArithType(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, "+", "b+", "fp+"))
+	e.emit(arithOp(target, "+", "b+", "f+", "fp+"))
 	return nil
 }
 
@@ -1177,7 +1205,7 @@ func (e *PostfixEmitter) VisitIntSub(ctx *IntSubContext) interface{} {
 	target := promoteArithType(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, "-", "b-", "fp-"))
+	e.emit(arithOp(target, "-", "b-", "f-", "fp-"))
 	return nil
 }
 
@@ -1186,7 +1214,7 @@ func (e *PostfixEmitter) VisitIntMul(ctx *IntMulContext) interface{} {
 	target := promoteArithType(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, "*", "b*", "fp*"))
+	e.emit(arithOp(target, "*", "b*", "fmul", "fp*"))
 	return nil
 }
 
@@ -1195,7 +1223,7 @@ func (e *PostfixEmitter) VisitIntDiv(ctx *IntDivContext) interface{} {
 	target := promoteArithType(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, "/", "b/", "fp/"))
+	e.emit(arithOp(target, "/", "b/", "fdiv", "fp/"))
 	return nil
 }
 
@@ -1287,7 +1315,9 @@ func (e *PostfixEmitter) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface
 
 // minMaxOp picks the correct op name for a numeric min/max dispatch.
 // The fp path uses the dedicated fpmin/fpmax ops so precision is kept
-// on the 10⁻⁸ grid.
+// on the 10⁻⁸ grid. The double path uses fmin/fmax so RDouble operands
+// don't hit IntValue at runtime — closes the same dispatch gap
+// promoteArithType's Double arm opened up.
 //
 // No dedicated `bmin` / `bmax` ops exist, so bigint targets fall back
 // to the integer `min` / `max` — which calls IntValue() on both
@@ -1295,11 +1325,15 @@ func (e *PostfixEmitter) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface
 // a pre-existing bug independent of this PR; fixing it cleanly
 // requires registering `bmin` / `bmax` operators that dispatch via
 // RBigInt.Compare. Tracked as a follow-up.
-func minMaxOp(target, intOp, fpOp string) string {
-	if target == TypeFixed {
+func minMaxOp(target, intOp, dblOp, fpOp string) string {
+	switch target {
+	case TypeFixed:
 		return fpOp
+	case TypeDouble:
+		return dblOp
+	default:
+		return intOp
 	}
-	return intOp
 }
 
 func (e *PostfixEmitter) VisitIntMinOf(ctx *IntMinOfContext) interface{} {
@@ -1307,7 +1341,7 @@ func (e *PostfixEmitter) VisitIntMinOf(ctx *IntMinOfContext) interface{} {
 	target := promoteArithType(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
-	e.emit(minMaxOp(target, "min", "fpmin"))
+	e.emit(minMaxOp(target, "min", "fmin", "fpmin"))
 	return nil
 }
 
@@ -1316,7 +1350,7 @@ func (e *PostfixEmitter) VisitIntMinOfComma(ctx *IntMinOfCommaContext) interface
 	target := promoteArithType(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
-	e.emit(minMaxOp(target, "min", "fpmin"))
+	e.emit(minMaxOp(target, "min", "fmin", "fpmin"))
 	return nil
 }
 
@@ -1325,7 +1359,7 @@ func (e *PostfixEmitter) VisitIntMaxOf(ctx *IntMaxOfContext) interface{} {
 	target := promoteArithType(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
-	e.emit(minMaxOp(target, "max", "fpmax"))
+	e.emit(minMaxOp(target, "max", "fmax", "fpmax"))
 	return nil
 }
 
@@ -1334,7 +1368,7 @@ func (e *PostfixEmitter) VisitIntMaxOfComma(ctx *IntMaxOfCommaContext) interface
 	target := promoteArithType(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
-	e.emit(minMaxOp(target, "max", "fpmax"))
+	e.emit(minMaxOp(target, "max", "fmax", "fpmax"))
 	return nil
 }
 

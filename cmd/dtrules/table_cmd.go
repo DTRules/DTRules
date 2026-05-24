@@ -147,7 +147,7 @@ func (c *CLI) runEDD(args []string) int {
 func (ctx *tableCmdCtx) openProject() (*authoring.Project, int) {
 	p, err := authoring.OpenProject(ctx.projectPath)
 	if err != nil {
-		return nil, emitErr(ctx.stderr, 1, "io_error", "", "project must contain an xml/ directory", err.Error())
+		return nil, emitErr(ctx.stderr, 1, "io_error", "", "project must contain an xml/ subdirectory or *_dt.xml files directly", err.Error())
 	}
 	return p, 0
 }

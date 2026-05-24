@@ -275,6 +275,7 @@ func persistReview(projectPath string, rep *reviewReport) error {
 // still exits 0.
 func (c *CLI) runReview(args []string) int {
 	projectPath := "."
+	projectFromFlag := false
 	parsedArgs := []string{}
 	for i := 0; i < len(args); i++ {
 		a := args[i]
@@ -285,14 +286,22 @@ func (c *CLI) runReview(args []string) int {
 				return 1
 			}
 			projectPath = args[i+1]
+			projectFromFlag = true
 			i++
 		case strings.HasPrefix(a, "--project="):
 			projectPath = strings.TrimPrefix(a, "--project=")
+			projectFromFlag = true
 		default:
 			parsedArgs = append(parsedArgs, a)
 		}
 	}
-	_ = parsedArgs
+	// Positional argument is the project path (#788). The flag still
+	// wins if both were passed, so `--project X Y` keeps the documented
+	// flag-takes-precedence behavior; bare `dtrules review X` no longer
+	// silently runs against CWD.
+	if !projectFromFlag && len(parsedArgs) > 0 {
+		projectPath = parsedArgs[0]
+	}
 
 	rep, err := runFullReview(projectPath)
 	if err != nil {

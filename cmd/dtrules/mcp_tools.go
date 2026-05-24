@@ -168,7 +168,7 @@ func (s *mcpServer) callTool(name string, args json.RawMessage) (map[string]inte
 func (s *mcpServer) toolTableList(project string) (map[string]interface{}, error) {
 	p, err := authoring.OpenProject(project)
 	if err != nil {
-		return nil, newToolError("io_error", "project must contain an xml/ directory", err.Error())
+		return nil, newToolError("io_error", "project must contain an xml/ subdirectory or *_dt.xml files directly", err.Error())
 	}
 	names := p.Tables()
 	if names == nil {
@@ -189,7 +189,7 @@ func (s *mcpServer) toolTableGet(project string, args json.RawMessage) (map[stri
 	}
 	p, err := authoring.OpenProject(project)
 	if err != nil {
-		return nil, newToolError("io_error", "project must contain an xml/ directory", err.Error())
+		return nil, newToolError("io_error", "project must contain an xml/ subdirectory or *_dt.xml files directly", err.Error())
 	}
 	t := p.Table(req.Name)
 	if t == nil {
@@ -217,7 +217,7 @@ func (s *mcpServer) toolTableWarnings(project string, args json.RawMessage) (map
 	}
 	p, err := authoring.OpenProject(project)
 	if err != nil {
-		return nil, newToolError("io_error", "project must contain an xml/ directory", err.Error())
+		return nil, newToolError("io_error", "project must contain an xml/ subdirectory or *_dt.xml files directly", err.Error())
 	}
 	t := p.Table(req.Name)
 	if t == nil {
@@ -233,7 +233,7 @@ func (s *mcpServer) toolTableWarnings(project string, args json.RawMessage) (map
 func (s *mcpServer) toolEDDGet(project string) (map[string]interface{}, error) {
 	p, err := authoring.OpenProject(project)
 	if err != nil {
-		return nil, newToolError("io_error", "project must contain an xml/ directory", err.Error())
+		return nil, newToolError("io_error", "project must contain an xml/ subdirectory or *_dt.xml files directly", err.Error())
 	}
 	return mcpJSONResult(eddToJSON(p.EDD()))
 }
@@ -299,7 +299,7 @@ func (s *mcpServer) toolProjectFullReview(project string) (map[string]interface{
 func (s *mcpServer) toolProjectDiagnostics(project string) (map[string]interface{}, error) {
 	p, err := authoring.OpenProject(project)
 	if err != nil {
-		return nil, newToolError("io_error", "project must contain an xml/ directory", err.Error())
+		return nil, newToolError("io_error", "project must contain an xml/ subdirectory or *_dt.xml files directly", err.Error())
 	}
 	diags := p.Diagnostics()
 	if diags == nil {
@@ -323,7 +323,7 @@ func (s *mcpServer) toolTablePut(project string, args json.RawMessage) (map[stri
 	}
 	p, err := authoring.OpenProject(project)
 	if err != nil {
-		return nil, newToolError("io_error", "project must contain an xml/ directory", err.Error())
+		return nil, newToolError("io_error", "project must contain an xml/ subdirectory or *_dt.xml files directly", err.Error())
 	}
 	t := p.Table(req.Name)
 	if t == nil {
@@ -365,7 +365,7 @@ func (s *mcpServer) toolTablePatch(project string, args json.RawMessage) (map[st
 	}
 	p, err := authoring.OpenProject(project)
 	if err != nil {
-		return nil, newToolError("io_error", "project must contain an xml/ directory", err.Error())
+		return nil, newToolError("io_error", "project must contain an xml/ subdirectory or *_dt.xml files directly", err.Error())
 	}
 	t := p.Table(req.Name)
 	if t == nil {
@@ -399,7 +399,7 @@ func (s *mcpServer) toolEDDPut(project string, args json.RawMessage) (map[string
 	}
 	p, err := authoring.OpenProject(project)
 	if err != nil {
-		return nil, newToolError("io_error", "project must contain an xml/ directory", err.Error())
+		return nil, newToolError("io_error", "project must contain an xml/ subdirectory or *_dt.xml files directly", err.Error())
 	}
 	if err := req.EDD.ApplyTo(p.EDD()); err != nil {
 		return nil, newToolError("invalid_patch", "EDD validation failed", err.Error())
@@ -422,7 +422,7 @@ func (s *mcpServer) toolEDDPatch(project string, args json.RawMessage) (map[stri
 	}
 	p, err := authoring.OpenProject(project)
 	if err != nil {
-		return nil, newToolError("io_error", "project must contain an xml/ directory", err.Error())
+		return nil, newToolError("io_error", "project must contain an xml/ subdirectory or *_dt.xml files directly", err.Error())
 	}
 	var op eddPatchOp
 	if err := json.Unmarshal(req.Patch, &op); err != nil {
