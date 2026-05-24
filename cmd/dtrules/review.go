@@ -183,7 +183,11 @@ func runFullReview(projectPath string) (*reviewReport, error) {
 		}
 	}
 
-	// 4. Per-table optimizer pass.
+	// 4. Per-table optimizer pass — matrix-driven (#761/#762/#763) on
+	// every authoring table. The tree-driven checks (#765/#766) need a
+	// compiled RuleSet and currently pay too high a cost on large
+	// projects; reintroducing them awaits an opt-in flag or shared
+	// compiled state that makes paying that cost practical.
 	for _, name := range p.Tables() {
 		t := p.Table(name)
 		if t == nil {

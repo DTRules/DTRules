@@ -30,6 +30,10 @@ import (
 // This is the authoring half of the advisory split (#761): structural
 // checks only, fast, XML-driven. Tree-based checks (#765, #766) and
 // cross-table analysis run from the Full Review (#768).
+//
+// Goes through decisiontable.Analyze with the Inputs struct so the
+// policy-gated checks (#762 FIRST-redundancy) fire; the legacy
+// AnalyzeTable shim drops Policy and would silently disable those.
 func analyzeAuthoringTable(t *authoring.Table) []decisiontable.Warning {
 	if t == nil {
 		return nil
@@ -58,7 +62,13 @@ func analyzeAuthoringTable(t *authoring.Table) []decisiontable.Warning {
 		}
 		acts[i] = decisiontable.ActionRow{DSL: a.DSL, Columns: cols}
 	}
-	return decisiontable.AnalyzeTable(t.Name, conds, acts, maxCol)
+	return decisiontable.Analyze(decisiontable.Inputs{
+		Name:       t.Name,
+		Policy:     t.Policy,
+		Conditions: conds,
+		Actions:    acts,
+		MaxCol:     maxCol,
+	})
 }
 
 // warningsForJSON marshals a warning slice into a stable shape for the

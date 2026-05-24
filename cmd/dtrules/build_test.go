@@ -455,6 +455,86 @@ func TestStaticAnalysis_NoActionColumn(t *testing.T) {
 	}
 }
 
+// staticAnalysisFirstRedundantDT exercises the FIRST-policy redundancy
+// check (#762): two conditions, three columns, FIRST policy. Reaching
+// column 3 implies column 2 failed; column 2's only Y/N is row 1 = N, so
+// row 1 = Y in column 3 must hold — the explicit Y is redundant. Used by
+// TestStaticAnalysis_FirstPolicyRedundancy to confirm `dtrules build`
+// runs the Inputs-keyed Analyze (the legacy AnalyzeTable shim drops
+// Policy and silently disables this check).
+const staticAnalysisFirstRedundantDT = `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+<decision_table>
+<table_name>FirstRedundantFixture</table_name>
+<xls_file>fixture.xlsx</xls_file>
+<attribute_fields><Type>FIRST</Type><COMMENTS></COMMENTS><TABLE_NUMBER>2</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+  <condition_details>
+    <condition_number>1</condition_number>
+    <condition_comment>enabled flag</condition_comment>
+    <condition_dsl>job.status is equal to "active"</condition_dsl>
+    <condition_postfix></condition_postfix>
+    <condition_column column_number="1" column_value="Y"></condition_column>
+    <condition_column column_number="2" column_value="N"></condition_column>
+    <condition_column column_number="3" column_value="Y"></condition_column>
+  </condition_details>
+  <condition_details>
+    <condition_number>2</condition_number>
+    <condition_comment>past threshold</condition_comment>
+    <condition_dsl>job.result > 0</condition_dsl>
+    <condition_postfix></condition_postfix>
+    <condition_column column_number="1" column_value="Y"></condition_column>
+    <condition_column column_number="3" column_value="N"></condition_column>
+  </condition_details>
+</conditions>
+<actions>
+  <action_details>
+    <action_number>1</action_number>
+    <action_comment>set result</action_comment>
+    <action_dsl>set job.result to 1</action_dsl>
+    <action_postfix></action_postfix>
+    <action_column column_number="1" column_value="X"></action_column>
+    <action_column column_number="2" column_value="X"></action_column>
+    <action_column column_number="3" column_value="X"></action_column>
+  </action_details>
+</actions>
+</decision_table>
+</decision_tables>
+`
+
+// TestStaticAnalysis_FirstPolicyRedundancy confirms that runStaticAnalysis
+// surfaces the FIRST-policy redundancy warning (#762). Before #781 the
+// build path ran an inlined analyzer that omitted the policy-gated check;
+// it now routes through decisiontable.Analyze, which honors Policy. A
+// regression here would mean we've slipped back to the inlined path or
+// dropped Policy from buildAnalysisInputs.
+func TestStaticAnalysis_FirstPolicyRedundancy(t *testing.T) {
+	dir := t.TempDir()
+
+	if err := os.WriteFile(filepath.Join(dir, "fixture_edd.xml"), []byte(staticAnalysisFixtureEDD), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "fixture_dt.xml"), []byte(staticAnalysisFirstRedundantDT), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	step := &dtrsync.StepSummary{}
+	runStaticAnalysis(dir, step)
+
+	found := false
+	for _, w := range step.Warnings {
+		if w.Item == "redundant condition" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected a redundant condition warning (FIRST-policy #762), got %v", step.Warnings)
+	}
+}
+
 // TestStaticAnalysis_UnusedEDDField verifies that an EDD field never
 // referenced in any DT produces an unused warning.
 func TestStaticAnalysis_UnusedEDDField(t *testing.T) {
