@@ -15,7 +15,7 @@
 <initial_action>
 <action_comment>Reset IL tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.il_state_tax = 0; set result.il_taxable_income = 0; set result.il_total_exemptions = 0; add "  Illinois Tax Calculation (Form IL-1040) - flat 4.95%" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>0 cvi /result.il_state_tax xdef 0 cvi /result.il_taxable_income xdef 0 cvi /result.il_total_exemptions xdef &quot;  Illinois Tax Calculation (Form IL-1040) - flat 4.95%&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 0.0 /result.il_state_tax xdef
 0.0 /result.il_taxable_income xdef

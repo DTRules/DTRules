@@ -15,7 +15,7 @@
 <initial_action>
 <action_comment>Reset and log</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Kansas Tax Calculation (top marginal 5.58%)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef &quot;  Kansas Tax Calculation (top marginal 5.58%)&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 0.0 /result.computed_state_tax xdef
 0.0 /result.computed_state_taxable_income xdef

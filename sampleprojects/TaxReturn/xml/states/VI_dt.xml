@@ -16,7 +16,7 @@
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Qualifies for EDC benefits; Has Economic Development Commission benefits (up to 90% reduction)</condition_comment>
-<condition_dsl>Qualifies for EDC benefits; Has Economic Development Commission benefits (up to 90% reduction)</condition_dsl>
+<condition_dsl></condition_dsl>
 <condition_postfix></condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -26,7 +26,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Non-resident - requires Form 8689 for allocation</action_comment>
-<action_dsl>Non-resident - requires Form 8689 for allocation</action_dsl>
+<action_dsl></action_dsl>
 <action_postfix></action_postfix>
 </action_details>
 </actions>

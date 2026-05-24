@@ -92,6 +92,8 @@ func (c *CLI) Run(args []string) int {
 	switch cmd {
 	case "build":
 		return c.runBuild(cmdArgs)
+	case "compile":
+		return c.runCompile(cmdArgs)
 	case "verify":
 		return c.runVerify(cmdArgs)
 	case "sync":

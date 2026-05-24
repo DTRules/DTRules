@@ -15,7 +15,7 @@
 <initial_action>
 <action_comment>Reset PA tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.pa_tax = 0; set result.pa_state_tax = 0; set result.pa_total_income = 0; add "  Pennsylvania Tax Calculation (Form PA-40) - flat 3.07%" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
+<initial_action_postfix>0 cvi /result.pa_tax xdef 0 cvi /result.pa_state_tax xdef 0 cvi /result.pa_total_income xdef &quot;  Pennsylvania Tax Calculation (Form PA-40) - flat 3.07%&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
 <action_postfix>
 0.0 /result.pa_tax xdef
 0.0 /result.pa_state_tax xdef
