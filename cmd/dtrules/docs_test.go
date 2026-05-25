@@ -211,3 +211,73 @@ func TestDocumentation_EDDTypeTableHasFixed(t *testing.T) {
 		t.Error("edd type table should show 0.0fp default")
 	}
 }
+
+// TestDocumentation_CompileTopic pins that the `dtrules docs compile`
+// topic exists and names the user-facing surface area added in v1.14.x:
+// the subcommand itself, every flag, the exit-code contract, and a
+// cross-reference to the warnings catalogue. Reverting the topic file
+// or losing a flag name in a doc refactor fails this.
+func TestDocumentation_CompileTopic(t *testing.T) {
+	doc, ok := docTopics["compile"]
+	if !ok {
+		t.Fatal("compile topic not registered in docTopics")
+	}
+	required := []string{
+		"dtrules compile",
+		"--dry-run", "--strict", "--force", "--no-analyze",
+		"SetSymbols", // proves the EDD-symbol path that fixed #790 is documented
+		"TEMPLATE_",  // template-skip behavior
+		"decisiontable.Analyze",
+		"dtrules docs warnings",
+	}
+	for _, term := range required {
+		if !strings.Contains(doc, term) {
+			t.Errorf("compile doc missing required term: %q", term)
+		}
+	}
+}
+
+// TestDocumentation_WarningsTopic pins that the `dtrules docs warnings`
+// topic exists and names every advisory warning kind currently emitted
+// by decisiontable.Analyze + AnalyzeCompiledTable. If a new warning is
+// added without a corresponding entry here, the catalogue goes stale —
+// the test forces the documentation update.
+func TestDocumentation_WarningsTopic(t *testing.T) {
+	doc, ok := docTopics["warnings"]
+	if !ok {
+		t.Fatal("warnings topic not registered in docTopics")
+	}
+	required := []string{
+		"no-op column",
+		"subsumed column",
+		"redundant condition",
+		"unreachable column",
+		"assignment-only table",
+		"hand-coded postfix",
+		"dead condition row",
+		"decisiontable.Analyze",
+		"dtrules table warnings",
+		"dtrules review",
+	}
+	for _, term := range required {
+		if !strings.Contains(doc, term) {
+			t.Errorf("warnings doc missing required term: %q", term)
+		}
+	}
+}
+
+// TestDocumentation_WorkflowMentionsCompile guards the workflow topic
+// against losing its cross-reference to `dtrules compile` (added when
+// the loader went strict in v1.14.0). Without this, a workflow doc
+// refactor could silently drop the migration guidance.
+func TestDocumentation_WorkflowMentionsCompile(t *testing.T) {
+	doc, ok := docTopics["workflow"]
+	if !ok {
+		t.Fatal("workflow topic not registered in docTopics")
+	}
+	for _, term := range []string{"dtrules compile", "dtrules docs warnings", "v1.14"} {
+		if !strings.Contains(doc, term) {
+			t.Errorf("workflow doc missing required term: %q", term)
+		}
+	}
+}

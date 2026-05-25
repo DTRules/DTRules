@@ -25,6 +25,7 @@ var docTopics = map[string]string{
 	"bigint":          docBigInt,
 	"bytes":           docBytes,
 	"cli":             docCLI,
+	"compile":         docCompile,
 	"fixed":           docFixed,
 	"el":              docEL,
 	"xml-format":      docXMLFormat,
@@ -37,6 +38,7 @@ var docTopics = map[string]string{
 	"database":        docDatabase,
 	"architecture":    docArchitecture,
 	"embedding":       docEmbedding,
+	"warnings":        docWarnings,
 	"workflow":        docWorkflow,
 	"authoring":       docAuthoring,
 }
@@ -76,6 +78,7 @@ func printDocIndex() {
 		"bigint":          "Arbitrary-precision integer support for financial calculations",
 		"bytes":           "Immutable byte sequences with constant-time equality (blockchain / token use cases)",
 		"cli":             "Getting started with the dtrules binary: install, init, build, validate, verify",
+		"compile":         "`dtrules compile` — surgical EL→postfix backfill + advisory pass (the one-stop authoring check)",
 		"fixed":           "256-bit fixed-point type (10^-8 grid) for token/staking/blockchain decimal math",
 		"el":              "Expression Language syntax (REQUIRED for all tables)",
 		"xml-format":      "XML file format specification (EDD and DT)",
@@ -88,6 +91,7 @@ func printDocIndex() {
 		"database":        "KV database design driven by the EDD: key composition, arrays, references, mapping*key",
 		"architecture":    "Dev-time vs deploy-time layouts (files on disk vs single embedded binary)",
 		"embedding":       "Embed DTRules rules into a single Go binary via //go:embed (no xlsx or xml at runtime)",
+		"warnings":        "Every advisory warning kind, repro, and what to do about it",
 		"workflow":        "Development workflow with Excel and XML",
 		"authoring":       "Go authoring SDK: open, edit, execute, and test projects programmatically",
 	}
@@ -2294,23 +2298,64 @@ CRITICAL: Excel is the System of Record
 All rules MUST be written in EL (Expression Language). The EL compiler
 generates internal bytecode automatically — never write bytecode by hand.
 
+Since v1.14.0: the runtime loader does NOT compile DSL on load. It
+consumes whatever postfix is stored in the XML. So 'dtrules build' or
+'dtrules compile' MUST run between authoring a DSL change and embedding
+the XML — otherwise the loader sees DSL with no postfix and refuses.
+See 'dtrules docs compile' and the migration note further down.
 
-The One Command: dtrules build
--------------------------------
-Run this after any edit — whether you changed Excel or XML:
+Since v1.14.1: every authoring/build surface surfaces advisory warnings
+(decisiontable.Analyze) — no-op columns, subsumed columns, FIRST-policy
+redundant conditions (#762), assignment-only tables (#763), unreachable
+columns via DSL negation. The full warning catalogue with repros and
+recommended actions lives at 'dtrules docs warnings'.
+
+
+Two commands, by use case
+--------------------------
 
   dtrules build [path]
+    Full Excel ↔ XML round-trip plus EL compile. Requires the
+    canonical project layout (<project>/xml/ and <project>/excel/).
+    Use this when authoring through Excel, or to regenerate Excel
+    from edited XML.
 
-dtrules build auto-detects which files changed, runs the correct pipeline,
-and leaves canonical Excel files and compiled XML on disk. You cannot skip
-steps; the pipeline is always complete.
+  dtrules compile [dir]
+    Surgical EL → postfix backfill. No Excel round-trip; bytes
+    outside the targeted <*_postfix> elements stay untouched. Works
+    on any directory layout, including flat ones with no xml/
+    subdir. The one-stop authoring check for library consumers
+    embedding DTRules rules (e.g. via go:embed). Default mode also
+    runs the advisory pass; --no-analyze skips it. See
+    'dtrules docs compile' for the full flag set.
 
-Flags:
+dtrules build flags:
   --from-excel   Force Excel-authored path (Excel → XML)
   --from-xml     Force XML-authored path   (XML → Excel → XML)
   --dry-run      Show what would change without writing files
   -v, --verbose  Verbose output
   -q, --quiet    Suppress build summary unless there are drops
+
+
+Migrating from v1.12.0 / v1.13.0 to v1.14.x
+--------------------------------------------
+
+v1.14.0 made the loader strict — no more silent recompile of DSL at
+load time. The 'loader: context N (...) — recompiled postfix differs
+from stored; using fresh compile' log lines are gone, but so is the
+safety net for stale XML.
+
+One-time migration per project:
+
+  go get github.com/DTRules/DTRules@v1.14.3
+  dtrules compile --force <rules-dir>    # refresh stored postfix
+  git diff                               # review the change
+  git commit -am 'adopt v1.14.x — backfill postfix'
+
+After this, the loader is silent on load (no more recompile chatter),
+the runtime binary no longer pulls in compiler/el as a dependency,
+and 'dtrules compile' is the canonical "did I get the warnings right?"
+check.
 
 
 Build Summary
@@ -3392,9 +3437,17 @@ Top-level command map
 
     dtrules init       Scaffold a new project directory
     dtrules build      Normalize + compile rules (Excel <-> XML)
+    dtrules compile    Surgical EL→postfix backfill + advisory pass
+                       (the one-stop authoring check; works on any
+                       directory layout — see 'dtrules docs compile')
     dtrules sync       Fine-grained Excel/XML sync (status/check/import/export/auto)
     dtrules validate   Check project structure + EL compliance
     dtrules verify     CI gate: assert committed XML matches a fresh build
+    dtrules review     Project-wide Full Review (errors + advisory warnings;
+                       deployment gate when used with 'build --require-review')
+    dtrules table      JSON-first per-table read/write (for AI agents)
+    dtrules edd        JSON-first EDD read/write (for AI agents)
+    dtrules mcp        MCP server over stdio (for AI agents)
     dtrules docs       This documentation
     dtrules version    Version, commit, build date
 

@@ -16,6 +16,7 @@ package decisiontable
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -375,6 +376,15 @@ func isNegationOf(a, b string) bool {
 //
 // Anything more subtle is left for a future SMT-style pass. The issue
 // flags this as the high-false-positive case, so the bar is high.
+//
+// "Leave one" rule (#794): a column with K non-dash cells must retain
+// at least one explicit cell after the operator applies every
+// recommendation; otherwise the column becomes all-dash and the
+// runtime no longer treats it as a discriminator (catch-all stops
+// firing, downstream tables crash on null). The check therefore caps
+// emitted warnings at `K - 1` per column. Authors who genuinely want
+// a column gone should delete it outright instead of collapsing
+// every cell via the redundancy advice.
 func checkRedundantFirstPolicy(tableName string, conditions []ConditionRow, maxCol int) []Warning {
 	// Build per-column constraint maps (row index → "Y" / "N"), skipping
 	// "-" and "*".
@@ -400,9 +410,26 @@ func checkRedundantFirstPolicy(tableName string, conditions []ConditionRow, maxC
 		return "Y"
 	}
 
-	var warnings []Warning
+	// Collect candidate warnings first, deterministically by (col, row),
+	// then apply the "leave one" rule below. Direct emission would
+	// flag every redundant cell, but that recommendation is unsafe
+	// when every non-dash cell in a column is redundant — applying it
+	// all-dashes the column, the runtime treats that as no
+	// discriminator left, and downstream tables crash on null when a
+	// catch-all column ceases to fire (#794).
+	type candidate struct {
+		col, row, byCol int
+		value           string
+	}
+	var candidates []candidate
 	for n := 1; n < maxCol; n++ {
-		for row, vN := range cols[n] {
+		rows := make([]int, 0, len(cols[n]))
+		for row := range cols[n] {
+			rows = append(rows, row)
+		}
+		sort.Ints(rows)
+		for _, row := range rows {
+			vN := cols[n][row]
 			// Try to prove (row, vN) is implied by some prior column M.
 			for m := 0; m < n; m++ {
 				// Pattern 1: M constrains the same row with the opposite
@@ -411,12 +438,34 @@ func checkRedundantFirstPolicy(tableName string, conditions []ConditionRow, maxC
 				// be on this row, forcing R = vN.
 				vMSame, hasSame := cols[m][row]
 				if hasSame && vMSame == flip(vN) && impliedByPriorColumn(cols[m], cols[n], row) {
-					warnings = append(warnings, redundantWarning(tableName, n, row, m, vN))
-					goto nextEntry
+					candidates = append(candidates, candidate{n, row, m, vN})
+					break
 				}
 			}
-		nextEntry:
 		}
+	}
+
+	// "Leave one" rule (#794): a column with K non-dash cells must
+	// retain at least one explicit cell after the operator applies
+	// every redundant-condition recommendation; otherwise the column
+	// becomes all-dash and the runtime no longer treats it as a
+	// discriminator. We cap the per-column warning count at
+	// `len(cols[col]) - 1`. Sorted iteration above means the
+	// suppressed candidate is the one with the highest row index —
+	// arbitrary but stable. Authors who genuinely want the column
+	// gone should delete it outright, not collapse it via dashes.
+	perCol := make(map[int]int)
+	var warnings []Warning
+	for _, c := range candidates {
+		limit := len(cols[c.col]) - 1
+		if limit < 0 {
+			limit = 0
+		}
+		if perCol[c.col] >= limit {
+			continue
+		}
+		warnings = append(warnings, redundantWarning(tableName, c.col, c.row, c.byCol, c.value))
+		perCol[c.col]++
 	}
 	return warnings
 }

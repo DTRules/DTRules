@@ -323,6 +323,126 @@ func TestAnalyze_RedundantFirstPolicy_DistinguishingRow(t *testing.T) {
 	}
 }
 
+// TestAnalyze_RedundantFirstPolicy_LeaveOneRule is the #794 regression.
+// In pure FIRST semantics, every non-dash cell in a column can be
+// individually proven redundant by a prior column's failure. But the
+// runtime treats an all-dash column as having no discriminator — if the
+// operator applies every recommendation, the column collapses and a
+// downstream catch-all stops firing.
+//
+// Reproduces the staking project's `Calculate_Weights` table: 4 columns
+// with the catch-all (col 4) carrying three non-dash cells, all of
+// which the analyzer used to flag. Applying all three made the runtime
+// crash on null when later tables tried to consume variables the
+// catch-all was supposed to have set.
+//
+// After the fix, the analyzer emits at most `K-1` warnings per column
+// with K non-dash cells. The "leave one" rule keeps the column
+// explicit; authors who really want it gone delete the whole column.
+//
+// Asserted properties:
+//   - Exactly 2 redundant-condition warnings for col 4 (not 3).
+//   - The remaining warnings point at rows 0 and 1 (lowest row indices).
+//   - The highest-row candidate (row 2) is the one suppressed,
+//     deterministically.
+func TestAnalyze_RedundantFirstPolicy_LeaveOneRule(t *testing.T) {
+	// Calculate_Weights shape from #794:
+	//   cond 1: effective_type == "coreValidator"      col1=Y col4=N
+	//   cond 2: effective_type == "coreFollower"       col2=Y col4=N
+	//   cond 3: effective_type == "stakingValidator"   col3=Y col4=N
+	// All three col-4 cells are independently provable redundant via
+	// col 1 / col 2 / col 3 failures respectively.
+	conditions := makeConditions(
+		[]string{
+			`effective_type == "coreValidator"`,
+			`effective_type == "coreFollower"`,
+			`effective_type == "stakingValidator"`,
+		},
+		[][]string{
+			{"Y", "-", "-", "N"}, // row 0 — flagged by col 1's failure
+			{"-", "Y", "-", "N"}, // row 1 — flagged by col 2's failure
+			{"-", "-", "Y", "N"}, // row 2 — flagged by col 3's failure
+		},
+	)
+	actions := makeActions(
+		[]string{`set weight = 1.3`, `set weight = 1.0`},
+		[][]string{
+			{"X", "X", "X", ""},
+			{"", "", "", "X"},
+		},
+	)
+	warns := Analyze(Inputs{
+		Name:       "Calculate_Weights",
+		Policy:     "FIRST",
+		Conditions: conditions,
+		Actions:    actions,
+		MaxCol:     4,
+	})
+
+	col4 := 0
+	gotRows := map[int]bool{}
+	for _, w := range warns {
+		if w.Kind == "redundant condition" && w.Column == 4 {
+			col4++
+			gotRows[w.ConditionRow] = true
+		}
+	}
+
+	// Pre-fix: col4 == 3 (every cell flagged, applying all = crash).
+	// Post-fix: col4 == 2 (K-1 = 2; one cell stays explicit).
+	if col4 != 2 {
+		t.Errorf("expected exactly 2 redundant-condition warnings for col 4 "+
+			"(K-1 with K=3); got %d (applying all 3 would all-dash the column "+
+			"and break the runtime per #794)", col4)
+	}
+	// Sorted iteration suppresses the highest-row candidate. Rows 0 and
+	// 1 should be flagged; row 2 should not.
+	if !gotRows[0] {
+		t.Error("expected redundant warning for col 4 row 0")
+	}
+	if !gotRows[1] {
+		t.Error("expected redundant warning for col 4 row 1")
+	}
+	if gotRows[2] {
+		t.Error("did not expect redundant warning for col 4 row 2 — that's the cell the leave-one rule keeps")
+	}
+}
+
+// TestAnalyze_RedundantFirstPolicy_SingleCellInColumn is the sub-case
+// the staking issue called out separately: a column whose ONLY non-dash
+// cell is redundant. The old behavior flagged it (K=1 cells, 1
+// candidate). Applying it dashes the column → runtime crash. The fix
+// caps at K-1 = 0; no warning.
+//
+// This is the pattern shared by the seven staking tables filed in #794
+// (Calculate_Budget, Resolve_Effective_Types, etc.) where col 2 has
+// just one cell `cond 1 = N` and the analyzer recommended dashing it.
+func TestAnalyze_RedundantFirstPolicy_SingleCellInColumn(t *testing.T) {
+	conditions := makeConditions(
+		[]string{`x > 0`, `y > 0`},
+		[][]string{
+			{"Y", "N"}, // row 0 — the lone col-2 cell; pre-fix flagged, post-fix not
+			{"Y", "-"}, // row 1
+		},
+	)
+	actions := makeActions(
+		[]string{`set a`, `set b`},
+		[][]string{{"X", ""}, {"", "X"}},
+	)
+	warns := Analyze(Inputs{
+		Name:       "T",
+		Policy:     "FIRST",
+		Conditions: conditions,
+		Actions:    actions,
+		MaxCol:     2,
+	})
+	for _, w := range warns {
+		if w.Kind == "redundant condition" {
+			t.Errorf("did not expect redundant-condition warning for the sole non-dash cell in a column (#794): %v", w)
+		}
+	}
+}
+
 // TestAnalyze_AssignmentOnlyTable covers #763: tables that only assign
 // the same variable in every column should be flagged as candidates
 // for inlining.

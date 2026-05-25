@@ -1,5 +1,89 @@
 # DTRules Changelog
 
+## v1.14.4 — 2026-05-25
+
+Two independent patches bundled. The advisory `decisiontable.Analyze`
+no longer recommends an unsafe simplification, and the embedded docs
+catch up with everything v1.14.x shipped.
+
+### Analyzer: "leave one" rule for FIRST-policy redundant conditions (#794)
+
+`checkRedundantFirstPolicy` no longer flags the **last non-dash cell
+in a column** as redundant. Each cell remains individually provable
+redundant in pure FIRST-policy semantics, but applying every
+recommendation all-dashes the column, and the runtime treats an
+all-dash column as having no discriminator — a catch-all stops
+firing and downstream tables crash on null when variables the
+catch-all was supposed to set go unassigned.
+
+Concrete repro from the staking project: `Calculate_Weights` had 3
+of 3 col-4 cells flagged. Applying all three caused
+`Accumulate_Totals` to crash with
+`RFixed.promote: cannot promote null to fixed` because the weight
+catch-all stopped firing for accounts whose `effective_type` wasn't
+in the explicit set. Same pattern on 9 other staking tables; 7 of
+those had a single-cell column where the lone cell was flagged —
+making the warning impossible to apply safely.
+
+Fix: the check collects candidate warnings (deterministically by
+`(col, row)`) and emits at most `K - 1` per column with `K` non-dash
+cells. Sorted iteration suppresses the highest-row candidate. The
+staking project's outstanding 9 redundant-condition warnings that
+couldn't be safely applied are no longer emitted.
+
+Regression coverage:
+- `TestAnalyze_RedundantFirstPolicy_LeaveOneRule` — 4-column
+  `Calculate_Weights` shape; col 4 with K=3 emits exactly 2
+  warnings (rows 0 and 1; row 2 suppressed deterministically).
+- `TestAnalyze_RedundantFirstPolicy_SingleCellInColumn` — K=1 → 0
+  warnings (the seven single-cell staking cases).
+- The three existing tests (`TestAnalyze_RedundantFirstPolicy`,
+  `_NonFirstPolicy`, `_DistinguishingRow`) still pass — none of
+  them hit the leave-one threshold.
+
+Authors who genuinely want a column gone should delete it outright;
+the leave-one rule only governs the redundancy collapse path.
+
+### Embedded docs catch up with v1.14.x
+
+Closes a gap since v1.14.0 shipped: the embedded `dtrules docs`
+topic set made zero mention of the strict loader, the
+`dtrules compile` subcommand, or the advisory pass — even though
+CLAUDE.md tells users (and AI agents) those topics are the
+canonical reference.
+
+- **New topic `dtrules docs compile`** — the `dtrules compile`
+  subcommand reference. Covers when to use it vs `dtrules build`,
+  every flag (`--dry-run`, `--strict`, `--force`, `--no-analyze`,
+  `-v`), exit-code contract, EDD discovery, TEMPLATE-skip behavior,
+  and the strict / default / force write semantics.
+
+- **New topic `dtrules docs warnings`** — the definitive catalogue of
+  every advisory warning kind. Eight entries (no-op column, subsumed
+  column, redundant condition, DSL-negation unreachable column,
+  assignment-only table, hand-coded postfix, dead condition row,
+  tree-based unreachable column), each with a minimal repro and the
+  recommended action. Plus per-surface filtering recipes
+  (`grep` / `jq` / `--project`).
+
+- **`dtrules docs cli`** command map updated. Adds `compile`,
+  `review`, `table`, `edd`, and `mcp` rows that were missing.
+
+- **`dtrules docs workflow`** prepends the v1.14.0 contract change
+  (loader is strict, not auto-recompile), the v1.14.1 advisory
+  pass on every surface, the choice between `dtrules build` and
+  `dtrules compile`, and a copy-paste migration block for projects
+  on v1.12.0 / v1.13.0.
+
+- **`dtrules docs architecture`** prepends a paragraph explaining
+  why the deploy-time binary is small in v1.14.x — `compiler/el`
+  stays on the dev side now that the loader doesn't compile.
+
+- **Three regression tests** (`TestDocumentation_CompileTopic`,
+  `_WarningsTopic`, `_WorkflowMentionsCompile`) pin required terms
+  across the new and updated topics so a refactor can't silently
+  drop a flag name or cross-reference.
+
 ## v1.14.3 — 2026-05-24
 
 Closes the three UX issues left open after v1.14.2's #790 blocker fix:
