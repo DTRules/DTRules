@@ -1,5 +1,45 @@
 # DTRules Changelog
 
+## v1.14.4 — 2026-05-24
+
+Docs-only patch. Closes a gap that existed since v1.14.0 shipped: the
+embedded `dtrules docs` topic set made zero mention of the strict
+loader, the `dtrules compile` subcommand, or the advisory pass — even
+though CLAUDE.md tells users (and AI agents) those topics are the
+canonical reference.
+
+- **New topic `dtrules docs compile`** — the `dtrules compile`
+  subcommand reference. Covers when to use it vs `dtrules build`,
+  every flag (`--dry-run`, `--strict`, `--force`, `--no-analyze`,
+  `-v`), exit-code contract, EDD discovery, TEMPLATE-skip behavior,
+  and the strict / default / force write semantics.
+
+- **New topic `dtrules docs warnings`** — the definitive catalogue of
+  every advisory warning kind. Eight entries (no-op column, subsumed
+  column, redundant condition, DSL-negation unreachable column,
+  assignment-only table, hand-coded postfix, dead condition row,
+  tree-based unreachable column), each with a minimal repro and the
+  recommended action. Plus per-surface filtering recipes
+  (`grep` / `jq` / `--project`).
+
+- **`dtrules docs cli`** command map updated. Adds `compile`,
+  `review`, `table`, `edd`, and `mcp` rows that were missing.
+
+- **`dtrules docs workflow`** prepends the v1.14.0 contract change
+  (loader is strict, not auto-recompile), the v1.14.1 advisory
+  pass on every surface, the choice between `dtrules build` and
+  `dtrules compile`, and a copy-paste migration block for projects
+  on v1.12.0 / v1.13.0.
+
+- **`dtrules docs architecture`** prepends a paragraph explaining
+  why the deploy-time binary is small in v1.14.x — `compiler/el`
+  stays on the dev side now that the loader doesn't compile.
+
+- **Three regression tests** (`TestDocumentation_CompileTopic`,
+  `_WarningsTopic`, `_WorkflowMentionsCompile`) pin required terms
+  across the new and updated topics so a refactor can't silently
+  drop a flag name or cross-reference.
+
 ## v1.14.3 — 2026-05-24
 
 Closes the three UX issues left open after v1.14.2's #790 blocker fix:

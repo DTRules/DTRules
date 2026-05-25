@@ -22,6 +22,15 @@ disk; at deploy-time you ship a single statically-linked binary. There are not
 two runtime paths — there is one binary, and all the artifacts that produced it
 stay behind on the developer machine.
 
+Since v1.14.0: the loader is strictly a postfix consumer. EL is compiled
+at authoring time ('dtrules build' or 'dtrules compile'); the runtime
+binary no longer pulls in the compiler/el package or its grammar tables.
+This is what makes the deploy-time binary as small as it is — the
+authoring toolchain stays on the dev side. The XML that ships must have
+compiled postfix; DSL with no postfix is a load error directing the
+operator to 'dtrules build'. See 'dtrules docs workflow' for the
+migration steps, 'dtrules docs compile' for the surgical backfill path.
+
 
 Dev-Time Layout
 ---------------
