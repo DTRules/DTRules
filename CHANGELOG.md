@@ -1,11 +1,55 @@
 # DTRules Changelog
 
-## v1.14.4 — 2026-05-24
+## v1.14.4 — 2026-05-25
 
-Docs-only patch. Closes a gap that existed since v1.14.0 shipped: the
-embedded `dtrules docs` topic set made zero mention of the strict
-loader, the `dtrules compile` subcommand, or the advisory pass — even
-though CLAUDE.md tells users (and AI agents) those topics are the
+Two independent patches bundled. The advisory `decisiontable.Analyze`
+no longer recommends an unsafe simplification, and the embedded docs
+catch up with everything v1.14.x shipped.
+
+### Analyzer: "leave one" rule for FIRST-policy redundant conditions (#794)
+
+`checkRedundantFirstPolicy` no longer flags the **last non-dash cell
+in a column** as redundant. Each cell remains individually provable
+redundant in pure FIRST-policy semantics, but applying every
+recommendation all-dashes the column, and the runtime treats an
+all-dash column as having no discriminator — a catch-all stops
+firing and downstream tables crash on null when variables the
+catch-all was supposed to set go unassigned.
+
+Concrete repro from the staking project: `Calculate_Weights` had 3
+of 3 col-4 cells flagged. Applying all three caused
+`Accumulate_Totals` to crash with
+`RFixed.promote: cannot promote null to fixed` because the weight
+catch-all stopped firing for accounts whose `effective_type` wasn't
+in the explicit set. Same pattern on 9 other staking tables; 7 of
+those had a single-cell column where the lone cell was flagged —
+making the warning impossible to apply safely.
+
+Fix: the check collects candidate warnings (deterministically by
+`(col, row)`) and emits at most `K - 1` per column with `K` non-dash
+cells. Sorted iteration suppresses the highest-row candidate. The
+staking project's outstanding 9 redundant-condition warnings that
+couldn't be safely applied are no longer emitted.
+
+Regression coverage:
+- `TestAnalyze_RedundantFirstPolicy_LeaveOneRule` — 4-column
+  `Calculate_Weights` shape; col 4 with K=3 emits exactly 2
+  warnings (rows 0 and 1; row 2 suppressed deterministically).
+- `TestAnalyze_RedundantFirstPolicy_SingleCellInColumn` — K=1 → 0
+  warnings (the seven single-cell staking cases).
+- The three existing tests (`TestAnalyze_RedundantFirstPolicy`,
+  `_NonFirstPolicy`, `_DistinguishingRow`) still pass — none of
+  them hit the leave-one threshold.
+
+Authors who genuinely want a column gone should delete it outright;
+the leave-one rule only governs the redundancy collapse path.
+
+### Embedded docs catch up with v1.14.x
+
+Closes a gap since v1.14.0 shipped: the embedded `dtrules docs`
+topic set made zero mention of the strict loader, the
+`dtrules compile` subcommand, or the advisory pass — even though
+CLAUDE.md tells users (and AI agents) those topics are the
 canonical reference.
 
 - **New topic `dtrules docs compile`** — the `dtrules compile`
