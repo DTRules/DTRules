@@ -22,6 +22,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
 	"github.com/DTRules/DTRules/pkg/dtrules/compiler/el"
 	"github.com/DTRules/DTRules/pkg/dtrules/decisiontable"
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
@@ -53,6 +54,7 @@ func (c *CLI) runCompile(args []string) int {
 	strict := false
 	noAnalyze := false
 	force := false
+	forceOverwriteExcel := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--dry-run":
@@ -63,6 +65,8 @@ func (c *CLI) runCompile(args []string) int {
 			noAnalyze = true
 		case "--force":
 			force = true
+		case "--force-overwrite-excel":
+			forceOverwriteExcel = true
 		case "-v", "--verbose":
 			verbose = true
 		case "-h", "--help":
@@ -117,6 +121,29 @@ func (c *CLI) runCompile(args []string) int {
 		return 1
 	}
 
+	// Excel-sync guard (v1.14.5): refuse the write if a covered Excel
+	// file has been touched since the last export. `dtrules compile`
+	// writes XML in place; without this guard an AI's compile could
+	// silently override a human's open Excel edits. --dry-run skips
+	// the guard since nothing is actually written.
+	if !dryRun {
+		// Decide the directory the guard searches in. For dir targets
+		// it's the target itself; for single-file targets it's the
+		// file's parent directory (where any sibling `.sync-manifest.json`
+		// would live).
+		guardDir := target
+		if info, err := os.Stat(target); err == nil && !info.IsDir() {
+			guardDir = filepath.Dir(target)
+		}
+		if err := authoring.GuardExcelInDir(guardDir, forceOverwriteExcel); err != nil {
+			fmt.Fprintf(os.Stderr, "compile: %v\n", err)
+			fmt.Fprintln(os.Stderr, "\nTo proceed, either:")
+			fmt.Fprintln(os.Stderr, "  1) Run `dtrules build --from-excel` to import the Excel changes first, OR")
+			fmt.Fprintln(os.Stderr, "  2) Re-run with --force-overwrite-excel to overwrite the human Excel edits.")
+			return 1
+		}
+	}
+
 	cmp := el.NewCompiler()
 
 	// Wire up the EDD-derived symbol table so the EL compiler picks the
@@ -164,6 +191,23 @@ func (c *CLI) runCompile(args []string) int {
 		len(files), totalCompiled, totalSkipped, totalErrors)
 	if dryRun {
 		fmt.Println("(dry run — no files modified)")
+	}
+
+	// Excel refresh (v1.14.5): now that XML postfix has been written,
+	// re-export Excel from the new state so the two formats stay
+	// paired on disk. No-op on projects without a `.sync-manifest.json`
+	// (legacy / flat layouts). Skipped on --dry-run.
+	if !dryRun && totalCompiled > 0 {
+		refreshDir := target
+		if info, err := os.Stat(target); err == nil && !info.IsDir() {
+			refreshDir = filepath.Dir(target)
+		}
+		if err := authoring.RefreshExcelInDir(refreshDir); err != nil {
+			fmt.Fprintf(os.Stderr, "compile: Excel refresh failed: %v\n", err)
+			fmt.Fprintln(os.Stderr, "  XML was written; Excel may be stale. Run `dtrules build` to recover.")
+			// Don't fail the command — XML write succeeded. Exit code
+			// reflects compile success/failure only.
+		}
 	}
 
 	// Advisory pass: run decisiontable.Analyze on every table in every file.
@@ -303,6 +347,11 @@ Options:
                 after a compiler bug fix (e.g. v1.14.2 #790) to refresh
                 postfix produced by an earlier buggy version. Default
                 only fills empty postfix.
+  --force-overwrite-excel
+                Bypass the Excel-mtime guard. By default 'compile'
+                refuses to run when a covered Excel file is newer than
+                its last export (would clobber human edits). Pass this
+                flag only after deciding the XML version should win.
   --no-analyze  Skip the advisory pass after compile. Default runs it.
   -v, --verbose Per-file compiled/skipped/error/warning counts.
 

@@ -1,5 +1,88 @@
 # DTRules Changelog
 
+## v1.14.5 — 2026-05-28
+
+Restores the **"Excel is the system of record"** contract that
+v1.14.0–v1.14.4 had silently broken on every authoring surface.
+
+### The bug
+
+Six surfaces wrote XML without touching Excel:
+
+  - `dtrules table put` / `patch` → `Project.Save()` wrote XML only
+  - `dtrules edd put` / `patch` → `Project.SaveEDD()` wrote XML only
+  - MCP `table_put`, `table_patch`, `edd_put` → same as above
+  - `dtrules compile` → byte-level postfix surgery, no Excel awareness
+
+Result on staking: `pkg/dtrules/rules/staking_dt.xml` modified
+2026-05-27, `pkg/dtrules/source/staking.xlsx` last touched 2026-05-25.
+Three days of drift; AI-driven authoring edits never propagated to
+the spreadsheet anyone could open.
+
+### The fix
+
+Every XML-writing surface now runs two new gates around the write:
+
+1. **Pre-write Excel-mtime guard** (Phase 1). If a covered Excel file
+   has been touched since the sync manifest's last-export record (= a
+   human edited the spreadsheet outside DTRules), the write is
+   refused with `sync.ExcelModifiedError`. The operator either runs
+   `dtrules build --from-excel` first to merge those edits, or passes
+   `--force-overwrite-excel` (CLI) / sets `OverwriteExcel = true`
+   (Go API) to assert the XML version should win.
+
+2. **Lock-file detection**. `~$<name>.xlsx` (Microsoft Excel) and
+   `.~lock.<name>.xlsx#` (LibreOffice) sidecars block writes
+   unconditionally — writing through an open spreadsheet corrupts
+   in-app state. The override flag does not bypass this; the
+   operator must close the spreadsheet first.
+
+3. **Post-write Excel refresh** (Phase 2). After XML lands, the
+   covered Excel files are re-exported from the new in-memory state
+   so the two formats stay byte-paired on disk. Sync manifest's
+   `RecordExport` advances `LastExportTime` so the next guard starts
+   from a clean baseline.
+
+### What changes for callers
+
+- `dtrules table put` / `patch` / `dtrules edd put` / `patch` /
+  MCP `table_put` / `table_patch` / `edd_put` / `dtrules compile`:
+  all support `--force-overwrite-excel` and obey the new contract.
+- `authoring.Project` grows an `OverwriteExcel bool` field
+  (default false).
+- Two new package-level helpers in `pkg/dtrules/authoring`:
+  - `GuardExcelInDir(xmlDir, overwrite)` — runs Phase 1 + lock-file
+    check.
+  - `RefreshExcelInDir(xmlDir)` — runs Phase 2.
+  - `LoadSyncManifestForXMLDir(xmlDir)` — manifest discovery used by
+    both. Search order: `<xmlDir>/`, `<xmlDir>/../source/`,
+    `<xmlDir>/../excel/`, `<xmlDir>/../`. First match wins.
+- `Project.preWriteExcelGuard` and `refreshExcelFromXML` are now
+  thin facades over the package-level helpers.
+
+### Backward compatibility
+
+Projects without a `.sync-manifest.json` (legacy flat layouts, fresh
+test fixtures, the SyntaxTests sample project) are no-op'd on both
+guards — Save() / SaveEDD() / compile behave exactly as in v1.14.4
+for them. The new contract only kicks in for projects that have run
+`dtrules build` at least once and thus have a manifest beside their
+Excel files.
+
+### Tests
+
+Six new regression tests in
+`pkg/dtrules/authoring/excel_sync_test.go`:
+
+- `TestGuardExcelInDir_RefusesWhenExcelNewer` — core Phase 1.
+- `TestGuardExcelInDir_PassesWithOverwriteFlag` — override path.
+- `TestGuardExcelInDir_NoManifestIsNoOp` — backward-compatibility.
+- `TestGuardExcelInDir_RefusesWhenExcelLocked` — both ~$ and .~lock
+  conventions; override flag does not bypass.
+- `TestRefreshExcelInDir_NoOpOnNoManifest` — Phase 2 backward-compat.
+- `TestRefreshExcelInDir_UpdatesExcelMtime` — Phase 2 happy path:
+  xlsx mtime advances, manifest LastExportTime advances.
+
 ## v1.14.4 — 2026-05-25
 
 Two independent patches bundled. The advisory `decisiontable.Analyze`
