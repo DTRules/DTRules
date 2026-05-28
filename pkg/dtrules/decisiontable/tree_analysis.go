@@ -14,6 +14,11 @@
 
 package decisiontable
 
+import (
+	"fmt"
+	"strings"
+)
+
 // AnalyzeCompiledTable runs the post-compile advisory checks on a
 // decision table whose tree has already been built (Build / Compile).
 // These checks need the compiled tree because they answer
@@ -43,6 +48,7 @@ func AnalyzeCompiledTable(dt *RDecisionTable) []Warning {
 	var warnings []Warning
 	warnings = append(warnings, checkUnreachableColumnsByTree(dt, root)...)
 	warnings = append(warnings, checkDeadConditionsByTree(dt, root)...)
+	warnings = append(warnings, checkRedundantActionSetColumns(dt, root)...)
 	return warnings
 }
 
@@ -117,6 +123,102 @@ func checkDeadConditionsByTree(dt *RDecisionTable, root DTNode) []Warning {
 		warnings = append(warnings, w)
 	}
 	return warnings
+}
+
+// checkRedundantActionSetColumns is the #797 check: a column is
+// redundant if it doesn't introduce a new action-set combination
+// into the table's reachable leaves. Walk the compiled tree, group
+// columns by the ordered tuple of action numbers they reach, and
+// for each group keep the smallest column number ("useful — first
+// to reach this action set") while flagging every other column in
+// the group ("redundant — same action set already covered by an
+// earlier column").
+//
+// Stronger than the cell-level redundant-condition check (#762,
+// capped at K-1 by #794's leave-one rule): that check operates on
+// Y/N entries one cell at a time and tells the operator
+// individual cells are forced; this one tells them entire columns
+// are doing nothing new and points at the earlier column already
+// covering the same behavior. Recommended remediation is to
+// collapse the redundant columns into a single catch-all (`*` in
+// every condition row) or remove them and let their inputs fall
+// through to a downstream column.
+//
+// Action-set identity is the ordered tuple of action numbers
+// reached at the leaf — same actions in a different order is NOT
+// considered the same action set because the runtime executes
+// them in order and a different order can have observably
+// different effects (audit-trail line ordering, sequence
+// dependencies between sets and reads).
+//
+// Pre-existing dead/unreachable columns from checkUnreachableColumnsByTree
+// are skipped: a column with no ANode leaf wasn't compiled into
+// the tree at all, so the "introduces this action set" question
+// doesn't apply.
+func checkRedundantActionSetColumns(dt *RDecisionTable, root DTNode) []Warning {
+	maxCol := dt.GetMaxCol()
+	if maxCol < 2 {
+		return nil
+	}
+
+	// columnLeaf[col] = action-set signature reached by `col`. Built
+	// by walking the tree once and recording every (col → ANode)
+	// mapping. A column with no entry here is unreachable; the
+	// caller already gets a separate warning for those.
+	columnLeaf := make(map[int]string, maxCol)
+	walkTree(root, func(a *ANode, _ *CNode) {
+		if a == nil {
+			return
+		}
+		sig := actionSetSignature(a.actionNumbers)
+		for _, col := range a.columns {
+			columnLeaf[col] = sig
+		}
+	})
+
+	// firstColForActionSet[sig] = lowest column number reaching
+	// this action set. Iterate columns in order so the lowest
+	// number wins.
+	firstColForActionSet := make(map[string]int, maxCol)
+	var warnings []Warning
+	for col := 1; col <= maxCol; col++ {
+		sig, ok := columnLeaf[col]
+		if !ok {
+			continue // unreachable column — separate warning
+		}
+		earlier, seen := firstColForActionSet[sig]
+		if !seen {
+			firstColForActionSet[sig] = col
+			continue
+		}
+		w := newWarning(dt.GetName(), "redundant action-set column",
+			fmt.Sprintf("column %d reaches the same action set as column %d — consider collapsing into a single column (all conditions = '-') or removing if the inputs should fall through downstream",
+				col, earlier))
+		w.Column = col
+		warnings = append(warnings, w)
+	}
+	return warnings
+}
+
+// actionSetSignature returns a stable string key for an ordered list
+// of action numbers. Used to group columns by action-set identity in
+// checkRedundantActionSetColumns. The exact format isn't observable
+// — only the property that two equal sigs imply equal ordered
+// tuples and vice versa.
+func actionSetSignature(actionNumbers []int) string {
+	if len(actionNumbers) == 0 {
+		return "[]"
+	}
+	var b strings.Builder
+	b.WriteByte('[')
+	for i, n := range actionNumbers {
+		if i > 0 {
+			b.WriteByte(',')
+		}
+		fmt.Fprintf(&b, "%d", n)
+	}
+	b.WriteByte(']')
+	return b.String()
 }
 
 // walkTree does a depth-first walk over the compiled decision tree,
