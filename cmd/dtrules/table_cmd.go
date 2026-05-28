@@ -44,6 +44,11 @@ type tableCmdCtx struct {
 	stdout      io.Writer
 	stderr      io.Writer
 	projectPath string
+	// forceOverwriteExcel, when true, bypasses Project.Save's
+	// "Excel newer than last export" guard for this command. Set by
+	// the `--force-overwrite-excel` CLI flag; the default is false,
+	// which preserves human Excel edits by refusing the XML write.
+	forceOverwriteExcel bool
 }
 
 // emitErr writes a JSON error record to stderr and returns the exit code.
@@ -62,9 +67,11 @@ func writeJSON(w io.Writer, v interface{}) error {
 	return enc.Encode(v)
 }
 
-// parseProjectFlag pulls --project out of a flag slice, returning the value
-// and a copy of args with that flag removed. Defaults to ".".
-func parseProjectFlag(args []string) (projectPath string, rest []string) {
+// parseProjectFlag pulls --project / -p and --force-overwrite-excel
+// out of a flag slice, returning the parsed values and a copy of args
+// with those flags removed. Defaults: projectPath=".",
+// forceOverwriteExcel=false.
+func parseProjectFlag(args []string) (projectPath string, forceOverwriteExcel bool, rest []string) {
 	projectPath = "."
 	out := make([]string, 0, len(args))
 	for i := 0; i < len(args); i++ {
@@ -75,9 +82,13 @@ func parseProjectFlag(args []string) (projectPath string, rest []string) {
 				continue
 			}
 		}
+		if args[i] == "--force-overwrite-excel" {
+			forceOverwriteExcel = true
+			continue
+		}
 		out = append(out, args[i])
 	}
-	return projectPath, out
+	return projectPath, forceOverwriteExcel, out
 }
 
 // runTable dispatches `dtrules table ...`.
@@ -89,7 +100,7 @@ func (c *CLI) runTable(args []string) int {
 	}
 	sub := args[0]
 	rest := args[1:]
-	ctx.projectPath, rest = parseProjectFlag(rest)
+	ctx.projectPath, ctx.forceOverwriteExcel, rest = parseProjectFlag(rest)
 
 	switch sub {
 	case "list":
@@ -122,7 +133,7 @@ func (c *CLI) runEDD(args []string) int {
 	}
 	sub := args[0]
 	rest := args[1:]
-	ctx.projectPath, rest = parseProjectFlag(rest)
+	ctx.projectPath, ctx.forceOverwriteExcel, rest = parseProjectFlag(rest)
 
 	switch sub {
 	case "get":
@@ -149,6 +160,9 @@ func (ctx *tableCmdCtx) openProject() (*authoring.Project, int) {
 	if err != nil {
 		return nil, emitErr(ctx.stderr, 1, "io_error", "", "project must contain an xml/ subdirectory or *_dt.xml files directly", err.Error())
 	}
+	// Thread the --force-overwrite-excel flag through so Save / SaveEDD
+	// know whether to bypass the Excel-mtime guard for this command.
+	p.OverwriteExcel = ctx.forceOverwriteExcel
 	return p, 0
 }
 

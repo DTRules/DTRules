@@ -33,6 +33,16 @@ type Project struct {
 	edd         *EDD         // lazily loaded
 	execSt      *execState   // lazily-created execution state; nil until first use
 	diagnostics []Diagnostic // authoring-time diagnostics (duplicate renames, etc.)
+
+	// OverwriteExcel, when true, suppresses the "Excel newer than last
+	// export" guard in Save() / SaveEDD(). Default false: a downstream
+	// Excel that's newer than what the sync manifest recorded means a
+	// human edited the spreadsheet outside DTRules; silently
+	// overwriting it with the XML-derived render would lose work. The
+	// guard refuses with sync.ExcelModifiedError and the operator
+	// either runs `dtrules build --from-excel` first to merge those
+	// changes, or sets this flag to force-overwrite.
+	OverwriteExcel bool
 }
 
 // dtFileEntry tracks a single decision-table XML file and its in-memory model.
@@ -224,16 +234,90 @@ func (p *Project) loadDTFiles(xmlDir string) error {
 	return nil
 }
 
-// Save writes all pending mutations back to disk as canonical XML files.
-// The output uses the same format as the DTImporter.WriteXML pipeline.
+// Save writes all pending mutations back to disk as canonical XML files
+// AND refreshes any Excel workbook the project's sync manifest points at,
+// keeping the "Excel is system of record" contract honored on every
+// authoring write.
+//
+// The flow:
+//
+//  1. Locate the sync manifest (the `.sync-manifest.json` that
+//     `dtrules build` maintains beside the project's Excel files).
+//     If no manifest exists, the project is treated as XML-only and
+//     Save behaves like the pre-v1.14.5 version — XML write only.
+//
+//  2. For each Excel file the manifest covers, run ExportGuard to
+//     refuse the write if the user has touched Excel since the last
+//     export (mtime-based). The error type is
+//     `sync.ExcelModifiedError`; set `OverwriteExcel = true` on the
+//     project to bypass this guard.
+//
+//  3. Refuse the write if any covered Excel file is locked by another
+//     process (`~$<name>.xlsx` or `.~lock.<name>.xlsx#` siblings).
+//     Writing through a lock corrupts the file from the other app's
+//     point of view.
+//
+//  4. Write XML (as before).
+//
+//  5. Re-export every covered Excel from the in-memory project so
+//     XML and Excel stay byte-paired on disk. Update the manifest's
+//     last-export record afterward so the next Save's guard sees a
+//     fresh baseline.
+//
+// XML is always written if the guards pass. If the Excel refresh
+// fails (e.g. mid-write disk error), the XML write has already
+// happened; Save returns a wrapped error naming the failed Excel
+// path so the operator can recover.
 func (p *Project) Save() error {
+	if err := p.preWriteExcelGuard(); err != nil {
+		return err
+	}
+
 	imp := excel.NewDTImporter()
 	for _, entry := range p.dtFiles {
 		if err := imp.WriteXML(entry.tables, entry.path); err != nil {
 			return fmt.Errorf("failed to write %s: %w", entry.path, err)
 		}
 	}
-	return p.SaveEDD()
+	if err := p.saveEDDXMLOnly(); err != nil {
+		return err
+	}
+	return p.refreshExcelFromXML()
+}
+
+// preWriteExcelGuard is the Project-method facade over GuardExcelInDir.
+// It threads the project's OverwriteExcel flag through and otherwise
+// delegates straight to the package-level helper, so the same code
+// path runs whether the caller is Project.Save or a non-Project
+// surface like dtrules compile.
+func (p *Project) preWriteExcelGuard() error {
+	return GuardExcelInDir(p.xmlDir, p.OverwriteExcel)
+}
+
+// refreshExcelFromXML re-exports every Excel file the sync manifest
+// covers from the project's freshly-written XML state. Called after
+// the XML write so XML and Excel are byte-paired on disk by the time
+// Save returns.
+//
+// The export goes through `excel.NewExporter(rs)` which requires a
+// `*session.RuleSet`. Loading the RuleSet here pays a one-time cost
+// per Save — modest for a single-workbook project (staking), more
+// noticeable on TaxReturn-scale corpora. Tolerant load so DSL-only
+// elements (no postfix) don't error out; Save is an authoring
+// surface and the operator may be in the middle of an edit.
+//
+// Manifest is updated via RecordExport after each successful Excel
+// write so the next Save's ExportGuard sees the fresh baseline.
+//
+// No-manifest projects skip this whole step (same logic as the
+// preWriteExcelGuard) — Save behaves as the legacy XML-only writer
+// for them.
+// refreshExcelFromXML is the Project-method facade over
+// RefreshExcelInDir. Same pattern as preWriteExcelGuard: delegate to
+// the package-level helper so the same code path runs from any caller
+// (Save, SaveEDD, dtrules compile).
+func (p *Project) refreshExcelFromXML() error {
+	return RefreshExcelInDir(p.xmlDir)
 }
 
 // Tables lists the names of every decision table in the project.

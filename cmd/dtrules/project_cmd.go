@@ -36,7 +36,7 @@ func (c *CLI) runProject(args []string) int {
 	}
 	sub := args[0]
 	rest := args[1:]
-	ctx.projectPath, rest = parseProjectFlag(rest)
+	ctx.projectPath, ctx.forceOverwriteExcel, rest = parseProjectFlag(rest)
 
 	switch sub {
 	case "diagnostics":

@@ -92,8 +92,31 @@ func (p *Project) EDD() *EDD {
 	return p.edd
 }
 
-// SaveEDD writes the EDD back to its file.
+// SaveEDD writes the project's EDD XML AND refreshes any covered Excel
+// workbook. Same guard + auto-refresh contract as Project.Save: the
+// pre-write check refuses if a covered Excel has been touched since
+// the last export (set OverwriteExcel = true to bypass), and a
+// successful write triggers a fresh Excel export so the two formats
+// stay paired on disk.
+//
+// Save() bypasses this wrapper internally — it runs its own guard
+// once and then calls saveEDDXMLOnly directly so we don't double-
+// guard or double-refresh.
 func (p *Project) SaveEDD() error {
+	if err := p.preWriteExcelGuard(); err != nil {
+		return err
+	}
+	if err := p.saveEDDXMLOnly(); err != nil {
+		return err
+	}
+	return p.refreshExcelFromXML()
+}
+
+// saveEDDXMLOnly is the legacy EDD-XML-only writer. Callers that want
+// the Excel-sync contract use the public SaveEDD wrapper above; only
+// internal Save() (which guards once for the whole project) calls
+// this directly.
+func (p *Project) saveEDDXMLOnly() error {
 	if p.edd == nil {
 		return nil
 	}
