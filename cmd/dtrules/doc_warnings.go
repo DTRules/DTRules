@@ -161,6 +161,30 @@ some other path the matrix-driven kind 4 above couldn't see.
 
   Action: delete the column.
 
+9. redundant action-set column (#797; tree-based, from review only)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Column N reaches the same ordered action set as an earlier column;
+its conditions are decorative — under FIRST policy any input that
+reaches column N would land on identical behavior had column N not
+existed. The warning identifies the earlier column.
+
+Most common shape: a final "catch-all" set of columns split across
+N condition combinations that all execute the same fallback
+actions. They can collapse into one column with all conditions
+= '-' (dash, "don't care").
+
+  Repro: Calculate_Withholding in the staking project has cols
+  2/3/4 all executing {Zero withholding, Full budget, Track
+  deposits} but with three different N-pattern condition matrices.
+  Flagged: col 3, col 4 (col 2 introduces the action set).
+
+  Action: collapse into one '-'-only column with that action set,
+  OR delete and let inputs fall through to a downstream column
+  with the intended fallback behavior. Order matters — '[A, B]'
+  and '[B, A]' are NOT the same action set because the runtime
+  executes them in order.
+
 Severity and exit codes
 -----------------------
 

@@ -1,5 +1,71 @@
 # DTRules Changelog
 
+## v1.14.6 — 2026-05-28
+
+New analyzer check: **redundant action-set column** (#797).
+
+A column is redundant if it doesn't introduce a new action-set
+combination into the decision tree. The existing redundancy checks
+operate at the cell level (`redundant condition` flags individual
+Y/N entries; `subsumed column` requires another column to already be
+more permissive). Neither catches the common shape where a "catch-all"
+fallback is split across N condition combinations all firing the same
+actions.
+
+### Algorithm
+
+`AnalyzeCompiledTable` walks the compiled tree, groups columns by the
+ordered tuple of action numbers their path reaches, and for each
+group keeps the lowest column number ("useful — first to reach this
+action set"). Every other column in the group is flagged. Action-set
+identity is the *ordered* tuple — `[A, B]` and `[B, A]` are NOT the
+same set because the runtime executes them in order and order
+matters for audit trails, sequence between sets and reads, etc.
+
+### Concrete impact: staking's Calculate_Withholding
+
+Four-column table, FIRST policy. Two action sets:
+- A = `{Raw 45%, Cap, Staker=weekly-withhold, Track deposits}` — col 1
+- B = `{Zero, Full budget, Track deposits}` — cols 2, 3, 4
+
+Pre-fix the operator saw two `redundant condition` warnings on col 4
+(after #794's leave-one cap) plus three on col 3. Post-fix they
+additionally see:
+
+```
+WARN Calculate_Withholding: column 3 reaches the same action set as
+  column 2 — consider collapsing into a single column (all conditions
+  = '-') or removing if the inputs should fall through downstream
+WARN Calculate_Withholding: column 4 reaches the same action set as
+  column 2 — ...
+```
+
+Direct column-level recommendation instead of cell-by-cell hints.
+
+### Coverage
+
+Three new regression tests in `pkg/dtrules/decisiontable/tree_analysis_test.go`:
+
+- `TestCheckRedundantActionSetColumns_TwoActionSets` —
+  Calculate_Withholding shape; cols 3 and 4 flagged, col 2 not.
+- `TestCheckRedundantActionSetColumns_DistinctActionSets` — silent
+  when every column has a unique action set.
+- `TestCheckRedundantActionSetColumns_OrderMatters` — `[A, B]` vs
+  `[B, A]` are treated as distinct action sets.
+
+`dtrules docs warnings` catalogue extended with the new "9. redundant
+action-set column" entry. `TestDocumentation_WarningsTopic` pins the
+new term so future doc refactors can't silently drop it.
+
+### Where the check fires
+
+`AnalyzeCompiledTable` only — runs from `dtrules review` and the
+`project_full_review` MCP tool. The matrix-only `decisiontable.Analyze`
+path (used by `dtrules build`, `dtrules compile`, `dtrules table
+warnings`) doesn't have access to the compiled tree, so this check
+is invisible there. Consistent with the existing tree-only checks
+(`unreachable column` via tree, `dead condition row`).
+
 ## v1.14.5 — 2026-05-28
 
 Restores the **"Excel is the system of record"** contract that

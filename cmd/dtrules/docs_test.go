@@ -255,6 +255,7 @@ func TestDocumentation_WarningsTopic(t *testing.T) {
 		"assignment-only table",
 		"hand-coded postfix",
 		"dead condition row",
+		"redundant action-set column",
 		"decisiontable.Analyze",
 		"dtrules table warnings",
 		"dtrules review",
