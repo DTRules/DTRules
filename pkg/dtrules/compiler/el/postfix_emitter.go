@@ -5693,6 +5693,70 @@ func (e *PostfixEmitter) VisitBigColonRef(ctx *BigColonRefContext) interface{} {
 	return nil
 }
 
+// =============================================================================
+// #803 batch 4: colon-ref field access. Mirrors the existing
+// VisitBigColonRef / VisitBytesColonRef pattern across all typed
+// variants. Pre-fix, `:Client:fee > 0` and `:Client:active is true`
+// produced empty LHS in postfix because the matching XxxColonRef alt
+// had no override and antlr's VisitChildren is a no-op.
+//
+// Confirmed reachable by parse-tree inspection:
+//   - intColonRef:  `:Client:<numeric-field>` (the most common case;
+//                   typedLong wins because IDENT matches across types)
+//   - boolColonRef: `:Client:<bool-field> is true`
+//
+// Likely dead grammar for the others (Float/Date/Str/Name/Array/Name
+// don't appear as the parser's first-match for IDENT-prefixed forms).
+// Adding all 7 anyway as defensive overrides; the visitors share the
+// same simple emission shape so the cost is small.
+// =============================================================================
+
+func (e *PostfixEmitter) VisitIntColonRef(ctx *IntColonRefContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.TypedLong())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatColonRef(ctx *FloatColonRefContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.TypedDouble())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolColonRef(ctx *BoolColonRefContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.TypedBoolean())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitDateColonRef(ctx *DateColonRefContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.TypedDate())
+	return nil
+}
+
+// VisitStrColonRef: `colonRef strexpr` — note this takes a full strexpr,
+// not a typed-IDENT like the others. In practice the parser doesn't
+// reach this alt because the simpler typed forms win first; included
+// for grammar completeness and defensive depth.
+func (e *PostfixEmitter) VisitStrColonRef(ctx *StrColonRefContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.Strexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitNameColonRef(ctx *NameColonRefContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.TypedName())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitArrayColonRef(ctx *ArrayColonRefContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.TypedArray())
+	return nil
+}
+
 func (e *PostfixEmitter) VisitBigFromStr(ctx *BigFromStrContext) interface{} {
 	e.Visit(ctx.Strexpr())
 	e.emit("cvbi")
