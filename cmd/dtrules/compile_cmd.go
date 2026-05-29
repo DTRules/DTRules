@@ -432,27 +432,68 @@ var dslPostfixPairs = []kindPair{
 // #790 SetSymbols repair) to refresh stored postfix that was produced
 // by an earlier buggy version. Default behavior only fills empty
 // postfix; existing content is preserved as the authoritative form.
+// decisionTableRe finds each `<decision_table>...</decision_table>`
+// block. Per #814, each block needs an isolated local-variable scope —
+// `ResetLocals` is called at every table boundary so slot indices and
+// name maps don't bleed across tables. The (?s) flag lets `.` match
+// newlines so the body content is captured.
+var decisionTableRe = regexp.MustCompile(`(?s)<decision_table>.*?</decision_table>`)
+
 func compileFile(cmp *el.Compiler, f string, dryRun, strict, force bool) (int, int, []string) {
 	data, err := os.ReadFile(f)
 	if err != nil {
 		return 0, 0, []string{fmt.Sprintf("read failed: %v", err)}
 	}
 
-	cmp.ResetLocals()
-
 	var compileErrs []string
 	filled := 0
 	skipped := 0
 
-	// Run one pass per kind. Each pass walks the (already-rewritten) byte
-	// buffer end-to-end. Order matters for diagnostic numbering only: we
-	// process kinds in the same order they appear in dslPostfixPairs so
-	// `condition N` in an error message lines up with the loader's view.
+	// #814: process each <decision_table> block in isolation. The EL
+	// compiler's `ResetLocals` docstring literally says "Call this
+	// between tables to prevent slot indices from bleeding across
+	// independent compilation scopes" — this is the caller that
+	// honors it. Bytes outside any <decision_table> tag (the XML
+	// preamble, the <decision_tables> wrapper) pass through unchanged.
+	newData := decisionTableRe.ReplaceAllFunc(data, func(tableBytes []byte) []byte {
+		cmp.ResetLocals()
+		rewritten, f, s, errs := compileOneTable(cmp, tableBytes, force)
+		filled += f
+		skipped += s
+		compileErrs = append(compileErrs, errs...)
+		return rewritten
+	})
+
+	// Strict mode: any error blocks the write so the file stays in a
+	// fully-known state. Non-strict (default): write the successful
+	// fills and report the errors — the file is no worse than before
+	// for the failing elements, and the successful ones land.
+	if strict && len(compileErrs) > 0 {
+		return filled, skipped, compileErrs
+	}
+	if filled > 0 && !dryRun {
+		if err := os.WriteFile(f, newData, 0o644); err != nil {
+			return filled, skipped, append(compileErrs, fmt.Sprintf("write failed: %v", err))
+		}
+	}
+	return filled, skipped, compileErrs
+}
+
+// compileOneTable runs the four-kind compile pass (context →
+// initial_action → action → condition) within the bytes of one
+// `<decision_table>` block. Order matters for diagnostic numbering
+// only — `condition N` in an error message lines up with the loader's
+// per-table view. Locals declared in this table's context are visible
+// to its conditions and actions; nothing about that scope leaks back
+// out because the caller called `ResetLocals` before invoking us.
+func compileOneTable(cmp *el.Compiler, data []byte, force bool) ([]byte, int, int, []string) {
+	var compileErrs []string
+	filled := 0
+	skipped := 0
 	newData := data
+
 	for _, kp := range dslPostfixPairs {
 		kind := kp.kind
-		// Pick the regex that matches the operating mode: --force rewrites
-		// any existing postfix; default only fills empty slots.
 		re := kp.reEmpty
 		if force {
 			re = kp.reAny
@@ -480,9 +521,6 @@ func compileFile(cmp *el.Compiler, f string, dryRun, strict, force bool) (int, i
 			}
 
 			filled++
-			// Reconstruct the pair with the postfix slot populated.
-			// Preserve the original DSL bytes verbatim by indexing the
-			// match: everything up to the postfix open tag stays as-is.
 			postfixOpen := []byte(fmt.Sprintf("<%s_postfix>", kind))
 			openIdx := indexOfLast(match, postfixOpen)
 			if openIdx < 0 {
@@ -496,20 +534,7 @@ func compileFile(cmp *el.Compiler, f string, dryRun, strict, force bool) (int, i
 			return out
 		})
 	}
-
-	// Strict mode: any error blocks the write so the file stays in a
-	// fully-known state. Non-strict (default): write the successful
-	// fills and report the errors — the file is no worse than before
-	// for the failing elements, and the successful ones land.
-	if strict && len(compileErrs) > 0 {
-		return filled, skipped, compileErrs
-	}
-	if filled > 0 && !dryRun {
-		if err := os.WriteFile(f, newData, 0o644); err != nil {
-			return filled, skipped, append(compileErrs, fmt.Sprintf("write failed: %v", err))
-		}
-	}
-	return filled, skipped, compileErrs
+	return newData, filled, skipped, compileErrs
 }
 
 // compileKind dispatches to the right EL compiler entry point for each
