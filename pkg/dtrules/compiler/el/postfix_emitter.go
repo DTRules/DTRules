@@ -5894,6 +5894,72 @@ func (e *PostfixEmitter) VisitBigUsing(ctx *BigUsingContext) interface{} {
 	return nil
 }
 
+// =============================================================================
+// #803 batch 5: date constructor/cast family. Each pre-fix produced empty
+// RHS — `set a.d = (date) "2026-01-15"` and friends emitted only the
+// assignment trailer `cvdate /a.d xdef`. The inner expression was dropped
+// because antlr's BaseParseTreeVisitor.VisitChildren is a no-op.
+// =============================================================================
+
+// VisitDateFromStrCast: `(date) <strexpr>` — explicit string→date cast.
+func (e *PostfixEmitter) VisitDateFromStrCast(ctx *DateFromStrCastContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("cvdate")
+	return nil
+}
+
+// VisitDateFromStrFunc: `date(<strexpr>)` — function-call cast form.
+// Emission identical to the prefix-cast form.
+func (e *PostfixEmitter) VisitDateFromStrFunc(ctx *DateFromStrFuncContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("cvdate")
+	return nil
+}
+
+// VisitDateFromIndex: `(date) <arrayExpr>[<iexpr>]` — cast an indexed
+// expression. The IndxExpr visitor (batch 1) emits the
+// `<array> <index> bytesidx` sequence; we append cvdate.
+func (e *PostfixEmitter) VisitDateFromIndex(ctx *DateFromIndexContext) interface{} {
+	e.Visit(ctx.IndxExpr())
+	e.emit("cvdate")
+	return nil
+}
+
+// VisitDateFromArrayAt: `(date) <typedArray>[<iexpr>]` — same shape as
+// FromIndex but the grammar inlines the array+index instead of going
+// through indxExpr, so we emit the bytesidx ourselves.
+func (e *PostfixEmitter) VisitDateFromArrayAt(ctx *DateFromArrayAtContext) interface{} {
+	e.Visit(ctx.TypedArray())
+	e.Visit(ctx.Iexpr())
+	e.emit("bytesidx")
+	e.emit("cvdate")
+	return nil
+}
+
+// VisitDateUsing: `using <eexpr> (<dexpr>)` — evaluate the date
+// expression with eexpr pushed onto the entity stack. Mirrors the
+// existing VisitBigUsing pattern: entitypush before the inner
+// expression, entitypop after.
+func (e *PostfixEmitter) VisitDateUsing(ctx *DateUsingContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("entitypush")
+	e.Visit(ctx.Dexpr())
+	e.emit("entitypop")
+	return nil
+}
+
+// VisitDateTableLookup: `(date) <typedTable>(<tablelist>)` — hash-table
+// lookup. The hash-table ops were removed (see VisitStrTableLookup /
+// VisitTableNew); the grammar still parses these forms. Emit an
+// elstmterror so the compile produces non-empty postfix but the runtime
+// raises a clear error — same pattern as the StrTableLookup placeholder.
+func (e *PostfixEmitter) VisitDateTableLookup(ctx *DateTableLookupContext) interface{} {
+	e.emit("\"hash tables removed — (date) table-lookup unsupported\"")
+	e.emit("elstmterror")
+	e.emit("today")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitBigAbs(ctx *BigAbsContext) interface{} {
 	e.Visit(ctx.Bigexpr())
 	e.emit("babs")
