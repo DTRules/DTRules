@@ -73,6 +73,16 @@ statement
     | errorstatement separator
     | warnstatement separator
     | createstatement separator
+    // #812: localvariables (formerly context-only) lifted to action
+    // bodies so `local entity X = new T entity` etc. work inside
+    // <action_dsl> and <initial_action_dsl>, not just <context_dsl>.
+    // The runtime allocate / execute / deallocate pattern emitted by
+    // the existing localvariables visitors gives the local the same
+    // scope it has in context — alive for the rest of the table's
+    // execution block. (Unlabeled to match the other statement alts;
+    // VisitStatement walks children, dispatching to the right
+    // localvariables sub-visitor.)
+    | localvariables separator
     ;
 
 createstatement
