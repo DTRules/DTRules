@@ -22,10 +22,19 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/DTRules/DTRules/pkg/dtrules"
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
 )
 
-// validTypes is the set of DTRules primitive types.
+// validTypes is the set of DTRules primitive types accepted by the
+// authoring SDK. Must stay in sync with what the EDD loader and runtime
+// accept on the read path — projects in the wild use `fixed`
+// (10⁻⁸-scaled bigint mantissa, see pkg/dtrules/fixed.go::RFixed) on
+// existing EDD entities; omitting it here means a project loaded from
+// an XML that has `type="fixed"` reads fine but any SDK
+// AddAttribute/UpdateAttribute with `Type: "fixed"` is rejected as
+// "unknown type". The authoring surface is meant to be a strict
+// superset of what the loader accepts, never a stricter subset.
 var validTypes = map[string]bool{
 	"string":  true,
 	"integer": true,
@@ -34,6 +43,7 @@ var validTypes = map[string]bool{
 	"boolean": true,
 	"date":    true,
 	"bigint":  true,
+	"fixed":   true, // 10^-8 fp; see RFixed in pkg/dtrules/fixed.go
 	"array":   true,
 	"entity":  true,
 }
@@ -336,6 +346,17 @@ func validateDefault(typ, def string) error {
 		lower := strings.ToLower(def)
 		if lower != "true" && lower != "false" {
 			return fmt.Errorf("default %q is not a valid boolean", def)
+		}
+	case "fixed":
+		// Accept the same surface forms as GetRFixedFromString: bare
+		// integers, decimals, optional sign, optional "fp" suffix.
+		// "0" and "0.00000000" are both valid; empty is allowed too
+		// (treated as 0 by the loader).
+		if def == "" {
+			return nil
+		}
+		if _, err := dtrules.GetRFixedFromString(def); err != nil {
+			return fmt.Errorf("default %q is not a valid fixed: %v", def, err)
 		}
 	}
 	// string, date, array, entity: any value is syntactically acceptable

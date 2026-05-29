@@ -88,6 +88,18 @@ func TestAddAttribute_ValidType(t *testing.T) {
 	}); err == nil {
 		t.Fatal("expected error for unknown type, got nil")
 	}
+
+	// `fixed` (10⁻⁸ fp) is a first-class type — projects in the wild
+	// declare e.g. `weekly_budget type="fixed"`, and any new attribute
+	// authored via the SDK must be allowed to use it too. Regression
+	// guard: prior to this commit, validTypes omitted "fixed" and an
+	// SDK AddAttribute with Type:"fixed" was rejected as "unknown type"
+	// even though the loader accepted the same value on the read path.
+	if err := ent.AddAttribute(authoring.Attribute{
+		Name: "weekly_budget", Type: "fixed", Access: "rw",
+	}); err != nil {
+		t.Fatalf("`fixed` type rejected by SDK: %v", err)
+	}
 }
 
 func TestAddAttribute_DefaultMatchesType(t *testing.T) {
