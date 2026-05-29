@@ -1,5 +1,79 @@
 # DTRules Changelog
 
+## v1.14.9 — 2026-05-29
+
+EL visitor coverage pin-test + 11 silent-failure fixes (progresses #803).
+
+### Background
+
+A v1.14.8 docs/EL review surfaced that `EL.g4` had 135 labeled
+alternatives where `PostfixEmitter` inherited the default visitor from
+`BaseELVisitor` instead of overriding it — and antlr's Go-runtime
+`BaseParseTreeVisitor.VisitChildren` is a no-op that doesn't walk
+children. So any inherited alt silently dropped operands and operators
+from the emitted postfix. The original umbrella issue (#687) fixed the
+`absolute value of` / `sum of` / `rounded` families but closed before
+the multiply/divide-by, sub-from, and type-cast families landed.
+
+Reproducer confirmed in the issue body:
+
+```
+set a.x = divide a.x by 2     →  "cvd /a.x xdef"      (divide dropped)
+set a.x = (double) 42         →  "cvd /a.x xdef"      (literal dropped)
+set a.s = substring of a.s
+           from 1 to 3        →  "cvs /a.s xdef"      (substring dropped)
+```
+
+### Fixed visitors
+
+Eleven `Visit<Label>` methods added to `postfix_emitter.go`. Each
+produces postfix bit-identical to the corresponding infix form (verified
+by `TestIssue803_MultiplyDivideByMatchCanonical`):
+
+| EL form | Emits |
+|---|---|
+| `multiply <ident> by <n>` | `<field> <n> <op>` where op is type-aware |
+| `divide <ident> by <n>`   | same, type-aware over `*` / `b*` / `fmul` / `fp*` |
+| `substring of <s> from <a> to <b>` | `<s> <a> <b> substring` |
+| `(double) <strexpr>`      | `<s> cvd` |
+| `(double) <iexpr>`        | `<i> cvd` |
+| `(double) <indxExpr>`     | `<idx> cvd` |
+| `(int) <strexpr>` / `(long) <strexpr>` | `<s> cvi` |
+| `(int) <number>` / `(long) <number>`   | `<n> cvi` |
+| `(int) <indxExpr>` / `(long) <indxExpr>` | `<idx> cvi` |
+
+Multiply/divide use a shared `emitMulDivBy` helper that looks up the
+field's declared type via `lookupType` and dispatches through `arithOp`
+— matching the canonical `<field> * <number>` pattern from `VisitIntMul`.
+The field's visitor handles its own typing (no redundant cast on the
+LHS); only the number operand gets a target-type promotion via
+`emitWithTypeConversion`.
+
+### Pin-test infrastructure
+
+New `visitor_pin_test.go` walks the source of `el_visitor.go` (declared
+methods) and `postfix_emitter.go` (overrides), computes the inherited
+set, and asserts it matches `inheritedAllowlist`. The allowlist starts
+populated with the 124 residual cases as `TODO(#803): triage` plus a
+small structural-rules section ("nothing to emit; correct as no-op").
+CI fails when:
+
+- A new labeled alt has no override and isn't allowlisted (regression
+  guard for the next person who adds a grammar rule)
+- An overridden method is still allowlisted (forces house-cleaning as
+  the residual cases get fixed)
+
+Future PRs can chip away at the TODO entries — each conversion to
+either a Visit override or a verified fall-through rationale shrinks
+the allowlist by one.
+
+### What's still inherited
+
+This release fixes 11 of the 135 inherited methods. The remaining 124
+are tracked in `inheritedAllowlist` as `TODO(#803): triage`. They fall
+into clusters: array construction, date arithmetic, table-lookup casts,
+relationship/colon-ref access, and the `setArray*` family.
+
 ## v1.14.8 — 2026-05-29
 
 EL authoring surface for round-controlled fp division (#801).

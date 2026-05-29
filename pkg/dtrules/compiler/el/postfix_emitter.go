@@ -1542,6 +1542,126 @@ func parseFpLiteralToMantissa(text string) (*big.Int, error) {
 	return mantissa, nil
 }
 
+// =============================================================================
+// #803 — silent-failure visitors that were inherited from BaseELVisitor and
+// silently produced empty postfix because antlr's BaseParseTreeVisitor
+// VisitChildren is a no-op. Each of the alternatives below has a
+// reproducer that confirmed empty / op-dropping output.
+// =============================================================================
+
+// VisitIntMulBy: `multiply <ident> by <number>` — prefix multiplication.
+// The grammar has both intMulBy (in iexpr) and floatMulBy (in fexpr),
+// but typedLong and typedDouble both lex as IDENT so the parser can't
+// disambiguate; intMulBy usually wins. Dispatch by declared field type
+// at compile time so int/double/fixed/bigint fields all get the right
+// op — same pattern VisitIncrementLong uses for the same reason.
+func (e *PostfixEmitter) VisitIntMulBy(ctx *IntMulByContext) interface{} {
+	emitMulDivBy(e, ctx.TypedLong(), ctx.Number(), "*", "b*", "fmul", "fp*")
+	return nil
+}
+
+// VisitIntDivBy: `divide <ident> by <number>` — sister of IntMulBy.
+func (e *PostfixEmitter) VisitIntDivBy(ctx *IntDivByContext) interface{} {
+	emitMulDivBy(e, ctx.TypedLong(), ctx.Number(), "/", "b/", "fdiv", "fp/")
+	return nil
+}
+
+// VisitFloatMulBy: rarely reached (intMulBy wins parser-side), but
+// when it is — declared type still drives the op choice. We can't
+// assume the IDENT is double-typed just because the alt's label says
+// "Float".
+func (e *PostfixEmitter) VisitFloatMulBy(ctx *FloatMulByContext) interface{} {
+	emitMulDivBy(e, ctx.TypedDouble(), ctx.Number(), "*", "b*", "fmul", "fp*")
+	return nil
+}
+
+// VisitFloatDivBy: same rare-reach + type-aware shape.
+func (e *PostfixEmitter) VisitFloatDivBy(ctx *FloatDivByContext) interface{} {
+	emitMulDivBy(e, ctx.TypedDouble(), ctx.Number(), "/", "b/", "fdiv", "fp/")
+	return nil
+}
+
+// emitMulDivBy is the shared emission helper for `multiply <ident> by
+// <number>` and `divide <ident> by <number>`. The field's declared type
+// drives op choice; we promote only the RHS number to match the field's
+// type (the field's visitor emits it correctly-typed already, so casting
+// the LHS would just add a redundant cvfp/cvbi). This produces postfix
+// identical to the canonical `<field> * <number>` form (verified by
+// regression tests).
+//
+// Without this helper, both prefix forms silently dropped the op
+// because antlr's BaseParseTreeVisitor.VisitChildren is a no-op (#803).
+func emitMulDivBy(e *PostfixEmitter, lhs, rhs antlr.ParseTree, intOp, bigOp, dblOp, fpOp string) {
+	name := lhs.(interface{ GetText() string }).GetText()
+	target := e.lookupType(name)
+	if target == "" {
+		target = TypeInteger
+	}
+	e.Visit(lhs)
+	e.emitWithTypeConversion(rhs, target)
+	e.emit(arithOp(target, intOp, bigOp, dblOp, fpOp))
+}
+
+// VisitStrSubstring: `substring of <strexpr> from <iexpr> to <iexpr>`.
+// Lowers to the registered `substring` op with arity (str start end --
+// result). Without this override the entire substring call silently
+// disappeared from the postfix.
+func (e *PostfixEmitter) VisitStrSubstring(ctx *StrSubstringContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.Visit(ctx.Iexpr(0))
+	e.Visit(ctx.Iexpr(1))
+	e.emit("substring")
+	return nil
+}
+
+// VisitFloatFromStr: `(double) <strexpr>` — explicit string→double
+// cast. Without this, the entire RHS was dropped — the assignment
+// trailer `cvd /x xdef` ran on an empty stack.
+func (e *PostfixEmitter) VisitFloatFromStr(ctx *FloatFromStrContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("cvd")
+	return nil
+}
+
+// VisitFloatFromInt: `(double) <iexpr>` — explicit int→double cast.
+// Same silent-drop shape as FloatFromStr.
+func (e *PostfixEmitter) VisitFloatFromInt(ctx *FloatFromIntContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.emit("cvd")
+	return nil
+}
+
+// VisitFloatFromIndex: `(double) <indxExpr>` — explicit cast from an
+// indexed expression (array element / dict lookup result).
+func (e *PostfixEmitter) VisitFloatFromIndex(ctx *FloatFromIndexContext) interface{} {
+	e.Visit(ctx.IndxExpr())
+	e.emit("cvd")
+	return nil
+}
+
+// VisitIntFromStr: `(int|long) <strexpr>` — explicit string→int cast.
+func (e *PostfixEmitter) VisitIntFromStr(ctx *IntFromStrContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("cvi")
+	return nil
+}
+
+// VisitIntFromNumber: `(int|long) <number>` — explicit cast from a
+// numeric expression (which itself may be int or float).
+func (e *PostfixEmitter) VisitIntFromNumber(ctx *IntFromNumberContext) interface{} {
+	e.Visit(ctx.Number())
+	e.emit("cvi")
+	return nil
+}
+
+// VisitIntFromIndex: `(int|long) <indxExpr>` — sister of FloatFromIndex
+// for the int target.
+func (e *PostfixEmitter) VisitIntFromIndex(ctx *IntFromIndexContext) interface{} {
+	e.Visit(ctx.IndxExpr())
+	e.emit("cvi")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitIntAddFloat(ctx *IntAddFloatContext) interface{} {
 	e.Visit(ctx.Iexpr())
 	e.Visit(ctx.Fexpr())
