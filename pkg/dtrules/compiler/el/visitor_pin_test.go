@@ -71,25 +71,8 @@ var inheritedAllowlist = map[string]string{
 	"VisitArrayColonRef":              "TODO(#803): triage",
 	"VisitArrayDeepCopy":              "TODO(#803): triage",
 	"VisitArrayDeepCopySimple":        "TODO(#803): triage",
-	"VisitArrayListArray":             "TODO(#803): triage",
-	"VisitArrayListArraySingle":       "TODO(#803): triage",
-	"VisitArrayListBool":              "TODO(#803): triage",
-	"VisitArrayListBoolSingle":        "TODO(#803): triage",
-	"VisitArrayListEntity":            "TODO(#803): triage",
-	"VisitArrayListEntitySingle":      "TODO(#803): triage",
-	"VisitArrayListFloat":             "TODO(#803): triage",
-	"VisitArrayListFloatSingle":       "TODO(#803): triage",
-	"VisitArrayListInt":               "TODO(#803): triage",
-	"VisitArrayListIntSingle":         "TODO(#803): triage",
-	"VisitArrayListName":              "TODO(#803): triage",
-	"VisitArrayListNameSingle":        "TODO(#803): triage",
-	"VisitArrayListStr":               "TODO(#803): triage",
-	"VisitArrayListStrSingle":         "TODO(#803): triage",
-	"VisitArrayLit":                   "TODO(#803): triage",
-	"VisitArrayLiteral":               "TODO(#803): triage",
 	"VisitArrayMap":                   "TODO(#803): triage",
 	"VisitArrayName":                  "TODO(#803): triage",
-	"VisitArrayOfValues":              "TODO(#803): triage",
 	"VisitArrayTokenize":              "TODO(#803): triage",
 	"VisitBlistIcMulti":               "TODO(#803): triage",
 	"VisitBlistIcOr":                  "TODO(#803): triage",
@@ -127,7 +110,6 @@ var inheritedAllowlist = map[string]string{
 	"VisitIntUsing":                   "TODO(#803): triage",
 	"VisitIntUsingArray":              "TODO(#803): triage",
 	"VisitLeftArrayColon":             "TODO(#803): triage",
-	"VisitLeftArraySimple":            "TODO(#803): triage",
 	"VisitLeftTexprColon":             "TODO(#803): triage",
 	"VisitLeftTexprSimple":            "TODO(#803): triage",
 	"VisitNameArrayAt":                "TODO(#803): triage",
@@ -136,12 +118,16 @@ var inheritedAllowlist = map[string]string{
 	"VisitOpListEntity":               "TODO(#803): triage",
 	"VisitOpListEntitySingle":         "TODO(#803): triage",
 	"VisitPerformName":                "dead grammar; ANTLR matches performDT/performDTExplicit first for any IDENT after PERFORM (verified by tree dump)",
-	"VisitSetArrayArray":              "TODO(#803): triage",
-	"VisitSetArrayDate":               "TODO(#803): triage",
-	"VisitSetArrayEntity":             "TODO(#803): triage",
-	"VisitSetArrayFloat":              "TODO(#803): triage",
-	"VisitSetArrayInt":                "TODO(#803): triage",
-	"VisitSetArrayString":             "TODO(#803): triage",
+	// setArray<Type> are unreachable for non-array RHS: ANTLR picks
+	// setInt/setFloat/setString/setEntity/setDate first when the RHS
+	// could be either a single typed value or an arrayExpr. The only
+	// reachable setArray alt is setArrayArray (which now has an
+	// override). Verified by tree-dump probe (#803 batch 3).
+	"VisitSetArrayDate":               "dead grammar; setDate wins for IDENT/dexpr RHS",
+	"VisitSetArrayEntity":             "dead grammar; setEntity wins for IDENT/eexpr RHS",
+	"VisitSetArrayFloat":              "dead grammar; setFloat wins for IDENT/fexpr RHS",
+	"VisitSetArrayInt":                "dead grammar; setInt wins for IDENT/iexpr RHS",
+	"VisitSetArrayString":             "dead grammar; setString wins for IDENT/strexpr RHS",
 	// setStringFromNumber/Name/Table are unreachable: ANTLR adaptive
 	// prediction picks setInt/setFloat/setName/setTable first for
 	// IDENT-prefixed RHS. Confirmed by parse-tree inspection (#803 batch 2).

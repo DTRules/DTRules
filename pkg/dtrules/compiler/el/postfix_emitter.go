@@ -2364,6 +2364,140 @@ func (e *PostfixEmitter) VisitArrayCopySimple(ctx *ArrayCopySimpleContext) inter
 	return nil
 }
 
+// =============================================================================
+// #803 batch 3: array literal construction.
+//
+// Pre-fix: `set a.intlist = [1, 2, 3]` produced "" (empty postfix). The
+// arrayLit / arrayLiteral / arrayList<Type>(Single)? / setArrayArray
+// alts all inherited from BaseELVisitor, whose VisitChildren is a no-op.
+//
+// Construction pattern: leave the array reference on top of stack and
+// addto-append each element. `addto` mutates in place (the array stays
+// on the stack via `dup`):
+//
+//   newarray         // [array]
+//   dup 1 addto      // [array]  array → [1]
+//   dup 2 addto      // [array]  array → [1, 2]
+//   dup 3 addto      // [array]  array → [1, 2, 3]
+//
+// Then the SET trailer takes the array on top and writes it to the LHS.
+// =============================================================================
+
+// emitArrayListAdd pushes the array element onto the stack (after a
+// duplicate of the array so the next addto can reuse it) and appends
+// via the `addto` op (stack effect: array element -- ).
+func (e *PostfixEmitter) emitArrayListAdd(elem antlr.ParseTree) {
+	e.emit("dup")
+	e.Visit(elem)
+	e.emit("addto")
+}
+
+// VisitArrayLit: `[ <arrayList> ]` — push a fresh array, then walk the
+// element list which recursively addto's each element. The array stays
+// on the stack after the last addto so the parent (SET trailer, etc.)
+// can consume it.
+func (e *PostfixEmitter) VisitArrayLit(ctx *ArrayLitContext) interface{} {
+	e.emit("newarray")
+	e.Visit(ctx.ArrayList())
+	return nil
+}
+
+// VisitArrayLiteral: the arrayExpr2 wrapper `arrayLit # arrayLiteral`.
+func (e *PostfixEmitter) VisitArrayLiteral(ctx *ArrayLiteralContext) interface{} {
+	e.Visit(ctx.ArrayLit())
+	return nil
+}
+
+// VisitArrayOfValues: `array of values { <arrayList> }` — same emission
+// shape as arrayLit. Two surface forms, one runtime sequence.
+func (e *PostfixEmitter) VisitArrayOfValues(ctx *ArrayOfValuesContext) interface{} {
+	e.emit("newarray")
+	e.Visit(ctx.ArrayList())
+	return nil
+}
+
+// arrayList — recursive multi-element alts. Each emits the head (which
+// recurses into a smaller arrayList) then appends this tail element.
+
+func (e *PostfixEmitter) VisitArrayListInt(ctx *ArrayListIntContext) interface{} {
+	e.Visit(ctx.ArrayList())
+	e.emitArrayListAdd(ctx.Iexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitArrayListStr(ctx *ArrayListStrContext) interface{} {
+	e.Visit(ctx.ArrayList())
+	e.emitArrayListAdd(ctx.Strexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitArrayListFloat(ctx *ArrayListFloatContext) interface{} {
+	e.Visit(ctx.ArrayList())
+	e.emitArrayListAdd(ctx.Fexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitArrayListBool(ctx *ArrayListBoolContext) interface{} {
+	e.Visit(ctx.ArrayList())
+	e.emitArrayListAdd(ctx.Bexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitArrayListName(ctx *ArrayListNameContext) interface{} {
+	e.Visit(ctx.ArrayList())
+	e.emitArrayListAdd(ctx.Nexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitArrayListEntity(ctx *ArrayListEntityContext) interface{} {
+	e.Visit(ctx.ArrayList())
+	e.emitArrayListAdd(ctx.Eexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitArrayListArray(ctx *ArrayListArrayContext) interface{} {
+	e.Visit(ctx.ArrayList())
+	e.emitArrayListAdd(ctx.ArrayExpr())
+	return nil
+}
+
+// arrayList — single-element base cases (leftmost element).
+
+func (e *PostfixEmitter) VisitArrayListIntSingle(ctx *ArrayListIntSingleContext) interface{} {
+	e.emitArrayListAdd(ctx.Iexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitArrayListStrSingle(ctx *ArrayListStrSingleContext) interface{} {
+	e.emitArrayListAdd(ctx.Strexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitArrayListFloatSingle(ctx *ArrayListFloatSingleContext) interface{} {
+	e.emitArrayListAdd(ctx.Fexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitArrayListBoolSingle(ctx *ArrayListBoolSingleContext) interface{} {
+	e.emitArrayListAdd(ctx.Bexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitArrayListNameSingle(ctx *ArrayListNameSingleContext) interface{} {
+	e.emitArrayListAdd(ctx.Nexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitArrayListEntitySingle(ctx *ArrayListEntitySingleContext) interface{} {
+	e.emitArrayListAdd(ctx.Eexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitArrayListArraySingle(ctx *ArrayListArraySingleContext) interface{} {
+	e.emitArrayListAdd(ctx.ArrayExpr())
+	return nil
+}
+
 // ============================================================================
 // Typed Identifier Visitors
 // ============================================================================
@@ -3319,6 +3453,25 @@ func (e *PostfixEmitter) VisitLeftStrexprSimple(ctx *LeftStrexprSimpleContext) i
 
 func (e *PostfixEmitter) VisitLeftDexprSimple(ctx *LeftDexprSimpleContext) interface{} {
 	e.emitFieldStore(ctx.TypedDate().GetText())
+	return nil
+}
+
+// VisitLeftArraySimple: `<typedArray>` as the LHS of `set <array> = ...`.
+// Matches the pattern of the other LeftXxxSimple visitors — emit the
+// field-store trailer so `set my_list = [1,2,3]` lands correctly.
+// Required by VisitSetArrayArray (#803 batch 3).
+func (e *PostfixEmitter) VisitLeftArraySimple(ctx *LeftArraySimpleContext) interface{} {
+	e.emitFieldStore(ctx.TypedArray().GetText())
+	return nil
+}
+
+// VisitSetArrayArray: `set <array-field> = <arrayExpr>`. Matches the
+// pattern of VisitSetEntity et al. — visit RHS (which leaves the array
+// on the stack), then visit LHS to emit the field-store trailer. No
+// type conversion needed for array→array.
+func (e *PostfixEmitter) VisitSetArrayArray(ctx *SetArrayArrayContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.Visit(ctx.LeftArrayRef())
 	return nil
 }
 
