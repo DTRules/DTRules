@@ -224,6 +224,50 @@ func (r *RFixed) Div(other *RFixed) (*RFixed, error) {
 	return newRFixedFromMantissa(m)
 }
 
+// DivRoundHalfUp returns r / other rounded to the nearest representable
+// fp value on the 10^-8 grid, with halves rounding away from zero
+// (commonly called "round half up").
+//
+// Why this exists: the pure-fp idiom (a*b + c/2)/c that produces
+// round-half-up at integer precision adds c/2 in **value** units, which
+// for fp is "half of the result's last representable digit" = 0.5 × 10^-8.
+// That sub-grid offset cannot be expressed by adding any fp value to the
+// numerator before dividing. This operator does the rounding at the
+// mantissa level, where the grid is integer (1 mantissa unit = 10^-8
+// value), so "half" is well-defined and resolvable.
+//
+// Implementation: with a = r.mantissa, b = other.mantissa, the scaled
+// numerator is a*10^8 and the divisor is b. Round-half-away-from-zero of
+// (a*10^8) / b is floor((2·|a|·10^8 + |b|) / (2·|b|)) with the sign
+// recovered from sign(a)·sign(b). Truncating bigint.Quo on the positive
+// numerator/divisor gives floor, so this is exact.
+//
+// Errors on divide-by-zero or if the rounded result overflows the 256-bit
+// mantissa range.
+func (r *RFixed) DivRoundHalfUp(other *RFixed) (*RFixed, error) {
+	if other.mantissa.Sign() == 0 {
+		return nil, ConversionError("RFixed.DivRoundHalfUp", "division by zero")
+	}
+	// Magnitude in nonneg arithmetic; sign reapplied at the end.
+	absA := new(big.Int).Abs(r.mantissa)
+	absB := new(big.Int).Abs(other.mantissa)
+
+	// numerator = 2 * |a| * 10^8 + |b|; denominator = 2 * |b|.
+	// floor(numerator / denominator) on nonneg ints = round-half-up
+	// magnitude. For a half-tie, numerator == k * denom exactly, so floor
+	// yields k — i.e., rounds away from zero by magnitude.
+	num := new(big.Int).Mul(absA, fixedScaleBig)
+	num.Lsh(num, 1) // *2
+	num.Add(num, absB)
+	den := new(big.Int).Lsh(absB, 1)
+	m := new(big.Int).Quo(num, den)
+
+	if r.mantissa.Sign()*other.mantissa.Sign() < 0 {
+		m.Neg(m)
+	}
+	return newRFixedFromMantissa(m)
+}
+
 // Neg returns -r. Symmetric bounds guarantee success.
 func (r *RFixed) Neg() *RFixed {
 	result, _ := newRFixedFromMantissa(new(big.Int).Neg(r.mantissa))
