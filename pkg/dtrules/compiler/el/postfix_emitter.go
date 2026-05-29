@@ -4269,6 +4269,25 @@ func (e *PostfixEmitter) VisitStrValueOfBool(ctx *StrValueOfBoolContext) interfa
 
 // Eexpr emitters.
 
+// VisitIndxExpr: `<arrayExpr> [ <iexpr> ]` — array element access. The
+// rule had no override and antlr's BaseParseTreeVisitor.VisitChildren is
+// a no-op, so every visitor that delegated via Visit(IndxExpr())
+// silently produced empty output for the indexed expression. Affected
+// callers include VisitEntityIndex, VisitDateFromIndex,
+// VisitStrFromIndex, VisitIntFromIndex, VisitFloatFromIndex,
+// VisitFixedFromIndex, and VisitBoolFromIndex (#803).
+//
+// Emits the standard array-index sequence the runtime expects:
+// `<array> <index> bytesidx` — matching the postfix produced by the
+// alternative iexpr path (`a.alist[0]` in an iexpr context) which has
+// always worked through a different rule.
+func (e *PostfixEmitter) VisitIndxExpr(ctx *IndxExprContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.Visit(ctx.Iexpr())
+	e.emit("bytesidx")
+	return nil
+}
+
 // VisitEntityIndex: eexpr as an indxExpr (array/index form). Just delegate.
 func (e *PostfixEmitter) VisitEntityIndex(ctx *EntityIndexContext) interface{} {
 	return e.Visit(ctx.IndxExpr())
