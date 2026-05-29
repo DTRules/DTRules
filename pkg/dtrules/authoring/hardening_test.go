@@ -729,6 +729,79 @@ func TestUpdateAction_InvalidEL(t *testing.T) {
 	}
 }
 
+// TestUpdateAction_ExplicitPostfixOverride pins the escape hatch for the
+// rare case where the EL DSL can't express the desired postfix (e.g. an
+// operator the EL grammar doesn't have a syntax for yet). Setting
+// Action.Postfix to a non-empty string writes that postfix verbatim into
+// the XML, overriding the carry-from-prior. Empty Postfix preserves the
+// prior postfix as before.
+func TestUpdateAction_ExplicitPostfixOverride(t *testing.T) {
+	p := openMutableProject(t)
+	tbl := p.Table("Check_Eligibility")
+	if tbl == nil {
+		t.Fatal("Check_Eligibility not found")
+	}
+	num := tbl.Actions[0].Number
+	customPostfix := "applicant.eligible /eligible_flag xdef"
+	err := tbl.UpdateAction(num, authoring.Action{
+		DSL:     `set applicant.eligible = true`,
+		Postfix: customPostfix,
+	})
+	if err != nil {
+		t.Fatalf("UpdateAction: %v", err)
+	}
+	// Reload through the typed view (which reads from XML) and check.
+	for _, a := range tbl.Actions {
+		if a.Number == num {
+			if a.Postfix != customPostfix {
+				t.Errorf("Postfix override not honored: got %q, want %q", a.Postfix, customPostfix)
+			}
+			return
+		}
+	}
+	t.Fatalf("action %d not found after update", num)
+}
+
+// TestUpdateAction_EmptyPostfixPreservesPrior pins that the override is
+// opt-in: an empty Postfix field leaves the existing (prior-compile)
+// postfix intact, matching the pre-feature behavior.
+func TestUpdateAction_EmptyPostfixPreservesPrior(t *testing.T) {
+	p := openMutableProject(t)
+	tbl := p.Table("Check_Eligibility")
+	if tbl == nil {
+		t.Fatal("Check_Eligibility not found")
+	}
+	num := tbl.Actions[0].Number
+
+	// Capture the existing postfix from the typed view (populated by
+	// syncFromXML).
+	var prior string
+	for _, a := range tbl.Actions {
+		if a.Number == num {
+			prior = a.Postfix
+			break
+		}
+	}
+
+	// Update DSL only; leave Postfix empty.
+	err := tbl.UpdateAction(num, authoring.Action{
+		DSL: `set applicant.eligible = false`,
+	})
+	if err != nil {
+		t.Fatalf("UpdateAction: %v", err)
+	}
+	for _, a := range tbl.Actions {
+		if a.Number == num {
+			if a.Postfix != prior {
+				t.Errorf("empty Postfix didn't preserve prior: got %q, want %q",
+					a.Postfix, prior)
+			}
+			return
+		}
+	}
+	t.Fatalf("action %d not found after update", num)
+}
+
 func TestUpdateColumn_ReplacesValues(t *testing.T) {
 	p := openMutableProject(t)
 	tbl := p.Table("Check_Eligibility")
