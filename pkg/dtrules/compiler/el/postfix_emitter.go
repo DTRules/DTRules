@@ -1662,6 +1662,95 @@ func (e *PostfixEmitter) VisitIntFromIndex(ctx *IntFromIndexContext) interface{}
 	return nil
 }
 
+// =============================================================================
+// #803 batch 2: date arithmetic in dexpr position. The statement forms
+// (e.g. `add 3 days to D` as a free-standing action) have visitors and
+// work; the *expression* forms (used inside `set X = ...`) had no
+// visitors and produced empty postfix.
+//
+// All registered date ops are unary-with-N: ( date number -- date' ).
+// For SUBTRACT, no subdays/submonths/subyears ops are registered (the
+// dateMinus* visitors emit them anyway but that's a separate bug); we
+// emit `negate adddays` etc. to stay on the verified path.
+// =============================================================================
+
+// VisitDateExprAddYears: `add <number> years to <dexpr>` as an
+// expression. Statement form via VisitDateAddYears already worked.
+func (e *PostfixEmitter) VisitDateExprAddYears(ctx *DateExprAddYearsContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Number())
+	e.emit("addyears")
+	return nil
+}
+
+// VisitDateExprAddMonths: same shape for months.
+func (e *PostfixEmitter) VisitDateExprAddMonths(ctx *DateExprAddMonthsContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Number())
+	e.emit("addmonths")
+	return nil
+}
+
+// VisitDateExprAddDays: same shape for days.
+func (e *PostfixEmitter) VisitDateExprAddDays(ctx *DateExprAddDaysContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Number())
+	e.emit("adddays")
+	return nil
+}
+
+// VisitDateExprSubYears: `subtract <number> years from <dexpr>` as an
+// expression. There's no subyears op; we mirror the statement form's
+// `<num> negate addyears` pattern.
+func (e *PostfixEmitter) VisitDateExprSubYears(ctx *DateExprSubYearsContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Number())
+	e.emit("negate")
+	e.emit("addyears")
+	return nil
+}
+
+// VisitDateExprSubMonths: same shape for months.
+func (e *PostfixEmitter) VisitDateExprSubMonths(ctx *DateExprSubMonthsContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Number())
+	e.emit("negate")
+	e.emit("addmonths")
+	return nil
+}
+
+// VisitDateExprSubDays: same shape for days.
+func (e *PostfixEmitter) VisitDateExprSubDays(ctx *DateExprSubDaysContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.Visit(ctx.Number())
+	e.emit("negate")
+	e.emit("adddays")
+	return nil
+}
+
+// VisitDateFirstOfMonth: `first of months of <dexpr>` — start-of-month
+// date constructor. The in-zone variant has its own visitor that runs
+// for the longer-match case; this is the plain form.
+func (e *PostfixEmitter) VisitDateFirstOfMonth(ctx *DateFirstOfMonthContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("firstofmonth")
+	return nil
+}
+
+// VisitDateFirstOfYear: `first of years of <dexpr>` — start-of-year.
+func (e *PostfixEmitter) VisitDateFirstOfYear(ctx *DateFirstOfYearContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("firstofyear")
+	return nil
+}
+
+// VisitDateEndOfMonth: `end of months of <dexpr>` — last day of month.
+func (e *PostfixEmitter) VisitDateEndOfMonth(ctx *DateEndOfMonthContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	e.emit("endofmonth")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitIntAddFloat(ctx *IntAddFloatContext) interface{} {
 	e.Visit(ctx.Iexpr())
 	e.Visit(ctx.Fexpr())
@@ -3175,6 +3264,26 @@ func (e *PostfixEmitter) VisitSetDate(ctx *SetDateContext) interface{} {
 		e.emit(conv)
 	}
 	e.Visit(ctx.LeftDexpr())
+	return nil
+}
+
+// VisitSetStringFromDate handles `set <ident> = <dexpr>`. The setDate
+// alt above (line 258 of EL.g4) IS the semantic intent, but ANTLR
+// adaptive prediction matches `SET leftStrexpr ASSIGN dexpr`
+// (setStringFromDate, line 254) first because leftStrexpr also accepts
+// the IDENT — so this is the actually-reachable entry point. Without
+// this visitor `set <date-field> = <complex-dexpr>` produced empty
+// postfix (#803). resolveSetTarget recovers the true field type so the
+// correct cv* trailer fires (cvdate for date fields; cvs for actual
+// string fields receiving a stringified date).
+func (e *PostfixEmitter) VisitSetStringFromDate(ctx *SetStringFromDateContext) interface{} {
+	e.Visit(ctx.Dexpr())
+	name := ctx.LeftStrexpr().GetText()
+	fieldType := e.resolveSetTarget(name, TypeString)
+	if conv := e.typeConverter(fieldType); conv != "" {
+		e.emit(conv)
+	}
+	e.Visit(ctx.LeftStrexpr())
 	return nil
 }
 
