@@ -68,7 +68,6 @@ var inheritedAllowlist = map[string]string{
 	"VisitAddDestArray2":              "TODO(#803): triage",
 	"VisitAddDestDouble2":             "TODO(#803): triage",
 	"VisitAddDestLong2":               "TODO(#803): triage",
-	"VisitArrayColonRef":              "TODO(#803): triage",
 	"VisitArrayDeepCopy":              "TODO(#803): triage",
 	"VisitArrayDeepCopySimple":        "TODO(#803): triage",
 	"VisitArrayMap":                   "TODO(#803): triage",
@@ -78,11 +77,9 @@ var inheritedAllowlist = map[string]string{
 	"VisitBlistIcOr":                  "TODO(#803): triage",
 	"VisitBlistMulti":                 "TODO(#803): triage",
 	"VisitBlistOr":                    "TODO(#803): triage",
-	"VisitBoolColonRef":               "TODO(#803): triage",
 	"VisitBoolFunction":               "TODO(#803): triage",
 	"VisitBoolStrEqIcList":            "TODO(#803): triage",
 	"VisitBoolStrEqList":              "TODO(#803): triage",
-	"VisitDateColonRef":               "TODO(#803): triage",
 	"VisitDateEarliestAfter":          "TODO(#803): triage",
 	"VisitDateFromArrayAt":            "TODO(#803): triage",
 	"VisitDateFromIndex":              "TODO(#803): triage",
@@ -93,18 +90,22 @@ var inheritedAllowlist = map[string]string{
 	"VisitEntityFirst":                "TODO(#803): triage",
 	"VisitEntityFirstIn":              "TODO(#803): triage",
 	"VisitEntityTableLookup":          "TODO(#803): triage",
-	"VisitFloatAddTo":                 "TODO(#803): triage; in practice action statement `add X to Y` uses a different dispatch and emits correctly",
-	"VisitFloatColonRef":              "TODO(#803): triage",
-	"VisitFloatSubFrom":               "TODO(#803): triage; same caveat as VisitFloatAddTo",
+	// AddTo/SubFrom — these alts live inside fexpr/iexpr but the
+	// action-statement form `add X to Y` / `subtract X from Y` parses
+	// as addtostatement (rule `addtostatement`), not via the fexpr
+	// path. Confirmed by tree-dump probe; `add 2 to a.x` matches
+	// addNumToDest and emits the correct postfix through that path
+	// (#803 batch 4).
+	"VisitFloatAddTo":                 "dead grammar; addtostatement handles `add X to Y` as a statement",
+	"VisitFloatSubFrom":               "dead grammar; addtostatement handles `subtract X from Y`",
 	"VisitFloatSumOf":                 "TODO(#803): triage",
 	"VisitFloatTableLookup":           "TODO(#803): triage",
 	"VisitFloatUsing":                 "TODO(#803): triage",
 	"VisitIfThen":                     "TODO(#803): triage; if/then in action statements has separate dispatch",
 	"VisitIfThenElse":                 "TODO(#803): triage; same",
-	"VisitIntAddTo":                   "TODO(#803): triage; same caveat as VisitFloatAddTo",
-	"VisitIntColonRef":                "TODO(#803): triage",
+	"VisitIntAddTo":                   "dead grammar; addtostatement handles `add X to Y` (see VisitFloatAddTo)",
 	"VisitIntIndexOf":                 "TODO(#803): triage",
-	"VisitIntSubFrom":                 "TODO(#803): triage",
+	"VisitIntSubFrom":                 "dead grammar; addtostatement handles `subtract X from Y`",
 	"VisitIntSumOf":                   "TODO(#803): triage",
 	"VisitIntTableLookup":             "TODO(#803): triage",
 	"VisitIntUsing":                   "TODO(#803): triage",
@@ -113,7 +114,6 @@ var inheritedAllowlist = map[string]string{
 	"VisitLeftTexprColon":             "TODO(#803): triage",
 	"VisitLeftTexprSimple":            "TODO(#803): triage",
 	"VisitNameArrayAt":                "TODO(#803): triage",
-	"VisitNameColonRef":               "TODO(#803): triage",
 	"VisitNameFromStr":                "TODO(#803): triage",
 	"VisitOpListEntity":               "TODO(#803): triage",
 	"VisitOpListEntitySingle":         "TODO(#803): triage",
@@ -135,7 +135,6 @@ var inheritedAllowlist = map[string]string{
 	"VisitSetStringFromTable":         "dead grammar; ANTLR picks setTable for texpr RHS",
 	"VisitSetTable":                   "TODO(#803): triage",
 	"VisitStrAttrOf":                  "TODO(#803): triage",
-	"VisitStrColonRef":                "TODO(#803): triage",
 	// strConcat<Type> are all unreachable: ANTLR always picks the base
 	// `strexpr PLUS strexpr` # strConcat first because the RHS IDENT
 	// matches typedXmlValue inside strexpr. Confirmed by parse-tree
