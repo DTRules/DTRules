@@ -1,6 +1,6 @@
 // Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
-package el
+package el // EL
 import "github.com/antlr4-go/antlr/v4"
 
 // A complete Visitor for a parse tree produced by ELParser.
@@ -1164,6 +1164,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#floatMaxOfIntComma.
 	VisitFloatMaxOfIntComma(ctx *FloatMaxOfIntCommaContext) interface{}
+
+	// Visit a parse tree produced by ELParser#divideRoundingBy.
+	VisitDivideRoundingBy(ctx *DivideRoundingByContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatUsing.
 	VisitFloatUsing(ctx *FloatUsingContext) interface{}

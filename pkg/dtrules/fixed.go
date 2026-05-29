@@ -268,6 +268,61 @@ func (r *RFixed) DivRoundHalfUp(other *RFixed) (*RFixed, error) {
 	return newRFixedFromMantissa(m)
 }
 
+// DivRoundFraction returns r / other with rounding controlled by `rf` —
+// the rounding fraction, where rf ∈ [0, 1):
+//
+//	rf == 0   → truncate toward zero (same as fp/)
+//	rf == 0.5 → half away from zero (same as DivRoundHalfUp)
+//	rf  → 1   → away from zero (ceiling for positive results,
+//	            floor for negative — i.e. always grows the magnitude)
+//
+// This is the generalized form of DivRoundHalfUp: it lifts the
+// hard-coded "half" to a literal-rounding-fraction argument so authoring
+// surfaces can expose rounding policy as a configurable parameter
+// (see #801, the EL `divide ... rounding by` surface).
+//
+// Formula at mantissa precision:
+//
+//	q_m = sign(a)·sign(b) · floor( ( |a_m|·10^16 + rf_m·|b_m| ) / ( |b_m|·10^8 ) )
+//
+// Magnitude is computed in nonneg ints and sign is reapplied at the end,
+// so floor on the nonneg side becomes "away from zero" once the sign is
+// negative — the symmetric round semantic round-half-away-from-zero
+// generalizes for free.
+//
+// Errors on divide-by-zero, on rf outside [0, 1), or on mantissa overflow.
+func (r *RFixed) DivRoundFraction(other, rf *RFixed) (*RFixed, error) {
+	if other.mantissa.Sign() == 0 {
+		return nil, ConversionError("RFixed.DivRoundFraction", "division by zero")
+	}
+	if rf.mantissa.Sign() < 0 {
+		return nil, ConversionError("RFixed.DivRoundFraction", "rounding fraction must be >= 0")
+	}
+	if rf.mantissa.Cmp(fixedScaleBig) >= 0 {
+		return nil, ConversionError("RFixed.DivRoundFraction", "rounding fraction must be < 1.0")
+	}
+
+	absA := new(big.Int).Abs(r.mantissa)
+	absB := new(big.Int).Abs(other.mantissa)
+
+	// num = |a_m|·10^16 + rf_m·|b_m|
+	// den = |b_m|·10^8
+	scale16 := new(big.Int).Mul(fixedScaleBig, fixedScaleBig)
+	num := new(big.Int).Mul(absA, scale16)
+	offset := new(big.Int).Mul(rf.mantissa, absB)
+	num.Add(num, offset)
+
+	den := new(big.Int).Mul(absB, fixedScaleBig)
+
+	// Quo on nonneg integers is floor division.
+	m := new(big.Int).Quo(num, den)
+
+	if r.mantissa.Sign()*other.mantissa.Sign() < 0 {
+		m.Neg(m)
+	}
+	return newRFixedFromMantissa(m)
+}
+
 // Neg returns -r. Symmetric bounds guarantee success.
 func (r *RFixed) Neg() *RFixed {
 	result, _ := newRFixedFromMantissa(new(big.Int).Neg(r.mantissa))

@@ -16,6 +16,7 @@ package el
 
 import (
 	"fmt"
+	"math/big"
 	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
@@ -1440,6 +1441,105 @@ func (e *PostfixEmitter) VisitFloatDivInt(ctx *FloatDivIntContext) interface{} {
 	e.Visit(ctx.Iexpr())
 	e.emit("fdiv")
 	return nil
+}
+
+// VisitDivideRoundingBy: `divide <a> by <b> rounding by <fpLit>` (#801).
+// The rounding fraction must be a literal `FP_LITERAL` token in [0, 1).
+// We fold at compile time:
+//
+//	r == 0   → emit `<a> <b> fp/`
+//	r == 0.5 → emit `<a> <b> fphalfup/`
+//	else     → emit `<a> <b> <rLit> fpdivr/`
+//
+// r outside [0, 1) is a compile error — the grammar requires a literal so
+// we can range-check here rather than at runtime. The non-literal-R case
+// is currently impossible by grammar; if the rule is ever relaxed, the
+// emitter falls through to the ternary path with the visited expression.
+func (e *PostfixEmitter) VisitDivideRoundingBy(ctx *DivideRoundingByContext) interface{} {
+	e.Visit(ctx.Fexpr(0))
+	e.Visit(ctx.Fexpr(1))
+
+	rText := ctx.FP_LITERAL().GetText()
+	rMantissa, err := parseFpLiteralToMantissa(rText)
+	if err != nil {
+		e.emitError("rounding fraction %q: %v", rText, err)
+		return nil
+	}
+	// Range check: 0 <= r < 1.
+	if rMantissa.Sign() < 0 {
+		e.emitError("rounding fraction must be >= 0, got %q", rText)
+		return nil
+	}
+	scale := new(big.Int).SetInt64(100_000_000) // 10^8
+	if rMantissa.Cmp(scale) >= 0 {
+		e.emitError("rounding fraction must be < 1.0, got %q", rText)
+		return nil
+	}
+
+	// Fold table.
+	switch {
+	case rMantissa.Sign() == 0:
+		e.emit("fp/")
+	case rMantissa.Cmp(new(big.Int).SetInt64(50_000_000)) == 0:
+		e.emit("fphalfup/")
+	default:
+		e.emit(rText)
+		e.emit("fpdivr/")
+	}
+	return nil
+}
+
+// parseFpLiteralToMantissa parses an FP_LITERAL token (e.g. "0.5fp",
+// "0fp", "0.99999999fp") to its mantissa scaled by 10^8. Returns an
+// error if the text isn't a valid fp literal (the lexer already
+// guarantees the shape; this is defense-in-depth).
+//
+// Sign is not part of FP_LITERAL grammar (it's handled by the unary
+// minus rule), so the returned mantissa is always nonneg here. The
+// fold caller treats sign separately if a future grammar extension
+// allows it.
+func parseFpLiteralToMantissa(text string) (*big.Int, error) {
+	if len(text) < 3 {
+		return nil, fmt.Errorf("too short to be an fp literal")
+	}
+	if !strings.EqualFold(text[len(text)-2:], "fp") {
+		return nil, fmt.Errorf("missing fp suffix")
+	}
+	body := text[:len(text)-2]
+	if body == "" {
+		return nil, fmt.Errorf("empty fp literal body")
+	}
+
+	whole, frac := body, ""
+	if dot := strings.IndexByte(body, '.'); dot >= 0 {
+		whole = body[:dot]
+		frac = body[dot+1:]
+	}
+	if whole == "" {
+		whole = "0"
+	}
+
+	// Pad / truncate frac to 8 digits.
+	const fixedDecimals = 8
+	if len(frac) > fixedDecimals {
+		frac = frac[:fixedDecimals]
+	} else if len(frac) < fixedDecimals {
+		frac += strings.Repeat("0", fixedDecimals-len(frac))
+	}
+
+	wholeBig, ok := new(big.Int).SetString(whole, 10)
+	if !ok {
+		return nil, fmt.Errorf("invalid whole part %q", whole)
+	}
+	fracBig, ok := new(big.Int).SetString(frac, 10)
+	if !ok {
+		return nil, fmt.Errorf("invalid fractional part %q", frac)
+	}
+
+	scale := new(big.Int).SetInt64(100_000_000)
+	mantissa := new(big.Int).Mul(wholeBig, scale)
+	mantissa.Add(mantissa, fracBig)
+	return mantissa, nil
 }
 
 func (e *PostfixEmitter) VisitIntAddFloat(ctx *IntAddFloatContext) interface{} {

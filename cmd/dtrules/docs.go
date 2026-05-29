@@ -1724,6 +1724,12 @@ Internal operator reference (emitted by the EL compiler):
     fp-, fpsub          Subtract two fp values (exact)
     fp*, fpmul          Multiply two fp values (truncate toward zero)
     fp/, fpdiv          Divide two fp values (truncate toward zero)
+    fphalfup/,
+      fpdivhalfup       Divide with round-half-away-from-zero at the
+                        mantissa grid (v1.14.7)
+    fpdivr/, fpdivround Ternary divide with configurable rounding
+                        fraction r in [0, 1) — r=0 truncates,
+                        r=0.5 half-up, r→1 ceiling (v1.14.8)
     fpabs               Absolute value
     fpnegate            Unary negation
     fptrunc             Truncate fractional part toward zero
@@ -2775,7 +2781,13 @@ Overflow and Error Semantics
   Returns a Math Exception; the value is NOT silently wrapped.
 - Multiply: the 256-bit product is scaled down by 10^8 with truncate-
   toward-zero; if the final mantissa exceeds 2^255, overflow error.
-- Divide: division by zero raises a Math Exception.
+- Divide: division by zero raises a Math Exception. The default ` + "`a / b`" + `
+  truncates toward zero. For configurable rounding, use the EL surface
+  ` + "`divide a by b rounding by R`" + ` (v1.14.8, #801) — R is a literal
+  fp constant in [0, 1) and authors must write it explicitly at each
+  call site. The compiler folds R=0 to ` + "`fp/`" + `, R=0.5 to
+  ` + "`fphalfup/`" + `, and any other in-range R to the ternary
+  ` + "`fpdivr/`" + `. R outside [0, 1) is a compile-time error.
 - Cast: a bigint or string whose value exceeds the 256-bit range raises
   a Math Exception at cast time.
 - Cast from double: NaN or Inf raises a Math Exception.

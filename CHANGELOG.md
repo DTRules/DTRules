@@ -1,5 +1,79 @@
 # DTRules Changelog
 
+## v1.14.8 — 2026-05-29
+
+EL authoring surface for round-controlled fp division (#801).
+
+```
+divide <fexpr> by <fexpr> rounding by <fpLiteral>
+```
+
+The rounding fraction is mandatory and explicit — `R` is an fp literal
+in `[0, 1)`, written at every call site so the rounding policy is
+visible to anyone reading the table. The compiler folds at compile
+time:
+
+| literal R     | emitted postfix |
+|---------------|-----------------|
+| `0fp` (any 0) | `fp/`           |
+| `0.5fp`       | `fphalfup/`     |
+| else in [0,1) | `<R> fpdivr/`   |
+| ≥ `1fp`       | compile-time error |
+| < 0           | compile-time error |
+
+`fphalfup/` shipped in v1.14.7 with no authoring surface — this
+release makes it (and the truncating `fp/`) reachable from a decision
+table through one form, alongside the generalized ternary case.
+
+### New runtime operator: `fpdivr/` (alias `fpdivround`)
+
+```
+( a b r -- divround(a/b, r) )
+```
+
+Ternary fp division parameterized by the rounding fraction:
+
+| r       | behavior                         |
+|---------|----------------------------------|
+| 0       | truncate toward zero (same as `fp/`)       |
+| 0.5     | half away from zero (same as `fphalfup/`)  |
+| → 1     | always away from zero (ceiling/floor by sign) |
+
+Implementation lives on `RFixed.DivRoundFraction(other, rf)`. The
+formula at mantissa precision is
+
+    q_m = sign(a)·sign(b) · floor((|a_m|·10¹⁶ + rf_m·|b_m|) / (|b_m|·10⁸))
+
+— so `r=0` reduces algebraically to `fp/`, `r=0.5` reduces to
+`fphalfup/`, and `r→1` approaches always-away-from-zero. The compiler's
+literal-fold optimization is just routing to the cheaper specialized
+ops for the two known points; the ternary path produces identical
+results for `r=0` and `r=0.5` (verified by `TestFpDivR_MatchesFpDivAtZero`
+and `TestFpDivR_MatchesFpHalfUpAtHalf`).
+
+All three operands auto-promote from int/bigint via `PromoteToRFixed`;
+double requires an explicit `cvfp` cast. Errors on divide-by-zero, on
+`r` outside `[0, 1)`, or on mantissa overflow.
+
+### Why explicit r
+
+The earlier round-half-up shipped as a bare `fphalfup/` runtime op with
+no EL surface — usable only via hand-coded postfix, which the loader
+rejects under the `feedback_author_in_el` / `feedback_authoring_api`
+contracts. Authors needed a way to reach mantissa-precision rounding
+from real decision tables without hand-coding postfix.
+
+The chosen surface is **one form only**, with no `rounded` sugar that
+would default `r` to `0.5` implicitly. The point is to make rounding
+policy a visible decision at every call site — fixed-point rounding is
+exactly the kind of choice that shouldn't get a default.
+
+### Discovery
+
+Same provenance as v1.14.7: the Accumulate staking project's
+`Calculate_Reward` table needs round-half-up at the nanoACME mantissa
+level. v1.14.7 shipped the runtime piece; v1.14.8 makes it authorable.
+
 ## v1.14.7 — 2026-05-28
 
 New operator: **`fphalfup/`** (alias `fpdivhalfup`) — round-half-up

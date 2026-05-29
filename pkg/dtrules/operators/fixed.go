@@ -44,6 +44,13 @@ func init() {
 	Register("fphalfup/", opFixedDivRoundHalfUp)
 	Alias("fphalfup/", "fpdivhalfup")
 
+	// fpdivr/ : ( a b r -- divround(a/b, r) ). Ternary fp division
+	// with configurable rounding fraction. r=0 truncates, r=0.5 rounds
+	// half-away-from-zero, r→1 rounds away from zero. Runtime backing
+	// for the EL `divide ... rounding by` surface (#801).
+	Register("fpdivr/", opFixedDivRoundFraction)
+	Alias("fpdivr/", "fpdivround")
+
 	Register("fpabs", opFixedAbs)
 	Register("fpnegate", opFixedNegate)
 	Register("fptrunc", opFixedTrunc)
@@ -172,6 +179,53 @@ func opFixedDivRoundHalfUp(state dtrules.State) error {
 		return err
 	}
 	return state.DataPush(r)
+}
+
+// opFixedDivRoundFraction: ( a b r -- divround(a/b, r) ) ternary fp
+// division parameterized by a rounding fraction r ∈ [0, 1):
+//
+//	r == 0   → truncate (== fp/)
+//	r == 0.5 → half away from zero (== fphalfup/)
+//	r  → 1   → away from zero (ceiling/floor by sign)
+//
+// All three operands auto-promote int/bigint → fp; double requires a
+// cvfp cast. Returns a Math Exception on divide by zero, on r outside
+// [0, 1), or on mantissa overflow.
+//
+// This is the runtime backing for the EL `divide x by y rounding by r`
+// surface (#801). The compiler folds literal r=0 to fp/ and r=0.5 to
+// fphalfup/, so fpdivr/ only emits for non-{0, 0.5} literals — but the
+// op also handles those cases correctly if called directly.
+func opFixedDivRoundFraction(state dtrules.State) error {
+	rRaw, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	bRaw, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aRaw, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	a, err := dtrules.PromoteToRFixed(aRaw)
+	if err != nil {
+		return err
+	}
+	b, err := dtrules.PromoteToRFixed(bRaw)
+	if err != nil {
+		return err
+	}
+	rf, err := dtrules.PromoteToRFixed(rRaw)
+	if err != nil {
+		return err
+	}
+	result, err := a.DivRoundFraction(b, rf)
+	if err != nil {
+		return err
+	}
+	return state.DataPush(result)
 }
 
 // opFixedAbs: ( a -- |a| ) returns the absolute value of an RFixed.

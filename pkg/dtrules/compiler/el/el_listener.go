@@ -1,6 +1,6 @@
 // Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
-package el
+package el // EL
 import "github.com/antlr4-go/antlr/v4"
 
 // ELListener is a complete listener for a parse tree produced by ELParser.
@@ -1164,6 +1164,9 @@ type ELListener interface {
 
 	// EnterFloatMaxOfIntComma is called when entering the floatMaxOfIntComma production.
 	EnterFloatMaxOfIntComma(c *FloatMaxOfIntCommaContext)
+
+	// EnterDivideRoundingBy is called when entering the divideRoundingBy production.
+	EnterDivideRoundingBy(c *DivideRoundingByContext)
 
 	// EnterFloatUsing is called when entering the floatUsing production.
 	EnterFloatUsing(c *FloatUsingContext)
@@ -3126,6 +3129,9 @@ type ELListener interface {
 
 	// ExitFloatMaxOfIntComma is called when exiting the floatMaxOfIntComma production.
 	ExitFloatMaxOfIntComma(c *FloatMaxOfIntCommaContext)
+
+	// ExitDivideRoundingBy is called when exiting the divideRoundingBy production.
+	ExitDivideRoundingBy(c *DivideRoundingByContext)
 
 	// ExitFloatUsing is called when exiting the floatUsing production.
 	ExitFloatUsing(c *FloatUsingContext)
