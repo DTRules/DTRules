@@ -56,10 +56,20 @@ type Condition struct {
 }
 
 // Action holds one action row of a decision table.
+//
+// `Postfix` is an optional explicit postfix override. The compiler's
+// default mode (no --force) preserves existing postfix, so an override
+// set once stays until a --force compile rewrites it. Use this for the
+// rare case where the EL DSL can't express the desired postfix — e.g.
+// an operator the EL grammar doesn't have a syntax for yet — and write
+// the DSL as the human-readable description of intent. Empty string
+// means "leave the prior postfix in place" (the typical case for plain
+// DSL edits).
 type Action struct {
 	Number  int
 	Comment string
 	DSL     string
+	Postfix string       // optional explicit postfix; empty = preserve prior
 	Columns map[int]bool // col -> executes on that column?
 }
 
@@ -131,6 +141,7 @@ func (t *Table) syncFromXML() {
 			Number:  num,
 			Comment: a.Comment,
 			DSL:     a.DSL,
+			Postfix: a.Postfix,
 			Columns: cols,
 		})
 	}
@@ -243,6 +254,11 @@ func (t *Table) syncToXML() {
 		}
 		if orig, ok := origActs[a.Number]; ok {
 			entry.Postfix = orig.Postfix
+		}
+		// An explicit Postfix on the typed view overrides the carry-from-XML
+		// (rare; used when the EL DSL can't express the desired postfix).
+		if a.Postfix != "" {
+			entry.Postfix = a.Postfix
 		}
 		t.xml.Actions = append(t.xml.Actions, entry)
 	}
@@ -358,6 +374,10 @@ func (t *Table) AddAction(a Action) error {
 }
 
 // UpdateAction replaces the action with the given number.
+//
+// If a.Postfix is empty, the prior postfix is preserved (carried from
+// the XML model) — both in the underlying XML and on the refreshed
+// typed view. Set a.Postfix to override.
 func (t *Table) UpdateAction(num int, a Action) error {
 	if _, err := CheckAction(a.DSL, t.symbols); err != nil {
 		return err
@@ -367,6 +387,12 @@ func (t *Table) UpdateAction(num int, a Action) error {
 			a.Number = num
 			if a.Columns == nil {
 				a.Columns = existing.Columns
+			}
+			if a.Postfix == "" {
+				// Carry prior from typed view (matches what syncToXML
+				// will preserve on the XML side, keeping the typed
+				// view's Postfix field consistent with the written XML).
+				a.Postfix = existing.Postfix
 			}
 			t.Actions[i] = a
 			t.syncToXML()

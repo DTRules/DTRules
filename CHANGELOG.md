@@ -1,5 +1,39 @@
 # DTRules Changelog
 
+## v1.14.7 — 2026-05-28
+
+New operator: **`fphalfup/`** (alias `fpdivhalfup`) — round-half-up
+division on the 10⁻⁸ fp grid.
+
+```
+( a b -- round_half_up(a/b) )
+```
+
+Distinct from `fp/` which truncates toward zero. Implemented at the
+bigint mantissa level (`RFixed.DivRoundHalfUp`); halves round away from
+zero, and the sign comes from `sign(a) × sign(b)`. Errors on
+divide-by-zero or mantissa overflow.
+
+### Why a dedicated operator?
+
+The pure-fp idiom `(a + b/2)/b` produces round-half-up at *integer*
+precision because `b/2` adds half a unit of the quotient. In fp, that
+"half" is half of the result's display digit — i.e. ½ × 10⁻⁸ in the
+quotient's units. Applications that need rounding at the underlying
+mantissa precision (for example, accounting systems that store
+sub-cent or sub-nano values as 10⁻⁸ fp and want exact integer-grained
+rounding at the mantissa level) need half a mantissa unit, which is
+½ × 10⁻⁹ in value — below the fp grid and therefore not expressible as
+any fp value added to the numerator. `fphalfup/` performs the rounding
+inside the bigint mantissa where ½-of-divisor is well-defined.
+
+### Discovery
+
+Surfaced by the Accumulate staking project, which represents nanoACME
+(integer 10⁻⁸ ACME) as fp values and needs round-half-up on the
+underlying integer to match cryptographically pinned per-account
+reward outputs.
+
 ## v1.14.6 — 2026-05-28
 
 New analyzer check: **redundant action-set column** (#797).

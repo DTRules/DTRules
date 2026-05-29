@@ -35,6 +35,15 @@ func init() {
 	Register("fp/", opFixedDiv)
 	Alias("fp/", "fpdiv")
 
+	// fphalfup/ : ( a b -- round_half_up(a/b) ). Round-half-away-from-zero
+	// at the 10^-8 mantissa grid, distinct from fp/ which truncates toward
+	// zero. The pure-fp idiom (a + b/2)/b adds half-the-grid-digit in
+	// **value** units (0.5 of the result's units), not half of the
+	// underlying mantissa, so it can't express a one-mantissa-unit rounding
+	// bias. This operator does the rounding at mantissa precision.
+	Register("fphalfup/", opFixedDivRoundHalfUp)
+	Alias("fphalfup/", "fpdivhalfup")
+
 	Register("fpabs", opFixedAbs)
 	Register("fpnegate", opFixedNegate)
 	Register("fptrunc", opFixedTrunc)
@@ -143,6 +152,22 @@ func opFixedDiv(state dtrules.State) error {
 		return err
 	}
 	r, err := a.Div(b)
+	if err != nil {
+		return err
+	}
+	return state.DataPush(r)
+}
+
+// opFixedDivRoundHalfUp: ( a b -- round_half_up(a/b) ) divides on the
+// 10^-8 grid with half rounding away from zero. Both operands must be
+// fp; int/bigint are auto-promoted. Returns a Math Exception on divide
+// by zero or if the result exceeds |m| < 2^255.
+func opFixedDivRoundHalfUp(state dtrules.State) error {
+	a, b, err := popFixedPair(state)
+	if err != nil {
+		return err
+	}
+	r, err := a.DivRoundHalfUp(b)
 	if err != nil {
 		return err
 	}
