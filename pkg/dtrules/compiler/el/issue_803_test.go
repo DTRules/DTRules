@@ -172,3 +172,46 @@ func TestIssue803_TypeCastsEmitOperand(t *testing.T) {
 		})
 	}
 }
+
+// TestIssue803_IndexCastEmitsOperand covers the two visitors that the
+// type-cast test above misses: VisitFloatFromIndex and
+// VisitIntFromIndex. These match `(double) <arrayExpr>[<iexpr>]` /
+// `(int) <arrayExpr>[<iexpr>]` and pre-fix dropped the entire indexed
+// expression. The action SET form `set X = (double) arr[0]` does not
+// parse — a different SET dispatch wins — so we exercise the visitor
+// through the condition path, which is where these alts actually fire.
+func TestIssue803_IndexCastEmitsOperand(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{
+		"a.alist": "array of integer",
+	})
+	cases := []struct {
+		dsl, mustContain string
+	}{
+		// floatFromIndex: condition form is the reachable path.
+		{`(double) a.alist[0] > 0.0`, "cvd"},
+		// intFromIndex: same shape with int cast.
+		{`(int) a.alist[0] > 0`, "cvi"},
+		// `long` keyword alias for the int cast.
+		{`(long) a.alist[0] > 0`, "cvi"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.dsl, func(t *testing.T) {
+			got, err := c.CompileCondition(tc.dsl)
+			if err != nil {
+				t.Fatalf("compile: %v", err)
+			}
+			if !strings.Contains(got, tc.mustContain) {
+				t.Errorf("expected %q in postfix, got: %s", tc.mustContain, got)
+			}
+			// The indexed array operand must also be present — pre-fix
+			// the entire indxExpr was dropped, leaving the cast op
+			// dangling.
+			for _, tok := range []string{"a.alist", "0"} {
+				if !strings.Contains(got, tok) {
+					t.Errorf("expected operand %q in postfix, got: %s", tok, got)
+				}
+			}
+		})
+	}
+}

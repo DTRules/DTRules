@@ -118,7 +118,6 @@ var inheritedAllowlist = map[string]string{
 	"VisitFloatUsing":                 "TODO(#803): triage",
 	"VisitIfThen":                     "TODO(#803): triage; if/then in action statements has separate dispatch",
 	"VisitIfThenElse":                 "TODO(#803): triage; same",
-	"VisitIndxExpr":                   "TODO(#803): triage",
 	"VisitIntAddTo":                   "TODO(#803): triage; same caveat as VisitFloatAddTo",
 	"VisitIntColonRef":                "TODO(#803): triage",
 	"VisitIntIndexOf":                 "TODO(#803): triage",
