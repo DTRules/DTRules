@@ -732,74 +732,64 @@ func TestUpdateAction_InvalidEL(t *testing.T) {
 // TestUpdateAction_ExplicitPostfixOverride pins the escape hatch for the
 // rare case where the EL DSL can't express the desired postfix (e.g. an
 // operator the EL grammar doesn't have a syntax for yet). Setting
-// Action.Postfix to a non-empty string writes that postfix verbatim into
-// the XML, overriding the carry-from-prior. Empty Postfix preserves the
-// prior postfix as before.
-func TestUpdateAction_ExplicitPostfixOverride(t *testing.T) {
-	p := openMutableProject(t)
-	tbl := p.Table("Check_Eligibility")
-	if tbl == nil {
-		t.Fatal("Check_Eligibility not found")
+// TestUpdateAction_PostfixRegeneratedFromDSL_Issue817 pins the new
+// contract: postfix is a compiled artifact of the EL DSL, not an
+// author-supplied override. After UpdateAction, the on-disk
+// <action_postfix> reflects the EL compile of the new DSL — there is
+// no path through the authoring API to write a non-DSL-derived
+// postfix. Replaces the deleted TestUpdateAction_ExplicitPostfixOverride
+// and TestUpdateAction_EmptyPostfixPreservesPrior, both of which
+// pinned the now-removed override behavior.
+func TestUpdateAction_PostfixRegeneratedFromDSL_Issue817(t *testing.T) {
+	// Inline setup so we can read the saved XML by path. The
+	// openMutableProject helper hides tmp; we need it for the on-disk
+	// inspection.
+	tmp := t.TempDir()
+	xmlTmp := filepath.Join(tmp, "xml")
+	if err := os.MkdirAll(xmlTmp, 0755); err != nil {
+		t.Fatal(err)
 	}
-	num := tbl.Actions[0].Number
-	customPostfix := "applicant.eligible /eligible_flag xdef"
-	err := tbl.UpdateAction(num, authoring.Action{
-		DSL:     `set applicant.eligible = true`,
-		Postfix: customPostfix,
-	})
+	copyFixtureToTmp(t, "testdata/minimal/xml", xmlTmp)
+	p, err := authoring.OpenProject(tmp)
 	if err != nil {
-		t.Fatalf("UpdateAction: %v", err)
+		t.Fatalf("OpenProject: %v", err)
 	}
-	// Reload through the typed view (which reads from XML) and check.
-	for _, a := range tbl.Actions {
-		if a.Number == num {
-			if a.Postfix != customPostfix {
-				t.Errorf("Postfix override not honored: got %q, want %q", a.Postfix, customPostfix)
-			}
-			return
-		}
-	}
-	t.Fatalf("action %d not found after update", num)
-}
 
-// TestUpdateAction_EmptyPostfixPreservesPrior pins that the override is
-// opt-in: an empty Postfix field leaves the existing (prior-compile)
-// postfix intact, matching the pre-feature behavior.
-func TestUpdateAction_EmptyPostfixPreservesPrior(t *testing.T) {
-	p := openMutableProject(t)
 	tbl := p.Table("Check_Eligibility")
 	if tbl == nil {
 		t.Fatal("Check_Eligibility not found")
 	}
 	num := tbl.Actions[0].Number
 
-	// Capture the existing postfix from the typed view (populated by
-	// syncFromXML).
-	var prior string
-	for _, a := range tbl.Actions {
-		if a.Number == num {
-			prior = a.Postfix
-			break
-		}
-	}
-
-	// Update DSL only; leave Postfix empty.
-	err := tbl.UpdateAction(num, authoring.Action{
+	// Update the DSL to something distinctive whose compile output we
+	// can identify in the XML.
+	if err := tbl.UpdateAction(num, authoring.Action{
 		DSL: `set applicant.eligible = false`,
-	})
-	if err != nil {
+	}); err != nil {
 		t.Fatalf("UpdateAction: %v", err)
 	}
-	for _, a := range tbl.Actions {
-		if a.Number == num {
-			if a.Postfix != prior {
-				t.Errorf("empty Postfix didn't preserve prior: got %q, want %q",
-					a.Postfix, prior)
-			}
-			return
-		}
+	if err := p.Save(); err != nil {
+		t.Fatalf("Save: %v", err)
 	}
-	t.Fatalf("action %d not found after update", num)
+
+	// Read the saved XML and confirm the postfix for this action
+	// matches the EL compile of the new DSL.
+	dtPath := filepath.Join(xmlTmp, "minimal_dt.xml")
+	bytes, err := os.ReadFile(dtPath)
+	if err != nil {
+		t.Fatalf("read saved file: %v", err)
+	}
+	saved := string(bytes)
+	want := "false cvb /applicant.eligible xdef"
+	if !strings.Contains(saved, want) {
+		t.Errorf("saved XML missing expected postfix %q from new DSL\nsaved:\n%s", want, saved)
+	}
+	// And the OLD postfix (for `eligible = true`) must NOT survive the
+	// round-trip — postfix is derived from current DSL only.
+	stale := "applicant.eligible true beq"
+	if strings.Contains(saved, stale) {
+		t.Errorf("saved XML still contains stale postfix %q from previous DSL", stale)
+	}
 }
 
 func TestUpdateColumn_ReplacesValues(t *testing.T) {

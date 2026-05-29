@@ -53,7 +53,6 @@ func (c *CLI) runCompile(args []string) int {
 	verbose := false
 	strict := false
 	noAnalyze := false
-	force := false
 	forceOverwriteExcel := false
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -64,7 +63,9 @@ func (c *CLI) runCompile(args []string) int {
 		case "--no-analyze":
 			noAnalyze = true
 		case "--force":
-			force = true
+			// Deprecated in #817 — compile always rewrites postfix from
+			// DSL, so --force is now the only behavior. Accept the flag
+			// silently for backward compatibility with existing scripts.
 		case "--force-overwrite-excel":
 			forceOverwriteExcel = true
 		case "-v", "--verbose":
@@ -175,7 +176,7 @@ func (c *CLI) runCompile(args []string) int {
 	var errLines []string
 
 	for _, f := range files {
-		filled, skipped, errs := compileFile(cmp, f, dryRun, strict, force)
+		filled, skipped, errs := compileFile(cmp, f, dryRun, strict)
 		totalCompiled += filled
 		totalSkipped += skipped
 		totalErrors += len(errs)
@@ -384,9 +385,8 @@ advisory pass), use 'dtrules build'.`)
 // avoids any cross-element backtracking. Newlines pass through fine
 // because the character class only excludes `<`.
 type kindPair struct {
-	kind    string
-	reEmpty *regexp.Regexp // matches only empty <X_postfix> (default mode)
-	reAny   *regexp.Regexp // matches any <X_postfix> body (--force mode, for refreshing stale postfix)
+	kind string
+	re   *regexp.Regexp // matches any <X_postfix> body; postfix is always regenerated from DSL
 }
 
 // Each regex is anchored to a single element kind. `[^<]` inside both DSL
@@ -396,22 +396,18 @@ type kindPair struct {
 var dslPostfixPairs = []kindPair{
 	{
 		"context",
-		regexp.MustCompile(`<context_dsl>([^<]*)</context_dsl>\s*<context_postfix>\s*</context_postfix>`),
 		regexp.MustCompile(`<context_dsl>([^<]*)</context_dsl>\s*<context_postfix>[^<]*</context_postfix>`),
 	},
 	{
 		"initial_action",
-		regexp.MustCompile(`<initial_action_dsl>([^<]*)</initial_action_dsl>\s*<initial_action_postfix>\s*</initial_action_postfix>`),
 		regexp.MustCompile(`<initial_action_dsl>([^<]*)</initial_action_dsl>\s*<initial_action_postfix>[^<]*</initial_action_postfix>`),
 	},
 	{
 		"action",
-		regexp.MustCompile(`<action_dsl>([^<]*)</action_dsl>\s*<action_postfix>\s*</action_postfix>`),
 		regexp.MustCompile(`<action_dsl>([^<]*)</action_dsl>\s*<action_postfix>[^<]*</action_postfix>`),
 	},
 	{
 		"condition",
-		regexp.MustCompile(`<condition_dsl>([^<]*)</condition_dsl>\s*<condition_postfix>\s*</condition_postfix>`),
 		regexp.MustCompile(`<condition_dsl>([^<]*)</condition_dsl>\s*<condition_postfix>[^<]*</condition_postfix>`),
 	},
 }
@@ -439,7 +435,7 @@ var dslPostfixPairs = []kindPair{
 // newlines so the body content is captured.
 var decisionTableRe = regexp.MustCompile(`(?s)<decision_table>.*?</decision_table>`)
 
-func compileFile(cmp *el.Compiler, f string, dryRun, strict, force bool) (int, int, []string) {
+func compileFile(cmp *el.Compiler, f string, dryRun, strict bool) (int, int, []string) {
 	data, err := os.ReadFile(f)
 	if err != nil {
 		return 0, 0, []string{fmt.Sprintf("read failed: %v", err)}
@@ -457,7 +453,7 @@ func compileFile(cmp *el.Compiler, f string, dryRun, strict, force bool) (int, i
 	// preamble, the <decision_tables> wrapper) pass through unchanged.
 	newData := decisionTableRe.ReplaceAllFunc(data, func(tableBytes []byte) []byte {
 		cmp.ResetLocals()
-		rewritten, f, s, errs := compileOneTable(cmp, tableBytes, force)
+		rewritten, f, s, errs := compileOneTable(cmp, tableBytes)
 		filled += f
 		skipped += s
 		compileErrs = append(compileErrs, errs...)
@@ -486,7 +482,7 @@ func compileFile(cmp *el.Compiler, f string, dryRun, strict, force bool) (int, i
 // per-table view. Locals declared in this table's context are visible
 // to its conditions and actions; nothing about that scope leaks back
 // out because the caller called `ResetLocals` before invoking us.
-func compileOneTable(cmp *el.Compiler, data []byte, force bool) ([]byte, int, int, []string) {
+func compileOneTable(cmp *el.Compiler, data []byte) ([]byte, int, int, []string) {
 	var compileErrs []string
 	filled := 0
 	skipped := 0
@@ -494,10 +490,7 @@ func compileOneTable(cmp *el.Compiler, data []byte, force bool) ([]byte, int, in
 
 	for _, kp := range dslPostfixPairs {
 		kind := kp.kind
-		re := kp.reEmpty
-		if force {
-			re = kp.reAny
-		}
+		re := kp.re
 		n := 0
 		newData = re.ReplaceAllFunc(newData, func(match []byte) []byte {
 			n++
@@ -509,8 +502,22 @@ func compileOneTable(cmp *el.Compiler, data []byte, force bool) ([]byte, int, in
 			dslTrimmed := strings.TrimSpace(dsl)
 
 			if dslTrimmed == "" || isCommentOnly(dslTrimmed) {
+				// Empty / comment-only DSL → empty postfix. Per #817
+				// postfix is a derived artifact; an empty source must
+				// produce an empty postfix, wiping any prior hand-coded
+				// content. The element is still counted as touched.
+				postfixOpen := []byte(fmt.Sprintf("<%s_postfix>", kind))
+				openIdx := indexOfLast(match, postfixOpen)
+				if openIdx < 0 {
+					skipped++
+					return match
+				}
+				out := make([]byte, 0, len(match))
+				out = append(out, match[:openIdx]...)
+				out = append(out, postfixOpen...)
+				out = append(out, []byte(fmt.Sprintf("</%s_postfix>", kind))...)
 				skipped++
-				return match
+				return out
 			}
 
 			compiled, err := compileKind(cmp, kind, dsl)

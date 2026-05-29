@@ -57,19 +57,16 @@ type Condition struct {
 
 // Action holds one action row of a decision table.
 //
-// `Postfix` is an optional explicit postfix override. The compiler's
-// default mode (no --force) preserves existing postfix, so an override
-// set once stays until a --force compile rewrites it. Use this for the
-// rare case where the EL DSL can't express the desired postfix — e.g.
-// an operator the EL grammar doesn't have a syntax for yet — and write
-// the DSL as the human-readable description of intent. Empty string
-// means "leave the prior postfix in place" (the typical case for plain
-// DSL edits).
+// Postfix is intentionally NOT a field on this struct. Per #817,
+// postfix is a compiled artifact of the EL DSL — the authoring view
+// only models authoring inputs. On write-out, syncToXML runs the EL
+// compiler over `DSL` and the result becomes the `<action_postfix>`
+// bytes; whatever postfix was on disk before is overwritten. If the
+// DSL is empty, the postfix is also empty.
 type Action struct {
 	Number  int
 	Comment string
 	DSL     string
-	Postfix string       // optional explicit postfix; empty = preserve prior
 	Columns map[int]bool // col -> executes on that column?
 }
 
@@ -141,33 +138,33 @@ func (t *Table) syncFromXML() {
 			Number:  num,
 			Comment: a.Comment,
 			DSL:     a.DSL,
-			Postfix: a.Postfix,
 			Columns: cols,
 		})
 	}
 }
 
 // syncToXML writes the typed view back into the underlying XML model,
-// preserving every field the typed view doesn't expose (postfix, legacy
-// alternate tag content, context_entity directives, context number/comment/
+// preserving every field the typed view doesn't expose (legacy alternate
+// tag content, context_entity directives, context number/comment/
 // description, …) by matching against the original XML records.
 //
-// Matching rules:
-//   - Conditions / Actions: by `Number`. The typed view rebuilds the slice;
-//     when a typed entry's Number matches an existing XML record the
-//     unmodeled fields from the original are carried through.
-//   - InitialActions: by position. The typed view doesn't expose Number, so
-//     we map index → index. Extra typed entries beyond the original list get
-//     bare records (no postfix); deletions drop the extra originals.
-//   - Contexts: position-by-position over the Details slice. Entities and
-//     all other Detail fields (Number, Comment, Name, Description, Postfix)
-//     are preserved from the original.
+// Postfix is NOT preserved from the original XML — it is regenerated
+// from each typed entry's current DSL via the EL compiler (#817).
+// An empty DSL produces an empty postfix; a malformed DSL produces an
+// empty postfix too (mutations already validated through CheckXxx, so
+// in practice this is unreachable from authoring callers).
+//
+// Matching rules for non-postfix carry-through:
+//   - Conditions / Actions: by `Number`. Carries Number, Comment from
+//     original when present.
+//   - InitialActions: by position. Carries Comment, ActionDSL from
+//     original. ActionPostfix is regenerated from the carried ActionDSL.
+//   - Contexts: position-by-position over the Details slice.
 func (t *Table) syncToXML() {
 	t.xml.TableName = t.Name
 	t.xml.AttributeFields.Type = t.Policy
 
-	// Contexts: preserve Entities entirely and per-detail unmodeled fields by
-	// position-matching. New typed entries append fresh details.
+	// Contexts.
 	origDetails := t.xml.Contexts.Details
 	newDetails := make([]excel.ContextDetailXML, 0, len(t.Contexts))
 	for i, c := range t.Contexts {
@@ -180,30 +177,28 @@ func (t *Table) syncToXML() {
 			entry.Comment = origDetails[i].Comment
 			entry.Name = origDetails[i].Name
 			entry.Description = origDetails[i].Description
-			entry.Postfix = origDetails[i].Postfix
 		}
+		entry.Postfix = compileDSLOrEmpty(c.DSL, t.symbols, "context")
 		newDetails = append(newDetails, entry)
 	}
 	t.xml.Contexts.Details = newDetails
-	// (t.xml.Contexts.Entities is left untouched — the typed view doesn't
-	// model legacy <context_entity> directives, so they round-trip as-is.)
 
-	// Initial actions: match by position to preserve postfix + comment.
+	// Initial actions.
 	origInits := t.xml.InitialActions
 	newInits := make([]excel.InitialActionXML, 0, len(t.InitialActions))
 	for i, ia := range t.InitialActions {
 		entry := excel.InitialActionXML{DSL: ia.DSL}
 		if i < len(origInits) {
 			entry.Comment = origInits[i].Comment
-			entry.Postfix = origInits[i].Postfix
 			entry.ActionDSL = origInits[i].ActionDSL
-			entry.ActionPostfix = origInits[i].ActionPostfix
+			entry.ActionPostfix = compileDSLOrEmpty(origInits[i].ActionDSL, t.symbols, "action")
 		}
+		entry.Postfix = compileDSLOrEmpty(ia.DSL, t.symbols, "action")
 		newInits = append(newInits, entry)
 	}
 	t.xml.InitialActions = newInits
 
-	// Conditions: match by Number to preserve postfix.
+	// Conditions.
 	origConds := map[int]excel.ConditionXML{}
 	for _, c := range t.xml.Conditions {
 		n, _ := strconv.Atoi(c.Number)
@@ -212,9 +207,6 @@ func (t *Table) syncToXML() {
 	t.xml.Conditions = nil
 	for _, c := range t.Conditions {
 		var cols []excel.ColumnValueXML
-		// Emit explicit Y / N / - values; only skip truly absent (empty)
-		// entries. The dash "-" is a meaningful "don't care" signal and
-		// must be preserved on round-trip.
 		for n, v := range c.Columns {
 			if v != "" {
 				cols = append(cols, excel.ColumnValueXML{Number: n, Value: v})
@@ -226,18 +218,11 @@ func (t *Table) syncToXML() {
 			DSL:     c.DSL,
 			Columns: cols,
 		}
-		if orig, ok := origConds[c.Number]; ok {
-			entry.Postfix = orig.Postfix
-		}
+		entry.Postfix = compileDSLOrEmpty(c.DSL, t.symbols, "condition")
 		t.xml.Conditions = append(t.xml.Conditions, entry)
 	}
 
-	// Actions: match by Number to preserve postfix.
-	origActs := map[int]excel.ActionXML{}
-	for _, a := range t.xml.Actions {
-		n, _ := strconv.Atoi(a.Number)
-		origActs[n] = a
-	}
+	// Actions.
 	t.xml.Actions = nil
 	for _, a := range t.Actions {
 		var cols []excel.ColumnValueXML
@@ -252,16 +237,42 @@ func (t *Table) syncToXML() {
 			DSL:     a.DSL,
 			Columns: cols,
 		}
-		if orig, ok := origActs[a.Number]; ok {
-			entry.Postfix = orig.Postfix
-		}
-		// An explicit Postfix on the typed view overrides the carry-from-XML
-		// (rare; used when the EL DSL can't express the desired postfix).
-		if a.Postfix != "" {
-			entry.Postfix = a.Postfix
-		}
+		entry.Postfix = compileDSLOrEmpty(a.DSL, t.symbols, "action")
 		t.xml.Actions = append(t.xml.Actions, entry)
 	}
+}
+
+// compileDSLOrEmpty compiles a single element's DSL via the EL compiler
+// and returns the postfix. Empty DSL returns empty postfix. A compile
+// failure also returns empty — the mutation entry points all validate
+// via CheckXxx before storing, so a compile failure here means the
+// underlying XML was loaded with broken DSL; surfacing it as empty
+// postfix lets the loader's hand-coded-postfix check flag the table
+// rather than silently preserving a stale prior compile.
+//
+// Per #817, this is the ONLY path that writes <*_postfix> bytes in
+// the authoring round-trip. There is no carry-through from the
+// original XML's postfix content.
+func compileDSLOrEmpty(dsl string, symbols map[string]string, kind string) string {
+	if strings.TrimSpace(dsl) == "" {
+		return ""
+	}
+	var (
+		postfix string
+		err     error
+	)
+	switch kind {
+	case "context":
+		postfix, err = CheckContext(dsl, symbols)
+	case "condition":
+		postfix, err = CheckCondition(dsl, symbols)
+	case "action":
+		postfix, err = CheckAction(dsl, symbols)
+	}
+	if err != nil {
+		return ""
+	}
+	return postfix
 }
 
 // Columns returns the number of rule columns in this table.
@@ -375,9 +386,8 @@ func (t *Table) AddAction(a Action) error {
 
 // UpdateAction replaces the action with the given number.
 //
-// If a.Postfix is empty, the prior postfix is preserved (carried from
-// the XML model) — both in the underlying XML and on the refreshed
-// typed view. Set a.Postfix to override.
+// Postfix is regenerated from DSL on every syncToXML — there is no
+// way to carry a non-DSL-derived postfix through this path (#817).
 func (t *Table) UpdateAction(num int, a Action) error {
 	if _, err := CheckAction(a.DSL, t.symbols); err != nil {
 		return err
@@ -387,12 +397,6 @@ func (t *Table) UpdateAction(num int, a Action) error {
 			a.Number = num
 			if a.Columns == nil {
 				a.Columns = existing.Columns
-			}
-			if a.Postfix == "" {
-				// Carry prior from typed view (matches what syncToXML
-				// will preserve on the XML side, keeping the typed
-				// view's Postfix field consistent with the written XML).
-				a.Postfix = existing.Postfix
 			}
 			t.Actions[i] = a
 			t.syncToXML()
