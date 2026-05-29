@@ -690,3 +690,225 @@ func TestFpHalfUpDiv_StakingFixtureWithinOneNano(t *testing.T) {
 		t.Errorf("staking fixture fphalfup/ = %q, want 204425.85877253", got)
 	}
 }
+
+// =============================================================================
+// fpdivr/ — ternary division with configurable rounding fraction (#801)
+// =============================================================================
+
+// TestFpDivR_RoundingSweep exercises the rounding-fraction parameter
+// across the three behaviors the contract names: truncation at r=0,
+// half-away-from-zero at r=0.5, and ceiling (away-from-zero) as r→1.
+// 1/3 is the canonical fixture because the exact mantissa is
+// 0.333333333… — every nano-digit is 3, so every rounding policy
+// produces a distinct visible result.
+func TestFpDivR_RoundingSweep(t *testing.T) {
+	cases := []struct {
+		name, a, b, r, want string
+	}{
+		// r = 0 → truncate. Matches fp/.
+		{"one_third_r0", "1", "3", "0", "0.33333333"},
+		{"two_thirds_r0", "2", "3", "0", "0.66666666"},
+
+		// r = 0.5 → half away from zero. Matches fphalfup/.
+		// 1/3: next nano-digit 3 < 5 → truncates to 0.33333333.
+		{"one_third_r_half", "1", "3", "0.5", "0.33333333"},
+		// 2/3: next nano-digit 6 ≥ 5 → rounds up to 0.66666667.
+		{"two_thirds_r_half", "2", "3", "0.5", "0.66666667"},
+		// 5/9: next nano-digit 5 → ties go up.
+		{"five_ninths_r_half", "5", "9", "0.5", "0.55555556"},
+
+		// r approaching 1 → ceiling (away from zero). Any nonzero
+		// fractional remainder bumps the magnitude by one mantissa unit.
+		{"one_third_r_ceil", "1", "3", "0.99999999", "0.33333334"},
+		{"two_thirds_r_ceil", "2", "3", "0.99999999", "0.66666667"},
+
+		// r = 0.25 → only adds quarter-of-a-denom; for 1/3 (next digit 3)
+		// the truncation tail is 0.333…·10⁸ ≈ 33333333.33 of a mantissa
+		// unit. r=0.25 adds 0.25·b_m/10⁸·10⁸ = 0.25·1 unit-worth of bias.
+		// 1/3 with r=0.25: floor(33333333.33 + 0.25·0.333…) ≈ 33333333 →
+		// stays at 0.33333333. Sanity-check that r between 0 and 0.5
+		// still rounds down for non-tie cases.
+		{"one_third_r_quarter", "1", "3", "0.25", "0.33333333"},
+
+		// Exact division is invariant to r.
+		{"exact_half_r0", "1", "2", "0", "0.50000000"},
+		{"exact_half_r_half", "1", "2", "0.5", "0.50000000"},
+		{"exact_half_r_ceil", "1", "2", "0.99999999", "0.50000000"},
+
+		// Negative results: magnitude rounds away-from-zero, then sign
+		// is reapplied. So -2/3 with r=0.5 → -0.66666667, not -0.66666666.
+		{"neg_two_thirds_r_half", "-2", "3", "0.5", "-0.66666667"},
+		{"two_thirds_neg_denom_r_half", "2", "-3", "0.5", "-0.66666667"},
+		{"neg_neg_r_half", "-2", "-3", "0.5", "0.66666667"},
+
+		// Zero numerator is invariant to r.
+		{"zero_r0", "0", "7", "0", "0.00000000"},
+		{"zero_r_half", "0", "7", "0.5", "0.00000000"},
+		{"zero_r_ceil", "0", "7", "0.99999999", "0.00000000"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			state := newFixedTestState()
+			pushFp(t, state, c.a)
+			pushFp(t, state, c.b)
+			pushFp(t, state, c.r)
+			if err := mustOp(t, "fpdivr/").Execute(state); err != nil {
+				t.Fatalf("fpdivr/: %v", err)
+			}
+			if got := popFpString(t, state); got != c.want {
+				t.Errorf("%s/%s rounding %s = %q, want %q", c.a, c.b, c.r, got, c.want)
+			}
+		})
+	}
+}
+
+// TestFpDivR_MatchesFpHalfUpAtHalf is the consistency check that
+// underlies the EL literal-fold optimization: when the compiler folds
+// r=0.5 to fphalfup/, the runtime result must be identical to the
+// general fpdivr/ path with r=0.5. Any divergence here would mean the
+// fast-path silently changes behavior.
+func TestFpDivR_MatchesFpHalfUpAtHalf(t *testing.T) {
+	fixtures := []struct{ a, b string }{
+		{"1", "3"}, {"2", "3"}, {"5", "9"}, {"7", "13"},
+		{"1.00000007", "3"}, {"100000000", "7"}, {"-2", "3"}, {"-7", "-11"},
+	}
+	for _, fx := range fixtures {
+		t.Run(fx.a+"_over_"+fx.b, func(t *testing.T) {
+			s1 := newFixedTestState()
+			pushFp(t, s1, fx.a)
+			pushFp(t, s1, fx.b)
+			if err := mustOp(t, "fphalfup/").Execute(s1); err != nil {
+				t.Fatal(err)
+			}
+			wantHalfUp := popFpString(t, s1)
+
+			s2 := newFixedTestState()
+			pushFp(t, s2, fx.a)
+			pushFp(t, s2, fx.b)
+			pushFp(t, s2, "0.5")
+			if err := mustOp(t, "fpdivr/").Execute(s2); err != nil {
+				t.Fatal(err)
+			}
+			gotDivr := popFpString(t, s2)
+
+			if gotDivr != wantHalfUp {
+				t.Errorf("%s/%s: fpdivr/(0.5) = %q but fphalfup/ = %q — fast-path divergence",
+					fx.a, fx.b, gotDivr, wantHalfUp)
+			}
+		})
+	}
+}
+
+// TestFpDivR_MatchesFpDivAtZero: r=0 must produce the same result as
+// the existing truncating fp/. Backs the compiler's literal-fold from
+// r=0 to fp/.
+func TestFpDivR_MatchesFpDivAtZero(t *testing.T) {
+	fixtures := []struct{ a, b string }{
+		{"1", "3"}, {"2", "3"}, {"5", "9"}, {"7", "13"},
+		{"-2", "3"}, {"-7", "-11"}, {"100", "7"},
+	}
+	for _, fx := range fixtures {
+		t.Run(fx.a+"_over_"+fx.b, func(t *testing.T) {
+			s1 := newFixedTestState()
+			pushFp(t, s1, fx.a)
+			pushFp(t, s1, fx.b)
+			if err := mustOp(t, "fp/").Execute(s1); err != nil {
+				t.Fatal(err)
+			}
+			wantTrunc := popFpString(t, s1)
+
+			s2 := newFixedTestState()
+			pushFp(t, s2, fx.a)
+			pushFp(t, s2, fx.b)
+			pushFp(t, s2, "0")
+			if err := mustOp(t, "fpdivr/").Execute(s2); err != nil {
+				t.Fatal(err)
+			}
+			gotDivr := popFpString(t, s2)
+
+			if gotDivr != wantTrunc {
+				t.Errorf("%s/%s: fpdivr/(0) = %q but fp/ = %q — fast-path divergence",
+					fx.a, fx.b, gotDivr, wantTrunc)
+			}
+		})
+	}
+}
+
+func TestFpDivR_DivByZeroErrors(t *testing.T) {
+	state := newFixedTestState()
+	pushFp(t, state, "1")
+	pushFp(t, state, "0")
+	pushFp(t, state, "0.5")
+	err := mustOp(t, "fpdivr/").Execute(state)
+	if err == nil {
+		t.Fatal("expected divide-by-zero error")
+	}
+	if !strings.Contains(err.Error(), "division by zero") {
+		t.Errorf("expected division-by-zero, got: %v", err)
+	}
+}
+
+func TestFpDivR_RoundingFractionRangeErrors(t *testing.T) {
+	// Negative r is rejected.
+	state := newFixedTestState()
+	pushFp(t, state, "1")
+	pushFp(t, state, "3")
+	pushFp(t, state, "-0.1")
+	if err := mustOp(t, "fpdivr/").Execute(state); err == nil {
+		t.Error("expected r<0 to error, got nil")
+	} else if !strings.Contains(err.Error(), ">= 0") {
+		t.Errorf("expected `>= 0` message, got: %v", err)
+	}
+
+	// r=1.0 is rejected (must be strictly < 1).
+	state = newFixedTestState()
+	pushFp(t, state, "1")
+	pushFp(t, state, "3")
+	pushFp(t, state, "1")
+	if err := mustOp(t, "fpdivr/").Execute(state); err == nil {
+		t.Error("expected r=1.0 to error, got nil")
+	} else if !strings.Contains(err.Error(), "< 1.0") {
+		t.Errorf("expected `< 1.0` message, got: %v", err)
+	}
+
+	// r > 1 is rejected.
+	state = newFixedTestState()
+	pushFp(t, state, "1")
+	pushFp(t, state, "3")
+	pushFp(t, state, "1.5")
+	if err := mustOp(t, "fpdivr/").Execute(state); err == nil {
+		t.Error("expected r>1 to error, got nil")
+	}
+}
+
+// TestFpDivR_Alias confirms fpdivround is wired as a synonym.
+func TestFpDivR_Alias(t *testing.T) {
+	state := newFixedTestState()
+	pushFp(t, state, "2")
+	pushFp(t, state, "3")
+	pushFp(t, state, "0.5")
+	if err := mustOp(t, "fpdivround").Execute(state); err != nil {
+		t.Fatal(err)
+	}
+	if got := popFpString(t, state); got != "0.66666667" {
+		t.Errorf("fpdivround alias = %q, want 0.66666667", got)
+	}
+}
+
+// TestFpDivR_PromotesInteger confirms int operands auto-promote into fp
+// before the ternary division — including the rounding fraction itself,
+// where pushing an int 0 must be treated as fp 0.
+func TestFpDivR_PromotesInteger(t *testing.T) {
+	state := newFixedTestState()
+	pushFp(t, state, "2")
+	if err := state.DataPush(dtrules.GetRIntegerValue(3)); err != nil {
+		t.Fatal(err)
+	}
+	pushFp(t, state, "0.5")
+	if err := mustOp(t, "fpdivr/").Execute(state); err != nil {
+		t.Fatal(err)
+	}
+	if got := popFpString(t, state); got != "0.66666667" {
+		t.Errorf("fp(2) int(3) 0.5 fpdivr/ = %q, want 0.66666667", got)
+	}
+}

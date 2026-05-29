@@ -639,6 +639,7 @@ fexpr
     | SUBTRACT FROM typedDouble number                      # floatSubFrom
     | MULTIPLY typedDouble BY number                        # floatMulBy
     | DIVIDE typedDouble BY number                          # floatDivBy
+    | DIVIDE fexpr BY fexpr ROUNDING BY FP_LITERAL          # divideRoundingBy
     | ABSOLUTEVALUE OF fexpr                                # floatAbs
     | USING eexpr LPAREN fexpr RPAREN                       # floatUsing
     | DOUBLE VALUE OF operatorstatements                    # floatValueOfOp
@@ -1068,7 +1069,7 @@ RCURLY              : '}' ;
 // Operators
 PLUS                : '+' ;
 MINUS               : '-' ;
-DIVIDE              : '/' | 'div' ;
+DIVIDE              : '/' | 'div' | 'divide' ;
 TIMES               : '*' ;
 ASSIGN              : '=' ;
 
@@ -1106,6 +1107,7 @@ DECREMENT           : 'decrement' ;
 SUBTRACT            : 'subtract' ;
 MULTIPLY            : 'multiply' ;
 ROUNDED             : 'rounded' ;
+ROUNDING            : 'rounding' ;
 DECIMAL_PLACES      : 'decimal' WS+ 'places' ;
 WITH_BOUNDRY        : 'with' WS+ 'boundry' ;
 REMOVE              : 'remove' ;

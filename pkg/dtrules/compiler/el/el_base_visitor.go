@@ -1,6 +1,6 @@
 // Code generated from EL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
-package el
+package el // EL
 import "github.com/antlr4-go/antlr/v4"
 
 type BaseELVisitor struct {
@@ -1548,6 +1548,10 @@ func (v *BaseELVisitor) VisitFloatMulBy(ctx *FloatMulByContext) interface{} {
 }
 
 func (v *BaseELVisitor) VisitFloatMaxOfIntComma(ctx *FloatMaxOfIntCommaContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitDivideRoundingBy(ctx *DivideRoundingByContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
