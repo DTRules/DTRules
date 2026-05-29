@@ -23,9 +23,18 @@ import (
 )
 
 // LocalVar tracks a local variable's stack frame index and type.
+//
+// For TypeEntity locals declared via `local entity r = new T entity`,
+// the EntityType field captures `T` so mutations like
+// `set r.field = X` can look up `T.field` in the EDD symbol table for
+// correct type-aware dispatch (#819). Empty EntityType means the type
+// wasn't determinable at declaration time (e.g.
+// `local entity r = some_dynamic_eexpr`) — callers fall back to
+// default integer dispatch in that case.
 type LocalVar struct {
-	Index int
-	Type  string
+	Index      int
+	Type       string
+	EntityType string // for Type==TypeEntity locals from `new T entity`
 }
 
 // PostfixEmitter walks the EL parse tree and emits postfix notation.
@@ -63,9 +72,19 @@ func (e *PostfixEmitter) SetCollectionResolver(fn func(entityType string) (strin
 
 // declareLocal registers a local variable and returns its stack frame index.
 func (e *PostfixEmitter) declareLocal(name string, varType string) int {
+	return e.declareLocalEntity(name, varType, "")
+}
+
+// declareLocalEntity registers a local variable that is specifically a
+// TypeEntity local with a known entity type T. The third argument is
+// the entity-type name (e.g. "token_recipient"); pass "" if the type
+// isn't known. Stored on LocalVar so mutationType can resolve
+// `<local>.<field>` against `<T>.<field>` in the symbol table — without
+// this, SET dispatch falls back to default integer cv* (#819).
+func (e *PostfixEmitter) declareLocalEntity(name, varType, entityType string) int {
 	name = strings.ToLower(name)
 	idx := e.localCnt
-	e.locals[name] = LocalVar{Index: idx, Type: varType}
+	e.locals[name] = LocalVar{Index: idx, Type: varType, EntityType: entityType}
 	e.localCnt++
 	return idx
 }
@@ -350,6 +369,22 @@ func (e *PostfixEmitter) mutationType(name string) string {
 	if lv, ok := e.lookupLocal(name); ok {
 		return lv.Type
 	}
+	// #819: `<local-entity>.<field>` resolution. If `name` has the
+	// shape `head.tail` and `head` is a TypeEntity local with a known
+	// entity type, look up `<EntityType>.<tail>` in the EDD symbol
+	// table. Without this, SET dispatch on local-entity fields falls
+	// back to the default integer cv* cast.
+	if idx := strings.Index(name, "."); idx > 0 {
+		head := name[:idx]
+		tail := name[idx+1:]
+		if tail != "" && !strings.Contains(tail, ".") {
+			if lv, ok := e.lookupLocal(head); ok && lv.Type == TypeEntity && lv.EntityType != "" {
+				if t := e.lookupType(lv.EntityType + "." + tail); t != "" {
+					return t
+				}
+			}
+		}
+	}
 	return e.lookupType(name)
 }
 
@@ -364,13 +399,61 @@ func (e *PostfixEmitter) emitFieldPush(name string) {
 }
 
 // emitFieldStore stores the top-of-stack value back into a mutation
-// target. For declared locals it emits `<index> local!`; for entity
-// fields it emits `/<name> xdef`.
+// target. Tries each strategy in order until one matches:
+//
+//  1. The name is a declared local — emit `<index> local!`.
+//  2. The name has the shape `local.field` where `local` is a TypeEntity
+//     local — emit the entity-stack-mediated assignment sequence
+//     `<slot> local@ entitypush /<field> xdef entitypop pop` (#819).
+//     Symmetric to emitAliasFieldAccess on the read side.
+//  3. Plain entity field — emit `/<name> xdef`.
 func (e *PostfixEmitter) emitFieldStore(name string) {
-	if !e.emitLocalAssign(name) {
-		e.emit("/" + name)
-		e.emit("xdef")
+	if e.emitLocalAssign(name) {
+		return
 	}
+	if e.emitAliasFieldStore(name) {
+		return
+	}
+	e.emit("/" + name)
+	e.emit("xdef")
+}
+
+// emitAliasFieldStore handles `local.field = value` for a TypeEntity
+// local. Stack effect with value already on top:
+//
+//	[..., value]                  on entry
+//	 → <slot> local@              [..., value, entity]
+//	 → entitypush                 [..., value]            entity-stack: [..., entity]
+//	 → /<field>                   [..., value, /field]
+//	 → xdef                       [...]                   (entity.Put via stack lookup)
+//	 → entitypop                  [..., entity]
+//	 → pop                        [...]
+//
+// Returns false (no emission) if the name isn't shaped like
+// `head.tail` or the head isn't a TypeEntity local. Symmetric to
+// `emitAliasFieldAccess`.
+func (e *PostfixEmitter) emitAliasFieldStore(name string) bool {
+	idx := strings.Index(name, ".")
+	if idx <= 0 {
+		return false
+	}
+	head := name[:idx]
+	tail := name[idx+1:]
+	if tail == "" || strings.Contains(tail, ".") {
+		return false
+	}
+	lv, ok := e.lookupLocal(head)
+	if !ok || lv.Type != TypeEntity {
+		return false
+	}
+	e.emit(fmt.Sprintf("%d", lv.Index))
+	e.emit("local@")
+	e.emit("entitypush")
+	e.emit("/" + tail)
+	e.emit("xdef")
+	e.emit("entitypop")
+	e.emit("pop")
+	return true
 }
 
 // emitTypeAwareAddSub emits the store-back sequence for a field mutation
@@ -2996,7 +3079,11 @@ func (e *PostfixEmitter) VisitLocalEntityUndef(ctx *LocalEntityUndefContext) int
 
 func (e *PostfixEmitter) VisitLocalEntityInit(ctx *LocalEntityInitContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeEntity)
+	// Capture the entity type when the RHS is `new <typedEntity> entity`
+	// (#819) so mutationType can resolve `<local>.<field>` against the
+	// EDD's `<typedEntity>.<field>` symbol — without this, SET on a
+	// local-entity field gets the default integer cv* cast.
+	e.declareLocalEntity(name, TypeEntity, entityTypeFromEexpr(ctx.Eexpr()))
 	e.Visit(ctx.Eexpr())
 	e.emit("cve")
 	e.emit("allocate")
@@ -3004,6 +3091,30 @@ func (e *PostfixEmitter) VisitLocalEntityInit(ctx *LocalEntityInitContext) inter
 	e.emit("deallocate")
 	e.emit("pop")
 	return nil
+}
+
+// entityTypeFromEexpr returns the entity-type name when an eexpr is a
+// `new T entity` constructor. Two grammar alts can match — ANTLR picks
+// `entityNewName` first because IDENT also matches nexpr, but
+// `entityNewTyped` is reachable in theory; handle both. Other eexpr
+// shapes — bare typedEntity references, function calls, table lookups
+// — don't expose a compile-time entity type, so we return "" and the
+// local declaration is type-unaware.
+func entityTypeFromEexpr(ee IEexprContext) string {
+	if ee == nil {
+		return ""
+	}
+	switch n := ee.(type) {
+	case *EntityNewNameContext:
+		if ne := n.Nexpr(); ne != nil {
+			return ne.GetText()
+		}
+	case *EntityNewTypedContext:
+		if te := n.TypedEntity(); te != nil {
+			return te.GetText()
+		}
+	}
+	return ""
 }
 
 func (e *PostfixEmitter) VisitLocalEntityDefined(ctx *LocalEntityDefinedContext) interface{} {
