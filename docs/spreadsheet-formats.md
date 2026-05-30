@@ -360,6 +360,6 @@ static int getColumnCount(List<List<Object>> data, int row)
 ## See Also
 
 - [Compiler Utilities README](../compilerutil/README.md) - Module overview
-- [Quick Start Guide](QUICKSTART.md) - Getting started
-- [API Guide](API-GUIDE.md) - Java integration patterns
-- [Architecture Guide](ARCHITECTURE.md) - System design
+- [Quick Start Guide](quickstart.md) - Getting started
+- [API Guide](api-guide.md) - Java integration patterns
+- [Architecture Guide](architecture.md) - System design

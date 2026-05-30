@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-const docFile = "COMPILER-INTERNALS.md"
+const docFile = "compiler-internals.md"
 
 const requiredBanner = "> **NOT FOR RULE AUTHORS.** Rule authors MUST use `dtrules docs el`.\n" +
 	"> This file covers how the EL compiler and runtime work internally.\n" +

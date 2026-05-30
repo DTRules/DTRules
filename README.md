@@ -156,7 +156,7 @@ dtrules docs workflow            # Development workflow
 
 ### In Repository
 
-- [EL Reference](docs/EL-REFERENCE.md) - Expression Language syntax
+- [EL Reference](docs/el-reference.md) - Expression Language syntax
 - [XML Format](docs/decision-table-xml-format.md) - Decision table XML structure
 - [EL Compiler](pkg/dtrules/compiler/el/README.md) - How EL expressions are compiled
 
@@ -221,7 +221,7 @@ perform Calculate_Deductions
 - **Validated** - Syntax errors caught at compile time, not runtime
 - **Consistent** - Eliminates hand-coded expression errors
 
-See [EL Reference](docs/EL-REFERENCE.md) for complete syntax and [XML Format](docs/decision-table-xml-format.md) for file structure.
+See [EL Reference](docs/el-reference.md) for complete syntax and [XML Format](docs/decision-table-xml-format.md) for file structure.
 
 ## Development Workflow
 

@@ -1517,8 +1517,8 @@ The DTRules state tax system provides a robust, extensible framework for impleme
 5. Validate against official tax forms
 
 For questions or additional examples, refer to:
-- `docs/EL-REFERENCE.md` - Expression Language reference
-- `docs/ARCHITECTURE.md` - System architecture
+- `docs/el-reference.md` - Expression Language reference
+- `docs/architecture.md` - System architecture
 - `sampleprojects/TaxReturn/docs/MULTI_STATE_ALLOCATION.md` - Multi-state details
 
 ---
