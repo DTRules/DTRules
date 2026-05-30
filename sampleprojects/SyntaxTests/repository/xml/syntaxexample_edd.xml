@@ -72,7 +72,6 @@
 		<field name='SocialSecurity' type='string' subtype='' access='r' input='' default_value='SS' comment='Income Type'></field>
 		<field name='SSI' type='string' subtype='' access='r' input='' default_value='SSI' comment='Income Type'></field>
 		<field name='Tips' type='string' subtype='' access='r' input='' default_value='TIP' comment='Income Type'></field>
-		<field name='translationTable' type='table' subtype='' access='rw' input='' default_value='' comment=''></field>
 		<field name='Wages' type='string' subtype='' access='r' input='' default_value='WA' comment='Income Type'></field>
 	</entity>
 	<entity name='ErrorDetails' access='rw' comment=''>
