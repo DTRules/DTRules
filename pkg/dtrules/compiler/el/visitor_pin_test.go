@@ -125,7 +125,6 @@ var inheritedAllowlist = map[string]string{
 	// IDENT-prefixed RHS. Confirmed by parse-tree inspection (#803 batch 2).
 	"VisitSetStringFromNumber":        "dead grammar; ANTLR picks setInt/setFloat for IDENT/number RHS",
 	"VisitSetStringFromTable":         "dead grammar; ANTLR picks setTable for texpr RHS",
-	"VisitStrAttrOf":                  "TODO(#803): triage",
 	// strConcat<Type> are all unreachable: ANTLR always picks the base
 	// `strexpr PLUS strexpr` # strConcat first because the RHS IDENT
 	// matches typedXmlValue inside strexpr. Confirmed by parse-tree
@@ -138,11 +137,7 @@ var inheritedAllowlist = map[string]string{
 	"VisitStrConcatInt":               "dead grammar; base strConcat wins parser-side",
 	"VisitStrConcatInvalid":           "dead grammar; base strConcat wins parser-side",
 	"VisitStrConcatNull":              "dead grammar; base strConcat wins parser-side",
-	"VisitStrMappingKey":              "TODO(#803): triage",
-	"VisitStrRelationship":            "TODO(#803): triage",
-	"VisitStrTimestamp":               "TODO(#803): triage",
 	"VisitStrUsing":                   "dead grammar; intUsingArray wins parser-side (see VisitFloatUsing)",
-	"VisitStrXmlAttr":                 "TODO(#803): triage",
 	// tablelist / tableTyped are helper rules referenced from the
 	// table-lookup alts; with the table-lookup parent emitting
 	// elstmterror placeholders (#803 batch 6), the helpers are never
@@ -163,7 +158,6 @@ var inheritedAllowlist = map[string]string{
 	"VisitTypedOperator":              "dead grammar; VisitOperatorstatements extracts via GetText",
 	"VisitUndefinedIdent":             "dead grammar; CREATE/LOCAL parents extract via UndefinedIdent().GetText",
 	"VisitUsingstatement":             "dead grammar; the rule's only alt wraps usingblock which is visited via children elsewhere",
-	"VisitXmlvalues":                  "TODO(#803): triage",
 }
 
 // TestPostfixEmitterVisitorCoverage asserts that the inherited
