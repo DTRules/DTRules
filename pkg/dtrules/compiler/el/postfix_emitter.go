@@ -793,9 +793,13 @@ func (e *PostfixEmitter) VisitBoolStrNeq(ctx *BoolStrNeqContext) interface{} {
 		e.emit("bytes!=")
 		return nil
 	}
+	// `strneq` was never registered as a runtime op; the runtime has
+	// only `s==` (alias `streq`). Compose inequality as equality then
+	// `not` so the dispatch resolves (#835).
 	e.Visit(left)
 	e.Visit(right)
-	e.emit("strneq")
+	e.emit("s==")
+	e.emit("not")
 	return nil
 }
 
@@ -821,9 +825,13 @@ func (e *PostfixEmitter) VisitBoolStrIsNot(ctx *BoolStrIsNotContext) interface{}
 		e.emit("bytes!=")
 		return nil
 	}
+	// `<a> is not <b>` is logical inequality. Pre-fix this emitted
+	// `strneq not` which was doubly broken: `strneq` is unregistered,
+	// and even if it weren't, the trailing `not` would re-invert the
+	// result. The correct form is `s== not` (#835).
 	e.Visit(left)
 	e.Visit(right)
-	e.emit("strneq")
+	e.emit("s==")
 	e.emit("not")
 	return nil
 }
@@ -831,7 +839,9 @@ func (e *PostfixEmitter) VisitBoolStrIsNot(ctx *BoolStrIsNotContext) interface{}
 func (e *PostfixEmitter) VisitBoolStrEqIc(ctx *BoolStrEqIcContext) interface{} {
 	e.Visit(ctx.Strexpr(0))
 	e.Visit(ctx.Strexpr(1))
-	e.emit("sic==")
+	// `sic==` was never registered; runtime has `s==i` (alias
+	// `streqignorecase`) (#835).
+	e.emit("s==i")
 	return nil
 }
 
@@ -912,7 +922,8 @@ func (e *PostfixEmitter) VisitBoolStrEqIcList(ctx *BoolStrEqIcListContext) inter
 func (e *PostfixEmitter) VisitBoolStrNeqIc(ctx *BoolStrNeqIcContext) interface{} {
 	e.Visit(ctx.Strexpr(0))
 	e.Visit(ctx.Strexpr(1))
-	e.emit("sic==")
+	// `sic==` was never registered; runtime has `s==i` (#835).
+	e.emit("s==i")
 	e.emit("not")
 	return nil
 }
