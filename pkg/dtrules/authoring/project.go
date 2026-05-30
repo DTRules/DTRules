@@ -99,14 +99,25 @@ func OpenProject(path string) (*Project, error) {
 // `*_dt.xml` lives there. Either way the returned directory is
 // guaranteed to contain DT files at load time — callers can treat it
 // as the project's effective XML root.
+//
+// Any symlinks in the returned path are resolved (#791): callers walk
+// the directory with `filepath.WalkDir`, which treats a symlink root
+// as a single non-directory entry rather than descending into it.
+// Returning the post-EvalSymlinks path so the walk descends correctly.
 func resolveProjectXMLDir(path string) (string, error) {
 	canonical := filepath.Join(path, "xml")
 	if info, err := os.Stat(canonical); err == nil && info.IsDir() {
+		if resolved, err := filepath.EvalSymlinks(canonical); err == nil {
+			return resolved, nil
+		}
 		return canonical, nil
 	}
 	// Flat layout: accept `path` itself when it contains *_dt.xml.
 	matches, _ := filepath.Glob(filepath.Join(path, "*_dt.xml"))
 	if len(matches) > 0 {
+		if resolved, err := filepath.EvalSymlinks(path); err == nil {
+			return resolved, nil
+		}
 		return path, nil
 	}
 	return "", fmt.Errorf("no xml/ subdirectory and no *_dt.xml files found in %s", path)

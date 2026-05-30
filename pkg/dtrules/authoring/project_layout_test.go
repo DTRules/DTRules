@@ -154,3 +154,40 @@ func TestOpenProject_NeitherLayoutErrorsClearly(t *testing.T) {
 		t.Errorf("error should mention flat *_dt.xml fallback, got: %v", err)
 	}
 }
+
+// TestOpenProject_XmlSymlinkLayout_Issue791 is the #791 regression.
+// The staking project ships a layout where `<root>/xml` is a symlink
+// to `<root>/rules` (the symlink lets `go:embed` find the files
+// under `xml/...` paths). Pre-fix, `resolveProjectXMLDir` returned
+// the symlink path and `filepath.WalkDir` treated the symlink root
+// as a single non-directory entry (per Go's spec), so the walk never
+// descended and the project loaded with zero tables. `dtrules table
+// list --project <root>` returned `{"tables": []}` silently.
+//
+// The fix resolves the symlink via `filepath.EvalSymlinks` so the
+// walker sees a real directory root.
+func TestOpenProject_XmlSymlinkLayout_Issue791(t *testing.T) {
+	root := t.TempDir()
+	// Put the actual files under `rules/`, then create `xml -> rules`.
+	rules := filepath.Join(root, "rules")
+	if err := os.MkdirAll(rules, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(rules, "flat_dt.xml"), []byte(flatLayoutDT), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(rules, "flat_edd.xml"), []byte(flatLayoutEDD), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink("rules", filepath.Join(root, "xml")); err != nil {
+		t.Fatalf("create symlink: %v", err)
+	}
+
+	p, err := authoring.OpenProject(root)
+	if err != nil {
+		t.Fatalf("OpenProject on symlinked xml/ layout failed: %v", err)
+	}
+	if p.Table("Test_Flat") == nil {
+		t.Errorf("expected Test_Flat to be discovered through xml -> rules symlink, got %v", p.Tables())
+	}
+}
