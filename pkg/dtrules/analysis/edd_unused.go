@@ -89,6 +89,18 @@ func AnalyzeEDDUsage(xmlDir string) ([]EDDWarning, error) {
 		return nil, err
 	}
 
+	// Cross-table entity-stack propagation (#776 piece A continued).
+	// Resolve bare identifiers in callee tables against the union of
+	// every caller's effective context stack. Purely additive — only
+	// adds references — so it can never cause a real reference to be
+	// missed; the worst case is "no new edges, no change."
+	//
+	// Best-effort: a failure here doesn't poison the per-file pass.
+	// We log nothing (the analyzer is meant to be silent on success
+	// and on transient walk errors) and return the warnings the
+	// per-file pass already computed.
+	_ = applyCrossTablePropagation(xmlDir, schema, readRefs, writeRefs)
+
 	return diffEDDUsage(schema.Fields, readRefs, writeRefs), nil
 }
 
