@@ -1360,6 +1360,35 @@ func (e *PostfixEmitter) VisitIntNumberOfWhere(ctx *IntNumberOfWhereContext) int
 	return nil
 }
 
+// VisitIntSumOf: `sum of <iexpr> in <arrayExpr>` — fold the array
+// accumulating <iexpr> per element. Element entity is auto-pushed by
+// forall, so <iexpr> may reference the element's fields directly.
+// Pre-fix this rule silently emitted nothing.
+func (e *PostfixEmitter) VisitIntSumOf(ctx *IntSumOfContext) interface{} {
+	e.emit("0")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("{")
+	e.Visit(ctx.Iexpr())
+	e.emit("+")
+	e.emit("}")
+	e.emit("forall")
+	return nil
+}
+
+// VisitIntIndexOf: `index of <needle> in <haystack>` — emit
+// `<haystack> <needle> indexof`. opIndexOf pops substring then
+// string. Pre-fix the rule silently emitted nothing.
+func (e *PostfixEmitter) VisitIntIndexOf(ctx *IntIndexOfContext) interface{} {
+	all := ctx.AllStrexpr()
+	if len(all) != 2 {
+		return nil
+	}
+	e.Visit(all[1]) // haystack
+	e.Visit(all[0]) // needle
+	e.emit("indexof")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitIntLengthArray(ctx *IntLengthArrayContext) interface{} {
 	// If the arrayExpr is actually a bytes-typed identifier, emit byteslen.
 	if e.arrayExprIsBytes(ctx.ArrayExpr()) {
@@ -2031,6 +2060,28 @@ func (e *PostfixEmitter) VisitFloatRoundedBoundry(ctx *FloatRoundedBoundryContex
 	e.Visit(ctx.Iexpr())
 	e.Visit(ctx.Fexpr(1))
 	e.emit("roundto")
+	return nil
+}
+
+// VisitFloatSumOf: `sum of <typedDouble> in <arrayExpr>` — fold the
+// array summing the named double field. forall auto-pushes each
+// element entity onto the entity stack, so the typedDouble resolves
+// against the element via the standard field-access path.
+//
+// Currently unreachable due to a grammar prediction issue: ANTLR's
+// LL(*) picks intSumOf over floatSumOf for `sum of <ident> in
+// <array>` because typedLong/typedDouble both lex as bare IDENT, and
+// `number : iexpr | fexpr` lists iexpr first. The override is kept
+// defensively for when a future token-classification pass makes
+// floatSumOf reachable. See TestIssue803_FloatSumOf_Unreachable.
+func (e *PostfixEmitter) VisitFloatSumOf(ctx *FloatSumOfContext) interface{} {
+	e.emit("0.0")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("{")
+	e.Visit(ctx.TypedDouble())
+	e.emit("f+")
+	e.emit("}")
+	e.emit("forall")
 	return nil
 }
 
@@ -4252,6 +4303,26 @@ func (e *PostfixEmitter) VisitForctl(ctx *ForctlContext) interface{} {
 func (e *PostfixEmitter) VisitNameTheName(ctx *NameTheNameContext) interface{} {
 	e.Visit(ctx.Strexpr())
 	e.emit("cvn")
+	return nil
+}
+
+// VisitNameFromStr: `(name) <strexpr>` → `<strexpr> cvn`. Same
+// coercion as `the name <strexpr>`; just a parenthesized cast form.
+// Pre-fix the rule silently emitted nothing.
+func (e *PostfixEmitter) VisitNameFromStr(ctx *NameFromStrContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("cvn")
+	return nil
+}
+
+// VisitNameArrayAt: `name <typedArray>[<iexpr>]` → `<typedArray>
+// <iexpr> getat`. Index into a name-typed array. Parallels
+// VisitBoolArrayAt / VisitDateFromArrayAt. Pre-fix the rule silently
+// emitted nothing.
+func (e *PostfixEmitter) VisitNameArrayAt(ctx *NameArrayAtContext) interface{} {
+	e.emit(ctx.TypedArray().GetText())
+	e.Visit(ctx.Iexpr())
+	e.emit("getat")
 	return nil
 }
 
