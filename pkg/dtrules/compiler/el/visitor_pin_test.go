@@ -83,7 +83,6 @@ var inheritedAllowlist = map[string]string{
 	"VisitDateEarliestAfter":          "TODO(#803): triage; needs new `earliestafter` runtime op",
 	"VisitEntityFirst":                "TODO(#803): triage",
 	"VisitEntityFirstIn":              "TODO(#803): triage",
-	"VisitEntityTableLookup":          "TODO(#803): triage",
 	// AddTo/SubFrom — these alts live inside fexpr/iexpr but the
 	// action-statement form `add X to Y` / `subtract X from Y` parses
 	// as addtostatement (rule `addtostatement`), not via the fexpr
@@ -93,17 +92,18 @@ var inheritedAllowlist = map[string]string{
 	"VisitFloatAddTo":                 "dead grammar; addtostatement handles `add X to Y` as a statement",
 	"VisitFloatSubFrom":               "dead grammar; addtostatement handles `subtract X from Y`",
 	"VisitFloatSumOf":                 "TODO(#803): triage",
-	"VisitFloatTableLookup":           "TODO(#803): triage",
-	"VisitFloatUsing":                 "TODO(#803): triage",
+	// Float/Int/Str Using are unreachable: ANTLR adaptive prediction
+	// picks intUsingArray (in iexpr) first for the `using <ident>(<expr>)`
+	// shape because both IDENT-typed sides match more broadly. The
+	// actually-reached intUsingArray now has an override (#803 batch 6).
+	"VisitFloatUsing":                 "dead grammar; intUsingArray wins parser-side for IDENT inputs",
 	"VisitIfThen":                     "TODO(#803): triage; if/then in action statements has separate dispatch",
 	"VisitIfThenElse":                 "TODO(#803): triage; same",
 	"VisitIntAddTo":                   "dead grammar; addtostatement handles `add X to Y` (see VisitFloatAddTo)",
 	"VisitIntIndexOf":                 "TODO(#803): triage",
 	"VisitIntSubFrom":                 "dead grammar; addtostatement handles `subtract X from Y`",
 	"VisitIntSumOf":                   "TODO(#803): triage",
-	"VisitIntTableLookup":             "TODO(#803): triage",
-	"VisitIntUsing":                   "TODO(#803): triage",
-	"VisitIntUsingArray":              "TODO(#803): triage",
+	"VisitIntUsing":                   "dead grammar; intUsingArray wins parser-side (see VisitFloatUsing)",
 	"VisitLeftArrayColon":             "TODO(#803): triage",
 	"VisitLeftTexprColon":             "TODO(#803): triage",
 	"VisitLeftTexprSimple":            "TODO(#803): triage",
@@ -127,7 +127,6 @@ var inheritedAllowlist = map[string]string{
 	// IDENT-prefixed RHS. Confirmed by parse-tree inspection (#803 batch 2).
 	"VisitSetStringFromNumber":        "dead grammar; ANTLR picks setInt/setFloat for IDENT/number RHS",
 	"VisitSetStringFromTable":         "dead grammar; ANTLR picks setTable for texpr RHS",
-	"VisitSetTable":                   "TODO(#803): triage",
 	"VisitStrAttrOf":                  "TODO(#803): triage",
 	// strConcat<Type> are all unreachable: ANTLR always picks the base
 	// `strexpr PLUS strexpr` # strConcat first because the RHS IDENT
@@ -143,21 +142,24 @@ var inheritedAllowlist = map[string]string{
 	"VisitStrConcatNull":              "dead grammar; base strConcat wins parser-side",
 	"VisitStrMappingKey":              "TODO(#803): triage",
 	"VisitStrRelationship":            "TODO(#803): triage",
-	"VisitStrTableInfo":               "TODO(#803): triage",
 	"VisitStrTimestamp":               "TODO(#803): triage",
-	"VisitStrUsing":                   "TODO(#803): triage",
+	"VisitStrUsing":                   "dead grammar; intUsingArray wins parser-side (see VisitFloatUsing)",
 	"VisitStrXmlAttr":                 "TODO(#803): triage",
 	"VisitSubDestColon":               "TODO(#803): triage",
-	"VisitTableListMulti":             "TODO(#803): triage",
-	"VisitTableListSingle":            "TODO(#803): triage",
-	"VisitTableTyped":                 "TODO(#803): triage",
+	// tablelist / tableTyped are helper rules referenced from the
+	// table-lookup alts; with the table-lookup parent emitting
+	// elstmterror placeholders (#803 batch 6), the helpers are never
+	// reached as visitors.
+	"VisitTableListMulti":             "dead grammar; helper rule under table-lookup which emits elstmterror",
+	"VisitTableListSingle":            "dead grammar; helper rule under table-lookup which emits elstmterror",
+	"VisitTableTyped":                 "dead grammar; helper rule under table-lookup which emits elstmterror",
 	"VisitThereis":                    "TODO(#803): triage",
 	"VisitTypedBoolFunction":          "TODO(#803): triage",
 	"VisitTypedInvalid":               "TODO(#803): triage",
 	"VisitTypedNull":                  "TODO(#803): triage",
 	"VisitTypedOperator":              "TODO(#803): triage",
 	"VisitUndefinedIdent":             "TODO(#803): triage",
-	"VisitUsingstatement":             "TODO(#803): triage",
+	"VisitUsingstatement":             "dead grammar; the rule's only alt wraps usingblock which is visited via children elsewhere",
 	"VisitXmlvalues":                  "TODO(#803): triage",
 }
 
