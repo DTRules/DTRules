@@ -93,7 +93,6 @@ var inheritedAllowlist = map[string]string{
 	// (#803 batch 4).
 	"VisitFloatAddTo":                 "dead grammar; addtostatement handles `add X to Y` as a statement",
 	"VisitFloatSubFrom":               "dead grammar; addtostatement handles `subtract X from Y`",
-	"VisitFloatSumOf":                 "TODO(#803): triage",
 	// Float/Int/Str Using are unreachable: ANTLR adaptive prediction
 	// picks intUsingArray (in iexpr) first for the `using <ident>(<expr>)`
 	// shape because both IDENT-typed sides match more broadly. The
@@ -102,9 +101,7 @@ var inheritedAllowlist = map[string]string{
 	"VisitIfThen":                     "TODO(#803): triage; if/then in action statements has separate dispatch",
 	"VisitIfThenElse":                 "TODO(#803): triage; same",
 	"VisitIntAddTo":                   "dead grammar; addtostatement handles `add X to Y` (see VisitFloatAddTo)",
-	"VisitIntIndexOf":                 "TODO(#803): triage",
 	"VisitIntSubFrom":                 "dead grammar; addtostatement handles `subtract X from Y`",
-	"VisitIntSumOf":                   "TODO(#803): triage",
 	"VisitIntUsing":                   "dead grammar; intUsingArray wins parser-side (see VisitFloatUsing)",
 	"VisitLeftArrayColon":             "TODO(#803): triage",
 	// leftTexpr alts are unreachable because the only SET form that
@@ -113,8 +110,6 @@ var inheritedAllowlist = map[string]string{
 	// #803 batch 6).
 	"VisitLeftTexprColon":             "dead grammar; setTable emits elstmterror without visiting leftTexpr",
 	"VisitLeftTexprSimple":            "dead grammar; setTable emits elstmterror without visiting leftTexpr",
-	"VisitNameArrayAt":                "TODO(#803): triage",
-	"VisitNameFromStr":                "TODO(#803): triage",
 	"VisitOpListEntity":               "TODO(#803): triage",
 	"VisitOpListEntitySingle":         "TODO(#803): triage",
 	"VisitPerformName":                "dead grammar; ANTLR matches performDT/performDTExplicit first for any IDENT after PERFORM (verified by tree dump)",
