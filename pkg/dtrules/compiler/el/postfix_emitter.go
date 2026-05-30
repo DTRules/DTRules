@@ -2498,6 +2498,64 @@ func (e *PostfixEmitter) VisitArrayCopySimple(ctx *ArrayCopySimpleContext) inter
 	return nil
 }
 
+// VisitArrayDeepCopy: `get deepcopy of <array>` → `<array> deepcopy`.
+// opDeepCopy clones an array and all its elements (vs. opCopy which
+// is shallow). Pre-fix this rule silently emitted nothing.
+func (e *PostfixEmitter) VisitArrayDeepCopy(ctx *ArrayDeepCopyContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.emit("deepcopy")
+	return nil
+}
+
+// VisitArrayDeepCopySimple: `deepcopy of <array>` → `<array> deepcopy`.
+// Same semantics as `get deepcopy of`, just the shorter form.
+func (e *PostfixEmitter) VisitArrayDeepCopySimple(ctx *ArrayDeepCopySimpleContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.emit("deepcopy")
+	return nil
+}
+
+// VisitArrayName: `(array) NAME` is a cast of a NAME literal to its
+// resolved array value. The NAME token (a `$ident` or `name`-keyword
+// literal) names a global/local array variable. Mirror
+// VisitNameLiteral's prefix logic and emit a `rlookup` to fetch the
+// value bound to the name in the current context.
+//
+// No `rlookup`-style op is registered, so emit an elstmterror
+// placeholder so this fails loudly at runtime until the
+// name-resolution semantics are nailed down. Pre-fix the rule
+// silently emitted nothing.
+func (e *PostfixEmitter) VisitArrayName(ctx *ArrayNameContext) interface{} {
+	e.emit(`"(array) NAME not yet implemented"`)
+	e.emit("elstmterror")
+	return nil
+}
+
+// VisitArrayTokenize: `tokenize <strexpr> by <strexpr>` splits a
+// string on a delimiter and returns the resulting array of substrings.
+// The runtime already has a `split` op with the right shape.
+func (e *PostfixEmitter) VisitArrayTokenize(ctx *ArrayTokenizeContext) interface{} {
+	all := ctx.AllStrexpr()
+	if len(all) != 2 {
+		return nil
+	}
+	e.Visit(all[0]) // source string
+	e.Visit(all[1]) // delimiter
+	e.emit("split")
+	return nil
+}
+
+// VisitArrayMap: `map <arrayExpr> through <texpr>` applies a decision
+// table to each element, collecting the results into a new array. No
+// dedicated map runtime op exists. Emit an elstmterror placeholder so
+// this fails loudly at runtime instead of silently. Pre-fix the rule
+// silently emitted nothing.
+func (e *PostfixEmitter) VisitArrayMap(ctx *ArrayMapContext) interface{} {
+	e.emit(`"map ... through ... not yet implemented"`)
+	e.emit("elstmterror")
+	return nil
+}
+
 // =============================================================================
 // #803 batch 3: array literal construction.
 //
