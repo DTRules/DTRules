@@ -6797,3 +6797,97 @@ func (e *PostfixEmitter) VisitDateNewYMDhmsInZoneWithDST(ctx *DateNewYMDhmsInZon
 	e.emit("newdateinzonewithdst")
 	return nil
 }
+
+// ============================================================================
+// #803 batch 12: leftovers (if/then, operatorlist tails, left-array-colon,
+// thereis/entity-first/date-earliest).
+// ============================================================================
+
+// VisitIfThen: `if <bexpr> then <block> endif` → `<bexpr> { <block> } if`.
+// Pre-fix the whole if-statement silently emitted nothing; conditional
+// action blocks were entirely lost.
+func (e *PostfixEmitter) VisitIfThen(ctx *IfThenContext) interface{} {
+	e.Visit(ctx.Bexpr())
+	e.emit("{")
+	e.Visit(ctx.Block())
+	e.emit("}")
+	e.emit("if")
+	return nil
+}
+
+// VisitIfThenElse: `if <bexpr> then <t> else <e> endif`
+// → `<bexpr> { <t> } { <e> } ifelse`. Pre-fix this silently emitted
+// nothing.
+func (e *PostfixEmitter) VisitIfThenElse(ctx *IfThenElseContext) interface{} {
+	e.Visit(ctx.Bexpr())
+	e.emit("{")
+	e.Visit(ctx.Block(0))
+	e.emit("}")
+	e.emit("{")
+	e.Visit(ctx.Block(1))
+	e.emit("}")
+	e.emit("ifelse")
+	return nil
+}
+
+// VisitOpListEntity: `<eexpr> , <operatorlist>` — non-terminal entity
+// argument in an operator call. Mirror the existing VisitOpListInt /
+// VisitOpListStr / VisitOpListFloat visitors: emit the eexpr first,
+// then recurse into the tail. Pre-fix this rule silently dropped any
+// entity-typed argument that wasn't last in the list.
+func (e *PostfixEmitter) VisitOpListEntity(ctx *OpListEntityContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.Visit(ctx.Operatorlist())
+	return nil
+}
+
+// VisitOpListEntitySingle: terminal `<eexpr>` in an operator call.
+// Mirrors VisitOpListIntSingle / VisitOpListStrSingle. Pre-fix this
+// silently dropped a single entity argument.
+func (e *PostfixEmitter) VisitOpListEntitySingle(ctx *OpListEntitySingleContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	return nil
+}
+
+// VisitLeftArrayColon: `:Entity:<array-field>` on the LHS of `set X =
+// Y`. Mirrors the existing VisitLeftIexprColon / VisitLeftFexprColon
+// / VisitLeftEexprColon family — visit the colonRef (which pushes
+// the entity and walks possessive-or-colon chain), then the inner
+// leftArrayRef which emits the field-store trailer. Pre-fix the rule
+// silently emitted nothing.
+func (e *PostfixEmitter) VisitLeftArrayColon(ctx *LeftArrayColonContext) interface{} {
+	e.Visit(ctx.ColonRef())
+	e.Visit(ctx.LeftArrayRef())
+	return nil
+}
+
+// VisitEntityFirst: `first <eexpr> where <bexpr>` — return the first
+// entity in the iterated set whose bexpr holds. No `firstwhere`-style
+// entity-returning runtime op exists yet. Emit an elstmterror
+// placeholder so this fails loudly at runtime instead of silently
+// emitting nothing. Tracked as a follow-up: needs a new runtime op
+// or a fold-with-capture postfix pattern via local vars.
+func (e *PostfixEmitter) VisitEntityFirst(ctx *EntityFirstContext) interface{} {
+	e.emit(`"first <e> where ... not yet implemented (needs firstwhere runtime op)"`)
+	e.emit("elstmterror")
+	return nil
+}
+
+// VisitEntityFirstIn: `first <eexpr> in <array> where <bexpr>` — same
+// as EntityFirst but with an explicit source array. Same
+// elstmterror-placeholder treatment until the runtime op lands.
+func (e *PostfixEmitter) VisitEntityFirstIn(ctx *EntityFirstInContext) interface{} {
+	e.emit(`"first <e> in <arr> where ... not yet implemented (needs firstwhere runtime op)"`)
+	e.emit("elstmterror")
+	return nil
+}
+
+// VisitDateEarliestAfter: `earliest of <array> after <date>` — return
+// the earliest date in the array that's strictly after the given
+// date. No `earliestafter` runtime op exists. Emit elstmterror;
+// tracked as a follow-up.
+func (e *PostfixEmitter) VisitDateEarliestAfter(ctx *DateEarliestAfterContext) interface{} {
+	e.emit(`"earliest of <arr> after <d> not yet implemented (needs earliestafter runtime op)"`)
+	e.emit("elstmterror")
+	return nil
+}
