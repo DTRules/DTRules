@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -248,5 +249,86 @@ func TestEnforceReviewGate_Passes(t *testing.T) {
 	code := enforceReviewGate(dir, filepath.Join(dir, "xml"), 24*time.Hour)
 	if code != 0 {
 		t.Errorf("expected exit 0 on fresh passing review, got %d", code)
+	}
+}
+
+// TestRunFullReview_OrphanCallIsError pins the #776 piece-A integration:
+// a `perform <X>` referencing a table that isn't defined must surface as
+// a hard error in the review report. The runtime would fail with
+// "table not found" the moment that rule fired; static review must
+// catch it.
+func TestRunFullReview_OrphanCallIsError(t *testing.T) {
+	dir := t.TempDir()
+	xmlDir := filepath.Join(dir, "xml")
+	if err := os.MkdirAll(xmlDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	const eddXML = `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+  <entity name="client" access="rw">
+    <field name="flag" type="boolean" subtype="" access="rw" input="" default_value="false" comment=""/>
+  </entity>
+</entity_data_dictionary>
+`
+	const dtXML = `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+<decision_table>
+<table_name>Caller_Table</table_name>
+<xls_file>test.xlsx</xls_file>
+<attribute_fields><Type>FIRST</Type><COMMENTS></COMMENTS><TABLE_NUMBER>1</TABLE_NUMBER></attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+  <condition_details>
+    <condition_number>1</condition_number>
+    <condition_comment>always</condition_comment>
+    <condition_dsl>client.flag</condition_dsl>
+    <condition_postfix>client.flag</condition_postfix>
+    <condition_column column_number="1" column_value="Y"/>
+  </condition_details>
+</conditions>
+<actions>
+  <action_details>
+    <action_number>1</action_number>
+    <action_comment>call missing</action_comment>
+    <action_dsl>perform Definitely_Missing_Table;</action_dsl>
+    <action_postfix>/Definitely_Missing_Table</action_postfix>
+    <action_column column_number="1" column_value="X"/>
+  </action_details>
+</actions>
+</decision_table>
+</decision_tables>
+`
+	if err := os.WriteFile(filepath.Join(xmlDir, "tiny_dt.xml"), []byte(dtXML), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(xmlDir, "tiny_edd.xml"), []byte(eddXML), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	rep, err := runFullReview(dir)
+	if err != nil {
+		t.Fatalf("runFullReview: %v", err)
+	}
+	if rep == nil {
+		t.Fatal("expected report, got nil")
+	}
+
+	// Find the call-graph error.
+	var found bool
+	for _, e := range rep.Errors {
+		if e.Category == reviewCategoryCallGraph &&
+			e.Table == "Caller_Table" &&
+			strings.Contains(e.Message, "Definitely_Missing_Table") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected call_graph error pointing at Definitely_Missing_Table, got errors: %+v", rep.Errors)
+	}
+	if rep.Passed {
+		t.Errorf("expected passed=false with orphan call error, got passed=true")
 	}
 }
