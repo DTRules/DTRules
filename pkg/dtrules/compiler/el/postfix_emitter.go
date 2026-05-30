@@ -5121,6 +5121,65 @@ func (e *PostfixEmitter) VisitTableNew(ctx *TableNewContext) interface{} {
 	return nil
 }
 
+// =============================================================================
+// #803 batch 6: rest of the table-lookup family. Hash tables were
+// removed; the grammar still parses these forms so emit elstmterror
+// placeholders symmetric to VisitStrTableLookup / VisitTableNew above.
+// Each leaves a type-appropriate sentinel value on the stack so the
+// surrounding expression compiles even though the runtime won't run.
+// =============================================================================
+
+func (e *PostfixEmitter) VisitFloatTableLookup(ctx *FloatTableLookupContext) interface{} {
+	e.emit("\"hash tables removed — (double) table-lookup unsupported\"")
+	e.emit("elstmterror")
+	e.emit("0.0")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntTableLookup(ctx *IntTableLookupContext) interface{} {
+	e.emit("\"hash tables removed — (long) table-lookup unsupported\"")
+	e.emit("elstmterror")
+	e.emit("0")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitEntityTableLookup(ctx *EntityTableLookupContext) interface{} {
+	e.emit("\"hash tables removed — (entity) table-lookup unsupported\"")
+	e.emit("elstmterror")
+	e.emit("null")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitSetTable(ctx *SetTableContext) interface{} {
+	e.emit("\"hash tables removed — `set <table> = <table>` unsupported\"")
+	e.emit("elstmterror")
+	return nil
+}
+
+// VisitStrTableInfo: the `tableinformation` keyword. Hash tables were
+// removed; this leaves a sentinel string on the stack for the surrounding
+// expression and errors loudly at runtime.
+func (e *PostfixEmitter) VisitStrTableInfo(ctx *StrTableInfoContext) interface{} {
+	e.emit("\"hash tables removed — `tableinformation` unsupported\"")
+	e.emit("elstmterror")
+	e.emit("\"\"")
+	return nil
+}
+
+// VisitIntUsingArray: `USING arrayExpr number` — ANTLR adaptive
+// prediction matches this for the `using <ident>(<expr>)` shape because
+// arrayExpr accepts any IDENT and `(<expr>)` matches as `number`. The
+// semantic intent is the entity-stack delegation pattern (see
+// VisitBigUsing): push the entity, evaluate the inner expression in
+// that context, pop.
+func (e *PostfixEmitter) VisitIntUsingArray(ctx *IntUsingArrayContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.emit("entitypush")
+	e.Visit(ctx.Number())
+	e.emit("entitypop")
+	return nil
+}
+
 // VisitBoolEntityIsOf: `<e1> is <type> of <e2>` — the findmatch/relationship
 // lookup op this used to call was removed alongside the hash-table ops. The
 // emit now produces an elstmterror so the form parses but errors at runtime
