@@ -367,14 +367,6 @@ mailingAddress cve /address xdef
 effectivedate cvd /currentdate xdef  
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
-<intial_action_number>11</intial_action_number>
-<initial_action_comment>Okay.... Statement was wrong</initial_action_comment>
-<initial_action_requirement />
-<initial_action_dsl>set translationTable = anotherTable</initial_action_dsl>
-<initial_action_postfix>
-anotherTable /translationTable xdef  
-</initial_action_postfix></initial_action_details>
-<initial_action_details>
 <intial_action_number>12</intial_action_number>
 <initial_action_comment />
 <initial_action_requirement />
@@ -2567,14 +2559,6 @@ mailingAddress cve /address xdef
 <initial_action_dsl>set currentdate = effectivedate</initial_action_dsl>
 <initial_action_postfix>
 effectivedate cvd /currentdate xdef  
-</initial_action_postfix></initial_action_details>
-<initial_action_details>
-<intial_action_number>11</intial_action_number>
-<initial_action_comment>Okay.... Statement was wrong</initial_action_comment>
-<initial_action_requirement />
-<initial_action_dsl>set translationTable = anotherTable</initial_action_dsl>
-<initial_action_postfix>
-anotherTable /translationTable xdef  
 </initial_action_postfix></initial_action_details>
 <initial_action_details>
 <intial_action_number>12</intial_action_number>
