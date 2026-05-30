@@ -79,9 +79,6 @@ var inheritedAllowlist = map[string]string{
 	"VisitBlistIcOr":                  "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
 	"VisitBlistMulti":                 "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
 	"VisitBlistOr":                    "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
-	"VisitDateEarliestAfter":          "TODO(#803): triage; needs new `earliestafter` runtime op",
-	"VisitEntityFirst":                "TODO(#803): triage",
-	"VisitEntityFirstIn":              "TODO(#803): triage",
 	// AddTo/SubFrom — these alts live inside fexpr/iexpr but the
 	// action-statement form `add X to Y` / `subtract X from Y` parses
 	// as addtostatement (rule `addtostatement`), not via the fexpr
@@ -95,20 +92,15 @@ var inheritedAllowlist = map[string]string{
 	// shape because both IDENT-typed sides match more broadly. The
 	// actually-reached intUsingArray now has an override (#803 batch 6).
 	"VisitFloatUsing":                 "dead grammar; intUsingArray wins parser-side for IDENT inputs",
-	"VisitIfThen":                     "TODO(#803): triage; if/then in action statements has separate dispatch",
-	"VisitIfThenElse":                 "TODO(#803): triage; same",
 	"VisitIntAddTo":                   "dead grammar; addtostatement handles `add X to Y` (see VisitFloatAddTo)",
 	"VisitIntSubFrom":                 "dead grammar; addtostatement handles `subtract X from Y`",
 	"VisitIntUsing":                   "dead grammar; intUsingArray wins parser-side (see VisitFloatUsing)",
-	"VisitLeftArrayColon":             "TODO(#803): triage",
 	// leftTexpr alts are unreachable because the only SET form that
 	// targets a typedTable (setTable) now emits an elstmterror
 	// placeholder without visiting the leftTexpr (hash tables removed,
 	// #803 batch 6).
 	"VisitLeftTexprColon":             "dead grammar; setTable emits elstmterror without visiting leftTexpr",
 	"VisitLeftTexprSimple":            "dead grammar; setTable emits elstmterror without visiting leftTexpr",
-	"VisitOpListEntity":               "TODO(#803): triage",
-	"VisitOpListEntitySingle":         "TODO(#803): triage",
 	"VisitPerformName":                "dead grammar; ANTLR matches performDT/performDTExplicit first for any IDENT after PERFORM (verified by tree dump)",
 	// setArray<Type> are unreachable for non-array RHS: ANTLR picks
 	// setInt/setFloat/setString/setEntity/setDate first when the RHS
@@ -145,7 +137,11 @@ var inheritedAllowlist = map[string]string{
 	"VisitTableListMulti":             "dead grammar; helper rule under table-lookup which emits elstmterror",
 	"VisitTableListSingle":            "dead grammar; helper rule under table-lookup which emits elstmterror",
 	"VisitTableTyped":                 "dead grammar; helper rule under table-lookup which emits elstmterror",
-	"VisitThereis":                    "TODO(#803): triage",
+	// `thereis` is a purely structural rule (`THERE IS | IS THERE`) — just
+	// keyword matching. Every parent (boolThereIsWhere, boolMatchForall,
+	// etc.) emits its own postfix without visiting the thereis ctx (#803
+	// batch 12).
+	"VisitThereis":                    "dead grammar; parents emit logic without visiting the keyword-only rule",
 	// typedXxx and undefinedIdent are IDENT-classification rules. Every
 	// parent visitor that consumes them extracts the text via GetText()
 	// directly (e.g. VisitOperatorstatements at line 4906 reads
