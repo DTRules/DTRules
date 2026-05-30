@@ -1828,6 +1828,57 @@ Cast to date:
     (date) myArray[i]                       array element as date
     (date) someTable("key")                 table lookup
 
+Timezone-aware variants (#743): every date op above has an ` + "`in zone <tz>`" + `
+counterpart that interprets the date in the given IANA timezone (e.g.
+"America/Chicago", "UTC"). The runtime op names suffix ` + "`inzone`" + `.
+
+    current date in zone "America/Chicago"      today in Chicago
+    today in zone "UTC"                          today in UTC
+    new date "2024-03-10" in zone "America/Chicago"
+    new date "2024-03-10 02:30" in zone "America/Chicago" with dst rule "fall back"
+    "2024-01-15" in zone "UTC"                   parse ISO string in tz
+    format dexpr "Mon Jan 2" in zone "UTC"       format in tz
+    get year of d in zone "UTC"                  year in tz
+    get month of d in zone "UTC"                 month in tz
+    get day of month of d in zone "UTC"
+    get day of week of d in zone "UTC"
+    get week of year of d in zone "UTC"
+    get hour of d in zone "UTC"
+    get minute of d in zone "UTC"
+    get second of d in zone "UTC"
+    get days in month of d in zone "UTC"
+    get days in year of d in zone "UTC"
+    first of years of d in zone "UTC"            Jan 1 in tz
+    first of months of d in zone "UTC"
+    first of quarters of d in zone "UTC"
+    first of weeks of d in zone "UTC"
+    first of weeks starting "Sunday" of d in zone "UTC"
+    end of years of d in zone "UTC"
+    end of months of d in zone "UTC"
+    end of quarters of d in zone "UTC"
+    end of weeks of d in zone "UTC"
+    end of weeks starting "Sunday" of d in zone "UTC"
+    d1 same calendar day as d2 in zone "UTC"
+    d1 same calendar month as d2 in zone "UTC"
+    d1 same calendar quarter as d2 in zone "UTC"
+    d1 same calendar week as d2 in zone "UTC"
+    d1 same calendar week starting "Sunday" as d2 in zone "UTC"
+    d1 same calendar year as d2 in zone "UTC"
+
+Runtime op names (emitted by the compiler):
+    currentdateinzone, todayinzone, newdateinzone,
+    newdateinzonewithdst, dateinzone, dateformatinzone,
+    getyearinzone, getmonthinzone, getdayofmonthinzone,
+    getdayofweekinzone, getweekofyearinzone, gethourinzone,
+    getminuteinzone, getsecondinzone, getdaysinmonthinzone,
+    getdaysinyearinzone, firstofmonthinzone, firstofquarterinzone,
+    firstofyearinzone, firstofweekinzone, firstofweekstartinginzone,
+    endofmonthinzone, endofquarterinzone, endofyearinzone,
+    endofweekinzone, endofweekstartinginzone, samecalendardayinzone,
+    samecalendarmonthinzone, samecalendarquarterinzone,
+    samecalendarweekinzone, samecalendarweekstartinginzone,
+    samecalendaryearinzone.
+
 
 Entity Operators
 ----------------
@@ -1893,6 +1944,21 @@ PERFORM (call another decision table):
     Calculate_Deductions                   (implicit perform)
     perform "DynamicName"                  (by name variable)
     perform myTable and on error add myEntity to context and perform ErrorHandler
+
+FIRST PASS predicate (#764):
+    first pass                              true on the first iteration of
+                                            the innermost active loop in
+                                            this table's context; false on
+                                            subsequent iterations; false
+                                            when no loop is active.
+                                            Runtime op: firstpass
+
+CREATE typed entity in action context (#712 area):
+    create state_tax_result as result       allocate a fresh entity and bind
+                                            to a local name; subsequent
+                                            ` + "`set result.field = ...`" + ` and
+                                            ` + "`add result to <array>`" + ` target it.
+                                            Lowers to ` + "`/state_tax_result createentity /result xdef`" + `
 
 FORALL block (action context):
     for all myArray { set item.processed = true }
