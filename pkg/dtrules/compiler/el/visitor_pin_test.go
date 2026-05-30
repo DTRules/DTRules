@@ -71,12 +71,14 @@ var inheritedAllowlist = map[string]string{
 	"VisitAddDestArray2":              "dead grammar; addDest/subDestColon extract via GetText, never Visit",
 	"VisitAddDestDouble2":             "dead grammar; addDest/subDestColon extract via GetText, never Visit",
 	"VisitAddDestLong2":               "dead grammar; addDest/subDestColon extract via GetText, never Visit",
-	"VisitBlistIcMulti":               "TODO(#803): triage",
-	"VisitBlistIcOr":                  "TODO(#803): triage",
-	"VisitBlistMulti":                 "TODO(#803): triage",
-	"VisitBlistOr":                    "TODO(#803): triage",
-	"VisitBoolStrEqIcList":            "TODO(#803): triage",
-	"VisitBoolStrEqList":              "TODO(#803): triage",
+	// blist / blistIc alts are traversed directly by the parent
+	// visitors (VisitBoolStrEqList / VisitBoolStrEqIcList via
+	// collectBlistStrexprs), not via the antlr Visit dispatch — so
+	// these Visit* methods are never reached (#803 batch 10).
+	"VisitBlistIcMulti":               "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
+	"VisitBlistIcOr":                  "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
+	"VisitBlistMulti":                 "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
+	"VisitBlistOr":                    "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
 	"VisitDateEarliestAfter":          "TODO(#803): triage; needs new `earliestafter` runtime op",
 	"VisitEntityFirst":                "TODO(#803): triage",
 	"VisitEntityFirstIn":              "TODO(#803): triage",

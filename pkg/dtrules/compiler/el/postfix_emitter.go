@@ -835,6 +835,80 @@ func (e *PostfixEmitter) VisitBoolStrEqIc(ctx *BoolStrEqIcContext) interface{} {
 	return nil
 }
 
+// collectBlistStrexprs walks a blist / blistIc tree (left-leaning,
+// terminating in an OR alt) and returns the flat list of comparison
+// values in source order. blistMulti has shape `strexpr COMMA blist`
+// and blistOr has shape `OR strexpr`. Same shape for blistIc.
+//
+// Pulling the walk out of the antlr Visit dispatch lets the parent
+// visitor emit the membership-test postfix in one pass without
+// relying on individual Blist* overrides (which never fire because
+// VisitChildren is a no-op).
+func collectBlistStrexprs(node antlr.Tree) []IStrexprContext {
+	var out []IStrexprContext
+	var walk func(antlr.Tree)
+	walk = func(n antlr.Tree) {
+		switch c := n.(type) {
+		case *BlistMultiContext:
+			out = append(out, c.Strexpr())
+			if tail := c.Blist(); tail != nil {
+				walk(tail)
+			}
+		case *BlistOrContext:
+			out = append(out, c.Strexpr())
+		case *BlistIcMultiContext:
+			out = append(out, c.Strexpr())
+			if tail := c.Blist(); tail != nil {
+				walk(tail)
+			}
+		case *BlistIcOrContext:
+			out = append(out, c.Strexpr())
+		}
+	}
+	walk(node)
+	return out
+}
+
+// emitStrEqList emits `<lhs> v0 <op>  <lhs> v1 <op> or  <lhs> v2 <op>
+// or  ...` — the lhs is re-visited per element rather than dup'd so
+// any side effects in <lhs> evaluation match the singleton boolStrEq
+// path. Used by both boolStrEqList (op=s==) and boolStrEqIcList
+// (op=s==i).
+func (e *PostfixEmitter) emitStrEqList(lhs IStrexprContext, values []IStrexprContext, eqOp string) {
+	if len(values) == 0 {
+		// Defensive: empty list shouldn't be reachable through the grammar
+		// (blist always terminates in an OR strexpr), but emit a literal
+		// false so a malformed tree fails closed rather than silently.
+		e.emit("false")
+		return
+	}
+	for i, v := range values {
+		e.Visit(lhs)
+		e.Visit(v)
+		e.emit(eqOp)
+		if i > 0 {
+			e.emit("or")
+		}
+	}
+}
+
+// VisitBoolStrEqList: `<strexpr> = "a", "b" or "c"` — membership
+// against a comma-separated list ending in OR. Emit a chain of
+// `s==` comparisons OR'd together. Pre-fix this rule silently
+// emitted nothing.
+func (e *PostfixEmitter) VisitBoolStrEqList(ctx *BoolStrEqListContext) interface{} {
+	e.emitStrEqList(ctx.Strexpr(), collectBlistStrexprs(ctx.Blist()), "s==")
+	return nil
+}
+
+// VisitBoolStrEqIcList: `<strexpr> equals "a", "b" or "c"` —
+// case-insensitive variant. Same shape as boolStrEqList but using
+// the s==i op. Pre-fix this rule silently emitted nothing.
+func (e *PostfixEmitter) VisitBoolStrEqIcList(ctx *BoolStrEqIcListContext) interface{} {
+	e.emitStrEqList(ctx.Strexpr(), collectBlistStrexprs(ctx.BlistIc()), "s==i")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitBoolStrNeqIc(ctx *BoolStrNeqIcContext) interface{} {
 	e.Visit(ctx.Strexpr(0))
 	e.Visit(ctx.Strexpr(1))
