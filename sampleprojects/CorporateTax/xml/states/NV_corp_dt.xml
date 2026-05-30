@@ -458,7 +458,7 @@ result.apportionment_percentage 0 gt and
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has nexus but no apportionment percentage</condition_comment>
-<condition_dsl>has_nexus AND apportionment_percentage = 0</condition_dsl>
+<condition_dsl>has_nexus AND apportionment_percentage == 0</condition_dsl>
 <condition_postfix>
 result.has_physical_presence_nv result.nv_gross_receipts result.nv_economic_nexus_threshold ge or
 result.apportionment_percentage 0 eq and
