@@ -24,11 +24,37 @@ import (
 	"strings"
 )
 
+// EDDUsageCategory tags every EDDWarning with its finding class so
+// consumers can route on category rather than parsing the human-
+// readable Reason. The four categories follow the design in #776
+// phase 3 piece C.
+type EDDUsageCategory string
+
+const (
+	// EDDUsageUnused — declared in the EDD, never referenced in any
+	// reachable DSL fragment. Safe to remove modulo external
+	// mapping/JSON consumers.
+	EDDUsageUnused EDDUsageCategory = "unused"
+
+	// EDDUsageWriteOnly — set somewhere but never read anywhere.
+	// Almost always a bug: either the read got deleted, or the set
+	// is doing nothing.
+	EDDUsageWriteOnly EDDUsageCategory = "write_only"
+
+	// EDDUsagePossibly — referenced inside an unbound dynamic-
+	// dispatch target the analyzer can't enumerate. The reference
+	// might be reached at runtime; the analyzer can't prove it
+	// unreached. Reserved for #776 piece B (enumeration-bounded
+	// dispatch) — not emitted by the current pass.
+	EDDUsagePossibly EDDUsageCategory = "possibly_used"
+)
+
 // EDDWarning records an informational finding about EDD field usage.
 type EDDWarning struct {
-	Field   string // "entity.attribute"
-	EddFile string // source EDD file name
-	Reason  string
+	Field    string           // "entity.attribute"
+	EddFile  string           // source EDD file name
+	Reason   string           // human-readable explanation (legacy field, prefer Category for routing)
+	Category EDDUsageCategory // finding class (#776 piece C)
 }
 
 // String formats the warning in the canonical INFO form.
@@ -721,9 +747,10 @@ func diffEDDUsage(decls map[string]eddField, readRefs, writeRefs map[string]bool
 		if f.Access == "r" {
 			if !isRead {
 				warnings = append(warnings, EDDWarning{
-					Field:   key,
-					EddFile: f.EddFile,
-					Reason:  fmt.Sprintf("unused EDD field: %s (declared in %s, never referenced)", key, f.EddFile),
+					Field:    key,
+					EddFile:  f.EddFile,
+					Reason:   fmt.Sprintf("unused EDD field: %s (declared in %s, never referenced)", key, f.EddFile),
+					Category: EDDUsageUnused,
 				})
 			}
 			continue
@@ -731,15 +758,17 @@ func diffEDDUsage(decls map[string]eddField, readRefs, writeRefs map[string]bool
 
 		if !isRead && !isWritten {
 			warnings = append(warnings, EDDWarning{
-				Field:   key,
-				EddFile: f.EddFile,
-				Reason:  fmt.Sprintf("unused EDD field: %s (declared in %s, never referenced)", key, f.EddFile),
+				Field:    key,
+				EddFile:  f.EddFile,
+				Reason:   fmt.Sprintf("unused EDD field: %s (declared in %s, never referenced)", key, f.EddFile),
+				Category: EDDUsageUnused,
 			})
 		} else if isWritten && !isRead {
 			warnings = append(warnings, EDDWarning{
-				Field:   key,
-				EddFile: f.EddFile,
-				Reason:  fmt.Sprintf("write-only EDD field: %s (set but never read)", key),
+				Field:    key,
+				EddFile:  f.EddFile,
+				Reason:   fmt.Sprintf("write-only EDD field: %s (set but never read)", key),
+				Category: EDDUsageWriteOnly,
 			})
 		}
 	}
