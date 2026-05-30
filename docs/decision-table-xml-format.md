@@ -315,7 +315,7 @@ Change from child element to attribute:
 ## EL Syntax Reference
 
 For complete EL syntax documentation, see:
-- [EL Reference](EL-REFERENCE.md) - Complete syntax, operators, and functions
+- [EL Reference](el-reference.md) - Complete syntax, operators, and functions
 - [EL Compiler README](../pkg/dtrules/compiler/el/README.md) - Compiler details and workflow
 
 ### Quick Syntax Reference
@@ -353,7 +353,7 @@ Use merge scripts to combine files for testing while keeping source files modula
 
 ## See Also
 
-- [EL Reference](EL-REFERENCE.md) - Complete EL syntax documentation
+- [EL Reference](el-reference.md) - Complete EL syntax documentation
 - [EL Compiler](../pkg/dtrules/compiler/el/README.md) - Compiler implementation
-- [Architecture Guide](ARCHITECTURE.md) - System design overview
+- [Architecture Guide](architecture.md) - System design overview
 - [Sample Projects](../sampleprojects/README.md) - Working examples

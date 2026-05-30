@@ -229,7 +229,7 @@ Built-in double functions:
 Rounding:
     amount rounded                         round to nearest integer
     amount rounded to 2 decimal places     round to N decimal places
-    amount rounded to 2 decimal places with boundry 0.5
+    amount rounded to 2 decimal places with boundary 0.5
                                            round with custom boundary
 
 Mutating double operations:
@@ -1412,7 +1412,7 @@ Absolute value:
 Rounding (double only):
     amount rounded                            double        3.7 rounded -> 4.0
     amount rounded to 2 decimal places        double
-    amount rounded to 2 decimal places with boundry 0.5
+    amount rounded to 2 decimal places with boundary 0.5
 
 Mutating shortcuts (action statements):
     increment myLong                          (adds 1 to long field)
@@ -1629,7 +1629,7 @@ absolute value of fexpr                       double    absolute value
 fexpr rounded                                 double    round to nearest integer
 fexpr rounded to N decimal places             double    round to N places
 fexpr rounded to N decimal places
-    with boundry B                            double    round with custom boundary
+    with boundary B                            double    round with custom boundary
 double value of typedOperator(args)           double    custom operator result
 
 Cast to double:

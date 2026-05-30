@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-const elRefFile = "EL-REFERENCE.md"
+const elRefFile = "el-reference.md"
 
 const elRefBanner = "> **NOT FOR RULE AUTHORS.** Rule authors MUST use `dtrules docs el`.\n" +
 	"> This file is a reference for engineers debugging the compiler or runtime.\n" +

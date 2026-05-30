@@ -9,11 +9,11 @@ docs cli` after installing. The Java implementation is archived under
 
 | I want to... | Go here |
 |--------------|---------|
-| Get started with the CLI | `dtrules docs cli` (embedded) — or [`QUICKSTART.md`](QUICKSTART.md) for pointers |
-| Build from source | [Building Guide](BUILDING.md) |
-| Learn the expression language | `dtrules docs el` or [EL Reference](EL-REFERENCE.md) |
+| Get started with the CLI | `dtrules docs cli` (embedded) — or [`quickstart.md`](quickstart.md) for pointers |
+| Build from source | [Building Guide](building.md) |
+| Learn the expression language | `dtrules docs el` or [EL Reference](el-reference.md) |
 | Write decision tables in XML | [Decision Table XML Format](decision-table-xml-format.md) |
-| Understand the architecture | [Architecture Guide](ARCHITECTURE.md) |
+| Understand the architecture | [Architecture Guide](architecture.md) |
 
 ---
 
@@ -29,7 +29,7 @@ for day-to-day use:
 | `dtrules docs el` | Expression Language reference |
 | `dtrules docs edd` | Entity Data Dictionary |
 | `dtrules docs operators` | Every runtime operator with examples |
-| [`BUILDING.md`](BUILDING.md) | Build the binary from source (contributors) |
+| [`building.md`](building.md) | Build the binary from source (contributors) |
 
 ---
 
@@ -37,12 +37,11 @@ for day-to-day use:
 
 | Document | Description |
 |----------|-------------|
-| [Architecture Guide](ARCHITECTURE.md) | System design, components, and execution flow |
-| [Expression Language Reference](EL-REFERENCE.md) | Complete EL syntax, operators, and functions |
+| [Architecture Guide](architecture.md) | System design, components, and execution flow |
+| [Expression Language Reference](el-reference.md) | Complete EL syntax, operators, and functions |
 | [Decision Table XML Format](decision-table-xml-format.md) | **Required** EL format for decision table XML |
 | [EL Compiler](../pkg/dtrules/compiler/el/README.md) | Compiles EL descriptions to postfix notation |
-| [Spreadsheet Formats Guide](SPREADSHEET-FORMATS.md) | Excel, ODS, and Google Sheets support |
-| [Bytecode Specification](bytecode-spec.md) | Portable bytecode format for cross-runtime execution |
+| [Spreadsheet Formats Guide](spreadsheet-formats.md) | Excel, ODS, and Google Sheets support |
 
 ---
 
@@ -50,7 +49,7 @@ for day-to-day use:
 
 | Document | Description |
 |----------|-------------|
-| [API Guide](API-GUIDE.md) | Java integration patterns and code examples |
+| [API Guide](api-guide.md) | Java integration patterns and code examples |
 | [ANTLR Migration Guide](antlr-migration.md) | EL/EBL parser modernization (JFlex/CUP → ANTLR 4) |
 
 ### Java Quick Start
@@ -67,7 +66,7 @@ mvn clean install
 
 | Document | Description |
 |----------|-------------|
-| [Go README](../go/README.md) | Installation, CLI usage, REST API |
+| [Root README](../README.md) | Installation, CLI usage |
 | [Design Review](go-design-review.md) | Architecture, design decisions, security review |
 | [Performance Analysis](go-performance.md) | Detailed benchmarks and optimizations |
 | [Native ASM Runtime](nativeasm-runtime.md) | Plan 9 assembly runtime (20-50x faster) |
@@ -96,7 +95,7 @@ cd go && go build -o dtrules ./cmd/dtrules
 | Document | Description |
 |----------|-------------|
 | [Assembly Guide](asm-guide.md) | x86-64 NASM implementation - architecture, compatibility, testing |
-| [ASM README](../asm/README.md) | Build instructions and overview |
+| [Legacy ASM](../legacy/) | Original Plan 9 assembly tree (archived; superseded by the Go-native runtime) |
 
 The assembly implementation is educational, demonstrating how a rules engine can be built at the lowest level with no libc dependencies.
 
@@ -119,7 +118,7 @@ Then open http://localhost:5173
 | Document | Description |
 |----------|-------------|
 | [UI README](../ui/README.md) | Setup, features, and usage |
-| [UI Architecture](../ui/ARCHITECTURE.md) | Component structure and design |
+| [UI Architecture](../ui/architecture.md) | Component structure and design |
 
 ---
 
@@ -152,8 +151,8 @@ See the [Sample Projects Overview](../sampleprojects/README.md) for the complete
 | Document | Description |
 |----------|-------------|
 | [Changelog](../CHANGELOG.md) | Version history and changes |
-| [Compiler Utilities](../compilerutil/README.md) | Spreadsheet conversion tools |
-| [DSL Overview](../dsl/README.md) | Domain Specific Language modules |
+| [Compiler Internals](compiler-internals.md) | EL compiler architecture and ANTLR plumbing |
+| [Building](building.md) | Build, test, and packaging instructions |
 
 ---
 
