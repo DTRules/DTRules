@@ -107,7 +107,7 @@ func buildToolDefs() []mcpToolDef {
 		},
 		{
 			Name:        "project_full_review",
-			Description: "Run the project-wide Full Review (structure + EL compliance + load diagnostics + per-table optimizer + EDD-unused). Persists the report to .dtrules/last-review.json and returns it. The deployment gate (dtrules build --require-review) reads this file. Errors gate deployment; warnings do not.",
+			Description: "Run the project-wide Full Review (structure + EL compliance + load diagnostics + per-table optimizer + EDD-unused + table call graph orphan-call detection). Persists the report to .dtrules/last-review.json and returns it. The deployment gate (dtrules build --require-review) reads this file. Errors gate deployment; warnings do not.",
 			InputSchema: schemaProjectOnly(),
 		},
 	}

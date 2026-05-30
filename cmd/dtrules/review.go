@@ -67,6 +67,7 @@ const (
 	reviewCategoryELCompliance = "el_compliance"
 	reviewCategoryDiagnostic   = "diagnostic"
 	reviewCategoryLoad         = "load"
+	reviewCategoryCallGraph    = "call_graph"
 )
 
 // runFullReview is the entry point used by both `dtrules review` and the
@@ -81,6 +82,10 @@ const (
 //  4. Per-table optimizer pass (#762/#763 via Analyze, #765/#766 via
 //     AnalyzeCompiledTable) → warnings.
 //  5. EDD-unused (analysis.AnalyzeEDDUsage) → warnings.
+//  6. Table call graph (analysis.AnalyzeTableCallGraph) → errors when
+//     `perform <Name>` references a table that isn't defined (the
+//     runtime would fail with "table not found" the moment the rule
+//     fires; better to catch at review time).
 //
 // `passed = (len(errors) == 0)`. Warnings never affect passed. The
 // caller decides whether to surface the report as a CLI output or an
@@ -201,6 +206,22 @@ func runFullReview(projectPath string) (*reviewReport, error) {
 	eddWarns, eddErr := analysis.AnalyzeEDDUsage(xmlDir)
 	if eddErr == nil {
 		rep.EDDWarnings = append(rep.EDDWarnings, eddWarns...)
+	}
+
+	// 6. Table call graph — orphan `perform <Name>` calls become hard
+	// errors because the runtime would fail with "table not found" the
+	// moment those rules execute. Filing these at review time means
+	// they're caught before deploy rather than at runtime.
+	graph, graphErr := analysis.AnalyzeTableCallGraph(xmlDir)
+	if graphErr == nil && graph != nil {
+		for _, o := range graph.OrphanCalls {
+			rep.Errors = append(rep.Errors, reviewError{
+				Category: reviewCategoryCallGraph,
+				File:     o.DTFile,
+				Table:    o.Caller,
+				Message:  fmt.Sprintf("calls undefined table %q — runtime would fail with table-not-found", o.Callee),
+			})
+		}
 	}
 
 	rep.ProjectHash = hashProject(xmlDir)
