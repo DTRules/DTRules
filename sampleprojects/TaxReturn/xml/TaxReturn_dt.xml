@@ -5527,15 +5527,8 @@ deallocate pop
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.net_investment_income = sum of investment income</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
-<action_postfix>
-result.total_other_income result.total_long_term_gains f+ result.total_short_term_gains f+ result.total_rental_income f+ result.total_qualified_dividends f+ /result.net_investment_income xdef
-result.agi /result.magi_for_niit xdef
-"NET INVESTMENT INCOME TAX (Form 8960, IRC 1411)" job.audit_trail swap addto
-"  Net Investment Income: $" result.net_investment_income cvs strconcat job.audit_trail swap addto
-"  MAGI: $" result.magi_for_niit cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<initial_action_dsl>set result.net_investment_income = result.total_other_income + result.total_long_term_gains + result.total_short_term_gains + result.total_rental_income + result.total_qualified_dividends; set result.magi_for_niit = result.agi; add "NET INVESTMENT INCOME TAX (Form 8960, IRC 1411)" to job.audit_trail; add "  Net Investment Income: $" + result.net_investment_income to job.audit_trail; add "  MAGI: $" + result.magi_for_niit to job.audit_trail</initial_action_dsl>
+<initial_action_postfix>result.total_other_income result.total_long_term_gains f+ result.total_short_term_gains f+ result.total_rental_income f+ result.total_qualified_dividends f+ cvd /result.net_investment_income xdef result.agi cvd /result.magi_for_niit xdef "NET INVESTMENT INCOME TAX (Form 8960, IRC 1411)" job.audit_trail swap addto "  Net Investment Income: $" result.net_investment_income strconcat job.audit_trail swap addto "  MAGI: $" result.magi_for_niit strconcat job.audit_trail swap addto</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -5731,13 +5724,8 @@ result.magi_for_niit niit_threshold_single f- result.net_investment_income fmin 
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.medicare_wages = sum of taxpayer wages</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
-<action_postfix>
-result.total_w2_wages result.total_se_income f+ /result.wages_for_additional_medicare xdef
-"ADDITIONAL MEDICARE TAX (Form 8959, IRC 3101(b)(2))" job.audit_trail swap addto
-"  Wages + SE Income: $" result.wages_for_additional_medicare cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<initial_action_dsl>set result.wages_for_additional_medicare = result.total_w2_wages + result.total_se_income; add "ADDITIONAL MEDICARE TAX (Form 8959, IRC 3101(b)(2))" to job.audit_trail; add "  Wages + SE Income: $" + result.wages_for_additional_medicare to job.audit_trail</initial_action_dsl>
+<initial_action_postfix>result.total_w2_wages result.total_se_income f+ cvd /result.wages_for_additional_medicare xdef "ADDITIONAL MEDICARE TAX (Form 8959, IRC 3101(b)(2))" job.audit_trail swap addto "  Wages + SE Income: $" result.wages_for_additional_medicare strconcat job.audit_trail swap addto</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -9277,11 +9265,8 @@ partnership_audit.total_amount_due result.partnership_audit_tax f+ /result.partn
 </contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>Initialize energy appliance credit</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
-<action_postfix>
-0.0 /result.energy_appliance_credit xdef
-</action_postfix>
+<initial_action_dsl>set result.energy_appliance_credit = 0.0</initial_action_dsl>
+<initial_action_postfix>0.0 cvd /result.energy_appliance_credit xdef</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -13547,11 +13532,8 @@ taxpayer.is_military true eq {
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>Initialize coordination of military and foreign income</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
-<action_postfix>
-"Coordinating Military Combat Zone and Foreign Earned Income Exclusions" job.audit_trail swap addto
-</action_postfix>
+<initial_action_dsl>add "Coordinating Military Combat Zone and Foreign Earned Income Exclusions" to job.audit_trail</initial_action_dsl>
+<initial_action_postfix>"Coordinating Military Combat Zone and Foreign Earned Income Exclusions" job.audit_trail swap addto</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -13625,15 +13607,8 @@ result.total_combat_zone_exclusion result.foreign_earned_income_exclusion f+
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>Initialize other state tax credit calculation</initial_action_dsl>
-<initial_action_postfix></initial_action_postfix>
-<action_postfix>
-"CREDIT FOR TAXES PAID TO OTHER STATES (TABLE 45100)" job.audit_trail swap addto
-0.0 /total_other_state_income xdef
-0.0 /total_other_state_taxes_paid xdef
-0.0 /resident_state_tax_on_other_income xdef
-0.0 /other_state_credit xdef
-</action_postfix>
+<initial_action_dsl>add "CREDIT FOR TAXES PAID TO OTHER STATES (TABLE 45100)" to job.audit_trail; set total_other_state_income = 0.0; set total_other_state_taxes_paid = 0.0; set resident_state_tax_on_other_income = 0.0; set other_state_credit = 0.0</initial_action_dsl>
+<initial_action_postfix>"CREDIT FOR TAXES PAID TO OTHER STATES (TABLE 45100)" job.audit_trail swap addto 0.0 cvd /total_other_state_income xdef 0.0 cvd /total_other_state_taxes_paid xdef 0.0 cvd /resident_state_tax_on_other_income xdef 0.0 cvd /other_state_credit xdef</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>

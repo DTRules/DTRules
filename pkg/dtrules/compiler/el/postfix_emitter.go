@@ -5317,10 +5317,13 @@ func (e *PostfixEmitter) VisitAddEntityToDest(ctx *AddEntityToDestContext) inter
 }
 
 func (e *PostfixEmitter) VisitAddStrToDest(ctx *AddStrToDestContext) interface{} {
+	// The destination visitor (VisitAddDestArray for the common array
+	// case) emits its own `swap addto` after pushing the array — emitting
+	// it here too produced a duplicate trailer that crashed the runtime
+	// on `add "x" to <array>` (#781 fallout). Mirrors VisitAddNumToDest's
+	// shape, which has always relied on the dest visitor for the store.
 	e.Visit(ctx.Strexpr())
 	e.Visit(ctx.Addtodest())
-	e.emit("swap") // Java pattern: value dest swap addto
-	e.emit("addto")
 	return nil
 }
 
