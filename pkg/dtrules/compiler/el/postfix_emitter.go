@@ -2303,6 +2303,85 @@ func (e *PostfixEmitter) VisitStrToLower(ctx *StrToLowerContext) interface{} {
 	return nil
 }
 
+// VisitStrTimestamp: `get current_timestamp` → `gettimestamp`. The
+// runtime op is niladic and pushes the current wall-clock timestamp
+// (RFC 3339 string). Pre-fix this rule silently emitted nothing.
+func (e *PostfixEmitter) VisitStrTimestamp(ctx *StrTimestampContext) interface{} {
+	e.emit("gettimestamp")
+	return nil
+}
+
+// VisitStrAttrOf: `attribute <strexpr> of <eexpr>` — generic
+// attribute lookup by string name on an entity. No dedicated runtime
+// op exists (the standard field-access path goes through
+// possessive/colon refs with a known typed field). Emit an
+// elstmterror placeholder so this fails loudly at runtime instead of
+// silently dropping the access. Pre-fix the rule silently emitted
+// nothing.
+func (e *PostfixEmitter) VisitStrAttrOf(ctx *StrAttrOfContext) interface{} {
+	e.emit(`"attribute <name> of <entity> not yet implemented"`)
+	e.emit("elstmterror")
+	return nil
+}
+
+// VisitStrMappingKey: `mappingkey` — niladic keyword that yields the
+// current decision-table key inside a mapping operation. The runtime
+// has no `mappingkey` op registered (the legacy Java engine had one
+// tied to its mapping-table machinery; the Go runtime doesn't ship
+// equivalent yet). Emit an elstmterror placeholder; pre-fix this
+// rule silently emitted nothing.
+func (e *PostfixEmitter) VisitStrMappingKey(ctx *StrMappingKeyContext) interface{} {
+	e.emit(`"mappingkey not yet implemented"`)
+	e.emit("elstmterror")
+	return nil
+}
+
+// VisitStrRelationship: `relationship between <e1> and <e2>` — name
+// of the relationship that links two entities, used by audit/policy
+// rendering. No dedicated runtime op. Emit elstmterror; pre-fix this
+// rule silently emitted nothing.
+func (e *PostfixEmitter) VisitStrRelationship(ctx *StrRelationshipContext) interface{} {
+	e.emit(`"relationship between ... not yet implemented"`)
+	e.emit("elstmterror")
+	return nil
+}
+
+// VisitStrXmlAttr: `<typedXmlValue> : get attribute <strexpr>` —
+// read an attribute from an XML-valued field. No XML runtime ops
+// registered. Emit elstmterror; pre-fix this rule silently emitted
+// nothing.
+func (e *PostfixEmitter) VisitStrXmlAttr(ctx *StrXmlAttrContext) interface{} {
+	e.emit(`"xml get attribute not yet implemented"`)
+	e.emit("elstmterror")
+	return nil
+}
+
+// VisitXmlvalues: container rule whose body is one of
+// strexpr/iexpr/fexpr/dexpr/nexpr. Dispatch to the present child so
+// the parent xmlSetAttr/xmlAddAttr rule sees the value on the data
+// stack.
+//
+// Currently unreachable: every xmlvaluestatements alt
+// (xmlSetAttr/xmlSetAttrEntity/xmlAddAttr/xmlAddAttrEntity) emits an
+// elstmterror placeholder for the whole mutation without visiting
+// the RHS xmlvalues — the Go runtime has no XML mutation ops. This
+// override is kept defensively for when the XML runtime is wired up.
+func (e *PostfixEmitter) VisitXmlvalues(ctx *XmlvaluesContext) interface{} {
+	switch {
+	case ctx.Strexpr() != nil:
+		e.Visit(ctx.Strexpr())
+	case ctx.Iexpr() != nil:
+		e.Visit(ctx.Iexpr())
+	case ctx.Fexpr() != nil:
+		e.Visit(ctx.Fexpr())
+	case ctx.Dexpr() != nil:
+		e.Visit(ctx.Dexpr())
+	case ctx.Nexpr() != nil:
+		e.Visit(ctx.Nexpr())
+	}
+	return nil
+}
+
 func (e *PostfixEmitter) VisitStrToUpper(ctx *StrToUpperContext) interface{} {
 	e.Visit(ctx.Strexpr())
 	e.emit("toupper")
