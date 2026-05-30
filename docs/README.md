@@ -45,6 +45,25 @@ for day-to-day use:
 
 ---
 
+## Feature Narratives
+
+Long-form companions to the embedded `dtrules docs` topics, focused on
+*why* and *when* rather than syntax. The embedded topics remain the
+authoritative usage walkthrough.
+
+| Document | Feature | First shipped |
+|----------|---------|---------------|
+| [EDD Usage Analyzer](edd-usage-analyzer.md) | Entity-stack-aware `unused` / `write-only` detection | v1.13.0 |
+| [Redundant Action-Set Column Advisory](advisory-redundant-action-set.md) | Column-level redundancy check on the compiled decision tree | v1.14.6 |
+| [`first pass` Predicate](first-pass-predicate.md) | EL predicate for the first iteration of the innermost active loop | v1.12.0 |
+| [`for all <type> entities` Loop](for-all-type-entities.md) | Type-driven iteration via the EDD `owns` declaration | [#703](https://github.com/DTRules/DTRules/issues/703) |
+
+For features without a narrative companion, see the embedded `dtrules
+docs` topics (`dtrules docs operators` covers `fphalfup/` and
+`fpdivr/`; `dtrules docs el` covers `create T as alias`).
+
+---
+
 ## Java Implementation
 
 | Document | Description |
