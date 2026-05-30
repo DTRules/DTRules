@@ -5180,6 +5180,80 @@ func (e *PostfixEmitter) VisitIntUsingArray(ctx *IntUsingArrayContext) interface
 	return nil
 }
 
+// VisitBoolFunction: `<typedBoolFunction>` as a boolean expression —
+// a niladic boolean function call. Mirrors VisitOperatorstatements'
+// shape (emit the name as executable) but with no argument list.
+// Without this override, `bexpr: ... | typedBoolFunction # boolFunction`
+// silently emitted nothing.
+func (e *PostfixEmitter) VisitBoolFunction(ctx *BoolFunctionContext) interface{} {
+	e.emit(ctx.TypedBoolFunction().GetText())
+	return nil
+}
+
+// colonRefEntityName extracts the entity name from a colonRef AST node,
+// handling both the possessive-chain (`Client's`) and the colon-chain
+// (`:Client:`) forms. Returns "" if neither shape matches.
+func colonRefEntityName(colonRef IColonRefContext) string {
+	if colonRef == nil {
+		return ""
+	}
+	possRef := colonRef.PossessiveRef()
+	if possRef == nil {
+		return ""
+	}
+	switch n := possRef.(type) {
+	case *PossessiveChainContext:
+		tokens := n.AllPOSSESSIVE()
+		if len(tokens) > 0 {
+			text := tokens[0].GetText()
+			if strings.HasSuffix(text, "'s") {
+				return text[:len(text)-2]
+			}
+			return text
+		}
+	case *ColonChainContext:
+		if te := n.TypedEntity(); te != nil {
+			return te.GetText()
+		}
+	}
+	return ""
+}
+
+// VisitSubDestColon: `subtract <number> from <colonRef> <field>` —
+// mirrors VisitAddDestColon for subtraction. Pre-fix the entire
+// destination part was dropped (parent VisitSubtractNum emitted the
+// number but Visit(subtodest) hit BaseELVisitor's no-op). Matches
+// VisitSubDestPossessiveLong's `<field> - /<field> xdef` emission so
+// the runtime computes `value - field`.
+func (e *PostfixEmitter) VisitSubDestColon(ctx *SubDestColonContext) interface{} {
+	entityName := colonRefEntityName(ctx.ColonRef())
+	if entityName != "" {
+		if !e.emitLocalRef(entityName) {
+			e.emit(entityName)
+		}
+	}
+	e.emit("entitypush")
+
+	addDest2 := ctx.Addtodest2()
+	var fieldName string
+	switch d := addDest2.(type) {
+	case *AddDestLong2Context:
+		fieldName = d.TypedLong().GetText()
+	case *AddDestDouble2Context:
+		fieldName = d.TypedDouble().GetText()
+	case *AddDestArray2Context:
+		fieldName = d.ArrayExpr2().GetText()
+	}
+	if fieldName != "" {
+		e.emit(fieldName)
+		e.emit("-")
+		e.emit("/" + fieldName)
+		e.emit("xdef")
+	}
+	e.emit("entitypop")
+	return nil
+}
+
 // VisitBoolEntityIsOf: `<e1> is <type> of <e2>` — the findmatch/relationship
 // lookup op this used to call was removed alongside the hash-table ops. The
 // emit now produces an elstmterror so the form parses but errors at runtime
@@ -5445,31 +5519,15 @@ func (e *PostfixEmitter) VisitAddDestDouble(ctx *AddDestDoubleContext) interface
 
 func (e *PostfixEmitter) VisitAddDestColon(ctx *AddDestColonContext) interface{} {
 	// Pattern: <entity-ref> entitypush <field> + /<field> xdef entitypop
-	// The colonRef contains the possessive (e.g., "ThisClient's")
-	// The addtodest2 contains the field (e.g., "IncomeGroupCount")
-
-	// Get the possessive from colonRef
-	colonRef := ctx.ColonRef()
-	possRef := colonRef.PossessiveRef()
-
-	// Handle possessive chain
-	if possChain, ok := possRef.(*PossessiveChainContext); ok {
-		// Get all POSSESSIVE tokens
-		tokens := possChain.AllPOSSESSIVE()
-		if len(tokens) > 0 {
-			poss := tokens[0].GetText()
-			// Remove 's suffix to get entity name
-			entityName := poss[:len(poss)-2]
-
-			// Check if entity is a local variable
-			if e.emitLocalRef(entityName) {
-				// emitLocalRef already emitted "<index> local@"
-			} else {
-				e.emit(entityName)
-			}
+	// The colonRef contains either a possessive (`ThisClient's`) or a
+	// colon chain (`:ThisClient:`); both extract to an entity name.
+	// The addtodest2 contains the field (e.g., "IncomeGroupCount").
+	entityName := colonRefEntityName(ctx.ColonRef())
+	if entityName != "" {
+		if !e.emitLocalRef(entityName) {
+			e.emit(entityName)
 		}
 	}
-
 	e.emit("entitypush")
 
 	// Get the field from addtodest2

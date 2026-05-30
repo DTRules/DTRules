@@ -65,9 +65,12 @@ var inheritedAllowlist = map[string]string{
 	// today; convert to explicit overrides or to a verified
 	// fall-through rationale in follow-up PRs.
 	// =========================================================
-	"VisitAddDestArray2":              "TODO(#803): triage",
-	"VisitAddDestDouble2":             "TODO(#803): triage",
-	"VisitAddDestLong2":               "TODO(#803): triage",
+	// addtodest2 alts are reached only from addDestColon/subDestColon,
+	// which type-switch and extract `GetText()` directly without calling
+	// Visit. Verified by inspection (#803 batch 7).
+	"VisitAddDestArray2":              "dead grammar; addDest/subDestColon extract via GetText, never Visit",
+	"VisitAddDestDouble2":             "dead grammar; addDest/subDestColon extract via GetText, never Visit",
+	"VisitAddDestLong2":               "dead grammar; addDest/subDestColon extract via GetText, never Visit",
 	"VisitArrayDeepCopy":              "TODO(#803): triage",
 	"VisitArrayDeepCopySimple":        "TODO(#803): triage",
 	"VisitArrayMap":                   "TODO(#803): triage",
@@ -77,7 +80,6 @@ var inheritedAllowlist = map[string]string{
 	"VisitBlistIcOr":                  "TODO(#803): triage",
 	"VisitBlistMulti":                 "TODO(#803): triage",
 	"VisitBlistOr":                    "TODO(#803): triage",
-	"VisitBoolFunction":               "TODO(#803): triage",
 	"VisitBoolStrEqIcList":            "TODO(#803): triage",
 	"VisitBoolStrEqList":              "TODO(#803): triage",
 	"VisitDateEarliestAfter":          "TODO(#803): triage; needs new `earliestafter` runtime op",
@@ -105,8 +107,12 @@ var inheritedAllowlist = map[string]string{
 	"VisitIntSumOf":                   "TODO(#803): triage",
 	"VisitIntUsing":                   "dead grammar; intUsingArray wins parser-side (see VisitFloatUsing)",
 	"VisitLeftArrayColon":             "TODO(#803): triage",
-	"VisitLeftTexprColon":             "TODO(#803): triage",
-	"VisitLeftTexprSimple":            "TODO(#803): triage",
+	// leftTexpr alts are unreachable because the only SET form that
+	// targets a typedTable (setTable) now emits an elstmterror
+	// placeholder without visiting the leftTexpr (hash tables removed,
+	// #803 batch 6).
+	"VisitLeftTexprColon":             "dead grammar; setTable emits elstmterror without visiting leftTexpr",
+	"VisitLeftTexprSimple":            "dead grammar; setTable emits elstmterror without visiting leftTexpr",
 	"VisitNameArrayAt":                "TODO(#803): triage",
 	"VisitNameFromStr":                "TODO(#803): triage",
 	"VisitOpListEntity":               "TODO(#803): triage",
@@ -145,7 +151,6 @@ var inheritedAllowlist = map[string]string{
 	"VisitStrTimestamp":               "TODO(#803): triage",
 	"VisitStrUsing":                   "dead grammar; intUsingArray wins parser-side (see VisitFloatUsing)",
 	"VisitStrXmlAttr":                 "TODO(#803): triage",
-	"VisitSubDestColon":               "TODO(#803): triage",
 	// tablelist / tableTyped are helper rules referenced from the
 	// table-lookup alts; with the table-lookup parent emitting
 	// elstmterror placeholders (#803 batch 6), the helpers are never
@@ -154,11 +159,17 @@ var inheritedAllowlist = map[string]string{
 	"VisitTableListSingle":            "dead grammar; helper rule under table-lookup which emits elstmterror",
 	"VisitTableTyped":                 "dead grammar; helper rule under table-lookup which emits elstmterror",
 	"VisitThereis":                    "TODO(#803): triage",
-	"VisitTypedBoolFunction":          "TODO(#803): triage",
-	"VisitTypedInvalid":               "TODO(#803): triage",
-	"VisitTypedNull":                  "TODO(#803): triage",
-	"VisitTypedOperator":              "TODO(#803): triage",
-	"VisitUndefinedIdent":             "TODO(#803): triage",
+	// typedXxx and undefinedIdent are IDENT-classification rules. Every
+	// parent visitor that consumes them extracts the text via GetText()
+	// directly (e.g. VisitOperatorstatements at line 4906 reads
+	// `ctx.TypedOperator().GetText()`; VisitLocalEntityInit reads
+	// `ctx.UndefinedIdent().GetText()`). The Visit() entry points are
+	// never invoked. Verified by source inspection (#803 batch 7).
+	"VisitTypedBoolFunction":          "dead grammar; consumers use TypedBoolFunction().GetText() directly",
+	"VisitTypedInvalid":               "dead grammar; only used by dead-grammar strConcatInvalid",
+	"VisitTypedNull":                  "dead grammar; only used by dead-grammar strConcatNull",
+	"VisitTypedOperator":              "dead grammar; VisitOperatorstatements extracts via GetText",
+	"VisitUndefinedIdent":             "dead grammar; CREATE/LOCAL parents extract via UndefinedIdent().GetText",
 	"VisitUsingstatement":             "dead grammar; the rule's only alt wraps usingblock which is visited via children elsewhere",
 	"VisitXmlvalues":                  "TODO(#803): triage",
 }
