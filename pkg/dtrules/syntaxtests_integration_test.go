@@ -347,8 +347,10 @@ func TestSyntaxTestsLoadEDD(t *testing.T) {
 
 	expectedConstantsAttrs := []string{
 		"FPL_Base", "FPL_PerAdditionalPerson", "coveredCounties",
-		"ExcludedIncomeTypes", "diagCodes", "translationTable",
+		"ExcludedIncomeTypes", "diagCodes",
 	}
+	// `translationTable` was declared with the unsupported `type='table'`
+	// and used nowhere in the project; removed in #783's narrow cleanup.
 	for _, attr := range expectedConstantsAttrs {
 		if !constantsRef.ContainsAttribute(dtrules.GetRName(attr)) {
 			t.Errorf("Constants entity missing attribute: %s", attr)
