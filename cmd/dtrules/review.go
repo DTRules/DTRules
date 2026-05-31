@@ -67,7 +67,6 @@ const (
 	reviewCategoryELCompliance = "el_compliance"
 	reviewCategoryDiagnostic   = "diagnostic"
 	reviewCategoryLoad         = "load"
-	reviewCategoryCallGraph    = "call_graph"
 )
 
 // runFullReview is the entry point used by both `dtrules review` and the
@@ -82,10 +81,12 @@ const (
 //  4. Per-table optimizer pass (#762/#763 via Analyze, #765/#766 via
 //     AnalyzeCompiledTable) → warnings.
 //  5. EDD-unused (analysis.AnalyzeEDDUsage) → warnings.
-//  6. Table call graph (analysis.AnalyzeTableCallGraph) → errors when
-//     `perform <Name>` references a table that isn't defined (the
-//     runtime would fail with "table not found" the moment the rule
-//     fires; better to catch at review time).
+//  6. Table call graph (analysis.AnalyzeTableCallGraph) → warnings
+//     when `perform <Name>` references a table that isn't defined.
+//     The runtime would fail with "table not found" if the offending
+//     rule fires, but the reference may sit on an unreachable branch;
+//     warning-not-error keeps the finding visible without gating
+//     deployment.
 //
 // `passed = (len(errors) == 0)`. Warnings never affect passed. The
 // caller decides whether to surface the report as a CLI output or an
@@ -208,19 +209,27 @@ func runFullReview(projectPath string) (*reviewReport, error) {
 		rep.EDDWarnings = append(rep.EDDWarnings, eddWarns...)
 	}
 
-	// 6. Table call graph — orphan `perform <Name>` calls become hard
-	// errors because the runtime would fail with "table not found" the
-	// moment those rules execute. Filing these at review time means
-	// they're caught before deploy rather than at runtime.
+	// 6. Table call graph — orphan `perform <Name>` calls surface as
+	// warnings (not errors). They're real bugs in the sense that the
+	// runtime would fail with "table not found" if the offending rule
+	// fires, but a project can have orphan references in branches
+	// that aren't reachable from any actual entry table or that are
+	// gated by conditions never satisfied in production. Demoting
+	// from error to warning keeps the finding visible without
+	// gating deployment; consumers can promote to error via their
+	// own policy if they want stricter behavior.
 	graph, graphErr := analysis.AnalyzeTableCallGraph(xmlDir)
 	if graphErr == nil && graph != nil {
 		for _, o := range graph.OrphanCalls {
-			rep.Errors = append(rep.Errors, reviewError{
-				Category: reviewCategoryCallGraph,
-				File:     o.DTFile,
-				Table:    o.Caller,
-				Message:  fmt.Sprintf("calls undefined table %q — runtime would fail with table-not-found", o.Callee),
-			})
+			w := decisiontable.Warning{
+				Table:        o.Caller,
+				Column:       0,
+				ConditionRow: -1,
+				Kind:         "orphan perform target",
+				Reason: fmt.Sprintf("calls undefined table %q (in %s) — runtime would fail with table-not-found if this rule fires",
+					o.Callee, o.DTFile),
+			}
+			rep.Warnings = append(rep.Warnings, w)
 		}
 	}
 

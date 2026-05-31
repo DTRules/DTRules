@@ -252,12 +252,13 @@ func TestEnforceReviewGate_Passes(t *testing.T) {
 	}
 }
 
-// TestRunFullReview_OrphanCallIsError pins the #776 piece-A integration:
-// a `perform <X>` referencing a table that isn't defined must surface as
-// a hard error in the review report. The runtime would fail with
-// "table not found" the moment that rule fired; static review must
-// catch it.
-func TestRunFullReview_OrphanCallIsError(t *testing.T) {
+// TestRunFullReview_OrphanCallIsWarning pins the #776 piece-A
+// integration: a `perform <X>` referencing a table that isn't defined
+// must surface as a warning in the review report. The runtime would
+// fail with "table not found" if the offending rule fires, but the
+// reference may sit on an unreachable branch, so we surface but don't
+// gate.
+func TestRunFullReview_OrphanCallIsWarning(t *testing.T) {
 	dir := t.TempDir()
 	xmlDir := filepath.Join(dir, "xml")
 	if err := os.MkdirAll(xmlDir, 0755); err != nil {
@@ -315,20 +316,27 @@ func TestRunFullReview_OrphanCallIsError(t *testing.T) {
 		t.Fatal("expected report, got nil")
 	}
 
-	// Find the call-graph error.
+	// Find the orphan-call warning.
 	var found bool
-	for _, e := range rep.Errors {
-		if e.Category == reviewCategoryCallGraph &&
-			e.Table == "Caller_Table" &&
-			strings.Contains(e.Message, "Definitely_Missing_Table") {
+	for _, w := range rep.Warnings {
+		if w.Kind == "orphan perform target" &&
+			w.Table == "Caller_Table" &&
+			strings.Contains(w.Reason, "Definitely_Missing_Table") {
 			found = true
 			break
 		}
 	}
 	if !found {
-		t.Errorf("expected call_graph error pointing at Definitely_Missing_Table, got errors: %+v", rep.Errors)
+		t.Errorf("expected orphan-perform-target warning pointing at Definitely_Missing_Table, got warnings: %+v", rep.Warnings)
 	}
-	if rep.Passed {
-		t.Errorf("expected passed=false with orphan call error, got passed=true")
+	// Orphan-call findings must NOT land in rep.Errors — that's the
+	// behavioral change from PR #842's error policy to this warning
+	// policy. Other unrelated errors (e.g. missing excel/ dir on this
+	// minimal fixture) are fine; we just need no error tagged with
+	// the orphan-call shape.
+	for _, e := range rep.Errors {
+		if strings.Contains(e.Message, "Definitely_Missing_Table") {
+			t.Errorf("orphan-call surfaced as error instead of warning: %+v", e)
+		}
 	}
 }
