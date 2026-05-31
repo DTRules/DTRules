@@ -1,5 +1,160 @@
 # DTRules Changelog
 
+## v1.15.0 — 2026-05-30
+
+Cross-table EDD usage analysis, static table call graph, and final
+#803 silent-failure sweep.
+
+### Headline
+
+Three new pieces of analyzer machinery land together, closing the
+last false-positive class in `dtrules review`'s `unused EDD field`
+warnings and adding the first cross-table validation pass.
+
+The compiler-side `#803` work also finishes — every labeled
+alternative in `EL.g4` is now either explicitly overridden, marked
+verified dead grammar with a rationale, or surfaces an `elstmterror`
+placeholder with a deferred-issue note. The pin-test allowlist
+shipped in v1.14.9 had 124 `TODO(#803): triage` entries; this
+release has zero.
+
+### Analyzer — `pkg/dtrules/analysis/`
+
+- **Static table call graph** (#841). New `AnalyzeTableCallGraph`
+  walks every `*_dt.xml` and extracts `perform <Name>` edges into a
+  directed graph. Edge extraction is conservative — only the
+  explicit `perform <Name>` form is recorded; bare-ident invocation
+  and `perform table named (<expr>)` dynamic dispatch are
+  intentionally excluded so the recorded edges are precise. Exposes
+  `TableCallGraph` with `Tables`, `Calls`, `OrphanCalls`, `Callers`,
+  `Reachable`, and `UnreachedTables` helpers. Catches typo'd or
+  removed table references statically.
+
+- **Orphan-call detection in `dtrules review`** (#842, #845). Each
+  `perform <X>` whose target isn't a declared table surfaces as a
+  warning (`Kind: "orphan perform target"`) in the Full Review
+  report. The runtime would fail with "table not found" if the
+  offending rule fires; static detection catches the typo at review
+  time. Warning rather than error keeps the finding visible without
+  gating deployment on references that may sit on unreachable
+  branches.
+
+- **Cross-table entity-stack propagation** (#844, continues
+  v1.13.0's #776 phases 1–2). After the per-file
+  `collectDTReferences` pass, the analyzer runs a fixed-point
+  iteration over the call graph: each callee's effective entity
+  stack is the union of every caller's effective stack. Bare
+  identifiers in callee tables now resolve against the propagated
+  stack — closing the false-positive class where a field referenced
+  only inside a `perform`-called helper looked unreferenced. Purely
+  additive; cannot introduce false negatives.
+
+- **`EDDWarning.Category` field** (#843). New typed category split
+  for downstream routing: `unused`, `write_only`, `possibly_used`.
+  The legacy `Reason` field stays populated for back-compat.
+  `possibly_used` is reserved for the still-pending piece B
+  (enumeration-bounded dynamic dispatch).
+
+A narrative companion lives in `docs/edd-usage-analyzer.md`.
+
+### Compiler — `pkg/dtrules/compiler/el/`
+
+#803 silent-failure cleanup completes. Batches 6 through 12 land in
+this release:
+
+- **Batch 6** (#830): table-lookup family emits `elstmterror`
+  placeholders; `intUsingArray` fixed.
+- **Batch 7** (#831): `subtract <n> from :Entity:<field>` and the
+  bare `typedBoolFunction` reference no longer silently emit
+  nothing. Shared `colonRefEntityName` helper also fixes a
+  pre-existing colon-chain bug in `VisitAddDestColon`.
+- **Batch 8** (#832): `sum of <iexpr> in <array>` folds, `index of
+  <a> in <b>`, `(name) <strexpr>` coercion, `name <typedArray>[i]`
+  indexing. `VisitFloatSumOf` defensive override added for an
+  alt that's currently unreachable due to LL(\*) prediction
+  picking `intSumOf` first.
+- **Batch 9** (#833): `get deep copy of <array>`, `tokenize <str> by
+  <delim>`. `(array) NAME` and `map <array> through <table>` emit
+  loud-failure placeholders pending runtime ops.
+- **Batch 10** (#834): `<str> == "a", "b", or "c"` membership tests
+  via `s== ... or ... s== ... or ...` chain. Shared
+  `collectBlistStrexprs` helper.
+- **Batch 11** (#836): `get current timestamp` → `gettimestamp`;
+  `attribute <name> of <entity>`, `mapping key`, `relationship
+  between <a> and <b>`, XML attribute reads emit loud-failure
+  placeholders.
+- **Batch 12** (#837): the largest impact fix — `if <b> then ...
+  endif` and `if/then/else/endif` no longer silently drop the
+  entire conditional. Plus `<eexpr>` arguments in operator calls,
+  `:Entity:<array-field>` LHS, and elstmterror placeholders for
+  `first <e> where ...` / `earliest of <arr> after <d>` pending
+  new runtime ops.
+
+The result: every labeled alternative in `EL.g4` is now accounted
+for. The pin-test (`TestPostfixEmitterVisitorCoverage`) drops from
+124 unverified TODOs in v1.14.9 to 0.
+
+Also in compiler:
+
+- **Fix mismatched string-compare op names** (#835). Four visitors
+  (`VisitBoolStrNeq`, `VisitBoolStrIsNot`, `VisitBoolStrEqIc`,
+  `VisitBoolStrNeqIc`) emitted operator names that have no runtime
+  registration (`strneq`, `sic==`) and would have failed with
+  "operator not found" at evaluation time. Replaced with the
+  registered names (`s==` + `not`, `s==i`). New
+  `assertOpsRegistered` test helper walks emitted postfix and
+  verifies every non-literal token resolves via
+  `operators.GetByString` — cheap end-to-end coverage.
+
+### Sample projects
+
+- **TaxReturn prose initial_actions** (#829, partial close of #781).
+  Five of six prose-style initial_actions in TaxReturn's tables
+  rewritten as proper EL DSL so the strict-loader gate accepts
+  them. Element 20 is deferred — it uses a syntactic shape the
+  current grammar doesn't yet support.
+
+- **SyntaxTests `translationTable` cleanup** (#840). Removed an
+  unused field declared with the unsupported `type='table'`. Three
+  of the five SyntaxTests integration subtests now pass; the
+  remaining two fail on hand-coded postfix without DSL inside two
+  `Syntax_Examples_*` action slots — separate deeper cleanup
+  tracked in #783.
+
+### Documentation
+
+- Four new narrative companions in `docs/` (#839, closes #807):
+  EDD usage analyzer, redundant-action-set advisory, `first pass`
+  predicate, `for all <type> entities` loop. Embedded `dtrules
+  docs` topics remain authoritative; these long-forms cover *why*
+  and *when* rather than syntax.
+
+### Open follow-ups
+
+- **#776 piece B** — enumeration-bounded dynamic dispatch — needs
+  three explicit design decisions before implementation (EDD
+  syntax shape, error-vs-warning policy for unbound dispatch,
+  field-vs-entity location of the enumeration block). Status
+  documented in the issue.
+- **#804** — `cmd/api` HTTP authoring surface still has the
+  parallel-universe XML writer that bypasses `pkg/dtrules/authoring/`.
+  Two acceptable paths (read-only vs. full parity); both have
+  material consequences for the visual UI. Documented in the issue
+  for explicit user input.
+- **#783 remaining** — two SyntaxTests demo actions still use
+  hand-coded postfix. The minimal DSL is mechanically derivable;
+  authoring intent needs explicit review.
+- **#520** — pre-existing tax-content test failures persist. All 21
+  failing tests in `go test ./pkg/dtrules/` are sample-project
+  content issues, not engine bugs. `make check` (engine gate)
+  passes.
+
+### Verification
+
+`make check` passes end-to-end on every PR merged into this release
+via `scripts/merge-pr.sh`, which reruns the full test suite on the
+PR head before fast-forwarding `main`.
+
 ## v1.14.9 — 2026-05-29
 
 EL visitor coverage pin-test + 11 silent-failure fixes (progresses #803).
