@@ -57,6 +57,7 @@ authoritative usage walkthrough.
 | [Redundant Action-Set Column Advisory](advisory-redundant-action-set.md) | Column-level redundancy check on the compiled decision tree | v1.14.6 |
 | [`first pass` Predicate](first-pass-predicate.md) | EL predicate for the first iteration of the innermost active loop | v1.12.0 |
 | [`for all <type> entities` Loop](for-all-type-entities.md) | Type-driven iteration via the EDD `owns` declaration | [#703](https://github.com/DTRules/DTRules/issues/703) |
+| [Multiple Entry Points](multi-entry-points.md) | Run several decision tables against one loaded session | Always supported (pinned by test in v1.16.0) |
 
 For features without a narrative companion, see the embedded `dtrules
 docs` topics (`dtrules docs operators` covers `fphalfup/` and
