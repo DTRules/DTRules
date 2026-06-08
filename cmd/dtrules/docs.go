@@ -41,6 +41,7 @@ var docTopics = map[string]string{
 	"warnings":        docWarnings,
 	"workflow":        docWorkflow,
 	"authoring":       docAuthoring,
+	"entry-points":    docEntryPoints,
 }
 
 func runDocs(args []string) error {
@@ -94,6 +95,7 @@ func printDocIndex() {
 		"warnings":        "Every advisory warning kind, repro, and what to do about it",
 		"workflow":        "Development workflow with Excel and XML",
 		"authoring":       "Go authoring SDK: open, edit, execute, and test projects programmatically",
+		"entry-points":    "Run multiple decision tables as separate entry points against one loaded session",
 	}
 
 	for _, t := range topics {
@@ -3749,4 +3751,165 @@ Where to go next
     dtrules docs operators       # runtime operator reference
     dtrules docs embedding       # ship a Go binary with rules baked in
     dtrules docs authoring       # programmatic SDK
+    dtrules docs entry-points    # run multiple tables against one loaded session
+`
+
+const docEntryPoints = `Multiple Entry Points Against a Single Session
+==============================================
+
+Overview
+--------
+
+A DTRules project usually has more than one decision table. To run
+several of them as separate entry points against the same loaded
+session — without re-loading rules or re-creating the session for each
+table — call ` + "`RSession.Execute(tableName)`" + ` once per table.
+The session's entity stack and field values persist across calls, so
+mutations made by the first table are visible to the second.
+
+There is no special "entry point" registration: every loaded decision
+table is callable by name. ` + "`Execute(tableName)`" + ` is the entry-
+point selector.
+
+
+When to use it
+--------------
+
+Three common shapes:
+
+  * Multi-pass evaluation — a table validates inputs and tags errors;
+    a second computes a result only on records that passed; a third
+    produces a summary.
+
+  * Read-then-write workflows — Compute_Eligibility reads inputs and
+    decides; Generate_Audit_Trail then reads the decision and
+    populates an audit log entity.
+
+  * Per-request branching — one bound session reused to answer
+    different questions against the same loaded data:
+    Check_Eligibility for one request, Compute_Risk for the next.
+
+If your tables are wired so that one calls the next via ` + "`perform`" + `,
+you don't need this pattern — the call graph handles it. This topic is
+for the case where the caller (your Go code, service, or CLI) decides
+which entry point to invoke.
+
+
+The Pattern
+-----------
+
+  package main
+
+  import (
+      "strings"
+
+      "github.com/DTRules/DTRules/pkg/dtrules"
+      "github.com/DTRules/DTRules/pkg/dtrules/session"
+  )
+
+  func main() {
+      rs := session.NewRuleSet("MyProject")
+
+      // Load EDD + DT once.
+      _ = rs.LoadEDD(strings.NewReader(eddXML))
+      _ = rs.LoadDecisionTables(strings.NewReader(dtXML))
+
+      // One session, one data load.
+      sess, _ := rs.NewSession()
+      rsess := sess.(*session.RSession)
+
+      entity, _ := rsess.CreateEntity(dtrules.GetRName("client"))
+      entity.Put(dtrules.GetRName("age"), dtrules.GetRIntegerValueFromInt(20))
+      rsess.GetState().EntityPush(entity)
+
+      // Entry point #1.
+      _ = rsess.Execute("Check_Eligibility")
+
+      // Entry point #2 — same session, same entity, same data.
+      // Field values written by #1 are visible to #2.
+      _ = rsess.Execute("Compute_Risk")
+
+      rsess.GetState().EntityPop()
+  }
+
+
+What persists across Execute calls
+----------------------------------
+
+  Loaded entity definitions (EDD)        yes — owned by the RuleSet
+  Loaded decision tables                 yes — same
+  Created entities and their field values yes — live in RDTState
+  Mutations made by previous tables      yes — visible to next call
+  Entity stack pushes from your Go code  yes
+  Entity stack pushes inside a table's <contexts>
+                                         pushed at table entry,
+                                         popped at table exit; do
+                                         NOT leak across calls
+  Data stack                             empty between calls (runtime
+                                         enforces balance at table
+                                         boundaries)
+  Trace events                           accumulate if a tracker is
+                                         attached
+
+
+ExecuteAt — push entity, run, pop
+---------------------------------
+
+For the common case "run table T with entity E at the top of the
+context stack," ExecuteAt does the push/pop boilerplate:
+
+  err := rsess.ExecuteAt("Compute_Risk", "client")
+
+Equivalent to:
+
+  entity, _ := rsess.GetState().FindEntity(dtrules.GetRName("client"))
+  rsess.GetState().EntityPush(entity)
+  err := rsess.Execute("Compute_Risk")
+  rsess.GetState().EntityPop()
+
+
+Errors and partial state
+------------------------
+
+If the first Execute errors mid-way, mutations already applied stay
+applied. The session is NOT rolled back automatically. Two patterns:
+
+  Snapshot, run, discard on error: copy the entity values you care
+                                   about before the first Execute;
+                                   restore them on error.
+
+  Idempotent tables:              author so re-running produces the
+                                   same result. This is the dominant
+                                   shape in tax / eligibility domains
+                                   where actions are
+                                   set <output> = <pure_function_of_inputs>.
+
+
+Pitfalls
+--------
+
+  Don't reuse a session across unrelated tenants. A session carries
+  every entity ever created in it. If you serve multiple tenants from
+  one server, give each request its own session via rs.NewSession();
+  the RuleSet is the cheap-to-share piece.
+
+  Watch entity stack depth. Tables that push and forget to pop are
+  bugs. The runtime checks balance at table boundaries so this
+  surfaces as an error, not silent corruption — but the next Execute
+  after a broken table sees a deeper stack than expected.
+
+  Execute("UnknownTable") returns an error, not a panic. Treat
+  undefined-table as a configuration bug surfaced to operators.
+
+
+Related
+-------
+
+  dtrules docs cli         CLI surface (build / verify / review)
+  dtrules docs authoring   programmatic SDK for editing projects
+  dtrules docs sdk         embedding the engine in a Go application
+  docs/multi-entry-points.md
+                           long-form companion with extended examples
+  pkg/dtrules/multi_entry_test.go
+                           the regression test that pins this contract
 `
