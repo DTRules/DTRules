@@ -1,5 +1,51 @@
 # DTRules Changelog
 
+## v1.15.1 — 2026-06-08
+
+Documents and pins the multi-entry-point pattern that the engine has
+always supported but no test or doc page called out.
+
+### Background
+
+`RSession.Execute(tableName)` lets a caller load a project once,
+populate the session with input data, and then run different decision
+tables as separate entry points against the same loaded state — with
+mutations made by the first table visible to the second. The contract
+was supported but undocumented and untested as a focused regression.
+A user reviewing v1.15.0 surfaced the gap: "is this documented and
+tested?"
+
+### Added
+
+- `docs/multi-entry-points.md` — long-form companion. Covers when to
+  use the pattern (multi-pass evaluation, read-then-write workflows,
+  per-request branching), the `Execute` and `ExecuteAt` API, a
+  table breakdown of what persists across calls, error / partial-
+  state patterns, and the common pitfalls (cross-tenant reuse,
+  entity-stack-depth bugs, unknown-table handling).
+- `dtrules docs entry-points` — new embedded topic mirroring the same
+  content in the in-binary `dtrules docs` plaintext shape.
+  `dtrules docs` lists it in the topic index.
+- `pkg/dtrules/multi_entry_test.go` — focused regression test with
+  five assertions:
+    - Two tables on one session see each other's mutations.
+    - The dependency direction works (B's condition reads A's write).
+    - Negative case: an entity that misses A's condition produces the
+      expected downstream state.
+    - `Execute("UnknownTable")` returns an error rather than panic,
+      and doesn't mutate session state on a failed lookup.
+    - Re-running the same table on the same session is idempotent.
+
+### Why a patch release
+
+No engine changes; this release pins existing behavior with tests
+and documents it. The new `dtrules docs entry-points` topic is the
+only new visible surface, and it documents pre-existing capability.
+
+### PRs included
+
+- #847 — docs + test for the multi-entry-point pattern
+
 ## v1.15.0 — 2026-05-30
 
 Cross-table EDD usage analysis, static table call graph, and final
