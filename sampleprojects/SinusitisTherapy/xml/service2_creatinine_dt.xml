@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 2000: Determine_Creatinine_Clearance -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>service2_creatinine.xlsx</relative_path>
+<file_name>service2_creatinine.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
+<table_name>Determine_Creatinine_Clearance</table_name>
+<xls_file>service2_creatinine.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>2000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always compute CCr</condition_comment>
+<condition_dsl>true</condition_dsl>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Cockcroft-Gault style: CCr = ((140 - age) * lean body weight) / (PCr * 72)</action_comment>
+<action_dsl>set result.ccr = ((140 - patient.age) * patient.lean_body_weight) / (patient.pcr * 72)</action_dsl>
+<action_postfix>
+140 patient.age - patient.lean_body_weight fmul patient.pcr 72 fmul fdiv cvd /result.ccr xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+</decision_tables>

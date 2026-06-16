@@ -14,6 +14,7 @@ These projects define decision tables and entity models:
 | [SyntaxTests](SyntaxTests/) | EL language feature examples | 1 | Reference |
 | [CHIP](CHIP/) | Health insurance eligibility | 2 | High |
 | [KidAid](KidAid/) | Child assistance eligibility | 2 | High |
+| [SinusitisTherapy](SinusitisTherapy/) | Agentic Medical Services (Apr-2026 challenge); multi-file authoring + per-file ranges + `authoring-notes.md` | 3 | Medium |
 
 ### Application Wrappers
 

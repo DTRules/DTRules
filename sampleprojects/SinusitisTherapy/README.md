@@ -80,17 +80,26 @@ Expected determination (see `testfiles/TestScenarios/ChallengeExample`):
 
 ## Layout
 
+The decision tables are split one-file-per-service, each owning a
+non-overlapping `TABLE_NUMBER` range — a worked example of DTRules multi-file
+authoring. `authoring-notes.md` (maintained by the authoring API) records the
+file map, conventions, and the change history.
+
 ```
 SinusitisTherapy/
-├── ConflictingMedications.csv      # drug-interaction knowledge base (service 3)
+├── ConflictingMedications.csv          # drug-interaction knowledge base (service 3)
+├── authoring-notes.md                  # file map + conventions + change log (LLM onboarding)
 ├── xml/
-│   ├── sinusitis_edd.xml           # entities: patient, medication, result, constants
-│   ├── sinusitis_dt.xml            # the six decision tables
-│   └── sinusitis_map.xml           # input XML → entity mapping
+│   ├── sinusitis_edd.xml               # entities: patient, medication, result, constants
+│   ├── therapy_dt.xml                  # [1000-1099] orchestrator (Determine_Therapy)
+│   ├── service2_creatinine_dt.xml      # [2000-2099] service 2: creatinine clearance
+│   ├── service1_medication_dt.xml      # [3000-3099] service 1: medication + dosing
+│   ├── service3_interactions_dt.xml    # [4000-4099] service 3: drug interactions
+│   └── sinusitis_map.xml               # input XML → entity mapping
 └── testfiles/TestScenarios/
-    ├── ChallengeExample/input.xml  # the reference request above
-    ├── AdultStandard/input.xml     # healthy adult → Amoxicillin 500 mg
-    └── PediatricPatient/input.xml  # child → Cefuroxime 200 mg
+    ├── ChallengeExample/input.xml      # the reference request above
+    ├── AdultStandard/input.xml         # healthy adult → Amoxicillin 500 mg
+    └── PediatricPatient/input.xml      # child → Cefuroxime 200 mg
 ```
 
 ## Running
