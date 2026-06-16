@@ -26,6 +26,7 @@ import (
 // before committing, so invalid expressions are rejected at the API boundary.
 type Table struct {
 	Name           string
+	Number         int // TABLE_NUMBER — load/sheet ordering; 0 means unset
 	Policy         string
 	Contexts       []Context
 	InitialActions []InitialAction
@@ -98,6 +99,7 @@ func newTableWithProject(x *excel.DecisionTableXML, symbols map[string]string, p
 func (t *Table) syncFromXML() {
 	t.Name = t.xml.TableName
 	t.Policy = t.xml.AttributeFields.Type
+	t.Number, _ = strconv.Atoi(strings.TrimSpace(t.xml.AttributeFields.TableNumber))
 
 	t.Contexts = nil
 	// Surface every <context_details> entry to the typed view, even ones
@@ -163,6 +165,11 @@ func (t *Table) syncFromXML() {
 func (t *Table) syncToXML() {
 	t.xml.TableName = t.Name
 	t.xml.AttributeFields.Type = t.Policy
+	// Only write a number when one is set, so an unspecified number keeps the
+	// value AddTable auto-assigned rather than clobbering it with 0.
+	if t.Number > 0 {
+		t.xml.AttributeFields.TableNumber = strconv.Itoa(t.Number)
+	}
 
 	// Contexts.
 	origDetails := t.xml.Contexts.Details
@@ -293,6 +300,22 @@ func (t *Table) Columns() int {
 		}
 	}
 	return max
+}
+
+// SetNumber sets the table's TABLE_NUMBER, which controls load and Excel-sheet
+// ordering. Authors set it explicitly to insert a table between two existing
+// ones (the auto-assigned numbers leave gaps of 10 for exactly this) or to
+// reorganize. When the table belongs to a project, the number is validated:
+// it must fall inside the file's declared range (if any) and be unique.
+func (t *Table) SetNumber(n int) error {
+	if t.project != nil {
+		if err := t.project.validateNumberFor(t.Name, n); err != nil {
+			return err
+		}
+	}
+	t.Number = n
+	t.syncToXML()
+	return nil
 }
 
 // nextConditionNumber returns 1 + the current max condition number.

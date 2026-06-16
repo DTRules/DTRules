@@ -32,6 +32,8 @@ import (
 // TableJSON is the JSON projection of a decision table.
 type TableJSON struct {
 	Name           string              `json:"name"`
+	Number         int                 `json:"number,omitempty"`
+	File           string              `json:"file,omitempty"`
 	Policy         string              `json:"policy,omitempty"`
 	Contexts       []ContextJSON       `json:"contexts,omitempty"`
 	InitialActions []InitialActionJSON `json:"initial_actions,omitempty"`
@@ -92,6 +94,7 @@ type AttributeJSON struct {
 func tableToJSON(t *authoring.Table) TableJSON {
 	out := TableJSON{
 		Name:   t.Name,
+		Number: t.Number,
 		Policy: t.Policy,
 	}
 	for _, c := range t.Contexts {
@@ -147,6 +150,15 @@ func eddToJSON(e *authoring.EDD) EDDJSON {
 func (tj *TableJSON) ApplyTo(t *authoring.Table) error {
 	t.Name = tj.Name
 	t.Policy = tj.Policy
+	// An explicit number overrides AddTable's auto-assignment; omitting it
+	// (0) keeps whatever the table already has. SetNumber validates it against
+	// the file's range and uniqueness. (`file` is handled by the CLI/MCP layer,
+	// which places or moves the table; ApplyTo only rebuilds table content.)
+	if tj.Number > 0 {
+		if err := t.SetNumber(tj.Number); err != nil {
+			return err
+		}
+	}
 
 	// Clear everything that we're about to rewrite, working from the back
 	// so we don't walk off the live slice as the SDK mutates it.

@@ -956,7 +956,7 @@ func TestDeleteContext_OutOfRange(t *testing.T) {
 func TestAddTable_And_DeleteTable(t *testing.T) {
 	p := openMutableProject(t)
 
-	tbl, err := p.AddTable("NewTable")
+	tbl, err := p.AddTable("NewTable", "minimal_dt.xml", "test")
 	if err != nil {
 		t.Fatalf("AddTable: %v", err)
 	}
@@ -968,12 +968,12 @@ func TestAddTable_And_DeleteTable(t *testing.T) {
 	}
 
 	// Duplicate should error.
-	if _, err := p.AddTable("NewTable"); err == nil {
+	if _, err := p.AddTable("NewTable", "minimal_dt.xml", "test"); err == nil {
 		t.Fatal("expected error for duplicate table name, got nil")
 	}
 
 	// Delete.
-	if err := p.DeleteTable("NewTable"); err != nil {
+	if err := p.DeleteTable("NewTable", "test"); err != nil {
 		t.Fatalf("DeleteTable: %v", err)
 	}
 	if p.Table("NewTable") != nil {
@@ -983,7 +983,7 @@ func TestAddTable_And_DeleteTable(t *testing.T) {
 
 func TestDeleteTable_NotFound(t *testing.T) {
 	p := openMutableProject(t)
-	if err := p.DeleteTable("NoSuchTable"); err == nil {
+	if err := p.DeleteTable("NoSuchTable", "test"); err == nil {
 		t.Fatal("expected error for non-existent table, got nil")
 	}
 }

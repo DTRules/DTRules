@@ -32,7 +32,7 @@ func newTestProject(t *testing.T) *authoring.Project {
 
 func TestDependencies_DirectPerforms(t *testing.T) {
 	p := newTestProject(t)
-	tbl, err := p.AddTable("Root")
+	tbl, err := p.AddTable("Root", "tables_dt.xml", "test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,7 +48,7 @@ func TestDependencies_DirectPerforms(t *testing.T) {
 
 func TestDependencies_Deduplicated(t *testing.T) {
 	p := newTestProject(t)
-	tbl, err := p.AddTable("Root")
+	tbl, err := p.AddTable("Root", "tables_dt.xml", "test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,7 +64,7 @@ func TestDependencies_Deduplicated(t *testing.T) {
 
 func TestDependencies_NoPerforms(t *testing.T) {
 	p := newTestProject(t)
-	tbl, err := p.AddTable("Root")
+	tbl, err := p.AddTable("Root", "tables_dt.xml", "test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,19 +80,19 @@ func TestCallers_CrossTableSearch(t *testing.T) {
 	// TableA -> TableB -> TableC
 	p := newTestProject(t)
 
-	tblA, err := p.AddTable("TableA")
+	tblA, err := p.AddTable("TableA", "tables_dt.xml", "test")
 	if err != nil {
 		t.Fatal(err)
 	}
 	_ = tblA.AddAction(authoring.Action{DSL: "perform TableB"})
 
-	tblB, err := p.AddTable("TableB")
+	tblB, err := p.AddTable("TableB", "tables_dt.xml", "test")
 	if err != nil {
 		t.Fatal(err)
 	}
 	_ = tblB.AddAction(authoring.Action{DSL: "perform TableC"})
 
-	_, err = p.AddTable("TableC")
+	_, err = p.AddTable("TableC", "tables_dt.xml", "test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,11 +106,11 @@ func TestCallers_CrossTableSearch(t *testing.T) {
 
 func TestCallers_None(t *testing.T) {
 	p := newTestProject(t)
-	_, err := p.AddTable("TableA")
+	_, err := p.AddTable("TableA", "tables_dt.xml", "test")
 	if err != nil {
 		t.Fatal(err)
 	}
-	tblB, err := p.AddTable("TableB")
+	tblB, err := p.AddTable("TableB", "tables_dt.xml", "test")
 	if err != nil {
 		t.Fatal(err)
 	}

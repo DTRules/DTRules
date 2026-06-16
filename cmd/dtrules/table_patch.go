@@ -21,6 +21,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
 )
@@ -37,9 +38,13 @@ type tablePatch struct {
 	Value           string `json:"value,omitempty"`
 	On              bool   `json:"on,omitempty"`
 	Name            string `json:"name,omitempty"`
+	Number          int    `json:"number,omitempty"`
 	Policy          string `json:"policy,omitempty"`
 	DSL             string `json:"dsl,omitempty"`
 	Comment         string `json:"comment,omitempty"`
+	File            string `json:"file,omitempty"`
+	Range           string `json:"range,omitempty"`
+	Reason          string `json:"reason,omitempty"`
 
 	// column ops
 	Conditions map[string]string `json:"conditions,omitempty"`
@@ -55,9 +60,33 @@ func (p *tablePatch) hint() string {
 	return "see `dtrules table schema --patch` for the argument shape of each op"
 }
 
-// apply runs the requested patch op against t.
-func (p *tablePatch) apply(t *authoring.Table) error {
+// apply runs the requested patch op against t (proj is needed for the
+// project-scoped ops set-file and set-range).
+func (p *tablePatch) apply(proj *authoring.Project, t *authoring.Table) error {
 	switch p.Op {
+	case "set-file":
+		if p.File == "" {
+			return fmt.Errorf("set-file requires \"file\"")
+		}
+		if strings.TrimSpace(p.Reason) == "" {
+			return fmt.Errorf("set-file requires \"reason\"")
+		}
+		if err := ensureFile(proj, p.File, p.Range, p.Reason); err != nil {
+			return err
+		}
+		return proj.MoveTable(t.Name, p.File, p.Reason)
+
+	case "set-range":
+		file := p.File
+		if file == "" {
+			file = proj.FileOf(t.Name)
+		}
+		lo, hi, err := parseRange(p.Range)
+		if err != nil {
+			return err
+		}
+		return proj.SetFileRange(file, lo, hi, p.Reason)
+
 	case "set-name":
 		if p.Name == "" {
 			return fmt.Errorf("set-name requires a non-empty \"name\"")
@@ -68,6 +97,12 @@ func (p *tablePatch) apply(t *authoring.Table) error {
 	case "set-policy":
 		t.Policy = p.Policy
 		return nil
+
+	case "set-number":
+		if p.Number < 1 {
+			return fmt.Errorf("set-number requires \"number\" >= 1")
+		}
+		return t.SetNumber(p.Number)
 
 	case "set-condition-cell":
 		return setConditionCell(t, p.ConditionNumber, p.Column, p.Value)

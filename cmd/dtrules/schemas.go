@@ -26,6 +26,8 @@ const tableSchemaJSON = `{
   "required": ["name"],
   "properties": {
     "name":   {"type": "string"},
+    "number": {"type": "integer", "minimum": 1, "description": "TABLE_NUMBER for load/sheet ordering; omit to auto-assign within the file's range"},
+    "file":   {"type": "string", "description": "DT file (relative to xml/, _dt.xml auto-suffixed) the table lives in; required when creating a table"},
     "policy": {"type": "string", "enum": ["FIRST", "ALL", "NONE", ""]},
     "contexts": {
       "type": "array",
@@ -91,6 +93,9 @@ const tablePatchSchema = `{
       "type": "string",
       "enum": [
         "set-name",
+        "set-number",
+        "set-file",
+        "set-range",
         "set-policy",
         "set-condition-cell",
         "set-action-cell",
@@ -120,6 +125,10 @@ const tablePatchSchema = `{
     "value":            {"type": "string", "enum": ["Y", "N", "-"]},
     "on":               {"type": "boolean"},
     "name":             {"type": "string"},
+    "number":           {"type": "integer", "minimum": 1},
+    "file":             {"type": "string", "description": "set-file: target DT file (move); set-range: file to resize"},
+    "range":            {"type": "string", "description": "LO-HI, e.g. 3000-3500 (set-range; set-file when target file is new)"},
+    "reason":           {"type": "string", "description": "required for set-file / set-range; recorded in authoring-notes.md"},
     "policy":           {"type": "string"},
     "dsl":              {"type": "string"},
     "comment":          {"type": "string"},

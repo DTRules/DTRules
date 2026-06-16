@@ -24,11 +24,82 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
 	"github.com/DTRules/DTRules/pkg/dtrules/decisiontable"
 )
+
+// parseTableFlags extracts --file/--range/--reason from the argument list,
+// returning them plus the remaining (positional) args.
+func parseTableFlags(rest []string) (file, rng, reason string, out []string) {
+	for i := 0; i < len(rest); i++ {
+		switch rest[i] {
+		case "--file":
+			if i+1 < len(rest) {
+				file = rest[i+1]
+				i++
+			}
+		case "--range":
+			if i+1 < len(rest) {
+				rng = rest[i+1]
+				i++
+			}
+		case "--reason":
+			if i+1 < len(rest) {
+				reason = rest[i+1]
+				i++
+			}
+		default:
+			out = append(out, rest[i])
+		}
+	}
+	return file, rng, reason, out
+}
+
+// parseRange parses a "LO-HI" range string.
+func parseRange(s string) (lo, hi int, err error) {
+	parts := strings.SplitN(strings.TrimSpace(s), "-", 2)
+	if len(parts) != 2 {
+		return 0, 0, fmt.Errorf("range must be LO-HI (e.g. 3000-3500)")
+	}
+	if lo, err = strconv.Atoi(strings.TrimSpace(parts[0])); err != nil {
+		return 0, 0, fmt.Errorf("range lo: %w", err)
+	}
+	if hi, err = strconv.Atoi(strings.TrimSpace(parts[1])); err != nil {
+		return 0, 0, fmt.Errorf("range hi: %w", err)
+	}
+	return lo, hi, nil
+}
+
+// ensureFile makes file ready to receive a table: validates a matching range if
+// the file exists, or creates it (requiring range + reason) if it is new.
+func ensureFile(p *authoring.Project, file, rng, reason string) error {
+	if p.HasFile(file) {
+		if rng != "" {
+			lo, hi, err := parseRange(rng)
+			if err != nil {
+				return err
+			}
+			if clo, chi, _ := p.RangeOf(file); clo != lo || chi != hi {
+				return fmt.Errorf("range [%d-%d] differs from file's [%d-%d]; use set-range to change it", lo, hi, clo, chi)
+			}
+		}
+		return nil
+	}
+	if rng == "" {
+		return fmt.Errorf("file %q is new; provide --range LO-HI to create it", file)
+	}
+	lo, hi, err := parseRange(rng)
+	if err != nil {
+		return err
+	}
+	if strings.TrimSpace(reason) == "" {
+		return fmt.Errorf("creating file %q requires --reason", file)
+	}
+	return p.CreateFile(file, lo, hi, reason)
+}
 
 // jsonError is the single shape every non-zero exit writes to stderr.
 type jsonError struct {
@@ -111,6 +182,12 @@ func (c *CLI) runTable(args []string) int {
 		return ctx.tablePut(rest)
 	case "patch":
 		return ctx.tablePatch(rest)
+	case "delete":
+		return ctx.tableDelete(rest)
+	case "files":
+		return ctx.tableFiles()
+	case "note":
+		return ctx.tableNote(rest)
 	case "warnings":
 		return ctx.tableWarnings(rest)
 	case "schema":
@@ -119,7 +196,7 @@ func (c *CLI) runTable(args []string) int {
 		c.printTableUsage()
 		return 0
 	default:
-		return emitErr(ctx.stderr, 1, "invalid_command", "", "known: list|get|put|patch|warnings|schema",
+		return emitErr(ctx.stderr, 1, "invalid_command", "", "known: list|get|put|patch|delete|files|note|warnings|schema",
 			fmt.Sprintf("unknown table subcommand %q", sub))
 	}
 }
@@ -198,8 +275,10 @@ func (ctx *tableCmdCtx) tableGet(rest []string) int {
 	// tableToJSON returns a struct, but the response also embeds the
 	// authoring-channel warnings so the agent loop (#761) sees structural
 	// findings on every read. Empty `warnings` renders as `[]`, never null.
+	tj := tableToJSON(t)
+	tj.File = p.FileOf(name)
 	payload := tableGetResponse{
-		TableJSON: tableToJSON(t),
+		TableJSON: tj,
 		Warnings:  warningsForJSON(analyzeAuthoringTable(t)),
 	}
 	if err := writeJSON(ctx.stdout, payload); err != nil {
@@ -217,7 +296,8 @@ type tableGetResponse struct {
 }
 
 func (ctx *tableCmdCtx) tablePut(rest []string) int {
-	name, code := ctx.requireName(rest, "table put <name>")
+	fileFlag, rngFlag, reasonFlag, rest := parseTableFlags(rest)
+	name, code := ctx.requireName(rest, "table put <name> --file <path> [--range LO-HI] [--reason R]")
 	if code != 0 {
 		return code
 	}
@@ -225,32 +305,116 @@ func (ctx *tableCmdCtx) tablePut(rest []string) int {
 	if code != 0 {
 		return code
 	}
-	t := p.Table(name)
-	if t == nil {
-		// Allow creating a new table via put.
-		newT, err := p.AddTable(name)
-		if err != nil {
-			return emitErr(ctx.stderr, 1, "io_error", "", "", err.Error())
-		}
-		t = newT
-	}
 
 	var tj TableJSON
 	if code := decodeStdin(ctx, &tj); code != 0 {
 		return code
 	}
-	// Allow omitting the "name" field in input — the URL-ish argument wins.
 	if tj.Name == "" {
 		tj.Name = name
 	}
+	// File: --file flag wins over a body "file"; range/reason are flags.
+	file := fileFlag
+	if file == "" {
+		file = tj.File
+	}
+
+	t := p.Table(name)
+	if t == nil {
+		// New table — a file is required (no default).
+		if strings.TrimSpace(file) == "" {
+			return emitErr(ctx.stderr, 1, "invalid_command", "",
+				"creating a table requires a file", "provide --file <path> (or \"file\" in the body)")
+		}
+		if err := ensureFile(p, file, rngFlag, reasonFlag); err != nil {
+			return emitErr(ctx.stderr, 1, "invalid_command", "", "", err.Error())
+		}
+		newT, err := p.AddTable(name, file, "")
+		if err != nil {
+			return emitErr(ctx.stderr, 1, "invalid_command", "", "", err.Error())
+		}
+		t = newT
+	} else if strings.TrimSpace(file) != "" && p.FileRel(file) != p.FileOf(name) {
+		// Existing table whose file changed → move (renumbers into target range).
+		if err := ensureFile(p, file, rngFlag, reasonFlag); err != nil {
+			return emitErr(ctx.stderr, 1, "invalid_command", "", "", err.Error())
+		}
+		if strings.TrimSpace(reasonFlag) == "" {
+			return emitErr(ctx.stderr, 1, "invalid_command", "", "moving a table requires --reason", "")
+		}
+		if err := p.MoveTable(name, file, reasonFlag); err != nil {
+			return emitErr(ctx.stderr, 1, "invalid_command", "", "", err.Error())
+		}
+		t = p.Table(name) // re-fetch: MoveTable relocated the underlying record
+	} else if rngFlag != "" && strings.TrimSpace(file) != "" {
+		// File unchanged but a range was supplied — validate it matches.
+		if err := ensureFile(p, file, rngFlag, reasonFlag); err != nil {
+			return emitErr(ctx.stderr, 1, "invalid_command", "", "", err.Error())
+		}
+	}
+
 	if err := tj.ApplyTo(t); err != nil {
 		return emitErr(ctx.stderr, 1, "compile_error", "", "an EL expression failed to compile", err.Error())
 	}
 	if err := p.Save(); err != nil {
 		return emitErr(ctx.stderr, 1, "io_error", "", "save failed", err.Error())
 	}
-	return writeOKWithWarnings(ctx, "updated", map[string]string{"table": tj.Name},
+	return writeOKWithWarnings(ctx, "updated",
+		map[string]string{"table": tj.Name, "file": p.FileOf(tj.Name)},
 		analyzeAuthoringTable(t))
+}
+
+// tableDelete removes a table (reason required for the change log).
+func (ctx *tableCmdCtx) tableDelete(rest []string) int {
+	_, _, reason, rest := parseTableFlags(rest)
+	name, code := ctx.requireName(rest, "table delete <name> --reason R")
+	if code != 0 {
+		return code
+	}
+	p, code := ctx.openProject()
+	if code != 0 {
+		return code
+	}
+	if strings.TrimSpace(reason) == "" {
+		return emitErr(ctx.stderr, 1, "invalid_command", "", "deleting a table requires --reason", "")
+	}
+	if err := p.DeleteTable(name, reason); err != nil {
+		return emitErr(ctx.stderr, 1, "not_found", "", "check `dtrules table list`", err.Error())
+	}
+	if err := p.Save(); err != nil {
+		return emitErr(ctx.stderr, 1, "io_error", "", "save failed", err.Error())
+	}
+	return writeOK(ctx, "deleted", map[string]string{"table": name})
+}
+
+// tableFiles reports the project's DT files with ranges, purposes, and members.
+func (ctx *tableCmdCtx) tableFiles() int {
+	p, code := ctx.openProject()
+	if code != 0 {
+		return code
+	}
+	if err := writeJSON(ctx.stdout, map[string]interface{}{"files": p.Files()}); err != nil {
+		return emitErr(ctx.stderr, 1, "io_error", "", "", err.Error())
+	}
+	return 0
+}
+
+// tableNote appends a free-form dated entry to authoring-notes.md.
+func (ctx *tableCmdCtx) tableNote(rest []string) int {
+	_, _, _, rest = parseTableFlags(rest)
+	text := strings.TrimSpace(strings.Join(rest, " "))
+	if text == "" {
+		return emitErr(ctx.stderr, 1, "invalid_command", "", "table note \"<text>\"", "missing note text")
+	}
+	p, code := ctx.openProject()
+	if code != 0 {
+		return code
+	}
+	p.AppendNote(text)
+	if err := p.Save(); err != nil {
+		return emitErr(ctx.stderr, 1, "io_error", "", "save failed", err.Error())
+	}
+	return writeOK(ctx, "noted", map[string]string{"note": text})
 }
 
 func (ctx *tableCmdCtx) tablePatch(rest []string) int {
@@ -275,14 +439,18 @@ func (ctx *tableCmdCtx) tablePatch(rest []string) int {
 	if err := json.Unmarshal(data, &patch); err != nil {
 		return emitErr(ctx.stderr, 1, "parse_error", "", "patch input must be a JSON object", err.Error())
 	}
-	if err := patch.apply(t); err != nil {
+	if err := patch.apply(p, t); err != nil {
 		return emitErr(ctx.stderr, 1, "invalid_patch", "", patch.hint(), err.Error())
 	}
 	if err := p.Save(); err != nil {
 		return emitErr(ctx.stderr, 1, "io_error", "", "save failed", err.Error())
 	}
+	// set-file relocates the underlying record; re-fetch for accurate warnings.
+	if t2 := p.Table(t.Name); t2 != nil {
+		t = t2
+	}
 	return writeOKWithWarnings(ctx, "patched",
-		map[string]string{"table": t.Name, "op": patch.Op},
+		map[string]string{"table": t.Name, "op": patch.Op, "file": p.FileOf(t.Name)},
 		analyzeAuthoringTable(t))
 }
 
@@ -439,22 +607,28 @@ func (c *CLI) printTableUsage() {
 
 Commands:
   list                     List decision-table names (JSON).
-  get <name>               Print one table as JSON (includes advisory warnings).
-  put <name>               Replace a table from JSON on stdin (response includes warnings).
+  get <name>               Print one table as JSON (includes file + advisory warnings).
+  put <name> --file F      Replace/create a table from JSON on stdin. A file is
+      [--range LO-HI]      required when creating; --range and --reason are
+      [--reason R]         required when the file is new. Changing --file moves it.
   patch <name>             Apply a JSON patch op on stdin (response includes warnings).
+  delete <name> --reason R Delete a table (reason recorded in authoring-notes.md).
+  files                    List DT files with ranges, purposes, and member tables.
+  note "<text>"            Append a dated note to authoring-notes.md.
   warnings <name>          Print the advisory-pass warnings for a table as JSON.
   schema                   Emit JSON Schema for a Table document.
   schema --patch           Emit JSON Schema for a table patch op.
 
 Examples:
   dtrules table list --project .
-  dtrules table get Compute_Eligibility --project .
-  dtrules table put NewTable --project . < table.json
-  echo '{"op":"set-condition-cell","condition_number":1,"column":2,"value":"Y"}' \
-    | dtrules table patch Compute_Eligibility --project .
+  dtrules table files --project .
+  dtrules table put CO_Tax --file states/CO_dt.xml --range 8000-10000 \
+    --reason "Colorado tax; own file to avoid merge conflicts" --project . < table.json
+  echo '{"op":"set-file","file":"states/CO_dt.xml","reason":"group state logic"}' \
+    | dtrules table patch CO_Tax --project .
 
 Patch operations:
-  set-name, set-policy,
+  set-name, set-number, set-file, set-range, set-policy,
   set-condition-cell, set-action-cell,
   add-column, update-column, delete-column,
   add-condition, update-condition, update-condition-dsl, delete-condition,

@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -130,6 +131,11 @@ func (p *Project) saveEDDXMLOnly() error {
 	if p.edd == nil {
 		return nil
 	}
+	// Canonical order: entities ascending by lowercase name. The EDD carries no
+	// per-entity number; sorting on write gives a deterministic, mergeable file.
+	sort.SliceStable(p.edd.xml.Entities, func(i, j int) bool {
+		return strings.ToLower(p.edd.xml.Entities[i].Name) < strings.ToLower(p.edd.xml.Entities[j].Name)
+	})
 	imp := excel.NewEDDImporter()
 	return imp.WriteXML(p.edd.xml, p.edd.eddFile)
 }

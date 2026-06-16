@@ -3154,11 +3154,24 @@ Opening and Saving
   (*Project).Table(name string) *Table
       Typed view of a table, or nil if not found.
 
-  (*Project).AddTable(name string) (*Table, error)
-      Create a new empty decision table.
+  (*Project).AddTable(name, file, reason string) (*Table, error)
+      Create a new empty decision table in an existing file (auto-numbered
+      within the file's range). A file is required.
 
-  (*Project).DeleteTable(name string) error
-      Remove a decision table by name.
+  (*Project).DeleteTable(name, reason string) error
+      Remove a decision table by name (reason recorded; empty files auto-deleted).
+
+  (*Project).CreateFile(file string, lo, hi int, reason string) error
+      Register a new DT file with a non-overlapping number range.
+
+  (*Project).MoveTable(name, target, reason string) error
+      Move a table to another file, renumbering into the target's range.
+
+  (*Project).SetFileRange(file string, lo, hi int, reason string) error
+      Change a file's number range (rejects overlap / shrink-below-used).
+
+  (*Project).Files() []FileInfo / (*Project).AppendNote(text string)
+      File map (ranges/purposes/tables) and a dated authoring-notes entry.
 
 
 Editing Tables

@@ -21,6 +21,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
 	"github.com/DTRules/DTRules/pkg/dtrules/sync"
@@ -312,11 +313,14 @@ func (s *mcpServer) toolProjectDiagnostics(project string) (map[string]interface
 
 func (s *mcpServer) toolTablePut(project string, args json.RawMessage) (map[string]interface{}, error) {
 	var req struct {
-		Name  string    `json:"name"`
-		Table TableJSON `json:"table"`
+		Name   string    `json:"name"`
+		File   string    `json:"file"`
+		Range  string    `json:"range"`
+		Reason string    `json:"reason"`
+		Table  TableJSON `json:"table"`
 	}
 	if err := json.Unmarshal(args, &req); err != nil {
-		return nil, newToolError("parse_error", "arguments must be {name, table}", err.Error())
+		return nil, newToolError("parse_error", "arguments must be {name, file, table}", err.Error())
 	}
 	if req.Name == "" {
 		return nil, newToolError("invalid_command", "arguments.name is required", "missing table name")
@@ -325,16 +329,37 @@ func (s *mcpServer) toolTablePut(project string, args json.RawMessage) (map[stri
 	if err != nil {
 		return nil, newToolError("io_error", "project must contain an xml/ subdirectory or *_dt.xml files directly", err.Error())
 	}
-	t := p.Table(req.Name)
-	if t == nil {
-		newT, addErr := p.AddTable(req.Name)
-		if addErr != nil {
-			return nil, newToolError("io_error", "could not create table", addErr.Error())
-		}
-		t = newT
-	}
 	if req.Table.Name == "" {
 		req.Table.Name = req.Name
+	}
+	file := req.File
+	if file == "" {
+		file = req.Table.File
+	}
+	t := p.Table(req.Name)
+	if t == nil {
+		if strings.TrimSpace(file) == "" {
+			return nil, newToolError("invalid_command", "creating a table requires a file", "set arguments.file")
+		}
+		if err := ensureFile(p, file, req.Range, req.Reason); err != nil {
+			return nil, newToolError("invalid_command", "could not place table", err.Error())
+		}
+		newT, addErr := p.AddTable(req.Name, file, "")
+		if addErr != nil {
+			return nil, newToolError("invalid_command", "could not create table", addErr.Error())
+		}
+		t = newT
+	} else if strings.TrimSpace(file) != "" && p.FileRel(file) != p.FileOf(req.Name) {
+		if err := ensureFile(p, file, req.Range, req.Reason); err != nil {
+			return nil, newToolError("invalid_command", "could not place table", err.Error())
+		}
+		if strings.TrimSpace(req.Reason) == "" {
+			return nil, newToolError("invalid_command", "moving a table requires a reason", "set arguments.reason")
+		}
+		if err := p.MoveTable(req.Name, file, req.Reason); err != nil {
+			return nil, newToolError("invalid_command", "could not move table", err.Error())
+		}
+		t = p.Table(req.Name)
 	}
 	if err := req.Table.ApplyTo(t); err != nil {
 		return nil, newToolError("compile_error", "an EL expression failed to compile", err.Error())
@@ -345,6 +370,7 @@ func (s *mcpServer) toolTablePut(project string, args json.RawMessage) (map[stri
 	return mcpJSONResult(map[string]interface{}{
 		"status":   "updated",
 		"table":    req.Table.Name,
+		"file":     p.FileOf(req.Table.Name),
 		"warnings": warningsForJSON(analyzeAuthoringTable(t)),
 	})
 }
@@ -376,16 +402,20 @@ func (s *mcpServer) toolTablePatch(project string, args json.RawMessage) (map[st
 	if err := json.Unmarshal(req.Patch, &op); err != nil {
 		return nil, newToolError("parse_error", "patch must be a JSON object", err.Error())
 	}
-	if err := op.apply(t); err != nil {
+	if err := op.apply(p, t); err != nil {
 		return nil, newToolError("invalid_patch", op.hint(), err.Error())
 	}
 	if err := p.Save(); err != nil {
 		return nil, newToolError("io_error", "save failed", err.Error())
 	}
+	if t2 := p.Table(t.Name); t2 != nil {
+		t = t2
+	}
 	return mcpJSONResult(map[string]interface{}{
 		"status":   "patched",
 		"table":    t.Name,
 		"op":       op.Op,
+		"file":     p.FileOf(t.Name),
 		"warnings": warningsForJSON(analyzeAuthoringTable(t)),
 	})
 }

@@ -19,7 +19,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
 )
@@ -43,12 +45,25 @@ type Project struct {
 	// either runs `dtrules build --from-excel` first to merge those
 	// changes, or sets this flag to force-overwrite.
 	OverwriteExcel bool
+
+	// pendingLog accumulates change-log lines (file add/move/delete, set-range,
+	// notes) for the session; flushed to authoring-notes.md on Save.
+	pendingLog []string
+	// orphans are DT files emptied this session, deleted on Save.
+	orphans []string
+	// clock is overridable in tests so change-log dates are deterministic.
+	clock func() time.Time
 }
 
 // dtFileEntry tracks a single decision-table XML file and its in-memory model.
+// lo/hi are the file's declared TABLE_NUMBER range (0 == unranged); purpose is
+// the human/LLM-facing description shown in authoring-notes.md. Range and
+// purpose are loaded from / written to that doc, not the XML.
 type dtFileEntry struct {
-	path   string
-	tables *excel.DecisionTablesXML
+	path    string
+	tables  *excel.DecisionTablesXML
+	lo, hi  int
+	purpose string
 }
 
 // OpenProject loads a DTRules project from path.
@@ -89,6 +104,7 @@ func OpenProject(path string) (*Project, error) {
 	}
 
 	p.resolveDuplicateTableNames()
+	p.loadNotes()
 
 	return p, nil
 }
@@ -290,6 +306,12 @@ func (p *Project) Save() error {
 			return fmt.Errorf("failed to write %s: %w", entry.path, err)
 		}
 	}
+	// Delete files emptied this session (move/delete left them with no tables),
+	// and write the authoring-notes journal (ranges + change log).
+	p.removeOrphans()
+	if err := p.writeNotes(); err != nil {
+		return fmt.Errorf("failed to write authoring-notes.md: %w", err)
+	}
 	if err := p.saveEDDXMLOnly(); err != nil {
 		return err
 	}
@@ -354,32 +376,39 @@ func (p *Project) Table(name string) *Table {
 	return nil
 }
 
-// AddTable creates a new decision table with the given name.
-func (p *Project) AddTable(name string) (*Table, error) {
-	for _, entry := range p.dtFiles {
-		for _, t := range entry.tables.Tables {
-			if t.TableName == name {
-				return nil, fmt.Errorf("table %q already exists", name)
-			}
-		}
+// AddTable creates a new decision table named `name` in the decision-table
+// file `file` (required — there is no default file). The file must already
+// exist (create it first via CreateFile, which declares its number range).
+// The new table is auto-numbered within the file's range. reason is optional
+// and, when given, recorded in the change log.
+func (p *Project) AddTable(name, file, reason string) (*Table, error) {
+	if strings.TrimSpace(file) == "" {
+		return nil, fmt.Errorf("creating table %q requires a file", name)
+	}
+	if fi, _ := p.locateTable(name); fi >= 0 {
+		return nil, fmt.Errorf("table %q already exists", name)
+	}
+	rel, _ := p.normFile(file)
+	idx := p.fileIndex(rel)
+	if idx < 0 {
+		return nil, fmt.Errorf("file %q does not exist; create it first (with a range and reason)", rel)
+	}
+	num, err := p.nextNumberInFile(idx)
+	if err != nil {
+		return nil, err
 	}
 	xmlTable := excel.DecisionTableXML{
 		TableName: name,
 		AttributeFields: excel.AttributeFieldsXML{
-			Type: "FIRST",
+			Type:        "FIRST",
+			TableNumber: strconv.Itoa(num),
 		},
 	}
-	if len(p.dtFiles) == 0 {
-		// Create a new file entry using conventional naming
-		path := filepath.Join(p.xmlDir, strings.ToLower(name)+"_dt.xml")
-		p.dtFiles = append(p.dtFiles, dtFileEntry{
-			path:   path,
-			tables: &excel.DecisionTablesXML{},
-		})
+	p.dtFiles[idx].tables.Tables = append(p.dtFiles[idx].tables.Tables, xmlTable)
+	last := &p.dtFiles[idx].tables.Tables[len(p.dtFiles[idx].tables.Tables)-1]
+	if r := strings.TrimSpace(reason); r != "" {
+		p.logChange("add table `%s` to `%s` — %q", name, rel, r)
 	}
-	// Append to the first file
-	p.dtFiles[0].tables.Tables = append(p.dtFiles[0].tables.Tables, xmlTable)
-	last := &p.dtFiles[0].tables.Tables[len(p.dtFiles[0].tables.Tables)-1]
 	return newTableWithProject(last, p.symbols, p), nil
 }
 
@@ -389,16 +418,21 @@ func (p *Project) DeleteEntity(name string) error {
 	return p.EDD().deleteEntityChecked(name, p.dtFiles)
 }
 
-// DeleteTable removes the named table.
-func (p *Project) DeleteTable(name string) error {
-	for fi := range p.dtFiles {
-		tables := p.dtFiles[fi].tables.Tables
-		for ti, t := range tables {
-			if t.TableName == name {
-				p.dtFiles[fi].tables.Tables = append(tables[:ti], tables[ti+1:]...)
-				return nil
-			}
-		}
+// DeleteTable removes the named table. reason is required — a removed table is
+// exactly the kind of "why did this go away?" context the next session needs.
+// If the delete empties its file, the file is dropped (deleted on Save).
+func (p *Project) DeleteTable(name, reason string) error {
+	if strings.TrimSpace(reason) == "" {
+		return fmt.Errorf("deleting table %q requires a reason", name)
 	}
-	return fmt.Errorf("table %q not found", name)
+	fi, ti := p.locateTable(name)
+	if fi < 0 {
+		return fmt.Errorf("table %q not found", name)
+	}
+	rel := p.relPathOf(p.dtFiles[fi].path)
+	tables := p.dtFiles[fi].tables.Tables
+	p.dtFiles[fi].tables.Tables = append(tables[:ti], tables[ti+1:]...)
+	p.logChange("delete table `%s` from `%s` — %q", name, rel, strings.TrimSpace(reason))
+	p.dropIfEmpty(fi, fmt.Sprintf("last table removed: %s", strings.TrimSpace(reason)))
+	return nil
 }
