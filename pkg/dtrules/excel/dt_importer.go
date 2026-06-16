@@ -228,6 +228,18 @@ type AttributeFieldsXML struct {
 	FilePath    string `xml:"FILE_PATH,omitempty"`
 }
 
+// valueAfterColon returns everything after the first colon in a "Label: value"
+// attribute cell, or "" when the cell carries only the label (e.g. an empty
+// "TABLE_NUMBER:" cell). The older TrimPrefix("LABEL: ") approach assumed a
+// trailing space and a value; a value-less cell slipped through and the label
+// itself was stored as the value, producing invalid XML on the next load.
+func valueAfterColon(cell string) string {
+	if i := strings.Index(cell, ":"); i >= 0 {
+		return cell[i+1:]
+	}
+	return cell
+}
+
 // InitialActionXML represents an initial action.
 //
 // Two tag conventions coexist in real DTRules XML:
@@ -893,42 +905,45 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 
 		case strings.HasPrefix(firstCellLower, "type:"):
 			// Type row: "Type: FIRST"
-			tableType := strings.TrimPrefix(firstCell, "Type: ")
-			tableType = strings.TrimPrefix(tableType, "type: ")
-			table.AttributeFields.Type = strings.TrimSpace(tableType)
+			table.AttributeFields.Type = strings.TrimSpace(valueAfterColon(firstCell))
 
 		case strings.HasPrefix(firstCellLower, "comments:"):
 			// Comments field
-			comment := strings.TrimPrefix(firstCell, "COMMENTS: ")
-			comment = strings.TrimPrefix(comment, "Comments: ")
-			comment = strings.TrimPrefix(comment, "comments: ")
-			table.AttributeFields.Comments = strings.TrimSpace(comment)
+			table.AttributeFields.Comments = strings.TrimSpace(valueAfterColon(firstCell))
 
 		case strings.HasPrefix(firstCellLower, "table_number:"):
 			// Table number field
-			num := strings.TrimPrefix(firstCell, "TABLE_NUMBER: ")
-			num = strings.TrimPrefix(num, "Table_number: ")
-			num = strings.TrimPrefix(num, "table_number: ")
-			table.AttributeFields.TableNumber = strings.TrimSpace(num)
+			table.AttributeFields.TableNumber = strings.TrimSpace(valueAfterColon(firstCell))
 
 		case strings.HasPrefix(firstCellLower, "file_path:"):
 			// File path field
-			path := strings.TrimPrefix(firstCell, "FILE_PATH: ")
-			path = strings.TrimPrefix(path, "File_path: ")
-			path = strings.TrimPrefix(path, "file_path: ")
-			table.AttributeFields.FilePath = strings.TrimSpace(path)
+			table.AttributeFields.FilePath = strings.TrimSpace(valueAfterColon(firstCell))
 
-		case firstCellLower == "contexts:":
+		case strings.HasPrefix(firstCellLower, "contexts"):
+			// Exporter writes the title as "CONTEXTS: COMMENTS", so an exact
+			// "contexts:" match silently dropped every table's context block
+			// (e.g. a "for all ..." iterator) on round-trip.
 			currentSection = "contexts"
 
+		// The exporter writes each section's title, DSL label, and rule-column
+		// numbers on ONE row (see exporter.writeConditions), then data rows
+		// follow. So parse numCols from THIS title row and go straight to the
+		// data section — exactly as the "contexts" case above already does.
+		// (The old *_header states consumed the *next* row as a separate
+		// header, which silently ate the first condition/action of every
+		// table on round-trip.) Robust to a legacy two-row layout too: a
+		// stray column-number row has no positive integer in column A, so the
+		// data parser skips it.
 		case strings.HasPrefix(firstCellLower, "initial actions"):
-			currentSection = "initial_actions_header"
+			currentSection = "initial_actions"
 
 		case strings.HasPrefix(firstCellLower, "conditions"):
-			currentSection = "conditions_header"
+			numCols = i.countHeaderColumns(row)
+			currentSection = "conditions"
 
 		case strings.HasPrefix(firstCellLower, "actions"):
-			currentSection = "actions_header"
+			numCols = i.countHeaderColumns(row)
+			currentSection = "actions"
 
 		case strings.HasPrefix(firstCellLower, "policy"):
 			currentSection = "policy_header"
@@ -1185,6 +1200,28 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 				continue
 			}
 			action.Postfix = postfix
+			if i.stats != nil {
+				i.stats.Compiled++
+			}
+		}
+	}
+
+	// Compile contexts (iterators, locals, and entity pushes that run before
+	// the conditions). These were previously left uncompiled, so a table with
+	// a "for all ..." context round-tripped to an empty <context_postfix> and
+	// the strict loader rejected it.
+	for idx := range table.Contexts.Details {
+		ctx := &table.Contexts.Details[idx]
+		if ctx.DSL != "" {
+			postfix, err := i.elCompiler.CompileContext(ctx.DSL)
+			if err != nil {
+				errors = append(errors, fmt.Sprintf("context %d: %v", idx+1, err))
+				recordCompileFailure(table.TableName,
+					fmt.Sprintf("context %d", idx+1),
+					ctx.DSL, ctx.Comment, err)
+				continue
+			}
+			ctx.Postfix = postfix
 			if i.stats != nil {
 				i.stats.Compiled++
 			}

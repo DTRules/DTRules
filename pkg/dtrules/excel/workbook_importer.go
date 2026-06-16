@@ -82,6 +82,33 @@ func (w *WorkbookImporter) ImportWorkbook(excelPath string) (*WorkbookResult, er
 	return w.importWorkbookWithSource(excelPath, filepath.Base(excelPath), "")
 }
 
+// eddSymbols flattens an EDD into the field→type map the EL compiler expects,
+// keyed by both the bare field name and the entity-qualified name (e.g.
+// "lean_body_weight" and "patient.lean_body_weight"). Mirrors the CLI's
+// loadEDDSymbols so the Excel build types operands the same way `dtrules
+// compile` does.
+func eddSymbols(edd *EDDXML) map[string]string {
+	if edd == nil {
+		return nil
+	}
+	symbols := make(map[string]string)
+	for _, ent := range edd.Entities {
+		if ent == nil {
+			continue
+		}
+		for _, fld := range ent.Fields {
+			if fld == nil || fld.Name == "" || fld.Type == "" {
+				continue
+			}
+			symbols[fld.Name] = fld.Type
+			if ent.Name != "" {
+				symbols[ent.Name+"."+fld.Name] = fld.Type
+			}
+		}
+	}
+	return symbols
+}
+
 // importWorkbookWithSource reads a workbook and sets xlsFile and relPath for metadata.
 func (w *WorkbookImporter) importWorkbookWithSource(excelPath, xlsFile, relPath string) (*WorkbookResult, error) {
 	f, err := excelize.OpenFile(excelPath)
@@ -144,6 +171,15 @@ func (w *WorkbookImporter) importWorkbookWithSource(excelPath, xlsFile, relPath 
 			}
 			result.EDD.Entities = append(result.EDD.Entities, eddData.Entities...)
 		}
+	}
+
+	// Wire the EDD field types into the compiler before compiling DT sheets.
+	// Without this, double/fixed fields compile as integers — e.g. a Cockcroft
+	// -Gault "(140 - age) * weight / (pcr * 72)" emits integer ops and cvi,
+	// silently truncating the result to 0. Combined workbooks carry their EDD
+	// in the same file (parsed above), so the symbols are available here.
+	if symbols := eddSymbols(result.EDD); len(symbols) > 0 {
+		w.dtImporter.SetSymbols(symbols)
 	}
 
 	// Process DT sheets
