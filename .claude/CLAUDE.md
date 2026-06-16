@@ -78,18 +78,29 @@ dtrules docs workflow            # Development workflow
 
 **Use `dtrules docs` when you need to understand DTRules concepts.**
 
-## Excel/XML Synchronization (CRITICAL)
+## Authoring Contract (CRITICAL)
 
-**Excel is the source of truth.** Run `dtrules build` after every edit — whether you changed Excel or XML. The build command auto-detects which files changed and runs the full pipeline (normalize + compile) so steps cannot be skipped.
+**Excel is the system of record for DSL. `postfix` is a compiled artifact, never authored. Every tool that writes XML must write the same DSL back to Excel in the same operation.** Full spec: [docs/authoring-contract.md](../docs/authoring-contract.md).
+
+There are exactly two ways to change a rule:
+
+- **Edit Excel**, then `dtrules build` — extracts DSL to XML and compiles DSL→postfix. Excel is the input; XML is generated.
+- **Call the authoring API** (`dtrules table`/`dtrules edd`, MCP write tools) — it writes the XML DSL, compiles postfix, **and** updates Excel in the same operation. If the project has no Excel yet, the API bootstraps it from the XML.
 
 ```bash
-dtrules build                    # Auto-detect and run the full pipeline
-dtrules build --from-excel       # Force Excel-authored path
-dtrules build --from-xml         # Force XML-authored path
+dtrules build                    # Excel → XML (+ compile); the human path
 dtrules build --dry-run          # Show what would change without writing
+dtrules table put <name>         # Programmatic edit; updates XML AND Excel
+dtrules edd put                  # Programmatic EDD edit; updates XML AND Excel
 ```
 
-See `dtrules docs workflow` for details on both the Excel-authored and XML-authored paths.
+Hard rules:
+
+- **Never hand-edit XML.** It is generated. Edits go through Excel or the authoring API.
+- **Never hand-write `postfix`.** It is the compiled output of DSL.
+- **`dtrules compile` does not exist** — it was a writer that bypassed Excel and has been removed. DSL→postfix is an internal step of `build` and the API only.
+
+See `dtrules docs workflow` for the build pipeline.
 
 ## State Tax Implementation
 

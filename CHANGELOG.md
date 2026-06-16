@@ -1,5 +1,51 @@
 # DTRules Changelog
 
+## Unreleased
+
+Multi-file authoring, table-number control, and Excel round-trip fixes
+uncovered while making the new `SinusitisTherapy` sample Excel-conformant.
+
+### Added
+
+- **Multi-file authoring** via the authoring SDK and `dtrules table`:
+  - Tables declare which file they live in; creating a table requires a
+    `--file` (no default). Files map to combined Excel workbooks under `excel/`.
+  - **Per-file `TABLE_NUMBER` ranges** (`--range LO-HI`), opt-in and
+    non-overlapping; auto-assigned numbers (max+10) stay in range, explicit
+    numbers are validated for range + uniqueness.
+  - `dtrules table delete <name> --reason`, `dtrules table files`,
+    `dtrules table note "..."`; patch ops `set-file` (move, auto-renumbers into
+    the target range) and `set-range` (resize, validated). Moving the last
+    table out of a file auto-deletes the empty file and its workbook.
+  - **`authoring-notes.md`** — a project-root journal that aids LLM authoring:
+    an API-managed **Files** map (path `[range]` — purpose) and **Change log**
+    (every structural op records its required `reason`), plus a free-form
+    **Conventions** section the API never rewrites.
+  - SDK: `Project.AddTable(name,file,reason)`, `CreateFile`, `MoveTable`,
+    `DeleteTable(name,reason)`, `SetFileRange`, `Files()`, `AppendNote`.
+- **Table numbers are now specifiable** — `"number"` on `table put`, `set-number`
+  patch op; auto-assigned in gaps of 10 so tables can be inserted/reordered.
+- **EDD entities** serialize sorted ascending by lowercase name (canonical
+  order; single EDD file for now).
+- Float comparison operators `f>`, `f>=`, `f<`, `f<=`, `f==`, `f!=` — the EL
+  compiler emitted these for double-typed operands but the runtime never
+  registered them, so double comparisons resolved as undefined names.
+- `sampleprojects/SinusitisTherapy` — the Apr-2026 "Agentic Medical Services"
+  challenge (three loosely-coupled services orchestrated for Acute Sinusitis),
+  authored in EL and Excel-conformant (`dtrules verify` clean).
+- `docs/authoring-contract.md` — the authoring source-of-record contract and
+  the multi-file design.
+
+### Fixed
+
+- Excel ↔ XML round-trip corrupted API-authored decision tables: a value-less
+  `TABLE_NUMBER:`/`COMMENTS:` cell echoed the label as its value (invalid XML);
+  the importer dropped the first condition and action of every table (1-row vs
+  2-row section-header mismatch); table contexts were silently dropped
+  (`"contexts:"` exact-match vs the exporter's `"CONTEXTS: COMMENTS"`); and the
+  Excel importer compiled double/`fixed` fields as integers for want of EDD
+  type symbols.
+
 ## v1.15.1 — 2026-06-08
 
 Documents and pins the multi-entry-point pattern that the engine has
