@@ -1,0 +1,11 @@
+RecommendedDrug,ActiveMedication,Warning
+Levofloxacin,Coumadin,"Levofloxacin may potentiate the anticoagulant effect of warfarin/Coumadin, raising INR and bleeding risk. Monitor coagulation closely."
+Levofloxacin,Warfarin,"Levofloxacin may potentiate the anticoagulant effect of warfarin/Coumadin, raising INR and bleeding risk. Monitor coagulation closely."
+Levofloxacin,Theophylline,"Levofloxacin may increase theophylline plasma levels; monitor for theophylline toxicity."
+Levofloxacin,NSAID,"Concomitant NSAIDs with Levofloxacin may increase the risk of CNS stimulation and seizures."
+Levofloxacin,Ibuprofen,"Concomitant NSAIDs with Levofloxacin may increase the risk of CNS stimulation and seizures."
+Levofloxacin,Naproxen,"Concomitant NSAIDs with Levofloxacin may increase the risk of CNS stimulation and seizures."
+Amoxicillin,Coumadin,"Amoxicillin may enhance the anticoagulant effect of warfarin/Coumadin; monitor INR."
+Amoxicillin,Warfarin,"Amoxicillin may enhance the anticoagulant effect of warfarin/Coumadin; monitor INR."
+Amoxicillin,Methotrexate,"Amoxicillin may reduce renal clearance of methotrexate, increasing methotrexate toxicity."
+Cefuroxime,Probenecid,"Probenecid reduces renal excretion of Cefuroxime, raising its plasma concentration."

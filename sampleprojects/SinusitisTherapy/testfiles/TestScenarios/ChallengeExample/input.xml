@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Challenge Apr-2026 reference request:
+     "I have a patient diagnosed with Acute Sinusitis. He is 58 years old,
+      weighs 78 kg, and has a creatinine level of 1.85. Keep in mind that he
+      is Penicillin-allergic and takes Coumadin." -->
+<patient>
+	<age>58</age>
+	<lean_body_weight>78</lean_body_weight>
+	<pcr>1.85</pcr>
+	<penicillin_allergic>true</penicillin_allergic>
+	<diagnosis>Acute Sinusitis</diagnosis>
+	<medication>
+		<name>Coumadin</name>
+	</medication>
+</patient>

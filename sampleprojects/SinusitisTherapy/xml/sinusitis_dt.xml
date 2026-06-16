@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 1000: Determine_Creatinine_Clearance -->
+<decision_table>
+<table_name>Determine_Creatinine_Clearance</table_name>
+<xls_file></xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>1000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always compute CCr</condition_comment>
+<condition_dsl>true</condition_dsl>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Cockcroft-Gault style: CCr = ((140 - age) * lean body weight) / (PCr * 72)</action_comment>
+<action_dsl>set result.ccr = ((140 - patient.age) * patient.lean_body_weight) / (patient.pcr * 72)</action_dsl>
+<action_postfix>
+140 patient.age - patient.lean_body_weight fmul patient.pcr 72 fmul fdiv cvd /result.ccr xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 1010: Determine_Therapy -->
+<decision_table>
+<table_name>Determine_Therapy</table_name>
+<xls_file></xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>1010</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always run the full therapy workup</condition_comment>
+<condition_dsl>true</condition_dsl>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Service 2 first: CCr feeds the dosing rules</action_comment>
+<action_dsl>perform Determine_Creatinine_Clearance</action_dsl>
+<action_postfix>
+/Determine_Creatinine_Clearance performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Service 1: drug of choice and dosing</action_comment>
+<action_dsl>perform Determine_Medication_And_Dosing</action_dsl>
+<action_postfix>
+/Determine_Medication_And_Dosing performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Service 3: drug-interaction warnings</action_comment>
+<action_dsl>perform Check_Drug_Interactions</action_dsl>
+<action_postfix>
+/Check_Drug_Interactions performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 1020: Determine_Medication_And_Dosing -->
+<decision_table>
+<table_name>Determine_Medication_And_Dosing</table_name>
+<xls_file></xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>1020</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always run</condition_comment>
+<condition_dsl>true</condition_dsl>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Pick the drug of choice</action_comment>
+<action_dsl>perform Select_Medication</action_dsl>
+<action_postfix>
+/Select_Medication performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Pick the dose / frequency / duration</action_comment>
+<action_dsl>perform Determine_Dose</action_dsl>
+<action_postfix>
+/Determine_Dose performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 1030: Select_Medication -->
+<decision_table>
+<table_name>Select_Medication</table_name>
+<xls_file></xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>1030</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Penicillin allergy overrides age (beta-lactam cross-reactivity)</condition_comment>
+<condition_dsl>patient.penicillin_allergic is true</condition_dsl>
+<condition_postfix>
+patient.penicillin_allergic true beq
+</condition_postfix>
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Adult (&gt;= 18)</condition_comment>
+<condition_dsl>patient.age &gt;= constants.adult_age</condition_dsl>
+<condition_postfix>
+patient.age constants.adult_age &gt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Fluoroquinolone for penicillin-allergic patients</action_comment>
+<action_dsl>set result.recommended_drug = "Levofloxacin"</action_dsl>
+<action_postfix>
+"Levofloxacin" cvs /result.recommended_drug xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Adult first-line</action_comment>
+<action_dsl>set result.recommended_drug = "Amoxicillin"</action_dsl>
+<action_postfix>
+"Amoxicillin" cvs /result.recommended_drug xdef
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Pediatric first-line</action_comment>
+<action_dsl>set result.recommended_drug = "Cefuroxime"</action_dsl>
+<action_postfix>
+"Cefuroxime" cvs /result.recommended_drug xdef
+</action_postfix>
+<action_column column_number="3" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 1040: Determine_Dose -->
+<decision_table>
+<table_name>Determine_Dose</table_name>
+<xls_file></xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>1040</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Renal impairment: PCr &gt; 1.4 and CCr &lt; 50</condition_comment>
+<condition_dsl>patient.pcr &gt; constants.renal_pcr_threshold and result.ccr &lt; constants.renal_ccr_threshold</condition_dsl>
+<condition_postfix>
+patient.pcr constants.renal_pcr_threshold f&gt; { pop result.ccr constants.renal_ccr_threshold f&lt; } over if
+</condition_postfix>
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Standard-dose age band (15..60)</condition_comment>
+<condition_dsl>patient.age &gt;= constants.dose_low_age and patient.age &lt;= constants.dose_high_age</condition_dsl>
+<condition_postfix>
+patient.age constants.dose_low_age &gt;= { pop patient.age constants.dose_high_age &lt;= } over if
+</condition_postfix>
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Renal-reduced dose</action_comment>
+<action_dsl>set result.dose_mg = constants.reduced_dose</action_dsl>
+<action_postfix>
+constants.reduced_dose cvi /result.dose_mg xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Standard dose for 15..60</action_comment>
+<action_dsl>set result.dose_mg = constants.standard_dose</action_dsl>
+<action_postfix>
+constants.standard_dose cvi /result.dose_mg xdef
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Reduced dose for &lt;15 or &gt;60</action_comment>
+<action_dsl>set result.dose_mg = constants.reduced_dose</action_dsl>
+<action_postfix>
+constants.reduced_dose cvi /result.dose_mg xdef
+</action_postfix>
+<action_column column_number="3" column_value="X" />
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Flag the renal adjustment</action_comment>
+<action_dsl>set result.renal_adjustment = true</action_dsl>
+<action_postfix>
+true cvb /result.renal_adjustment xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Dosing interval (hours)</action_comment>
+<action_dsl>set result.frequency_hours = constants.dosing_interval_hours</action_dsl>
+<action_postfix>
+constants.dosing_interval_hours cvi /result.frequency_hours xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="2" column_value="X" />
+<action_column column_number="3" column_value="X" />
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Therapy duration (days)</action_comment>
+<action_dsl>set result.duration_days = constants.therapy_duration_days</action_dsl>
+<action_postfix>
+constants.therapy_duration_days cvi /result.duration_days xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="2" column_value="X" />
+<action_column column_number="3" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 1050: Check_Drug_Interactions -->
+<decision_table>
+<table_name>Check_Drug_Interactions</table_name>
+<xls_file></xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>1050</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all patient.active_medications</context_dsl>
+<context_postfix>
+dup patient.active_medications forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Recommended drug is Levofloxacin</condition_comment>
+<condition_dsl>result.recommended_drug is equal to ignore case "Levofloxacin"</condition_dsl>
+<condition_postfix>
+result.recommended_drug "Levofloxacin" s==i
+</condition_postfix>
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Recommended drug is Amoxicillin</condition_comment>
+<condition_dsl>result.recommended_drug is equal to ignore case "Amoxicillin"</condition_dsl>
+<condition_postfix>
+result.recommended_drug "Amoxicillin" s==i
+</condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="Y" />
+<condition_column column_number="5" column_value="Y" />
+<condition_column column_number="6" column_value="-" />
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Recommended drug is Cefuroxime</condition_comment>
+<condition_dsl>result.recommended_drug is equal to ignore case "Cefuroxime"</condition_dsl>
+<condition_postfix>
+result.recommended_drug "Cefuroxime" s==i
+</condition_postfix>
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="Y" />
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Active med is an anticoagulant</condition_comment>
+<condition_dsl>medication.name is equal to ignore case "Coumadin" or medication.name is equal to ignore case "Warfarin"</condition_dsl>
+<condition_postfix>
+medication.name "Coumadin" s==i { pop medication.name "Warfarin" s==i } over not if
+</condition_postfix>
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="Y" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Active med is theophylline</condition_comment>
+<condition_dsl>medication.name is equal to ignore case "Theophylline"</condition_dsl>
+<condition_postfix>
+medication.name "Theophylline" s==i
+</condition_postfix>
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="-" />
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>Active med is an NSAID</condition_comment>
+<condition_dsl>medication.name is equal to ignore case "NSAID" or medication.name is equal to ignore case "Ibuprofen" or medication.name is equal to ignore case "Naproxen"</condition_dsl>
+<condition_postfix>
+medication.name "NSAID" s==i { pop medication.name "Ibuprofen" s==i } over not if { pop medication.name "Naproxen" s==i } over not if
+</condition_postfix>
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>7</condition_number>
+<condition_comment>Active med is methotrexate</condition_comment>
+<condition_dsl>medication.name is equal to ignore case "Methotrexate"</condition_dsl>
+<condition_postfix>
+medication.name "Methotrexate" s==i
+</condition_postfix>
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="Y" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+</condition_details>
+<condition_details>
+<condition_number>8</condition_number>
+<condition_comment>Active med is probenecid</condition_comment>
+<condition_dsl>medication.name is equal to ignore case "Probenecid"</condition_dsl>
+<condition_postfix>
+medication.name "Probenecid" s==i
+</condition_postfix>
+<condition_column column_number="6" column_value="Y" />
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Levofloxacin + anticoagulant</action_comment>
+<action_dsl>add "Levofloxacin may potentiate the anticoagulant effect of warfarin/Coumadin, raising INR and bleeding risk. Monitor coagulation closely." to result.warnings</action_dsl>
+<action_postfix>
+"Levofloxacin may potentiate the anticoagulant effect of warfarin/Coumadin, raising INR and bleeding risk. Monitor coagulation closely." result.warnings swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Levofloxacin + theophylline</action_comment>
+<action_dsl>add "Levofloxacin may increase theophylline plasma levels; monitor for theophylline toxicity." to result.warnings</action_dsl>
+<action_postfix>
+"Levofloxacin may increase theophylline plasma levels; monitor for theophylline toxicity." result.warnings swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Levofloxacin + NSAID</action_comment>
+<action_dsl>add "Concomitant NSAIDs with Levofloxacin may increase the risk of CNS stimulation and seizures." to result.warnings</action_dsl>
+<action_postfix>
+"Concomitant NSAIDs with Levofloxacin may increase the risk of CNS stimulation and seizures." result.warnings swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X" />
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Amoxicillin + anticoagulant</action_comment>
+<action_dsl>add "Amoxicillin may enhance the anticoagulant effect of warfarin/Coumadin; monitor INR." to result.warnings</action_dsl>
+<action_postfix>
+"Amoxicillin may enhance the anticoagulant effect of warfarin/Coumadin; monitor INR." result.warnings swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X" />
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Amoxicillin + methotrexate</action_comment>
+<action_dsl>add "Amoxicillin may reduce renal clearance of methotrexate, increasing methotrexate toxicity." to result.warnings</action_dsl>
+<action_postfix>
+"Amoxicillin may reduce renal clearance of methotrexate, increasing methotrexate toxicity." result.warnings swap addto
+</action_postfix>
+<action_column column_number="5" column_value="X" />
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Cefuroxime + probenecid</action_comment>
+<action_dsl>add "Probenecid reduces renal excretion of Cefuroxime, raising its plasma concentration." to result.warnings</action_dsl>
+<action_postfix>
+"Probenecid reduces renal excretion of Cefuroxime, raising its plasma concentration." result.warnings swap addto
+</action_postfix>
+<action_column column_number="6" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+</decision_tables>

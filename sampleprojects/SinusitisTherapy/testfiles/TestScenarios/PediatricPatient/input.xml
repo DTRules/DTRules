@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- 10-year-old, no allergy, normal renal function, taking methotrexate.
+     Expected: Cefuroxime, 200 mg every 24 h for 14 days (age < 15),
+     no Cefuroxime/methotrexate conflict in the table -> no warnings. -->
+<patient>
+	<age>10</age>
+	<lean_body_weight>32</lean_body_weight>
+	<pcr>0.6</pcr>
+	<penicillin_allergic>false</penicillin_allergic>
+	<diagnosis>Acute Sinusitis</diagnosis>
+	<medication>
+		<name>Methotrexate</name>
+	</medication>
+</patient>

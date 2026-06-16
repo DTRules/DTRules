@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<!-- Patient fields (resolved against the patient singleton on the context stack) -->
+			<setattribute tag='age'                 RAttribute='age'                 enclosure='patient'    type='integer'></setattribute>
+			<setattribute tag='lean_body_weight'    RAttribute='lean_body_weight'    enclosure='patient'    type='double'></setattribute>
+			<setattribute tag='pcr'                 RAttribute='pcr'                 enclosure='patient'    type='double'></setattribute>
+			<setattribute tag='penicillin_allergic' RAttribute='penicillin_allergic' enclosure='patient'    type='boolean'></setattribute>
+			<setattribute tag='diagnosis'           RAttribute='diagnosis'           enclosure='patient'    type='string'></setattribute>
+
+			<!-- Active medication fields -->
+			<setattribute tag='name'                RAttribute='name'                enclosure='medication' type='string'></setattribute>
+
+			<!-- Each <medication> element becomes a medication entity on patient.active_medications -->
+			<createentity entity='medication' tag='medication' id='name' list='active_medications'></createentity>
+		</map>
+
+		<entities>
+			<entity name='patient'    number='1'></entity>
+			<entity name='medication' number='*'></entity>
+			<entity name='result'     number='1'></entity>
+			<entity name='constants'  number='1'></entity>
+		</entities>
+
+		<initialization>
+			<initialentity entity='constants' epush='true'></initialentity>
+			<initialentity entity='result'    epush='true'></initialentity>
+			<initialentity entity='patient'   epush='true'></initialentity>
+		</initialization>
+	</XMLtoEDD>
+</mapping>

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Healthy 40-year-old, no allergy, normal renal function, no active meds.
+     Expected: Amoxicillin, 500 mg every 24 h for 14 days, no warnings. -->
+<patient>
+	<age>40</age>
+	<lean_body_weight>80</lean_body_weight>
+	<pcr>0.9</pcr>
+	<penicillin_allergic>false</penicillin_allergic>
+	<diagnosis>Acute Sinusitis</diagnosis>
+</patient>
