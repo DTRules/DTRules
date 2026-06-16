@@ -323,33 +323,33 @@ func (ctx *tableCmdCtx) tablePut(rest []string) int {
 	if t == nil {
 		// New table — a file is required (no default).
 		if strings.TrimSpace(file) == "" {
-			return emitErr(ctx.stderr, 1, "invalid_command", "",
+			return emitErr(ctx.stderr, 1, "invalid_input", "",
 				"creating a table requires a file", "provide --file <path> (or \"file\" in the body)")
 		}
 		if err := ensureFile(p, file, rngFlag, reasonFlag); err != nil {
-			return emitErr(ctx.stderr, 1, "invalid_command", "", "", err.Error())
+			return emitErr(ctx.stderr, 1, "invalid_input", "", "", err.Error())
 		}
 		newT, err := p.AddTable(name, file, "")
 		if err != nil {
-			return emitErr(ctx.stderr, 1, "invalid_command", "", "", err.Error())
+			return emitErr(ctx.stderr, 1, "invalid_input", "", "", err.Error())
 		}
 		t = newT
 	} else if strings.TrimSpace(file) != "" && p.FileRel(file) != p.FileOf(name) {
 		// Existing table whose file changed → move (renumbers into target range).
 		if err := ensureFile(p, file, rngFlag, reasonFlag); err != nil {
-			return emitErr(ctx.stderr, 1, "invalid_command", "", "", err.Error())
+			return emitErr(ctx.stderr, 1, "invalid_input", "", "", err.Error())
 		}
 		if strings.TrimSpace(reasonFlag) == "" {
-			return emitErr(ctx.stderr, 1, "invalid_command", "", "moving a table requires --reason", "")
+			return emitErr(ctx.stderr, 1, "invalid_input", "", "moving a table requires --reason", "")
 		}
 		if err := p.MoveTable(name, file, reasonFlag); err != nil {
-			return emitErr(ctx.stderr, 1, "invalid_command", "", "", err.Error())
+			return emitErr(ctx.stderr, 1, "invalid_input", "", "", err.Error())
 		}
 		t = p.Table(name) // re-fetch: MoveTable relocated the underlying record
 	} else if rngFlag != "" && strings.TrimSpace(file) != "" {
 		// File unchanged but a range was supplied — validate it matches.
 		if err := ensureFile(p, file, rngFlag, reasonFlag); err != nil {
-			return emitErr(ctx.stderr, 1, "invalid_command", "", "", err.Error())
+			return emitErr(ctx.stderr, 1, "invalid_input", "", "", err.Error())
 		}
 	}
 
@@ -376,7 +376,7 @@ func (ctx *tableCmdCtx) tableDelete(rest []string) int {
 		return code
 	}
 	if strings.TrimSpace(reason) == "" {
-		return emitErr(ctx.stderr, 1, "invalid_command", "", "deleting a table requires --reason", "")
+		return emitErr(ctx.stderr, 1, "invalid_input", "", "deleting a table requires --reason", "")
 	}
 	if err := p.DeleteTable(name, reason); err != nil {
 		return emitErr(ctx.stderr, 1, "not_found", "", "check `dtrules table list`", err.Error())
@@ -404,7 +404,7 @@ func (ctx *tableCmdCtx) tableNote(rest []string) int {
 	_, _, _, rest = parseTableFlags(rest)
 	text := strings.TrimSpace(strings.Join(rest, " "))
 	if text == "" {
-		return emitErr(ctx.stderr, 1, "invalid_command", "", "table note \"<text>\"", "missing note text")
+		return emitErr(ctx.stderr, 1, "invalid_input", "", "table note \"<text>\"", "missing note text")
 	}
 	p, code := ctx.openProject()
 	if code != 0 {
@@ -555,7 +555,7 @@ func (ctx *tableCmdCtx) requireName(rest []string, usage string) (string, int) {
 			return a, 0
 		}
 	}
-	return "", emitErr(ctx.stderr, 1, "invalid_command", "", usage, "missing table name")
+	return "", emitErr(ctx.stderr, 1, "invalid_input", "", usage, "missing table name")
 }
 
 // decodeStdin reads stdin as JSON into v.
