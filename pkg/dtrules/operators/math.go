@@ -58,6 +58,18 @@ func init() {
 	Register("fabs", opFAbs)
 	Register("fnegate", opFNegate)
 
+	// Float comparisons. The polymorphic >, <, == operators compare via
+	// Object.Compare/Equals, but the EL compiler emits these typed variants
+	// for double-typed operands (mirroring the fp* and b* families in
+	// fixed.go and bigint.go). Both operands are coerced to double so a
+	// double field compares correctly against an integer literal.
+	Register("f>", opFGt)
+	Register("f>=", opFGe)
+	Register("f<", opFLt)
+	Register("f<=", opFLe)
+	Register("f==", opFEq)
+	Register("f!=", opFNe)
+
 	Register("roundto", opRoundTo)
 	Register("ceiling", opCeiling)
 	Alias("ceiling", "ceil")
@@ -248,6 +260,81 @@ func opFAdd(state dtrules.State) error {
 		return err
 	}
 	return state.DataPush(dtrules.GetRDoubleValue(aVal + bVal))
+}
+
+// popTwoDoubles pops two operands and coerces both to double: ( a b -- ) a, b.
+func popTwoDoubles(state dtrules.State) (a, b float64, err error) {
+	bObj, err := state.DataPop()
+	if err != nil {
+		return 0, 0, err
+	}
+	aObj, err := state.DataPop()
+	if err != nil {
+		return 0, 0, err
+	}
+	a, err = aObj.DoubleValue()
+	if err != nil {
+		return 0, 0, err
+	}
+	b, err = bObj.DoubleValue()
+	if err != nil {
+		return 0, 0, err
+	}
+	return a, b, nil
+}
+
+// opFGt compares two doubles for greater than: ( a b -- a>b )
+func opFGt(state dtrules.State) error {
+	a, b, err := popTwoDoubles(state)
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRBoolean(a > b))
+}
+
+// opFGe compares two doubles for greater than or equal: ( a b -- a>=b )
+func opFGe(state dtrules.State) error {
+	a, b, err := popTwoDoubles(state)
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRBoolean(a >= b))
+}
+
+// opFLt compares two doubles for less than: ( a b -- a<b )
+func opFLt(state dtrules.State) error {
+	a, b, err := popTwoDoubles(state)
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRBoolean(a < b))
+}
+
+// opFLe compares two doubles for less than or equal: ( a b -- a<=b )
+func opFLe(state dtrules.State) error {
+	a, b, err := popTwoDoubles(state)
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRBoolean(a <= b))
+}
+
+// opFEq compares two doubles for equality: ( a b -- a==b )
+func opFEq(state dtrules.State) error {
+	a, b, err := popTwoDoubles(state)
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRBoolean(a == b))
+}
+
+// opFNe compares two doubles for inequality: ( a b -- a!=b )
+func opFNe(state dtrules.State) error {
+	a, b, err := popTwoDoubles(state)
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRBoolean(a != b))
 }
 
 // opFSub subtracts two doubles: ( a b -- a-b )
