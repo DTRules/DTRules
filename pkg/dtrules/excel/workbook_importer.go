@@ -74,6 +74,15 @@ func (w *WorkbookImporter) SetELCompiler(c ELCompiler) {
 	w.dtImporter.SetELCompiler(c)
 }
 
+// SetSymbols seeds the inner DT importer with a project-wide EDD field→type
+// map so the EL compiler types operands correctly even when a decision table
+// lives in a different workbook than its EDD (multi-file projects). A workbook
+// that carries its own EDD still overrides these per-workbook during import;
+// DT-only workbooks fall back to this project-wide map.
+func (w *WorkbookImporter) SetSymbols(symbols map[string]string) {
+	w.dtImporter.SetSymbols(symbols)
+}
+
 // ImportWorkbook reads a single Excel file and extracts both DT and EDD sheets.
 // It detects sheet types automatically:
 // - EDD sheet: Sheet named "EDD" OR first row has headers "Entity, Attribute, Type, SubType..."
