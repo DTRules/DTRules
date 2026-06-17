@@ -398,7 +398,7 @@ func reviewButton(answered []qa) string {
 func uploadForm() string {
 	return `<form method="post" action="/upload" enctype="multipart/form-data" class="inline">` +
 		`<label class="ghost filebtn" title="Open a saved session to review and modify">` +
-		`Upload a saved session…` +
+		`Upload session` +
 		`<input type="file" name="file" accept=".xml,application/xml" onchange="this.form.submit()" hidden></label>` +
 		`<noscript> <button type="submit" class="ghost">Upload</button></noscript>` +
 		`</form>`
@@ -496,7 +496,7 @@ func (s *Server) writeResult(w http.ResponseWriter, answered []qa, res *Result, 
 		b.WriteString(reviewButton(answered))
 	}
 	if canDownload {
-		b.WriteString(fmt.Sprintf(`<a class="ghost" href="/data" download="%s">Download session (XML)</a>`, s.downloadName()))
+		b.WriteString(fmt.Sprintf(`<a class="ghost" href="/data" download="%s">Download session</a>`, s.downloadName()))
 	}
 	b.WriteString(`<a class="ghost" href="/">Start over</a></div>`)
 	if canDownload {
