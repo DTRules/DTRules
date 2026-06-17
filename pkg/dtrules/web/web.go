@@ -496,7 +496,7 @@ func (s *Server) writeResult(w http.ResponseWriter, answered []qa, res *Result, 
 	b.WriteString(`<div class="actions">`)
 	b.WriteString(uploadForm())
 	if canDownload {
-		b.WriteString(fmt.Sprintf(`<a class="ghost" href="/data" download="%s">Download session</a>`, s.downloadName()))
+		b.WriteString(fmt.Sprintf(`<a class="ghost" href="/data" download="%s" onclick="return dlSession(event,this)">Download session</a>`, s.downloadName()))
 	}
 	b.WriteString(`</div>`)
 	// Row 2: navigation — review and start over.
@@ -516,8 +516,37 @@ func (s *Server) page(w http.ResponseWriter, body string) {
 <title>%s</title><link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <style>%s</style></head><body>
 <header><span class="mark">%s</span><h1>%s</h1></header>
-<main>%s</main></body></html>`, title, pageCSS, faviconSVG, title, body)
+<main>%s</main><script>%s</script></body></html>`, title, pageCSS, faviconSVG, title, body, pageJS)
 }
+
+// pageJS intercepts the Download link to offer a Save dialog where the user can
+// rename the file. Chromium browsers get a native save picker (location + name)
+// via showSaveFilePicker; others fall back to a rename prompt; with no JS the
+// link is a plain download. No '%' or backticks (embedded in a raw template).
+const pageJS = `
+function dlSession(ev,a){
+ if(!window.fetch){return true;}
+ ev.preventDefault();
+ fetch(a.href).then(function(r){return r.blob();}).then(function(blob){
+  var name=a.getAttribute('download')||'session.xml';
+  if(window.showSaveFilePicker){
+   window.showSaveFilePicker({suggestedName:name,types:[{description:'DTRules session',accept:{'application/xml':['.xml']}}]})
+    .then(function(h){return h.createWritable();})
+    .then(function(w){return w.write(blob).then(function(){return w.close();});})
+    .catch(function(e){if(e&&e.name==='AbortError'){return;}dlFallback(blob,name);});
+  }else{dlFallback(blob,name);}
+ });
+ return false;
+}
+function dlFallback(blob,suggested){
+ var name=window.prompt('Save session as:',suggested);
+ if(name===null){return;}
+ if(!name){name=suggested;}
+ var u=URL.createObjectURL(blob);
+ var el=document.createElement('a');el.href=u;el.download=name;
+ document.body.appendChild(el);el.click();document.body.removeChild(el);URL.revokeObjectURL(u);
+}
+`
 
 const pageCSS = `
 :root{--brand:#0a7d5a;--brand-d:#086b4d;--ink:#1f2933;--muted:#6b7785;--line:#e3e8ee;--bg:#eef2f6}
