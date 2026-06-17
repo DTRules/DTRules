@@ -189,7 +189,7 @@ func TestServer_DataDownloadUpload(t *testing.T) {
 	r, _ := client.PostForm(ts.URL+"/answer", url.Values{"answer": {"58"}})   // -> result
 	b, _ := io.ReadAll(r.Body)
 	r.Body.Close()
-	if !strings.Contains(string(b), "Download data (XML)") {
+	if !strings.Contains(string(b), "Download session (XML)") {
 		t.Fatalf("result missing download link:\n%s", string(b))
 	}
 

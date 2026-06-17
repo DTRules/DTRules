@@ -221,13 +221,18 @@ func (s *Server) serveData(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	w.Header().Set("Content-Type", "application/xml")
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, s.downloadName()))
+	_, _ = io.WriteString(w, us.dataXML)
+}
+
+// downloadName is the default filename offered when saving a session.
+func (s *Server) downloadName() string {
 	name := strings.ToLower(strings.ReplaceAll(s.title, " ", "-"))
 	if name == "" {
 		name = "dtrules"
 	}
-	w.Header().Set("Content-Type", "application/xml")
-	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s-session.xml"`, name))
-	_, _ = io.WriteString(w, us.dataXML)
+	return name + "-session.xml"
 }
 
 // handleUpload accepts a previously downloaded data file and starts a fresh
@@ -388,12 +393,15 @@ func reviewButton(answered []qa) string {
 		`<button type="submit" class="ghost">Review / edit answers</button></form>`
 }
 
-// uploadForm renders the "load a saved session" file picker.
+// uploadForm renders a single button that opens a file dialog and submits as
+// soon as a file is chosen — so "upload" is one click, then pick a file.
 func uploadForm() string {
-	return `<form method="post" action="/upload" enctype="multipart/form-data" class="upload">` +
-		`<label>Have a saved session? Upload it to review &amp; modify:</label>` +
-		`<input type="file" name="file" accept=".xml,application/xml"> ` +
-		`<button type="submit" class="ghost">Upload</button></form>`
+	return `<form method="post" action="/upload" enctype="multipart/form-data" class="inline">` +
+		`<label class="ghost filebtn" title="Open a saved session to review and modify">` +
+		`Upload a saved session…` +
+		`<input type="file" name="file" accept=".xml,application/xml" onchange="this.form.submit()" hidden></label>` +
+		`<noscript> <button type="submit" class="ghost">Upload</button></noscript>` +
+		`</form>`
 }
 
 func (s *Server) writeQuestion(w http.ResponseWriter, answered []qa, req *collect.Request) {
@@ -488,7 +496,7 @@ func (s *Server) writeResult(w http.ResponseWriter, answered []qa, res *Result, 
 		b.WriteString(reviewButton(answered))
 	}
 	if canDownload {
-		b.WriteString(`<a class="ghost" href="/data" download>Download data (XML)</a>`)
+		b.WriteString(fmt.Sprintf(`<a class="ghost" href="/data" download="%s">Download session (XML)</a>`, s.downloadName()))
 	}
 	b.WriteString(`<a class="ghost" href="/">Start over</a></div>`)
 	if canDownload {
@@ -536,17 +544,13 @@ input:focus,select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0
 .unit{margin-left:.5rem;color:var(--muted)}
 .hint{color:var(--muted);font-size:.9rem;margin:0 0 .5rem}
 .actions{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-top:.9rem}
-button,a.ghost{font-size:.95rem;padding:.5rem .9rem;border-radius:8px;cursor:pointer;text-decoration:none;border:1px solid transparent}
+button,a.ghost,label.ghost{font-size:.95rem;padding:.5rem .9rem;border-radius:8px;cursor:pointer;
+text-decoration:none;border:1px solid transparent;display:inline-block;line-height:1.2}
 button.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
 button.primary:hover{background:var(--brand-d)}
-button.ghost,a.ghost{background:#fff;color:var(--brand);border-color:#cfe0d8}
-button.ghost:hover,a.ghost:hover{background:#f1f8f5}
+button.ghost,a.ghost,label.ghost{background:#fff;color:var(--brand);border-color:#cfe0d8}
+button.ghost:hover,a.ghost:hover,label.ghost:hover{background:#f1f8f5}
 .inline{display:inline}
-.upload{margin-top:1rem;padding:.8rem 1rem;background:#fff;border:1px dashed #c7d0da;border-radius:10px;
-display:flex;flex-wrap:wrap;align-items:center;gap:.5rem}
-.upload label{color:var(--muted);font-size:.9rem;width:100%}
-.upload input[type=file]{min-width:0;border:none;padding:0}
-a.ghost[download]{border-color:#cfe0d8}
 table{border-collapse:collapse;width:100%%}
 th{text-align:left;padding:.3rem 1rem .3rem 0;color:var(--muted);font-weight:600;vertical-align:top}
 td{padding:.3rem 0}
