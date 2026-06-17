@@ -1,255 +1,465 @@
 # DTRules
 
-A high-performance Decision Table Rules Engine written in **Go**.
+A high-performance **Decision Table Rules Engine** written in **Go**.
 
-## Overview
+DTRules lets business analysts and policy experts express complex logic as
+**decision tables** — a tabular form of business rules that is readable by
+non-programmers and executable by the engine. Rules are authored in Excel
+(or through a programmatic API), compiled to a compact postfix bytecode, and
+run on a fast stack-based virtual machine. The same rule set can run as a
+batch job, an interactive command-line interview, or a self-contained web app.
 
-DTRules is a production-ready rules engine that allows business analysts and policy experts to define complex business logic using **Decision Tables** in Excel spreadsheets. Decision tables provide a tabular representation of business rules that can be understood by both policy experts and developers.
+- **Author in Excel or via an API** — a spreadsheet is the human-friendly
+  surface; a JSON authoring API is the programmatic one.
+- **One compiled artifact, many front-ends** — batch, CLI interview, or web.
+- **Self-contained, embeddable** — compile a rule set into a single Go binary
+  with no external files at runtime.
+- **Fixed-point decimals** — a 256-bit `fixed` type for token, staking, and
+  blockchain math with no float drift (`dtrules docs fixed`).
+- **Embedded documentation** — `dtrules docs` ships a full manual in the binary
+  for humans and AI agents alike.
 
-### Key Features
+---
 
-- **Excel-based Rule Definition** - Define rules in familiar spreadsheet format
-- **Embeddable SDK** - Compile rules into your Go binary
-- **High Performance** - 130x faster operator lookup, 24x faster arithmetic vs Java
-- **CLI Tool** - Validate, test, and execute rules from command line
-- **Bidirectional Sync** - Excel ↔ XML synchronization with change tracking
-- **Fixed-Point Decimals** - 256-bit `fixed` type for token, staking, and blockchain math without float drift (`dtrules docs fixed`)
-- **Embedded Documentation** - `dtrules docs` for AI and developers
+## Table of contents
 
-### Production Use
+- [Install](#install)
+- [Quick start](#quick-start)
+- [Core concepts](#core-concepts)
+- [The authoring contract](#the-authoring-contract)
+- [The `dtrules` CLI](#the-dtrules-cli)
+- [Interactive data collection](#interactive-data-collection)
+- [Embedding in a Go application](#embedding-in-a-go-application)
+- [Project structure](#project-structure)
+- [Sample projects](#sample-projects)
+- [Expression Language (EL)](#expression-language-el)
+- [Development](#development)
+- [Documentation](#documentation)
+- [Performance](#performance)
+- [Requirements & license](#requirements--license)
 
-DTRules has been used in production systems including:
-- State welfare/assistance programs (Texas TIERS, Ohio OFAST)
-- Insurance eligibility determination systems
-- Commercial business logic applications
+---
 
 ## Install
 
-**Option 1 — go install (requires Go 1.21+):**
+**Option 1 — `go install`** (requires Go 1.24+):
 
 ```bash
 go install github.com/DTRules/DTRules/cmd/dtrules@latest
 ```
 
-**Option 2 — Prebuilt binaries:**
-
-Download from [GitHub Releases](https://github.com/DTRules/DTRules/releases) for linux-amd64, linux-arm64, darwin-amd64, darwin-arm64, and windows-amd64.
-
-**Verify install:**
-
-```bash
-dtrules version && dtrules docs
-```
-
-<!-- TODO: Homebrew tap -->
-
-## Quick Start
-
-### Build from Source
+**Option 2 — build from source:**
 
 ```bash
 git clone https://github.com/DTRules/DTRules.git
 cd DTRules
-make build
+make build          # produces ./build/dtrules
+make install        # installs to your GOBIN
 ```
 
-### Using the CLI
+**Option 3 — prebuilt binaries** from
+[GitHub Releases](https://github.com/DTRules/DTRules/releases)
+(linux-amd64/arm64, darwin-amd64/arm64, windows-amd64).
+
+Verify:
 
 ```bash
-# List decision tables
-dtrules -rules ./sampleprojects/CHIP/xml -list
-
-# Execute rules
-dtrules -rules ./sampleprojects/CHIP/xml -entry Compute_Eligibility
-
-# View embedded documentation
-dtrules docs                     # List topics
-dtrules docs decision-tables     # How to write decision tables
-dtrules docs operators           # All operators
-dtrules docs sdk                 # Embedding in applications
-
-# Sync Excel and XML
-dtrules sync status              # Show sync status
-dtrules sync import              # Import Excel → XML
-dtrules sync export              # Export XML → Excel
+dtrules version
+dtrules docs            # browse the embedded manual
 ```
 
-### Embedding in Applications
+---
+
+## Quick start
+
+### Run the interactive demo
+
+The fastest way to see DTRules in action is the embedded **SinusitisTherapy**
+web demo — a single binary that carries its rules inside it (`//go:embed`) and
+serves them as an interactive interview:
+
+```bash
+go run ./cmd/sinusitis-web
+```
+
+It picks a free port, opens your browser, and asks one question at a time
+(diagnosis, age, weight, plasma creatinine, penicillin allergy). The rules
+compute the recommended antibiotic, dose, renal adjustment, drug-interaction
+warnings, and a plain-English rationale. Your answers stack on the page as you
+go, and a **Review / edit answers** button lets you change any value and re-run.
+
+### Run a project from the command line
+
+```bash
+# Batch: load input data via the project mapping, run a table, print the result
+dtrules run sampleprojects/SinusitisTherapy \
+  --entry Determine_Therapy \
+  --input sampleprojects/SinusitisTherapy/testfiles/TestScenarios/ChallengeExample/input.xml
+
+# Interactive: prompt for any input not supplied
+dtrules run <project> --entry Determine_Therapy --interactive
+
+# Web: serve the same interview in a browser
+dtrules run <project> --entry Determine_Therapy --web
+```
+
+### Edit and build
+
+```bash
+dtrules init MyRules            # scaffold a new project
+# ...edit MyRules in Excel...
+dtrules build MyRules           # Excel → XML + compile to postfix
+dtrules verify MyRules          # CI gate: Excel ↔ XML consistency + self-contained refs
+```
+
+---
+
+## Core concepts
+
+| Term | What it is |
+|------|------------|
+| **Decision table** | A table of *conditions* (rows) and *columns* (rules). When a column's condition pattern matches, its *actions* fire. The primary unit of logic. |
+| **EDD** (Entity Data Dictionary) | The typed data model: entities and their fields (type, default, access, and — new — collection metadata). |
+| **EL** (Expression Language) | The readable language conditions and actions are written in, e.g. `patient.age >= 18`, `set result.dose = 200`. The **only** language you author rules in. |
+| **postfix** | The compiled bytecode EL is translated to. A generated artifact — **never** hand-written. |
+| **VM** | A stack-based virtual machine that executes postfix against a session's entities. |
+| **Mapping** | Optional XML that reconciles foreign input tag names to EDD field names when loading data. |
+
+A rule set is a directory of XML files (`*_edd.xml`, `*_dt.xml`, optional
+`*_map.xml`) plus the Excel workbooks they were authored in. `dtrules build`
+extracts EL from Excel into XML and compiles it to postfix; the runtime
+consumes the compiled XML.
+
+---
+
+## The authoring contract
+
+> **Excel is the system of record for the DSL. `postfix` is a compiled
+> artifact, never authored. Every tool that writes XML writes the same DSL back
+> to Excel in the same operation.**
+
+This is the central invariant of the project. There are exactly two ways to
+change a rule:
+
+1. **Edit Excel, then `dtrules build`** — extracts the EL into XML and compiles
+   it. Excel is the input; XML is generated.
+2. **Call the authoring API** (`dtrules table` / `dtrules edd`, or the MCP write
+   tools) — it writes the XML DSL, compiles postfix, **and** updates Excel in the
+   same operation. If the project has no Excel yet, it bootstraps one.
+
+Hard rules:
+
+- **Never hand-edit XML.** It is generated.
+- **Never hand-write `postfix`.** It is compiled output.
+- `dtrules verify` is the drift gate: it fails when rule XML has no Excel source,
+  or when a table references an undefined table, field, or operator.
+
+Full specification: [`docs/authoring-contract.md`](docs/authoring-contract.md)
+or `dtrules docs authoring-contract`.
+
+---
+
+## The `dtrules` CLI
+
+A single self-contained binary covering the whole authoring-to-execution
+workflow. Run any command with no arguments for its usage, or `dtrules docs cli`
+for a guided tour.
+
+| Command | Purpose |
+|---------|---------|
+| `dtrules init` | Scaffold a new project directory |
+| `dtrules build` | Extract DSL from Excel + compile postfix (the human path) |
+| `dtrules run` | Run a decision table; `--interactive` / `--web` collect missing inputs |
+| `dtrules table` | JSON-first per-table read/write (the programmatic path) |
+| `dtrules edd` | JSON-first EDD read/write (the programmatic path) |
+| `dtrules sync` | Fine-grained Excel/XML sync (`status`/`check`/`import`/`export`/`auto`) |
+| `dtrules validate` | Check project structure + EL compliance |
+| `dtrules verify` | CI gate: Excel↔XML consistency + self-contained references |
+| `dtrules review` | Project-wide review (errors + advisory warnings) |
+| `dtrules docs` | The embedded manual |
+| `dtrules mcp` | MCP server over stdio (for AI agents) |
+| `dtrules version` | Version, commit, build date |
+
+### `dtrules run`
+
+```
+dtrules run [path] --entry <table> [options]
+
+  --entry <table>      Decision table to run (required)
+  --input <file.xml>   Input data loaded via the project mapping
+  --interactive, -i    Prompt for any reached collect field not supplied
+  --web                Serve an interactive web interview instead of a CLI run
+  --port <n>           Port for --web (default: an unused port chosen by the OS)
+  --data <file.xml>    Load canonical (mapping-free) data, authoritative
+  --review <file.xml>  Load canonical data for re-interview (pre-filled, asked)
+  --save <file.xml>    Save the collected data as canonical XML after the run
+```
+
+---
+
+## Interactive data collection
+
+DTRules can drive a rule set as an **interview**: instead of requiring all input
+up front, it runs the rules and, each time it reaches a field marked `collect`
+that hasn't been supplied, it asks for the value — on the command line or in a
+web form. Fields not marked `collect` use their EDD defaults. Batch execution is
+unchanged and pays no overhead.
+
+### Marking a field collectable
+
+Collection metadata lives on the EDD field and round-trips through Excel like
+everything else. Set it via the authoring API:
+
+```bash
+dtrules edd patch --project MyRules <<'JSON'
+{ "op": "update-field", "entity": "patient",
+  "field": {
+    "name": "pcr", "type": "double", "access": "rw", "default": "0.0",
+    "collect": "true",
+    "question_text": "Plasma creatinine (mg/dL)?",
+    "question_type": "number",
+    "question_ref_low": "0.7", "question_ref_high": "1.3", "question_units": "mg/dL"
+  }
+}
+JSON
+```
+
+Question types: `multiple_choice` (with `options`), `ascii`, `number`, `date`.
+
+**Reference ranges (lab-report style).** A `number` question may carry a
+reference range (`question_ref_low` / `question_ref_high` / `question_units`).
+Following lab convention this is *guidance, not validation*: the range is shown
+when asking, and the entered value is flagged **High/Low** — but any value is
+accepted, because out-of-range results are usually the important ones.
+
+### The closed loop
+
+The collected answers can be saved as **canonical data XML** (mapping-free,
+1:1 with the EDD) and replayed or revised:
+
+```bash
+# Collect interactively and save the dataset
+dtrules run MyRules --entry T --interactive --save case.xml
+
+# Replay it as a batch job — identical result, no prompts
+dtrules run MyRules --entry T --data case.xml
+
+# Re-open it for review: every answer is re-asked, pre-filled, so you can edit
+dtrules run MyRules --entry T --review case.xml --interactive
+```
+
+`--data` loads values **authoritatively** (marked collected → not re-asked);
+`--review` loads them as **defaults** (re-asked, pre-filled). The web interview
+exposes the same review/modify loop with a button.
+
+### How it works
+
+The engine adds a per-instance *collected / defaulted* bit to each entity field
+and a resolver hook at the field-read chokepoint. A front-end (CLI prompt, web
+form, or a test stub) implements a small `Asker` interface; the web front-end
+runs each browser session's execution in its own goroutine that blocks on a
+channel fed by HTTP form posts — so the goroutine *is* the continuation, with no
+re-execution. With no resolver attached, the read path behaves exactly as
+before.
+
+See `cmd/sinusitis-web` for the embedded web demo and `cmd/dtrules/run_cmd.go`
+for the CLI wiring.
+
+---
+
+## Embedding in a Go application
+
+A compiled rule set is just XML; you can `//go:embed` it and ship one binary
+with no external files. The `cmd/sinusitis-web` command is a complete worked
+example — it embeds a rule set and serves it as a web interview:
 
 ```go
-package main
+import "github.com/DTRules/DTRules/pkg/dtrules/web"
 
-import (
-    "embed"
-    "log"
-    "github.com/DTRules/DTRules/pkg/dtrules/sdk"
-)
-
-//go:embed rules/*.xml
+//go:embed rules/xml
 var rulesFS embed.FS
 
-func main() {
-    // Load rules from embedded filesystem
-    engine, err := sdk.NewEngine("MyRules", sdk.WithFS(rulesFS, "rules"))
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    // Execute decision table
-    ctx := engine.NewContext()
-    ctx.SetEntity("input", "income", 50000)
-    ctx.SetEntity("input", "age", 35)
-
-    result, err := engine.Execute("Calculate_Eligibility", ctx)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    eligible := result.GetBool("eligible")
-}
+// extract rulesFS to a temp dir, then:
+web.ServeDir(addr, xmlDir, web.Options{Entry: "Determine_Therapy", Title: "My App"})
 ```
 
-## Project Structure
+For programmatic (non-web) execution, the pipeline is:
+
+```go
+rs := session.NewRuleSet("MyRules")
+rs.LoadFromDirectory(xmlDir)                 // load compiled EDD + decision tables
+sess, _ := rs.NewSession()
+
+m := mapping.NewMapping(sess)                // optional: set up entities + load input
+m.LoadMapping(mapFile); m.Initialize(); m.LoadData(inputFile)
+
+state := sess.GetState()
+dt, _ := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Determine_Therapy"))
+dt.Execute(state)
+
+result, _ := state.FindEntity(dtrules.GetRName("result"))
+```
+
+> A higher-level `pkg/dtrules/sdk` package that wraps this glue into a one-call
+> `Engine` API is in progress ([#757](https://github.com/DTRules/DTRules/issues/757)).
+> Until it lands, both CLI binaries (`cmd/dtrules`, `cmd/api`) wire the pipeline
+> directly, as shown above. See `dtrules docs embedding`.
+
+---
+
+## Project structure
 
 ```
 DTRules/
 ├── cmd/
-│   ├── dtrules/        # CLI tool
-│   ├── api/            # REST API server for UI
-│   └── ...             # Other commands
+│   ├── dtrules/         # the main CLI
+│   ├── api/             # HTTP API server (for the UI)
+│   └── sinusitis-web/   # embedded interactive web demo
 ├── pkg/dtrules/
-│   ├── sdk/            # Embeddable SDK
-│   ├── sync/           # Excel/XML synchronization
-│   ├── excel/          # Excel import/export
-│   ├── session/        # Rule execution sessions
-│   ├── operators/      # 233+ built-in operators
-│   └── ...             # Core engine packages
-├── examples/
-│   └── embedded-app/   # Example embedded application
-├── sampleprojects/     # Example rule sets
-│   ├── CHIP/           # Health insurance eligibility
-│   ├── TaxReturn/      # Tax calculation
-│   └── ...
-├── ui/                 # React-based visual UI
-├── website/            # DTRules.com website
-└── legacy/             # Java implementation (archived)
+│   ├── authoring/       # typed authoring view + Project/EDD API
+│   ├── collect/         # interactive-collection resolver bridge
+│   ├── compiler/el/     # ANTLR-based EL → postfix compiler
+│   ├── datafile/        # canonical (mapping-free) data XML reader/writer
+│   ├── decisiontable/   # decision-table model + advisory pass
+│   ├── entity/          # entities, the EDD runtime model
+│   ├── excel/           # Excel ⇆ XML import/export
+│   ├── interpreter/     # stack-based VM
+│   ├── loader/          # XML loaders
+│   ├── mapping/         # input-data mapping
+│   ├── operators/       # operator registry (230+ operators)
+│   ├── runtime/         # bytecode executors
+│   ├── session/         # rule sets + execution sessions
+│   ├── sync/            # Excel/XML sync + manifest
+│   ├── web/             # interactive web interview server
+│   └── version/         # build/version info
+├── sampleprojects/      # example rule sets
+├── ui/                  # TypeScript/React visual UI
+├── docs/                # in-repo documentation
+└── legacy/              # archived Java/ASM implementations
 ```
 
-## Documentation
+---
 
-### Embedded (in binary)
+## Sample projects
 
-```bash
-dtrules docs                     # List all topics
-dtrules docs xml-format          # XML file format specification
-dtrules docs decision-tables     # How to write decision tables
-dtrules docs operators           # All operators with examples
-dtrules docs sdk                 # Embedding in applications
-dtrules docs examples            # Complete working examples
-dtrules docs workflow            # Development workflow
-```
-
-### Online
-
-- [DTRules.com](https://dtrules.com) - Official website
-- [UI Quick Start](QUICKSTART-UI.md) - Visual UI setup
-
-### In Repository
-
-- [EL Reference](docs/el-reference.md) - Expression Language syntax
-- [XML Format](docs/decision-table-xml-format.md) - Decision table XML structure
-- [EL Compiler](pkg/dtrules/compiler/el/README.md) - How EL expressions are compiled
-
-## Sample Projects
+`SinusitisTherapy` is the current flagship sample and the basis of the web demo.
+Older samples remain for reference; some predate the current authoring contract.
 
 | Project | Description |
 |---------|-------------|
-| **CHIP** | Health insurance eligibility determination |
-| **TaxReturn** | State income tax calculation (all 50 states) |
-| **StateTax** | Corporate tax calculation |
-| **KidAid** | Child assistance program eligibility |
-| **TestProject** | Minimal starter template |
+| **SinusitisTherapy** | Antibiotic selection, dosing, renal adjustment, and interaction checks — the interactive-collection demo |
+| **CHIP** / **ChipApp** | Health-insurance eligibility determination |
+| **KidAid** / **KidAid_Application** | Child-assistance program eligibility |
+| **CorporateTax** / **StateTax** | Tax calculation |
+| **DTEligibility**, **Poker** | Additional examples |
 
-## Visual UI
-
-A modern web-based UI for editing decision tables and testing rules:
-
-```bash
-# Start the Go API backend
-go run ./cmd/api
-
-# Start the React frontend (in another terminal)
-cd ui
-npm install && npm run dev
-```
-
-Open http://localhost:5173 in your browser.
-
-## Performance
-
-Key optimizations achieve significant speedups vs Java:
-
-| Operation | Speedup |
-|-----------|---------|
-| Operator Lookup | **130x** |
-| Integer Arithmetic | **24x** |
-| String Creation | **3.7x** |
+---
 
 ## Expression Language (EL)
 
-Decision tables use **EL (Expression Language)** for conditions and actions. EL is the only language to author rules in — write all conditions and actions in EL.
-
-### EL Syntax Examples
+Conditions and actions are written in EL — the only language you author rules
+in. EL is compiled to postfix at build time, so syntax errors are caught before
+deployment, not at runtime.
 
 **Conditions:**
+
 ```
-taxpayer.filing_status == "SINGLE"
-taxpayer.income > 50000.0
+patient.age >= 18
+patient.diagnosis is equal to ignore case "Acute Sinusitis"
 result.has_nexus is true
 ```
 
 **Actions:**
+
 ```
-set result.tax_liability = income * rate
-set taxpayer.exemptions = taxpayer.exemptions + 1
-perform Calculate_Deductions
+set result.dose_mg = 200
+add "Monitor INR closely" to result.warnings
+perform Determine_Creatinine_Clearance
 ```
 
-### Why EL is Required
+See `dtrules docs el`, `dtrules docs operators`, and
+[`docs/el-reference.md`](docs/el-reference.md).
 
-- **Readable** - Business analysts can understand and modify rules
-- **Validated** - Syntax errors caught at compile time, not runtime
-- **Consistent** - Eliminates hand-coded expression errors
+---
 
-See [EL Reference](docs/el-reference.md) for complete syntax and [XML Format](docs/decision-table-xml-format.md) for file structure.
+## Development
 
-## Development Workflow
+```bash
+# Build the CLI
+make build                       # -> ./build/dtrules
 
-### Excel-first (Business Analysts)
+# Run the full gate BEFORE declaring a task done:
+make check                       # go build ./... + go vet + the test suite
 
-1. Edit rules in Excel spreadsheets
-2. Run `dtrules sync import` to generate XML with EL
-3. Test with `dtrules -rules ./xml -test ./testfiles`
+# Run tests
+go test ./...
 
-### XML-first (Developers/AI)
+# Cross-compile
+make build-all                   # linux, darwin, windows
+```
 
-1. Write EL expressions in XML files
-2. Test with `dtrules -rules ./xml -test ./testfiles`
-3. Run `dtrules sync export` to update Excel
+`make check` is the authoritative gate — it runs a full-module build, `go vet`,
+and the scoped test suite. A change is only done when `check` passes.
 
-## Requirements
+**Workflows:**
 
-- **Go 1.21+**
+- **Excel-first (analysts):** edit the workbook → `dtrules build` → `dtrules verify`.
+- **Programmatic (developers / AI):** `dtrules table put` / `dtrules edd patch`
+  (write-through to Excel) → `dtrules verify`.
 
-## Legacy Java Implementation
+A React-based visual UI is available for editing tables and testing rules:
 
-The original Java implementation is archived in `legacy/java/`. It remains functional but is no longer the primary implementation.
+```bash
+go run ./cmd/api          # backend
+cd ui && npm install && npm run dev   # frontend at http://localhost:5173
+```
 
-## License
+---
 
-Apache License, Version 2.0
+## Documentation
 
-## Links
+The binary ships a complete manual — useful for humans and required reading for
+AI agents driving the tools:
 
-- Website: https://dtrules.com
-- GitHub: https://github.com/DTRules/DTRules
+```bash
+dtrules docs                     # list all topics
+dtrules docs authoring-contract  # the Excel/postfix contract (read this first)
+dtrules docs cli                 # guided tour of every subcommand
+dtrules docs decision-tables     # how to write decision tables
+dtrules docs el                  # the Expression Language
+dtrules docs operators           # every operator with examples
+dtrules docs edd                 # the Entity Data Dictionary
+dtrules docs embedding           # embedding rules in a Go binary
+dtrules docs fixed               # the 256-bit fixed-point type
+dtrules docs workflow            # the build pipeline
+```
+
+In-repo: [`docs/`](docs/), [`CHANGELOG.md`](CHANGELOG.md), and the EL compiler
+notes in [`pkg/dtrules/compiler/el/`](pkg/dtrules/compiler/el/).
+
+---
+
+## Performance
+
+The Go engine is substantially faster than the original Java implementation on
+the hot paths:
+
+| Operation | Speedup vs Java |
+|-----------|-----------------|
+| Operator lookup | ~130× |
+| Integer arithmetic | ~24× |
+| String creation | ~3.7× |
+
+---
+
+## Requirements & license
+
+- **Go 1.24+**
+
+Licensed under the **Apache License, Version 2.0**.
+
+The original Java implementation is archived under `legacy/` and is no longer the
+primary implementation.
+
+**Links:** [dtrules.com](https://dtrules.com) ·
+[GitHub](https://github.com/DTRules/DTRules)
