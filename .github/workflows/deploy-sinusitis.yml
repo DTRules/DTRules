@@ -1,0 +1,45 @@
+# Deploy the SinusitisTherapy interactive web demo to Fly.io.
+#
+# One-time setup:
+#  1. Install Fly CLI:   curl -L https://fly.io/install.sh | sh
+#  2. Login:             fly auth login
+#  3. Create the app:    fly launch --no-deploy --config fly.sinusitis.toml --name dtrules-sinusitis
+#  4. First deploy:      fly deploy --config fly.sinusitis.toml
+#  5. (CI) Reuse the existing FLY_API_TOKEN secret, or mint an org token:
+#                        fly tokens create deploy -x 999999h
+#  6. Enable CI deploys: set repo variable DEPLOY_SINUSITIS = true
+#
+# The app is scale-to-zero (min_machines_running = 0), so it costs nothing
+# when idle and cold-starts on the first request.
+
+name: Deploy Sinusitis demo to Fly.io
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'cmd/sinusitis-web/**'
+      - 'pkg/dtrules/web/**'
+      - 'pkg/dtrules/interview/**'
+      - 'pkg/dtrules/collect/**'
+      - 'pkg/dtrules/datafile/**'
+      - 'pkg/dtrules/entity/**'
+      - 'pkg/dtrules/interpreter/**'
+      - 'Dockerfile.sinusitis'
+      - 'fly.sinusitis.toml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy Sinusitis demo
+    runs-on: ubuntu-latest
+    # Only run when explicitly enabled (repo variable DEPLOY_SINUSITIS=true).
+    if: ${{ vars.DEPLOY_SINUSITIS == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - run: flyctl deploy --remote-only --config fly.sinusitis.toml
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

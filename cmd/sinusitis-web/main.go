@@ -34,7 +34,16 @@ var rulesFS embed.FS
 
 func main() {
 	addr := flag.String("addr", ":0", "listen address (\":0\" picks an unused port)")
+	noOpen := flag.Bool("no-open", false, "do not open a browser (for servers/containers)")
 	flag.Parse()
+
+	// Container/PaaS convention: honor $PORT when no explicit address is given.
+	listen := *addr
+	if listen == ":0" {
+		if p := os.Getenv("PORT"); p != "" {
+			listen = ":" + p
+		}
+	}
 
 	dir, err := extractRules()
 	if err != nil {
@@ -43,8 +52,10 @@ func main() {
 	}
 	defer os.RemoveAll(dir)
 
-	fmt.Println("Sinusitis Therapy web demo — opening your browser...")
-	if err := web.ServeDir(*addr, dir, web.Options{Entry: "Determine_Therapy", Title: "Sinusitis Therapy"}); err != nil {
+	if !*noOpen {
+		fmt.Println("Sinusitis Therapy web demo — opening your browser...")
+	}
+	if err := web.ServeDir(listen, dir, web.Options{Entry: "Determine_Therapy", Title: "Sinusitis Therapy", NoOpen: *noOpen}); err != nil {
 		fmt.Fprintf(os.Stderr, "serve: %v\n", err)
 		os.Exit(1)
 	}

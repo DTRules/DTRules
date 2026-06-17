@@ -1,0 +1,22 @@
+# Build stage
+FROM golang:1.24-alpine AS builder
+
+WORKDIR /app
+
+# Cache dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Build the self-contained demo (rules are embedded via //go:embed).
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /sinusitis-web ./cmd/sinusitis-web/
+
+# Runtime stage
+FROM alpine:latest
+
+WORKDIR /app
+COPY --from=builder /sinusitis-web /app/sinusitis-web
+
+# No xlsx/xml on disk — the rule set is baked into the binary.
+EXPOSE 8080
+CMD ["/app/sinusitis-web", "--addr", ":8080", "--no-open"]

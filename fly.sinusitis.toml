@@ -1,0 +1,23 @@
+# fly.toml for the SinusitisTherapy interactive web demo (cmd/sinusitis-web).
+#
+# Deploy with:  flyctl deploy --config fly.sinusitis.toml
+# See https://fly.io/docs/reference/configuration/
+
+app = 'dtrules-sinusitis'
+primary_region = 'dfw'
+
+[build]
+  dockerfile = 'Dockerfile.sinusitis'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
