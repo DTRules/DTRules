@@ -109,6 +109,23 @@ type DTState struct {
 	// Outside any loop the stack is empty and IsFirstLoopPass returns
 	// false, since "first pass of nothing" has no defensible meaning.
 	loopIterations []int
+
+	// collector, when non-nil, enables interactive data collection (#852):
+	// it is consulted at each field read in Find. nil means batch execution
+	// — Find is unchanged and adds at most one nil-check.
+	collector dtrules.Collector
+}
+
+// SetCollector attaches (or clears, with nil) the interactive data collector.
+// With a collector attached, a read of a not-yet-collected `collect` field
+// blocks while the collector obtains its value.
+func (s *DTState) SetCollector(c dtrules.Collector) {
+	s.collector = c
+}
+
+// Collector returns the attached collector (nil in batch execution).
+func (s *DTState) Collector() dtrules.Collector {
+	return s.collector
 }
 
 // PushLoopFrame pushes a fresh iteration counter onto the loop stack.
@@ -538,6 +555,14 @@ func (s *DTState) Find(name *dtrules.RName) (dtrules.Object, error) {
 	attrName := dtrules.GetRName(name.GetName())
 	if attrName == nil {
 		return nil, dtrules.UndefinedError("GetValue", "invalid attribute name: "+name.GetName())
+	}
+	// Interactive collection (#852): before reading the value, give the
+	// collector a chance to obtain a not-yet-collected `collect` field. A
+	// nil collector (batch) skips this entirely — at most one nil-check.
+	if s.collector != nil {
+		if err := s.collector.MaybeCollect(entity, attrName); err != nil {
+			return nil, err
+		}
 	}
 	return entity.Get(attrName)
 }

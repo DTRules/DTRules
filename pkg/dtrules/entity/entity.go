@@ -38,6 +38,51 @@ type REntity struct {
 	comment    string
 	xlsFile    string // Export grouping for EDD spreadsheets (legacy)
 	filePath   string // Canonical file path for Excel generation
+
+	// collected tracks, per attribute index, whether a `collect` field's
+	// value is authoritative (true) vs still defaulted (false) — the
+	// per-instance state for interactive collection (#852). nil means
+	// tracking is off (batch execution): zero overhead, behaves as today.
+	collected []bool
+}
+
+// EnableCollectTracking turns on per-instance collected/defaulted tracking
+// for interactive collection (#852). It is a no-op in batch execution (no
+// resolver attached), so the values slice and read path stay untouched.
+func (e *REntity) EnableCollectTracking() {
+	if e.collected == nil {
+		e.collected = make([]bool, len(e.values))
+	} else if len(e.collected) < len(e.values) {
+		grown := make([]bool, len(e.values))
+		copy(grown, e.collected)
+		e.collected = grown
+	}
+}
+
+// IsCollected reports whether the named attribute has been collected
+// (authoritative). False when tracking is off or the field is still
+// defaulted.
+func (e *REntity) IsCollected(name *dtrules.RName) bool {
+	if e.collected == nil {
+		return false
+	}
+	entry := e.attributes[name]
+	if entry == nil || entry.Index >= len(e.collected) {
+		return false
+	}
+	return e.collected[entry.Index]
+}
+
+// MarkCollected marks the named attribute as collected (authoritative).
+// No-op when tracking is off.
+func (e *REntity) MarkCollected(name *dtrules.RName) {
+	if e.collected == nil {
+		return
+	}
+	entry := e.attributes[name]
+	if entry != nil && entry.Index < len(e.collected) {
+		e.collected[entry.Index] = true
+	}
 }
 
 // NewREntity creates a new reference entity (id=0 for references).
@@ -90,6 +135,13 @@ func CloneEntity(readonly bool, source *REntity, session dtrules.Session) (*REnt
 			}
 			e.values[i] = cloned
 		}
+	}
+
+	// A cloned instance starts fully defaulted: its collect fields must be
+	// (re-)collected. If the template tracks collection, give the clone a
+	// fresh all-false slice rather than copying the template's state (#852).
+	if source.collected != nil {
+		e.collected = make([]bool, len(e.values))
 	}
 
 	return e, nil
@@ -318,6 +370,12 @@ func (e *REntity) Put(name *dtrules.RName, value dtrules.Object) error {
 	}
 
 	e.values[entry.Index] = value
+	// A write makes a collected field authoritative, so a later read of it
+	// during interactive collection won't re-ask. No-op in batch (tracking
+	// off): one nil-check.
+	if e.collected != nil && entry.Index < len(e.collected) && entry.Collect {
+		e.collected[entry.Index] = true
+	}
 	return nil
 }
 
@@ -349,6 +407,9 @@ func (e *REntity) AddAttribute(
 			e.values = append(e.values, dtrules.GetRNull())
 		} else {
 			e.values = append(e.values, defaultValue)
+		}
+		if e.collected != nil {
+			e.collected = append(e.collected, false)
 		}
 		entry := NewEntityEntry(
 			e,
