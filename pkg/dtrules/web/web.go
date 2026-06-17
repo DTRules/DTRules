@@ -37,6 +37,7 @@ type Result struct {
 	Fields   []Field           // scalar outputs
 	Lists    []List            // array outputs (warnings, rationale, ...)
 	Readings []collect.Reading // collected range-bearing values, lab-report style
+	DataXML  string            // canonical data collected this run (for review/edit)
 	Error    string
 }
 
@@ -51,8 +52,10 @@ type List struct {
 
 // RunFunc executes one complete interview: it creates a fresh session, runs
 // the entry table with the given asker (which blocks for each collect field),
-// and returns the rendered result.
-type RunFunc func(asker collect.Asker) (*Result, error)
+// and returns the rendered result. reviewData, when non-empty, is canonical
+// data XML from a prior run loaded in Review mode — so every collect field is
+// re-asked pre-filled with the prior answer (the review/modify loop, #853).
+type RunFunc func(asker collect.Asker, reviewData string) (*Result, error)
 
 type answer struct {
 	value string
@@ -67,7 +70,7 @@ type interview struct {
 	finished *Result
 }
 
-func startInterview(run RunFunc) *interview {
+func startInterview(run RunFunc, reviewData string) *interview {
 	iv := &interview{
 		reqCh:  make(chan collect.Request),
 		ansCh:  make(chan answer),
@@ -82,7 +85,7 @@ func startInterview(run RunFunc) *interview {
 		return dtrules.GetRString(a.value), true, nil
 	})
 	go func() {
-		res, err := run(asker)
+		res, err := run(asker, reviewData)
 		if err != nil {
 			res = &Result{Error: err.Error()}
 		}
@@ -117,6 +120,7 @@ type Server struct {
 	title string // page/tab title (the project name)
 	mu    sync.Mutex
 	ivs   map[string]*interview
+	data  map[string]string // sid -> last completed canonical data (for review)
 	seq   int
 }
 
@@ -127,7 +131,7 @@ func NewServer(run RunFunc, title string) *Server {
 	if title == "" {
 		title = "DTRules"
 	}
-	return &Server{run: run, title: title, ivs: map[string]*interview{}}
+	return &Server{run: run, title: title, ivs: map[string]*interview{}, data: map[string]string{}}
 }
 
 // faviconSVG is a small brand mark: a rounded square with a checkmark,
@@ -147,25 +151,41 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "/favicon.ico":
 		w.WriteHeader(http.StatusNoContent) // browsers fall back to the SVG link
 		return
-	case "/", "/answer":
+	case "/", "/answer", "/review":
 		// handled below
 	default:
 		http.NotFound(w, r)
 		return
 	}
-	iv, sid := s.session(w, r)
 
+	// /review restarts the interview pre-filled with the prior run's answers
+	// (Review load mode) so the user can change any value and re-run.
+	if r.URL.Path == "/review" {
+		iv, sid := s.reviewSession(w, r)
+		s.render(w, sid, iv)
+		return
+	}
+
+	iv, sid := s.session(w, r)
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
 		val := r.FormValue("answer")
 		// An empty submission keeps the default (ok=false).
 		iv.answer(val, val != "")
 	}
+	s.render(w, sid, iv)
+}
 
+// render advances the interview one step: the next question, or the final
+// result (whose collected data is remembered for a later review).
+func (s *Server) render(w http.ResponseWriter, sid string, iv *interview) {
 	req, res := iv.next()
 	if res != nil {
+		s.mu.Lock()
+		s.data[sid] = res.DataXML
+		s.mu.Unlock()
 		s.clear(sid)
-		s.writeResult(w, res)
+		s.writeResult(w, res, res.DataXML != "")
 		return
 	}
 	s.writeQuestion(w, req)
@@ -182,11 +202,28 @@ func (s *Server) session(w http.ResponseWriter, r *http.Request) (*interview, st
 			}
 		}
 	}
-	// New session.
+	return s.newSession(w, "")
+}
+
+// reviewSession starts a fresh interview pre-loaded (Review mode) with the
+// data the current browser session last collected.
+func (s *Server) reviewSession(w http.ResponseWriter, r *http.Request) (*interview, string) {
+	data := ""
+	if c, err := r.Cookie("dtrsid"); err == nil {
+		s.mu.Lock()
+		data = s.data[c.Value]
+		s.mu.Unlock()
+	}
+	return s.newSession(w, data)
+}
+
+// newSession allocates a session id, starts an interview (optionally with
+// review data), and sets the session cookie.
+func (s *Server) newSession(w http.ResponseWriter, reviewData string) (*interview, string) {
 	s.mu.Lock()
 	s.seq++
 	sid := strconv.Itoa(s.seq)
-	iv := startInterview(s.run)
+	iv := startInterview(s.run, reviewData)
 	s.ivs[sid] = iv
 	s.mu.Unlock()
 	http.SetCookie(w, &http.Cookie{Name: "dtrsid", Value: sid, Path: "/"})
@@ -248,7 +285,7 @@ func (s *Server) writeQuestion(w http.ResponseWriter, req *collect.Request) {
 		html.EscapeString(prompt), control, html.EscapeString(cur)))
 }
 
-func (s *Server) writeResult(w http.ResponseWriter, res *Result) {
+func (s *Server) writeResult(w http.ResponseWriter, res *Result, canReview bool) {
 	if res.Error != "" {
 		s.page(w, fmt.Sprintf(`<h2>Error</h2><pre>%s</pre><p><a href="/">Start over</a></p>`, html.EscapeString(res.Error)))
 		return
@@ -282,7 +319,12 @@ func (s *Server) writeResult(w http.ResponseWriter, res *Result) {
 		}
 		body += "</ul>"
 	}
-	body += `<p><a href="/">Start over</a></p>`
+	body += `<p>`
+	if canReview {
+		body += `<form method="post" action="/review" style="display:inline">` +
+			`<button type="submit">Review / edit answers</button></form> `
+	}
+	body += `<a href="/">Start over</a></p>`
 	s.page(w, body)
 }
 

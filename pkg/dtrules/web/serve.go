@@ -20,9 +20,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
 	"github.com/DTRules/DTRules/pkg/dtrules/collect"
+	"github.com/DTRules/DTRules/pkg/dtrules/datafile"
 	"github.com/DTRules/DTRules/pkg/dtrules/entity"
 	"github.com/DTRules/DTRules/pkg/dtrules/interpreter"
 	"github.com/DTRules/DTRules/pkg/dtrules/mapping"
@@ -50,8 +52,8 @@ func ServeDir(addr, xmlDir string, opts Options) error {
 	if title == "" {
 		title = filepath.Base(xmlDir)
 	}
-	run := func(asker collect.Asker) (*Result, error) {
-		return runDir(xmlDir, opts, asker)
+	run := func(asker collect.Asker, reviewData string) (*Result, error) {
+		return runDir(xmlDir, opts, asker, reviewData)
 	}
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -69,7 +71,7 @@ func ServeDir(addr, xmlDir string, opts Options) error {
 	return http.Serve(ln, NewServer(run, title))
 }
 
-func runDir(xmlDir string, opts Options, asker collect.Asker) (*Result, error) {
+func runDir(xmlDir string, opts Options, asker collect.Asker, reviewData string) (*Result, error) {
 	rs := session.NewRuleSet(filepath.Base(xmlDir))
 	if err := rs.LoadFromDirectory(xmlDir); err != nil {
 		return nil, err
@@ -82,6 +84,13 @@ func runDir(xmlDir string, opts Options, asker collect.Asker) (*Result, error) {
 		return nil, err
 	}
 	state := sess.GetState()
+	// Review mode: pre-load the prior run's answers as defaulted (not
+	// collected), so each collect field is re-asked pre-filled (#853).
+	if reviewData != "" {
+		if err := loadReview(state, sess, reviewData); err != nil {
+			return nil, err
+		}
+	}
 	if dts, ok := state.(*interpreter.DTState); ok {
 		dts.SetCollector(collect.New(asker))
 	}
@@ -93,8 +102,35 @@ func runDir(xmlDir string, opts Options, asker collect.Asker) (*Result, error) {
 		return nil, err
 	}
 	res := buildResult(state, opts.ResultEntity)
-	res.Readings = collect.RangedReadings(stackEntities(state))
+	entities := stackEntities(state)
+	res.Readings = collect.RangedReadings(entities)
+	var data strings.Builder
+	if err := datafile.Write(&data, entities); err == nil {
+		res.DataXML = data.String()
+	}
 	return res, nil
+}
+
+// loadReview loads canonical data into the live stack instances in Review
+// mode (values set, but left defaulted so they are re-asked pre-filled).
+func loadReview(state dtrules.State, sess dtrules.Session, data string) error {
+	find := func(name string) *entity.REntity {
+		e, err := state.FindEntity(dtrules.GetRName(name))
+		if err != nil || e == nil {
+			return nil
+		}
+		re, _ := e.(*entity.REntity)
+		return re
+	}
+	create := func(subtype string) (*entity.REntity, error) {
+		e, err := sess.CreateEntity(dtrules.GetRName(subtype))
+		if err != nil {
+			return nil, err
+		}
+		re, _ := e.(*entity.REntity)
+		return re, nil
+	}
+	return datafile.Read(strings.NewReader(data), find, create, datafile.Review)
 }
 
 // stackEntities returns the distinct data entities on the state's entity

@@ -31,7 +31,7 @@ import (
 // checks that the blocking goroutine asks each question in turn and renders
 // the collected answers.
 func TestServer_Interview(t *testing.T) {
-	run := func(a collect.Asker) (*Result, error) {
+	run := func(a collect.Asker, _ string) (*Result, error) {
 		v1, ok1, _ := a.Ask(collect.Request{Field: "pcr", QType: "number", Text: "How old?",
 			RefLow: "0.7", RefHigh: "1.3", Units: "mg/dL"})
 		v2, ok2, _ := a.Ask(collect.Request{Field: "allergic", QType: "multiple_choice", Text: "Allergic?",
@@ -96,7 +96,7 @@ func TestServer_Interview(t *testing.T) {
 // TestServer_TitleAndFavicon checks the tab title is the given project name
 // and that a favicon is served.
 func TestServer_TitleAndFavicon(t *testing.T) {
-	run := func(a collect.Asker) (*Result, error) { return &Result{}, nil }
+	run := func(a collect.Asker, _ string) (*Result, error) { return &Result{}, nil }
 	ts := httptest.NewServer(NewServer(run, "My Project"))
 	defer ts.Close()
 
@@ -124,10 +124,44 @@ func TestServer_TitleAndFavicon(t *testing.T) {
 	}
 }
 
+// TestServer_Review checks that a completed run offers a review action, and
+// that POSTing /review starts a new run fed the prior run's collected data.
+func TestServer_Review(t *testing.T) {
+	run := func(a collect.Asker, reviewData string) (*Result, error) {
+		if reviewData == "" {
+			return &Result{Fields: []Field{{Name: "drug", Value: "X"}}, DataXML: "<dtrules-data/>"}, nil
+		}
+		return &Result{Fields: []Field{{Name: "loaded", Value: reviewData}}}, nil
+	}
+	ts := httptest.NewServer(NewServer(run, "T"))
+	defer ts.Close()
+	jar, _ := cookiejar.New(nil)
+	client := &http.Client{Jar: jar}
+
+	// First run completes immediately and offers the review action.
+	r1, _ := client.Get(ts.URL + "/")
+	b1, _ := io.ReadAll(r1.Body)
+	r1.Body.Close()
+	if !strings.Contains(string(b1), "Review / edit answers") {
+		t.Fatalf("result missing review action:\n%s", string(b1))
+	}
+
+	// /review starts a new run fed the prior data.
+	r2, err := client.Post(ts.URL+"/review", "", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b2, _ := io.ReadAll(r2.Body)
+	r2.Body.Close()
+	if !strings.Contains(string(b2), "&lt;dtrules-data/&gt;") {
+		t.Errorf("review run was not fed the prior data:\n%s", string(b2))
+	}
+}
+
 // TestServer_UseDefault checks that an empty submission keeps the default
 // (ok=false at the asker).
 func TestServer_UseDefault(t *testing.T) {
-	run := func(a collect.Asker) (*Result, error) {
+	run := func(a collect.Asker, _ string) (*Result, error) {
 		_, ok, _ := a.Ask(collect.Request{Field: "age", QType: "number", Text: "Age?", Current: dtrules.GetRString("40")})
 		used := "answered"
 		if !ok {
