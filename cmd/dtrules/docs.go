@@ -3554,6 +3554,7 @@ Top-level command map
 
     dtrules init       Scaffold a new project directory
     dtrules build      Extract DSL from Excel + compile postfix (the human path)
+    dtrules run        Run a decision table; --interactive collects missing inputs
     dtrules table      JSON-first per-table read/write (the programmatic path)
     dtrules edd        JSON-first EDD read/write (the programmatic path)
     dtrules sync       Fine-grained Excel/XML sync (status/check/import/export/auto)
@@ -3770,6 +3771,12 @@ Typical workflows
       - run: go install github.com/DTRules/DTRules/cmd/dtrules@v1.8.1
       - run: dtrules verify --strict .
       - run: go test ./...
+
+  Run a table (batch or interactive interview):
+
+      dtrules run . --entry Determine_Therapy --input case.xml   # batch
+      dtrules run . --entry Determine_Therapy --interactive      # prompt for
+                                                                 # reached collect fields
 
   Programmatic editing (AI agent / tooling):
 
