@@ -33,7 +33,7 @@ import (
 var rulesFS embed.FS
 
 func main() {
-	addr := flag.String("addr", ":8080", "listen address")
+	addr := flag.String("addr", ":0", "listen address (\":0\" picks an unused port)")
 	flag.Parse()
 
 	dir, err := extractRules()

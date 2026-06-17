@@ -53,9 +53,13 @@ func ServeDir(addr, xmlDir string, opts Options) error {
 		return err
 	}
 	url := browserURL(ln.Addr())
-	fmt.Printf("DTRules web interview on %s (Ctrl-C to stop)\n", url)
+	fmt.Printf("\n  DTRules web interview ready:  %s\n  (Ctrl-C to stop)\n\n", url)
 	if !opts.NoOpen {
-		go openBrowser(url)
+		go func() {
+			if err := openBrowser(url); err != nil {
+				fmt.Printf("  Could not auto-open a browser (%v). Open the URL above manually.\n", err)
+			}
+		}()
 	}
 	return http.Serve(ln, NewServer(run))
 }

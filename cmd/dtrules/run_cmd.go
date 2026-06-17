@@ -40,7 +40,7 @@ func (c *CLI) runRun(args []string) int {
 	path, entry, input, resultEntity := ".", "", "", "result"
 	var save, data, review string
 	interactive, web, noOpen := false, false, false
-	port := "8080"
+	port := "0" // 0 = let the OS pick a free port
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--entry":
@@ -316,7 +316,7 @@ Options:
   --save <file.xml>      Save the collected data as canonical XML after the run
   --interactive, -i      Prompt for any reached collect field not supplied
   --web                  Serve an interactive web interview instead of a CLI run
-  --port <n>             Port for --web (default: 8080)
+  --port <n>             Port for --web (default: an unused port chosen by the OS)
   --no-open              Do not auto-open the browser with --web
   --result-entity <name> Output entity to print (default: result)
 

@@ -17,6 +17,7 @@ package web
 import (
 	"fmt"
 	"net"
+	"os"
 	"os/exec"
 	"runtime"
 )
@@ -31,20 +32,34 @@ func browserURL(addr net.Addr) string {
 	return "http://localhost:" + port + "/"
 }
 
-// openBrowser best-effort opens url in the user's default browser. Any failure
-// is ignored — the URL is also printed, so the user can open it manually.
-func openBrowser(url string) {
-	var name string
-	var args []string
+// openBrowser best-effort opens url in the user's default browser, trying a
+// few launchers in turn. Returns an error only if none could be started.
+func openBrowser(url string) error {
+	var candidates [][]string
 	switch runtime.GOOS {
 	case "darwin":
-		name, args = "open", []string{url}
+		candidates = [][]string{{"open", url}}
 	case "windows":
-		name, args = "rundll32", []string{"url.dll,FileProtocolHandler", url}
+		candidates = [][]string{{"rundll32", "url.dll,FileProtocolHandler", url}}
 	default: // linux, *bsd
-		name, args = "xdg-open", []string{url}
+		if b := os.Getenv("BROWSER"); b != "" {
+			candidates = append(candidates, []string{b, url})
+		}
+		candidates = append(candidates,
+			[]string{"xdg-open", url},
+			[]string{"gio", "open", url},
+			[]string{"sensible-browser", url},
+			[]string{"x-www-browser", url},
+		)
 	}
-	if path, err := exec.LookPath(name); err == nil {
-		_ = exec.Command(path, args...).Start()
+	for _, c := range candidates {
+		path, err := exec.LookPath(c[0])
+		if err != nil {
+			continue
+		}
+		if err := exec.Command(path, c[1:]...).Start(); err == nil {
+			return nil
+		}
 	}
+	return fmt.Errorf("no usable browser launcher found")
 }
