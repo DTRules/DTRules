@@ -32,16 +32,16 @@
 		</source>
 		<field name="active_medications" type="array" subtype="medication" access="rw" input="main" default_value="" comment="Medications the patient is currently taking"></field>
 		<field name="age" type="integer" subtype="" access="rw" input="main" default_value="0" comment="Patient age in years" collect="true">
-			<question text="Patient age (years)?" type="number"></question>
+			<question text="Patient age?" type="number" units="years"></question>
 		</field>
-		<field name="diagnosis" type="string" subtype="" access="rw" input="main" default_value="Acute Sinusitis" comment="Working diagnosis, e.g. Acute Sinusitis" collect="true">
+		<field name="diagnosis" type="string" subtype="" access="rw" input="main" default_value="" comment="Working diagnosis, e.g. Acute Sinusitis" collect="true">
 			<question text="Working diagnosis?" type="ascii"></question>
 		</field>
 		<field name="lean_body_weight" type="double" subtype="" access="rw" input="main" default_value="0.0" comment="Lean body weight in kg (used by the CCr formula)" collect="true">
-			<question text="Lean body weight (kg)?" type="number"></question>
+			<question text="Lean body weight?" type="number" units="kg"></question>
 		</field>
 		<field name="pcr" type="double" subtype="" access="rw" input="main" default_value="0.0" comment="Plasma creatinine level (mg/dL)" collect="true">
-			<question text="Plasma creatinine (mg/dL)?" type="number"></question>
+			<question text="Plasma creatinine (mg/dL)?" type="number" ref_low="0.7" ref_high="1.3" units="mg/dL"></question>
 		</field>
 		<field name="penicillin_allergic" type="boolean" subtype="" access="rw" input="main" default_value="false" comment="True if the patient is penicillin-allergic" collect="true">
 			<question text="Is the patient penicillin-allergic?" type="multiple_choice">
