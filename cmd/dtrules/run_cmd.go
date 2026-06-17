@@ -39,7 +39,7 @@ import (
 func (c *CLI) runRun(args []string) int {
 	path, entry, input, resultEntity := ".", "", "", "result"
 	var save, data, review string
-	interactive, web := false, false
+	interactive, web, noOpen := false, false, false
 	port := "8080"
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -75,6 +75,8 @@ func (c *CLI) runRun(args []string) int {
 			}
 		case "--web":
 			web = true
+		case "--no-open":
+			noOpen = true
 		case "--port":
 			if i+1 < len(args) {
 				port = args[i+1]
@@ -108,8 +110,7 @@ func (c *CLI) runRun(args []string) int {
 
 	if web {
 		addr := ":" + port
-		fmt.Printf("Serving %s as a web interview on http://localhost%s/ (Ctrl-C to stop)\n", entry, addr)
-		if err := webpkg.ServeDir(addr, xmlDir, webpkg.Options{Entry: entry, Input: input, ResultEntity: resultEntity}); err != nil {
+		if err := webpkg.ServeDir(addr, xmlDir, webpkg.Options{Entry: entry, Input: input, ResultEntity: resultEntity, NoOpen: noOpen}); err != nil {
 			fmt.Fprintf(os.Stderr, "Error serving: %v\n", err)
 			return 1
 		}
@@ -316,6 +317,7 @@ Options:
   --interactive, -i      Prompt for any reached collect field not supplied
   --web                  Serve an interactive web interview instead of a CLI run
   --port <n>             Port for --web (default: 8080)
+  --no-open              Do not auto-open the browser with --web
   --result-entity <name> Output entity to print (default: result)
 
 The closed loop: collect with --interactive --save, replay with --data, edit

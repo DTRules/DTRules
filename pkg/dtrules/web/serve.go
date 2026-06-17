@@ -15,6 +15,8 @@
 package web
 
 import (
+	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -32,11 +34,13 @@ type Options struct {
 	Entry        string // decision table to run (required)
 	Input        string // optional input data file (loaded via the mapping)
 	ResultEntity string // output entity to render (default "result")
+	NoOpen       bool   // suppress auto-opening the browser
 }
 
 // ServeDir serves the rule set in xmlDir as an interactive web interview on
 // addr. Each browser session loads a fresh copy and runs the entry table; any
-// reached collect field that isn't supplied is asked via the web form.
+// reached collect field that isn't supplied is asked via the web form. Unless
+// NoOpen is set, the user's browser is opened once the listener is bound.
 func ServeDir(addr, xmlDir string, opts Options) error {
 	if opts.ResultEntity == "" {
 		opts.ResultEntity = "result"
@@ -44,7 +48,16 @@ func ServeDir(addr, xmlDir string, opts Options) error {
 	run := func(asker collect.Asker) (*Result, error) {
 		return runDir(xmlDir, opts, asker)
 	}
-	return http.ListenAndServe(addr, NewServer(run))
+	ln, err := net.Listen("tcp", addr)
+	if err != nil {
+		return err
+	}
+	url := browserURL(ln.Addr())
+	fmt.Printf("DTRules web interview on %s (Ctrl-C to stop)\n", url)
+	if !opts.NoOpen {
+		go openBrowser(url)
+	}
+	return http.Serve(ln, NewServer(run))
 }
 
 func runDir(xmlDir string, opts Options, asker collect.Asker) (*Result, error) {
