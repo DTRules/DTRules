@@ -491,18 +491,20 @@ func (s *Server) writeResult(w http.ResponseWriter, answered []qa, res *Result, 
 		}
 		b.WriteString(`</ul>`)
 	}
-	b.WriteString(`</div><div class="actions">`)
-	if canReview {
-		b.WriteString(reviewButton(answered))
-	}
+	b.WriteString(`</div>`)
+	// Row 1: session file actions — upload and download together.
+	b.WriteString(`<div class="actions">`)
+	b.WriteString(uploadForm())
 	if canDownload {
 		b.WriteString(fmt.Sprintf(`<a class="ghost" href="/data" download="%s">Download session</a>`, s.downloadName()))
 	}
-	b.WriteString(`<a class="ghost" href="/">Start over</a></div>`)
-	if canDownload {
-		// Let the user re-load a saved session from the result page too.
-		b.WriteString(uploadForm())
+	b.WriteString(`</div>`)
+	// Row 2: navigation — review and start over.
+	b.WriteString(`<div class="actions">`)
+	if canReview {
+		b.WriteString(reviewButton(answered))
 	}
+	b.WriteString(`<a class="ghost" href="/">Start over</a></div>`)
 	s.page(w, b.String())
 }
 
