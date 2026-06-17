@@ -15,7 +15,9 @@
 package web
 
 import (
+	"bytes"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
@@ -164,6 +166,60 @@ func TestServer_Review(t *testing.T) {
 	r2.Body.Close()
 	if !strings.Contains(string(b2), "&lt;age&gt;58&lt;/age&gt;") {
 		t.Errorf("review run was not fed the prior answer:\n%s", string(b2))
+	}
+}
+
+// TestServer_DataDownloadUpload checks that a finished run can be downloaded
+// as canonical data and re-uploaded to start a review.
+func TestServer_DataDownloadUpload(t *testing.T) {
+	const saved = "<dtrules-data><patient><age>58</age></patient></dtrules-data>"
+	run := func(a collect.Asker, reviewData string) (*Result, error) {
+		if reviewData != "" {
+			return &Result{Fields: []Field{{Name: "loaded", Value: reviewData}}}, nil
+		}
+		_, _, _ = a.Ask(collect.Request{Entity: "patient", Field: "age", Text: "Age?", QType: "number"})
+		return &Result{Fields: []Field{{Name: "drug", Value: "X"}}, DataXML: saved}, nil
+	}
+	ts := httptest.NewServer(NewServer(run, "Demo"))
+	defer ts.Close()
+	jar, _ := cookiejar.New(nil)
+	client := &http.Client{Jar: jar}
+
+	client.Get(ts.URL + "/")                                                  // -> Age?
+	r, _ := client.PostForm(ts.URL+"/answer", url.Values{"answer": {"58"}})   // -> result
+	b, _ := io.ReadAll(r.Body)
+	r.Body.Close()
+	if !strings.Contains(string(b), "Download data (XML)") {
+		t.Fatalf("result missing download link:\n%s", string(b))
+	}
+
+	// Download serves the canonical data as an attachment.
+	d, _ := client.Get(ts.URL + "/data")
+	body, _ := io.ReadAll(d.Body)
+	d.Body.Close()
+	if got := string(body); got != saved {
+		t.Errorf("download body = %q, want %q", got, saved)
+	}
+	if cd := d.Header.Get("Content-Disposition"); !strings.Contains(cd, "attachment") {
+		t.Errorf("download not an attachment: %q", cd)
+	}
+
+	// Upload the file in a fresh browser -> a review run fed that data.
+	var buf bytes.Buffer
+	mw := multipart.NewWriter(&buf)
+	fw, _ := mw.CreateFormFile("file", "session.xml")
+	fw.Write(body)
+	mw.Close()
+	jar2, _ := cookiejar.New(nil)
+	client2 := &http.Client{Jar: jar2}
+	u, err := client2.Post(ts.URL+"/upload", mw.FormDataContentType(), &buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ub, _ := io.ReadAll(u.Body)
+	u.Body.Close()
+	if !strings.Contains(string(ub), "&lt;age&gt;58&lt;/age&gt;") {
+		t.Errorf("upload did not feed the saved data to a review run:\n%s", string(ub))
 	}
 }
 

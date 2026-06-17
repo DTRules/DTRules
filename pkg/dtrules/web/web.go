@@ -23,6 +23,7 @@ package web
 import (
 	"fmt"
 	"html"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -128,11 +129,13 @@ type qa struct {
 }
 
 // uiSession is the per-browser state: the running interview, the question
-// awaiting an answer, and the transcript of answers so far.
+// awaiting an answer, the transcript of answers so far, and the last completed
+// run's full canonical data (inputs + results) for download.
 type uiSession struct {
 	iv       *interview
 	pending  *collect.Request
 	answered []qa
+	dataXML  string
 }
 
 // Server is an http.Handler that runs one interview per browser session.
@@ -170,6 +173,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	case "/favicon.ico":
 		w.WriteHeader(http.StatusNoContent) // browsers fall back to the SVG link
+		return
+	case "/data":
+		s.serveData(w, r)
+		return
+	case "/upload":
+		s.handleUpload(w, r)
 		return
 	case "/", "/answer", "/review":
 		// handled below
@@ -209,11 +218,52 @@ func (s *Server) render(w http.ResponseWriter, us *uiSession) {
 	req, res := us.iv.next()
 	if res != nil {
 		us.pending = nil
-		s.writeResult(w, us.answered, res, len(us.answered) > 0)
+		us.dataXML = res.DataXML
+		s.writeResult(w, us.answered, res, len(us.answered) > 0, res.DataXML != "")
 		return
 	}
 	us.pending = req
 	s.writeQuestion(w, us.answered, req)
+}
+
+// serveData streams the current session's collected data (inputs + results) as
+// a downloadable canonical XML file.
+func (s *Server) serveData(w http.ResponseWriter, r *http.Request) {
+	us := s.lookup(r)
+	if us == nil || us.dataXML == "" {
+		http.NotFound(w, r)
+		return
+	}
+	name := strings.ToLower(strings.ReplaceAll(s.title, " ", "-"))
+	if name == "" {
+		name = "dtrules"
+	}
+	w.Header().Set("Content-Type", "application/xml")
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s-session.xml"`, name))
+	_, _ = io.WriteString(w, us.dataXML)
+}
+
+// handleUpload accepts a previously downloaded data file and starts a fresh
+// interview pre-filled from it (Review mode), so the user can review and modify.
+func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+	f, _, err := r.FormFile("file")
+	if err != nil {
+		s.page(w, `<div class="card"><h2>No file</h2><p>Choose a saved session file to review.</p></div>`+
+			`<div class="actions"><a class="ghost" href="/">Back</a></div>`)
+		return
+	}
+	defer f.Close()
+	data, err := io.ReadAll(io.LimitReader(f, 4<<20)) // 4 MB cap
+	if err != nil {
+		http.Error(w, "could not read upload", http.StatusBadRequest)
+		return
+	}
+	us := s.newSession(w, string(data))
+	s.render(w, us)
 }
 
 // lookup returns the uiSession for the request's cookie, or nil.
@@ -351,6 +401,14 @@ func reviewButton(answered []qa) string {
 		`<button type="submit" class="ghost">Review / edit answers</button></form>`
 }
 
+// uploadForm renders the "load a saved session" file picker.
+func uploadForm() string {
+	return `<form method="post" action="/upload" enctype="multipart/form-data" class="upload">` +
+		`<label>Have a saved session? Upload it to review &amp; modify:</label>` +
+		`<input type="file" name="file" accept=".xml,application/xml"> ` +
+		`<button type="submit" class="ghost">Upload</button></form>`
+}
+
 func (s *Server) writeQuestion(w http.ResponseWriter, answered []qa, req *collect.Request) {
 	cur := ""
 	if req.Current != nil {
@@ -395,10 +453,14 @@ func (s *Server) writeQuestion(w http.ResponseWriter, answered []qa, req *collec
 <div class="actions"><button type="submit" class="primary">Next &rarr;</button>
 <button type="submit" name="answer" value="" class="ghost">Use default (%s)</button></div></form></div>`,
 		html.EscapeString(promptOf(req)), control, html.EscapeString(cur))
-	s.page(w, transcript(answered)+card+`<div class="actions">`+reviewButton(answered)+`</div>`)
+	footer := `<div class="actions">` + reviewButton(answered) + `</div>`
+	if len(answered) == 0 {
+		footer += uploadForm() // offer to resume a saved session before any answers
+	}
+	s.page(w, transcript(answered)+card+footer)
 }
 
-func (s *Server) writeResult(w http.ResponseWriter, answered []qa, res *Result, canReview bool) {
+func (s *Server) writeResult(w http.ResponseWriter, answered []qa, res *Result, canReview, canDownload bool) {
 	if res.Error != "" {
 		s.page(w, fmt.Sprintf(`<div class="card"><h2>Error</h2><pre>%s</pre></div><div class="actions"><a class="ghost" href="/">Start over</a></div>`, html.EscapeString(res.Error)))
 		return
@@ -438,7 +500,14 @@ func (s *Server) writeResult(w http.ResponseWriter, answered []qa, res *Result, 
 	if canReview {
 		b.WriteString(reviewButton(answered))
 	}
+	if canDownload {
+		b.WriteString(`<a class="ghost" href="/data" download>Download data (XML)</a>`)
+	}
 	b.WriteString(`<a class="ghost" href="/">Start over</a></div>`)
+	if canDownload {
+		// Let the user re-load a saved session from the result page too.
+		b.WriteString(uploadForm())
+	}
 	s.page(w, b.String())
 }
 
@@ -486,6 +555,11 @@ button.primary:hover{background:var(--brand-d)}
 button.ghost,a.ghost{background:#fff;color:var(--brand);border-color:#cfe0d8}
 button.ghost:hover,a.ghost:hover{background:#f1f8f5}
 .inline{display:inline}
+.upload{margin-top:1rem;padding:.8rem 1rem;background:#fff;border:1px dashed #c7d0da;border-radius:10px;
+display:flex;flex-wrap:wrap;align-items:center;gap:.5rem}
+.upload label{color:var(--muted);font-size:.9rem;width:100%}
+.upload input[type=file]{min-width:0;border:none;padding:0}
+a.ghost[download]{border-color:#cfe0d8}
 table{border-collapse:collapse;width:100%%}
 th{text-align:left;padding:.3rem 1rem .3rem 0;color:var(--muted);font-weight:600;vertical-align:top}
 td{padding:.3rem 0}
