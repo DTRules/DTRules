@@ -86,7 +86,7 @@ func TestServer_Interview(t *testing.T) {
 	// Answer it -> the result, with a lab-style Collected-values section that
 	// flags the out-of-range reading H.
 	body := post("true")
-	for _, want := range []string{"Result", "allergic", "true", "notes", "done", "Collected values", "pcr", "<b>H</b>", "ref 0.7–1.3"} {
+	for _, want := range []string{"Result", "allergic", "true", "notes", "done", "Collected values", "pcr", `>H</span>`, "ref 0.7–1.3"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("result missing %q:\n%s", want, body)
 		}
@@ -124,37 +124,46 @@ func TestServer_TitleAndFavicon(t *testing.T) {
 	}
 }
 
-// TestServer_Review checks that a completed run offers a review action, and
-// that POSTing /review starts a new run fed the prior run's collected data.
+// TestServer_Review checks that answers accumulate as a transcript, the
+// result offers a review action, and POSTing /review starts a new run fed the
+// answers given so far (rebuilt as canonical data).
 func TestServer_Review(t *testing.T) {
 	run := func(a collect.Asker, reviewData string) (*Result, error) {
-		if reviewData == "" {
-			return &Result{Fields: []Field{{Name: "drug", Value: "X"}}, DataXML: "<dtrules-data/>"}, nil
+		if reviewData != "" {
+			return &Result{Fields: []Field{{Name: "loaded", Value: reviewData}}}, nil
 		}
-		return &Result{Fields: []Field{{Name: "loaded", Value: reviewData}}}, nil
+		v, _, _ := a.Ask(collect.Request{Entity: "patient", Field: "age", Text: "Age?", QType: "number"})
+		return &Result{Fields: []Field{{Name: "age", Value: v.StringValue()}}}, nil
 	}
 	ts := httptest.NewServer(NewServer(run, "T"))
 	defer ts.Close()
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{Jar: jar}
 
-	// First run completes immediately and offers the review action.
-	r1, _ := client.Get(ts.URL + "/")
+	if _, err := client.Get(ts.URL + "/"); err != nil { // -> Age? question
+		t.Fatal(err)
+	}
+	r1, err := client.PostForm(ts.URL+"/answer", url.Values{"answer": {"58"}}) // -> result
+	if err != nil {
+		t.Fatal(err)
+	}
 	b1, _ := io.ReadAll(r1.Body)
 	r1.Body.Close()
-	if !strings.Contains(string(b1), "Review / edit answers") {
-		t.Fatalf("result missing review action:\n%s", string(b1))
+	page := string(b1)
+	// The result shows the transcript (the answered question) and a review action.
+	if !strings.Contains(page, "Age?") || !strings.Contains(page, "58") || !strings.Contains(page, "Review / edit answers") {
+		t.Fatalf("result missing transcript/review action:\n%s", page)
 	}
 
-	// /review starts a new run fed the prior data.
+	// /review re-runs, seeded with the prior answer rebuilt as canonical data.
 	r2, err := client.Post(ts.URL+"/review", "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	b2, _ := io.ReadAll(r2.Body)
 	r2.Body.Close()
-	if !strings.Contains(string(b2), "&lt;dtrules-data/&gt;") {
-		t.Errorf("review run was not fed the prior data:\n%s", string(b2))
+	if !strings.Contains(string(b2), "&lt;age&gt;58&lt;/age&gt;") {
+		t.Errorf("review run was not fed the prior answer:\n%s", string(b2))
 	}
 }
 
