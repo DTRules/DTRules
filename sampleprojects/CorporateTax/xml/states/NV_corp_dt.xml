@@ -446,10 +446,7 @@ result.nv_gross_revenue 0.0 xdef
 <condition_number>1</condition_number>
 <condition_comment>Has nexus and has apportionment percentage</condition_comment>
 <condition_dsl>has_nexus AND apportionment_percentage &gt; 0</condition_dsl>
-<condition_postfix>
-result.has_physical_presence_nv result.nv_gross_receipts result.nv_economic_nexus_threshold ge or
-result.apportionment_percentage 0 gt and
-</condition_postfix>
+<condition_postfix>has_nexus { pop apportionment_percentage 0 f&gt; } over if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -459,10 +456,7 @@ result.apportionment_percentage 0 gt and
 <condition_number>2</condition_number>
 <condition_comment>Has nexus but no apportionment percentage</condition_comment>
 <condition_dsl>has_nexus AND apportionment_percentage == 0</condition_dsl>
-<condition_postfix>
-result.has_physical_presence_nv result.nv_gross_receipts result.nv_economic_nexus_threshold ge or
-result.apportionment_percentage 0 eq and
-</condition_postfix>
+<condition_postfix>has_nexus { pop apportionment_percentage 0 f== } over if</condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />

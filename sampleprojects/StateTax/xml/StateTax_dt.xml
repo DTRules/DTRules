@@ -15,36 +15,28 @@
 <condition_comment>State has no income tax (AK, FL, NV, NH, SD, TN, TX, WA, WY)</condition_comment>
 <condition_requirement />
 <condition_dsl>state_config.tax_type == "none"</condition_dsl>
-<condition_postfix>
-state_config.tax_type "none" streq
-</condition_postfix>
+<condition_postfix>state_config.tax_type &quot;none&quot; streq</condition_postfix>
 <condition_column column_value="Y" column_number="1" /></condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Flat tax state (IL, PA, CO, etc.)</condition_comment>
 <condition_requirement />
 <condition_dsl>state_config.tax_type == "flat"</condition_dsl>
-<condition_postfix>
-state_config.tax_type "flat" streq
-</condition_postfix>
+<condition_postfix>state_config.tax_type &quot;flat&quot; streq</condition_postfix>
 <condition_column column_value="Y" column_number="2" /></condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Progressive bracket state (CA, NY, etc.)</condition_comment>
 <condition_requirement />
 <condition_dsl>state_config.tax_type == "progressive"</condition_dsl>
-<condition_postfix>
-state_config.tax_type "progressive" streq
-</condition_postfix>
+<condition_postfix>state_config.tax_type &quot;progressive&quot; streq</condition_postfix>
 <condition_column column_value="Y" column_number="3" /></condition_details>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Unknown tax type catch-all</condition_comment>
 <condition_requirement />
 <condition_dsl>true</condition_dsl>
-<condition_postfix>
-true
-</condition_postfix>
+<condition_postfix>true</condition_postfix>
 <condition_column column_value="Y" column_number="4" /></condition_details></conditions>
 <actions>
 <action_details>
@@ -52,9 +44,7 @@ true
 <action_comment>Sum all income sources</action_comment>
 <action_requirement />
 <action_dsl>Perform Calculate_Gross_Income</action_dsl>
-<action_postfix>
-Calculate_Gross_Income
-</action_postfix>
+<action_postfix>/Calculate_Gross_Income performtable</action_postfix>
 <action_column column_value="X" column_number="2" />
 <action_column column_value="X" column_number="3" /></action_details>
 <action_details>
@@ -62,9 +52,7 @@ Calculate_Gross_Income
 <action_comment>Initialize AGI to gross income</action_comment>
 <action_requirement />
 <action_dsl>set taxpayer.agi = taxpayer.grossIncome</action_dsl>
-<action_postfix>
-taxpayer.grossIncome cvi /taxpayer.agi xdef
-</action_postfix>
+<action_postfix>taxpayer.grossIncome cvi /taxpayer.agi xdef</action_postfix>
 <action_column column_value="X" column_number="2" />
 <action_column column_value="X" column_number="3" /></action_details>
 <action_details>
@@ -72,9 +60,7 @@ taxpayer.grossIncome cvi /taxpayer.agi xdef
 <action_comment>Subtract above-the-line adjustments</action_comment>
 <action_requirement />
 <action_dsl>Perform Apply_Adjustments</action_dsl>
-<action_postfix>
-Apply_Adjustments
-</action_postfix>
+<action_postfix>/Apply_Adjustments performtable</action_postfix>
 <action_column column_value="X" column_number="2" />
 <action_column column_value="X" column_number="3" /></action_details>
 <action_details>
@@ -82,9 +68,7 @@ Apply_Adjustments
 <action_comment>Set deduction and exemptions from state_config</action_comment>
 <action_requirement />
 <action_dsl>Perform Determine_Filing_Details</action_dsl>
-<action_postfix>
-Determine_Filing_Details
-</action_postfix>
+<action_postfix>/Determine_Filing_Details performtable</action_postfix>
 <action_column column_value="X" column_number="2" />
 <action_column column_value="X" column_number="3" /></action_details>
 <action_details>
@@ -92,9 +76,7 @@ Determine_Filing_Details
 <action_comment>Compute taxable income</action_comment>
 <action_requirement />
 <action_dsl>Perform Calculate_Taxable_Income</action_dsl>
-<action_postfix>
-Calculate_Taxable_Income
-</action_postfix>
+<action_postfix>/Calculate_Taxable_Income performtable</action_postfix>
 <action_column column_value="X" column_number="2" />
 <action_column column_value="X" column_number="3" /></action_details>
 <action_details>
@@ -102,9 +84,7 @@ Calculate_Taxable_Income
 <action_comment>Apply flat tax rate</action_comment>
 <action_requirement />
 <action_dsl>Perform Apply_Flat_Tax</action_dsl>
-<action_postfix>
-Apply_Flat_Tax
-</action_postfix>
+<action_postfix>/Apply_Flat_Tax performtable</action_postfix>
 <action_column column_value="X" column_number="2" /></action_details>
 <action_details>
 <action_number>7</action_number>
@@ -120,9 +100,7 @@ Select_And_Apply_Brackets
 <action_comment>Build result entity</action_comment>
 <action_requirement />
 <action_dsl>Perform Evaluate_Results</action_dsl>
-<action_postfix>
-Evaluate_Results
-</action_postfix>
+<action_postfix>/Evaluate_Results performtable</action_postfix>
 <action_column column_value="X" column_number="1" />
 <action_column column_value="X" column_number="2" />
 <action_column column_value="X" column_number="3" />
@@ -152,9 +130,7 @@ Evaluate_Results
 <context_number>1</context_number>
 <context_comment>Iterate over all income entries</context_comment>
 <context_dsl>for all incomes</context_dsl>
-<context_postfix>
-dup incomes forall pop
-</context_postfix></context_details></contexts>
+<context_postfix>dup incomes forall pop</context_postfix></context_details></contexts>
 <initial_actions />
 <conditions>
 <condition_details>
@@ -162,9 +138,7 @@ dup incomes forall pop
 <condition_comment>Include all income types</condition_comment>
 <condition_requirement />
 <condition_dsl>true</condition_dsl>
-<condition_postfix>
-true
-</condition_postfix>
+<condition_postfix>true</condition_postfix>
 <condition_column column_value="Y" column_number="1" /></condition_details></conditions>
 <actions>
 <action_details>
@@ -172,9 +146,7 @@ true
 <action_comment>Add income to gross total</action_comment>
 <action_requirement />
 <action_dsl>add income.amount to taxpayer.grossIncome</action_dsl>
-<action_postfix>
-income.amount taxpayer.grossIncome + /taxpayer.grossIncome xdef
-</action_postfix>
+<action_postfix>income.amount taxpayer.grossIncome swap addto</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details></actions>
 <policy_statements>
 <policy_statement column="1">
@@ -192,9 +164,7 @@ income.amount taxpayer.grossIncome + /taxpayer.grossIncome xdef
 <context_number>1</context_number>
 <context_comment>Iterate over all adjustments</context_comment>
 <context_dsl>for all adjustments</context_dsl>
-<context_postfix>
-dup adjustments forall pop
-</context_postfix></context_details></contexts>
+<context_postfix>dup adjustments forall pop</context_postfix></context_details></contexts>
 <initial_actions />
 <conditions>
 <condition_details>
@@ -202,9 +172,7 @@ dup adjustments forall pop
 <condition_comment>Apply all adjustments</condition_comment>
 <condition_requirement />
 <condition_dsl>true</condition_dsl>
-<condition_postfix>
-true
-</condition_postfix>
+<condition_postfix>true</condition_postfix>
 <condition_column column_value="Y" column_number="1" /></condition_details></conditions>
 <actions>
 <action_details>
@@ -212,9 +180,7 @@ true
 <action_comment>Subtract adjustment from AGI</action_comment>
 <action_requirement />
 <action_dsl>subtract adjustment.amount from taxpayer.agi</action_dsl>
-<action_postfix>
-taxpayer.agi adjustment.amount - /taxpayer.agi xdef
-</action_postfix>
+<action_postfix>adjustment.amount taxpayer.agi swap - /taxpayer.agi xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details></actions>
 <policy_statements>
 <policy_statement column="1">
@@ -235,36 +201,28 @@ taxpayer.agi adjustment.amount - /taxpayer.agi xdef
 <condition_comment>Single filer</condition_comment>
 <condition_requirement />
 <condition_dsl>taxpayer.filing_status == SINGLE</condition_dsl>
-<condition_postfix>
-taxpayer.filing_status "SINGLE" streq
-</condition_postfix>
+<condition_postfix>taxpayer.filing_status SINGLE streq</condition_postfix>
 <condition_column column_value="Y" column_number="1" /></condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
 <condition_requirement />
 <condition_dsl>taxpayer.filing_status == MFJ</condition_dsl>
-<condition_postfix>
-taxpayer.filing_status "MFJ" streq
-</condition_postfix>
+<condition_postfix>taxpayer.filing_status MFJ streq</condition_postfix>
 <condition_column column_value="Y" column_number="2" /></condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Head of Household</condition_comment>
 <condition_requirement />
 <condition_dsl>taxpayer.filing_status == HOH</condition_dsl>
-<condition_postfix>
-taxpayer.filing_status "HOH" streq
-</condition_postfix>
+<condition_postfix>taxpayer.filing_status HOH streq</condition_postfix>
 <condition_column column_value="Y" column_number="3" /></condition_details>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Default to Single</condition_comment>
 <condition_requirement />
 <condition_dsl>true</condition_dsl>
-<condition_postfix>
-true
-</condition_postfix>
+<condition_postfix>true</condition_postfix>
 <condition_column column_value="Y" column_number="4" /></condition_details></conditions>
 <actions>
 <action_details>
@@ -363,9 +321,7 @@ taxpayer.agi cvi taxpayer.deduction cvi - taxpayer.exemptions cvi state_config.e
 <action_comment>Floor at zero</action_comment>
 <action_requirement />
 <action_dsl>set taxableIncome = 0</action_dsl>
-<action_postfix>
-0 /taxpayer.taxableIncome xdef
-</action_postfix>
+<action_postfix>0 cvi /taxableIncome xdef</action_postfix>
 <action_column column_value="X" column_number="2" /></action_details></actions>
 <policy_statements>
 <policy_statement column="1">
@@ -389,9 +345,7 @@ taxpayer.agi cvi taxpayer.deduction cvi - taxpayer.exemptions cvi state_config.e
 <condition_comment>Always apply</condition_comment>
 <condition_requirement />
 <condition_dsl>perform when called</condition_dsl>
-<condition_postfix>
-perform when called
-</condition_postfix>
+<condition_postfix>perform when called</condition_postfix>
 <condition_column column_value="*" column_number="1" /></condition_details></conditions>
 <actions>
 <action_details>
@@ -419,36 +373,28 @@ taxpayer.taxableIncome cvi state_config.flat_rate_bps cvi 10000.0 fdiv fmul cvi 
 <condition_comment>No taxable income</condition_comment>
 <condition_requirement />
 <condition_dsl>taxpayer.taxableIncome &lt;= 0</condition_dsl>
-<condition_postfix>
-taxpayer.taxableIncome 0 &lt;=
-</condition_postfix>
+<condition_postfix>taxpayer.taxableIncome 0 &lt;=</condition_postfix>
 <condition_column column_value="Y" column_number="1" /></condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Single filer</condition_comment>
 <condition_requirement />
 <condition_dsl>taxpayer.filing_status == SINGLE</condition_dsl>
-<condition_postfix>
-taxpayer.filing_status "SINGLE" streq
-</condition_postfix>
+<condition_postfix>taxpayer.filing_status SINGLE streq</condition_postfix>
 <condition_column column_value="Y" column_number="2" /></condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
 <condition_requirement />
 <condition_dsl>taxpayer.filing_status == MFJ</condition_dsl>
-<condition_postfix>
-taxpayer.filing_status "MFJ" streq
-</condition_postfix>
+<condition_postfix>taxpayer.filing_status MFJ streq</condition_postfix>
 <condition_column column_value="Y" column_number="3" /></condition_details>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>HOH or default</condition_comment>
 <condition_requirement />
 <condition_dsl>true</condition_dsl>
-<condition_postfix>
-true
-</condition_postfix>
+<condition_postfix>true</condition_postfix>
 <condition_column column_value="Y" column_number="4" /></condition_details></conditions>
 <actions>
 <action_details>
@@ -456,9 +402,7 @@ true
 <action_comment>No tax on zero income</action_comment>
 <action_requirement />
 <action_dsl>set taxOwed = 0</action_dsl>
-<action_postfix>
-0 /taxpayer.taxOwed xdef
-</action_postfix>
+<action_postfix>0 cvi /taxOwed xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>2</action_number>
@@ -500,9 +444,7 @@ state_config.brackets_hoh /taxpayer.active_brackets xdef false cvb /taxpayer.bra
 <context_number>1</context_number>
 <context_comment>Iterate over active bracket array</context_comment>
 <context_dsl>for all active_brackets</context_dsl>
-<context_postfix>
-dup active_brackets forall pop
-</context_postfix></context_details></contexts>
+<context_postfix>dup active_brackets forall pop</context_postfix></context_details></contexts>
 <initial_actions />
 <conditions>
 <condition_details>
@@ -510,18 +452,14 @@ dup active_brackets forall pop
 <condition_comment>Guard: only apply one bracket</condition_comment>
 <condition_requirement />
 <condition_dsl>taxpayer.bracket_applied == false</condition_dsl>
-<condition_postfix>
-taxpayer.bracket_applied false beq
-</condition_postfix>
+<condition_postfix>taxpayer.bracket_applied false beq</condition_postfix>
 <condition_column column_value="Y" column_number="1" /></condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Income falls within this bracket</condition_comment>
 <condition_requirement />
 <condition_dsl>taxpayer.taxableIncome &lt;= bracket.ceiling</condition_dsl>
-<condition_postfix>
-taxpayer.taxableIncome cvi bracket.ceiling cvi &lt;=
-</condition_postfix>
+<condition_postfix>taxpayer.taxableIncome bracket.ceiling &lt;=</condition_postfix>
 <condition_column column_value="Y" column_number="1" /></condition_details></conditions>
 <actions>
 <action_details>
@@ -538,9 +476,7 @@ bracket.base_tax cvi taxpayer.taxableIncome cvi bracket.floor cvi - bracket.rate
 <action_comment>Set guard to prevent further bracket application</action_comment>
 <action_requirement />
 <action_dsl>set bracket_applied = true</action_dsl>
-<action_postfix>
-true cvb /taxpayer.bracket_applied xdef
-</action_postfix>
+<action_postfix>true cvb /bracket_applied xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details></actions>
 <policy_statements>
 <policy_statement column="1">
@@ -561,9 +497,7 @@ true cvb /taxpayer.bracket_applied xdef
 <condition_comment>Always execute</condition_comment>
 <condition_requirement />
 <condition_dsl>perform when called</condition_dsl>
-<condition_postfix>
-perform when called
-</condition_postfix>
+<condition_postfix>perform when called</condition_postfix>
 <condition_column column_value="*" column_number="1" /></condition_details></conditions>
 <actions>
 <action_details>
@@ -580,45 +514,35 @@ perform when called
 <action_comment>Add to job results</action_comment>
 <action_requirement />
 <action_dsl>add result to job.results</action_dsl>
-<action_postfix>
-result job.results swap addto
-</action_postfix>
+<action_postfix>result job.results swap addto</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Copy state code</action_comment>
 <action_requirement />
 <action_dsl>set result.state_code = state_config.state_code</action_dsl>
-<action_postfix>
-state_config.state_code cvs /result.state_code xdef
-</action_postfix>
+<action_postfix>state_config.state_code cvs /result.state_code xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>Copy taxpayer ID</action_comment>
 <action_requirement />
 <action_dsl>set result.taxpayer_ID = taxpayer.taxpayer_ID</action_dsl>
-<action_postfix>
-taxpayer.taxpayer_ID cvs /result.taxpayer_ID xdef
-</action_postfix>
+<action_postfix>taxpayer.taxpayer_ID cvi /result.taxpayer_ID xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>5</action_number>
 <action_comment>Copy taxpayer reference</action_comment>
 <action_requirement />
 <action_dsl>set result.taxpayer = taxpayer</action_dsl>
-<action_postfix>
-taxpayer.taxpayer cve /result.taxpayer xdef
-</action_postfix>
+<action_postfix>taxpayer cve /result.taxpayer xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>6</action_number>
 <action_comment>Copy filing status</action_comment>
 <action_requirement />
 <action_dsl>set result.filing_status = taxpayer.filing_status</action_dsl>
-<action_postfix>
-taxpayer.filing_status cvs /result.filing_status xdef
-</action_postfix>
+<action_postfix>taxpayer.filing_status cvs /result.filing_status xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>7</action_number>

@@ -212,27 +212,39 @@ func TestDocumentation_EDDTypeTableHasFixed(t *testing.T) {
 	}
 }
 
-// TestDocumentation_CompileTopic pins that the `dtrules docs compile`
-// topic exists and names the user-facing surface area added in v1.14.x:
-// the subcommand itself, every flag, the exit-code contract, and a
-// cross-reference to the warnings catalogue. Reverting the topic file
-// or losing a flag name in a doc refactor fails this.
-func TestDocumentation_CompileTopic(t *testing.T) {
-	doc, ok := docTopics["compile"]
+// TestDocumentation_NoCompileTopic pins that the `compile` topic is gone
+// (the `dtrules compile` bypass writer was removed in v1.16.0) and that no
+// doc still cross-references the dead `dtrules docs compile` topic. A doc
+// may still NAME the command to say it was removed — that's migration help.
+func TestDocumentation_NoCompileTopic(t *testing.T) {
+	if _, ok := docTopics["compile"]; ok {
+		t.Error("compile topic must not be registered — dtrules compile was removed")
+	}
+	for name, doc := range docTopics {
+		if strings.Contains(doc, "docs compile") {
+			t.Errorf("topic %q still cross-references the removed `dtrules docs compile`", name)
+		}
+	}
+}
+
+// TestDocumentation_AuthoringContractTopic pins that the authoring contract
+// is a first-class embedded topic (so an LLM driving the binary can read it)
+// and names its load-bearing rules.
+func TestDocumentation_AuthoringContractTopic(t *testing.T) {
+	doc, ok := docTopics["authoring-contract"]
 	if !ok {
-		t.Fatal("compile topic not registered in docTopics")
+		t.Fatal("authoring-contract topic not registered in docTopics")
 	}
-	required := []string{
-		"dtrules compile",
-		"--dry-run", "--strict", "--force", "--no-analyze",
-		"SetSymbols", // proves the EDD-symbol path that fixed #790 is documented
-		"TEMPLATE_",  // template-skip behavior
-		"decisiontable.Analyze",
-		"dtrules docs warnings",
-	}
-	for _, term := range required {
+	for _, term := range []string{
+		"system of record",
+		"dtrules build",
+		"dtrules table",
+		"NEVER hand-edit XML",
+		"Excel-presence",
+		"external-reference",
+	} {
 		if !strings.Contains(doc, term) {
-			t.Errorf("compile doc missing required term: %q", term)
+			t.Errorf("authoring-contract doc missing required term: %q", term)
 		}
 	}
 }
@@ -267,16 +279,16 @@ func TestDocumentation_WarningsTopic(t *testing.T) {
 	}
 }
 
-// TestDocumentation_WorkflowMentionsCompile guards the workflow topic
-// against losing its cross-reference to `dtrules compile` (added when
-// the loader went strict in v1.14.0). Without this, a workflow doc
-// refactor could silently drop the migration guidance.
-func TestDocumentation_WorkflowMentionsCompile(t *testing.T) {
+// TestDocumentation_WorkflowAuthoringPaths guards the workflow topic's
+// description of the two ways to change a rule — edit Excel + `dtrules
+// build`, or the `dtrules table`/`dtrules edd` authoring API — and its
+// note that the loader went strict in v1.14.0.
+func TestDocumentation_WorkflowAuthoringPaths(t *testing.T) {
 	doc, ok := docTopics["workflow"]
 	if !ok {
 		t.Fatal("workflow topic not registered in docTopics")
 	}
-	for _, term := range []string{"dtrules compile", "dtrules docs warnings", "v1.14"} {
+	for _, term := range []string{"dtrules build", "dtrules table", "dtrules docs warnings", "v1.14"} {
 		if !strings.Contains(doc, term) {
 			t.Errorf("workflow doc missing required term: %q", term)
 		}

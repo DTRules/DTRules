@@ -20,20 +20,14 @@
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in Washington</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "WA"</condition_dsl>
-<condition_postfix>
-apportionment.has_physical_presence get true eq
-apportionment.state_code get "WA" streq and
-</condition_postfix>
+<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;WA&quot; streq } over if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets Washington economic nexus threshold</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "WA"</condition_dsl>
-<condition_postfix>
-apportionment.has_economic_nexus get true eq
-apportionment.state_code get "WA" streq and
-</condition_postfix>
+<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &quot;WA&quot; streq } over if</condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -104,9 +98,7 @@ apportionment.has_physical_presence get true eq or
 <condition_number>2</condition_number>
 <condition_comment>Has calculated apportionment percentage to Washington</condition_comment>
 <condition_dsl>apportionment.apportionment_percentage &gt; 0</condition_dsl>
-<condition_postfix>
-apportionment.apportionment_percentage get 0 gt
-</condition_postfix>
+<condition_postfix>apportionment.apportionment_percentage 0 f&gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
@@ -165,9 +157,7 @@ revenue.total_revenue get /result.wa_gross_receipts xdef
 <condition_number>1</condition_number>
 <condition_comment>Business classification code</condition_comment>
 <condition_dsl>result.wa_business_classification</condition_dsl>
-<condition_postfix>
-result.wa_business_classification
-</condition_postfix>
+<condition_postfix>result.wa_business_classification</condition_postfix>
 <condition_column column_number="1" column_value="retailing" />
 <condition_column column_number="2" column_value="wholesaling" />
 <condition_column column_number="3" column_value="manufacturing" />
@@ -271,9 +261,7 @@ revenue.total_revenue get result.wa_small_business_credit_threshold get lt
 <condition_number>2</condition_number>
 <condition_comment>Has Washington gross receipts subject to B&amp;O tax</condition_comment>
 <condition_dsl>result.wa_gross_receipts &gt; 0</condition_dsl>
-<condition_postfix>
-result.wa_gross_receipts get 0 gt
-</condition_postfix>
+<condition_postfix>result.wa_gross_receipts 0 f&gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -349,9 +337,7 @@ apportionment.has_physical_presence get true eq or
 <condition_number>2</condition_number>
 <condition_comment>Has positive Washington gross receipts</condition_comment>
 <condition_dsl>result.wa_gross_receipts &gt; 0</condition_dsl>
-<condition_postfix>
-result.wa_gross_receipts get 0 gt
-</condition_postfix>
+<condition_postfix>result.wa_gross_receipts 0 f&gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>

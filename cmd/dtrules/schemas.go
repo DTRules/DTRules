@@ -179,9 +179,24 @@ const eddSchemaJSON = `{
                 "type":    {"type": "string", "enum": ["string", "integer", "long", "double", "boolean", "date", "bigint", "array", "entity"]},
                 "subtype": {"type": "string"},
                 "default": {"type": "string"},
-                "access":  {"type": "string", "enum": ["r", "rw", ""]},
+                "access":  {"type": "string", "enum": ["r", "w", "rw", ""]},
                 "input":   {"type": "string"},
-                "comment": {"type": "string"}
+                "comment": {"type": "string"},
+                "collect":       {"type": "string", "enum": ["true", "false", ""], "description": "ask the user for this field rather than use its default (#850); requires a writable field"},
+                "question_text": {"type": "string"},
+                "question_type": {"type": "string", "enum": ["multiple_choice", "ascii", "number", "date", ""]},
+                "options": {
+                  "type": "array",
+                  "description": "choices for a multiple_choice question",
+                  "items": {
+                    "type": "object",
+                    "required": ["value"],
+                    "properties": {
+                      "value": {"type": "string"},
+                      "label": {"type": "string"}
+                    }
+                  }
+                }
               }
             }
           }

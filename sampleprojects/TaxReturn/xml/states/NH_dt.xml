@@ -15,7 +15,7 @@
 <initial_action>
 <action_comment>NewHampshire state tax is effectively 0</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  New Hampshire (Interest &amp; Dividends tax phased out 2025)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef &quot;  New Hampshire (Interest &amp; Dividends tax phased out 2025)&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
+<initial_action_postfix>0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef &quot;  New Hampshire (Interest &amp; Dividends tax phased out 2025)&quot; job.audit_trail swap addto</initial_action_postfix>
 <action_postfix>
 0.0 /result.computed_state_tax xdef
 0.0 /result.computed_state_taxable_income xdef
@@ -28,9 +28,7 @@
 <condition_number>1</condition_number>
 <condition_comment>Always</condition_comment>
 <condition_dsl>true</condition_dsl>
-<condition_postfix>
-true
-</condition_postfix>
+<condition_postfix>true</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>

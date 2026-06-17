@@ -34,11 +34,7 @@
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in OK</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true &amp;&amp; apportionment.state_code == 'OK'</condition_dsl>
-<condition_postfix>
-apportionment.has_physical_presence true eq
-apportionment.state_code "OK" streq
-and
-</condition_postfix>
+<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &apos;OK&apos; streq } over if</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value=""></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
@@ -48,11 +44,7 @@ and
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in OK</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true &amp;&amp; apportionment.state_code == 'OK'</condition_dsl>
-<condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.state_code "OK" streq
-and
-</condition_postfix>
+<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &apos;OK&apos; streq } over if</condition_postfix>
 <condition_column column_number="1" column_value=""></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
@@ -115,11 +107,7 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <condition_number>1</condition_number>
 <condition_comment>Has nexus with OK</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_dsl>
-<condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
-</condition_postfix>
+<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
 </condition_details>
@@ -174,11 +162,7 @@ apportionment.state_subtractions 0.0 xdef
 <condition_number>1</condition_number>
 <condition_comment>Has nexus with OK</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_dsl>
-<condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
-</condition_postfix>
+<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
@@ -188,9 +172,7 @@ or
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income > 0</condition_dsl>
-<condition_postfix>
-apportionment.state_taxable_income 0 gt
-</condition_postfix>
+<condition_postfix>apportionment.state_taxable_income 0 f&gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value=""></condition_column>

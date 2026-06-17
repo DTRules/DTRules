@@ -17,11 +17,7 @@
         <condition_number>1</condition_number>
         <condition_comment>Has physical presence in GA (office, employees, property)</condition_comment>
         <condition_dsl>apportionment.has_physical_presence is equal to true and apportionment.state_code is equal to "GA"</condition_dsl>
-        <condition_postfix>
-apportionment.has_physical_presence true eq
-apportionment.state_code "GA" streq
-{ pop apportionment.state_code "GA" streq } over if
-</condition_postfix>
+        <condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;GA&quot; streq } over if</condition_postfix>
         <condition_column column_number="1" column_value="Y" />
         <condition_column column_number="2" column_value="N" />
         <condition_column column_number="3" column_value="N" />
@@ -30,11 +26,7 @@ apportionment.state_code "GA" streq
         <condition_number>2</condition_number>
         <condition_comment>Meets GA economic nexus threshold</condition_comment>
         <condition_dsl>apportionment.has_economic_nexus is equal to true and apportionment.state_code is equal to "GA"</condition_dsl>
-        <condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.state_code "GA" streq
-{ pop apportionment.state_code "GA" streq } over if
-</condition_postfix>
+        <condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &quot;GA&quot; streq } over if</condition_postfix>
         <condition_column column_number="1" column_value="-" />
         <condition_column column_number="2" column_value="Y" />
         <condition_column column_number="3" column_value="N" />

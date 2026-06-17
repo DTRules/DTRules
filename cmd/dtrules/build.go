@@ -49,7 +49,6 @@ func newWorkbookImporter(xmlDir string) *excel.WorkbookImporter {
 // buildOptions holds parsed options for the build command.
 type buildOptions struct {
 	path      string
-	fromXML   bool
 	fromExcel bool
 	dryRun    bool
 	verbose   bool
@@ -74,8 +73,6 @@ func (c *CLI) runBuild(args []string) int {
 
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
-		case "--from-xml":
-			opts.fromXML = true
 		case "--from-excel":
 			opts.fromExcel = true
 		case "--dry-run":
@@ -115,11 +112,6 @@ func (c *CLI) runBuild(args []string) int {
 				return 1
 			}
 		}
-	}
-
-	if opts.fromXML && opts.fromExcel {
-		fmt.Fprintln(os.Stderr, "Error: --from-xml and --from-excel are mutually exclusive")
-		return 1
 	}
 
 	absPath, err := filepath.Abs(opts.path)
@@ -226,9 +218,6 @@ func runNoSyncAdvisory(xmlDir string) int {
 func detectAuthoringPath(xmlDir, excelDir string, opts *buildOptions) (string, error) {
 	if opts.fromExcel {
 		return "excel", nil
-	}
-	if opts.fromXML {
-		return "xml", nil
 	}
 
 	if !dirExists(xmlDir) {
@@ -741,7 +730,6 @@ Options:
   --xml-dir <path>    Override XML directory (relative to project root or absolute)
   --excel-dir <path>  Override Excel directory (relative to project root or absolute)
   --from-excel        Force Excel-authored path (Excel → XML)
-  --from-xml          Force XML-authored path (XML → Excel → XML)
   --dry-run           Report what would change without writing files
   -v, --verbose       Verbose output
   -q, --quiet         Suppress summary unless there are drops
@@ -754,7 +742,6 @@ Directory resolution (highest to lowest priority):
 Examples:
   dtrules build
   dtrules build ./sampleprojects/TaxReturn
-  dtrules build --from-xml
   dtrules build --dry-run
   dtrules build --xml-dir pkg/dtrules/rules --excel-dir pkg/dtrules/excel /path/to/project`)
 }

@@ -43,8 +43,8 @@ import (
 // drift and removes the EL compiler dependency from every consumer's
 // runtime binary.
 //
-// Build-time tooling (the export step of `dtrules build --from-xml`,
-// which loads partially-built XML so it can write Excel) sets
+// Build-time tooling (the export step of the XML→Excel bootstrap, which
+// loads partially-built XML so it can write Excel) sets
 // `Tolerant=true` to disable the postfix-presence check. Runtime
 // consumers should never use tolerant mode — it accepts XML that will
 // crash at execution time.

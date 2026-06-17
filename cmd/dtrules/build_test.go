@@ -26,24 +26,6 @@ import (
 	dtrsync "github.com/DTRules/DTRules/pkg/dtrules/sync"
 )
 
-// captureBuildOutput runs the CLI with the given args and captures stdout/stderr.
-func captureBuildOutput(args []string) (stdout string, exitCode int) {
-	// Redirect stdout
-	old := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-
-	cli := NewCLI()
-	exitCode = cli.Run(args)
-
-	w.Close()
-	os.Stdout = old
-
-	var buf bytes.Buffer
-	buf.ReadFrom(r)
-	return buf.String(), exitCode
-}
-
 // TestBuildHelp verifies the build subcommand is recognized.
 func TestBuildHelp(t *testing.T) {
 	// build with no args in a non-existent path should fail gracefully
@@ -80,33 +62,6 @@ func TestBuildDryRunNoChanges(t *testing.T) {
 	after := dirSnapshot(t, dir)
 	if len(before) != len(after) {
 		t.Errorf("--dry-run wrote files: before=%d after=%d", len(before), len(after))
-	}
-}
-
-// TestBuildFromXMLFlag verifies --from-xml is accepted without panic.
-func TestBuildFromXMLFlag(t *testing.T) {
-	dir := t.TempDir()
-	xmlDir := filepath.Join(dir, "xml")
-	if err := os.MkdirAll(xmlDir, 0755); err != nil {
-		t.Fatal(err)
-	}
-	// Write a stub XML file so there's something to detect
-	if err := os.WriteFile(filepath.Join(xmlDir, "stub_dt.xml"), []byte("<DecisionTables/>"), 0644); err != nil {
-		t.Fatal(err)
-	}
-
-	cli := NewCLI()
-	// --from-xml with no excel/ dir should attempt to export (may fail if no xlsx) — just
-	// ensure the flag is accepted and we get a clean exit without panic.
-	_ = cli.runBuild([]string{"--from-xml", dir})
-}
-
-// TestBuildFromExcelAndXMLMutuallyExclusive verifies conflicting flags return non-zero.
-func TestBuildFromExcelAndXMLMutuallyExclusive(t *testing.T) {
-	cli := NewCLI()
-	code := cli.runBuild([]string{"--from-excel", "--from-xml"})
-	if code == 0 {
-		t.Error("expected non-zero exit when --from-excel and --from-xml are both set")
 	}
 }
 
@@ -328,53 +283,6 @@ func TestBuildFromExcelTouchProducesCanonicalOutput(t *testing.T) {
 
 	if len(before) != len(after) {
 		t.Errorf("second --dry-run changed file count: before=%d after=%d", len(before), len(after))
-	}
-}
-
-// TestBuildFromXMLTouchProducesCanonicalOutput verifies the --from-xml path
-// accepts a project without panicking and that a second dry run is a no-op.
-func TestBuildFromXMLTouchProducesCanonicalOutput(t *testing.T) {
-	if _, err := os.Stat(taxReturnDir); err != nil {
-		t.Skip("TaxReturn sample project not found")
-	}
-	xmlDir := filepath.Join(taxReturnDir, "xml")
-	if _, err := os.Stat(xmlDir); err != nil {
-		t.Skip("TaxReturn xml dir not found")
-	}
-
-	tmpDir := t.TempDir()
-	if err := copyDir(taxReturnDir, tmpDir); err != nil {
-		t.Fatalf("copyDir: %v", err)
-	}
-	projCopy := filepath.Join(tmpDir, filepath.Base(taxReturnDir))
-
-	// Touch the first xml file to make it newer.
-	copiedXMLDir := filepath.Join(projCopy, "xml")
-	copiedEntries, err := os.ReadDir(copiedXMLDir)
-	if err != nil {
-		t.Fatalf("ReadDir: %v", err)
-	}
-	for _, e := range copiedEntries {
-		if strings.HasSuffix(e.Name(), "_dt.xml") {
-			p := filepath.Join(copiedXMLDir, e.Name())
-			future := time.Now().Add(10 * time.Minute)
-			_ = os.Chtimes(p, future, future)
-			break
-		}
-	}
-
-	// First run.
-	cli1 := NewCLI()
-	_ = cli1.runBuild([]string{"--from-xml", "--dry-run", projCopy})
-
-	// Second run must not add files.
-	before := dirSnapshot(t, projCopy)
-	cli2 := NewCLI()
-	_ = cli2.runBuild([]string{"--from-xml", "--dry-run", projCopy})
-	after := dirSnapshot(t, projCopy)
-
-	if len(before) != len(after) {
-		t.Errorf("second --from-xml --dry-run changed file count: before=%d after=%d", len(before), len(after))
 	}
 }
 

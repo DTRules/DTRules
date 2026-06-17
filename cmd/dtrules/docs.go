@@ -22,26 +22,26 @@ import (
 
 // Documentation topics embedded in the executable
 var docTopics = map[string]string{
-	"bigint":          docBigInt,
-	"bytes":           docBytes,
-	"cli":             docCLI,
-	"compile":         docCompile,
-	"fixed":           docFixed,
-	"el":              docEL,
-	"xml-format":      docXMLFormat,
-	"edd":             docEDD,
-	"decision-tables": docDecisionTables,
-	"operators":       docOperators,
-	"examples":        docExamples,
-	"mapping":         docMapping,
-	"project-layout":  docProjectLayout,
-	"database":        docDatabase,
-	"architecture":    docArchitecture,
-	"embedding":       docEmbedding,
-	"warnings":        docWarnings,
-	"workflow":        docWorkflow,
-	"authoring":       docAuthoring,
-	"entry-points":    docEntryPoints,
+	"bigint":             docBigInt,
+	"bytes":              docBytes,
+	"cli":                docCLI,
+	"authoring-contract": docAuthoringContract,
+	"fixed":              docFixed,
+	"el":                 docEL,
+	"xml-format":         docXMLFormat,
+	"edd":                docEDD,
+	"decision-tables":    docDecisionTables,
+	"operators":          docOperators,
+	"examples":           docExamples,
+	"mapping":            docMapping,
+	"project-layout":     docProjectLayout,
+	"database":           docDatabase,
+	"architecture":       docArchitecture,
+	"embedding":          docEmbedding,
+	"warnings":           docWarnings,
+	"workflow":           docWorkflow,
+	"authoring":          docAuthoring,
+	"entry-points":       docEntryPoints,
 }
 
 func runDocs(args []string) error {
@@ -76,26 +76,26 @@ func printDocIndex() {
 	sort.Strings(topics)
 
 	descriptions := map[string]string{
-		"bigint":          "Arbitrary-precision integer support for financial calculations",
-		"bytes":           "Immutable byte sequences with constant-time equality (blockchain / token use cases)",
-		"cli":             "Getting started with the dtrules binary: install, init, build, validate, verify",
-		"compile":         "`dtrules compile` — surgical EL→postfix backfill + advisory pass (the one-stop authoring check)",
-		"fixed":           "256-bit fixed-point type (10^-8 grid) for token/staking/blockchain decimal math",
-		"el":              "Expression Language syntax (REQUIRED for all tables)",
-		"xml-format":      "XML file format specification (EDD and DT)",
-		"edd":             "Entity Data Dictionary - defining entities and fields",
-		"decision-tables": "How to write decision tables",
-		"operators":       "All available operators with examples",
-		"examples":        "Complete working examples",
-		"mapping":         "Mapping XML and xlsx schema for translating input data into EDD entities",
-		"project-layout":  "Project folder conventions and the _dt/_edd/_map file naming rule",
-		"database":        "KV database design driven by the EDD: key composition, arrays, references, mapping*key",
-		"architecture":    "Dev-time vs deploy-time layouts (files on disk vs single embedded binary)",
-		"embedding":       "Embed DTRules rules into a single Go binary via //go:embed (no xlsx or xml at runtime)",
-		"warnings":        "Every advisory warning kind, repro, and what to do about it",
-		"workflow":        "Development workflow with Excel and XML",
-		"authoring":       "Go authoring SDK: open, edit, execute, and test projects programmatically",
-		"entry-points":    "Run multiple decision tables as separate entry points against one loaded session",
+		"bigint":             "Arbitrary-precision integer support for financial calculations",
+		"bytes":              "Immutable byte sequences with constant-time equality (blockchain / token use cases)",
+		"cli":                "Getting started with the dtrules binary: install, init, build, validate, verify",
+		"authoring-contract": "READ FIRST when changing rules: Excel is the system of record; the two ways to author; what verify enforces",
+		"fixed":              "256-bit fixed-point type (10^-8 grid) for token/staking/blockchain decimal math",
+		"el":                 "Expression Language syntax (REQUIRED for all tables)",
+		"xml-format":         "XML file format specification (EDD and DT)",
+		"edd":                "Entity Data Dictionary - defining entities and fields",
+		"decision-tables":    "How to write decision tables",
+		"operators":          "All available operators with examples",
+		"examples":           "Complete working examples",
+		"mapping":            "Mapping XML and xlsx schema for translating input data into EDD entities",
+		"project-layout":     "Project folder conventions and the _dt/_edd/_map file naming rule",
+		"database":           "KV database design driven by the EDD: key composition, arrays, references, mapping*key",
+		"architecture":       "Dev-time vs deploy-time layouts (files on disk vs single embedded binary)",
+		"embedding":          "Embed DTRules rules into a single Go binary via //go:embed (no xlsx or xml at runtime)",
+		"warnings":           "Every advisory warning kind, repro, and what to do about it",
+		"workflow":           "Development workflow with Excel and XML",
+		"authoring":          "Go authoring SDK: open, edit, execute, and test projects programmatically",
+		"entry-points":       "Run multiple decision tables as separate entry points against one loaded session",
 	}
 
 	for _, t := range topics {
@@ -1146,6 +1146,31 @@ Add documentation with the comment attribute:
        type="integer"
        default_value="0"
        comment="FICO score 300-850, 0 if unknown"/>
+
+
+Access (input / output / internal)
+----------------------------------
+The access attribute declares how the rules use a field. It drives the
+EDD-usage analysis in 'dtrules review' so genuine inputs and outputs
+aren't mis-flagged:
+
+  access="r"    Input. Set by the host / mapping, read by the rules.
+                Flagged only if NEVER read by any rule.
+  access="w"    Output. Set by the rules, consumed by the host (or emitted
+                via the mapping). NOT read back in DSL by design, so it is
+                NOT flagged "write-only". Flagged only if NEVER written
+                ("declared output never written").
+  access="rw"   Internal / read-write (the default when omitted). Flagged
+                "unused" if never referenced, "write-only" if set but never
+                read.
+
+  <field name="agi"        type="double" access="r"/>   <!-- input  -->
+  <field name="dose_mg"    type="integer" access="w"/>  <!-- output -->
+  <field name="subtotal"   type="double" access="rw"/>  <!-- internal -->
+
+Note: an array output appended via 'add X to result.list' is seen as a
+read of the array, so append-style outputs (e.g. a warnings/rationale
+list) stay access="rw", not "w". Use "w" for scalar set-once outputs.
 
 
 Best Practices
@@ -2373,10 +2398,10 @@ All rules MUST be written in EL (Expression Language). The EL compiler
 generates internal bytecode automatically — never write bytecode by hand.
 
 Since v1.14.0: the runtime loader does NOT compile DSL on load. It
-consumes whatever postfix is stored in the XML. So 'dtrules build' or
-'dtrules compile' MUST run between authoring a DSL change and embedding
+consumes whatever postfix is stored in the XML. So 'dtrules build' (the
+human path) or the authoring API ('dtrules table'/'dtrules edd', which
+compile on write) MUST run between authoring a DSL change and embedding
 the XML — otherwise the loader sees DSL with no postfix and refuses.
-See 'dtrules docs compile' and the migration note further down.
 
 Since v1.14.1: every authoring/build surface surfaces advisory warnings
 (decisiontable.Analyze) — no-op columns, subsumed columns, FIRST-policy
@@ -2385,27 +2410,26 @@ columns via DSL negation. The full warning catalogue with repros and
 recommended actions lives at 'dtrules docs warnings'.
 
 
-Two commands, by use case
---------------------------
+Two ways to change a rule
+-------------------------
 
-  dtrules build [path]
-    Full Excel ↔ XML round-trip plus EL compile. Requires the
-    canonical project layout (<project>/xml/ and <project>/excel/).
-    Use this when authoring through Excel, or to regenerate Excel
-    from edited XML.
+  dtrules build [path]              (the human path)
+    Edit Excel, then build. Full Excel → XML extraction plus EL
+    compile. Requires the canonical project layout (<project>/xml/
+    and <project>/excel/). Excel is the input; XML is generated.
 
-  dtrules compile [dir]
-    Surgical EL → postfix backfill. No Excel round-trip; bytes
-    outside the targeted <*_postfix> elements stay untouched. Works
-    on any directory layout, including flat ones with no xml/
-    subdir. The one-stop authoring check for library consumers
-    embedding DTRules rules (e.g. via go:embed). Default mode also
-    runs the advisory pass; --no-analyze skips it. See
-    'dtrules docs compile' for the full flag set.
+  dtrules table / dtrules edd       (the programmatic path, for AI agents)
+    A write through the authoring API updates the XML DSL, compiles
+    postfix, AND updates Excel in the same atomic operation. If the
+    project has no Excel yet, the API bootstraps it from the XML.
+    See 'dtrules docs authoring'.
+
+Both paths keep Excel as the system of record. There is no command that
+writes rule content into XML alone — the bypass writers ('dtrules compile',
+'dtrules build --from-xml') were removed in v1.16.0.
 
 dtrules build flags:
   --from-excel   Force Excel-authored path (Excel → XML)
-  --from-xml     Force XML-authored path   (XML → Excel → XML)
   --dry-run      Show what would change without writing files
   -v, --verbose  Verbose output
   -q, --quiet    Suppress build summary unless there are drops
@@ -2421,14 +2445,14 @@ safety net for stale XML.
 
 One-time migration per project:
 
-  go get github.com/DTRules/DTRules@v1.14.3
-  dtrules compile --force <rules-dir>    # refresh stored postfix
+  go get github.com/DTRules/DTRules@latest
+  dtrules build <project>                # re-extract from Excel + compile postfix
   git diff                               # review the change
   git commit -am 'adopt v1.14.x — backfill postfix'
 
 After this, the loader is silent on load (no more recompile chatter),
 the runtime binary no longer pulls in compiler/el as a dependency,
-and 'dtrules compile' is the canonical "did I get the warnings right?"
+and 'dtrules review' is the canonical "did I get the warnings right?"
 check.
 
 
@@ -3529,17 +3553,14 @@ Top-level command map
 ---------------------
 
     dtrules init       Scaffold a new project directory
-    dtrules build      Normalize + compile rules (Excel <-> XML)
-    dtrules compile    Surgical EL→postfix backfill + advisory pass
-                       (the one-stop authoring check; works on any
-                       directory layout — see 'dtrules docs compile')
+    dtrules build      Extract DSL from Excel + compile postfix (the human path)
+    dtrules table      JSON-first per-table read/write (the programmatic path)
+    dtrules edd        JSON-first EDD read/write (the programmatic path)
     dtrules sync       Fine-grained Excel/XML sync (status/check/import/export/auto)
     dtrules validate   Check project structure + EL compliance
-    dtrules verify     CI gate: assert committed XML matches a fresh build
+    dtrules verify     CI gate: Excel↔XML consistency + self-contained references
     dtrules review     Project-wide Full Review (errors + advisory warnings;
                        deployment gate when used with 'build --require-review')
-    dtrules table      JSON-first per-table read/write (for AI agents)
-    dtrules edd        JSON-first EDD read/write (for AI agents)
     dtrules mcp        MCP server over stdio (for AI agents)
     dtrules docs       This documentation
     dtrules version    Version, commit, build date
@@ -3569,22 +3590,32 @@ for input mapping, following the conventions in:
     dtrules docs edd
 
 
-2. Author rules — two paths
-----------------------------
+2. Author rules — two paths (Excel is the system of record)
+-----------------------------------------------------------
 
-DTRules supports two authoring styles:
+  >> Read 'dtrules docs authoring-contract' before changing any rule. <<
 
-  (a) Excel-authored (recommended) — analysts edit .xlsx; the build
-      generates .xml.
-  (b) XML-authored — developers edit .xml directly; the build
-      regenerates .xlsx to keep Excel as the system of record.
+There are exactly two ways to change a rule, and BOTH keep Excel current:
 
-Either way, write conditions and actions in EL (Expression Language):
+  (a) Edit Excel, then 'dtrules build' (the human path) — analysts edit
+      .xlsx; build extracts the DSL to .xml and compiles postfix. Excel
+      is the input; XML is generated.
+
+  (b) The authoring API — 'dtrules table' / 'dtrules edd' (the
+      programmatic path, for AI agents and tools). Each write updates the
+      XML DSL, compiles postfix, AND updates Excel in one atomic
+      operation. If the project has no Excel yet, the API bootstraps it.
+      See section 8 and 'dtrules docs authoring'.
+
+Write conditions and actions in EL (Expression Language):
 
     dtrules docs el
 
-Never hand-author postfix or bytecode — those are internal compilation
-targets.
+NEVER hand-edit XML, and never hand-author postfix or bytecode — XML is a
+generated artifact and postfix is a compiled one. An agent that writes XML
+directly produces a state the next build overwrites and that 'dtrules
+verify' rejects. The bypass writers ('dtrules compile', 'build --from-xml')
+were removed in v1.16.0.
 
 
 3. Compile — dtrules build
@@ -3601,7 +3632,6 @@ execution .xml on disk — the two stay in sync bit-for-bit.
 Useful flags:
 
     --from-excel      Force Excel → XML (for Excel-authored workflow)
-    --from-xml        Force XML → Excel → XML (for XML-authored workflow)
     --dry-run         Show what would change without writing files
     --verbose, -v     Show each intermediate step
     --quiet, -q       Only show output on drops or errors
@@ -3648,10 +3678,10 @@ Flags:
 Use --xml-dir when the XML lives outside the conventional layout; the
 tool will still require excel/ because Excel is the system of record.
 
-If your project has no excel/ yet (rare — most sampleprojects do),
-generate one first with:
-
-    dtrules build --from-xml <projectRoot>
+If your project has no excel/ yet (rare — most sampleprojects do), the
+authoring API bootstraps it: the first 'dtrules table'/'dtrules edd'
+write to an Excel-less project generates Excel from the XML and writes a
+sync manifest. After that the project is in normal steady state.
 
 
 5. Gate CI — dtrules verify
@@ -3659,9 +3689,22 @@ generate one first with:
 
     dtrules verify [path]
 
-Designed for CI / pre-commit hooks. Asserts that ` + "`dtrules build`" + ` on
-the committed Excel reproduces the committed XML exactly. Fails (exit
-non-zero) on any drift.
+Designed for CI / pre-commit hooks. Fails (exit non-zero) on any of:
+
+    build     'dtrules build' on the committed Excel would change the
+              committed Excel or XML (drift).
+    source    An XML artifact has no valid <source>/<xls_file> reference.
+    order     NNN_ filename ordering disagrees with workbook sheet order.
+    excel     A project has decision-table/EDD XML but NO Excel workbook —
+              i.e. rules were authored straight into XML without building
+              the Excel system of record. (Excel-presence gate.)
+    external  A table depends on something the project doesn't define: a
+              'perform' of an undefined table, an EDD field its entity
+              doesn't declare, or an operator absent from the registry.
+              (External-reference gate — rules must be self-contained.)
+
+The 'excel' and 'external' gates are why an LLM cannot quietly skip Excel
+or build a table on logic that doesn't exist: verify rejects both.
 
 Flags:
 
@@ -3674,7 +3717,8 @@ Typical pre-commit hook:
     dtrules verify . --strict || exit 1
 
 verify is strictly more pedantic than validate — validate catches EL
-errors, verify catches round-trip drift.
+errors; verify catches round-trip drift, a missing Excel record, and
+references to undefined tables/fields/operators.
 
 
 6. Fine-grained sync — dtrules sync
@@ -3727,21 +3771,21 @@ Typical workflows
       - run: dtrules verify --strict .
       - run: go test ./...
 
-  XML-authored debugging:
+  Programmatic editing (AI agent / tooling):
 
-      # a developer edited xml/ directly
-      dtrules build --from-xml .
-      dtrules validate
-      # Excel is regenerated — commit both sides
+      # write through the authoring API — updates XML, postfix, AND Excel
+      echo "$table_json" | dtrules table put My_Table --file rules_dt.xml ...
+      dtrules verify        # confirms Excel stayed consistent + refs resolve
+      # both sides already in sync — commit them
 
 
 Common errors
 -------------
 
   "excel/ directory not found"
-      Project lacks Excel authoring files. Either run
-      ` + "`dtrules build --from-xml .`" + ` to bootstrap Excel from XML, or
-      pass --excel-dir to point at a non-default location.
+      Project lacks Excel authoring files. The authoring API bootstraps
+      Excel on the first ` + "`dtrules table`" + ` / ` + "`dtrules edd`" + ` write,
+      or pass --excel-dir to point at a non-default location.
 
   "parse errors: mismatched input ..."
       An EL expression in a decision table didn't compile.
@@ -3757,6 +3801,7 @@ Common errors
 Where to go next
 ----------------
 
+    dtrules docs authoring-contract # READ FIRST: the rules-authoring contract
     dtrules docs workflow        # dtrules build pipeline deep-dive
     dtrules docs el              # EL grammar
     dtrules docs edd             # Entity Data Dictionary

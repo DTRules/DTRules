@@ -11,9 +11,7 @@
 <context_number>1</context_number>
 <context_comment></context_comment>
 <context_dsl>for all things</context_dsl>
-<context_postfix>
-dup things forall pop 
-</context_postfix></context_details></contexts>
+<context_postfix>dup things forall pop</context_postfix></context_details></contexts>
 <initial_actions></initial_actions>
 <conditions>
 <condition_details>
@@ -21,36 +19,28 @@ dup things forall pop
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
 <condition_dsl>thing.value == 1</condition_dsl>
-<condition_postfix>
-thing.value 1 == 
-</condition_postfix>
+<condition_postfix>thing.value 1 ==</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column></condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
 <condition_dsl>thing.value == 2</condition_dsl>
-<condition_postfix>
-thing.value 2 == 
-</condition_postfix>
+<condition_postfix>thing.value 2 ==</condition_postfix>
 <condition_column column_number="2" column_value="Y"></condition_column></condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
 <condition_dsl>thing.value == 3</condition_dsl>
-<condition_postfix>
-thing.value 3 == 
-</condition_postfix>
+<condition_postfix>thing.value 3 ==</condition_postfix>
 <condition_column column_number="3" column_value="Y"></condition_column></condition_details>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment></condition_comment>
 <condition_requirement></condition_requirement>
 <condition_dsl>otherwise</condition_dsl>
-<condition_postfix>
-otherwise 
-</condition_postfix>
+<condition_postfix>otherwise</condition_postfix>
 <condition_column column_number="4" column_value="*"></condition_column></condition_details></conditions>
 <actions>
 <action_details>
@@ -58,9 +48,7 @@ otherwise
 <action_comment></action_comment>
 <action_requirement></action_requirement>
 <action_dsl>add the policy statements to the job.notes</action_dsl>
-<action_postfix>
-policystatements job.notes true  addarray 
-</action_postfix>
+<action_postfix>policystatements job.notes swap addto</action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 <action_column column_number="2" column_value="X"></action_column>
 <action_column column_number="3" column_value="X"></action_column>

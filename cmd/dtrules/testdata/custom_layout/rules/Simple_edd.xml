@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
   <entity name="test" access="rw" comment="Test entity">
-    <field name="value" type="number" subtype="" access="rw" input="" default_value="" comment="A test value" />
+    <field name="value" type="integer" subtype="" access="rw" input="" default_value="" comment="A test value" />
   </entity>
 </entity_data_dictionary>

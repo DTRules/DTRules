@@ -15,9 +15,7 @@
 <condition_comment>KidAid</condition_comment>
 <condition_requirement />
 <condition_dsl>job.program == KidAid</condition_dsl>
-<condition_postfix>
-job.program KidAid streq 
-</condition_postfix>
+<condition_postfix>job.program KidAid streq</condition_postfix>
 <condition_column column_value="Y" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -39,9 +37,7 @@ job.program KidAid streq
 <condition_comment>MEDICAID</condition_comment>
 <condition_requirement />
 <condition_dsl>job.program == MEDICAID</condition_dsl>
-<condition_postfix>
-job.program MEDICAID streq 
-</condition_postfix>
+<condition_postfix>job.program MEDICAID streq</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="Y" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -63,9 +59,7 @@ job.program MEDICAID streq
 <condition_comment>FOODSTAMPS</condition_comment>
 <condition_requirement />
 <condition_dsl>job.program == FOODSTAMPS</condition_dsl>
-<condition_postfix>
-job.program FOODSTAMPS streq 
-</condition_postfix>
+<condition_postfix>job.program FOODSTAMPS streq</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="Y" column_number="3" />
@@ -87,9 +81,7 @@ job.program FOODSTAMPS streq
 <condition_comment>If Not Any of these programs, Report Results Anyway</condition_comment>
 <condition_requirement />
 <condition_dsl>true</condition_dsl>
-<condition_postfix>
-true 
-</condition_postfix>
+<condition_postfix>true</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -112,9 +104,7 @@ true
 <action_comment>Calculate the Individual Incomes</action_comment>
 <initial_action_requirement />
 <action_dsl>Perform Calculate_Individual_Income</action_dsl>
-<action_postfix>
-Calculate_Individual_Income 
-</action_postfix>
+<action_postfix>/Calculate_Individual_Income performtable</action_postfix>
 <action_column column_value="X" column_number="1" />
 <action_column column_value="X" column_number="2" />
 <action_column column_value="X" column_number="3" /></action_details>
@@ -123,9 +113,7 @@ Calculate_Individual_Income
 <action_comment>Get the Group Size for each individual</action_comment>
 <initial_action_requirement />
 <action_dsl>Perform Calculate_Group_Size</action_dsl>
-<action_postfix>
-Calculate_Group_Size 
-</action_postfix>
+<action_postfix>/Calculate_Group_Size performtable</action_postfix>
 <action_column column_value="X" column_number="1" />
 <action_column column_value="X" column_number="2" />
 <action_column column_value="X" column_number="3" /></action_details>
@@ -134,36 +122,28 @@ Calculate_Group_Size
 <action_comment>Evaluate for KidAid</action_comment>
 <initial_action_requirement />
 <action_dsl>Perform Evaluate_KidAid_Eligibility</action_dsl>
-<action_postfix>
-Evaluate_KidAid_Eligibility 
-</action_postfix>
+<action_postfix>/Evaluate_KidAid_Eligibility performtable</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>Evaluate for MEDICAID</action_comment>
 <initial_action_requirement />
 <action_dsl>Perform Evaluate_MEDICAID_Eligibility</action_dsl>
-<action_postfix>
-Evaluate_MEDICAID_Eligibility 
-</action_postfix>
+<action_postfix>/Evaluate_MEDICAID_Eligibility performtable</action_postfix>
 <action_column column_value="X" column_number="2" /></action_details>
 <action_details>
 <action_number>5</action_number>
 <action_comment>Evaluate for FOODSTAMPS</action_comment>
 <initial_action_requirement />
 <action_dsl>Perform Evaluate_FOODSTAMPS_Eligibilty</action_dsl>
-<action_postfix>
-Evaluate_FOODSTAMPS_Eligibilty 
-</action_postfix>
+<action_postfix>/Evaluate_FOODSTAMPS_Eligibilty performtable</action_postfix>
 <action_column column_value="X" column_number="3" /></action_details>
 <action_details>
 <action_number>6</action_number>
 <action_comment>Build a set of Result Objects to report to the caller</action_comment>
 <initial_action_requirement />
 <action_dsl>Perform Evaluate_Results</action_dsl>
-<action_postfix>
-Evaluate_Results 
-</action_postfix>
+<action_postfix>/Evaluate_Results performtable</action_postfix>
 <action_column column_value="X" column_number="1" />
 <action_column column_value="X" column_number="2" />
 <action_column column_value="X" column_number="3" />
@@ -179,15 +159,11 @@ Evaluate_Results
 <context_details>
 <context_number>1</context_number>
 <context_dsl>for all clients</context_dsl>
-<context_postfix>
-dup clients forall pop 
-</context_postfix></context_details>
+<context_postfix>dup clients forall pop</context_postfix></context_details>
 <context_details>
 <context_number>2</context_number>
 <context_dsl>for all incomes</context_dsl>
-<context_postfix>
-dup incomes forall pop 
-</context_postfix></context_details></contexts>
+<context_postfix>dup incomes forall pop</context_postfix></context_details></contexts>
 <initial_actions />
 <conditions>
 <condition_details>
@@ -195,9 +171,7 @@ dup incomes forall pop
 <condition_comment>We include all earned income</condition_comment>
 <condition_requirement />
 <condition_dsl>income.earned == true</condition_dsl>
-<condition_postfix>
-income.earned true beq 
-</condition_postfix>
+<condition_postfix>income.earned true beq</condition_postfix>
 <condition_column column_value="Y" column_number="1" />
 <condition_column column_value="N" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -219,9 +193,7 @@ income.earned true beq
 <condition_comment>We don't include all unearned income types</condition_comment>
 <condition_requirement />
 <condition_dsl>ExcludedIncomeTypes includes the string income.type</condition_dsl>
-<condition_postfix>
-ExcludedIncomeTypes income.type memberof 
-</condition_postfix>
+<condition_postfix>ExcludedIncomeTypes income.type memberof</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="N" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -244,9 +216,7 @@ ExcludedIncomeTypes income.type memberof
 <action_comment>Add this income to the total income for this client</action_comment>
 <initial_action_requirement />
 <action_dsl>add income.amount to the client.totalIncome</action_dsl>
-<action_postfix>
-income.amount  client.totalIncome + /client.totalIncome xdef 
-</action_postfix>
+<action_postfix>income.amount client.totalIncome swap addto</action_postfix>
 <action_column column_value="X" column_number="1" />
 <action_column column_value="X" column_number="2" /></action_details></actions></decision_table>
 <decision_table>
@@ -260,30 +230,22 @@ income.amount  client.totalIncome + /client.totalIncome xdef
 <context_details>
 <context_number>1</context_number>
 <context_dsl>for all clients whose applying == true</context_dsl>
-<context_postfix>
-{ dup applying true beq if } clients forall pop 
-</context_postfix></context_details>
+<context_postfix>{ { dup execute } applying true beq if } clients forall pop</context_postfix></context_details>
 <context_details>
 <context_number>2</context_number>
 <context_dsl>local entity ThisClient = client</context_dsl>
-<context_postfix>
-client cve allocate execute deallocate pop 
-</context_postfix></context_details>
+<context_postfix>client cve allocate execute deallocate pop</context_postfix></context_details>
 <context_details>
 <context_number>3</context_number>
 <context_dsl>for all clients</context_dsl>
-<context_postfix>
-dup clients forall pop 
-</context_postfix></context_details></contexts>
+<context_postfix>dup clients forall pop</context_postfix></context_details></contexts>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Are we consider the client themselves?</condition_comment>
 <condition_requirement />
 <condition_dsl>ThisClient == client</condition_dsl>
-<condition_postfix>
-0 local@  client req  
-</condition_postfix>
+<condition_postfix>0 local@ client req</condition_postfix>
 <condition_column column_value="Y" column_number="1" />
 <condition_column column_value="Y" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -305,9 +267,7 @@ dup clients forall pop
 <condition_comment>Include ThisClient's parents</condition_comment>
 <condition_requirement />
 <condition_dsl>the client is the parent of ThisClient</condition_dsl>
-<condition_postfix>
-parent { pop true } { pop false } { dup type streq source client  req and target 0 local@   req and }  relationships forfirstelse 
-</condition_postfix>
+<condition_postfix>&quot;relationship-is-of form is not supported (findmatch was removed)&quot; elstmterror false</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="Y" column_number="3" />
@@ -329,9 +289,7 @@ parent { pop true } { pop false } { dup type streq source client  req and target
 <condition_comment>Include ThisClient's siblings</condition_comment>
 <condition_requirement />
 <condition_dsl>the client is the sibling of ThisClient</condition_dsl>
-<condition_postfix>
-sibling { pop true } { pop false } { dup type streq source client  req and target 0 local@   req and }  relationships forfirstelse 
-</condition_postfix>
+<condition_postfix>&quot;relationship-is-of form is not supported (findmatch was removed)&quot; elstmterror false</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -353,9 +311,7 @@ sibling { pop true } { pop false } { dup type streq source client  req and targe
 <condition_comment>Include ThisClient's children</condition_comment>
 <condition_requirement />
 <condition_dsl>the client is the child of ThisClient</condition_dsl>
-<condition_postfix>
-child { pop true } { pop false } { dup type streq source client  req and target 0 local@   req and }  relationships forfirstelse 
-</condition_postfix>
+<condition_postfix>&quot;relationship-is-of form is not supported (findmatch was removed)&quot; elstmterror false</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -377,9 +333,7 @@ child { pop true } { pop false } { dup type streq source client  req and target 
 <condition_comment>Include the unborn children in some cases</condition_comment>
 <condition_requirement />
 <condition_dsl>the client.pregnant == true</condition_dsl>
-<condition_postfix>
-client.pregnant true beq 
-</condition_postfix>
+<condition_postfix>client.pregnant true beq</condition_postfix>
 <condition_column column_value="N" column_number="1" />
 <condition_column column_value="Y" column_number="2" />
 <condition_column column_value="N" column_number="3" />
@@ -401,9 +355,7 @@ client.pregnant true beq
 <condition_comment>Is this client older than 18</condition_comment>
 <condition_requirement />
 <condition_dsl>client.age &gt; 18</condition_dsl>
-<condition_postfix>
-client.age 18 &gt; 
-</condition_postfix>
+<condition_postfix>client.age 18 &gt;</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -426,9 +378,7 @@ client.age 18 &gt;
 <action_comment>Count the Client himself and particular relatives</action_comment>
 <initial_action_requirement />
 <action_dsl>add 1 to ThisClient's IncomeGroupCount</action_dsl>
-<action_postfix>
-1  0 local@  entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop 
-</action_postfix>
+<action_postfix>1 0 local@ entitypush IncomeGroupCount swap addto entitypop</action_postfix>
 <action_column column_value="X" column_number="1" />
 <action_column column_value="X" column_number="2" />
 <action_column column_value="X" column_number="3" />
@@ -441,9 +391,7 @@ client.age 18 &gt;
 <action_comment>Add 1 for each of the expected babies for a pregnant person</action_comment>
 <initial_action_requirement />
 <action_dsl>add expectedChildren to ThisClient's IncomeGroupCount</action_dsl>
-<action_postfix>
-expectedChildren  0 local@  entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop 
-</action_postfix>
+<action_postfix>expectedChildren ThisClient IncomeGroupCount swap addto</action_postfix>
 <action_column column_value="X" column_number="2" />
 <action_column column_value="X" column_number="4" />
 <action_column column_value="X" column_number="6" /></action_details>
@@ -452,9 +400,7 @@ expectedChildren  0 local@  entitypush IncomeGroupCount + /IncomeGroupCount xdef
 <action_comment>Add this person's Income to the ThisPerson's total group income</action_comment>
 <initial_action_requirement />
 <action_dsl>add the client.totalIncome to ThisClient's totalGroupIncome</action_dsl>
-<action_postfix>
-client.totalIncome  0 local@  entitypush totalGroupIncome + /totalGroupIncome xdef entitypop 
-</action_postfix>
+<action_postfix>client.totalIncome ThisClient totalGroupIncome swap addto</action_postfix>
 <action_column column_value="X" column_number="9" />
 <action_column column_value="X" column_number="10" />
 <action_column column_value="X" column_number="11" />
@@ -470,60 +416,42 @@ client.totalIncome  0 local@  entitypush totalGroupIncome + /totalGroupIncome xd
 <context_details>
 <context_number>1</context_number>
 <context_dsl>for all clients whose applying == true</context_dsl>
-<context_postfix>
-{ dup applying true beq if } clients forall pop 
-</context_postfix></context_details>
+<context_postfix>{ { dup execute } applying true beq if } clients forall pop</context_postfix></context_details>
 <context_details>
 <context_number>2</context_number>
 <context_dsl>local int FPL = FPL_Base + FPL_PerAdditionalPerson * (client.IncomeGroupCount - 1 )</context_dsl>
-<context_postfix>
-FPL_Base FPL_PerAdditionalPerson client.IncomeGroupCount 1 -  * +  cvi allocate execute deallocate pop 
-</context_postfix></context_details>
+<context_postfix>FPL_Base FPL_PerAdditionalPerson client.IncomeGroupCount 1 - * + cvi allocate execute deallocate pop</context_postfix></context_details>
 <context_details>
 <context_number>3</context_number>
 <context_dsl>local int FPL125 = FPL * 1.25</context_dsl>
-<context_postfix>
-0 local@  1.25 fmul  cvi allocate execute deallocate pop 
-</context_postfix></context_details>
+<context_postfix>0 local@ 1.25 fmul cvi allocate execute deallocate pop</context_postfix></context_details>
 <context_details>
 <context_number>4</context_number>
 <context_dsl>local int FPL150 = FPL * 1.5</context_dsl>
-<context_postfix>
-0 local@  1.5 fmul  cvi allocate execute deallocate pop 
-</context_postfix></context_details>
+<context_postfix>0 local@ 1.5 fmul cvi allocate execute deallocate pop</context_postfix></context_details>
 <context_details>
 <context_number>5</context_number>
 <context_dsl>local int FPL175 = FPL * 1.75</context_dsl>
-<context_postfix>
-0 local@  1.75 fmul  cvi allocate execute deallocate pop 
-</context_postfix></context_details>
+<context_postfix>0 local@ 1.75 fmul cvi allocate execute deallocate pop</context_postfix></context_details>
 <context_details>
 <context_number>6</context_number>
 <context_dsl>local int FPL200 = FPL * 2</context_dsl>
-<context_postfix>
-0 local@  2 *  cvi allocate execute deallocate pop 
-</context_postfix></context_details>
+<context_postfix>0 local@ 2 * cvi allocate execute deallocate pop</context_postfix></context_details>
 <context_details>
 <context_number>7</context_number>
 <context_dsl>local int FPL250 = FPL * 2.5</context_dsl>
-<context_postfix>
-0 local@  2.5 fmul  cvi allocate execute deallocate pop 
-</context_postfix></context_details>
+<context_postfix>0 local@ 2.5 fmul cvi allocate execute deallocate pop</context_postfix></context_details>
 <context_details>
 <context_number>8</context_number>
 <context_dsl>local int FPL300 = FPL * 3</context_dsl>
-<context_postfix>
-0 local@  3 *  cvi allocate execute deallocate pop 
-</context_postfix></context_details></contexts>
+<context_postfix>0 local@ 3 * cvi allocate execute deallocate pop</context_postfix></context_details></contexts>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>You have to be a Citizen</condition_comment>
 <condition_requirement />
 <condition_dsl>validatedCitizenship</condition_dsl>
-<condition_postfix>
-validatedCitizenship 
-</condition_postfix>
+<condition_postfix>validatedCitizenship</condition_postfix>
 <condition_column column_value="Y" column_number="1" />
 <condition_column column_value="Y" column_number="2" />
 <condition_column column_value="Y" column_number="3" />
@@ -545,9 +473,7 @@ validatedCitizenship
 <condition_comment>Make sure this case is in the appropriate county</condition_comment>
 <condition_requirement />
 <condition_dsl>The CoveredCounties includes the string case.county_Cd</condition_dsl>
-<condition_postfix>
-CoveredCounties case.county_Cd memberof 
-</condition_postfix>
+<condition_postfix>CoveredCounties case.county_Cd memberof</condition_postfix>
 <condition_column column_value="Y" column_number="1" />
 <condition_column column_value="Y" column_number="2" />
 <condition_column column_value="Y" column_number="3" />
@@ -569,9 +495,7 @@ CoveredCounties case.county_Cd memberof
 <condition_comment />
 <condition_requirement />
 <condition_dsl>client.age &lt; 1</condition_dsl>
-<condition_postfix>
-client.age 1 &lt; 
-</condition_postfix>
+<condition_postfix>client.age 1 &lt;</condition_postfix>
 <condition_column column_value="Y" column_number="1" />
 <condition_column column_value="n" column_number="2" />
 <condition_column column_value="n" column_number="3" />
@@ -593,9 +517,7 @@ client.age 1 &lt;
 <condition_comment />
 <condition_requirement />
 <condition_dsl>client.age &lt; 6</condition_dsl>
-<condition_postfix>
-client.age 6 &lt; 
-</condition_postfix>
+<condition_postfix>client.age 6 &lt;</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="Y" column_number="2" />
 <condition_column column_value="n" column_number="3" />
@@ -617,9 +539,7 @@ client.age 6 &lt;
 <condition_comment />
 <condition_requirement />
 <condition_dsl>client.age &lt;= 18</condition_dsl>
-<condition_postfix>
-client.age 18 &lt;= 
-</condition_postfix>
+<condition_postfix>client.age 18 &lt;=</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="Y" column_number="3" />
@@ -641,9 +561,7 @@ client.age 18 &lt;=
 <condition_comment>Exclude under the FPL</condition_comment>
 <condition_requirement />
 <condition_dsl>totalGroupIncome &gt; FPL</condition_dsl>
-<condition_postfix>
-totalGroupIncome 0 local@  &gt; 
-</condition_postfix>
+<condition_postfix>totalGroupIncome 0 local@ &gt;</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="Y" column_number="3" />
@@ -665,9 +583,7 @@ totalGroupIncome 0 local@  &gt;
 <condition_comment>Exclude under 125 percent of the FPL</condition_comment>
 <condition_requirement />
 <condition_dsl>totalGroupIncome &gt; FPL125</condition_dsl>
-<condition_postfix>
-totalGroupIncome 1 local@  &gt; 
-</condition_postfix>
+<condition_postfix>totalGroupIncome 1 local@ &gt;</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="Y" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -689,9 +605,7 @@ totalGroupIncome 1 local@  &gt;
 <condition_comment>Exclude under 150 percent of the FPL</condition_comment>
 <condition_requirement />
 <condition_dsl>totalGroupIncome &gt; FPL150</condition_dsl>
-<condition_postfix>
-totalGroupIncome 2 local@  &gt; 
-</condition_postfix>
+<condition_postfix>totalGroupIncome 2 local@ &gt;</condition_postfix>
 <condition_column column_value="Y" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -713,9 +627,7 @@ totalGroupIncome 2 local@  &gt;
 <condition_comment>Exclude under 175 percent of the FPL</condition_comment>
 <condition_requirement />
 <condition_dsl>totalGroupIncome &gt; FPL175</condition_dsl>
-<condition_postfix>
-totalGroupIncome 3 local@  &gt; 
-</condition_postfix>
+<condition_postfix>totalGroupIncome 3 local@ &gt;</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -737,9 +649,7 @@ totalGroupIncome 3 local@  &gt;
 <condition_comment>Exclude under 200 percent of the FPL</condition_comment>
 <condition_requirement />
 <condition_dsl>totalGroupIncome &gt; FPL200</condition_dsl>
-<condition_postfix>
-totalGroupIncome 4 local@  &gt; 
-</condition_postfix>
+<condition_postfix>totalGroupIncome 4 local@ &gt;</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -761,9 +671,7 @@ totalGroupIncome 4 local@  &gt;
 <condition_comment>Exclude under 250 percent of the FPL</condition_comment>
 <condition_requirement />
 <condition_dsl>totalGroupIncome &gt; FPL250</condition_dsl>
-<condition_postfix>
-totalGroupIncome 5 local@  &gt; 
-</condition_postfix>
+<condition_postfix>totalGroupIncome 5 local@ &gt;</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -785,9 +693,7 @@ totalGroupIncome 5 local@  &gt;
 <condition_comment>Include if not excluded and under 175 of the FPL</condition_comment>
 <condition_requirement />
 <condition_dsl>totalGroupIncome &lt;= FPL175</condition_dsl>
-<condition_postfix>
-totalGroupIncome 3 local@  &lt;= 
-</condition_postfix>
+<condition_postfix>totalGroupIncome 3 local@ &lt;=</condition_postfix>
 <condition_column column_value="Y" column_number="1" />
 <condition_column column_value="Y" column_number="2" />
 <condition_column column_value="Y" column_number="3" />
@@ -809,9 +715,7 @@ totalGroupIncome 3 local@  &lt;=
 <condition_comment>Include if not excluded and under 200 of the FPL</condition_comment>
 <condition_requirement />
 <condition_dsl>totalGroupIncome &lt;= FPL200</condition_dsl>
-<condition_postfix>
-totalGroupIncome 4 local@  &lt;= 
-</condition_postfix>
+<condition_postfix>totalGroupIncome 4 local@ &lt;=</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -833,9 +737,7 @@ totalGroupIncome 4 local@  &lt;=
 <condition_comment>Include if not excluded and under 250 of the FPL</condition_comment>
 <condition_requirement />
 <condition_dsl>totalGroupIncome &lt;= FPL250</condition_dsl>
-<condition_postfix>
-totalGroupIncome 5 local@  &lt;= 
-</condition_postfix>
+<condition_postfix>totalGroupIncome 5 local@ &lt;=</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -857,9 +759,7 @@ totalGroupIncome 5 local@  &lt;=
 <condition_comment>Include if not excluded and under 300 of the FPL</condition_comment>
 <condition_requirement />
 <condition_dsl>totalGroupIncome &lt;= FPL300</condition_dsl>
-<condition_postfix>
-totalGroupIncome 6 local@  &lt;= 
-</condition_postfix>
+<condition_postfix>totalGroupIncome 6 local@ &lt;=</condition_postfix>
 <condition_column column_value="-" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -882,9 +782,7 @@ totalGroupIncome 6 local@  &lt;=
 <action_comment>set the program Level</action_comment>
 <initial_action_requirement />
 <action_dsl>set client.programLevel = FreeCoverage</action_dsl>
-<action_postfix>
-FreeCoverage cvs /client.programLevel xdef  
-</action_postfix>
+<action_postfix>FreeCoverage cvi /client.programLevel xdef</action_postfix>
 <action_column column_value="X" column_number="1" />
 <action_column column_value="X" column_number="2" />
 <action_column column_value="X" column_number="3" /></action_details>
@@ -893,9 +791,7 @@ FreeCoverage cvs /client.programLevel xdef
 <action_comment />
 <initial_action_requirement />
 <action_dsl>set client.programLevel = LowCostCoverage</action_dsl>
-<action_postfix>
-LowCostCoverage cvs /client.programLevel xdef  
-</action_postfix>
+<action_postfix>LowCostCoverage cvi /client.programLevel xdef</action_postfix>
 <action_column column_value="X" column_number="5" />
 <action_column column_value="X" column_number="6" />
 <action_column column_value="X" column_number="7" /></action_details>
@@ -904,18 +800,14 @@ LowCostCoverage cvs /client.programLevel xdef
 <action_comment />
 <initial_action_requirement />
 <action_dsl>set client.programLevel = AtCostCoverage</action_dsl>
-<action_postfix>
-AtCostCoverage cvs /client.programLevel xdef  
-</action_postfix>
+<action_postfix>AtCostCoverage cvi /client.programLevel xdef</action_postfix>
 <action_column column_value="X" column_number="9" /></action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>Provide reasons for rejection</action_comment>
 <initial_action_requirement />
 <action_dsl>set client.eligible = false</action_dsl>
-<action_postfix>
-false cvb /client.eligible xdef  
-</action_postfix>
+<action_postfix>false cvb /client.eligible xdef</action_postfix>
 <action_column column_value="X" column_number="11" />
 <action_column column_value="X" column_number="12" />
 <action_column column_value="X" column_number="13" />
@@ -925,18 +817,14 @@ false cvb /client.eligible xdef
 <action_comment />
 <initial_action_requirement />
 <action_dsl>Add "Client is eligible for Medicaid, so cannot enroll in KidAid" to client.notes</action_dsl>
-<action_postfix>
-"Client is eligible for Medicaid, so cannot enroll in KidAid" client.notes swap addto 
-</action_postfix>
+<action_postfix>&quot;Client is eligible for Medicaid, so cannot enroll in KidAid&quot; client.notes swap addto</action_postfix>
 <action_column column_value="X" column_number="11" /></action_details>
 <action_details>
 <action_number>6</action_number>
 <action_comment />
 <initial_action_requirement />
 <action_dsl>Add "Must Provide Validation of Citizenship" to client.notes</action_dsl>
-<action_postfix>
-"Must Provide Validation of Citizenship" client.notes swap addto 
-</action_postfix>
+<action_postfix>&quot;Must Provide Validation of Citizenship&quot; client.notes swap addto</action_postfix>
 <action_column column_value="X" column_number="12" />
 <action_column column_value="X" column_number="13" /></action_details>
 <action_details>
@@ -944,9 +832,7 @@ false cvb /client.eligible xdef
 <action_comment />
 <initial_action_requirement />
 <action_dsl>Add "Case must be within a KidAid County" to client.notes</action_dsl>
-<action_postfix>
-"Case must be within a KidAid County" client.notes swap addto 
-</action_postfix>
+<action_postfix>&quot;Case must be within a KidAid County&quot; client.notes swap addto</action_postfix>
 <action_column column_value="X" column_number="12" />
 <action_column column_value="X" column_number="14" /></action_details>
 <action_details>
@@ -963,9 +849,7 @@ false cvb /client.eligible xdef
 <action_comment />
 <initial_action_requirement />
 <action_dsl>set client_fpl = (100.0 * totalGroupIncome) / FPL</action_dsl>
-<action_postfix>
-100.0 totalGroupIncome fmul 0 local@  fdiv  cvi /client_fpl xdef  
-</action_postfix>
+<action_postfix>100.0 totalGroupIncome fmul 0 local@ fdiv cvi /client_fpl xdef</action_postfix>
 <action_column column_value="X" column_number="1" />
 <action_column column_value="X" column_number="2" />
 <action_column column_value="X" column_number="3" />
@@ -989,9 +873,7 @@ false cvb /client.eligible xdef
 <context_details>
 <context_number>1</context_number>
 <context_dsl>for all clients</context_dsl>
-<context_postfix>
-dup clients forall pop 
-</context_postfix></context_details></contexts>
+<context_postfix>dup clients forall pop</context_postfix></context_details></contexts>
 <initial_actions />
 <conditions>
 <condition_details>
@@ -999,9 +881,7 @@ dup clients forall pop
 <condition_comment>Is this client applying for this program?</condition_comment>
 <condition_requirement />
 <condition_dsl>client.applying == true</condition_dsl>
-<condition_postfix>
-client.applying true beq 
-</condition_postfix>
+<condition_postfix>client.applying true beq</condition_postfix>
 <condition_column column_value="Y" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -1024,9 +904,7 @@ client.applying true beq
 <action_comment>Reject the client</action_comment>
 <initial_action_requirement />
 <action_dsl>set client.eligible = false</action_dsl>
-<action_postfix>
-false cvb /client.eligible xdef  
-</action_postfix>
+<action_postfix>false cvb /client.eligible xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>2</action_number>
@@ -1048,9 +926,7 @@ false cvb /client.eligible xdef
 <context_details>
 <context_number>1</context_number>
 <context_dsl>for all clients</context_dsl>
-<context_postfix>
-dup clients forall pop 
-</context_postfix></context_details></contexts>
+<context_postfix>dup clients forall pop</context_postfix></context_details></contexts>
 <initial_actions />
 <conditions>
 <condition_details>
@@ -1058,9 +934,7 @@ dup clients forall pop
 <condition_comment>Is this client applying for this program?</condition_comment>
 <condition_requirement />
 <condition_dsl>client.applying == true</condition_dsl>
-<condition_postfix>
-client.applying true beq 
-</condition_postfix>
+<condition_postfix>client.applying true beq</condition_postfix>
 <condition_column column_value="Y" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -1083,9 +957,7 @@ client.applying true beq
 <action_comment>Reject the client</action_comment>
 <initial_action_requirement />
 <action_dsl>set client.eligible = false</action_dsl>
-<action_postfix>
-false cvb /client.eligible xdef  
-</action_postfix>
+<action_postfix>false cvb /client.eligible xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>2</action_number>
@@ -1110,9 +982,7 @@ in this table, and update the test code to get the data from the client object.<
 <context_details>
 <context_number>1</context_number>
 <context_dsl>for all clients whose applying == true</context_dsl>
-<context_postfix>
-{ dup applying true beq if } clients forall pop 
-</context_postfix></context_details></contexts>
+<context_postfix>{ { dup execute } applying true beq if } clients forall pop</context_postfix></context_details></contexts>
 <initial_actions />
 <conditions>
 <condition_details>
@@ -1120,9 +990,7 @@ in this table, and update the test code to get the data from the client object.<
 <condition_comment />
 <condition_requirement />
 <condition_dsl>perform when called</condition_dsl>
-<condition_postfix>
-perform when called 
-</condition_postfix>
+<condition_postfix>perform when called</condition_postfix>
 <condition_column column_value="*" column_number="1" />
 <condition_column column_value="-" column_number="2" />
 <condition_column column_value="-" column_number="3" />
@@ -1145,88 +1013,68 @@ perform when called
 <action_comment>Create a Result Record</action_comment>
 <initial_action_requirement />
 <action_dsl>add a new Result entity to the context of this table</action_dsl>
-<action_postfix>
-/Result createentity entitypush 
-</action_postfix>
+<action_postfix>/Result createentity entitypush</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Add the record to the list on the job</action_comment>
 <initial_action_requirement />
 <action_dsl>add the result to the job.results</action_dsl>
-<action_postfix>
-result job.results swap addto 
-</action_postfix>
+<action_postfix>result job.results swap addto</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Point the Result notes to the Client notes</action_comment>
 <initial_action_requirement />
 <action_dsl>Set Result.notes = client.notes</action_dsl>
-<action_postfix>
-client.notes /Result.notes xdef 
-</action_postfix>
+<action_postfix>client.notes /Result.notes xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>Copy the client ID</action_comment>
 <initial_action_requirement />
 <action_dsl>Set Result.client_id = client.client_id</action_dsl>
-<action_postfix>
-client.client_id cvs /Result.client_id xdef  
-</action_postfix>
+<action_postfix>client.client_id cvi /Result.client_id xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>5</action_number>
 <action_comment>Point the Result to the client</action_comment>
 <initial_action_requirement />
 <action_dsl>Set Result.client = client.client</action_dsl>
-<action_postfix>
-client.client cve /Result.client xdef  
-</action_postfix>
+<action_postfix>client.client cve /Result.client xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>6</action_number>
 <action_comment>Set the Result to the program we processed</action_comment>
 <initial_action_requirement />
 <action_dsl>Set Result.program = job.program</action_dsl>
-<action_postfix>
-job.program cvs /Result.program xdef  
-</action_postfix>
+<action_postfix>job.program cvs /Result.program xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>7</action_number>
 <action_comment>Set the Result programLevel to that recorded on the client</action_comment>
 <initial_action_requirement />
 <action_dsl>Set Result.programLevel = client.programLevel</action_dsl>
-<action_postfix>
-client.programLevel cvs /Result.programLevel xdef  
-</action_postfix>
+<action_postfix>client.programLevel cvi /Result.programLevel xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>8</action_number>
 <action_comment>Set the Result eligible flag to that recorded on the client</action_comment>
 <initial_action_requirement />
 <action_dsl>Set Result.eligible = client.eligible</action_dsl>
-<action_postfix>
-client.eligible cvb /Result.eligible xdef  
-</action_postfix>
+<action_postfix>client.eligible cvb /Result.eligible xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>9</action_number>
 <action_comment>Set the Result Federal Poverty Level to the client's</action_comment>
 <initial_action_requirement />
 <action_dsl>Set Result.client_fpl = client.client_fpl</action_dsl>
-<action_postfix>
-client.client_fpl  cvi /Result.client_fpl xdef  
-</action_postfix>
+<action_postfix>client.client_fpl cvi /Result.client_fpl xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details>
 <action_details>
 <action_number>10</action_number>
 <action_comment>Set the Result's totalGroupIncome to the clients.</action_comment>
 <initial_action_requirement />
 <action_dsl>Set Result.totalGroupIncome = client.totalGroupIncome</action_dsl>
-<action_postfix>
-client.totalGroupIncome  cvi /Result.totalGroupIncome xdef  
-</action_postfix>
+<action_postfix>client.totalGroupIncome cvi /Result.totalGroupIncome xdef</action_postfix>
 <action_column column_value="X" column_number="1" /></action_details></actions></decision_table></decision_tables>

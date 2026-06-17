@@ -21,9 +21,9 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Always run the full therapy workup</condition_comment>
-<condition_dsl>true</condition_dsl>
+<condition_dsl>patient.diagnosis is equal to ignore case "Acute Sinusitis"</condition_dsl>
 <condition_postfix>
-true
+patient.diagnosis "Acute Sinusitis" s==i
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>

@@ -597,10 +597,14 @@ func (e *Exporter) setEDDColumnWidths(f *excelize.File, sheet string) {
 	AutoWidth(f, sheet, "F", 8)
 	AutoWidth(f, sheet, "G", 8)
 	AutoWidth(f, sheet, "H", 55)
+	AutoWidth(f, sheet, "I", 8)
+	AutoWidth(f, sheet, "J", 30)
+	AutoWidth(f, sheet, "K", 16)
+	AutoWidth(f, sheet, "L", 30)
 }
 
 func (e *Exporter) writeEDDHeaders(f *excelize.File, sheet string, styler *Styler, startRow int) {
-	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description"}
+	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description", "Collect", "Question", "Q Type", "Options"}
 	for col, header := range headers {
 		cell, _ := excelize.CoordinatesToCellName(col+1, startRow)
 		styler.ApplyHeader(f, sheet, cell, cell, cell, header)
@@ -632,7 +636,7 @@ func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*
 
 		f.SetCellValue(sheet, cellName(1, row), entityName)
 		f.SetCellValue(sheet, cellName(2, row), fmt.Sprintf("(%d attributes)", attrCount))
-		for col := 1; col <= 8; col++ {
+		for col := 1; col <= eddColumnCount; col++ {
 			f.SetCellStyle(sheet, cellName(col, row), cellName(col, row), s.entityHeader)
 		}
 		row++
@@ -689,6 +693,29 @@ func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*
 
 			f.SetCellValue(sheet, cellName(8, row), entry.Comment)
 			f.SetCellStyle(sheet, cellName(8, row), cellName(8, row), s.comment)
+
+			// Collect + question metadata (#850), columns I–L.
+			collectTxt, qText, qType, qOpts := "", "", "", ""
+			if entry.Collect {
+				collectTxt = "true"
+				if entry.Question != nil {
+					qText = entry.Question.Text
+					qType = entry.Question.Type
+					xo := make([]EDDXMLOption, 0, len(entry.Question.Options))
+					for _, o := range entry.Question.Options {
+						xo = append(xo, EDDXMLOption{Value: o.Value, Label: o.Label})
+					}
+					qOpts = encodeEDDOptions(xo)
+				}
+			}
+			f.SetCellValue(sheet, cellName(9, row), collectTxt)
+			f.SetCellStyle(sheet, cellName(9, row), cellName(9, row), rowStyle)
+			f.SetCellValue(sheet, cellName(10, row), qText)
+			f.SetCellStyle(sheet, cellName(10, row), cellName(10, row), rowStyle)
+			f.SetCellValue(sheet, cellName(11, row), qType)
+			f.SetCellStyle(sheet, cellName(11, row), cellName(11, row), rowStyle)
+			f.SetCellValue(sheet, cellName(12, row), qOpts)
+			f.SetCellStyle(sheet, cellName(12, row), cellName(12, row), rowStyle)
 
 			row++
 			attrRow++

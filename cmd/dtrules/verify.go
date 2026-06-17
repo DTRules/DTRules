@@ -27,7 +27,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/DTRules/DTRules/pkg/dtrules/analysis"
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
+	"github.com/DTRules/DTRules/pkg/dtrules/operators"
 	"github.com/DTRules/DTRules/pkg/dtrules/sync"
 	"github.com/xuri/excelize/v2"
 )
@@ -138,6 +140,20 @@ func (c *CLI) runVerify(args []string) int {
 	if dirExists(excelDir) {
 		suffixFails := checkSuffixContentConsistency(excelDir)
 		failures = append(failures, suffixFails...)
+	}
+
+	// Check 5: every decision-table project has an Excel representation.
+	// Catches the contract violation where rules were authored straight
+	// into XML without ever building the Excel system-of-record.
+	if dirExists(xmlDir) {
+		failures = append(failures, checkExcelPresence(xmlDir, excelDir)...)
+	}
+
+	// Check 6: no decision table depends on external/undefined business
+	// logic — undefined `perform` targets, EDD fields the schema doesn't
+	// declare, or operators the engine doesn't implement.
+	if dirExists(xmlDir) {
+		failures = append(failures, checkExternalRefs(xmlDir)...)
 	}
 
 	if len(failures) == 0 {
@@ -751,6 +767,89 @@ func checkSuffixContentConsistency(excelDir string) []verifyFailure {
 	return failures
 }
 
+// checkExcelPresence fails when a project carries decision-table or EDD
+// XML but has no Excel workbook to back it. Excel is the system of record;
+// XML is a generated artifact. A project with rule XML and no `.xlsx`
+// anywhere was authored by writing XML directly — exactly the bypass the
+// authoring contract forbids — so it fails the gate rather than committing.
+//
+// The check is project-level and coarse on purpose: per-table workbook
+// references are already validated by checkSourceHeaders, and build drift
+// by checkBuildIdempotency. This catches only the gross "no Excel at all"
+// case, which neither of those flags when the XML has no <source> headers.
+func checkExcelPresence(xmlDir, excelDir string) []verifyFailure {
+	if !hasRuleXML(xmlDir) {
+		return nil // not a rule project — nothing to back with Excel
+	}
+	if dirExists(excelDir) && hasWorkbook(excelDir) {
+		return nil
+	}
+	return []verifyFailure{{
+		kind: "excel",
+		message: "project has decision-table/EDD XML but no Excel workbook in excel/ — " +
+			"Excel is the system of record; author through Excel (dtrules build) or the " +
+			"authoring API (dtrules table/edd), not by writing XML directly",
+	}}
+}
+
+// hasRuleXML reports whether xmlDir contains any *_dt.xml or *_edd.xml file.
+func hasRuleXML(xmlDir string) bool {
+	found := false
+	_ = filepath.WalkDir(xmlDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil
+		}
+		name := d.Name()
+		if strings.HasSuffix(name, "_dt.xml") || strings.HasSuffix(name, "_edd.xml") {
+			found = true
+			return io.EOF
+		}
+		return nil
+	})
+	return found
+}
+
+// hasWorkbook reports whether excelDir contains any non-temp .xlsx file.
+func hasWorkbook(excelDir string) bool {
+	found := false
+	_ = filepath.WalkDir(excelDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil
+		}
+		name := d.Name()
+		if strings.HasPrefix(name, "~$") {
+			return nil
+		}
+		if strings.HasSuffix(strings.ToLower(name), ".xlsx") {
+			found = true
+			return io.EOF
+		}
+		return nil
+	})
+	return found
+}
+
+// checkExternalRefs fails when any decision table depends on a symbol the
+// project doesn't define: an undefined `perform` target, an EDD field the
+// schema never declares, or an operator absent from the registry. A table
+// that leans on logic defined outside the project isn't self-contained and
+// must not commit.
+func checkExternalRefs(xmlDir string) []verifyFailure {
+	isOperator := func(tok string) bool {
+		_, ok := operators.GetByString(tok)
+		return ok
+	}
+	findings, err := analysis.AnalyzeExternalRefs(xmlDir, isOperator)
+	if err != nil {
+		return []verifyFailure{{kind: "external", message: fmt.Sprintf("external-reference scan error: %v", err)}}
+	}
+	var failures []verifyFailure
+	for _, f := range findings {
+		failures = append(failures, verifyFailure{kind: "external", message: f.String()})
+	}
+	return failures
+}
+
 // copyDir copies src directory tree into dst, preserving structure.
 // dst is the parent directory; src's contents are copied under dst/<basename(src)>.
 func copyDir(src, dst string) error {
@@ -825,9 +924,11 @@ Exit codes:
   1  One or more checks failed
 
 Checks performed:
-  build   Running dtrules build would not change any file in excel/ or xml/
-  source  Every XML artifact has a valid <source> or <xls_file> reference
-  order   NNN_ prefix ordering agrees with workbook sheet order
+  build     Running dtrules build would not change any file in excel/ or xml/
+  source    Every XML artifact has a valid <source> or <xls_file> reference
+  order     NNN_ prefix ordering agrees with workbook sheet order
+  excel     A rule project has an Excel system-of-record workbook
+  external  No table depends on an undefined table, EDD field, or operator
 
 Examples:
   dtrules verify

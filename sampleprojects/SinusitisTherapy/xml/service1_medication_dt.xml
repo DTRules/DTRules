@@ -76,8 +76,8 @@ true
 patient.penicillin_allergic true beq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -86,8 +86,8 @@ patient.penicillin_allergic true beq
 <condition_postfix>
 patient.age constants.adult_age &gt;=
 </condition_postfix>
-<condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="2" column_value="Y" />
 </condition_details>
 </conditions>
 <actions>
@@ -115,6 +115,33 @@ patient.age constants.adult_age &gt;=
 <action_dsl>set result.recommended_drug = "Cefuroxime"</action_dsl>
 <action_postfix>
 "Cefuroxime" cvs /result.recommended_drug xdef
+</action_postfix>
+<action_column column_number="3" column_value="X" />
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Rationale: penicillin-allergic</action_comment>
+<action_dsl>add "Levofloxacin selected: fluoroquinolone avoids beta-lactam cross-reactivity in a penicillin-allergic patient." to result.rationale</action_dsl>
+<action_postfix>
+"Levofloxacin selected: fluoroquinolone avoids beta-lactam cross-reactivity in a penicillin-allergic patient." result.rationale swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Rationale: adult first-line</action_comment>
+<action_dsl>add "Amoxicillin selected: first-line beta-lactam for a non-allergic adult." to result.rationale</action_dsl>
+<action_postfix>
+"Amoxicillin selected: first-line beta-lactam for a non-allergic adult." result.rationale swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Rationale: pediatric first-line</action_comment>
+<action_dsl>add "Cefuroxime selected: first-line for a non-allergic pediatric patient." to result.rationale</action_dsl>
+<action_postfix>
+"Cefuroxime selected: first-line for a non-allergic pediatric patient." result.rationale swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -147,8 +174,8 @@ patient.age constants.adult_age &gt;=
 patient.pcr constants.renal_pcr_threshold f&gt; { pop result.ccr constants.renal_ccr_threshold f&lt; } over if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>

@@ -2,9 +2,18 @@
 
 Status: **partially implemented.** The multi-file organization, table numbers,
 per-file ranges, the `authoring-notes.md` journal, and EDD ordering (see
-"Multi-file organization" below) have shipped. The core enforcement model in
-this document — Excel write-through on every API write, removal of
-`dtrules compile`, and the `verify` drift gate — remains **proposed**.
+"Multi-file organization" below) have shipped. `dtrules verify` now also
+enforces two gates beyond build-idempotency: an **Excel-presence** gate (a
+project with decision-table/EDD XML but no `.xlsx` fails — rules authored
+straight into XML without building the Excel system-of-record are rejected)
+and an **external-reference** gate (a table that performs an undefined table,
+reads an EDD field its entity doesn't declare, or uses an operator absent from
+the registry fails — see "External-reference gate" below). The bypass writers
+that let a tool change rule content without updating Excel — `dtrules compile`
+and `dtrules build --from-xml` — were **removed** in v1.16.0. The remaining
+enforcement model in this document — Excel write-through on every API write,
+the no-manifest bootstrap inversion, and the `verify` postfix-recompile drift
+check — remains **proposed**.
 
 This document defines the single, enforceable authoring model for DTRules
 rule sets. It exists because the authoring surfaces drifted into an
@@ -153,16 +162,20 @@ means *bootstrap it*, never *skip it*.
 
 ## What is removed
 
-- **`dtrules compile`** — the public subcommand is deleted. It wrote postfix
-  to XML without touching Excel: a writer outside the chokepoint. DSL→postfix
-  remains as an internal step owned by `dtrules build` and the authoring API.
-- **`dtrules build --from-xml`** — the XML→Excel build direction is deleted.
-  `build` is Excel → XML only. The lone legitimate XML→Excel use is one-time
-  bootstrap (see above), which is not a build mode.
+- **`dtrules compile`** — the public subcommand was **deleted (v1.16.0)**. It
+  wrote postfix to XML without touching Excel: a writer outside the chokepoint.
+  DSL→postfix remains as an internal step owned by `dtrules build` and the
+  authoring API (`loadEDDSymbols`, the only shared helper, moved to
+  `cmd/dtrules/edd_symbols.go`).
+- **`dtrules build --from-xml`** — the flag that forced the XML→Excel build
+  direction was **deleted (v1.16.0)**. `build` no longer offers an XML-authored
+  mode to the user. (The internal auto-detect still bootstraps Excel when it is
+  absent; making `build` strictly Excel→XML is part of the proposed bootstrap
+  inversion below.)
 - **"XML-only project" mode** — the no-manifest no-op path in
   `authoring.GuardExcelInDir` / `RefreshExcelInDir` and the tests that pin it
-  (`TestGuardExcelInDir_NoManifestIsNoOp` and its refresh twin) are inverted:
-  no-Excel triggers bootstrap, not a no-op.
+  (`TestGuardExcelInDir_NoManifestIsNoOp` and its refresh twin). Inverting this
+  so no-Excel triggers bootstrap (not a no-op) is **still proposed**.
 
 ## What stays as-is
 
@@ -199,6 +212,32 @@ Proof case:
 
 6. `sampleprojects/SinusitisTherapy` reconciled through the corrected path
    (its Excel generated as the record), then `dtrules verify` passes on it.
+
+## External-reference gate
+
+A rule set must be **self-contained**: every symbol a decision table names has
+to be defined inside the project. `dtrules verify` rejects three ways a table
+can lean on logic the project doesn't define:
+
+- **Undefined table** — a `perform <Name>` whose callee isn't a declared table.
+- **Undefined field** — a dotted `entity.attr` where `entity` is a declared EDD
+  entity but `attr` is not one of its declared fields.
+- **Undefined operator** — a compiled postfix token that resolves to nothing the
+  project declares: not a registered operator, EL keyword, declared entity or
+  field, defined table, or local.
+
+A reference "exists" if it resolves against the **union** of those name spaces —
+checking a bare token against the operator table alone is wrong, because a token
+like `client` is a declared entity, not an undefined operator.
+
+This is a **necessary-condition** check, not a completeness guarantee. DTRules'
+dictionary is dynamic: a field or entity can be materialized at runtime, and
+proving the *absence* of every possible undefined-at-runtime reference is
+intractable. The gate therefore catches what is *provably* missing from the
+declarations and accepts that runtime-constructed names can't be ruled out
+statically. On a project authored under the contract (compiled postfix, complete
+EDD) it is silent; it fires on hand-authored postfix, stale operators, and
+references to data the EDD never declares.
 
 ## Multi-file organization
 

@@ -114,6 +114,61 @@ func TestAnalyzeEDDUsage_UnusedAndWriteOnly(t *testing.T) {
 	}
 }
 
+// TestAnalyzeEDDUsage_OutputField covers access="w" (output) semantics: a
+// field written by the rules and consumed externally is NOT a write-only
+// finding, but declaring an output that no rule produces is.
+func TestAnalyzeEDDUsage_OutputField(t *testing.T) {
+	const outEDD = `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+  <entity name="result" access="rw">
+    <field name="produced_output" type="double" subtype="" access="w" input="" default_value="0" comment=""></field>
+    <field name="missing_output"  type="double" subtype="" access="w" input="" default_value="0" comment=""></field>
+  </entity>
+</entity_data_dictionary>`
+	const outDT = `<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+<decision_table>
+<table_name>Out</table_name>
+<attribute_fields><Type>FIRST</Type><COMMENTS></COMMENTS><TABLE_NUMBER>1</TABLE_NUMBER></attribute_fields>
+<conditions></conditions>
+<actions>
+  <action_details>
+    <action_number>1</action_number>
+    <action_dsl>set result.produced_output = 42</action_dsl>
+    <action_column column_number="1" column_value="X"></action_column>
+  </action_details>
+</actions>
+</decision_table>
+</decision_tables>`
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "out_edd.xml"), []byte(outEDD), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "out_dt.xml"), []byte(outDT), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	warns, err := AnalyzeEDDUsage(dir)
+	if err != nil {
+		t.Fatalf("AnalyzeEDDUsage error: %v", err)
+	}
+
+	for _, w := range warns {
+		if strings.Contains(w.Field, "produced_output") {
+			t.Errorf("an output that IS written must not warn, got %v", w)
+		}
+	}
+	var missingWarned bool
+	for _, w := range warns {
+		if strings.Contains(w.Field, "missing_output") && strings.Contains(w.Reason, "never written") {
+			missingWarned = true
+		}
+	}
+	if !missingWarned {
+		t.Errorf("expected a 'declared output never written' warning for result.missing_output, got %v", warns)
+	}
+}
+
 func TestAnalyzeEDDUsage_EmptyDir(t *testing.T) {
 	dir := t.TempDir()
 	warns, err := AnalyzeEDDUsage(dir)

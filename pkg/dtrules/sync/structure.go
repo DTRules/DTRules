@@ -295,8 +295,11 @@ func collectFilesByExt(dir, ext string) ([]string, error) {
 			if strings.Contains(strings.ToUpper(d.Name()), "TEMPLATE") {
 				return nil
 			}
-			// Skip mapping files
-			if strings.HasSuffix(d.Name(), "_map.xml") {
+			// Skip mapping files — a mapping (_map.xml / _map.xlsx) has no
+			// DT/EDD counterpart, so it must be excluded from BOTH the XML and
+			// the Excel collection or the correspondence check falsely reports
+			// the workbook as having "no corresponding XML output".
+			if strings.HasSuffix(d.Name(), "_map.xml") || strings.HasSuffix(d.Name(), "_map.xlsx") {
 				return nil
 			}
 			files = append(files, path)

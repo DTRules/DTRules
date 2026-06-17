@@ -25,11 +25,7 @@
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in OR</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true and state_code == 'OR'</condition_dsl>
-<condition_postfix>
-apportionment.has_physical_presence true eq
-apportionment.state_code "OR" streq
-and
-</condition_postfix>
+<condition_postfix>apportionment.has_physical_presence true beq { pop state_code &apos;OR&apos; streq } over if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -39,11 +35,7 @@ and
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in OR</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true and state_code == 'OR'</condition_dsl>
-<condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.state_code "OR" streq
-and
-</condition_postfix>
+<condition_postfix>apportionment.has_economic_nexus true beq { pop state_code &apos;OR&apos; streq } over if</condition_postfix>
 <condition_column column_number="1" column_value="" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />

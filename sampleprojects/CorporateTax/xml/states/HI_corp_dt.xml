@@ -17,10 +17,7 @@
         <condition_number>1</condition_number>
         <condition_comment>Has physical presence in HI (office, employees, property)</condition_comment>
         <condition_dsl>apportionment.has_physical_presence is equal to true and apportionment.state_code is equal to "HI"</condition_dsl>
-        <condition_postfix>
-apportionment.has_physical_presence true eq
-{ pop apportionment.state_code "HI" streq } over if
-</condition_postfix>
+        <condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;HI&quot; streq } over if</condition_postfix>
         <condition_column column_number="1" column_value="Y" />
         <condition_column column_number="2" column_value="N" />
         <condition_column column_number="3" column_value="N" />
@@ -29,10 +26,7 @@ apportionment.has_physical_presence true eq
         <condition_number>2</condition_number>
         <condition_comment>Meets HI economic nexus threshold</condition_comment>
         <condition_dsl>apportionment.has_economic_nexus is equal to true and apportionment.state_code is equal to "HI"</condition_dsl>
-        <condition_postfix>
-apportionment.has_economic_nexus true eq
-{ pop apportionment.state_code "HI" streq } over if
-</condition_postfix>
+        <condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &quot;HI&quot; streq } over if</condition_postfix>
         <condition_column column_number="1" column_value="-" />
         <condition_column column_number="2" column_value="Y" />
         <condition_column column_number="3" column_value="N" />

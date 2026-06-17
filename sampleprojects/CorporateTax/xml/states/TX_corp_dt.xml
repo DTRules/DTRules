@@ -24,10 +24,7 @@
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in Texas</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "TX"</condition_dsl>
-<condition_postfix>
-apportionment.has_physical_presence get true eq
-apportionment.state_code get "TX" streq and
-</condition_postfix>
+<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;TX&quot; streq } over if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -38,10 +35,7 @@ apportionment.state_code get "TX" streq and
 <condition_number>2</condition_number>
 <condition_comment>Meets Texas economic nexus threshold ($500K Texas receipts)</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "TX"</condition_dsl>
-<condition_postfix>
-apportionment.has_economic_nexus get true eq
-apportionment.state_code get "TX" streq and
-</condition_postfix>
+<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &quot;TX&quot; streq } over if</condition_postfix>
 <condition_column column_number="1" column_value="" />
 <condition_column column_number="2" column_value="" />
 <condition_column column_number="3" column_value="Y" />
@@ -151,9 +145,7 @@ result.tx_qualifies_for_no_tax_due get false eq
 <condition_number>2</condition_number>
 <condition_comment>COGS is greater than compensation</condition_comment>
 <condition_dsl>result.tx_cogs &gt; result.tx_compensation</condition_dsl>
-<condition_postfix>
-result.tx_cogs get result.tx_compensation get gt
-</condition_postfix>
+<condition_postfix>result.tx_cogs result.tx_compensation f&gt;</condition_postfix>
 <condition_column column_number="1" column_value="" />
 <condition_column column_number="2" column_value="" />
 <condition_column column_number="3" column_value="Y" />
@@ -248,9 +240,7 @@ result.tx_qualifies_for_no_tax_due get false eq
 <condition_number>2</condition_number>
 <condition_comment>Qualifies for E-Z computation ($20M or less in revenue)</condition_comment>
 <condition_dsl>result.tx_total_revenue &lt;= 20000000.0</condition_dsl>
-<condition_postfix>
-result.tx_total_revenue get 20000000.0 le
-</condition_postfix>
+<condition_postfix>result.tx_total_revenue 20000000.0 f&lt;=</condition_postfix>
 <condition_column column_number="1" column_value="" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -336,9 +326,7 @@ result.tx_qualifies_for_no_tax_due get false eq
 <condition_number>2</condition_number>
 <condition_comment>Has positive apportioned margin</condition_comment>
 <condition_dsl>result.tx_apportioned_margin &gt; 0</condition_dsl>
-<condition_postfix>
-result.tx_apportioned_margin get 0 gt
-</condition_postfix>
+<condition_postfix>result.tx_apportioned_margin 0 f&gt;</condition_postfix>
 <condition_column column_number="1" column_value="" />
 <condition_column column_number="2" column_value="" />
 <condition_column column_number="3" column_value="Y" />
@@ -364,9 +352,7 @@ result.tx_qualifies_for_ez_computation get true eq
 <condition_number>4</condition_number>
 <condition_comment>Primarily engaged in retail or wholesale trade</condition_comment>
 <condition_dsl>result.tx_is_retail_wholesale == true</condition_dsl>
-<condition_postfix>
-result.tx_is_retail_wholesale get true eq
-</condition_postfix>
+<condition_postfix>result.tx_is_retail_wholesale true beq</condition_postfix>
 <condition_column column_number="1" column_value="" />
 <condition_column column_number="2" column_value="" />
 <condition_column column_number="3" column_value="Y" />

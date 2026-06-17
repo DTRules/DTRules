@@ -38,6 +38,15 @@ true
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Rationale: CCr method</action_comment>
+<action_dsl>add "CCr estimated via Cockcroft-Gault from age, lean body weight, and plasma creatinine." to result.rationale</action_dsl>
+<action_postfix>
+"CCr estimated via Cockcroft-Gault from age, lean body weight, and plasma creatinine." result.rationale swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
 </actions>
 <policy_statements></policy_statements>
 </decision_table>

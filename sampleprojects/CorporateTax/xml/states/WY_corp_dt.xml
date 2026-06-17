@@ -24,10 +24,7 @@
 <condition_number>1</condition_number>
 <condition_comment>Has presence in Wyoming (incorporated or registered)</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "WY"</condition_dsl>
-<condition_postfix>
-apportionment.has_physical_presence get true eq
-apportionment.state_code get "WY" streq and
-</condition_postfix>
+<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;WY&quot; streq } over if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -37,9 +34,7 @@ apportionment.state_code get "WY" streq and
 <condition_number>2</condition_number>
 <condition_comment>Corporation incorporated in Wyoming (domestic)</condition_comment>
 <condition_dsl>corporation.state_of_incorporation == "WY"</condition_dsl>
-<condition_postfix>
-corporation.state_of_incorporation get "WY" streq
-</condition_postfix>
+<condition_postfix>corporation.state_of_incorporation &quot;WY&quot; streq</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="" />
@@ -113,10 +108,7 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <condition_number>1</condition_number>
 <condition_comment>Has presence in Wyoming</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "WY"</condition_dsl>
-<condition_postfix>
-apportionment.has_physical_presence get true eq
-apportionment.state_code get "WY" streq and
-</condition_postfix>
+<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;WY&quot; streq } over if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
@@ -181,10 +173,7 @@ true /result.wy_no_franchise_tax xdef
 <condition_number>1</condition_number>
 <condition_comment>Has presence in Wyoming (incorporated or registered)</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "WY"</condition_dsl>
-<condition_postfix>
-apportionment.has_physical_presence get true eq
-apportionment.state_code get "WY" streq and
-</condition_postfix>
+<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;WY&quot; streq } over if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>

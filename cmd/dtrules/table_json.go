@@ -88,6 +88,17 @@ type AttributeJSON struct {
 	Access  string `json:"access,omitempty"`
 	Input   string `json:"input,omitempty"`
 	Comment string `json:"comment,omitempty"`
+	// Collect + question metadata for interactive collection (#850).
+	Collect      string       `json:"collect,omitempty"`
+	QuestionText string       `json:"question_text,omitempty"`
+	QuestionType string       `json:"question_type,omitempty"`
+	Options      []OptionJSON `json:"options,omitempty"`
+}
+
+// OptionJSON is one choice for a multiple_choice question.
+type OptionJSON struct {
+	Value string `json:"value"`
+	Label string `json:"label,omitempty"`
 }
 
 // tableToJSON converts an authoring.Table into its JSON-safe projection.
@@ -128,15 +139,22 @@ func eddToJSON(e *authoring.EDD) EDDJSON {
 	for _, ent := range e.Entities() {
 		ej := EntityJSON{Name: ent.Name}
 		for _, a := range ent.Attributes {
-			ej.Fields = append(ej.Fields, AttributeJSON{
-				Name:    a.Name,
-				Type:    a.Type,
-				Subtype: a.Subtype,
-				Default: a.Default,
-				Access:  a.Access,
-				Input:   a.Input,
-				Comment: a.Comment,
-			})
+			fj := AttributeJSON{
+				Name:         a.Name,
+				Type:         a.Type,
+				Subtype:      a.Subtype,
+				Default:      a.Default,
+				Access:       a.Access,
+				Input:        a.Input,
+				Comment:      a.Comment,
+				Collect:      a.Collect,
+				QuestionText: a.QuestionText,
+				QuestionType: a.QuestionType,
+			}
+			for _, o := range a.Options {
+				fj.Options = append(fj.Options, OptionJSON{Value: o.Value, Label: o.Label})
+			}
+			ej.Fields = append(ej.Fields, fj)
 		}
 		out.Entities = append(out.Entities, ej)
 	}

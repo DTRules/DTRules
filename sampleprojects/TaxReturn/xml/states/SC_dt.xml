@@ -40,9 +40,7 @@
 <condition_number>1</condition_number>
 <condition_comment>Joint filing status uses the joint standard deduction</condition_comment>
 <condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
-<condition_postfix>
-job.filing_status "MFJ" streq job.filing_status "QSS" streq or
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;MFJ&quot; streq { pop job.filing_status &quot;QSS&quot; streq } over not if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
@@ -52,18 +50,14 @@ job.filing_status "MFJ" streq job.filing_status "QSS" streq or
 <action_number>1</action_number>
 <action_comment>Apply joint standard deduction</action_comment>
 <action_dsl>set result.sc_taxable_income = the maximum of (result.agi - sc_standard_deduction_joint) and 0</action_dsl>
-<action_postfix>
-result.agi sc_standard_deduction_joint f- 0 fmax /result.sc_taxable_income xdef
-</action_postfix>
+<action_postfix>result.agi sc_standard_deduction_joint f- 0 fmax cvd /result.sc_taxable_income xdef</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Apply single standard deduction</action_comment>
 <action_dsl>set result.sc_taxable_income = the maximum of (result.agi - sc_standard_deduction_single) and 0</action_dsl>
-<action_postfix>
-result.agi sc_standard_deduction_single f- 0 fmax /result.sc_taxable_income xdef
-</action_postfix>
+<action_postfix>result.agi sc_standard_deduction_single f- 0 fmax cvd /result.sc_taxable_income xdef</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
@@ -84,9 +78,7 @@ result.agi sc_standard_deduction_single f- 0 fmax /result.sc_taxable_income xdef
 <initial_action>
 <action_comment>Compute sc_taxable_income with the deduction matching the filing_status, before evaluating brackets.</action_comment>
 <initial_action_dsl>perform SC_Compute_Taxable_Income</initial_action_dsl>
-<initial_action_postfix>
-/SC_Compute_Taxable_Income performtable
-</initial_action_postfix>
+<initial_action_postfix>/SC_Compute_Taxable_Income performtable</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -94,9 +86,7 @@ result.agi sc_standard_deduction_single f- 0 fmax /result.sc_taxable_income xdef
 <condition_number>1</condition_number>
 <condition_comment>In bracket 1 only (0%); sc_taxable_income at or below sc_bracket_1_limit</condition_comment>
 <condition_dsl>result.sc_taxable_income &lt;= sc_bracket_1_limit</condition_dsl>
-<condition_postfix>
-result.sc_taxable_income sc_bracket_1_limit &lt;=
-</condition_postfix>
+<condition_postfix>result.sc_taxable_income sc_bracket_1_limit f&lt;=</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -106,9 +96,7 @@ result.sc_taxable_income sc_bracket_1_limit &lt;=
 <condition_number>2</condition_number>
 <condition_comment>In bracket 2 (3%); sc_taxable_income at or below sc_bracket_2_limit</condition_comment>
 <condition_dsl>result.sc_taxable_income &lt;= sc_bracket_2_limit</condition_dsl>
-<condition_postfix>
-result.sc_taxable_income sc_bracket_2_limit &lt;=
-</condition_postfix>
+<condition_postfix>result.sc_taxable_income sc_bracket_2_limit f&lt;=</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -118,9 +106,7 @@ result.sc_taxable_income sc_bracket_2_limit &lt;=
 <condition_number>3</condition_number>
 <condition_comment>In bracket 3 (6%)</condition_comment>
 <condition_dsl>result.sc_taxable_income &gt; sc_bracket_2_limit</condition_dsl>
-<condition_postfix>
-result.sc_taxable_income sc_bracket_2_limit &gt;
-</condition_postfix>
+<condition_postfix>result.sc_taxable_income sc_bracket_2_limit f&gt;</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
@@ -130,9 +116,7 @@ result.sc_taxable_income sc_bracket_2_limit &gt;
 <condition_number>4</condition_number>
 <condition_comment>Zero or negative taxable income; sc_taxable_income at or below 0</condition_comment>
 <condition_dsl>result.sc_taxable_income &lt;= 0</condition_dsl>
-<condition_postfix>
-result.sc_taxable_income 0 &lt;=
-</condition_postfix>
+<condition_postfix>result.sc_taxable_income 0 f&lt;=</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="-" />
@@ -144,38 +128,28 @@ result.sc_taxable_income 0 &lt;=
 <action_number>1</action_number>
 <action_comment>Bracket 1 tax (0%); set result.sc_state_tax = 0 (below $3,560)</action_comment>
 <action_dsl>set result.sc_state_tax = 0</action_dsl>
-<action_postfix>
-0 /result.sc_state_tax xdef
-</action_postfix>
+<action_postfix>0 cvd /result.sc_state_tax xdef</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Bracket 2 tax (3%); set result.sc_state_tax = (income - $3,560) * 3%</action_comment>
 <action_dsl>set result.sc_state_tax = (result.sc_taxable_income - sc_bracket_1_limit) * sc_bracket_2_rate</action_dsl>
-<action_postfix>
-result.sc_taxable_income sc_bracket_1_limit f- sc_bracket_2_rate f* /result.sc_state_tax xdef
-</action_postfix>
+<action_postfix>result.sc_taxable_income sc_bracket_1_limit f- sc_bracket_2_rate fmul cvd /result.sc_state_tax xdef</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Bracket 3 tax (6%); set result.sc_state_tax = $428.10 + (income - $17,830) * 6%</action_comment>
 <action_dsl>set result.sc_state_tax = (sc_bracket_2_limit - sc_bracket_1_limit) * sc_bracket_2_rate + (result.sc_taxable_income - sc_bracket_2_limit) * sc_bracket_3_rate</action_dsl>
-<action_postfix>
-sc_bracket_2_limit sc_bracket_1_limit f- sc_bracket_2_rate f*
-result.sc_taxable_income sc_bracket_2_limit f- sc_bracket_3_rate f* f+
-/result.sc_state_tax xdef
-</action_postfix>
+<action_postfix>sc_bracket_2_limit sc_bracket_1_limit f- sc_bracket_2_rate fmul result.sc_taxable_income sc_bracket_2_limit f- sc_bracket_3_rate fmul f+ cvd /result.sc_state_tax xdef</action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>No tax (zero income)</action_comment>
 <action_dsl>set result.sc_state_tax = 0</action_dsl>
-<action_postfix>
-0 /result.sc_state_tax xdef
-</action_postfix>
+<action_postfix>0 cvd /result.sc_state_tax xdef</action_postfix>
 <action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
@@ -211,9 +185,7 @@ result.sc_taxable_income sc_bracket_2_limit f- sc_bracket_3_rate f* f+
 <condition_number>1</condition_number>
 <condition_comment>Taxpayer is SC resident</condition_comment>
 <condition_dsl>job.state is equal to "SC"</condition_dsl>
-<condition_postfix>
-job.state "SC" streq
-</condition_postfix>
+<condition_postfix>job.state &quot;SC&quot; streq</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
@@ -223,22 +195,14 @@ job.state "SC" streq
 <action_number>1</action_number>
 <action_comment>Calculate SC state tax</action_comment>
 <action_dsl>perform SC_Tax_Brackets</action_dsl>
-<action_postfix>
-SC_Tax_Brackets
-"  South Carolina State Income Tax:" job.audit_trail swap addto
-"    SC Taxable Income: $" result.sc_taxable_income cvs strconcat job.audit_trail swap addto
-"    SC State Tax: $" result.sc_state_tax cvs strconcat " (progressive brackets: 0%/3%/6%)" strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>/SC_Tax_Brackets performtable</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No SC tax for non-residents</action_comment>
 <action_dsl>set result.sc_state_tax = 0</action_dsl>
-<action_postfix>
-0 /result.sc_state_tax xdef
-0 /result.sc_taxable_income xdef
-</action_postfix>
+<action_postfix>0 cvd /result.sc_state_tax xdef</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>

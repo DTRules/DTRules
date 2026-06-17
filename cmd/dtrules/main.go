@@ -69,7 +69,6 @@ var (
 // Subcommands that trigger the new CLI
 var subcommands = map[string]bool{
 	"build":    true,
-	"compile":  true,
 	"verify":   true,
 	"sync":     true,
 	"internal": true,
@@ -86,6 +85,14 @@ var subcommands = map[string]bool{
 }
 
 func main() {
+	// Route bare invocation and help flags to the full subcommand usage so
+	// `dtrules`, `dtrules -h`, and `dtrules --help` all list every command —
+	// not the stale legacy flag usage below.
+	if len(os.Args) <= 1 || os.Args[1] == "-h" || os.Args[1] == "--help" {
+		cli := NewCLI()
+		os.Exit(cli.Run([]string{"help"}))
+	}
+
 	// Check if first argument is a subcommand (new CLI mode)
 	if len(os.Args) > 1 {
 		cmd := os.Args[1]
@@ -100,10 +107,18 @@ func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "DTRules - Decision Table Rules Engine\n\n")
 		fmt.Fprintf(os.Stderr, "Usage: %s <command> [options]\n\n", os.Args[0])
-		fmt.Fprintf(os.Stderr, "Commands:\n")
+		fmt.Fprintf(os.Stderr, "Commands (run '%s help' for full details):\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "  build      Normalize and compile Excel/XML rules (primary workflow)\n")
+		fmt.Fprintf(os.Stderr, "  verify     Gate CI by checking XML matches Excel build output\n")
 		fmt.Fprintf(os.Stderr, "  sync       Synchronize Excel and XML files\n")
 		fmt.Fprintf(os.Stderr, "  init       Initialize a DTRules project\n")
-		fmt.Fprintf(os.Stderr, "  validate   Validate decision tables\n")
+		fmt.Fprintf(os.Stderr, "  validate   Validate decision tables and EDD\n")
+		fmt.Fprintf(os.Stderr, "  review     Run the project-wide Full Review (deploy gate)\n")
+		fmt.Fprintf(os.Stderr, "  table      JSON-first decision-table read/write (for AI agents)\n")
+		fmt.Fprintf(os.Stderr, "  edd        JSON-first entity data dictionary read/write (for AI agents)\n")
+		fmt.Fprintf(os.Stderr, "  project    Project-level JSON surface (diagnostics, ...)\n")
+		fmt.Fprintf(os.Stderr, "  mcp        Run a Model Context Protocol server over stdio (for AI agents)\n")
+		fmt.Fprintf(os.Stderr, "  docs       Show embedded documentation (for AI and developers)\n")
 		fmt.Fprintf(os.Stderr, "  version    Show version information\n")
 		fmt.Fprintf(os.Stderr, "  help       Show help\n\n")
 		fmt.Fprintf(os.Stderr, "Legacy Options (deprecated, use subcommands instead):\n")

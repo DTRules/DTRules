@@ -19,9 +19,7 @@
         <condition_number>1</condition_number>
         <condition_comment>Has physical presence in FL (office, employees, property)</condition_comment>
         <condition_dsl>apportionment.has_physical_presence is true and apportionment.state_code == "FL"</condition_dsl>
-        <condition_postfix>
-apportionment.has_physical_presence true beq { pop apportionment.state_code "FL" streq } over if
-</condition_postfix>
+        <condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;FL&quot; streq } over if</condition_postfix>
         <condition_column column_number="1" column_value="Y" />
         <condition_column column_number="2" column_value="N" />
         <condition_column column_number="3" column_value="N" />
@@ -30,9 +28,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "FL"
         <condition_number>2</condition_number>
         <condition_comment>Meets FL economic nexus threshold ($50K or 200 transactions)</condition_comment>
         <condition_dsl>apportionment.has_economic_nexus is true and apportionment.state_code == "FL"</condition_dsl>
-        <condition_postfix>
-apportionment.has_economic_nexus true beq { pop apportionment.state_code "FL" streq } over if
-</condition_postfix>
+        <condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &quot;FL&quot; streq } over if</condition_postfix>
         <condition_column column_number="1" column_value="-" />
         <condition_column column_number="2" column_value="Y" />
         <condition_column column_number="3" column_value="N" />
@@ -43,16 +39,14 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "FL" st
         <action_number>1</action_number>
         <action_comment>Physical nexus established - filing required</action_comment>
         <action_dsl>// Physical nexus established - filing required</action_dsl>
-        <action_postfix>
-</action_postfix>
+        <action_postfix></action_postfix>
         <action_column column_number="1" column_value="X" />
       </action_details>
       <action_details>
         <action_number>2</action_number>
         <action_comment>Economic nexus established per Wayfair - filing required</action_comment>
         <action_dsl>// Economic nexus established per Wayfair - filing required</action_dsl>
-        <action_postfix>
-</action_postfix>
+        <action_postfix></action_postfix>
         <action_column column_number="2" column_value="X" />
       </action_details>
       <action_details>
@@ -158,9 +152,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
         <condition_number>2</condition_number>
         <condition_comment>Has positive state taxable income</condition_comment>
         <condition_dsl>apportionment.state_taxable_income &gt; 0.0</condition_dsl>
-        <condition_postfix>
-apportionment.state_taxable_income 0.0 f&gt;
-</condition_postfix>
+        <condition_postfix>apportionment.state_taxable_income 0.0 f&gt;</condition_postfix>
         <condition_column column_number="1" column_value="Y" />
         <condition_column column_number="2" column_value="-" />
         <condition_column column_number="3" column_value="N" />

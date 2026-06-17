@@ -176,7 +176,7 @@
 <condition_comment>Is married</condition_comment>
 <condition_requirement />
 <condition_dsl>Person is married</condition_dsl>
-<condition_postfix>person.relationship_to_head "SPOUSE" streq</condition_postfix>
+<condition_postfix>Person married streq</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
@@ -1569,7 +1569,7 @@
 <condition_comment>Is disabled</condition_comment>
 <condition_requirement />
 <condition_dsl>Person has a disability</condition_dsl>
-<condition_postfix>person.is_disabled</condition_postfix>
+<condition_postfix>Person disability hasrelationship</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" /></condition_details>

@@ -15,7 +15,7 @@
 <initial_action>
 <action_comment>Reset NC tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.nc_state_tax = 0; set result.nc_taxable_income = 0; set result.nc_total_deduction = 0; add "  North Carolina Tax Calculation (Form D-400) - flat 4.25%" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvi /result.nc_state_tax xdef 0 cvi /result.nc_taxable_income xdef 0 cvi /result.nc_total_deduction xdef &quot;  North Carolina Tax Calculation (Form D-400) - flat 4.25%&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
+<initial_action_postfix>0 cvd /result.nc_state_tax xdef 0 cvd /result.nc_taxable_income xdef 0 cvd /result.nc_total_deduction xdef &quot;  North Carolina Tax Calculation (Form D-400) - flat 4.25%&quot; job.audit_trail swap addto</initial_action_postfix>
 <action_postfix>
 0.0 /result.nc_state_tax xdef
 0.0 /result.nc_taxable_income xdef
@@ -29,9 +29,7 @@
 <condition_number>1</condition_number>
 <condition_comment>Filing status is Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
 <condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
-<condition_postfix>
-job.filing_status "MFJ" streq job.filing_status "QSS" streq or
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;MFJ&quot; streq { pop job.filing_status &quot;QSS&quot; streq } over not if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -40,9 +38,7 @@ job.filing_status "MFJ" streq job.filing_status "QSS" streq or
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
 <condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
-<condition_postfix>
-job.filing_status "HOH" streq
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;HOH&quot; streq</condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="1" column_value="-" />
@@ -53,39 +49,21 @@ job.filing_status "HOH" streq
 <action_number>1</action_number>
 <action_comment>MFJ/QSS: deduction $25,500; tax = max(AGI − 25,500, 0) × 4.25%</action_comment>
 <action_dsl>set result.nc_taxable_income = the maximum of (result.agi - 25500.0) and 0.0; set result.nc_state_tax = result.nc_taxable_income * 0.0425</action_dsl>
-<action_postfix>
-nc_standard_deduction_joint /result.nc_total_deduction xdef
-result.agi result.nc_total_deduction f- 0.0 fmax /result.nc_taxable_income xdef
-result.nc_taxable_income nc_tax_rate f* /result.nc_state_tax xdef
-"  NC taxable income (MFJ, $25,500 std ded): $" result.nc_taxable_income cvs strconcat job.audit_trail swap addto
-"  NC state tax (flat 4.25%): $" result.nc_state_tax cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>result.agi 25500.0 - 0.0 fmax cvd /result.nc_taxable_income xdef result.nc_taxable_income 0.0425 fmul cvd /result.nc_state_tax xdef</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>HOH: deduction $22,500; tax = max(AGI − 22,500, 0) × 4.25%</action_comment>
 <action_dsl>set result.nc_taxable_income = the maximum of (result.agi - 22500.0) and 0.0; set result.nc_state_tax = result.nc_taxable_income * 0.0425</action_dsl>
-<action_postfix>
-nc_standard_deduction_hoh /result.nc_total_deduction xdef
-result.agi result.nc_total_deduction f- 0.0 fmax /result.nc_taxable_income xdef
-result.nc_taxable_income nc_tax_rate f* /result.nc_state_tax xdef
-"  NC taxable income (HOH, $22,500 std ded): $" result.nc_taxable_income cvs strconcat job.audit_trail swap addto
-"  NC state tax (flat 4.25%): $" result.nc_state_tax cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>result.agi 22500.0 - 0.0 fmax cvd /result.nc_taxable_income xdef result.nc_taxable_income 0.0425 fmul cvd /result.nc_state_tax xdef</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Default (Single/MFS): deduction $12,750; tax = max(AGI − 12,750, 0) × 4.25%</action_comment>
 <action_dsl>set result.nc_taxable_income = the maximum of (result.agi - 12750.0) and 0.0; set result.nc_state_tax = result.nc_taxable_income * 0.0425</action_dsl>
-<action_postfix>
-nc_standard_deduction_single /result.nc_total_deduction xdef
-result.agi result.nc_total_deduction f- 0.0 fmax /result.nc_taxable_income xdef
-result.nc_taxable_income nc_tax_rate f* /result.nc_state_tax xdef
-"  NC taxable income (Single/MFS, $12,750 std ded): $" result.nc_taxable_income cvs strconcat job.audit_trail swap addto
-"  NC state tax (flat 4.25%): $" result.nc_state_tax cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>result.agi 12750.0 - 0.0 fmax cvd /result.nc_taxable_income xdef result.nc_taxable_income 0.0425 fmul cvd /result.nc_state_tax xdef</action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>

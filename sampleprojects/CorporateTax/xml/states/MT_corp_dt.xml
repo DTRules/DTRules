@@ -25,9 +25,7 @@ false result.mt_has_nexus xdef
         <condition_number>1</condition_number>
         <condition_comment>Has physical presence in Montana</condition_comment>
         <condition_dsl>result.has_physical_presence_mt is equal to true</condition_dsl>
-        <condition_postfix>
-result.has_physical_presence_mt true eq
-</condition_postfix>
+        <condition_postfix>result.has_physical_presence_mt true beq</condition_postfix>
         <condition_column column_number="1" column_value="Y" />
         <condition_column column_number="2" column_value="N" />
         <condition_column column_number="3" column_value="N" />
@@ -107,9 +105,7 @@ false result.mt_has_nexus xdef
         <condition_number>1</condition_number>
         <condition_comment>Has Montana nexus</condition_comment>
         <condition_dsl>result.mt_has_nexus is equal to true</condition_dsl>
-        <condition_postfix>
-result.mt_has_nexus true eq
-</condition_postfix>
+        <condition_postfix>result.mt_has_nexus true beq</condition_postfix>
         <condition_column column_number="1" column_value="Y" />
         <condition_column column_number="2" column_value="N" />
       </condition_details>
@@ -194,9 +190,7 @@ mt_subtractions result.mt_state_subtractions xdef
         <condition_number>1</condition_number>
         <condition_comment>Has Montana nexus</condition_comment>
         <condition_dsl>result.mt_has_nexus is equal to true</condition_dsl>
-        <condition_postfix>
-result.mt_has_nexus true eq
-</condition_postfix>
+        <condition_postfix>result.mt_has_nexus true beq</condition_postfix>
         <condition_column column_number="1" column_value="Y" />
         <condition_column column_number="2" column_value="Y" />
         <condition_column column_number="3" column_value="Y" />
@@ -218,9 +212,7 @@ result.mt_apportioned_income 0.0 &gt;
         <condition_number>3</condition_number>
         <condition_comment>Made water's edge election</condition_comment>
         <condition_dsl>result.mt_waters_edge_election is equal to true</condition_dsl>
-        <condition_postfix>
-result.mt_waters_edge_election true eq
-</condition_postfix>
+        <condition_postfix>result.mt_waters_edge_election true beq</condition_postfix>
         <condition_column column_number="1" column_value="N" />
         <condition_column column_number="2" column_value="Y" />
         <condition_column column_number="3" column_value="-" />

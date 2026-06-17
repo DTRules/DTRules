@@ -14,7 +14,7 @@
 <initial_actions>
 <initial_action>
 <initial_action_dsl>set result.nv_state_tax = 0; add "Nevada (no state income tax)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvi /result.nv_state_tax xdef &quot;Nevada (no state income tax)&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
+<initial_action_postfix>0 cvi /result.nv_state_tax xdef &quot;Nevada (no state income tax)&quot; job.audit_trail swap addto</initial_action_postfix>
 <action_postfix>
 "NEVADA - State Income Tax Calculation" job.audit_trail swap addto
 result.agi /result.nv_agi xdef
@@ -29,9 +29,7 @@ result.agi /result.nv_agi xdef
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
 <condition_dsl>true</condition_dsl>
-<condition_postfix>
-job.filing_status married_filing_jointly streq
-</condition_postfix>
+<condition_postfix>true</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -40,9 +38,7 @@ job.filing_status married_filing_jointly streq
 <condition_number>2</condition_number>
 <condition_comment>Single</condition_comment>
 <condition_dsl>job.filing_status is equal to "single"</condition_dsl>
-<condition_postfix>
-job.filing_status single streq
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;single&quot; streq</condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -51,9 +47,7 @@ job.filing_status single streq
 <condition_number>3</condition_number>
 <condition_comment>Head of Household</condition_comment>
 <condition_dsl>job.filing_status is equal to "head_of_household"</condition_dsl>
-<condition_postfix>
-job.filing_status head_of_household streq
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;head_of_household&quot; streq</condition_postfix>
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
@@ -64,99 +58,21 @@ job.filing_status head_of_household streq
 <action_number>1</action_number>
 <action_comment>Calculate NV tax MFJ; Calculate NV tax with MFJ standard deduction and progressive brackets</action_comment>
 <action_dsl>set result.nv_state_tax = 0</action_dsl>
-<action_postfix>
-"  Starting Federal AGI: $" result.nv_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-nv_standard_deduction_mfj /result.nv_standard_deduction xdef
-"  Standard Deduction (MFJ): $" result.nv_standard_deduction cvs strconcat job.audit_trail swap addto
-result.nv_agi result.nv_standard_deduction f- 0 fmax /result.nv_taxable_income xdef
-"  NV Taxable Income: $" result.nv_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
-result.nv_taxable_income nv_bracket_3_threshold_mfj f&gt; if
-  nv_bracket_2_threshold_mfj nv_bracket_1_rate f* /result.nv_bracket_1_tax xdef
-  nv_bracket_3_threshold_mfj nv_bracket_2_threshold_mfj f- nv_bracket_2_rate f* /result.nv_bracket_2_tax xdef
-  result.nv_taxable_income nv_bracket_3_threshold_mfj f- nv_bracket_3_rate f* /result.nv_bracket_3_tax xdef
-  "  Bracket 1 (2.5% on $0-$100,000): $" result.nv_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 2 (4.0% on $100,000-$240,000): $" result.nv_bracket_2_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 3 (6.0% above $240,000): $" result.nv_bracket_3_tax cvs strconcat job.audit_trail swap addto
-else
-  result.nv_taxable_income nv_bracket_2_threshold_mfj f&gt; if
-    nv_bracket_2_threshold_mfj nv_bracket_1_rate f* /result.nv_bracket_1_tax xdef
-    result.nv_taxable_income nv_bracket_2_threshold_mfj f- nv_bracket_2_rate f* /result.nv_bracket_2_tax xdef
-    "  Bracket 1 (2.5% on $0-$100,000): $" result.nv_bracket_1_tax cvs strconcat job.audit_trail swap addto
-    "  Bracket 2 (4.0% on $100,000-$" result.nv_taxable_income cvs strconcat "): $" strconcat result.nv_bracket_2_tax cvs strconcat job.audit_trail swap addto
-  else
-    result.nv_taxable_income nv_bracket_1_rate f* /result.nv_bracket_1_tax xdef
-    "  Bracket 1 (2.5% on $0-$" result.nv_taxable_income cvs strconcat "): $" strconcat result.nv_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  endif
-endif
-result.nv_bracket_1_tax result.nv_bracket_2_tax f+ result.nv_bracket_3_tax f+ /result.nv_tax xdef
-"  Total NV Tax: $" result.nv_tax cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>0 cvi /result.nv_state_tax xdef</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate NV tax Single; Calculate NV tax with Single standard deduction and progressive brackets</action_comment>
 <action_dsl>set result.nv_state_tax = 0</action_dsl>
-<action_postfix>
-"  Starting Federal AGI: $" result.nv_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-nv_standard_deduction_single /result.nv_standard_deduction xdef
-"  Standard Deduction (Single): $" result.nv_standard_deduction cvs strconcat job.audit_trail swap addto
-result.nv_agi result.nv_standard_deduction f- 0 fmax /result.nv_taxable_income xdef
-"  NV Taxable Income: $" result.nv_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
-result.nv_taxable_income nv_bracket_3_threshold_single f&gt; if
-  nv_bracket_2_threshold_single nv_bracket_1_rate f* /result.nv_bracket_1_tax xdef
-  nv_bracket_3_threshold_single nv_bracket_2_threshold_single f- nv_bracket_2_rate f* /result.nv_bracket_2_tax xdef
-  result.nv_taxable_income nv_bracket_3_threshold_single f- nv_bracket_3_rate f* /result.nv_bracket_3_tax xdef
-  "  Bracket 1 (2.5% on $0-$50,000): $" result.nv_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 2 (4.0% on $50,000-$120,000): $" result.nv_bracket_2_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 3 (6.0% above $120,000): $" result.nv_bracket_3_tax cvs strconcat job.audit_trail swap addto
-else
-  result.nv_taxable_income nv_bracket_2_threshold_single f&gt; if
-    nv_bracket_2_threshold_single nv_bracket_1_rate f* /result.nv_bracket_1_tax xdef
-    result.nv_taxable_income nv_bracket_2_threshold_single f- nv_bracket_2_rate f* /result.nv_bracket_2_tax xdef
-    "  Bracket 1 (2.5% on $0-$50,000): $" result.nv_bracket_1_tax cvs strconcat job.audit_trail swap addto
-    "  Bracket 2 (4.0% on $50,000-$" result.nv_taxable_income cvs strconcat "): $" strconcat result.nv_bracket_2_tax cvs strconcat job.audit_trail swap addto
-  else
-    result.nv_taxable_income nv_bracket_1_rate f* /result.nv_bracket_1_tax xdef
-    "  Bracket 1 (2.5% on $0-$" result.nv_taxable_income cvs strconcat "): $" strconcat result.nv_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  endif
-endif
-result.nv_bracket_1_tax result.nv_bracket_2_tax f+ result.nv_bracket_3_tax f+ /result.nv_tax xdef
-"  Total NV Tax: $" result.nv_tax cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>0 cvi /result.nv_state_tax xdef</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate NV tax HOH; Calculate NV tax with HOH standard deduction and progressive brackets</action_comment>
 <action_dsl>set result.nv_state_tax = 0</action_dsl>
-<action_postfix>
-"  Starting Federal AGI: $" result.nv_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-nv_standard_deduction_hoh /result.nv_standard_deduction xdef
-"  Standard Deduction (HOH): $" result.nv_standard_deduction cvs strconcat job.audit_trail swap addto
-result.nv_agi result.nv_standard_deduction f- 0 fmax /result.nv_taxable_income xdef
-"  NV Taxable Income: $" result.nv_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
-result.nv_taxable_income nv_bracket_3_threshold_hoh f&gt; if
-  nv_bracket_2_threshold_hoh nv_bracket_1_rate f* /result.nv_bracket_1_tax xdef
-  nv_bracket_3_threshold_hoh nv_bracket_2_threshold_hoh f- nv_bracket_2_rate f* /result.nv_bracket_2_tax xdef
-  result.nv_taxable_income nv_bracket_3_threshold_hoh f- nv_bracket_3_rate f* /result.nv_bracket_3_tax xdef
-  "  Bracket 1 (2.5% on $0-$75,000): $" result.nv_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 2 (4.0% on $75,000-$180,000): $" result.nv_bracket_2_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 3 (6.0% above $180,000): $" result.nv_bracket_3_tax cvs strconcat job.audit_trail swap addto
-else
-  result.nv_taxable_income nv_bracket_2_threshold_hoh f&gt; if
-    nv_bracket_2_threshold_hoh nv_bracket_1_rate f* /result.nv_bracket_1_tax xdef
-    result.nv_taxable_income nv_bracket_2_threshold_hoh f- nv_bracket_2_rate f* /result.nv_bracket_2_tax xdef
-    "  Bracket 1 (2.5% on $0-$75,000): $" result.nv_bracket_1_tax cvs strconcat job.audit_trail swap addto
-    "  Bracket 2 (4.0% on $75,000-$" result.nv_taxable_income cvs strconcat "): $" strconcat result.nv_bracket_2_tax cvs strconcat job.audit_trail swap addto
-  else
-    result.nv_taxable_income nv_bracket_1_rate f* /result.nv_bracket_1_tax xdef
-    "  Bracket 1 (2.5% on $0-$" result.nv_taxable_income cvs strconcat "): $" strconcat result.nv_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  endif
-endif
-result.nv_bracket_1_tax result.nv_bracket_2_tax f+ result.nv_bracket_3_tax f+ /result.nv_tax xdef
-"  Total NV Tax: $" result.nv_tax cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>0 cvi /result.nv_state_tax xdef</action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>

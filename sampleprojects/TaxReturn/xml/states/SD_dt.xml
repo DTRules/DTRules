@@ -16,12 +16,7 @@
 <initial_action_dsl />
 <initial_action_postfix></initial_action_postfix>
 <action_dsl>add "SOUTH DAKOTA - no state income tax (sd_has_income_tax=false)" to job.audit_trail; set result.sd_agi = result.agi</action_dsl>
-<action_postfix>
-"SOUTH DAKOTA FORM SD-1040 - State Income Tax Calculation" job.audit_trail swap addto
-result.agi /result.sd_agi xdef
-0 /result.sd_bracket_1_tax xdef
-0 /result.sd_bracket_2_tax xdef
-</action_postfix>
+<action_postfix>&quot;SOUTH DAKOTA - no state income tax (sd_has_income_tax=false)&quot; job.audit_trail swap addto result.agi cvi /result.sd_agi xdef</action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -29,9 +24,7 @@ result.agi /result.sd_agi xdef
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
 <condition_dsl>job.filing_status is equal to "married_filing_jointly"</condition_dsl>
-<condition_postfix>
-job.filing_status married_filing_jointly streq
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;married_filing_jointly&quot; streq</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -40,9 +33,7 @@ job.filing_status married_filing_jointly streq
 <condition_number>2</condition_number>
 <condition_comment>Single</condition_comment>
 <condition_dsl>job.filing_status is equal to "single"</condition_dsl>
-<condition_postfix>
-job.filing_status single streq
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;single&quot; streq</condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -51,9 +42,7 @@ job.filing_status single streq
 <condition_number>3</condition_number>
 <condition_comment>Head of Household</condition_comment>
 <condition_dsl>job.filing_status is equal to "head_of_household"</condition_dsl>
-<condition_postfix>
-job.filing_status head_of_household streq
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;head_of_household&quot; streq</condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="Y" />
@@ -64,72 +53,21 @@ job.filing_status head_of_household streq
 <action_number>1</action_number>
 <action_comment>SD tax MFJ - no state income tax in South Dakota (sd_has_income_tax=false)</action_comment>
 <action_dsl>set result.sd_tax = 0; add "  South Dakota has no state income tax (MFJ): $0" to job.audit_trail</action_dsl>
-<action_postfix>
-"  Starting Federal AGI: $" result.sd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-sd_standard_deduction_mfj /result.sd_standard_deduction xdef
-"  Standard Deduction (MFJ): $" result.sd_standard_deduction cvs strconcat job.audit_trail swap addto
-result.sd_agi result.sd_standard_deduction f- 0 fmax /result.sd_taxable_income xdef
-"  SD Taxable Income: $" result.sd_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
-result.sd_taxable_income sd_bracket_2_threshold_mfj f&gt; if
-  sd_bracket_2_threshold_mfj sd_bracket_1_rate f* /result.sd_bracket_1_tax xdef
-  result.sd_taxable_income sd_bracket_2_threshold_mfj f- sd_bracket_2_rate f* /result.sd_bracket_2_tax xdef
-  "  Bracket 1 (3.5% on $0-$50,000): $" result.sd_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 2 (5.0% above $50,000): $" result.sd_bracket_2_tax cvs strconcat job.audit_trail swap addto
-else
-  result.sd_taxable_income sd_bracket_1_rate f* /result.sd_bracket_1_tax xdef
-  "  Bracket 1 (3.5% on $0-$" result.sd_taxable_income cvs strconcat "): $" strconcat result.sd_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
-endif
-result.sd_bracket_1_tax result.sd_bracket_2_tax f+ /result.sd_tax xdef
-"  Total SD Tax: $" result.sd_tax cvs strconcat " (South Dakota Form SD-1040)" strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>0 cvi /result.sd_tax xdef &quot;  South Dakota has no state income tax (MFJ): $0&quot; job.audit_trail swap addto</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>SD tax Single - no state income tax in South Dakota (sd_has_income_tax=false)</action_comment>
 <action_dsl>set result.sd_tax = 0; add "  South Dakota has no state income tax (Single): $0" to job.audit_trail</action_dsl>
-<action_postfix>
-"  Starting Federal AGI: $" result.sd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-sd_standard_deduction_single /result.sd_standard_deduction xdef
-"  Standard Deduction (Single): $" result.sd_standard_deduction cvs strconcat job.audit_trail swap addto
-result.sd_agi result.sd_standard_deduction f- 0 fmax /result.sd_taxable_income xdef
-"  SD Taxable Income: $" result.sd_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
-result.sd_taxable_income sd_bracket_2_threshold_single f&gt; if
-  sd_bracket_2_threshold_single sd_bracket_1_rate f* /result.sd_bracket_1_tax xdef
-  result.sd_taxable_income sd_bracket_2_threshold_single f- sd_bracket_2_rate f* /result.sd_bracket_2_tax xdef
-  "  Bracket 1 (3.5% on $0-$25,000): $" result.sd_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 2 (5.0% above $25,000): $" result.sd_bracket_2_tax cvs strconcat job.audit_trail swap addto
-else
-  result.sd_taxable_income sd_bracket_1_rate f* /result.sd_bracket_1_tax xdef
-  "  Bracket 1 (3.5% on $0-$" result.sd_taxable_income cvs strconcat "): $" strconcat result.sd_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
-endif
-result.sd_bracket_1_tax result.sd_bracket_2_tax f+ /result.sd_tax xdef
-"  Total SD Tax: $" result.sd_tax cvs strconcat " (South Dakota Form SD-1040)" strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>0 cvi /result.sd_tax xdef &quot;  South Dakota has no state income tax (Single): $0&quot; job.audit_trail swap addto</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>SD tax HOH - no state income tax in South Dakota (sd_has_income_tax=false)</action_comment>
 <action_dsl>set result.sd_tax = 0; add "  South Dakota has no state income tax (HOH): $0" to job.audit_trail</action_dsl>
-<action_postfix>
-"  Starting Federal AGI: $" result.sd_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-sd_standard_deduction_single /result.sd_standard_deduction xdef
-"  Standard Deduction (HOH uses Single): $" result.sd_standard_deduction cvs strconcat job.audit_trail swap addto
-result.sd_agi result.sd_standard_deduction f- 0 fmax /result.sd_taxable_income xdef
-"  SD Taxable Income: $" result.sd_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
-result.sd_taxable_income sd_bracket_2_threshold_hoh f&gt; if
-  sd_bracket_2_threshold_hoh sd_bracket_1_rate f* /result.sd_bracket_1_tax xdef
-  result.sd_taxable_income sd_bracket_2_threshold_hoh f- sd_bracket_2_rate f* /result.sd_bracket_2_tax xdef
-  "  Bracket 1 (3.5% on $0-$37,500): $" result.sd_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 2 (5.0% above $37,500): $" result.sd_bracket_2_tax cvs strconcat job.audit_trail swap addto
-else
-  result.sd_taxable_income sd_bracket_1_rate f* /result.sd_bracket_1_tax xdef
-  "  Bracket 1 (3.5% on $0-$" result.sd_taxable_income cvs strconcat "): $" strconcat result.sd_bracket_1_tax cvs strconcat strconcat job.audit_trail swap addto
-endif
-result.sd_bracket_1_tax result.sd_bracket_2_tax f+ /result.sd_tax xdef
-"  Total SD Tax: $" result.sd_tax cvs strconcat " (South Dakota Form SD-1040)" strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>0 cvi /result.sd_tax xdef &quot;  South Dakota has no state income tax (HOH): $0&quot; job.audit_trail swap addto</action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>

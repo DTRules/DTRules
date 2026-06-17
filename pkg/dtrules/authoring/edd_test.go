@@ -102,6 +102,96 @@ func TestAddAttribute_ValidType(t *testing.T) {
 	}
 }
 
+func TestAddAttribute_CollectValidation(t *testing.T) {
+	p, cleanup := openMinimalProject(t, "")
+	defer cleanup()
+	ent, err := p.EDD().AddEntity("patient")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cases := []struct {
+		name string
+		a    authoring.Attribute
+		ok   bool
+	}{
+		{"valid number", authoring.Attribute{Name: "age", Type: "integer", Access: "rw",
+			Collect: "true", QuestionText: "Age?", QuestionType: "number"}, true},
+		{"valid multiple_choice", authoring.Attribute{Name: "allergic", Type: "boolean", Access: "rw",
+			Collect: "true", QuestionText: "Allergic?", QuestionType: "multiple_choice",
+			Options: []authoring.Option{{Value: "true", Label: "Yes"}, {Value: "false", Label: "No"}}}, true},
+		{"collect on read-only", authoring.Attribute{Name: "ro", Type: "integer", Access: "r",
+			Collect: "true", QuestionText: "X?", QuestionType: "number"}, false},
+		{"question without collect", authoring.Attribute{Name: "q1", Type: "integer", Access: "rw",
+			QuestionText: "X?", QuestionType: "number"}, false},
+		{"multiple_choice without options", authoring.Attribute{Name: "mc", Type: "string", Access: "rw",
+			Collect: "true", QuestionText: "Pick", QuestionType: "multiple_choice"}, false},
+		{"options without multiple_choice", authoring.Attribute{Name: "opt", Type: "integer", Access: "rw",
+			Collect: "true", QuestionText: "X?", QuestionType: "number",
+			Options: []authoring.Option{{Value: "1"}}}, false},
+		{"bad question type", authoring.Attribute{Name: "bad", Type: "integer", Access: "rw",
+			Collect: "true", QuestionText: "X?", QuestionType: "slider"}, false},
+		{"collect true no question text", authoring.Attribute{Name: "noq", Type: "integer", Access: "rw",
+			Collect: "true", QuestionType: "number"}, false},
+	}
+	for _, c := range cases {
+		err := ent.AddAttribute(c.a)
+		if c.ok && err != nil {
+			t.Errorf("%s: expected accept, got %v", c.name, err)
+		}
+		if !c.ok && err == nil {
+			t.Errorf("%s: expected reject, got nil", c.name)
+		}
+	}
+}
+
+func TestEDDRoundTrip_Collect(t *testing.T) {
+	dir := t.TempDir()
+	xmlDir := filepath.Join(dir, "xml")
+	if err := os.MkdirAll(xmlDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(xmlDir, "rt_edd.xml"),
+		[]byte("<?xml version=\"1.0\"?>\n<entity_data_dictionary version=\"2\">\n</entity_data_dictionary>\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	p1, err := authoring.OpenProject(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ent, err := p1.EDD().AddEntity("patient")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ent.AddAttribute(authoring.Attribute{
+		Name: "penicillin_allergic", Type: "boolean", Access: "rw", Default: "false",
+		Collect: "true", QuestionText: "Penicillin-allergic?", QuestionType: "multiple_choice",
+		Options: []authoring.Option{{Value: "true", Label: "Yes"}, {Value: "false", Label: "No"}},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := p1.SaveEDD(); err != nil {
+		t.Fatalf("SaveEDD: %v", err)
+	}
+
+	p2, err := authoring.OpenProject(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ent2 := p2.EDD().Entity("patient")
+	if ent2 == nil || len(ent2.Attributes) != 1 {
+		t.Fatalf("entity/attr not round-tripped: %+v", ent2)
+	}
+	a := ent2.Attributes[0]
+	if a.Collect != "true" || a.QuestionType != "multiple_choice" || a.QuestionText != "Penicillin-allergic?" {
+		t.Errorf("collect/question not round-tripped: %+v", a)
+	}
+	if len(a.Options) != 2 || a.Options[0].Value != "true" || a.Options[0].Label != "Yes" {
+		t.Errorf("options not round-tripped: %+v", a.Options)
+	}
+}
+
 func TestAddAttribute_DefaultMatchesType(t *testing.T) {
 	p, cleanup := openMinimalProject(t, "")
 	defer cleanup()

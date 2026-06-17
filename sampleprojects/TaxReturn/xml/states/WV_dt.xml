@@ -15,7 +15,7 @@
 <initial_action>
 <action_comment>Reset and log</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  West Virginia Tax Calculation (top marginal 4.82%)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef &quot;  West Virginia Tax Calculation (top marginal 4.82%)&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
+<initial_action_postfix>0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef &quot;  West Virginia Tax Calculation (top marginal 4.82%)&quot; job.audit_trail swap addto</initial_action_postfix>
 <action_postfix>
 0.0 /result.computed_state_tax xdef
 0.0 /result.computed_state_taxable_income xdef
@@ -28,9 +28,7 @@
 <condition_number>1</condition_number>
 <condition_comment>Always</condition_comment>
 <condition_dsl>true</condition_dsl>
-<condition_postfix>
-true
-</condition_postfix>
+<condition_postfix>true</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
@@ -39,12 +37,7 @@ true
 <action_number>1</action_number>
 <action_comment>WV tax = max(AGI - $0, 0) x 4.82%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 0.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0482</action_dsl>
-<action_postfix>
-result.agi 0.0 f- 0.0 fmax /result.computed_state_taxable_income xdef
-result.computed_state_taxable_income 0.0482 f* /result.computed_state_tax xdef
-"  WV taxable income (AGI - $0): $" result.computed_state_taxable_income cvs strconcat job.audit_trail swap addto
-"  WV state tax (top marginal 4.82%): $" result.computed_state_tax cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>result.agi 0.0 - 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0482 fmul cvd /result.computed_state_tax xdef</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>

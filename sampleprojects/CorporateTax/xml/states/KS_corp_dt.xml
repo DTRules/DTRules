@@ -25,9 +25,7 @@ false result.ks_has_nexus xdef
         <condition_number>1</condition_number>
         <condition_comment>Has physical presence in Kansas</condition_comment>
         <condition_dsl>result.has_physical_presence_ks is equal to true</condition_dsl>
-        <condition_postfix>
-result.has_physical_presence_ks true eq
-</condition_postfix>
+        <condition_postfix>result.has_physical_presence_ks true beq</condition_postfix>
         <condition_column column_number="1" column_value="Y" />
         <condition_column column_number="2" column_value="N" />
         <condition_column column_number="3" column_value="N" />
@@ -107,9 +105,7 @@ false result.ks_has_nexus xdef
         <condition_number>1</condition_number>
         <condition_comment>Has Kansas nexus</condition_comment>
         <condition_dsl>result.ks_has_nexus is equal to true</condition_dsl>
-        <condition_postfix>
-result.ks_has_nexus true eq
-</condition_postfix>
+        <condition_postfix>result.ks_has_nexus true beq</condition_postfix>
         <condition_column column_number="1" column_value="Y" />
         <condition_column column_number="2" column_value="N" />
       </condition_details>
@@ -205,9 +201,7 @@ ks_subtractions result.ks_state_subtractions xdef
         <condition_number>1</condition_number>
         <condition_comment>Has Kansas nexus</condition_comment>
         <condition_dsl>result.ks_has_nexus is equal to true</condition_dsl>
-        <condition_postfix>
-result.ks_has_nexus true eq
-</condition_postfix>
+        <condition_postfix>result.ks_has_nexus true beq</condition_postfix>
         <condition_column column_number="1" column_value="Y" />
         <condition_column column_number="2" column_value="Y" />
         <condition_column column_number="3" column_value="Y" />

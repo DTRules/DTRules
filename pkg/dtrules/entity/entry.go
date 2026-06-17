@@ -37,6 +37,28 @@ type EntityEntry struct {
 	Comment      string         // Comment describing this attribute
 	Input        string         // Mapping sources that populate this attribute
 	Output       string         // Entries to auto-update in source objects
+
+	// Collect marks a field whose value is asked of the user rather than
+	// taken from its default (#850). This is static metadata shared across
+	// all instances of the entity (correct: the question is the same for
+	// every instance); per-instance "has it been collected yet" state lives
+	// elsewhere (#852).
+	Collect bool
+	// Question describes how to ask for a Collect field (nil when none).
+	Question *QuestionMeta
+}
+
+// QuestionMeta is the metadata used to ask the user for a Collect field (#850).
+type QuestionMeta struct {
+	Text    string           // prompt shown to the user
+	Type    string           // multiple_choice | ascii | number | date
+	Options []QuestionOption // choices, for multiple_choice
+}
+
+// QuestionOption is one choice for a multiple_choice question.
+type QuestionOption struct {
+	Value string
+	Label string
 }
 
 // NewEntityEntry creates a new EntityEntry.

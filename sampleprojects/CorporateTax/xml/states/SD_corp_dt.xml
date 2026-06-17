@@ -24,10 +24,7 @@
 <condition_number>1</condition_number>
 <condition_comment>General business corporation (not financial institution or insurance company)</condition_comment>
 <condition_dsl>result.sd_is_financial_institution == false AND result.sd_is_insurance_company == false</condition_dsl>
-<condition_postfix>
-result.sd_is_financial_institution get false eq
-result.sd_is_insurance_company get false eq and
-</condition_postfix>
+<condition_postfix>result.sd_is_financial_institution false beq { pop result.sd_is_insurance_company false beq } over if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -37,9 +34,7 @@ result.sd_is_insurance_company get false eq and
 <condition_number>2</condition_number>
 <condition_comment>Financial institution subject to Bank Franchise Tax</condition_comment>
 <condition_dsl>result.sd_is_financial_institution == true</condition_dsl>
-<condition_postfix>
-result.sd_is_financial_institution get true eq
-</condition_postfix>
+<condition_postfix>result.sd_is_financial_institution true beq</condition_postfix>
 <condition_column column_number="1" column_value="" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -49,9 +44,7 @@ result.sd_is_financial_institution get true eq
 <condition_number>3</condition_number>
 <condition_comment>Insurance company subject to Insurance Premium Tax</condition_comment>
 <condition_dsl>result.sd_is_insurance_company == true</condition_dsl>
-<condition_postfix>
-result.sd_is_insurance_company get true eq
-</condition_postfix>
+<condition_postfix>result.sd_is_insurance_company true beq</condition_postfix>
 <condition_column column_number="1" column_value="" />
 <condition_column column_number="2" column_value="" />
 <condition_column column_number="3" column_value="Y" />
@@ -123,10 +116,7 @@ result.sd_insurance_premium_tax get /apportionment.state_tax xdef
 <condition_number>1</condition_number>
 <condition_comment>General business corporation</condition_comment>
 <condition_dsl>result.sd_is_financial_institution == false AND result.sd_is_insurance_company == false</condition_dsl>
-<condition_postfix>
-result.sd_is_financial_institution get false eq
-result.sd_is_insurance_company get false eq and
-</condition_postfix>
+<condition_postfix>result.sd_is_financial_institution false beq { pop result.sd_is_insurance_company false beq } over if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
@@ -185,10 +175,7 @@ result.sd_is_insurance_company get false eq and
 <condition_number>1</condition_number>
 <condition_comment>General business corporation</condition_comment>
 <condition_dsl>result.sd_is_financial_institution == false AND result.sd_is_insurance_company == false</condition_dsl>
-<condition_postfix>
-result.sd_is_financial_institution get false eq
-result.sd_is_insurance_company get false eq and
-</condition_postfix>
+<condition_postfix>result.sd_is_financial_institution false beq { pop result.sd_is_insurance_company false beq } over if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>

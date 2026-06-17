@@ -52,6 +52,82 @@ type EDDXMLField struct {
 	Input        string `xml:"input,attr"`
 	DefaultValue string `xml:"default_value,attr"`
 	Comment      string `xml:"comment,attr"`
+	// Collect marks a field whose value must be collected from the user
+	// (asked) rather than taken from its default. "true"/"false"/"" (empty
+	// == false). Distinct from Access: a collected field is always writable.
+	// See #850.
+	Collect string `xml:"collect,attr,omitempty"`
+	// Question is the metadata used to ask for a Collect field.
+	Question *EDDXMLQuestion `xml:"question,omitempty"`
+}
+
+// EDDXMLQuestion describes how to ask the user for a Collect field.
+type EDDXMLQuestion struct {
+	Text    string           `xml:"text,attr"`
+	Type    string           `xml:"type,attr"` // multiple_choice | ascii | number | date
+	Options []*EDDXMLOption  `xml:"option,omitempty"`
+}
+
+// EDDXMLOption is one choice for a multiple_choice question.
+type EDDXMLOption struct {
+	Value string `xml:"value,attr"`
+	Label string `xml:"label,attr"`
+}
+
+// eddColumnCount is the number of columns in the EDD sheet. Columns A–H are
+// the legacy field metadata; I–L carry the collect/question metadata (#850):
+// I=Collect, J=Question text, K=Question type, L=Options.
+const eddColumnCount = 12
+
+// encodeEDDOptions packs multiple_choice options into one Excel cell as
+// `value=label|value=label`. Quick-and-dirty (#850): values/labels are
+// assumed not to contain `=` or `|`.
+func encodeEDDOptions(opts []EDDXMLOption) string {
+	parts := make([]string, 0, len(opts))
+	for _, o := range opts {
+		if o.Label == "" {
+			parts = append(parts, o.Value)
+		} else {
+			parts = append(parts, o.Value+"="+o.Label)
+		}
+	}
+	return strings.Join(parts, "|")
+}
+
+// decodeEDDOptions parses the cell encoding produced by encodeEDDOptions.
+func decodeEDDOptions(s string) []*EDDXMLOption {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return nil
+	}
+	var out []*EDDXMLOption
+	for _, part := range strings.Split(s, "|") {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		value, label, found := strings.Cut(part, "=")
+		o := &EDDXMLOption{Value: strings.TrimSpace(value)}
+		if found {
+			o.Label = strings.TrimSpace(label)
+		}
+		out = append(out, o)
+	}
+	return out
+}
+
+// questionFromCells builds an EDDXMLQuestion from the collect/question cells
+// (columns I–L). Returns ("", nil) when the field is not collected.
+func questionFromCells(collect, qText, qType, qOptions string) (string, *EDDXMLQuestion) {
+	if !strings.EqualFold(strings.TrimSpace(collect), "true") {
+		return "", nil
+	}
+	q := &EDDXMLQuestion{Text: strings.TrimSpace(qText), Type: strings.TrimSpace(qType)}
+	q.Options = decodeEDDOptions(qOptions)
+	if q.Text == "" && q.Type == "" && len(q.Options) == 0 {
+		return "true", nil
+	}
+	return "true", q
 }
 
 // EDDImporter imports Entity Data Dictionary from Excel files
@@ -381,7 +457,8 @@ func (i *EDDImporter) parseEDDSheet(f *excelize.File, sheetName string) (*EDDXML
 		}
 
 		// Extract attribute values
-		// Columns: Entity(A), Attribute(B), Type(C), SubType(D), Default(E), Input(F), Access(G), Description(H)
+		// Columns: Entity(A), Attribute(B), Type(C), SubType(D), Default(E), Input(F), Access(G), Description(H),
+		//          Collect(I), Question(J), Q Type(K), Options(L)  — I–L are #850 metadata
 		attrName := strings.TrimSpace(getCellValue(row, 1))
 		if attrName == "" {
 			continue
@@ -396,6 +473,8 @@ func (i *EDDImporter) parseEDDSheet(f *excelize.File, sheetName string) (*EDDXML
 			Access:       strings.TrimSpace(getCellValue(row, 6)),
 			Comment:      strings.TrimSpace(getCellValue(row, 7)),
 		}
+		field.Collect, field.Question = questionFromCells(
+			getCellValue(row, 8), getCellValue(row, 9), getCellValue(row, 10), getCellValue(row, 11))
 
 		// Apply defaults
 		if field.Type == "" {
@@ -457,6 +536,8 @@ func MergeEDD(edds ...*EDDXML) *EDDXML {
 						Input:        field.Input,
 						Access:       field.Access,
 						Comment:      field.Comment,
+						Collect:      field.Collect,
+						Question:     field.Question,
 					})
 				}
 				entityMap[ent.Name] = cloned
@@ -477,6 +558,8 @@ func MergeEDD(edds ...*EDDXML) *EDDXML {
 							Input:        field.Input,
 							Access:       field.Access,
 							Comment:      field.Comment,
+							Collect:      field.Collect,
+							Question:     field.Question,
 						})
 						fieldMap[field.Name] = true
 					}

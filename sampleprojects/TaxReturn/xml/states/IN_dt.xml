@@ -31,7 +31,7 @@
 <initial_action>
 <action_comment>Reset IN tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.in_state_tax = 0; set result.in_taxable_income = 0; set result.in_total_exemptions = 0; add "  Indiana Tax Calculation (Form IT-40) - flat 3.00%" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvi /result.in_state_tax xdef 0 cvi /result.in_taxable_income xdef 0 cvi /result.in_total_exemptions xdef &quot;  Indiana Tax Calculation (Form IT-40) - flat 3.00%&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
+<initial_action_postfix>0 cvd /result.in_state_tax xdef 0 cvd /result.in_taxable_income xdef 0 cvd /result.in_total_exemptions xdef &quot;  Indiana Tax Calculation (Form IT-40) - flat 3.00%&quot; job.audit_trail swap addto</initial_action_postfix>
 <action_postfix>
 0.0 /result.in_state_tax xdef
 0.0 /result.in_taxable_income xdef
@@ -45,9 +45,7 @@
 <condition_number>1</condition_number>
 <condition_comment>Always compute (single-column FIRST table)</condition_comment>
 <condition_dsl>true</condition_dsl>
-<condition_postfix>
-true
-</condition_postfix>
+<condition_postfix>true</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
@@ -56,14 +54,7 @@ true
 <action_number>1</action_number>
 <action_comment>Compute IN exemptions, taxable income, and flat tax</action_comment>
 <action_dsl>set result.in_total_exemptions = length of job.taxpayers * in_personal_exemption + length of job.dependents * in_dependent_exemption; set result.in_taxable_income = the maximum of (result.agi - result.in_total_exemptions) and 0.0; set result.in_state_tax = result.in_taxable_income * in_tax_rate; add "  IN exemptions: $" + result.in_total_exemptions to job.audit_trail; add "  IN state tax (3.00%): $" + result.in_state_tax to job.audit_trail</action_dsl>
-<action_postfix>
-job.taxpayers length cvd in_personal_exemption f* job.dependents length cvd in_dependent_exemption f* f+ /result.in_total_exemptions xdef
-result.agi result.in_total_exemptions f- 0.0 fmax /result.in_taxable_income xdef
-result.in_taxable_income in_tax_rate f* /result.in_state_tax xdef
-"  IN exemptions ($1,000/taxpayer + $1,500/dependent): $" result.in_total_exemptions cvs strconcat job.audit_trail swap addto
-"  IN taxable income: $" result.in_taxable_income cvs strconcat job.audit_trail swap addto
-"  IN state tax (flat 3.00%): $" result.in_state_tax cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>job.taxpayers length in_personal_exemption fmul job.dependents length in_dependent_exemption fmul f+ cvd /result.in_total_exemptions xdef result.agi result.in_total_exemptions - 0.0 fmax cvd /result.in_taxable_income xdef result.in_taxable_income in_tax_rate fmul cvd /result.in_state_tax xdef &quot;  IN exemptions: $&quot; result.in_total_exemptions strconcat job.audit_trail swap addto &quot;  IN state tax (3.00%): $&quot; result.in_state_tax strconcat job.audit_trail swap addto</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>

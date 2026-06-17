@@ -24,11 +24,7 @@
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in NM</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "NM"</condition_dsl>
-<condition_postfix>
-apportionment.has_physical_presence true eq
-apportionment.state_code "NM" streq
-and
-</condition_postfix>
+<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;NM&quot; streq } over if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="" />
 <condition_column column_number="3" column_value="N" />
@@ -38,11 +34,7 @@ and
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in NM</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "NM"</condition_dsl>
-<condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.state_code "NM" streq
-and
-</condition_postfix>
+<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &quot;NM&quot; streq } over if</condition_postfix>
 <condition_column column_number="1" column_value="" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -182,9 +174,7 @@ or
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
-<condition_postfix>
-apportionment.state_taxable_income 0 gt
-</condition_postfix>
+<condition_postfix>apportionment.state_taxable_income 0 f&gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="" />

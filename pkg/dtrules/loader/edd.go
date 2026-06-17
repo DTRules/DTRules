@@ -118,6 +118,26 @@ type EDDField struct {
 	// (Phase 2 of #743). When set, tz-naïve default-value strings are
 	// parsed in this zone instead of UTC.
 	Timezone string `xml:"timezone,attr,omitempty" json:"timezone,omitempty"`
+	// Collect marks a field whose value is asked of the user rather than
+	// taken from its default (#850). "true"/"false"/"" (empty == false).
+	// The runtime collection wiring (read-point resolver) lands in #852;
+	// the loader parses it here so it survives load/round-trip.
+	Collect string `xml:"collect,attr,omitempty" json:"collect,omitempty"`
+	// Question is the metadata used to ask for a Collect field.
+	Question *EDDQuestion `xml:"question,omitempty" json:"question,omitempty"`
+}
+
+// EDDQuestion describes how to ask the user for a Collect field (#850).
+type EDDQuestion struct {
+	Text    string      `xml:"text,attr" json:"text,omitempty"`
+	Type    string      `xml:"type,attr" json:"type,omitempty"` // multiple_choice|ascii|number|date
+	Options []EDDOption `xml:"option,omitempty" json:"options,omitempty"`
+}
+
+// EDDOption is one choice for a multiple_choice question.
+type EDDOption struct {
+	Value string `xml:"value,attr" json:"value"`
+	Label string `xml:"label,attr" json:"label,omitempty"`
 }
 
 // Load loads an EDD from an io.Reader.
@@ -303,6 +323,21 @@ func (l *EDDLoader) processField(refEntity *entity.REntity, field *EDDField) err
 	)
 	if errStr != "" {
 		return fmt.Errorf("failed to add field %s: %s", field.Name, errStr)
+	}
+
+	// Carry collect/question metadata onto the entity entry (#850) so the
+	// runtime read-point and the Excel exporter can see it.
+	if strings.EqualFold(field.Collect, "true") {
+		if entry := refEntity.GetEntry(attributeName); entry != nil {
+			entry.Collect = true
+			if field.Question != nil {
+				q := &entity.QuestionMeta{Text: field.Question.Text, Type: field.Question.Type}
+				for _, o := range field.Question.Options {
+					q.Options = append(q.Options, entity.QuestionOption{Value: o.Value, Label: o.Label})
+				}
+				entry.Question = q
+			}
+		}
 	}
 	return nil
 }

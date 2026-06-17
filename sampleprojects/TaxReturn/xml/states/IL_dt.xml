@@ -15,7 +15,7 @@
 <initial_action>
 <action_comment>Reset IL tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.il_state_tax = 0; set result.il_taxable_income = 0; set result.il_total_exemptions = 0; add "  Illinois Tax Calculation (Form IL-1040) - flat 4.95%" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvi /result.il_state_tax xdef 0 cvi /result.il_taxable_income xdef 0 cvi /result.il_total_exemptions xdef &quot;  Illinois Tax Calculation (Form IL-1040) - flat 4.95%&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
+<initial_action_postfix>0 cvd /result.il_state_tax xdef 0 cvd /result.il_taxable_income xdef 0 cvd /result.il_total_exemptions xdef &quot;  Illinois Tax Calculation (Form IL-1040) - flat 4.95%&quot; job.audit_trail swap addto</initial_action_postfix>
 <action_postfix>
 0.0 /result.il_state_tax xdef
 0.0 /result.il_taxable_income xdef
@@ -29,9 +29,7 @@
 <condition_number>1</condition_number>
 <condition_comment>Always compute (IL has no filing-status differences in rate/exemption-per-person)</condition_comment>
 <condition_dsl>true</condition_dsl>
-<condition_postfix>
-true
-</condition_postfix>
+<condition_postfix>true</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
@@ -40,14 +38,7 @@ true
 <action_number>1</action_number>
 <action_comment>IL exemptions = $2,850 x (taxpayers + dependents); tax = 4.95% x max(AGI - exemptions, 0)</action_comment>
 <action_dsl>set result.il_total_exemptions = (length of job.taxpayers + length of job.dependents) * il_personal_exemption; set result.il_taxable_income = the maximum of (result.agi - result.il_total_exemptions) and 0.0; set result.il_state_tax = result.il_taxable_income * il_tax_rate; add "  IL exemptions ($2,850 per person): $" + result.il_total_exemptions to job.audit_trail; add "  IL state tax (4.95%): $" + result.il_state_tax to job.audit_trail</action_dsl>
-<action_postfix>
-job.taxpayers length cvd job.dependents length cvd f+ il_personal_exemption f* /result.il_total_exemptions xdef
-result.agi result.il_total_exemptions f- 0.0 fmax /result.il_taxable_income xdef
-result.il_taxable_income il_tax_rate f* /result.il_state_tax xdef
-"  IL exemptions ($2,850 x #people): $" result.il_total_exemptions cvs strconcat job.audit_trail swap addto
-"  IL taxable income: $" result.il_taxable_income cvs strconcat job.audit_trail swap addto
-"  IL state tax (flat 4.95%): $" result.il_state_tax cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>job.taxpayers length job.dependents length + il_personal_exemption fmul cvd /result.il_total_exemptions xdef result.agi result.il_total_exemptions - 0.0 fmax cvd /result.il_taxable_income xdef result.il_taxable_income il_tax_rate fmul cvd /result.il_state_tax xdef &quot;  IL exemptions ($2,850 per person): $&quot; result.il_total_exemptions strconcat job.audit_trail swap addto &quot;  IL state tax (4.95%): $&quot; result.il_state_tax strconcat job.audit_trail swap addto</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>

@@ -19,9 +19,7 @@
 <initial_actions>
 <initial_action>
 <action_dsl>// Initialize Colorado filing requirement check; set result.co_has_nexus = false;</action_dsl>
-<action_postfix>
-false cvb /result.co_has_nexus xdef
-</action_postfix>
+<action_postfix></action_postfix>
 </initial_action>
 </initial_actions>
 
@@ -30,9 +28,7 @@ false cvb /result.co_has_nexus xdef
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in Colorado</condition_comment>
 <condition_dsl>result.has_physical_presence_co is true</condition_dsl>
-<condition_postfix>
-result.has_physical_presence_co true beq
-</condition_postfix>
+<condition_postfix>result.has_physical_presence_co true beq</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -56,9 +52,7 @@ result.co_gross_receipts result.co_economic_nexus_threshold f&gt;=
 <action_number>1</action_number>
 <action_comment>Physical nexus - filing required</action_comment>
 <action_dsl>// Physical nexus established - filing required; set result.co_has_nexus = true;</action_dsl>
-<action_postfix>
-true cvb /result.co_has_nexus xdef
-</action_postfix>
+<action_postfix></action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 
@@ -66,9 +60,7 @@ true cvb /result.co_has_nexus xdef
 <action_number>2</action_number>
 <action_comment>Economic nexus - filing required</action_comment>
 <action_dsl>// Economic nexus established per Wayfair - filing required; set result.co_has_nexus = true;</action_dsl>
-<action_postfix>
-true cvb /result.co_has_nexus xdef
-</action_postfix>
+<action_postfix></action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 
@@ -103,9 +95,7 @@ false cvb /result.co_has_nexus xdef 0.0 cvd /result.co_tax_liability xdef
 <initial_actions>
 <initial_action>
 <action_dsl>// Initialize Colorado income adjustments; set result.co_state_additions = 0.0; set result.co_state_subtractions = 0.0;</action_dsl>
-<action_postfix>
-0.0 cvd /result.co_state_additions xdef 0.0 cvd /result.co_state_subtractions xdef
-</action_postfix>
+<action_postfix></action_postfix>
 </initial_action>
 </initial_actions>
 
@@ -114,9 +104,7 @@ false cvb /result.co_has_nexus xdef 0.0 cvd /result.co_tax_liability xdef
 <condition_number>1</condition_number>
 <condition_comment>Has Colorado nexus</condition_comment>
 <condition_dsl>result.co_has_nexus is true</condition_dsl>
-<condition_postfix>
-result.co_has_nexus true beq
-</condition_postfix>
+<condition_postfix>result.co_has_nexus true beq</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
@@ -164,9 +152,7 @@ result.co_us_interest_income cvd /result.co_state_additions xdef result.co_state
 <initial_actions>
 <initial_action>
 <action_dsl>// Initialize Colorado tax calculation; set result.co_taxable_income = 0.0; set result.co_tax_liability = 0.0;</action_dsl>
-<action_postfix>
-0.0 cvd /result.co_taxable_income xdef 0.0 cvd /result.co_tax_liability xdef
-</action_postfix>
+<action_postfix></action_postfix>
 </initial_action>
 </initial_actions>
 
@@ -175,9 +161,7 @@ result.co_us_interest_income cvd /result.co_state_additions xdef result.co_state
 <condition_number>1</condition_number>
 <condition_comment>Has Colorado nexus</condition_comment>
 <condition_dsl>result.co_has_nexus is true</condition_dsl>
-<condition_postfix>
-result.co_has_nexus true beq
-</condition_postfix>
+<condition_postfix>result.co_has_nexus true beq</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -187,9 +171,7 @@ result.co_has_nexus true beq
 <condition_number>2</condition_number>
 <condition_comment>Has positive taxable income</condition_comment>
 <condition_dsl>result.co_apportioned_income &gt; 0.0</condition_dsl>
-<condition_postfix>
-result.co_apportioned_income 0.0 f&gt;
-</condition_postfix>
+<condition_postfix>result.co_apportioned_income 0.0 f&gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="" />

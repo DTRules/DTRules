@@ -101,8 +101,8 @@ func (rs *RuleSet) LoadDecisionTables(r io.Reader) error {
 }
 
 // LoadDecisionTablesTolerant is for build-time tooling that consumes
-// XML mid-compile (e.g. the export step of `dtrules build --from-xml`,
-// which reads partially-built XML to write Excel). It skips the
+// XML mid-compile (e.g. the export step of the XML→Excel bootstrap, which
+// reads partially-built XML to write Excel). It skips the
 // "DSL with no compiled postfix" load error.
 //
 // Do NOT use this from runtime code — it accepts XML that will crash

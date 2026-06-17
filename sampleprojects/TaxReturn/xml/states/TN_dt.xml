@@ -14,7 +14,7 @@
 <initial_actions>
 <initial_action>
 <initial_action_dsl>set result.tn_tax = 0; add "  Tennessee (no state income tax)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvi /result.tn_tax xdef &quot;  Tennessee (no state income tax)&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
+<initial_action_postfix>0 cvi /result.tn_tax xdef &quot;  Tennessee (no state income tax)&quot; job.audit_trail swap addto</initial_action_postfix>
 <action_postfix>
 "TENNESSEE FORM TN-1040 - State Income Tax Calculation" job.audit_trail swap addto
 result.agi /result.tn_agi xdef
@@ -29,9 +29,7 @@ result.agi /result.tn_agi xdef
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
 <condition_dsl>job.filing_status == "married_filing_jointly"</condition_dsl>
-<condition_postfix>
-job.filing_status married_filing_jointly streq
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;married_filing_jointly&quot; streq</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
@@ -41,66 +39,14 @@ job.filing_status married_filing_jointly streq
 <action_number>1</action_number>
 <action_comment>Calculate TN tax MFJ. NOTE: TN has no state income tax (2025) — actual state tax is $0. Postfix retains legacy hypothetical-bracket logic referencing TN constants not in TN_edd; EL form below honors no-income-tax acceptance criterion.</action_comment>
 <action_dsl>set result.tn_tax = 0; add "  TN has no state income tax: $0" to job.audit_trail</action_dsl>
-<action_postfix>
-"  Starting Federal AGI: $" result.tn_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-tn_standard_deduction_mfj /result.tn_standard_deduction xdef
-"  Standard Deduction (MFJ): $" result.tn_standard_deduction cvs strconcat job.audit_trail swap addto
-result.tn_agi result.tn_standard_deduction f- 0 fmax /result.tn_taxable_income xdef
-"  TN Taxable Income: $" result.tn_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
-result.tn_taxable_income tn_bracket_3_threshold f&gt; if
-  tn_bracket_2_threshold tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
-  tn_bracket_3_threshold tn_bracket_2_threshold f- tn_bracket_2_rate f* /result.tn_bracket_2_tax xdef
-  result.tn_taxable_income tn_bracket_3_threshold f- tn_bracket_3_rate f* /result.tn_bracket_3_tax xdef
-  "  Bracket 1 (2% on $0-$50,000): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 2 (4% on $50,000-$100,000): $" result.tn_bracket_2_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 3 (6% above $100,000): $" result.tn_bracket_3_tax cvs strconcat job.audit_trail swap addto
-else
-  result.tn_taxable_income tn_bracket_2_threshold f&gt; if
-    tn_bracket_2_threshold tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
-    result.tn_taxable_income tn_bracket_2_threshold f- tn_bracket_2_rate f* /result.tn_bracket_2_tax xdef
-    "  Bracket 1 (2% on $0-$50,000): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
-    "  Bracket 2 (4%): $" result.tn_bracket_2_tax cvs strconcat job.audit_trail swap addto
-  else
-    result.tn_taxable_income tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
-    "  Bracket 1 (2%): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  endif
-endif
-result.tn_bracket_1_tax result.tn_bracket_2_tax f+ result.tn_bracket_3_tax f+ /result.tn_tax xdef
-"  Total TN Tax: $" result.tn_tax cvs strconcat " (Form TN-1040)" strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>0 cvi /result.tn_tax xdef &quot;  TN has no state income tax: $0&quot; job.audit_trail swap addto</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate TN tax Single/other. NOTE: TN has no state income tax (2025) — actual state tax is $0. Postfix retains legacy hypothetical-bracket logic referencing TN constants not in TN_edd; EL form below honors no-income-tax acceptance criterion.</action_comment>
 <action_dsl>set result.tn_tax = 0; add "  TN has no state income tax: $0" to job.audit_trail</action_dsl>
-<action_postfix>
-"  Starting Federal AGI: $" result.tn_agi cvs strconcat " (Form 1040 Line 11)" strconcat job.audit_trail swap addto
-tn_standard_deduction_single /result.tn_standard_deduction xdef
-"  Standard Deduction (Single): $" result.tn_standard_deduction cvs strconcat job.audit_trail swap addto
-result.tn_agi result.tn_standard_deduction f- 0 fmax /result.tn_taxable_income xdef
-"  TN Taxable Income: $" result.tn_taxable_income cvs strconcat " (AGI - Std Deduction)" strconcat job.audit_trail swap addto
-result.tn_taxable_income tn_bracket_3_threshold f&gt; if
-  tn_bracket_2_threshold tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
-  tn_bracket_3_threshold tn_bracket_2_threshold f- tn_bracket_2_rate f* /result.tn_bracket_2_tax xdef
-  result.tn_taxable_income tn_bracket_3_threshold f- tn_bracket_3_rate f* /result.tn_bracket_3_tax xdef
-  "  Bracket 1 (2% on $0-$50,000): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 2 (4% on $50,000-$100,000): $" result.tn_bracket_2_tax cvs strconcat job.audit_trail swap addto
-  "  Bracket 3 (6% above $100,000): $" result.tn_bracket_3_tax cvs strconcat job.audit_trail swap addto
-else
-  result.tn_taxable_income tn_bracket_2_threshold f&gt; if
-    tn_bracket_2_threshold tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
-    result.tn_taxable_income tn_bracket_2_threshold f- tn_bracket_2_rate f* /result.tn_bracket_2_tax xdef
-    "  Bracket 1 (2% on $0-$50,000): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
-    "  Bracket 2 (4%): $" result.tn_bracket_2_tax cvs strconcat job.audit_trail swap addto
-  else
-    result.tn_taxable_income tn_bracket_1_rate f* /result.tn_bracket_1_tax xdef
-    "  Bracket 1 (2%): $" result.tn_bracket_1_tax cvs strconcat job.audit_trail swap addto
-  endif
-endif
-result.tn_bracket_1_tax result.tn_bracket_2_tax f+ result.tn_bracket_3_tax f+ /result.tn_tax xdef
-"  Total TN Tax: $" result.tn_tax cvs strconcat " (Form TN-1040)" strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>0 cvi /result.tn_tax xdef &quot;  TN has no state income tax: $0&quot; job.audit_trail swap addto</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>

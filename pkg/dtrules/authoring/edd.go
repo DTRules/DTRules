@@ -67,6 +67,23 @@ type Entity struct {
 // Attribute holds all field metadata for one EDD attribute.
 type Attribute struct {
 	Name, Type, Subtype, Default, Access, Input, Comment string
+
+	// Collect marks a field that must be asked of the user rather than
+	// taken from its default. "true"/"false"/"" (empty == not collected,
+	// and == "keep existing" on a patch). Distinct from Access — a
+	// collected field is always writable. See #850.
+	Collect string
+	// QuestionText / QuestionType / Options describe how to ask for a
+	// Collect field. QuestionType is one of: multiple_choice, ascii,
+	// number, date. Options apply only to multiple_choice.
+	QuestionText string
+	QuestionType string
+	Options      []Option
+}
+
+// Option is one choice for a multiple_choice question.
+type Option struct {
+	Value, Label string
 }
 
 // EDD returns the EDD view for this project, loading it lazily if needed.
@@ -220,7 +237,7 @@ func entityFromXML(xe *excel.EDDXMLEntity) *Entity {
 }
 
 func attributeFromXML(f *excel.EDDXMLField) Attribute {
-	return Attribute{
+	a := Attribute{
 		Name:    f.Name,
 		Type:    f.Type,
 		Subtype: f.SubType,
@@ -228,7 +245,16 @@ func attributeFromXML(f *excel.EDDXMLField) Attribute {
 		Access:  f.Access,
 		Input:   f.Input,
 		Comment: f.Comment,
+		Collect: f.Collect,
 	}
+	if f.Question != nil {
+		a.QuestionText = f.Question.Text
+		a.QuestionType = f.Question.Type
+		for _, o := range f.Question.Options {
+			a.Options = append(a.Options, Option{Value: o.Value, Label: o.Label})
+		}
+	}
+	return a
 }
 
 // AddAttribute appends an attribute to this entity after validation.
@@ -298,11 +324,27 @@ func mergeAttribute(base, patch Attribute) Attribute {
 	if patch.Comment != "" {
 		result.Comment = patch.Comment
 	}
+	if patch.Collect != "" {
+		result.Collect = patch.Collect
+	}
+	if patch.QuestionText != "" {
+		result.QuestionText = patch.QuestionText
+	}
+	if patch.QuestionType != "" {
+		result.QuestionType = patch.QuestionType
+	}
+	if patch.Options != nil {
+		result.Options = patch.Options
+	}
+	// A field that isn't collected carries no question metadata.
+	if !strings.EqualFold(result.Collect, "true") {
+		result.QuestionText, result.QuestionType, result.Options = "", "", nil
+	}
 	return result
 }
 
 func attributeToXML(a Attribute) *excel.EDDXMLField {
-	return &excel.EDDXMLField{
+	f := &excel.EDDXMLField{
 		Name:         a.Name,
 		Type:         a.Type,
 		SubType:      a.Subtype,
@@ -311,6 +353,17 @@ func attributeToXML(a Attribute) *excel.EDDXMLField {
 		Input:        a.Input,
 		Comment:      a.Comment,
 	}
+	if strings.EqualFold(a.Collect, "true") {
+		f.Collect = "true"
+		if a.QuestionText != "" || a.QuestionType != "" || len(a.Options) > 0 {
+			q := &excel.EDDXMLQuestion{Text: a.QuestionText, Type: a.QuestionType}
+			for _, o := range a.Options {
+				q.Options = append(q.Options, &excel.EDDXMLOption{Value: o.Value, Label: o.Label})
+			}
+			f.Question = q
+		}
+	}
+	return f
 }
 
 func validateAttribute(a Attribute) error {
@@ -326,13 +379,65 @@ func validateAttribute(a Attribute) error {
 	if (a.Type == "array" || a.Type == "entity") && a.Subtype == "" {
 		return fmt.Errorf("attribute %q: subtype required for type %q", a.Name, a.Type)
 	}
-	if a.Access != "" && a.Access != "r" && a.Access != "rw" {
-		return fmt.Errorf("attribute %q: access must be \"r\", \"rw\", or empty; got %q", a.Name, a.Access)
+	if a.Access != "" && a.Access != "r" && a.Access != "w" && a.Access != "rw" {
+		return fmt.Errorf("attribute %q: access must be \"r\" (input), \"w\" (output), \"rw\", or empty; got %q", a.Name, a.Access)
 	}
 	if a.Default != "" {
 		if err := validateDefault(a.Type, a.Default); err != nil {
 			return fmt.Errorf("attribute %q: %w", a.Name, err)
 		}
+	}
+	if err := validateCollect(a); err != nil {
+		return err
+	}
+	return nil
+}
+
+// validQuestionTypes is the set of question types the collection UI can
+// render (see #850). Deliberately minimal for now.
+var validQuestionTypes = map[string]bool{
+	"multiple_choice": true,
+	"ascii":           true,
+	"number":          true,
+	"date":            true,
+}
+
+// validateCollect checks the collect flag and question metadata. collect is
+// metadata distinct from access; a collected field must be writable, and
+// question metadata is only meaningful when collect is true.
+func validateCollect(a Attribute) error {
+	collect := strings.ToLower(a.Collect)
+	if collect != "" && collect != "true" && collect != "false" {
+		return fmt.Errorf("attribute %q: collect must be \"true\", \"false\", or empty; got %q", a.Name, a.Collect)
+	}
+	hasQuestion := a.QuestionText != "" || a.QuestionType != "" || len(a.Options) > 0
+	if collect != "true" {
+		if hasQuestion {
+			return fmt.Errorf("attribute %q: question metadata requires collect=\"true\"", a.Name)
+		}
+		return nil
+	}
+	// collect == "true"
+	if a.Access == "r" {
+		return fmt.Errorf("attribute %q: a collected field must be writable (access \"w\" or \"rw\"), not \"r\"", a.Name)
+	}
+	if a.QuestionText == "" {
+		return fmt.Errorf("attribute %q: a collected field requires question text", a.Name)
+	}
+	if !validQuestionTypes[a.QuestionType] {
+		return fmt.Errorf("attribute %q: question type must be multiple_choice|ascii|number|date; got %q", a.Name, a.QuestionType)
+	}
+	if a.QuestionType == "multiple_choice" {
+		if len(a.Options) == 0 {
+			return fmt.Errorf("attribute %q: multiple_choice question requires options", a.Name)
+		}
+		for i, o := range a.Options {
+			if o.Value == "" {
+				return fmt.Errorf("attribute %q: option %d has an empty value", a.Name, i+1)
+			}
+		}
+	} else if len(a.Options) > 0 {
+		return fmt.Errorf("attribute %q: options are only valid for a multiple_choice question", a.Name)
 	}
 	return nil
 }

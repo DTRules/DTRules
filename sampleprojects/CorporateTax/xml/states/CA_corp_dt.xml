@@ -23,9 +23,7 @@
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in CA</condition_comment>
 <condition_dsl>apportionment.has_physical_presence is true and apportionment.state_code == "CA"</condition_dsl>
-<condition_postfix>
-apportionment.has_physical_presence true beq { pop apportionment.state_code "CA" streq } over if
-</condition_postfix>
+<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;CA&quot; streq } over if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -35,9 +33,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "CA"
 <condition_number>2</condition_number>
 <condition_comment>Meets CA economic nexus threshold</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus is true and apportionment.state_code == "CA"</condition_dsl>
-<condition_postfix>
-apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" streq } over if
-</condition_postfix>
+<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &quot;CA&quot; streq } over if</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -49,8 +45,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" st
 <action_number>1</action_number>
 <action_comment>Physical nexus established - filing required</action_comment>
 <action_dsl>// Physical nexus established - filing required</action_dsl>
-<action_postfix>
-</action_postfix>
+<action_postfix></action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 
@@ -58,8 +53,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" st
 <action_number>2</action_number>
 <action_comment>Economic nexus established - filing required</action_comment>
 <action_dsl>// Economic nexus established - filing required</action_dsl>
-<action_postfix>
-</action_postfix>
+<action_postfix></action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 
@@ -164,9 +158,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_number>2</condition_number>
 <condition_comment>Has positive CA taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0.0</condition_dsl>
-<condition_postfix>
-apportionment.state_taxable_income 0.0 f&gt;
-</condition_postfix>
+<condition_postfix>apportionment.state_taxable_income 0.0 f&gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="-" />
@@ -229,9 +221,7 @@ result.ca_minimum_franchise_tax cvd /apportionment.state_tax xdef apportionment.
 <condition_number>1</condition_number>
 <condition_comment>Has elected water's edge treatment</condition_comment>
 <condition_dsl>result.ca_waters_edge_election is true</condition_dsl>
-<condition_postfix>
-result.ca_waters_edge_election true beq
-</condition_postfix>
+<condition_postfix>result.ca_waters_edge_election true beq</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="-" />
@@ -241,9 +231,7 @@ result.ca_waters_edge_election true beq
 <condition_number>2</condition_number>
 <condition_comment>Has unitary group members</condition_comment>
 <condition_dsl>result.ca_unitary_group_count &gt; 1</condition_dsl>
-<condition_postfix>
-result.ca_unitary_group_count 1 &gt;
-</condition_postfix>
+<condition_postfix>result.ca_unitary_group_count 1 &gt;</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -255,8 +243,7 @@ result.ca_unitary_group_count 1 &gt;
 <action_number>1</action_number>
 <action_comment>Water's edge limits combined reporting</action_comment>
 <action_dsl>// Water's edge limits combined reporting to US corporations and certain foreign entities</action_dsl>
-<action_postfix>
-</action_postfix>
+<action_postfix></action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 
@@ -264,8 +251,7 @@ result.ca_unitary_group_count 1 &gt;
 <action_number>2</action_number>
 <action_comment>Worldwide combined reporting</action_comment>
 <action_dsl>// Worldwide combined reporting includes all unitary group members globally</action_dsl>
-<action_postfix>
-</action_postfix>
+<action_postfix></action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 

@@ -31,7 +31,7 @@
 <initial_action>
 <action_comment>Reset MI tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.mi_state_tax = 0; set result.mi_taxable_income = 0; set result.mi_total_exemption = 0; add "  Michigan Tax Calculation (Form MI-1040) - flat 4.25%" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvi /result.mi_state_tax xdef 0 cvi /result.mi_taxable_income xdef 0 cvi /result.mi_total_exemption xdef &quot;  Michigan Tax Calculation (Form MI-1040) - flat 4.25%&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
+<initial_action_postfix>0 cvd /result.mi_state_tax xdef 0 cvd /result.mi_taxable_income xdef 0 cvd /result.mi_total_exemption xdef &quot;  Michigan Tax Calculation (Form MI-1040) - flat 4.25%&quot; job.audit_trail swap addto</initial_action_postfix>
 <action_postfix>
 0.0 /result.mi_state_tax xdef
 0.0 /result.mi_taxable_income xdef
@@ -45,9 +45,7 @@
 <condition_number>1</condition_number>
 <condition_comment>Always compute (MI has no filing-status differences in rate/per-person exemption)</condition_comment>
 <condition_dsl>true</condition_dsl>
-<condition_postfix>
-true
-</condition_postfix>
+<condition_postfix>true</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
@@ -56,14 +54,7 @@ true
 <action_number>1</action_number>
 <action_comment>MI exemptions = $5,800 x (taxpayers + dependents); tax = 4.25% x max(AGI - exemptions, 0)</action_comment>
 <action_dsl>set result.mi_total_exemption = (length of job.taxpayers + length of job.dependents) * mi_exemption_single; set result.mi_taxable_income = the maximum of (result.agi - result.mi_total_exemption) and 0.0; set result.mi_state_tax = result.mi_taxable_income * mi_tax_rate; add "  MI exemptions ($5,800 per person): $" + result.mi_total_exemption to job.audit_trail; add "  MI state tax (4.25%): $" + result.mi_state_tax to job.audit_trail</action_dsl>
-<action_postfix>
-job.taxpayers length cvd job.dependents length cvd f+ mi_exemption_single f* /result.mi_total_exemption xdef
-result.agi result.mi_total_exemption f- 0.0 fmax /result.mi_taxable_income xdef
-result.mi_taxable_income mi_tax_rate f* /result.mi_state_tax xdef
-"  MI exemptions ($5,800 x #people): $" result.mi_total_exemption cvs strconcat job.audit_trail swap addto
-"  MI taxable income: $" result.mi_taxable_income cvs strconcat job.audit_trail swap addto
-"  MI state tax (flat 4.25%): $" result.mi_state_tax cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>job.taxpayers length job.dependents length + mi_exemption_single fmul cvd /result.mi_total_exemption xdef result.agi result.mi_total_exemption - 0.0 fmax cvd /result.mi_taxable_income xdef result.mi_taxable_income mi_tax_rate fmul cvd /result.mi_state_tax xdef &quot;  MI exemptions ($5,800 per person): $&quot; result.mi_total_exemption strconcat job.audit_trail swap addto &quot;  MI state tax (4.25%): $&quot; result.mi_state_tax strconcat job.audit_trail swap addto</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>

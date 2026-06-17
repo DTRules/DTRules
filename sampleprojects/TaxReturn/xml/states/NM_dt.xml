@@ -17,9 +17,7 @@
 <condition_number>2</condition_number>
 <condition_comment>Head of household</condition_comment>
 <condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
-<condition_postfix>
-Head of household
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;HOH&quot; streq</condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="Y" />

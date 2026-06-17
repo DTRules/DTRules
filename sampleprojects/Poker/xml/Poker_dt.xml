@@ -38,36 +38,28 @@ player.archetype /decision.archetype xdef
 <condition_number>1</condition_number>
 <condition_comment>TAG archetype</condition_comment>
 <condition_dsl>player.archetype is equal to "TAG"</condition_dsl>
-<condition_postfix>
-player.archetype "TAG" streq
-</condition_postfix>
+<condition_postfix>player.archetype &quot;TAG&quot; streq</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>LAG archetype</condition_comment>
 <condition_dsl>player.archetype is equal to "LAG"</condition_dsl>
-<condition_postfix>
-player.archetype "LAG" streq
-</condition_postfix>
+<condition_postfix>player.archetype &quot;LAG&quot; streq</condition_postfix>
 <condition_column column_number="2" column_value="Y"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Rock archetype</condition_comment>
 <condition_dsl>player.archetype is equal to "Rock"</condition_dsl>
-<condition_postfix>
-player.archetype "Rock" streq
-</condition_postfix>
+<condition_postfix>player.archetype &quot;Rock&quot; streq</condition_postfix>
 <condition_column column_number="3" column_value="Y"></condition_column>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Calling Station archetype</condition_comment>
 <condition_dsl>player.archetype is equal to "Calling"</condition_dsl>
-<condition_postfix>
-player.archetype "Calling" streq
-</condition_postfix>
+<condition_postfix>player.archetype &quot;Calling&quot; streq</condition_postfix>
 <condition_column column_number="4" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
@@ -76,45 +68,35 @@ player.archetype "Calling" streq
 <action_number>1</action_number>
 <action_comment>Execute TAG decision table</action_comment>
 <action_dsl>TAG_Decision</action_dsl>
-<action_postfix>
-TAG_Decision
-</action_postfix>
+<action_postfix>/TAG_Decision performtable</action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Execute LAG decision table</action_comment>
 <action_dsl>LAG_Decision</action_dsl>
-<action_postfix>
-LAG_Decision
-</action_postfix>
+<action_postfix>/LAG_Decision performtable</action_postfix>
 <action_column column_number="2" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Execute Rock decision table</action_comment>
 <action_dsl>Rock_Decision</action_dsl>
-<action_postfix>
-Rock_Decision
-</action_postfix>
+<action_postfix>/Rock_Decision performtable</action_postfix>
 <action_column column_number="3" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>Execute Calling Station decision table</action_comment>
 <action_dsl>CallingStation_Decision</action_dsl>
-<action_postfix>
-CallingStation_Decision
-</action_postfix>
+<action_postfix>/CallingStation_Decision performtable</action_postfix>
 <action_column column_number="4" column_value="X"></action_column>
 </action_details>
 <action_details>
 <action_number>5</action_number>
 <action_comment>Add decision to game decisions</action_comment>
 <action_dsl>Add decision to game.decisions</action_dsl>
-<action_postfix>
-decision game.decisions swap addto
-</action_postfix>
+<action_postfix>decision game.decisions swap addto</action_postfix>
 <action_column column_number="1" column_value="X"></action_column>
 <action_column column_number="2" column_value="X"></action_column>
 <action_column column_number="3" column_value="X"></action_column>
@@ -162,9 +144,7 @@ decision game.decisions swap addto
 <condition_number>1</condition_number>
 <condition_comment>Execute decision logic</condition_comment>
 <condition_dsl>perform when called</condition_dsl>
-<condition_postfix>
-perform when called
-</condition_postfix>
+<condition_postfix>perform when called</condition_postfix>
 <condition_column column_number="1" column_value="*"></condition_column>
 </condition_details>
 </conditions>
@@ -222,9 +202,7 @@ if
 <condition_number>1</condition_number>
 <condition_comment>Hand strength >= 50%</condition_comment>
 <condition_dsl>player.hand_strength >= 0.50</condition_dsl>
-<condition_postfix>
-player.hand_strength 0.50 >=
-</condition_postfix>
+<condition_postfix>player.hand_strength 0.50 f&gt;=</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
@@ -247,9 +225,7 @@ player.position "late" streq player.position "button" streq or
 <condition_number>3</condition_number>
 <condition_comment>Hand strength >= 25%</condition_comment>
 <condition_dsl>player.hand_strength >= 0.25</condition_dsl>
-<condition_postfix>
-player.hand_strength 0.25 >=
-</condition_postfix>
+<condition_postfix>player.hand_strength 0.25 f&gt;=</condition_postfix>
 <condition_column column_number="2" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="Y"></condition_column>
@@ -259,9 +235,7 @@ player.hand_strength 0.25 >=
 <condition_number>4</condition_number>
 <condition_comment>Can check</condition_comment>
 <condition_dsl>player.can_check is true</condition_dsl>
-<condition_postfix>
-player.can_check
-</condition_postfix>
+<condition_postfix>player.can_check true beq</condition_postfix>
 <condition_column column_number="3" column_value="Y"></condition_column>
 </condition_details>
 </conditions>
@@ -354,9 +328,7 @@ game.big_blind 2.5 * /decision.raise_amount xdef
 <condition_number>1</condition_number>
 <condition_comment>Hand strength >= 85%</condition_comment>
 <condition_dsl>player.hand_strength >= 0.85</condition_dsl>
-<condition_postfix>
-player.hand_strength 0.85 >=
-</condition_postfix>
+<condition_postfix>player.hand_strength 0.85 f&gt;=</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
@@ -366,9 +338,7 @@ player.hand_strength 0.85 >=
 <condition_number>2</condition_number>
 <condition_comment>Hand strength >= 60%</condition_comment>
 <condition_dsl>player.hand_strength >= 0.60</condition_dsl>
-<condition_postfix>
-player.hand_strength 0.60 >=
-</condition_postfix>
+<condition_postfix>player.hand_strength 0.60 f&gt;=</condition_postfix>
 <condition_column column_number="2" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
@@ -377,9 +347,7 @@ player.hand_strength 0.60 >=
 <condition_number>3</condition_number>
 <condition_comment>Can check</condition_comment>
 <condition_dsl>player.can_check is true</condition_dsl>
-<condition_postfix>
-player.can_check
-</condition_postfix>
+<condition_postfix>player.can_check true beq</condition_postfix>
 <condition_column column_number="3" column_value="Y"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
 </condition_details>
@@ -468,9 +436,7 @@ game.big_blind 2 * /decision.raise_amount xdef
 <condition_number>1</condition_number>
 <condition_comment>Hand strength >= 20%</condition_comment>
 <condition_dsl>player.hand_strength >= 0.20</condition_dsl>
-<condition_postfix>
-player.hand_strength 0.20 >=
-</condition_postfix>
+<condition_postfix>player.hand_strength 0.20 f&gt;=</condition_postfix>
 <condition_column column_number="1" column_value="Y"></condition_column>
 <condition_column column_number="2" column_value="N"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
@@ -480,9 +446,7 @@ player.hand_strength 0.20 >=
 <condition_number>2</condition_number>
 <condition_comment>Bet is small (2x big blind or less)</condition_comment>
 <condition_dsl>player.is_small_bet is true</condition_dsl>
-<condition_postfix>
-player.is_small_bet
-</condition_postfix>
+<condition_postfix>player.is_small_bet true beq</condition_postfix>
 <condition_column column_number="2" column_value="Y"></condition_column>
 <condition_column column_number="3" column_value="N"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
@@ -491,9 +455,7 @@ player.is_small_bet
 <condition_number>3</condition_number>
 <condition_comment>Can check</condition_comment>
 <condition_dsl>player.can_check is true</condition_dsl>
-<condition_postfix>
-player.can_check
-</condition_postfix>
+<condition_postfix>player.can_check true beq</condition_postfix>
 <condition_column column_number="3" column_value="Y"></condition_column>
 <condition_column column_number="4" column_value="N"></condition_column>
 </condition_details>

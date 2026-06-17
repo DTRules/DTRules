@@ -1,11 +1,31 @@
 # DTRules Changelog
 
-## Unreleased
+## v1.16.0 — 2026-06-17
 
-Multi-file authoring, table-number control, and Excel round-trip fixes
-uncovered while making the new `SinusitisTherapy` sample Excel-conformant.
+Authoring-contract enforcement (`dtrules verify` now rejects missing Excel and
+undefined references), removal of the bypass writers that let tools sidestep
+Excel, EDD output-field access, multi-file authoring, table-number control, and
+Excel round-trip fixes — much of it uncovered while making the new
+`SinusitisTherapy` sample Excel-conformant and warning-clean.
 
 ### Added
+
+- **`dtrules verify` external-reference gate** — verify now fails when a table
+  depends on logic the project doesn't define: a `perform` of an undefined
+  table, an EDD field its entity doesn't declare, or an operator absent from
+  the registry. A reference resolves against the full symbol space (operators ∪
+  entities ∪ fields ∪ tables ∪ keywords ∪ locals); only what is provably
+  missing is flagged. (`pkg/dtrules/analysis.AnalyzeExternalRefs`.)
+- **`dtrules verify` Excel-presence gate** — a project with decision-table/EDD
+  XML but no `.xlsx` fails: rules authored straight into XML without building
+  the Excel system of record are rejected.
+- **EDD field `access="w"` (output)** — marks a field that the rules set and
+  the host consumes; the EDD-usage analysis no longer flags it "write-only",
+  only "declared output never written" if no rule produces it. Symmetric to
+  `access="r"` (input). Valid `access` is now `r` / `w` / `rw` / empty.
+- **`dtrules --help` and bare `dtrules`** now print the full command list
+  (build, verify, table, edd, review, docs, …) instead of the stale legacy
+  flag usage.
 
 - **Multi-file authoring** via the authoring SDK and `dtrules table`:
   - Tables declare which file they live in; creating a table requires a
@@ -36,8 +56,33 @@ uncovered while making the new `SinusitisTherapy` sample Excel-conformant.
 - `docs/authoring-contract.md` — the authoring source-of-record contract and
   the multi-file design.
 
+### Removed
+
+- **`dtrules compile`** — the bypass writer that wrote postfix into XML without
+  updating Excel is deleted. DSL→postfix stays an internal step of `dtrules
+  build` and the authoring API. (Its one shared helper moved to
+  `cmd/dtrules/edd_symbols.go`.)
+- **`dtrules build --from-xml`** — the flag that forced the XML-as-source build
+  direction is deleted; `build` no longer offers an XML-authored mode. Both
+  removals close the paths that let a tool change rule content without keeping
+  Excel current.
+
+### Changed
+
+- **Embedded docs/help completed for LLM (and human) use** — new
+  `dtrules docs authoring-contract` topic (the Excel-is-system-of-record
+  contract is now a first-class, in-binary topic, surfaced in `dtrules help`);
+  `dtrules docs cli` documents the verify `excel`/`external` gates and the two
+  authoring paths (Excel+build, the `table`/`edd` API); `dtrules docs edd`
+  documents the `access` attribute (r/w/rw); `dtrules docs warnings` covers
+  output and external-reference findings. Stale `dtrules compile` / `--from-xml`
+  references were removed across the docs.
+
 ### Fixed
 
+- The structure check falsely reported a mapping workbook (`*_map.xlsx`) as
+  having "no corresponding XML output": `_map.xml` was excluded from the XML
+  scan but `_map.xlsx` was not excluded from the Excel scan.
 - Excel ↔ XML round-trip corrupted API-authored decision tables: a value-less
   `TABLE_NUMBER:`/`COMMENTS:` cell echoed the label as its value (invalid XML);
   the importer dropped the first condition and action of every table (1-row vs

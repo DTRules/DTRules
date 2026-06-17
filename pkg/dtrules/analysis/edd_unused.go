@@ -768,6 +768,23 @@ func diffEDDUsage(decls map[string]eddField, readRefs, writeRefs map[string]bool
 			continue
 		}
 
+		// Fields with access="w" are output-only: written by the rules and
+		// consumed by the host (or emitted via the mapping), not read back in
+		// DSL. "Written but never read" is the intended shape, so it is NOT a
+		// write-only finding. The only defect is declaring an output that no
+		// rule ever produces.
+		if f.Access == "w" {
+			if !isWritten {
+				warnings = append(warnings, EDDWarning{
+					Field:    key,
+					EddFile:  f.EddFile,
+					Reason:   fmt.Sprintf("declared output never written: %s (declared in %s, no rule sets it)", key, f.EddFile),
+					Category: EDDUsageUnused,
+				})
+			}
+			continue
+		}
+
 		if !isRead && !isWritten {
 			warnings = append(warnings, EDDWarning{
 				Field:    key,

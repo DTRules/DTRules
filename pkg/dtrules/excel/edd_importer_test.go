@@ -560,3 +560,58 @@ func TestRoundTrip(t *testing.T) {
 		}
 	}
 }
+
+// TestEDDRoundTrip_CollectQuestion checks that the #850 collect flag and
+// question metadata (text/type/options) survive an EDD Excel round-trip:
+// EDDXML -> xlsx (writeEDDXMLEntities) -> EDDXML (ImportEDD / parseEDDSheet).
+func TestEDDRoundTrip_CollectQuestion(t *testing.T) {
+	edd := &EDDXML{Version: "2", Entities: []*EDDXMLEntity{{
+		Name:   "patient",
+		Access: "rw",
+		Fields: []*EDDXMLField{
+			{
+				Name: "penicillin_allergic", Type: "boolean", Access: "rw", DefaultValue: "false",
+				Collect: "true",
+				Question: &EDDXMLQuestion{Text: "Penicillin-allergic?", Type: "multiple_choice",
+					Options: []*EDDXMLOption{{Value: "true", Label: "Yes"}, {Value: "false", Label: "No"}}},
+			},
+			{Name: "age", Type: "integer", Access: "rw", DefaultValue: "0",
+				Collect: "true", Question: &EDDXMLQuestion{Text: "Age?", Type: "number"}},
+			{Name: "notes", Type: "string", Access: "rw"}, // not collected
+		},
+	}}}
+
+	file := filepath.Join(t.TempDir(), "rt.xlsx")
+	if err := WriteEDDXMLToExcel(edd, file); err != nil {
+		t.Fatalf("WriteEDDXMLToExcel: %v", err)
+	}
+	got, err := NewEDDImporter().ImportEDD(file)
+	if err != nil {
+		t.Fatalf("ImportEDD: %v", err)
+	}
+	if len(got.Entities) != 1 {
+		t.Fatalf("want 1 entity, got %d", len(got.Entities))
+	}
+	byName := map[string]*EDDXMLField{}
+	for _, f := range got.Entities[0].Fields {
+		byName[f.Name] = f
+	}
+
+	pa := byName["penicillin_allergic"]
+	if pa == nil || pa.Collect != "true" || pa.Question == nil {
+		t.Fatalf("penicillin_allergic collect/question lost: %+v", pa)
+	}
+	if pa.Question.Type != "multiple_choice" || pa.Question.Text != "Penicillin-allergic?" {
+		t.Errorf("question text/type lost: %+v", pa.Question)
+	}
+	if len(pa.Question.Options) != 2 || pa.Question.Options[0].Value != "true" || pa.Question.Options[0].Label != "Yes" {
+		t.Errorf("options lost: %+v", pa.Question.Options)
+	}
+
+	if age := byName["age"]; age == nil || age.Collect != "true" || age.Question == nil || age.Question.Type != "number" {
+		t.Errorf("age collect/number-question lost: %+v", age)
+	}
+	if notes := byName["notes"]; notes == nil || notes.Collect != "" || notes.Question != nil {
+		t.Errorf("non-collected field gained metadata: %+v", notes)
+	}
+}

@@ -18,7 +18,7 @@
 <action_number>2</action_number>
 <action_comment>No military retirement pay - no exclusion</action_comment>
 <action_dsl>set result.ok_military_retirement_exemption = 0</action_dsl>
-<action_postfix>0 cvi /result.ok_military_retirement_exemption xdef</action_postfix>
+<action_postfix>0 cvd /result.ok_military_retirement_exemption xdef</action_postfix>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -40,25 +40,19 @@
 <condition_number>2</condition_number>
 <condition_comment>Married filing jointly</condition_comment>
 <condition_dsl>job.filing_status is equal to "MFJ"</condition_dsl>
-<condition_postfix>
-filing_status == "MFJ"
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;MFJ&quot; streq</condition_postfix>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Head of household</condition_comment>
 <condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
-<condition_postfix>
-filing_status == "HOH"
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;HOH&quot; streq</condition_postfix>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Married filing separately</condition_comment>
 <condition_dsl>job.filing_status is equal to "MFS"</condition_dsl>
-<condition_postfix>
-filing_status == "MFS"
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;MFS&quot; streq</condition_postfix>
 </condition_details>
 </conditions>
 <actions>

@@ -34,7 +34,8 @@ After v1.14.x, advisory warnings surface on every authoring/build
 surface:
 
   dtrules build                  After import; from "Nothing to sync" branch too (#787)
-  dtrules compile <dir>          Default mode runs the advisory pass (--no-analyze to skip)
+  dtrules review                 Full project report; the canonical advisory pass + deploy gate
+  dtrules verify                 Rejects undefined table/field/operator references (external-reference gate)
   dtrules table get <name>       Embedded in the JSON response
   dtrules table put <name>       Embedded in the response after the edit lands
   dtrules table patch <name>     Same
@@ -192,16 +193,16 @@ All warnings exit 0. The advisory contract from #761 is:
 
   Errors gate deployment. Warnings never do.
 
-If you want to make a specific warning fatal in CI, grep for it after
-` + "`dtrules build`" + ` / ` + "`dtrules compile`" + ` and fail your own pipeline.
+If you want to make a specific warning fatal in CI, grep for it in the
+` + "`dtrules review`" + ` JSON (or the ` + "`dtrules build`" + ` output) and fail
+your own pipeline.
 
 Filtering on a project
 ----------------------
 
-Per-file (compile): the warning lines go to stderr. The
-` + "`advisory: N warning(s)`" + ` summary goes to stdout.
+Project-wide (review): the canonical advisory pass. JSON, grouped, persisted.
 
-  dtrules compile rules/ 2> warnings.log
+  dtrules review rules/ 2> warnings.log
   grep "redundant condition" warnings.log
 
 Per-table (table warnings): JSON output, structured.
@@ -215,6 +216,18 @@ Project-wide (review): grouped and persisted.
   jq '.warnings | group_by(.kind) | map({kind: .[0].kind, count: length})' \
     .dtrules/last-review.json
 
-Related topics: ` + "`dtrules docs compile`" + `, ` + "`dtrules docs workflow`" + `,
+EDD field usage (from ` + "`dtrules review`" + `) follows the field's access:
+` + "`access=\"r\"`" + ` (input) is flagged only if never read; ` + "`access=\"w\"`" + `
+(output) is flagged only if never written ("declared output never written");
+` + "`access=\"rw\"`" + ` (default) is flagged "unused" if never referenced and
+"write-only" if set but never read. Mark a field ` + "`w`" + ` to silence a
+spurious write-only warning on a genuine output the host consumes.
+
+Reference existence (from ` + "`dtrules verify`" + `, external-reference gate):
+a table that performs an undefined table, reads an EDD field its entity does
+not declare, or uses an operator absent from the registry FAILS verify — these
+are errors, not advisories.
+
+Related topics: ` + "`dtrules docs workflow`" + `, ` + "`dtrules docs edd`" + `,
 ` + "`dtrules docs decision-tables`" + `.
 `

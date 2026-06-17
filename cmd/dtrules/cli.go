@@ -92,8 +92,6 @@ func (c *CLI) Run(args []string) int {
 	switch cmd {
 	case "build":
 		return c.runBuild(cmdArgs)
-	case "compile":
-		return c.runCompile(cmdArgs)
 	case "verify":
 		return c.runVerify(cmdArgs)
 	case "sync":
@@ -151,7 +149,6 @@ Commands:
 Build Command:
   dtrules build [path]             Auto-detect and run the full pipeline
   dtrules build --from-excel       Force Excel-authored path
-  dtrules build --from-xml         Force XML-authored path
   dtrules build --dry-run          Report what would change without writing
   dtrules build --require-review   Refuse build unless a fresh passing review exists
   dtrules build --max-age 24h      Allowed cache age for the required review
@@ -161,6 +158,7 @@ Review Command:
 
 Documentation:
   dtrules docs                     List available documentation topics
+  dtrules docs authoring-contract  READ FIRST: how to change rules (Excel is the record)
   dtrules docs workflow            Development workflow
   dtrules docs el                  Expression Language syntax
   dtrules docs decision-tables     How to write decision tables

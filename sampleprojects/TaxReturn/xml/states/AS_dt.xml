@@ -17,9 +17,7 @@
 <condition_number>2</condition_number>
 <condition_comment>Has self-employment income &gt;= $400</condition_comment>
 <condition_dsl>result.as_self_employment_income &gt;= 400</condition_dsl>
-<condition_postfix>
-Has self-employment income &gt;= $400
-</condition_postfix>
+<condition_postfix>result.as_self_employment_income 400 f&gt;=</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />

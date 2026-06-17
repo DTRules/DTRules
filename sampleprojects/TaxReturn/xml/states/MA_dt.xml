@@ -31,7 +31,7 @@
 <initial_action>
 <action_comment>Reset MA tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.ma_state_tax = 0; set result.ma_taxable_income = 0; set result.ma_surtax = 0; add "  Massachusetts Tax Calculation (Form 1) - flat 5.00% + 4% surtax over $1,083,150" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvi /result.ma_state_tax xdef 0 cvi /result.ma_taxable_income xdef 0 cvi /result.ma_surtax xdef &quot;  Massachusetts Tax Calculation (Form 1) - flat 5.00% + 4% surtax over $1,083,150&quot; job.audit_trail swap addto swap addto</initial_action_postfix>
+<initial_action_postfix>0 cvd /result.ma_state_tax xdef 0 cvd /result.ma_taxable_income xdef 0 cvd /result.ma_surtax xdef &quot;  Massachusetts Tax Calculation (Form 1) - flat 5.00% + 4% surtax over $1,083,150&quot; job.audit_trail swap addto</initial_action_postfix>
 <action_postfix>
 0.0 /result.ma_state_tax xdef
 0.0 /result.ma_taxable_income xdef
@@ -45,9 +45,7 @@
 <condition_number>1</condition_number>
 <condition_comment>Filing status is Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
 <condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
-<condition_postfix>
-job.filing_status "MFJ" streq job.filing_status "QSS" streq or
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;MFJ&quot; streq { pop job.filing_status &quot;QSS&quot; streq } over not if</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -56,9 +54,7 @@ job.filing_status "MFJ" streq job.filing_status "QSS" streq or
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
 <condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
-<condition_postfix>
-job.filing_status "HOH" streq
-</condition_postfix>
+<condition_postfix>job.filing_status &quot;HOH&quot; streq</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -69,42 +65,21 @@ job.filing_status "HOH" streq
 <action_number>1</action_number>
 <action_comment>MFJ/QSS: exemption $8,800; tax = max(AGI − 8,800, 0) × 5.00% + surtax</action_comment>
 <action_dsl>set result.ma_taxable_income = the maximum of (result.agi - 8800.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
-<action_postfix>
-result.agi ma_exemption_joint f- 0.0 fmax /result.ma_taxable_income xdef
-result.ma_taxable_income ma_tax_rate f* /result.ma_state_tax xdef
-result.agi ma_surtax_threshold f- 0.0 fmax ma_surtax_rate f* /result.ma_surtax xdef
-result.ma_state_tax result.ma_surtax f+ /result.ma_state_tax xdef
-"  MA taxable income (MFJ, $8,800 exemption): $" result.ma_taxable_income cvs strconcat job.audit_trail swap addto
-"  MA state tax (5.00% + 4% surtax over $1,083,150): $" result.ma_state_tax cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>result.agi 8800.0 - 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>HOH: exemption $6,800; tax = max(AGI − 6,800, 0) × 5.00% + surtax</action_comment>
 <action_dsl>set result.ma_taxable_income = the maximum of (result.agi - 6800.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
-<action_postfix>
-result.agi ma_exemption_hoh f- 0.0 fmax /result.ma_taxable_income xdef
-result.ma_taxable_income ma_tax_rate f* /result.ma_state_tax xdef
-result.agi ma_surtax_threshold f- 0.0 fmax ma_surtax_rate f* /result.ma_surtax xdef
-result.ma_state_tax result.ma_surtax f+ /result.ma_state_tax xdef
-"  MA taxable income (HOH, $6,800 exemption): $" result.ma_taxable_income cvs strconcat job.audit_trail swap addto
-"  MA state tax (5.00% + 4% surtax over $1,083,150): $" result.ma_state_tax cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>result.agi 6800.0 - 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Default (Single/MFS): exemption $4,400; tax = max(AGI − 4,400, 0) × 5.00% + surtax</action_comment>
 <action_dsl>set result.ma_taxable_income = the maximum of (result.agi - 4400.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
-<action_postfix>
-result.agi ma_exemption_single f- 0.0 fmax /result.ma_taxable_income xdef
-result.ma_taxable_income ma_tax_rate f* /result.ma_state_tax xdef
-result.agi ma_surtax_threshold f- 0.0 fmax ma_surtax_rate f* /result.ma_surtax xdef
-result.ma_state_tax result.ma_surtax f+ /result.ma_state_tax xdef
-"  MA taxable income (Single/MFS, $4,400 exemption): $" result.ma_taxable_income cvs strconcat job.audit_trail swap addto
-"  MA state tax (5.00% + 4% surtax over $1,083,150): $" result.ma_state_tax cvs strconcat job.audit_trail swap addto
-</action_postfix>
+<action_postfix>result.agi 4400.0 - 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef</action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>

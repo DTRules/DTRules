@@ -17,9 +17,7 @@
 <condition_number>2</condition_number>
 <condition_comment>Qualifies for Act 60 business benefits; Act 60 business (4% rate)</condition_comment>
 <condition_dsl>result.pr_act60_business is true</condition_dsl>
-<condition_postfix>
-Qualifies for Act 60 business benefits; Act 60 business (4% rate)
-</condition_postfix>
+<condition_postfix>result.pr_act60_business true beq</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
