@@ -29,6 +29,7 @@ import (
 	"github.com/DTRules/DTRules/pkg/dtrules/interpreter"
 	"github.com/DTRules/DTRules/pkg/dtrules/mapping"
 	"github.com/DTRules/DTRules/pkg/dtrules/session"
+	webpkg "github.com/DTRules/DTRules/pkg/dtrules/web"
 )
 
 // runRun handles `dtrules run [path] --entry <table> [--input f] [--interactive]`.
@@ -38,7 +39,8 @@ import (
 func (c *CLI) runRun(args []string) int {
 	path, entry, input, resultEntity := ".", "", "", "result"
 	var save, data, review string
-	interactive := false
+	interactive, web := false, false
+	port := "8080"
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--entry":
@@ -71,6 +73,13 @@ func (c *CLI) runRun(args []string) int {
 				resultEntity = args[i+1]
 				i++
 			}
+		case "--web":
+			web = true
+		case "--port":
+			if i+1 < len(args) {
+				port = args[i+1]
+				i++
+			}
 		case "--interactive", "-i":
 			interactive = true
 		case "-h", "--help":
@@ -95,6 +104,16 @@ func (c *CLI) runRun(args []string) int {
 	if err != nil || !dirExists(xmlDir) {
 		fmt.Fprintf(os.Stderr, "Error: could not find xml/ directory under %s\n", path)
 		return 1
+	}
+
+	if web {
+		addr := ":" + port
+		fmt.Printf("Serving %s as a web interview on http://localhost%s/ (Ctrl-C to stop)\n", entry, addr)
+		if err := webpkg.ServeDir(addr, xmlDir, webpkg.Options{Entry: entry, Input: input, ResultEntity: resultEntity}); err != nil {
+			fmt.Fprintf(os.Stderr, "Error serving: %v\n", err)
+			return 1
+		}
+		return 0
 	}
 
 	rs := session.NewRuleSet(filepath.Base(mustAbs(path)))
@@ -295,6 +314,8 @@ Options:
   --review <file.xml>    Load canonical data for re-interview (pre-filled, asked)
   --save <file.xml>      Save the collected data as canonical XML after the run
   --interactive, -i      Prompt for any reached collect field not supplied
+  --web                  Serve an interactive web interview instead of a CLI run
+  --port <n>             Port for --web (default: 8080)
   --result-entity <name> Output entity to print (default: result)
 
 The closed loop: collect with --interactive --save, replay with --data, edit

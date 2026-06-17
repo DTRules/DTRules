@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+	<entity name="constants" xls_file="sinusitis.xlsx" access="rw">
+		<source>
+			<relative_path>sinusitis.xlsx</relative_path>
+			<file_name>sinusitis.xlsx</file_name>
+			<sheet_number>1</sheet_number>
+		</source>
+		<field name="adult_age" type="integer" subtype="" access="r" input="" default_value="18" comment="Age at which a patient is treated as an adult"></field>
+		<field name="dose_high_age" type="integer" subtype="" access="r" input="" default_value="60" comment="Upper bound of the standard-dose age band"></field>
+		<field name="dose_low_age" type="integer" subtype="" access="r" input="" default_value="15" comment="Lower bound of the standard-dose age band"></field>
+		<field name="dosing_interval_hours" type="integer" subtype="" access="r" input="" default_value="24" comment="Standard dosing interval in hours"></field>
+		<field name="reduced_dose" type="integer" subtype="" access="r" input="" default_value="200" comment="Reduced dose in mg"></field>
+		<field name="renal_ccr_threshold" type="double" subtype="" access="r" input="" default_value="50.0" comment="CCr below which renal adjustment applies"></field>
+		<field name="renal_pcr_threshold" type="double" subtype="" access="r" input="" default_value="1.4" comment="PCr above which renal adjustment is considered"></field>
+		<field name="standard_dose" type="integer" subtype="" access="r" input="" default_value="500" comment="Standard dose in mg"></field>
+		<field name="therapy_duration_days" type="integer" subtype="" access="r" input="" default_value="14" comment="Standard therapy duration in days"></field>
+	</entity>
+	<entity name="medication" xls_file="sinusitis.xlsx" access="rw">
+		<source>
+			<relative_path>sinusitis.xlsx</relative_path>
+			<file_name>sinusitis.xlsx</file_name>
+			<sheet_number>1</sheet_number>
+		</source>
+		<field name="name" type="string" subtype="" access="rw" input="main" default_value="" comment="Drug name (brand or generic)"></field>
+	</entity>
+	<entity name="patient" xls_file="sinusitis.xlsx" access="rw">
+		<source>
+			<relative_path>sinusitis.xlsx</relative_path>
+			<file_name>sinusitis.xlsx</file_name>
+			<sheet_number>1</sheet_number>
+		</source>
+		<field name="active_medications" type="array" subtype="medication" access="rw" input="main" default_value="" comment="Medications the patient is currently taking"></field>
+		<field name="age" type="integer" subtype="" access="rw" input="main" default_value="0" comment="Patient age in years" collect="true">
+			<question text="Patient age (years)?" type="number"></question>
+		</field>
+		<field name="diagnosis" type="string" subtype="" access="rw" input="main" default_value="Acute Sinusitis" comment="Working diagnosis, e.g. Acute Sinusitis" collect="true">
+			<question text="Working diagnosis?" type="ascii"></question>
+		</field>
+		<field name="lean_body_weight" type="double" subtype="" access="rw" input="main" default_value="0.0" comment="Lean body weight in kg (used by the CCr formula)" collect="true">
+			<question text="Lean body weight (kg)?" type="number"></question>
+		</field>
+		<field name="pcr" type="double" subtype="" access="rw" input="main" default_value="0.0" comment="Plasma creatinine level (mg/dL)" collect="true">
+			<question text="Plasma creatinine (mg/dL)?" type="number"></question>
+		</field>
+		<field name="penicillin_allergic" type="boolean" subtype="" access="rw" input="main" default_value="false" comment="True if the patient is penicillin-allergic" collect="true">
+			<question text="Is the patient penicillin-allergic?" type="multiple_choice">
+				<option value="true" label="Yes"></option>
+				<option value="false" label="No"></option>
+			</question>
+		</field>
+	</entity>
+	<entity name="result" xls_file="sinusitis.xlsx" access="rw">
+		<source>
+			<relative_path>sinusitis.xlsx</relative_path>
+			<file_name>sinusitis.xlsx</file_name>
+			<sheet_number>1</sheet_number>
+		</source>
+		<field name="ccr" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Service 2 output: creatinine clearance (mL/min)"></field>
+		<field name="dose_mg" type="integer" subtype="" access="w" input="" default_value="0" comment="Service 1 output: single dose in mg"></field>
+		<field name="duration_days" type="integer" subtype="" access="w" input="" default_value="0" comment="Service 1 output: therapy duration in days"></field>
+		<field name="frequency_hours" type="integer" subtype="" access="w" input="" default_value="0" comment="Service 1 output: hours between doses"></field>
+		<field name="recommended_drug" type="string" subtype="" access="rw" input="" default_value="" comment="Service 1 output: drug of choice"></field>
+		<field name="renal_adjustment" type="boolean" subtype="" access="w" input="" default_value="false" comment="True if the dose was reduced for renal impairment"></field>
+		<field name="warnings" type="array" subtype="string" access="rw" input="" default_value="" comment="Service 3 output: drug-interaction warnings"></field>
+		<field name="rationale" type="array" subtype="string" access="rw" input="" default_value="" comment="Human-readable rationale for each service decision (explainability)"></field>
+	</entity>
+</entity_data_dictionary>

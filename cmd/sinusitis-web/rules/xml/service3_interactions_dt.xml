@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 4000: Check_Drug_Interactions -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>service3_interactions.xlsx</relative_path>
+<file_name>service3_interactions.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
+<table_name>Check_Drug_Interactions</table_name>
+<xls_file>service3_interactions.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>4000</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all patient.active_medications</context_dsl>
+<context_postfix>
+dup patient.active_medications forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Recommended drug is Levofloxacin</condition_comment>
+<condition_dsl>result.recommended_drug is equal to ignore case "Levofloxacin"</condition_dsl>
+<condition_postfix>
+result.recommended_drug "Levofloxacin" s==i
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Recommended drug is Amoxicillin</condition_comment>
+<condition_dsl>result.recommended_drug is equal to ignore case "Amoxicillin"</condition_dsl>
+<condition_postfix>
+result.recommended_drug "Amoxicillin" s==i
+</condition_postfix>
+<condition_column column_number="4" column_value="Y" />
+<condition_column column_number="5" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Recommended drug is Cefuroxime</condition_comment>
+<condition_dsl>result.recommended_drug is equal to ignore case "Cefuroxime"</condition_dsl>
+<condition_postfix>
+result.recommended_drug "Cefuroxime" s==i
+</condition_postfix>
+<condition_column column_number="6" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>Active med is an anticoagulant</condition_comment>
+<condition_dsl>medication.name is equal to ignore case "Coumadin" or medication.name is equal to ignore case "Warfarin"</condition_dsl>
+<condition_postfix>
+medication.name "Coumadin" s==i { pop medication.name "Warfarin" s==i } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="4" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>Active med is theophylline</condition_comment>
+<condition_dsl>medication.name is equal to ignore case "Theophylline"</condition_dsl>
+<condition_postfix>
+medication.name "Theophylline" s==i
+</condition_postfix>
+<condition_column column_number="2" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>Active med is an NSAID</condition_comment>
+<condition_dsl>medication.name is equal to ignore case "NSAID" or medication.name is equal to ignore case "Ibuprofen" or medication.name is equal to ignore case "Naproxen"</condition_dsl>
+<condition_postfix>
+medication.name "NSAID" s==i { pop medication.name "Ibuprofen" s==i } over not if { pop medication.name "Naproxen" s==i } over not if
+</condition_postfix>
+<condition_column column_number="3" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>7</condition_number>
+<condition_comment>Active med is methotrexate</condition_comment>
+<condition_dsl>medication.name is equal to ignore case "Methotrexate"</condition_dsl>
+<condition_postfix>
+medication.name "Methotrexate" s==i
+</condition_postfix>
+<condition_column column_number="5" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>8</condition_number>
+<condition_comment>Active med is probenecid</condition_comment>
+<condition_dsl>medication.name is equal to ignore case "Probenecid"</condition_dsl>
+<condition_postfix>
+medication.name "Probenecid" s==i
+</condition_postfix>
+<condition_column column_number="6" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Levofloxacin + anticoagulant</action_comment>
+<action_dsl>add "Levofloxacin may potentiate the anticoagulant effect of warfarin/Coumadin, raising INR and bleeding risk. Monitor coagulation closely." to result.warnings</action_dsl>
+<action_postfix>
+"Levofloxacin may potentiate the anticoagulant effect of warfarin/Coumadin, raising INR and bleeding risk. Monitor coagulation closely." result.warnings swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Levofloxacin + theophylline</action_comment>
+<action_dsl>add "Levofloxacin may increase theophylline plasma levels; monitor for theophylline toxicity." to result.warnings</action_dsl>
+<action_postfix>
+"Levofloxacin may increase theophylline plasma levels; monitor for theophylline toxicity." result.warnings swap addto
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Levofloxacin + NSAID</action_comment>
+<action_dsl>add "Concomitant NSAIDs with Levofloxacin may increase the risk of CNS stimulation and seizures." to result.warnings</action_dsl>
+<action_postfix>
+"Concomitant NSAIDs with Levofloxacin may increase the risk of CNS stimulation and seizures." result.warnings swap addto
+</action_postfix>
+<action_column column_number="3" column_value="X" />
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Amoxicillin + anticoagulant</action_comment>
+<action_dsl>add "Amoxicillin may enhance the anticoagulant effect of warfarin/Coumadin; monitor INR." to result.warnings</action_dsl>
+<action_postfix>
+"Amoxicillin may enhance the anticoagulant effect of warfarin/Coumadin; monitor INR." result.warnings swap addto
+</action_postfix>
+<action_column column_number="4" column_value="X" />
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Amoxicillin + methotrexate</action_comment>
+<action_dsl>add "Amoxicillin may reduce renal clearance of methotrexate, increasing methotrexate toxicity." to result.warnings</action_dsl>
+<action_postfix>
+"Amoxicillin may reduce renal clearance of methotrexate, increasing methotrexate toxicity." result.warnings swap addto
+</action_postfix>
+<action_column column_number="5" column_value="X" />
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Cefuroxime + probenecid</action_comment>
+<action_dsl>add "Probenecid reduces renal excretion of Cefuroxime, raising its plasma concentration." to result.warnings</action_dsl>
+<action_postfix>
+"Probenecid reduces renal excretion of Cefuroxime, raising its plasma concentration." result.warnings swap addto
+</action_postfix>
+<action_column column_number="6" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+</decision_tables>
