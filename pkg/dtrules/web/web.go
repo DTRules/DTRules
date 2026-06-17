@@ -113,20 +113,43 @@ func (iv *interview) answer(value string, ok bool) { iv.ansCh <- answer{value, o
 
 // Server is an http.Handler that runs one interview per browser session.
 type Server struct {
-	run RunFunc
-	mu  sync.Mutex
-	ivs map[string]*interview
-	seq int
+	run   RunFunc
+	title string // page/tab title (the project name)
+	mu    sync.Mutex
+	ivs   map[string]*interview
+	seq   int
 }
 
 // NewServer returns a Server that starts a fresh interview (via run) for each
-// new browser session.
-func NewServer(run RunFunc) *Server {
-	return &Server{run: run, ivs: map[string]*interview{}}
+// new browser session. title is shown as the browser tab title; "" falls back
+// to "DTRules".
+func NewServer(run RunFunc, title string) *Server {
+	if title == "" {
+		title = "DTRules"
+	}
+	return &Server{run: run, title: title, ivs: map[string]*interview{}}
 }
 
+// faviconSVG is a small brand mark: a rounded square with a checkmark,
+// representing a decided rule outcome. Served at /favicon.svg.
+const faviconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">` +
+	`<rect width="64" height="64" rx="13" fill="#0a7d5a"/>` +
+	`<path d="M17 33l9 10 21-23" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>` +
+	`</svg>`
+
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" && r.URL.Path != "/answer" {
+	switch r.URL.Path {
+	case "/favicon.svg":
+		w.Header().Set("Content-Type", "image/svg+xml")
+		w.Header().Set("Cache-Control", "max-age=86400")
+		_, _ = w.Write([]byte(faviconSVG))
+		return
+	case "/favicon.ico":
+		w.WriteHeader(http.StatusNoContent) // browsers fall back to the SVG link
+		return
+	case "/", "/answer":
+		// handled below
+	default:
 		http.NotFound(w, r)
 		return
 	}
@@ -142,10 +165,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	req, res := iv.next()
 	if res != nil {
 		s.clear(sid)
-		writeResult(w, res)
+		s.writeResult(w, res)
 		return
 	}
-	writeQuestion(w, req)
+	s.writeQuestion(w, req)
 }
 
 func (s *Server) session(w http.ResponseWriter, r *http.Request) (*interview, string) {
@@ -176,7 +199,7 @@ func (s *Server) clear(sid string) {
 	s.mu.Unlock()
 }
 
-func writeQuestion(w http.ResponseWriter, req *collect.Request) {
+func (s *Server) writeQuestion(w http.ResponseWriter, req *collect.Request) {
 	prompt := req.Text
 	if prompt == "" {
 		prompt = req.Entity + "." + req.Field
@@ -219,15 +242,15 @@ func writeQuestion(w http.ResponseWriter, req *collect.Request) {
 	default:
 		control = fmt.Sprintf(`<input name="answer" type="text" placeholder="%s">`, html.EscapeString(cur))
 	}
-	page(w, fmt.Sprintf(`<h2>%s</h2><form method="post" action="/answer">%s
+	s.page(w, fmt.Sprintf(`<h2>%s</h2><form method="post" action="/answer">%s
 <p><button type="submit">Next</button>
 <button type="submit" name="answer" value="">Use default (%s)</button></p></form>`,
 		html.EscapeString(prompt), control, html.EscapeString(cur)))
 }
 
-func writeResult(w http.ResponseWriter, res *Result) {
+func (s *Server) writeResult(w http.ResponseWriter, res *Result) {
 	if res.Error != "" {
-		page(w, fmt.Sprintf(`<h2>Error</h2><pre>%s</pre><p><a href="/">Start over</a></p>`, html.EscapeString(res.Error)))
+		s.page(w, fmt.Sprintf(`<h2>Error</h2><pre>%s</pre><p><a href="/">Start over</a></p>`, html.EscapeString(res.Error)))
 		return
 	}
 	body := ""
@@ -260,13 +283,16 @@ func writeResult(w http.ResponseWriter, res *Result) {
 		body += "</ul>"
 	}
 	body += `<p><a href="/">Start over</a></p>`
-	page(w, body)
+	s.page(w, body)
 }
 
-func page(w http.ResponseWriter, body string) {
+func (s *Server) page(w http.ResponseWriter, body string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprintf(w, `<!doctype html><html><head><meta charset="utf-8"><title>DTRules</title>
+	title := html.EscapeString(s.title)
+	fmt.Fprintf(w, `<!doctype html><html><head><meta charset="utf-8"><title>%s</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <style>body{font-family:sans-serif;max-width:640px;margin:2rem auto;padding:0 1rem}
+h1{font-size:1.3rem;color:#0a7d5a}
 select,input{font-size:1rem;padding:.3rem}button{font-size:1rem;padding:.4rem .8rem;margin-right:.5rem}
-th{padding-right:1rem}</style></head><body>%s</body></html>`, body)
+th{padding-right:1rem}</style></head><body><h1>%s</h1>%s</body></html>`, title, title, body)
 }

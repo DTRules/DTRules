@@ -44,7 +44,7 @@ func main() {
 	defer os.RemoveAll(dir)
 
 	fmt.Println("Sinusitis Therapy web demo — opening your browser...")
-	if err := web.ServeDir(*addr, dir, web.Options{Entry: "Determine_Therapy"}); err != nil {
+	if err := web.ServeDir(*addr, dir, web.Options{Entry: "Determine_Therapy", Title: "Sinusitis Therapy"}); err != nil {
 		fmt.Fprintf(os.Stderr, "serve: %v\n", err)
 		os.Exit(1)
 	}

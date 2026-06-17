@@ -34,6 +34,7 @@ type Options struct {
 	Entry        string // decision table to run (required)
 	Input        string // optional input data file (loaded via the mapping)
 	ResultEntity string // output entity to render (default "result")
+	Title        string // browser tab/page title (default: the xmlDir name)
 	NoOpen       bool   // suppress auto-opening the browser
 }
 
@@ -45,6 +46,10 @@ func ServeDir(addr, xmlDir string, opts Options) error {
 	if opts.ResultEntity == "" {
 		opts.ResultEntity = "result"
 	}
+	title := opts.Title
+	if title == "" {
+		title = filepath.Base(xmlDir)
+	}
 	run := func(asker collect.Asker) (*Result, error) {
 		return runDir(xmlDir, opts, asker)
 	}
@@ -53,7 +58,7 @@ func ServeDir(addr, xmlDir string, opts Options) error {
 		return err
 	}
 	url := browserURL(ln.Addr())
-	fmt.Printf("\n  DTRules web interview ready:  %s\n  (Ctrl-C to stop)\n\n", url)
+	fmt.Printf("\n  %s web interview ready:  %s\n  (Ctrl-C to stop)\n\n", title, url)
 	if !opts.NoOpen {
 		go func() {
 			if err := openBrowser(url); err != nil {
@@ -61,7 +66,7 @@ func ServeDir(addr, xmlDir string, opts Options) error {
 			}
 		}()
 	}
-	return http.Serve(ln, NewServer(run))
+	return http.Serve(ln, NewServer(run, title))
 }
 
 func runDir(xmlDir string, opts Options, asker collect.Asker) (*Result, error) {

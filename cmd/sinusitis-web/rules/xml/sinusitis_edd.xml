@@ -34,7 +34,7 @@
 		<field name="age" type="integer" subtype="" access="rw" input="main" default_value="0" comment="Patient age in years" collect="true">
 			<question text="Patient age?" type="number" units="years"></question>
 		</field>
-		<field name="diagnosis" type="string" subtype="" access="rw" input="main" default_value="" comment="Working diagnosis, e.g. Acute Sinusitis" collect="true">
+		<field name="diagnosis" type="string" subtype="" access="rw" input="main" default_value="Acute Sinusitis" comment="Working diagnosis, e.g. Acute Sinusitis" collect="true">
 			<question text="Working diagnosis?" type="ascii"></question>
 		</field>
 		<field name="lean_body_weight" type="double" subtype="" access="rw" input="main" default_value="0.0" comment="Lean body weight in kg (used by the CCr formula)" collect="true">

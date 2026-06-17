@@ -110,7 +110,7 @@ func (c *CLI) runRun(args []string) int {
 
 	if web {
 		addr := ":" + port
-		if err := webpkg.ServeDir(addr, xmlDir, webpkg.Options{Entry: entry, Input: input, ResultEntity: resultEntity, NoOpen: noOpen}); err != nil {
+		if err := webpkg.ServeDir(addr, xmlDir, webpkg.Options{Entry: entry, Input: input, ResultEntity: resultEntity, Title: filepath.Base(mustAbs(path)), NoOpen: noOpen}); err != nil {
 			fmt.Fprintf(os.Stderr, "Error serving: %v\n", err)
 			return 1
 		}

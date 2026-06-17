@@ -50,7 +50,7 @@ func TestServer_Interview(t *testing.T) {
 		}, nil
 	}
 
-	ts := httptest.NewServer(NewServer(run))
+	ts := httptest.NewServer(NewServer(run, "Test"))
 	defer ts.Close()
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{Jar: jar}
@@ -93,6 +93,37 @@ func TestServer_Interview(t *testing.T) {
 	}
 }
 
+// TestServer_TitleAndFavicon checks the tab title is the given project name
+// and that a favicon is served.
+func TestServer_TitleAndFavicon(t *testing.T) {
+	run := func(a collect.Asker) (*Result, error) { return &Result{}, nil }
+	ts := httptest.NewServer(NewServer(run, "My Project"))
+	defer ts.Close()
+
+	r, err := ts.Client().Get(ts.URL + "/")
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, _ := io.ReadAll(r.Body)
+	r.Body.Close()
+	page := string(b)
+	if !strings.Contains(page, "<title>My Project</title>") {
+		t.Errorf("tab title not the project name:\n%s", page)
+	}
+	if !strings.Contains(page, `href="/favicon.svg"`) {
+		t.Errorf("favicon link missing:\n%s", page)
+	}
+
+	f, err := ts.Client().Get(ts.URL + "/favicon.svg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Body.Close()
+	if ct := f.Header.Get("Content-Type"); ct != "image/svg+xml" {
+		t.Errorf("favicon content-type = %q, want image/svg+xml", ct)
+	}
+}
+
 // TestServer_UseDefault checks that an empty submission keeps the default
 // (ok=false at the asker).
 func TestServer_UseDefault(t *testing.T) {
@@ -104,7 +135,7 @@ func TestServer_UseDefault(t *testing.T) {
 		}
 		return &Result{Fields: []Field{{Name: "path", Value: used}}}, nil
 	}
-	ts := httptest.NewServer(NewServer(run))
+	ts := httptest.NewServer(NewServer(run, "Test"))
 	defer ts.Close()
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{Jar: jar}
