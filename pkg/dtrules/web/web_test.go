@@ -52,7 +52,7 @@ func TestServer_Interview(t *testing.T) {
 		}, nil
 	}
 
-	ts := httptest.NewServer(NewServer(run, "Test"))
+	ts := httptest.NewServer(NewServer(RunFunc(run), "Test"))
 	defer ts.Close()
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{Jar: jar}
@@ -99,7 +99,7 @@ func TestServer_Interview(t *testing.T) {
 // and that a favicon is served.
 func TestServer_TitleAndFavicon(t *testing.T) {
 	run := func(a collect.Asker, _ string) (*Result, error) { return &Result{}, nil }
-	ts := httptest.NewServer(NewServer(run, "My Project"))
+	ts := httptest.NewServer(NewServer(RunFunc(run), "My Project"))
 	defer ts.Close()
 
 	r, err := ts.Client().Get(ts.URL + "/")
@@ -137,7 +137,7 @@ func TestServer_Review(t *testing.T) {
 		v, _, _ := a.Ask(collect.Request{Entity: "patient", Field: "age", Text: "Age?", QType: "number"})
 		return &Result{Fields: []Field{{Name: "age", Value: v.StringValue()}}}, nil
 	}
-	ts := httptest.NewServer(NewServer(run, "T"))
+	ts := httptest.NewServer(NewServer(RunFunc(run), "T"))
 	defer ts.Close()
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{Jar: jar}
@@ -180,7 +180,7 @@ func TestServer_DataDownloadUpload(t *testing.T) {
 		_, _, _ = a.Ask(collect.Request{Entity: "patient", Field: "age", Text: "Age?", QType: "number"})
 		return &Result{Fields: []Field{{Name: "drug", Value: "X"}}, DataXML: saved}, nil
 	}
-	ts := httptest.NewServer(NewServer(run, "Demo"))
+	ts := httptest.NewServer(NewServer(RunFunc(run), "Demo"))
 	defer ts.Close()
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{Jar: jar}
@@ -234,7 +234,7 @@ func TestServer_UseDefault(t *testing.T) {
 		}
 		return &Result{Fields: []Field{{Name: "path", Value: used}}}, nil
 	}
-	ts := httptest.NewServer(NewServer(run, "Test"))
+	ts := httptest.NewServer(NewServer(RunFunc(run), "Test"))
 	defer ts.Close()
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{Jar: jar}

@@ -31,90 +31,75 @@ import (
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
 	"github.com/DTRules/DTRules/pkg/dtrules/collect"
+	"github.com/DTRules/DTRules/pkg/dtrules/interview"
 )
 
-// Result is the rendered outcome of one run.
-type Result struct {
-	Title    string
-	Fields   []Field           // scalar outputs
-	Lists    []List            // array outputs (warnings, rationale, ...)
-	Readings []collect.Reading // collected range-bearing values, lab-report style
-	DataXML  string            // canonical data collected this run (for review/edit)
-	Error    string
-}
-
-// Field is one scalar output value.
-type Field struct{ Name, Value string }
-
-// List is one array output.
-type List struct {
-	Name  string
-	Items []string
-}
-
-// RunFunc executes one complete interview: it creates a fresh session, runs
-// the entry table with the given asker (which blocks for each collect field),
-// and returns the rendered result. reviewData, when non-empty, is canonical
-// data XML from a prior run loaded in Review mode — so every collect field is
-// re-asked pre-filled with the prior answer (the review/modify loop, #853).
-type RunFunc func(asker collect.Asker, reviewData string) (*Result, error)
+// Result, Field, List, and RunFunc are re-exported from the interview package
+// — the UI-neutral contract this server renders. A custom UI or engine can use
+// interview directly without importing the HTTP server.
+type (
+	Result  = interview.Result
+	Field   = interview.Field
+	List    = interview.List
+	RunFunc = interview.RunnerFunc // convenience adapter for an inline Runner
+)
 
 type answer struct {
 	value string
 	ok    bool
 }
 
-// interview is one in-flight execution goroutine.
-type interview struct {
+// runJob is one in-flight execution goroutine driving a Runner.
+type runJob struct {
 	reqCh    chan collect.Request
 	ansCh    chan answer
 	doneCh   chan *Result
 	finished *Result
 }
 
-func startInterview(run RunFunc, reviewData string) *interview {
-	iv := &interview{
+func startJob(run interview.Runner, reviewData string) *runJob {
+	j := &runJob{
 		reqCh:  make(chan collect.Request),
 		ansCh:  make(chan answer),
 		doneCh: make(chan *Result, 1),
 	}
 	asker := collect.AskerFunc(func(req collect.Request) (dtrules.Object, bool, error) {
-		iv.reqCh <- req
-		a := <-iv.ansCh
+		j.reqCh <- req
+		a := <-j.ansCh
 		if !a.ok {
 			return nil, false, nil
 		}
 		return dtrules.GetRString(a.value), true, nil
 	})
 	go func() {
-		res, err := run(asker, reviewData)
+		res, err := run.Run(asker, reviewData)
 		if err != nil {
 			res = &Result{Error: err.Error()}
 		}
 		if res == nil {
 			res = &Result{}
 		}
-		iv.doneCh <- res
+		j.doneCh <- res
 	}()
-	return iv
+	return j
 }
 
 // next blocks for the next question, or returns the final result when the run
 // has finished.
-func (iv *interview) next() (*collect.Request, *Result) {
-	if iv.finished != nil {
-		return nil, iv.finished
+func (j *runJob) next() (*collect.Request, *Result) {
+	if j.finished != nil {
+		return nil, j.finished
 	}
 	select {
-	case req := <-iv.reqCh:
+	case req := <-j.reqCh:
 		return &req, nil
-	case res := <-iv.doneCh:
-		iv.finished = res
+	case res := <-j.doneCh:
+		j.finished = res
 		return nil, res
 	}
 }
 
-func (iv *interview) answer(value string, ok bool) { iv.ansCh <- answer{value, ok} }
+func (j *runJob) answer(value string, ok bool) { j.ansCh <- answer{value, ok} }
 
 // qa is one answered question, shown as a stacked one-liner in the transcript.
 type qa struct {
@@ -132,15 +117,16 @@ type qa struct {
 // awaiting an answer, the transcript of answers so far, and the last completed
 // run's full canonical data (inputs + results) for download.
 type uiSession struct {
-	iv       *interview
+	iv       *runJob
 	pending  *collect.Request
 	answered []qa
 	dataXML  string
 }
 
-// Server is an http.Handler that runs one interview per browser session.
+// Server is an http.Handler that drives one interview per browser session
+// against a Runner (any decision-table engine).
 type Server struct {
-	run      RunFunc
+	run      interview.Runner
 	title    string // page/tab title (the project name)
 	mu       sync.Mutex
 	sessions map[string]*uiSession
@@ -148,9 +134,10 @@ type Server struct {
 }
 
 // NewServer returns a Server that starts a fresh interview (via run) for each
-// new browser session. title is shown as the browser tab title; "" falls back
-// to "DTRules".
-func NewServer(run RunFunc, title string) *Server {
+// new browser session. run is any interview.Runner — the default engine
+// (interview.Project) or a custom one. title is shown as the browser tab
+// title; "" falls back to "DTRules".
+func NewServer(run interview.Runner, title string) *Server {
 	if title == "" {
 		title = "DTRules"
 	}
@@ -293,7 +280,7 @@ func (s *Server) newSession(w http.ResponseWriter, reviewData string) *uiSession
 	s.mu.Lock()
 	s.seq++
 	sid := strconv.Itoa(s.seq)
-	us := &uiSession{iv: startInterview(s.run, reviewData)}
+	us := &uiSession{iv: startJob(s.run, reviewData)}
 	s.sessions[sid] = us
 	s.mu.Unlock()
 	http.SetCookie(w, &http.Cookie{Name: "dtrsid", Value: sid, Path: "/"})
