@@ -53,6 +53,15 @@ type QuestionMeta struct {
 	Text    string           // prompt shown to the user
 	Type    string           // multiple_choice | ascii | number | date
 	Options []QuestionOption // choices, for multiple_choice
+
+	// Reference range for a number question, in the style of a lab report
+	// (#850): RefLow/RefHigh bound the expected ("normal") range and Units
+	// labels the value (e.g. "mg/dL"). Either bound may be empty (one-sided).
+	// Guidance only — values outside the range are flagged High/Low, never
+	// rejected.
+	RefLow  string
+	RefHigh string
+	Units   string
 }
 
 // QuestionOption is one choice for a multiple_choice question.

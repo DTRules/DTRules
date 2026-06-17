@@ -670,9 +670,9 @@ func (w *WorkbookImporter) parseEDDSheetFromRows(rows [][]string, sheetName stri
 			Access:       strings.TrimSpace(getCellValue(row, 6)),
 			Comment:      strings.TrimSpace(getCellValue(row, 7)),
 		}
-		// Collect + question metadata (#850), columns I–L.
+		// Collect + question metadata (#850), columns I–M.
 		field.Collect, field.Question = questionFromCells(
-			getCellValue(row, 8), getCellValue(row, 9), getCellValue(row, 10), getCellValue(row, 11))
+			getCellValue(row, 8), getCellValue(row, 9), getCellValue(row, 10), getCellValue(row, 11), getCellValue(row, 12))
 
 		// Apply defaults
 		if field.Type == "" {

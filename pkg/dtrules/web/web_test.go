@@ -32,7 +32,8 @@ import (
 // the collected answers.
 func TestServer_Interview(t *testing.T) {
 	run := func(a collect.Asker) (*Result, error) {
-		v1, ok1, _ := a.Ask(collect.Request{Field: "age", QType: "number", Text: "How old?"})
+		v1, ok1, _ := a.Ask(collect.Request{Field: "pcr", QType: "number", Text: "How old?",
+			RefLow: "0.7", RefHigh: "1.3", Units: "mg/dL"})
 		v2, ok2, _ := a.Ask(collect.Request{Field: "allergic", QType: "multiple_choice", Text: "Allergic?",
 			Options: []collect.Option{{Value: "true", Label: "Yes"}, {Value: "false", Label: "No"}}})
 		age, al := "0", "false"
@@ -43,8 +44,9 @@ func TestServer_Interview(t *testing.T) {
 			al = v2.StringValue()
 		}
 		return &Result{
-			Fields: []Field{{Name: "age", Value: age}, {Name: "allergic", Value: al}},
-			Lists:  []List{{Name: "notes", Items: []string{"done"}}},
+			Fields:   []Field{{Name: "age", Value: age}, {Name: "allergic", Value: al}},
+			Lists:    []List{{Name: "notes", Items: []string{"done"}}},
+			Readings: []collect.Reading{{Field: "pcr", Value: age, Units: "mg/dL", Low: "0.7", High: "1.3", Flag: collect.Flag(age, "0.7", "1.3")}},
 		}, nil
 	}
 
@@ -72,17 +74,19 @@ func TestServer_Interview(t *testing.T) {
 		return string(b)
 	}
 
-	// First page: the first question.
-	if body := get("/"); !strings.Contains(body, "How old?") || !strings.Contains(body, `type="number"`) {
-		t.Fatalf("first question not shown:\n%s", body)
+	// First page: the number question shows its reference range as guidance.
+	if body := get("/"); !strings.Contains(body, "How old?") || !strings.Contains(body, `type="number"`) ||
+		!strings.Contains(body, "normal range: 0.7–1.3 mg/dL") {
+		t.Fatalf("first question / range not shown:\n%s", body)
 	}
-	// Answer it -> the second question (with options).
-	if body := post("58"); !strings.Contains(body, "Allergic?") || !strings.Contains(body, "<select") || !strings.Contains(body, ">Yes<") {
+	// Answer with an out-of-range value -> the second question (with options).
+	if body := post("1.85"); !strings.Contains(body, "Allergic?") || !strings.Contains(body, "<select") || !strings.Contains(body, ">Yes<") {
 		t.Fatalf("second question not shown:\n%s", body)
 	}
-	// Answer it -> the result, reflecting both answers.
+	// Answer it -> the result, with a lab-style Collected-values section that
+	// flags the out-of-range reading H.
 	body := post("true")
-	for _, want := range []string{"Result", "age", "58", "allergic", "true", "notes", "done"} {
+	for _, want := range []string{"Result", "allergic", "true", "notes", "done", "Collected values", "pcr", "<b>H</b>", "ref 0.7–1.3"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("result missing %q:\n%s", want, body)
 		}

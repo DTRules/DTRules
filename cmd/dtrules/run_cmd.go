@@ -185,6 +185,7 @@ func (c *CLI) runRun(args []string) int {
 		fmt.Fprintf(os.Stderr, "saved data to %s\n", save)
 	}
 
+	renderReadings(state, rs)
 	renderResult(state, resultEntity)
 	return 0
 }
@@ -270,6 +271,27 @@ func loadCanonical(state dtrules.State, sess dtrules.Session, file string, mode 
 		return re, nil
 	}
 	return datafile.Read(f, find, create, mode)
+}
+
+// renderReadings prints the collected, range-bearing values lab-report style,
+// with a High/Low flag. Nothing prints when no such values were collected.
+func renderReadings(state dtrules.State, rs *session.RuleSet) {
+	readings := collect.RangedReadings(dataEntities(state, rs))
+	if len(readings) == 0 {
+		return
+	}
+	fmt.Printf("\n=== collected values ===\n")
+	for _, r := range readings {
+		flag := ""
+		switch r.Flag {
+		case "H":
+			flag = "  [HIGH]"
+		case "L":
+			flag = "  [LOW]"
+		}
+		fmt.Printf("  %-22s %s%s%s   (normal %s)\n", r.Field+":", r.Value, unitSuffix(r.Units), flag,
+			collect.RangeText(r.Low, r.High, ""))
+	}
 }
 
 // renderResult prints the named output entity's fields after execution.
@@ -376,11 +398,30 @@ func (a *cliAsker) Ask(req collect.Request) (dtrules.Object, bool, error) {
 		return dtrules.GetRString(line), true, nil // accept a literal value too
 	}
 
+	if rng := collect.RangeText(req.RefLow, req.RefHigh, req.Units); rng != "" {
+		fmt.Printf("  normal range: %s\n", rng)
+	}
 	fmt.Printf("  (%s) [default %s] > ", req.QType, cur)
 	line, _ := a.in.ReadString('\n')
 	line = strings.TrimSpace(line)
 	if line == "" {
 		return nil, false, nil
 	}
+	// Lab convention: accept any value, but flag it High/Low for feedback.
+	if flag := collect.Flag(line, req.RefLow, req.RefHigh); flag != "" {
+		word := "HIGH"
+		if flag == "L" {
+			word = "LOW"
+		}
+		fmt.Printf("  → %s%s [%s] (normal %s)\n", line, unitSuffix(req.Units), word,
+			collect.RangeText(req.RefLow, req.RefHigh, ""))
+	}
 	return dtrules.GetRString(line), true, nil
+}
+
+func unitSuffix(units string) string {
+	if units == "" {
+		return ""
+	}
+	return " " + units
 }

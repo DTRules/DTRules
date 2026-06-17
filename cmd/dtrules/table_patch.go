@@ -397,16 +397,19 @@ func (p *eddPatchOp) apply(e *authoring.EDD) error {
 
 func attributeFromJSON(a AttributeJSON) authoring.Attribute {
 	attr := authoring.Attribute{
-		Name:         a.Name,
-		Type:         a.Type,
-		Subtype:      a.Subtype,
-		Default:      a.Default,
-		Access:       a.Access,
-		Input:        a.Input,
-		Comment:      a.Comment,
-		Collect:      a.Collect,
-		QuestionText: a.QuestionText,
-		QuestionType: a.QuestionType,
+		Name:            a.Name,
+		Type:            a.Type,
+		Subtype:         a.Subtype,
+		Default:         a.Default,
+		Access:          a.Access,
+		Input:           a.Input,
+		Comment:         a.Comment,
+		Collect:         a.Collect,
+		QuestionText:    a.QuestionText,
+		QuestionType:    a.QuestionType,
+		QuestionRefLow:  a.QuestionRefLow,
+		QuestionRefHigh: a.QuestionRefHigh,
+		QuestionUnits:   a.QuestionUnits,
 	}
 	for _, o := range a.Options {
 		attr.Options = append(attr.Options, authoring.Option{Value: o.Value, Label: o.Label})

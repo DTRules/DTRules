@@ -33,10 +33,11 @@ import (
 
 // Result is the rendered outcome of one run.
 type Result struct {
-	Title  string
-	Fields []Field // scalar outputs
-	Lists  []List  // array outputs (warnings, rationale, ...)
-	Error  string
+	Title    string
+	Fields   []Field           // scalar outputs
+	Lists    []List            // array outputs (warnings, rationale, ...)
+	Readings []collect.Reading // collected range-bearing values, lab-report style
+	Error    string
 }
 
 // Field is one scalar output value.
@@ -201,7 +202,18 @@ func writeQuestion(w http.ResponseWriter, req *collect.Request) {
 		}
 		control = fmt.Sprintf(`<select name="answer">%s</select>`, b)
 	case "number":
-		control = fmt.Sprintf(`<input name="answer" type="number" step="any" placeholder="%s">`, html.EscapeString(cur))
+		// Lab convention: show the reference range as guidance, but do NOT set
+		// min/max on the input — out-of-range values must be accepted.
+		hint := ""
+		if rng := collect.RangeText(req.RefLow, req.RefHigh, req.Units); rng != "" {
+			hint = fmt.Sprintf(`<p style="color:#555">normal range: %s</p>`, html.EscapeString(rng))
+		}
+		unit := ""
+		if req.Units != "" {
+			unit = " " + html.EscapeString(req.Units)
+		}
+		control = fmt.Sprintf(`%s<input name="answer" type="number" step="any" placeholder="%s">%s`,
+			hint, html.EscapeString(cur), unit)
 	case "date":
 		control = `<input name="answer" type="date">`
 	default:
@@ -218,7 +230,24 @@ func writeResult(w http.ResponseWriter, res *Result) {
 		page(w, fmt.Sprintf(`<h2>Error</h2><pre>%s</pre><p><a href="/">Start over</a></p>`, html.EscapeString(res.Error)))
 		return
 	}
-	body := "<h2>Result</h2><table>"
+	body := ""
+	if len(res.Readings) > 0 {
+		body += "<h2>Collected values</h2><table>"
+		for _, r := range res.Readings {
+			flag, color := "", "#111"
+			switch r.Flag {
+			case "H":
+				flag, color = " <b>H</b>", "#b00"
+			case "L":
+				flag, color = " <b>L</b>", "#06c"
+			}
+			ref := collect.RangeText(r.Low, r.High, "")
+			body += fmt.Sprintf(`<tr><th align=left>%s</th><td style="color:%s">%s %s%s</td><td style="color:#777">ref %s</td></tr>`,
+				html.EscapeString(r.Field), color, html.EscapeString(r.Value), html.EscapeString(r.Units), flag, html.EscapeString(ref))
+		}
+		body += "</table>"
+	}
+	body += "<h2>Result</h2><table>"
 	for _, f := range res.Fields {
 		body += fmt.Sprintf("<tr><th align=left>%s</th><td>%s</td></tr>", html.EscapeString(f.Name), html.EscapeString(f.Value))
 	}

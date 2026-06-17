@@ -87,7 +87,37 @@ func runDir(xmlDir string, opts Options, asker collect.Asker) (*Result, error) {
 	if err := dt.Execute(state); err != nil {
 		return nil, err
 	}
-	return buildResult(state, opts.ResultEntity), nil
+	res := buildResult(state, opts.ResultEntity)
+	res.Readings = collect.RangedReadings(stackEntities(state))
+	return res, nil
+}
+
+// stackEntities returns the distinct data entities on the state's entity
+// stack (the executed instances), excluding the operator "primitives" entity.
+func stackEntities(state dtrules.State) []*entity.REntity {
+	dts, ok := state.(*interpreter.DTState)
+	if !ok {
+		return nil
+	}
+	seen := map[string]bool{}
+	var out []*entity.REntity
+	for i := 0; i < dts.EntityDepth(); i++ {
+		e, err := dts.GetEntityStack(i)
+		if err != nil {
+			continue
+		}
+		re, ok := e.(*entity.REntity)
+		if !ok {
+			continue
+		}
+		name := re.GetName().GetName()
+		if name == "primitives" || seen[name] {
+			continue
+		}
+		seen[name] = true
+		out = append(out, re)
+	}
+	return out
 }
 
 func initMapping(sess dtrules.Session, xmlDir, input string) error {

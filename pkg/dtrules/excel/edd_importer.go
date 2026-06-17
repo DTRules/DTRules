@@ -63,9 +63,13 @@ type EDDXMLField struct {
 
 // EDDXMLQuestion describes how to ask the user for a Collect field.
 type EDDXMLQuestion struct {
-	Text    string           `xml:"text,attr"`
-	Type    string           `xml:"type,attr"` // multiple_choice | ascii | number | date
-	Options []*EDDXMLOption  `xml:"option,omitempty"`
+	Text    string          `xml:"text,attr"`
+	Type    string          `xml:"type,attr"` // multiple_choice | ascii | number | date
+	Options []*EDDXMLOption `xml:"option,omitempty"`
+	// Reference range for a number question (lab-report style, #850).
+	RefLow  string `xml:"ref_low,attr,omitempty"`
+	RefHigh string `xml:"ref_high,attr,omitempty"`
+	Units   string `xml:"units,attr,omitempty"`
 }
 
 // EDDXMLOption is one choice for a multiple_choice question.
@@ -75,9 +79,9 @@ type EDDXMLOption struct {
 }
 
 // eddColumnCount is the number of columns in the EDD sheet. Columns A–H are
-// the legacy field metadata; I–L carry the collect/question metadata (#850):
-// I=Collect, J=Question text, K=Question type, L=Options.
-const eddColumnCount = 12
+// the legacy field metadata; I–M carry the collect/question metadata (#850):
+// I=Collect, J=Question text, K=Question type, L=Options, M=Reference range.
+const eddColumnCount = 13
 
 // encodeEDDOptions packs multiple_choice options into one Excel cell as
 // `value=label|value=label`. Quick-and-dirty (#850): values/labels are
@@ -116,15 +120,46 @@ func decodeEDDOptions(s string) []*EDDXMLOption {
 	return out
 }
 
+// encodeEDDRef packs a number question's reference range into one Excel cell
+// as `low:high:units` (#850). Trailing empties are trimmed; "" when no bounds
+// or units are set.
+func encodeEDDRef(low, high, units string) string {
+	if low == "" && high == "" && units == "" {
+		return ""
+	}
+	parts := []string{low, high, units}
+	for len(parts) > 1 && parts[len(parts)-1] == "" {
+		parts = parts[:len(parts)-1]
+	}
+	return strings.Join(parts, ":")
+}
+
+// decodeEDDRef parses the cell encoding produced by encodeEDDRef.
+func decodeEDDRef(s string) (low, high, units string) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return "", "", ""
+	}
+	parts := strings.Split(s, ":")
+	get := func(i int) string {
+		if i < len(parts) {
+			return strings.TrimSpace(parts[i])
+		}
+		return ""
+	}
+	return get(0), get(1), get(2)
+}
+
 // questionFromCells builds an EDDXMLQuestion from the collect/question cells
-// (columns I–L). Returns ("", nil) when the field is not collected.
-func questionFromCells(collect, qText, qType, qOptions string) (string, *EDDXMLQuestion) {
+// (columns I–M). Returns ("", nil) when the field is not collected.
+func questionFromCells(collect, qText, qType, qOptions, qRef string) (string, *EDDXMLQuestion) {
 	if !strings.EqualFold(strings.TrimSpace(collect), "true") {
 		return "", nil
 	}
 	q := &EDDXMLQuestion{Text: strings.TrimSpace(qText), Type: strings.TrimSpace(qType)}
 	q.Options = decodeEDDOptions(qOptions)
-	if q.Text == "" && q.Type == "" && len(q.Options) == 0 {
+	q.RefLow, q.RefHigh, q.Units = decodeEDDRef(qRef)
+	if q.Text == "" && q.Type == "" && len(q.Options) == 0 && q.RefLow == "" && q.RefHigh == "" && q.Units == "" {
 		return "true", nil
 	}
 	return "true", q
@@ -474,7 +509,7 @@ func (i *EDDImporter) parseEDDSheet(f *excelize.File, sheetName string) (*EDDXML
 			Comment:      strings.TrimSpace(getCellValue(row, 7)),
 		}
 		field.Collect, field.Question = questionFromCells(
-			getCellValue(row, 8), getCellValue(row, 9), getCellValue(row, 10), getCellValue(row, 11))
+			getCellValue(row, 8), getCellValue(row, 9), getCellValue(row, 10), getCellValue(row, 11), getCellValue(row, 12))
 
 		// Apply defaults
 		if field.Type == "" {

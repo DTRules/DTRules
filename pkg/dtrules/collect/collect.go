@@ -45,7 +45,18 @@ type Request struct {
 	QType   string         // multiple_choice | ascii | number | date
 	Options []Option       // choices, for multiple_choice
 	Current dtrules.Object // current/default value (the pre-fill)
+
+	// Reference range for a number question (lab-report style, #850): the
+	// expected ("normal") band and a unit label. Shown as guidance; the
+	// entered value is flagged High/Low but never rejected. Either bound may
+	// be empty (one-sided).
+	RefLow  string
+	RefHigh string
+	Units   string
 }
+
+// HasRange reports whether the request carries a reference range to display.
+func (r Request) HasRange() bool { return r.RefLow != "" || r.RefHigh != "" }
 
 // Asker obtains a value for one collect field. ok=false means "no answer —
 // keep the current/default value" (the field is still marked collected so it
@@ -101,6 +112,9 @@ func (c *Collector) MaybeCollect(e dtrules.Entity, attr *dtrules.RName) error {
 	if entry.Question != nil {
 		req.Text = entry.Question.Text
 		req.QType = entry.Question.Type
+		req.RefLow = entry.Question.RefLow
+		req.RefHigh = entry.Question.RefHigh
+		req.Units = entry.Question.Units
 		for _, o := range entry.Question.Options {
 			req.Options = append(req.Options, Option{Value: o.Value, Label: o.Label})
 		}

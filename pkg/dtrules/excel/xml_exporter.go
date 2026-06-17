@@ -403,10 +403,11 @@ func setEDDColumnWidthsForFile(f *excelize.File, sheet string) {
 	AutoWidth(f, sheet, "J", 30)
 	AutoWidth(f, sheet, "K", 16)
 	AutoWidth(f, sheet, "L", 30)
+	AutoWidth(f, sheet, "M", 18)
 }
 
 func writeEDDHeadersForFile(f *excelize.File, sheet string, styler *Styler, startRow int) {
-	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description", "Collect", "Question", "Q Type", "Options"}
+	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description", "Collect", "Question", "Q Type", "Options", "Reference"}
 	for col, header := range headers {
 		cell, _ := excelize.CoordinatesToCellName(col+1, startRow)
 		styler.ApplyHeader(f, sheet, cell, cell, cell, header)
@@ -463,14 +464,15 @@ func writeEDDXMLEntities(f *excelize.File, sheet string, entities []*EDDXMLEntit
 			f.SetCellValue(sheet, cellName(8, row), field.Comment)
 			f.SetCellStyle(sheet, cellName(8, row), cellName(8, row), s.comment)
 
-			// Collect + question metadata (#850), columns I–L.
-			collectTxt, qText, qType, qOpts := "", "", "", ""
+			// Collect + question metadata (#850), columns I–M.
+			collectTxt, qText, qType, qOpts, qRef := "", "", "", "", ""
 			if strings.EqualFold(field.Collect, "true") {
 				collectTxt = "true"
 				if field.Question != nil {
 					qText = field.Question.Text
 					qType = field.Question.Type
 					qOpts = encodeEDDOptions(derefOptions(field.Question.Options))
+					qRef = encodeEDDRef(field.Question.RefLow, field.Question.RefHigh, field.Question.Units)
 				}
 			}
 			f.SetCellValue(sheet, cellName(9, row), collectTxt)
@@ -481,6 +483,8 @@ func writeEDDXMLEntities(f *excelize.File, sheet string, entities []*EDDXMLEntit
 			f.SetCellStyle(sheet, cellName(11, row), cellName(11, row), rowStyle)
 			f.SetCellValue(sheet, cellName(12, row), qOpts)
 			f.SetCellStyle(sheet, cellName(12, row), cellName(12, row), rowStyle)
+			f.SetCellValue(sheet, cellName(13, row), qRef)
+			f.SetCellStyle(sheet, cellName(13, row), cellName(13, row), rowStyle)
 
 			row++
 		}

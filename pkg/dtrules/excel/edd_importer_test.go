@@ -576,7 +576,8 @@ func TestEDDRoundTrip_CollectQuestion(t *testing.T) {
 					Options: []*EDDXMLOption{{Value: "true", Label: "Yes"}, {Value: "false", Label: "No"}}},
 			},
 			{Name: "age", Type: "integer", Access: "rw", DefaultValue: "0",
-				Collect: "true", Question: &EDDXMLQuestion{Text: "Age?", Type: "number"}},
+				Collect: "true", Question: &EDDXMLQuestion{Text: "Age?", Type: "number",
+					RefLow: "0", RefHigh: "120", Units: "years"}},
 			{Name: "notes", Type: "string", Access: "rw"}, // not collected
 		},
 	}}}
@@ -610,6 +611,8 @@ func TestEDDRoundTrip_CollectQuestion(t *testing.T) {
 
 	if age := byName["age"]; age == nil || age.Collect != "true" || age.Question == nil || age.Question.Type != "number" {
 		t.Errorf("age collect/number-question lost: %+v", age)
+	} else if age.Question.RefLow != "0" || age.Question.RefHigh != "120" || age.Question.Units != "years" {
+		t.Errorf("age reference range lost through Excel round-trip: %+v", age.Question)
 	}
 	if notes := byName["notes"]; notes == nil || notes.Collect != "" || notes.Question != nil {
 		t.Errorf("non-collected field gained metadata: %+v", notes)

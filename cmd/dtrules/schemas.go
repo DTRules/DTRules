@@ -196,7 +196,10 @@ const eddSchemaJSON = `{
                       "label": {"type": "string"}
                     }
                   }
-                }
+                },
+                "question_ref_low": {"type": "string", "description": "reference range low bound for a number question (lab-report style, #850); guidance only, never rejected"},
+                "question_ref_high": {"type": "string", "description": "reference range high bound for a number question"},
+                "question_units": {"type": "string", "description": "unit label for a number question (e.g. mg/dL)"}
               }
             }
           }

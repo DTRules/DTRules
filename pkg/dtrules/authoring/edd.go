@@ -79,6 +79,14 @@ type Attribute struct {
 	QuestionText string
 	QuestionType string
 	Options      []Option
+	// Reference range for a number question (lab-report style, #850):
+	// QuestionRefLow/QuestionRefHigh bound the expected ("normal") range and
+	// QuestionUnits labels the value (e.g. "mg/dL"). Either bound may be
+	// empty (one-sided). Guidance only — out-of-range values are flagged, not
+	// rejected.
+	QuestionRefLow  string
+	QuestionRefHigh string
+	QuestionUnits   string
 }
 
 // Option is one choice for a multiple_choice question.
@@ -250,6 +258,9 @@ func attributeFromXML(f *excel.EDDXMLField) Attribute {
 	if f.Question != nil {
 		a.QuestionText = f.Question.Text
 		a.QuestionType = f.Question.Type
+		a.QuestionRefLow = f.Question.RefLow
+		a.QuestionRefHigh = f.Question.RefHigh
+		a.QuestionUnits = f.Question.Units
 		for _, o := range f.Question.Options {
 			a.Options = append(a.Options, Option{Value: o.Value, Label: o.Label})
 		}
@@ -336,9 +347,19 @@ func mergeAttribute(base, patch Attribute) Attribute {
 	if patch.Options != nil {
 		result.Options = patch.Options
 	}
+	if patch.QuestionRefLow != "" {
+		result.QuestionRefLow = patch.QuestionRefLow
+	}
+	if patch.QuestionRefHigh != "" {
+		result.QuestionRefHigh = patch.QuestionRefHigh
+	}
+	if patch.QuestionUnits != "" {
+		result.QuestionUnits = patch.QuestionUnits
+	}
 	// A field that isn't collected carries no question metadata.
 	if !strings.EqualFold(result.Collect, "true") {
 		result.QuestionText, result.QuestionType, result.Options = "", "", nil
+		result.QuestionRefLow, result.QuestionRefHigh, result.QuestionUnits = "", "", ""
 	}
 	return result
 }
@@ -355,8 +376,15 @@ func attributeToXML(a Attribute) *excel.EDDXMLField {
 	}
 	if strings.EqualFold(a.Collect, "true") {
 		f.Collect = "true"
-		if a.QuestionText != "" || a.QuestionType != "" || len(a.Options) > 0 {
-			q := &excel.EDDXMLQuestion{Text: a.QuestionText, Type: a.QuestionType}
+		if a.QuestionText != "" || a.QuestionType != "" || len(a.Options) > 0 ||
+			a.QuestionRefLow != "" || a.QuestionRefHigh != "" || a.QuestionUnits != "" {
+			q := &excel.EDDXMLQuestion{
+				Text:    a.QuestionText,
+				Type:    a.QuestionType,
+				RefLow:  a.QuestionRefLow,
+				RefHigh: a.QuestionRefHigh,
+				Units:   a.QuestionUnits,
+			}
 			for _, o := range a.Options {
 				q.Options = append(q.Options, &excel.EDDXMLOption{Value: o.Value, Label: o.Label})
 			}
@@ -410,7 +438,8 @@ func validateCollect(a Attribute) error {
 	if collect != "" && collect != "true" && collect != "false" {
 		return fmt.Errorf("attribute %q: collect must be \"true\", \"false\", or empty; got %q", a.Name, a.Collect)
 	}
-	hasQuestion := a.QuestionText != "" || a.QuestionType != "" || len(a.Options) > 0
+	hasRange := a.QuestionRefLow != "" || a.QuestionRefHigh != "" || a.QuestionUnits != ""
+	hasQuestion := a.QuestionText != "" || a.QuestionType != "" || len(a.Options) > 0 || hasRange
 	if collect != "true" {
 		if hasQuestion {
 			return fmt.Errorf("attribute %q: question metadata requires collect=\"true\"", a.Name)
@@ -438,6 +467,33 @@ func validateCollect(a Attribute) error {
 		}
 	} else if len(a.Options) > 0 {
 		return fmt.Errorf("attribute %q: options are only valid for a multiple_choice question", a.Name)
+	}
+	if hasRange && a.QuestionType != "number" {
+		return fmt.Errorf("attribute %q: a reference range or units is only valid for a number question", a.Name)
+	}
+	if err := validateRefBound(a.Name, "ref_low", a.QuestionRefLow); err != nil {
+		return err
+	}
+	if err := validateRefBound(a.Name, "ref_high", a.QuestionRefHigh); err != nil {
+		return err
+	}
+	if a.QuestionRefLow != "" && a.QuestionRefHigh != "" {
+		lo, _ := strconv.ParseFloat(a.QuestionRefLow, 64)
+		hi, _ := strconv.ParseFloat(a.QuestionRefHigh, 64)
+		if lo > hi {
+			return fmt.Errorf("attribute %q: ref_low (%s) exceeds ref_high (%s)", a.Name, a.QuestionRefLow, a.QuestionRefHigh)
+		}
+	}
+	return nil
+}
+
+// validateRefBound checks that a reference-range bound, if present, is numeric.
+func validateRefBound(name, which, v string) error {
+	if v == "" {
+		return nil
+	}
+	if _, err := strconv.ParseFloat(strings.TrimSpace(v), 64); err != nil {
+		return fmt.Errorf("attribute %q: %s %q is not a number", name, which, v)
 	}
 	return nil
 }

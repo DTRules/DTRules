@@ -132,6 +132,10 @@ type EDDQuestion struct {
 	Text    string      `xml:"text,attr" json:"text,omitempty"`
 	Type    string      `xml:"type,attr" json:"type,omitempty"` // multiple_choice|ascii|number|date
 	Options []EDDOption `xml:"option,omitempty" json:"options,omitempty"`
+	// Reference range for a number question (lab-report style, #850).
+	RefLow  string `xml:"ref_low,attr,omitempty" json:"ref_low,omitempty"`
+	RefHigh string `xml:"ref_high,attr,omitempty" json:"ref_high,omitempty"`
+	Units   string `xml:"units,attr,omitempty" json:"units,omitempty"`
 }
 
 // EDDOption is one choice for a multiple_choice question.
@@ -331,7 +335,13 @@ func (l *EDDLoader) processField(refEntity *entity.REntity, field *EDDField) err
 		if entry := refEntity.GetEntry(attributeName); entry != nil {
 			entry.Collect = true
 			if field.Question != nil {
-				q := &entity.QuestionMeta{Text: field.Question.Text, Type: field.Question.Type}
+				q := &entity.QuestionMeta{
+					Text:    field.Question.Text,
+					Type:    field.Question.Type,
+					RefLow:  field.Question.RefLow,
+					RefHigh: field.Question.RefHigh,
+					Units:   field.Question.Units,
+				}
 				for _, o := range field.Question.Options {
 					q.Options = append(q.Options, entity.QuestionOption{Value: o.Value, Label: o.Label})
 				}
