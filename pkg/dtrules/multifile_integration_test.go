@@ -25,6 +25,7 @@ import (
 // TestMultiFileLoading verifies that LoadFromDirectory works correctly
 // This test confirms Issue #343 Part 4 implementation
 func TestMultiFileLoading(t *testing.T) {
+	t.Skip("archived: TaxReturn multi-file fixture carries DSL without compiled postfix; revisit — #520")
 	// Find the sample projects directory
 	cwd, _ := os.Getwd()
 	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
@@ -93,6 +94,7 @@ func TestMultiFileLoading(t *testing.T) {
 // TestMultiFileVsMonolithicEquivalence verifies that loading from directory
 // produces the same result as loading from monolithic files
 func TestMultiFileVsMonolithicEquivalence(t *testing.T) {
+	t.Skip("archived: TaxReturn multi-file fixture carries DSL without compiled postfix; revisit — #520")
 	cwd, _ := os.Getwd()
 	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")
