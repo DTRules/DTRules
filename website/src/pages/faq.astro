@@ -38,7 +38,11 @@ const faqs: FAQ[] = [
   },
   {
     question: "What's the Expression Language?",
-    answer: "DTRules includes a human-readable expression language for writing conditions and actions. Instead of code like 'if (age >= 18 && status == \"active\")', you write 'age >= 18 and status = \"active\"'. The language includes 75+ operators for arithmetic, comparisons, strings, arrays, dates, and more."
+    answer: "DTRules includes a human-readable expression language (EL) for writing conditions and actions. Instead of code like 'if (age >= 18 && status == \"active\")', you write 'age >= 18 and status = \"active\"'. The language includes 330+ operators for arithmetic, comparisons, strings, arrays, dates, and more. You author rules in EL; `dtrules build` compiles them to postfix."
+  },
+  {
+    question: "Can DTRules collect data interactively?",
+    answer: "Yes — this is the headline feature of v1.16.0. Any decision table can run as an interactive interview: the engine executes the rules and, whenever it reaches a `collect` field that wasn't supplied, it stops and asks for it. Run it on the CLI with `dtrules run --interactive` or in the browser with `dtrules run --web`. Questions are typed (multiple_choice, ascii, number, date), and number questions can carry a lab-style reference range that flags answers High or Low. Batch execution is unchanged and pays zero overhead. Try the live SinusitisTherapy demo at dtrules-sinusitis.fly.dev."
   },
   {
     question: "Is DTRules suitable for high-performance applications?",
@@ -50,7 +54,11 @@ const faqs: FAQ[] = [
   },
   {
     question: "Where can I see DTRules in action?",
-    answer: "Check out the interactive poker demo on this site! It showcases DTRules decision tables controlling AI player behavior in a Texas Hold'em game. The Decision Theater shows exactly how the AI makes decisions based on hand strength, position, and table dynamics."
+    answer: "The flagship example is SinusitisTherapy: a live web interview that selects an antibiotic, computes the dose with renal adjustment (Cockcroft–Gault), flags drug interactions, and explains its reasoning. Try it at dtrules-sinusitis.fly.dev. There's also an interactive poker demo on this site that uses DTRules decision tables to drive AI player behavior in Texas Hold'em."
+  },
+  {
+    question: "What can the dtrules CLI do?",
+    answer: "The CLI is a single self-contained binary with subcommands for the whole workflow: init (scaffold a project), build (Excel → XML and compile DSL → postfix), run (execute rules, batch or interactive), verify (check Excel ↔ XML consistency and self-contained references), table and edd (author via the API), sync and validate, review, docs (the full documentation is embedded in the binary), mcp, and version. Note: `dtrules compile` and `build --from-xml` were removed — use `dtrules build`."
   },
   {
     question: "How do I get help or report issues?",
