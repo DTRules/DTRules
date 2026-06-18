@@ -26,6 +26,7 @@
 package interview
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -118,8 +119,11 @@ func runDir(xmlDir string, opts Options, asker collect.Asker, reviewData string)
 		dts.SetCollector(collect.New(asker))
 	}
 	dt, err := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName(opts.Entry))
-	if err != nil || dt == nil {
+	if err != nil {
 		return nil, err
+	}
+	if dt == nil {
+		return nil, fmt.Errorf("entry table %q not found", opts.Entry)
 	}
 	if err := dt.Execute(state); err != nil {
 		return nil, err
@@ -128,9 +132,10 @@ func runDir(xmlDir string, opts Options, asker collect.Asker, reviewData string)
 	entities := stackEntities(state)
 	res.Readings = collect.RangedReadings(entities)
 	var data strings.Builder
-	if err := datafile.Write(&data, entities); err == nil {
-		res.DataXML = data.String()
+	if err := datafile.Write(&data, entities); err != nil {
+		return nil, fmt.Errorf("serializing collected data: %w", err)
 	}
+	res.DataXML = data.String()
 	return res, nil
 }
 

@@ -448,6 +448,11 @@ func (e *REntity) AddEntry(entry *EntityEntry) {
 		// New attribute
 		entry.Index = len(e.values)
 		e.values = append(e.values, dtrules.GetRNull())
+		// Keep the collected slice parallel to values when tracking is on,
+		// or IsCollected/MarkCollected silently no-op for this field (#852).
+		if e.collected != nil {
+			e.collected = append(e.collected, false)
+		}
 	}
 
 	// Set default value

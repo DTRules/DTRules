@@ -102,6 +102,10 @@ func (c *Collector) MaybeCollect(e dtrules.Entity, attr *dtrules.RName) error {
 	if re.IsCollected(attr) {
 		return nil
 	}
+	// Mark collected BEFORE the (blocking) Ask so that any read of this same
+	// field triggered from within the Asker doesn't recurse into asking again
+	// (M1). The value is written below; until then a re-read sees the default.
+	re.MarkCollected(attr)
 
 	cur, _ := re.Get(attr)
 	req := Request{
@@ -124,13 +128,14 @@ func (c *Collector) MaybeCollect(e dtrules.Entity, attr *dtrules.RName) error {
 	if err != nil {
 		return err
 	}
+	// answered==true with a nil value is treated as "keep the default" (same as
+	// a decline); an Asker that means a real value must return a non-nil one.
 	if answered && value != nil {
 		if err := re.Put(attr, value); err != nil {
 			return err
 		}
 	}
-	// Mark collected even when the Asker declined (kept the default), so the
-	// field is never asked twice.
-	re.MarkCollected(attr)
+	// Field stays marked collected (set above) whether answered or declined,
+	// so it is never asked twice.
 	return nil
 }

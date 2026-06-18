@@ -21,17 +21,30 @@
 package web
 
 import (
+	"errors"
 	"fmt"
 	"html"
 	"io"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
 	"github.com/DTRules/DTRules/pkg/dtrules/collect"
 	"github.com/DTRules/DTRules/pkg/dtrules/interview"
+)
+
+// errAborted unwinds a parked interview goroutine when its session is reaped.
+var errAborted = errors.New("interview session abandoned")
+
+const (
+	sessionTTL  = 30 * time.Minute // idle sessions are reaped after this
+	reapEvery   = 5 * time.Minute
+	maxUpload   = 4 << 20 // 4 MB cap on an uploaded session file
+	maxSessions = 5000     // hard cap; oldest idle sessions evicted past this
 )
 
 // Result, Field, List, and RunFunc are re-exported from the interview package
@@ -51,28 +64,47 @@ type answer struct {
 
 // runJob is one in-flight execution goroutine driving a Runner.
 type runJob struct {
-	reqCh    chan collect.Request
-	ansCh    chan answer
-	doneCh   chan *Result
-	finished *Result
+	reqCh     chan collect.Request
+	ansCh     chan answer
+	doneCh    chan *Result
+	cancel    chan struct{} // closed by abort() to unwind a parked goroutine
+	cancelOne sync.Once
+	finished  *Result
 }
+
+// abort signals a parked interview goroutine to unwind (idempotent).
+func (j *runJob) abort() { j.cancelOne.Do(func() { close(j.cancel) }) }
 
 func startJob(run interview.Runner, reviewData string) *runJob {
 	j := &runJob{
 		reqCh:  make(chan collect.Request),
 		ansCh:  make(chan answer),
 		doneCh: make(chan *Result, 1),
+		cancel: make(chan struct{}),
 	}
+	// The asker blocks for an answer, but unwinds if the session is reaped
+	// (browser gone), so a goroutine never parks forever (H2).
 	asker := collect.AskerFunc(func(req collect.Request) (dtrules.Object, bool, error) {
-		j.reqCh <- req
-		a := <-j.ansCh
-		if !a.ok {
-			return nil, false, nil
+		select {
+		case j.reqCh <- req:
+		case <-j.cancel:
+			return nil, false, errAborted
 		}
-		return dtrules.GetRString(a.value), true, nil
+		select {
+		case a := <-j.ansCh:
+			if !a.ok {
+				return nil, false, nil
+			}
+			return dtrules.GetRString(a.value), true, nil
+		case <-j.cancel:
+			return nil, false, errAborted
+		}
 	})
 	go func() {
 		res, err := run.Run(asker, reviewData)
+		if errors.Is(err, errAborted) {
+			return // reaped — drop silently
+		}
 		if err != nil {
 			res = &Result{Error: err.Error()}
 		}
@@ -117,10 +149,12 @@ type qa struct {
 // awaiting an answer, the transcript of answers so far, and the last completed
 // run's full canonical data (inputs + results) for download.
 type uiSession struct {
+	mu       sync.Mutex // serializes concurrent requests for the same session (H3)
 	iv       *runJob
 	pending  *collect.Request
 	answered []qa
 	dataXML  string
+	lastSeen time.Time
 }
 
 // Server is an http.Handler that drives one interview per browser session
@@ -141,7 +175,33 @@ func NewServer(run interview.Runner, title string) *Server {
 	if title == "" {
 		title = "DTRules"
 	}
-	return &Server{run: run, title: title, sessions: map[string]*uiSession{}}
+	s := &Server{run: run, title: title, sessions: map[string]*uiSession{}}
+	go s.reap()
+	return s
+}
+
+// reap periodically drops idle sessions, unwinding their goroutines (H1/H2).
+// It runs for the Server's lifetime (one goroutine, not per-session).
+func (s *Server) reap() {
+	t := time.NewTicker(reapEvery)
+	defer t.Stop()
+	for range t.C {
+		cutoff := time.Now().Add(-sessionTTL)
+		s.mu.Lock()
+		for sid, us := range s.sessions {
+			us.mu.Lock()
+			idle := us.lastSeen.Before(cutoff)
+			iv := us.iv
+			us.mu.Unlock()
+			if idle {
+				if iv != nil {
+					iv.abort()
+				}
+				delete(s.sessions, sid)
+			}
+		}
+		s.mu.Unlock()
+	}
 }
 
 // faviconSVG is a small brand mark: a rounded square with a checkmark,
@@ -179,14 +239,21 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/review" {
 		reviewData := ""
 		if cur := s.lookup(r); cur != nil {
+			cur.mu.Lock()
 			reviewData = buildCanonical(cur.answered)
+			cur.mu.Unlock()
 		}
 		us := s.newSession(w, reviewData)
+		us.mu.Lock()
+		defer us.mu.Unlock()
 		s.render(w, us)
 		return
 	}
 
 	us := s.session(w, r)
+	us.mu.Lock() // serialize concurrent requests for the same session (H3)
+	defer us.mu.Unlock()
+	us.lastSeen = time.Now()
 	if r.Method == http.MethodPost && us.pending != nil {
 		_ = r.ParseForm()
 		val := r.FormValue("answer")
@@ -217,13 +284,21 @@ func (s *Server) render(w http.ResponseWriter, us *uiSession) {
 // a downloadable canonical XML file.
 func (s *Server) serveData(w http.ResponseWriter, r *http.Request) {
 	us := s.lookup(r)
-	if us == nil || us.dataXML == "" {
+	if us == nil {
+		http.NotFound(w, r)
+		return
+	}
+	us.mu.Lock()
+	data := us.dataXML
+	us.lastSeen = time.Now()
+	us.mu.Unlock()
+	if data == "" {
 		http.NotFound(w, r)
 		return
 	}
 	w.Header().Set("Content-Type", "application/xml")
 	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, s.downloadName()))
-	_, _ = io.WriteString(w, us.dataXML)
+	_, _ = io.WriteString(w, data)
 }
 
 // downloadName is the default filename offered when saving a session.
@@ -242,6 +317,12 @@ func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, maxUpload) // bound form parsing (L1)
+	defer func() {
+		if r.MultipartForm != nil {
+			_ = r.MultipartForm.RemoveAll() // clean any temp files
+		}
+	}()
 	f, _, err := r.FormFile("file")
 	if err != nil {
 		s.page(w, `<div class="card"><h2>No file</h2><p>Choose a saved session file to review.</p></div>`+
@@ -249,12 +330,14 @@ func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer f.Close()
-	data, err := io.ReadAll(io.LimitReader(f, 4<<20)) // 4 MB cap
+	data, err := io.ReadAll(io.LimitReader(f, maxUpload))
 	if err != nil {
 		http.Error(w, "could not read upload", http.StatusBadRequest)
 		return
 	}
 	us := s.newSession(w, string(data))
+	us.mu.Lock()
+	defer us.mu.Unlock()
 	s.render(w, us)
 }
 
@@ -285,11 +368,37 @@ func (s *Server) newSession(w http.ResponseWriter, reviewData string) *uiSession
 	s.mu.Lock()
 	s.seq++
 	sid := strconv.Itoa(s.seq)
-	us := &uiSession{iv: startJob(s.run, reviewData)}
+	us := &uiSession{iv: startJob(s.run, reviewData), lastSeen: time.Now()}
+	// Hard cap: if a burst outpaces the reaper, evict the oldest sessions
+	// (and unwind their goroutines) so the map can't grow without bound (H1).
+	if len(s.sessions) >= maxSessions {
+		s.evictOldestLocked(len(s.sessions) - maxSessions + 1)
+	}
 	s.sessions[sid] = us
 	s.mu.Unlock()
 	http.SetCookie(w, &http.Cookie{Name: "dtrsid", Value: sid, Path: "/"})
 	return us
+}
+
+// evictOldestLocked removes the n least-recently-seen sessions. Caller holds s.mu.
+func (s *Server) evictOldestLocked(n int) {
+	type aged struct {
+		sid  string
+		seen time.Time
+	}
+	all := make([]aged, 0, len(s.sessions))
+	for sid, us := range s.sessions {
+		us.mu.Lock()
+		all = append(all, aged{sid, us.lastSeen})
+		us.mu.Unlock()
+	}
+	sort.Slice(all, func(i, j int) bool { return all[i].seen.Before(all[j].seen) })
+	for i := 0; i < n && i < len(all); i++ {
+		if us := s.sessions[all[i].sid]; us != nil && us.iv != nil {
+			us.iv.abort()
+		}
+		delete(s.sessions, all[i].sid)
+	}
 }
 
 // qaFrom builds a transcript entry pairing a question with its answer.
@@ -338,6 +447,12 @@ func buildCanonical(answered []qa) string {
 	var order []string
 	byEntity := map[string][]qa{}
 	for _, a := range answered {
+		// Entity/field become XML tags — only safe identifiers may, so an
+		// unusual rule-set name can't inject markup that's re-parsed on
+		// review or reflected into HTML (H4). Values are always escaped.
+		if !safeTag(a.Entity) || !safeTag(a.Field) {
+			continue
+		}
 		if _, ok := byEntity[a.Entity]; !ok {
 			order = append(order, a.Entity)
 		}
@@ -354,6 +469,23 @@ func buildCanonical(answered []qa) string {
 	}
 	b.WriteString("</dtrules-data>")
 	return b.String()
+}
+
+// safeTag reports whether name is a safe XML element name (a conservative
+// identifier subset: letter/underscore start, then letters/digits/_/-/. ).
+func safeTag(name string) bool {
+	if name == "" {
+		return false
+	}
+	for i, r := range name {
+		switch {
+		case r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z', r == '_':
+		case i > 0 && (r >= '0' && r <= '9' || r == '-' || r == '.'):
+		default:
+			return false
+		}
+	}
+	return true
 }
 
 // transcript renders the answered questions as stacked one-liners.

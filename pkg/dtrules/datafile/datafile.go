@@ -46,6 +46,9 @@ func Write(w io.Writer, entities []*entity.REntity) error {
 	b.WriteString(xml.Header)
 	b.WriteString("<" + rootElement + ">\n")
 	for _, e := range entities {
+		if e == nil {
+			continue
+		}
 		if err := writeEntity(&b, e, e.GetName().GetName(), 1); err != nil {
 			return err
 		}
@@ -255,6 +258,11 @@ func readArray(dec *xml.Decoder, e *entity.REntity, field *dtrules.RName, entry 
 	find EntityFinder, create EntityCreator, mode LoadMode) error {
 	cur, _ := e.Get(field)
 	arr, _ := cur.(*dtrules.RArray)
+	// Load replaces the array: clear any existing (default/prior) elements so
+	// loaded items don't accumulate on top of them (M4).
+	if arr != nil {
+		arr.Clear()
+	}
 	for {
 		tok, err := dec.Token()
 		if err != nil {

@@ -140,7 +140,8 @@ func decodeEDDRef(s string) (low, high, units string) {
 	if s == "" {
 		return "", "", ""
 	}
-	parts := strings.Split(s, ":")
+	// SplitN with 3 so a units string containing ':' isn't truncated (M5).
+	parts := strings.SplitN(s, ":", 3)
 	get := func(i int) string {
 		if i < len(parts) {
 			return strings.TrimSpace(parts[i])
