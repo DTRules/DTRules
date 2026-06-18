@@ -2,11 +2,36 @@
 
 ## v1.16.0 — 2026-06-17
 
-Authoring-contract enforcement (`dtrules verify` now rejects missing Excel and
+Interactive data collection (run a rule set as a CLI or web interview),
+authoring-contract enforcement (`dtrules verify` now rejects missing Excel and
 undefined references), removal of the bypass writers that let tools sidestep
 Excel, EDD output-field access, multi-file authoring, table-number control, and
 Excel round-trip fixes — much of it uncovered while making the new
 `SinusitisTherapy` sample Excel-conformant and warning-clean.
+
+### Interactive data collection (#850)
+
+Run a decision table as an **interview**: instead of requiring all input up
+front, the engine executes the rules and asks for each reached `collect` field
+that hasn't been supplied — on the command line or in a web form. Batch
+execution is unchanged and pays no overhead.
+
+- **EDD `collect` + question metadata** — a field can be marked `collect="true"`
+  with a question (`multiple_choice` / `ascii` / `number` / `date`, options for
+  multiple-choice). Number questions carry a **lab-style reference range**
+  (`ref_low`/`ref_high`/`units`), shown as guidance and flagged High/Low — never
+  rejected. Round-trips through Excel, XML, and the JSON authoring API.
+- **Engine** — per-instance collected/defaulted tracking and a read-point
+  resolver (`pkg/dtrules/collect`, `pkg/dtrules/collector.go`); zero overhead
+  when no resolver is attached.
+- **Canonical data XML** (`pkg/dtrules/datafile`) — mapping-free, EDD-shaped
+  save/replay with two load modes: authoritative (batch replay) and review
+  (re-interview, pre-filled).
+- **`dtrules run`** — `--interactive` (CLI prompts), `--web` (browser interview),
+  `--save`/`--data`/`--review` (the collect → save → replay/review loop).
+- **`pkg/dtrules/interview`** — a UI⇄engine `Runner` interface; **`pkg/dtrules/web`**
+  the default web UI (per-session goroutine, stacked transcript, download/upload,
+  review). **`cmd/sinusitis-web`** is a self-contained `//go:embed` demo.
 
 ### Added
 
