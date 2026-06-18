@@ -159,12 +159,9 @@ func (c *CLI) runBuild(args []string) int {
 		return 1
 	}
 
-	if findings, err := checkNoDupMarkers(xmlDir); err != nil {
-		fmt.Fprintf(os.Stderr, "Error scanning for duplicate table names: %v\n", err)
-		return 1
-	} else if len(findings) > 0 {
-		writeDupFindings(os.Stderr, findings)
-		return 1
+	// Pre-build: catch duplicate table names already on disk.
+	if code := dupGate(xmlDir); code != 0 {
+		return code
 	}
 
 	if opts.dryRun {
@@ -172,14 +169,44 @@ func (c *CLI) runBuild(args []string) int {
 		return c.runBuildDryRun(xmlDir, excelDir, path, opts)
 	}
 
+	var code int
 	switch path {
 	case "excel":
-		return c.runExcelAuthoredBuild(xmlDir, excelDir, opts)
+		code = c.runExcelAuthoredBuild(xmlDir, excelDir, opts)
 	case "xml":
-		return c.runXMLAuthoredBuild(xmlDir, excelDir, opts)
+		code = c.runXMLAuthoredBuild(xmlDir, excelDir, opts)
 	default:
-		return runNoSyncAdvisory(xmlDir)
+		code = runNoSyncAdvisory(xmlDir)
 	}
+	if code != 0 {
+		return code
+	}
+
+	// Post-build: the Excel→XML import copies each workbook's sheets 1:1, so a
+	// workbook that carries tables belonging to another file would duplicate
+	// them across *_dt.xml. Re-check after the writes and fail loudly rather
+	// than leave a corrupted project on disk (a clean pre-build check can't
+	// see a duplicate the build itself introduces).
+	if code := dupGate(xmlDir); code != 0 {
+		fmt.Fprintln(os.Stderr, "\nThe build produced duplicate table names — likely a workbook that\ncontains tables belonging to another file. Check the Excel workbooks.")
+		return code
+	}
+	return 0
+}
+
+// dupGate scans for duplicate decision-table names and returns a non-zero
+// exit code (after printing findings) if any are present.
+func dupGate(xmlDir string) int {
+	findings, err := checkNoDupMarkers(xmlDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error scanning for duplicate table names: %v\n", err)
+		return 1
+	}
+	if len(findings) > 0 {
+		writeDupFindings(os.Stderr, findings)
+		return 1
+	}
+	return 0
 }
 
 // runNoSyncAdvisory is the runBuild branch taken when sync detection
