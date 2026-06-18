@@ -1,0 +1,135 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Interactive Data Collection"
+  description="Run a decision table as an interview — the engine asks for each field it needs, on the command line or in the browser."
+  prev={{ title: "Excel Import/Export", href: "/docs/guides/excel-import-export" }}
+>
+  <p>
+    Most rule engines require every input up front. DTRules can instead run a rule set as an
+    <strong>interview</strong>: it executes the decision tables and, whenever it reaches a field that
+    has not been supplied, it stops and asks for it — on the command line or in a web form. Once the
+    answer comes back, execution resumes. Batch execution is unchanged and pays no overhead.
+  </p>
+
+  <p>
+    For an illustrated overview of the feature, see the <a href="/interview">Interview</a> page. This
+    guide is the hands-on version: how to mark fields, run an interview, and embed it. The
+    <a href="https://dtrules-sinusitis.fly.dev/" target="_blank" rel="noopener noreferrer">SinusitisTherapy
+    live demo</a> is a complete working example — a clinical advisor that interviews you one question
+    at a time and recommends a treatment.
+  </p>
+
+  <h2>How It Works</h2>
+
+  <ol>
+    <li>You mark input fields in the EDD as <code>collect="true"</code> and attach a question.</li>
+    <li>You run the rule set in interactive mode (<code>--interactive</code> or <code>--web</code>).</li>
+    <li>The engine evaluates the tables. The first time it reads a <code>collect</code> field that has
+      no value, it asks the question and waits for the answer.</li>
+    <li>It only ever asks for fields a decision actually reaches — branches that are never taken never
+      prompt for their inputs.</li>
+  </ol>
+
+  <h2>Marking a Field for Collection</h2>
+
+  <p>
+    In the Entity Data Dictionary, a collectable field carries question metadata. The question type
+    determines how it is presented:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Question type</th>
+        <th>Presented as</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>multiple_choice</code></td>
+        <td>A list of options to pick from</td>
+      </tr>
+      <tr>
+        <td><code>ascii</code></td>
+        <td>Free-text input</td>
+      </tr>
+      <tr>
+        <td><code>number</code></td>
+        <td>A numeric input, optionally with a reference range</td>
+      </tr>
+      <tr>
+        <td><code>date</code></td>
+        <td>A date input</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    Number questions can carry a lab-style <strong>reference range</strong> (<code>ref_low</code>,
+    <code>ref_high</code>, <code>units</code>). The range is shown as guidance and answers outside it
+    are flagged <em>High</em> or <em>Low</em> — they are never rejected. All of this metadata
+    round-trips through Excel, XML, and the JSON authoring API, so Excel remains the system of record.
+  </p>
+
+  <h2>Running an Interview</h2>
+
+  <p>
+    The <code>dtrules run</code> command drives the interview. It takes the project path and the entry
+    decision table to run:
+  </p>
+
+  <pre><code># Prompt for each reached field on the command line
+dtrules run ./sampleprojects/SinusitisTherapy --entry Determine_Therapy --interactive
+
+# Run the same interview as a web form in the browser
+dtrules run ./sampleprojects/SinusitisTherapy --entry Determine_Therapy --web</code></pre>
+
+  <h2>Save, Replay, and Review</h2>
+
+  <p>
+    Collected answers can be saved to a mapping-free, EDD-shaped data file and reused. This supports
+    a collect → save → replay loop without re-entering data:
+  </p>
+
+  <pre><code># Collect answers and save them
+dtrules run . --entry Determine_Therapy --interactive --save case.xml
+
+# Replay saved answers as authoritative batch input (no questions)
+dtrules run . --entry Determine_Therapy --data case.xml
+
+# Re-interview with previous answers pre-filled, so you can revise
+dtrules run . --entry Determine_Therapy --review case.xml --interactive</code></pre>
+
+  <h2>Embedding It</h2>
+
+  <p>
+    The interview loop is exposed as a small set of Go packages so you can host it in your own
+    application:
+  </p>
+
+  <ul>
+    <li><code>pkg/dtrules/collect</code> — per-instance tracking of which fields were collected or
+      defaulted, plus the read-point resolver that triggers a question.</li>
+    <li><code>pkg/dtrules/interview</code> — a UI⇄engine <code>Runner</code> interface; bring your own
+      front end.</li>
+    <li><code>pkg/dtrules/web</code> — the default browser UI (per-session, stacked transcript, with
+      download/upload and review).</li>
+    <li><code>pkg/dtrules/datafile</code> — canonical save/replay of collected data.</li>
+  </ul>
+
+  <p>
+    <code>cmd/sinusitis-web</code> is a self-contained, <code>//go:embed</code> example that wires
+    these together into a single binary — the same one that powers the live demo.
+  </p>
+
+  <h2>Next Steps</h2>
+
+  <ul>
+    <li><a href="/docs/concepts/edd">Entity Data Dictionary</a> — where <code>collect</code> fields and questions are defined</li>
+    <li><a href="/docs/concepts/decision-tables">Decision Tables</a> — the rules that drive the interview</li>
+    <li><a href="https://dtrules-sinusitis.fly.dev/" target="_blank" rel="noopener noreferrer">Live Demo</a> — see interactive data collection in action</li>
+  </ul>
+</DocsLayout>
