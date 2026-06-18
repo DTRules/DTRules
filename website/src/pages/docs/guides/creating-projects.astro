@@ -313,16 +313,22 @@ Description: Apply discount to get final total
 Actions:
   set order.total = order.subtotal - order.discount</code></pre>
 
-  <h2>Compile the Rules</h2>
+  <h2>Build the Rules</h2>
 
-  <p>Use the Go CLI tools to compile your Excel files to XML:</p>
+  <p>
+    Run <code>dtrules build</code> from the project directory. It extracts the DSL from Excel to XML
+    and compiles it to postfix — Excel is the system of record, and the same DSL is written back to
+    Excel in the same step:
+  </p>
 
-  <pre><code>cd /path/to/DTRules/go
-go build -o dtrules ./cmd/dtrules
+  <pre><code>cd /path/to/DTRules/sampleprojects/MyProject
+dtrules build</code></pre>
 
-./dtrules -compile ../sampleprojects/MyProject</code></pre>
-
-  <p>This generates XML files in the <code>xml/</code> directory.</p>
+  <p>
+    This generates the XML files in the <code>xml/</code> directory. (The old
+    <code>dtrules -compile</code> command and <code>build --from-xml</code> flag have been removed —
+    use <code>dtrules build</code>.)
+  </p>
 
   <h2>Test the Rules</h2>
 

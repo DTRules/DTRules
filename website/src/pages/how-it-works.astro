@@ -192,12 +192,13 @@ import { Table2, FileText, Code2, Zap, ArrowRight, ArrowDown, Play, CheckCircle 
               3
             </div>
             <div class="flex-1">
-              <h3 class="text-xl font-bold mb-2">Compile to XML</h3>
+              <h3 class="text-xl font-bold mb-2">Build to XML</h3>
               <p class="text-muted-foreground mb-4">
-                The Excel files are compiled to XML format. This validates all expressions,
-                checks for missing conditions, and generates optimized bytecode.
+                <code>dtrules build</code> extracts the DSL from Excel to XML and compiles it to
+                postfix in one step. It validates all expressions, checks for missing conditions,
+                and writes the same DSL back to Excel so the two never drift apart.
               </p>
-              <pre class="text-sm bg-background/50 rounded-lg p-4"><code>./dtrules -compile MyProject</code></pre>
+              <pre class="text-sm bg-background/50 rounded-lg p-4"><code>dtrules build</code></pre>
             </div>
           </div>
         </div>

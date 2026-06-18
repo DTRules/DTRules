@@ -14,7 +14,11 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 
   <h2>Installation</h2>
 
-  <pre><code>go get github.com/DTRules/DTRules/go</code></pre>
+  <pre><code>go get github.com/DTRules/DTRules</code></pre>
+
+  <p>Or install the CLI binary directly:</p>
+
+  <pre><code>go install github.com/DTRules/DTRules/cmd/dtrules@v1.16.0</code></pre>
 
   <h2>Core Packages</h2>
 
@@ -22,7 +26,7 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 
   <p>High-level API for rule execution.</p>
 
-  <pre><code>import "github.com/DTRules/DTRules/go/pkg/dtrules/session"
+  <pre><code>import "github.com/DTRules/DTRules/pkg/dtrules/session"
 
 // Create a rule set
 rs := session.NewRuleSet("MyRules")
@@ -48,7 +52,7 @@ rsess.Execute("Main")</code></pre>
 
   <p>Entity data model.</p>
 
-  <pre><code>import "github.com/DTRules/DTRules/go/pkg/dtrules/entity"
+  <pre><code>import "github.com/DTRules/DTRules/pkg/dtrules/entity"
 
 // Get entity by name
 person := state.GetEntity("person")
@@ -69,7 +73,7 @@ memberList := members.([]interface&#123;&#125;)</code></pre>
 
   <p>Low-level execution engine.</p>
 
-  <pre><code>import "github.com/DTRules/DTRules/go/pkg/dtrules/interpreter"
+  <pre><code>import "github.com/DTRules/DTRules/pkg/dtrules/interpreter"
 
 // The interpreter uses a stack-based execution model
 // Most users interact through the session package</code></pre>
@@ -162,27 +166,32 @@ household.AddToArray("members", person)</code></pre>
 
   <h2>CLI Tool</h2>
 
-  <pre><code># Build the CLI
-go build -o dtrules ./cmd/dtrules
+  <pre><code># Install the CLI (single self-contained binary)
+go install github.com/DTRules/DTRules/cmd/dtrules@v1.16.0
 
-# List decision tables
-./dtrules -rules /path/to/rules -list
+# Build a project (Excel → XML, compile DSL → postfix)
+dtrules build
 
-# Validate rules
-./dtrules -rules /path/to/rules -validate
+# Verify Excel ↔ XML consistency and references
+dtrules verify
 
-# Execute
-./dtrules -rules /path/to/rules -entry Main
+# Execute a decision table
+dtrules run --entry Main
 
-# Execute with trace
-./dtrules -rules /path/to/rules -entry Main -trace</code></pre>
+# Run as an interactive interview
+dtrules run --interactive</code></pre>
+
+  <p class="text-sm">
+    The legacy <code>-rules</code> / <code>-entry</code> flag form still works for compatibility, but
+    the subcommands above are the documented path.
+  </p>
 
   <h2>Example: Service Integration</h2>
 
   <pre><code>package eligibility
 
 import (
-    "github.com/DTRules/DTRules/go/pkg/dtrules/session"
+    "github.com/DTRules/DTRules/pkg/dtrules/session"
 )
 
 type EligibilityService struct &#123;

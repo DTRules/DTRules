@@ -1,137 +1,199 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { Download, Package, Terminal, ExternalLink } from 'lucide-react';
+import { Download, Package, Terminal, ExternalLink, BookOpen, Boxes, Apple, Cpu } from 'lucide-react';
 ---
 
-<BaseLayout title="Downloads - DTRules" description="Download DTRules or add it as a dependency to your project.">
+<BaseLayout title="Downloads - DTRules" description="Download the DTRules v1.16.0 CLI — a single self-contained binary with embedded docs — or install it with go install.">
   <section class="py-16 lg:py-24">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16">
+      <div class="text-center mb-12">
+        <span class="inline-block px-3 py-1 mb-4 bg-emerald-500/20 text-emerald-400 text-sm font-medium rounded-full">
+          Latest: v1.16.0
+        </span>
         <h1 class="text-4xl sm:text-5xl font-bold mb-6">
           <span class="gradient-text">Downloads</span>
         </h1>
-        <p class="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Get DTRules for Go. High-performance rules engine with CLI, REST API, and visual UI.
+        <p class="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
+          DTRules ships as a single self-contained Go binary. No runtime, no dependencies — the CLI
+          builds, runs, verifies, and even carries its own documentation.
         </p>
       </div>
 
-      <div class="max-w-xl mx-auto mb-8">
-        <!-- Go -->
+      <!-- One binary with everything -->
+      <div class="max-w-4xl mx-auto mb-12">
+        <div class="glass rounded-2xl p-6 sm:p-8">
+          <div class="flex items-start gap-4">
+            <div class="p-3 bg-blue-500/10 rounded-xl shrink-0">
+              <BookOpen className="h-6 w-6 text-blue-400" />
+            </div>
+            <div>
+              <h2 class="text-xl font-bold mb-2">One binary with everything</h2>
+              <p class="text-muted-foreground mb-4">
+                The full documentation is embedded in the binary — no website round-trip needed.
+              </p>
+              <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>dtrules docs                # list every topic
+dtrules docs operators      # the full operator reference
+dtrules docs workflow       # the build pipeline</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <!-- Install via Go -->
         <div class="glass rounded-2xl p-8">
           <div class="flex items-center gap-3 mb-6">
             <div class="p-3 bg-purple-500/10 rounded-xl">
               <Terminal className="h-8 w-8 text-purple-400" />
             </div>
             <div>
-              <h2 class="text-2xl font-bold">Go</h2>
-              <p class="text-sm text-muted-foreground">High-Performance Runtime</p>
+              <h2 class="text-2xl font-bold">Install with Go</h2>
+              <p class="text-sm text-muted-foreground">Go 1.21 or later</p>
             </div>
           </div>
 
           <div class="space-y-6">
             <div>
-              <h3 class="font-semibold mb-3">Install via Go</h3>
-              <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>go get github.com/DTRules/DTRules/go</code></pre>
+              <h3 class="font-semibold mb-3">Pin the v1.16.0 release</h3>
+              <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>go install github.com/DTRules/DTRules/cmd/dtrules@v1.16.0</code></pre>
             </div>
-
             <div>
-              <h3 class="font-semibold mb-3">Build CLI</h3>
-              <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>cd go
-go build -o dtrules ./cmd/dtrules</code></pre>
+              <h3 class="font-semibold mb-3">Or track the latest</h3>
+              <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>go install github.com/DTRules/DTRules/cmd/dtrules@latest</code></pre>
             </div>
-
-            <div>
-              <h3 class="font-semibold mb-3">Requirements</h3>
-              <ul class="space-y-2 text-sm text-muted-foreground">
-                <li class="flex items-center gap-2">
-                  <div class="w-1.5 h-1.5 rounded-full bg-purple-400" />
-                  Go 1.21 or later
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 class="font-semibold mb-3">Packages</h3>
-              <ul class="space-y-2 text-sm text-muted-foreground">
-                <li><code class="text-purple-400">cmd/dtrules</code> - CLI tool</li>
-                <li><code class="text-purple-400">cmd/api</code> - REST API server</li>
-                <li><code class="text-purple-400">pkg/dtrules</code> - Core library</li>
-              </ul>
-            </div>
+            <p class="text-sm text-muted-foreground">
+              This drops a <code class="text-purple-400">dtrules</code> binary in your
+              <code class="text-purple-400">$GOBIN</code>. Run <code class="text-purple-400">dtrules version</code> to confirm.
+            </p>
           </div>
         </div>
-      </div>
 
-      <!-- Visual UI -->
-      <div class="mt-12 max-w-4xl mx-auto">
+        <!-- Prebuilt binaries -->
         <div class="glass rounded-2xl p-8">
           <div class="flex items-center gap-3 mb-6">
             <div class="p-3 bg-green-500/10 rounded-xl">
               <Download className="h-8 w-8 text-green-400" />
             </div>
             <div>
-              <h2 class="text-2xl font-bold">Visual UI</h2>
-              <p class="text-sm text-muted-foreground">React-based Decision Table Editor</p>
+              <h2 class="text-2xl font-bold">Prebuilt binaries</h2>
+              <p class="text-sm text-muted-foreground">No Go toolchain required</p>
             </div>
           </div>
 
-          <p class="text-muted-foreground mb-6">
-            The visual UI requires both the Go backend and the React frontend. See the
-            <a href="/docs/getting-started/quickstart-ui" class="text-blue-400 hover:underline">Quick Start Guide</a>
-            for detailed instructions.
+          <p class="text-muted-foreground mb-4">
+            Grab a v1.16.0 build for your platform from GitHub Releases:
           </p>
+          <ul class="space-y-2 text-sm text-muted-foreground mb-6">
+            <li class="flex items-center gap-2"><Cpu className="h-4 w-4 text-green-400 shrink-0" /> Linux — amd64, arm64</li>
+            <li class="flex items-center gap-2"><Apple className="h-4 w-4 text-green-400 shrink-0" /> macOS — amd64, arm64</li>
+            <li class="flex items-center gap-2"><Boxes className="h-4 w-4 text-green-400 shrink-0" /> Windows — amd64</li>
+          </ul>
+          <a
+            href="https://github.com/DTRules/DTRules/releases/latest"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 px-5 py-2.5 gradient-button text-white font-semibold rounded-lg text-sm"
+          >
+            GitHub Releases
+            <ExternalLink className="h-4 w-4" />
+          </a>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 class="font-semibold mb-3">Backend Requirements</h3>
-              <ul class="space-y-2 text-sm text-muted-foreground">
-                <li class="flex items-center gap-2">
-                  <div class="w-1.5 h-1.5 rounded-full bg-green-400" />
-                  Go 1.21+
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 class="font-semibold mb-3">Frontend Requirements</h3>
-              <ul class="space-y-2 text-sm text-muted-foreground">
-                <li class="flex items-center gap-2">
-                  <div class="w-1.5 h-1.5 rounded-full bg-green-400" />
-                  Node.js 18+
-                </li>
-              </ul>
-            </div>
+          <div class="mt-6 border-l-4 border-amber-500 bg-amber-500/10 p-4 rounded-lg">
+            <p class="text-sm text-muted-foreground">
+              <strong class="text-foreground">macOS:</strong> the Mac binaries are unsigned. Clear the
+              quarantine flag after downloading:
+            </p>
+            <pre class="text-xs bg-background/50 rounded-lg p-3 mt-3 overflow-x-auto"><code>xattr -d com.apple.quarantine dtrules-darwin-arm64</code></pre>
           </div>
         </div>
       </div>
 
+      <!-- Embedding in your own binary -->
+      <div class="mt-12 max-w-5xl mx-auto">
+        <div class="glass rounded-2xl p-8">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="p-3 bg-emerald-500/10 rounded-xl">
+              <Boxes className="h-8 w-8 text-emerald-400" />
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold">Embed decision tables in your own Go binary</h2>
+              <p class="text-sm text-muted-foreground">Ship the rules inside your executable</p>
+            </div>
+          </div>
+
+          <p class="text-muted-foreground mb-6">
+            You don't have to ship xlsx or XML files alongside your app. Compile your rules with
+            <code class="text-emerald-400">dtrules build</code>, then <code class="text-emerald-400">//go:embed</code>
+            the resulting XML and load it from memory — nothing on disk at runtime. The
+            <code class="text-emerald-400">cmd/sinusitis-web</code> demo does exactly this.
+          </p>
+
+          <pre class="text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code class="text-muted-foreground">package main
+
+import (
+    <span class="text-green-400">"embed"</span>
+
+    <span class="text-green-400">"github.com/DTRules/DTRules/pkg/dtrules/web"</span>
+)
+
+<span class="text-blue-400">//go:embed rules/xml</span>
+var rulesFS embed.FS
+
+func main() &#123;
+    <span class="text-blue-400">// Extract the embedded rules and serve them as an interview.</span>
+    <span class="text-blue-400">// No xlsx/xml on disk at runtime — it all rides inside the binary.</span>
+    dir, _ := extractRules(rulesFS)
+    web.ServeDir(<span class="text-amber-400">":8080"</span>, dir, web.Options&#123;
+        Entry: <span class="text-amber-400">"Determine_Therapy"</span>,
+        Title: <span class="text-amber-400">"Sinusitis Therapy"</span>,
+    &#125;)
+&#125;</code></pre>
+          <p class="text-sm text-muted-foreground mt-4">
+            See <a href="/sinusitis" class="text-emerald-400 hover:underline">SinusitisTherapy</a> for a
+            complete embedded example, and <code class="text-emerald-400">dtrules docs sdk</code> for the API.
+          </p>
+        </div>
+      </div>
+
+      <!-- CLI subcommands -->
+      <div class="mt-12 max-w-5xl mx-auto">
+        <h2 class="text-2xl font-bold mb-6 text-center">CLI subcommands</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[
+            { cmd: 'init', desc: 'Scaffold a new project' },
+            { cmd: 'build', desc: 'Excel → XML and compile DSL → postfix' },
+            { cmd: 'run', desc: 'Execute rules, batch or interactive' },
+            { cmd: 'verify', desc: 'Check Excel ↔ XML consistency + references' },
+            { cmd: 'table / edd', desc: 'Author tables and entities via the API' },
+            { cmd: 'sync / validate', desc: 'Keep Excel and XML in step' },
+            { cmd: 'review', desc: 'Review pending rule changes' },
+            { cmd: 'docs', desc: 'The full embedded documentation' },
+            { cmd: 'mcp / version', desc: 'MCP server and version info' },
+          ].map(item => (
+            <div class="glass rounded-xl p-4">
+              <code class="text-purple-400 font-semibold text-sm">dtrules {item.cmd}</code>
+              <p class="text-sm text-muted-foreground mt-1">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <!-- Sample Projects -->
-      <div class="mt-12 max-w-4xl mx-auto">
+      <div class="mt-12 max-w-5xl mx-auto">
         <h2 class="text-2xl font-bold mb-6 text-center">Sample Projects</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <a href="/tax-return" class="glass rounded-xl p-4 hover:border-green-500/30 transition-colors">
-            <h3 class="font-semibold mb-1 text-green-400">TaxReturn</h3>
-            <p class="text-sm text-muted-foreground">Complete federal + 50 states tax calculation</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <a href="/sinusitis" class="glass rounded-xl p-4 hover:border-emerald-500/30 transition-colors">
+            <h3 class="font-semibold mb-1 text-emerald-400">SinusitisTherapy</h3>
+            <p class="text-sm text-muted-foreground">Flagship: antibiotic selection, dosing, renal adjustment, interactions</p>
           </a>
           <div class="glass rounded-xl p-4">
             <h3 class="font-semibold mb-1">CHIP</h3>
             <p class="text-sm text-muted-foreground">Health insurance eligibility</p>
           </div>
-          <div class="glass rounded-xl p-4">
-            <h3 class="font-semibold mb-1">CorporateTax</h3>
-            <p class="text-sm text-muted-foreground">Corporate tax penalties (Form 2220, 6651, 6662)</p>
-          </div>
-          <div class="glass rounded-xl p-4">
-            <h3 class="font-semibold mb-1">KidAid</h3>
-            <p class="text-sm text-muted-foreground">Child assistance program</p>
-          </div>
-          <div class="glass rounded-xl p-4">
-            <h3 class="font-semibold mb-1">SyntaxTests</h3>
-            <p class="text-sm text-muted-foreground">EL language examples</p>
-          </div>
-          <div class="glass rounded-xl p-4">
-            <h3 class="font-semibold mb-1">TestProject</h3>
-            <p class="text-sm text-muted-foreground">Minimal starter template</p>
-          </div>
+          <a href="/docs/articles/tax-engine" class="glass rounded-xl p-4 hover:border-blue-500/30 transition-colors">
+            <h3 class="font-semibold mb-1 text-blue-400">TaxReturn</h3>
+            <p class="text-sm text-muted-foreground">Legacy sample — see the tax-engine article</p>
+          </a>
         </div>
       </div>
 
