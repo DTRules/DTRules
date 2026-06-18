@@ -1,0 +1,178 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout
+  title="Using DTRules to build a tax engine"
+  description="A case study in modelling complex, regulated logic with DTRules: federal and state income tax as decision tables, with audit trails and per-state files."
+  prev={{ title: "TaxReturn Example", href: "/docs/examples/tax-return" }}
+  next={{ title: "Operators", href: "/docs/reference/operators" }}
+>
+  <div class="not-prose mb-8 border-l-4 border-amber-500 bg-amber-500/10 p-5 rounded-lg">
+    <p class="text-sm text-muted-foreground leading-relaxed m-0">
+      <strong class="text-foreground">Article — a worked case study.</strong> TaxReturn is a legacy
+      sample kept for reference; the project's flagship example is now
+      <a href="/sinusitis" class="text-amber-400 hover:underline">SinusitisTherapy</a>, which runs
+      as an <a href="/interview" class="text-amber-400 hover:underline">interactive interview</a>.
+      This article uses the tax problem to illustrate how DTRules models complex, regulated logic —
+      it is not a certified tax tool.
+    </p>
+  </div>
+
+  <p>
+    Income tax is a useful stress test for a rules engine. It is large (hundreds of interacting
+    rules), regulated (every number traces back to a published source), and constantly revised (new
+    brackets and limits every year). This article walks through how the TaxReturn sample models that
+    complexity with DTRules — the same patterns apply to any domain where the logic is too intricate
+    for if/else and too dynamic to hardcode.
+  </p>
+
+  <h2>The shape of the problem</h2>
+
+  <p>
+    A federal return follows Form 1040: gross income, deductions, taxable income, tax liability,
+    credits, and a final balance, with state tax layered on top. Each step is its own decision and
+    each maps to a specific form line and code section. That structure maps cleanly onto a tree of
+    decision tables.
+  </p>
+
+  <pre><code>Input Data
+  → Compute_Tax_Return        (orchestrator, FIRST by filing status)
+  → Calculate_Gross_Income    (Form 1040 lines 1–9)
+  → Calculate_Deductions      (line 12)
+  → Calculate_Taxable_Income  (line 15)
+  → Calculate_Tax_Liability   (lines 16–24)
+  → Calculate_Credits         (lines 19–21)
+  → Calculate_Final_Balance   (lines 33–37)
+  → Dispatch_State_Tax        (if the state has an income tax)</code></pre>
+
+  <h2>Orchestration with a top-level table</h2>
+
+  <p>
+    The entry table does almost no arithmetic itself. It branches on filing status and
+    <code>perform</code>s each sub-calculation in order. Keeping the orchestrator thin means each
+    sub-table stays focused and independently testable.
+  </p>
+
+  <pre><code>&lt;decision_table&gt;
+  &lt;table_name&gt;Compute_Tax_Return&lt;/table_name&gt;
+  &lt;attribute_fields&gt;&lt;Type&gt;FIRST&lt;/Type&gt;&lt;/attribute_fields&gt;
+
+  &lt;conditions&gt;
+    &lt;condition&gt;job.filing_status = "MFJ"&lt;/condition&gt;
+    &lt;condition&gt;job.filing_status = "Single"&lt;/condition&gt;
+    &lt;condition&gt;job.filing_status = "HOH"&lt;/condition&gt;
+    &lt;condition&gt;otherwise&lt;/condition&gt;
+  &lt;/conditions&gt;
+
+  &lt;actions&gt;
+    &lt;action&gt;Calculate_Gross_Income&lt;/action&gt;
+    &lt;action&gt;Calculate_Deductions&lt;/action&gt;
+    &lt;action&gt;Calculate_Taxable_Income&lt;/action&gt;
+    &lt;action&gt;Calculate_Tax_Liability&lt;/action&gt;
+    &lt;action&gt;Calculate_Credits&lt;/action&gt;
+    &lt;action&gt;Calculate_Final_Balance&lt;/action&gt;
+    &lt;action&gt;if job.has_state_income_tax then Dispatch_State_Tax&lt;/action&gt;
+  &lt;/actions&gt;
+&lt;/decision_table&gt;</code></pre>
+
+  <h2>Progressive brackets as a FIRST table</h2>
+
+  <p>
+    Tax brackets are a natural fit for a <code>FIRST</code> table: the conditions are ordered
+    thresholds, and only the first matching column fires. Each action encodes the base tax for the
+    bracket plus the marginal rate above the threshold.
+  </p>
+
+  <pre><code>&lt;decision_table&gt;
+  &lt;table_name&gt;Apply_Tax_Brackets_MFJ&lt;/table_name&gt;
+  &lt;attribute_fields&gt;&lt;Type&gt;FIRST&lt;/Type&gt;&lt;/attribute_fields&gt;
+
+  &lt;conditions&gt;
+    &lt;condition&gt;result.taxable_income &lt;= 23850&lt;/condition&gt;
+    &lt;condition&gt;result.taxable_income &lt;= 96950&lt;/condition&gt;
+    &lt;condition&gt;result.taxable_income &lt;= 206700&lt;/condition&gt;
+    &lt;condition&gt;otherwise&lt;/condition&gt;
+  &lt;/conditions&gt;
+
+  &lt;actions&gt;
+    &lt;action&gt;set result.tax = result.taxable_income * 0.10&lt;/action&gt;
+    &lt;action&gt;set result.tax = 2385 + (result.taxable_income - 23850) * 0.12&lt;/action&gt;
+    &lt;action&gt;set result.tax = 11157 + (result.taxable_income - 96950) * 0.22&lt;/action&gt;
+    &lt;action&gt;set result.tax = 35302 + (result.taxable_income - 206700) * 0.24&lt;/action&gt;
+  &lt;/actions&gt;
+&lt;/decision_table&gt;</code></pre>
+
+  <h2>Constants live in the EDD</h2>
+
+  <p>
+    Bracket thresholds, deduction amounts, and credit limits are <em>data</em>, not logic. Storing
+    them as EDD fields with default values means updating for a new tax year is a data edit, not a
+    rewrite of every table — and the rules read naturally against named constants.
+  </p>
+
+  <h2>Per-state files keep contributors out of each other's way</h2>
+
+  <p>
+    State tax is where the project scales out. Each state owns two files —
+    <code>XX_edd.xml</code> for its constants and <code>XX_dt.xml</code> for its tables — and
+    <code>Dispatch_State_Tax</code> routes to the right calculator by <code>job.state</code>. Because
+    states never share a file, contributors can add or revise a state without merge conflicts.
+  </p>
+
+  <pre><code>sampleprojects/TaxReturn/xml/
+  TaxReturn_edd.xml      # shared data model
+  TaxReturn_dt.xml       # federal tables
+  states/
+    CA_edd.xml  CA_dt.xml
+    CO_edd.xml  CO_dt.xml
+    ...                  # one pair per state</code></pre>
+
+  <h2>Auditability comes for free</h2>
+
+  <p>
+    Because the logic <em>is</em> the table, a regulated calculation is self-documenting. Every table
+    carries comments citing its form line and code section, every decision can append to an
+    <code>audit_trail</code> array, and Git history ties each rule change back to the publication that
+    prompted it. That traceability is the reason decision tables have been used in production benefits
+    systems for two decades.
+  </p>
+
+  <h2>The build pipeline (v1.16.0)</h2>
+
+  <p>
+    Rules are authored in EL in the <code>*_dsl</code> tags and compiled to postfix by
+    <code>dtrules build</code> — Excel is the system of record, and the same DSL is written back to
+    Excel in the same operation. The removed <code>dtrules compile</code> command and
+    <code>build --from-xml</code> flag are no longer part of the workflow.
+  </p>
+
+  <pre><code># Excel → XML, compile DSL → postfix
+dtrules build
+
+# Check Excel ↔ XML consistency and self-contained references
+dtrules verify</code></pre>
+
+  <h2>Takeaways</h2>
+
+  <ul>
+    <li>Model the domain as a <strong>tree of focused tables</strong>, orchestrated by a thin entry table.</li>
+    <li>Use <strong>FIRST</strong> tables for ordered-threshold logic like brackets.</li>
+    <li>Keep <strong>constants in the EDD</strong> so yearly updates are data edits.</li>
+    <li>Split independent units (states, services) into <strong>separate files</strong> to avoid conflicts.</li>
+    <li>Lean on the engine's <strong>built-in auditability</strong> for anything regulated.</li>
+  </ul>
+
+  <h2>See also</h2>
+
+  <ul>
+    <li><a href="/sinusitis">SinusitisTherapy</a> — the flagship sample, applying the same patterns to clinical logic.</li>
+    <li><a href="/interview">The interactive interview</a> — run a decision table as a conversation.</li>
+    <li><a href="/docs/concepts/decision-tables">Decision tables concept guide</a>.</li>
+    <li>
+      <a href="https://github.com/DTRules/DTRules/tree/main/sampleprojects/TaxReturn" target="_blank" rel="noopener">
+        Browse the TaxReturn source on GitHub
+      </a>.
+    </li>
+  </ul>
+</DocsLayout>

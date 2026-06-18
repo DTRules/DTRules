@@ -1,0 +1,318 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import {
+  MessagesSquare, Terminal, Globe, Activity, Save, RotateCcw,
+  CheckCircle, ArrowRight, ExternalLink, ListChecks, Stethoscope, Zap
+} from 'lucide-react';
+---
+
+<BaseLayout
+  title="Interactive Interview - DTRules"
+  description="Run any decision table as an interactive interview. DTRules executes the rules and asks for each reached collect field that wasn't supplied — on the CLI or in the browser."
+>
+  <!-- Hero -->
+  <section class="hero-gradient py-16 lg:py-24">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="flex items-center justify-center gap-2 mb-4">
+        <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-sm font-medium rounded-full">
+          New in v1.16.0
+        </span>
+        <span class="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm font-medium rounded-full">
+          Flagship Feature
+        </span>
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-bold mb-6">
+        The Interactive <span class="gradient-text">Interview</span>
+      </h1>
+      <p class="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
+        The same decision tables that run a batch job can now run as a conversation. DTRules
+        executes the rules and, whenever it reaches a <code class="text-emerald-400">collect</code> field
+        you didn't supply, it stops and asks for it — in the terminal or in the browser.
+        Batch execution is unchanged and pays zero overhead.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a
+          href="https://dtrules-sinusitis.fly.dev/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-lg flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+        >
+          Try the Live Demo
+          <ExternalLink className="h-4 w-4" />
+        </a>
+        <a
+          href="/sinusitis"
+          class="w-full sm:w-auto px-8 py-3 border border-border hover:bg-accent/50 text-foreground font-semibold rounded-lg transition-colors"
+        >
+          See the Sample Project
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="py-20 border-t border-border/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl font-bold mb-4">How the <span class="gradient-text">Interview</span> Works</h2>
+        <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+          You don't write a form or a wizard. You write rules. The engine derives the questions
+          from what it actually needs to reach a decision.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="glass rounded-2xl p-6 text-center">
+          <div class="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl font-bold text-emerald-400">1</span>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Mark fields collectible</h3>
+          <p class="text-sm text-muted-foreground">
+            In the EDD, a field gains <code class="text-emerald-400">collect="true"</code> plus question
+            metadata. No extra rules, no UI code.
+          </p>
+        </div>
+        <div class="glass rounded-2xl p-6 text-center">
+          <div class="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl font-bold text-blue-400">2</span>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Run the rules</h3>
+          <p class="text-sm text-muted-foreground">
+            As the engine evaluates conditions it reaches a collect field that has no value, so it
+            pauses and asks the question — only for fields the path actually touches.
+          </p>
+        </div>
+        <div class="glass rounded-2xl p-6 text-center">
+          <div class="w-12 h-12 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl font-bold text-purple-400">3</span>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Continue to a decision</h3>
+          <p class="text-sm text-muted-foreground">
+            Your answer feeds straight back into execution. The interview is just the rule engine
+            running with a human in the loop.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Question types -->
+  <section class="py-20 border-t border-border/50 section-header-gradient">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-12 items-start">
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-emerald-500/10 rounded-lg">
+              <ListChecks className="h-6 w-6 text-emerald-400" />
+            </div>
+            <span class="text-sm font-medium text-emerald-400">Question Metadata</span>
+          </div>
+          <h2 class="text-3xl font-bold mb-4">Typed questions</h2>
+          <p class="text-muted-foreground mb-6">
+            Each collect field declares how it should be asked. The same metadata drives both the
+            CLI prompt and the web form, so the question is authored once.
+          </p>
+          <ul class="space-y-3 text-muted-foreground">
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2" />
+              <span><strong class="text-foreground">multiple_choice</strong> — a fixed list of options</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2" />
+              <span><strong class="text-foreground">ascii</strong> — free-text input</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2" />
+              <span><strong class="text-foreground">number</strong> — numeric input, optionally with a reference range</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2" />
+              <span><strong class="text-foreground">date</strong> — a calendar date</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="glass rounded-2xl p-6">
+          <div class="text-sm font-mono mb-4 text-muted-foreground">EDD field with question metadata</div>
+          <pre class="text-xs sm:text-sm overflow-x-auto"><code class="text-muted-foreground">&lt;field name="creatinine"
+       type="double"
+       <span class="text-emerald-400">collect="true"</span>
+       <span class="text-blue-400">question="Serum creatinine?"</span>
+       <span class="text-blue-400">question_type="number"</span>
+       <span class="text-purple-400">units="mg/dL"</span>
+       <span class="text-purple-400">ref_low="0.7"</span>
+       <span class="text-purple-400">ref_high="1.3"</span> /&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reference range -->
+  <section class="py-20 border-t border-border/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <div class="glass rounded-2xl p-8">
+          <div class="space-y-4">
+            <div class="p-4 bg-background/50 rounded-lg border border-border">
+              <div class="text-sm text-muted-foreground mb-1">Serum creatinine?</div>
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-lg text-foreground">1.85 mg/dL</span>
+                <span class="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs font-semibold rounded-full">High</span>
+              </div>
+              <div class="text-xs text-muted-foreground mt-2">Reference range: 0.7 – 1.3 mg/dL</div>
+            </div>
+            <div class="p-4 bg-background/50 rounded-lg border border-border">
+              <div class="text-sm text-muted-foreground mb-1">Lean body weight?</div>
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-lg text-foreground">78 kg</span>
+                <span class="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs font-semibold rounded-full">In range</span>
+              </div>
+              <div class="text-xs text-muted-foreground mt-2">Reference range: 50 – 100 kg</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-amber-500/10 rounded-lg">
+              <Activity className="h-6 w-6 text-amber-400" />
+            </div>
+            <span class="text-sm font-medium text-amber-400">Lab-Style Guidance</span>
+          </div>
+          <h2 class="text-3xl font-bold mb-4">Reference ranges, like a lab report</h2>
+          <p class="text-muted-foreground mb-6">
+            Number questions can carry a reference range — <code class="text-amber-400">ref_low</code>,
+            <code class="text-amber-400">ref_high</code>, and <code class="text-amber-400">units</code>.
+            The interview shows the range as guidance and flags the answer
+            <strong class="text-foreground">High</strong> or <strong class="text-foreground">Low</strong> when
+            it falls outside, the way a lab result is annotated.
+          </p>
+          <div class="border-l-4 border-amber-500 bg-amber-500/10 p-4 rounded-lg">
+            <p class="text-sm text-muted-foreground">
+              Out-of-range values are <strong class="text-foreground">flagged, never rejected</strong>. The
+              human stays in control; the engine simply surfaces the context.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLI / Web modes -->
+  <section class="py-20 border-t border-border/50 section-header-gradient">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl font-bold mb-4">Two ways to <span class="gradient-text">run it</span></h2>
+        <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+          The same rules, the same questions — on the terminal or in the browser.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="glass rounded-2xl p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-blue-500/10 rounded-lg">
+              <Terminal className="h-6 w-6 text-blue-400" />
+            </div>
+            <h3 class="text-lg font-semibold">CLI interview</h3>
+          </div>
+          <pre class="text-xs sm:text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>dtrules run --interactive</code></pre>
+          <p class="text-sm text-muted-foreground mt-4">
+            Prompts for each reached collect field right in the terminal — ideal for scripts,
+            agents, and quick experiments.
+          </p>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-emerald-500/10 rounded-lg">
+              <Globe className="h-6 w-6 text-emerald-400" />
+            </div>
+            <h3 class="text-lg font-semibold">Web interview</h3>
+          </div>
+          <pre class="text-xs sm:text-sm bg-background/50 rounded-lg p-4 overflow-x-auto"><code>dtrules run --web</code></pre>
+          <p class="text-sm text-muted-foreground mt-4">
+            Serves a self-contained web form for the same questions. The
+            <code class="text-emerald-400">pkg/dtrules/web</code> package powers the
+            <a href="https://dtrules-sinusitis.fly.dev/" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:underline">live Sinusitis demo</a>.
+          </p>
+        </div>
+      </div>
+
+      <!-- Save / replay loop -->
+      <div class="mt-8 glass rounded-2xl p-8">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="p-2 bg-purple-500/10 rounded-lg">
+            <Save className="h-6 w-6 text-purple-400" />
+          </div>
+          <h3 class="text-xl font-semibold">Collect → save → replay / review</h3>
+        </div>
+        <p class="text-muted-foreground mb-6">
+          Collect answers once, then replay them non-interactively or review what was decided.
+        </p>
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div class="p-4 bg-background/50 rounded-lg">
+            <code class="text-purple-400 text-sm font-semibold">--save</code>
+            <p class="text-xs text-muted-foreground mt-2">Persist collected answers to a data file.</p>
+          </div>
+          <div class="p-4 bg-background/50 rounded-lg">
+            <code class="text-purple-400 text-sm font-semibold">--data</code>
+            <p class="text-xs text-muted-foreground mt-2">Replay saved answers — no prompting.</p>
+          </div>
+          <div class="p-4 bg-background/50 rounded-lg">
+            <code class="text-purple-400 text-sm font-semibold">--review</code>
+            <p class="text-xs text-muted-foreground mt-2">Walk back through the questions and answers.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Zero overhead callout -->
+  <section class="py-20 border-t border-border/50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="glass rounded-2xl p-8 text-center">
+        <div class="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Zap className="h-6 w-6 text-blue-400" />
+        </div>
+        <h2 class="text-2xl font-bold mb-4">Batch execution is unchanged</h2>
+        <p class="text-muted-foreground max-w-2xl mx-auto">
+          The interview is a mode, not a rewrite. When every input is supplied up front, the engine
+          never pauses and the interview machinery adds <strong class="text-foreground">zero overhead</strong>.
+          The same rule set serves both a high-throughput batch job and a one-patient-at-a-time conversation.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 border-t border-border/50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="flex items-center justify-center gap-2 mb-4 text-emerald-400">
+        <Stethoscope className="h-6 w-6" />
+        <MessagesSquare className="h-6 w-6" />
+      </div>
+      <h2 class="text-3xl font-bold mb-4">See it answer a real case</h2>
+      <p class="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+        The SinusitisTherapy sample runs as a live web interview: it asks for the patient details
+        it needs, then recommends a drug, dose, and renal adjustment with plain-English rationale.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a
+          href="https://dtrules-sinusitis.fly.dev/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-lg flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+        >
+          Open the Live Demo
+          <ExternalLink className="h-4 w-4" />
+        </a>
+        <a
+          href="/sinusitis"
+          class="w-full sm:w-auto px-8 py-3 border border-border hover:bg-accent/50 text-foreground font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+        >
+          Read the Walkthrough
+          <ArrowRight className="h-4 w-4" />
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
