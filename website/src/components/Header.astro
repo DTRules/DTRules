@@ -33,7 +33,7 @@ const currentPath = Astro.url.pathname;
           <a
             href={link.href}
             class:list={[
-              'px-2.5 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors whitespace-nowrap',
+              'px-2 lg:px-2.5 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors whitespace-nowrap',
               currentPath.startsWith(link.href)
                 ? 'text-foreground bg-accent'
                 : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
@@ -46,7 +46,7 @@ const currentPath = Astro.url.pathname;
           href="https://dtrules-sinusitis.fly.dev/"
           target="_blank"
           rel="noopener noreferrer"
-          class="ml-1.5 px-2.5 py-2 text-xs lg:text-sm font-semibold rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all whitespace-nowrap"
+          class="ml-1 lg:ml-1.5 px-2 lg:px-2.5 py-2 text-xs lg:text-sm font-semibold rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all whitespace-nowrap"
         >
           Live Demo
         </a>
@@ -54,7 +54,7 @@ const currentPath = Astro.url.pathname;
           href="https://github.com/DTRules/DTRules"
           target="_blank"
           rel="noopener noreferrer"
-          class="ml-1.5 px-2.5 py-2 text-xs lg:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+          class="ml-1 lg:ml-1.5 px-2 lg:px-2.5 py-2 text-xs lg:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
         >
           GitHub
         </a>
