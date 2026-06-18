@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { Table2, FileText, Code2, Zap, GitBranch, TestTube2, Shield, BookOpen, ArrowRight } from 'lucide-react';
+import { Table2, FileText, Code2, Zap, GitBranch, TestTube2, Shield, BookOpen, ArrowRight, MessagesSquare, ExternalLink } from 'lucide-react';
 ---
 
 <BaseLayout title="Features - DTRules" description="Explore the powerful features of DTRules - the decision table rules engine.">
@@ -16,8 +16,74 @@ import { Table2, FileText, Code2, Zap, GitBranch, TestTube2, Shield, BookOpen, A
     </div>
   </section>
 
-  <!-- Decision Tables -->
+  <!-- Interactive Interview (flagship) -->
   <section class="py-20 border-t border-border/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-emerald-500/10 rounded-lg">
+              <MessagesSquare className="h-6 w-6 text-emerald-400" />
+            </div>
+            <span class="text-sm font-medium text-emerald-400">New in v1.16.0</span>
+          </div>
+          <h2 class="text-3xl font-bold mb-4">Interactive Interview</h2>
+          <p class="text-muted-foreground mb-6">
+            Run any decision table as a conversation. The engine executes your rules and, whenever it
+            reaches a <code class="text-emerald-400">collect</code> field that wasn't supplied, it pauses
+            and asks — on the CLI or in the browser. Batch execution is unchanged and pays zero overhead.
+          </p>
+          <ul class="space-y-3 text-muted-foreground mb-6">
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2" />
+              <span><strong>Typed questions:</strong> multiple_choice, ascii, number, date</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2" />
+              <span><strong>Lab-style ranges:</strong> number questions flag answers High/Low — never rejected</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2" />
+              <span><strong>Collect → save → replay:</strong> <code>--save</code>, <code>--data</code>, <code>--review</code></span>
+            </li>
+          </ul>
+          <div class="flex flex-wrap gap-4">
+            <a href="/interview" class="text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-2">
+              Learn about the Interview
+              <ArrowRight className="h-4 w-4" />
+            </a>
+            <a href="https://dtrules-sinusitis.fly.dev/" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-2">
+              Live Demo
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <div class="space-y-4">
+            <div class="text-xs font-mono text-muted-foreground">dtrules run --interactive</div>
+            <div class="p-4 bg-background/50 rounded-lg border border-border">
+              <div class="text-sm text-muted-foreground mb-1">Serum creatinine?</div>
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-foreground">1.85 mg/dL</span>
+                <span class="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs font-semibold rounded-full">High</span>
+              </div>
+              <div class="text-xs text-muted-foreground mt-2">Reference range: 0.7 – 1.3 mg/dL</div>
+            </div>
+            <div class="p-4 bg-background/50 rounded-lg border border-border">
+              <div class="text-sm text-muted-foreground mb-1">Penicillin-allergic?</div>
+              <div class="flex gap-2">
+                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded text-sm">Yes</span>
+                <span class="px-3 py-1 bg-muted rounded text-sm text-muted-foreground">No</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Decision Tables -->
+  <section class="py-20 border-t border-border/50 section-header-gradient">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div>
@@ -79,7 +145,7 @@ import { Table2, FileText, Code2, Zap, GitBranch, TestTube2, Shield, BookOpen, A
   </section>
 
   <!-- Entity Data Dictionary -->
-  <section class="py-20 border-t border-border/50 section-header-gradient">
+  <section class="py-20 border-t border-border/50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div class="order-2 lg:order-1 glass rounded-2xl p-6">
@@ -148,7 +214,7 @@ Entity: Application
           <ul class="space-y-3 text-muted-foreground mb-6">
             <li class="flex items-start gap-3">
               <div class="w-1.5 h-1.5 rounded-full bg-green-400 mt-2" />
-              <span><strong>180+ operators</strong> for math, boolean, string, date, and array operations</span>
+              <span><strong>330+ operators</strong> for math, boolean, string, date, and array operations</span>
             </li>
             <li class="flex items-start gap-3">
               <div class="w-1.5 h-1.5 rounded-full bg-green-400 mt-2" />

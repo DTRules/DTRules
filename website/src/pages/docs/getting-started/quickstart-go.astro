@@ -18,7 +18,7 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
     <li><strong>Full compatibility</strong> with DTRules XML formats (EDD and Decision Tables)</li>
     <li><strong>High performance</strong> with zero-allocation hot paths</li>
     <li><strong>Dual execution modes</strong>: Object-based (compatible) and Value-based (optimized)</li>
-    <li><strong>179+ operators</strong> covering math, boolean, string, array, date, and control flow operations</li>
+    <li><strong>330+ operators</strong> covering math, boolean, string, array, date, and control flow operations</li>
   </ul>
 
   <h2>Performance</h2>
@@ -58,28 +58,37 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 
   <h2>Installation</h2>
 
-  <pre><code>go get github.com/DTRules/DTRules/go</code></pre>
+  <p>Install the CLI — a single self-contained binary with embedded docs:</p>
+
+  <pre><code>go install github.com/DTRules/DTRules/cmd/dtrules@v1.16.0</code></pre>
+
+  <p>
+    Prebuilt binaries for Linux, macOS, and Windows are also on
+    <a href="https://github.com/DTRules/DTRules/releases/latest" target="_blank" rel="noopener">GitHub Releases</a>.
+    See <a href="/downloads">Downloads</a> for details.
+  </p>
 
   <h2>Using the CLI</h2>
 
-  <pre><code># Clone the repository
-git clone https://github.com/DTRules/DTRules.git
-cd DTRules/go
+  <pre><code># Build a project (Excel → XML, compile DSL → postfix)
+dtrules build
 
-# Build the CLI
-go build -o dtrules ./cmd/dtrules
+# Verify Excel ↔ XML consistency and references
+dtrules verify
 
-# List decision tables
-./dtrules -rules ../sampleprojects/CHIP/xml -list
+# Run a decision table (batch)
+dtrules run --entry Compute_Eligibility
 
-# Validate rules
-./dtrules -rules ../sampleprojects/CHIP/xml -validate
+# Run as an interactive interview (prompts for collect fields)
+dtrules run --interactive
 
-# Execute a decision table
-./dtrules -rules ../sampleprojects/CHIP/xml -entry Compute_Eligibility
+# Or serve the same interview in the browser
+dtrules run --web</code></pre>
 
-# Execute with tracing
-./dtrules -rules ../sampleprojects/CHIP/xml -entry Main -trace</code></pre>
+  <p>
+    See <a href="/interview">the interactive interview</a> for how
+    <code>--interactive</code> and <code>--web</code> turn a decision table into a conversation.
+  </p>
 
   <h2>Using as a Library</h2>
 
@@ -87,7 +96,7 @@ go build -o dtrules ./cmd/dtrules
 
 import (
     "os"
-    "github.com/DTRules/DTRules/go/pkg/dtrules/session"
+    "github.com/DTRules/DTRules/pkg/dtrules/session"
 )
 
 func main() &#123;
@@ -142,19 +151,19 @@ func main() &#123;
 
   <h2>Package Structure</h2>
 
-  <pre><code>go/
+  <pre><code>DTRules/
 ├── cmd/
-│   ├── dtrules/          # CLI tool
-│   └── api/              # REST API server for UI
+│   ├── dtrules/          # CLI tool (single self-contained binary)
+│   ├── api/              # REST API server for UI
+│   └── sinusitis-web/    # Embedded-rules web demo (//go:embed)
 └── pkg/dtrules/
     ├── compiler/         # Postfix expression compiler
     ├── interpreter/      # State and bytecode VM
-    ├── entity/           # Entity system
-    ├── operators/        # 179+ built-in operators
+    ├── operators/        # 330+ built-in operators
     ├── session/          # Session and RuleSet management
     ├── decisiontable/    # Decision table execution
-    ├── loader/           # XML loaders (EDD, DT)
-    ├── mapping/          # Data mapping
+    ├── authoring/        # Typed authoring view + Project API
+    ├── web/              # Web interview server
     └── benchmark/        # Performance benchmarks</code></pre>
 
   <h2>REST API Server</h2>

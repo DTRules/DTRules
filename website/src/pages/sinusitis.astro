@@ -1,0 +1,317 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import {
+  Stethoscope, Pill, Activity, AlertTriangle, FileText, Code2,
+  CheckCircle, ArrowRight, ExternalLink, MessagesSquare, GitBranch, Info
+} from 'lucide-react';
+---
+
+<BaseLayout
+  title="SinusitisTherapy - DTRules"
+  description="The DTRules flagship sample: antibiotic selection, dosing, renal adjustment, and drug-interaction warnings for acute sinusitis — runnable as a live web interview."
+>
+  <!-- Hero -->
+  <section class="hero-gradient py-16 lg:py-24">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="flex items-center justify-center gap-2 mb-4">
+        <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-sm font-medium rounded-full">
+          Flagship Sample
+        </span>
+        <span class="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm font-medium rounded-full">
+          v1.16.0
+        </span>
+      </div>
+      <div class="flex items-center justify-center mb-6">
+        <div class="p-4 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg shadow-emerald-500/25">
+          <Stethoscope className="h-10 w-10 text-white" />
+        </div>
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-bold mb-6">
+        Sinusitis <span class="gradient-text">Therapy</span>
+      </h1>
+      <p class="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
+        A clinical decision service for acute sinusitis: it selects an antibiotic, computes the dose
+        with renal adjustment, flags drug interactions, and explains its reasoning in plain English —
+        all from decision tables you can read.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a
+          href="https://dtrules-sinusitis.fly.dev/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-lg flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+        >
+          Try the Live Interview
+          <ExternalLink className="h-4 w-4" />
+        </a>
+        <a
+          href="https://github.com/DTRules/DTRules/tree/main/sampleprojects/SinusitisTherapy"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full sm:w-auto px-8 py-3 border border-border hover:bg-accent/50 text-foreground font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+        >
+          View Source
+          <Code2 className="h-4 w-4" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Disclaimer -->
+  <section class="py-8 border-b border-border/50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="border-l-4 border-blue-500 bg-blue-500/10 p-5 rounded-lg flex items-start gap-3">
+        <Info className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
+        <p class="text-sm text-muted-foreground leading-relaxed">
+          SinusitisTherapy is a <strong class="text-foreground">demonstration of the DTRules engine</strong>,
+          built for the Decision Management Community's "Agentic Medical Services" challenge. It is
+          <strong class="text-foreground">not medical advice</strong> and is not a certified clinical tool.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- What it does -->
+  <section class="py-20 border-b border-border/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl font-bold mb-4">Three loosely coupled <span class="gradient-text">services</span></h2>
+        <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+          Each service is an independent decision table an agent can call on its own. A thin
+          orchestrator (<code class="text-emerald-400">Determine_Therapy</code>) runs them in dependency order.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="glass rounded-2xl p-6">
+          <div class="p-3 bg-emerald-500/10 rounded-xl w-fit mb-4">
+            <Pill className="h-6 w-6 text-emerald-400" />
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Medication &amp; dosing</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+            <code class="text-emerald-400">Determine_Medication_And_Dosing</code>
+          </p>
+          <p class="text-sm text-muted-foreground">
+            Picks the drug of choice and the dose, frequency, and duration — accounting for
+            penicillin allergy, age, and renal impairment.
+          </p>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <div class="p-3 bg-blue-500/10 rounded-xl w-fit mb-4">
+            <Activity className="h-6 w-6 text-blue-400" />
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Creatinine clearance</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+            <code class="text-blue-400">Determine_Creatinine_Clearance</code>
+          </p>
+          <p class="text-sm text-muted-foreground">
+            Computes CCr with the Cockcroft–Gault formula from age, lean body weight, and serum
+            creatinine.
+          </p>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <div class="p-3 bg-amber-500/10 rounded-xl w-fit mb-4">
+            <AlertTriangle className="h-6 w-6 text-amber-400" />
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Drug interactions</h3>
+          <p class="text-sm text-muted-foreground mb-3">
+            <code class="text-amber-400">Check_Drug_Interactions</code>
+          </p>
+          <p class="text-sm text-muted-foreground">
+            Flags conflicts between the recommended drug and the patient's active medications,
+            appending a plain-English warning for each.
+          </p>
+        </div>
+      </div>
+
+      <!-- Orchestration flow -->
+      <div class="mt-12 glass rounded-2xl p-8">
+        <h3 class="text-lg font-semibold mb-6 text-center flex items-center justify-center gap-2">
+          <GitBranch className="h-5 w-5 text-emerald-400" />
+          Determine_Therapy
+        </h3>
+        <div class="flex flex-wrap justify-center items-center gap-3 text-sm">
+          <div class="px-4 py-2 bg-blue-500/20 rounded-lg text-blue-400 font-medium">Creatinine Clearance</div>
+          <ArrowRight className="h-4 w-4 text-muted-foreground hidden sm:block" />
+          <div class="px-4 py-2 bg-emerald-500/20 rounded-lg text-emerald-400 font-medium">Select Medication</div>
+          <ArrowRight className="h-4 w-4 text-muted-foreground hidden sm:block" />
+          <div class="px-4 py-2 bg-emerald-500/20 rounded-lg text-emerald-400 font-medium">Determine Dose</div>
+          <ArrowRight className="h-4 w-4 text-muted-foreground hidden sm:block" />
+          <div class="px-4 py-2 bg-amber-500/20 rounded-lg text-amber-400 font-medium">Check Interactions</div>
+        </div>
+        <p class="text-xs text-muted-foreground text-center mt-4">
+          CCr first, because dosing depends on it; medication before the interaction check, because
+          interactions depend on the chosen drug.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Worked example -->
+  <section class="py-20 border-b border-border/50 section-header-gradient">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">A worked <span class="gradient-text">example</span></h2>
+        <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+          The challenge's reference request, run end to end.
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-8 items-start">
+        <!-- Input -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <FileText className="h-5 w-5 text-blue-400" />
+            The request
+          </h3>
+          <blockquote class="border-l-4 border-blue-500/40 pl-4 text-muted-foreground italic mb-6">
+            "I have a patient diagnosed with Acute Sinusitis. He is 58 years old, weighs 78 kg, and
+            has a creatinine level of 1.85. Keep in mind that he is Penicillin-allergic and takes
+            Coumadin."
+          </blockquote>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between py-2 border-b border-border/30">
+              <span class="text-muted-foreground">Age</span><span class="font-mono">58</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-border/30">
+              <span class="text-muted-foreground">Lean body weight</span><span class="font-mono">78 kg</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-border/30">
+              <span class="text-muted-foreground">Serum creatinine</span><span class="font-mono">1.85</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-border/30">
+              <span class="text-muted-foreground">Penicillin-allergic</span><span class="font-mono text-amber-400">yes</span>
+            </div>
+            <div class="flex justify-between py-2">
+              <span class="text-muted-foreground">Active medication</span><span class="font-mono">Coumadin</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Output -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <CheckCircle className="h-5 w-5 text-emerald-400" />
+            The determination
+          </h3>
+          <div class="space-y-4 text-sm">
+            <div class="p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+              <div class="font-medium text-emerald-400 mb-1">Drug: Levofloxacin</div>
+              <p class="text-muted-foreground text-xs">
+                Penicillin allergy overrides the age-based choice (beta-lactam cross-reactivity).
+              </p>
+            </div>
+            <div class="p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+              <div class="font-medium text-blue-400 mb-1">CCr ≈ 48.02 mL/min</div>
+              <p class="text-muted-foreground text-xs font-mono">
+                ((140 − 58) × 78) / (1.85 × 72)
+              </p>
+            </div>
+            <div class="p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
+              <div class="font-medium text-purple-400 mb-1">Dose: 200 mg every 24 h for 14 days</div>
+              <p class="text-muted-foreground text-xs">
+                Renal adjustment — creatinine 1.85 &gt; 1.4 and CCr &lt; 50 overrides the age-based dose.
+              </p>
+            </div>
+            <div class="p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
+              <div class="font-medium text-amber-400 mb-1 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" /> Interaction warning
+              </div>
+              <p class="text-muted-foreground text-xs">
+                Levofloxacin may potentiate the anticoagulant effect of warfarin/Coumadin — monitor
+                coagulation.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interview tie-in -->
+  <section class="py-20 border-b border-border/50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="glass rounded-2xl p-8 text-center">
+        <div class="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <MessagesSquare className="h-6 w-6 text-emerald-400" />
+        </div>
+        <h2 class="text-2xl font-bold mb-4">Runs as a live web interview</h2>
+        <p class="text-muted-foreground max-w-2xl mx-auto mb-6">
+          The hosted demo is a single self-contained Go binary
+          (<code class="text-emerald-400">cmd/sinusitis-web</code>) that
+          <code class="text-emerald-400">//go:embed</code>s the compiled rules — no files on disk at
+          runtime. It asks only for the patient details the rules actually reach, then computes the
+          therapy. See the <a href="/interview" class="text-emerald-400 hover:underline">interactive interview</a>
+          for how that works.
+        </p>
+        <a
+          href="https://dtrules-sinusitis.fly.dev/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-lg shadow-lg shadow-emerald-500/20"
+        >
+          Open the Live Demo
+          <ExternalLink className="h-4 w-4" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why it showcases DTRules -->
+  <section class="py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl font-bold mb-4">Why it's the <span class="gradient-text">showcase</span></h2>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-semibold mb-2">Multi-file authoring</h3>
+          <p class="text-sm text-muted-foreground">
+            One file per service, each owning a non-overlapping table-number range — a worked example
+            of how DTRules projects scale.
+          </p>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-semibold mb-2">Real math</h3>
+          <p class="text-sm text-muted-foreground">
+            Cockcroft–Gault creatinine clearance, computed in EL and verified by an integration test.
+          </p>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-semibold mb-2">Knowledge as data</h3>
+          <p class="text-sm text-muted-foreground">
+            The drug-interaction table is driven by a CSV knowledge base, kept separate from the rules
+            that consult it.
+          </p>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-semibold mb-2">Plain-English rationale</h3>
+          <p class="text-sm text-muted-foreground">
+            Every recommendation explains itself, so a clinician — or an LLM agent — can audit the
+            reasoning.
+          </p>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-semibold mb-2">Agent-friendly</h3>
+          <p class="text-sm text-muted-foreground">
+            Loosely coupled services can be called individually, exactly as an LLM orchestrator would.
+          </p>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-semibold mb-2">Embeddable</h3>
+          <p class="text-sm text-muted-foreground">
+            The whole rule set ships inside one static binary via <code>//go:embed</code> — nothing to
+            deploy alongside it.
+          </p>
+        </div>
+      </div>
+
+      <div class="text-center mt-10">
+        <a href="/docs/articles/tax-engine" class="text-blue-400 hover:text-blue-300 font-medium inline-flex items-center gap-2">
+          Building a different engine? Read the tax-engine article
+          <ArrowRight className="h-4 w-4" />
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
