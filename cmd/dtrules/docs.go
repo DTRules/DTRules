@@ -1381,6 +1381,41 @@ DEBUG - Output Before Processing:
     debug "Starting execution"
 
 
+Shared Constants: Push Once, Reference Unqualified (RECOMMENDED)
+---------------------------------------------------------------
+A bare identifier resolves against the ENTITY STACK: DTRules searches the
+stack from the most-recently-pushed entity downward and uses the first one
+that declares the field. The stack PROPAGATES DOWN the perform call chain —
+an entity pushed by a table is still on the stack while every table it
+performs runs.
+
+This makes a powerful pattern for the constant pools that regulations and
+policies need by the dozen. Instead of qualifying every read:
+
+    constants.reduced_dose            constants.standard_dose
+    constants.adult_age               constants.renal_ccr_threshold
+
+push the constants entity ONCE onto the context of the ENTRY (top) table:
+
+    add constants to context of this table       (in Determine_Therapy)
+
+Now every table reachable from that entry — Select_Medication,
+Determine_Dose, Check_Drug_Interactions, ... — can write the fields bare:
+
+    reduced_dose      standard_dose      adult_age      renal_ccr_threshold
+
+Guidance for authors and LLMs generating rules:
+- Put a project's shared constants/config in one entity and push it at the
+  single entry table. Do NOT add the context to every leaf table — the
+  stack already propagates down perform calls.
+- Prefer unqualified field names once the entity is on the stack; reach for
+  the entity.field form only to disambiguate when two stacked entities
+  declare the same field name.
+- "dtrules review" emits a context hint when a table references one entity's
+  fields with a qualifier many times and that entity is not on its stack —
+  that's the cue to push the entity at the entry table.
+
+
 Best Practices
 --------------
 1. Use descriptive table names: Calculate_Tax, Validate_Input
@@ -1390,6 +1425,8 @@ Best Practices
 5. Keep tables focused on one decision
 6. Use EXECUTE columns for side effects
 7. Document complex conditions in column headers
+8. Push shared constants onto the entry table's context and reference their
+   fields unqualified (see "Shared Constants" above)
 
 
 Common Patterns
