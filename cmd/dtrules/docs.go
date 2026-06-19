@@ -187,6 +187,7 @@ Built-in integer functions:
     length of myString                    string length
     index of "sub" in "string"            position of substring (-1 if absent)
     sum of count in orders                sum of integer field across array
+    sum of count in orders where active   sum with filter (parity with number of)
     absolute value of amount              absolute value
     get days in year of someDate          days in year containing date
     get days in months for someDate       days in month of date
@@ -1638,6 +1639,7 @@ Length:
 Sum:
     sum of intField in myArray           sum integer field across array
     sum of doubleField in myArray        sum double field across array
+    sum of amount in myArray where bexpr sum only matching elements
 
 Array inclusion:
     myArray includes value N             contains integer N

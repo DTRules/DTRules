@@ -2260,6 +2260,12 @@ func (s *BaseELListener) EnterFloatMulFloat(ctx *FloatMulFloatContext) {}
 // ExitFloatMulFloat is called when production floatMulFloat is exited.
 func (s *BaseELListener) ExitFloatMulFloat(ctx *FloatMulFloatContext) {}
 
+// EnterFloatSumOfWhere is called when production floatSumOfWhere is entered.
+func (s *BaseELListener) EnterFloatSumOfWhere(ctx *FloatSumOfWhereContext) {}
+
+// ExitFloatSumOfWhere is called when production floatSumOfWhere is exited.
+func (s *BaseELListener) ExitFloatSumOfWhere(ctx *FloatSumOfWhereContext) {}
+
 // EnterFloatMaxOfFloat is called when production floatMaxOfFloat is entered.
 func (s *BaseELListener) EnterFloatMaxOfFloat(ctx *FloatMaxOfFloatContext) {}
 
@@ -2805,6 +2811,12 @@ func (s *BaseELListener) EnterIntLengthStr(ctx *IntLengthStrContext) {}
 
 // ExitIntLengthStr is called when production intLengthStr is exited.
 func (s *BaseELListener) ExitIntLengthStr(ctx *IntLengthStrContext) {}
+
+// EnterIntSumOfWhere is called when production intSumOfWhere is entered.
+func (s *BaseELListener) EnterIntSumOfWhere(ctx *IntSumOfWhereContext) {}
+
+// ExitIntSumOfWhere is called when production intSumOfWhere is exited.
+func (s *BaseELListener) ExitIntSumOfWhere(ctx *IntSumOfWhereContext) {}
 
 // EnterIntHourOfInZone is called when production intHourOfInZone is entered.
 func (s *BaseELListener) EnterIntHourOfInZone(ctx *IntHourOfInZoneContext) {}

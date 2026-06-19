@@ -1460,6 +1460,26 @@ func (e *PostfixEmitter) VisitIntSumOf(ctx *IntSumOfContext) interface{} {
 	return nil
 }
 
+// VisitIntSumOfWhere: `sum of <iexpr> in <arrayExpr> where <bexpr>` —
+// predicated sum, the parity fill for `number of … where`. Same fold as
+// IntSumOf, but each element only contributes <iexpr> when <bexpr> holds.
+// The element entity is auto-pushed by forall, so both <bexpr> and
+// <iexpr> may reference the element's fields directly.
+func (e *PostfixEmitter) VisitIntSumOfWhere(ctx *IntSumOfWhereContext) interface{} {
+	e.emit("0")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("{")
+	e.Visit(ctx.Bexpr())
+	e.emit("{")
+	e.Visit(ctx.Iexpr())
+	e.emit("+")
+	e.emit("}")
+	e.emit("if")
+	e.emit("}")
+	e.emit("forall")
+	return nil
+}
+
 // VisitIntIndexOf: `index of <needle> in <haystack>` — emit
 // `<haystack> <needle> indexof`. opIndexOf pops substring then
 // string. Pre-fix the rule silently emitted nothing.
@@ -2165,6 +2185,24 @@ func (e *PostfixEmitter) VisitFloatSumOf(ctx *FloatSumOfContext) interface{} {
 	e.emit("{")
 	e.Visit(ctx.TypedDouble())
 	e.emit("f+")
+	e.emit("}")
+	e.emit("forall")
+	return nil
+}
+
+// VisitFloatSumOfWhere: `sum of <typedDouble> in <arrayExpr> where <bexpr>`
+// — the float counterpart of VisitIntSumOfWhere. Each element contributes
+// <typedDouble> to the running total only when <bexpr> holds.
+func (e *PostfixEmitter) VisitFloatSumOfWhere(ctx *FloatSumOfWhereContext) interface{} {
+	e.emit("0.0")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("{")
+	e.Visit(ctx.Bexpr())
+	e.emit("{")
+	e.Visit(ctx.TypedDouble())
+	e.emit("f+")
+	e.emit("}")
+	e.emit("if")
 	e.emit("}")
 	e.emit("forall")
 	return nil

@@ -1126,6 +1126,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatMulFloat.
 	VisitFloatMulFloat(ctx *FloatMulFloatContext) interface{}
 
+	// Visit a parse tree produced by ELParser#floatSumOfWhere.
+	VisitFloatSumOfWhere(ctx *FloatSumOfWhereContext) interface{}
+
 	// Visit a parse tree produced by ELParser#floatMaxOfFloat.
 	VisitFloatMaxOfFloat(ctx *FloatMaxOfFloatContext) interface{}
 
@@ -1398,6 +1401,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#intLengthStr.
 	VisitIntLengthStr(ctx *IntLengthStrContext) interface{}
+
+	// Visit a parse tree produced by ELParser#intSumOfWhere.
+	VisitIntSumOfWhere(ctx *IntSumOfWhereContext) interface{}
 
 	// Visit a parse tree produced by ELParser#intHourOfInZone.
 	VisitIntHourOfInZone(ctx *IntHourOfInZoneContext) interface{}

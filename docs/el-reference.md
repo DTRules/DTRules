@@ -242,9 +242,10 @@ EL supports standard arithmetic on integers, doubles, and bigints. The emitter m
 
 #### Sum of
 
-**Syntax**: `sum of fexpr IN arrayExpr` or `sum of iexpr IN arrayExpr`
-**Semantics**: Sums a numeric field across all elements of an array. Postfix operator: `sumof`.
+**Syntax**: `sum of fexpr IN arrayExpr` or `sum of iexpr IN arrayExpr`, with an optional `WHERE bexpr` filter (`sum of iexpr IN arrayExpr WHERE bexpr`) — parity with `number of … where`.
+**Semantics**: Sums a numeric field across all elements of an array. With `where`, only elements matching the predicate contribute. The unfiltered form uses the `sumof` postfix operator; the filtered form lowers to a `forall` fold that gates each addition on the predicate (`0 arr { bexpr { iexpr + } if } forall`).
 **Example (EL)**: `sum of income.amount in person.incomes >= 10000.0`
+**Filtered example (EL)**: `sum of payout.amount in payouts where payout.amount > 0` (#864, Accumulate staking)
 **Compiled postfix**: `person.incomes income.amount sumof 10000.0 f>=`
 
 **Tax example**: `sum of w2.wages in w2s >= 0.0`

@@ -24,7 +24,25 @@ the primitives properly, not to extend the grammar.
 
 ## Real EL grammar gaps (5 elements)
 
-### Gap A: Entity creation in action bodies
+### Gap A: Entity creation in action bodies — ✅ RESOLVED (#812)
+
+> **Resolved.** EL now expresses entity creation in action bodies via
+> `create <type> as <local>` (the `createEntityAs` rule in `EL.g4`, landed
+> in #812; see `compiler/el/create_entity_test.go`). Create the entity,
+> populate it with ordinary `set <local>.<field> = …` statements, then
+> `add <local> to <collection>`:
+>
+> ```
+> create state_tax_result as st_result;
+> set st_result.state_code          = state_period.state_code;
+> set st_result.is_resident         = true;
+> set st_result.state_source_income = state_period.allocated_income;
+> add st_result to job.state_tax_results
+> ```
+>
+> See `docs/el-reference.md` for the current syntax. The historical
+> write-up below is kept for context. (Gap B — dynamic `perform` with a
+> runtime table name — remains open.)
 
 **Affected elements (4):**
 - `Build_State_Tax_Result_For_Period` action 1 (resident-state branch)
