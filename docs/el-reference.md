@@ -871,9 +871,20 @@ for all arrayExpr { statements }
 for all arrayExpr where bexpr { statements }
 for all arrayExpr in eexpr { statements }
 for all arrayExpr allowing array to be removed { statements }
+for all arrayExpr as alias { statements }              -- named binding (#712)
+for all arrayExpr as alias where bexpr { statements }   -- named binding + filter
 ```
 
 **Semantics**: Variant of foreach for cases where the entity binding is implicit. Also compiles to `forall` postfix loops.
+
+The `as <alias>` form binds each iteration's element to a named local, referenced as `<alias>.field`. Unlike the implicit binding (where a bare field resolves against the topmost entity), the alias is explicit, so it disambiguates **nested loops over the same entity type** without shadowing:
+```
+for all relatives as parent {
+    for all relatives as child where child.parent_id == parent.id {
+        ...
+    }
+}
+```
 
 **Real postfix (from DTEligibility)**:
 ```

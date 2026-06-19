@@ -772,6 +772,14 @@ FOR ALL - iterate over array (one execution per element):
     for all items in myEntity allowing array to be removed
     for all items in myEntity where bexpr
     for all items where bexpr allowing array to be removed
+    for all payouts as p                 bind each element to alias p
+    for all payouts as p where p.amount > 0   alias + filter
+
+    The "as <alias>" form binds each iteration's element to a named local,
+    referenced as <alias>.field. Use it to disambiguate nested loops over the
+    same entity type (no shadowing):
+        for all relatives as parent
+            for all relatives as child where child.parent_id == parent.id
 
 FOR FIRST - find first matching entity:
     for first of dependents where dependent.age < 18
@@ -1358,6 +1366,8 @@ FOR ALL - Iteration:
     for all job.taxpayers           Iterate with entity path
     for all accounts where active   Iterate with filter condition
     for all items allowing array to be removed
+    for all payouts as p            Bind each element to alias p (p.field)
+    for all payouts as p where p.amount > 0   Alias + filter
 
 FOR FIRST - Find First Match:
     for first of dependents where dependent.age < 18
