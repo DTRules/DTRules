@@ -171,6 +171,14 @@ func TestMultiFileVsMonolithicEquivalence(t *testing.T) {
 // TestBackwardCompatibilityFallback verifies the fallback pattern
 // Try directory loading first, fall back to monolithic if needed
 func TestBackwardCompatibilityFallback(t *testing.T) {
+	// Loading the full 523-table TaxReturn project builds every decision
+	// table's interpretation tree (~50s, GC-dominated) — by far the slowest
+	// test in the module. It dominates CI wall-time and is the long pole
+	// behind the runner being killed mid-suite (#870). Skip it in the fast
+	// `-short` gate; it still runs in a full `make check` (local + release).
+	if testing.Short() {
+		t.Skip("slow: loads the full 523-table TaxReturn project; runs in the full suite")
+	}
 	cwd, _ := os.Getwd()
 	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")

@@ -29,7 +29,15 @@ jobs:
       # excludes those known failures. CI follows the same scope so
       # a green CI means "the scoped local check passed" rather than
       # a false negative on work already tracked as known-failing.
-      run: make check
+      #
+      # GOTESTFLAGS=-short skips the heavyweight integration tests (notably
+      # loading the full 523-table TaxReturn project, ~50s) that dominated
+      # CI wall-time and were the long pole behind the runner being killed
+      # mid-suite (#870). The full suite still runs in a plain `make check`
+      # locally and in the release workflow. timeout-minutes turns any true
+      # hang into a clear failure instead of a vague runner shutdown.
+      run: make check GOTESTFLAGS=-short
+      timeout-minutes: 15
 
     - name: Build CLI
       run: go build -o build/dtrules ./cmd/dtrules/
