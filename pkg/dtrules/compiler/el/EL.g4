@@ -657,6 +657,7 @@ fexpr
     | fexpr ROUNDED TO iexpr DECIMAL_PLACES                 # floatRoundedTo
     | fexpr ROUNDED TO iexpr DECIMAL_PLACES WITH_BOUNDRY fexpr # floatRoundedBoundry
     | SUM_OF typedDouble IN arrayExpr                       # floatSumOf
+    | SUM_OF typedDouble IN arrayExpr WHERE bexpr           # floatSumOfWhere
     | MINIMUM fexpr AND fexpr                               # floatMinOfFloat
     | MINIMUM fexpr AND iexpr                               # floatMinOfInt
     | MINIMUM iexpr AND fexpr                               # floatMinIntOf
@@ -731,6 +732,7 @@ iexpr
     | GET WEEKOFYEAR OF dexpr                               # intWeekOfYear
     | LONG VALUE OF operatorstatements                      # intValueOfOp
     | SUM_OF iexpr IN arrayExpr                             # intSumOf
+    | SUM_OF iexpr IN arrayExpr WHERE bexpr                 # intSumOfWhere
     | MINIMUM iexpr AND iexpr                               # intMinOf
     | MINIMUM iexpr COMMA iexpr                             # intMinOfComma
     | MAXIMUM iexpr AND iexpr                               # intMaxOf

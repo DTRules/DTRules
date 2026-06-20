@@ -242,9 +242,10 @@ EL supports standard arithmetic on integers, doubles, and bigints. The emitter m
 
 #### Sum of
 
-**Syntax**: `sum of fexpr IN arrayExpr` or `sum of iexpr IN arrayExpr`
-**Semantics**: Sums a numeric field across all elements of an array. Postfix operator: `sumof`.
+**Syntax**: `sum of fexpr IN arrayExpr` or `sum of iexpr IN arrayExpr`, with an optional `WHERE bexpr` filter (`sum of iexpr IN arrayExpr WHERE bexpr`) — parity with `number of … where`.
+**Semantics**: Sums a numeric field across all elements of an array. With `where`, only elements matching the predicate contribute. The unfiltered form uses the `sumof` postfix operator; the filtered form lowers to a `forall` fold that gates each addition on the predicate (`0 arr { bexpr { iexpr + } if } forall`).
 **Example (EL)**: `sum of income.amount in person.incomes >= 10000.0`
+**Filtered example (EL)**: `sum of payout.amount in payouts where payout.amount > 0` (#864, Accumulate staking)
 **Compiled postfix**: `person.incomes income.amount sumof 10000.0 f>=`
 
 **Tax example**: `sum of w2.wages in w2s >= 0.0`
@@ -870,9 +871,20 @@ for all arrayExpr { statements }
 for all arrayExpr where bexpr { statements }
 for all arrayExpr in eexpr { statements }
 for all arrayExpr allowing array to be removed { statements }
+for all arrayExpr as alias { statements }              -- named binding (#712)
+for all arrayExpr as alias where bexpr { statements }   -- named binding + filter
 ```
 
 **Semantics**: Variant of foreach for cases where the entity binding is implicit. Also compiles to `forall` postfix loops.
+
+The `as <alias>` form binds each iteration's element to a named local, referenced as `<alias>.field`. Unlike the implicit binding (where a bare field resolves against the topmost entity), the alias is explicit, so it disambiguates **nested loops over the same entity type** without shadowing:
+```
+for all relatives as parent {
+    for all relatives as child where child.parent_id == parent.id {
+        ...
+    }
+}
+```
 
 **Real postfix (from DTEligibility)**:
 ```

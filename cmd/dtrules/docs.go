@@ -187,6 +187,7 @@ Built-in integer functions:
     length of myString                    string length
     index of "sub" in "string"            position of substring (-1 if absent)
     sum of count in orders                sum of integer field across array
+    sum of count in orders where active   sum with filter (parity with number of)
     absolute value of amount              absolute value
     get days in year of someDate          days in year containing date
     get days in months for someDate       days in month of date
@@ -771,6 +772,14 @@ FOR ALL - iterate over array (one execution per element):
     for all items in myEntity allowing array to be removed
     for all items in myEntity where bexpr
     for all items where bexpr allowing array to be removed
+    for all payouts as p                 bind each element to alias p
+    for all payouts as p where p.amount > 0   alias + filter
+
+    The "as <alias>" form binds each iteration's element to a named local,
+    referenced as <alias>.field. Use it to disambiguate nested loops over the
+    same entity type (no shadowing):
+        for all relatives as parent
+            for all relatives as child where child.parent_id == parent.id
 
 FOR FIRST - find first matching entity:
     for first of dependents where dependent.age < 18
@@ -1357,6 +1366,8 @@ FOR ALL - Iteration:
     for all job.taxpayers           Iterate with entity path
     for all accounts where active   Iterate with filter condition
     for all items allowing array to be removed
+    for all payouts as p            Bind each element to alias p (p.field)
+    for all payouts as p where p.amount > 0   Alias + filter
 
 FOR FIRST - Find First Match:
     for first of dependents where dependent.age < 18
@@ -1381,6 +1392,41 @@ DEBUG - Output Before Processing:
     debug "Starting execution"
 
 
+Shared Constants: Push Once, Reference Unqualified (RECOMMENDED)
+---------------------------------------------------------------
+A bare identifier resolves against the ENTITY STACK: DTRules searches the
+stack from the most-recently-pushed entity downward and uses the first one
+that declares the field. The stack PROPAGATES DOWN the perform call chain —
+an entity pushed by a table is still on the stack while every table it
+performs runs.
+
+This makes a powerful pattern for the constant pools that regulations and
+policies need by the dozen. Instead of qualifying every read:
+
+    constants.reduced_dose            constants.standard_dose
+    constants.adult_age               constants.renal_ccr_threshold
+
+push the constants entity ONCE onto the context of the ENTRY (top) table:
+
+    add constants to context of this table       (in Determine_Therapy)
+
+Now every table reachable from that entry — Select_Medication,
+Determine_Dose, Check_Drug_Interactions, ... — can write the fields bare:
+
+    reduced_dose      standard_dose      adult_age      renal_ccr_threshold
+
+Guidance for authors and LLMs generating rules:
+- Put a project's shared constants/config in one entity and push it at the
+  single entry table. Do NOT add the context to every leaf table — the
+  stack already propagates down perform calls.
+- Prefer unqualified field names once the entity is on the stack; reach for
+  the entity.field form only to disambiguate when two stacked entities
+  declare the same field name.
+- "dtrules review" emits a context hint when a table references one entity's
+  fields with a qualifier many times and that entity is not on its stack —
+  that's the cue to push the entity at the entry table.
+
+
 Best Practices
 --------------
 1. Use descriptive table names: Calculate_Tax, Validate_Input
@@ -1390,6 +1436,8 @@ Best Practices
 5. Keep tables focused on one decision
 6. Use EXECUTE columns for side effects
 7. Document complex conditions in column headers
+8. Push shared constants onto the entry table's context and reference their
+   fields unqualified (see "Shared Constants" above)
 
 
 Common Patterns
@@ -1601,6 +1649,7 @@ Length:
 Sum:
     sum of intField in myArray           sum integer field across array
     sum of doubleField in myArray        sum double field across array
+    sum of amount in myArray where bexpr sum only matching elements
 
 Array inclusion:
     myArray includes value N             contains integer N

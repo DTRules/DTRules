@@ -1126,6 +1126,9 @@ type ELListener interface {
 	// EnterFloatMulFloat is called when entering the floatMulFloat production.
 	EnterFloatMulFloat(c *FloatMulFloatContext)
 
+	// EnterFloatSumOfWhere is called when entering the floatSumOfWhere production.
+	EnterFloatSumOfWhere(c *FloatSumOfWhereContext)
+
 	// EnterFloatMaxOfFloat is called when entering the floatMaxOfFloat production.
 	EnterFloatMaxOfFloat(c *FloatMaxOfFloatContext)
 
@@ -1398,6 +1401,9 @@ type ELListener interface {
 
 	// EnterIntLengthStr is called when entering the intLengthStr production.
 	EnterIntLengthStr(c *IntLengthStrContext)
+
+	// EnterIntSumOfWhere is called when entering the intSumOfWhere production.
+	EnterIntSumOfWhere(c *IntSumOfWhereContext)
 
 	// EnterIntHourOfInZone is called when entering the intHourOfInZone production.
 	EnterIntHourOfInZone(c *IntHourOfInZoneContext)
@@ -3091,6 +3097,9 @@ type ELListener interface {
 	// ExitFloatMulFloat is called when exiting the floatMulFloat production.
 	ExitFloatMulFloat(c *FloatMulFloatContext)
 
+	// ExitFloatSumOfWhere is called when exiting the floatSumOfWhere production.
+	ExitFloatSumOfWhere(c *FloatSumOfWhereContext)
+
 	// ExitFloatMaxOfFloat is called when exiting the floatMaxOfFloat production.
 	ExitFloatMaxOfFloat(c *FloatMaxOfFloatContext)
 
@@ -3363,6 +3372,9 @@ type ELListener interface {
 
 	// ExitIntLengthStr is called when exiting the intLengthStr production.
 	ExitIntLengthStr(c *IntLengthStrContext)
+
+	// ExitIntSumOfWhere is called when exiting the intSumOfWhere production.
+	ExitIntSumOfWhere(c *IntSumOfWhereContext)
 
 	// ExitIntHourOfInZone is called when exiting the intHourOfInZone production.
 	ExitIntHourOfInZone(c *IntHourOfInZoneContext)

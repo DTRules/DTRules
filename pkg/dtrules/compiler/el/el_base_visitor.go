@@ -1499,6 +1499,10 @@ func (v *BaseELVisitor) VisitFloatMulFloat(ctx *FloatMulFloatContext) interface{
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitFloatSumOfWhere(ctx *FloatSumOfWhereContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitFloatMaxOfFloat(ctx *FloatMaxOfFloatContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1860,6 +1864,10 @@ func (v *BaseELVisitor) VisitIntFromIndex(ctx *IntFromIndexContext) interface{} 
 }
 
 func (v *BaseELVisitor) VisitIntLengthStr(ctx *IntLengthStrContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitIntSumOfWhere(ctx *IntSumOfWhereContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
