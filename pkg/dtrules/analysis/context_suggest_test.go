@@ -118,6 +118,59 @@ func TestSuggestContextPushes_SilentWhenAlreadyPushed(t *testing.T) {
 	}
 }
 
+// Entities the map file epush'es at session start are globally on the stack,
+// so the advisory must not suggest pushing them (regression: it used to fire
+// on the SinusitisTherapy `constants`/`result`/`patient`).
+func TestSuggestContextPushes_SkipsEpushedEntities(t *testing.T) {
+	dir := writeProject(t, constantsEDD, map[string]string{
+		"root_dt.xml": dt("Root", "",
+			"constants.adult_age > 0",
+			"set result.dose_mg = constants.reduced_dose",
+			"set result.dose_mg = constants.standard_dose"),
+	})
+	// Map file pushes `constants` onto the stack at init.
+	mapXML := `<mapping><XMLtoEDD><initialization>` +
+		`<initialentity entity='constants' epush='true'></initialentity>` +
+		`</initialization></XMLtoEDD></mapping>`
+	if err := os.WriteFile(filepath.Join(dir, "p_map.xml"), []byte(mapXML), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	hints, err := SuggestContextPushes(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if h := findHint(hints, "constants"); h != nil {
+		t.Errorf("epush'd 'constants' must not be suggested, got %+v", h)
+	}
+}
+
+// An entity pushed inline by a `for all` in an action/condition (not the
+// context row) is on the stack for that fragment, so its qualified field
+// reads must not be counted.
+func TestSuggestContextPushes_SkipsInlineForAllPushes(t *testing.T) {
+	edd := `<entity_data_dictionary>
+  <entity name="root"><field name="meds" type="array" subtype="med"/></entity>
+  <entity name="med">
+    <field name="dose" type="integer" access="r"/>
+    <field name="freq" type="integer" access="r"/>
+    <field name="qty" type="integer" access="r"/>
+  </entity>
+</entity_data_dictionary>`
+	// The action iterates meds inline, then reads med.* — med is on the stack.
+	dir := writeProject(t, edd, map[string]string{
+		"root_dt.xml": dt("Root", "", "true",
+			"for all meds { set dose = med.dose + med.freq + med.qty }"),
+	})
+	hints, err := SuggestContextPushes(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if h := findHint(hints, "med"); h != nil {
+		t.Errorf("inline-pushed 'med' must not be suggested, got %+v", h)
+	}
+}
+
 // Below the threshold: a single qualified reference should not trip it.
 func TestSuggestContextPushes_BelowThreshold(t *testing.T) {
 	dir := writeProject(t, constantsEDD, map[string]string{

@@ -104,6 +104,11 @@ func SuggestContextPushes(xmlDir string) ([]ContextSuggestion, error) {
 		return slices.Contains(effective[table], entity)
 	}
 
+	// Entities pushed onto the stack at session start by the map file
+	// (<initialentity epush='true'>) are globally available with no table
+	// context — never suggest pushing them.
+	globalStack := loadEpushEntities(xmlDir)
+
 	// Aggregate qualified references per entity across tables where the
 	// entity is not already reachable unqualified.
 	type agg struct {
@@ -119,10 +124,20 @@ func SuggestContextPushes(xmlDir string) ([]ContextSuggestion, error) {
 		frags = append(frags, info.actions...)
 		frags = append(frags, info.initials...)
 		for _, dsl := range frags {
-			for _, m := range identifierPattern.FindAllStringSubmatch(strings.ToLower(dsl), -1) {
+			// Entities pushed inline by this fragment (`for all … as`,
+			// `using …`, iteration) are on the stack while it runs.
+			inline := make(map[string]bool)
+			for _, e := range inlinePushes(dsl, schema) {
+				inline[e] = true
+			}
+			// Blank string literals so a name inside "..." isn't counted.
+			cleaned := stringLiteralPattern.ReplaceAllString(strings.ToLower(dsl), " ")
+			for _, m := range identifierPattern.FindAllStringSubmatch(cleaned, -1) {
 				entity, field := m[1], m[2]
-				// "context" is always on the entity stack — never suggest it.
-				if entity == "context" {
+				// Skip entities that are already on the stack here: the
+				// always-present "context", map-epush'd globals, this
+				// fragment's inline pushes, or the table's effective stack.
+				if entity == "context" || globalStack[entity] || inline[entity] {
 					continue
 				}
 				// Only real EDD field references count.
@@ -130,7 +145,6 @@ func SuggestContextPushes(xmlDir string) ([]ContextSuggestion, error) {
 				if !ok || !fields[field] {
 					continue
 				}
-				// Already reachable unqualified — nothing to gain.
 				if onStack(info.name, entity) {
 					continue
 				}
@@ -282,6 +296,36 @@ func loadContextSuggestInfo(xmlDir string, schema *eddSchema) (map[string]*cross
 		return nil
 	})
 	return infos, err
+}
+
+// loadEpushEntities returns the entities the project's map file pushes onto
+// the entity stack at session start (<initialentity epush='true'>). They are
+// globally available with no table context, so the advisory must not suggest
+// pushing them. Returns an empty set if there is no map file.
+func loadEpushEntities(xmlDir string) map[string]bool {
+	out := make(map[string]bool)
+	entries, _ := filepath.Glob(filepath.Join(xmlDir, "*_map.xml"))
+	for _, path := range entries {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			continue
+		}
+		var doc struct {
+			Initial []struct {
+				Entity string `xml:"entity,attr"`
+				EPush  string `xml:"epush,attr"`
+			} `xml:"XMLtoEDD>initialization>initialentity"`
+		}
+		if xml.Unmarshal(data, &doc) != nil {
+			continue
+		}
+		for _, ie := range doc.Initial {
+			if strings.EqualFold(strings.TrimSpace(ie.EPush), "true") {
+				out[strings.ToLower(strings.TrimSpace(ie.Entity))] = true
+			}
+		}
+	}
+	return out
 }
 
 func ctxSortedKeys(m map[string]bool) []string {
