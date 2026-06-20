@@ -1,3 +1,8 @@
+//go:build archive
+
+// ARCHIVED: exercises the legacy TaxReturn sample (out of scope; #872 — finishes
+// the #520 archive). Run with `go test -tags archive ./...`.
+
 // Copyright 2024 Paul Snow
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
