@@ -1427,35 +1427,51 @@ func (e *PostfixEmitter) VisitIntNumberOf(ctx *IntNumberOfContext) interface{} {
 }
 
 // VisitIntNumberOfWhere: `number of <arrayExpr> where <bexpr>` — count
-// elements matching bexpr. Emit a count-accumulator fold: seed 0, iterate
-// the array with forall (auto-pushes element entity), and for each element
-// increment the accumulator when bexpr is true.
+// elements matching bexpr. Emit a count-accumulator fold:
+//
+//	0 { { 1 + } <bexpr> if } <arrayExpr> forall
+//
+// Two stack-discipline rules govern the operand order (both verified by the
+// predicated-fold execution test, and both matched by the working
+// VisitForallWhere template):
+//
+//  1. forall is ( body array -- ): opForall pops the ARRAY off the TOP, then
+//     the body block. So the array is emitted LAST, after the body — emitting
+//     it before leaves the body block on top and forall iterates the block's
+//     tokens ("non-Entity entry in array").
+//  2. if is ( body boolean -- ): it pops the boolean off the top, then the
+//     body. So the inner block goes BEFORE the predicate: `{ 1 + } bexpr if`.
+//
+// The seed 0 stays on the data stack below the body and array, untouched by
+// forall's two pops, and the body accumulates into it per element.
 func (e *PostfixEmitter) VisitIntNumberOfWhere(ctx *IntNumberOfWhereContext) interface{} {
 	e.emit("0")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
-	e.Visit(ctx.Bexpr())
 	e.emit("{")
 	e.emit("1")
 	e.emit("+")
 	e.emit("}")
+	e.Visit(ctx.Bexpr())
 	e.emit("if")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	return nil
 }
 
 // VisitIntSumOf: `sum of <iexpr> in <arrayExpr>` — fold the array
 // accumulating <iexpr> per element. Element entity is auto-pushed by
-// forall, so <iexpr> may reference the element's fields directly.
-// Pre-fix this rule silently emitted nothing.
+// forall, so <iexpr> may reference the element's fields directly. Emits
+// `0 { <iexpr> + } <arrayExpr> forall` — body before array, since opForall
+// pops the array off the top (see VisitIntNumberOfWhere for the full
+// stack-discipline note).
 func (e *PostfixEmitter) VisitIntSumOf(ctx *IntSumOfContext) interface{} {
 	e.emit("0")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
 	e.Visit(ctx.Iexpr())
 	e.emit("+")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	return nil
 }
@@ -2161,11 +2177,11 @@ func (e *PostfixEmitter) VisitFloatRoundedBoundry(ctx *FloatRoundedBoundryContex
 // floatSumOf reachable. See TestIssue803_FloatSumOf_Unreachable.
 func (e *PostfixEmitter) VisitFloatSumOf(ctx *FloatSumOfContext) interface{} {
 	e.emit("0.0")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
 	e.Visit(ctx.TypedDouble())
 	e.emit("f+")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	return nil
 }
