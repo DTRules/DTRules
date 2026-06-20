@@ -48,6 +48,28 @@ func TestIssue864_IntSumOfWhere(t *testing.T) {
 	}
 }
 
+// TestIssue864_FloatSumOfWhere_Unreachable pins that the float `where`
+// alternative is a grammar zombie, for the same LL(*) reason as floatSumOf
+// (number : iexpr | fexpr lists iexpr first; both numeric types lex as a bare
+// IDENT). The IDENT form routes through intSumOfWhere (`+`), never the float
+// visitor (`f+`). If a future token-classification pass makes the float path
+// reachable, this breaks loudly so VisitFloatSumOfWhere gets exercised.
+func TestIssue864_FloatSumOfWhere_Unreachable(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(issue803Batch8Symbols())
+
+	got, err := c.CompileAction(`print sum of income in family.kids where income > 0.0`)
+	if err != nil {
+		t.Fatalf("compile: %v", err)
+	}
+	if strings.Contains(got, "f+") {
+		t.Errorf("floatSumOfWhere is now reachable; replace this pin with positive float assertions. got: %s", got)
+	}
+	if !strings.Contains(got, "+") || !strings.Contains(got, "forall") || !strings.Contains(got, "if") {
+		t.Errorf("expected intSumOfWhere fallback (+ forall if), got: %s", got)
+	}
+}
+
 // The plain `sum of … in …` form must keep emitting an unconditional fold
 // (no `if`), so the two forms stay distinct.
 func TestIssue864_SumOfWithoutWhere_HasNoPredicate(t *testing.T) {

@@ -1466,16 +1466,20 @@ func (e *PostfixEmitter) VisitIntSumOf(ctx *IntSumOfContext) interface{} {
 // The element entity is auto-pushed by forall, so both <bexpr> and
 // <iexpr> may reference the element's fields directly.
 func (e *PostfixEmitter) VisitIntSumOfWhere(ctx *IntSumOfWhereContext) interface{} {
+	// Emits `0 { { <iexpr> + } <bexpr> if } <arrayExpr> forall` — body before
+	// array (opForall pops the array off the top) and inner block before the
+	// predicate (`if` pops the boolean off the top). Same operand-order
+	// discipline as the plain folds (#867) and the VisitForallWhere template.
 	e.emit("0")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
-	e.Visit(ctx.Bexpr())
 	e.emit("{")
 	e.Visit(ctx.Iexpr())
 	e.emit("+")
 	e.emit("}")
+	e.Visit(ctx.Bexpr())
 	e.emit("if")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	return nil
 }
@@ -2194,16 +2198,18 @@ func (e *PostfixEmitter) VisitFloatSumOf(ctx *FloatSumOfContext) interface{} {
 // — the float counterpart of VisitIntSumOfWhere. Each element contributes
 // <typedDouble> to the running total only when <bexpr> holds.
 func (e *PostfixEmitter) VisitFloatSumOfWhere(ctx *FloatSumOfWhereContext) interface{} {
+	// Body before array, inner block before predicate — see
+	// VisitIntSumOfWhere.
 	e.emit("0.0")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
-	e.Visit(ctx.Bexpr())
 	e.emit("{")
 	e.Visit(ctx.TypedDouble())
 	e.emit("f+")
 	e.emit("}")
+	e.Visit(ctx.Bexpr())
 	e.emit("if")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	return nil
 }
