@@ -15,9 +15,10 @@
 // Command tabledoc renders a DTRules project to a self-contained HTML document:
 // an overview, the Entity Data Dictionary (the data model), and every decision
 // table as a classic condition/action grid. Convert it to PDF with headless
-// Chrome:
+// Chrome (flags must precede the project dir — Go's flag parsing stops at
+// the first positional argument):
 //
-//	go run ./cmd/tabledoc <project-dir> -o tables.html
+//	go run ./cmd/tabledoc -o tables.html <project-dir>
 //	google-chrome --headless --print-to-pdf=tables.pdf tables.html
 //
 // The HTML is print-styled: section breaks per page, repeated grid headers,
@@ -40,7 +41,8 @@ func main() {
 	title := flag.String("title", "", "document title (default: project dir name)")
 	flag.Parse()
 	if flag.NArg() != 1 {
-		fmt.Fprintln(os.Stderr, "usage: tabledoc <project-dir> [-o out.html] [-title \"...\"]")
+		fmt.Fprintln(os.Stderr, "usage: tabledoc [-o out.html] [-title \"...\"] <project-dir>")
+		fmt.Fprintln(os.Stderr, "  (flags must come before the project dir)")
 		os.Exit(2)
 	}
 	if err := run(flag.Arg(0), *out, *title); err != nil {
@@ -58,12 +60,23 @@ func run(projectDir, outPath, title string) error {
 		title = projectName(projectDir)
 	}
 
-	// Decision tables, ordered by TABLE_NUMBER then name.
+	// Decision tables, ordered by TABLE_NUMBER then name. p.Tables() can
+	// list a name more than once on a cross-file name collision, and
+	// p.Table(name) resolves the first match every time — so dedup by name
+	// to avoid rendering one table twice and dropping the other silently.
 	names := p.Tables()
+	seen := make(map[string]bool, len(names))
 	tables := make([]*authoring.Table, 0, len(names))
 	for _, n := range names {
+		if seen[n] {
+			fmt.Fprintf(os.Stderr, "tabledoc: warning: duplicate table name %q — rendering once\n", n)
+			continue
+		}
+		seen[n] = true
 		if t := p.Table(n); t != nil {
 			tables = append(tables, t)
+		} else {
+			fmt.Fprintf(os.Stderr, "tabledoc: warning: table %q listed but did not resolve\n", n)
 		}
 	}
 	sort.SliceStable(tables, func(i, j int) bool {
@@ -199,16 +212,26 @@ func questionSummary(a authoring.Attribute) string {
 		}
 		parts = append(parts, "("+strings.Join(labels, ", ")+")")
 	}
-	rng := strings.Trim(strings.TrimSpace(a.QuestionRefLow+"–"+a.QuestionRefHigh), "–")
+	// Reference range. Either bound may be empty (one-sided): render those
+	// as ≥ / ≤ rather than collapsing to a misleading point value.
+	low := strings.TrimSpace(a.QuestionRefLow)
+	high := strings.TrimSpace(a.QuestionRefHigh)
 	units := strings.TrimSpace(a.QuestionUnits)
+	var rng string
+	switch {
+	case low != "" && high != "":
+		rng = "normal " + low + "–" + high
+	case low != "":
+		rng = "normal ≥ " + low
+	case high != "":
+		rng = "normal ≤ " + high
+	}
 	switch {
 	case rng != "":
-		// A normal/reference range, optionally with units (e.g. "normal 0.7–1.3 mg/dL").
-		s := "normal " + rng
 		if units != "" {
-			s += " " + units
+			rng += " " + units
 		}
-		parts = append(parts, s)
+		parts = append(parts, rng)
 	case units != "":
 		// Units only — no range to call "normal".
 		parts = append(parts, "in "+units)
