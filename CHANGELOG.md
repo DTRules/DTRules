@@ -1,5 +1,60 @@
 # DTRules Changelog
 
+## v1.17.0 — 2026-06-24
+
+A forall-fold runtime-crash fix, a predicated `sum of … where`, a
+context-push authoring advisory, and the release pipeline finally going
+green — the prior release workflow had been silently skipping its GitHub
+Release step on every tag.
+
+### Fixed
+
+- **forall-fold operand order — runtime crash (#867).** The fold emitters
+  `sum of … in …` and `number of … where …` emitted `seed arr { body }
+  forall`, but `opForall` is `( body array -- )` and pops the array off the
+  top — so it took the *body block* as the array and threw at runtime
+  ("non-Entity entry in array"); the `where` variant had a matching `if`
+  operand-order bug. Reordered to the working template (body before array,
+  inner block before predicate). Added `TestForallFoldExecution`, which
+  compiles EL and **runs** it over real entities asserting numeric results —
+  the existing feature tests only checked token presence, so they couldn't
+  see operand order. The boolean aggregations (`there is … where`,
+  `all have`, …) share the shape and are tracked as a follow-up.
+
+### Added
+
+- **`sum of … where` — predicated sum (#864).** Parity fill for
+  `number of … where`: new EL alternatives `intSumOfWhere` /
+  `floatSumOfWhere` (parser regenerated, ANTLR 4.13.1), lowering to a
+  `forall` fold that gates each addition on the predicate — no new VM op.
+  Documented in `dtrules docs el` and `el-reference.md`.
+- **Context-push advisory (#864).** `analysis.SuggestContextPushes` flags an
+  entity referenced with a qualifier ≥3× in tables where it isn't on the
+  effective stack (own contexts ∪ inherited via the #776 call-graph
+  propagation), targets the suggestion at the call-graph root, and goes
+  silent once an `add X to context` push is adopted. Surfaced as
+  `context_hints` in `dtrules review` — advisory only. Embedded docs:
+  "Shared Constants: Push Once, Reference Unqualified" in
+  `dtrules docs decision-tables`.
+
+### Changed
+
+- **Release pipeline now completes (#870).** Every prior release run failed at
+  the test step and **skipped "Create GitHub Release"** — tags landed but got
+  no automated release. Not a real test failure: a single ~50s test loading
+  the 523-table TaxReturn project pushed the 2-vCPU runner into a SIGTERM
+  kill. The legacy TaxReturn project is now fully archived behind
+  `//go:build archive` (#872), removing that test from the default
+  `make check`; the `verify` workflow skips the unmaintained legacy samples
+  (CHIP, ChipApp, DTEligibility, TestProject) the same way; and the release
+  job gained a `timeout-minutes` guard so a future hang fails loudly instead
+  of silently.
+
+### Docs
+
+- **Interactive data collection guide (#863)** — end-to-end walkthrough of
+  running a rule set as a CLI or web interview.
+
 ## v1.16.0 — 2026-06-17
 
 Interactive data collection (run a rule set as a CLI or web interview),
