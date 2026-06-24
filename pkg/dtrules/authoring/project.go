@@ -189,8 +189,19 @@ func (p *Project) loadEDD(xmlDir string) error {
 		}
 		for _, ent := range f.Entities {
 			for _, field := range ent.Fields {
-				key := ent.Name + "." + field.Name
-				p.symbols[key] = field.Type
+				if field.Name == "" || field.Type == "" {
+					continue
+				}
+				// Register both the bare and entity-qualified keys, matching
+				// excel.eddSymbols (the workbook-import path). DSL references
+				// fields by bare name (`supply_limit - acme_issued`), so the
+				// postfix emitter must find the bare key to pick fixed-point
+				// ops (`fp-`, `cvfp`) over integer ops (`-`, `cvi`) — without
+				// it, Save() silently degrades fixed-point postfix (#874).
+				p.symbols[field.Name] = field.Type
+				if ent.Name != "" {
+					p.symbols[ent.Name+"."+field.Name] = field.Type
+				}
 			}
 		}
 	}
