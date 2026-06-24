@@ -9,6 +9,10 @@ jobs:
   release:
     name: Build and Release
     runs-on: ubuntu-latest
+    # A true hang fails clearly instead of a silent runner shutdown that skips
+    # the "Create GitHub Release" step (the failure mode behind every prior
+    # release run being red while the tag still landed).
+    timeout-minutes: 15
     permissions:
       contents: write
 

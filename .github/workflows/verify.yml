@@ -40,6 +40,11 @@ jobs:
             case "$name" in
               TaxReturn) continue ;;  # archived legacy sample (#872)
               KidAid)    continue ;;  # already verified above
+              # Legacy, out-of-scope samples that reference operators the
+              # registry no longer defines (policystatements, married, …).
+              # The v1.16.0 external-ref gate correctly flags them; they are
+              # not maintained and are excluded rather than verified.
+              CHIP|ChipApp|DTEligibility|TestProject) continue ;;
             esac
             if [ -d "${dir}excel" ]; then
               echo "Verifying $name..."
