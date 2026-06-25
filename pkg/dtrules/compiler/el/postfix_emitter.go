@@ -4943,23 +4943,26 @@ func (e *PostfixEmitter) VisitEntityColonRef(ctx *EntityColonRefContext) interfa
 //   eexpr HASA str WHERE bexpr      # boolEntityHasaWhere       →  ifelse on hasrelationship
 
 func (e *PostfixEmitter) VisitBoolAllHave(ctx *BoolAllHaveContext) interface{} {
+	// opForall is ( body array -- ): the block must be emitted BEFORE the
+	// array, else forall iterates the block as the array (#867 / #877).
 	e.emit("true")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
 	e.Visit(ctx.Bexpr())
 	e.emit("and")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitBoolOneOfHasa(ctx *BoolOneOfHasaContext) interface{} {
+	// Block before array — opForall is ( body array -- ). See #877.
 	e.emit("false")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
 	e.Visit(ctx.Bexpr())
 	e.emit("or")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	return nil
 }
@@ -4996,23 +4999,25 @@ func (e *PostfixEmitter) VisitBoolThereIsNoInEntityWhere(ctx *BoolThereIsNoInEnt
 }
 
 func (e *PostfixEmitter) VisitBoolThereIsInArrayWhere(ctx *BoolThereIsInArrayWhereContext) interface{} {
+	// Block before array — opForall is ( body array -- ). See #877.
 	e.emit("false")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
 	e.Visit(ctx.Bexpr())
 	e.emit("or")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitBoolThereIsNoInArrayWhere(ctx *BoolThereIsNoInArrayWhereContext) interface{} {
+	// Block before array — opForall is ( body array -- ). See #877.
 	e.emit("false")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
 	e.Visit(ctx.Bexpr())
 	e.emit("or")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	e.emit("not")
 	return nil
@@ -5294,12 +5299,14 @@ func (e *PostfixEmitter) VisitRemoveEachWhere(ctx *RemoveEachWhereContext) inter
 // stack at depth 1). Semantic approximation; runtime correctness depends
 // on the specific types of arr1/arr2/nexpr.
 func (e *PostfixEmitter) VisitBoolMatchForall(ctx *BoolMatchForallContext) interface{} {
+	// Both folds emit the block before the array — opForall is
+	// ( body array -- ). Reordering tokens does not change the runtime
+	// entity-stack depth (forall pushes each element while running the
+	// body), so `entityfetch 1` still resolves the outer element. See #877.
 	e.emit("true")
-	e.Visit(ctx.ArrayExpr(0))
 	e.emit("{")
 	// Inner existence check over arr2
 	e.emit("false")
-	e.Visit(ctx.ArrayExpr(1))
 	e.emit("{")
 	e.Visit(ctx.Nexpr())     // y.<nexpr>
 	e.emit("1")              // depth 1 = outer element x
@@ -5307,10 +5314,12 @@ func (e *PostfixEmitter) VisitBoolMatchForall(ctx *BoolMatchForallContext) inter
 	e.emit("==")
 	e.emit("or")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr(1))
 	e.emit("forall")
 	// AND with outer accumulator
 	e.emit("and")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr(0))
 	e.emit("forall")
 	return nil
 }
