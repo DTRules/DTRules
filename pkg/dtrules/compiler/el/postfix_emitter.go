@@ -1923,9 +1923,16 @@ func emitMulDivBy(e *PostfixEmitter, lhs, rhs antlr.ParseTree, intOp, bigOp, dbl
 // result). Without this override the entire substring call silently
 // disappeared from the postfix.
 func (e *PostfixEmitter) VisitStrSubstring(ctx *StrSubstringContext) interface{} {
+	// Grammar is `from <start> to <end>` (end exclusive, by character index),
+	// but opSubstring is ( str start length -- ). Compute length = end - start
+	// instead of passing the end index as the length — the latter was correct
+	// only when start == 0 (where end == length) and silently wrong otherwise
+	// (#889). Stack: str start end -> over (copy start back) -> `-` = end-start.
 	e.Visit(ctx.Strexpr())
-	e.Visit(ctx.Iexpr(0))
-	e.Visit(ctx.Iexpr(1))
+	e.Visit(ctx.Iexpr(0)) // start
+	e.Visit(ctx.Iexpr(1)) // end
+	e.emit("over")
+	e.emit("-")
 	e.emit("substring")
 	return nil
 }
