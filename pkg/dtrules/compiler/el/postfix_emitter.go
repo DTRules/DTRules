@@ -1674,17 +1674,27 @@ func (e *PostfixEmitter) VisitFloatTyped(ctx *FloatTypedContext) interface{} {
 	return nil
 }
 
+// emitMixedFloatArith handles +/- where at least one operand is a float
+// expression (fexpr — always double-typed). It promotes through e.promote so
+// the float forces a double result (f+/f-) with any integer operand promoted
+// by the op, and a fixed/bigint operand mixed with the float is rejected
+// (#876) rather than silently truncated. Without it these visitors emitted a
+// bare integer `+`/`-` that truncated e.g. `db2 + 1.0` at runtime (#884).
+// Pass TypeDouble for an fexpr operand (getExprType only types iexprs).
+func (e *PostfixEmitter) emitMixedFloatArith(left, right antlr.ParseTree, leftType, rightType, intOp, bigOp, dblOp, fpOp string) {
+	target := e.promote(leftType, rightType)
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, intOp, bigOp, dblOp, fpOp))
+}
+
 func (e *PostfixEmitter) VisitFloatAddFloat(ctx *FloatAddFloatContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("+")
+	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), TypeDouble, TypeDouble, "+", "b+", "f+", "fp+")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitFloatSubFloat(ctx *FloatSubFloatContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("-")
+	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), TypeDouble, TypeDouble, "-", "b-", "f-", "fp-")
 	return nil
 }
 
@@ -1703,16 +1713,12 @@ func (e *PostfixEmitter) VisitFloatDivFloat(ctx *FloatDivFloatContext) interface
 }
 
 func (e *PostfixEmitter) VisitFloatAddInt(ctx *FloatAddIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("+")
+	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), TypeDouble, e.getExprType(ctx.Iexpr()), "+", "b+", "f+", "fp+")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitFloatSubInt(ctx *FloatSubIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("-")
+	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), TypeDouble, e.getExprType(ctx.Iexpr()), "-", "b-", "f-", "fp-")
 	return nil
 }
 
@@ -2039,16 +2045,12 @@ func (e *PostfixEmitter) VisitDateEndOfMonth(ctx *DateEndOfMonthContext) interfa
 }
 
 func (e *PostfixEmitter) VisitIntAddFloat(ctx *IntAddFloatContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("+")
+	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), TypeDouble, "+", "b+", "f+", "fp+")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntSubFloat(ctx *IntSubFloatContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("-")
+	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), TypeDouble, "-", "b-", "f-", "fp-")
 	return nil
 }
 
