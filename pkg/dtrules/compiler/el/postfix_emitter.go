@@ -276,6 +276,22 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 		return e.getExprType(c.Iexpr())
 	}
 
+	// Fallback: a bare-identifier expression in any wrapper context (Number,
+	// ArrayExpr, FloatTyped, …) whose specific case isn't enumerated above.
+	// A compound expression's text always contains operators/parens, so an
+	// identifier-only text is necessarily a simple name reference — resolve
+	// its declared type instead of defaulting to integer, which let double/
+	// fixed operands slip past the #876 reject on the mul-by and mutation
+	// paths (#882).
+	if name := ctx.GetText(); isIdentifier(name) {
+		if lv, ok := e.lookupLocal(name); ok {
+			return lv.Type
+		}
+		if t := e.lookupType(name); t != "" {
+			return t
+		}
+	}
+
 	return TypeInteger
 }
 
@@ -1889,6 +1905,13 @@ func emitMulDivBy(e *PostfixEmitter, lhs, rhs antlr.ParseTree, intOp, bigOp, dbl
 	target := e.lookupType(name)
 	if target == "" {
 		target = TypeInteger
+	}
+	// Reject `multiply/divide <fixed|bigint> by <double>` rather than feed the
+	// exact-type op an un-cast double (a runtime promote error) or silently
+	// snap it — same policy as the binary-op reject (#876/#882).
+	if rt := e.getExprType(rhs); isDoubleExactMix(rt, target) {
+		e.emitDoubleMixError(exactOf(rt, target))
+		return
 	}
 	e.Visit(lhs)
 	e.emitWithTypeConversion(rhs, target)
@@ -4694,6 +4717,9 @@ func (e *PostfixEmitter) VisitSubDestDouble(ctx *SubDestDoubleContext) interface
 // VisitSubtractNum: `subtract <number> from <subtodest>` → push the number,
 // then delegate to subtodest which computes field - value and stores.
 func (e *PostfixEmitter) VisitSubtractNum(ctx *SubtractNumContext) interface{} {
+	if e.rejectMutationDoubleMix(ctx.Number(), ctx.Subtodest()) {
+		return nil
+	}
 	e.Visit(ctx.Number())
 	e.Visit(ctx.Subtodest())
 	return nil
@@ -5777,6 +5803,10 @@ func (e *PostfixEmitter) VisitAddArrayToArray(ctx *AddArrayToArrayContext) inter
 	if colonRefCtx, ok := destExpr.(*ArrayColonRefContext); ok {
 		fieldName := colonRefCtx.TypedArray().GetText()
 		if isNumericType(e.lookupType(fieldName)) {
+			if vt := e.getExprType(ctx.ArrayExpr(0)); isDoubleExactMix(vt, e.lookupType(fieldName)) {
+				e.emitDoubleMixError(exactOf(vt, e.lookupType(fieldName)))
+				return nil
+			}
 			e.Visit(ctx.ArrayExpr(0))
 			if possChain, ok := colonRefCtx.ColonRef().PossessiveRef().(*PossessiveChainContext); ok {
 				tokens := possChain.AllPOSSESSIVE()
@@ -5802,6 +5832,10 @@ func (e *PostfixEmitter) VisitAddArrayToArray(ctx *AddArrayToArrayContext) inter
 			if typedCtx, ok := arrayExpr2.(*ArrayTypedContext); ok {
 				fieldName := typedCtx.TypedArray().GetText()
 				if isNumericType(e.mutationType(fieldName)) {
+					if vt := e.getExprType(ctx.ArrayExpr(0)); isDoubleExactMix(vt, e.mutationType(fieldName)) {
+						e.emitDoubleMixError(exactOf(vt, e.mutationType(fieldName)))
+						return nil
+					}
 					e.Visit(ctx.ArrayExpr(0))
 					e.emitTypeAwareAddSub(fieldName, "+")
 					return nil
@@ -5881,9 +5915,31 @@ func (e *PostfixEmitter) VisitAddStrToDest(ctx *AddStrToDestContext) interface{}
 func (e *PostfixEmitter) VisitAddNumToDest(ctx *AddNumToDestContext) interface{} {
 	// Pattern: value field + /field xdef
 	// e.g., "add 5 to client.income" => "5 client.income + /client.income xdef"
+	if e.rejectMutationDoubleMix(ctx.Number(), ctx.Addtodest()) {
+		return nil
+	}
 	e.Visit(ctx.Number())
 	e.Visit(ctx.Addtodest())
 	return nil
+}
+
+// rejectMutationDoubleMix records the #876 error and returns true when a
+// field mutation (`add/subtract <value> to/from <field>`) would fold a double
+// value into a fixed or bigint field — the mutation analogue of the binary-op
+// reject (#882). The dest's text is the bare field name for the common simple
+// target; a complex dest (possessive/colon) that doesn't resolve is left to
+// the existing snap rather than risk a false positive.
+func (e *PostfixEmitter) rejectMutationDoubleMix(value, dest antlr.ParseTree) bool {
+	if dest == nil || value == nil {
+		return false
+	}
+	vt := e.getExprType(value)
+	dt := e.mutationType(dest.GetText())
+	if isDoubleExactMix(vt, dt) {
+		e.emitDoubleMixError(exactOf(vt, dt))
+		return true
+	}
+	return false
 }
 
 // isNumericType reports whether a declared EDD type string is one of the
