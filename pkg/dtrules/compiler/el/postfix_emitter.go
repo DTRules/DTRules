@@ -2068,7 +2068,11 @@ func (e *PostfixEmitter) VisitIntDivFloat(ctx *IntDivFloatContext) interface{} {
 
 func (e *PostfixEmitter) VisitFloatNegate(ctx *FloatNegateContext) interface{} {
 	e.Visit(ctx.Fexpr())
-	e.emit("neg")
+	// fnegate (opFNegate) negates via DoubleValue; the previously emitted
+	// `neg` was never registered, so any float-expr negation crashed at
+	// runtime with operator-not-found. `negate` would truncate the double
+	// via IntValue, so it is not a substitute here. (#878)
+	e.emit("fnegate")
 	return nil
 }
 
