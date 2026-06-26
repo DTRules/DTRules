@@ -24,11 +24,19 @@
 package el
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
 )
+
+// errEmission marks a failure that occurred after a clean parse, while the
+// emitter was producing postfix (e.g. a type error). CompileAction uses it to
+// distinguish a definitive emission failure from a parse-structure mismatch:
+// the former must not trigger the raw-statement fallback, which would reparse
+// and report a confusing parse error that masks the real diagnostic.
+var errEmission = errors.New("emission errors")
 
 // Compiler compiles Expression Language (EL) to postfix notation.
 type Compiler struct {
@@ -119,6 +127,13 @@ func (c *Compiler) CompileAction(el string) (string, error) {
 		return result, nil
 	}
 
+	// A clean parse that failed only at emission (e.g. a type error) is
+	// definitive — don't fall back to the raw-statement attempt, which would
+	// reparse and report a confusing parse error that hides the real one.
+	if errors.Is(err, errEmission) {
+		return "", err
+	}
+
 	// Try without action prefix (might be a raw statement)
 	result, err = c.compile(el)
 	if err == nil {
@@ -202,7 +217,7 @@ func (c *Compiler) compile(el string) (string, error) {
 		for i, err := range errs {
 			errStrs[i] = err.Error()
 		}
-		return "", fmt.Errorf("emission errors: %s", strings.Join(errStrs, "; "))
+		return "", fmt.Errorf("%w: %s", errEmission, strings.Join(errStrs, "; "))
 	}
 
 	return c.emitter.Emit(), nil

@@ -307,6 +307,42 @@ func promoteArithType(a, b string) string {
 	return TypeInteger
 }
 
+// isDoubleExactMix reports whether one operand is double and the other is an
+// exact type (fixed or bigint) — a combination DTRules will not promote
+// implicitly.
+func isDoubleExactMix(a, b string) bool {
+	isExact := func(t string) bool { return t == TypeFixed || t == TypeBigInt }
+	return (a == TypeDouble && isExact(b)) || (b == TypeDouble && isExact(a))
+}
+
+// promote is the emission-site wrapper over promoteArithType. It records a
+// compile error when a double is mixed with an exact type (fixed or bigint)
+// instead of silently emitting a cast: the runtime deliberately refuses to
+// promote double→fixed implicitly (see RFixed.promote), and truncating
+// double→bigint would silently drop precision. Authors must opt in with an
+// explicit cast, e.g. `(double) x` or `(fixed) x`. (#876)
+func (e *PostfixEmitter) promote(a, b string) string {
+	if isDoubleExactMix(a, b) {
+		e.emitDoubleMixError(exactOf(a, b))
+	}
+	return promoteArithType(a, b)
+}
+
+// exactOf returns whichever of a/b is the exact type in a double/exact mix.
+func exactOf(a, b string) string {
+	if a == TypeDouble {
+		return b
+	}
+	return a
+}
+
+// emitDoubleMixError records the standard #876 diagnostic for an implicit
+// double/exact-type combination.
+func (e *PostfixEmitter) emitDoubleMixError(exact string) {
+	e.emitError("cannot combine double with %s implicitly; add an explicit cast "+
+		"(e.g. \"(%s) x\" to keep exactness, or \"(double) x\" to compute in double)", exact, exact)
+}
+
 // arithOp picks the correct postfix opcode for an arithmetic or comparison
 // operation based on the promoted expression type.
 // arithOp picks the right operator name for the promoted target type.
@@ -606,7 +642,7 @@ func (e *PostfixEmitter) VisitBoolIntEq(ctx *BoolIntEqContext) interface{} {
 		return nil
 	}
 
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, "==", "b==", "f==", "fp=="))
@@ -624,7 +660,7 @@ func (e *PostfixEmitter) VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{} {
 		return nil
 	}
 
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	switch target {
@@ -643,7 +679,7 @@ func (e *PostfixEmitter) VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolIntGt(ctx *BoolIntGtContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, ">", "b>", "f>", "fp>"))
@@ -652,7 +688,7 @@ func (e *PostfixEmitter) VisitBoolIntGt(ctx *BoolIntGtContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolIntGte(ctx *BoolIntGteContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, ">=", "b>=", "f>=", "fp>="))
@@ -661,7 +697,7 @@ func (e *PostfixEmitter) VisitBoolIntGte(ctx *BoolIntGteContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolIntLt(ctx *BoolIntLtContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, "<", "b<", "f<", "fp<"))
@@ -670,7 +706,7 @@ func (e *PostfixEmitter) VisitBoolIntLt(ctx *BoolIntLtContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolIntLte(ctx *BoolIntLteContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, "<=", "b<=", "f<=", "fp<="))
@@ -1149,12 +1185,20 @@ func (e *PostfixEmitter) VisitBoolNameEq(ctx *BoolNameEqContext) interface{} {
 	// string forms happen to match. Dispatch to the proper family with
 	// Fixed > BigInt > Integer promotion when both sides are numeric.
 	if t0, t1 := e.identNumericType(name0), e.identNumericType(name1); t0 != "" && t1 != "" {
-		target := promoteArithType(t0, t1)
+		target := e.promote(t0, t1)
 		e.Visit(ctx.Nexpr(0))
 		e.emitTypeCast(t0, target)
 		e.Visit(ctx.Nexpr(1))
 		e.emitTypeCast(t1, target)
 		e.emit(arithOp(target, "==", "b==", "f==", "fp=="))
+		return nil
+	}
+
+	// The numeric block above excludes double, so fixed/bigint == double would
+	// otherwise fall through to a meaningless string compare. Reject the
+	// implicit mix the same way the arithmetic path does (#876).
+	if t0, t1 := e.lookupType(name0), e.lookupType(name1); isDoubleExactMix(t0, t1) {
+		e.emitDoubleMixError(exactOf(t0, t1))
 		return nil
 	}
 
@@ -1196,7 +1240,7 @@ func (e *PostfixEmitter) VisitBoolNameNeq(ctx *BoolNameNeqContext) interface{} {
 	// Fixed > BigInt > Integer promotion as BoolNameEq; fp!= and b!=
 	// are distinct ops, integer falls back to the historic `== not`.
 	if t0, t1 := e.identNumericType(name0), e.identNumericType(name1); t0 != "" && t1 != "" {
-		target := promoteArithType(t0, t1)
+		target := e.promote(t0, t1)
 		e.Visit(ctx.Nexpr(0))
 		e.emitTypeCast(t0, target)
 		e.Visit(ctx.Nexpr(1))
@@ -1210,6 +1254,12 @@ func (e *PostfixEmitter) VisitBoolNameNeq(ctx *BoolNameNeqContext) interface{} {
 			e.emit("==")
 			e.emit("not")
 		}
+		return nil
+	}
+
+	// Reject an implicit fixed/bigint != double the same way == does (#876).
+	if t0, t1 := e.lookupType(name0), e.lookupType(name1); isDoubleExactMix(t0, t1) {
+		e.emitDoubleMixError(exactOf(t0, t1))
 		return nil
 	}
 
@@ -1362,7 +1412,7 @@ func (e *PostfixEmitter) VisitIntAdd(ctx *IntAddContext) interface{} {
 		return nil
 	}
 
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, "+", "b+", "f+", "fp+"))
@@ -1371,7 +1421,7 @@ func (e *PostfixEmitter) VisitIntAdd(ctx *IntAddContext) interface{} {
 
 func (e *PostfixEmitter) VisitIntSub(ctx *IntSubContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, "-", "b-", "f-", "fp-"))
@@ -1380,7 +1430,7 @@ func (e *PostfixEmitter) VisitIntSub(ctx *IntSubContext) interface{} {
 
 func (e *PostfixEmitter) VisitIntMul(ctx *IntMulContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, "*", "b*", "fmul", "fp*"))
@@ -1389,7 +1439,7 @@ func (e *PostfixEmitter) VisitIntMul(ctx *IntMulContext) interface{} {
 
 func (e *PostfixEmitter) VisitIntDiv(ctx *IntDivContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, "/", "b/", "fdiv", "fp/"))
@@ -1576,7 +1626,7 @@ func minMaxOp(target, intOp, dblOp, fpOp string) string {
 
 func (e *PostfixEmitter) VisitIntMinOf(ctx *IntMinOfContext) interface{} {
 	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	target := e.promote(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
 	e.emit(minMaxOp(target, "min", "fmin", "fpmin"))
@@ -1585,7 +1635,7 @@ func (e *PostfixEmitter) VisitIntMinOf(ctx *IntMinOfContext) interface{} {
 
 func (e *PostfixEmitter) VisitIntMinOfComma(ctx *IntMinOfCommaContext) interface{} {
 	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	target := e.promote(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
 	e.emit(minMaxOp(target, "min", "fmin", "fpmin"))
@@ -1594,7 +1644,7 @@ func (e *PostfixEmitter) VisitIntMinOfComma(ctx *IntMinOfCommaContext) interface
 
 func (e *PostfixEmitter) VisitIntMaxOf(ctx *IntMaxOfContext) interface{} {
 	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	target := e.promote(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
 	e.emit(minMaxOp(target, "max", "fmax", "fpmax"))
@@ -1603,7 +1653,7 @@ func (e *PostfixEmitter) VisitIntMaxOf(ctx *IntMaxOfContext) interface{} {
 
 func (e *PostfixEmitter) VisitIntMaxOfComma(ctx *IntMaxOfCommaContext) interface{} {
 	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	target := e.promote(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
 	e.emit(minMaxOp(target, "max", "fmax", "fpmax"))
