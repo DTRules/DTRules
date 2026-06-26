@@ -2449,7 +2449,7 @@ func (e *PostfixEmitter) VisitStrTrim(ctx *StrTrimContext) interface{} {
 
 func (e *PostfixEmitter) VisitStrToLower(ctx *StrToLowerContext) interface{} {
 	e.Visit(ctx.Strexpr())
-	e.emit("tolower")
+	e.emit("lowercase") // registered op name (#888)
 	return nil
 }
 
@@ -2534,7 +2534,7 @@ func (e *PostfixEmitter) VisitXmlvalues(ctx *XmlvaluesContext) interface{} {
 
 func (e *PostfixEmitter) VisitStrToUpper(ctx *StrToUpperContext) interface{} {
 	e.Visit(ctx.Strexpr())
-	e.emit("toupper")
+	e.emit("uppercase") // registered op name (#888)
 	return nil
 }
 
@@ -2589,7 +2589,7 @@ func (e *PostfixEmitter) VisitDateParen(ctx *DateParenContext) interface{} {
 }
 
 func (e *PostfixEmitter) VisitDateCurrentDate(ctx *DateCurrentDateContext) interface{} {
-	e.emit("currentdate")
+	e.emit("today") // registered op name (#888)
 	return nil
 }
 
@@ -2766,7 +2766,7 @@ func (e *PostfixEmitter) VisitNameLiteral(ctx *NameLiteralContext) interface{} {
 
 func (e *PostfixEmitter) VisitNameOf(ctx *NameOfContext) interface{} {
 	e.Visit(ctx.Eexpr())
-	e.emit("nameof")
+	e.emit("entityname") // registered op name (#888)
 	return nil
 }
 
@@ -5752,7 +5752,9 @@ func (e *PostfixEmitter) VisitDatePlusDays(ctx *DatePlusDaysContext) interface{}
 func (e *PostfixEmitter) VisitDateMinusDays(ctx *DateMinusDaysContext) interface{} {
 	e.Visit(ctx.Dexpr())
 	e.Visit(ctx.Number())
-	e.emit("subdays")
+	// No `subdays` op exists; negate the count and reuse adddays (#888).
+	e.emit("negate")
+	e.emit("adddays")
 	return nil
 }
 
@@ -5766,7 +5768,8 @@ func (e *PostfixEmitter) VisitDatePlusMonths(ctx *DatePlusMonthsContext) interfa
 func (e *PostfixEmitter) VisitDateMinusMonths(ctx *DateMinusMonthsContext) interface{} {
 	e.Visit(ctx.Dexpr())
 	e.Visit(ctx.Number())
-	e.emit("submonths")
+	e.emit("negate")
+	e.emit("addmonths")
 	return nil
 }
 
@@ -5780,7 +5783,8 @@ func (e *PostfixEmitter) VisitDatePlusYears(ctx *DatePlusYearsContext) interface
 func (e *PostfixEmitter) VisitDateMinusYears(ctx *DateMinusYearsContext) interface{} {
 	e.Visit(ctx.Dexpr())
 	e.Visit(ctx.Number())
-	e.emit("subyears")
+	e.emit("negate")
+	e.emit("addyears")
 	return nil
 }
 

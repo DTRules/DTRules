@@ -225,7 +225,9 @@ func TestDateDaysInfo(t *testing.T) {
 	}
 }
 
-// TestDateComparison — d< / d> / d==.
+// TestDateComparison — d< / d> / d<= / d>= / d==. The d<= and d>= ops were
+// missing entirely (#888): `<date> is between <a> and <b>` emits both, so it
+// crashed at runtime until they were registered.
 func TestDateComparison(t *testing.T) {
 	cases := []struct {
 		op   string
@@ -237,6 +239,12 @@ func TestDateComparison(t *testing.T) {
 		{"d<", 2024, 1, 1, 2024, 1, 1, false},
 		{"d>", 2024, 1, 2, 2024, 1, 1, true},
 		{"d>", 2024, 1, 1, 2024, 1, 2, false},
+		{"d<=", 2024, 1, 1, 2024, 1, 2, true},  // less
+		{"d<=", 2024, 1, 1, 2024, 1, 1, true},  // equal
+		{"d<=", 2024, 1, 2, 2024, 1, 1, false}, // greater
+		{"d>=", 2024, 1, 2, 2024, 1, 1, true},  // greater
+		{"d>=", 2024, 1, 1, 2024, 1, 1, true},  // equal
+		{"d>=", 2024, 1, 1, 2024, 1, 2, false}, // less
 		{"d==", 2024, 1, 1, 2024, 1, 1, true},
 		{"d==", 2024, 1, 1, 2024, 1, 2, false},
 	}

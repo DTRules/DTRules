@@ -107,7 +107,7 @@ func TestInZone_PreservesPlainPostfix(t *testing.T) {
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
-	want := `currentdate job.filing_date d==`
+	want := `today job.filing_date d==` // `today` is the registered op; `currentdate` was never registered (#888)
 	if strings.TrimSpace(got) != want {
 		t.Fatalf("plain currentdate regressed:\n  got  %q\n  want %q", got, want)
 	}
