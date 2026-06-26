@@ -1,4 +1,4 @@
-// Copyright 2024 Paul Snow
+// Copyright 2026 Paul Snow
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package authoring
 
 import (
 	"encoding/xml"
@@ -21,11 +21,20 @@ import (
 	"strings"
 )
 
-// loadEDDSymbols walks the *_edd.xml files under root (or root's directory if
-// root is a file) and returns a map of EDD symbol name → type. Both the bare
-// field name and the qualified "entity.field" form are recorded. It feeds the
-// EL compiler's type resolution during build.
-func loadEDDSymbols(root string) map[string]string {
+// LoadEDDSymbols walks the *_edd.xml files under root (recursively, so nested
+// EDDs like xml/states/CO_edd.xml are found) and returns a map of EDD symbol
+// name → type. Both the bare field name and the entity-qualified
+// "entity.field" form are recorded, because DSL references fields by bare name
+// while qualified references need the dotted key.
+//
+// If root is a file rather than a directory, its containing directory is
+// walked. Read/parse errors on individual files are skipped so a single bad
+// EDD doesn't blank the whole symbol table.
+//
+// This is the single source of truth for EDD→symbol construction shared by the
+// authoring Save path (Project.loadEDD) and the cmd/dtrules build path, so the
+// two cannot drift in discovery scope or key form (#874, #879).
+func LoadEDDSymbols(root string) map[string]string {
 	type eddField struct {
 		Name string `xml:"name,attr"`
 		Type string `xml:"type,attr"`
@@ -38,8 +47,6 @@ func loadEDDSymbols(root string) map[string]string {
 		Entities []eddEntity `xml:"entity"`
 	}
 
-	// Decide which directory tree to walk. If root is a *_dt.xml file we
-	// look in its containing directory; otherwise we walk root itself.
 	walkDir := root
 	if info, err := os.Stat(root); err == nil && !info.IsDir() {
 		walkDir = filepath.Dir(root)
