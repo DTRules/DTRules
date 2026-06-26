@@ -43,6 +43,7 @@ func TestMixedDoubleExactRejected(t *testing.T) {
 		"set bi = bi2 + db",
 		"set bi = db + bi2", // order independent
 		"set fx = the minimum of fx2 and db",
+		"set fx = the maximum of fx2 and db",
 	}
 	for _, src := range badActions {
 		c := NewCompiler()
@@ -57,9 +58,13 @@ func TestMixedDoubleExactRejected(t *testing.T) {
 		}
 	}
 
-	// conditions that must fail to compile
+	// conditions that must fail to compile. Cover both comparison paths:
+	// bare `name OP name` (name path: ==/!= → VisitBoolNameEq/Neq, ordering →
+	// VisitBoolIntGt/…) and an iexpr context (`fx2 + fx == db` → VisitBoolIntEq).
 	badConds := []string{
-		"fx > db", "fx == db", "fx != db", "bi <= db", "db >= bi",
+		"fx > db", "fx < db", "fx >= db", "bi <= db", "db >= bi", // ordering
+		"fx == db", "fx != db", // equality, name path
+		"fx2 + fx == db", "fx2 + fx != db", // equality, iexpr path
 	}
 	for _, src := range badConds {
 		c := NewCompiler()
