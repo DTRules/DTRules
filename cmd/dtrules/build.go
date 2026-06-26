@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/analysis"
+	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
 	"github.com/DTRules/DTRules/pkg/dtrules/compiler/el"
 	"github.com/DTRules/DTRules/pkg/dtrules/decisiontable"
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
@@ -40,7 +41,7 @@ import (
 func newWorkbookImporter(xmlDir string) *excel.WorkbookImporter {
 	imp := excel.NewWorkbookImporter()
 	imp.SetELCompiler(el.NewCompiler())
-	if syms := loadEDDSymbols(xmlDir); len(syms) > 0 {
+	if syms := authoring.LoadEDDSymbols(xmlDir); len(syms) > 0 {
 		imp.SetSymbols(syms)
 	}
 	return imp

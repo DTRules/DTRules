@@ -159,51 +159,15 @@ func NewInMemoryProject(dir string) (*Project, error) {
 	return p, nil
 }
 
-// loadEDD parses *_edd.xml files and extracts field names+types for validation.
+// loadEDD populates p.symbols with EDD field names+types for type-aware
+// compilation. It delegates to LoadEDDSymbols (the shared builder also used by
+// the cmd/dtrules build path) so discovery scope and key form cannot drift:
+// both walk xmlDir recursively (finding nested EDDs like xml/states/CO_edd.xml)
+// and register both the bare and entity-qualified keys. A flat Glob here used
+// to miss nested EDDs, degrading their fixed/double ops to integer (#874/#879).
 func (p *Project) loadEDD(xmlDir string) error {
-	entries, err := filepath.Glob(filepath.Join(xmlDir, "*_edd.xml"))
-	if err != nil {
-		return err
-	}
-
-	type eddField struct {
-		Name string `xml:"name,attr"`
-		Type string `xml:"type,attr"`
-	}
-	type eddEntity struct {
-		Name   string     `xml:"name,attr"`
-		Fields []eddField `xml:"field"`
-	}
-	type eddFile struct {
-		Entities []eddEntity `xml:"entity"`
-	}
-
-	for _, path := range entries {
-		data, err := os.ReadFile(path)
-		if err != nil {
-			continue
-		}
-		var f eddFile
-		if err := xml.Unmarshal(data, &f); err != nil {
-			continue
-		}
-		for _, ent := range f.Entities {
-			for _, field := range ent.Fields {
-				if field.Name == "" || field.Type == "" {
-					continue
-				}
-				// Register both the bare and entity-qualified keys, matching
-				// excel.eddSymbols (the workbook-import path). DSL references
-				// fields by bare name (`supply_limit - acme_issued`), so the
-				// postfix emitter must find the bare key to pick fixed-point
-				// ops (`fp-`, `cvfp`) over integer ops (`-`, `cvi`) — without
-				// it, Save() silently degrades fixed-point postfix (#874).
-				p.symbols[field.Name] = field.Type
-				if ent.Name != "" {
-					p.symbols[ent.Name+"."+field.Name] = field.Type
-				}
-			}
-		}
+	for k, v := range LoadEDDSymbols(xmlDir) {
+		p.symbols[k] = v
 	}
 	return nil
 }
