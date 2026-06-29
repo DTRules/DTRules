@@ -259,6 +259,42 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 		}
 	}
 
+	// Float-typed NAME contexts: a fixed/bigint/double field that matched the
+	// grammar's TypedDouble alternative. Resolve to the DECLARED type so a
+	// fixed/bigint field used in a float position is still seen as exact and
+	// caught by the double/exact reject — not silently treated as double (#894).
+	if typedCtx, ok := ctx.(*FloatTypedContext); ok {
+		if td := typedCtx.TypedDouble(); td != nil {
+			if ident := td.IDENT(); ident != nil {
+				name := ident.GetText()
+				if lv, ok := e.lookupLocal(name); ok {
+					return lv.Type
+				}
+				if t := e.lookupType(name); t != "" {
+					return t
+				}
+			}
+		}
+	}
+	if colonCtx, ok := ctx.(*FloatColonRefContext); ok {
+		if td := colonCtx.TypedDouble(); td != nil {
+			if ident := td.IDENT(); ident != nil {
+				name := ident.GetText()
+				if lv, ok := e.lookupLocal(name); ok {
+					return lv.Type
+				}
+				if cr := colonCtx.ColonRef(); cr != nil {
+					if t := e.lookupType(cr.GetText() + "." + name); t != "" {
+						return t
+					}
+				}
+				if t := e.lookupType(name); t != "" {
+					return t
+				}
+			}
+		}
+	}
+
 	// For compound expressions, propagate the widest operand type via
 	// promoteArithType (Fixed > BigInt > Double > Integer).
 	switch c := ctx.(type) {
@@ -274,6 +310,22 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 		return e.getExprType(c.Iexpr())
 	case *IntParenContext:
 		return e.getExprType(c.Iexpr())
+	}
+
+	// Float-VALUED expressions (literals, explicit (double) casts, float
+	// arithmetic) produce a double. Typed-name fexprs were resolved above;
+	// what reaches here is genuinely double — so a double literal mixed with a
+	// fixed/bigint field is caught by the double/exact reject (#894).
+	switch c := ctx.(type) {
+	case *FloatLiteralContext, *FloatFromStrContext, *FloatFromIntContext,
+		*FloatFromIndexContext, *FloatAddFloatContext, *FloatSubFloatContext,
+		*FloatMulFloatContext, *FloatDivFloatContext, *FloatAddIntContext,
+		*FloatSubIntContext, *FloatMulIntContext, *FloatDivIntContext,
+		*FloatNegateContext, *IntAddFloatContext, *IntSubFloatContext,
+		*IntMulFloatContext, *IntDivFloatContext:
+		return TypeDouble
+	case *FloatParenContext:
+		return e.getExprType(c.Fexpr())
 	}
 
 	// Fallback: a bare-identifier expression in any wrapper context (Number,
@@ -1471,6 +1523,8 @@ func (e *PostfixEmitter) VisitIntNegate(ctx *IntNegateContext) interface{} {
 		e.emit("fpnegate")
 	case TypeBigInt:
 		e.emit("bnegate")
+	case TypeDouble:
+		e.emit("fnegate") // negate would truncate the double via IntValue (#894)
 	default:
 		e.emit("negate")
 	}
@@ -1705,12 +1759,12 @@ func (e *PostfixEmitter) emitMixedFloatArith(left, right antlr.ParseTree, leftTy
 }
 
 func (e *PostfixEmitter) VisitFloatAddFloat(ctx *FloatAddFloatContext) interface{} {
-	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), TypeDouble, TypeDouble, "+", "b+", "f+", "fp+")
+	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), "+", "b+", "f+", "fp+")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitFloatSubFloat(ctx *FloatSubFloatContext) interface{} {
-	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), TypeDouble, TypeDouble, "-", "b-", "f-", "fp-")
+	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), "-", "b-", "f-", "fp-")
 	return nil
 }
 
@@ -1729,12 +1783,12 @@ func (e *PostfixEmitter) VisitFloatDivFloat(ctx *FloatDivFloatContext) interface
 }
 
 func (e *PostfixEmitter) VisitFloatAddInt(ctx *FloatAddIntContext) interface{} {
-	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), TypeDouble, e.getExprType(ctx.Iexpr()), "+", "b+", "f+", "fp+")
+	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), "+", "b+", "f+", "fp+")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitFloatSubInt(ctx *FloatSubIntContext) interface{} {
-	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), TypeDouble, e.getExprType(ctx.Iexpr()), "-", "b-", "f-", "fp-")
+	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), "-", "b-", "f-", "fp-")
 	return nil
 }
 
@@ -2075,12 +2129,12 @@ func (e *PostfixEmitter) VisitDateEndOfMonth(ctx *DateEndOfMonthContext) interfa
 }
 
 func (e *PostfixEmitter) VisitIntAddFloat(ctx *IntAddFloatContext) interface{} {
-	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), TypeDouble, "+", "b+", "f+", "fp+")
+	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), "+", "b+", "f+", "fp+")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntSubFloat(ctx *IntSubFloatContext) interface{} {
-	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), TypeDouble, "-", "b-", "f-", "fp-")
+	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), "-", "b-", "f-", "fp-")
 	return nil
 }
 
