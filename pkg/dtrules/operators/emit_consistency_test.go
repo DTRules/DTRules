@@ -49,12 +49,9 @@ var nonOpEmits = map[string]bool{
 // knownUnimplementedEmits are operator names the emitter produces for EL
 // features that have NO runtime implementation yet. They are listed explicitly
 // — not silently skipped — so this test documents the gap and forces a
-// deliberate decision when the feature lands. Entity relationships
-// (`<s> of <entity>`, `<entity> has a <s>`) have no operator at all (#888).
-var knownUnimplementedEmits = map[string]bool{
-	"getrelationship": true, // #890: entity-relationship feature unimplemented
-	"hasrelationship": true,
-}
+// deliberate decision when the feature lands. Empty now that entity
+// relationships (getrelationship/hasrelationship) are implemented (#890).
+var knownUnimplementedEmits = map[string]bool{}
 
 // TestEmittedOpsAreRegistered is the compiler↔runtime consistency guard: every
 // operator literal the EL emitter can emit must resolve in the operator
