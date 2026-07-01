@@ -79,6 +79,8 @@ func TestAllOperatorsRegistered(t *testing.T) {
 	"bech32",
 	"beq",
 	"bigintbytes",
+	"bmax",
+	"bmin",
 	"bmod",
 	"bnegate",
 	"bytes!=",

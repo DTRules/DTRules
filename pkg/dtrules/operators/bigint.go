@@ -41,6 +41,9 @@ func init() {
 
 	Register("bnegate", opBigNegate)
 
+	Register("bmin", opBigMin)
+	Register("bmax", opBigMax)
+
 	// BigInt comparison operations
 	Register("b==", opBigEqual)
 
@@ -247,6 +250,55 @@ func opBigNotEqual(state dtrules.State) error {
 	}
 	result := aVal.BigIntValue().Cmp(bVal.BigIntValue()) != 0
 	return state.DataPush(dtrules.GetRBoolean(result))
+}
+
+// opBigMin: ( a b -- min ) returns the smaller of two bigints, compared with
+// big.Int (no int64 truncation, unlike the integer `min`). (#899)
+func opBigMin(state dtrules.State) error {
+	b, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aVal, err := a.RBigIntValue()
+	if err != nil {
+		return err
+	}
+	bVal, err := b.RBigIntValue()
+	if err != nil {
+		return err
+	}
+	if aVal.BigIntValue().Cmp(bVal.BigIntValue()) <= 0 {
+		return state.DataPush(aVal)
+	}
+	return state.DataPush(bVal)
+}
+
+// opBigMax: ( a b -- max ) returns the larger of two bigints via big.Int. (#899)
+func opBigMax(state dtrules.State) error {
+	b, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	a, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	aVal, err := a.RBigIntValue()
+	if err != nil {
+		return err
+	}
+	bVal, err := b.RBigIntValue()
+	if err != nil {
+		return err
+	}
+	if aVal.BigIntValue().Cmp(bVal.BigIntValue()) >= 0 {
+		return state.DataPush(aVal)
+	}
+	return state.DataPush(bVal)
 }
 
 // opBigGreater compares if a > b: ( a b -- bool )

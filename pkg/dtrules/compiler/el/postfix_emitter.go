@@ -1677,16 +1677,15 @@ func (e *PostfixEmitter) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface
 // don't hit IntValue at runtime — closes the same dispatch gap
 // promoteArithType's Double arm opened up.
 //
-// No dedicated `bmin` / `bmax` ops exist, so bigint targets fall back
-// to the integer `min` / `max` — which calls IntValue() on both
-// operands and errors for any bigint exceeding int64 range. That's
-// a pre-existing bug independent of this PR; fixing it cleanly
-// requires registering `bmin` / `bmax` operators that dispatch via
-// RBigInt.Compare. Tracked as a follow-up.
-func minMaxOp(target, intOp, dblOp, fpOp string) string {
+// The bigint path uses the dedicated bmin/bmax ops (compare via big.Int) so a
+// bigint exceeding int64 range is not truncated by the integer min/max's
+// IntValue() (#899).
+func minMaxOp(target, intOp, bigOp, dblOp, fpOp string) string {
 	switch target {
 	case TypeFixed:
 		return fpOp
+	case TypeBigInt:
+		return bigOp
 	case TypeDouble:
 		return dblOp
 	default:
@@ -1699,7 +1698,7 @@ func (e *PostfixEmitter) VisitIntMinOf(ctx *IntMinOfContext) interface{} {
 	target := e.promote(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
-	e.emit(minMaxOp(target, "min", "fmin", "fpmin"))
+	e.emit(minMaxOp(target, "min", "bmin", "fmin", "fpmin"))
 	return nil
 }
 
@@ -1708,7 +1707,7 @@ func (e *PostfixEmitter) VisitIntMinOfComma(ctx *IntMinOfCommaContext) interface
 	target := e.promote(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
-	e.emit(minMaxOp(target, "min", "fmin", "fpmin"))
+	e.emit(minMaxOp(target, "min", "bmin", "fmin", "fpmin"))
 	return nil
 }
 
@@ -1717,7 +1716,7 @@ func (e *PostfixEmitter) VisitIntMaxOf(ctx *IntMaxOfContext) interface{} {
 	target := e.promote(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
-	e.emit(minMaxOp(target, "max", "fmax", "fpmax"))
+	e.emit(minMaxOp(target, "max", "bmax", "fmax", "fpmax"))
 	return nil
 }
 
@@ -1726,7 +1725,7 @@ func (e *PostfixEmitter) VisitIntMaxOfComma(ctx *IntMaxOfCommaContext) interface
 	target := e.promote(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
-	e.emit(minMaxOp(target, "max", "fmax", "fpmax"))
+	e.emit(minMaxOp(target, "max", "bmax", "fmax", "fpmax"))
 	return nil
 }
 
