@@ -1,5 +1,68 @@
 # DTRules Changelog
 
+## v1.18.0 — 2026-07-02
+
+A comprehensive EL → postfix code-generation correctness pass: a cluster of
+type-dispatch, operand-order, and unregistered-operator fixes — several of
+which silently produced wrong results or crashed at runtime — plus a durable
+execution-test and consistency-guard layer so the same classes can't recur.
+Most were surfaced by auditing the emitter against the operator registry and
+by execution testing (compile → run → assert), which catches operand-order and
+type-dispatch bugs that token-presence tests cannot.
+
+### Fixed
+
+- **Double mixed with an exact type is now rejected, not silently degraded**
+  (#876, #882, #894). Combining a `double` with a `fixed`/`bigint` operand
+  (arithmetic, comparison, field mutation, `multiply/divide … by`, and — the
+  subtle cases — double literals and fixed/bigint fields that parse in the
+  float branch) used to compute through `double` and snap the result back,
+  losing precision (a bigint round-tripped through a float mantissa). It now
+  fails at compile time with a cast hint. The runtime already refused the
+  implicit promotion; the compiler now matches it.
+- **forall boolean-aggregation operand order** (#877). `all … have`,
+  `one of … has a`, `there is … where`, and `match for all …` emitted
+  `seed array { body } forall`, reversed against `opForall ( body array -- )`,
+  crashing with "non-Entity entry in array". Reordered to `seed { body } array
+  forall`.
+- **Float-expression negation emitted an unregistered `neg`** (#878) — any
+  `-(fexpr)` crashed at runtime. Now emits `fnegate`. Negating a bare `double`
+  field emitted the truncating integer `negate`; now `fnegate` too (#894).
+- **Mixed float add/subtract truncated** (#884). `double + 1.0` and friends
+  emitted the integer `+`/`-` (truncating the fraction); now `f+`/`f-`.
+- **Unregistered / wrong-name operators** (#888). `date is between` emitted
+  `d<=`/`d>=`, which were never registered (now implemented); `to lower/upper
+  case`, current-date, and `name of` emitted `tolower`/`toupper`/`currentdate`/
+  `nameof` instead of the registered `lowercase`/`uppercase`/`today`/
+  `entityname`; date subtraction emitted nonexistent `subdays`/`submonths`/
+  `subyears` (now `negate add*`). Each had crashed at runtime.
+- **`substring … from a to b` used the end index as the length** (#889),
+  correct only when `a == 0`. Now emits `end - start`.
+- **bigint `min`/`max` truncated beyond int64** (#899). They fell back to the
+  integer `min`/`max` (`IntValue`); new `bmin`/`bmax` compare via `big.Int`.
+- **Authoring Save degraded fixed-point postfix** (#874, #879). `Project.Save`
+  built its EDD symbol map with only entity-qualified keys and via a
+  non-recursive scan, so bare-name and nested-EDD fields lost their declared
+  type and compiled to integer ops. Unified into one recursive
+  `authoring.LoadEDDSymbols`, shared by Save and `dtrules build`.
+
+### Added
+
+- **Entity relationships** (#890) — `<name> of <entity>` (`getrelationship`)
+  and `<entity> has a <name>` (`hasrelationship`) resolve against the entity
+  attribute model; `has a` is true for a non-null entity-typed attribute.
+- **Emit-consistency guard** (#888) — `TestEmittedOpsAreRegistered` asserts
+  every operator literal the EL emitter can emit resolves in the operator
+  registry, so an emitted-but-unregistered op (the #878 class) fails the build.
+- **Cross-generator parity test** (#898) — pins that the file-based
+  (`authoring.LoadEDDSymbols`) and content-based (`excel.EDDSymbols`) EDD
+  symbol builders produce identical maps and identical postfix, guarding the
+  #874 divergence structurally.
+- **Execution-test coverage** across the emitter (compile → run → assert):
+  forall aggregations, double/fixed/bigint dispatch, mixed-type comparisons,
+  date extraction and arithmetic, in-zone dates, string ops, substring, and
+  the relationship ops.
+
 ## v1.17.0 — 2026-06-24
 
 A forall-fold runtime-crash fix, a predicated `sum of … where`, a
