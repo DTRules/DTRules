@@ -312,18 +312,50 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 		return e.getExprType(c.Iexpr())
 	}
 
+	// Float ARITHMETIC compounds promote through their operands, mirroring
+	// what their emitters actually produce (emitMixedFloatArith): two fixed
+	// operands that matched the grammar's fexpr alternative yield a fixed
+	// result (fp-family op), not a double (#903). Without this, a nested
+	// `a * b` dividend types as double and downstream dispatch degrades.
+	switch c := ctx.(type) {
+	case *FloatAddFloatContext:
+		return promoteArithType(e.getExprType(c.Fexpr(0)), e.getExprType(c.Fexpr(1)))
+	case *FloatSubFloatContext:
+		return promoteArithType(e.getExprType(c.Fexpr(0)), e.getExprType(c.Fexpr(1)))
+	case *FloatMulFloatContext:
+		return promoteArithType(e.getExprType(c.Fexpr(0)), e.getExprType(c.Fexpr(1)))
+	case *FloatDivFloatContext:
+		return promoteArithType(e.getExprType(c.Fexpr(0)), e.getExprType(c.Fexpr(1)))
+	case *FloatAddIntContext:
+		return promoteArithType(e.getExprType(c.Fexpr()), e.getExprType(c.Iexpr()))
+	case *FloatSubIntContext:
+		return promoteArithType(e.getExprType(c.Fexpr()), e.getExprType(c.Iexpr()))
+	case *FloatMulIntContext:
+		return promoteArithType(e.getExprType(c.Fexpr()), e.getExprType(c.Iexpr()))
+	case *FloatDivIntContext:
+		return promoteArithType(e.getExprType(c.Fexpr()), e.getExprType(c.Iexpr()))
+	case *IntAddFloatContext:
+		return promoteArithType(e.getExprType(c.Iexpr()), e.getExprType(c.Fexpr()))
+	case *IntSubFloatContext:
+		return promoteArithType(e.getExprType(c.Iexpr()), e.getExprType(c.Fexpr()))
+	case *IntMulFloatContext:
+		return promoteArithType(e.getExprType(c.Iexpr()), e.getExprType(c.Fexpr()))
+	case *IntDivFloatContext:
+		return promoteArithType(e.getExprType(c.Iexpr()), e.getExprType(c.Fexpr()))
+	}
+
 	// Float-VALUED expressions (literals, explicit (double) casts, float
-	// arithmetic) produce a double. Typed-name fexprs were resolved above;
+	// negation) produce a double. Typed-name fexprs were resolved above;
 	// what reaches here is genuinely double — so a double literal mixed with a
 	// fixed/bigint field is caught by the double/exact reject (#894).
 	switch c := ctx.(type) {
 	case *FloatLiteralContext, *FloatFromStrContext, *FloatFromIntContext,
-		*FloatFromIndexContext, *FloatAddFloatContext, *FloatSubFloatContext,
-		*FloatMulFloatContext, *FloatDivFloatContext, *FloatAddIntContext,
-		*FloatSubIntContext, *FloatMulIntContext, *FloatDivIntContext,
-		*FloatNegateContext, *IntAddFloatContext, *IntSubFloatContext,
-		*IntMulFloatContext, *IntDivFloatContext:
+		*FloatFromIndexContext, *FloatNegateContext:
 		return TypeDouble
+	case *DivideRoundingByContext:
+		// The fp-family divide ops (fp/, fphalfup/, fpdivr/) always produce
+		// a fixed result.
+		return TypeFixed
 	case *FloatParenContext:
 		return e.getExprType(c.Fexpr())
 	}
@@ -1767,17 +1799,18 @@ func (e *PostfixEmitter) VisitFloatSubFloat(ctx *FloatSubFloatContext) interface
 	return nil
 }
 
+// Mul/div route through emitMixedFloatArith exactly like the fexpr add/sub
+// visitors: a fixed field that matched the grammar's fexpr alternative (e.g.
+// the dividend of `divide … rounding by`) must dispatch to fp*/fp/, not the
+// double ops — staking mantissas exceed a double's exact-integer range, so an
+// unconditional fmul silently loses precision (#903, same class as #874/#884).
 func (e *PostfixEmitter) VisitFloatMulFloat(ctx *FloatMulFloatContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("fmul")
+	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), "*", "b*", "fmul", "fp*")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitFloatDivFloat(ctx *FloatDivFloatContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("fdiv")
+	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), "/", "b/", "fdiv", "fp/")
 	return nil
 }
 
@@ -1792,16 +1825,12 @@ func (e *PostfixEmitter) VisitFloatSubInt(ctx *FloatSubIntContext) interface{} {
 }
 
 func (e *PostfixEmitter) VisitFloatMulInt(ctx *FloatMulIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("fmul")
+	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), "*", "b*", "fmul", "fp*")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitFloatDivInt(ctx *FloatDivIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("fdiv")
+	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), "/", "b/", "fdiv", "fp/")
 	return nil
 }
 
@@ -1818,8 +1847,20 @@ func (e *PostfixEmitter) VisitFloatDivInt(ctx *FloatDivIntContext) interface{} {
 // is currently impossible by grammar; if the rule is ever relaxed, the
 // emitter falls through to the ternary path with the visited expression.
 func (e *PostfixEmitter) VisitDivideRoundingBy(ctx *DivideRoundingByContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
+	// The fp-family divide ops require fixed operands. Integer/bigint
+	// operands are promoted via cvfp; a double operand is rejected per the
+	// #876 policy (the runtime will not promote double→fixed implicitly, and
+	// staking mantissas exceed a double's exact-integer range) — authors opt
+	// in with an explicit `(fixed)` cast. (#903)
+	for i := 0; i < 2; i++ {
+		if t := e.getExprType(ctx.Fexpr(i)); t == TypeDouble {
+			e.emitError("divide … rounding by requires fixed operands; " +
+				"cast the double operand explicitly (e.g. \"(fixed) x\")")
+			return nil
+		}
+	}
+	e.emitWithTypeConversion(ctx.Fexpr(0), TypeFixed)
+	e.emitWithTypeConversion(ctx.Fexpr(1), TypeFixed)
 
 	rText := ctx.FP_LITERAL().GetText()
 	rMantissa, err := parseFpLiteralToMantissa(rText)
@@ -2138,16 +2179,12 @@ func (e *PostfixEmitter) VisitIntSubFloat(ctx *IntSubFloatContext) interface{} {
 }
 
 func (e *PostfixEmitter) VisitIntMulFloat(ctx *IntMulFloatContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("fmul")
+	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), "*", "b*", "fmul", "fp*")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntDivFloat(ctx *IntDivFloatContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("fdiv")
+	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), "/", "b/", "fdiv", "fp/")
 	return nil
 }
 
