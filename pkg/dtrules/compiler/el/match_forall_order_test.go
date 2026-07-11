@@ -28,9 +28,10 @@ import "testing"
 // this pins precisely. The other reachable forall aggregations (`all … have`,
 // `one of … has a`) are covered by execution in
 // pkg/dtrules/boolean_aggregation_exec_test.go. The `there is … in … where`
-// array variants (boolThereIsInArrayWhere/NoInArrayWhere) are unreachable —
-// the entity alternatives shadow them in the grammar — so the fix to those is
-// defensive only.
+// array variants (boolThereIsInArrayWhere/NoInArrayWhere) are shadowed by the
+// entity alternatives in the grammar; the entity visitors route array-typed
+// operands to the same fold shape (#869), covered by
+// pkg/dtrules/issue_869_exec_test.go.
 func TestMatchForallOperandOrder(t *testing.T) {
 	c := NewCompiler()
 	c.SetSymbols(map[string]string{"kids": "array", "cases": "array", "tax": "integer"})
