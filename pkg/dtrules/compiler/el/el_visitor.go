@@ -1084,6 +1084,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#strValueOfBool.
 	VisitStrValueOfBool(ctx *StrValueOfBoolContext) interface{}
 
+	// Visit a parse tree produced by ELParser#strUppercaseOf.
+	VisitStrUppercaseOf(ctx *StrUppercaseOfContext) interface{}
+
 	// Visit a parse tree produced by ELParser#strBech32OfBytes.
 	VisitStrBech32OfBytes(ctx *StrBech32OfBytesContext) interface{}
 
@@ -1092,6 +1095,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#strTableLookup.
 	VisitStrTableLookup(ctx *StrTableLookupContext) interface{}
+
+	// Visit a parse tree produced by ELParser#strLowercaseOf.
+	VisitStrLowercaseOf(ctx *StrLowercaseOfContext) interface{}
 
 	// Visit a parse tree produced by ELParser#strUsing.
 	VisitStrUsing(ctx *StrUsingContext) interface{}

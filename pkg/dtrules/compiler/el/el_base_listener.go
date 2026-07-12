@@ -2176,6 +2176,12 @@ func (s *BaseELListener) EnterStrValueOfBool(ctx *StrValueOfBoolContext) {}
 // ExitStrValueOfBool is called when production strValueOfBool is exited.
 func (s *BaseELListener) ExitStrValueOfBool(ctx *StrValueOfBoolContext) {}
 
+// EnterStrUppercaseOf is called when production strUppercaseOf is entered.
+func (s *BaseELListener) EnterStrUppercaseOf(ctx *StrUppercaseOfContext) {}
+
+// ExitStrUppercaseOf is called when production strUppercaseOf is exited.
+func (s *BaseELListener) ExitStrUppercaseOf(ctx *StrUppercaseOfContext) {}
+
 // EnterStrBech32OfBytes is called when production strBech32OfBytes is entered.
 func (s *BaseELListener) EnterStrBech32OfBytes(ctx *StrBech32OfBytesContext) {}
 
@@ -2193,6 +2199,12 @@ func (s *BaseELListener) EnterStrTableLookup(ctx *StrTableLookupContext) {}
 
 // ExitStrTableLookup is called when production strTableLookup is exited.
 func (s *BaseELListener) ExitStrTableLookup(ctx *StrTableLookupContext) {}
+
+// EnterStrLowercaseOf is called when production strLowercaseOf is entered.
+func (s *BaseELListener) EnterStrLowercaseOf(ctx *StrLowercaseOfContext) {}
+
+// ExitStrLowercaseOf is called when production strLowercaseOf is exited.
+func (s *BaseELListener) ExitStrLowercaseOf(ctx *StrLowercaseOfContext) {}
 
 // EnterStrUsing is called when production strUsing is entered.
 func (s *BaseELListener) EnterStrUsing(ctx *StrUsingContext) {}

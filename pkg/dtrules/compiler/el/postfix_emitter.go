@@ -2550,6 +2550,23 @@ func (e *PostfixEmitter) VisitStrToLower(ctx *StrToLowerContext) interface{} {
 	return nil
 }
 
+// VisitStrLowercaseOf / VisitStrUppercaseOf: `lowercase of <s>` /
+// `uppercase of <s>` (#904). Before the dedicated tokens, `lowercase of url`
+// parsed as relationship traversal (`url lowercase getrelationship`), which
+// errors at runtime on string operands — the op existed with no surface.
+// Equivalent to the `change <s> to lower/upper case` forms.
+func (e *PostfixEmitter) VisitStrLowercaseOf(ctx *StrLowercaseOfContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("lowercase")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitStrUppercaseOf(ctx *StrUppercaseOfContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("uppercase")
+	return nil
+}
+
 // VisitStrTimestamp: `get current_timestamp` → `gettimestamp`. The
 // runtime op is niladic and pushes the current wall-clock timestamp
 // (RFC 3339 string). Pre-fix this rule silently emitted nothing.
@@ -3919,10 +3936,154 @@ func (e *PostfixEmitter) VisitEmptyCondition(ctx *EmptyConditionContext) interfa
 // ============================================================================
 
 func (e *PostfixEmitter) VisitStatementList(ctx *StatementListContext) interface{} {
-	for _, block := range ctx.AllBlock() {
-		e.Visit(block)
+	e.visitBlocksScoped(ctx.AllBlock())
+	return nil
+}
+
+// visitBlocksScoped walks a statement list, giving local-variable and
+// create-as declarations a real scope (#904). The runtime local machinery is
+// `<init> allocate <body> execute deallocate pop` — the declared slot is only
+// live while <body> runs. At context level the table body block is already on
+// the data stack when the declaration postfix runs, so the flat shape works;
+// inside an action body there is no block on the stack, and the flat shape
+// emitted by the Local* visitors underflowed at `execute` while the
+// statements that used the local ran AFTER `deallocate`. Here the remaining
+// statements of the list become the executed block:
+//
+//	<init> allocate { <rest of statements> } execute deallocate pop
+//
+// nesting recursively for each declaration, mirroring how
+// compileContextsPostfix nests per-cell context declarations.
+func (e *PostfixEmitter) visitBlocksScoped(blocks []IBlockContext) {
+	for i, b := range blocks {
+		if decl := scopedDeclOf(b); decl != nil && e.emitScopedLocalPrefix(decl) {
+			e.emit("allocate")
+			e.emit("{")
+			e.visitBlocksScoped(blocks[i+1:])
+			e.emit("}")
+			e.emit("execute")
+			e.emit("deallocate")
+			e.emit("pop")
+			return
+		}
+		e.Visit(b)
+	}
+}
+
+// scopedDeclOf returns the localvariables or createstatement context when a
+// block consists of a single declaration statement, nil otherwise.
+func scopedDeclOf(b IBlockContext) antlr.ParseTree {
+	bs, ok := b.(*BlockStatementContext)
+	if !ok {
+		return nil
+	}
+	st, ok := bs.Statement().(*StatementContext)
+	if !ok || st == nil {
+		return nil
+	}
+	if lv := st.Localvariables(); lv != nil {
+		// The concrete alternative context is the localvariables child.
+		if pt, ok := lv.(antlr.ParseTree); ok {
+			return pt
+		}
+	}
+	if cs := st.Createstatement(); cs != nil {
+		if pt, ok := cs.(antlr.ParseTree); ok {
+			return pt
+		}
 	}
 	return nil
+}
+
+// emitScopedLocalPrefix declares the local and emits its initial value for
+// the scoped shape (everything up to, but not including, `allocate`).
+// Returns false for declaration forms that don't bind a new local (the
+// *Defined reference alts) and for create-as with a name that resolves in
+// the EDD — that form keeps the legacy attribute-binding lowering for
+// back-compat (see VisitCreateEntityAs).
+func (e *PostfixEmitter) emitScopedLocalPrefix(decl antlr.ParseTree) bool {
+	switch c := decl.(type) {
+	case *CreateEntityAsContext:
+		name := c.UndefinedIdent().GetText()
+		if e.lookupType(name) != "" {
+			return false // declared-attribute binding — legacy lowering
+		}
+		typeName := c.TypedEntity().GetText()
+		e.declareLocalEntity(name, TypeEntity, typeName)
+		e.emit("/" + typeName)
+		e.emit("createentity")
+	case *LocalEntityInitContext:
+		e.declareLocalEntity(c.UndefinedIdent().GetText(), TypeEntity, entityTypeFromEexpr(c.Eexpr()))
+		e.Visit(c.Eexpr())
+		e.emit("cve")
+	case *LocalEntityUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeEntity)
+		e.emit("null")
+	case *LocalLongInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeInteger)
+		e.Visit(c.Number())
+		e.emit("cvi")
+	case *LocalLongUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeInteger)
+		e.emit("null")
+	case *LocalDoubleInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeDouble)
+		e.Visit(c.Number())
+		e.emit("cvd")
+	case *LocalDoubleUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeDouble)
+		e.emit("null")
+	case *LocalBoolInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeBoolean)
+		e.Visit(c.Bexpr())
+		e.emit("cvb")
+	case *LocalBoolUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeBoolean)
+		e.emit("null")
+	case *LocalDateInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeDate)
+		e.Visit(c.Dexpr())
+		e.emit("cvd")
+	case *LocalDateUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeDate)
+		e.emit("null")
+	case *LocalArrayInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeArray)
+		e.Visit(c.ArrayExpr())
+	case *LocalArrayUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeArray)
+		e.emit("null")
+	case *LocalStringInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeString)
+		e.Visit(c.Strexpr())
+		e.emit("cvs")
+	case *LocalStringUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeString)
+		e.emit("null")
+	case *LocalBigIntInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeBigInt)
+		e.Visit(c.Bigexpr())
+		e.emit("cvbi")
+	case *LocalBigIntUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeBigInt)
+		e.emit("null")
+	case *LocalFixedInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeFixed)
+		e.emitWithTypeConversion(c.Iexpr(), TypeFixed)
+	case *LocalFixedUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeFixed)
+		e.emit("null")
+	case *LocalBytesInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeBytes)
+		e.Visit(c.Bytesexpr())
+		e.emit("cvbytes")
+	case *LocalBytesUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeBytes)
+		e.emit("null")
+	default:
+		return false // *Defined reference alts keep their existing lowering
+	}
+	return true
 }
 
 func (e *PostfixEmitter) VisitBlockStatement(ctx *BlockStatementContext) interface{} {
@@ -4624,27 +4785,31 @@ func (e *PostfixEmitter) VisitBoolStrIsNotOneOf(ctx *BoolStrIsNotOneOfContext) i
 //     <value> dup <dest1> swap addto <dest2> swap addto
 // Same shape works for entity / string / number / date values.
 
-// VisitAddDateToDest: `add <dexpr> to <addtodest>`. Non-dup counterpart —
-// was previously falling through and the default visit emitted the wrong
-// shape (arithmetic `+` instead of addto). Now uses the same swap+addto
-// pattern as AddEntityToDest.
+// VisitAddDateToDest: `add <dexpr> to <addtodest>`. The destination visitor
+// owns the store (`<arr> swap addto` for arrays) — appending another
+// `swap addto` here double-emitted the trailer for non-IDENT dexprs (#904;
+// bare-IDENT date values match the arrayExpr alternatives and never reach
+// this visitor). Mirrors VisitAddStrToDest (#781).
 func (e *PostfixEmitter) VisitAddDateToDest(ctx *AddDateToDestContext) interface{} {
 	e.Visit(ctx.Dexpr())
 	e.Visit(ctx.Addtodest())
-	e.emit("swap")
-	e.emit("addto")
 	return nil
 }
 
+// The dup-destination family relies on each destination visitor emitting its
+// own store (`<arr> swap addto` for array dests, `<field> + /<field> xdef`
+// for numeric dests) — appending an explicit `swap addto` here after the
+// dest visit double-emitted the trailer and corrupted the stack (#904, same
+// class as the #781 single-dest string fix). Shape:
+//
+//	<value> dup <dest0-with-store> <dest1-with-store>
+//
+// The first store consumes the dup'd copy, the second consumes the original.
 func (e *PostfixEmitter) VisitAddEntityToDestDup(ctx *AddEntityToDestDupContext) interface{} {
 	e.Visit(ctx.Eexpr())
 	e.emit("dup")
 	e.Visit(ctx.Addtodest(0))
-	e.emit("swap")
-	e.emit("addto")
 	e.Visit(ctx.Addtodest(1))
-	e.emit("swap")
-	e.emit("addto")
 	return nil
 }
 
@@ -4652,11 +4817,7 @@ func (e *PostfixEmitter) VisitAddStrToDestDup(ctx *AddStrToDestDupContext) inter
 	e.Visit(ctx.Strexpr())
 	e.emit("dup")
 	e.Visit(ctx.Addtodest(0))
-	e.emit("swap")
-	e.emit("addto")
 	e.Visit(ctx.Addtodest(1))
-	e.emit("swap")
-	e.emit("addto")
 	return nil
 }
 
@@ -4664,11 +4825,7 @@ func (e *PostfixEmitter) VisitAddDateToDestDup(ctx *AddDateToDestDupContext) int
 	e.Visit(ctx.Dexpr())
 	e.emit("dup")
 	e.Visit(ctx.Addtodest(0))
-	e.emit("swap")
-	e.emit("addto")
 	e.Visit(ctx.Addtodest(1))
-	e.emit("swap")
-	e.emit("addto")
 	return nil
 }
 
@@ -5995,10 +6152,15 @@ func (e *PostfixEmitter) VisitAddArrayNoMember(ctx *AddArrayNoMemberContext) int
 }
 
 func (e *PostfixEmitter) VisitAddEntityToDest(ctx *AddEntityToDestContext) interface{} {
+	// The destination visitor (VisitAddDestArray for the common array case)
+	// emits its own `swap addto` after pushing the array — emitting it here
+	// too produced a duplicate trailer that corrupted the stack on
+	// `add new T entity to <array>` (#904, same class as the #781 string
+	// fix). Bare-IDENT entity values match the arrayExpr alternatives
+	// instead, so this visitor is only reached for constructor-shaped
+	// eexprs.
 	e.Visit(ctx.Eexpr())
 	e.Visit(ctx.Addtodest())
-	e.emit("swap") // Java pattern: value dest swap addto
-	e.emit("addto")
 	return nil
 }
 
