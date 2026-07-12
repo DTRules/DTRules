@@ -1084,6 +1084,9 @@ type ELListener interface {
 	// EnterStrValueOfBool is called when entering the strValueOfBool production.
 	EnterStrValueOfBool(c *StrValueOfBoolContext)
 
+	// EnterStrUppercaseOf is called when entering the strUppercaseOf production.
+	EnterStrUppercaseOf(c *StrUppercaseOfContext)
+
 	// EnterStrBech32OfBytes is called when entering the strBech32OfBytes production.
 	EnterStrBech32OfBytes(c *StrBech32OfBytesContext)
 
@@ -1092,6 +1095,9 @@ type ELListener interface {
 
 	// EnterStrTableLookup is called when entering the strTableLookup production.
 	EnterStrTableLookup(c *StrTableLookupContext)
+
+	// EnterStrLowercaseOf is called when entering the strLowercaseOf production.
+	EnterStrLowercaseOf(c *StrLowercaseOfContext)
 
 	// EnterStrUsing is called when entering the strUsing production.
 	EnterStrUsing(c *StrUsingContext)
@@ -3055,6 +3061,9 @@ type ELListener interface {
 	// ExitStrValueOfBool is called when exiting the strValueOfBool production.
 	ExitStrValueOfBool(c *StrValueOfBoolContext)
 
+	// ExitStrUppercaseOf is called when exiting the strUppercaseOf production.
+	ExitStrUppercaseOf(c *StrUppercaseOfContext)
+
 	// ExitStrBech32OfBytes is called when exiting the strBech32OfBytes production.
 	ExitStrBech32OfBytes(c *StrBech32OfBytesContext)
 
@@ -3063,6 +3072,9 @@ type ELListener interface {
 
 	// ExitStrTableLookup is called when exiting the strTableLookup production.
 	ExitStrTableLookup(c *StrTableLookupContext)
+
+	// ExitStrLowercaseOf is called when exiting the strLowercaseOf production.
+	ExitStrLowercaseOf(c *StrLowercaseOfContext)
 
 	// ExitStrUsing is called when exiting the strUsing production.
 	ExitStrUsing(c *StrUsingContext)

@@ -1443,6 +1443,10 @@ func (v *BaseELVisitor) VisitStrValueOfBool(ctx *StrValueOfBoolContext) interfac
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitStrUppercaseOf(ctx *StrUppercaseOfContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitStrBech32OfBytes(ctx *StrBech32OfBytesContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1452,6 +1456,10 @@ func (v *BaseELVisitor) VisitStrConcatFloat(ctx *StrConcatFloatContext) interfac
 }
 
 func (v *BaseELVisitor) VisitStrTableLookup(ctx *StrTableLookupContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitStrLowercaseOf(ctx *StrLowercaseOfContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

@@ -608,6 +608,11 @@ strexpr
     | LPAREN STRING RPAREN indxExpr                         # strFromIndex
     | CHANGE strexpr TO LOWER_CASE                          # strToLower
     | CHANGE strexpr TO UPPER_CASE                          # strToUpper
+    // #904: direct case-fold surface. Without a dedicated token,
+    // `lowercase of url` parsed as relationship traversal (`url lowercase
+    // getrelationship`) and errored at runtime on string operands.
+    | LOWERCASE OF strexpr                                  # strLowercaseOf
+    | UPPERCASE OF strexpr                                  # strUppercaseOf
     | GET CURRENT_TIMESTAMP                                 # strTimestamp
     | USING eexpr LPAREN strexpr RPAREN                     # strUsing
     | RELATIONSHIP_BETWEEN eexpr AND eexpr                  # strRelationship
@@ -1195,6 +1200,8 @@ ISNOTNULL           : 'is' WS+ 'not' WS+ 'null' ;
 CHANGE              : 'change' ;
 UPPER_CASE          : 'upper' WS+ 'case' ;
 LOWER_CASE          : 'lower' WS+ 'case' ;
+LOWERCASE           : 'lowercase' ;
+UPPERCASE           : 'uppercase' ;
 BETWEEN             : 'between' ;
 BEFORE              : 'before' ;
 AFTER               : 'after' ;
