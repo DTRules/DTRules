@@ -1,5 +1,59 @@
 # DTRules Changelog
 
+## v1.19.0 — 2026-07-11
+
+The staking gate-4 unblock: the three EL codegen issues filed while
+implementing the staking recipient-aggregation and budget tables (#903, #904,
+#869) are fixed, with execution tests for each. In-action entity building now
+works end to end, and fixed-point dispatch is correct in every fexpr context.
+
+### Fixed
+
+- **fp dispatch for fexpr mul/div; divide-rounding operands coerced to fixed**
+  (#903). The six fexpr mul/div visitors emitted `fmul`/`fdiv` unconditionally,
+  so the top-level multiply of a `divide … rounding by` dividend degraded to
+  double math even for fixed×fixed operands — silently losing precision above
+  2^53 and breaking the `fphalfup/` fixed-operand contract. All six now route
+  through the same promote/cvfp/dispatch path as add/sub (#884); `getExprType`
+  propagates types through float-arithmetic compounds; `divideRoundingBy`
+  promotes integer/bigint operands via `cvfp` and rejects double operands with
+  a cast hint per the #876 policy.
+- **In-action entity building** (#904), four defects that all compiled clean
+  and failed at runtime:
+  - Local declarations in action bodies now have a real scope: the remaining
+    statements of the list become the executed block
+    (`<init> allocate { <rest> } execute deallocate pop`). The flat
+    context-level shape (unchanged) underflowed at `execute` in actions.
+  - `create T as <alias>` with an undeclared alias routes through the same
+    scoped-local machinery, so typed sets dispatch by the alias's EDD field
+    types instead of degrading to `cvi`, and the runtime `xdef` refusal is
+    gone. A declared-attribute alias keeps the legacy xdef binding.
+  - `add new T entity to coll` (and the entity/string/date dup-destination
+    forms) double-emitted the `swap addto` trailer the destination visitor
+    already owns — same class as the #781 string fix.
+- **`there is <x> in <array> where <p>` crashed at runtime** (#869). The
+  grammar's entity alternatives shadow the array alternatives, so the form
+  compiled to `<arr> entitypush …` and `entitypush` refused the array. The
+  entity-form visitors now route array-typed operands to the OR-accumulator
+  fold (`false { <p> or } <arr> forall`), covering all three `in/for/on`
+  spellings and both `there is` / `is there` orders.
+
+### Added
+
+- **`lowercase of <s>` / `uppercase of <s>`** strexpr surfaces (#904). New
+  `LOWERCASE`/`UPPERCASE` tokens; emits the registered `lowercase`/`uppercase`
+  ops and types as string, so `lowercase of a == lowercase of b` compiles to
+  `streq` — the case-insensitive URL dedup shape the staking spec needs.
+  (`change <s> to lower/upper case` continues to work.)
+
+### Tests
+
+- Execution tests for every fix: the staking budget shape at a
+  non-float64-representable mantissa (#903), in-action entity building over
+  real entities including nested locals and empty tail blocks (#904), and the
+  there-is-in-array folds (#869). Compile-shape pins for the add-family
+  trailers, case-fold postfix, and divide-rounding dispatch.
+
 ## v1.18.0 — 2026-07-02
 
 A comprehensive EL → postfix code-generation correctness pass: a cluster of
