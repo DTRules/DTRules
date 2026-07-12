@@ -5156,7 +5156,50 @@ func (e *PostfixEmitter) VisitBoolThereIsNoWhere(ctx *BoolThereIsNoWhereContext)
 	return nil
 }
 
+// eexprIsArray reports whether an eexpr that matched an entity-scope grammar
+// alternative actually names an array (local or declared). The parser cannot
+// tell `there is x in <entity> where …` from the array form — typedEntity and
+// typedArray both come from IDENT — so the entity alternatives shadow
+// boolThereIsInArrayWhere/NoInArrayWhere entirely and an array operand used
+// to compile to `<arr> entitypush …`, crashing at runtime when entitypush
+// calls REntityValue on the array (#869). Route by declared type instead.
+func (e *PostfixEmitter) eexprIsArray(ctx antlr.ParseTree) bool {
+	name := ctx.GetText()
+	if lv, ok := e.lookupLocal(name); ok {
+		return lv.Type == TypeArray
+	}
+	if e.lookupType(name) == TypeArray {
+		return true
+	}
+	// Dotted reference: fall back to the field segment, mirroring the
+	// colon-ref resolution in getExprType.
+	if idx := strings.LastIndex(name, "."); idx > 0 {
+		return e.lookupType(name[idx+1:]) == TypeArray
+	}
+	return false
+}
+
+// emitThereIsInArrayFold lowers `there is <x> in <array> where <p>` to the
+// OR-accumulator fold, same shape as boolOneOfHasa: forall pushes each
+// element onto the entity stack while running the body, so bare attribute
+// names in the predicate resolve against the current element. The bound name
+// <x> carries no scope of its own (exactly like `all … have`).
+func (e *PostfixEmitter) emitThereIsInArrayFold(arr, pred antlr.ParseTree) {
+	// Block before array — opForall is ( body array -- ). See #877.
+	e.emit("false")
+	e.emit("{")
+	e.Visit(pred)
+	e.emit("or")
+	e.emit("}")
+	e.Visit(arr)
+	e.emit("forall")
+}
+
 func (e *PostfixEmitter) VisitBoolThereIsInEntityWhere(ctx *BoolThereIsInEntityWhereContext) interface{} {
+	if e.eexprIsArray(ctx.Eexpr(1)) {
+		e.emitThereIsInArrayFold(ctx.Eexpr(1), ctx.Bexpr())
+		return nil
+	}
 	e.Visit(ctx.Eexpr(1))
 	e.emit("entitypush")
 	e.Visit(ctx.Bexpr())
@@ -5167,6 +5210,11 @@ func (e *PostfixEmitter) VisitBoolThereIsInEntityWhere(ctx *BoolThereIsInEntityW
 }
 
 func (e *PostfixEmitter) VisitBoolThereIsNoInEntityWhere(ctx *BoolThereIsNoInEntityWhereContext) interface{} {
+	if e.eexprIsArray(ctx.Eexpr(1)) {
+		e.emitThereIsInArrayFold(ctx.Eexpr(1), ctx.Bexpr())
+		e.emit("not")
+		return nil
+	}
 	e.Visit(ctx.Eexpr(1))
 	e.emit("entitypush")
 	e.Visit(ctx.Bexpr())
