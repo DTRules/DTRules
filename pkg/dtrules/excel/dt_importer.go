@@ -426,7 +426,96 @@ func (i *DTImporter) ImportDecisionTablesFromDir(dir string) (*DecisionTablesXML
 }
 
 // WriteXML writes the decision tables to an XML file.
+// normalizeProvenance backfills workbook provenance — XLSFile and the
+// <source> element — for tables that have none, before the XML is written.
+// Emitted XML is then a complete record an editor or sync tool can use to
+// locate every table's workbook, every compile.
+//
+// Tables created through the authoring SDK (Project.AddTable) historically
+// carried an empty <xls_file> and no <source> at all, while Excel-imported
+// tables carried both. Tooling that locates a table's workbook/sheet through
+// this metadata then sees two classes of table — and the SDK-authored ones
+// look like they don't exist even though the engine resolves and runs them
+// (observed in the staking rules: 19 of 34 tables were provenance-less).
+// The emitter owns this metadata: DTRules produces the XML on every compile,
+// so every compile must emit it for every table.
+//
+// Existing provenance is PRESERVED, never rewritten — <source> records where
+// a table was imported from, and the round-trip contract keeps original
+// sheet positions intact (see TestRoundTripSourceMetadata). Backfill rules
+// for tables without provenance:
+//   - Workbook: inherited from the first table in the file that has one;
+//     failing that, derived from the XML filename ("staking_dt.xml" ->
+//     "staking.xlsx"). RelativePath inherits the same way.
+//   - Sheet numbers: appended after the file's highest existing sheet
+//     number, in ascending numeric TABLE_NUMBER order (non-numeric numbers
+//     after numeric, ties by name — the exporter's ordering), so assignment
+//     is deterministic across compiles and reads as "these tables land as
+//     appended sheets".
+func normalizeProvenance(tables *DecisionTablesXML, xmlPath string) {
+	if tables == nil || len(tables.Tables) == 0 {
+		return
+	}
+
+	workbook, rel, maxSheet := "", "", 0
+	var missing []int
+	for i := range tables.Tables {
+		t := &tables.Tables[i]
+		if workbook == "" && strings.TrimSpace(t.XLSFile) != "" {
+			workbook = strings.TrimSpace(t.XLSFile)
+		}
+		if t.Source != nil {
+			if rel == "" && strings.TrimSpace(t.Source.RelativePath) != "" {
+				rel = strings.TrimSpace(t.Source.RelativePath)
+			}
+			if t.Source.SheetNumber > maxSheet {
+				maxSheet = t.Source.SheetNumber
+			}
+		} else {
+			missing = append(missing, i)
+		}
+	}
+	if workbook == "" {
+		base := strings.TrimSuffix(filepath.Base(xmlPath), ".xml")
+		base = strings.TrimSuffix(base, "_dt")
+		workbook = base + ".xlsx"
+	}
+	if rel == "" {
+		rel = workbook
+	}
+	fileName := filepath.Base(workbook)
+
+	// Deterministic append order for the provenance-less tables.
+	sort.SliceStable(missing, func(a, b int) bool {
+		ta, tb := &tables.Tables[missing[a]], &tables.Tables[missing[b]]
+		na, errA := strconv.Atoi(strings.TrimSpace(ta.AttributeFields.TableNumber))
+		nb, errB := strconv.Atoi(strings.TrimSpace(tb.AttributeFields.TableNumber))
+		if errA == nil && errB == nil {
+			return na < nb
+		}
+		if errA == nil {
+			return true
+		}
+		if errB == nil {
+			return false
+		}
+		return ta.TableName < tb.TableName
+	})
+	for _, i := range missing {
+		t := &tables.Tables[i]
+		maxSheet++
+		t.Source = &SourceXML{RelativePath: rel, FileName: fileName, SheetNumber: maxSheet}
+	}
+	for i := range tables.Tables {
+		if strings.TrimSpace(tables.Tables[i].XLSFile) == "" {
+			tables.Tables[i].XLSFile = workbook
+		}
+	}
+}
+
 func (i *DTImporter) WriteXML(tables *DecisionTablesXML, filename string) error {
+	normalizeProvenance(tables, filename)
+
 	// Open file for writing
 	f, err := os.Create(filename)
 	if err != nil {

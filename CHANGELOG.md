@@ -1,5 +1,19 @@
 # DTRules Changelog
 
+## Unreleased
+
+### Fixed
+- **XML emission backfills workbook provenance for every table** (`DTImporter.WriteXML`).
+  Tables created through the authoring SDK (`Project.AddTable`) were emitted with an empty
+  `<xls_file>` and no `<source>` element, while Excel-imported tables carried both — so
+  editors and sync tooling that locate a table's workbook/sheet through this metadata saw
+  two classes of table, and SDK-authored ones looked like they didn't exist even though the
+  engine resolves and runs them (observed in the staking rules: 19 of 34 tables were
+  provenance-less). Every write now backfills missing provenance: workbook inherited from a
+  sibling table or derived from the XML filename (`staking_dt.xml` → `staking.xlsx`), sheet
+  numbers appended after the file's highest existing sheet in TABLE_NUMBER order. Existing
+  provenance is preserved untouched (round-trip contract).
+
 ## v1.19.0 — 2026-07-11
 
 The staking gate-4 unblock: the three EL codegen issues filed while
