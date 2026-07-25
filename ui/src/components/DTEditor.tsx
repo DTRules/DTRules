@@ -373,7 +373,10 @@ export function DTEditor() {
       const row: Record<string, string | number> = {
         type: 'condition',
         idx,
-        number: cond.number,
+        // Display ordinal position, not the stored number: authored
+        // numbers drift (1,2,4,7...) but the engine counts positions, and
+        // the debug view must match this view row for row.
+        number: idx + 1,
         description: cond.description,
         postfix: cond.postfix,
         comment: cond.comment,
@@ -390,7 +393,8 @@ export function DTEditor() {
       const row: Record<string, string | number> = {
         type: 'action',
         idx,
-        number: action.number,
+        // Ordinal position (see conditions above).
+        number: idx + 1,
         description: action.description,
         postfix: action.postfix,
         comment: action.comment,

@@ -88,6 +88,7 @@ function DSLWithLinks({
   text,
   resolve,
   stack,
+  actionNumber,
   onDrill,
   onJump,
   onOpenTable,
@@ -95,18 +96,33 @@ function DSLWithLinks({
   text: string;
   resolve: (name: string) => LinkTarget | null;
   stack: DebugFrame[];
+  /** Ordinal of the enclosing action; calls inside a multi-call action are
+   *  sub-numbered actionNumber.1, actionNumber.2, ... */
+  actionNumber?: number;
   onDrill: (dt: DebugNode) => void;
   onJump: (pass: DebugNode) => void;
   onOpenTable: (table: string) => void;
 }) {
+  const totalCalls = [...text.matchAll(PERFORM_RE)].length;
+  let callIndex = 0;
   const parts: React.ReactNode[] = [];
   let last = 0;
   for (const match of text.matchAll(PERFORM_RE)) {
     const name = match[1] || match[2];
+    callIndex++;
+    const callLabel =
+      actionNumber !== undefined && totalCalls > 1 ? `${actionNumber}.${callIndex}` : undefined;
     const target = resolve(name);
     if (!target) continue;
     const start = (match.index ?? 0) + match[0].indexOf(name);
     parts.push(...withValueHovers(text.slice(last, start), stack, last));
+    if (callLabel) {
+      parts.push(
+        <span key={`call-${start}`} className="text-[9px] text-muted-foreground align-super mr-0.5">
+          {callLabel}
+        </span>
+      );
+    }
     parts.push(
       <button
         key={`link-${start}`}
@@ -280,6 +296,23 @@ export function DebugTableView({
             <span className="text-muted-foreground">▸</span>
           </span>
         ))}
+        {(() => {
+          // Label this table with its call position in the caller: action
+          // ordinal, plus .k when that action performs several tables
+          // (action 5's calls are 5.1, 5.2, ... — matching the DSL row).
+          const a = frame.callerAction;
+          if (!a) return null;
+          const calls = a.children.filter((c) => c.name === 'decisiontable');
+          const prefix = a.name === 'initialaction' ? 'I' : '';
+          const n = `${prefix}${a.attrs?.n ?? '?'}`;
+          const k = calls.length > 1 ? `.${calls.findIndex((c) => c.number === frame.dtNode.number) + 1}` : '';
+          return (
+            <span className="text-sm font-mono text-muted-foreground" title="Call position in the caller (action, and call within the action)">
+              {n}
+              {k}
+            </span>
+          );
+        })()}
         <span className="text-lg font-bold">{frame.tableName}</span>
         {frame.callerPass && (
           <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={onOut} title="Return to the caller at the following action">
@@ -398,10 +431,10 @@ export function DebugTableView({
               })}
 
               {/* conditions with actual results */}
-              {(table.conditions || []).map((cond) => {
+              {(table.conditions || []).map((cond, condIdx) => {
                 return (
-                  <tr key={`c${cond.number}`}>
-                    <td className="border border-border/40 text-center text-muted-foreground">{cond.number}</td>
+                  <tr key={`c${condIdx}`}>
+                    <td className="border border-border/40 text-center text-muted-foreground">{condIdx + 1}</td>
                     <td className="border border-border/40 px-2 py-1 font-mono whitespace-pre-wrap">
                       {withValueHovers(cond.description || cond.postfix || '', stack, cond.number)}
                     </td>
@@ -433,7 +466,7 @@ export function DebugTableView({
                 const called = executed ? calledTablesOf(executed) : new Map<string, DebugNode>();
                 return (
                   <tr
-                    key={`a${act.number}`}
+                    key={`a${actIdx}`}
                     className={cn(
                       executed ? 'cursor-pointer' : 'opacity-40',
                       isFocus ? 'bg-amber-500/15' : executed && 'hover:bg-accent/40'
@@ -441,13 +474,14 @@ export function DebugTableView({
                     onClick={() => executed && onFocus({ kind: 'action', node: executed.number })}
                     title={executed ? 'State after this action' : 'Not executed in this pass'}
                   >
-                    <td className="border border-border/40 text-center text-muted-foreground">{act.number}</td>
+                    <td className="border border-border/40 text-center text-muted-foreground">{actIdx + 1}</td>
                     <td className="border border-border/40 px-2 py-1 font-mono whitespace-pre-wrap">
                       {isFocus && <span className="text-amber-400 font-bold">▶ </span>}
                       <DSLWithLinks
                         text={act.description || act.postfix || ''}
                         resolve={resolverFor(called)}
                         stack={stack}
+                        actionNumber={actIdx + 1}
                         onDrill={onDrill}
                         onJump={onPass}
                         onOpenTable={onOpenTable}
