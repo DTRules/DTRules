@@ -32,6 +32,13 @@ import * as api from '@/api/client';
 /** Top-level editor tabs. */
 export type AppTab = 'edd' | 'dt' | 'test' | 'debug';
 
+/** What the project's DTRules.xml declares, as resolved by the server. */
+export interface ProjectConfig {
+  xmlDir: string;
+  entry: string;
+  declared: boolean;
+}
+
 /** localStorage key for the recently-opened-projects list. */
 const RECENT_PROJECTS_KEY = 'dtrules.recentProjects';
 const MAX_RECENT_PROJECTS = 10;
@@ -62,6 +69,8 @@ function saveRecentProjects(paths: string[]): void {
 interface ProjectState {
   // Project state
   projectPath: string | null;
+  /** Effective project configuration reported by the server (DTRules.xml). */
+  projectConfig: ProjectConfig | null;
   isLoading: boolean;
   error: string | null;
 
@@ -73,6 +82,7 @@ interface ProjectState {
   // The server rejects all mutations; this flag hides the editing surfaces.
   readOnly: boolean;
   setReadOnly: (readOnly: boolean) => void;
+  setProjectConfig: (cfg: ProjectConfig | null) => void;
 
   // Files
   files: FileInfo[];
@@ -134,11 +144,13 @@ interface ProjectState {
 export const useProjectStore = create<ProjectState>((set, get) => ({
   // Initial state
   projectPath: null,
+  projectConfig: null,
   isLoading: false,
   error: null,
   recentProjects: loadRecentProjects(),
   readOnly: false,
   setReadOnly: (readOnly) => set({ readOnly }),
+  setProjectConfig: (cfg) => set({ projectConfig: cfg }),
   files: [],
   eddFiles: [],
   dtFiles: [],
@@ -164,6 +176,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
       set({
         projectPath: path,
+        projectConfig: (response as { config?: ProjectConfig }).config || null,
         eddFiles: response.eddFiles || [],
         dtFiles: response.dtFiles || [],
         mapFiles: response.mapFiles || [],

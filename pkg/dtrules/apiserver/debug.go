@@ -32,6 +32,22 @@ func dirExists(path string) bool {
 	return err == nil && info.IsDir()
 }
 
+// projectConfig is what a project's DTRules.xml declares (all optional).
+type projectConfig struct {
+	XMLDir string `xml:"xml_dir"`
+	Entry  string `xml:"entry"`
+}
+
+// readProjectConfig parses DTRules.xml at the project root. A missing or
+// malformed file yields the zero config — declarations are optional.
+func readProjectConfig(projectPath string) projectConfig {
+	var cfg projectConfig
+	if data, err := os.ReadFile(filepath.Join(projectPath, "DTRules.xml")); err == nil {
+		_ = xml.Unmarshal(data, &cfg)
+	}
+	return cfg
+}
+
 // projectXMLDir resolves where a project keeps its rules XML: the xml_dir
 // override from DTRules.xml when declared (how non-sample projects like
 // staking point at nested rule dirs), else the xml/ subdirectory when it
@@ -39,24 +55,39 @@ func dirExists(path string) bool {
 // so the CLI and the editor agree on scope — fingerprints in particular
 // must hash the same file set.
 func projectXMLDir(projectPath string) string {
-	if data, err := os.ReadFile(filepath.Join(projectPath, "DTRules.xml")); err == nil {
-		var cfg struct {
-			XMLDir string `xml:"xml_dir"`
+	if cfg := readProjectConfig(projectPath); cfg.XMLDir != "" {
+		dir := cfg.XMLDir
+		if !filepath.IsAbs(dir) {
+			dir = filepath.Join(projectPath, dir)
 		}
-		if xml.Unmarshal(data, &cfg) == nil && cfg.XMLDir != "" {
-			dir := cfg.XMLDir
-			if !filepath.IsAbs(dir) {
-				dir = filepath.Join(projectPath, dir)
-			}
-			if dirExists(dir) {
-				return dir
-			}
+		if dirExists(dir) {
+			return dir
 		}
 	}
 	if xd := filepath.Join(projectPath, "xml"); dirExists(xd) {
 		return xd
 	}
 	return projectPath
+}
+
+// configPayload describes the project's effective configuration for the UI:
+// where the rules actually load from (relative to the project root) and the
+// declared entry table. Caller holds s.mu (read).
+func (s *Server) configPayload() map[string]interface{} {
+	if s.projectPath == "" {
+		return nil
+	}
+	cfg := readProjectConfig(s.projectPath)
+	xmlDir := projectXMLDir(s.projectPath)
+	rel, err := filepath.Rel(s.projectPath, xmlDir)
+	if err != nil {
+		rel = xmlDir
+	}
+	return map[string]interface{}{
+		"xmlDir":   rel,
+		"entry":    cfg.Entry,
+		"declared": cfg.XMLDir != "" || cfg.Entry != "",
+	}
 }
 
 // debugSession is the server-side state of one loaded trace: the parsed

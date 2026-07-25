@@ -769,6 +769,7 @@ func (s *Server) handleProjectOpen(w http.ResponseWriter, r *http.Request) {
 	defer s.mu.RUnlock()
 	jsonResponse(w, map[string]interface{}{
 		"success":  true,
+		"config":   s.configPayload(),
 		"eddFiles": s.eddFiles,
 		"dtFiles":  s.dtFiles,
 		"mapFiles": s.mapFiles,
@@ -788,6 +789,7 @@ func (s *Server) handleProjectCurrent(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, map[string]interface{}{
 		"success":  true,
 		"path":     s.projectPath,
+		"config":   s.configPayload(),
 		"eddFiles": s.eddFiles,
 		"dtFiles":  s.dtFiles,
 		"mapFiles": s.mapFiles,

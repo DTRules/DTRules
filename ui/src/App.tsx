@@ -18,7 +18,7 @@ import { getCurrentProject, healthCheck } from '@/api/client';
 import { deriveProjectName } from '@/lib/utils';
 
 function App() {
-  const { activeTab, setActiveTabWithHistory, projectPath, error, clearError, isLoading, adoptProject, autoSelectFirstItems, setReadOnly } = useProjectStore();
+  const { activeTab, setActiveTabWithHistory, projectPath, projectConfig, error, clearError, isLoading, adoptProject, autoSelectFirstItems, setReadOnly, setProjectConfig } = useProjectStore();
   const { showWelcome } = useOnboardingStore();
   const { toast } = useToast();
   const [backendConnected, setBackendConnected] = useState(false);
@@ -48,6 +48,7 @@ function App() {
         const current = await getCurrentProject();
         if (current.success) {
           setReadOnly(!!current.readOnly);
+          setProjectConfig((current as { config?: import('@/stores/projectStore').ProjectConfig }).config || null);
           if (current.path) {
             await adoptProject(
               current.path,
@@ -113,6 +114,25 @@ function App() {
               <span className="text-xs font-mono text-muted-foreground truncate" title={projectPath}>
                 {projectPath}
               </span>
+              {/* Effective configuration (DTRules.xml) — visible, not hidden in a file */}
+              {projectConfig && (
+                <span className="ml-auto flex items-center gap-2 text-xs font-mono shrink-0">
+                  <span
+                    className="px-2 py-0.5 rounded-full border border-border text-muted-foreground"
+                    title="Where this project's rules load from (DTRules.xml xml_dir)"
+                  >
+                    rules: {projectConfig.xmlDir}
+                  </span>
+                  {projectConfig.entry && (
+                    <span
+                      className="px-2 py-0.5 rounded-full border border-border text-muted-foreground"
+                      title="Default entry decision table (DTRules.xml <entry>)"
+                    >
+                      entry: {projectConfig.entry}
+                    </span>
+                  )}
+                </span>
+              )}
             </div>
           )}
           <Tabs value={activeTab} onValueChange={(v) => setActiveTabWithHistory(v as typeof activeTab)} className="flex-1 flex flex-col">
