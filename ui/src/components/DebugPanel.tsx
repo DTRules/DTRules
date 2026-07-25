@@ -253,6 +253,9 @@ export function DebugPanel() {
   const [nodeCount, setNodeCount] = useState(0);
   const [context, setContext] = useState<{ table?: string; column?: string; action?: string }>({});
   const [stack, setStack] = useState<DebugFrame[]>([]);
+  // Per-entity-name expand/collapse for the stack panel; unset = default
+  // (top frame open, others collapsed).
+  const [stackOpen, setStackOpen] = useState<Record<string, boolean>>({});
   const [loadError, setLoadError] = useState<string | null>(null);
   const [browsing, setBrowsing] = useState(true);
 
@@ -764,30 +767,50 @@ export function DebugPanel() {
             <div className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">
               Entity stack
             </div>
-            {[...stack].reverse().map((f, i) =>
-              f.name === 'primitives' || f.name === 'decisiontables' ? (
-                <div key={`${f.id}-${i}`} className="px-2.5 py-1 text-xs text-muted-foreground border border-border/30 rounded-md">
-                  {f.name} <span className="text-[10px]">(system · {Object.keys(f.attrs).length} entries hidden)</span>
+            {[...stack].reverse().map((f, i, arr) => {
+              if (f.name === 'primitives' || f.name === 'decisiontables') {
+                return (
+                  <div key={`${f.id}-${i}`} className="px-2.5 py-1 text-xs text-muted-foreground border border-border/30 rounded-md">
+                    {f.name} <span className="text-[10px]">(system · {Object.keys(f.attrs).length} entries hidden)</span>
+                  </div>
+                );
+              }
+              // The list renders bottom of stack first, so the LAST row is
+              // the top of the entity stack — the current context. It opens
+              // by default; the rest start collapsed. Toggles are remembered
+              // by entity name so they survive stepping.
+              const open = stackOpen[f.name] ?? i === arr.length - 1;
+              return (
+                <div key={`${f.id}-${i}`} className="border border-border/40 rounded-md overflow-hidden">
+                  <div
+                    className="px-2.5 py-1 bg-muted/30 flex items-baseline gap-2 cursor-pointer select-none hover:bg-muted/50"
+                    onClick={() => setStackOpen((s) => ({ ...s, [f.name]: !open }))}
+                    title={open ? 'Collapse' : 'Expand'}
+                  >
+                    <span className="text-xs text-muted-foreground w-3">{open ? '▾' : '▸'}</span>
+                    <span className="text-sm font-semibold">{f.name}</span>
+                    <span className="text-[10px] font-mono text-muted-foreground">#{f.id}</span>
+                    {!open && (
+                      <span className="ml-auto text-[10px] text-muted-foreground">
+                        {Object.keys(f.attrs).length} fields
+                      </span>
+                    )}
+                  </div>
+                  {open && (
+                    <div className="px-2.5 py-1 font-mono text-[11px] leading-relaxed">
+                      {Object.entries(f.attrs)
+                        .sort(([a], [b]) => a.localeCompare(b))
+                        .map(([k, v]) => (
+                          <div key={k} className="flex gap-2">
+                            <span className="text-muted-foreground min-w-32 truncate">{k}</span>
+                            <span className="truncate" title={v}>{v}</span>
+                          </div>
+                        ))}
+                    </div>
+                  )}
                 </div>
-              ) : (
-              <div key={`${f.id}-${i}`} className="border border-border/40 rounded-md overflow-hidden">
-                <div className="px-2.5 py-1 bg-muted/30 flex items-baseline gap-2">
-                  <span className="text-sm font-semibold">{f.name}</span>
-                  <span className="text-[10px] font-mono text-muted-foreground">#{f.id}</span>
-                </div>
-                <div className="px-2.5 py-1 font-mono text-[11px] leading-relaxed">
-                  {Object.entries(f.attrs)
-                    .sort(([a], [b]) => a.localeCompare(b))
-                    .map(([k, v]) => (
-                      <div key={k} className="flex gap-2">
-                        <span className="text-muted-foreground min-w-32 truncate">{k}</span>
-                        <span className="truncate" title={v}>{v}</span>
-                      </div>
-                    ))}
-                </div>
-              </div>
-              )
-            )}
+              );
+            })}
           </div>
         </ScrollArea>
       </div>
