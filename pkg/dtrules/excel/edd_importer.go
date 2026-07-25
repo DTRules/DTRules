@@ -316,7 +316,6 @@ func (i *EDDImporter) ImportEDDFromDir(dir string) (*EDDXML, error) {
 	return edd, nil
 }
 
-// WriteXML writes the EDD to an XML file
 // normalizeEntityNumbers backfills missing entity numbers. Entities that
 // already carry a numeric number keep it; the rest are assigned numbers in
 // document order, in increments of 100, continuing above the highest
@@ -337,6 +336,7 @@ func normalizeEntityNumbers(edd *EDDXML) {
 	}
 }
 
+// WriteXML writes the EDD to an XML file
 func (i *EDDImporter) WriteXML(edd *EDDXML, filename string) error {
 	if edd.Version == "" {
 		edd.Version = "2"
