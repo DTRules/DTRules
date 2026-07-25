@@ -338,6 +338,29 @@ func exportStatsToStep(s *excel.ExportStats) *dtrsync.StepSummary {
 	return step
 }
 
+// normalizeDTXMLFiles rewrites every *_dt.xml under xmlDir through the
+// canonical WriteXML funnel, which renumbers all sections sequentially.
+func normalizeDTXMLFiles(xmlDir string) error {
+	return filepath.WalkDir(xmlDir, func(p string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !strings.HasSuffix(strings.ToLower(d.Name()), "_dt.xml") {
+			return err
+		}
+		before, rerr := os.ReadFile(p)
+		if rerr != nil {
+			return rerr
+		}
+		doc, perr := excel.UnmarshalDecisionTablesXML(before)
+		if perr != nil {
+			return fmt.Errorf("%s: %w", p, perr)
+		}
+		imp := excel.NewDTImporter()
+		if werr := imp.WriteXML(doc, p); werr != nil {
+			return fmt.Errorf("%s: %w", p, werr)
+		}
+		return nil
+	})
+}
+
 // printBuildSummary prints the build summary unless quiet mode suppresses it.
 func printBuildSummary(summary *dtrsync.BuildSummary, quiet bool) {
 	if quiet && !summary.HasErrors() {
@@ -435,6 +458,16 @@ func (c *CLI) runXMLAuthoredBuild(xmlDir, excelDir string, opts *buildOptions) i
 
 	if err := os.MkdirAll(excelDir, 0755); err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating excel dir: %v\n", err)
+		return 1
+	}
+
+	// Normalize the source XML in place BEFORE exporting: section numbers
+	// (contexts/conditions/actions) become clean ordinals via the canonical
+	// WriteXML funnel. The step-2 re-import may be skipped as already-in-
+	// sync, so this is the only guaranteed normalization pass for
+	// XML-authored projects.
+	if err := normalizeDTXMLFiles(xmlDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Error normalizing XML: %v\n", err)
 		return 1
 	}
 

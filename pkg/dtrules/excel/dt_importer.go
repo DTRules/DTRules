@@ -534,8 +534,30 @@ func normalizeTableNumbers(tables *DecisionTablesXML) {
 	}
 }
 
+// normalizeSectionNumbers renumbers every per-table section sequentially
+// (1..N in document order): contexts, conditions, actions. Section numbers
+// are display labels with no semantic value — the engine executes by
+// position — so a user-specified sequence buys nothing, and drifted
+// numbering (1,2,4,7,...) made the editor, the debugger, and engine error
+// messages disagree about which action was which.
+func normalizeSectionNumbers(tables *DecisionTablesXML) {
+	for i := range tables.Tables {
+		t := &tables.Tables[i]
+		for j := range t.Contexts.Details {
+			t.Contexts.Details[j].Number = j + 1
+		}
+		for j := range t.Conditions {
+			t.Conditions[j].Number = strconv.Itoa(j + 1)
+		}
+		for j := range t.Actions {
+			t.Actions[j].Number = strconv.Itoa(j + 1)
+		}
+	}
+}
+
 func (i *DTImporter) WriteXML(tables *DecisionTablesXML, filename string) error {
 	normalizeTableNumbers(tables)
+	normalizeSectionNumbers(tables)
 	normalizeProvenance(tables, filename)
 
 	// Open file for writing
