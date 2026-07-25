@@ -1,8 +1,41 @@
 # DTRules Changelog
 
-## Unreleased
+## v1.20.0 — 2026-07-25
+
+The debuggability release: execution tracing wired end to end with verified
+replay, a trace debugger and sheet-faithful editor embedded in the binary,
+and emission fixes so external projects (staking) are first-class.
+
+### Added
+- **Execution tracing, end to end** (#912): the engine emits real traces —
+  table/column/action events, def events with value postfix, entity ids,
+  initial mapping data, array ops — with a verified replayer.
+- **Trace debugger** (#913): `dtrules edit` Debug tab — the executing table
+  as the primary view, breakpoints and stepping, collapsible entity-stack
+  frames, hover values, zero-pass call handling.
+- **Editor embedded in the binary** (#910): `dtrules edit`, sheet-faithful
+  UI; API server extracted as an importable package (#911).
+- **First-class external projects**: `DTRules.xml` project config honored
+  (xml_dir, entry table), lone-EDD loads, project-aware bare `dtrules`,
+  one-command `dtrules debug <input.xml>`.
+- Build normalizes section numbering in every decision table (contexts,
+  conditions, actions 1..N in document order) — numbers are labels, the
+  engine executes by position, and drifted numbering made the editor,
+  debugger, and engine errors disagree about which action was which.
+- Entity/table number backfill on emission (#908).
 
 ### Fixed
+- **Trace correctness + hygiene** (#914): positional array ops traced and
+  replayed, date replay, mapping round-trip, UI tests.
+- **EDD symbol tables case-fold**: camel-case fields lost their declared
+  type at compile (emitter queries lower-case) and compiled down the wrong
+  postfix path; EL name matching is case-insensitive everywhere, typed case
+  preserved for display.
+- **`dtrules run` pushes loaded singletons** — it executed against
+  default-valued singletons disconnected from the input, silently taking
+  fallback columns.
+- **Sync manifest stores relative paths** (`RecordExport`) — absolute
+  machine paths broke a committed manifest on any other checkout.
 - **XML emission backfills workbook provenance for every table** (`DTImporter.WriteXML`).
   Tables created through the authoring SDK (`Project.AddTable`) were emitted with an empty
   `<xls_file>` and no `<source>` element, while Excel-imported tables carried both — so
