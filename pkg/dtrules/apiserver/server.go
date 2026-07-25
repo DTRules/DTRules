@@ -86,6 +86,9 @@ type Server struct {
 	tables        []*DecisionTableData
 	modified      map[string]bool
 	entityFactory *entity.Factory
+
+	// debug is the active trace-debugging session, if any (one per server).
+	debug *debugSession
 }
 
 // findEntity returns the entity with the given name, or nil.
@@ -419,6 +422,12 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("/api/execute", s.handleExecute)
 	mux.HandleFunc("/api/execute/validate", s.handleValidateExecution)
 
+	// Trace debugger endpoints
+	mux.HandleFunc("/api/debug/load", s.handleDebugLoad)
+	mux.HandleFunc("/api/debug/tree", s.handleDebugTree)
+	mux.HandleFunc("/api/debug/position", s.handleDebugPosition)
+	mux.HandleFunc("/api/debug/console", s.handleDebugConsole)
+
 	origin := s.cfg.CORSOrigin
 	if origin == "" {
 		origin = "*"
@@ -438,6 +447,11 @@ func readOnlyGuard(next http.Handler) http.Handler {
 		"/api/execute":            true,
 		"/api/execute/validate":   true,
 		"/api/compile/expression": true,
+		// Trace debugging is a read operation: replay mutates only an
+		// in-memory sandbox session, and the console blocks mutating ops.
+		"/api/debug/load":     true,
+		"/api/debug/position": true,
+		"/api/debug/console":  true,
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/browse" {

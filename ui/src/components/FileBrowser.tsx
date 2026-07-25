@@ -7,9 +7,11 @@ import { browseDirectory, type BrowseEntry } from '@/api/client';
 
 interface FileBrowserProps {
   onSelect: (path: string) => void;
+  /** When set, clicking a file selects it (directories still navigate). */
+  selectFiles?: boolean;
 }
 
-export function FileBrowser({ onSelect }: FileBrowserProps) {
+export function FileBrowser({ onSelect, selectFiles }: FileBrowserProps) {
   const [currentPath, setCurrentPath] = useState('');
   const [entries, setEntries] = useState<BrowseEntry[]>([]);
   const [isProject, setIsProject] = useState(false);
@@ -44,6 +46,8 @@ export function FileBrowser({ onSelect }: FileBrowserProps) {
   const handleEntryClick = (entry: BrowseEntry) => {
     if (entry.isDir) {
       fetchDirectory(entry.path);
+    } else if (selectFiles) {
+      onSelect(entry.path);
     }
   };
 
@@ -118,11 +122,17 @@ export function FileBrowser({ onSelect }: FileBrowserProps) {
 
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
-          {isProject ? <span className="text-green-500">DTRules project detected</span> : 'Navigate to project folder'}
+          {selectFiles
+            ? 'Click a file to select it'
+            : isProject
+              ? <span className="text-green-500">DTRules project detected</span>
+              : 'Navigate to project folder'}
         </span>
-        <Button onClick={handleSelectCurrent} disabled={!currentPath}>
-          Select This Folder
-        </Button>
+        {!selectFiles && (
+          <Button onClick={handleSelectCurrent} disabled={!currentPath}>
+            Select This Folder
+          </Button>
+        )}
       </div>
     </div>
   );

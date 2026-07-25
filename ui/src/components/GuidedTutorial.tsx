@@ -93,7 +93,7 @@ function CustomTooltip({
 
 // Step definitions with tab requirements
 interface TutorialStep extends Step {
-  tab?: 'edd' | 'dt' | 'test' | 'tree';
+  tab?: 'edd' | 'dt' | 'test' | 'tree' | 'debug';
 }
 
 /**

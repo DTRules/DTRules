@@ -453,3 +453,65 @@ export async function getSampleProjects(): Promise<{
 }> {
   return fetchJSON(`${API_BASE}/samples`);
 }
+
+// ============================================================================
+// Trace Debugger Endpoints
+// ============================================================================
+
+/** A node in the loaded trace tree. */
+export interface DebugNode {
+  number: number;
+  name: string;
+  attrs?: Record<string, string>;
+  body?: string;
+  children: DebugNode[];
+}
+
+/** An entity frame in the replayed entity stack. */
+export interface DebugFrame {
+  name: string;
+  id: number;
+  attrs: Record<string, string>;
+}
+
+/** Result of loading a trace for debugging. */
+export interface DebugLoadResponse {
+  success: boolean;
+  error?: string;
+  tracePath?: string;
+  nodes?: number;
+  dtrulesVersion?: string;
+  rulesFingerprint?: string;
+  fingerprintMatch?: 'match' | 'mismatch' | 'unknown';
+  verifyMismatches?: string[];
+}
+
+/** Result of positioning the replay session at a trace node. */
+export interface DebugPositionResponse {
+  success: boolean;
+  error?: string;
+  position?: number;
+  nodes?: number;
+  context?: { table?: string; column?: string; action?: string };
+  stack?: DebugFrame[];
+}
+
+/** Loads a trace file into the server's debug session. */
+export async function debugLoad(path: string): Promise<DebugLoadResponse> {
+  return fetchJSON(`${API_BASE}/debug/load`, { method: 'POST', body: JSON.stringify({ path }) });
+}
+
+/** Fetches the loaded trace as a tree. */
+export async function debugTree(): Promise<{ success: boolean; error?: string; tree?: DebugNode }> {
+  return fetchJSON(`${API_BASE}/debug/tree`);
+}
+
+/** Replays to a trace node ("run to here" / stepping). */
+export async function debugPosition(node: number): Promise<DebugPositionResponse> {
+  return fetchJSON(`${API_BASE}/debug/position`, { method: 'POST', body: JSON.stringify({ node }) });
+}
+
+/** Executes read-only postfix at the current position; returns the leftover data stack. */
+export async function debugConsole(postfix: string): Promise<{ success: boolean; error?: string; results?: string[] }> {
+  return fetchJSON(`${API_BASE}/debug/console`, { method: 'POST', body: JSON.stringify({ postfix }) });
+}
