@@ -287,7 +287,7 @@ export function DebugTableView({
         {/* Iteration navigator: which of N passes is in view */}
         {frame.passes.length === 0 ? (
           <span className="ml-auto text-xs text-amber-400/90">
-            performed here, but ran no passes — its context iterated zero times
+            executed here — its “for all” context had nothing to iterate, so no passes were recorded
           </span>
         ) : (
         <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
