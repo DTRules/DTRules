@@ -245,6 +245,28 @@ func (t *Trace) handleDef(node *TraceNode) error {
 		}
 	}
 
+	// Entity-reference defs record the referenced entity's identity in
+	// refentity/refid attributes; a postfix body cannot rebuild an entity.
+	if refid := node.Attributes["refid"]; refid != "" {
+		ref, ok := t.entityTable[refid]
+		if !ok {
+			name := dtrules.GetRName(node.Attributes["refentity"])
+			if name == nil {
+				return nil
+			}
+			var err error
+			ref, err = t.session.CreateEntity(name)
+			if err != nil {
+				return nil
+			}
+			t.entityTable[refid] = ref
+		}
+		if rname := dtrules.GetRName(attrName); rname != nil {
+			return entity.Put(rname, ref)
+		}
+		return nil
+	}
+
 	// Parse and execute the body to get the value
 	var value dtrules.Object
 	if body == "" {

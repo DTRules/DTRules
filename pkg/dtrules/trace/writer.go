@@ -113,6 +113,9 @@ func WriteFinalState(w io.Writer, state StackState) {
 		}
 		sort.Strings(sorted)
 		for _, s := range sorted {
+			if s == "" {
+				continue
+			}
 			v, err := e.Get(byName[s])
 			val := ""
 			if err == nil && v != nil {

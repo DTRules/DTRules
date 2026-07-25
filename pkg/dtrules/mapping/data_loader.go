@@ -431,6 +431,15 @@ func (l *dataLoader) updateReferences(entity dtrules.Entity, info *EntityInfo) e
 				isSame, _ := topEntity.GetName().Equals(entityRName)
 				if !isSame {
 					topEntity.Put(entityRName, entity)
+					// Entity-reference attribute: record by reference so
+					// replay can rebind it (a postfix body cannot rebuild
+					// an entity value).
+					l.state.TraceInfo("def", "",
+						"entity", topEntity.GetName().StringValue(),
+						"id", fmt.Sprintf("%d", topEntity.GetID()),
+						"name", entityRName.StringValue(),
+						"refentity", entity.GetName().StringValue(),
+						"refid", fmt.Sprintf("%d", entity.GetID()))
 				}
 			}
 		}

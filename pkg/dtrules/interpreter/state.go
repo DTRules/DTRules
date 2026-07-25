@@ -110,6 +110,10 @@ type DTState struct {
 	// false, since "first pass of nothing" has no defensible meaning.
 	loopIterations []int
 
+	// traceBound records entity ids whose arraybind events were emitted,
+	// so repeated pushes of one entity bind only once.
+	traceBound map[int]bool
+
 	// collector, when non-nil, enables interactive data collection (#852):
 	// it is consulted at each field read in Find. nil means batch execution
 	// — Find is unchanged and adds at most one nil-check.
@@ -397,7 +401,16 @@ func (s *DTState) EntityPush(entity dtrules.Entity) error {
 			"id", fmt.Sprintf("%d", entity.GetID()))
 		// Bind the entity's array-valued attributes to their array ids so
 		// trace replay can attach <addto> events to the right attribute.
-		// Idempotent across repeated pushes of the same entity.
+		// Emitted once per entity — a forall pushing the same entity every
+		// iteration must not bloat the trace with repeated binds.
+		if s.traceBound == nil {
+			s.traceBound = make(map[int]bool)
+		}
+		if s.traceBound[entity.GetID()] {
+			s.entityStk = append(s.entityStk, entity)
+			return nil
+		}
+		s.traceBound[entity.GetID()] = true
 		for _, attr := range entity.GetAttributeNames() {
 			if v, err := entity.Get(attr); err == nil {
 				if arr, ok := v.(*dtrules.RArray); ok {
@@ -739,10 +752,11 @@ func (s *DTState) traceAttrs(attrs []string) {
 	}
 }
 
-// traceEscape escapes XML-special characters in trace output.
+// traceEscaper escapes XML-special characters in trace output.
+var traceEscaper = strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;")
+
 func traceEscape(v string) string {
-	r := strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;")
-	return r.Replace(v)
+	return traceEscaper.Replace(v)
 }
 
 // TraceInfo emits a leaf trace element: <tag attrs...>body</tag>.
