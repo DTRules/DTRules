@@ -32,14 +32,32 @@ DIST_DIR  := dist
 
 all: build
 
-build:
-	@echo "Building $(BINARY) $(VERSION)..."
+# The standard build embeds the editor UI (`dtrules edit` serves it).
+# Requires npm for the UI bundle; use build-noui for a Go-only build.
+build: ui-dist
+	@echo "Building $(BINARY) $(VERSION) (editor embedded)..."
+	@mkdir -p $(BUILD_DIR)
+	go build -tags ui -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(BINARY) ./cmd/dtrules/
+
+# Go-only build without the editor (no npm needed); `dtrules edit` will
+# explain how to get an editor-enabled binary.
+build-noui:
+	@echo "Building $(BINARY) $(VERSION) (no editor)..."
 	@mkdir -p $(BUILD_DIR)
 	go build -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(BINARY) ./cmd/dtrules/
 
-install:
+# Build the editor UI bundle (ui/dist) for embedding. Requires npm.
+# VITE_API_URL=/api makes the served UI call its own origin.
+ui-dist:
+	@echo "Building editor UI bundle..."
+	cd ui && npm install --no-audit --no-fund && VITE_API_URL=/api npx vite build
+
+# Back-compat alias; the standard build now embeds the editor.
+build-edit: build
+
+install: ui-dist
 	@echo "Installing $(BINARY) $(VERSION)..."
-	go install -ldflags "$(LDFLAGS)" ./cmd/dtrules/
+	go install -tags ui -ldflags "$(LDFLAGS)" ./cmd/dtrules/
 
 clean:
 	@echo "Cleaning..."
@@ -78,14 +96,15 @@ version:
 	@echo "Date:    $(DATE)"
 
 # Release: cross-compile for all platforms and produce checksums in dist/
-release:
+# All release binaries embed the editor UI (-tags ui).
+release: ui-dist
 	@echo "Building release $(VERSION)..."
 	@mkdir -p $(DIST_DIR)
-	GOOS=linux   GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-linux-amd64       ./cmd/dtrules/
-	GOOS=linux   GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-linux-arm64       ./cmd/dtrules/
-	GOOS=darwin  GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-darwin-amd64      ./cmd/dtrules/
-	GOOS=darwin  GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-darwin-arm64      ./cmd/dtrules/
-	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-windows-amd64.exe ./cmd/dtrules/
+	GOOS=linux   GOARCH=amd64 go build -tags ui -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-linux-amd64       ./cmd/dtrules/
+	GOOS=linux   GOARCH=arm64 go build -tags ui -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-linux-arm64       ./cmd/dtrules/
+	GOOS=darwin  GOARCH=amd64 go build -tags ui -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-darwin-amd64      ./cmd/dtrules/
+	GOOS=darwin  GOARCH=arm64 go build -tags ui -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-darwin-arm64      ./cmd/dtrules/
+	GOOS=windows GOARCH=amd64 go build -tags ui -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY)-windows-amd64.exe ./cmd/dtrules/
 	cd $(DIST_DIR) && sha256sum * > checksums.txt
 	@echo "Release artifacts in $(DIST_DIR)/"
 	@ls -lh $(DIST_DIR)/
@@ -93,18 +112,18 @@ release:
 # Cross-compilation targets (individual platforms, output to build/)
 .PHONY: build-linux build-darwin build-windows build-all
 
-build-linux:
+build-linux: ui-dist
 	@echo "Building for Linux..."
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(BINARY)-linux-amd64 ./cmd/dtrules/
+	GOOS=linux GOARCH=amd64 go build -tags ui -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(BINARY)-linux-amd64 ./cmd/dtrules/
 
-build-darwin:
+build-darwin: ui-dist
 	@echo "Building for macOS..."
-	GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(BINARY)-darwin-amd64 ./cmd/dtrules/
-	GOOS=darwin GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(BINARY)-darwin-arm64 ./cmd/dtrules/
+	GOOS=darwin GOARCH=amd64 go build -tags ui -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(BINARY)-darwin-amd64 ./cmd/dtrules/
+	GOOS=darwin GOARCH=arm64 go build -tags ui -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(BINARY)-darwin-arm64 ./cmd/dtrules/
 
-build-windows:
+build-windows: ui-dist
 	@echo "Building for Windows..."
-	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(BINARY)-windows-amd64.exe ./cmd/dtrules/
+	GOOS=windows GOARCH=amd64 go build -tags ui -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(BINARY)-windows-amd64.exe ./cmd/dtrules/
 
 build-all: build-linux build-darwin build-windows
 	@echo "Built all platforms"

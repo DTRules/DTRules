@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -16,9 +15,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ProjectPicker } from '@/components/ProjectPicker';
 import { useProjectStore } from '@/stores/projectStore';
 import { useOnboardingStore } from '@/stores/onboardingStore';
 import {
@@ -75,6 +73,7 @@ export function Toolbar() {
     openProject,
     saveProject,
     projectPath,
+    readOnly,
     isLoading,
     loadEDD,
     loadDecisionTables,
@@ -87,14 +86,11 @@ export function Toolbar() {
   const { startTutorial, showWelcomeScreen } = useOnboardingStore();
   const [openDialogOpen, setOpenDialogOpen] = useState(false);
   const [faqDialogOpen, setFaqDialogOpen] = useState(false);
-  const [projectPathInput, setProjectPathInput] = useState('');
 
-  const handleOpenProject = async () => {
-    if (projectPathInput) {
-      const success = await openProject(projectPathInput);
-      if (success) {
-        setOpenDialogOpen(false);
-      }
+  const handleOpenProject = async (path: string) => {
+    const success = await openProject(path);
+    if (success) {
+      setOpenDialogOpen(false);
     }
   };
 
@@ -150,35 +146,25 @@ export function Toolbar() {
         {/* Open Project */}
         <Dialog open={openDialogOpen} onOpenChange={setOpenDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="ghost" size="sm" className="hover:bg-accent/50">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hover:bg-accent/50"
+              disabled={readOnly}
+              title={readOnly ? 'Server is read-only' : undefined}
+            >
               <FolderOpen className="h-4 w-4 mr-2" />
               Open
             </Button>
           </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[640px]">
           <DialogHeader>
             <DialogTitle>Open Project</DialogTitle>
             <DialogDescription>
-              Enter the path to a DTRules project directory containing EDD and DT XML files.
+              Pick a recent project, or browse to a directory containing EDD and DT XML files.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="projectPath">Project Path</Label>
-              <Input
-                id="projectPath"
-                placeholder="/path/to/project/xml"
-                value={projectPathInput}
-                onChange={(e) => setProjectPathInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleOpenProject()}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={handleOpenProject} disabled={!projectPathInput}>
-              Open Project
-            </Button>
-          </DialogFooter>
+          <ProjectPicker onOpen={handleOpenProject} />
         </DialogContent>
       </Dialog>
 
@@ -187,7 +173,8 @@ export function Toolbar() {
           variant="ghost"
           size="sm"
           onClick={() => saveProject()}
-          disabled={!projectPath || isLoading}
+          disabled={!projectPath || isLoading || readOnly}
+          title={readOnly ? 'Server is read-only' : undefined}
           data-tutorial="toolbar-save"
           className="hover:bg-accent/50"
         >

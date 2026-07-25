@@ -249,8 +249,8 @@ const tutorialSteps: TutorialStep[] = [
     // NOTE: Don't switch tabs here - tab button is always visible. Next step will switch.
   },
   {
-    target: '[data-tutorial="dt-list"]',
-    content: 'This panel lists all decision tables. Tables are organized by purpose - "Compute_Eligibility" is the main entry point, while helper tables like "Check_Age" handle specific checks.',
+    target: '[data-tutorial="decision-tables-section"]',
+    content: 'The Project Explorer lists all decision tables in table-number order. Tables are organized by purpose - "Compute_Eligibility" is the main entry point, while helper tables like "Check_Age" handle specific checks.',
     placement: 'right',
     disableBeacon: true,
     title: 'Table List',

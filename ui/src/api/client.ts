@@ -12,6 +12,7 @@
  */
 
 import type {
+  ApiResponse,
   ProjectOpenResponse,
   EDDResponse,
   DTListResponse,
@@ -89,6 +90,72 @@ export async function saveProject(): Promise<{ success: boolean; error?: string;
  */
 export async function listFiles(): Promise<{ success: boolean; error?: string; files?: FileInfo[] }> {
   return fetchJSON(`${API_BASE}/project/files`);
+}
+
+/** One entry in a directory listing from the browse endpoint. */
+export interface BrowseEntry {
+  name: string;
+  path: string;
+  isDir: boolean;
+}
+
+/** Response from the directory browse endpoint. */
+export interface BrowseResponse {
+  success: boolean;
+  error?: string;
+  /** Absolute path of the listed directory */
+  currentPath?: string;
+  /** Directory contents: '..' parent first, then dirs, then files */
+  entries?: BrowseEntry[];
+  /** True when the directory contains *_dt.xml / *_edd.xml files */
+  isProject?: boolean;
+}
+
+/**
+ * Lists a server-side directory for the project picker.
+ *
+ * @param path - Directory to list; omit for the server's home directory
+ */
+export async function browseDirectory(path?: string): Promise<BrowseResponse> {
+  const url = path ? `${API_BASE}/browse?path=${encodeURIComponent(path)}` : `${API_BASE}/browse`;
+  return fetchJSON(url);
+}
+
+/**
+ * Reports the project the backend already has loaded (e.g. passed to
+ * `dtrules edit` at startup). `path` is empty when none is loaded.
+ */
+export async function getCurrentProject(): Promise<{
+  success: boolean;
+  path?: string;
+  readOnly?: boolean;
+  eddFiles?: string[];
+  dtFiles?: string[];
+  mapFiles?: string[];
+}> {
+  return fetchJSON(`${API_BASE}/project/current`);
+}
+
+/**
+ * Renumbers decision tables to match the given order (100, 200, ...).
+ * Used by drag-and-drop reordering.
+ */
+export async function reorderDecisionTables(order: string[]): Promise<ApiResponse> {
+  return fetchJSON(`${API_BASE}/dt/reorder`, {
+    method: 'POST',
+    body: JSON.stringify({ order }),
+  });
+}
+
+/**
+ * Renumbers entities to match the given order (100, 200, ...).
+ * Used by drag-and-drop reordering.
+ */
+export async function reorderEntities(order: string[]): Promise<ApiResponse> {
+  return fetchJSON(`${API_BASE}/edd/reorder`, {
+    method: 'POST',
+    body: JSON.stringify({ order }),
+  });
 }
 
 // ============================================================================

@@ -1,69 +1,207 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import type { ReactNode } from 'react';
 import { useProjectStore } from '@/stores/projectStore';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import { Save, Table2 } from 'lucide-react';
-import type { ColDef, CellValueChangedEvent } from 'ag-grid-community';
+import { ArrowLeft, ArrowRight, Code2, Eye, Pencil, Save, Table2 } from 'lucide-react';
+import type {
+  ColDef,
+  CellValueChangedEvent,
+  ColumnResizedEvent,
+  ICellRendererParams,
+} from 'ag-grid-community';
 import type { DecisionTable } from '@/types/dtrules';
 
-// Color coding for decision table cells matching the tutorial
+/**
+ * Matches cross-table references in either surface:
+ * - EL DSL:  `perform <TableName>`
+ * - postfix: `/<TableName> performtable`
+ * The referenced name lands in capture group 1 or 2.
+ */
+const PERFORM_RE = /\bperform\s+([A-Za-z_][A-Za-z0-9_]*)|\/([A-Za-z_][A-Za-z0-9_]*)\s+performtable\b/g;
+
+/** Grid context shared with cell renderers. */
+interface DSLCellContext {
+  tableNames?: Set<string>;
+  navigate?: (name: string) => void;
+}
+
+/**
+ * DSL cell renderer: decision-table calls render as colored links that jump
+ * to the referenced table.
+ */
+function DSLCell(props: ICellRendererParams) {
+  const { tableNames, navigate } = (props.context || {}) as DSLCellContext;
+  const text = String(props.value ?? '');
+
+  if (!tableNames || !navigate || props.data?.type === 'header') {
+    return <span className="whitespace-pre-wrap">{text}</span>;
+  }
+
+  const parts: ReactNode[] = [];
+  let last = 0;
+  for (const match of text.matchAll(PERFORM_RE)) {
+    const name = match[1] || match[2];
+    if (!tableNames.has(name)) continue;
+    const start = (match.index ?? 0) + match[0].indexOf(name);
+    parts.push(text.slice(last, start));
+    parts.push(
+      <button
+        key={start}
+        className="text-blue-400 underline decoration-blue-400/40 underline-offset-2 hover:text-blue-300"
+        title={`Go to ${name}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          navigate(name);
+        }}
+      >
+        {name}
+      </button>
+    );
+    last = start + name.length;
+  }
+  parts.push(text.slice(last));
+  return <span className="whitespace-pre-wrap">{parts}</span>;
+}
+
+// User-adjusted column widths, persisted across tables and sessions.
+// Rule columns share one width so the matrix stays uniform.
+const COL_WIDTHS_KEY = 'dtrules.dtEditorColWidths';
+
+interface ColWidths {
+  number: number;
+  comment: number;
+  dsl: number;
+  rule: number;
+}
+
+const DEFAULT_COL_WIDTHS: ColWidths = { number: 40, comment: 220, dsl: 320, rule: 30 };
+
+function loadColWidths(): ColWidths {
+  try {
+    const saved = JSON.parse(localStorage.getItem(COL_WIDTHS_KEY) || '{}');
+    return { ...DEFAULT_COL_WIDTHS, ...saved };
+  } catch {
+    return { ...DEFAULT_COL_WIDTHS };
+  }
+}
+
+// Rule-cell color coding: bright letters only — no background fills, so the
+// column separators stay the dominant vertical structure.
+// justifyContent centers within the flex-layout cells of the dense theme.
 const getCellStyle = (params: { value: unknown }): Record<string, string> => {
   const value = String(params.value ?? '').toUpperCase().trim();
+  const centered = { justifyContent: 'center', textAlign: 'center' };
 
   switch (value) {
     case 'Y':
       // Green - condition must be true
-      return {
-        backgroundColor: 'rgba(34, 197, 94, 0.15)',
-        color: 'rgb(34, 197, 94)',
-        fontWeight: 'bold',
-        textAlign: 'center',
-      };
+      return { ...centered, color: 'rgb(34, 197, 94)', fontWeight: 'bold' };
     case 'N':
       // Red - condition must be false
-      return {
-        backgroundColor: 'rgba(239, 68, 68, 0.15)',
-        color: 'rgb(239, 68, 68)',
-        fontWeight: 'bold',
-        textAlign: 'center',
-      };
+      return { ...centered, color: 'rgb(239, 68, 68)', fontWeight: 'bold' };
     case 'X':
       // Blue - execute this action
-      return {
-        backgroundColor: 'rgba(59, 130, 246, 0.15)',
-        color: 'rgb(59, 130, 246)',
-        fontWeight: 'bold',
-        textAlign: 'center',
-      };
+      return { ...centered, color: 'rgb(59, 130, 246)', fontWeight: 'bold' };
     case '-':
     case '*':
       // Muted - don't care
-      return {
-        backgroundColor: 'rgba(128, 128, 128, 0.1)',
-        color: 'rgba(156, 163, 175, 0.8)',
-        textAlign: 'center',
-      };
+      return { ...centered, color: 'rgba(156, 163, 175, 0.8)' };
     default:
-      return { textAlign: 'center' };
+      return { ...centered };
   }
 };
 
 export function DTEditor() {
-  const { decisionTables, currentTable, selectTable, updateTable } = useProjectStore();
+  const { decisionTables, currentTable, selectTable, updateTable, readOnly } = useProjectStore();
   const [editedTable, setEditedTable] = useState<DecisionTable | null>(null);
+  // When on, the DSL column shows the compiled postfix instead (read-only —
+  // postfix is a build artifact and is never hand-edited).
+  const [showPostfix, setShowPostfix] = useState(false);
+  // Viewing mode by default; edit mode unlocks inline editing.
+  const [editMode, setEditMode] = useState(false);
+
+  // A read-only backend permits no edit mode at all.
+  useEffect(() => {
+    if (readOnly) setEditMode(false);
+  }, [readOnly]);
+  const [colWidths, setColWidths] = useState<ColWidths>(loadColWidths);
+
+  // Table-level navigation history for perform-link jumps (browser-style).
+  const [history, setHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const navigatingRef = useRef(false);
+
+  useEffect(() => {
+    const name = currentTable?.tableName;
+    if (!name) return;
+    if (navigatingRef.current) {
+      navigatingRef.current = false;
+      return;
+    }
+    setHistory((h) => {
+      if (h[historyIndex] === name) return h;
+      const next = h.slice(0, historyIndex + 1);
+      next.push(name);
+      setHistoryIndex(next.length - 1);
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentTable?.tableName]);
+
+  const navigateToTable = useCallback(
+    (name: string) => {
+      if (name !== currentTable?.tableName) selectTable(name);
+    },
+    [currentTable?.tableName, selectTable]
+  );
+
+  const goBack = () => {
+    if (historyIndex <= 0) return;
+    navigatingRef.current = true;
+    setHistoryIndex(historyIndex - 1);
+    selectTable(history[historyIndex - 1]);
+  };
+
+  const goForward = () => {
+    if (historyIndex >= history.length - 1) return;
+    navigatingRef.current = true;
+    setHistoryIndex(historyIndex + 1);
+    selectTable(history[historyIndex + 1]);
+  };
+
+  const tableNames = useMemo(
+    () => new Set(decisionTables.map((t) => t.name)),
+    [decisionTables]
+  );
+
+  // Record drag-resizes so widths carry over to every table (and session).
+  const handleColumnResized = useCallback((event: ColumnResizedEvent) => {
+    if (!event.finished || !event.source?.startsWith('ui')) return;
+    const columns = event.columns ?? (event.column ? [event.column] : []);
+    if (!columns.length) return;
+
+    setColWidths((prev) => {
+      const next = { ...prev };
+      for (const col of columns) {
+        const id = col.getColId();
+        const width = Math.round(col.getActualWidth());
+        if (id === 'number') next.number = width;
+        else if (id === 'comment') next.comment = width;
+        else if (id === 'description' || id === 'postfix') next.dsl = width;
+        else if (id.startsWith('col_')) next.rule = width;
+      }
+      try {
+        localStorage.setItem(COL_WIDTHS_KEY, JSON.stringify(next));
+      } catch {
+        // localStorage unavailable — widths just won't persist
+      }
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     if (currentTable) {
@@ -78,149 +216,231 @@ export function DTEditor() {
     await updateTable(editedTable);
   };
 
-  // Generate column definitions for the grid
+  // Commit a table-number change: the server shifts colliding/following
+  // tables down by 100 and the reloaded list reflects the new order.
+  const handleRenumber = async () => {
+    if (!editedTable || !currentTable) return;
+    if (editedTable.tableNumber === currentTable.tableNumber) return;
+    await updateTable(editedTable);
+  };
+
+  // Column definitions for the table grid. The whole decision table —
+  // contexts, initial actions, conditions, actions, policy statements — is
+  // one grid with section header rows, mirroring the Excel sheet, so the
+  // rule columns stay vertically aligned top to bottom.
   const columnDefs = useMemo<ColDef[]>(() => {
     if (!editedTable) return [];
+
+    const notSeparator = (params: { data?: { type?: string } }) =>
+      editMode &&
+      (params.data?.type === 'condition' || params.data?.type === 'action');
+
+    const totalCols = 3 + editedTable.columnCount;
 
     const cols: ColDef[] = [
       {
         headerName: '#',
         field: 'number',
-        width: 50,
-        pinned: 'left',
+        width: colWidths.number,
         editable: false,
+        cellDataType: 'text',
+        // Section header rows put their label here and span the full grid
+        // width so titles sit at the left edge, like the sheet's banded rows.
+        colSpan: (params) => (params.data?.type === 'header' ? totalCols : 1),
+        cellStyle: (params) => {
+          const style: Record<string, string> = {};
+          if (params.data?.type === 'header') {
+            style.fontWeight = '600';
+            style.letterSpacing = '0.05em';
+            style.justifyContent = 'flex-start';
+          } else {
+            style.justifyContent = 'center';
+            style.color = 'rgba(156, 163, 175, 0.7)';
+          }
+          return style;
+        },
       },
       {
-        headerName: 'Description',
-        field: 'description',
-        width: 300,
-        pinned: 'left',
-        editable: true,
+        headerName: 'Comments',
+        field: 'comment',
+        width: colWidths.comment,
+        editable: notSeparator,
+        wrapText: true,
+        autoHeight: true,
+        cellStyle: {
+          fontStyle: 'italic',
+          color: 'rgba(156, 163, 175, 0.9)',
+          lineHeight: '1.3',
+          wordBreak: 'break-word',
+        },
+      },
+      {
+        headerName: showPostfix ? 'Postfix (read-only)' : 'DSL',
+        field: showPostfix ? 'postfix' : 'description',
+        width: colWidths.dsl,
+        editable: (params) => !showPostfix && notSeparator(params),
+        cellRenderer: DSLCell,
+        wrapText: true,
+        autoHeight: true,
+        cellStyle: (params) => {
+          const style: Record<string, string> = {};
+          if (params.data?.type === 'header') {
+            style.fontWeight = '600';
+            style.letterSpacing = '0.05em';
+            return style;
+          }
+          style.fontFamily = 'monospace';
+          style.fontSize = '12px';
+          style.lineHeight = '1.4';
+          style.wordBreak = 'break-word';
+          if (showPostfix) style.color = 'rgba(156, 163, 175, 0.9)';
+          return style;
+        },
       },
     ];
 
-    // Add column for each decision column
     for (let i = 1; i <= editedTable.columnCount; i++) {
       cols.push({
-        headerName: `C${i}`,
+        headerName: `${i}`,
         field: `col_${i}`,
-        width: 60,
-        editable: true,
+        width: colWidths.rule,
+        headerClass: 'rule-col-header',
+        editable: notSeparator,
         cellEditor: 'agSelectCellEditor',
-        cellEditorParams: {
-          values: ['Y', 'N', '-', '*', 'X', ''],
-        },
+        // Conditions cycle Y/N/-/*; actions are X or blank
+        cellEditorParams: (params: { data?: { type?: string } }) => ({
+          values: params.data?.type === 'action' ? ['X', ''] : ['Y', 'N', '-', '*'],
+        }),
         cellStyle: getCellStyle,
       });
     }
 
     return cols;
-  }, [editedTable]);
+  }, [editedTable, showPostfix, colWidths, editMode]);
 
-  // Generate row data for conditions
-  const conditionRowData = useMemo(() => {
-    if (!editedTable || !editedTable.conditions) return [];
+  // The full decision table as one row set, in the Excel sheet's order.
+  // Section header rows separate CONTEXTS / INITIAL ACTIONS / CONDITIONS /
+  // ACTIONS / POLICY STATEMENTS. Condition and action rows carry their index
+  // within their own list so edits route back correctly.
+  const matrixRowData = useMemo(() => {
+    if (!editedTable) return [];
 
-    return editedTable.conditions.map((cond) => {
+    const rows: Record<string, string | number>[] = [];
+    // The label lives in `number` — the # column spans the full grid width
+    // for header rows, so the title renders from the left edge.
+    const header = (label: string) =>
+      rows.push({ type: 'header', number: label, comment: '', description: label, postfix: label });
+
+    header('CONTEXTS');
+    (editedTable.contexts || []).forEach((ctx, i) => {
+      rows.push({
+        type: 'context',
+        number: ctx.number || i + 1,
+        comment: ctx.comment,
+        description: ctx.description,
+        postfix: ctx.postfix,
+      });
+    });
+
+    header('INITIAL ACTIONS');
+    (editedTable.initialActions || '')
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line !== '')
+      .forEach((line, i) => {
+        rows.push({ type: 'initialAction', number: i + 1, comment: '', description: line, postfix: line });
+      });
+
+    header('CONDITIONS');
+    (editedTable.conditions || []).forEach((cond, idx) => {
       const row: Record<string, string | number> = {
         type: 'condition',
+        idx,
         number: cond.number,
         description: cond.description,
         postfix: cond.postfix,
         comment: cond.comment,
       };
-
       for (let i = 1; i <= editedTable.columnCount; i++) {
-        // Handle both string and number keys from API
         const cols = cond.columns as Record<string, string> | undefined;
         row[`col_${i}`] = cols?.[i] || cols?.[String(i)] || '-';
       }
-
-      return row;
+      rows.push(row);
     });
-  }, [editedTable]);
 
-  // Generate row data for actions
-  const actionRowData = useMemo(() => {
-    if (!editedTable || !editedTable.actions) return [];
-
-    return editedTable.actions.map((action) => {
+    header('ACTIONS');
+    (editedTable.actions || []).forEach((action, idx) => {
       const row: Record<string, string | number> = {
         type: 'action',
+        idx,
         number: action.number,
         description: action.description,
         postfix: action.postfix,
         comment: action.comment,
       };
-
       for (let i = 1; i <= editedTable.columnCount; i++) {
-        // Handle both string and number keys from API
         const cols = action.columns as Record<string, string> | undefined;
         row[`col_${i}`] = cols?.[i] || cols?.[String(i)] || '';
       }
-
-      return row;
+      rows.push(row);
     });
+
+    header('POLICY STATEMENTS');
+    (editedTable.policyStatements || []).forEach((ps) => {
+      rows.push({
+        type: 'policy',
+        number: ps.column,
+        comment: '',
+        description: ps.description,
+        postfix: ps.postfix || ps.description,
+      });
+    });
+
+    return rows;
   }, [editedTable]);
 
-  const handleConditionCellValueChanged = useCallback((event: CellValueChangedEvent) => {
+  // Section header row tints, echoing the Excel sheet's banded headers
+  const headerRowStyle = (label: unknown): Record<string, string> => {
+    switch (label) {
+      case 'CONTEXTS':
+        return { background: 'rgba(168, 85, 247, 0.10)' };
+      case 'INITIAL ACTIONS':
+        return { background: 'rgba(245, 158, 11, 0.08)' };
+      case 'CONDITIONS':
+        return { background: 'rgba(59, 130, 246, 0.10)' };
+      case 'ACTIONS':
+        return { background: 'rgba(34, 197, 94, 0.08)' };
+      default:
+        return { background: 'rgba(148, 163, 184, 0.08)' };
+    }
+  };
+
+  const handleCellValueChanged = useCallback((event: CellValueChangedEvent) => {
     if (!editedTable) return;
 
-    const rowIndex = event.rowIndex;
-    if (rowIndex === null) return;
-
     const field = event.colDef.field;
-    if (!field) return;
+    const rowType = event.data?.type;
+    const idx = event.data?.idx;
+    if (!field || typeof idx !== 'number' || (rowType !== 'condition' && rowType !== 'action')) return;
 
-    const newConditions = [...editedTable.conditions];
+    const isCondition = rowType === 'condition';
+    const list = isCondition ? [...editedTable.conditions] : [...editedTable.actions];
 
-    if (field === 'description') {
-      newConditions[rowIndex] = {
-        ...newConditions[rowIndex],
-        description: event.newValue,
-      };
+    if (field === 'description' || field === 'comment') {
+      list[idx] = { ...list[idx], [field]: event.newValue };
     } else if (field.startsWith('col_')) {
       const colNum = parseInt(field.replace('col_', ''));
-      newConditions[rowIndex] = {
-        ...newConditions[rowIndex],
-        columns: {
-          ...newConditions[rowIndex].columns,
-          [colNum]: event.newValue,
-        },
+      list[idx] = {
+        ...list[idx],
+        columns: { ...list[idx].columns, [colNum]: event.newValue },
       };
     }
 
-    setEditedTable({ ...editedTable, conditions: newConditions });
-  }, [editedTable]);
-
-  const handleActionCellValueChanged = useCallback((event: CellValueChangedEvent) => {
-    if (!editedTable) return;
-
-    const rowIndex = event.rowIndex;
-    if (rowIndex === null) return;
-
-    const field = event.colDef.field;
-    if (!field) return;
-
-    const newActions = [...editedTable.actions];
-
-    if (field === 'description') {
-      newActions[rowIndex] = {
-        ...newActions[rowIndex],
-        description: event.newValue,
-      };
-    } else if (field.startsWith('col_')) {
-      const colNum = parseInt(field.replace('col_', ''));
-      newActions[rowIndex] = {
-        ...newActions[rowIndex],
-        columns: {
-          ...newActions[rowIndex].columns,
-          [colNum]: event.newValue,
-        },
-      };
-    }
-
-    setEditedTable({ ...editedTable, actions: newActions });
+    setEditedTable(
+      isCondition
+        ? { ...editedTable, conditions: list as DecisionTable['conditions'] }
+        : { ...editedTable, actions: list as DecisionTable['actions'] }
+    );
   }, [editedTable]);
 
   if (!decisionTables.length) {
@@ -233,158 +453,131 @@ export function DTEditor() {
 
   return (
     <div className="h-full flex" data-tutorial="dt-editor">
-      {/* Table list sidebar */}
-      <div className="w-56 border-r border-border/50 flex flex-col" data-tutorial="dt-list">
-        <div className="p-3 border-b border-border/50 bg-gradient-to-r from-green-500/10 to-transparent">
-          <span className="text-sm font-semibold text-foreground/80">Decision Tables</span>
-        </div>
-        <ScrollArea className="flex-1">
-          {decisionTables.map((table) => (
-            <div
-              key={table.name}
-              className={cn(
-                "px-3 py-2 cursor-pointer hover:bg-accent",
-                currentTable?.tableName === table.name && "bg-accent"
-              )}
-              onClick={() => selectTable(table.name)}
-            >
-              <div className="text-sm font-medium">{table.name}</div>
-              <div className="text-xs text-muted-foreground">
-                {table.conditionCount} conditions, {table.actionCount} actions
-              </div>
-            </div>
-          ))}
-        </ScrollArea>
-      </div>
-
-      {/* Table editor */}
+      {/* Table editor; the table list lives in the Project Explorer */}
       <div className="flex-1 flex flex-col" data-tutorial="dt-grid">
         {editedTable ? (
           <>
             {/* Table header */}
-            <div className="p-4 border-b border-border/50 bg-gradient-to-r from-muted/30 via-transparent to-muted/30 flex items-center gap-4">
-              <div className="flex-1 flex items-center gap-4">
-                <div className="grid gap-1">
-                  <Label className="text-xs text-muted-foreground">Table Name</Label>
-                  <div className="text-sm font-medium">{editedTable.tableName}</div>
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-xs text-muted-foreground">Type</Label>
-                  <Select
-                    value={editedTable.type}
-                    onValueChange={(v) => setEditedTable({ ...editedTable, type: v as 'FIRST' | 'ALL' })}
-                  >
-                    <SelectTrigger className="w-24 h-8">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="FIRST">FIRST</SelectItem>
-                      <SelectItem value="ALL">ALL</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-1">
-                  <Label className="text-xs text-muted-foreground">Columns</Label>
-                  <div className="text-sm">{editedTable.columnCount}</div>
-                </div>
+            <div className="px-4 py-3 border-b border-border/50 bg-gradient-to-r from-muted/30 via-transparent to-muted/30 flex items-start gap-4">
+              {/* Table navigation: back/forward across perform-link jumps */}
+              <div className="flex items-center gap-0.5 pt-0.5">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={goBack}
+                  disabled={historyIndex <= 0}
+                  title="Back to previous table"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={goForward}
+                  disabled={historyIndex >= history.length - 1}
+                  title="Forward"
+                >
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </div>
-              <Button size="sm" onClick={handleSave} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0">
-                <Save className="h-4 w-4 mr-2" />
-                Save
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3">
+                  {editMode ? (
+                    <input
+                      value={editedTable.tableNumber}
+                      onChange={(e) => setEditedTable({ ...editedTable, tableNumber: e.target.value })}
+                      onKeyDown={(e) => e.key === 'Enter' && handleRenumber()}
+                      onBlur={handleRenumber}
+                      className="h-7 w-20 px-2 rounded-md border border-input bg-transparent font-mono text-sm"
+                      title="Table number — saving a colliding number shifts following tables down"
+                    />
+                  ) : (
+                    <span className="text-xl font-mono text-muted-foreground">
+                      {editedTable.tableNumber}
+                    </span>
+                  )}
+                  <h1 className="text-xl font-bold">{editedTable.tableName}</h1>
+                  <span
+                    className="h-7 px-2.5 inline-flex items-center rounded-md text-sm font-semibold text-emerald-400 border border-emerald-400/40 bg-emerald-400/5"
+                    title="Table type: FIRST stops at the first matching rule; ALL executes every matching rule"
+                  >
+                    {editedTable.type}
+                  </span>
+                </div>
+                {editedTable.comments && editedTable.comments.trim() !== '' && (
+                  <p className="mt-1 text-sm text-muted-foreground whitespace-pre-wrap">
+                    {editedTable.comments}
+                  </p>
+                )}
+              </div>
+              {/* Mode indicator + toggle: viewing (default) vs editing.
+                  On a read-only server there is no edit mode to offer. */}
+              {!readOnly && (
+                <Button
+                  size="sm"
+                  variant={editMode ? 'secondary' : 'outline'}
+                  onClick={() => setEditMode(!editMode)}
+                  className={cn(editMode && 'text-amber-400')}
+                  title={editMode ? 'Editing — click to return to viewing' : 'Viewing — click to edit'}
+                >
+                  {editMode ? <Pencil className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+                  {editMode ? 'Editing' : 'Viewing'}
+                </Button>
+              )}
+              <Button
+                size="sm"
+                variant={showPostfix ? 'secondary' : 'outline'}
+                onClick={() => setShowPostfix(!showPostfix)}
+                title={showPostfix ? 'Show authored DSL' : 'Show compiled postfix'}
+              >
+                <Code2 className="h-4 w-4 mr-2" />
+                Postfix
               </Button>
+              {!readOnly && (
+                <Button
+                  size="sm"
+                  onClick={handleSave}
+                  disabled={!editMode}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save
+                </Button>
+              )}
             </div>
 
-            {/* Decision table grids */}
-            <Tabs defaultValue="matrix" className="flex-1 flex flex-col">
-              <div className="border-b border-border/50 px-4 bg-muted/20">
-                <TabsList className="h-10">
-                  <TabsTrigger value="matrix">Decision Matrix</TabsTrigger>
-                  <TabsTrigger value="contexts">Contexts</TabsTrigger>
-                  <TabsTrigger value="policies">Policy Statements</TabsTrigger>
-                </TabsList>
+            {/* The entire decision table as one grid, in the Excel sheet's
+                order: CONTEXTS, INITIAL ACTIONS, CONDITIONS, ACTIONS, POLICY
+                STATEMENTS — section header rows inside the grid, every rule
+                column aligned top to bottom. */}
+            <div className={cn('flex-1 overflow-auto', editMode && 'bg-amber-500/[0.04]')}>
+              <div className="p-2">
+                <div className="border border-border/40 rounded-md overflow-hidden">
+                  <div className="ag-theme-alpine-dark ag-tight">
+                    <AgGridReact
+                      columnDefs={columnDefs}
+                      rowData={matrixRowData}
+                      context={{ tableNames, navigate: navigateToTable }}
+                      onCellValueChanged={handleCellValueChanged}
+                      onColumnResized={handleColumnResized}
+                      domLayout="autoHeight"
+                      getRowStyle={(params) =>
+                        params.data?.type === 'header'
+                          ? headerRowStyle(params.data?.description)
+                          : undefined
+                      }
+                      defaultColDef={{
+                        resizable: true,
+                        sortable: false,
+                        suppressMovable: true,
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
-
-              <TabsContent value="matrix" className="flex-1 m-0 overflow-hidden">
-                <div className="h-full flex flex-col gap-2 p-2">
-                  {/* Conditions grid - blue tint */}
-                  <div className="flex-1 min-h-0 bg-blue-500/5 rounded-lg border border-blue-500/10">
-                    <div className="p-2 text-sm font-medium text-blue-400 border-b border-blue-500/20 flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-blue-400" />
-                      Conditions
-                    </div>
-                    <div className="ag-theme-alpine-dark h-[calc(100%-2.5rem)]">
-                      <AgGridReact
-                        columnDefs={columnDefs}
-                        rowData={conditionRowData}
-                        onCellValueChanged={handleConditionCellValueChanged}
-                        defaultColDef={{
-                          resizable: true,
-                          sortable: false,
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Actions grid - green tint */}
-                  <div className="flex-1 min-h-0 bg-green-500/5 rounded-lg border border-green-500/10">
-                    <div className="p-2 text-sm font-medium text-green-400 border-b border-green-500/20 flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-green-400" />
-                      Actions
-                    </div>
-                    <div className="ag-theme-alpine-dark h-[calc(100%-2.5rem)]">
-                      <AgGridReact
-                        columnDefs={columnDefs}
-                        rowData={actionRowData}
-                        onCellValueChanged={handleActionCellValueChanged}
-                        defaultColDef={{
-                          resizable: true,
-                          sortable: false,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="contexts" className="flex-1 m-0 p-4 overflow-auto">
-                <div className="space-y-4">
-                  <h3 className="text-sm font-medium">Iteration Contexts</h3>
-                  {!editedTable.contexts || editedTable.contexts.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No contexts defined.</p>
-                  ) : (
-                    editedTable.contexts.map((ctx, index) => (
-                      <div key={index} className="p-4 border border-border rounded-md space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">Context {ctx.number}</span>
-                          <span className="text-sm text-muted-foreground">{ctx.description}</span>
-                        </div>
-                        <div className="font-mono text-xs bg-muted p-2 rounded">
-                          {ctx.postfix}
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="policies" className="flex-1 m-0 p-4 overflow-auto">
-                <div className="space-y-4">
-                  <h3 className="text-sm font-medium">Policy Statements</h3>
-                  {!editedTable.policyStatements || editedTable.policyStatements.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No policy statements defined.</p>
-                  ) : (
-                    editedTable.policyStatements.map((ps, index) => (
-                      <div key={index} className="p-4 border border-border rounded-md space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">Column {ps.column}</span>
-                        </div>
-                        <p className="text-sm">{ps.description}</p>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </TabsContent>
-            </Tabs>
+            </div>
           </>
         ) : (
           <div className="h-full flex items-center justify-center">

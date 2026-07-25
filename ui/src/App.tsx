@@ -14,10 +14,11 @@ import { TutorialOfferDialog } from '@/components/TutorialOfferDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
-import { healthCheck } from '@/api/client';
+import { getCurrentProject, healthCheck } from '@/api/client';
+import { deriveProjectName } from '@/lib/utils';
 
 function App() {
-  const { activeTab, setActiveTabWithHistory, projectPath, error, clearError, isLoading } = useProjectStore();
+  const { activeTab, setActiveTabWithHistory, projectPath, error, clearError, isLoading, adoptProject, autoSelectFirstItems, setReadOnly } = useProjectStore();
   const { showWelcome } = useOnboardingStore();
   const { toast } = useToast();
   const [backendConnected, setBackendConnected] = useState(false);
@@ -36,6 +37,32 @@ function App() {
     checkBackend();
     const interval = setInterval(checkBackend, 5000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Adopt a project the backend already has loaded (e.g. `dtrules edit <dir>`)
+  // so the editor opens straight into it instead of the welcome screen.
+  useEffect(() => {
+    if (projectPath) return;
+    (async () => {
+      try {
+        const current = await getCurrentProject();
+        if (current.success) {
+          setReadOnly(!!current.readOnly);
+          if (current.path) {
+            await adoptProject(
+              current.path,
+              current.eddFiles || [],
+              current.dtFiles || [],
+              current.mapFiles || []
+            );
+            await autoSelectFirstItems();
+          }
+        }
+      } catch {
+        // Backend absent or older — welcome screen handles it
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Show errors as toasts
@@ -79,6 +106,15 @@ function App() {
 
         {/* Editor Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Project identity: dominant single line above the editor tabs */}
+          {projectPath && (
+            <div className="px-4 py-2 border-b border-border/50 bg-gradient-to-r from-blue-950/30 to-transparent flex items-baseline gap-3 min-w-0">
+              <span className="text-2xl font-bold leading-tight">{deriveProjectName(projectPath)}</span>
+              <span className="text-xs font-mono text-muted-foreground truncate" title={projectPath}>
+                {projectPath}
+              </span>
+            </div>
+          )}
           <Tabs value={activeTab} onValueChange={(v) => setActiveTabWithHistory(v as typeof activeTab)} className="flex-1 flex flex-col">
             <div className="border-b border-border/50 px-4 bg-muted/20">
               <TabsList className="h-10">

@@ -3,12 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Folder, File, Home, ArrowUp } from 'lucide-react';
-
-interface BrowseEntry {
-  name: string;
-  path: string;
-  isDir: boolean;
-}
+import { browseDirectory, type BrowseEntry } from '@/api/client';
 
 interface FileBrowserProps {
   onSelect: (path: string) => void;
@@ -17,6 +12,7 @@ interface FileBrowserProps {
 export function FileBrowser({ onSelect }: FileBrowserProps) {
   const [currentPath, setCurrentPath] = useState('');
   const [entries, setEntries] = useState<BrowseEntry[]>([]);
+  const [isProject, setIsProject] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pathInput, setPathInput] = useState('');
@@ -25,15 +21,12 @@ export function FileBrowser({ onSelect }: FileBrowserProps) {
     setIsLoading(true);
     setError(null);
     try {
-      const url = path
-        ? `http://localhost:8080/api/browse?path=${encodeURIComponent(path)}`
-        : 'http://localhost:8080/api/browse';
-      const response = await fetch(url);
-      const data = await response.json();
-      if (data.success) {
+      const data = await browseDirectory(path || undefined);
+      if (data.success && data.currentPath) {
         setCurrentPath(data.currentPath);
         setPathInput(data.currentPath);
-        setEntries(data.entries);
+        setEntries(data.entries || []);
+        setIsProject(data.isProject || false);
       } else {
         setError(data.error || 'Failed to load directory');
       }
@@ -75,8 +68,6 @@ export function FileBrowser({ onSelect }: FileBrowserProps) {
       fetchDirectory(parentEntry.path);
     }
   };
-
-  const hasDtFiles = entries.some(e => !e.isDir && (e.name.toLowerCase().includes('_dt') || e.name.toLowerCase().includes('edd')));
 
   return (
     <div className="flex flex-col gap-3">
@@ -127,7 +118,7 @@ export function FileBrowser({ onSelect }: FileBrowserProps) {
 
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
-          {hasDtFiles ? <span className="text-green-600">DTRules project detected</span> : 'Navigate to project folder'}
+          {isProject ? <span className="text-green-500">DTRules project detected</span> : 'Navigate to project folder'}
         </span>
         <Button onClick={handleSelectCurrent} disabled={!currentPath}>
           Select This Folder

@@ -28,7 +28,7 @@ const FIELD_TYPES: FieldType[] = ['string', 'integer', 'boolean', 'date', 'doubl
 const ACCESS_TYPES = ['r', 'rw', 'w'];
 
 export function EDDEditor() {
-  const { entities, currentEntity, selectEntity, updateEntity, createEntity, deleteEntity } = useProjectStore();
+  const { entities, currentEntity, selectEntity, updateEntity, createEntity, deleteEntity, readOnly } = useProjectStore();
   const [editedEntity, setEditedEntity] = useState<Entity | null>(null);
   const [newEntityDialogOpen, setNewEntityDialogOpen] = useState(false);
   const [newEntityName, setNewEntityName] = useState('');
@@ -111,7 +111,7 @@ export function EDDEditor() {
           <span className="text-sm font-semibold text-foreground/80">Entities</span>
           <Dialog open={newEntityDialogOpen} onOpenChange={setNewEntityDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-6 w-6">
+              <Button variant="ghost" size="icon" className="h-6 w-6" disabled={readOnly} title={readOnly ? 'Server is read-only' : undefined}>
                 <Plus className="h-4 w-4" />
               </Button>
             </DialogTrigger>
@@ -163,6 +163,15 @@ export function EDDEditor() {
             <div className="p-4 border-b border-border/50 bg-gradient-to-r from-muted/30 via-transparent to-muted/30 flex items-center gap-4">
               <div className="flex-1 flex items-center gap-4">
                 <div className="grid gap-1">
+                  <Label className="text-xs text-muted-foreground">Number</Label>
+                  <Input
+                    value={editedEntity.number || ''}
+                    onChange={(e) => setEditedEntity({ ...editedEntity, number: e.target.value })}
+                    className="h-8 w-20 font-mono"
+                    title="Entity number — saving a colliding number shifts following entities down"
+                  />
+                </div>
+                <div className="grid gap-1">
                   <Label className="text-xs text-muted-foreground">Entity Name</Label>
                   <Input
                     value={editedEntity.name}
@@ -195,10 +204,10 @@ export function EDDEditor() {
                   />
                 </div>
               </div>
-              <Button variant="outline" size="sm" onClick={handleDeleteEntity}>
+              <Button variant="outline" size="sm" onClick={handleDeleteEntity} disabled={readOnly} title={readOnly ? 'Server is read-only' : undefined}>
                 <Trash2 className="h-4 w-4" />
               </Button>
-              <Button size="sm" onClick={handleSave} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0">
+              <Button size="sm" onClick={handleSave} disabled={readOnly} title={readOnly ? 'Server is read-only' : undefined} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0">
                 <Save className="h-4 w-4 mr-2" />
                 Save
               </Button>
@@ -294,6 +303,7 @@ export function EDDEditor() {
                           size="icon"
                           className="h-8 w-8"
                           onClick={() => handleDeleteField(index)}
+                          disabled={readOnly}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -306,7 +316,7 @@ export function EDDEditor() {
 
             {/* Add field button */}
             <div className="p-3 border-t border-border/50 bg-gradient-to-r from-muted/20 via-transparent to-muted/20">
-              <Button variant="outline" size="sm" onClick={handleAddField} className="border-blue-500/30 hover:border-blue-500/50 hover:bg-blue-500/10">
+              <Button variant="outline" size="sm" onClick={handleAddField} disabled={readOnly} className="border-blue-500/30 hover:border-blue-500/50 hover:bg-blue-500/10">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Field
               </Button>
