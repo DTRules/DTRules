@@ -116,7 +116,10 @@ func (r *RDate) StringValue() string {
 
 // PostFix returns the postfix representation.
 func (r *RDate) PostFix() string {
-	return "\"" + r.StringValue() + "\" cvd"
+	// cvdate, not cvd: in this registry cvd converts to DOUBLE (the Java
+	// engine used cvd for dates — a holdover that made every date's
+	// postfix unexecutable, so trace replay silently dropped date values).
+	return "\"" + r.StringValue() + "\" cvdate"
 }
 
 // Clone returns this object (dates are immutable).

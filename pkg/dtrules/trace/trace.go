@@ -188,6 +188,18 @@ func (t *Trace) replayNode(node *TraceNode, target *TraceNode) error {
 		}
 	}
 
+	// Positional array mutations (addat / removeat operators)
+	if node.Name == "addat" {
+		if err := t.handleAddAt(node); err != nil {
+			return err
+		}
+	}
+	if node.Name == "removeat" {
+		if err := t.handleRemoveAt(node); err != nil {
+			return err
+		}
+	}
+
 	// Process children
 	for _, child := range node.Children {
 		if child == target {
@@ -461,6 +473,73 @@ func (t *Trace) handleRemove(node *TraceNode) error {
 
 	value, _ := state.DataPop()
 	ar.Remove(value)
+	return nil
+}
+
+// handleAddAt inserts an element into an array at the recorded index —
+// the positional cousin of handleAddTo (addat operator).
+func (t *Trace) handleAddAt(node *TraceNode) error {
+	id := node.GetArrayID()
+	if id == 0 {
+		return nil
+	}
+	index, err := strconv.Atoi(node.Attributes["index"])
+	if err != nil {
+		return nil
+	}
+
+	ar, ok := t.arrayTable[id]
+	if !ok {
+		ar = dtrules.NewArrayTraceInterface(id, true, false)
+		t.arrayTable[id] = ar
+	}
+
+	// Entity elements are recorded by reference (entity + id attributes).
+	if eid := node.Attributes["id"]; eid != "" {
+		e, ok := t.entityTable[eid]
+		if !ok {
+			var eerr error
+			e, eerr = t.getOrCreateEntity(node)
+			if eerr != nil {
+				return eerr
+			}
+		}
+		return ar.AddAt(index, e)
+	}
+
+	body := node.Body
+	var value dtrules.Object
+	if body == "" {
+		value = dtrules.GetRNull()
+	} else {
+		compiled, cerr := t.session.Compile(body)
+		if cerr != nil {
+			value = t.parseSimpleValue(body)
+		} else {
+			state := t.session.GetState()
+			if xerr := compiled.Execute(state); xerr != nil {
+				value = t.parseSimpleValue(body)
+			} else {
+				value, _ = state.DataPop()
+			}
+		}
+	}
+	return ar.AddAt(index, value)
+}
+
+// handleRemoveAt deletes the element at the recorded index (removeat).
+func (t *Trace) handleRemoveAt(node *TraceNode) error {
+	id := node.GetArrayID()
+	if id == 0 {
+		return nil
+	}
+	index, err := strconv.Atoi(node.Attributes["index"])
+	if err != nil {
+		return nil
+	}
+	if ar, ok := t.arrayTable[id]; ok {
+		ar.Delete(index)
+	}
 	return nil
 }
 

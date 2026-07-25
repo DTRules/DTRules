@@ -8,7 +8,7 @@
  * @module lib/traceTree
  */
 
-import type { DebugNode } from '@/api/client';
+import type { DebugFrame, DebugNode } from '@/api/client';
 
 export interface TreeIndex {
   byNumber: Map<number, DebugNode>;
@@ -244,4 +244,25 @@ export function deriveFrame(
     return { passNode: et, focus: { kind: 'exit' } };
   }
   return { passNode: et, focus: { kind: 'entry' } };
+}
+
+// ── DSL value lookup ─────────────────────────────────────────────────
+
+/** Resolves a DSL identifier against the entity stack at the current
+ *  replay position. `entity.attr` finds the topmost frame of that entity;
+ *  a bare name finds the topmost frame carrying that attribute. EL names
+ *  are case-insensitive. Returns undefined when nothing matches (keywords,
+ *  literals, unknown names). */
+export function stackValue(stack: DebugFrame[], ident: string): string | undefined {
+  const lc = ident.toLowerCase();
+  const [head, tail] = lc.includes('.') ? lc.split('.', 2) : ['', lc];
+  for (let i = stack.length - 1; i >= 0; i--) {
+    const f = stack[i];
+    if (head && f.name.toLowerCase() !== head) continue;
+    for (const [k, v] of Object.entries(f.attrs)) {
+      if (k.toLowerCase() === tail) return v === '' ? '(empty)' : v;
+    }
+    if (head) return undefined; // right entity, no such attribute
+  }
+  return undefined;
 }
