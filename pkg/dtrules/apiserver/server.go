@@ -595,6 +595,9 @@ func (s *Server) handleBrowse(w http.ResponseWriter, r *http.Request) {
 		Name  string `json:"name"`
 		Path  string `json:"path"`
 		IsDir bool   `json:"isDir"`
+		// Size in bytes for files — a picker showing sizes lets the user
+		// tell a real trace from a header-only one at a glance.
+		Size int64 `json:"size,omitempty"`
 	}
 
 	entries := []browseEntry{}
@@ -615,6 +618,9 @@ func (s *Server) handleBrowse(w http.ResponseWriter, r *http.Request) {
 		if e.IsDir() {
 			dirs = append(dirs, entry)
 		} else {
+			if fi, err := e.Info(); err == nil {
+				entry.Size = fi.Size()
+			}
 			files = append(files, entry)
 			lower := strings.ToLower(name)
 			if strings.HasSuffix(lower, "_dt.xml") || strings.HasSuffix(lower, "_edd.xml") {

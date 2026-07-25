@@ -104,6 +104,8 @@ export interface BrowseEntry {
   name: string;
   path: string;
   isDir: boolean;
+  /** File size in bytes (absent for directories). */
+  size?: number;
 }
 
 /** Response from the directory browse endpoint. */

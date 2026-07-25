@@ -5,6 +5,15 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Folder, File, Home, ArrowUp } from 'lucide-react';
 import { browseDirectory, type BrowseEntry } from '@/api/client';
 
+/** 1234 → "1.2 KB" — enough precision to tell a real trace (MBs) from a
+ *  header-only one (a few hundred bytes) at a glance. */
+function humanSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+}
+
 interface FileBrowserProps {
   onSelect: (path: string) => void;
   /** When set, clicking a file selects it (directories still navigate). */
@@ -164,6 +173,11 @@ export function FileBrowser({ onSelect, selectFiles, initialPath }: FileBrowserP
                     <File className="h-4 w-4 text-gray-500" />
                   )}
                   <span className="text-sm truncate">{entry.name}</span>
+                  {!entry.isDir && entry.size !== undefined && (
+                    <span className="ml-auto text-xs text-muted-foreground font-mono shrink-0">
+                      {humanSize(entry.size)}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
