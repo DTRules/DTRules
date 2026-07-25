@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package apiserver
 
 import (
 	"testing"
@@ -37,7 +37,7 @@ import (
 // drift immediately rather than at the next time a downstream caller
 // hits an unexpected RuleSet shape.
 
-const chipProjectPath = "../../sampleprojects/CHIP/xml"
+const chipProjectPath = "../../../sampleprojects/CHIP/xml"
 
 // TestBuildRuleSetFromXML_CHIP loads the CHIP sample through the API
 // server's helper and asserts the runtime contract. The CHIP fixture
