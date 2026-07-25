@@ -135,6 +135,11 @@ func (l *jsonDataLoader) processEntityObject(tag string, info *EntityInfo, obj m
 	mappingKey := dtrules.GetRName("mapping*key")
 	if mappingKey != nil {
 		entity.Put(mappingKey, dtrules.NewRString(code))
+		// Direct Put bypasses Def, so trace the write explicitly for replay.
+		l.state.TraceInfo("def", dtrules.NewRString(code).PostFix(),
+			"entity", entity.GetName().StringValue(),
+			"name", "mapping*key",
+			"id", fmt.Sprintf("%d", entity.GetID()))
 	}
 
 	// Push entity onto the entity stack
@@ -179,7 +184,7 @@ func (l *jsonDataLoader) processEntityObject(tag string, info *EntityInfo, obj m
 		}
 		value := l.goValueToDTRules(childValue)
 		if value != nil {
-			l.state.Def(attrName, value, false)
+			l.state.Def(attrName, value, true)
 		}
 	}
 
@@ -237,7 +242,7 @@ func (l *jsonDataLoader) processAttributeValue(tag string, aInfo *AttributeInfo,
 
 	value := l.convertToAttributeType(attrib.Type, body, goValue)
 	if value != nil {
-		l.state.Def(attrName, value, false)
+		l.state.Def(attrName, value, true)
 	}
 
 	return nil
@@ -385,6 +390,7 @@ func (l *jsonDataLoader) goValueToDTRules(value interface{}) dtrules.Object {
 			dtItem := l.goValueToDTRules(item)
 			if dtItem != nil {
 				arr.Add(dtItem)
+				dtrules.TraceArrayAdd(l.state, arr, dtItem)
 			}
 		}
 		return arr

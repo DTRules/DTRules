@@ -216,7 +216,7 @@ func (s *DTState) DataPush(obj dtrules.Object) error {
 	}
 	s.dataStk = append(s.dataStk, obj)
 	if s.TestState(VERBOSE) {
-		s.TraceInfo("datapush", "attribs", obj.PostFix(), "")
+		s.TraceInfo("datapush", "", "attribs", obj.PostFix())
 	}
 	return nil
 }
@@ -230,7 +230,7 @@ func (s *DTState) DataPop() (dtrules.Object, error) {
 	obj := s.dataStk[idx]
 	s.dataStk = s.dataStk[:idx]
 	if s.TestState(VERBOSE) {
-		s.TraceInfo("datapop", "", "", obj.StringValue())
+		s.TraceInfo("datapop", obj.StringValue())
 	}
 	return obj, nil
 }
@@ -392,7 +392,22 @@ func (s *DTState) EntityPush(entity dtrules.Entity) error {
 		return dtrules.StackOverflowError("EntityPush", "Entity Stack overflow")
 	}
 	if s.TestState(TRACE) {
-		s.TraceInfo("entitypush", "entity", entity.GetName().StringValue(), fmt.Sprintf("id=%d", entity.GetID()))
+		s.TraceInfo("entitypush", "",
+			"entity", entity.GetName().StringValue(),
+			"id", fmt.Sprintf("%d", entity.GetID()))
+		// Bind the entity's array-valued attributes to their array ids so
+		// trace replay can attach <addto> events to the right attribute.
+		// Idempotent across repeated pushes of the same entity.
+		for _, attr := range entity.GetAttributeNames() {
+			if v, err := entity.Get(attr); err == nil {
+				if arr, ok := v.(*dtrules.RArray); ok {
+					s.TraceInfo("arraybind", "",
+						"id", fmt.Sprintf("%d", entity.GetID()),
+						"attr", attr.StringValue(),
+						"arrayId", fmt.Sprintf("%d", arr.GetID()))
+				}
+			}
+		}
 	}
 	s.entityStk = append(s.entityStk, entity)
 	return nil
@@ -404,7 +419,7 @@ func (s *DTState) EntityPop() (dtrules.Entity, error) {
 		return nil, dtrules.NewRulesError("Entity Stack Underflow", "EntityPop", "Entity Stack underflow")
 	}
 	if s.TestState(TRACE) {
-		s.TraceInfo("entitypop", "", "", "")
+		s.TraceInfo("entitypop", "")
 	}
 	idx := len(s.entityStk) - 1
 	entity := s.entityStk[idx]
@@ -612,9 +627,12 @@ func (s *DTState) Def(name *dtrules.RName, value dtrules.Object, trace bool) (bo
 	}
 
 	if trace && s.TestState(TRACE) {
-		s.TraceInfo("def",
+		// Body carries the value's postfix so trace replay can recompute
+		// the assigned value (matches the historical trace format).
+		s.TraceInfo("def", value.PostFix(),
 			"entity", entity.GetName().StringValue(),
-			fmt.Sprintf("name=%s id=%d", name.StringValue(), entity.GetID()))
+			"name", name.GetName(),
+			"id", fmt.Sprintf("%d", entity.GetID()))
 	}
 
 	// Use attribute-only name for Put (without entity prefix)
@@ -714,51 +732,46 @@ func (s *DTState) Evaluate(c dtrules.Object) error {
 
 // Trace output
 
-// TraceInfo outputs trace information in XML format.
-func (s *DTState) TraceInfo(tag, attr, value, content string) {
-	if s.TestState(TRACE) {
-		if s.traceOut != nil {
-			fmt.Fprintf(s.traceOut, "<%s", tag)
-			if attr != "" {
-				fmt.Fprintf(s.traceOut, " %s=\"%s\"", attr, value)
-			}
-			if content != "" {
-				fmt.Fprintf(s.traceOut, ">%s</%s>\n", content, tag)
-			} else {
-				fmt.Fprintf(s.traceOut, "/>\n")
-			}
+// traceAttrs writes alternating name, value attribute pairs.
+func (s *DTState) traceAttrs(attrs []string) {
+	for i := 0; i+1 < len(attrs); i += 2 {
+		fmt.Fprintf(s.traceOut, " %s=\"%s\"", attrs[i], traceEscape(attrs[i+1]))
+	}
+}
+
+// traceEscape escapes XML-special characters in trace output.
+func traceEscape(v string) string {
+	r := strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;")
+	return r.Replace(v)
+}
+
+// TraceInfo emits a leaf trace element: <tag attrs...>body</tag>.
+func (s *DTState) TraceInfo(tag, body string, attrs ...string) {
+	if s.TestState(TRACE) && s.traceOut != nil {
+		fmt.Fprintf(s.traceOut, "<%s", tag)
+		s.traceAttrs(attrs)
+		if body != "" {
+			fmt.Fprintf(s.traceOut, ">%s</%s>\n", traceEscape(body), tag)
+		} else {
+			fmt.Fprint(s.traceOut, "/>\n")
 		}
 	}
 }
 
-// TraceTable traces decision table entry/exit.
-func (s *DTState) TraceTable(tableName string, entering bool) {
-	if s.TestState(TRACE) {
-		if s.traceOut != nil {
-			if entering {
-				fmt.Fprintf(s.traceOut, "<table name=\"%s\">\n", tableName)
-			} else {
-				fmt.Fprintf(s.traceOut, "</table>\n")
-			}
-		}
+// TraceOpen emits an opening trace element; nested trace output lands
+// inside until the matching TraceClose.
+func (s *DTState) TraceOpen(tag string, attrs ...string) {
+	if s.TestState(TRACE) && s.traceOut != nil {
+		fmt.Fprintf(s.traceOut, "<%s", tag)
+		s.traceAttrs(attrs)
+		fmt.Fprint(s.traceOut, ">\n")
 	}
 }
 
-// TraceCondition traces condition evaluation.
-func (s *DTState) TraceCondition(condNum int, result bool) {
-	if s.TestState(TRACE) {
-		if s.traceOut != nil {
-			fmt.Fprintf(s.traceOut, "  <condition num=\"%d\" result=\"%t\"/>\n", condNum, result)
-		}
-	}
-}
-
-// TraceAction traces action execution.
-func (s *DTState) TraceAction(actionNum int) {
-	if s.TestState(TRACE) {
-		if s.traceOut != nil {
-			fmt.Fprintf(s.traceOut, "  <action num=\"%d\"/>\n", actionNum)
-		}
+// TraceClose emits the closing element for TraceOpen.
+func (s *DTState) TraceClose(tag string) {
+	if s.TestState(TRACE) && s.traceOut != nil {
+		fmt.Fprintf(s.traceOut, "</%s>\n", tag)
 	}
 }
 

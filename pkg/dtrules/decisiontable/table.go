@@ -354,6 +354,12 @@ func (dt *RDecisionTable) Execute(state dtrules.State) error {
 		return err
 	}
 
+	// Trace: one <decisiontable> element wraps everything this table does,
+	// including its context evaluation — so performed tables nest and each
+	// context iteration appears as its own <execute_table> pass.
+	state.TraceOpen("decisiontable", "name", dt.name.StringValue())
+	defer state.TraceClose("decisiontable")
+
 	// If there's a context, execute it (the context will call ExecuteTable internally)
 	// If no context, execute the table directly
 	if dt.rcontext != nil {
@@ -374,13 +380,21 @@ func (dt *RDecisionTable) ExecuteTable(state dtrules.State) error {
 		return err
 	}
 
+	// Trace: one <execute_table> element per pass of the table body (a
+	// context that iterates produces one per iteration).
+	state.TraceOpen("execute_table")
+	defer state.TraceClose("execute_table")
+
 	// Execute initial actions
 	for i, action := range dt.rinitialActions {
 		if action != nil {
 			state.SetCurrentTableSection("InitialAction", i)
+			state.TraceOpen("initialaction", "n", fmt.Sprintf("%d", i+1))
 			if err := state.Evaluate(action); err != nil {
+				state.TraceClose("initialaction")
 				return err
 			}
+			state.TraceClose("initialaction")
 		}
 	}
 

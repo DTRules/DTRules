@@ -107,6 +107,16 @@ func (a *ANode) Execute(state dtrules.State) error {
 	if cb := a.decisionTable.ColumnSelectedCallback; cb != nil && len(a.columns) > 0 {
 		cb(a.columns[0])
 	}
+
+	// Trace: the fired column wraps its actions; each action is an open
+	// element so a performed table's trace nests inside it.
+	col := ""
+	if len(a.columns) > 0 {
+		col = fmt.Sprintf("%d", a.columns[0])
+	}
+	state.TraceOpen("column", "n", col)
+	defer state.TraceClose("column")
+
 	for i, action := range a.actions {
 		num := a.actionNumbers[i]
 
@@ -118,11 +128,14 @@ func (a *ANode) Execute(state dtrules.State) error {
 		state.SetCurrentTableSection("Action", num)
 
 		// Execute the action
+		state.TraceOpen("action", "n", fmt.Sprintf("%d", num+1))
 		if err := state.Evaluate(action); err != nil {
 			// Restore section and return error with context
+			state.TraceClose("action")
 			state.SetCurrentTableSection(section, numHld)
 			return fmt.Errorf("action %d in table %s: %w", num+1, a.decisionTable.GetName(), err)
 		}
+		state.TraceClose("action")
 
 		// Restore section
 		state.SetCurrentTableSection(section, numHld)

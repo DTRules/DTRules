@@ -29,6 +29,8 @@ import (
 	"github.com/DTRules/DTRules/pkg/dtrules/interpreter"
 	"github.com/DTRules/DTRules/pkg/dtrules/mapping"
 	"github.com/DTRules/DTRules/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/pkg/dtrules/trace"
+	"github.com/DTRules/DTRules/pkg/dtrules/version"
 	webpkg "github.com/DTRules/DTRules/pkg/dtrules/web"
 )
 
@@ -38,7 +40,7 @@ import (
 // value hasn't been provided (#850/#854).
 func (c *CLI) runRun(args []string) int {
 	path, entry, input, resultEntity := ".", "", "", "result"
-	var save, data, review string
+	var save, data, review, tracePath string
 	interactive, web, noOpen := false, false, false
 	port := "0" // 0 = let the OS pick a free port
 	for i := 0; i < len(args); i++ {
@@ -66,6 +68,11 @@ func (c *CLI) runRun(args []string) int {
 		case "--review":
 			if i+1 < len(args) {
 				review = args[i+1]
+				i++
+			}
+		case "--trace":
+			if i+1 < len(args) {
+				tracePath = args[i+1]
 				i++
 			}
 		case "--result-entity":
@@ -128,6 +135,34 @@ func (c *CLI) runRun(args []string) int {
 		return 1
 	}
 
+	// Trace capture: enabled before data loading so the trace records the
+	// initial data, then execution, then the resulting state — a complete
+	// document the trace debugger can replay and verify.
+	var traceFile *os.File
+	if tracePath != "" {
+		dts, ok := sess.GetState().(*interpreter.DTState)
+		if !ok {
+			fmt.Fprintln(os.Stderr, "Error: tracing unavailable for this session state")
+			return 1
+		}
+		traceFile, err = os.Create(tracePath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error creating trace file: %v\n", err)
+			return 1
+		}
+		defer traceFile.Close()
+		fingerprint, ferr := trace.FingerprintRules(xmlDir)
+		if ferr != nil {
+			fingerprint = ""
+		}
+		trace.WriteHeader(traceFile, trace.Provenance{
+			DTRulesVersion:   version.Version,
+			RulesFingerprint: fingerprint,
+		})
+		dts.SetOutput(traceFile, nil)
+		dts.EnableTrace()
+	}
+
 	// Initialize entities (and optionally load input data) via the mapping.
 	if err := initMapping(sess, xmlDir, input); err != nil {
 		fmt.Fprintf(os.Stderr, "Error initializing data: %v\n", err)
@@ -165,8 +200,17 @@ func (c *CLI) runRun(args []string) int {
 		return 1
 	}
 	if err := dt.Execute(state); err != nil {
+		if traceFile != nil {
+			trace.WriteFooter(traceFile)
+		}
 		fmt.Fprintf(os.Stderr, "Error executing %q: %v\n", entry, err)
 		return 1
+	}
+
+	if traceFile != nil {
+		trace.WriteFinalState(traceFile, state)
+		trace.WriteFooter(traceFile)
+		fmt.Fprintf(os.Stderr, "Trace written: %s\n", tracePath)
 	}
 
 	// Save the collected dataset as canonical, mapping-free data XML — an
@@ -336,6 +380,9 @@ Options:
   --data <file.xml>      Load canonical (mapping-free) data, authoritative
   --review <file.xml>    Load canonical data for re-interview (pre-filled, asked)
   --save <file.xml>      Save the collected data as canonical XML after the run
+  --trace <file.xml>     Write a complete execution trace (initial data,
+                         every table/column/action, resulting state) with
+                         DTRules version + rules fingerprint for replay
   --interactive, -i      Prompt for any reached collect field not supplied
   --web                  Serve an interactive web interview instead of a CLI run
   --port <n>             Port for --web (default: an unused port chosen by the OS)

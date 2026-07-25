@@ -100,6 +100,12 @@ func (c *CNode) Execute(state dtrules.State) error {
 			c.conditionNumber+1, c.decisionTable.GetName(), err)
 	}
 
+	// Trace: record which condition ran and how it evaluated, so a loaded
+	// trace can annotate the grid with actual results.
+	state.TraceInfo("condition", "",
+		"n", fmt.Sprintf("%d", c.conditionNumber+1),
+		"result", fmt.Sprintf("%t", result))
+
 	// Follow the appropriate branch
 	if result {
 		if c.IfTrue != nil {

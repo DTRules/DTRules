@@ -16,6 +16,7 @@
 package dtrules
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -44,7 +45,7 @@ func NewArray(session Session, duplicates bool, executable bool) (*RArray, error
 	if session != nil {
 		state := session.GetState()
 		if state != nil && state.TestState(TraceFlag) {
-			state.TraceInfo("newarray", "arrayId", intToStr(ar.id), "")
+			state.TraceInfo("newarray", "", "arrayId", intToStr(ar.id))
 		}
 	}
 	return ar, nil
@@ -57,9 +58,9 @@ func NewArrayWithElements(session Session, duplicates bool, elements []Object, e
 
 	state := session.GetState()
 	if state != nil && state.TestState(TraceFlag) {
-		state.TraceInfo("newarray", "arrayId", intToStr(ar.id), "")
+		state.TraceInfo("newarray", "", "arrayId", intToStr(ar.id))
 		for _, v := range elements {
-			state.TraceInfo("addto", "arrayId", intToStr(ar.id), v.PostFix())
+			state.TraceInfo("addto", v.PostFix(), "arrayId", intToStr(ar.id))
 		}
 	}
 	return ar, nil
@@ -114,7 +115,7 @@ const TraceFlag = 1
 
 // intToStr is a helper to convert int to string
 func intToStr(i int) string {
-	return strings.TrimPrefix(strings.TrimPrefix(string(rune('0'+i/100000000)), "0"), "0")
+	return strconv.Itoa(i)
 }
 
 // uncache ensures the array is in mutable form.
@@ -250,6 +251,42 @@ func (r *RArray) StringValue() string {
 		sb.WriteString("]")
 	}
 	return sb.String()
+}
+
+
+// TraceArrayAdd emits the addto trace event for an element added to ar.
+// Entities are recorded by reference (entity + id attributes) since they
+// cannot be reconstructed from a postfix body; other values record their
+// postfix so replay can recompute them. Callers that mutate arrays outside
+// RArray's session-aware constructors must call this for replay fidelity.
+func TraceArrayAdd(state State, ar *RArray, element Object) {
+	if state == nil || ar == nil || element == nil {
+		return
+	}
+	if e, ok := element.(Entity); ok {
+		state.TraceInfo("addto", "",
+			"arrayId", intToStr(ar.id),
+			"entity", e.GetName().StringValue(),
+			"id", intToStr(e.GetID()))
+		return
+	}
+	state.TraceInfo("addto", element.PostFix(), "arrayId", intToStr(ar.id))
+}
+
+// TraceArrayRemove emits the remove trace event for an element removed
+// from ar, mirroring TraceArrayAdd's entity-reference form.
+func TraceArrayRemove(state State, ar *RArray, element Object) {
+	if state == nil || ar == nil || element == nil {
+		return
+	}
+	if e, ok := element.(Entity); ok {
+		state.TraceInfo("remove", "",
+			"arrayId", intToStr(ar.id),
+			"entity", e.GetName().StringValue(),
+			"id", intToStr(e.GetID()))
+		return
+	}
+	state.TraceInfo("remove", element.PostFix(), "arrayId", intToStr(ar.id))
 }
 
 // PostFix returns the postfix representation.
