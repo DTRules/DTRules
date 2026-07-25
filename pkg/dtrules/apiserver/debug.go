@@ -15,6 +15,7 @@
 package apiserver
 
 import (
+	"encoding/xml"
 	"fmt"
 	"net/http"
 	"os"
@@ -29,6 +30,33 @@ import (
 func dirExists(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && info.IsDir()
+}
+
+// projectXMLDir resolves where a project keeps its rules XML: the xml_dir
+// override from DTRules.xml when declared (how non-sample projects like
+// staking point at nested rule dirs), else the xml/ subdirectory when it
+// exists, else the project root. Mirrors cmd/dtrules resolveDirs precedence
+// so the CLI and the editor agree on scope — fingerprints in particular
+// must hash the same file set.
+func projectXMLDir(projectPath string) string {
+	if data, err := os.ReadFile(filepath.Join(projectPath, "DTRules.xml")); err == nil {
+		var cfg struct {
+			XMLDir string `xml:"xml_dir"`
+		}
+		if xml.Unmarshal(data, &cfg) == nil && cfg.XMLDir != "" {
+			dir := cfg.XMLDir
+			if !filepath.IsAbs(dir) {
+				dir = filepath.Join(projectPath, dir)
+			}
+			if dirExists(dir) {
+				return dir
+			}
+		}
+	}
+	if xd := filepath.Join(projectPath, "xml"); dirExists(xd) {
+		return xd
+	}
+	return projectPath
 }
 
 // debugSession is the server-side state of one loaded trace: the parsed
@@ -103,13 +131,10 @@ func (s *Server) handleDebugLoad(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Compare the trace's rules fingerprint against the open project. The
-	// CLI fingerprints the xml/ directory (resolveDirs), so match that
-	// scope — fingerprinting the project root would also hash input/output
-	// XML and never match.
-	fpDir := s.projectPath
-	if xd := filepath.Join(s.projectPath, "xml"); dirExists(xd) {
-		fpDir = xd
-	}
+	// CLI fingerprints the resolved rules directory, so match that scope —
+	// fingerprinting the project root would also hash input/output XML and
+	// never match.
+	fpDir := projectXMLDir(s.projectPath)
 	ds.fingerprintMatch = "unknown"
 	if ds.provenance.RulesFingerprint != "" {
 		if fp, err := trace.FingerprintRules(fpDir); err == nil {

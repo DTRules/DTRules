@@ -810,7 +810,11 @@ func (s *Server) LoadProject(reqPath string) error {
 	s.tables = nil
 	s.modified = make(map[string]bool)
 
-	err = filepath.Walk(validatedPath, func(path string, info os.FileInfo, err error) error {
+	// Scan the project's resolved rules directory (DTRules.xml xml_dir
+	// override, else xml/, else the root). Walking the whole tree from a
+	// repo root would sweep in test fixtures and generated copies.
+	scanRoot := projectXMLDir(validatedPath)
+	err = filepath.Walk(scanRoot, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() {
 			return err
 		}
