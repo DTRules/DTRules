@@ -32,6 +32,8 @@
 export interface Entity {
   /** Unique entity name (e.g., 'client', 'case', 'income') */
   name: string;
+  /** Entity number (ordering, backfilled by 100s when missing) */
+  number?: string;
   /** Access level: 'r' (read), 'w' (write), or 'rw' (read-write) */
   access: string;
   /** Documentation comment describing the entity's purpose */
@@ -95,6 +97,8 @@ export type FieldType =
 export interface DecisionTableSummary {
   /** Table name (unique identifier) */
   name: string;
+  /** Table number (authoring order, e.g. "1000") */
+  tableNumber?: string;
   /** Execution type: FIRST (stop at first match) or ALL (execute all matches) */
   type: DecisionTableType;
   /** Documentation comment */

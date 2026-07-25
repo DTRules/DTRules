@@ -8,8 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ProjectPicker } from '@/components/ProjectPicker';
 import { useProjectStore } from '@/stores/projectStore';
 import { useOnboardingStore } from '@/stores/onboardingStore';
 import { FileText, Table2, GitBranch, FolderOpen, Play, BookOpen } from 'lucide-react';
@@ -55,7 +54,6 @@ export function WelcomeScreen() {
   const { openProject, autoSelectFirstItems, error: projectError } = useProjectStore();
   const { setShowWelcome, startTutorial } = useOnboardingStore();
   const [customPathDialogOpen, setCustomPathDialogOpen] = useState(false);
-  const [customPath, setCustomPath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sampleProjects, setSampleProjects] = useState<SampleProject[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -163,10 +161,10 @@ export function WelcomeScreen() {
     setIsLoading(false);
   };
 
-  const handleOpenCustomProject = async () => {
-    if (!customPath) return;
+  const handleOpenCustomProject = async (path: string) => {
+    if (!path) return;
     setIsLoading(true);
-    const success = await openProject(customPath);
+    const success = await openProject(path);
     if (success) {
       // Auto-select first items so all editors have content visible
       await autoSelectFirstItems();
@@ -263,36 +261,24 @@ export function WelcomeScreen() {
         setCustomPathDialogOpen(open);
         if (!open) setLoadError(null);
       }}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[640px]">
           <DialogHeader>
             <DialogTitle>Open Project</DialogTitle>
             <DialogDescription>
-              Enter the path to a DTRules project directory containing EDD and DT XML files.
+              Pick a recent project, or browse to a directory containing EDD and DT XML files.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4">
             {loadError && (
               <div className="p-3 rounded bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
                 {loadError}
               </div>
             )}
-            <div className="grid gap-2">
-              <Label htmlFor="customProjectPath">Project Path</Label>
-              <Input
-                id="customProjectPath"
-                placeholder="/path/to/project/xml"
-                value={customPath}
-                onChange={(e) => setCustomPath(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleOpenCustomProject()}
-              />
-            </div>
+            <ProjectPicker onOpen={handleOpenCustomProject} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCustomPathDialogOpen(false)}>
               Cancel
-            </Button>
-            <Button onClick={handleOpenCustomProject} disabled={!customPath || isLoading}>
-              Open Project
             </Button>
           </DialogFooter>
         </DialogContent>

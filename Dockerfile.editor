@@ -1,0 +1,44 @@
+# DTRules editor server: a single dtrules binary with the editor UI
+# embedded, serving `dtrules edit` for a project directory.
+#
+# Build:
+#   docker build -f Dockerfile.editor -t dtrules-editor .
+#
+# Run (mount your rules; the editor has no auth — front with a reverse
+# proxy for TLS/access control):
+#   docker run -p 8080:8080 -v /srv/rules:/rules dtrules-editor
+#
+# Published read-only (viewers can browse and execute, never edit):
+#   docker run -p 8080:8080 -v /srv/rules:/rules:ro dtrules-editor --read-only
+
+# UI bundle stage
+FROM node:22-alpine AS ui-builder
+
+WORKDIR /app/ui
+COPY ui/package.json ui/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY ui/ .
+ENV VITE_API_URL=/api
+RUN npx vite build
+
+# Go build stage
+FROM golang:1.24-alpine AS builder
+
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+COPY --from=ui-builder /app/ui/dist ./ui/dist
+RUN CGO_ENABLED=0 GOOS=linux go build -tags ui -ldflags "-s -w" -o /dtrules ./cmd/dtrules/
+
+# Runtime stage
+FROM alpine:latest
+
+RUN adduser -D -u 1000 dtrules
+USER dtrules
+WORKDIR /rules
+
+COPY --from=builder /dtrules /usr/local/bin/dtrules
+
+EXPOSE 8080
+ENTRYPOINT ["dtrules", "edit", "/rules", "--host", "0.0.0.0", "--port", "8080", "--project-root", "/rules", "--no-browser"]

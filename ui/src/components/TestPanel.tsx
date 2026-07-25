@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import Editor from '@monaco-editor/react';
 import { executeRules } from '@/api/client';
 import { Play, CheckCircle2, XCircle } from 'lucide-react';
 import type { TraceEntry } from '@/types/dtrules';
@@ -152,18 +151,11 @@ export function TestPanel() {
             Test Data (JSON)
           </div>
           <div className="flex-1">
-            <Editor
-              height="100%"
-              defaultLanguage="json"
+            <textarea
               value={testData}
-              onChange={(v) => setTestData(v || '')}
-              theme="vs-dark"
-              options={{
-                minimap: { enabled: false },
-                fontSize: 13,
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-              }}
+              onChange={(e) => setTestData(e.target.value)}
+              spellCheck={false}
+              className="w-full h-full resize-none bg-background p-3 font-mono text-[13px] leading-relaxed outline-none"
             />
           </div>
         </div>
@@ -246,24 +238,9 @@ export function TestPanel() {
                 <div className="text-xs text-muted-foreground mb-2">
                   Full entity state after execution:
                 </div>
-                <div className="h-64 border border-border/50 rounded-lg overflow-hidden">
-                  <Editor
-                    height="100%"
-                    defaultLanguage="json"
-                    value={JSON.stringify(result, null, 2)}
-                    theme="vs-dark"
-                    options={{
-                      readOnly: true,
-                      minimap: { enabled: false },
-                      fontSize: 12,
-                      scrollBeyondLastLine: false,
-                      automaticLayout: true,
-                      lineNumbers: 'off',
-                      folding: true,
-                      wordWrap: 'on',
-                    }}
-                  />
-                </div>
+                <pre className="h-64 border border-border/50 rounded-lg overflow-auto bg-background p-3 font-mono text-xs whitespace-pre-wrap">
+                  {JSON.stringify(result, null, 2)}
+                </pre>
               </div>
             )}
 
