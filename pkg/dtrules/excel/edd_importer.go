@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/xuri/excelize/v2"
@@ -36,6 +37,10 @@ type EDDXML struct {
 // EDDXMLEntity represents an entity in the EDD XML
 type EDDXMLEntity struct {
 	Name    string          `xml:"name,attr"`
+	// Number orders entities like TABLE_NUMBER orders decision tables.
+	// Optional in authored XML; WriteXML backfills missing numbers in
+	// increments of 100 so every emitted EDD is fully numbered.
+	Number  string          `xml:"number,attr,omitempty"`
 	XlsFile string          `xml:"xls_file,attr,omitempty"`
 	Access  string          `xml:"access,attr"`
 	Comment string          `xml:"comment,attr,omitempty"`
@@ -311,11 +316,32 @@ func (i *EDDImporter) ImportEDDFromDir(dir string) (*EDDXML, error) {
 	return edd, nil
 }
 
+// normalizeEntityNumbers backfills missing entity numbers. Entities that
+// already carry a numeric number keep it; the rest are assigned numbers in
+// document order, in increments of 100, continuing above the highest
+// existing number (starting at 100 when none are numbered).
+func normalizeEntityNumbers(edd *EDDXML) {
+	max := 0
+	for _, e := range edd.Entities {
+		if n, err := strconv.Atoi(strings.TrimSpace(e.Number)); err == nil && n > max {
+			max = n
+		}
+	}
+	next := (max/100)*100 + 100
+	for _, e := range edd.Entities {
+		if _, err := strconv.Atoi(strings.TrimSpace(e.Number)); err != nil {
+			e.Number = strconv.Itoa(next)
+			next += 100
+		}
+	}
+}
+
 // WriteXML writes the EDD to an XML file
 func (i *EDDImporter) WriteXML(edd *EDDXML, filename string) error {
 	if edd.Version == "" {
 		edd.Version = "2"
 	}
+	normalizeEntityNumbers(edd)
 
 	output, err := xml.MarshalIndent(edd, "", "\t")
 	if err != nil {
