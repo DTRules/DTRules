@@ -78,7 +78,7 @@ function DSLWithLinks({
             ? `Drill into ${name}`
             : target.kind === 'jump'
               ? `Go to ${name}'s execution (moves the trace position there)`
-              : `${name} was not executed in this trace — open its definition`
+              : `${name} did not run in this trace — open its definition`
         }
       >
         {name}
@@ -174,7 +174,10 @@ export function DebugTableView({
   const resolverFor = (called: Map<string, DebugNode>) => (name: string): LinkTarget | null => {
     const lc = name.toLowerCase();
     const dt = called.get(lc);
-    if (dt) return { kind: 'drill', dt };
+    // A call whose context iterated zero times leaves a decisiontable node
+    // with no passes — nothing to drill into, so fall through to the other
+    // tiers rather than offering a dead link.
+    if (dt && dt.children.some((c) => c.name === 'execute_table')) return { kind: 'drill', dt };
     const passes = executions.get(lc);
     if (passes && passes.length > 0) {
       let pick = passes[0];

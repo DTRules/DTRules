@@ -17,11 +17,19 @@ package apiserver
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
 	"github.com/DTRules/DTRules/pkg/dtrules/trace"
 )
+
+// dirExists reports whether path exists and is a directory.
+func dirExists(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
+}
 
 // debugSession is the server-side state of one loaded trace: the parsed
 // trace, and a replay session positioned at some node. v1 holds a single
@@ -94,10 +102,17 @@ func (s *Server) handleDebugLoad(w http.ResponseWriter, r *http.Request) {
 		provenance: tr.Provenance(),
 	}
 
-	// Compare the trace's rules fingerprint against the open project.
+	// Compare the trace's rules fingerprint against the open project. The
+	// CLI fingerprints the xml/ directory (resolveDirs), so match that
+	// scope — fingerprinting the project root would also hash input/output
+	// XML and never match.
+	fpDir := s.projectPath
+	if xd := filepath.Join(s.projectPath, "xml"); dirExists(xd) {
+		fpDir = xd
+	}
 	ds.fingerprintMatch = "unknown"
 	if ds.provenance.RulesFingerprint != "" {
-		if fp, err := trace.FingerprintRules(s.projectPath); err == nil {
+		if fp, err := trace.FingerprintRules(fpDir); err == nil {
 			if fp == ds.provenance.RulesFingerprint {
 				ds.fingerprintMatch = "match"
 			} else {
