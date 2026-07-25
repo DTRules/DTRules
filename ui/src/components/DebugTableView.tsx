@@ -16,46 +16,70 @@
  * @module components/DebugTableView
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { getDecisionTable } from '@/api/client';
 import type { DebugNode } from '@/api/client';
 import type { DecisionTable } from '@/types/dtrules';
 import { cn } from '@/lib/utils';
-import { frameInfo, type Focus, type TreeIndex } from '@/lib/traceTree';
+import { focusTarget, frameInfo, type Focus, type TreeIndex } from '@/lib/traceTree';
 import { ChevronLeft, ChevronRight, CornerLeftUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const PERFORM_RE = /\bperform\s+([A-Za-z_][A-Za-z0-9_]*)|\/([A-Za-z_][A-Za-z0-9_]*)\s+performtable\b/gi;
 
-/** Render DSL with performed-table names as drill-in links (only tables the
- *  focused action actually called in this trace are linkable). */
+/** How a performed-table name in DSL resolves (EL names are case-blind):
+ *  - drill: this action called it right here — drill into that execution
+ *  - jump: it executed elsewhere in the trace — move the trace there
+ *  - open: never executed in this trace — open the static definition */
+type LinkTarget =
+  | { kind: 'drill'; dt: DebugNode }
+  | { kind: 'jump'; pass: DebugNode }
+  | { kind: 'open'; table: string };
+
+/** Render DSL with performed-table names as navigation links. */
 function DSLWithLinks({
   text,
-  calledTables,
+  resolve,
   onDrill,
+  onJump,
+  onOpenTable,
 }: {
   text: string;
-  calledTables: Map<string, DebugNode>;
+  resolve: (name: string) => LinkTarget | null;
   onDrill: (dt: DebugNode) => void;
+  onJump: (pass: DebugNode) => void;
+  onOpenTable: (table: string) => void;
 }) {
   const parts: React.ReactNode[] = [];
   let last = 0;
   for (const match of text.matchAll(PERFORM_RE)) {
     const name = match[1] || match[2];
-    // EL is case-insensitive; the map is keyed by lowercased name.
-    const dt = calledTables.get(name.toLowerCase());
-    if (!dt) continue;
+    const target = resolve(name);
+    if (!target) continue;
     const start = (match.index ?? 0) + match[0].indexOf(name);
     parts.push(text.slice(last, start));
     parts.push(
       <button
         key={start}
-        className="text-blue-400 underline underline-offset-2 decoration-blue-400/40 hover:text-blue-300"
+        className={cn(
+          'underline underline-offset-2',
+          target.kind === 'open'
+            ? 'text-muted-foreground decoration-dashed decoration-muted-foreground/50 hover:text-foreground'
+            : 'text-blue-400 decoration-blue-400/40 hover:text-blue-300'
+        )}
         onClick={(e) => {
           e.stopPropagation();
-          onDrill(dt);
+          if (target.kind === 'drill') onDrill(target.dt);
+          else if (target.kind === 'jump') onJump(target.pass);
+          else onOpenTable(target.table);
         }}
-        title={`Drill into ${name}`}
+        title={
+          target.kind === 'drill'
+            ? `Drill into ${name}`
+            : target.kind === 'jump'
+              ? `Go to ${name}'s execution (moves the trace position there)`
+              : `${name} was not executed in this trace — open its definition`
+        }
       >
         {name}
       </button>
@@ -70,22 +94,43 @@ export function DebugTableView({
   idx,
   passNode,
   focus,
+  knownTables,
   onFocus,
   onDrill,
   onOut,
   onPass,
+  onOpenTable,
 }: {
   idx: TreeIndex;
   passNode: DebugNode;
   focus: Focus;
+  /** Project tables: lowercased name -> canonical name (EL is case-blind). */
+  knownTables: Map<string, string>;
   onFocus: (f: Focus) => void;
   onDrill: (calledDT: DebugNode) => void;
   onOut: () => void;
   onPass: (passNode: DebugNode) => void;
+  onOpenTable: (name: string) => void;
 }) {
   const frame = frameInfo(idx, passNode);
   const [table, setTable] = useState<DecisionTable | null>(null);
   const tableCache = useRef<Record<string, DecisionTable>>({});
+
+  // Every execution pass in the trace, by lowercased table name, in trace
+  // order — so a table name is navigable even when this action didn't call
+  // it (jump to where it DID run, moving the trace position there).
+  const executions = useMemo(() => {
+    const m = new Map<string, DebugNode[]>();
+    for (const n of idx.byNumber.values()) {
+      if (n.name !== 'decisiontable' || !n.attrs?.name) continue;
+      const key = n.attrs.name.toLowerCase();
+      const list = m.get(key) || [];
+      for (const c of n.children) if (c.name === 'execute_table') list.push(c);
+      m.set(key, list);
+    }
+    for (const list of m.values()) list.sort((a, b) => a.number - b.number);
+    return m;
+  }, [idx]);
 
   useEffect(() => {
     const name = frame?.tableName;
@@ -119,6 +164,29 @@ export function DebugTableView({
       if (c.name === 'decisiontable' && c.attrs?.name) m.set(c.attrs.name.toLowerCase(), c);
     }
     return m;
+  };
+
+  // Resolve a performed-table name for one action's DSL. Preference order:
+  // the call right here, then the execution nearest before the current
+  // position (else the first after — "go back in the trace to that point"),
+  // then the static definition for tables this trace never ran.
+  const currentPos = focusTarget(idx, passNode, focus);
+  const resolverFor = (called: Map<string, DebugNode>) => (name: string): LinkTarget | null => {
+    const lc = name.toLowerCase();
+    const dt = called.get(lc);
+    if (dt) return { kind: 'drill', dt };
+    const passes = executions.get(lc);
+    if (passes && passes.length > 0) {
+      let pick = passes[0];
+      for (const p of passes) {
+        if (p.number <= currentPos) pick = p;
+        else break;
+      }
+      return { kind: 'jump', pass: pick };
+    }
+    const canonical = knownTables.get(lc);
+    if (canonical) return { kind: 'open', table: canonical };
+    return null;
   };
 
   // Caller breadcrumb chain (outermost first).
@@ -220,7 +288,6 @@ export function DebugTableView({
                     {c === fired ? `${c} ▶` : c}
                   </th>
                 ))}
-                <th className="border border-border/40 bg-muted/30 px-2 text-left text-muted-foreground font-semibold w-24">result</th>
               </tr>
             </thead>
             <tbody>
@@ -233,7 +300,7 @@ export function DebugTableView({
                 onClick={() => onFocus({ kind: 'entry' })}
                 title="State coming into this pass"
               >
-                <td colSpan={3 + cols.length} className="border border-border/40 px-2 py-1 text-muted-foreground">
+                <td colSpan={2 + cols.length} className="border border-border/40 px-2 py-1 text-muted-foreground">
                   {focus.kind === 'entry' && <span className="text-amber-400 font-bold">▶ </span>}
                   Entering {frame.tableName} — state before this pass
                 </td>
@@ -255,18 +322,18 @@ export function DebugTableView({
                       {isFocus && <span className="text-amber-400 font-bold">▶ </span>}
                       <DSLWithLinks
                         text={initialActionText(table, ia.attrs?.n)}
-                        calledTables={called}
+                        resolve={resolverFor(called)}
                         onDrill={onDrill}
+                        onJump={onPass}
+                        onOpenTable={onOpenTable}
                       />
                     </td>
-                    <td className="border border-border/40 px-2 text-green-500">✓</td>
                   </tr>
                 );
               })}
 
               {/* conditions with actual results */}
               {(table.conditions || []).map((cond) => {
-                const result = frame.conditionResults.get(String(cond.number));
                 return (
                   <tr key={`c${cond.number}`}>
                     <td className="border border-border/40 text-center text-muted-foreground">{cond.number}</td>
@@ -290,11 +357,6 @@ export function DebugTableView({
                         </td>
                       );
                     })}
-                    <td className="border border-border/40 px-2 font-mono">
-                      {result === 'true' && <span className="text-green-500">= true</span>}
-                      {result === 'false' && <span className="text-red-500">= false</span>}
-                      {result === undefined && <span className="text-muted-foreground">not evaluated</span>}
-                    </td>
                   </tr>
                 );
               })}
@@ -317,7 +379,13 @@ export function DebugTableView({
                     <td className="border border-border/40 text-center text-muted-foreground">{act.number}</td>
                     <td className="border border-border/40 px-2 py-1 font-mono whitespace-pre-wrap">
                       {isFocus && <span className="text-amber-400 font-bold">▶ </span>}
-                      <DSLWithLinks text={act.description || act.postfix || ''} calledTables={called} onDrill={onDrill} />
+                      <DSLWithLinks
+                        text={act.description || act.postfix || ''}
+                        resolve={resolverFor(called)}
+                        onDrill={onDrill}
+                        onJump={onPass}
+                        onOpenTable={onOpenTable}
+                      />
                     </td>
                     {cols.map((c) => {
                       const v = cellOf(act.columns as Record<string, string>, c);
@@ -334,9 +402,6 @@ export function DebugTableView({
                         </td>
                       );
                     })}
-                    <td className="border border-border/40 px-2">
-                      {executed && <span className="text-green-500">✓ executed</span>}
-                    </td>
                   </tr>
                 );
               })}
@@ -347,7 +412,7 @@ export function DebugTableView({
                 onClick={() => onFocus({ kind: 'exit' })}
                 title="State leaving this pass"
               >
-                <td colSpan={3 + cols.length} className="border border-border/40 px-2 py-1 text-muted-foreground">
+                <td colSpan={2 + cols.length} className="border border-border/40 px-2 py-1 text-muted-foreground">
                   {focus.kind === 'exit' && <span className="text-amber-400 font-bold">▶ </span>}
                   Leaving {frame.tableName} — state after this pass
                 </td>

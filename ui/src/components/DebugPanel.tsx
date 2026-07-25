@@ -15,7 +15,7 @@
  * @module components/DebugPanel
  */
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useProjectStore } from '@/stores/projectStore';
 import {
   debugConsole,
@@ -237,7 +237,14 @@ function TreeNodeView({
 }
 
 export function DebugPanel() {
-  const { selectTable, setActiveTab } = useProjectStore();
+  const { selectTable, setActiveTab, decisionTables } = useProjectStore();
+
+  // Project tables by lowercased name (EL is case-insensitive) — lets the
+  // table view offer static-definition links for tables the trace never ran.
+  const knownTables = useMemo(
+    () => new Map(decisionTables.map((t) => [t.name.toLowerCase(), t.name])),
+    [decisionTables]
+  );
 
   const [info, setInfo] = useState<DebugLoadResponse | null>(null);
   const [tree, setTree] = useState<DebugNode | null>(null);
@@ -694,10 +701,15 @@ export function DebugPanel() {
                 idx={idxRef.current}
                 passNode={framePassNode}
                 focus={frame!.focus}
+                knownTables={knownTables}
                 onFocus={(f) => applyFocus(framePassNode, f)}
                 onDrill={tableDrill}
                 onOut={tableOut}
                 onPass={(p) => applyFocus(p, { kind: 'entry' })}
+                onOpenTable={(name) => {
+                  selectTable(name);
+                  setActiveTab('dt');
+                }}
               />
             ) : (
               <div className="p-6 text-sm text-muted-foreground">No table pass at this position.</div>

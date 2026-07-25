@@ -251,20 +251,18 @@ func initMapping(sess dtrules.Session, xmlDir, input string) error {
 	if err := m.LoadMapping(mapFile); err != nil {
 		return err
 	}
-	if err := m.Initialize(); err != nil {
-		return err
-	}
 	if input != "" {
+		// Load the data first, then push singletons so the stack holds the
+		// LOADED instances — Initialize+LoadData would push default-valued
+		// entities disconnected from the input.
 		f, err := os.Open(input)
 		if err != nil {
 			return err
 		}
 		defer f.Close()
-		if err := m.LoadData(f); err != nil {
-			return err
-		}
+		return m.LoadDataAndPushSingletons(f)
 	}
-	return nil
+	return m.Initialize()
 }
 
 // dataEntities returns the live, executed data entities (the instances on the

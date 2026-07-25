@@ -34,6 +34,11 @@ import (
 // This is the single source of truth for EDD→symbol construction shared by the
 // authoring Save path (Project.loadEDD) and the cmd/dtrules build path, so the
 // two cannot drift in discovery scope or key form (#874, #879).
+//
+// EL is case-insensitive, so keys and types are lower-cased; consumers must
+// lower-case their queries (the emitter's lookupType already does). Typed-case
+// keys silently missed camel-case fields, so `add X to client.totalIncome`
+// lost its numeric type and compiled to the array addto path.
 func LoadEDDSymbols(root string) map[string]string {
 	type eddField struct {
 		Name string `xml:"name,attr"`
@@ -69,13 +74,16 @@ func LoadEDDSymbols(root string) map[string]string {
 			return nil
 		}
 		for _, ent := range f.Entities {
+			entName := strings.ToLower(ent.Name)
 			for _, fld := range ent.Fields {
 				if fld.Name == "" || fld.Type == "" {
 					continue
 				}
-				symbols[fld.Name] = fld.Type
-				if ent.Name != "" {
-					symbols[ent.Name+"."+fld.Name] = fld.Type
+				name := strings.ToLower(fld.Name)
+				typ := strings.ToLower(fld.Type)
+				symbols[name] = typ
+				if entName != "" {
+					symbols[entName+"."+name] = typ
 				}
 			}
 		}

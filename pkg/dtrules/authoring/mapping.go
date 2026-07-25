@@ -139,19 +139,10 @@ func (m *Mapping) validateEntry(e SetAttribute) error {
 		return fmt.Errorf("enclosure %q does not exist in the EDD", e.Enclosure)
 	}
 
-	// Check the attribute exists on the entity.
+	// Check the attribute exists on the entity. Symbol keys are lower-cased
+	// (LoadEDDSymbols), as are enclosure and rattr above.
 	attrKey := enclosure + "." + rattr
 	declaredType, ok := m.project.symbols[attrKey]
-	if !ok {
-		// Try case-insensitive scan.
-		for k, v := range m.project.symbols {
-			if strings.ToLower(k) == attrKey {
-				declaredType = v
-				ok = true
-				break
-			}
-		}
-	}
 	if !ok {
 		return fmt.Errorf("attribute %q not found on entity %q in the EDD", e.RAttribute, e.Enclosure)
 	}
