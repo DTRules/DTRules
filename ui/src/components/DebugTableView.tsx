@@ -42,7 +42,8 @@ function DSLWithLinks({
   let last = 0;
   for (const match of text.matchAll(PERFORM_RE)) {
     const name = match[1] || match[2];
-    const dt = calledTables.get(name);
+    // EL is case-insensitive; the map is keyed by lowercased name.
+    const dt = calledTables.get(name.toLowerCase());
     if (!dt) continue;
     const start = (match.index ?? 0) + match[0].indexOf(name);
     parts.push(text.slice(last, start));
@@ -115,7 +116,7 @@ export function DebugTableView({
   const calledTablesOf = (a: DebugNode): Map<string, DebugNode> => {
     const m = new Map<string, DebugNode>();
     for (const c of a.children) {
-      if (c.name === 'decisiontable' && c.attrs?.name) m.set(c.attrs.name, c);
+      if (c.name === 'decisiontable' && c.attrs?.name) m.set(c.attrs.name.toLowerCase(), c);
     }
     return m;
   };

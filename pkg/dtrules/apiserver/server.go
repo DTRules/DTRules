@@ -91,20 +91,22 @@ type Server struct {
 	debug *debugSession
 }
 
-// findEntity returns the entity with the given name, or nil.
+// findEntity returns the entity with the given name, or nil. EL names are
+// case-insensitive (authored case is preserved for display only).
 func (s *Server) findEntity(name string) *EntityData {
 	for _, e := range s.entities {
-		if e.Name == name {
+		if strings.EqualFold(e.Name, name) {
 			return e
 		}
 	}
 	return nil
 }
 
-// findTable returns the decision table with the given name, or nil.
+// findTable returns the decision table with the given name, or nil. EL
+// names are case-insensitive (authored case is preserved for display only).
 func (s *Server) findTable(name string) *DecisionTableData {
 	for _, t := range s.tables {
-		if t.TableName == name {
+		if strings.EqualFold(t.TableName, name) {
 			return t
 		}
 	}
@@ -140,7 +142,7 @@ func (s *Server) upsertTable(t *DecisionTableData, source string) {
 // removeEntity deletes the named entity, returning it (or nil if absent).
 func (s *Server) removeEntity(name string) *EntityData {
 	for i, e := range s.entities {
-		if e.Name == name {
+		if strings.EqualFold(e.Name, name) {
 			s.entities = append(s.entities[:i], s.entities[i+1:]...)
 			return e
 		}
@@ -151,7 +153,7 @@ func (s *Server) removeEntity(name string) *EntityData {
 // removeTable deletes the named table, returning it (or nil if absent).
 func (s *Server) removeTable(name string) *DecisionTableData {
 	for i, t := range s.tables {
-		if t.TableName == name {
+		if strings.EqualFold(t.TableName, name) {
 			s.tables = append(s.tables[:i], s.tables[i+1:]...)
 			return t
 		}
@@ -166,7 +168,7 @@ func (s *Server) removeTable(name string) *DecisionTableData {
 func (s *Server) shiftTableNumbersFrom(n int, keepName string) {
 	occupied := false
 	for _, t := range s.tables {
-		if t.TableName != keepName {
+		if !strings.EqualFold(t.TableName, keepName) {
 			if num, err := strconv.Atoi(strings.TrimSpace(t.TableNumber)); err == nil && num == n {
 				occupied = true
 				break
@@ -177,7 +179,7 @@ func (s *Server) shiftTableNumbersFrom(n int, keepName string) {
 		return
 	}
 	for _, t := range s.tables {
-		if t.TableName == keepName {
+		if strings.EqualFold(t.TableName, keepName) {
 			continue
 		}
 		if num, err := strconv.Atoi(strings.TrimSpace(t.TableNumber)); err == nil && num >= n {
@@ -259,7 +261,7 @@ func (s *Server) handleEDDReorder(w http.ResponseWriter, r *http.Request) {
 func (s *Server) shiftEntityNumbersFrom(n int, keepName string) {
 	occupied := false
 	for _, e := range s.entities {
-		if e.Name != keepName {
+		if !strings.EqualFold(e.Name, keepName) {
 			if num, err := strconv.Atoi(strings.TrimSpace(e.Number)); err == nil && num == n {
 				occupied = true
 				break
@@ -270,7 +272,7 @@ func (s *Server) shiftEntityNumbersFrom(n int, keepName string) {
 		return
 	}
 	for _, e := range s.entities {
-		if e.Name == keepName {
+		if strings.EqualFold(e.Name, keepName) {
 			continue
 		}
 		if num, err := strconv.Atoi(strings.TrimSpace(e.Number)); err == nil && num >= n {

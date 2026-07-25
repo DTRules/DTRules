@@ -23,9 +23,11 @@ import type { DecisionTable } from '@/types/dtrules';
  */
 const PERFORM_RE = /\bperform\s+([A-Za-z_][A-Za-z0-9_]*)|\/([A-Za-z_][A-Za-z0-9_]*)\s+performtable\b/gi;
 
-/** Grid context shared with cell renderers. */
+/** Grid context shared with cell renderers. EL is case-insensitive (what
+ *  the user types is preserved for display), so table-name resolution maps
+ *  lowercased names to their canonical form. */
 interface DSLCellContext {
-  tableNames?: Set<string>;
+  tableNames?: Map<string, string>;
   navigate?: (name: string) => void;
 }
 
@@ -45,17 +47,18 @@ function DSLCell(props: ICellRendererParams) {
   let last = 0;
   for (const match of text.matchAll(PERFORM_RE)) {
     const name = match[1] || match[2];
-    if (!tableNames.has(name)) continue;
+    const canonical = tableNames.get(name.toLowerCase());
+    if (!canonical) continue;
     const start = (match.index ?? 0) + match[0].indexOf(name);
     parts.push(text.slice(last, start));
     parts.push(
       <button
         key={start}
         className="text-blue-400 underline decoration-blue-400/40 underline-offset-2 hover:text-blue-300"
-        title={`Go to ${name}`}
+        title={`Go to ${canonical}`}
         onClick={(e) => {
           e.stopPropagation();
-          navigate(name);
+          navigate(canonical);
         }}
       >
         {name}
@@ -173,8 +176,9 @@ export function DTEditor() {
     selectTable(history[historyIndex + 1]);
   };
 
+  // Lowercased name -> canonical name: EL references are case-insensitive.
   const tableNames = useMemo(
-    () => new Set(decisionTables.map((t) => t.name)),
+    () => new Map(decisionTables.map((t) => [t.name.toLowerCase(), t.name])),
     [decisionTables]
   );
 
