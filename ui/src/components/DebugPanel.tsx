@@ -15,11 +15,12 @@
  * @module components/DebugPanel
  */
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useProjectStore } from '@/stores/projectStore';
 import {
   debugConsole,
   debugLoad,
+  debugStatus,
   debugPosition,
   debugTree,
   type DebugFrame,
@@ -505,13 +506,9 @@ export function DebugPanel() {
     });
   }, [position, goTo]);
 
-  const handleLoad = async (path: string) => {
-    setLoadError(null);
-    const r = await debugLoad(path);
-    if (!r.success) {
-      setLoadError(r.error || 'Failed to load trace');
-      return;
-    }
+  // adoptSession enters the loaded state for a debug session the server
+  // holds — after a load we initiated, or one preloaded by `dtrules debug`.
+  const adoptSession = useCallback(async (r: DebugLoadResponse) => {
     setInfo(r);
     setNodeCount(r.nodes || 0);
     setBrowsing(false);
@@ -531,6 +528,31 @@ export function DebugPanel() {
       return;
     }
     await goTo(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [goTo]);
+
+  // On mount, adopt a session the server already holds (dtrules debug /
+  // edit --trace preload) so the Debug tab opens ready.
+  useEffect(() => {
+    if (info) return;
+    let stale = false;
+    debugStatus().then((st) => {
+      if (!stale && st.loaded && st.success) adoptSession(st);
+    }).catch(() => {});
+    return () => {
+      stale = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleLoad = async (path: string) => {
+    setLoadError(null);
+    const r = await debugLoad(path);
+    if (!r.success) {
+      setLoadError(r.error || 'Failed to load trace');
+      return;
+    }
+    await adoptSession(r);
   };
 
   const runConsole = async () => {

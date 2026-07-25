@@ -26,7 +26,14 @@ import type {
 } from '@/types/dtrules';
 
 /** Base URL for all API requests - can be overridden via VITE_API_URL env variable */
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+// API base resolution: explicit override first; in dev (vite on :5173) the
+// backend is the separate cmd/api process on :8080; in a production build
+// the UI is served BY the API server (dtrules edit), so use its own origin —
+// hard-coding :8080 made an editor on any other port silently talk to
+// whatever happened to be listening on 8080.
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'http://localhost:8080/api' : '/api');
 
 /**
  * Generic fetch wrapper that handles JSON serialization/deserialization.
@@ -504,6 +511,12 @@ export async function debugLoad(path: string): Promise<DebugLoadResponse> {
 /** Fetches the loaded trace as a tree. */
 export async function debugTree(): Promise<{ success: boolean; error?: string; tree?: DebugNode }> {
   return fetchJSON(`${API_BASE}/debug/tree`);
+}
+
+/** Reports whether the server already has a debug session (e.g. preloaded
+ *  by `dtrules debug`), with the same fields as debugLoad when it does. */
+export async function debugStatus(): Promise<DebugLoadResponse & { loaded?: boolean }> {
+  return fetchJSON(`${API_BASE}/debug/status`);
 }
 
 /** Replays to a trace node ("run to here" / stepping). */

@@ -71,9 +71,13 @@ func (c *CLI) runRun(args []string) int {
 				i++
 			}
 		case "--trace":
-			if i+1 < len(args) {
+			// Value is optional: bare --trace writes to the project's
+			// traces/ directory, named after the input file (or entry).
+			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
 				tracePath = args[i+1]
 				i++
+			} else {
+				tracePath = traceDefaultSentinel
 			}
 		case "--result-entity":
 			if i+1 < len(args) {
@@ -103,10 +107,19 @@ func (c *CLI) runRun(args []string) int {
 			path = args[i]
 		}
 	}
+	// The project's DTRules.xml may declare the default entry table.
 	if entry == "" {
-		fmt.Fprintln(os.Stderr, "Error: --entry <table> is required")
+		if cfg, err := loadProjectConfig(mustAbs(path)); err == nil {
+			entry = cfg.Entry
+		}
+	}
+	if entry == "" {
+		fmt.Fprintln(os.Stderr, "Error: --entry <table> is required (or declare <entry> in DTRules.xml)")
 		c.printRunUsage()
 		return 1
+	}
+	if tracePath == traceDefaultSentinel {
+		tracePath = defaultTracePath(mustAbs(path), entry, input)
 	}
 
 	xmlDir, _, err := resolveDirs(mustAbs(path), "", "")

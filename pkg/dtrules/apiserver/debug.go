@@ -111,16 +111,72 @@ func (s *Server) handleDebugLoad(w http.ResponseWriter, r *http.Request) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if s.ruleSet == nil {
-		jsonError(w, "Open a project before loading a trace", http.StatusBadRequest)
+	ds, err := s.loadDebugSessionLocked(validated)
+	if err != nil {
+		jsonError(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+	jsonResponse(w, debugSessionPayload(ds))
+}
+
+// LoadDebugTrace loads a trace into the server's debug session — the
+// programmatic form of POST /api/debug/load, used by `dtrules debug` /
+// `dtrules edit --trace` to open the editor with the trace ready.
+func (s *Server) LoadDebugTrace(path string) error {
+	validated, err := s.validateProjectPath(path)
+	if err != nil {
+		return fmt.Errorf("invalid trace path: %w", err)
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	_, err = s.loadDebugSessionLocked(validated)
+	return err
+}
+
+// handleDebugStatus reports the current debug session, so a UI that mounts
+// after a server-side preload (dtrules debug) can adopt it.
+// GET /api/debug/status
+func (s *Server) handleDebugStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		jsonError(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if s.debug == nil {
+		jsonResponse(w, map[string]interface{}{"success": true, "loaded": false})
+		return
+	}
+	payload := debugSessionPayload(s.debug)
+	payload["loaded"] = true
+	jsonResponse(w, payload)
+}
+
+// debugSessionPayload is the JSON shape shared by load and status.
+func debugSessionPayload(ds *debugSession) map[string]interface{} {
+	return map[string]interface{}{
+		"success":          true,
+		"tracePath":        ds.tracePath,
+		"nodes":            ds.nodeCount,
+		"dtrulesVersion":   ds.provenance.DTRulesVersion,
+		"rulesFingerprint": ds.provenance.RulesFingerprint,
+		"fingerprintMatch": ds.fingerprintMatch,
+		"verifyMismatches": ds.verifyMismatches,
+	}
+}
+
+// loadDebugSessionLocked parses the trace at validated, verifies it against
+// the open project, and installs it as the server's debug session. Caller
+// holds s.mu.
+func (s *Server) loadDebugSessionLocked(validated string) (*debugSession, error) {
+	if s.ruleSet == nil {
+		return nil, fmt.Errorf("open a project before loading a trace")
 	}
 
 	tr := trace.NewTrace()
 	root, err := tr.Load(validated)
 	if err != nil {
-		jsonError(w, fmt.Sprintf("Failed to load trace: %v", err), http.StatusBadRequest)
-		return
+		return nil, fmt.Errorf("failed to load trace: %w", err)
 	}
 
 	ds := &debugSession{
@@ -168,16 +224,7 @@ func (s *Server) handleDebugLoad(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.debug = ds
-
-	jsonResponse(w, map[string]interface{}{
-		"success":          true,
-		"tracePath":        validated,
-		"nodes":            ds.nodeCount,
-		"dtrulesVersion":   ds.provenance.DTRulesVersion,
-		"rulesFingerprint": ds.provenance.RulesFingerprint,
-		"fingerprintMatch": ds.fingerprintMatch,
-		"verifyMismatches": ds.verifyMismatches,
-	})
+	return ds, nil
 }
 
 // debugNodeJSON serializes a trace subtree for the UI's tree view.

@@ -37,9 +37,15 @@ func (c *CLI) runEdit(args []string) int {
 	projectPath := ""
 	projectRoot := ""
 	readOnly := false
+	tracePath := ""
 
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
+		case "--trace":
+			if i+1 < len(args) {
+				i++
+				tracePath = args[i]
+			}
 		case "--port", "-p":
 			if i+1 < len(args) {
 				i++
@@ -114,6 +120,19 @@ reverse proxy that provides TLS and access control.`)
 	if err := server.LoadProject(absPath); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: could not open project %s: %v\n", absPath, err)
 		fmt.Fprintln(os.Stderr, "The editor will start without a project; open one from the UI.")
+	}
+
+	// Preload a trace so the Debug tab opens ready (the `dtrules debug` flow).
+	if tracePath != "" {
+		absTrace, err := filepath.Abs(tracePath)
+		if err == nil {
+			err = server.LoadDebugTrace(absTrace)
+		}
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: could not load trace %s: %v\n", tracePath, err)
+		} else {
+			fmt.Printf("Trace loaded: %s\n", tracePath)
+		}
 	}
 
 	mux := http.NewServeMux()

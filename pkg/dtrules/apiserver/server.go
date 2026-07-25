@@ -426,6 +426,7 @@ func (s *Server) Routes() http.Handler {
 
 	// Trace debugger endpoints
 	mux.HandleFunc("/api/debug/load", s.handleDebugLoad)
+	mux.HandleFunc("/api/debug/status", s.handleDebugStatus)
 	mux.HandleFunc("/api/debug/tree", s.handleDebugTree)
 	mux.HandleFunc("/api/debug/position", s.handleDebugPosition)
 	mux.HandleFunc("/api/debug/console", s.handleDebugConsole)

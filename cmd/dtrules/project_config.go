@@ -21,10 +21,13 @@ import (
 	"path/filepath"
 )
 
-// projectConfig holds optional directory overrides declared in DTRules.xml.
+// projectConfig holds optional project settings declared in DTRules.xml.
 type projectConfig struct {
 	XMLDir   string `xml:"xml_dir"`
 	ExcelDir string `xml:"excel_dir"`
+	// Entry is the project's default entry decision table, so `dtrules run`
+	// and `dtrules debug` don't need --entry every invocation.
+	Entry string `xml:"entry"`
 }
 
 // loadProjectConfig reads DTRules.xml from projectRoot and returns any
