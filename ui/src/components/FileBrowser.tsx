@@ -53,14 +53,32 @@ export function FileBrowser({ onSelect, selectFiles }: FileBrowserProps) {
 
   const handlePathSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pathInput) {
-      fetchDirectory(pathInput);
+    if (!pathInput) return;
+    // With a live filter narrowing to exactly one entry, Enter opens it.
+    if (filter) {
+      const matches = visibleEntries.filter((en) => en.name !== '..');
+      if (matches.length === 1) {
+        handleEntryClick(matches[0]);
+        return;
+      }
     }
+    fetchDirectory(pathInput);
   };
 
   const handleSelectCurrent = () => {
     onSelect(currentPath);
   };
+
+  // Live filter: typing beyond the current directory in the path bar
+  // narrows the listing to matching names (case-insensitive substring).
+  const prefix = currentPath.endsWith('/') ? currentPath : currentPath + '/';
+  const filter =
+    pathInput.startsWith(prefix) && !pathInput.slice(prefix.length).includes('/')
+      ? pathInput.slice(prefix.length).toLowerCase()
+      : '';
+  const visibleEntries = filter
+    ? entries.filter((e) => e.name === '..' || e.name.toLowerCase().includes(filter))
+    : entries;
 
   const handleGoHome = () => {
     fetchDirectory('');
@@ -101,7 +119,7 @@ export function FileBrowser({ onSelect, selectFiles }: FileBrowserProps) {
             <div className="text-center text-muted-foreground py-4">Loading...</div>
           ) : (
             <div className="space-y-1">
-              {entries.map((entry) => (
+              {visibleEntries.map((entry) => (
                 <div
                   key={entry.path}
                   className="flex items-center gap-2 p-2 rounded hover:bg-accent cursor-pointer"
@@ -115,6 +133,11 @@ export function FileBrowser({ onSelect, selectFiles }: FileBrowserProps) {
                   <span className="text-sm truncate">{entry.name}</span>
                 </div>
               ))}
+            </div>
+          )}
+          {!isLoading && filter && visibleEntries.filter((e) => e.name !== '..').length === 0 && (
+            <div className="text-center text-muted-foreground text-sm py-4">
+              Nothing matches “{filter}”
             </div>
           )}
         </div>

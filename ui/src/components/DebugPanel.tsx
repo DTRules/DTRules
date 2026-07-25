@@ -138,21 +138,122 @@ function firstTable(root: DebugNode): DebugNode | null {
   return null;
 }
 
-function TreeNodeView({
-  node,
-  position,
-  onSelect,
-  depth,
-  expanded: expandedSet,
-  onToggle,
-}: {
-  node: DebugNode;
+// ── tree rendering with range-bucketed children ─────────────────────
+//
+// A node's children render directly when few; large child lists (staking:
+// thousands of execute_table passes) render as expandable ordinal ranges —
+// [1…1000] → [401…500] → the children — so any child is reachable in a few
+// clicks instead of endless scrolling. Bucket sizes are chosen so no level
+// shows more than ~20 rows; the bucket containing the program counter is
+// forced open so the tree can always follow the position.
+
+const GROUP_SIZES = [25, 100, 1000, 10000, 100000];
+
+function bucketSize(n: number): number {
+  for (const size of GROUP_SIZES) {
+    if (Math.ceil(n / size) <= 20) return size;
+  }
+  return GROUP_SIZES[GROUP_SIZES.length - 1];
+}
+
+interface TreeCommon {
   position: number;
   onSelect: (n: number) => void;
-  depth: number;
   expanded: Set<number>;
   onToggle: (n: number) => void;
+  subtreeMax: Map<number, number>;
+}
+
+function NodeChildren({
+  nodes,
+  ordinalStart,
+  depth,
+  common,
+}: {
+  nodes: DebugNode[];
+  ordinalStart: number;
+  depth: number;
+  common: TreeCommon;
 }) {
+  if (nodes.length <= 25) {
+    return (
+      <>
+        {nodes.map((c) => (
+          <TreeNodeView key={c.number} node={c} depth={depth} common={common} />
+        ))}
+      </>
+    );
+  }
+  const size = bucketSize(nodes.length);
+  const groups: number[] = [];
+  for (let i = 0; i < nodes.length; i += size) groups.push(i);
+  return (
+    <>
+      {groups.map((i) => (
+        <RangeGroup
+          key={i}
+          nodes={nodes.slice(i, i + size)}
+          ordinalStart={ordinalStart + i}
+          depth={depth}
+          common={common}
+        />
+      ))}
+    </>
+  );
+}
+
+function RangeGroup({
+  nodes,
+  ordinalStart,
+  depth,
+  common,
+}: {
+  nodes: DebugNode[];
+  ordinalStart: number;
+  depth: number;
+  common: TreeCommon;
+}) {
+  const [open, setOpen] = useState(false);
+  const first = nodes[0];
+  const last = nodes[nodes.length - 1];
+  const rangeEnd = common.subtreeMax.get(last.number) ?? last.number;
+  const containsPC = common.position >= first.number && common.position <= rangeEnd;
+  const isOpen = open || containsPC;
+
+  return (
+    <div>
+      <div
+        className={cn(
+          'flex items-center gap-1 px-1 rounded-sm cursor-pointer hover:bg-accent font-mono text-xs leading-6 whitespace-nowrap text-blue-300/80',
+          containsPC && 'text-amber-300/90'
+        )}
+        style={{ paddingLeft: depth * 12 + 4 }}
+        onClick={() => setOpen(!open)}
+        title={containsPC ? 'Contains the current position' : undefined}
+      >
+        <span className="w-3 shrink-0">{isOpen ? '▾' : '▸'}</span>
+        <span>
+          [{ordinalStart.toLocaleString()} … {(ordinalStart + nodes.length - 1).toLocaleString()}]
+        </span>
+        <span className="text-muted-foreground">· {nodes.length.toLocaleString()} items</span>
+      </div>
+      {isOpen && (
+        <NodeChildren nodes={nodes} ordinalStart={ordinalStart} depth={depth + 1} common={common} />
+      )}
+    </div>
+  );
+}
+
+function TreeNodeView({
+  node,
+  depth,
+  common,
+}: {
+  node: DebugNode;
+  depth: number;
+  common: TreeCommon;
+}) {
+  const { position, onSelect, expanded: expandedSet, onToggle } = common;
   const expanded = expandedSet.has(node.number);
   const hasChildren = node.children.length > 0;
   const structural = ['decisiontable', 'execute_table', 'column', 'action', 'initialaction', 'DTRulesTrace', 'finalState'].includes(node.name);
@@ -184,10 +285,9 @@ function TreeNodeView({
           {nodeLabel(node)}
         </span>
       </div>
-      {expanded &&
-        node.children.map((c) => (
-          <TreeNodeView key={c.number} node={c} position={position} onSelect={onSelect} depth={depth + 1} expanded={expandedSet} onToggle={onToggle} />
-        ))}
+      {expanded && hasChildren && (
+        <NodeChildren nodes={node.children} ordinalStart={1} depth={depth + 1} common={common} />
+      )}
     </div>
   );
 }
@@ -504,7 +604,13 @@ export function DebugPanel() {
       <div className="flex-1 grid grid-cols-[1fr_320px] overflow-hidden">
         <ScrollArea className="border-r border-border/50">
           <div className="p-2">
-            {tree && <TreeNodeView node={tree} position={position} onSelect={goTo} depth={0} expanded={expanded} onToggle={toggleNode} />}
+            {tree && idxRef.current && (
+              <TreeNodeView
+                node={tree}
+                depth={0}
+                common={{ position, onSelect: goTo, expanded, onToggle: toggleNode, subtreeMax: idxRef.current.subtreeMax }}
+              />
+            )}
           </div>
         </ScrollArea>
         <ScrollArea>
