@@ -22,6 +22,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/apiserver"
@@ -162,7 +163,19 @@ reverse proxy that provides TLS and access control.`)
 
 	mux := http.NewServeMux()
 	mux.Handle("/api/", server.Routes())
-	mux.Handle("/", http.FileServer(http.FS(dist)))
+	static := http.FileServer(http.FS(dist))
+	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// index.html must always revalidate, or browsers keep serving a
+		// cached page referencing the PREVIOUS build's hashed bundle —
+		// the "works after a hard refresh" trap. The content-hashed
+		// assets themselves are immutable and safe to cache hard.
+		if strings.HasPrefix(r.URL.Path, "/assets/") {
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		} else {
+			w.Header().Set("Cache-Control", "no-cache")
+		}
+		static.ServeHTTP(w, r)
+	}))
 
 	ln, err := pickListener(host, port)
 	if err != nil {
