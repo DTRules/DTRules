@@ -106,13 +106,18 @@ func EDDSymbols(edd *EDDXML) map[string]string {
 		if ent == nil {
 			continue
 		}
+		// EL is case-insensitive: lower-cased keys/types, matching the
+		// emitter's lower-cased lookups (see authoring.LoadEDDSymbols).
+		entName := strings.ToLower(ent.Name)
 		for _, fld := range ent.Fields {
 			if fld == nil || fld.Name == "" || fld.Type == "" {
 				continue
 			}
-			symbols[fld.Name] = fld.Type
-			if ent.Name != "" {
-				symbols[ent.Name+"."+fld.Name] = fld.Type
+			name := strings.ToLower(fld.Name)
+			typ := strings.ToLower(fld.Type)
+			symbols[name] = typ
+			if entName != "" {
+				symbols[entName+"."+name] = typ
 			}
 		}
 	}

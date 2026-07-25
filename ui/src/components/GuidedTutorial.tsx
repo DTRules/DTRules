@@ -93,7 +93,7 @@ function CustomTooltip({
 
 // Step definitions with tab requirements
 interface TutorialStep extends Step {
-  tab?: 'edd' | 'dt' | 'test' | 'tree';
+  tab?: 'edd' | 'dt' | 'test' | 'debug';
 }
 
 /**
@@ -305,25 +305,6 @@ const tutorialSteps: TutorialStep[] = [
     disableBeacon: true,
     title: 'Execution Tracing',
     tab: 'test',
-  },
-
-  // === TREE VIEW TAB (3 steps) ===
-  {
-    target: '[data-tutorial="tab-tree"]',
-    content: 'The Tree View visualizes how your decision tables connect. Click this tab to see which tables call which.',
-    placement: 'bottom',
-    disableBeacon: true,
-    title: 'Tree View Tab',
-    // NOTE: Don't switch tabs here - tab button is always visible. Next step will switch.
-  },
-  {
-    target: '[data-tutorial="tree-visualization"]',
-    content: 'This diagram shows the call hierarchy. For CHIP: "Compute_Eligibility" at the top calls age, income, and citizenship checking tables. Click nodes to navigate, and use this view to understand how changes to one table affect others.',
-    placement: 'top-start',
-    disableBeacon: true,
-    disableOverlay: true,
-    title: 'Rule Flow Diagram',
-    tab: 'tree',
   },
 
   // === WRAP UP (2 steps) ===

@@ -126,22 +126,6 @@
   border-left: 1px solid var(--ag-border-color);
 }
 
-/* React Flow custom styles */
-.react-flow__node-condition {
-  background: hsl(210, 40%, 25%);
-  border: 1px solid hsl(210, 40%, 40%);
-  border-radius: 8px;
-  padding: 10px;
-  color: white;
-}
-
-.react-flow__node-action {
-  background: hsl(120, 40%, 25%);
-  border: 1px solid hsl(120, 40%, 40%);
-  border-radius: 8px;
-  padding: 10px;
-  color: white;
-}
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {

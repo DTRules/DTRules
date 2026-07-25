@@ -71,9 +71,13 @@ func (c *CLI) runRun(args []string) int {
 				i++
 			}
 		case "--trace":
-			if i+1 < len(args) {
+			// Value is optional: bare --trace writes to the project's
+			// traces/ directory, named after the input file (or entry).
+			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
 				tracePath = args[i+1]
 				i++
+			} else {
+				tracePath = traceDefaultSentinel
 			}
 		case "--result-entity":
 			if i+1 < len(args) {
@@ -103,10 +107,19 @@ func (c *CLI) runRun(args []string) int {
 			path = args[i]
 		}
 	}
+	// The project's DTRules.xml may declare the default entry table.
 	if entry == "" {
-		fmt.Fprintln(os.Stderr, "Error: --entry <table> is required")
+		if cfg, err := loadProjectConfig(mustAbs(path)); err == nil {
+			entry = cfg.Entry
+		}
+	}
+	if entry == "" {
+		fmt.Fprintln(os.Stderr, "Error: --entry <table> is required (or declare <entry> in DTRules.xml)")
 		c.printRunUsage()
 		return 1
+	}
+	if tracePath == traceDefaultSentinel {
+		tracePath = defaultTracePath(mustAbs(path), entry, input)
 	}
 
 	xmlDir, _, err := resolveDirs(mustAbs(path), "", "")
@@ -251,20 +264,18 @@ func initMapping(sess dtrules.Session, xmlDir, input string) error {
 	if err := m.LoadMapping(mapFile); err != nil {
 		return err
 	}
-	if err := m.Initialize(); err != nil {
-		return err
-	}
 	if input != "" {
+		// Load the data first, then push singletons so the stack holds the
+		// LOADED instances — Initialize+LoadData would push default-valued
+		// entities disconnected from the input.
 		f, err := os.Open(input)
 		if err != nil {
 			return err
 		}
 		defer f.Close()
-		if err := m.LoadData(f); err != nil {
-			return err
-		}
+		return m.LoadDataAndPushSingletons(f)
 	}
-	return nil
+	return m.Initialize()
 }
 
 // dataEntities returns the live, executed data entities (the instances on the

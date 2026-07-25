@@ -318,6 +318,23 @@ func TestTablePatchSetConditionCell(t *testing.T) {
 
 func TestTablePatchDeleteCondition(t *testing.T) {
 	dir := copyProject(t, "../../sampleprojects/CHIP")
+
+	// Capture the target condition's DSL — after the delete, numbers are
+	// renormalized sequentially (the old #3 becomes #2), so identity is
+	// tracked by content, not by number.
+	before, _, _ := runTableCmd(t, dir, []string{"get", "Compute_Eligibility"}, "")
+	var tjBefore TableJSON
+	_ = json.Unmarshal([]byte(before), &tjBefore)
+	var deletedDSL string
+	for _, c := range tjBefore.Conditions {
+		if c.Number == 2 {
+			deletedDSL = c.DSL
+		}
+	}
+	if deletedDSL == "" {
+		t.Fatalf("condition 2 not found before delete")
+	}
+
 	patch := `{"op":"delete-condition","condition_number":2}`
 	_, se, code := runTableCmd(t, dir, []string{"patch", "Compute_Eligibility"}, patch)
 	if code != 0 {
@@ -326,14 +343,17 @@ func TestTablePatchDeleteCondition(t *testing.T) {
 	out, _, _ := runTableCmd(t, dir, []string{"get", "Compute_Eligibility"}, "")
 	var tj TableJSON
 	_ = json.Unmarshal([]byte(out), &tj)
-	for _, c := range tj.Conditions {
-		if c.Number == 2 {
-			t.Fatalf("condition 2 should be deleted")
-		}
+	if len(tj.Conditions) != len(tjBefore.Conditions)-1 {
+		t.Fatalf("want %d conditions after delete, got %d", len(tjBefore.Conditions)-1, len(tj.Conditions))
 	}
-	// Other conditions still present.
-	if len(tj.Conditions) < 2 {
-		t.Errorf("expected other conditions to survive")
+	for i, c := range tj.Conditions {
+		if c.DSL == deletedDSL {
+			t.Fatalf("deleted condition's DSL still present: %q", c.DSL)
+		}
+		// Numbers renormalize to a clean sequence.
+		if c.Number != i+1 {
+			t.Errorf("condition %d has number %d; want sequential renumbering", i, c.Number)
+		}
 	}
 }
 

@@ -21,11 +21,13 @@ import type { DecisionTable } from '@/types/dtrules';
  * - postfix: `/<TableName> performtable`
  * The referenced name lands in capture group 1 or 2.
  */
-const PERFORM_RE = /\bperform\s+([A-Za-z_][A-Za-z0-9_]*)|\/([A-Za-z_][A-Za-z0-9_]*)\s+performtable\b/g;
+const PERFORM_RE = /\bperform\s+([A-Za-z_][A-Za-z0-9_]*)|\/([A-Za-z_][A-Za-z0-9_]*)\s+performtable\b/gi;
 
-/** Grid context shared with cell renderers. */
+/** Grid context shared with cell renderers. EL is case-insensitive (what
+ *  the user types is preserved for display), so table-name resolution maps
+ *  lowercased names to their canonical form. */
 interface DSLCellContext {
-  tableNames?: Set<string>;
+  tableNames?: Map<string, string>;
   navigate?: (name: string) => void;
 }
 
@@ -45,17 +47,18 @@ function DSLCell(props: ICellRendererParams) {
   let last = 0;
   for (const match of text.matchAll(PERFORM_RE)) {
     const name = match[1] || match[2];
-    if (!tableNames.has(name)) continue;
+    const canonical = tableNames.get(name.toLowerCase());
+    if (!canonical) continue;
     const start = (match.index ?? 0) + match[0].indexOf(name);
     parts.push(text.slice(last, start));
     parts.push(
       <button
         key={start}
         className="text-blue-400 underline decoration-blue-400/40 underline-offset-2 hover:text-blue-300"
-        title={`Go to ${name}`}
+        title={`Go to ${canonical}`}
         onClick={(e) => {
           e.stopPropagation();
-          navigate(name);
+          navigate(canonical);
         }}
       >
         {name}
@@ -116,7 +119,20 @@ const getCellStyle = (params: { value: unknown }): Record<string, string> => {
 };
 
 export function DTEditor() {
-  const { decisionTables, currentTable, selectTable, updateTable, readOnly } = useProjectStore();
+  const { decisionTables, currentTable, selectTable, updateTable, readOnly, setActiveTab } = useProjectStore();
+
+  // Arriving here from the debugger (a never-executed table's definition)
+  // is a side-trip — Esc returns to the debug view.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (sessionStorage.getItem('dtrules.returnToDebugOnEsc') !== '1') return;
+      sessionStorage.removeItem('dtrules.returnToDebugOnEsc');
+      setActiveTab('debug');
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [setActiveTab]);
   const [editedTable, setEditedTable] = useState<DecisionTable | null>(null);
   // When on, the DSL column shows the compiled postfix instead (read-only —
   // postfix is a build artifact and is never hand-edited).
@@ -173,8 +189,9 @@ export function DTEditor() {
     selectTable(history[historyIndex + 1]);
   };
 
+  // Lowercased name -> canonical name: EL references are case-insensitive.
   const tableNames = useMemo(
-    () => new Set(decisionTables.map((t) => t.name)),
+    () => new Map(decisionTables.map((t) => [t.name.toLowerCase(), t.name])),
     [decisionTables]
   );
 
@@ -356,7 +373,10 @@ export function DTEditor() {
       const row: Record<string, string | number> = {
         type: 'condition',
         idx,
-        number: cond.number,
+        // Display ordinal position, not the stored number: authored
+        // numbers drift (1,2,4,7...) but the engine counts positions, and
+        // the debug view must match this view row for row.
+        number: idx + 1,
         description: cond.description,
         postfix: cond.postfix,
         comment: cond.comment,
@@ -373,7 +393,8 @@ export function DTEditor() {
       const row: Record<string, string | number> = {
         type: 'action',
         idx,
-        number: action.number,
+        // Ordinal position (see conditions above).
+        number: idx + 1,
         description: action.description,
         postfix: action.postfix,
         comment: action.comment,

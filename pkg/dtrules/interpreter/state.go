@@ -646,6 +646,15 @@ func (s *DTState) Def(name *dtrules.RName, value dtrules.Object, trace bool) (bo
 			"entity", entity.GetName().StringValue(),
 			"name", name.GetName(),
 			"id", fmt.Sprintf("%d", entity.GetID()))
+		// An array assignment replaces the attr's array object; without a
+		// fresh bind, later <addto arrayId=...> events reference an array
+		// the replay never registered and the attr replays empty.
+		if arr, ok := value.(*dtrules.RArray); ok {
+			s.TraceInfo("arraybind", "",
+				"id", fmt.Sprintf("%d", entity.GetID()),
+				"attr", name.GetName(),
+				"arrayId", fmt.Sprintf("%d", arr.GetID()))
+		}
 	}
 
 	// Use attribute-only name for Put (without entity prefix)

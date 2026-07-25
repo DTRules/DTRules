@@ -26,7 +26,14 @@ import type {
 } from '@/types/dtrules';
 
 /** Base URL for all API requests - can be overridden via VITE_API_URL env variable */
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+// API base resolution: explicit override first; in dev (vite on :5173) the
+// backend is the separate cmd/api process on :8080; in a production build
+// the UI is served BY the API server (dtrules edit), so use its own origin —
+// hard-coding :8080 made an editor on any other port silently talk to
+// whatever happened to be listening on 8080.
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'http://localhost:8080/api' : '/api');
 
 /**
  * Generic fetch wrapper that handles JSON serialization/deserialization.
@@ -97,6 +104,8 @@ export interface BrowseEntry {
   name: string;
   path: string;
   isDir: boolean;
+  /** File size in bytes (absent for directories). */
+  size?: number;
 }
 
 /** Response from the directory browse endpoint. */
@@ -452,4 +461,72 @@ export async function getSampleProjects(): Promise<{
   message?: string;
 }> {
   return fetchJSON(`${API_BASE}/samples`);
+}
+
+// ============================================================================
+// Trace Debugger Endpoints
+// ============================================================================
+
+/** A node in the loaded trace tree. */
+export interface DebugNode {
+  number: number;
+  name: string;
+  attrs?: Record<string, string>;
+  body?: string;
+  children: DebugNode[];
+}
+
+/** An entity frame in the replayed entity stack. */
+export interface DebugFrame {
+  name: string;
+  id: number;
+  attrs: Record<string, string>;
+}
+
+/** Result of loading a trace for debugging. */
+export interface DebugLoadResponse {
+  success: boolean;
+  error?: string;
+  tracePath?: string;
+  nodes?: number;
+  dtrulesVersion?: string;
+  rulesFingerprint?: string;
+  fingerprintMatch?: 'match' | 'mismatch' | 'unknown';
+  verifyMismatches?: string[];
+}
+
+/** Result of positioning the replay session at a trace node. */
+export interface DebugPositionResponse {
+  success: boolean;
+  error?: string;
+  position?: number;
+  nodes?: number;
+  context?: { table?: string; column?: string; action?: string };
+  stack?: DebugFrame[];
+}
+
+/** Loads a trace file into the server's debug session. */
+export async function debugLoad(path: string): Promise<DebugLoadResponse> {
+  return fetchJSON(`${API_BASE}/debug/load`, { method: 'POST', body: JSON.stringify({ path }) });
+}
+
+/** Fetches the loaded trace as a tree. */
+export async function debugTree(): Promise<{ success: boolean; error?: string; tree?: DebugNode }> {
+  return fetchJSON(`${API_BASE}/debug/tree`);
+}
+
+/** Reports whether the server already has a debug session (e.g. preloaded
+ *  by `dtrules debug`), with the same fields as debugLoad when it does. */
+export async function debugStatus(): Promise<DebugLoadResponse & { loaded?: boolean }> {
+  return fetchJSON(`${API_BASE}/debug/status`);
+}
+
+/** Replays to a trace node ("run to here" / stepping). */
+export async function debugPosition(node: number): Promise<DebugPositionResponse> {
+  return fetchJSON(`${API_BASE}/debug/position`, { method: 'POST', body: JSON.stringify({ node }) });
+}
+
+/** Executes read-only postfix at the current position; returns the leftover data stack. */
+export async function debugConsole(postfix: string): Promise<{ success: boolean; error?: string; results?: string[] }> {
+  return fetchJSON(`${API_BASE}/debug/console`, { method: 'POST', body: JSON.stringify({ postfix }) });
 }

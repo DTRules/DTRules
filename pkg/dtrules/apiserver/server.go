@@ -86,22 +86,27 @@ type Server struct {
 	tables        []*DecisionTableData
 	modified      map[string]bool
 	entityFactory *entity.Factory
+
+	// debug is the active trace-debugging session, if any (one per server).
+	debug *debugSession
 }
 
-// findEntity returns the entity with the given name, or nil.
+// findEntity returns the entity with the given name, or nil. EL names are
+// case-insensitive (authored case is preserved for display only).
 func (s *Server) findEntity(name string) *EntityData {
 	for _, e := range s.entities {
-		if e.Name == name {
+		if strings.EqualFold(e.Name, name) {
 			return e
 		}
 	}
 	return nil
 }
 
-// findTable returns the decision table with the given name, or nil.
+// findTable returns the decision table with the given name, or nil. EL
+// names are case-insensitive (authored case is preserved for display only).
 func (s *Server) findTable(name string) *DecisionTableData {
 	for _, t := range s.tables {
-		if t.TableName == name {
+		if strings.EqualFold(t.TableName, name) {
 			return t
 		}
 	}
@@ -137,7 +142,7 @@ func (s *Server) upsertTable(t *DecisionTableData, source string) {
 // removeEntity deletes the named entity, returning it (or nil if absent).
 func (s *Server) removeEntity(name string) *EntityData {
 	for i, e := range s.entities {
-		if e.Name == name {
+		if strings.EqualFold(e.Name, name) {
 			s.entities = append(s.entities[:i], s.entities[i+1:]...)
 			return e
 		}
@@ -148,7 +153,7 @@ func (s *Server) removeEntity(name string) *EntityData {
 // removeTable deletes the named table, returning it (or nil if absent).
 func (s *Server) removeTable(name string) *DecisionTableData {
 	for i, t := range s.tables {
-		if t.TableName == name {
+		if strings.EqualFold(t.TableName, name) {
 			s.tables = append(s.tables[:i], s.tables[i+1:]...)
 			return t
 		}
@@ -163,7 +168,7 @@ func (s *Server) removeTable(name string) *DecisionTableData {
 func (s *Server) shiftTableNumbersFrom(n int, keepName string) {
 	occupied := false
 	for _, t := range s.tables {
-		if t.TableName != keepName {
+		if !strings.EqualFold(t.TableName, keepName) {
 			if num, err := strconv.Atoi(strings.TrimSpace(t.TableNumber)); err == nil && num == n {
 				occupied = true
 				break
@@ -174,7 +179,7 @@ func (s *Server) shiftTableNumbersFrom(n int, keepName string) {
 		return
 	}
 	for _, t := range s.tables {
-		if t.TableName == keepName {
+		if strings.EqualFold(t.TableName, keepName) {
 			continue
 		}
 		if num, err := strconv.Atoi(strings.TrimSpace(t.TableNumber)); err == nil && num >= n {
@@ -256,7 +261,7 @@ func (s *Server) handleEDDReorder(w http.ResponseWriter, r *http.Request) {
 func (s *Server) shiftEntityNumbersFrom(n int, keepName string) {
 	occupied := false
 	for _, e := range s.entities {
-		if e.Name != keepName {
+		if !strings.EqualFold(e.Name, keepName) {
 			if num, err := strconv.Atoi(strings.TrimSpace(e.Number)); err == nil && num == n {
 				occupied = true
 				break
@@ -267,7 +272,7 @@ func (s *Server) shiftEntityNumbersFrom(n int, keepName string) {
 		return
 	}
 	for _, e := range s.entities {
-		if e.Name == keepName {
+		if strings.EqualFold(e.Name, keepName) {
 			continue
 		}
 		if num, err := strconv.Atoi(strings.TrimSpace(e.Number)); err == nil && num >= n {
@@ -419,6 +424,13 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("/api/execute", s.handleExecute)
 	mux.HandleFunc("/api/execute/validate", s.handleValidateExecution)
 
+	// Trace debugger endpoints
+	mux.HandleFunc("/api/debug/load", s.handleDebugLoad)
+	mux.HandleFunc("/api/debug/status", s.handleDebugStatus)
+	mux.HandleFunc("/api/debug/tree", s.handleDebugTree)
+	mux.HandleFunc("/api/debug/position", s.handleDebugPosition)
+	mux.HandleFunc("/api/debug/console", s.handleDebugConsole)
+
 	origin := s.cfg.CORSOrigin
 	if origin == "" {
 		origin = "*"
@@ -438,6 +450,11 @@ func readOnlyGuard(next http.Handler) http.Handler {
 		"/api/execute":            true,
 		"/api/execute/validate":   true,
 		"/api/compile/expression": true,
+		// Trace debugging is a read operation: replay mutates only an
+		// in-memory sandbox session, and the console blocks mutating ops.
+		"/api/debug/load":     true,
+		"/api/debug/position": true,
+		"/api/debug/console":  true,
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/browse" {
@@ -578,6 +595,9 @@ func (s *Server) handleBrowse(w http.ResponseWriter, r *http.Request) {
 		Name  string `json:"name"`
 		Path  string `json:"path"`
 		IsDir bool   `json:"isDir"`
+		// Size in bytes for files — a picker showing sizes lets the user
+		// tell a real trace from a header-only one at a glance.
+		Size int64 `json:"size,omitempty"`
 	}
 
 	entries := []browseEntry{}
@@ -598,6 +618,9 @@ func (s *Server) handleBrowse(w http.ResponseWriter, r *http.Request) {
 		if e.IsDir() {
 			dirs = append(dirs, entry)
 		} else {
+			if fi, err := e.Info(); err == nil {
+				entry.Size = fi.Size()
+			}
 			files = append(files, entry)
 			lower := strings.ToLower(name)
 			if strings.HasSuffix(lower, "_dt.xml") || strings.HasSuffix(lower, "_edd.xml") {
@@ -746,6 +769,7 @@ func (s *Server) handleProjectOpen(w http.ResponseWriter, r *http.Request) {
 	defer s.mu.RUnlock()
 	jsonResponse(w, map[string]interface{}{
 		"success":  true,
+		"config":   s.configPayload(),
 		"eddFiles": s.eddFiles,
 		"dtFiles":  s.dtFiles,
 		"mapFiles": s.mapFiles,
@@ -765,6 +789,7 @@ func (s *Server) handleProjectCurrent(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, map[string]interface{}{
 		"success":  true,
 		"path":     s.projectPath,
+		"config":   s.configPayload(),
 		"eddFiles": s.eddFiles,
 		"dtFiles":  s.dtFiles,
 		"mapFiles": s.mapFiles,
@@ -794,7 +819,11 @@ func (s *Server) LoadProject(reqPath string) error {
 	s.tables = nil
 	s.modified = make(map[string]bool)
 
-	err = filepath.Walk(validatedPath, func(path string, info os.FileInfo, err error) error {
+	// Scan the project's resolved rules directory (DTRules.xml xml_dir
+	// override, else xml/, else the root). Walking the whole tree from a
+	// repo root would sweep in test fixtures and generated copies.
+	scanRoot := projectXMLDir(validatedPath)
+	err = filepath.Walk(scanRoot, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() {
 			return err
 		}
