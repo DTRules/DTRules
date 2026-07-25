@@ -166,6 +166,14 @@ func (t *Trace) replayNode(node *TraceNode, target *TraceNode) error {
 		t.handleNewArray(node)
 	}
 
+	// Handle arraybind: attach an entity's array attribute to the traced
+	// array instance so subsequent addto/remove events reach it.
+	if node.Name == "arraybind" {
+		if err := t.handleArrayBind(node); err != nil {
+			return err
+		}
+	}
+
 	// Handle addto
 	if node.Name == "addto" {
 		if err := t.handleAddTo(node); err != nil {
@@ -237,6 +245,28 @@ func (t *Trace) handleDef(node *TraceNode) error {
 		}
 	}
 
+	// Entity-reference defs record the referenced entity's identity in
+	// refentity/refid attributes; a postfix body cannot rebuild an entity.
+	if refid := node.Attributes["refid"]; refid != "" {
+		ref, ok := t.entityTable[refid]
+		if !ok {
+			name := dtrules.GetRName(node.Attributes["refentity"])
+			if name == nil {
+				return nil
+			}
+			var err error
+			ref, err = t.session.CreateEntity(name)
+			if err != nil {
+				return nil
+			}
+			t.entityTable[refid] = ref
+		}
+		if rname := dtrules.GetRName(attrName); rname != nil {
+			return entity.Put(rname, ref)
+		}
+		return nil
+	}
+
 	// Parse and execute the body to get the value
 	var value dtrules.Object
 	if body == "" {
@@ -303,6 +333,34 @@ func (t *Trace) parseSimpleValue(body string) dtrules.Object {
 	return dtrules.NewRString(body)
 }
 
+// handleArrayBind attaches an entity attribute to the traced array with the
+// recorded id, creating the array if no newarray/addto has been seen yet.
+// Without this binding, replayed addto events would populate arrays no
+// entity references.
+func (t *Trace) handleArrayBind(node *TraceNode) error {
+	entityID := node.Attributes["id"]
+	attrName := node.Attributes["attr"]
+	arrayID := node.GetArrayID()
+	if entityID == "" || attrName == "" || arrayID == 0 {
+		return nil
+	}
+
+	entity, ok := t.entityTable[entityID]
+	if !ok {
+		return nil // entity not seen yet; a later push will re-bind
+	}
+	ar, ok := t.arrayTable[arrayID]
+	if !ok {
+		ar = dtrules.NewArrayTraceInterface(arrayID, true, false)
+		t.arrayTable[arrayID] = ar
+	}
+	rname := dtrules.GetRName(attrName)
+	if rname == nil {
+		return nil
+	}
+	return entity.Put(rname, ar)
+}
+
 // handleNewArray creates a new array from a trace node.
 func (t *Trace) handleNewArray(node *TraceNode) {
 	id := node.GetArrayID()
@@ -326,6 +384,21 @@ func (t *Trace) handleAddTo(node *TraceNode) error {
 		// Create the array if it doesn't exist
 		ar = dtrules.NewArrayTraceInterface(id, true, false)
 		t.arrayTable[id] = ar
+	}
+
+	// Entity elements are recorded by reference (entity + id attributes),
+	// not as a postfix body.
+	if eid := node.Attributes["id"]; eid != "" {
+		e, ok := t.entityTable[eid]
+		if !ok {
+			var err error
+			e, err = t.getOrCreateEntity(node)
+			if err != nil {
+				return err
+			}
+		}
+		ar.Add(e)
+		return nil
 	}
 
 	// Get the value to add
@@ -360,6 +433,14 @@ func (t *Trace) handleRemove(node *TraceNode) error {
 
 	ar, ok := t.arrayTable[id]
 	if !ok {
+		return nil
+	}
+
+	// Entity elements are recorded by reference (entity + id attributes).
+	if eid := node.Attributes["id"]; eid != "" {
+		if e, ok := t.entityTable[eid]; ok {
+			ar.Remove(e)
+		}
 		return nil
 	}
 

@@ -220,8 +220,17 @@ type State interface {
 	// PStack prints all stacks for debugging
 	PStack()
 
-	// TraceInfo outputs trace information
-	TraceInfo(tag, attr, value, content string)
+	// TraceInfo emits a leaf trace element: <tag attrs...>body</tag>.
+	// attrs are alternating name, value pairs.
+	TraceInfo(tag, body string, attrs ...string)
+
+	// TraceOpen emits an opening trace element: <tag attrs...>. Nested
+	// trace output (performed tables, actions) lands inside until the
+	// matching TraceClose.
+	TraceOpen(tag string, attrs ...string)
+
+	// TraceClose emits the closing trace element for TraceOpen.
+	TraceClose(tag string)
 
 	// Evaluate executes code and verifies stack is balanced
 	Evaluate(code Object) error

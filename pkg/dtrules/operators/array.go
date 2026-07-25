@@ -71,6 +71,7 @@ func opAddTo(state dtrules.State) error {
 		return err
 	}
 	arr.Add(element)
+	dtrules.TraceArrayAdd(state, arr, element)
 	return nil
 }
 
@@ -178,6 +179,7 @@ func opRemove(state dtrules.State) error {
 		return err
 	}
 	arr.Remove(element)
+	dtrules.TraceArrayRemove(state, arr, element)
 	return nil
 }
 

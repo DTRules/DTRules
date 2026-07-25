@@ -134,6 +134,11 @@ func (l *dataLoader) handleStartElement(elem xml.StartElement) error {
 			mappingKey := dtrules.GetRName("mapping*key")
 			if mappingKey != nil {
 				entity.Put(mappingKey, dtrules.NewRString(code))
+				// Direct Put bypasses Def; trace the write for replay.
+				l.state.TraceInfo("def", dtrules.NewRString(code).PostFix(),
+					"entity", entity.GetName().StringValue(),
+					"name", "mapping*key",
+					"id", fmt.Sprintf("%d", entity.GetID()))
 			}
 
 			// Push onto entity stack
@@ -369,7 +374,7 @@ func (l *dataLoader) setAttribute(pending pendingAttrib, body string, createdEnt
 	}
 
 	// Use def to set the attribute in the current context
-	_, err = l.state.Def(attrName, value, false)
+	_, err = l.state.Def(attrName, value, true)
 	return err
 }
 
@@ -410,6 +415,7 @@ func (l *dataLoader) updateReferences(entity dtrules.Entity, info *EntityInfo) e
 			// Add entity to array if not already present
 			if !arr.Contains(entity) {
 				arr.Add(entity)
+				dtrules.TraceArrayAdd(l.state, arr, entity)
 			}
 		}
 	}
@@ -425,6 +431,15 @@ func (l *dataLoader) updateReferences(entity dtrules.Entity, info *EntityInfo) e
 				isSame, _ := topEntity.GetName().Equals(entityRName)
 				if !isSame {
 					topEntity.Put(entityRName, entity)
+					// Entity-reference attribute: record by reference so
+					// replay can rebind it (a postfix body cannot rebuild
+					// an entity value).
+					l.state.TraceInfo("def", "",
+						"entity", topEntity.GetName().StringValue(),
+						"id", fmt.Sprintf("%d", topEntity.GetID()),
+						"name", entityRName.StringValue(),
+						"refentity", entity.GetName().StringValue(),
+						"refid", fmt.Sprintf("%d", entity.GetID()))
 				}
 			}
 		}
