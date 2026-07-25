@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -27,11 +28,33 @@ import (
 	"github.com/DTRules/DTRules/ui"
 )
 
+// defaultEditPort is where the editor's free-port scan starts. Deliberately
+// not 8080 — that's every dev tool's default, so assuming it is free (or
+// that whatever answers on it is us) caused silent cross-talk.
+const defaultEditPort = 8330
+
+// pickListener binds the editor's port. An explicitly requested port is
+// bound exactly (failing loudly if taken — the user asked for it). With no
+// request, ports are probed from defaultEditPort upward and the first that
+// actually binds wins, falling back to an OS-assigned port. Binding is the
+// test: no check-then-bind race.
+func pickListener(host string, requested int) (net.Listener, error) {
+	if requested > 0 {
+		return net.Listen("tcp", fmt.Sprintf("%s:%d", host, requested))
+	}
+	for p := defaultEditPort; p < defaultEditPort+100; p++ {
+		if ln, err := net.Listen("tcp", fmt.Sprintf("%s:%d", host, p)); err == nil {
+			return ln, nil
+		}
+	}
+	return net.Listen("tcp", fmt.Sprintf("%s:0", host))
+}
+
 // runEdit serves the embedded editor UI with the API backend and opens the
 // browser. The UI bundle is compiled in with `-tags ui` (see ui/embed.go);
 // without it, this command explains how to get an editor-enabled build.
 func (c *CLI) runEdit(args []string) int {
-	port := 8080
+	port := 0 // 0 = probe for a free port from defaultEditPort
 	host := "127.0.0.1"
 	openBrowser := true
 	projectPath := ""
@@ -73,7 +96,9 @@ server. The project directory should contain the project's XML files
 (defaults to ./xml if present, else the current directory).
 
 Options:
-  --port, -p <n>     Port to listen on (default 8080)
+  --port, -p <n>     Port to listen on. Default: the first free port from
+                     8330 (probed by binding, so it is testably free); an
+                     explicit port fails if something already holds it
   --host <addr>      Bind address (default 127.0.0.1; use 0.0.0.0 to
                      serve the editor from a server)
   --project-root <d> Restrict project opening/browsing to this directory
@@ -139,10 +164,17 @@ reverse proxy that provides TLS and access control.`)
 	mux.Handle("/api/", server.Routes())
 	mux.Handle("/", http.FileServer(http.FS(dist)))
 
+	ln, err := pickListener(host, port)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Could not bind %s:%d: %v\n", host, port, err)
+		return 1
+	}
+	boundPort := ln.Addr().(*net.TCPAddr).Port
+
 	loopback := host == "127.0.0.1" || host == "localhost" || host == "::1"
-	url := fmt.Sprintf("http://localhost:%d", port)
+	url := fmt.Sprintf("http://localhost:%d", boundPort)
 	if !loopback {
-		url = fmt.Sprintf("http://%s:%d", host, port)
+		url = fmt.Sprintf("http://%s:%d", host, boundPort)
 	}
 	fmt.Printf("DTRules editor: %s  (project: %s)\n", url, absPath)
 	if projectRoot != "" {
@@ -165,7 +197,7 @@ reverse proxy that provides TLS and access control.`)
 		}()
 	}
 
-	if err := http.ListenAndServe(fmt.Sprintf("%s:%d", host, port), mux); err != nil {
+	if err := http.Serve(ln, mux); err != nil {
 		fmt.Fprintf(os.Stderr, "Server error: %v\n", err)
 		return 1
 	}

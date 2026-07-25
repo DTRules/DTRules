@@ -80,7 +80,7 @@ Arguments:
 Options:
   --entry <table>    Entry decision table (overrides DTRules.xml)
   --input <file>     Alternative way to name the input file
-  --port, -p <n>     Editor port (default 8080)
+  --port, -p <n>     Editor port (default: first free port from 8330)
   --no-browser       Don't open the browser automatically
 
 Example (from a project root with <entry> declared in DTRules.xml):
