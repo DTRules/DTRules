@@ -109,6 +109,28 @@ export function FileBrowser({ onSelect, selectFiles }: FileBrowserProps) {
         <Button type="submit" variant="outline">Go</Button>
       </form>
 
+      {currentPath && (
+        <div className="flex flex-wrap items-center text-xs font-mono text-muted-foreground px-1 -mt-1">
+          {currentPath.split('/').filter(Boolean).map((seg, i, segs) => {
+            const target = '/' + segs.slice(0, i + 1).join('/');
+            const isCurrent = i === segs.length - 1;
+            return (
+              <span key={target} className="flex items-center">
+                <span className="mx-0.5">/</span>
+                <button
+                  type="button"
+                  className={isCurrent ? 'text-foreground' : 'hover:text-foreground hover:underline'}
+                  title={isCurrent ? undefined : `Go to ${target}`}
+                  onClick={() => !isCurrent && fetchDirectory(target)}
+                >
+                  {seg}
+                </button>
+              </span>
+            );
+          })}
+        </div>
+      )}
+
       {error && (
         <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">{error}</div>
       )}
