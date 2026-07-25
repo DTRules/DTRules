@@ -27,16 +27,33 @@ import {
   type DebugNode,
 } from '@/api/client';
 import { FileBrowser } from '@/components/FileBrowser';
+import { DebugTableView } from '@/components/DebugTableView';
+import {
+  ancestorsOf,
+  bucketSize,
+  deriveFrame,
+  enclosing,
+  firstTable,
+  focusTarget,
+  frameInfo,
+  indexTree,
+  nextLanding,
+  STRUCTURAL_NODES,
+  type Focus,
+  type TreeIndex,
+} from '@/lib/traceTree';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { ArrowLeft, Bug, ExternalLink } from 'lucide-react';
 
 /** Human label for a trace node. */
-function nodeLabel(n: DebugNode): string {
+function nodeLabel(n: DebugNode, ordinal?: number): string {
   switch (n.name) {
     case 'decisiontable':
       return n.attrs?.name || 'decisiontable';
+    case 'execute_table':
+      return ordinal !== undefined ? `pass ${ordinal.toLocaleString()}` : 'pass';
     case 'column':
       return `column ${n.attrs?.n ?? ''}`;
     case 'action':
@@ -63,99 +80,6 @@ function nodeLabel(n: DebugNode): string {
  * links, subtree extents, and the "landing points" the step verbs move
  * between (action / initialaction nodes, in document order).
  */
-interface TreeIndex {
-  byNumber: Map<number, DebugNode>;
-  parent: Map<number, number>;
-  subtreeMax: Map<number, number>;
-  landings: number[];
-  /** Terminal position: the finalState node (end of execution). */
-  endNode: number;
-}
-
-function indexTree(root: DebugNode): TreeIndex {
-  const byNumber = new Map<number, DebugNode>();
-  const parent = new Map<number, number>();
-  const subtreeMax = new Map<number, number>();
-  const landings: number[] = [];
-
-  let endNode = 0;
-  const walk = (n: DebugNode): number => {
-    byNumber.set(n.number, n);
-    if (n.name === 'action' || n.name === 'initialaction') landings.push(n.number);
-    if (n.name === 'finalState') endNode = n.number;
-    let max = n.number;
-    for (const c of n.children) {
-      parent.set(c.number, n.number);
-      max = Math.max(max, walk(c));
-    }
-    subtreeMax.set(n.number, max);
-    return max;
-  };
-  const rootMax = walk(root);
-  landings.sort((a, b) => a - b);
-  if (!endNode) endNode = rootMax;
-  return { byNumber, parent, subtreeMax, landings, endNode };
-}
-
-/** Numbers of every ancestor of a node (for tree expansion). */
-function ancestorsOf(idx: TreeIndex, num: number): number[] {
-  const out: number[] = [];
-  let cur = idx.parent.get(num);
-  while (cur !== undefined) {
-    out.push(cur);
-    cur = idx.parent.get(cur);
-  }
-  return out;
-}
-
-/** Nearest enclosing node (self included) with the given tag name. */
-function enclosing(idx: TreeIndex, num: number, name: string): DebugNode | null {
-  let cur: number | undefined = num;
-  while (cur !== undefined) {
-    const n = idx.byNumber.get(cur);
-    if (n?.name === name) return n;
-    cur = idx.parent.get(cur);
-  }
-  return null;
-}
-
-/** First landing point strictly after `after`, or null. */
-function nextLanding(idx: TreeIndex, after: number): number | null {
-  for (const l of idx.landings) {
-    if (l > after) return l;
-  }
-  return null;
-}
-
-/** First decisiontable node — the start of execution, where the initial
- *  data has fully loaded and the entity stack is established. */
-function firstTable(root: DebugNode): DebugNode | null {
-  if (root.name === 'decisiontable') return root;
-  for (const c of root.children) {
-    const r = firstTable(c);
-    if (r) return r;
-  }
-  return null;
-}
-
-// ── tree rendering with range-bucketed children ─────────────────────
-//
-// A node's children render directly when few; large child lists (staking:
-// thousands of execute_table passes) render as expandable ordinal ranges —
-// [1…1000] → [401…500] → the children — so any child is reachable in a few
-// clicks instead of endless scrolling. Bucket sizes are chosen so no level
-// shows more than ~20 rows; the bucket containing the program counter is
-// forced open so the tree can always follow the position.
-
-const GROUP_SIZES = [25, 100, 1000, 10000, 100000];
-
-function bucketSize(n: number): number {
-  for (const size of GROUP_SIZES) {
-    if (Math.ceil(n / size) <= 20) return size;
-  }
-  return GROUP_SIZES[GROUP_SIZES.length - 1];
-}
-
 interface TreeCommon {
   position: number;
   onSelect: (n: number) => void;
@@ -167,7 +91,7 @@ interface TreeCommon {
 }
 
 function NodeChildren({
-  nodes,
+  nodes: rawNodes,
   ordinalStart,
   depth,
   common,
@@ -177,11 +101,14 @@ function NodeChildren({
   depth: number;
   common: TreeCommon;
 }) {
+  // The tree is an expert view of the EXECUTION — structural nodes only.
+  // Raw replay events (defs, pushes, array wiring) are machinery.
+  const nodes = rawNodes.filter((n) => STRUCTURAL_NODES.has(n.name));
   if (nodes.length <= 25) {
     return (
       <>
-        {nodes.map((c) => (
-          <TreeNodeView key={c.number} node={c} depth={depth} common={common} />
+        {nodes.map((c, i) => (
+          <TreeNodeView key={c.number} node={c} depth={depth} common={common} ordinal={ordinalStart + i} />
         ))}
       </>
     );
@@ -258,10 +185,12 @@ function TreeNodeView({
   node,
   depth,
   common,
+  ordinal,
 }: {
   node: DebugNode;
   depth: number;
   common: TreeCommon;
+  ordinal?: number;
 }) {
   const { position, onSelect, expanded: expandedSet, onToggle, breakpoints, onToggleBreakpoint } = common;
   const expanded = expandedSet.has(node.number);
@@ -297,7 +226,7 @@ function TreeNodeView({
         {breakpoints.has(node.number) && <span className="text-red-500">● </span>}
         {node.number === position && <span className="text-amber-400">▶ </span>}
         <span className={cn(structural && node.name === 'decisiontable' && 'font-semibold text-foreground')}>
-          {nodeLabel(node)}
+          {nodeLabel(node, node.name === 'execute_table' ? ordinal : undefined)}
         </span>
       </div>
       {expanded && hasChildren && (
@@ -321,6 +250,10 @@ export function DebugPanel() {
 
   const [consoleLines, setConsoleLines] = useState<{ input: string; output: string; error?: boolean }[]>([]);
   const consoleInput = useRef<HTMLInputElement>(null);
+
+  const [viewMode, setViewMode] = useState<'table' | 'tree'>('table');
+  const [frame, setFrame] = useState<{ pass: number; focus: Focus } | null>(null);
+  const treeRef = useRef<DebugNode | null>(null);
 
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const [breakpoints, setBreakpoints] = useState<Set<number>>(new Set());
@@ -346,13 +279,21 @@ export function DebugPanel() {
     });
   }, []);
 
-  const goTo = useCallback(async (node: number) => {
+  const goTo = useCallback(async (node: number, opts?: { keepFrame?: boolean }) => {
     const r = await debugPosition(node);
     if (!r.success) return;
     const pos = r.position || node;
     setPosition(pos);
     setContext(r.context || {});
     setStack(r.stack || []);
+
+    // Keep the table view in sync with wherever the position lands
+    // (tree clicks, breakpoints, go-to-node) — unless the table view
+    // itself drove the move and set its own frame.
+    if (!opts?.keepFrame && idxRef.current && treeRef.current) {
+      const derived = deriveFrame(idxRef.current, treeRef.current, pos);
+      if (derived) setFrame({ pass: derived.passNode.number, focus: derived.focus });
+    }
 
     const idx = idxRef.current;
     if (idx) {
@@ -455,6 +396,90 @@ export function DebugPanel() {
     goTo(after && after < idx.endNode ? after : idx.endNode);
   }, [position, nodeCount, goTo, stepOver]);
 
+  // ── table-view navigation ─────────────────────────────────────────
+  const applyFocus = useCallback(
+    (passNode: DebugNode, focus: Focus) => {
+      const idx = idxRef.current;
+      if (!idx) return;
+      setFrame({ pass: passNode.number, focus });
+      goTo(focusTarget(idx, passNode, focus), { keepFrame: true });
+    },
+    [goTo]
+  );
+
+  const framePassNode = frame ? idxRef.current?.byNumber.get(frame.pass) || null : null;
+
+  const tableDrill = useCallback(
+    (calledDT: DebugNode) => {
+      const pass = calledDT.children.find((c) => c.name === 'execute_table');
+      if (pass) applyFocus(pass, { kind: 'entry' });
+    },
+    [applyFocus]
+  );
+
+  const tableOut = useCallback(() => {
+    const idx = idxRef.current;
+    if (!idx || !framePassNode) return;
+    const fi = frameInfo(idx, framePassNode);
+    if (!fi?.callerPass || !fi.callerAction) return;
+    const caller = frameInfo(idx, fi.callerPass);
+    if (!caller) return;
+    const ordered = [...caller.initialActions, ...caller.actions];
+    const i = ordered.findIndex((a) => a.number === fi.callerAction!.number);
+    const next = i >= 0 ? ordered[i + 1] : undefined;
+    // Land on the following action in the caller — or its exit when the
+    // perform was the last action.
+    applyFocus(fi.callerPass, next ? { kind: 'action', node: next.number } : { kind: 'exit' });
+  }, [framePassNode, applyFocus]);
+
+  const tableStep = useCallback(() => {
+    const idx = idxRef.current;
+    if (!idx || !frame || !framePassNode) return;
+    const fi = frameInfo(idx, framePassNode);
+    if (!fi) return;
+    const ordered = [...fi.initialActions, ...fi.actions];
+    if (frame.focus.kind === 'entry') {
+      if (ordered.length > 0) applyFocus(framePassNode, { kind: 'action', node: ordered[0].number });
+      else applyFocus(framePassNode, { kind: 'exit' });
+      return;
+    }
+    if (frame.focus.kind === 'action') {
+      const i = ordered.findIndex((a) => a.number === (frame.focus as { node: number }).node);
+      const next = ordered[i + 1];
+      applyFocus(framePassNode, next ? { kind: 'action', node: next.number } : { kind: 'exit' });
+      return;
+    }
+    // exit: continue to the next iteration, or out to the caller.
+    if (fi.passIndex < fi.passes.length - 1) {
+      applyFocus(fi.passes[fi.passIndex + 1], { kind: 'entry' });
+    } else if (fi.callerPass) {
+      tableOut();
+    }
+  }, [frame, framePassNode, applyFocus, tableOut]);
+
+  const tableInto = useCallback(() => {
+    const idx = idxRef.current;
+    if (!idx || !frame) return;
+    if (frame.focus.kind === 'action') {
+      const a = idx.byNumber.get(frame.focus.node);
+      const dt = a?.children.find((c) => c.name === 'decisiontable');
+      if (dt) {
+        tableDrill(dt);
+        return;
+      }
+    }
+    tableStep();
+  }, [frame, tableDrill, tableStep]);
+
+  const tablePass = useCallback(() => {
+    const idx = idxRef.current;
+    if (!idx || !framePassNode) return;
+    const fi = frameInfo(idx, framePassNode);
+    if (!fi) return;
+    if (fi.passIndex < fi.passes.length - 1) applyFocus(fi.passes[fi.passIndex + 1], { kind: 'entry' });
+    else applyFocus(framePassNode, { kind: 'exit' });
+  }, [framePassNode, applyFocus]);
+
   const dropMark = useCallback(() => {
     setMarks((m) => [...m.slice(-19), { node: position, label: `node ${position}`, auto: false }]);
   }, [position]);
@@ -489,6 +514,7 @@ export function DebugPanel() {
     const t = await debugTree();
     if (t.success && t.tree) {
       setTree(t.tree);
+      treeRef.current = t.tree;
       idxRef.current = indexTree(t.tree);
       setExpanded(new Set([t.tree.number, ...t.tree.children.map((c) => c.number)]));
       // Establish the initial entity stack: position at the start of
@@ -577,16 +603,16 @@ export function DebugPanel() {
           ▶ Run{breakpoints.size > 0 && <span className="ml-1 text-[10px] text-muted-foreground">({breakpoints.size})</span>}
         </Button>
         <span className="w-px h-5 bg-border mx-1" />
-        <Button variant="outline" size="sm" className="h-7 text-amber-400 border-amber-400/40" onClick={stepOver} title="Execute one action">
+        <Button variant="outline" size="sm" className="h-7 text-amber-400 border-amber-400/40" onClick={() => (viewMode === 'table' ? tableStep() : stepOver())} title="Execute one action">
           Step
         </Button>
-        <Button variant="outline" size="sm" className="h-7" onClick={stepInto} title="Descend into the table this action performs">
+        <Button variant="outline" size="sm" className="h-7" onClick={() => (viewMode === 'table' ? tableInto() : stepInto())} title="Descend into the table this action performs">
           Into
         </Button>
-        <Button variant="outline" size="sm" className="h-7" onClick={stepPass} title="Finish this pass of the table (lands at the next pass on iterating contexts)">
+        <Button variant="outline" size="sm" className="h-7" onClick={() => (viewMode === 'table' ? tablePass() : stepPass())} title="Finish this pass of the table (lands at the next pass on iterating contexts)">
           Pass
         </Button>
-        <Button variant="outline" size="sm" className="h-7" onClick={stepUp} title="Finish this table and return to the caller">
+        <Button variant="outline" size="sm" className="h-7" onClick={() => (viewMode === 'table' ? tableOut() : stepUp())} title="Finish this table and return to the caller">
           Up
         </Button>
         <span className="w-px h-5 bg-border mx-1" />
@@ -597,8 +623,25 @@ export function DebugPanel() {
           <ArrowLeft className="h-3.5 w-3.5 mr-1" /> To mark
           {marks.length > 0 && <span className="ml-1 text-[10px] text-muted-foreground">({marks.length})</span>}
         </Button>
-        <span className="text-xs text-muted-foreground ml-2 hidden xl:inline">Click a node to run to it · right-click to set a breakpoint</span>
-        <span className="ml-auto font-mono text-xs text-muted-foreground flex items-center gap-1.5">
+        {viewMode === 'tree' && (
+          <span className="text-xs text-muted-foreground ml-2 hidden xl:inline">Click a node to run to it · right-click to set a breakpoint</span>
+        )}
+        <span className="ml-auto flex items-center gap-0.5 rounded-md border border-border p-0.5 text-xs">
+          <button
+            className={cn('px-2 py-0.5 rounded', viewMode === 'table' ? 'bg-accent text-foreground' : 'text-muted-foreground')}
+            onClick={() => setViewMode('table')}
+          >
+            Table
+          </button>
+          <button
+            className={cn('px-2 py-0.5 rounded', viewMode === 'tree' ? 'bg-accent text-foreground' : 'text-muted-foreground')}
+            onClick={() => setViewMode('tree')}
+            title="Expert view: the raw execution tree"
+          >
+            Tree
+          </button>
+        </span>
+        <span className="font-mono text-xs text-muted-foreground flex items-center gap-1.5">
           node
           <input
             key={position}
@@ -616,14 +659,14 @@ export function DebugPanel() {
         </span>
       </div>
 
-      {/* Context breadcrumb */}
-      {!context.table && position === idxRef.current?.endNode && (
+      {/* Context breadcrumb (tree mode; the table view carries its own) */}
+      {viewMode === 'tree' && !context.table && position === idxRef.current?.endNode && (
         <div className="px-4 py-1.5 border-b border-border/50 text-sm text-muted-foreground">
           End of execution — final state{' '}
           <span className="text-green-500">(verified against replay on load)</span>
         </div>
       )}
-      {context.table && (
+      {viewMode === 'tree' && context.table && (
         <div className="px-4 py-1.5 border-b border-border/50 flex items-center gap-2 text-sm">
           <span className="font-semibold">{context.table}</span>
           {context.column && <span className="text-muted-foreground">· column {context.column}</span>}
@@ -645,15 +688,31 @@ export function DebugPanel() {
       {/* Tree + stack */}
       <div className="flex-1 grid grid-cols-[1fr_320px] overflow-hidden">
         <ScrollArea className="border-r border-border/50">
-          <div className="p-2">
-            {tree && idxRef.current && (
-              <TreeNodeView
-                node={tree}
-                depth={0}
-                common={{ position, onSelect: goTo, expanded, onToggle: toggleNode, subtreeMax: idxRef.current.subtreeMax, breakpoints, onToggleBreakpoint: toggleBreakpoint }}
+          {viewMode === 'table' ? (
+            idxRef.current && framePassNode ? (
+              <DebugTableView
+                idx={idxRef.current}
+                passNode={framePassNode}
+                focus={frame!.focus}
+                onFocus={(f) => applyFocus(framePassNode, f)}
+                onDrill={tableDrill}
+                onOut={tableOut}
+                onPass={(p) => applyFocus(p, { kind: 'entry' })}
               />
-            )}
-          </div>
+            ) : (
+              <div className="p-6 text-sm text-muted-foreground">No table pass at this position.</div>
+            )
+          ) : (
+            <div className="p-2">
+              {tree && idxRef.current && (
+                <TreeNodeView
+                  node={tree}
+                  depth={0}
+                  common={{ position, onSelect: goTo, expanded, onToggle: toggleNode, subtreeMax: idxRef.current.subtreeMax, breakpoints, onToggleBreakpoint: toggleBreakpoint }}
+                />
+              )}
+            </div>
+          )}
         </ScrollArea>
         <ScrollArea>
           <div className="p-3 space-y-2">

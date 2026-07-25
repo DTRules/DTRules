@@ -21,7 +21,7 @@ import type { DecisionTable } from '@/types/dtrules';
  * - postfix: `/<TableName> performtable`
  * The referenced name lands in capture group 1 or 2.
  */
-const PERFORM_RE = /\bperform\s+([A-Za-z_][A-Za-z0-9_]*)|\/([A-Za-z_][A-Za-z0-9_]*)\s+performtable\b/g;
+const PERFORM_RE = /\bperform\s+([A-Za-z_][A-Za-z0-9_]*)|\/([A-Za-z_][A-Za-z0-9_]*)\s+performtable\b/gi;
 
 /** Grid context shared with cell renderers. */
 interface DSLCellContext {
