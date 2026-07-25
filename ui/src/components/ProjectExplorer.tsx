@@ -35,10 +35,12 @@ interface TreeNodeProps {
   selected?: boolean;
   modified?: boolean;
   dataTutorial?: string;
+  /** Group nodes start collapsed unless this is set. */
+  defaultExpanded?: boolean;
 }
 
-function TreeNode({ label, icon, children, onClick, selected, modified, dataTutorial }: TreeNodeProps) {
-  const [expanded, setExpanded] = useState(true);
+function TreeNode({ label, icon, children, onClick, selected, modified, dataTutorial, defaultExpanded }: TreeNodeProps) {
+  const [expanded, setExpanded] = useState(!!defaultExpanded);
   const hasChildren = !!children;
 
   return (
@@ -212,6 +214,7 @@ export function ProjectExplorer() {
               label={`Decision Tables (${validTables.length})`}
               icon={<Folder className="h-4 w-4 text-green-500" />}
               dataTutorial="decision-tables-section"
+              defaultExpanded
             >
               {validTables.map((table) =>
                 draggableRow(
@@ -246,6 +249,7 @@ export function ProjectExplorer() {
           <TreeNode
             label="Maps"
             icon={<Folder className="h-4 w-4 text-yellow-500" />}
+            defaultExpanded
           >
             {mapFiles.map((file) => (
               <TreeNode
