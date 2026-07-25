@@ -1,20 +1,16 @@
+/**
+ * TreeVisualization - Decision table tree as a vertical expandable list.
+ *
+ * Each node is one row; nodes with children get an expand arrow. A
+ * condition's branches carry Y/N tags; conditions are blue, actions green
+ * (matching the legend). Large child lists group into ordinal ranges
+ * ([1…100] → [26…50] → rows) so any child is a few clicks away instead of
+ * paging through a flood.
+ *
+ * @module components/TreeVisualization
+ */
+
 import { useCallback, useEffect, useState } from 'react';
-import {
-  ReactFlow,
-  ReactFlowProvider,
-  Node,
-  Edge,
-  Controls,
-  Background,
-  Handle,
-  Position,
-  useNodesState,
-  useEdgesState,
-  useReactFlow,
-  MarkerType,
-  BackgroundVariant,
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
 import { useProjectStore } from '@/stores/projectStore';
 import { getDecisionTree } from '@/api/client';
 import {
@@ -25,265 +21,226 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { GitBranch } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import type { TreeNode } from '@/types/dtrules';
 
-// Custom node components with handles for edge connections
-const ConditionNode = ({ data }: { data: { label: string; description?: string } }) => (
-  <div className="px-4 py-2 shadow-md rounded-md bg-blue-600 border-2 border-blue-400 min-w-[150px]">
-    <Handle type="target" position={Position.Top} className="!bg-blue-400" />
-    <div className="font-bold text-white text-sm">{data.label}</div>
-    {data.description && (
-      <div className="text-blue-200 text-xs mt-1">{data.description}</div>
-    )}
-    <Handle type="source" position={Position.Bottom} className="!bg-blue-400" />
-  </div>
-);
-
-const ActionNode = ({ data }: { data: { label: string; description?: string } }) => (
-  <div className="px-4 py-2 shadow-md rounded-md bg-green-600 border-2 border-green-400 min-w-[150px]">
-    <Handle type="target" position={Position.Top} className="!bg-green-400" />
-    <div className="font-bold text-white text-sm">{data.label}</div>
-    {data.description && (
-      <div className="text-green-200 text-xs mt-1">{data.description}</div>
-    )}
-    <Handle type="source" position={Position.Bottom} className="!bg-green-400" />
-  </div>
-);
-
-const StartNode = ({ data }: { data: { label: string } }) => (
-  <div className="px-4 py-2 shadow-md rounded-full bg-gray-600 border-2 border-gray-400">
-    <Handle type="target" position={Position.Top} className="!bg-gray-400" />
-    <div className="font-bold text-white text-sm">{data.label}</div>
-    <Handle type="source" position={Position.Bottom} className="!bg-gray-400" />
-  </div>
-);
-
-// Default fallback node for any unrecognized types
-const DefaultNode = ({ data }: { data: { label: string; description?: string } }) => (
-  <div className="px-4 py-2 shadow-md rounded-md bg-purple-600 border-2 border-purple-400 min-w-[150px]">
-    <Handle type="target" position={Position.Top} className="!bg-purple-400" />
-    <div className="font-bold text-white text-sm">{data.label}</div>
-    {data.description && (
-      <div className="text-purple-200 text-xs mt-1">{data.description}</div>
-    )}
-    <Handle type="source" position={Position.Bottom} className="!bg-purple-400" />
-  </div>
-);
-
-const nodeTypes = {
-  condition: ConditionNode,
-  action: ActionNode,
-  actions: ActionNode,
-  start: StartNode,
-  end: StartNode,
-  default: DefaultNode,
-};
-
-// Valid node types that have registered components
-const validNodeTypes = new Set(['condition', 'action', 'actions', 'start', 'end']);
-
-function treeToFlow(tree: TreeNode | null): { nodes: Node[]; edges: Edge[] } {
-  if (!tree) return { nodes: [], edges: [] };
-
-  const nodes: Node[] = [];
-  const edges: Edge[] = [];
-  const nodeIds = new Set<string>(); // Track created nodes for edge validation
-
-  function traverse(node: TreeNode, x: number, y: number, parentId?: string, edgeLabel?: string) {
-    const id = node.id;
-    // Normalize node type - use 'default' for unrecognized types
-    const nodeType = validNodeTypes.has(node.type) ? node.type : 'default';
-
-    nodeIds.add(id);
-
-    nodes.push({
-      id,
-      type: nodeType,
-      position: { x, y },
-      data: { label: node.label, description: node.description },
-    });
-
-    // Only create edge if parent node was created
-    if (parentId && nodeIds.has(parentId)) {
-      edges.push({
-        id: `edge-${parentId}-${id}`,
-        source: parentId,
-        target: id,
-        label: edgeLabel,
-        markerEnd: { type: MarkerType.ArrowClosed },
-        style: { stroke: edgeLabel === 'N' ? '#ef4444' : edgeLabel === 'Y' ? '#22c55e' : '#888' },
-        labelStyle: { fill: '#fff', fontWeight: 700 },
-      });
-    }
-
-    const childSpacing = 250;
-
-    if (node.trueChild) {
-      traverse(node.trueChild, x - 150, y + 150, id, 'Y');
-    }
-
-    if (node.falseChild) {
-      traverse(node.falseChild, x + 150, y + 150, id, 'N');
-    }
-
-    if (node.children) {
-      node.children.forEach((child, i) => {
-        const offsetX = (i - (node.children!.length - 1) / 2) * childSpacing;
-        traverse(child, x + offsetX, y + 150, id);
-      });
-    }
-  }
-
-  traverse(tree, 0, 50);
-
-  return { nodes, edges };
+/** A child edge: the node plus the branch it hangs from (Y/N for conditions). */
+interface ChildEdge {
+  branch?: 'Y' | 'N';
+  node: TreeNode;
 }
 
-// Inner component that uses useReactFlow to center the tree
-function FlowWithFitView({
-  nodes,
-  edges,
-  onNodesChange,
-  onEdgesChange
-}: {
-  nodes: Node[];
-  edges: Edge[];
-  onNodesChange: (changes: import('@xyflow/react').NodeChange<Node>[]) => void;
-  onEdgesChange: (changes: import('@xyflow/react').EdgeChange<Edge>[]) => void;
-}) {
-  const { fitView } = useReactFlow();
+function childEdges(n: TreeNode): ChildEdge[] {
+  const out: ChildEdge[] = [];
+  if (n.trueChild) out.push({ branch: 'Y', node: n.trueChild });
+  if (n.falseChild) out.push({ branch: 'N', node: n.falseChild });
+  for (const c of n.children || []) out.push({ node: c });
+  return out;
+}
 
-  // Center the view whenever nodes change
-  useEffect(() => {
-    if (nodes.length > 0) {
-      // Small delay to ensure nodes are rendered
-      const timer = setTimeout(() => {
-        fitView({ padding: 0.3, duration: 200 });
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [nodes, fitView]);
+const GROUP_SIZES = [25, 100, 1000, 10000];
+
+function bucketSize(n: number): number {
+  for (const size of GROUP_SIZES) {
+    if (Math.ceil(n / size) <= 20) return size;
+  }
+  return GROUP_SIZES[GROUP_SIZES.length - 1];
+}
+
+function NodeRow({ edge, depth }: { edge: ChildEdge; depth: number }) {
+  const { node, branch } = edge;
+  const kids = childEdges(node);
+  const [expanded, setExpanded] = useState(depth < 3);
+
+  const chip =
+    node.type === 'condition'
+      ? 'bg-blue-600/20 border-blue-500/50 text-blue-300'
+      : node.type === 'action' || node.type === 'actions'
+        ? 'bg-green-600/20 border-green-500/50 text-green-300'
+        : 'bg-muted/40 border-border text-muted-foreground';
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      nodeTypes={nodeTypes}
-      fitView
-      fitViewOptions={{ padding: 0.3 }}
-    >
-      <Controls />
-      <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-    </ReactFlow>
+    <div>
+      <div
+        className="flex items-start gap-1.5 py-0.5 rounded-sm hover:bg-accent/50 cursor-pointer"
+        style={{ paddingLeft: depth * 16 + 4 }}
+        onClick={() => setExpanded(!expanded)}
+      >
+        <span className="w-3 pt-1 text-muted-foreground text-xs shrink-0 font-mono">
+          {kids.length > 0 ? (expanded ? '▾' : '▸') : ''}
+        </span>
+        {branch && (
+          <span
+            className={cn(
+              'mt-0.5 w-4 text-center rounded text-[10px] font-bold shrink-0',
+              branch === 'Y' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+            )}
+          >
+            {branch}
+          </span>
+        )}
+        <span className={cn('px-2 py-0.5 rounded-md border text-xs', chip)}>
+          <span className="font-semibold">{node.label}</span>
+          {node.description && (
+            <span className="ml-2 opacity-75 font-mono text-[11px]">{node.description}</span>
+          )}
+        </span>
+      </div>
+      {expanded && kids.length > 0 && <ChildList edges={kids} ordinalStart={1} depth={depth + 1} />}
+    </div>
+  );
+}
+
+function ChildList({
+  edges,
+  ordinalStart,
+  depth,
+}: {
+  edges: ChildEdge[];
+  ordinalStart: number;
+  depth: number;
+}) {
+  if (edges.length <= 25) {
+    return (
+      <>
+        {edges.map((e, i) => (
+          <NodeRow key={e.node.id || i} edge={e} depth={depth} />
+        ))}
+      </>
+    );
+  }
+  const size = bucketSize(edges.length);
+  const groups: number[] = [];
+  for (let i = 0; i < edges.length; i += size) groups.push(i);
+  return (
+    <>
+      {groups.map((i) => (
+        <RangeGroup
+          key={i}
+          edges={edges.slice(i, i + size)}
+          ordinalStart={ordinalStart + i}
+          depth={depth}
+        />
+      ))}
+    </>
+  );
+}
+
+function RangeGroup({
+  edges,
+  ordinalStart,
+  depth,
+}: {
+  edges: ChildEdge[];
+  ordinalStart: number;
+  depth: number;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div>
+      <div
+        className="flex items-center gap-1 py-0.5 rounded-sm hover:bg-accent/50 cursor-pointer font-mono text-xs text-blue-300/80"
+        style={{ paddingLeft: depth * 16 + 4 }}
+        onClick={() => setOpen(!open)}
+      >
+        <span className="w-3 shrink-0">{open ? '▾' : '▸'}</span>
+        <span>
+          [{ordinalStart.toLocaleString()} … {(ordinalStart + edges.length - 1).toLocaleString()}]
+        </span>
+        <span className="text-muted-foreground">· {edges.length.toLocaleString()} items</span>
+      </div>
+      {open && <ChildList edges={edges} ordinalStart={ordinalStart} depth={depth + 1} />}
+    </div>
   );
 }
 
 export function TreeVisualization() {
-  const { decisionTables } = useProjectStore();
+  const { decisionTables, currentTable } = useProjectStore();
   const [selectedTable, setSelectedTable] = useState<string>('');
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [tree, setTree] = useState<TreeNode | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Auto-select first table when tables load and nothing is selected
-  useEffect(() => {
-    if (!selectedTable && decisionTables.length > 0) {
-      setSelectedTable(decisionTables[0].name);
-    }
-  }, [decisionTables, selectedTable]);
-
-  const loadTree = useCallback(async (tableName: string) => {
-    if (!tableName) {
-      setNodes([]);
-      setEdges([]);
-      return;
-    }
-
-    setIsLoading(true);
+  const loadTree = useCallback(async (name: string) => {
+    setError(null);
     try {
-      const response = await getDecisionTree(tableName);
+      const response = await getDecisionTree(name);
       if (response.success && response.tree) {
-        const { nodes: newNodes, edges: newEdges } = treeToFlow(response.tree);
-        setNodes(newNodes);
-        setEdges(newEdges);
+        setTree(response.tree);
+      } else {
+        setTree(null);
+        setError(response.error || 'No tree available');
       }
-    } catch (err) {
-      console.error('Failed to load tree:', err);
-    } finally {
-      setIsLoading(false);
+    } catch {
+      setTree(null);
+      setError('Failed to load tree');
     }
-  }, [setNodes, setEdges]);
+  }, []);
 
+  // Follow the table selected elsewhere in the app; allow local override.
   useEffect(() => {
-    if (selectedTable) {
-      loadTree(selectedTable);
+    const name = currentTable?.tableName;
+    if (name && name !== selectedTable) {
+      setSelectedTable(name);
+      loadTree(name);
     }
-  }, [selectedTable, loadTree]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentTable?.tableName]);
+
+  const handleSelect = (name: string) => {
+    setSelectedTable(name);
+    loadTree(name);
+  };
+
+  if (!decisionTables.length) {
+    return (
+      <div className="h-full flex items-center justify-center text-muted-foreground">
+        <p>No decision tables loaded. Open a project to see the tree view.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="h-full flex flex-col" data-tutorial="tree-visualization">
-      <div className="p-4 border-b border-border/50 bg-gradient-to-r from-muted/30 via-transparent to-muted/30 flex items-center gap-4">
-        <div className="grid gap-1 w-64">
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="p-4 border-b border-border/50 flex items-end gap-4">
+        <div className="grid gap-1">
           <Label className="text-xs text-muted-foreground">Decision Table</Label>
-          <Select value={selectedTable} onValueChange={setSelectedTable}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a table to visualize" />
+          <Select value={selectedTable} onValueChange={handleSelect}>
+            <SelectTrigger className="w-72 h-9">
+              <SelectValue placeholder="Select a table" />
             </SelectTrigger>
             <SelectContent>
-              {decisionTables
-                .filter((table) => table.name && table.name.trim() !== '')
-                .map((table) => (
-                  <SelectItem key={table.name} value={table.name}>
-                    {table.name}
-                  </SelectItem>
-                ))}
+              {decisionTables.map((t) => (
+                <SelectItem key={t.name} value={t.name}>
+                  {t.tableNumber ? `${t.tableNumber} · ` : ''}
+                  {t.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
-
-        {isLoading && (
-          <span className="text-sm text-muted-foreground">Loading...</span>
-        )}
-
-        <div className="flex-1" />
-
-        <div className="flex items-center gap-4 text-sm text-muted-foreground bg-muted/30 px-3 py-1.5 rounded-lg">
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 bg-blue-600 rounded shadow-[0_0_6px_rgba(59,130,246,0.5)]"></span>
-            <span>Condition</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 bg-green-600 rounded shadow-[0_0_6px_rgba(34,197,94,0.5)]"></span>
-            <span>Action</span>
-          </div>
+        <div className="ml-auto flex items-center gap-4 text-xs pb-2">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm bg-blue-500" /> Condition
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-sm bg-green-500" /> Action
+          </span>
         </div>
       </div>
 
-      <div className="flex-1">
-        {nodes.length > 0 ? (
-          <ReactFlowProvider>
-            <FlowWithFitView
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-            />
-          </ReactFlowProvider>
-        ) : (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500/20 to-green-500/20 flex items-center justify-center">
-                <GitBranch className="h-8 w-8 text-blue-400/60" />
-              </div>
-              <p className="text-muted-foreground">Select a decision table to visualize its structure.</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">The tree shows how rules connect and flow</p>
-            </div>
-          </div>
-        )}
-      </div>
+      <ScrollArea className="flex-1">
+        <div className="p-4">
+          {error && <p className="text-sm text-amber-400">{error}</p>}
+          {!tree && !error && (
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              <GitBranch className="h-4 w-4" /> Select a decision table to view its tree.
+            </p>
+          )}
+          {tree && <NodeRow edge={{ node: tree }} depth={0} />}
+        </div>
+      </ScrollArea>
     </div>
   );
 }
