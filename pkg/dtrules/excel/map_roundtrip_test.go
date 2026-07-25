@@ -17,6 +17,7 @@ package excel
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -107,6 +108,75 @@ func TestMAPRoundTripXMLToXLSXToXML(t *testing.T) {
 			t.Errorf("stat %s: %v", p, err)
 		} else if info.Size() == 0 {
 			t.Errorf("%s is empty", p)
+		}
+	}
+}
+
+// TestMAPRoundTripStructuralSections pins the createentity / entities /
+// initialization sections through the full XML→xlsx→XML cycle against the
+// real KidAid map — the sections whose loss broke regenerated maps.
+func TestMAPRoundTripStructuralSections(t *testing.T) {
+	src := filepath.Join("..", "..", "..", "sampleprojects", "KidAid", "xml", "kidaid_map.xml")
+	if _, err := os.Stat(src); err != nil {
+		t.Skip("KidAid sample not available")
+	}
+	orig, err := LoadMapXMLFromFile(src)
+	if err != nil {
+		t.Fatalf("load kidaid map: %v", err)
+	}
+	if len(orig.CreateEntities) == 0 || len(orig.EntityDecls) == 0 || len(orig.InitialEntities) == 0 {
+		t.Fatalf("kidaid map fixture missing structural sections: ce=%d decls=%d init=%d",
+			len(orig.CreateEntities), len(orig.EntityDecls), len(orig.InitialEntities))
+	}
+
+	dir := t.TempDir()
+	xlsxPath := filepath.Join(dir, "kidaid_map.xlsx")
+	if err := NewMapExporter().ExportToFile(orig, xlsxPath); err != nil {
+		t.Fatalf("export: %v", err)
+	}
+	imported, err := NewMapImporter().ImportFile(xlsxPath)
+	if err != nil {
+		t.Fatalf("import: %v", err)
+	}
+
+	if len(imported.CreateEntities) != len(orig.CreateEntities) {
+		t.Errorf("createentity count: got %d, want %d", len(imported.CreateEntities), len(orig.CreateEntities))
+	}
+	if len(imported.EntityDecls) != len(orig.EntityDecls) {
+		t.Errorf("entity decl count: got %d, want %d", len(imported.EntityDecls), len(orig.EntityDecls))
+	}
+	if len(imported.InitialEntities) != len(orig.InitialEntities) {
+		t.Errorf("initialentity count: got %d, want %d", len(imported.InitialEntities), len(orig.InitialEntities))
+	}
+	for i := range orig.CreateEntities {
+		if i < len(imported.CreateEntities) && imported.CreateEntities[i] != orig.CreateEntities[i] {
+			t.Errorf("createentity[%d]: got %+v, want %+v", i, imported.CreateEntities[i], orig.CreateEntities[i])
+		}
+	}
+	for i := range orig.EntityDecls {
+		if i < len(imported.EntityDecls) && imported.EntityDecls[i] != orig.EntityDecls[i] {
+			t.Errorf("entitydecl[%d]: got %+v, want %+v", i, imported.EntityDecls[i], orig.EntityDecls[i])
+		}
+	}
+	for i := range orig.InitialEntities {
+		if i < len(imported.InitialEntities) && imported.InitialEntities[i] != orig.InitialEntities[i] {
+			t.Errorf("initialentity[%d]: got %+v, want %+v", i, imported.InitialEntities[i], orig.InitialEntities[i])
+		}
+	}
+
+	// The rewritten XML must load in the ENGINE's mapping parser — the
+	// ultimate arbiter that nothing structural was lost.
+	xml2 := filepath.Join(dir, "kidaid_map_roundtrip.xml")
+	if err := WriteMapXML(imported, xml2); err != nil {
+		t.Fatalf("write xml: %v", err)
+	}
+	data, err := os.ReadFile(xml2)
+	if err != nil {
+		t.Fatalf("read xml: %v", err)
+	}
+	for _, needle := range []string{"<createentity", "<entities>", "<initialization>", "epush='true'"} {
+		if !strings.Contains(string(data), needle) {
+			t.Errorf("rewritten map XML missing %q", needle)
 		}
 	}
 }

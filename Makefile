@@ -87,7 +87,17 @@ check:
 	go vet ./pkg/dtrules/analysis/... ./pkg/dtrules/benchmark/... ./pkg/dtrules/collect/... ./pkg/dtrules/compiler/ ./pkg/dtrules/datafile/... ./pkg/dtrules/decisiontable/... ./pkg/dtrules/encoding/... ./pkg/dtrules/entity/... ./pkg/dtrules/excel/... ./pkg/dtrules/interview/... ./pkg/dtrules/loader/... ./pkg/dtrules/mapping/... ./pkg/dtrules/operators/... ./pkg/dtrules/repository/... ./pkg/dtrules/ruleset/... ./pkg/dtrules/runtime/... ./pkg/dtrules/session/... ./pkg/dtrules/sync/... ./pkg/dtrules/testsupport/... ./pkg/dtrules/trace/... ./pkg/dtrules/version/... ./pkg/dtrules/web/...
 	@echo "Running tests (whole module; legacy failures archived behind -tags archive)..."
 	go test -count=1 ./...
+	@if [ -d ui/node_modules/vitest ]; then \
+		echo "Running UI unit tests (vitest)..."; \
+		cd ui && npm test --silent; \
+	else \
+		echo "Skipping UI unit tests (run 'npm install' in ui/ to enable)"; \
+	fi
 	@echo "check passed."
+
+# ui-test: run the UI unit tests on their own.
+ui-test:
+	cd ui && npm test
 
 version:
 	@echo "Version: $(VERSION)"

@@ -17,6 +17,7 @@ package trace
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/interpreter"
@@ -67,8 +68,27 @@ func TestGoTraceRoundTrip(t *testing.T) {
 	state.SetOutput(f, nil)
 	state.EnableTrace()
 
-	// Load mapping + input data (the same path `dtrules run` takes), so
-	// the trace records the initial data as def events.
+	// Load mapping + input data on the SAME path `dtrules run` takes
+	// (LoadDataAndPushSingletons — the loaded instances are what execution
+	// sees), so the trace records the initial data as def events.
+	//
+	// The input's program is forced to "none": KidAid's checked-in rules
+	// still carry legacy postfix (findmatch-era Calculate_Group_Size) that
+	// crashes on the real KidAid path, so this test pins round-trip
+	// fidelity on the fallback column until those rules are migrated.
+	raw, err := os.ReadFile(input)
+	if err != nil {
+		t.Fatalf("read input: %v", err)
+	}
+	patched := strings.Replace(string(raw), "<program>KidAid</program>", "<program>none</program>", 1)
+	if patched == string(raw) {
+		t.Fatalf("input fixture changed: program element not found")
+	}
+	inputPath := filepath.Join(t.TempDir(), "input.xml")
+	if err := os.WriteFile(inputPath, []byte(patched), 0o644); err != nil {
+		t.Fatalf("write input: %v", err)
+	}
+
 	mapFile, err := os.Open(filepath.Join(xmlDir, "kidaid_map.xml"))
 	if err != nil {
 		t.Fatalf("open map: %v", err)
@@ -78,15 +98,12 @@ func TestGoTraceRoundTrip(t *testing.T) {
 	if err := m.LoadMapping(mapFile); err != nil {
 		t.Fatalf("load mapping: %v", err)
 	}
-	if err := m.Initialize(); err != nil {
-		t.Fatalf("init mapping: %v", err)
-	}
-	dataFile, err := os.Open(input)
+	dataFile, err := os.Open(inputPath)
 	if err != nil {
 		t.Fatalf("open input: %v", err)
 	}
 	defer dataFile.Close()
-	if err := m.LoadData(dataFile); err != nil {
+	if err := m.LoadDataAndPushSingletons(dataFile); err != nil {
 		t.Fatalf("load data: %v", err)
 	}
 

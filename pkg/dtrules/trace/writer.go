@@ -33,7 +33,17 @@ import (
 type Provenance struct {
 	DTRulesVersion   string
 	RulesFingerprint string
+	// Format is the trace schema version the file was written with.
+	// Empty for pre-versioned traces (format 1, the original Go schema).
+	Format string
 }
+
+// TraceFormatVersion is the schema version written into new traces.
+// Bump when the trace vocabulary changes shape (new event kinds are fine;
+// changed semantics of existing ones are not) so loaders can branch.
+// History: "" = original Go schema; "2" = adds addat/removeat events and
+// arraybind-after-array-def.
+const TraceFormatVersion = "2"
 
 // FingerprintRules hashes the project's XML rule files (sorted by relative
 // path, names included) so a trace can record exactly which rules ran.
@@ -79,6 +89,7 @@ type StackState interface {
 // bare <DTRulesTrace> they always did.
 func WriteHeader(w io.Writer, p Provenance) {
 	fmt.Fprint(w, "<DTRulesTrace")
+	fmt.Fprintf(w, " format=\"%s\"", TraceFormatVersion)
 	if p.DTRulesVersion != "" {
 		fmt.Fprintf(w, " dtrules_version=\"%s\"", escapeXML(p.DTRulesVersion))
 	}
@@ -142,6 +153,7 @@ func (t *Trace) Provenance() Provenance {
 	return Provenance{
 		DTRulesVersion:   t.root.Attributes["dtrules_version"],
 		RulesFingerprint: t.root.Attributes["rules_fingerprint"],
+		Format:           t.root.Attributes["format"],
 	}
 }
 

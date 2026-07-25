@@ -289,6 +289,37 @@ func TraceArrayRemove(state State, ar *RArray, element Object) {
 	state.TraceInfo("remove", element.PostFix(), "arrayId", intToStr(ar.id))
 }
 
+// TraceArrayAddAt emits the addat trace event for an element inserted into
+// ar at index. Same entity-reference vs postfix-body split as TraceArrayAdd;
+// the index attribute lets replay insert at the same position.
+func TraceArrayAddAt(state State, ar *RArray, element Object, index int) {
+	if state == nil || ar == nil || element == nil {
+		return
+	}
+	if e, ok := element.(Entity); ok {
+		state.TraceInfo("addat", "",
+			"arrayId", intToStr(ar.id),
+			"index", intToStr(index),
+			"entity", e.GetName().StringValue(),
+			"id", intToStr(e.GetID()))
+		return
+	}
+	state.TraceInfo("addat", element.PostFix(),
+		"arrayId", intToStr(ar.id),
+		"index", intToStr(index))
+}
+
+// TraceArrayRemoveAt emits the removeat trace event for the element deleted
+// from ar at index.
+func TraceArrayRemoveAt(state State, ar *RArray, index int) {
+	if state == nil || ar == nil {
+		return
+	}
+	state.TraceInfo("removeat", "",
+		"arrayId", intToStr(ar.id),
+		"index", intToStr(index))
+}
+
 // PostFix returns the postfix representation.
 func (r *RArray) PostFix() string {
 	var sb strings.Builder

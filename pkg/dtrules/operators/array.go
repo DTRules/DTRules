@@ -98,7 +98,11 @@ func opAddAt(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	return arr.AddAt(index, element)
+	if err := arr.AddAt(index, element); err != nil {
+		return err
+	}
+	dtrules.TraceArrayAddAt(state, arr, element, index)
+	return nil
 }
 
 // opLength: ( array -- length ) returns array length
@@ -161,6 +165,7 @@ func opRemoveAt(state dtrules.State) error {
 		return err
 	}
 	arr.Delete(index)
+	dtrules.TraceArrayRemoveAt(state, arr, index)
 	return nil
 }
 
