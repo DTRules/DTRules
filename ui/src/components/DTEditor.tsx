@@ -119,7 +119,20 @@ const getCellStyle = (params: { value: unknown }): Record<string, string> => {
 };
 
 export function DTEditor() {
-  const { decisionTables, currentTable, selectTable, updateTable, readOnly } = useProjectStore();
+  const { decisionTables, currentTable, selectTable, updateTable, readOnly, setActiveTab } = useProjectStore();
+
+  // Arriving here from the debugger (a never-executed table's definition)
+  // is a side-trip — Esc returns to the debug view.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (sessionStorage.getItem('dtrules.returnToDebugOnEsc') !== '1') return;
+      sessionStorage.removeItem('dtrules.returnToDebugOnEsc');
+      setActiveTab('debug');
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [setActiveTab]);
   const [editedTable, setEditedTable] = useState<DecisionTable | null>(null);
   // When on, the DSL column shows the compiled postfix instead (read-only —
   // postfix is a build artifact and is never hand-edited).

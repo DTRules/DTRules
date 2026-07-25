@@ -18,7 +18,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getDecisionTable } from '@/api/client';
-import type { DebugNode } from '@/api/client';
+import type { DebugFrame, DebugNode } from '@/api/client';
 import type { DecisionTable } from '@/types/dtrules';
 import { cn } from '@/lib/utils';
 import { focusTarget, frameInfo, type Focus, type TreeIndex } from '@/lib/traceTree';
@@ -36,16 +36,65 @@ type LinkTarget =
   | { kind: 'jump'; pass: DebugNode }
   | { kind: 'open'; table: string };
 
-/** Render DSL with performed-table names as navigation links. */
+const IDENT_RE = /[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)?/g;
+
+/** Resolves a DSL identifier against the entity stack at the current
+ *  replay position. `entity.attr` finds the topmost frame of that entity;
+ *  a bare name finds the topmost frame carrying that attribute. EL names
+ *  are case-insensitive. Returns undefined when nothing matches (keywords,
+ *  literals, unknown names). */
+function stackValue(stack: DebugFrame[], ident: string): string | undefined {
+  const lc = ident.toLowerCase();
+  const [head, tail] = lc.includes('.') ? lc.split('.', 2) : ['', lc];
+  for (let i = stack.length - 1; i >= 0; i--) {
+    const f = stack[i];
+    if (head && f.name.toLowerCase() !== head) continue;
+    for (const [k, v] of Object.entries(f.attrs)) {
+      if (k.toLowerCase() === tail) return v === '' ? '(empty)' : v;
+    }
+    if (head) return undefined; // right entity, no such attribute
+  }
+  return undefined;
+}
+
+/** Wraps identifiers in a plain-text DSL segment with hover tooltips that
+ *  show their value on the entity stack at the current position. */
+function withValueHovers(text: string, stack: DebugFrame[], keyBase: number): React.ReactNode[] {
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  for (const m of text.matchAll(IDENT_RE)) {
+    const value = stackValue(stack, m[0]);
+    if (value === undefined) continue;
+    const start = m.index ?? 0;
+    parts.push(text.slice(last, start));
+    parts.push(
+      <span
+        key={`${keyBase}-${start}`}
+        className="cursor-help decoration-dotted underline-offset-2 hover:underline hover:text-foreground"
+        title={`${m[0]} = ${value}`}
+      >
+        {m[0]}
+      </span>
+    );
+    last = start + m[0].length;
+  }
+  parts.push(text.slice(last));
+  return parts;
+}
+
+/** Render DSL with performed-table names as navigation links, and every
+ *  other known field hoverable to show its value at the current position. */
 function DSLWithLinks({
   text,
   resolve,
+  stack,
   onDrill,
   onJump,
   onOpenTable,
 }: {
   text: string;
   resolve: (name: string) => LinkTarget | null;
+  stack: DebugFrame[];
   onDrill: (dt: DebugNode) => void;
   onJump: (pass: DebugNode) => void;
   onOpenTable: (table: string) => void;
@@ -57,10 +106,10 @@ function DSLWithLinks({
     const target = resolve(name);
     if (!target) continue;
     const start = (match.index ?? 0) + match[0].indexOf(name);
-    parts.push(text.slice(last, start));
+    parts.push(...withValueHovers(text.slice(last, start), stack, last));
     parts.push(
       <button
-        key={start}
+        key={`link-${start}`}
         className={cn(
           'underline underline-offset-2',
           target.kind === 'open'
@@ -78,7 +127,7 @@ function DSLWithLinks({
             ? `Drill into ${name}`
             : target.kind === 'jump'
               ? `Go to ${name}'s execution (moves the trace position there)`
-              : `${name} did not run in this trace — open its definition`
+              : `${name} did not run in this trace — open its definition (Esc returns here)`
         }
       >
         {name}
@@ -86,7 +135,7 @@ function DSLWithLinks({
     );
     last = start + name.length;
   }
-  parts.push(text.slice(last));
+  parts.push(...withValueHovers(text.slice(last), stack, last));
   return <>{parts}</>;
 }
 
@@ -95,6 +144,7 @@ export function DebugTableView({
   passNode,
   focus,
   knownTables,
+  stack,
   onFocus,
   onDrill,
   onOut,
@@ -106,6 +156,9 @@ export function DebugTableView({
   focus: Focus;
   /** Project tables: lowercased name -> canonical name (EL is case-blind). */
   knownTables: Map<string, string>;
+  /** Entity stack at the current replay position (bottom first) — the
+   *  source for hover value lookups; changes as the focus moves. */
+  stack: DebugFrame[];
   onFocus: (f: Focus) => void;
   onDrill: (calledDT: DebugNode) => void;
   onOut: () => void;
@@ -174,10 +227,9 @@ export function DebugTableView({
   const resolverFor = (called: Map<string, DebugNode>) => (name: string): LinkTarget | null => {
     const lc = name.toLowerCase();
     const dt = called.get(lc);
-    // A call whose context iterated zero times leaves a decisiontable node
-    // with no passes — nothing to drill into, so fall through to the other
-    // tiers rather than offering a dead link.
-    if (dt && dt.children.some((c) => c.name === 'execute_table')) return { kind: 'drill', dt };
+    // Zero-pass calls (context iterated zero times) drill too — the view
+    // shows the table with the state going into it and a banner.
+    if (dt) return { kind: 'drill', dt };
     const passes = executions.get(lc);
     if (passes && passes.length > 0) {
       let pick = passes[0];
@@ -233,6 +285,11 @@ export function DebugTableView({
           </Button>
         )}
         {/* Iteration navigator: which of N passes is in view */}
+        {frame.passes.length === 0 ? (
+          <span className="ml-auto text-xs text-amber-400/90">
+            performed here, but ran no passes — its context iterated zero times
+          </span>
+        ) : (
         <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
           {frame.passes.length > 1 ? 'Iteration' : 'Pass'}
           <Button
@@ -269,6 +326,7 @@ export function DebugTableView({
           </Button>
           of <b className="text-foreground">{frame.passes.length.toLocaleString()}</b>
         </span>
+        )}
       </div>
 
       {!table ? (
@@ -305,7 +363,8 @@ export function DebugTableView({
               >
                 <td colSpan={2 + cols.length} className="border border-border/40 px-2 py-1 text-muted-foreground">
                   {focus.kind === 'entry' && <span className="text-amber-400 font-bold">▶ </span>}
-                  Entering {frame.tableName} — state before this pass
+                  Entering {frame.tableName} —{' '}
+                  {frame.passes.length === 0 ? 'state going into this call' : 'state before this pass'}
                 </td>
               </tr>
 
@@ -326,6 +385,7 @@ export function DebugTableView({
                       <DSLWithLinks
                         text={initialActionText(table, ia.attrs?.n)}
                         resolve={resolverFor(called)}
+                        stack={stack}
                         onDrill={onDrill}
                         onJump={onPass}
                         onOpenTable={onOpenTable}
@@ -341,7 +401,7 @@ export function DebugTableView({
                   <tr key={`c${cond.number}`}>
                     <td className="border border-border/40 text-center text-muted-foreground">{cond.number}</td>
                     <td className="border border-border/40 px-2 py-1 font-mono whitespace-pre-wrap">
-                      {cond.description || cond.postfix}
+                      {withValueHovers(cond.description || cond.postfix || '', stack, cond.number)}
                     </td>
                     {cols.map((c) => {
                       const v = cellOf(cond.columns as Record<string, string>, c);
@@ -385,6 +445,7 @@ export function DebugTableView({
                       <DSLWithLinks
                         text={act.description || act.postfix || ''}
                         resolve={resolverFor(called)}
+                        stack={stack}
                         onDrill={onDrill}
                         onJump={onPass}
                         onOpenTable={onOpenTable}

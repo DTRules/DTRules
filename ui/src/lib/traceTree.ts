@@ -143,6 +143,29 @@ export interface FrameInfo {
 }
 
 export function frameInfo(idx: TreeIndex, passNode: DebugNode): FrameInfo | null {
+  // A decisiontable node itself acts as a pseudo-pass for calls whose
+  // context iterated zero times: no execute_table was recorded, but the
+  // user can still land on the table and see the state going into it.
+  if (passNode.name === 'decisiontable') {
+    const maybeAction = parentOf(idx, passNode.number);
+    const callerAction =
+      maybeAction && (maybeAction.name === 'action' || maybeAction.name === 'initialaction') ? maybeAction : null;
+    return {
+      passNode,
+      dtNode: passNode,
+      tableName: passNode.attrs?.name || 'decisiontable',
+      passes: [],
+      passIndex: -1,
+      initialActions: [],
+      conditionResults: new Map(),
+      columnNode: null,
+      firedColumn: '',
+      actions: [],
+      callerAction,
+      callerPass: callerAction ? enclosing(idx, callerAction.number, 'execute_table') : null,
+    };
+  }
+
   const dtNode = parentOf(idx, passNode.number);
   if (!dtNode || dtNode.name !== 'decisiontable') return null;
 

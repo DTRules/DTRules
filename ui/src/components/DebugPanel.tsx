@@ -419,8 +419,11 @@ export function DebugPanel() {
 
   const tableDrill = useCallback(
     (calledDT: DebugNode) => {
-      const pass = calledDT.children.find((c) => c.name === 'execute_table');
-      if (pass) applyFocus(pass, { kind: 'entry' });
+      // With no recorded pass (context iterated zero times) the dt node
+      // itself is the frame — the user still lands on the table with the
+      // state going into it.
+      const pass = calledDT.children.find((c) => c.name === 'execute_table') || calledDT;
+      applyFocus(pass, { kind: 'entry' });
     },
     [applyFocus]
   );
@@ -724,11 +727,15 @@ export function DebugPanel() {
                 passNode={framePassNode}
                 focus={frame!.focus}
                 knownTables={knownTables}
+                stack={stack}
                 onFocus={(f) => applyFocus(framePassNode, f)}
                 onDrill={tableDrill}
                 onOut={tableOut}
                 onPass={(p) => applyFocus(p, { kind: 'entry' })}
                 onOpenTable={(name) => {
+                  // Bouncing to the editor is a side-trip: Esc brings the
+                  // user straight back to the debug view.
+                  sessionStorage.setItem('dtrules.returnToDebugOnEsc', '1');
                   selectTable(name);
                   setActiveTab('dt');
                 }}
