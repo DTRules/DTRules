@@ -6,7 +6,6 @@ import { EDDEditor } from '@/components/EDDEditor';
 import { DTEditor } from '@/components/DTEditor';
 import { DebugPanel } from '@/components/DebugPanel';
 import { TestPanel } from '@/components/TestPanel';
-import { TreeVisualization } from '@/components/TreeVisualization';
 import { Toolbar } from '@/components/Toolbar';
 import { StatusBar } from '@/components/StatusBar';
 import { WelcomeScreen } from '@/components/WelcomeScreen';
@@ -122,7 +121,6 @@ function App() {
                 <TabsTrigger value="edd" data-tutorial="tab-edd">Entity Editor</TabsTrigger>
                 <TabsTrigger value="dt" data-tutorial="tab-dt">Decision Tables</TabsTrigger>
                 <TabsTrigger value="test" data-tutorial="tab-test">Test & Execute</TabsTrigger>
-                <TabsTrigger value="tree" data-tutorial="tab-tree">Tree View</TabsTrigger>
                 <TabsTrigger value="debug" data-tutorial="tab-debug">Debug</TabsTrigger>
               </TabsList>
             </div>
@@ -141,9 +139,6 @@ function App() {
                 <TestPanel />
               </TabsContent>
 
-              <TabsContent value="tree" className="absolute inset-0 data-[state=inactive]:hidden" forceMount>
-                <TreeVisualization />
-              </TabsContent>
 
               <TabsContent value="debug" className="absolute inset-0 data-[state=inactive]:hidden" forceMount>
                 <DebugPanel />

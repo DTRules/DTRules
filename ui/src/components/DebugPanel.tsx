@@ -162,6 +162,8 @@ interface TreeCommon {
   expanded: Set<number>;
   onToggle: (n: number) => void;
   subtreeMax: Map<number, number>;
+  breakpoints: Set<number>;
+  onToggleBreakpoint: (n: number) => void;
 }
 
 function NodeChildren({
@@ -219,6 +221,13 @@ function RangeGroup({
   const rangeEnd = common.subtreeMax.get(last.number) ?? last.number;
   const containsPC = common.position >= first.number && common.position <= rangeEnd;
   const isOpen = open || containsPC;
+  let containsBP = false;
+  for (const bp of common.breakpoints) {
+    if (bp >= first.number && bp <= rangeEnd) {
+      containsBP = true;
+      break;
+    }
+  }
 
   return (
     <div>
@@ -236,6 +245,7 @@ function RangeGroup({
           [{ordinalStart.toLocaleString()} … {(ordinalStart + nodes.length - 1).toLocaleString()}]
         </span>
         <span className="text-muted-foreground">· {nodes.length.toLocaleString()} items</span>
+        {containsBP && <span className="text-red-500">●</span>}
       </div>
       {isOpen && (
         <NodeChildren nodes={nodes} ordinalStart={ordinalStart} depth={depth + 1} common={common} />
@@ -253,7 +263,7 @@ function TreeNodeView({
   depth: number;
   common: TreeCommon;
 }) {
-  const { position, onSelect, expanded: expandedSet, onToggle } = common;
+  const { position, onSelect, expanded: expandedSet, onToggle, breakpoints, onToggleBreakpoint } = common;
   const expanded = expandedSet.has(node.number);
   const hasChildren = node.children.length > 0;
   const structural = ['decisiontable', 'execute_table', 'column', 'action', 'initialaction', 'DTRulesTrace', 'finalState'].includes(node.name);
@@ -268,7 +278,11 @@ function TreeNodeView({
         )}
         style={{ paddingLeft: depth * 12 + 4 }}
         onClick={() => onSelect(node.number)}
-        title={`Run to node ${node.number}`}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          onToggleBreakpoint(node.number);
+        }}
+        title={`Run to node ${node.number} — right-click to toggle breakpoint`}
         data-node={node.number}
       >
         <span
@@ -280,6 +294,7 @@ function TreeNodeView({
         >
           {hasChildren ? (expanded ? '▾' : '▸') : ''}
         </span>
+        {breakpoints.has(node.number) && <span className="text-red-500">● </span>}
         {node.number === position && <span className="text-amber-400">▶ </span>}
         <span className={cn(structural && node.name === 'decisiontable' && 'font-semibold text-foreground')}>
           {nodeLabel(node)}
@@ -308,9 +323,19 @@ export function DebugPanel() {
   const consoleInput = useRef<HTMLInputElement>(null);
 
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  const [breakpoints, setBreakpoints] = useState<Set<number>>(new Set());
   const [marks, setMarks] = useState<{ node: number; label: string; auto: boolean }[]>([]);
   const idxRef = useRef<TreeIndex | null>(null);
   const lastTableRef = useRef<number | null>(null);
+
+  const toggleBreakpoint = useCallback((n: number) => {
+    setBreakpoints((prev) => {
+      const next = new Set(prev);
+      if (next.has(n)) next.delete(n);
+      else next.add(n);
+      return next;
+    });
+  }, []);
 
   const toggleNode = useCallback((n: number) => {
     setExpanded((prev) => {
@@ -356,6 +381,18 @@ export function DebugPanel() {
       }
     }
   }, []);
+
+  // Run: continue to the next breakpoint after the current position
+  // (or the end of execution when none remain).
+  const runToBreakpoint = useCallback(() => {
+    const idx = idxRef.current;
+    if (!idx) return;
+    let next: number | null = null;
+    for (const bp of breakpoints) {
+      if (bp > position && (next === null || bp < next)) next = bp;
+    }
+    goTo(next ?? idx.endNode);
+  }, [breakpoints, position, goTo]);
 
   // ── step verbs (computed from tree structure) ─────────────────────
   const stepOver = useCallback(() => {
@@ -447,6 +484,7 @@ export function DebugPanel() {
     setNodeCount(r.nodes || 0);
     setBrowsing(false);
     setMarks([]);
+    setBreakpoints(new Set());
     lastTableRef.current = null;
     const t = await debugTree();
     if (t.success && t.tree) {
@@ -535,6 +573,10 @@ export function DebugPanel() {
 
       {/* Debug toolbar */}
       <div className="px-4 py-2 border-b border-border/50 bg-muted/20 flex items-center gap-1.5 flex-wrap">
+        <Button variant="outline" size="sm" className="h-7 text-green-500 border-green-500/40" onClick={runToBreakpoint} title="Continue to the next breakpoint (right-click a tree node to set one)">
+          ▶ Run{breakpoints.size > 0 && <span className="ml-1 text-[10px] text-muted-foreground">({breakpoints.size})</span>}
+        </Button>
+        <span className="w-px h-5 bg-border mx-1" />
         <Button variant="outline" size="sm" className="h-7 text-amber-400 border-amber-400/40" onClick={stepOver} title="Execute one action">
           Step
         </Button>
@@ -555,7 +597,7 @@ export function DebugPanel() {
           <ArrowLeft className="h-3.5 w-3.5 mr-1" /> To mark
           {marks.length > 0 && <span className="ml-1 text-[10px] text-muted-foreground">({marks.length})</span>}
         </Button>
-        <span className="text-xs text-muted-foreground ml-2 hidden xl:inline">Click any tree node to run to it</span>
+        <span className="text-xs text-muted-foreground ml-2 hidden xl:inline">Click a node to run to it · right-click to set a breakpoint</span>
         <span className="ml-auto font-mono text-xs text-muted-foreground flex items-center gap-1.5">
           node
           <input
@@ -608,7 +650,7 @@ export function DebugPanel() {
               <TreeNodeView
                 node={tree}
                 depth={0}
-                common={{ position, onSelect: goTo, expanded, onToggle: toggleNode, subtreeMax: idxRef.current.subtreeMax }}
+                common={{ position, onSelect: goTo, expanded, onToggle: toggleNode, subtreeMax: idxRef.current.subtreeMax, breakpoints, onToggleBreakpoint: toggleBreakpoint }}
               />
             )}
           </div>

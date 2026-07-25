@@ -30,7 +30,7 @@ import type {
 import * as api from '@/api/client';
 
 /** Top-level editor tabs. */
-export type AppTab = 'edd' | 'dt' | 'test' | 'tree' | 'debug';
+export type AppTab = 'edd' | 'dt' | 'test' | 'debug';
 
 /** localStorage key for the recently-opened-projects list. */
 const RECENT_PROJECTS_KEY = 'dtrules.recentProjects';
