@@ -436,15 +436,36 @@ export function DebugPanel() {
     if (!idx || !framePassNode) return;
     const fi = frameInfo(idx, framePassNode);
     if (!fi?.callerPass || !fi.callerAction) return;
+
+    // Finishing this table puts the execution point at the NEXT decision
+    // table call. Within a multi-call action (4.1 → 4.2 → ...), that is
+    // the following call of the same action; from the last call, the next
+    // action's first call (its Entering row = state after this action).
+    const calls = fi.callerAction.children.filter((c) => c.name === 'decisiontable');
+    const k = calls.findIndex((c) => c.number === fi.dtNode.number);
+    if (k >= 0 && k < calls.length - 1) {
+      tableDrill(calls[k + 1]);
+      return;
+    }
+
     const caller = frameInfo(idx, fi.callerPass);
     if (!caller) return;
     const ordered = [...caller.initialActions, ...caller.actions];
     const i = ordered.findIndex((a) => a.number === fi.callerAction!.number);
     const next = i >= 0 ? ordered[i + 1] : undefined;
-    // Land on the following action in the caller — or its exit when the
-    // perform was the last action.
-    applyFocus(fi.callerPass, next ? { kind: 'action', node: next.number } : { kind: 'exit' });
-  }, [framePassNode, applyFocus]);
+    if (!next) {
+      applyFocus(fi.callerPass, { kind: 'exit' });
+      return;
+    }
+    const nextCalls = next.children.filter((c) => c.name === 'decisiontable');
+    if (nextCalls.length > 0) {
+      tableDrill(nextCalls[0]);
+    } else {
+      // A plain action (no table call) — the closest representable point
+      // is its row in the caller.
+      applyFocus(fi.callerPass, { kind: 'action', node: next.number });
+    }
+  }, [framePassNode, applyFocus, tableDrill]);
 
   const tableStep = useCallback(() => {
     const idx = idxRef.current;
