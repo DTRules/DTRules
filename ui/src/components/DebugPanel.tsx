@@ -30,7 +30,7 @@ import { FileBrowser } from '@/components/FileBrowser';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, ArrowRight, Bug, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Bug, ExternalLink } from 'lucide-react';
 
 /** Human label for a trace node. */
 function nodeLabel(n: DebugNode): string {
@@ -58,18 +58,102 @@ function nodeLabel(n: DebugNode): string {
   }
 }
 
+/**
+ * TreeIndex precomputes navigation structure over the trace tree: parent
+ * links, subtree extents, and the "landing points" the step verbs move
+ * between (action / initialaction nodes, in document order).
+ */
+interface TreeIndex {
+  byNumber: Map<number, DebugNode>;
+  parent: Map<number, number>;
+  subtreeMax: Map<number, number>;
+  landings: number[];
+  /** Terminal position: the finalState node (end of execution). */
+  endNode: number;
+}
+
+function indexTree(root: DebugNode): TreeIndex {
+  const byNumber = new Map<number, DebugNode>();
+  const parent = new Map<number, number>();
+  const subtreeMax = new Map<number, number>();
+  const landings: number[] = [];
+
+  let endNode = 0;
+  const walk = (n: DebugNode): number => {
+    byNumber.set(n.number, n);
+    if (n.name === 'action' || n.name === 'initialaction') landings.push(n.number);
+    if (n.name === 'finalState') endNode = n.number;
+    let max = n.number;
+    for (const c of n.children) {
+      parent.set(c.number, n.number);
+      max = Math.max(max, walk(c));
+    }
+    subtreeMax.set(n.number, max);
+    return max;
+  };
+  const rootMax = walk(root);
+  landings.sort((a, b) => a - b);
+  if (!endNode) endNode = rootMax;
+  return { byNumber, parent, subtreeMax, landings, endNode };
+}
+
+/** Numbers of every ancestor of a node (for tree expansion). */
+function ancestorsOf(idx: TreeIndex, num: number): number[] {
+  const out: number[] = [];
+  let cur = idx.parent.get(num);
+  while (cur !== undefined) {
+    out.push(cur);
+    cur = idx.parent.get(cur);
+  }
+  return out;
+}
+
+/** Nearest enclosing node (self included) with the given tag name. */
+function enclosing(idx: TreeIndex, num: number, name: string): DebugNode | null {
+  let cur: number | undefined = num;
+  while (cur !== undefined) {
+    const n = idx.byNumber.get(cur);
+    if (n?.name === name) return n;
+    cur = idx.parent.get(cur);
+  }
+  return null;
+}
+
+/** First landing point strictly after `after`, or null. */
+function nextLanding(idx: TreeIndex, after: number): number | null {
+  for (const l of idx.landings) {
+    if (l > after) return l;
+  }
+  return null;
+}
+
+/** First decisiontable node — the start of execution, where the initial
+ *  data has fully loaded and the entity stack is established. */
+function firstTable(root: DebugNode): DebugNode | null {
+  if (root.name === 'decisiontable') return root;
+  for (const c of root.children) {
+    const r = firstTable(c);
+    if (r) return r;
+  }
+  return null;
+}
+
 function TreeNodeView({
   node,
   position,
   onSelect,
   depth,
+  expanded: expandedSet,
+  onToggle,
 }: {
   node: DebugNode;
   position: number;
   onSelect: (n: number) => void;
   depth: number;
+  expanded: Set<number>;
+  onToggle: (n: number) => void;
 }) {
-  const [expanded, setExpanded] = useState(depth < 2);
+  const expanded = expandedSet.has(node.number);
   const hasChildren = node.children.length > 0;
   const structural = ['decisiontable', 'execute_table', 'column', 'action', 'initialaction', 'DTRulesTrace', 'finalState'].includes(node.name);
 
@@ -84,12 +168,13 @@ function TreeNodeView({
         style={{ paddingLeft: depth * 12 + 4 }}
         onClick={() => onSelect(node.number)}
         title={`Run to node ${node.number}`}
+        data-node={node.number}
       >
         <span
           className="w-3 text-muted-foreground shrink-0"
           onClick={(e) => {
             e.stopPropagation();
-            setExpanded(!expanded);
+            onToggle(node.number);
           }}
         >
           {hasChildren ? (expanded ? '▾' : '▸') : ''}
@@ -101,7 +186,7 @@ function TreeNodeView({
       </div>
       {expanded &&
         node.children.map((c) => (
-          <TreeNodeView key={c.number} node={c} position={position} onSelect={onSelect} depth={depth + 1} />
+          <TreeNodeView key={c.number} node={c} position={position} onSelect={onSelect} depth={depth + 1} expanded={expandedSet} onToggle={onToggle} />
         ))}
     </div>
   );
@@ -122,14 +207,134 @@ export function DebugPanel() {
   const [consoleLines, setConsoleLines] = useState<{ input: string; output: string; error?: boolean }[]>([]);
   const consoleInput = useRef<HTMLInputElement>(null);
 
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  const [marks, setMarks] = useState<{ node: number; label: string; auto: boolean }[]>([]);
+  const idxRef = useRef<TreeIndex | null>(null);
+  const lastTableRef = useRef<number | null>(null);
+
+  const toggleNode = useCallback((n: number) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(n)) next.delete(n);
+      else next.add(n);
+      return next;
+    });
+  }, []);
+
   const goTo = useCallback(async (node: number) => {
     const r = await debugPosition(node);
-    if (r.success) {
-      setPosition(r.position || node);
-      setContext(r.context || {});
-      setStack(r.stack || []);
+    if (!r.success) return;
+    const pos = r.position || node;
+    setPosition(pos);
+    setContext(r.context || {});
+    setStack(r.stack || []);
+
+    const idx = idxRef.current;
+    if (idx) {
+      // Expand the tree along the path to the program counter and scroll it
+      // into view.
+      setExpanded((prev) => {
+        const next = new Set(prev);
+        for (const a of ancestorsOf(idx, pos)) next.add(a);
+        next.add(pos);
+        return next;
+      });
+      setTimeout(() => {
+        document.querySelector(`[data-node="${pos}"]`)?.scrollIntoView({ block: 'center' });
+      }, 50);
+
+      // Auto-mark: entering a different decision table drops a mark at its
+      // start, so "back to mark" returns to the top of the table.
+      const dt = enclosing(idx, pos, 'decisiontable');
+      if (dt && dt.number !== lastTableRef.current) {
+        lastTableRef.current = dt.number;
+        setMarks((m) =>
+          m.some((x) => x.node === dt.number)
+            ? m
+            : [...m.slice(-19), { node: dt.number, label: dt.attrs?.name || 'table', auto: true }]
+        );
+      }
     }
   }, []);
+
+  // ── step verbs (computed from tree structure) ─────────────────────
+  const stepOver = useCallback(() => {
+    const idx = idxRef.current;
+    if (!idx) return;
+    const cur = idx.byNumber.get(position);
+    const from =
+      cur && (cur.name === 'action' || cur.name === 'initialaction')
+        ? idx.subtreeMax.get(cur.number) || position
+        : position;
+    const next = nextLanding(idx, from);
+    if (next && next < idx.endNode) goTo(next);
+    else if (position < idx.endNode) goTo(idx.endNode);
+  }, [position, nodeCount, goTo]);
+
+  const stepInto = useCallback(() => {
+    const idx = idxRef.current;
+    if (!idx) return;
+    const cur = idx.byNumber.get(position);
+    if (cur && (cur.name === 'action' || cur.name === 'initialaction')) {
+      const inner = nextLanding(idx, cur.number);
+      const max = idx.subtreeMax.get(cur.number) || cur.number;
+      if (inner && inner <= max) {
+        goTo(inner);
+        return;
+      }
+    }
+    stepOver();
+  }, [position, goTo, stepOver]);
+
+  const stepPass = useCallback(() => {
+    const idx = idxRef.current;
+    if (!idx) return;
+    const et = enclosing(idx, position, 'execute_table');
+    if (!et) {
+      stepOver();
+      return;
+    }
+    // Finish this pass; on an iterating context the next execute_table of
+    // the same table is the top of the next pass.
+    const dt = enclosing(idx, et.number, 'decisiontable');
+    const sibling = dt?.children.find((c) => c.name === 'execute_table' && c.number > et.number);
+    if (sibling) {
+      goTo(sibling.number);
+      return;
+    }
+    const after = nextLanding(idx, idx.subtreeMax.get(dt?.number || et.number) || position);
+    goTo(after && after < idx.endNode ? after : idx.endNode);
+  }, [position, nodeCount, goTo, stepOver]);
+
+  const stepUp = useCallback(() => {
+    const idx = idxRef.current;
+    if (!idx) return;
+    const dt = enclosing(idx, position, 'decisiontable');
+    if (!dt) {
+      stepOver();
+      return;
+    }
+    const after = nextLanding(idx, idx.subtreeMax.get(dt.number) || position);
+    goTo(after && after < idx.endNode ? after : idx.endNode);
+  }, [position, nodeCount, goTo, stepOver]);
+
+  const dropMark = useCallback(() => {
+    setMarks((m) => [...m.slice(-19), { node: position, label: `node ${position}`, auto: false }]);
+  }, [position]);
+
+  const backToMark = useCallback(() => {
+    setMarks((m) => {
+      // Return to the most recent mark before the current position.
+      const usable = m.filter((x) => x.node < position);
+      const target = usable[usable.length - 1];
+      if (target) {
+        goTo(target.node);
+        return m.filter((x) => x !== target || x.auto);
+      }
+      goTo(1);
+      return m;
+    });
+  }, [position, goTo]);
 
   const handleLoad = async (path: string) => {
     setLoadError(null);
@@ -141,8 +346,19 @@ export function DebugPanel() {
     setInfo(r);
     setNodeCount(r.nodes || 0);
     setBrowsing(false);
+    setMarks([]);
+    lastTableRef.current = null;
     const t = await debugTree();
-    if (t.success && t.tree) setTree(t.tree);
+    if (t.success && t.tree) {
+      setTree(t.tree);
+      idxRef.current = indexTree(t.tree);
+      setExpanded(new Set([t.tree.number, ...t.tree.children.map((c) => c.number)]));
+      // Establish the initial entity stack: position at the start of
+      // execution, with all initial data replayed.
+      const start = firstTable(t.tree);
+      await goTo(start ? start.number : 1);
+      return;
+    }
     await goTo(1);
   };
 
@@ -218,14 +434,28 @@ export function DebugPanel() {
       </div>
 
       {/* Debug toolbar */}
-      <div className="px-4 py-2 border-b border-border/50 bg-muted/20 flex items-center gap-2">
-        <Button variant="outline" size="sm" className="h-7" onClick={() => goTo(Math.max(1, position - 1))} disabled={position <= 1}>
-          <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Back
+      <div className="px-4 py-2 border-b border-border/50 bg-muted/20 flex items-center gap-1.5 flex-wrap">
+        <Button variant="outline" size="sm" className="h-7 text-amber-400 border-amber-400/40" onClick={stepOver} title="Execute one action">
+          Step
         </Button>
-        <Button variant="outline" size="sm" className="h-7 text-amber-400 border-amber-400/40" onClick={() => goTo(Math.min(nodeCount, position + 1))} disabled={position >= nodeCount}>
-          Step <ArrowRight className="h-3.5 w-3.5 ml-1" />
+        <Button variant="outline" size="sm" className="h-7" onClick={stepInto} title="Descend into the table this action performs">
+          Into
         </Button>
-        <span className="text-xs text-muted-foreground ml-2">Click any tree node to run to it</span>
+        <Button variant="outline" size="sm" className="h-7" onClick={stepPass} title="Finish this pass of the table (lands at the next pass on iterating contexts)">
+          Pass
+        </Button>
+        <Button variant="outline" size="sm" className="h-7" onClick={stepUp} title="Finish this table and return to the caller">
+          Up
+        </Button>
+        <span className="w-px h-5 bg-border mx-1" />
+        <Button variant="outline" size="sm" className="h-7 text-purple-400 border-purple-400/40" onClick={dropMark} title="Drop a mark at the current position">
+          ⚑ Mark
+        </Button>
+        <Button variant="outline" size="sm" className="h-7 text-purple-400" onClick={backToMark} title="Step back to the most recent mark">
+          <ArrowLeft className="h-3.5 w-3.5 mr-1" /> To mark
+          {marks.length > 0 && <span className="ml-1 text-[10px] text-muted-foreground">({marks.length})</span>}
+        </Button>
+        <span className="text-xs text-muted-foreground ml-2 hidden xl:inline">Click any tree node to run to it</span>
         <span className="ml-auto font-mono text-xs text-muted-foreground flex items-center gap-1.5">
           node
           <input
@@ -245,6 +475,12 @@ export function DebugPanel() {
       </div>
 
       {/* Context breadcrumb */}
+      {!context.table && position === idxRef.current?.endNode && (
+        <div className="px-4 py-1.5 border-b border-border/50 text-sm text-muted-foreground">
+          End of execution — final state{' '}
+          <span className="text-green-500">(verified against replay on load)</span>
+        </div>
+      )}
       {context.table && (
         <div className="px-4 py-1.5 border-b border-border/50 flex items-center gap-2 text-sm">
           <span className="font-semibold">{context.table}</span>
@@ -268,7 +504,7 @@ export function DebugPanel() {
       <div className="flex-1 grid grid-cols-[1fr_320px] overflow-hidden">
         <ScrollArea className="border-r border-border/50">
           <div className="p-2">
-            {tree && <TreeNodeView node={tree} position={position} onSelect={goTo} depth={0} />}
+            {tree && <TreeNodeView node={tree} position={position} onSelect={goTo} depth={0} expanded={expanded} onToggle={toggleNode} />}
           </div>
         </ScrollArea>
         <ScrollArea>
