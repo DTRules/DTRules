@@ -9,9 +9,12 @@ interface FileBrowserProps {
   onSelect: (path: string) => void;
   /** When set, clicking a file selects it (directories still navigate). */
   selectFiles?: boolean;
+  /** Directory to open at (e.g. where the last file was picked from);
+   *  falls back to the server's default when omitted or invalid. */
+  initialPath?: string;
 }
 
-export function FileBrowser({ onSelect, selectFiles }: FileBrowserProps) {
+export function FileBrowser({ onSelect, selectFiles, initialPath }: FileBrowserProps) {
   const [currentPath, setCurrentPath] = useState('');
   const [entries, setEntries] = useState<BrowseEntry[]>([]);
   const [isProject, setIsProject] = useState(false);
@@ -19,7 +22,7 @@ export function FileBrowser({ onSelect, selectFiles }: FileBrowserProps) {
   const [error, setError] = useState<string | null>(null);
   const [pathInput, setPathInput] = useState('');
 
-  const fetchDirectory = async (path: string) => {
+  const fetchDirectory = async (path: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
     try {
@@ -29,18 +32,26 @@ export function FileBrowser({ onSelect, selectFiles }: FileBrowserProps) {
         setPathInput(data.currentPath);
         setEntries(data.entries || []);
         setIsProject(data.isProject || false);
-      } else {
-        setError(data.error || 'Failed to load directory');
+        return true;
       }
+      setError(data.error || 'Failed to load directory');
+      return false;
     } catch {
       setError('Failed to connect to server');
+      return false;
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDirectory('');
+    (async () => {
+      // Open where the caller left off; fall back to the server default
+      // when that directory is gone or inaccessible.
+      if (initialPath && (await fetchDirectory(initialPath))) return;
+      fetchDirectory('');
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleEntryClick = (entry: BrowseEntry) => {

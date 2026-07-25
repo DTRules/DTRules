@@ -589,7 +589,11 @@ export function DebugPanel() {
               {loadError}
             </div>
           )}
-          <FileBrowser onSelect={handleLoad} selectFiles />
+          <FileBrowser
+            onSelect={handleLoad}
+            selectFiles
+            initialPath={info?.tracePath ? info.tracePath.slice(0, info.tracePath.lastIndexOf('/')) : undefined}
+          />
         </div>
       </div>
     );
