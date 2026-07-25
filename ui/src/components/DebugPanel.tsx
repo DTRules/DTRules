@@ -790,6 +790,14 @@ export function DebugPanel() {
                     <span className="text-xs text-muted-foreground w-3">{open ? '▾' : '▸'}</span>
                     <span className="text-sm font-semibold">{f.name}</span>
                     <span className="text-[10px] font-mono text-muted-foreground">#{f.id}</span>
+                    {i === arr.length - 1 && (
+                      <span
+                        className="text-[10px] px-1.5 rounded-full border border-amber-500/50 text-amber-400"
+                        title="Top of the entity stack — the current context"
+                      >
+                        top of stack
+                      </span>
+                    )}
                     {!open && (
                       <span className="ml-auto text-[10px] text-muted-foreground">
                         {Object.keys(f.attrs).length} fields

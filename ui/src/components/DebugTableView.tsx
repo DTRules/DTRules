@@ -205,10 +205,12 @@ export function DebugTableView({
 
   if (!frame) return <div className="p-6 text-sm text-muted-foreground">Not inside a table pass.</div>;
 
-  // Executed action nodes by action number ("n" attribute, 1-based).
-  const executedByNumber = new Map<string, DebugNode>();
+  // Executed action nodes by trace "n" — the 1-based POSITION of the
+  // action in the table's action list (the engine traces positions, not
+  // authored numbers, which may have gaps like 1,2,4,7).
+  const executedByPosition = new Map<string, DebugNode>();
   for (const a of frame.actions) {
-    if (a.attrs?.n) executedByNumber.set(a.attrs.n, a);
+    if (a.attrs?.n) executedByPosition.set(a.attrs.n, a);
   }
   // Called tables per executed action, by table name.
   const calledTablesOf = (a: DebugNode): Map<string, DebugNode> => {
@@ -425,8 +427,8 @@ export function DebugTableView({
               })}
 
               {/* actions: executed ones focusable, others dimmed */}
-              {(table.actions || []).map((act) => {
-                const executed = executedByNumber.get(String(act.number));
+              {(table.actions || []).map((act, actIdx) => {
+                const executed = executedByPosition.get(String(actIdx + 1));
                 const isFocus = executed ? focusedAction === executed.number : false;
                 const called = executed ? calledTablesOf(executed) : new Map<string, DebugNode>();
                 return (
