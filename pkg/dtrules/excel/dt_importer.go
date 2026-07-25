@@ -513,7 +513,29 @@ func normalizeProvenance(tables *DecisionTablesXML, xmlPath string) {
 	}
 }
 
+// normalizeTableNumbers backfills missing TABLE_NUMBERs. Tables that already
+// carry a numeric number keep it; the rest are assigned numbers in document
+// order, in increments of 100, continuing above the highest existing number
+// (starting at 100 when none are numbered).
+func normalizeTableNumbers(tables *DecisionTablesXML) {
+	max := 0
+	for i := range tables.Tables {
+		if n, err := strconv.Atoi(strings.TrimSpace(tables.Tables[i].AttributeFields.TableNumber)); err == nil && n > max {
+			max = n
+		}
+	}
+	next := (max/100)*100 + 100
+	for i := range tables.Tables {
+		t := &tables.Tables[i]
+		if _, err := strconv.Atoi(strings.TrimSpace(t.AttributeFields.TableNumber)); err != nil {
+			t.AttributeFields.TableNumber = strconv.Itoa(next)
+			next += 100
+		}
+	}
+}
+
 func (i *DTImporter) WriteXML(tables *DecisionTablesXML, filename string) error {
+	normalizeTableNumbers(tables)
 	normalizeProvenance(tables, filename)
 
 	// Open file for writing
