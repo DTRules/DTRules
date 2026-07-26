@@ -1,5 +1,55 @@
 # DTRules Changelog
 
+## v1.21.0 — 2026-07-26
+
+The analysis release: the trace debugger learns to answer questions —
+where a value came from, what the outcomes were, and what would change
+if a table were different — plus a structural entity explorer and a
+round of alpha polish.
+
+### Added
+- **Field provenance — Find writes** (#915, #917): search the trace for
+  writes of a field, scoped to ONE instance
+  (`staking_account[account_url=acc://x].is_eligible`); every hit
+  carries the why-chain — for the writing table and each caller, the
+  fired column's required cells joined to actual results. Jump straight
+  to that account's own iteration.
+- **EDD-driven report generator** (#915, #918): compose reports from the
+  EDD — entity instances or array elements, field chips, filters, sort,
+  diff key. Saveable specs (`reports/*.report.json`), a visual designer
+  in the Debug tab, and `dtrules report <trace> --spec <file>
+  [--baseline <trace2>]` with row-level diffs.
+- **Speculative reruns — What if…** (#915): edit ONE table in a scratch
+  overlay (DSL recompiled), reseed from the trace's recorded initial
+  data — the same inputs, no input file — and re-execute. SPECULATIVE
+  chip, Restore baseline, reports auto-diff against the baseline.
+  Project files are never touched.
+- **Entity explorer** (#921, #922, #923): drill any entity-stack
+  instance — fields, entity references, arrays (paged), nested
+  composition — lazily fetched, position-true. The engine-built
+  self-reference field (the entity's name field) leads the list,
+  non-navigable; EDD entity numbers (№) shown throughout.
+- **Full-sheet debug view** (#916): the table under execution renders
+  every section in sheet order — CONTEXTS, INITIAL ACTIONS, CONDITIONS,
+  ACTIONS — matching the editor.
+- **Resizable panels** (#925, #926): the Project Explorer and
+  entity-stack dividers drag (widths persist).
+- **Embedded docs** (#919, #920): `dtrules docs debug` — the complete
+  debug story including tracing from an embedding Go program (the
+  staking pattern) and the HTTP debug API for AI agents; cross-linked
+  from `docs embedding`.
+
+### Fixed
+- Build normalization now also backfills EDD entity numbers, runs on
+  the nothing-to-sync branch (a plain `dtrules build` always leaves
+  normalized files), and a clobber guard keeps pre-fix map spreadsheets
+  from wiping createentity/cardinality/initialization sections (#925).
+- Entity stack: content stays inside its rail; frames truncate with
+  hover tooltips (#924).
+- Replay: entities carry their recorded ids and new allocations start
+  above the trace's max — the invariants that make speculative traces
+  verify clean (#915).
+
 ## v1.20.0 — 2026-07-25
 
 The debuggability release: execution tracing wired end to end with verified
