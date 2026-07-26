@@ -262,7 +262,10 @@ export function DebugPanel() {
   // Per-entity-name expand/collapse for the stack panel; unset = default
   // (top frame open, others collapsed).
   const [stackOpen, setStackOpen] = useState<Record<string, boolean>>({});
-  const { width: railWidth, onDragStart: onRailDrag } = useStoredWidth('dtrules.debugRailWidth', 320, 220, 700);
+  // fromRight: the rail is docked to the window's right edge, so its width
+  // is measured from the right — without this, any grab jumped the rail to
+  // its max and dragging right could never shrink it back.
+  const { width: railWidth, onDragStart: onRailDrag } = useStoredWidth('dtrules.debugRailWidth', 320, 220, 700, true);
   // Entity explorer overlay: which stack instance is being inspected.
   const [explorer, setExplorer] = useState<{ id: number; name: string } | null>(null);
   // Find-writes panel: query text, results, and which hit's why-chain is open.
