@@ -134,27 +134,27 @@ export function ReportPanel() {
         return (
           <div key={i} className="border border-border/40 rounded-md p-3 space-y-2">
             <div className="flex items-center gap-2 flex-wrap text-xs">
-              <span className="font-semibold text-muted-foreground">Rows:</span>
+              <span className="font-semibold text-muted-foreground">Rows: every</span>
               <select
                 className="h-7 px-1 rounded border border-input bg-background"
                 value={sec.entity || ''}
                 onChange={(e) => updateSection(i, { entity: e.target.value, fields: [] })}
                 title="Entity — every instance the run created (or the element type of the array source)"
               >
-                <option value="">pick entity…</option>
+                <option value="">pick an entity…</option>
                 {entities.map((e) => (
                   <option key={e.name} value={e.name}>
                     {e.name}
                   </option>
                 ))}
               </select>
-              <span className="text-muted-foreground">array source (optional):</span>
+              <span className="text-muted-foreground">in the run — or the elements of:</span>
               <input
                 value={sec.source || ''}
                 onChange={(e) => updateSection(i, { source: e.target.value })}
-                placeholder="entity.attr e.g. staking_transaction.to"
+                placeholder="an array, e.g. staking_transaction.to"
                 className="h-7 px-2 rounded border border-input bg-transparent font-mono w-64"
-                title="Report the ELEMENTS of this array attribute instead of all instances"
+                title="Report the ELEMENTS of this array attribute instead of all instances (still pick the entity so its fields show below)"
               />
               {sections.length > 1 && (
                 <Button
@@ -170,7 +170,16 @@ export function ReportPanel() {
             </div>
 
             {/* Field picker */}
+            {!sec.entity && (
+              <div className="text-xs text-muted-foreground">
+                Pick an entity above and its EDD fields appear here — click the ones you want as columns.
+              </div>
+            )}
             {fieldOptions.length > 0 && (
+              <div className="space-y-1">
+              <div className="text-[10px] text-muted-foreground">
+                Fields — click to include ({chosen.length === 0 ? 'none selected = every field' : `${chosen.length} selected, in click order`}):
+              </div>
               <div className="flex flex-wrap gap-1">
                 {fieldOptions.map((f) => {
                   const on = chosen.includes(f);
@@ -189,6 +198,7 @@ export function ReportPanel() {
                     </button>
                   );
                 })}
+              </div>
               </div>
             )}
 
