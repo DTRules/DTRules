@@ -3,6 +3,11 @@
 
 <!-- TABLE 42201: MI_Military_Retirement_Exclusion -->
 <decision_table>
+<source>
+<relative_path>MI.xlsx</relative_path>
+<file_name>MI.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>MI_Military_Retirement_Exclusion</table_name>
 <xls_file>MI.xlsx</xls_file>
 <attribute_fields>
@@ -19,6 +24,11 @@
 
 <!-- TABLE 41300: MI_Tax -->
 <decision_table>
+<source>
+<relative_path>MI.xlsx</relative_path>
+<file_name>MI.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>MI_Tax</table_name>
 <xls_file>MI.xlsx</xls_file>
 <attribute_fields>
@@ -31,13 +41,9 @@
 <initial_action>
 <action_comment>Reset MI tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.mi_state_tax = 0; set result.mi_taxable_income = 0; set result.mi_total_exemption = 0; add "  Michigan Tax Calculation (Form MI-1040) - flat 4.25%" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvd /result.mi_state_tax xdef 0 cvd /result.mi_taxable_income xdef 0 cvd /result.mi_total_exemption xdef &quot;  Michigan Tax Calculation (Form MI-1040) - flat 4.25%&quot; job.audit_trail swap addto</initial_action_postfix>
-<action_postfix>
-0.0 /result.mi_state_tax xdef
-0.0 /result.mi_taxable_income xdef
-0.0 /result.mi_total_exemption xdef
-"  Michigan Tax Calculation (Form MI-1040) — flat 4.25%" job.audit_trail swap addto
-</action_postfix>
+<initial_action_postfix>
+0 cvd /result.mi_state_tax xdef 0 cvd /result.mi_taxable_income xdef 0 cvd /result.mi_total_exemption xdef "  Michigan Tax Calculation (Form MI-1040) - flat 4.25%" job.audit_trail swap addto
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -45,7 +51,9 @@
 <condition_number>1</condition_number>
 <condition_comment>Always compute (MI has no filing-status differences in rate/per-person exemption)</condition_comment>
 <condition_dsl>true</condition_dsl>
-<condition_postfix>true</condition_postfix>
+<condition_postfix>
+true
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
@@ -54,7 +62,18 @@
 <action_number>1</action_number>
 <action_comment>MI exemptions = $5,800 x (taxpayers + dependents); tax = 4.25% x max(AGI - exemptions, 0)</action_comment>
 <action_dsl>set result.mi_total_exemption = (length of job.taxpayers + length of job.dependents) * mi_exemption_single; set result.mi_taxable_income = the maximum of (result.agi - result.mi_total_exemption) and 0.0; set result.mi_state_tax = result.mi_taxable_income * mi_tax_rate; add "  MI exemptions ($5,800 per person): $" + result.mi_total_exemption to job.audit_trail; add "  MI state tax (4.25%): $" + result.mi_state_tax to job.audit_trail</action_dsl>
-<action_postfix>job.taxpayers length job.dependents length + mi_exemption_single fmul cvd /result.mi_total_exemption xdef result.agi result.mi_total_exemption - 0.0 fmax cvd /result.mi_taxable_income xdef result.mi_taxable_income mi_tax_rate fmul cvd /result.mi_state_tax xdef &quot;  MI exemptions ($5,800 per person): $&quot; result.mi_total_exemption strconcat job.audit_trail swap addto &quot;  MI state tax (4.25%): $&quot; result.mi_state_tax strconcat job.audit_trail swap addto</action_postfix>
+<action_postfix>
+job.taxpayers length job.dependents length + mi_exemption_single fmul cvd /result.mi_total_exemption xdef result.agi result.mi_total_exemption f- 0.0 fmax cvd /result.mi_taxable_income xdef result.mi_taxable_income mi_tax_rate fmul cvd /result.mi_state_tax xdef "  MI exemptions ($5,800 per person): $" result.mi_total_exemption strconcat job.audit_trail swap addto "  MI state tax (4.25%): $" result.mi_state_tax strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
+<action_dsl>set result.computed_state_taxable_income = result.mi_taxable_income; set result.computed_state_tax = result.mi_state_tax</action_dsl>
+<action_postfix>
+result.mi_taxable_income cvd /result.computed_state_taxable_income xdef result.mi_state_tax cvd /result.computed_state_tax xdef
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>

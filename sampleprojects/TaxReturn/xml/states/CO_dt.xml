@@ -3,6 +3,11 @@
 
 <!-- TABLE 5790: CO_Military_Retirement_Exemption -->
 <decision_table>
+<source>
+<relative_path>CO.xlsx</relative_path>
+<file_name>CO.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>CO_Military_Retirement_Exemption</table_name>
 <xls_file>CO.xlsx</xls_file>
 <attribute_fields>
@@ -14,16 +19,20 @@
 <initial_actions></initial_actions>
 <conditions>
 <condition_details>
-<condition_number>2</condition_number>
+<condition_number>1</condition_number>
 <condition_comment>Age 55 to 64</condition_comment>
 <condition_dsl>taxpayer.age &gt;= 55 and taxpayer.age &lt;= 64</condition_dsl>
-<condition_postfix>taxpayer.age 55 &gt;= { pop taxpayer.age 64 &lt;= } over if</condition_postfix>
+<condition_postfix>
+taxpayer.age 55 &gt;= { pop taxpayer.age 64 &lt;= } over if
+</condition_postfix>
 </condition_details>
 <condition_details>
-<condition_number>3</condition_number>
+<condition_number>2</condition_number>
 <condition_comment>Age 65 or older</condition_comment>
 <condition_dsl>taxpayer.age &gt;= 65</condition_dsl>
-<condition_postfix>taxpayer.age 65 &gt;=</condition_postfix>
+<condition_postfix>
+taxpayer.age 65 &gt;=
+</condition_postfix>
 </condition_details>
 </conditions>
 <actions></actions>
@@ -32,6 +41,11 @@
 
 <!-- TABLE 5791: CO_Pension_Subtraction -->
 <decision_table>
+<source>
+<relative_path>CO.xlsx</relative_path>
+<file_name>CO.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>CO_Pension_Subtraction</table_name>
 <xls_file>CO.xlsx</xls_file>
 <attribute_fields>
@@ -43,10 +57,12 @@
 <initial_actions></initial_actions>
 <conditions>
 <condition_details>
-<condition_number>2</condition_number>
+<condition_number>1</condition_number>
 <condition_comment>Age 65 or older</condition_comment>
 <condition_dsl>taxpayer.age &gt;= 65</condition_dsl>
-<condition_postfix>taxpayer.age 65 &gt;=</condition_postfix>
+<condition_postfix>
+taxpayer.age 65 &gt;=
+</condition_postfix>
 </condition_details>
 </conditions>
 <actions></actions>
@@ -55,6 +71,11 @@
 
 <!-- TABLE 5792: CO_Tax -->
 <decision_table>
+<source>
+<relative_path>CO.xlsx</relative_path>
+<file_name>CO.xlsx</file_name>
+<sheet_number>3</sheet_number>
+</source>
 <table_name>CO_Tax</table_name>
 <xls_file>CO.xlsx</xls_file>
 <attribute_fields>
@@ -67,12 +88,9 @@
 <initial_action>
 <action_comment>Reset CO tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.co_tax = 0; set result.co_taxable_income = 0; add "  Colorado Tax Calculation (Form DR 0104) - flat 4.40%" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvd /result.co_tax xdef 0 cvd /result.co_taxable_income xdef &quot;  Colorado Tax Calculation (Form DR 0104) - flat 4.40%&quot; job.audit_trail swap addto</initial_action_postfix>
-<action_postfix>
-0.0 /result.co_tax xdef
-0.0 /result.co_taxable_income xdef
-"  Colorado Tax Calculation (Form DR 0104) — flat 4.40%" job.audit_trail swap addto
-</action_postfix>
+<initial_action_postfix>
+0 cvd /result.co_tax xdef 0 cvd /result.co_taxable_income xdef "  Colorado Tax Calculation (Form DR 0104) - flat 4.40%" job.audit_trail swap addto
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -80,7 +98,9 @@
 <condition_number>1</condition_number>
 <condition_comment>Always (CO has no filing-status differences)</condition_comment>
 <condition_dsl>true</condition_dsl>
-<condition_postfix>true</condition_postfix>
+<condition_postfix>
+true
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
@@ -89,7 +109,18 @@
 <action_number>1</action_number>
 <action_comment>CO tax = AGI x 4.40%</action_comment>
 <action_dsl>set result.co_taxable_income = the maximum of result.agi and 0.0; set result.co_tax = result.co_taxable_income * co_tax_rate; add "  CO taxable income: $" + result.co_taxable_income to job.audit_trail; add "  CO state tax (4.40%): $" + result.co_tax to job.audit_trail</action_dsl>
-<action_postfix>result.agi 0.0 fmax cvd /result.co_taxable_income xdef result.co_taxable_income co_tax_rate fmul cvd /result.co_tax xdef &quot;  CO taxable income: $&quot; result.co_taxable_income strconcat job.audit_trail swap addto &quot;  CO state tax (4.40%): $&quot; result.co_tax strconcat job.audit_trail swap addto</action_postfix>
+<action_postfix>
+result.agi 0.0 fmax cvd /result.co_taxable_income xdef result.co_taxable_income co_tax_rate fmul cvd /result.co_tax xdef "  CO taxable income: $" result.co_taxable_income strconcat job.audit_trail swap addto "  CO state tax (4.40%): $" result.co_tax strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
+<action_dsl>set result.computed_state_taxable_income = result.co_taxable_income; set result.computed_state_tax = result.co_tax</action_dsl>
+<action_postfix>
+result.co_taxable_income cvd /result.computed_state_taxable_income xdef result.co_tax cvd /result.computed_state_tax xdef
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
@@ -103,6 +134,11 @@
 
 <!-- TABLE 40601: CO_EITC -->
 <decision_table>
+<source>
+<relative_path>CO.xlsx</relative_path>
+<file_name>CO.xlsx</file_name>
+<sheet_number>4</sheet_number>
+</source>
 <table_name>CO_EITC</table_name>
 <xls_file>CO.xlsx</xls_file>
 <attribute_fields>

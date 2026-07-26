@@ -3,6 +3,11 @@
 
 <!-- TABLE 42300: UT_Tax -->
 <decision_table>
+<source>
+<relative_path>UT.xlsx</relative_path>
+<file_name>UT.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>UT_Tax</table_name>
 <xls_file>UT.xlsx</xls_file>
 <attribute_fields>
@@ -15,13 +20,9 @@
 <initial_action>
 <action_comment>Reset UT tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.ut_tax = 0; set result.ut_state_tax = 0; set result.ut_taxable_income = 0; add "  Utah Tax Calculation (Form TC-40) - flat 4.5%" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvd /result.ut_tax xdef 0 cvd /result.ut_state_tax xdef 0 cvd /result.ut_taxable_income xdef &quot;  Utah Tax Calculation (Form TC-40) - flat 4.5%&quot; job.audit_trail swap addto</initial_action_postfix>
-<action_postfix>
-0.0 /result.ut_tax xdef
-0.0 /result.ut_state_tax xdef
-0.0 /result.ut_taxable_income xdef
-"  Utah Tax Calculation (Form TC-40) — flat 4.5%" job.audit_trail swap addto
-</action_postfix>
+<initial_action_postfix>
+0 cvd /result.ut_tax xdef 0 cvd /result.ut_state_tax xdef 0 cvd /result.ut_taxable_income xdef "  Utah Tax Calculation (Form TC-40) - flat 4.5%" job.audit_trail swap addto
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -29,7 +30,9 @@
 <condition_number>1</condition_number>
 <condition_comment>Always compute (UT has no filing-status differences in rate)</condition_comment>
 <condition_dsl>true</condition_dsl>
-<condition_postfix>true</condition_postfix>
+<condition_postfix>
+true
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
@@ -38,7 +41,9 @@
 <action_number>1</action_number>
 <action_comment>UT taxable income = max(AGI − dependent_exemption × #dependents, 0); tax = 4.5% × taxable_income</action_comment>
 <action_dsl>set result.ut_taxable_income = the maximum of (result.agi - length of job.dependents * ut_personal_exemption) and 0.0; set result.ut_tax = result.ut_taxable_income * ut_tax_rate; set result.ut_state_tax = result.ut_tax; add "  UT taxable income (AGI - $2,111 per dependent): $" + result.ut_taxable_income to job.audit_trail; add "  UT state tax (4.5%): $" + result.ut_state_tax to job.audit_trail</action_dsl>
-<action_postfix>result.agi job.dependents length ut_personal_exemption fmul - 0.0 fmax cvd /result.ut_taxable_income xdef result.ut_taxable_income ut_tax_rate fmul cvd /result.ut_tax xdef result.ut_tax cvd /result.ut_state_tax xdef &quot;  UT taxable income (AGI - $2,111 per dependent): $&quot; result.ut_taxable_income strconcat job.audit_trail swap addto &quot;  UT state tax (4.5%): $&quot; result.ut_state_tax strconcat job.audit_trail swap addto</action_postfix>
+<action_postfix>
+result.agi job.dependents length ut_personal_exemption fmul f- 0.0 fmax cvd /result.ut_taxable_income xdef result.ut_taxable_income ut_tax_rate fmul cvd /result.ut_tax xdef result.ut_tax cvd /result.ut_state_tax xdef "  UT taxable income (AGI - $2,111 per dependent): $" result.ut_taxable_income strconcat job.audit_trail swap addto "  UT state tax (4.5%): $" result.ut_state_tax strconcat job.audit_trail swap addto
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
@@ -52,6 +57,11 @@
 
 <!-- TABLE 42301: UT_Military_Retirement_Exclusion -->
 <decision_table>
+<source>
+<relative_path>UT.xlsx</relative_path>
+<file_name>UT.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>UT_Military_Retirement_Exclusion</table_name>
 <xls_file>UT.xlsx</xls_file>
 <attribute_fields>

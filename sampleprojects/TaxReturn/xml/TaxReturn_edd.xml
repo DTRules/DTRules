@@ -210,6 +210,7 @@
 		<field name="kiddie_tax_standard_deduction" type="double" subtype="" access="r" input="" default_value="1300" comment="2025 standard deduction for dependents with unearned income (Rev. Proc. 2024-40)"></field>
 		<field name="kiddie_tax_student_age" type="integer" subtype="" access="r" input="" default_value="24" comment="Age limit for full-time students"></field>
 		<field name="kiddie_tax_threshold" type="double" subtype="" access="r" input="" default_value="2700" comment="2025 threshold for unearned income subject to kiddie tax (IRC 1(g)(4)(A))"></field>
+		<field name="kiddie_tax_parent_rate" type="double" subtype="" access="r" input="" default_value="0.37" comment="Simplified parent marginal rate applied to excess unearned income (Form 8615)"></field>
 		<field name="llc_max" type="double" subtype="" access="r" input="" default_value="2000" comment="Lifetime Learning Credit max (IRC 25A(c))"></field>
 		<field name="llc_phase_out_end_mfj" type="double" subtype="" access="r" input="" default_value="180000" comment="LLC phase-out end MFJ"></field>
 		<field name="llc_phase_out_mfj" type="double" subtype="" access="r" input="" default_value="160000" comment="LLC phase-out start MFJ"></field>
@@ -358,6 +359,7 @@
 		<field name="is_disabled" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Physically or mentally incapable of self-care"></field>
 		<field name="is_student" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Full-time student"></field>
 		<field name="kiddie_tax_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Calculated kiddie tax amount (computed) - Form 8615"></field>
+		<field name="kiddie_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Unearned income above the kiddie tax threshold (Form 8615 line 1)"></field>
 		<field name="months_lived_with" type="integer" subtype="" access="r" input="main" default_value="12" comment="Months lived with taxpayer"></field>
 		<field name="name" type="string" subtype="" access="r" input="main" default_value="" comment="Full name"></field>
 		<field name="notes" type="array" subtype="" access="rw" input="" default_value="" comment="Notes about dependent eligibility"></field>
@@ -831,6 +833,11 @@
 		<field name="annual_contribution" type="double" subtype="" access="rw" input="" default_value="0" comment="Expected annual contribution"></field>
 		<field name="applicable_percentage" type="double" subtype="" access="rw" input="" default_value="0" comment="PTC applicable percentage"></field>
 		<field name="capital_gains_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Capital gains tax at preferential rates"></field>
+		<field name="preferential_rate_income" type="double" subtype="" access="rw" input="" default_value="0" comment="LTCG + qualified dividends taxed at preferential rates (Schedule D Tax Worksheet)"></field>
+		<field name="cg_taxed_at_0" type="double" subtype="" access="rw" input="" default_value="0" comment="Preferential income falling in the 0 percent bracket"></field>
+		<field name="cg_taxed_at_15" type="double" subtype="" access="rw" input="" default_value="0" comment="Preferential income falling in the 15 percent bracket"></field>
+		<field name="cg_taxed_at_20" type="double" subtype="" access="rw" input="" default_value="0" comment="Preferential income falling in the 20 percent bracket"></field>
+		<field name="cg_ordinary_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Taxable income excluding preferential-rate income (Schedule D worksheet stacking base)"></field>
 		<field name="carryforward_mortgage_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Unused mortgage credit to carry forward (Form 8396)"></field>
 		<field name="cdcc_allowed_expenses" type="double" subtype="" access="rw" input="" default_value="0" comment="CDCC allowed expenses (lesser of actual or limit)"></field>
 		<field name="cdcc_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Child and Dependent Care Credit (Form 2441)"></field>
@@ -912,6 +919,7 @@
 		<field name="sc_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="South Carolina state income tax"></field>
 		<field name="sc_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="South Carolina taxable income"></field>
 		<field name="niit_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Net Investment Income Tax (Form 8960)"></field>
+		<field name="niit_excess" type="double" subtype="" access="rw" input="" default_value="0" comment="MAGI in excess of the NIIT threshold (Form 8960 line 15)"></field>
 		<field name="nol_carryforward_remaining" type="double" subtype="" access="rw" input="" default_value="0" comment="NOL carryforward to future years"></field>
 		<field name="nol_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="NOL deduction used this year"></field>
 		<field name="notes" type="array" subtype="" access="rw" input="" default_value="" comment="Detailed calculation notes"></field>
@@ -930,6 +938,8 @@
 		<field name="qbi_taxable_limit" type="double" subtype="" access="rw" input="" default_value="0" comment="20% of taxable income limit for QBI"></field>
 		<field name="qualifying_care_persons" type="integer" subtype="" access="rw" input="" default_value="0" comment="Number of qualifying persons for CDCC"></field>
 		<field name="refund_or_owed" type="double" subtype="" access="rw" input="" default_value="0" comment="Refund (positive) or amount owed (negative)"></field>
+		<field name="balance_due" type="double" subtype="" access="rw" input="" default_value="0" comment="Balance due before refund determination (Form 1040 line 37 intermediate)"></field>
+		<field name="refund" type="double" subtype="" access="rw" input="" default_value="0" comment="Overpayment to be refunded (Form 1040 line 34 intermediate)"></field>
 		<field name="regular_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Regular tax (Form 1040 Line 16)"></field>
 		<field name="rental_loss_allowed" type="double" subtype="" access="rw" input="" default_value="0" comment="Rental loss allowed after PAL rules (Form 8582)"></field>
 		<field name="research_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Research Credit (Form 6765)"></field>
@@ -947,6 +957,7 @@
 		<field name="schedule_h_total_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Total household employment tax (Schedule H)"></field>
 		<field name="se_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Self-employment tax (Schedule SE)"></field>
 		<field name="senior_count" type="integer" subtype="" access="rw" input="" default_value="0" comment="Number of seniors (65+) for deduction"></field>
+		<field name="senior_std_count" type="integer" subtype="" access="rw" input="" default_value="0" comment="Seniors counted for the additional standard deduction (not gated on W-2 income)"></field>
 		<field name="senior_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Senior Additional deduction (OBBBA 2025, $6k per senior)"></field>
 		<field name="sgli_exclusion" type="double" subtype="" access="rw" input="" default_value="0" comment="SGLI life insurance exclusion"></field>
 		<field name="small_employer_health_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Small Employer Health Insurance Credit (Form 8941)"></field>
@@ -1021,6 +1032,7 @@
 		<field name="total_roth_conversions" type="double" subtype="" access="rw" input="" default_value="0" comment="Total converted to Roth IRA"></field>
 		<field name="total_savers_contribution" type="double" subtype="" access="rw" input="" default_value="0" comment="Total eligible retirement contributions for Saver Credit"></field>
 		<field name="total_se_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Net self-employment income (Schedule C)"></field>
+		<field name="se_base" type="double" subtype="" access="rw" input="" default_value="0" comment="SE tax base: total SE income x 92.35% (Schedule SE line 4a)"></field>
 		<field name="total_short_term_gains" type="double" subtype="" access="rw" input="" default_value="0" comment="Total short-term capital gains (Schedule D)"></field>
 		<field name="total_social_security" type="double" subtype="" access="rw" input="" default_value="0" comment="Total Social Security income"></field>
 		<field name="total_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Total tax after credits (Form 1040 Line 24)"></field>
@@ -1083,6 +1095,8 @@
 		<field name="hospitalized_combat_injury" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Hospitalized from combat zone injury"></field>
 		<field name="hsa_contribution" type="double" subtype="" access="rw" input="main" default_value="0" comment="HSA contribution (Form 8889)"></field>
 		<field name="hsa_coverage_type" type="string" subtype="" access="rw" input="main" default_value="self" comment="HSA coverage: self or family"></field>
+		<field name="hsa_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="HSA deduction for this taxpayer (Form 8889, computed)"></field>
+		<field name="ira_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Traditional IRA deduction for this taxpayer (computed)"></field>
 		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Taxpayer ID"></field>
 		<field name="imminent_danger_pay" type="double" subtype="" access="rw" input="main" default_value="0" comment="Imminent danger/hostile fire pay"></field>
 		<field name="incomes" type="array" subtype="income" access="r" input="" default_value="" comment="Income sources for this taxpayer"></field>

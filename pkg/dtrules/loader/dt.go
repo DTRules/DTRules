@@ -1014,5 +1014,10 @@ func isEmptyOrCommentOnly(postfix string) bool {
 // isCommentLine checks if a string is a comment line (starts with // or #).
 func isCommentLine(s string) bool {
 	trimmed := strings.TrimSpace(s)
+	// Block comments (/* ... */) count only when the WHOLE line is the
+	// comment — a trailing block comment after real DSL is still DSL.
+	if strings.HasPrefix(trimmed, "/*") && strings.HasSuffix(trimmed, "*/") {
+		return true
+	}
 	return strings.HasPrefix(trimmed, "//") || strings.HasPrefix(trimmed, "#")
 }
