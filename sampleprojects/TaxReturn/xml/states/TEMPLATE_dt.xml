@@ -18,7 +18,7 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>Initialize [STATE] tax calculation</initial_action_dsl>
+<initial_action_dsl>/* Initialize [STATE] tax calculation */</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 "[STATE NAME] Tax Calculation Started" job.audit_trail swap addto

@@ -429,9 +429,9 @@ perform when called
 <action_details>
 <action_number>13</action_number>
 <action_comment>Calculate total gross income FIRST (for OBBBA phase-out calculations)</action_comment>
-<action_dsl>set result.gross_income = result.total_w2_wages + result.total_se_income + result.total_rental_income + result.total_other_income + result.unemployment_compensation + result.gambling_winnings + result.alimony_received + result.state_tax_refund</action_dsl>
+<action_dsl>set result.gross_income = result.total_w2_wages + result.total_tip_income + result.total_overtime_income + result.total_se_income + result.total_rental_income + result.total_other_income + result.unemployment_compensation + result.gambling_winnings + result.alimony_received + result.state_tax_refund</action_dsl>
 <action_postfix>
-result.total_w2_wages result.total_se_income f+ result.total_rental_income f+ result.total_other_income f+ result.unemployment_compensation f+ result.gambling_winnings f+ result.alimony_received f+ result.state_tax_refund f+ cvd /result.gross_income xdef
+result.total_w2_wages result.total_tip_income f+ result.total_overtime_income f+ result.total_se_income f+ result.total_rental_income f+ result.total_other_income f+ result.unemployment_compensation f+ result.gambling_winnings f+ result.alimony_received f+ result.state_tax_refund f+ cvd /result.gross_income xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -597,9 +597,9 @@ taxpayer.w2_withholding cvd result.total_payments f+ /result.total_payments xdef
 <action_details>
 <action_number>3</action_number>
 <action_comment>Process OBBBA income sources (tips, overtime, SS)</action_comment>
-<action_dsl>add taxpayer.tip_income to result.total_tip_income</action_dsl>
+<action_dsl>add taxpayer.tip_income to result.total_tip_income; add taxpayer.overtime_income to result.total_overtime_income</action_dsl>
 <action_postfix>
-taxpayer.tip_income cvd result.total_tip_income f+ /result.total_tip_income xdef
+taxpayer.tip_income cvd result.total_tip_income f+ /result.total_tip_income xdef taxpayer.overtime_income cvd result.total_overtime_income f+ /result.total_overtime_income xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
@@ -696,9 +696,9 @@ taxpayer.se_gross_income 0 f&gt;
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate net profit</action_comment>
-<action_dsl>set taxpayer.se_net_profit = taxpayer.se_gross_income - taxpayer.se_expenses</action_dsl>
+<action_dsl>set taxpayer.se_net_profit = taxpayer.se_gross_income - taxpayer.se_expenses; add taxpayer.se_net_profit to result.total_se_income</action_dsl>
 <action_postfix>
-taxpayer.se_gross_income taxpayer.se_expenses f- cvd /taxpayer.se_net_profit xdef
+taxpayer.se_gross_income taxpayer.se_expenses f- cvd /taxpayer.se_net_profit xdef taxpayer.se_net_profit cvd result.total_se_income f+ /result.total_se_income xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -756,9 +756,9 @@ taxpayer.se_net_profit se_threshold f&gt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate SE tax with proper SS wage base cap and Medicare component; Calculate SE tax: SS component (12.4% up to wage base) + Medicare component (2.9% all income). EL translation intentionally deferred: postfix uses dup/exch to reuse taxpayer.se_net_profit * se_income_multiplier, and fmin/fmax to cap at the remaining SS wage base; a straightforward EL rewrite would not reproduce this stack-manipulation pattern.</action_comment>
-<action_dsl>set result.se_base = result.total_se_income * constants.se_income_multiplier; set result.se_tax = result.se_base * constants.se_tax_rate; add result.se_tax * constants.se_deduction_rate to result.total_adjustments</action_dsl>
+<action_dsl>set result.se_base = taxpayer.se_net_profit * constants.se_income_multiplier; set taxpayer.se_tax = result.se_base * constants.se_tax_rate; add taxpayer.se_tax * constants.se_deduction_rate to result.total_adjustments</action_dsl>
 <action_postfix>
-result.total_se_income constants.se_income_multiplier fmul cvd /result.se_base xdef result.se_base constants.se_tax_rate fmul cvd /result.se_tax xdef result.se_tax constants.se_deduction_rate fmul cvd result.total_adjustments f+ /result.total_adjustments xdef
+taxpayer.se_net_profit constants.se_income_multiplier fmul cvd /result.se_base xdef result.se_base constants.se_tax_rate fmul cvd /taxpayer.se_tax xdef taxpayer.se_tax constants.se_deduction_rate fmul cvd result.total_adjustments f+ /result.total_adjustments xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -846,18 +846,18 @@ business_miles total_miles / cvd /business_use_percentage xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate standard mileage deduction</action_comment>
-<action_dsl>set vehicle.vehicle_deduction = vehicle.business_miles * mileage_rate</action_dsl>
+<action_dsl>set vehicle.vehicle_deduction = vehicle.business_miles * mileage_rate; add vehicle.vehicle_deduction to taxpayer.se_expenses</action_dsl>
 <action_postfix>
-vehicle.business_miles mileage_rate fmul cvd /vehicle.vehicle_deduction xdef
+vehicle.business_miles mileage_rate fmul cvd /vehicle.vehicle_deduction xdef vehicle.vehicle_deduction cvd taxpayer.se_expenses f+ /taxpayer.se_expenses xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate actual expense deduction</action_comment>
-<action_dsl>set vehicle.vehicle_deduction = (vehicle.actual_expenses + vehicle.vehicle_depreciation) * vehicle.business_use_percentage</action_dsl>
+<action_dsl>set vehicle.vehicle_deduction = (vehicle.actual_expenses + vehicle.vehicle_depreciation) * vehicle.business_use_percentage; add vehicle.vehicle_deduction to taxpayer.se_expenses</action_dsl>
 <action_postfix>
-vehicle.actual_expenses vehicle.vehicle_depreciation f+ vehicle.business_use_percentage fmul cvd /vehicle.vehicle_deduction xdef
+vehicle.actual_expenses vehicle.vehicle_depreciation f+ vehicle.business_use_percentage fmul cvd /vehicle.vehicle_deduction xdef vehicle.vehicle_deduction cvd taxpayer.se_expenses f+ /taxpayer.se_expenses xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -970,18 +970,18 @@ property.rental_income property.rental_expenses f- cvd /property.rental_net_inco
 <action_details>
 <action_number>4</action_number>
 <action_comment>Log net income</action_comment>
-<action_dsl>add "Net Rental Income: $" + property.rental_net_income to job.audit_trail</action_dsl>
+<action_dsl>add property.rental_net_income to result.total_rental_income; add "Net Rental Income: $" + property.rental_net_income to job.audit_trail</action_dsl>
 <action_postfix>
-"Net Rental Income: $" property.rental_net_income strconcat job.audit_trail swap addto
+property.rental_net_income cvd result.total_rental_income f+ /result.total_rental_income xdef "Net Rental Income: $" property.rental_net_income strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>5</action_number>
 <action_comment>Log net loss</action_comment>
-<action_dsl>add "Net Rental Loss: $" + property.rental_net_income to job.audit_trail</action_dsl>
+<action_dsl>add property.rental_net_income to result.total_rental_income; add "Net Rental Loss: $" + property.rental_net_income to job.audit_trail</action_dsl>
 <action_postfix>
-"Net Rental Loss: $" property.rental_net_income strconcat job.audit_trail swap addto
+property.rental_net_income cvd result.total_rental_income f+ /result.total_rental_income xdef "Net Rental Loss: $" property.rental_net_income strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -1212,7 +1212,15 @@ result.standard_deduction cvd /result.total_deduction xdef "standard" cvs /resul
 <TABLE_NUMBER>3100</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions></initial_actions>
+<initial_actions>
+<initial_action>
+<action_comment>Count seniors for the additional standard deduction (not gated on W-2 income)</action_comment>
+<initial_action_dsl>set result.senior_std_count = number of job.taxpayers where taxpayer.is_senior == true</initial_action_dsl>
+<initial_action_postfix>
+0 { { 1 + } taxpayer.is_senior true beq if } job.taxpayers forall cvi /result.senior_std_count xdef
+</initial_action_postfix>
+</initial_action>
+</initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
@@ -1245,9 +1253,9 @@ job.filing_status "HOH" streq
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Has seniors age 65+</condition_comment>
-<condition_dsl>result.senior_count &gt; 0</condition_dsl>
+<condition_dsl>result.senior_std_count &gt; 0</condition_dsl>
 <condition_postfix>
-result.senior_count 0 &gt;
+result.senior_std_count 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -1291,18 +1299,18 @@ standard_deduction_single cvd /result.standard_deduction xdef
 <action_details>
 <action_number>4</action_number>
 <action_comment>Add additional standard deduction for married seniors age 65+</action_comment>
-<action_dsl>add senior_extra_deduction_married to result.standard_deduction</action_dsl>
+<action_dsl>add constants.additional_std_deduction_married * result.senior_std_count to result.standard_deduction</action_dsl>
 <action_postfix>
-senior_extra_deduction_married cvd result.standard_deduction f+ /result.standard_deduction xdef
+constants.additional_std_deduction_married result.senior_std_count fmul cvd result.standard_deduction f+ /result.standard_deduction xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>5</action_number>
 <action_comment>Add additional standard deduction for single/HOH seniors age 65+</action_comment>
-<action_dsl>add senior_extra_deduction_single to result.standard_deduction</action_dsl>
+<action_dsl>add constants.additional_std_deduction_single * result.senior_std_count to result.standard_deduction</action_dsl>
 <action_postfix>
-senior_extra_deduction_single cvd result.standard_deduction f+ /result.standard_deduction xdef
+constants.additional_std_deduction_single result.senior_std_count fmul cvd result.standard_deduction f+ /result.standard_deduction xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 <action_column column_number="5" column_value="X" />
@@ -2726,23 +2734,14 @@ perform when called
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate child tax credits for all dependents; for all dependents perform Calculate_Child_Tax_Credit</action_comment>
-<action_dsl>perform Calculate_CTC_Phase_Out</action_dsl>
+<action_dsl>perform Calculate_Child_Tax_Credit; set result.ctc_before_phaseout = result.total_ctc + result.total_odc; perform Calculate_CTC_Phase_Out</action_dsl>
 <action_postfix>
-/Calculate_CTC_Phase_Out performtable
+/Calculate_Child_Tax_Credit performtable result.total_ctc result.total_odc f+ cvd /result.ctc_before_phaseout xdef /Calculate_CTC_Phase_Out performtable
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Apply CTC phase-out per IRC 24(b)</action_comment>
-<action_dsl>perform Calculate_CTC_Phase_Out</action_dsl>
-<action_postfix>
-/Calculate_CTC_Phase_Out performtable
-</action_postfix>
-<action_column column_number="1" column_value="X" />
-</action_details>
-<action_details>
-<action_number>3</action_number>
 <action_comment>Calculate EITC</action_comment>
 <action_dsl>perform Calculate_EITC</action_dsl>
 <action_postfix>
@@ -2751,7 +2750,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>4</action_number>
+<action_number>3</action_number>
 <action_comment>Calculate education credits</action_comment>
 <action_dsl>perform Calculate_Education_Credits</action_dsl>
 <action_postfix>
@@ -2760,7 +2759,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>5</action_number>
+<action_number>4</action_number>
 <action_comment>Calculate Child and Dependent Care Credit</action_comment>
 <action_dsl>perform Calculate_CDCC</action_dsl>
 <action_postfix>
@@ -2769,7 +2768,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>6</action_number>
+<action_number>5</action_number>
 <action_comment>Calculate Saver's Credit</action_comment>
 <action_dsl>perform Calculate_Savers_Credit</action_dsl>
 <action_postfix>
@@ -2778,7 +2777,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>7</action_number>
+<action_number>6</action_number>
 <action_comment>Calculate Energy Credits</action_comment>
 <action_dsl>perform Calculate_Energy_Credits</action_dsl>
 <action_postfix>
@@ -2787,7 +2786,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>8</action_number>
+<action_number>7</action_number>
 <action_comment>Calculate Premium Tax Credit</action_comment>
 <action_dsl>perform Calculate_Premium_Tax_Credit</action_dsl>
 <action_postfix>
@@ -2796,7 +2795,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>9</action_number>
+<action_number>8</action_number>
 <action_comment>Calculate Foreign Tax Credit (Form 1116)</action_comment>
 <action_dsl>perform Calculate_Foreign_Tax_Credit</action_dsl>
 <action_postfix>
@@ -2805,7 +2804,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>10</action_number>
+<action_number>9</action_number>
 <action_comment>Calculate DC First-Time Homebuyer Credit (Form 8859)</action_comment>
 <action_dsl>perform Calculate_DC_Homebuyer_Credit</action_dsl>
 <action_postfix>
@@ -2814,7 +2813,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>11</action_number>
+<action_number>10</action_number>
 <action_comment>Calculate Mortgage Interest Credit (Form 8396)</action_comment>
 <action_dsl>perform Calculate_Mortgage_Interest_Credit</action_dsl>
 <action_postfix>
@@ -2823,7 +2822,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>12</action_number>
+<action_number>11</action_number>
 <action_comment>Calculate Energy Efficient Appliance Credit (Form 8909)</action_comment>
 <action_dsl>perform Calculate_Energy_Appliance_Credit</action_dsl>
 <action_postfix>
@@ -2832,7 +2831,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>13</action_number>
+<action_number>12</action_number>
 <action_comment>Calculate General Business Credit (Form 3800)</action_comment>
 <action_dsl>perform Calculate_General_Business_Credit</action_dsl>
 <action_postfix>
@@ -2841,7 +2840,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>14</action_number>
+<action_number>13</action_number>
 <action_comment>Calculate Prior Year AMT Credit (Form 8801) - Schedule 3 Line 6b</action_comment>
 <action_dsl>perform Calculate_Prior_Year_AMT_Credit</action_dsl>
 <action_postfix>
@@ -2850,7 +2849,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>15</action_number>
+<action_number>14</action_number>
 <action_comment>Process Adoption Credit (Form 8839) - Schedule 3 Line 6c</action_comment>
 <action_dsl>perform Process_Adoption_Credit</action_dsl>
 <action_postfix>
@@ -2859,7 +2858,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>16</action_number>
+<action_number>15</action_number>
 <action_comment>Calculate Elderly/Disabled Credit (Schedule R) - Schedule 3 Line 6d</action_comment>
 <action_dsl>perform Calculate_Elderly_Disabled_Credit</action_dsl>
 <action_postfix>
@@ -2868,7 +2867,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>17</action_number>
+<action_number>16</action_number>
 <action_comment>Process Clean Vehicle Credit (Form 8936) - Nonrefundable</action_comment>
 <action_dsl>perform Process_Clean_Vehicle_Credit</action_dsl>
 <action_postfix>
@@ -2877,7 +2876,7 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
-<action_number>18</action_number>
+<action_number>17</action_number>
 <action_comment>Sum total credits; set result.total_credits = sum of all nonrefundable credit amounts (education credit less AOTC refundable portion)</action_comment>
 <action_dsl>set result.total_credits = result.total_ctc + result.total_odc + result.education_credit - result.total_aotc_refundable + result.cdcc_credit + result.savers_credit + result.energy_efficiency_credit + result.clean_energy_credit + result.premium_tax_credit + result.foreign_tax_credit + result.dc_homebuyer_credit + result.mortgage_interest_credit + result.energy_appliance_credit + result.general_business_credit_used + result.prior_year_amt_credit + result.total_adoption_credit + result.elderly_disabled_credit + result.total_clean_vehicle_credit; add "  Total Credits: $" + result.total_credits to job.audit_trail</action_dsl>
 <action_postfix>
@@ -3067,7 +3066,16 @@ result.ctc_before_phaseout cvd /result.ctc_after_phaseout xdef
 <COMMENTS>Calculates Child Tax Credit (CTC) and Other Dependent Credit (ODC) per Schedule 8812, Publication 972, IRC Section 24. CTC requires child under 17 with SSN. ODC is $500 for dependents who dont qualify for CTC.</COMMENTS>
 <TABLE_NUMBER>6100</TABLE_NUMBER>
 </attribute_fields>
-<contexts></contexts>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment>Evaluate each dependent</context_comment>
+<context_dsl>for all dependents</context_dsl>
+<context_postfix>
+dup dependents forall pop
+</context_postfix>
+</context_details>
+</contexts>
 <initial_actions></initial_actions>
 <conditions>
 <condition_details>
@@ -3857,6 +3865,17 @@ job.expected_agi isnull not
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
+<condition_comment>Expected AGI provided</condition_comment>
+<condition_dsl>job.expected_agi is not null</condition_dsl>
+<condition_postfix>
+job.expected_agi isnull not
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
 <condition_comment>AGI matches expected (within tolerance)</condition_comment>
 <condition_dsl>absolute value of (result.agi - job.expected_agi) &lt;= 1.0</condition_dsl>
 <condition_postfix>
@@ -4817,9 +4836,9 @@ result.senior_count constants.senior_deduction_amount fmul cvd /result.senior_de
 <initial_actions>
 <initial_action>
 <action_comment>set result.provisional_income = result.agi + (result.total_social_security * 0.5)</action_comment>
-<initial_action_dsl>set result.provisional_income = result.agi + (result.total_social_security * 0.5)</initial_action_dsl>
+<initial_action_dsl>set result.total_social_security = sum of social_security_income in job.taxpayers; add result.total_social_security to result.gross_income; add result.total_social_security to result.agi; set result.provisional_income = result.agi + (result.total_social_security * 0.5)</initial_action_dsl>
 <initial_action_postfix>
-result.agi result.total_social_security 0.5 fmul f+ cvd /result.provisional_income xdef
+0 { social_security_income + } job.taxpayers forall cvd /result.total_social_security xdef result.total_social_security cvd result.gross_income f+ /result.gross_income xdef result.total_social_security cvd result.agi f+ /result.agi xdef result.agi result.total_social_security 0.5 fmul f+ cvd /result.provisional_income xdef
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -6171,55 +6190,55 @@ job.filing_status "MFJ" streq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Full IRA deduction with catchup (not covered, age 50+); set taxpayer.ira_deduction = the minimum of contribution and ira_catchup_limit</action_comment>
-<action_dsl>set taxpayer.ira_deduction = the minimum of contribution and ira_catchup_limit</action_dsl>
+<action_comment>Full IRA deduction with catchup (not covered, age 50+); set taxpayer.ira_deduction = the minimum of taxpayer.traditional_ira_contribution and (constants.ira_contribution_limit + constants.ira_catchup_limit); add taxpayer.ira_deduction to result.ira_deduction</action_comment>
+<action_dsl>set taxpayer.ira_deduction = the minimum of taxpayer.traditional_ira_contribution and (constants.ira_contribution_limit + constants.ira_catchup_limit); add taxpayer.ira_deduction to result.ira_deduction</action_dsl>
 <action_postfix>
-contribution ira_catchup_limit fmin cvd /taxpayer.ira_deduction xdef
+taxpayer.traditional_ira_contribution constants.ira_contribution_limit constants.ira_catchup_limit f+ fmin cvd /taxpayer.ira_deduction xdef taxpayer.ira_deduction cvd result.ira_deduction f+ /result.ira_deduction xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Full IRA deduction no catchup (not covered, age under 50); set taxpayer.ira_deduction = the minimum of contribution and ira_standard_limit</action_comment>
-<action_dsl>set taxpayer.ira_deduction = the minimum of contribution and ira_standard_limit</action_dsl>
+<action_comment>Full IRA deduction no catchup (not covered, age under 50); set taxpayer.ira_deduction = the minimum of taxpayer.traditional_ira_contribution and constants.ira_contribution_limit; add taxpayer.ira_deduction to result.ira_deduction</action_comment>
+<action_dsl>set taxpayer.ira_deduction = the minimum of taxpayer.traditional_ira_contribution and constants.ira_contribution_limit; add taxpayer.ira_deduction to result.ira_deduction</action_dsl>
 <action_postfix>
-contribution ira_standard_limit min cvd /taxpayer.ira_deduction xdef
+taxpayer.traditional_ira_contribution constants.ira_contribution_limit fmin cvd /taxpayer.ira_deduction xdef taxpayer.ira_deduction cvd result.ira_deduction f+ /result.ira_deduction xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>IRA deduction with MFJ phase-out and catchup; set taxpayer.ira_deduction = phased out deduction with catchup (MFJ)</action_comment>
-<action_dsl>set result.ira_deduction = the minimum of result.ira_contributions and constants.ira_deduction_cap</action_dsl>
+<action_dsl>set taxpayer.ira_deduction = the minimum of taxpayer.traditional_ira_contribution and (constants.ira_contribution_limit + constants.ira_catchup_limit); add taxpayer.ira_deduction to result.ira_deduction</action_dsl>
 <action_postfix>
-result.ira_contributions constants.ira_deduction_cap min cvd /result.ira_deduction xdef
+taxpayer.traditional_ira_contribution constants.ira_contribution_limit constants.ira_catchup_limit f+ fmin cvd /taxpayer.ira_deduction xdef taxpayer.ira_deduction cvd result.ira_deduction f+ /result.ira_deduction xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>IRA deduction with MFJ phase-out no catchup; set taxpayer.ira_deduction = phased out deduction standard (MFJ)</action_comment>
-<action_dsl>set result.ira_deduction = the minimum of result.ira_contributions and constants.ira_deduction_cap_mfj</action_dsl>
+<action_dsl>set taxpayer.ira_deduction = the minimum of taxpayer.traditional_ira_contribution and constants.ira_contribution_limit; add taxpayer.ira_deduction to result.ira_deduction</action_dsl>
 <action_postfix>
-result.ira_contributions constants.ira_deduction_cap_mfj min cvd /result.ira_deduction xdef
+taxpayer.traditional_ira_contribution constants.ira_contribution_limit fmin cvd /taxpayer.ira_deduction xdef taxpayer.ira_deduction cvd result.ira_deduction f+ /result.ira_deduction xdef
 </action_postfix>
 <action_column column_number="4" column_value="X" />
 </action_details>
 <action_details>
 <action_number>5</action_number>
 <action_comment>IRA deduction with Single phase-out and catchup; set taxpayer.ira_deduction = phased out deduction with catchup (Single)</action_comment>
-<action_dsl>set result.ira_deduction = 0</action_dsl>
+<action_dsl>set taxpayer.ira_deduction = 0</action_dsl>
 <action_postfix>
-0 cvd /result.ira_deduction xdef
+0 cvd /taxpayer.ira_deduction xdef
 </action_postfix>
 <action_column column_number="5" column_value="X" />
 </action_details>
 <action_details>
 <action_number>6</action_number>
 <action_comment>IRA deduction with Single phase-out no catchup; set taxpayer.ira_deduction = phased out deduction standard (Single)</action_comment>
-<action_dsl>set result.ira_deduction = the minimum of result.ira_contributions and constants.ira_deduction_cap_age50</action_dsl>
+<action_dsl>set taxpayer.ira_deduction = 0</action_dsl>
 <action_postfix>
-result.ira_contributions constants.ira_deduction_cap_age50 min cvd /result.ira_deduction xdef
+0 cvd /taxpayer.ira_deduction xdef
 </action_postfix>
 <action_column column_number="6" column_value="X" />
 </action_details>
@@ -6332,37 +6351,37 @@ taxpayer.age_50_or_over true beq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>HSA deduction - family coverage with catchup; set taxpayer.hsa_deduction = the minimum of contribution and hsa_family_catchup_limit</action_comment>
-<action_dsl>set taxpayer.hsa_deduction = the minimum of contribution and hsa_family_catchup_limit</action_dsl>
+<action_comment>HSA deduction - family coverage with catchup; set taxpayer.hsa_deduction = the minimum of taxpayer.hsa_contribution and (constants.hsa_limit_family + constants.hsa_catchup); add taxpayer.hsa_deduction to result.hsa_deduction</action_comment>
+<action_dsl>set taxpayer.hsa_deduction = the minimum of taxpayer.hsa_contribution and (constants.hsa_limit_family + constants.hsa_catchup); add taxpayer.hsa_deduction to result.hsa_deduction</action_dsl>
 <action_postfix>
-contribution hsa_family_catchup_limit min cvd /taxpayer.hsa_deduction xdef
+taxpayer.hsa_contribution constants.hsa_limit_family constants.hsa_catchup f+ fmin cvd /taxpayer.hsa_deduction xdef taxpayer.hsa_deduction cvd result.hsa_deduction f+ /result.hsa_deduction xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>HSA deduction - family coverage no catchup; set taxpayer.hsa_deduction = the minimum of contribution and hsa_family_limit</action_comment>
-<action_dsl>set taxpayer.hsa_deduction = the minimum of contribution and hsa_family_limit</action_dsl>
+<action_comment>HSA deduction - family coverage no catchup; set taxpayer.hsa_deduction = the minimum of taxpayer.hsa_contribution and constants.hsa_limit_family; add taxpayer.hsa_deduction to result.hsa_deduction</action_comment>
+<action_dsl>set taxpayer.hsa_deduction = the minimum of taxpayer.hsa_contribution and constants.hsa_limit_family; add taxpayer.hsa_deduction to result.hsa_deduction</action_dsl>
 <action_postfix>
-contribution hsa_family_limit min cvd /taxpayer.hsa_deduction xdef
+taxpayer.hsa_contribution constants.hsa_limit_family fmin cvd /taxpayer.hsa_deduction xdef taxpayer.hsa_deduction cvd result.hsa_deduction f+ /result.hsa_deduction xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>HSA deduction - self coverage with catchup; set taxpayer.hsa_deduction = the minimum of contribution and hsa_self_catchup_limit</action_comment>
-<action_dsl>set taxpayer.hsa_deduction = the minimum of contribution and hsa_self_catchup_limit</action_dsl>
+<action_comment>HSA deduction - self coverage with catchup; set taxpayer.hsa_deduction = the minimum of taxpayer.hsa_contribution and (constants.hsa_limit_self + constants.hsa_catchup); add taxpayer.hsa_deduction to result.hsa_deduction</action_comment>
+<action_dsl>set taxpayer.hsa_deduction = the minimum of taxpayer.hsa_contribution and (constants.hsa_limit_self + constants.hsa_catchup); add taxpayer.hsa_deduction to result.hsa_deduction</action_dsl>
 <action_postfix>
-contribution hsa_self_catchup_limit min cvd /taxpayer.hsa_deduction xdef
+taxpayer.hsa_contribution constants.hsa_limit_self constants.hsa_catchup f+ fmin cvd /taxpayer.hsa_deduction xdef taxpayer.hsa_deduction cvd result.hsa_deduction f+ /result.hsa_deduction xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 <action_details>
 <action_number>4</action_number>
-<action_comment>HSA deduction - self coverage no catchup; set taxpayer.hsa_deduction = the minimum of contribution and hsa_self_limit</action_comment>
-<action_dsl>set taxpayer.hsa_deduction = the minimum of contribution and hsa_self_limit</action_dsl>
+<action_comment>HSA deduction - self coverage no catchup; set taxpayer.hsa_deduction = the minimum of taxpayer.hsa_contribution and constants.hsa_limit_self; add taxpayer.hsa_deduction to result.hsa_deduction</action_comment>
+<action_dsl>set taxpayer.hsa_deduction = the minimum of taxpayer.hsa_contribution and constants.hsa_limit_self; add taxpayer.hsa_deduction to result.hsa_deduction</action_dsl>
 <action_postfix>
-contribution hsa_self_limit min cvd /taxpayer.hsa_deduction xdef
+taxpayer.hsa_contribution constants.hsa_limit_self fmin cvd /taxpayer.hsa_deduction xdef taxpayer.hsa_deduction cvd result.hsa_deduction f+ /result.hsa_deduction xdef
 </action_postfix>
 <action_column column_number="4" column_value="X" />
 </action_details>
@@ -6453,9 +6472,9 @@ job.filing_status "MFJ" streq
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>MFJ AGI below phase-out start</condition_comment>
-<condition_dsl>AGI below MFJ phase-out start</condition_dsl>
+<condition_dsl>result.agi &lt; constants.student_loan_phaseout_start_mfj</condition_dsl>
 <condition_postfix>
-result.agi student_loan_phaseout_start_mfj &lt;
+result.agi constants.student_loan_phaseout_start_mfj f&lt;
 </condition_postfix>
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="-" />
@@ -6466,9 +6485,9 @@ result.agi student_loan_phaseout_start_mfj &lt;
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Single AGI below phase-out start</condition_comment>
-<condition_dsl>AGI below Single phase-out start</condition_dsl>
+<condition_dsl>result.agi &lt; constants.student_loan_phaseout_start_single</condition_dsl>
 <condition_postfix>
-result.agi student_loan_phaseout_start_single &lt;
+result.agi constants.student_loan_phaseout_start_single f&lt;
 </condition_postfix>
 <condition_column column_number="5" column_value="-" />
 <condition_column column_number="1" column_value="-" />
@@ -6480,10 +6499,10 @@ result.agi student_loan_phaseout_start_single &lt;
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Full student loan deduction; set result.student_loan_deduction = the minimum of interest_paid and 2500</action_comment>
-<action_dsl>set result.student_loan_deduction = the minimum of interest_paid and 2500</action_dsl>
+<action_comment>Full student loan deduction; set result.student_loan_deduction = the minimum of taxpayer.student_loan_interest_paid and constants.student_loan_max_deduction</action_comment>
+<action_dsl>set result.student_loan_deduction = the minimum of taxpayer.student_loan_interest_paid and constants.student_loan_max_deduction</action_dsl>
 <action_postfix>
-interest_paid 2500 min cvd /result.student_loan_deduction xdef
+taxpayer.student_loan_interest_paid constants.student_loan_max_deduction fmin cvd /result.student_loan_deduction xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 <action_column column_number="1" column_value="X" />
@@ -6491,9 +6510,9 @@ interest_paid 2500 min cvd /result.student_loan_deduction xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Student loan deduction with MFJ phase-out; set result.student_loan_deduction = phased out deduction (MFJ)</action_comment>
-<action_dsl>set result.student_loan_deduction = the minimum of result.student_loan_interest and constants.student_loan_deduction_cap</action_dsl>
+<action_dsl>set result.student_loan_deduction = the maximum of (constants.student_loan_max_deduction * (constants.student_loan_phaseout_end_mfj - result.agi) / (constants.student_loan_phaseout_end_mfj - constants.student_loan_phaseout_start_mfj)) and 0.0</action_dsl>
 <action_postfix>
-result.student_loan_interest constants.student_loan_deduction_cap min cvd /result.student_loan_deduction xdef
+constants.student_loan_max_deduction constants.student_loan_phaseout_end_mfj result.agi f- constants.student_loan_phaseout_end_mfj constants.student_loan_phaseout_start_mfj f- fdiv fmul 0.0 fmax cvd /result.student_loan_deduction xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -7224,9 +7243,9 @@ eligible_contributions result.savers_credit_rate fmul cvd /result.savers_credit 
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has any IRA contribution</condition_comment>
-<condition_dsl>taxpayer has IRA contributions</condition_dsl>
+<condition_dsl>taxpayer.traditional_ira_contribution + taxpayer.roth_ira_contribution &gt; 0</condition_dsl>
 <condition_postfix>
-taxpayer.traditional_ira_contribution taxpayer.roth_ira_contribution f+ 0 &gt;
+taxpayer.traditional_ira_contribution taxpayer.roth_ira_contribution f+ 0 f&gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -7964,9 +7983,9 @@ ira_account.type "traditional" streq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Is traditional IRA</condition_comment>
-<condition_dsl>Account type is traditional</condition_dsl>
+<condition_dsl>ira.account_type is equal to "traditional"</condition_dsl>
 <condition_postfix>
-ira.account_type traditional streq
+ira.account_type "traditional" streq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
@@ -8218,9 +8237,9 @@ property_sale.holding_period "short_term" streq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Is Section 1245 property (personal property)</condition_comment>
-<condition_dsl>Property type is 1245</condition_dsl>
+<condition_dsl>sale.property_type is equal to "1245"</condition_dsl>
 <condition_postfix>
-sale.property_type 1245 streq
+sale.property_type "1245" streq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -8914,7 +8933,7 @@ dup casualty_losses forall pop
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Is disaster loss (deductible)</condition_comment>
-<condition_dsl>Federally declared disaster</condition_dsl>
+<condition_dsl>casualty_loss.disaster_designation is not equal to ""</condition_dsl>
 <condition_postfix>
 casualty_loss.disaster_designation "" streq not
 </condition_postfix>
@@ -8974,12 +8993,9 @@ dup clean_vehicles forall pop
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>New vehicle meeting requirements</condition_comment>
-<condition_dsl>Final assembly in NA and meets MSRP limit</condition_dsl>
+<condition_dsl>clean_vehicle.vehicle_type is equal to "new" and clean_vehicle.final_assembly_us == true and clean_vehicle.msrp &lt;= constants.clean_vehicle_msrp_other</condition_dsl>
 <condition_postfix>
-clean_vehicle.vehicle_type "new" streq
-clean_vehicle.final_assembly_us
-clean_vehicle.msrp clean_vehicle_msrp_other &lt;=
-and and
+clean_vehicle.vehicle_type "new" streq { pop clean_vehicle.final_assembly_us true beq } over if { pop clean_vehicle.msrp constants.clean_vehicle_msrp_other f&lt;= } over if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -9257,9 +9273,9 @@ dup prior_year_amts forall pop
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Credit available</condition_comment>
-<condition_dsl>Prior year AMT credit is available</condition_dsl>
+<condition_dsl>prior_year_amt.credit_available &gt; 0</condition_dsl>
 <condition_postfix>
-prior_year_amt.credit_available 0 &gt;
+prior_year_amt.credit_available 0 f&gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -9317,11 +9333,9 @@ dup partnership_audits forall pop
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has income adjustments</condition_comment>
-<condition_dsl>Partnership audit has income adjustments</condition_dsl>
+<condition_dsl>partnership_audit.ordinary_income_adjustment + partnership_audit.capital_gain_adjustment + partnership_audit.dividend_adjustment + partnership_audit.interest_adjustment + partnership_audit.rental_adjustment + partnership_audit.other_adjustment is not equal to 0</condition_dsl>
 <condition_postfix>
-partnership_audit.ordinary_income_adjustment partnership_audit.capital_gain_adjustment f+
-partnership_audit.dividend_adjustment f+ partnership_audit.interest_adjustment f+
-partnership_audit.rental_adjustment f+ partnership_audit.other_adjustment f+ 0 !=
+partnership_audit.ordinary_income_adjustment partnership_audit.capital_gain_adjustment f+ partnership_audit.dividend_adjustment f+ partnership_audit.interest_adjustment f+ partnership_audit.rental_adjustment f+ partnership_audit.other_adjustment f+ 0 f!=
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
@@ -9376,7 +9390,7 @@ dup taxpayers forall pop
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Manufacturer has appliance production</condition_comment>
-<condition_dsl>Has energy efficient appliances produced</condition_dsl>
+<condition_dsl>taxpayer.energy_efficient_appliances_produced &gt; 0</condition_dsl>
 <condition_postfix>
 taxpayer.energy_efficient_appliances_produced 0 &gt;
 </condition_postfix>
@@ -9426,9 +9440,9 @@ dup unreported_tips_records forall pop
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has unreported tips</condition_comment>
-<condition_dsl>Taxpayer has unreported tip income</condition_dsl>
+<condition_dsl>unreported_tips.unreported_tips_amount &gt; 0</condition_dsl>
 <condition_postfix>
-unreported_tips.unreported_tips_amount 0 &gt;
+unreported_tips.unreported_tips_amount 0 f&gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -9486,9 +9500,9 @@ dup lihtc_recaptures forall pop
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has recapture event</condition_comment>
-<condition_dsl>LIHTC property has recapture event</condition_dsl>
+<condition_dsl>lihtc_recapture.accelerated_portion &gt; 0 or lihtc_recapture.percentage_decrease &gt; 0</condition_dsl>
 <condition_postfix>
-lihtc_recapture.accelerated_portion 0 &gt; lihtc_recapture.percentage_decrease 0 &gt; or
+lihtc_recapture.accelerated_portion 0 f&gt; { pop lihtc_recapture.percentage_decrease 0 f&gt; } over not if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -9534,7 +9548,7 @@ recapture_amount interest f+ cvi /result.recapture_tax xdef
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>Initialize part-year calculation</initial_action_dsl>
+<initial_action_dsl>/* Initialize part-year calculation */</initial_action_dsl>
 <initial_action_postfix></initial_action_postfix>
 <action_postfix>
 state_tax_result.residency_status "part_year_resident" streq if
@@ -12185,9 +12199,9 @@ job.state "MO" streq
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Puerto Rico territory</condition_comment>
-<condition_dsl>job.territory equals "PR"</condition_dsl>
+<condition_dsl>job.territory is equal to "PR"</condition_dsl>
 <condition_postfix>
-job.territory PR streq
+job.territory "PR" streq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -12199,9 +12213,9 @@ job.territory PR streq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>US Virgin Islands territory</condition_comment>
-<condition_dsl>job.territory equals "VI"</condition_dsl>
+<condition_dsl>job.territory is equal to "VI"</condition_dsl>
 <condition_postfix>
-job.territory VI streq
+job.territory "VI" streq
 </condition_postfix>
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
@@ -12213,9 +12227,9 @@ job.territory VI streq
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Guam territory</condition_comment>
-<condition_dsl>job.territory equals "GU"</condition_dsl>
+<condition_dsl>job.territory is equal to "GU"</condition_dsl>
 <condition_postfix>
-job.territory GU streq
+job.territory "GU" streq
 </condition_postfix>
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="1" column_value="N" />
@@ -12227,9 +12241,9 @@ job.territory GU streq
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>American Samoa territory</condition_comment>
-<condition_dsl>job.territory equals "AS"</condition_dsl>
+<condition_dsl>job.territory is equal to "AS"</condition_dsl>
 <condition_postfix>
-job.territory AS streq
+job.territory "AS" streq
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
@@ -12905,11 +12919,9 @@ taxpayer.moving_expense cvi /result.moving_expense_deduction xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Military with combat zone AND foreign earned income</condition_comment>
-<condition_dsl>Has both combat zone service and foreign earned income</condition_dsl>
+<condition_dsl>result.total_combat_zone_exclusion &gt; 0 and length of job.foreign_earned_incomes &gt; 0</condition_dsl>
 <condition_postfix>
-result.total_combat_zone_exclusion 0 &gt;
-job.foreign_earned_incomes length 0 &gt;
-and
+result.total_combat_zone_exclusion 0 f&gt; { pop job.foreign_earned_incomes length 0 &gt; } over if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
@@ -12973,9 +12985,9 @@ and
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has other state income and taxes</condition_comment>
-<condition_dsl>Has income from other states with taxes paid</condition_dsl>
+<condition_dsl>length of job.state_tax_results &gt; 1</condition_dsl>
 <condition_postfix>
-job.state_tax_results countof 1 &gt;
+job.state_tax_results length 1 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />

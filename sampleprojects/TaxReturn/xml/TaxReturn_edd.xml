@@ -957,6 +957,7 @@
 		<field name="schedule_h_total_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Total household employment tax (Schedule H)"></field>
 		<field name="se_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Self-employment tax (Schedule SE)"></field>
 		<field name="senior_count" type="integer" subtype="" access="rw" input="" default_value="0" comment="Number of seniors (65+) for deduction"></field>
+		<field name="senior_std_count" type="integer" subtype="" access="rw" input="" default_value="0" comment="Seniors counted for the additional standard deduction (not gated on W-2 income)"></field>
 		<field name="senior_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Senior Additional deduction (OBBBA 2025, $6k per senior)"></field>
 		<field name="sgli_exclusion" type="double" subtype="" access="rw" input="" default_value="0" comment="SGLI life insurance exclusion"></field>
 		<field name="small_employer_health_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Small Employer Health Insurance Credit (Form 8941)"></field>
@@ -1094,6 +1095,8 @@
 		<field name="hospitalized_combat_injury" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Hospitalized from combat zone injury"></field>
 		<field name="hsa_contribution" type="double" subtype="" access="rw" input="main" default_value="0" comment="HSA contribution (Form 8889)"></field>
 		<field name="hsa_coverage_type" type="string" subtype="" access="rw" input="main" default_value="self" comment="HSA coverage: self or family"></field>
+		<field name="hsa_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="HSA deduction for this taxpayer (Form 8889, computed)"></field>
+		<field name="ira_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Traditional IRA deduction for this taxpayer (computed)"></field>
 		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Taxpayer ID"></field>
 		<field name="imminent_danger_pay" type="double" subtype="" access="rw" input="main" default_value="0" comment="Imminent danger/hostile fire pay"></field>
 		<field name="incomes" type="array" subtype="income" access="r" input="" default_value="" comment="Income sources for this taxpayer"></field>
