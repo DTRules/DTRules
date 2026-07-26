@@ -491,8 +491,10 @@ export interface DebugLoadResponse {
   nodes?: number;
   dtrulesVersion?: string;
   rulesFingerprint?: string;
-  fingerprintMatch?: 'match' | 'mismatch' | 'unknown';
+  fingerprintMatch?: 'match' | 'mismatch' | 'unknown' | 'speculative';
   verifyMismatches?: string[];
+  /** True when the active session is a speculative rerun. */
+  speculative?: boolean;
 }
 
 /** Result of positioning the replay session at a trace node. */
@@ -519,6 +521,149 @@ export async function debugTree(): Promise<{ success: boolean; error?: string; t
  *  by `dtrules debug`), with the same fields as debugLoad when it does. */
 export async function debugStatus(): Promise<DebugLoadResponse & { loaded?: boolean }> {
   return fetchJSON(`${API_BASE}/debug/status`);
+}
+
+/** One condition requirement in a find why-chain. */
+export interface FindConditionStep {
+  number: number;
+  dsl: string;
+  required: string;
+  actual: string;
+}
+
+/** One frame of a find why-chain (innermost table first). */
+export interface FindChainLink {
+  table: string;
+  pass: number;
+  passCount: number;
+  column: string;
+  action: string;
+  passNode: number;
+  conditions: FindConditionStep[] | null;
+}
+
+/** One recorded write of a searched field. */
+export interface FindHit {
+  node: number;
+  entity: string;
+  id: string;
+  attr: string;
+  value: string;
+  chain: FindChainLink[];
+}
+
+/** Searches the loaded trace for writes of a field (EL case-insensitive). */
+export async function debugFind(attr: string, entity?: string, value?: string): Promise<{
+  success: boolean;
+  error?: string;
+  total?: number;
+  hits?: FindHit[];
+}> {
+  const q = new URLSearchParams({ attr });
+  if (entity) q.set('entity', entity);
+  if (value) q.set('value', value);
+  return fetchJSON(`${API_BASE}/debug/find?${q}`);
+}
+
+// ── report generator ─────────────────────────────────────────────────
+
+/** One predicate on a report section's rows. */
+export interface ReportFilter {
+  field: string;
+  op: string;
+  value: string;
+}
+
+/** One section of a report spec: entity instances or array elements. */
+export interface ReportSection {
+  title?: string;
+  entity?: string;
+  source?: string;
+  fields?: string[];
+  where?: ReportFilter[];
+  sort?: string;
+  key?: string;
+}
+
+/** A user-composed, saveable report description. */
+export interface ReportSpec {
+  name: string;
+  sections: ReportSection[];
+}
+
+/** One rendered report section. */
+export interface ReportSectionResult {
+  title: string;
+  entity: string;
+  key: string;
+  fields: string[];
+  rows: Record<string, string>[] | null;
+  total: number;
+  error?: string;
+}
+
+export interface ReportResult {
+  name: string;
+  sections: ReportSectionResult[];
+}
+
+export interface RowChange {
+  key: string;
+  before: Record<string, string>;
+  after: Record<string, string>;
+  fields: string[];
+}
+
+export interface SectionDiff {
+  title: string;
+  fields: string[];
+  added: Record<string, string>[] | null;
+  removed: Record<string, string>[] | null;
+  changed: RowChange[] | null;
+}
+
+export interface ReportDiffResult {
+  name: string;
+  sections: SectionDiff[];
+}
+
+/** Runs a report spec against the active debug trace (and the baseline,
+ *  with a diff, when a speculative session is active). */
+export async function debugReport(spec: ReportSpec): Promise<{
+  success: boolean;
+  error?: string;
+  report?: ReportResult;
+  baseline?: ReportResult;
+  diff?: ReportDiffResult;
+}> {
+  return fetchJSON(`${API_BASE}/debug/report`, { method: 'POST', body: JSON.stringify(spec) });
+}
+
+/** Reruns the trace's execution with ONE table speculatively edited —
+ *  same inputs (seeded from the trace), project files untouched. The
+ *  speculative trace becomes the active session; the original stays as
+ *  the baseline for report diffs and restore. */
+export async function debugSpeculate(table: unknown): Promise<DebugLoadResponse> {
+  return fetchJSON(`${API_BASE}/debug/speculate`, { method: 'POST', body: JSON.stringify(table) });
+}
+
+/** Restores the baseline trace session after a speculation. */
+export async function debugSpeculateReset(): Promise<DebugLoadResponse> {
+  return fetchJSON(`${API_BASE}/debug/speculate/reset`, { method: 'POST', body: '{}' });
+}
+
+/** Lists report specs saved in the project (reports/*.report.json). */
+export async function listReportSpecs(): Promise<{
+  success: boolean;
+  error?: string;
+  specs?: { name: string; spec: ReportSpec }[];
+}> {
+  return fetchJSON(`${API_BASE}/reports`);
+}
+
+/** Saves a report spec into the project. */
+export async function saveReportSpec(name: string, spec: ReportSpec): Promise<{ success: boolean; error?: string }> {
+  return fetchJSON(`${API_BASE}/reports`, { method: 'POST', body: JSON.stringify({ name, spec }) });
 }
 
 /** Replays to a trace node ("run to here" / stepping). */

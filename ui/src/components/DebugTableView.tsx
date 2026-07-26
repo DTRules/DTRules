@@ -22,7 +22,7 @@ import type { DebugFrame, DebugNode } from '@/api/client';
 import type { DecisionTable } from '@/types/dtrules';
 import { cn } from '@/lib/utils';
 import { focusTarget, frameInfo, stackValue, type Focus, type TreeIndex } from '@/lib/traceTree';
-import { ChevronLeft, ChevronRight, CornerLeftUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CornerLeftUp, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const PERFORM_RE = /\bperform\s+([A-Za-z_][A-Za-z0-9_]*)|\/([A-Za-z_][A-Za-z0-9_]*)\s+performtable\b/gi;
@@ -147,6 +147,7 @@ export function DebugTableView({
   onOut,
   onPass,
   onOpenTable,
+  onSpeculate,
 }: {
   idx: TreeIndex;
   passNode: DebugNode;
@@ -161,6 +162,7 @@ export function DebugTableView({
   onOut: () => void;
   onPass: (passNode: DebugNode) => void;
   onOpenTable: (name: string) => void;
+  onSpeculate: (name: string) => void;
 }) {
   const frame = frameInfo(idx, passNode);
   const [table, setTable] = useState<DecisionTable | null>(null);
@@ -300,6 +302,15 @@ export function DebugTableView({
             <CornerLeftUp className="h-3 w-3 mr-1" /> Out
           </Button>
         )}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 px-2 text-xs text-amber-400/90 hover:text-amber-300"
+          onClick={() => onSpeculate(frame.tableName)}
+          title="Edit this table speculatively and rerun the trace's execution with the same inputs — project files are not touched"
+        >
+          <Pencil className="h-3 w-3 mr-1" /> What if…
+        </Button>
         {/* Iteration navigator: which of N passes is in view */}
         {frame.passes.length === 0 ? (
           <span className="ml-auto text-xs text-amber-400/90">

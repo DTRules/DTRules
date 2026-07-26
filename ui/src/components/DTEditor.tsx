@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useProjectStore } from '@/stores/projectStore';
+import { debugSpeculate } from '@/api/client';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
@@ -144,6 +145,15 @@ export function DTEditor() {
   useEffect(() => {
     if (readOnly) setEditMode(false);
   }, [readOnly]);
+
+  // Speculative edits arrive from the debugger wanting to edit NOW. The
+  // editor stays mounted across tabs, so this keys on table selection —
+  // the speculate flow selects the table as it switches here.
+  useEffect(() => {
+    if (sessionStorage.getItem('dtrules.speculativeEdit') === '1' && !readOnly) {
+      setEditMode(true);
+    }
+  }, [currentTable, readOnly]);
   const [colWidths, setColWidths] = useState<ColWidths>(loadColWidths);
 
   // Table-level navigation history for perform-link jumps (browser-style).
@@ -228,8 +238,24 @@ export function DTEditor() {
     }
   }, [currentTable]);
 
+  // Speculative-edit mode: entered from the debugger. Save does NOT touch
+  // project files — it reruns the trace's execution with this one table
+  // modified, then returns to the Debug tab with the result.
+  const speculative = sessionStorage.getItem('dtrules.speculativeEdit') === '1';
+
   const handleSave = async () => {
     if (!editedTable) return;
+    if (speculative) {
+      const r = await debugSpeculate(editedTable);
+      if (!r.success) {
+        window.alert(`Speculation failed: ${r.error || 'unknown error'}`);
+        return;
+      }
+      sessionStorage.removeItem('dtrules.speculativeEdit');
+      window.dispatchEvent(new CustomEvent('dtrules:speculated', { detail: r }));
+      setActiveTab('debug');
+      return;
+    }
     await updateTable(editedTable);
   };
 
@@ -564,10 +590,17 @@ export function DTEditor() {
                   className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0"
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  Save
+                  {speculative ? 'Run speculation' : 'Save'}
                 </Button>
               )}
             </div>
+
+            {speculative && (
+              <div className="mx-2 mt-1 px-3 py-1.5 rounded border border-amber-500/50 bg-amber-500/10 text-amber-300 text-xs">
+                SPECULATIVE EDIT — “Run speculation” reruns the trace’s execution with this change.
+                Project files are not touched. Esc returns to the debugger.
+              </div>
+            )}
 
             {/* The entire decision table as one grid, in the Excel sheet's
                 order: CONTEXTS, INITIAL ACTIONS, CONDITIONS, ACTIONS, POLICY

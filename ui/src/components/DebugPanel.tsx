@@ -19,16 +19,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useProjectStore } from '@/stores/projectStore';
 import {
   debugConsole,
+  debugFind,
   debugLoad,
+  debugSpeculateReset,
   debugStatus,
   debugPosition,
   debugTree,
   type DebugFrame,
   type DebugLoadResponse,
   type DebugNode,
+  type FindHit,
 } from '@/api/client';
 import { FileBrowser } from '@/components/FileBrowser';
 import { DebugTableView } from '@/components/DebugTableView';
+import { ReportPanel } from '@/components/ReportPanel';
 import {
   ancestorsOf,
   bucketSize,
@@ -256,13 +260,18 @@ export function DebugPanel() {
   // Per-entity-name expand/collapse for the stack panel; unset = default
   // (top frame open, others collapsed).
   const [stackOpen, setStackOpen] = useState<Record<string, boolean>>({});
+  // Find-writes panel: query text, results, and which hit's why-chain is open.
+  const [findQuery, setFindQuery] = useState('');
+  const [findHits, setFindHits] = useState<FindHit[] | null>(null);
+  const [findTotal, setFindTotal] = useState(0);
+  const [findOpen, setFindOpen] = useState<number | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [browsing, setBrowsing] = useState(true);
 
   const [consoleLines, setConsoleLines] = useState<{ input: string; output: string; error?: boolean }[]>([]);
   const consoleInput = useRef<HTMLInputElement>(null);
 
-  const [viewMode, setViewMode] = useState<'table' | 'tree'>('table');
+  const [viewMode, setViewMode] = useState<'table' | 'tree' | 'report'>('table');
   const [frame, setFrame] = useState<{ pass: number; focus: Focus } | null>(null);
   const treeRef = useRef<DebugNode | null>(null);
 
@@ -533,6 +542,26 @@ export function DebugPanel() {
     });
   }, [position, goTo]);
 
+  // runFind parses "attr", "entity.attr", or "... = value" and searches
+  // the trace for matching writes.
+  const runFind = useCallback(async () => {
+    const q = findQuery.trim();
+    if (!q) {
+      setFindHits(null);
+      return;
+    }
+    const [lhs, rhs] = q.split('=').map((x) => x.trim());
+    const dot = lhs.indexOf('.');
+    const entity = dot > 0 ? lhs.slice(0, dot) : undefined;
+    const attr = dot > 0 ? lhs.slice(dot + 1) : lhs;
+    const r = await debugFind(attr, entity, rhs || undefined);
+    if (r.success) {
+      setFindHits(r.hits || []);
+      setFindTotal(r.total || 0);
+      setFindOpen(null);
+    }
+  }, [findQuery]);
+
   // adoptSession enters the loaded state for a debug session the server
   // holds — after a load we initiated, or one preloaded by `dtrules debug`.
   const adoptSession = useCallback(async (r: DebugLoadResponse) => {
@@ -557,6 +586,16 @@ export function DebugPanel() {
     await goTo(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [goTo]);
+
+  // A completed speculation replaces the server session; adopt it.
+  useEffect(() => {
+    const onSpeculated = (e: Event) => {
+      const detail = (e as CustomEvent).detail as DebugLoadResponse;
+      if (detail?.success) adoptSession(detail);
+    };
+    window.addEventListener('dtrules:speculated', onSpeculated);
+    return () => window.removeEventListener('dtrules:speculated', onSpeculated);
+  }, [adoptSession]);
 
   // On mount, adopt a session the server already holds (dtrules debug /
   // edit --trace preload) so the Debug tab opens ready.
@@ -633,16 +672,18 @@ export function DebugPanel() {
         <span className="px-2 py-0.5 rounded-full border border-border text-muted-foreground">
           DTRules {info.dtrulesVersion || 'unknown'}
         </span>
-        <span
-          className={cn(
-            'px-2 py-0.5 rounded-full border',
-            info.fingerprintMatch === 'match' && 'border-green-500/40 text-green-500',
-            info.fingerprintMatch === 'mismatch' && 'border-amber-500/50 text-amber-400',
-            info.fingerprintMatch === 'unknown' && 'border-border text-muted-foreground'
-          )}
-        >
-          rules {info.fingerprintMatch === 'match' ? 'match' : info.fingerprintMatch === 'mismatch' ? 'DIFFER from workspace' : 'fingerprint unknown'}
-        </span>
+        {!info.speculative && (
+          <span
+            className={cn(
+              'px-2 py-0.5 rounded-full border',
+              info.fingerprintMatch === 'match' && 'border-green-500/40 text-green-500',
+              info.fingerprintMatch === 'mismatch' && 'border-amber-500/50 text-amber-400',
+              info.fingerprintMatch === 'unknown' && 'border-border text-muted-foreground'
+            )}
+          >
+            rules {info.fingerprintMatch === 'match' ? 'match' : info.fingerprintMatch === 'mismatch' ? 'DIFFER from workspace' : 'fingerprint unknown'}
+          </span>
+        )}
         <span
           className={cn(
             'px-2 py-0.5 rounded-full border',
@@ -652,6 +693,25 @@ export function DebugPanel() {
         >
           {verifyClean ? 'end-state verified' : `${info.verifyMismatches!.length} end-state mismatches`}
         </span>
+        {info.speculative && (
+          <>
+            <span className="px-2 py-0.5 rounded-full border border-amber-500/60 text-amber-400 font-semibold">
+              SPECULATIVE — rules modified
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-6 px-2 text-xs"
+              onClick={async () => {
+                const r = await debugSpeculateReset();
+                if (r.success) adoptSession(r);
+              }}
+              title="Discard the speculation and restore the original trace"
+            >
+              Restore baseline
+            </Button>
+          </>
+        )}
         <Button variant="ghost" size="sm" className="h-6 px-2 ml-auto text-xs" onClick={() => setBrowsing(true)}>
           Load another trace
         </Button>
@@ -699,6 +759,13 @@ export function DebugPanel() {
             title="Expert view: the raw execution tree"
           >
             Tree
+          </button>
+          <button
+            className={cn('px-2 py-0.5 rounded', viewMode === 'report' ? 'bg-accent text-foreground' : 'text-muted-foreground')}
+            onClick={() => setViewMode('report')}
+            title="EDD-driven reports over this trace (entities, fields, filters)"
+          >
+            Report
           </button>
         </span>
         <span className="font-mono text-xs text-muted-foreground flex items-center gap-1.5">
@@ -748,7 +815,9 @@ export function DebugPanel() {
       {/* Tree + stack */}
       <div className="flex-1 grid grid-cols-[1fr_320px] overflow-hidden">
         <ScrollArea className="border-r border-border/50">
-          {viewMode === 'table' ? (
+          {viewMode === 'report' ? (
+            <ReportPanel />
+          ) : viewMode === 'table' ? (
             idxRef.current && framePassNode ? (
               <DebugTableView
                 idx={idxRef.current}
@@ -763,6 +832,12 @@ export function DebugPanel() {
                 onOpenTable={(name) => {
                   // Bouncing to the editor is a side-trip: Esc brings the
                   // user straight back to the debug view.
+                  sessionStorage.setItem('dtrules.returnToDebugOnEsc', '1');
+                  selectTable(name);
+                  setActiveTab('dt');
+                }}
+                onSpeculate={(name) => {
+                  sessionStorage.setItem('dtrules.speculativeEdit', '1');
                   sessionStorage.setItem('dtrules.returnToDebugOnEsc', '1');
                   selectTable(name);
                   setActiveTab('dt');
@@ -786,6 +861,88 @@ export function DebugPanel() {
         <ScrollArea>
           <div className="p-3 space-y-2">
             <div className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">
+              Find writes
+            </div>
+            <div className="flex gap-1">
+              <input
+                value={findQuery}
+                onChange={(e) => setFindQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && runFind()}
+                placeholder="entity.field = value"
+                className="flex-1 h-7 px-2 rounded border border-input bg-transparent font-mono text-xs"
+                title="Search the trace for writes: field, entity.field, or entity.field = value (case-insensitive)"
+              />
+              <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={runFind}>
+                Find
+              </Button>
+            </div>
+            {findHits && (
+              <div className="space-y-1">
+                <div className="text-[10px] text-muted-foreground">
+                  {findTotal === 0
+                    ? 'No writes found'
+                    : findTotal > findHits.length
+                      ? `Showing ${findHits.length} of ${findTotal.toLocaleString()} writes`
+                      : `${findTotal.toLocaleString()} write${findTotal === 1 ? '' : 's'}`}
+                </div>
+                {findHits.map((h) => (
+                  <div key={h.node} className="border border-border/40 rounded text-xs">
+                    <div
+                      className="px-1.5 py-0.5 flex items-baseline gap-1.5 cursor-pointer hover:bg-accent/40 font-mono"
+                      onClick={() => goTo(h.node)}
+                      title={`Jump to node ${h.node}`}
+                    >
+                      <span
+                        className="w-3 text-muted-foreground shrink-0 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFindOpen(findOpen === h.node ? null : h.node);
+                        }}
+                        title="Show why: the conditions that had to be met"
+                      >
+                        {findOpen === h.node ? '▾' : '▸'}
+                      </span>
+                      <span className="truncate">
+                        {h.entity}
+                        <span className="text-muted-foreground">#{h.id}</span> = {h.value}
+                      </span>
+                      <span className="ml-auto text-[10px] text-muted-foreground shrink-0">
+                        {h.chain[0]?.table} {h.chain[0] && h.chain[0].passCount > 1 ? `${h.chain[0].pass}/${h.chain[0].passCount}` : ''}
+                      </span>
+                    </div>
+                    {findOpen === h.node && (
+                      <div className="px-1.5 pb-1 space-y-1">
+                        {h.chain.map((link, li) => (
+                          <div key={li} className="pl-2 border-l border-border/40">
+                            <button
+                              className="text-blue-400 hover:underline font-mono text-[11px]"
+                              onClick={() => goTo(link.passNode)}
+                              title="Jump to this pass"
+                            >
+                              {link.table}
+                            </button>
+                            <span className="text-[10px] text-muted-foreground font-mono">
+                              {' '}pass {link.pass.toLocaleString()}/{link.passCount.toLocaleString()} · col {link.column}
+                              {link.action && ` · action ${link.action}`}
+                            </span>
+                            {(link.conditions || []).map((c) => (
+                              <div key={c.number} className="font-mono text-[10px] leading-4 truncate" title={c.dsl}>
+                                <span className={c.actual === (c.required === 'Y' ? 'true' : 'false') ? 'text-green-500' : 'text-amber-400'}>
+                                  {c.required === 'Y' ? '✓' : '✗'}
+                                </span>{' '}
+                                <span className="text-muted-foreground">{c.number}.</span> {c.dsl}
+                                <span className="text-muted-foreground"> = {c.actual || '?'}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground pt-2">
               Entity stack
             </div>
             {[...stack].reverse().map((f, i, arr) => {
