@@ -892,8 +892,8 @@ export function DebugPanel() {
             </div>
           )}
         </ScrollArea>
-        <ScrollArea>
-          <div className="p-3 space-y-2">
+        <ScrollArea className="[&_[data-radix-scroll-area-viewport]>div]:!block min-w-0">
+          <div className="p-3 space-y-2 min-w-0">
             <div className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">
               Find writes
             </div>
@@ -995,23 +995,23 @@ export function DebugPanel() {
               return (
                 <div key={`${f.id}-${i}`} className="border border-border/40 rounded-md overflow-hidden">
                   <div
-                    className="px-2.5 py-1 bg-muted/30 flex items-baseline gap-2 cursor-pointer select-none hover:bg-muted/50"
+                    className="px-2.5 py-1 bg-muted/30 flex items-baseline gap-2 cursor-pointer select-none hover:bg-muted/50 min-w-0"
                     onClick={() => setStackOpen((s) => ({ ...s, [f.name]: !open }))}
                     title={open ? 'Collapse' : 'Expand'}
                   >
-                    <span className="text-xs text-muted-foreground w-3">{open ? '▾' : '▸'}</span>
-                    <span className="text-sm font-semibold">{f.name}</span>
-                    <span className="text-[10px] font-mono text-muted-foreground">#{f.id}</span>
+                    <span className="text-xs text-muted-foreground w-3 shrink-0">{open ? '▾' : '▸'}</span>
+                    <span className="text-sm font-semibold truncate min-w-0">{f.name}</span>
+                    <span className="text-[10px] font-mono text-muted-foreground shrink-0">#{f.id}</span>
                     {i === arr.length - 1 && (
                       <span
-                        className="text-[10px] px-1.5 rounded-full border border-amber-500/50 text-amber-400"
+                        className="text-[10px] px-1.5 rounded-full border border-amber-500/50 text-amber-400 shrink-0"
                         title="Top of the entity stack — the current context"
                       >
                         top of stack
                       </span>
                     )}
                     <button
-                      className="ml-auto text-muted-foreground hover:text-foreground text-[10px] px-1"
+                      className="ml-auto text-muted-foreground hover:text-foreground text-[10px] px-1 shrink-0"
                       onClick={(e) => {
                         e.stopPropagation();
                         setExplorer({ id: f.id, name: f.name });
@@ -1021,7 +1021,7 @@ export function DebugPanel() {
                       ⤢ explore
                     </button>
                     {!open && (
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-[10px] text-muted-foreground shrink-0 whitespace-nowrap">
                         {Object.keys(f.attrs).length} fields
                       </span>
                     )}
@@ -1031,9 +1031,9 @@ export function DebugPanel() {
                       {Object.entries(f.attrs)
                         .sort(([a], [b]) => a.localeCompare(b))
                         .map(([k, v]) => (
-                          <div key={k} className="flex gap-2">
-                            <span className="text-muted-foreground min-w-32 truncate">{k}</span>
-                            <span className="truncate" title={v}>{v}</span>
+                          <div key={k} className="flex gap-2 min-w-0">
+                            <span className="text-muted-foreground w-32 max-w-[50%] truncate shrink-0" title={k}>{k}</span>
+                            <span className="truncate min-w-0 flex-1" title={v}>{v}</span>
                           </div>
                         ))}
                     </div>
