@@ -680,6 +680,45 @@ export async function saveReportSpec(name: string, spec: ReportSpec): Promise<{ 
   return fetchJSON(`${API_BASE}/reports`, { method: 'POST', body: JSON.stringify({ name, spec }) });
 }
 
+// ── entity explorer ──────────────────────────────────────────────────
+
+/** One classified value: a scalar, an entity reference, or an array. */
+export interface ExplorerValue {
+  kind: 'value' | 'entity' | 'array';
+  type?: string;
+  value?: string;
+  entity?: string;
+  id?: number;
+  arrayId?: number;
+  length?: number;
+}
+
+export interface ExplorerField extends ExplorerValue {
+  name: string;
+}
+
+/** Inspects one entity instance at the current replay position. */
+export async function debugEntity(id: number | string): Promise<{
+  success: boolean;
+  error?: string;
+  name?: string;
+  id?: number;
+  fields?: ExplorerField[];
+}> {
+  return fetchJSON(`${API_BASE}/debug/entity?id=${encodeURIComponent(String(id))}`);
+}
+
+/** Lists an array's elements at the current replay position. */
+export async function debugArray(id: number, offset = 0, limit = 200): Promise<{
+  success: boolean;
+  error?: string;
+  total?: number;
+  offset?: number;
+  elements?: ExplorerValue[];
+}> {
+  return fetchJSON(`${API_BASE}/debug/array?id=${id}&offset=${offset}&limit=${limit}`);
+}
+
 /** Replays to a trace node ("run to here" / stepping). */
 export async function debugPosition(node: number): Promise<DebugPositionResponse> {
   return fetchJSON(`${API_BASE}/debug/position`, { method: 'POST', body: JSON.stringify({ node }) });
