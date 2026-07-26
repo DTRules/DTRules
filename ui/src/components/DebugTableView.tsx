@@ -395,22 +395,38 @@ export function DebugTableView({
                 </td>
               </tr>
 
-              {/* initial actions */}
-              {frame.initialActions.map((ia) => {
-                const isFocus = focusedAction === ia.number;
-                const called = calledTablesOf(ia);
+              {/* CONTEXTS — the iteration drivers, from the definition */}
+              <SectionBand label="CONTEXTS" span={2 + cols.length} />
+              {(table.contexts || []).map((ctx, ci) => (
+                <tr key={`ctx${ci}`} title="Context — drives this table's iterations">
+                  <td className="border border-border/40 text-center text-muted-foreground">{ci + 1}</td>
+                  <td className="border border-border/40 px-2 py-1 font-mono whitespace-pre-wrap" colSpan={1 + cols.length}>
+                    {withValueHovers(ctx.description || '', stack, 9000 + ci)}
+                  </td>
+                </tr>
+              ))}
+
+              {/* INITIAL ACTIONS — every definition row, executed ones focusable */}
+              <SectionBand label="INITIAL ACTIONS" span={2 + cols.length} />
+              {initialActionLines(table).map((line, ii) => {
+                const executed = frame.initialActions.find((n) => n.attrs?.n === String(ii + 1));
+                const isFocus = executed ? focusedAction === executed.number : false;
+                const called = executed ? calledTablesOf(executed) : new Map<string, DebugNode>();
                 return (
                   <tr
-                    key={ia.number}
-                    className={cn('cursor-pointer', isFocus ? 'bg-amber-500/15' : 'hover:bg-accent/40')}
-                    onClick={() => onFocus({ kind: 'action', node: ia.number })}
-                    title="State after this initial action"
+                    key={`i${ii}`}
+                    className={cn(
+                      executed ? 'cursor-pointer' : 'opacity-40',
+                      isFocus ? 'bg-amber-500/15' : executed && 'hover:bg-accent/40'
+                    )}
+                    onClick={() => executed && onFocus({ kind: 'action', node: executed.number })}
+                    title={executed ? 'State after this initial action' : 'Not executed in this pass'}
                   >
-                    <td className="border border-border/40 text-center text-muted-foreground">I{ia.attrs?.n}</td>
+                    <td className="border border-border/40 text-center text-muted-foreground">I{ii + 1}</td>
                     <td className="border border-border/40 px-2 py-1 font-mono whitespace-pre-wrap" colSpan={1 + cols.length}>
                       {isFocus && <span className="text-amber-400 font-bold">▶ </span>}
                       <DSLWithLinks
-                        text={initialActionText(table, ia.attrs?.n)}
+                        text={line}
                         resolve={resolverFor(called)}
                         stack={stack}
                         onDrill={onDrill}
@@ -422,7 +438,8 @@ export function DebugTableView({
                 );
               })}
 
-              {/* conditions with actual results */}
+              {/* CONDITIONS with actual results */}
+              <SectionBand label="CONDITIONS" span={2 + cols.length} />
               {(table.conditions || []).map((cond, condIdx) => {
                 return (
                   <tr key={`c${condIdx}`}>
@@ -451,7 +468,8 @@ export function DebugTableView({
                 );
               })}
 
-              {/* actions: executed ones focusable, others dimmed */}
+              {/* ACTIONS: executed ones focusable, others dimmed */}
+              <SectionBand label="ACTIONS" span={2 + cols.length} />
               {(table.actions || []).map((act, actIdx) => {
                 const executed = executedByPosition.get(String(actIdx + 1));
                 const isFocus = executed ? focusedAction === executed.number : false;
@@ -517,9 +535,23 @@ export function DebugTableView({
   );
 }
 
-/** The DSL text of initial action n (1-based) from the table definition. */
-function initialActionText(table: DecisionTable, n?: string): string {
-  const lines = (table.initialActions || '').split('\n').filter((l) => l.trim() !== '');
-  const i = n ? parseInt(n, 10) - 1 : -1;
-  return (i >= 0 && lines[i]) || `initial action ${n || ''}`;
+/** The definition's initial-action DSL lines, in order. */
+function initialActionLines(table: DecisionTable): string[] {
+  return (table.initialActions || '').split('\n').filter((l) => l.trim() !== '');
+}
+
+/** SectionBand mirrors the editor's sheet-section header rows, so the
+ *  debug grid reads like the same document: CONTEXTS, INITIAL ACTIONS,
+ *  CONDITIONS, ACTIONS. */
+function SectionBand({ label, span }: { label: string; span: number }) {
+  return (
+    <tr>
+      <td
+        colSpan={span}
+        className="border border-border/40 bg-muted/40 px-2 py-0.5 text-[10px] font-semibold tracking-widest text-muted-foreground"
+      >
+        {label}
+      </td>
+    </tr>
+  );
 }
