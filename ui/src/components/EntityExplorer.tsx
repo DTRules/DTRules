@@ -31,6 +31,7 @@ export function EntityExplorer({
   position: number;
   onClose: () => void;
 }) {
+  const [rootNumber, setRootNumber] = useState('');
   return (
     <div className="absolute inset-0 z-20 bg-background/60" onClick={onClose}>
       <div
@@ -40,7 +41,9 @@ export function EntityExplorer({
         <div className="px-4 py-2 border-b border-border/50 flex items-center gap-2">
           <span className="text-sm font-semibold">Entity explorer</span>
           <span className="font-mono text-xs text-muted-foreground">
-            {rootName} #{rootId} · at node {position.toLocaleString()}
+            {rootName}
+            {rootNumber && <span title="EDD entity number"> №{rootNumber}</span>} #{rootId} · at node{' '}
+            {position.toLocaleString()}
           </span>
           <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto" onClick={onClose} title="Close (Esc)">
             <X className="h-4 w-4" />
@@ -48,7 +51,7 @@ export function EntityExplorer({
         </div>
         <ScrollArea className="flex-1">
           <div className="p-3 font-mono text-xs">
-            <EntityNode id={rootId} depth={0} defaultOpen />
+            <EntityNode id={rootId} depth={0} defaultOpen onNumber={setRootNumber} />
           </div>
         </ScrollArea>
       </div>
@@ -57,10 +60,11 @@ export function EntityExplorer({
 }
 
 /** One entity instance: name #id with its fields beneath. */
-function EntityNode({ id, depth, defaultOpen, initialName }: { id: number; depth: number; defaultOpen?: boolean; initialName?: string }) {
+function EntityNode({ id, depth, defaultOpen, initialName, onNumber }: { id: number; depth: number; defaultOpen?: boolean; initialName?: string; onNumber?: (n: string) => void }) {
   const [open, setOpen] = useState(!!defaultOpen);
   const [fields, setFields] = useState<ExplorerField[] | null>(null);
   const [name, setName] = useState(initialName || '');
+  const [number, setNumber] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -69,6 +73,9 @@ function EntityNode({ id, depth, defaultOpen, initialName }: { id: number; depth
       if (r.success) {
         setFields(r.fields || []);
         setName(r.name || '');
+        const num = (r as { entityNumber?: string }).entityNumber || '';
+        setNumber(num);
+        onNumber?.(num);
       } else {
         setError(r.error || 'not found at this position');
       }
@@ -80,6 +87,7 @@ function EntityNode({ id, depth, defaultOpen, initialName }: { id: number; depth
       {!defaultOpen && (
         <button className="text-blue-400 hover:underline" onClick={() => setOpen(!open)}>
           {open ? '▾' : '▸'} {name || 'entity'}
+          {number && <span className="text-muted-foreground" title="EDD entity number"> №{number}</span>}
           <span className="text-muted-foreground">#{id}</span>
         </button>
       )}

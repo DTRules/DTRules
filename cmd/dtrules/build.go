@@ -226,7 +226,14 @@ func dupGate(xmlDir string) int {
 // a copyProject is unreliable because mtimes and hashes drift on
 // copy. Direct invocation pins the behavior end-to-end.
 func runNoSyncAdvisory(xmlDir string) int {
-	fmt.Println("Nothing to sync — running advisory pass on existing XML.")
+	fmt.Println("Nothing to sync — normalizing XML and running the advisory pass.")
+	// Normalization (section renumbering, entity-number backfill) is
+	// idempotent — run it even when Excel and XML are in sync, so a plain
+	// `dtrules build` always leaves normalized files.
+	if err := normalizeDTXMLFiles(xmlDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Error normalizing XML: %v\n", err)
+		return 1
+	}
 	step := &dtrsync.StepSummary{}
 	runStaticAnalysis(xmlDir, step)
 	if len(step.Warnings) > 0 {
@@ -338,24 +345,42 @@ func exportStatsToStep(s *excel.ExportStats) *dtrsync.StepSummary {
 	return step
 }
 
-// normalizeDTXMLFiles rewrites every *_dt.xml under xmlDir through the
-// canonical WriteXML funnel, which renumbers all sections sequentially.
+// normalizeDTXMLFiles rewrites every *_dt.xml AND *_edd.xml under xmlDir
+// through the canonical WriteXML funnels, which renumber DT sections
+// sequentially and backfill missing entity numbers (the 100 grid).
 func normalizeDTXMLFiles(xmlDir string) error {
 	return filepath.WalkDir(xmlDir, func(p string, d os.DirEntry, err error) error {
-		if err != nil || d.IsDir() || !strings.HasSuffix(strings.ToLower(d.Name()), "_dt.xml") {
+		if err != nil || d.IsDir() {
 			return err
 		}
-		before, rerr := os.ReadFile(p)
-		if rerr != nil {
-			return rerr
-		}
-		doc, perr := excel.UnmarshalDecisionTablesXML(before)
-		if perr != nil {
-			return fmt.Errorf("%s: %w", p, perr)
-		}
-		imp := excel.NewDTImporter()
-		if werr := imp.WriteXML(doc, p); werr != nil {
-			return fmt.Errorf("%s: %w", p, werr)
+		lower := strings.ToLower(d.Name())
+		switch {
+		case strings.HasSuffix(lower, "_dt.xml"):
+			before, rerr := os.ReadFile(p)
+			if rerr != nil {
+				return rerr
+			}
+			doc, perr := excel.UnmarshalDecisionTablesXML(before)
+			if perr != nil {
+				return fmt.Errorf("%s: %w", p, perr)
+			}
+			imp := excel.NewDTImporter()
+			if werr := imp.WriteXML(doc, p); werr != nil {
+				return fmt.Errorf("%s: %w", p, werr)
+			}
+		case strings.HasSuffix(lower, "_edd.xml"):
+			before, rerr := os.ReadFile(p)
+			if rerr != nil {
+				return rerr
+			}
+			doc, perr := excel.UnmarshalEDDXML(before)
+			if perr != nil {
+				return fmt.Errorf("%s: %w", p, perr)
+			}
+			imp := excel.NewEDDImporter()
+			if werr := imp.WriteXML(doc, p); werr != nil {
+				return fmt.Errorf("%s: %w", p, werr)
+			}
 		}
 		return nil
 	})
@@ -640,6 +665,22 @@ func (c *CLI) syncMAPFiles(xmlDir, excelDir, direction string, verbose bool) err
 		}
 		if mapXML == nil || len(mapXML.Entries) == 0 {
 			return nil
+		}
+		// Clobber guard: a sheet written before the structural-section
+		// round-trip fix carries no createentity / cardinality /
+		// initialization rows. Overwriting an XML that HAS them with a
+		// model that has none would silently break the project's data
+		// loading — carry the existing sections forward and warn.
+		if len(mapXML.CreateEntities)+len(mapXML.EntityDecls)+len(mapXML.InitialEntities) == 0 {
+			if existing, lerr := excel.LoadMapXMLFromFile(xmlPath); lerr == nil {
+				if len(existing.CreateEntities)+len(existing.EntityDecls)+len(existing.InitialEntities) > 0 {
+					mapXML.CreateEntities = existing.CreateEntities
+					mapXML.EntityDecls = existing.EntityDecls
+					mapXML.InitialEntities = existing.InitialEntities
+					fmt.Printf("  Warning: %s has no structural sections (pre-fix sheet); kept the sections from %s — re-export to refresh the sheet\n",
+						filepath.Base(path), filepath.Base(xmlPath))
+				}
+			}
 		}
 		if err := os.MkdirAll(filepath.Dir(xmlPath), 0755); err != nil {
 			return err
