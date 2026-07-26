@@ -553,6 +553,17 @@ func (t *Trace) handleRemoveAt(node *TraceNode) error {
 	return nil
 }
 
+// EntityByID returns the replayed entity instance for a recorded id, or
+// nil. Valid for the position the trace was last replayed to.
+func (t *Trace) EntityByID(id string) dtrules.Entity {
+	return t.entityTable[id]
+}
+
+// ArrayByID returns the replayed array for a recorded arrayId, or nil.
+func (t *Trace) ArrayByID(id int) *dtrules.RArray {
+	return t.arrayTable[id]
+}
+
 // InstancesOf returns all entities of the given type that were created
 // up to the current position.
 func (t *Trace) InstancesOf(entityName string) []dtrules.Entity {

@@ -428,6 +428,8 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("/api/debug/load", s.handleDebugLoad)
 	mux.HandleFunc("/api/debug/status", s.handleDebugStatus)
 	mux.HandleFunc("/api/debug/find", s.handleDebugFind)
+	mux.HandleFunc("/api/debug/entity", s.handleDebugEntity)
+	mux.HandleFunc("/api/debug/array", s.handleDebugArray)
 	mux.HandleFunc("/api/debug/report", s.handleDebugReport)
 	mux.HandleFunc("/api/debug/speculate", s.handleDebugSpeculate)
 	mux.HandleFunc("/api/debug/speculate/reset", s.handleDebugSpeculateReset)

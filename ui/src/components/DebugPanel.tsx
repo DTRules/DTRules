@@ -33,6 +33,7 @@ import {
 import { FileBrowser } from '@/components/FileBrowser';
 import { DebugTableView } from '@/components/DebugTableView';
 import { ReportPanel } from '@/components/ReportPanel';
+import { EntityExplorer } from '@/components/EntityExplorer';
 import {
   ancestorsOf,
   bucketSize,
@@ -260,6 +261,8 @@ export function DebugPanel() {
   // Per-entity-name expand/collapse for the stack panel; unset = default
   // (top frame open, others collapsed).
   const [stackOpen, setStackOpen] = useState<Record<string, boolean>>({});
+  // Entity explorer overlay: which stack instance is being inspected.
+  const [explorer, setExplorer] = useState<{ id: number; name: string } | null>(null);
   // Find-writes panel: query text, results, and which hit's why-chain is open.
   const [findQuery, setFindQuery] = useState('');
   const [findHits, setFindHits] = useState<FindHit[] | null>(null);
@@ -687,7 +690,16 @@ export function DebugPanel() {
   // ── debugger ────────────────────────────────────────────────────────
   const verifyClean = (info.verifyMismatches || []).length === 0;
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="h-full flex flex-col overflow-hidden relative">
+      {explorer && (
+        <EntityExplorer
+          key={`${explorer.id}-${position}`}
+          rootId={explorer.id}
+          rootName={explorer.name}
+          position={position}
+          onClose={() => setExplorer(null)}
+        />
+      )}
       {/* Trust strip */}
       <div className="px-4 py-1.5 border-b border-amber-500/25 bg-amber-500/[0.07] flex items-center gap-3 text-xs flex-wrap">
         <span className="font-mono">{info.tracePath?.split('/').pop()}</span>
@@ -998,8 +1010,18 @@ export function DebugPanel() {
                         top of stack
                       </span>
                     )}
+                    <button
+                      className="ml-auto text-muted-foreground hover:text-foreground text-[10px] px-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExplorer({ id: f.id, name: f.name });
+                      }}
+                      title="Open the entity explorer — drill into this instance's fields, entities, and arrays"
+                    >
+                      ⤢ explore
+                    </button>
                     {!open && (
-                      <span className="ml-auto text-[10px] text-muted-foreground">
+                      <span className="text-[10px] text-muted-foreground">
                         {Object.keys(f.attrs).length} fields
                       </span>
                     )}
