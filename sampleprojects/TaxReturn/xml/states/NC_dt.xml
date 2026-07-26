@@ -77,6 +77,17 @@ result.agi 12750.0 f- 0.0 fmax cvd /result.nc_taxable_income xdef result.nc_taxa
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
+<action_dsl>set result.computed_state_taxable_income = result.nc_taxable_income; set result.computed_state_tax = result.nc_state_tax</action_dsl>
+<action_postfix>
+result.nc_taxable_income cvd /result.computed_state_taxable_income xdef result.nc_state_tax cvd /result.computed_state_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="2" column_value="X" />
+<action_column column_number="3" column_value="X" />
+</action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">

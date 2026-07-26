@@ -3,6 +3,11 @@
 
 <!-- TABLE 47000: PA_Tax -->
 <decision_table>
+<source>
+<relative_path>PA.xlsx</relative_path>
+<file_name>PA.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>PA_Tax</table_name>
 <xls_file>PA.xlsx</xls_file>
 <attribute_fields>
@@ -15,13 +20,9 @@
 <initial_action>
 <action_comment>Reset PA tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.pa_tax = 0; set result.pa_state_tax = 0; set result.pa_total_income = 0; add "  Pennsylvania Tax Calculation (Form PA-40) - flat 3.07%" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvd /result.pa_tax xdef 0 cvd /result.pa_state_tax xdef 0 cvd /result.pa_total_income xdef &quot;  Pennsylvania Tax Calculation (Form PA-40) - flat 3.07%&quot; job.audit_trail swap addto</initial_action_postfix>
-<action_postfix>
-0.0 /result.pa_tax xdef
-0.0 /result.pa_state_tax xdef
-0.0 /result.pa_total_income xdef
-"  Pennsylvania Tax Calculation (Form PA-40) — flat 3.07%" job.audit_trail swap addto
-</action_postfix>
+<initial_action_postfix>
+0 cvd /result.pa_tax xdef 0 cvd /result.pa_state_tax xdef 0 cvd /result.pa_total_income xdef "  Pennsylvania Tax Calculation (Form PA-40) - flat 3.07%" job.audit_trail swap addto
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -29,7 +30,9 @@
 <condition_number>1</condition_number>
 <condition_comment>Always compute (PA has no filing-status differences in rate/deduction)</condition_comment>
 <condition_dsl>true</condition_dsl>
-<condition_postfix>true</condition_postfix>
+<condition_postfix>
+true
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
@@ -38,7 +41,18 @@
 <action_number>1</action_number>
 <action_comment>PA total income = AGI (simple); tax = total_income × 3.07%</action_comment>
 <action_dsl>set result.pa_total_income = the maximum of result.agi and 0.0; set result.pa_tax = result.pa_total_income * pa_tax_rate; set result.pa_state_tax = result.pa_tax; add "  PA total income: $" + result.pa_total_income to job.audit_trail; add "  PA state tax (3.07%): $" + result.pa_state_tax to job.audit_trail</action_dsl>
-<action_postfix>result.agi 0.0 fmax cvd /result.pa_total_income xdef result.pa_total_income pa_tax_rate fmul cvd /result.pa_tax xdef result.pa_tax cvd /result.pa_state_tax xdef &quot;  PA total income: $&quot; result.pa_total_income strconcat job.audit_trail swap addto &quot;  PA state tax (3.07%): $&quot; result.pa_state_tax strconcat job.audit_trail swap addto</action_postfix>
+<action_postfix>
+result.agi 0.0 fmax cvd /result.pa_total_income xdef result.pa_total_income pa_tax_rate fmul cvd /result.pa_tax xdef result.pa_tax cvd /result.pa_state_tax xdef "  PA total income: $" result.pa_total_income strconcat job.audit_trail swap addto "  PA state tax (3.07%): $" result.pa_state_tax strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
+<action_dsl>set result.computed_state_taxable_income = result.pa_total_income; set result.computed_state_tax = result.pa_state_tax</action_dsl>
+<action_postfix>
+result.pa_total_income cvd /result.computed_state_taxable_income xdef result.pa_state_tax cvd /result.computed_state_tax xdef
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>

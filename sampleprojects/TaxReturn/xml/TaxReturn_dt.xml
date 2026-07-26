@@ -1031,9 +1031,9 @@ dup job.incomes forall pop
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has gross amount</condition_comment>
-<condition_dsl>income.gross_amount &gt; 0</condition_dsl>
+<condition_dsl>income.gross_amount &gt; 0 and income.type is not equal to "w2_wages" and income.type is not equal to "w2" and income.type is not equal to "self_employment"</condition_dsl>
 <condition_postfix>
-income.gross_amount 0 f&gt;
+income.gross_amount 0 f&gt; { pop income.type "w2_wages" streq not } over if { pop income.type "w2" streq not } over if { pop income.type "self_employment" streq not } over if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -1169,18 +1169,18 @@ result.total_itemized result.standard_deduction f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Use itemized deductions</action_comment>
-<action_dsl>set result.deduction_used = result.total_itemized</action_dsl>
+<action_dsl>set result.total_deduction = result.total_itemized; set result.deduction_used = "itemized"</action_dsl>
 <action_postfix>
-result.total_itemized cvs /result.deduction_used xdef
+result.total_itemized cvd /result.total_deduction xdef "itemized" cvs /result.deduction_used xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Use standard deduction</action_comment>
-<action_dsl>set result.deduction_used = result.standard_deduction</action_dsl>
+<action_dsl>set result.total_deduction = result.standard_deduction; set result.deduction_used = "standard"</action_dsl>
 <action_postfix>
-result.standard_deduction cvs /result.deduction_used xdef
+result.standard_deduction cvd /result.total_deduction xdef "standard" cvs /result.deduction_used xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -3165,9 +3165,9 @@ constants.odc_amount cvd result.total_odc f+ /result.total_odc xdef
 <initial_actions>
 <initial_action>
 <action_comment>set result.total_tax = tax_before_credits - nonrefundable_credits + ptc_repayment, add refundable credits to payments</action_comment>
-<initial_action_dsl>set result.balance_due = result.total_tax - result.total_payments; set result.refund = the maximum of (result.total_payments - result.total_tax) and 0; add "Calculating final balance per Form 1040 lines 37-38" to job.audit_trail</initial_action_dsl>
+<initial_action_dsl>set result.total_tax = result.total_tax_before_credits - result.total_credits + result.ptc_repayment; set result.total_payments = result.total_payments + result.eitc + result.total_aotc_refundable; set result.balance_due = result.total_tax - result.total_payments; set result.refund = the maximum of (result.total_payments - result.total_tax) and 0; add "Calculating final balance per Form 1040 lines 37-38" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-result.total_tax result.total_payments f- cvd /result.balance_due xdef result.total_payments result.total_tax f- 0 fmax cvd /result.refund xdef "Calculating final balance per Form 1040 lines 37-38" job.audit_trail swap addto
+result.total_tax_before_credits result.total_credits result.ptc_repayment f+ f- cvd /result.total_tax xdef result.total_payments result.eitc f+ result.total_aotc_refundable f+ cvd /result.total_payments xdef result.total_tax result.total_payments f- cvd /result.balance_due xdef result.total_payments result.total_tax f- 0 fmax cvd /result.refund xdef "Calculating final balance per Form 1040 lines 37-38" job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -11753,9 +11753,9 @@ job.state "MO" streq
 <action_details>
 <action_number>9</action_number>
 <action_comment>Calculate Missouri / Hawaii state tax — note both states fire on column 10 due to duplicate condition_number=10 in the legacy dispatch. Whichever XX_Tax runs will set result.computed_state_tax based on job.state, so this single action handles both.</action_comment>
-<action_dsl>perform Dispatch_MO_HI_Tax; perform Synthesize_State_Tax_Result_If_Empty; add "  State Income Tax (" + job.state + "):" to job.audit_trail; add "    Taxable Income: $" + result.computed_state_taxable_income to job.audit_trail; add "    State Tax: $" + result.computed_state_tax to job.audit_trail</action_dsl>
+<action_dsl>perform Dispatch_MO_HI_Tax</action_dsl>
 <action_postfix>
-/Dispatch_MO_HI_Tax performtable /Synthesize_State_Tax_Result_If_Empty performtable "  State Income Tax (" job.state strconcat "):" strconcat job.audit_trail swap addto "    Taxable Income: $" result.computed_state_taxable_income strconcat job.audit_trail swap addto "    State Tax: $" result.computed_state_tax strconcat job.audit_trail swap addto
+/Dispatch_MO_HI_Tax performtable
 </action_postfix>
 <action_column column_number="10" column_value="X" />
 </action_details>
@@ -12054,6 +12054,58 @@ job.state "MO" streq
 <action_postfix>
 /MO_Tax performtable
 </action_postfix>
+<action_column column_number="44" column_value="X" />
+</action_details>
+<action_details>
+<action_number>43</action_number>
+<action_comment>Record state tax result and audit summary (all states)</action_comment>
+<action_dsl>perform Synthesize_State_Tax_Result_If_Empty; add "  State Income Tax (" + job.state + "):" to job.audit_trail; add "    Taxable Income: $" + result.computed_state_taxable_income to job.audit_trail; add "    State Tax: $" + result.computed_state_tax to job.audit_trail</action_dsl>
+<action_postfix>
+/Synthesize_State_Tax_Result_If_Empty performtable "  State Income Tax (" job.state strconcat "):" strconcat job.audit_trail swap addto "    Taxable Income: $" result.computed_state_taxable_income strconcat job.audit_trail swap addto "    State Tax: $" result.computed_state_tax strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="2" column_value="X" />
+<action_column column_number="3" column_value="X" />
+<action_column column_number="4" column_value="X" />
+<action_column column_number="5" column_value="X" />
+<action_column column_number="6" column_value="X" />
+<action_column column_number="7" column_value="X" />
+<action_column column_number="8" column_value="X" />
+<action_column column_number="9" column_value="X" />
+<action_column column_number="10" column_value="X" />
+<action_column column_number="11" column_value="X" />
+<action_column column_number="12" column_value="X" />
+<action_column column_number="13" column_value="X" />
+<action_column column_number="14" column_value="X" />
+<action_column column_number="15" column_value="X" />
+<action_column column_number="16" column_value="X" />
+<action_column column_number="17" column_value="X" />
+<action_column column_number="18" column_value="X" />
+<action_column column_number="19" column_value="X" />
+<action_column column_number="20" column_value="X" />
+<action_column column_number="21" column_value="X" />
+<action_column column_number="22" column_value="X" />
+<action_column column_number="23" column_value="X" />
+<action_column column_number="24" column_value="X" />
+<action_column column_number="25" column_value="X" />
+<action_column column_number="26" column_value="X" />
+<action_column column_number="27" column_value="X" />
+<action_column column_number="28" column_value="X" />
+<action_column column_number="29" column_value="X" />
+<action_column column_number="30" column_value="X" />
+<action_column column_number="31" column_value="X" />
+<action_column column_number="32" column_value="X" />
+<action_column column_number="33" column_value="X" />
+<action_column column_number="34" column_value="X" />
+<action_column column_number="35" column_value="X" />
+<action_column column_number="36" column_value="X" />
+<action_column column_number="37" column_value="X" />
+<action_column column_number="38" column_value="X" />
+<action_column column_number="39" column_value="X" />
+<action_column column_number="40" column_value="X" />
+<action_column column_number="41" column_value="X" />
+<action_column column_number="42" column_value="X" />
+<action_column column_number="43" column_value="X" />
 <action_column column_number="44" column_value="X" />
 </action_details>
 </actions>
