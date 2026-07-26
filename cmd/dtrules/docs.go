@@ -31,6 +31,7 @@ var docTopics = map[string]string{
 	"xml-format":         docXMLFormat,
 	"edd":                docEDD,
 	"decision-tables":    docDecisionTables,
+	"debug":              docDebug,
 	"operators":          docOperators,
 	"examples":           docExamples,
 	"mapping":            docMapping,
@@ -85,6 +86,7 @@ func printDocIndex() {
 		"xml-format":         "XML file format specification (EDD and DT)",
 		"edd":                "Entity Data Dictionary - defining entities and fields",
 		"decision-tables":    "How to write decision tables",
+		"debug":              "Traces, the trace debugger, Find/why, reports, and speculative reruns",
 		"operators":          "All available operators with examples",
 		"examples":           "Complete working examples",
 		"mapping":            "Mapping XML and xlsx schema for translating input data into EDD entities",
@@ -3603,7 +3605,11 @@ Top-level command map
 
     dtrules init       Scaffold a new project directory
     dtrules build      Extract DSL from Excel + compile postfix (the human path)
-    dtrules run        Run a decision table; --interactive collects missing inputs
+    dtrules run        Run a decision table; --interactive collects missing inputs;
+                       --trace records a debugger-ready execution trace
+    dtrules debug      Run + trace + open the editor's trace debugger (one command)
+    dtrules report     Generate an EDD-driven report from a trace (see docs debug)
+    dtrules edit       Serve the visual editor/debugger in the browser
     dtrules table      JSON-first per-table read/write (the programmatic path)
     dtrules edd        JSON-first EDD read/write (the programmatic path)
     dtrules sync       Fine-grained Excel/XML sync (status/check/import/export/auto)
