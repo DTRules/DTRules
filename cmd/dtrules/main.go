@@ -71,6 +71,7 @@ var subcommands = map[string]bool{
 	"build":    true,
 	"run":      true,
 	"debug":    true,
+	"report":   true,
 	"verify":   true,
 	"sync":     true,
 	"internal": true,

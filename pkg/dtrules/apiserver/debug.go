@@ -105,6 +105,13 @@ type debugSession struct {
 	provenance       trace.Provenance
 	fingerprintMatch string // "match", "mismatch", or "unknown"
 	verifyMismatches []string
+
+	// baseline holds the original trace while a speculative run is the
+	// active session (nil otherwise). Reports diff against it; reset
+	// restores it.
+	baseline     *trace.Trace
+	baselinePath string
+	speculative  bool
 }
 
 // consoleBlocked are mutating operators the debug console refuses: the
@@ -193,6 +200,7 @@ func debugSessionPayload(ds *debugSession) map[string]interface{} {
 		"rulesFingerprint": ds.provenance.RulesFingerprint,
 		"fingerprintMatch": ds.fingerprintMatch,
 		"verifyMismatches": ds.verifyMismatches,
+		"speculative":      ds.speculative,
 	}
 }
 

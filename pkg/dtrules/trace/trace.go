@@ -237,6 +237,16 @@ func (t *Trace) getOrCreateEntity(node *TraceNode) (dtrules.Entity, error) {
 		return nil, fmt.Errorf("failed to create entity %s: %w", entityName, err)
 	}
 
+	// Force the RECORDED id onto the replayed instance. A replayed session
+	// that continues executing (speculative reruns) emits trace events with
+	// entity.GetID() — those must match the ids already recorded, or the
+	// produced trace cannot replay.
+	if recorded, aerr := strconv.Atoi(id); aerr == nil {
+		if setter, ok := entity.(interface{ SetID(int) }); ok {
+			setter.SetID(recorded)
+		}
+	}
+
 	t.entityTable[id] = entity
 	return entity, nil
 }
@@ -550,12 +560,37 @@ func (t *Trace) InstancesOf(entityName string) []dtrules.Entity {
 		return nil
 	}
 
+	// Java-era traces identify instances with <createentity> events;
+	// Go traces carry entity + id attributes on entitypush / def / addto
+	// events. Collect from both, first-seen order, deduped.
 	var entityIDs []int
 	t.root.SearchTree(t, entityName, &entityIDs)
 
-	result := make([]dtrules.Entity, 0, len(entityIDs))
+	seen := map[string]bool{}
 	for _, id := range entityIDs {
-		if entity, ok := t.entityTable[strconv.Itoa(id)]; ok {
+		seen[strconv.Itoa(id)] = true
+	}
+	ids := make([]string, 0, len(entityIDs))
+	for _, id := range entityIDs {
+		ids = append(ids, strconv.Itoa(id))
+	}
+	var walk func(n *TraceNode)
+	walk = func(n *TraceNode) {
+		if strings.EqualFold(n.Attributes["entity"], entityName) {
+			if id := n.Attributes["id"]; id != "" && !seen[id] {
+				seen[id] = true
+				ids = append(ids, id)
+			}
+		}
+		for _, c := range n.Children {
+			walk(c)
+		}
+	}
+	walk(t.root)
+
+	result := make([]dtrules.Entity, 0, len(ids))
+	for _, id := range ids {
+		if entity, ok := t.entityTable[id]; ok {
 			result = append(result, entity)
 		}
 	}

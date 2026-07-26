@@ -427,6 +427,11 @@ func (s *Server) Routes() http.Handler {
 	// Trace debugger endpoints
 	mux.HandleFunc("/api/debug/load", s.handleDebugLoad)
 	mux.HandleFunc("/api/debug/status", s.handleDebugStatus)
+	mux.HandleFunc("/api/debug/find", s.handleDebugFind)
+	mux.HandleFunc("/api/debug/report", s.handleDebugReport)
+	mux.HandleFunc("/api/debug/speculate", s.handleDebugSpeculate)
+	mux.HandleFunc("/api/debug/speculate/reset", s.handleDebugSpeculateReset)
+	mux.HandleFunc("/api/reports", s.handleReportSpecs)
 	mux.HandleFunc("/api/debug/tree", s.handleDebugTree)
 	mux.HandleFunc("/api/debug/position", s.handleDebugPosition)
 	mux.HandleFunc("/api/debug/console", s.handleDebugConsole)
@@ -455,6 +460,13 @@ func readOnlyGuard(next http.Handler) http.Handler {
 		"/api/debug/load":     true,
 		"/api/debug/position": true,
 		"/api/debug/console":  true,
+		// Reports read replayed state; spec SAVES are guarded inside the
+		// handler itself (403 when read-only).
+		"/api/debug/report": true,
+		// Speculation writes only to a scratch overlay and the in-memory
+		// session — project files are never touched.
+		"/api/debug/speculate":       true,
+		"/api/debug/speculate/reset": true,
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/browse" {

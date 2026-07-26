@@ -96,6 +96,8 @@ func (c *CLI) Run(args []string) int {
 		return c.runRun(cmdArgs)
 	case "debug":
 		return c.runDebug(cmdArgs)
+	case "report":
+		return c.runReport(cmdArgs)
 	case "verify":
 		return c.runVerify(cmdArgs)
 	case "sync":
