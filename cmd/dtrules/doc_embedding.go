@@ -210,4 +210,14 @@ See Also
   dtrules docs xml-format      Compiled XML format
   dtrules docs edd             Entity Data Dictionary
   dtrules docs decision-tables Decision table authoring
+
+TRACES FOR DEBUGGING AND VALIDATION
+-----------------------------------
+
+An embedded engine can record execution traces that load straight into
+the visual trace debugger — step through the run, ask where a value came
+from, generate outcome reports, and rerun the same inputs against a
+speculative table edit. See the "TRACES FROM AN EMBEDDING GO PROGRAM"
+section of ` + "`dtrules docs debug`" + ` for the exact wiring (WriteHeader ->
+SetOutput/EnableTrace BEFORE data load -> Execute -> WriteFinalState).
 `
