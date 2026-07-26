@@ -15,6 +15,7 @@
 package apiserver
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -100,8 +101,11 @@ func (s *Server) handleDebugFind(w http.ResponseWriter, r *http.Request) {
 	attr := strings.TrimSpace(r.URL.Query().Get("attr"))
 	entity := strings.TrimSpace(r.URL.Query().Get("entity"))
 	value := strings.TrimSpace(r.URL.Query().Get("value"))
+	instanceID := strings.TrimSpace(r.URL.Query().Get("id"))
+	keyField := strings.TrimSpace(r.URL.Query().Get("keyField"))
+	keyValue := strings.TrimSpace(r.URL.Query().Get("keyValue"))
 	if attr == "" {
-		jsonError(w, "attr is required (optionally entity and value)", http.StatusBadRequest)
+		jsonError(w, "attr is required (optionally entity, value, id, keyField/keyValue)", http.StatusBadRequest)
 		return
 	}
 
@@ -113,6 +117,39 @@ func (s *Server) handleDebugFind(w http.ResponseWriter, r *http.Request) {
 	}
 
 	root := s.debug.trace.Root()
+
+	// Instance scoping — the usual question is about ONE entity out of
+	// all of them ("why is THIS account ineligible?"). A key field pins
+	// the instance: every id whose keyField was set to keyValue.
+	var wantIDs map[string]bool
+	if instanceID != "" {
+		wantIDs = map[string]bool{instanceID: true}
+	} else if keyField != "" && keyValue != "" {
+		wantIDs = map[string]bool{}
+		var scan func(n *trace.TraceNode)
+		scan = func(n *trace.TraceNode) {
+			if n.Name == "def" &&
+				strings.EqualFold(n.Attributes["name"], keyField) &&
+				(entity == "" || strings.EqualFold(n.Attributes["entity"], entity)) &&
+				valuesMatch(normalizeTraceValue(n.Body), keyValue) {
+				if id := n.Attributes["id"]; id != "" {
+					wantIDs[id] = true
+				}
+			}
+			for _, c := range n.Children {
+				scan(c)
+			}
+		}
+		scan(root)
+		if len(wantIDs) == 0 {
+			jsonResponse(w, map[string]interface{}{
+				"success": true, "total": 0, "hits": []findHit{},
+				"note": fmt.Sprintf("no %s has %s = %s", entityOr(entity, "entity"), keyField, keyValue),
+			})
+			return
+		}
+	}
+
 	hits := []findHit{}
 	total := 0
 
@@ -120,7 +157,8 @@ func (s *Server) handleDebugFind(w http.ResponseWriter, r *http.Request) {
 	walk = func(n *trace.TraceNode) {
 		if n.Name == "def" &&
 			strings.EqualFold(n.Attributes["name"], attr) &&
-			(entity == "" || strings.EqualFold(n.Attributes["entity"], entity)) {
+			(entity == "" || strings.EqualFold(n.Attributes["entity"], entity)) &&
+			(wantIDs == nil || wantIDs[n.Attributes["id"]]) {
 			v := normalizeTraceValue(n.Body)
 			if value == "" || valuesMatch(v, value) {
 				total++
@@ -147,6 +185,14 @@ func (s *Server) handleDebugFind(w http.ResponseWriter, r *http.Request) {
 		"total":   total,
 		"hits":    hits,
 	})
+}
+
+// entityOr returns name or the fallback when name is empty.
+func entityOr(name, fallback string) string {
+	if name == "" {
+		return fallback
+	}
+	return name
 }
 
 // whyChain walks up from a trace node collecting, for each enclosing

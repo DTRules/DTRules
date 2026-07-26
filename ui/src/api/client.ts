@@ -552,16 +552,30 @@ export interface FindHit {
   chain: FindChainLink[];
 }
 
-/** Searches the loaded trace for writes of a field (EL case-insensitive). */
-export async function debugFind(attr: string, entity?: string, value?: string): Promise<{
+/** Searches the loaded trace for writes of a field (EL case-insensitive).
+ *  Instance scoping: pass id (a specific instance) or keyField/keyValue
+ *  ("the staking_account whose account_url is ...") to ask about ONE
+ *  entity out of all of them. */
+export async function debugFind(opts: {
+  attr: string;
+  entity?: string;
+  value?: string;
+  id?: string;
+  keyField?: string;
+  keyValue?: string;
+}): Promise<{
   success: boolean;
   error?: string;
   total?: number;
   hits?: FindHit[];
+  note?: string;
 }> {
-  const q = new URLSearchParams({ attr });
-  if (entity) q.set('entity', entity);
-  if (value) q.set('value', value);
+  const q = new URLSearchParams({ attr: opts.attr });
+  if (opts.entity) q.set('entity', opts.entity);
+  if (opts.value) q.set('value', opts.value);
+  if (opts.id) q.set('id', opts.id);
+  if (opts.keyField) q.set('keyField', opts.keyField);
+  if (opts.keyValue) q.set('keyValue', opts.keyValue);
   return fetchJSON(`${API_BASE}/debug/find?${q}`);
 }
 
