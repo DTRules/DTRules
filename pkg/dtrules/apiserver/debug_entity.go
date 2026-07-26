@@ -35,6 +35,10 @@ type entityValue struct {
 	// Entity references
 	Entity string `json:"entity,omitempty"` // entity name
 	ID     int    `json:"id,omitempty"`     // instance id (fetch /api/debug/entity?id=)
+	// Self marks the conventional self-reference field every entity
+	// carries (the field that just points back at this instance) — shown
+	// first and not navigable.
+	Self bool `json:"self,omitempty"`
 
 	// Arrays
 	ArrayID int `json:"arrayId,omitempty"` // fetch /api/debug/array?id=
@@ -103,7 +107,20 @@ func (s *Server) handleDebugEntity(w http.ResponseWriter, r *http.Request) {
 		}
 		fields = append(fields, entityField{Name: name, entityValue: classifyObject(v)})
 	}
-	sort.Slice(fields, func(i, j int) bool { return fields[i].Name < fields[j].Name })
+	// The conventional self-reference (a ref back to this very instance)
+	// leads the list; everything else stays alphabetical.
+	selfID := e.GetID()
+	for i := range fields {
+		if fields[i].Kind == "entity" && fields[i].ID == selfID {
+			fields[i].Self = true
+		}
+	}
+	sort.Slice(fields, func(i, j int) bool {
+		if fields[i].Self != fields[j].Self {
+			return fields[i].Self
+		}
+		return fields[i].Name < fields[j].Name
+	})
 
 	jsonResponse(w, map[string]interface{}{
 		"success": true,

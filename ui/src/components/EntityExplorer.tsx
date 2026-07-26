@@ -95,6 +95,16 @@ function EntityNode({ id, depth, defaultOpen, initialName }: { id: number; depth
 
 /** One field row: scalar inline; entity/array expandable. */
 function FieldRow({ field, depth }: { field: ExplorerField; depth: number }) {
+  if (field.self) {
+    // The conventional self-reference: identifies the instance, goes
+    // nowhere — no navigation into itself.
+    return (
+      <div className="leading-5 flex gap-2" style={{ paddingLeft: 12 }}>
+        <span className="text-muted-foreground shrink-0">{field.name}</span>
+        <span className="text-muted-foreground/70 italic">this {field.entity}</span>
+      </div>
+    );
+  }
   if (field.kind === 'entity' && field.id) {
     return (
       <div className="leading-5" style={{ paddingLeft: 12 }}>

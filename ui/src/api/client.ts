@@ -689,6 +689,8 @@ export interface ExplorerValue {
   value?: string;
   entity?: string;
   id?: number;
+  /** The conventional self-reference field — listed first, not navigable. */
+  self?: boolean;
   arrayId?: number;
   length?: number;
 }
