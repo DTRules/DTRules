@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useProjectStore } from '@/stores/projectStore';
+import { useStoredWidth } from '@/lib/resize';
 import { useOnboardingStore } from '@/stores/onboardingStore';
 import { ProjectExplorer } from '@/components/ProjectExplorer';
 import { EDDEditor } from '@/components/EDDEditor';
@@ -19,6 +20,7 @@ import { deriveProjectName } from '@/lib/utils';
 
 function App() {
   const { activeTab, setActiveTabWithHistory, projectPath, projectConfig, error, clearError, isLoading, adoptProject, autoSelectFirstItems, setReadOnly, setProjectConfig } = useProjectStore();
+  const { width: sidebarWidth, onDragStart: onSidebarDrag } = useStoredWidth('dtrules.sidebarWidth', 256, 160, 520);
   const { showWelcome } = useOnboardingStore();
   const { toast } = useToast();
   const [backendConnected, setBackendConnected] = useState(false);
@@ -97,13 +99,19 @@ function App() {
 
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Project Explorer */}
+        {/* Project Explorer (drag the divider to resize) */}
         <div
-          className="w-64 border-r border-border/50 overflow-hidden flex flex-col"
+          className="overflow-hidden flex flex-col shrink-0"
+          style={{ width: sidebarWidth }}
           data-tutorial="project-explorer"
         >
           <ProjectExplorer />
         </div>
+        <div
+          className="w-1 shrink-0 cursor-col-resize bg-border/50 hover:bg-blue-500/60 transition-colors"
+          onMouseDown={onSidebarDrag}
+          title="Drag to resize the Project Explorer"
+        />
 
         {/* Editor Area */}
         <div className="flex-1 flex flex-col overflow-hidden">

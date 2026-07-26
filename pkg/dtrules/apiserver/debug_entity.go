@@ -125,11 +125,19 @@ func (s *Server) handleDebugEntity(w http.ResponseWriter, r *http.Request) {
 		return fields[i].Name < fields[j].Name
 	})
 
+	// The EDD assigns every entity a number (the 100-grid ordering) —
+	// carried here so the explorer can show it alongside the instance.
+	entityNumber := ""
+	if ed := s.findEntity(entityName); ed != nil {
+		entityNumber = ed.Number
+	}
+
 	jsonResponse(w, map[string]interface{}{
-		"success": true,
-		"name":    e.GetName().StringValue(),
-		"id":      e.GetID(),
-		"fields":  fields,
+		"success":      true,
+		"name":         entityName,
+		"id":           e.GetID(),
+		"entityNumber": entityNumber,
+		"fields":       fields,
 	})
 }
 

@@ -34,6 +34,7 @@ import { FileBrowser } from '@/components/FileBrowser';
 import { DebugTableView } from '@/components/DebugTableView';
 import { ReportPanel } from '@/components/ReportPanel';
 import { EntityExplorer } from '@/components/EntityExplorer';
+import { useStoredWidth } from '@/lib/resize';
 import {
   ancestorsOf,
   bucketSize,
@@ -261,6 +262,7 @@ export function DebugPanel() {
   // Per-entity-name expand/collapse for the stack panel; unset = default
   // (top frame open, others collapsed).
   const [stackOpen, setStackOpen] = useState<Record<string, boolean>>({});
+  const { width: railWidth, onDragStart: onRailDrag } = useStoredWidth('dtrules.debugRailWidth', 320, 220, 700);
   // Entity explorer overlay: which stack instance is being inspected.
   const [explorer, setExplorer] = useState<{ id: number; name: string } | null>(null);
   // Find-writes panel: query text, results, and which hit's why-chain is open.
@@ -846,9 +848,9 @@ export function DebugPanel() {
         </div>
       )}
 
-      {/* Tree + stack */}
-      <div className="flex-1 grid grid-cols-[1fr_320px] overflow-hidden">
-        <ScrollArea className="border-r border-border/50">
+      {/* Tree + stack (drag the divider to resize the rail) */}
+      <div className="flex-1 grid overflow-hidden" style={{ gridTemplateColumns: `1fr 4px ${railWidth}px` }}>
+        <ScrollArea>
           {viewMode === 'report' ? (
             <ReportPanel />
           ) : viewMode === 'table' ? (
@@ -892,6 +894,11 @@ export function DebugPanel() {
             </div>
           )}
         </ScrollArea>
+        <div
+          className="cursor-col-resize bg-border/50 hover:bg-blue-500/60 transition-colors"
+          onMouseDown={onRailDrag}
+          title="Drag to resize the entity stack"
+        />
         <ScrollArea className="[&_[data-radix-scroll-area-viewport]>div]:!block min-w-0">
           <div className="p-3 space-y-2 min-w-0">
             <div className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">
