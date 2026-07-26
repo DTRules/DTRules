@@ -542,19 +542,41 @@ export function DebugPanel() {
     });
   }, [position, goTo]);
 
-  // runFind parses "attr", "entity.attr", or "... = value" and searches
-  // the trace for matching writes.
+  // runFind parses the query and searches the trace for matching writes.
+  // Forms (all names EL case-insensitive):
+  //   field                                  every write of the field
+  //   entity.field                           scoped to an entity type
+  //   entity[key=value].field                ONE instance, picked by key
+  //   entity#1234.field                      ONE instance, by id
+  //   ...any of the above = value            only writes of that value
   const runFind = useCallback(async () => {
     const q = findQuery.trim();
     if (!q) {
       setFindHits(null);
       return;
     }
-    const [lhs, rhs] = q.split('=').map((x) => x.trim());
-    const dot = lhs.indexOf('.');
-    const entity = dot > 0 ? lhs.slice(0, dot) : undefined;
-    const attr = dot > 0 ? lhs.slice(dot + 1) : lhs;
-    const r = await debugFind(attr, entity, rhs || undefined);
+    // Split lhs/rhs on the first '=' OUTSIDE brackets.
+    let depth = 0;
+    let split = -1;
+    for (let i = 0; i < q.length; i++) {
+      if (q[i] === '[') depth++;
+      else if (q[i] === ']') depth--;
+      else if (q[i] === '=' && depth === 0) {
+        split = i;
+        break;
+      }
+    }
+    const lhs = (split >= 0 ? q.slice(0, split) : q).trim();
+    const rhs = split >= 0 ? q.slice(split + 1).trim() : undefined;
+
+    const m = lhs.match(/^([A-Za-z_]\w*)(?:\[\s*([\w.]+)\s*=\s*(.+?)\s*\]|#(\d+))?\.([A-Za-z_]\w*)$/);
+    let opts;
+    if (m) {
+      opts = { entity: m[1], keyField: m[2], keyValue: m[3], id: m[4], attr: m[5], value: rhs };
+    } else {
+      opts = { attr: lhs, value: rhs };
+    }
+    const r = await debugFind(opts);
     if (r.success) {
       setFindHits(r.hits || []);
       setFindTotal(r.total || 0);
@@ -868,9 +890,9 @@ export function DebugPanel() {
                 value={findQuery}
                 onChange={(e) => setFindQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && runFind()}
-                placeholder="entity.field = value"
+                placeholder="entity[key=val].field = value"
                 className="flex-1 h-7 px-2 rounded border border-input bg-transparent font-mono text-xs"
-                title="Search the trace for writes: field, entity.field, or entity.field = value (case-insensitive)"
+                title="Where was a field set? Forms: field · entity.field · entity[key=value].field (one instance, e.g. staking_account[account_url=acc://x].is_eligible) · entity#id.field — add '= value' to match a value. Case-insensitive."
               />
               <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={runFind}>
                 Find
