@@ -18,6 +18,7 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
 )
@@ -35,9 +36,10 @@ type entityValue struct {
 	// Entity references
 	Entity string `json:"entity,omitempty"` // entity name
 	ID     int    `json:"id,omitempty"`     // instance id (fetch /api/debug/entity?id=)
-	// Self marks the conventional self-reference field every entity
-	// carries (the field that just points back at this instance) — shown
-	// first and not navigable.
+	// Self marks the entity's name field. DTRules ALWAYS builds each
+	// entity with a field named after the entity itself, referencing the
+	// instance — it is what lets EL reference entities by name. Shown
+	// first and not navigable (it only points back here).
 	Self bool `json:"self,omitempty"`
 
 	// Arrays
@@ -107,12 +109,13 @@ func (s *Server) handleDebugEntity(w http.ResponseWriter, r *http.Request) {
 		}
 		fields = append(fields, entityField{Name: name, entityValue: classifyObject(v)})
 	}
-	// The conventional self-reference (a ref back to this very instance)
-	// leads the list; everything else stays alphabetical.
-	selfID := e.GetID()
+	// The entity's name field (the engine-built self-reference) leads
+	// the list; everything else stays alphabetical.
+	entityName := e.GetName().StringValue()
 	for i := range fields {
-		if fields[i].Kind == "entity" && fields[i].ID == selfID {
+		if strings.EqualFold(fields[i].Name, entityName) {
 			fields[i].Self = true
+			fields[i].Entity = entityName
 		}
 	}
 	sort.Slice(fields, func(i, j int) bool {
