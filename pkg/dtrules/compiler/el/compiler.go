@@ -87,7 +87,27 @@ func (c *Compiler) SetCollectionResolver(fn CollectionResolver) {
 // CompileCondition compiles an EL condition expression to postfix.
 // The input should be a boolean expression like "applicant.age >= 18".
 func (c *Compiler) CompileCondition(el string) (string, error) {
+	if isCommentOnly(el) {
+		// Documentation rows: a comment-only condition compiles to
+		// nothing; the loader substitutes "true always" at load time.
+		return "", nil
+	}
 	return c.compile("condition " + el)
+}
+
+// isCommentOnly reports whether the input is empty or consists solely of
+// a comment (// line, # line, or a /* block */) — a documentation row
+// with no executable content.
+func isCommentOnly(s string) bool {
+	t := strings.TrimSpace(s)
+	if t == "" {
+		return true
+	}
+	if strings.HasPrefix(t, "//") || strings.HasPrefix(t, "#") {
+		return true
+	}
+	return strings.HasPrefix(t, "/*") && strings.HasSuffix(t, "*/") &&
+		!strings.Contains(t[2:len(t)-2], "*/")
 }
 
 // CompileContext compiles an EL context statement to postfix.

@@ -656,6 +656,10 @@ fexpr
     | DIVIDE typedDouble BY number                          # floatDivBy
     | DIVIDE fexpr BY fexpr ROUNDING BY FP_LITERAL          # divideRoundingBy
     | ABSOLUTEVALUE OF fexpr                                # floatAbs
+    | CEILINGOF fexpr                                       # floatCeilingOf
+    | CEILINGOF iexpr                                       # floatCeilingOfInt
+    | FLOOROF fexpr                                         # floatFloorOf
+    | FLOOROF iexpr                                         # floatFloorOfInt
     | USING eexpr LPAREN fexpr RPAREN                       # floatUsing
     | DOUBLE VALUE OF operatorstatements                    # floatValueOfOp
     | fexpr ROUNDED                                         # floatRounded
@@ -1231,6 +1235,8 @@ ONERROR             : 'on' WS+ 'error' ;
 ABSOLUTEVALUE       : 'absolute' WS+ 'value' ;
 MINIMUM             : 'minimum' WS+ 'of' | 'smaller' WS+ 'of' ;
 MAXIMUM             : 'maximum' WS+ 'of' | 'larger' WS+ 'of' ;
+CEILINGOF           : 'ceiling' WS+ 'of' ;
+FLOOROF             : 'floor' WS+ 'of' ;
 HASA                : 'has' WS+ ('a' | 'an') ;
 DESCENDINGORDER     : 'descending' WS+ 'order'? ;
 ASCENDINGORDER      : 'ascending' WS+ 'order'? ;

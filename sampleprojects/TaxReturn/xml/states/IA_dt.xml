@@ -3,6 +3,11 @@
 
 <!-- TABLE 51600: IA_Tax -->
 <decision_table>
+<source>
+<relative_path>IA.xlsx</relative_path>
+<file_name>IA.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>IA_Tax</table_name>
 <xls_file>IA.xlsx</xls_file>
 <attribute_fields>
@@ -15,12 +20,9 @@
 <initial_action>
 <action_comment>Reset and log</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Iowa Tax Calculation (top marginal 3.8%)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef &quot;  Iowa Tax Calculation (top marginal 3.8%)&quot; job.audit_trail swap addto</initial_action_postfix>
-<action_postfix>
-0.0 /result.computed_state_tax xdef
-0.0 /result.computed_state_taxable_income xdef
-"  Iowa Tax Calculation (top marginal 3.8%)" job.audit_trail swap addto
-</action_postfix>
+<initial_action_postfix>
+0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Iowa Tax Calculation (top marginal 3.8%)" job.audit_trail swap addto
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -28,7 +30,9 @@
 <condition_number>1</condition_number>
 <condition_comment>Always</condition_comment>
 <condition_dsl>true</condition_dsl>
-<condition_postfix>true</condition_postfix>
+<condition_postfix>
+true
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
@@ -37,7 +41,9 @@
 <action_number>1</action_number>
 <action_comment>IA tax = max(AGI - $0, 0) x 3.8%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 0.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.038</action_dsl>
-<action_postfix>result.agi 0.0 - 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.038 fmul cvd /result.computed_state_tax xdef</action_postfix>
+<action_postfix>
+result.agi 0.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.038 fmul cvd /result.computed_state_tax xdef
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>

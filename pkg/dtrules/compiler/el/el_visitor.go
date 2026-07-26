@@ -1117,14 +1117,8 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#strConcatName.
 	VisitStrConcatName(ctx *StrConcatNameContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatMinOfFloat.
-	VisitFloatMinOfFloat(ctx *FloatMinOfFloatContext) interface{}
-
 	// Visit a parse tree produced by ELParser#floatMaxIntOf.
 	VisitFloatMaxIntOf(ctx *FloatMaxIntOfContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatAddFloat.
-	VisitFloatAddFloat(ctx *FloatAddFloatContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatParen.
 	VisitFloatParen(ctx *FloatParenContext) interface{}
@@ -1132,23 +1126,8 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatMulFloat.
 	VisitFloatMulFloat(ctx *FloatMulFloatContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatSumOfWhere.
-	VisitFloatSumOfWhere(ctx *FloatSumOfWhereContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatMaxOfFloat.
-	VisitFloatMaxOfFloat(ctx *FloatMaxOfFloatContext) interface{}
-
 	// Visit a parse tree produced by ELParser#floatDivFloat.
 	VisitFloatDivFloat(ctx *FloatDivFloatContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatValueOfOp.
-	VisitFloatValueOfOp(ctx *FloatValueOfOpContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatRoundedTo.
-	VisitFloatRoundedTo(ctx *FloatRoundedToContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatMinIntOf.
-	VisitFloatMinIntOf(ctx *FloatMinIntOfContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatAddInt.
 	VisitFloatAddInt(ctx *FloatAddIntContext) interface{}
@@ -1159,14 +1138,80 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatTableLookup.
 	VisitFloatTableLookup(ctx *FloatTableLookupContext) interface{}
 
+	// Visit a parse tree produced by ELParser#floatLiteral.
+	VisitFloatLiteral(ctx *FloatLiteralContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatTyped.
+	VisitFloatTyped(ctx *FloatTypedContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatFloorOf.
+	VisitFloatFloorOf(ctx *FloatFloorOfContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatSubInt.
+	VisitFloatSubInt(ctx *FloatSubIntContext) interface{}
+
+	// Visit a parse tree produced by ELParser#intMulFloat.
+	VisitIntMulFloat(ctx *IntMulFloatContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatDivBy.
+	VisitFloatDivBy(ctx *FloatDivByContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatMaxIntOfComma.
+	VisitFloatMaxIntOfComma(ctx *FloatMaxIntOfCommaContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatColonRef.
+	VisitFloatColonRef(ctx *FloatColonRefContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatFromInt.
+	VisitFloatFromInt(ctx *FloatFromIntContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatAddTo.
+	VisitFloatAddTo(ctx *FloatAddToContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatAbs.
+	VisitFloatAbs(ctx *FloatAbsContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatMaxOfFloatComma.
+	VisitFloatMaxOfFloatComma(ctx *FloatMaxOfFloatCommaContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatNegate.
+	VisitFloatNegate(ctx *FloatNegateContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatSumOf.
+	VisitFloatSumOf(ctx *FloatSumOfContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatMinOfFloat.
+	VisitFloatMinOfFloat(ctx *FloatMinOfFloatContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatAddFloat.
+	VisitFloatAddFloat(ctx *FloatAddFloatContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatSumOfWhere.
+	VisitFloatSumOfWhere(ctx *FloatSumOfWhereContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatMaxOfFloat.
+	VisitFloatMaxOfFloat(ctx *FloatMaxOfFloatContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatValueOfOp.
+	VisitFloatValueOfOp(ctx *FloatValueOfOpContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatRoundedTo.
+	VisitFloatRoundedTo(ctx *FloatRoundedToContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatMinIntOf.
+	VisitFloatMinIntOf(ctx *FloatMinIntOfContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatFloorOfInt.
+	VisitFloatFloorOfInt(ctx *FloatFloorOfIntContext) interface{}
+
 	// Visit a parse tree produced by ELParser#floatSubFloat.
 	VisitFloatSubFloat(ctx *FloatSubFloatContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatMinIntOfComma.
 	VisitFloatMinIntOfComma(ctx *FloatMinIntOfCommaContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatLiteral.
-	VisitFloatLiteral(ctx *FloatLiteralContext) interface{}
+	// Visit a parse tree produced by ELParser#floatCeilingOfInt.
+	VisitFloatCeilingOfInt(ctx *FloatCeilingOfIntContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatMulBy.
 	VisitFloatMulBy(ctx *FloatMulByContext) interface{}
@@ -1186,12 +1231,6 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#intAddFloat.
 	VisitIntAddFloat(ctx *IntAddFloatContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatTyped.
-	VisitFloatTyped(ctx *FloatTypedContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatSubInt.
-	VisitFloatSubInt(ctx *FloatSubIntContext) interface{}
-
 	// Visit a parse tree produced by ELParser#floatDivInt.
 	VisitFloatDivInt(ctx *FloatDivIntContext) interface{}
 
@@ -1201,20 +1240,11 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#intSubFloat.
 	VisitIntSubFloat(ctx *IntSubFloatContext) interface{}
 
-	// Visit a parse tree produced by ELParser#intMulFloat.
-	VisitIntMulFloat(ctx *IntMulFloatContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatDivBy.
-	VisitFloatDivBy(ctx *FloatDivByContext) interface{}
-
 	// Visit a parse tree produced by ELParser#floatMinOfInt.
 	VisitFloatMinOfInt(ctx *FloatMinOfIntContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatFromIndex.
 	VisitFloatFromIndex(ctx *FloatFromIndexContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatMaxIntOfComma.
-	VisitFloatMaxIntOfComma(ctx *FloatMaxIntOfCommaContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatRounded.
 	VisitFloatRounded(ctx *FloatRoundedContext) interface{}
@@ -1222,38 +1252,20 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatRoundedBoundry.
 	VisitFloatRoundedBoundry(ctx *FloatRoundedBoundryContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatColonRef.
-	VisitFloatColonRef(ctx *FloatColonRefContext) interface{}
-
 	// Visit a parse tree produced by ELParser#floatMulInt.
 	VisitFloatMulInt(ctx *FloatMulIntContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatFromInt.
-	VisitFloatFromInt(ctx *FloatFromIntContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatAddTo.
-	VisitFloatAddTo(ctx *FloatAddToContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatFromStr.
 	VisitFloatFromStr(ctx *FloatFromStrContext) interface{}
 
+	// Visit a parse tree produced by ELParser#floatCeilingOf.
+	VisitFloatCeilingOf(ctx *FloatCeilingOfContext) interface{}
+
 	// Visit a parse tree produced by ELParser#floatMinOfFloatComma.
 	VisitFloatMinOfFloatComma(ctx *FloatMinOfFloatCommaContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatAbs.
-	VisitFloatAbs(ctx *FloatAbsContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatMaxOfFloatComma.
-	VisitFloatMaxOfFloatComma(ctx *FloatMaxOfFloatCommaContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatNegate.
-	VisitFloatNegate(ctx *FloatNegateContext) interface{}
-
 	// Visit a parse tree produced by ELParser#floatMaxOfInt.
 	VisitFloatMaxOfInt(ctx *FloatMaxOfIntContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatSumOf.
-	VisitFloatSumOf(ctx *FloatSumOfContext) interface{}
 
 	// Visit a parse tree produced by ELParser#intYearOf.
 	VisitIntYearOf(ctx *IntYearOfContext) interface{}

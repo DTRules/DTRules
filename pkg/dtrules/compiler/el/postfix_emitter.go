@@ -2245,6 +2245,34 @@ func (e *PostfixEmitter) VisitFloatAbs(ctx *FloatAbsContext) interface{} {
 	return nil
 }
 
+// VisitFloatCeilingOf / VisitFloatFloorOf: `ceiling of <expr>` and
+// `floor of <expr>`. The runtime ops coerce to double and return the
+// rounded double, so both the fexpr and iexpr alternatives emit the
+// same op after visiting the operand.
+func (e *PostfixEmitter) VisitFloatCeilingOf(ctx *FloatCeilingOfContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.emit("ceiling")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatCeilingOfInt(ctx *FloatCeilingOfIntContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.emit("ceiling")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatFloorOf(ctx *FloatFloorOfContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.emit("floor")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatFloorOfInt(ctx *FloatFloorOfIntContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.emit("floor")
+	return nil
+}
+
 // fexprIsFixed reports whether a fexpr context resolves to an fp-typed
 // value — either a literal with `fp` suffix or a name that maps to
 // TypeFixed in the symbol / local table.
@@ -4479,12 +4507,17 @@ func (e *PostfixEmitter) VisitFirstBlockItsElse(ctx *FirstBlockItsElseContext) i
 	return nil
 }
 
+// VisitIfblock: the runtime's ifelse pops the TEST from the top of the
+// stack (matching the lazy and/or `over if` emission and hasrelationship
+// forms), so the bodies are pushed first and the bexpr last:
+// `{ then } { else } <bexpr> ifelse`. Blocks are literals, so deferring
+// the bexpr evaluation is side-effect free.
 func (e *PostfixEmitter) VisitIfblock(ctx *IfblockContext) interface{} {
-	e.Visit(ctx.Bexpr())
 	e.emit("{")
 	e.Visit(ctx.StatementList())
 	e.emit("}")
 	e.Visit(ctx.Ifcontinue())
+	e.Visit(ctx.Bexpr())
 	e.emit("ifelse")
 	return nil
 }
@@ -7310,25 +7343,26 @@ func (e *PostfixEmitter) VisitDateNewYMDhmsInZoneWithDST(ctx *DateNewYMDhmsInZon
 // Pre-fix the whole if-statement silently emitted nothing; conditional
 // action blocks were entirely lost.
 func (e *PostfixEmitter) VisitIfThen(ctx *IfThenContext) interface{} {
-	e.Visit(ctx.Bexpr())
+	// Runtime `if` pops the test from the top: `{ body } <bexpr> if`.
 	e.emit("{")
 	e.Visit(ctx.Block())
 	e.emit("}")
+	e.Visit(ctx.Bexpr())
 	e.emit("if")
 	return nil
 }
 
 // VisitIfThenElse: `if <bexpr> then <t> else <e> endif`
-// → `<bexpr> { <t> } { <e> } ifelse`. Pre-fix this silently emitted
-// nothing.
+// → `{ <t> } { <e> } <bexpr> ifelse` — runtime ifelse pops the test
+// from the top of the stack. Pre-fix this silently emitted nothing.
 func (e *PostfixEmitter) VisitIfThenElse(ctx *IfThenElseContext) interface{} {
-	e.Visit(ctx.Bexpr())
 	e.emit("{")
 	e.Visit(ctx.Block(0))
 	e.emit("}")
 	e.emit("{")
 	e.Visit(ctx.Block(1))
 	e.emit("}")
+	e.Visit(ctx.Bexpr())
 	e.emit("ifelse")
 	return nil
 }

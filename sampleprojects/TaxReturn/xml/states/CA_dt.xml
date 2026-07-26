@@ -3,6 +3,11 @@
 
 <!-- TABLE 4801: CA_Renter_Credit -->
 <decision_table>
+<source>
+<relative_path>CA.xlsx</relative_path>
+<file_name>CA.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>CA_Renter_Credit</table_name>
 <xls_file>CA.xlsx</xls_file>
 <attribute_fields>
@@ -19,6 +24,11 @@
 
 <!-- TABLE 4802: CA_Military_Retirement_Exemption -->
 <decision_table>
+<source>
+<relative_path>CA.xlsx</relative_path>
+<file_name>CA.xlsx</file_name>
+<sheet_number>3</sheet_number>
+</source>
 <table_name>CA_Military_Retirement_Exemption</table_name>
 <xls_file>CA.xlsx</xls_file>
 <attribute_fields>
@@ -35,6 +45,11 @@
 
 <!-- TABLE 4803: CA_AGI -->
 <decision_table>
+<source>
+<relative_path>CA.xlsx</relative_path>
+<file_name>CA.xlsx</file_name>
+<sheet_number>4</sheet_number>
+</source>
 <table_name>CA_AGI</table_name>
 <xls_file>CA.xlsx</xls_file>
 <attribute_fields>
@@ -51,6 +66,11 @@
 
 <!-- TABLE 4800: CA_Tax -->
 <decision_table>
+<source>
+<relative_path>CA.xlsx</relative_path>
+<file_name>CA.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>CA_Tax</table_name>
 <xls_file>CA.xlsx</xls_file>
 <attribute_fields>
@@ -63,14 +83,9 @@
 <initial_action>
 <action_comment>Reset CA tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.ca_state_tax = 0.0; set result.ca_taxable_income = 0.0; set result.ca_mhst = 0.0; set result.ca_total_tax = 0.0; add "  California Tax Calculation (Form 540) — 10-bracket progressive 1.0-13.3% + 1% MHST &gt; $1M" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0.0 cvd /result.ca_state_tax xdef 0.0 cvd /result.ca_taxable_income xdef 0.0 cvd /result.ca_mhst xdef 0.0 cvd /result.ca_total_tax xdef &quot;  California Tax Calculation (Form 540) — 10-bracket progressive 1.0-13.3% + 1% MHST &gt; $1M&quot; job.audit_trail swap addto</initial_action_postfix>
-<action_postfix>
-0.0 /result.ca_state_tax xdef
-0.0 /result.ca_taxable_income xdef
-0.0 /result.ca_mhst xdef
-0.0 /result.ca_total_tax xdef
-"  California Tax Calculation (Form 540) — 10-bracket progressive 1.0-13.3% + 1% MHST &gt; $1M" job.audit_trail swap addto
-</action_postfix>
+<initial_action_postfix>
+0.0 cvd /result.ca_state_tax xdef 0.0 cvd /result.ca_taxable_income xdef 0.0 cvd /result.ca_mhst xdef 0.0 cvd /result.ca_total_tax xdef "  California Tax Calculation (Form 540) — 10-bracket progressive 1.0-13.3% + 1% MHST &gt; $1M" job.audit_trail swap addto
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -78,7 +93,9 @@
 <condition_number>1</condition_number>
 <condition_comment>Filing status is Married Filing Jointly, Qualifying Surviving Spouse, or Head of Household (use joint brackets and deduction)</condition_comment>
 <condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS" or job.filing_status is equal to "HOH"</condition_dsl>
-<condition_postfix>job.filing_status &quot;MFJ&quot; streq { pop job.filing_status &quot;QSS&quot; streq } over not if { pop job.filing_status &quot;HOH&quot; streq } over not if</condition_postfix>
+<condition_postfix>
+job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if { pop job.filing_status "HOH" streq } over not if
+</condition_postfix>
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
@@ -88,14 +105,18 @@
 <action_number>1</action_number>
 <action_comment>MFJ/QSS/HOH: $10,726 standard deduction; joint bracket limits</action_comment>
 <action_dsl>set result.ca_taxable_income = the maximum of (result.agi - ca_standard_deduction_joint) and 0.0; set result.ca_state_tax = the maximum of (the minimum of result.ca_taxable_income and ca_bracket_1_limit_joint) and 0.0 * ca_bracket_1_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_2_limit_joint) - ca_bracket_1_limit_joint) and 0.0 * ca_bracket_2_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_3_limit_joint) - ca_bracket_2_limit_joint) and 0.0 * ca_bracket_3_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_4_limit_joint) - ca_bracket_3_limit_joint) and 0.0 * ca_bracket_4_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_5_limit_joint) - ca_bracket_4_limit_joint) and 0.0 * ca_bracket_5_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_6_limit_joint) - ca_bracket_5_limit_joint) and 0.0 * ca_bracket_6_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_7_limit_joint) - ca_bracket_6_limit_joint) and 0.0 * ca_bracket_7_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_8_limit_joint) - ca_bracket_7_limit_joint) and 0.0 * ca_bracket_8_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of (result.ca_taxable_income - ca_bracket_8_limit_joint) and 0.0 * ca_bracket_9_rate; set result.ca_mhst = the maximum of (result.ca_taxable_income - ca_mental_health_tax_threshold) and 0.0 * ca_mental_health_tax_rate; set result.ca_state_tax = result.ca_state_tax + result.ca_mhst; set result.ca_total_tax = result.ca_state_tax</action_dsl>
-<action_postfix>result.agi ca_standard_deduction_joint - 0.0 fmax cvd /result.ca_taxable_income xdef result.ca_taxable_income ca_bracket_1_limit_joint fmin 0.0 ca_bracket_1_rate fmul fmax cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_2_limit_joint fmin ca_bracket_1_limit_joint - 0.0 ca_bracket_2_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_3_limit_joint fmin ca_bracket_2_limit_joint - 0.0 ca_bracket_3_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_4_limit_joint fmin ca_bracket_3_limit_joint - 0.0 ca_bracket_4_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_5_limit_joint fmin ca_bracket_4_limit_joint - 0.0 ca_bracket_5_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_6_limit_joint fmin ca_bracket_5_limit_joint - 0.0 ca_bracket_6_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_7_limit_joint fmin ca_bracket_6_limit_joint - 0.0 ca_bracket_7_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_8_limit_joint fmin ca_bracket_7_limit_joint - 0.0 ca_bracket_8_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_8_limit_joint - 0.0 ca_bracket_9_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_taxable_income ca_mental_health_tax_threshold - 0.0 ca_mental_health_tax_rate fmul fmax cvd /result.ca_mhst xdef result.ca_state_tax result.ca_mhst f+ cvd /result.ca_state_tax xdef result.ca_state_tax cvd /result.ca_total_tax xdef</action_postfix>
+<action_postfix>
+result.agi ca_standard_deduction_joint f- 0.0 fmax cvd /result.ca_taxable_income xdef result.ca_taxable_income ca_bracket_1_limit_joint fmin 0.0 ca_bracket_1_rate fmul fmax cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_2_limit_joint fmin ca_bracket_1_limit_joint f- 0.0 ca_bracket_2_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_3_limit_joint fmin ca_bracket_2_limit_joint f- 0.0 ca_bracket_3_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_4_limit_joint fmin ca_bracket_3_limit_joint f- 0.0 ca_bracket_4_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_5_limit_joint fmin ca_bracket_4_limit_joint f- 0.0 ca_bracket_5_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_6_limit_joint fmin ca_bracket_5_limit_joint f- 0.0 ca_bracket_6_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_7_limit_joint fmin ca_bracket_6_limit_joint f- 0.0 ca_bracket_7_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_8_limit_joint fmin ca_bracket_7_limit_joint f- 0.0 ca_bracket_8_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_8_limit_joint f- 0.0 ca_bracket_9_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_taxable_income ca_mental_health_tax_threshold f- 0.0 ca_mental_health_tax_rate fmul fmax cvd /result.ca_mhst xdef result.ca_state_tax result.ca_mhst f+ cvd /result.ca_state_tax xdef result.ca_state_tax cvd /result.ca_total_tax xdef
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Default (Single/MFS): $5,363 standard deduction; single bracket limits</action_comment>
 <action_dsl>set result.ca_taxable_income = the maximum of (result.agi - ca_standard_deduction_single) and 0.0; set result.ca_state_tax = the maximum of (the minimum of result.ca_taxable_income and ca_bracket_1_limit_single) and 0.0 * ca_bracket_1_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_2_limit_single) - ca_bracket_1_limit_single) and 0.0 * ca_bracket_2_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_3_limit_single) - ca_bracket_2_limit_single) and 0.0 * ca_bracket_3_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_4_limit_single) - ca_bracket_3_limit_single) and 0.0 * ca_bracket_4_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_5_limit_single) - ca_bracket_4_limit_single) and 0.0 * ca_bracket_5_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_6_limit_single) - ca_bracket_5_limit_single) and 0.0 * ca_bracket_6_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_7_limit_single) - ca_bracket_6_limit_single) and 0.0 * ca_bracket_7_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of ((the minimum of result.ca_taxable_income and ca_bracket_8_limit_single) - ca_bracket_7_limit_single) and 0.0 * ca_bracket_8_rate; set result.ca_state_tax = result.ca_state_tax + the maximum of (result.ca_taxable_income - ca_bracket_8_limit_single) and 0.0 * ca_bracket_9_rate; set result.ca_mhst = the maximum of (result.ca_taxable_income - ca_mental_health_tax_threshold) and 0.0 * ca_mental_health_tax_rate; set result.ca_state_tax = result.ca_state_tax + result.ca_mhst; set result.ca_total_tax = result.ca_state_tax</action_dsl>
-<action_postfix>result.agi ca_standard_deduction_single - 0.0 fmax cvd /result.ca_taxable_income xdef result.ca_taxable_income ca_bracket_1_limit_single fmin 0.0 ca_bracket_1_rate fmul fmax cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_2_limit_single fmin ca_bracket_1_limit_single - 0.0 ca_bracket_2_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_3_limit_single fmin ca_bracket_2_limit_single - 0.0 ca_bracket_3_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_4_limit_single fmin ca_bracket_3_limit_single - 0.0 ca_bracket_4_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_5_limit_single fmin ca_bracket_4_limit_single - 0.0 ca_bracket_5_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_6_limit_single fmin ca_bracket_5_limit_single - 0.0 ca_bracket_6_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_7_limit_single fmin ca_bracket_6_limit_single - 0.0 ca_bracket_7_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_8_limit_single fmin ca_bracket_7_limit_single - 0.0 ca_bracket_8_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_8_limit_single - 0.0 ca_bracket_9_rate fmul fmax + cvd /result.ca_state_tax xdef result.ca_taxable_income ca_mental_health_tax_threshold - 0.0 ca_mental_health_tax_rate fmul fmax cvd /result.ca_mhst xdef result.ca_state_tax result.ca_mhst f+ cvd /result.ca_state_tax xdef result.ca_state_tax cvd /result.ca_total_tax xdef</action_postfix>
+<action_postfix>
+result.agi ca_standard_deduction_single f- 0.0 fmax cvd /result.ca_taxable_income xdef result.ca_taxable_income ca_bracket_1_limit_single fmin 0.0 ca_bracket_1_rate fmul fmax cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_2_limit_single fmin ca_bracket_1_limit_single f- 0.0 ca_bracket_2_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_3_limit_single fmin ca_bracket_2_limit_single f- 0.0 ca_bracket_3_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_4_limit_single fmin ca_bracket_3_limit_single f- 0.0 ca_bracket_4_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_5_limit_single fmin ca_bracket_4_limit_single f- 0.0 ca_bracket_5_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_6_limit_single fmin ca_bracket_5_limit_single f- 0.0 ca_bracket_6_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_7_limit_single fmin ca_bracket_6_limit_single f- 0.0 ca_bracket_7_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_8_limit_single fmin ca_bracket_7_limit_single f- 0.0 ca_bracket_8_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_state_tax result.ca_taxable_income ca_bracket_8_limit_single f- 0.0 ca_bracket_9_rate fmul fmax f+ cvd /result.ca_state_tax xdef result.ca_taxable_income ca_mental_health_tax_threshold f- 0.0 ca_mental_health_tax_rate fmul fmax cvd /result.ca_mhst xdef result.ca_state_tax result.ca_mhst f+ cvd /result.ca_state_tax xdef result.ca_state_tax cvd /result.ca_total_tax xdef
+</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>

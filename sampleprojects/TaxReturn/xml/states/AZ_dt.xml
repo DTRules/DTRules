@@ -3,6 +3,11 @@
 
 <!-- TABLE 40301: AZ_Military_Retirement_Exclusion -->
 <decision_table>
+<source>
+<relative_path>AZ.xlsx</relative_path>
+<file_name>AZ.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>AZ_Military_Retirement_Exclusion</table_name>
 <xls_file>AZ.xlsx</xls_file>
 <attribute_fields>
@@ -19,6 +24,11 @@
 
 <!-- TABLE 40300: AZ_Tax -->
 <decision_table>
+<source>
+<relative_path>AZ.xlsx</relative_path>
+<file_name>AZ.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>AZ_Tax</table_name>
 <xls_file>AZ.xlsx</xls_file>
 <attribute_fields>
@@ -31,12 +41,9 @@
 <initial_action>
 <action_comment>Reset AZ tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.az_state_tax = 0; set result.az_taxable_income = 0; add "  Arizona Tax Calculation (Form 140) - flat 2.5%" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvd /result.az_state_tax xdef 0 cvd /result.az_taxable_income xdef &quot;  Arizona Tax Calculation (Form 140) - flat 2.5%&quot; job.audit_trail swap addto</initial_action_postfix>
-<action_postfix>
-0.0 /result.az_state_tax xdef
-0.0 /result.az_taxable_income xdef
-"  Arizona Tax Calculation (Form 140) — flat 2.5%" job.audit_trail swap addto
-</action_postfix>
+<initial_action_postfix>
+0 cvd /result.az_state_tax xdef 0 cvd /result.az_taxable_income xdef "  Arizona Tax Calculation (Form 140) - flat 2.5%" job.audit_trail swap addto
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -44,7 +51,9 @@
 <condition_number>1</condition_number>
 <condition_comment>Filing status is Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
 <condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
-<condition_postfix>job.filing_status &quot;MFJ&quot; streq { pop job.filing_status &quot;QSS&quot; streq } over not if</condition_postfix>
+<condition_postfix>
+job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
+</condition_postfix>
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -53,7 +62,9 @@
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
 <condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
-<condition_postfix>job.filing_status &quot;HOH&quot; streq</condition_postfix>
+<condition_postfix>
+job.filing_status "HOH" streq
+</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -64,21 +75,27 @@
 <action_number>1</action_number>
 <action_comment>MFJ/QSS: taxable_income = max(AGI - 31,500, 0); tax = taxable_income * 2.5%</action_comment>
 <action_dsl>set result.az_taxable_income = the maximum of (result.agi - 31500.0) and 0.0; set result.az_state_tax = result.az_taxable_income * 0.025</action_dsl>
-<action_postfix>result.agi 31500.0 - 0.0 fmax cvd /result.az_taxable_income xdef result.az_taxable_income 0.025 fmul cvd /result.az_state_tax xdef</action_postfix>
+<action_postfix>
+result.agi 31500.0 f- 0.0 fmax cvd /result.az_taxable_income xdef result.az_taxable_income 0.025 fmul cvd /result.az_state_tax xdef
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>HOH: taxable_income = max(AGI - 15,750, 0); tax = taxable_income * 2.5%</action_comment>
 <action_dsl>set result.az_taxable_income = the maximum of (result.agi - 15750.0) and 0.0; set result.az_state_tax = result.az_taxable_income * 0.025</action_dsl>
-<action_postfix>result.agi 15750.0 - 0.0 fmax cvd /result.az_taxable_income xdef result.az_taxable_income 0.025 fmul cvd /result.az_state_tax xdef</action_postfix>
+<action_postfix>
+result.agi 15750.0 f- 0.0 fmax cvd /result.az_taxable_income xdef result.az_taxable_income 0.025 fmul cvd /result.az_state_tax xdef
+</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Default (Single/MFS): taxable_income = max(AGI - 15,750, 0); tax = taxable_income * 2.5%</action_comment>
 <action_dsl>set result.az_taxable_income = the maximum of (result.agi - 15750.0) and 0.0; set result.az_state_tax = result.az_taxable_income * 0.025</action_dsl>
-<action_postfix>result.agi 15750.0 - 0.0 fmax cvd /result.az_taxable_income xdef result.az_taxable_income 0.025 fmul cvd /result.az_state_tax xdef</action_postfix>
+<action_postfix>
+result.agi 15750.0 f- 0.0 fmax cvd /result.az_taxable_income xdef result.az_taxable_income 0.025 fmul cvd /result.az_state_tax xdef
+</action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
