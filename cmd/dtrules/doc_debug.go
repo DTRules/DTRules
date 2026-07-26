@@ -207,6 +207,80 @@ action, and a <finalState> dump used for verification. Condition/action
 "n" is the 1-based POSITION in the table's section — the same ordinal
 every view displays.
 
+TRACES FROM AN EMBEDDING GO PROGRAM
+-----------------------------------
+
+A host application that embeds the engine (see ` + "`dtrules docs embedding`" + `)
+produces the same debugger-ready traces the CLI does — the staking system
+is the reference example. The wiring, in order:
+
+    import (
+        "github.com/DTRules/DTRules/pkg/dtrules/interpreter"
+        "github.com/DTRules/DTRules/pkg/dtrules/mapping"
+        "github.com/DTRules/DTRules/pkg/dtrules/operators"
+        "github.com/DTRules/DTRules/pkg/dtrules/session"
+        "github.com/DTRules/DTRules/pkg/dtrules/trace"
+    )
+
+    // 1. Load rules (files, embed.FS, whatever the host uses).
+    rs := session.NewRuleSet("Staking")
+    rs.LoadEDD(eddReader)
+    rs.LoadDecisionTables(dtReader)
+
+    // 2. Fresh session per run.
+    sess, _ := session.NewSession(rs)
+    state := sess.GetState().(*interpreter.DTState)
+    state.SetOperatorTable(operators.GetOperatorTable())
+
+    // 3. Tracing — BEFORE loading data, so the input values are
+    //    recorded as def events. A trace without its initial data
+    //    cannot be replayed or verified.
+    f, _ := os.Create("traces/period-184.trace.xml")
+    fingerprint, _ := trace.FingerprintRules(rulesDir) // dir the XML came from
+    trace.WriteHeader(f, trace.Provenance{
+        DTRulesVersion:   yourEngineVersion,
+        RulesFingerprint: fingerprint,
+    })
+    state.SetOutput(f, nil)
+    state.EnableTrace()
+
+    // 4. Load mapping + input data (now recorded into the trace).
+    m := mapping.NewMapping(sess)
+    m.LoadMapping(mapReader)
+    m.LoadDataAndPushSingletons(inputReader)
+
+    // 5. Execute, then close out the trace.
+    execErr := sess.(*session.RSession).Execute("Staking_Distribution")
+    trace.WriteFinalState(f, state)
+    trace.WriteFooter(f)
+    f.Close()
+    // On execErr the partial trace is still valuable post-mortem data.
+
+Notes:
+
+  - Fingerprint: compute it from the same XML directory the rules were
+    loaded from. When rules ship inside the binary via go:embed, compute
+    it at build time (or from the source tree) and pass it through; an
+    empty fingerprint still verifies end-state but shows "fingerprint
+    unknown" in the trust strip.
+  - Tracing costs one buffered write per event — enable it per run
+    (a flag, a failed-run retry, a weekly audit run), not permanently,
+    for hot paths.
+  - Keep the trace next to the inputs that produced it; the pair is the
+    reproducible artifact.
+
+Once the file exists, everything in this document applies to it:
+
+    dtrules edit <project-with-those-rules>    # Debug tab -> load the trace
+    dtrules report <trace> --spec <spec.json>  # outcome tables, --json for machines
+
+For AI agents and scripts: traces are plain XML (format documented above),
+` + "`dtrules report --json`" + ` emits machine-readable outcomes, and the editor's
+HTTP API exposes /api/debug/load, /position, /find (field provenance with
+the why-chain), /report, and /speculate — everything the UI does. This is
+how an agent can debug and validate decision tables against a recorded
+production run without touching the host system.
+
 SERVER NOTES
 ------------
 
