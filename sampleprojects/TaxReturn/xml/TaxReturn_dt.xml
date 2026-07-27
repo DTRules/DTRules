@@ -19,14 +19,10 @@
 <initial_actions>
 <initial_action>
 <initial_action_dsl />
-<initial_action_postfix></initial_action_postfix>
-<action_dsl>new result entity</action_dsl>
-<action_postfix>
-/result createentity entitypush
-result job.results swap addto
-no_income_tax_states job.state memberof not /job.has_state_income_tax xdef
-"Tax Return Calculation Started for Tax Year " job.tax_year cvs strconcat " - Filing Status: " strconcat job.filing_status strconcat job.audit_trail swap addto
-</action_postfix>
+<initial_action_postfix>
+/result createentity entitypush result job.results swap addto no_income_tax_states job.state memberof not cvb /job.has_state_income_tax xdef "Tax Return Calculation Started for Tax Year " job.tax_year strconcat " - Filing Status: " strconcat job.filing_status strconcat job.audit_trail swap addto
+</initial_action_postfix>
+<action_dsl>add new result entity to context of this table; add result to job.results; set job.has_state_income_tax = job.state is not one of no_income_tax_states; add "Tax Return Calculation Started for Tax Year " + job.tax_year + " - Filing Status: " + job.filing_status to job.audit_trail</action_dsl>
 </initial_action>
 </initial_actions>
 <conditions>
