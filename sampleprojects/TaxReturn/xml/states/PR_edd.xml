@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="PR.xlsx" access="rw">
+	<file_metadata>
+		<file_path>PR_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="PR.xlsx" access="rw">
+		<source>
+			<relative_path>PR.xlsx</relative_path>
+			<file_name>PR.xlsx</file_name>
+			<sheet_number>2</sheet_number>
+		</source>
 		<field name="pr_act60_business" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer qualifies under Act 60 business incentives"></field>
 		<field name="pr_act60_business_rate" type="double" subtype="" access="r" input="" default_value="0.04" comment="Act 60 business income tax rate (4% for qualified businesses)"></field>
 		<field name="pr_act60_capital_gains_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="Act 60 capital gains rate (0% for qualified investors)"></field>

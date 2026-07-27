@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 41790: KY_Military_Retirement_Exemption -->
-<decision_table>
+<!-- TABLE 41790: ky_military_retirement_exemption -->
+<decision_table el_compiled="true">
 <source>
 <relative_path>KY.xlsx</relative_path>
 <file_name>KY.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
-<table_name>KY_Military_Retirement_Exemption</table_name>
+<table_name>ky_military_retirement_exemption</table_name>
 <xls_file>KY.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -30,7 +30,7 @@
 </decision_table>
 
 <!-- TABLE 41800: KY_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>KY.xlsx</relative_path>
 <file_name>KY.xlsx</file_name>
@@ -46,7 +46,6 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset KY tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.ky_state_tax = 0; set result.ky_taxable_income = 0; add "  Kentucky Tax Calculation (Form 740) - flat 4.00%" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
 0 cvd /result.ky_state_tax xdef 0 cvd /result.ky_taxable_income xdef "  Kentucky Tax Calculation (Form 740) - flat 4.00%" job.audit_trail swap addto
@@ -79,16 +78,11 @@ result.agi ky_standard_deduction f- 0.0 fmax cvd /result.ky_taxable_income xdef 
 <action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
 <action_dsl>set result.computed_state_taxable_income = result.ky_taxable_income; set result.computed_state_tax = result.ky_state_tax</action_dsl>
 <action_postfix>
-result.ky_taxable_income cvd /result.computed_state_taxable_income xdef result.ky_state_tax cvd /result.computed_state_tax xdef
+result.ky_taxable_income cvi /result.computed_state_taxable_income xdef result.ky_state_tax cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements>
-<policy_statement column="1">
-<policy_description>KY flat tax: 4.00% × max(AGI − $3,270, 0)</policy_description>
-<policy_statement_postfix>"KY flat tax per KRS 141.020, 4.00% rate, $3,270 standard deduction"</policy_statement_postfix>
-</policy_statement>
-</policy_statements>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

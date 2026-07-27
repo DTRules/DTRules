@@ -31,7 +31,17 @@ import (
 type EDDXML struct {
 	XMLName  xml.Name       `xml:"entity_data_dictionary"`
 	Version  string         `xml:"version,attr"`
+	// FileMetadata carries the <file_path> marker the directory loader
+	// uses to distinguish a real multi-entity EDD from a legacy merged
+	// artifact (which it skips). Losing it on an Excel round-trip made
+	// the loader silently skip the regenerated EDD.
+	FileMetadata *EDDFileMetadata `xml:"file_metadata,omitempty"`
 	Entities []*EDDXMLEntity `xml:"entity"`
+}
+
+// EDDFileMetadata mirrors the loader's <file_metadata> block.
+type EDDFileMetadata struct {
+	FilePath string `xml:"file_path"`
 }
 
 // EDDXMLEntity represents an entity in the EDD XML
@@ -340,6 +350,14 @@ func normalizeEntityNumbers(edd *EDDXML) {
 func (i *EDDImporter) WriteXML(edd *EDDXML, filename string) error {
 	if edd.Version == "" {
 		edd.Version = "2"
+	}
+	// The directory loader skips a multi-entity EDD that has no
+	// <file_metadata><file_path> marker (it assumes a legacy merged
+	// artifact). An Excel-regenerated EDD must therefore always carry
+	// one; derive it from the output filename when absent.
+	if edd.FileMetadata == nil || strings.TrimSpace(edd.FileMetadata.FilePath) == "" {
+		base := strings.TrimSuffix(filepath.Base(filename), filepath.Ext(filename))
+		edd.FileMetadata = &EDDFileMetadata{FilePath: base}
 	}
 	normalizeEntityNumbers(edd)
 

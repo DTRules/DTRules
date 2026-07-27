@@ -2,9 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 45900: TN_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
+<source>
+<relative_path>TN.xlsx</relative_path>
+<file_name>TN.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>TN_Tax</table_name>
-<xls_file>State.xls</xls_file>
+<xls_file>TN.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates Tennessee state income tax per hypothetical Form TN-1040. Tennessee uses progressive tax brackets: 2% on first $50,000, 4% on $50,000-$100,000, 6% above $100,000. Starting with federal AGI, applies standard deduction based on filing status ($6,000 Single, $12,000 MFJ), then calculates tax using progressive brackets.</COMMENTS>
@@ -14,14 +19,9 @@
 <initial_actions>
 <initial_action>
 <initial_action_dsl>set result.tn_tax = 0; add "  Tennessee (no state income tax)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvi /result.tn_tax xdef &quot;  Tennessee (no state income tax)&quot; job.audit_trail swap addto</initial_action_postfix>
-<action_postfix>
-"TENNESSEE FORM TN-1040 - State Income Tax Calculation" job.audit_trail swap addto
-result.agi /result.tn_agi xdef
-0 /result.tn_bracket_1_tax xdef
-0 /result.tn_bracket_2_tax xdef
-0 /result.tn_bracket_3_tax xdef
-</action_postfix>
+<initial_action_postfix>
+0 cvi /result.tn_tax xdef "  Tennessee (no state income tax)" job.audit_trail swap addto
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -29,7 +29,9 @@ result.agi /result.tn_agi xdef
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
 <condition_dsl>job.filing_status == "married_filing_jointly"</condition_dsl>
-<condition_postfix>job.filing_status &quot;married_filing_jointly&quot; streq</condition_postfix>
+<condition_postfix>
+job.filing_status "married_filing_jointly" streq
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
@@ -39,25 +41,25 @@ result.agi /result.tn_agi xdef
 <action_number>1</action_number>
 <action_comment>Calculate TN tax MFJ. NOTE: TN has no state income tax (2025) — actual state tax is $0. Postfix retains legacy hypothetical-bracket logic referencing TN constants not in TN_edd; EL form below honors no-income-tax acceptance criterion.</action_comment>
 <action_dsl>set result.tn_tax = 0; add "  TN has no state income tax: $0" to job.audit_trail</action_dsl>
-<action_postfix>0 cvi /result.tn_tax xdef &quot;  TN has no state income tax: $0&quot; job.audit_trail swap addto</action_postfix>
+<action_postfix>
+0 cvi /result.tn_tax xdef "  TN has no state income tax: $0" job.audit_trail swap addto
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate TN tax Single/other. NOTE: TN has no state income tax (2025) — actual state tax is $0. Postfix retains legacy hypothetical-bracket logic referencing TN constants not in TN_edd; EL form below honors no-income-tax acceptance criterion.</action_comment>
 <action_dsl>set result.tn_tax = 0; add "  TN has no state income tax: $0" to job.audit_trail</action_dsl>
-<action_postfix>0 cvi /result.tn_tax xdef &quot;  TN has no state income tax: $0&quot; job.audit_trail swap addto</action_postfix>
+<action_postfix>
+0 cvi /result.tn_tax xdef "  TN has no state income tax: $0" job.audit_trail swap addto
+</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
-<policy_statement column="1">
-<policy_description>Calculate Tennessee tax MFJ</policy_description>
-<policy_statement_postfix>"Calculate Tennessee state income tax for MFJ filer per Form TN-1040"</policy_statement_postfix>
-</policy_statement>
 <policy_statement column="2">
 <policy_description>Calculate Tennessee tax Single/other</policy_description>
-<policy_statement_postfix>"Calculate Tennessee state income tax for Single/other filer per Form TN-1040"</policy_statement_postfix>
+<policy_statement_postfix>"Calculate Tennessee tax Single/other"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

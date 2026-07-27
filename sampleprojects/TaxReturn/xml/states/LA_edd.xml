@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="LA.xlsx" access="rw">
+	<file_metadata>
+		<file_path>LA_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="LA.xlsx" access="rw">
 		<field name="la_senior_exemption" type="double" subtype="" access="r" input="" default_value="12000" comment="LA additional exemption for taxpayers age 65+ (2025)"></field>
 		<field name="la_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="25000" comment="LA standard deduction head of household (2025)"></field>
 		<field name="la_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="25000" comment="LA standard deduction married filing jointly (2025)"></field>

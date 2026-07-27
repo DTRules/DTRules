@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="CA.xlsx" access="rw">
+	<file_metadata>
+		<file_path>CA_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="CA.xlsx" access="rw">
 		<field name="ca_bracket_10_rate" type="double" subtype="" access="r" input="" default_value="0.133" comment="CA tax rate for bracket 10 (income &gt; $1,000,000) - 13.3% (2025). Highest state marginal rate in the nation."></field>
 		<field name="ca_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="20824.0" comment="CA tax bracket 1 upper limit joint $20,824 (2025). Approximately double single filer brackets."></field>
 		<field name="ca_bracket_1_limit_single" type="double" subtype="" access="r" input="" default_value="10412.0" comment="CA tax bracket 1 upper limit single $10,412 (2025). Source: CA FTB"></field>
@@ -49,6 +52,6 @@
 		<field name="ca_state_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CA state income tax liability before Mental Health Services Tax (computed)"></field>
 		<field name="ca_taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CA taxable income after deductions (computed)"></field>
 		<field name="ca_total_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CA total tax liability including Mental Health Services Tax (computed)"></field>
-		<field name="ca_mhst" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CA Mental Health Services Tax (1% surtax on taxable income > $1M)"></field>
+		<field name="ca_mhst" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CA Mental Health Services Tax (1% surtax on taxable income &gt; $1M)"></field>
 	</entity>
 </entity_data_dictionary>

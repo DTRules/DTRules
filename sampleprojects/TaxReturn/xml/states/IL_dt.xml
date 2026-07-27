@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 41700: IL_Tax -->
-<decision_table>
+<!-- TABLE 41700: il_tax -->
+<decision_table el_compiled="true">
 <source>
 <relative_path>IL.xlsx</relative_path>
 <file_name>IL.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
-<table_name>IL_Tax</table_name>
+<table_name>il_tax</table_name>
 <xls_file>IL.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -18,7 +18,6 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset IL tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.il_state_tax = 0; set result.il_taxable_income = 0; set result.il_total_exemptions = 0; add "  Illinois Tax Calculation (Form IL-1040) - flat 4.95%" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
 0 cvd /result.il_state_tax xdef 0 cvd /result.il_taxable_income xdef 0 cvd /result.il_total_exemptions xdef "  Illinois Tax Calculation (Form IL-1040) - flat 4.95%" job.audit_trail swap addto
@@ -51,16 +50,11 @@ job.taxpayers length job.dependents length + il_personal_exemption fmul cvd /res
 <action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
 <action_dsl>set result.computed_state_taxable_income = result.il_taxable_income; set result.computed_state_tax = result.il_state_tax</action_dsl>
 <action_postfix>
-result.il_taxable_income cvd /result.computed_state_taxable_income xdef result.il_state_tax cvd /result.computed_state_tax xdef
+result.il_taxable_income cvi /result.computed_state_taxable_income xdef result.il_state_tax cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements>
-<policy_statement column="1">
-<policy_description>IL flat tax: 4.95% x max(AGI - $2,850 x #people, 0)</policy_description>
-<policy_statement_postfix>"IL flat tax per 35 ILCS 5/201(b), 4.95% rate"</policy_statement_postfix>
-</policy_statement>
-</policy_statements>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

@@ -2,7 +2,12 @@
 <decision_tables>
 
 <!-- TABLE 50400: MP_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
+<source>
+<relative_path>MP.xlsx</relative_path>
+<file_name>MP.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>MP_Tax</table_name>
 <xls_file>MP.xlsx</xls_file>
 <attribute_fields>
@@ -14,18 +19,22 @@
 <initial_actions></initial_actions>
 <conditions>
 <condition_details>
-<condition_number>2</condition_number>
+<condition_number>1</condition_number>
 <condition_comment>Tax amount &gt; $20,000 and &lt;= $100,000; Qualifies for tier 2 rebate (70% on excess)</condition_comment>
 <condition_dsl>result.mp_calculated_tax &gt; 20000 and result.mp_calculated_tax &lt;= 100000</condition_dsl>
-<condition_postfix>result.mp_calculated_tax 20000 f&gt; { pop result.mp_calculated_tax 100000 f&lt;= } over if</condition_postfix>
+<condition_postfix>
+result.mp_calculated_tax 20000 f&gt; { pop result.mp_calculated_tax 100000 f&lt;= } over if
+</condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="Y" />
 </condition_details>
 <condition_details>
-<condition_number>3</condition_number>
+<condition_number>2</condition_number>
 <condition_comment>Tax amount &gt; $100,000; Qualifies for tier 3 rebate (50% on excess over $100k)</condition_comment>
 <condition_dsl>result.mp_calculated_tax &gt; 100000</condition_dsl>
-<condition_postfix>result.mp_calculated_tax 100000 f&gt;</condition_postfix>
+<condition_postfix>
+result.mp_calculated_tax 100000 f&gt;
+</condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>

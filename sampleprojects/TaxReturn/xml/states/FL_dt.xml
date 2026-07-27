@@ -2,7 +2,12 @@
 <decision_tables>
 
 <!-- TABLE 40900: FL_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
+<source>
+<relative_path>FL.xlsx</relative_path>
+<file_name>FL.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>FL_Tax</table_name>
 <xls_file>FL.xlsx</xls_file>
 <attribute_fields>
@@ -14,11 +19,9 @@
 <initial_actions>
 <initial_action>
 <initial_action_dsl>set result.fl_tax = 0; add "  Florida (no state income tax)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvi /result.fl_tax xdef &quot;  Florida (no state income tax)&quot; job.audit_trail swap addto</initial_action_postfix>
-<action_postfix>
-0 /result.fl_tax xdef
-"  FL has no state income tax: $0" job.audit_trail swap addto
-</action_postfix>
+<initial_action_postfix>
+0 cvi /result.fl_tax xdef "  Florida (no state income tax)" job.audit_trail swap addto
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions></conditions>

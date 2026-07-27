@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="ND.xlsx" access="rw">
+	<file_metadata>
+		<file_path>ND_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="ND.xlsx" access="rw">
 		<field name="nd_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="ND tax rate bracket 1: 0% (2025)"></field>
 		<field name="nd_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.0195" comment="ND tax rate bracket 2: 1.95% (2025)"></field>
 		<field name="nd_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.025" comment="ND tax rate bracket 3: 2.5% (2025)"></field>

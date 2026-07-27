@@ -1,29 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 42201: MI_Military_Retirement_Exclusion -->
-<decision_table>
-<source>
-<relative_path>MI.xlsx</relative_path>
-<file_name>MI.xlsx</file_name>
-<sheet_number>2</sheet_number>
-</source>
-<table_name>MI_Military_Retirement_Exclusion</table_name>
-<xls_file>MI.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Michigan military retirement income exclusion. Skeleton — see issue #446. Per MCL § 206.30 (2025), 100% exclusion for military retirement pay + SBP. MSRRA / SCRA compliant.</COMMENTS>
-<TABLE_NUMBER>42201</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions></initial_actions>
-<conditions></conditions>
-<actions></actions>
-<policy_statements></policy_statements>
-</decision_table>
-
 <!-- TABLE 41300: MI_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>MI.xlsx</relative_path>
 <file_name>MI.xlsx</file_name>
@@ -39,7 +18,6 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset MI tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.mi_state_tax = 0; set result.mi_taxable_income = 0; set result.mi_total_exemption = 0; add "  Michigan Tax Calculation (Form MI-1040) - flat 4.25%" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
 0 cvd /result.mi_state_tax xdef 0 cvd /result.mi_taxable_income xdef 0 cvd /result.mi_total_exemption xdef "  Michigan Tax Calculation (Form MI-1040) - flat 4.25%" job.audit_trail swap addto
@@ -72,16 +50,32 @@ job.taxpayers length job.dependents length + mi_exemption_single fmul cvd /resul
 <action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
 <action_dsl>set result.computed_state_taxable_income = result.mi_taxable_income; set result.computed_state_tax = result.mi_state_tax</action_dsl>
 <action_postfix>
-result.mi_taxable_income cvd /result.computed_state_taxable_income xdef result.mi_state_tax cvd /result.computed_state_tax xdef
+result.mi_taxable_income cvi /result.computed_state_taxable_income xdef result.mi_state_tax cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements>
-<policy_statement column="1">
-<policy_description>MI flat tax: 4.25% x max(AGI - $5,800 x #people, 0)</policy_description>
-<policy_statement_postfix>"MI flat tax per MCL § 206.51, 4.25% rate"</policy_statement_postfix>
-</policy_statement>
-</policy_statements>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 42201: mi_military_retirement_exclusion -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>MI.xlsx</relative_path>
+<file_name>MI.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
+<table_name>mi_military_retirement_exclusion</table_name>
+<xls_file>MI.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Michigan military retirement income exclusion. Skeleton — see issue #446. Per MCL § 206.30 (2025), 100% exclusion for military retirement pay + SBP. MSRRA / SCRA compliant.</COMMENTS>
+<TABLE_NUMBER>42201</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

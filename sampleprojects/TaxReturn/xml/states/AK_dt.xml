@@ -2,7 +2,12 @@
 <decision_tables>
 
 <!-- TABLE 40100: AK_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
+<source>
+<relative_path>AK.xlsx</relative_path>
+<file_name>AK.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>AK_Tax</table_name>
 <xls_file>AK.xlsx</xls_file>
 <attribute_fields>

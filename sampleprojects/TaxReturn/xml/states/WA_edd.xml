@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="WA.xlsx" access="rw">
+	<file_metadata>
+		<file_path>WA_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="WA.xlsx" access="rw">
+		<source>
+			<relative_path>WA.xlsx</relative_path>
+			<file_name>WA.xlsx</file_name>
+			<sheet_number>2</sheet_number>
+		</source>
 		<field name="wa_has_income_tax" type="boolean" subtype="" access="r" input="" default_value="false" comment="WA has no state income tax"></field>
 		<field name="wa_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="WA tax rate - zero (no income tax)"></field>
 	</entity>

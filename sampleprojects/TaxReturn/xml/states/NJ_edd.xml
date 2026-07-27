@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="NJ.xlsx" access="rw">
+	<file_metadata>
+		<file_path>NJ_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="NJ.xlsx" access="rw">
 		<field name="nj_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="20000.0" comment="NJ bracket 1 upper limit joint ($0 - $20,000)"></field>
 		<field name="nj_bracket_1_limit_single" type="double" subtype="" access="r" input="" default_value="20000.0" comment="NJ bracket 1 upper limit single ($0 - $20,000)"></field>
 		<field name="nj_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.014" comment="NJ tax rate bracket 1: 1.4% (2025)"></field>

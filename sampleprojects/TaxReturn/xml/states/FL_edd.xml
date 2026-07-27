@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="FL.xlsx" access="rw">
+	<file_metadata>
+		<file_path>FL_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="FL.xlsx" access="rw">
+		<source>
+			<relative_path>FL.xlsx</relative_path>
+			<file_name>FL.xlsx</file_name>
+			<sheet_number>2</sheet_number>
+		</source>
 		<field name="fl_has_income_tax" type="boolean" subtype="" access="r" input="" default_value="false" comment="FL has no state income tax (2025)"></field>
 		<field name="fl_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="FL state income tax rate - 0.0 (no income tax)"></field>
 	</entity>

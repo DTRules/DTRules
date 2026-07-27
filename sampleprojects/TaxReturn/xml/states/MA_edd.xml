@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="MA.xlsx" access="rw">
+	<file_metadata>
+		<file_path>MA_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="MA.xlsx" access="rw">
+		<source>
+			<relative_path>MA.xlsx</relative_path>
+			<file_name>MA.xlsx</file_name>
+			<sheet_number>3</sheet_number>
+		</source>
 		<field name="ma_exemption_age_65" type="double" subtype="" access="r" input="" default_value="700.0" comment="MA exemption for age 65 or older (2025)"></field>
 		<field name="ma_exemption_blind" type="double" subtype="" access="r" input="" default_value="2200.0" comment="MA exemption for legally blind (2025)"></field>
 		<field name="ma_exemption_dependent" type="double" subtype="" access="r" input="" default_value="1000.0" comment="MA exemption per qualifying dependent (2025)"></field>
@@ -8,11 +16,11 @@
 		<field name="ma_exemption_joint" type="double" subtype="" access="r" input="" default_value="8800.0" comment="MA personal exemption married filing jointly (2025)"></field>
 		<field name="ma_exemption_single" type="double" subtype="" access="r" input="" default_value="4400.0" comment="MA personal exemption single (2025)"></field>
 		<field name="ma_income_threshold" type="double" subtype="" access="r" input="" default_value="8000.0" comment="MA minimum income threshold for taxation (2025)"></field>
+		<field name="ma_state_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="MA state income tax (regular + surtax)"></field>
+		<field name="ma_surtax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="MA 4% surtax on income over surtax threshold"></field>
 		<field name="ma_surtax_rate" type="double" subtype="" access="r" input="" default_value="0.04" comment="MA surtax rate 4.0% on income over $1,083,150 (2025)"></field>
 		<field name="ma_surtax_threshold" type="double" subtype="" access="r" input="" default_value="1083150.0" comment="MA surtax threshold (2025)"></field>
 		<field name="ma_tax_rate" type="double" subtype="" access="r" input="" default_value="0.05" comment="MA flat rate 5.0% (2025)"></field>
-		<field name="ma_state_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="MA state income tax (regular + surtax)"></field>
 		<field name="ma_taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="MA taxable income (AGI minus filing-status exemption)"></field>
-		<field name="ma_surtax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="MA 4% surtax on income over surtax threshold"></field>
 	</entity>
 </entity_data_dictionary>
