@@ -271,7 +271,7 @@ func detectAuthoringPath(xmlDir, excelDir string, opts *buildOptions) (string, e
 	exporter := excel.NewWorkbookExporter()
 	syncer.SetExporter(&workbookExporterAdapter{impl: exporter})
 
-	direction, _, err := syncer.CheckSyncCombined()
+	direction, workbooks, err := syncer.CheckSyncCombined()
 	if err != nil {
 		return "", err
 	}
@@ -281,6 +281,21 @@ func detectAuthoringPath(xmlDir, excelDir string, opts *buildOptions) (string, e
 		return "excel", nil
 	case dtrsync.XMLToExcel:
 		return "xml", nil
+	case dtrsync.Conflict:
+		// Some workbooks are newer than their XML and vice versa. Silently
+		// treating this as "none" used to report "No changes detected" and
+		// hide the divergence entirely. Surface it and make the user pick a
+		// direction explicitly.
+		fmt.Fprintln(os.Stderr, "ERROR: Excel and XML have diverged in different directions:")
+		for _, wb := range workbooks {
+			switch wb.Direction {
+			case dtrsync.ExcelToXML:
+				fmt.Fprintf(os.Stderr, "  %-40s Excel is newer\n", wb.RelPath)
+			case dtrsync.XMLToExcel:
+				fmt.Fprintf(os.Stderr, "  %-40s XML is newer\n", wb.RelPath)
+			}
+		}
+		return "", fmt.Errorf("sync conflict: pass --from-excel to make Excel win, or touch the XML files to make XML win")
 	default:
 		// No sync needed — re-compile from existing Excel to produce execution XML
 		return "none", nil

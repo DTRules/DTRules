@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="CT.xlsx" access="rw">
+	<file_metadata>
+		<file_path>CT_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="CT.xlsx" access="rw">
 		<field name="ct_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="10000.0" comment="CT tax bracket 1 upper limit - Single (2025)"></field>
 		<field name="ct_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="20000.0" comment="CT tax bracket 1 upper limit - MFJ (2025)"></field>
 		<field name="ct_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.02" comment="CT tax rate for bracket 1: 2% (2025)"></field>

@@ -2,7 +2,12 @@
 <decision_tables>
 
 <!-- TABLE 44300: TX_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
+<source>
+<relative_path>TX.xlsx</relative_path>
+<file_name>TX.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>TX_Tax</table_name>
 <xls_file>TX.xlsx</xls_file>
 <attribute_fields>

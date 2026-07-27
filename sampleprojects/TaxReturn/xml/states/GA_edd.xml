@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="GA.xlsx" access="rw">
+	<file_metadata>
+		<file_path>GA_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="GA.xlsx" access="rw">
 		<field name="ga_military_exemption_62_to_64" type="double" subtype="" access="r" input="" default_value="35000.0" comment="GA military retirement exemption age 62-64 (2025). Source: MOAA"></field>
 		<field name="ga_military_exemption_65_plus" type="double" subtype="" access="r" input="" default_value="65000.0" comment="GA military retirement exemption age 65+ (2025). Source: MOAA"></field>
 		<field name="ga_military_exemption_under_62_base" type="double" subtype="" access="r" input="" default_value="17500.0" comment="GA military retirement base exemption under age 62 (2025). Source: MOAA"></field>

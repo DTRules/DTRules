@@ -2,7 +2,7 @@
 <decision_tables>
 
 <!-- TABLE 52416: ME_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>ME.xlsx</relative_path>
 <file_name>ME.xlsx</file_name>
@@ -18,7 +18,6 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset and log</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Maine Tax Calculation (top marginal 7.15%)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
 0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Maine Tax Calculation (top marginal 7.15%)" job.audit_trail swap addto
@@ -33,9 +32,9 @@
 <condition_postfix>
 job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 </condition_postfix>
+<condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
-<condition_column column_number="1" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -46,7 +45,6 @@ job.filing_status "HOH" streq
 </condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
-<condition_column column_number="1" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -79,17 +77,13 @@ result.agi 14600.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef re
 </action_details>
 </actions>
 <policy_statements>
-<policy_statement column="1">
-<policy_description>ME MFJ: 7.15% x max(AGI - $29,200, 0) per 36 M.R.S. § 5111</policy_description>
-<policy_statement_postfix>"Maine MFJ top-marginal-rate approximation per 36 M.R.S. § 5111"</policy_statement_postfix>
-</policy_statement>
 <policy_statement column="2">
 <policy_description>ME HOH: 7.15% x max(AGI - $21,900, 0) per 36 M.R.S. § 5111</policy_description>
-<policy_statement_postfix>"Maine HOH top-marginal-rate approximation per 36 M.R.S. § 5111"</policy_statement_postfix>
+<policy_statement_postfix>"ME HOH: 7.15% x max(AGI - $21,900, 0) per 36 M.R.S. § 5111"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>ME Single/MFS: 7.15% x max(AGI - $14,600, 0) per 36 M.R.S. § 5111</policy_description>
-<policy_statement_postfix>"Maine Single/MFS top-marginal-rate approximation per 36 M.R.S. § 5111"</policy_statement_postfix>
+<policy_statement_postfix>"ME Single/MFS: 7.15% x max(AGI - $14,600, 0) per 36 M.R.S. § 5111"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

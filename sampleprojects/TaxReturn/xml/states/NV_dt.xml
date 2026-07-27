@@ -2,9 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 46800: NV_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
+<source>
+<relative_path>NV.xlsx</relative_path>
+<file_name>NV.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>NV_Tax</table_name>
-<xls_file>State.xls</xls_file>
+<xls_file>NV.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculates Nevada state income tax using hypothetical progressive tax brackets: 2.5% on first bracket, 4.0% on second bracket, 6.0% on third bracket. Thresholds vary by filing status. Starting with federal AGI, applies standard deduction based on filing status ($7,500 Single, $15,000 MFJ, $11,250 HOH), then calculates tax using progressive brackets.</COMMENTS>
@@ -14,14 +19,9 @@
 <initial_actions>
 <initial_action>
 <initial_action_dsl>set result.nv_state_tax = 0; add "Nevada (no state income tax)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvi /result.nv_state_tax xdef &quot;Nevada (no state income tax)&quot; job.audit_trail swap addto</initial_action_postfix>
-<action_postfix>
-"NEVADA - State Income Tax Calculation" job.audit_trail swap addto
-result.agi /result.nv_agi xdef
-0 /result.nv_bracket_1_tax xdef
-0 /result.nv_bracket_2_tax xdef
-0 /result.nv_bracket_3_tax xdef
-</action_postfix>
+<initial_action_postfix>
+0 cvi /result.nv_state_tax xdef "Nevada (no state income tax)" job.audit_trail swap addto
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -29,7 +29,9 @@ result.agi /result.nv_agi xdef
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
 <condition_dsl>true</condition_dsl>
-<condition_postfix>true</condition_postfix>
+<condition_postfix>
+true
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -38,7 +40,9 @@ result.agi /result.nv_agi xdef
 <condition_number>2</condition_number>
 <condition_comment>Single</condition_comment>
 <condition_dsl>job.filing_status is equal to "single"</condition_dsl>
-<condition_postfix>job.filing_status &quot;single&quot; streq</condition_postfix>
+<condition_postfix>
+job.filing_status "single" streq
+</condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -47,10 +51,12 @@ result.agi /result.nv_agi xdef
 <condition_number>3</condition_number>
 <condition_comment>Head of Household</condition_comment>
 <condition_dsl>job.filing_status is equal to "head_of_household"</condition_dsl>
-<condition_postfix>job.filing_status &quot;head_of_household&quot; streq</condition_postfix>
-<condition_column column_number="3" column_value="Y" />
+<condition_postfix>
+job.filing_status "head_of_household" streq
+</condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
 <actions>
@@ -58,36 +64,38 @@ result.agi /result.nv_agi xdef
 <action_number>1</action_number>
 <action_comment>Calculate NV tax MFJ; Calculate NV tax with MFJ standard deduction and progressive brackets</action_comment>
 <action_dsl>set result.nv_state_tax = 0</action_dsl>
-<action_postfix>0 cvi /result.nv_state_tax xdef</action_postfix>
+<action_postfix>
+0 cvi /result.nv_state_tax xdef
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate NV tax Single; Calculate NV tax with Single standard deduction and progressive brackets</action_comment>
 <action_dsl>set result.nv_state_tax = 0</action_dsl>
-<action_postfix>0 cvi /result.nv_state_tax xdef</action_postfix>
+<action_postfix>
+0 cvi /result.nv_state_tax xdef
+</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Calculate NV tax HOH; Calculate NV tax with HOH standard deduction and progressive brackets</action_comment>
 <action_dsl>set result.nv_state_tax = 0</action_dsl>
-<action_postfix>0 cvi /result.nv_state_tax xdef</action_postfix>
+<action_postfix>
+0 cvi /result.nv_state_tax xdef
+</action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
-<policy_statement column="1">
-<policy_description>NV progressive tax MFJ with standard deduction</policy_description>
-<policy_statement_postfix>"Nevada progressive tax for MFJ"</policy_statement_postfix>
-</policy_statement>
 <policy_statement column="2">
 <policy_description>NV progressive tax Single with standard deduction</policy_description>
-<policy_statement_postfix>"Nevada progressive tax for Single"</policy_statement_postfix>
+<policy_statement_postfix>"NV progressive tax Single with standard deduction"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>NV progressive tax HOH with standard deduction</policy_description>
-<policy_statement_postfix>"Nevada progressive tax for HOH"</policy_statement_postfix>
+<policy_statement_postfix>"NV progressive tax HOH with standard deduction"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

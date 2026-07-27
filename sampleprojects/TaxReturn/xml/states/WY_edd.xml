@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="WY.xlsx" access="rw">
+	<file_metadata>
+		<file_path>WY_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="WY.xlsx" access="rw">
+		<source>
+			<relative_path>WY.xlsx</relative_path>
+			<file_name>WY.xlsx</file_name>
+			<sheet_number>2</sheet_number>
+		</source>
 		<field name="wy_has_income_tax" type="boolean" subtype="" access="r" input="" default_value="false" comment="WY has no state income tax (2025)"></field>
 		<field name="wy_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="WY state income tax rate - 0.0 (no income tax)"></field>
 	</entity>

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="NC.xlsx" access="rw">
+	<file_metadata>
+		<file_path>NC_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="NC.xlsx" access="rw">
 		<field name="nc_agi" type="double" subtype="" access="r" input="" default_value="0.0" comment="NC adjusted gross income (federal AGI with NC adjustments, computed)"></field>
 		<field name="nc_child_deduction" type="double" subtype="" access="r" input="" default_value="2500.0" comment="NC child deduction per qualifying child under 17 (subject to phase-out)"></field>
 		<field name="nc_child_deduction_phase_out_start" type="double" subtype="" access="r" input="" default_value="60000.0" comment="NC child deduction phase-out starts at $60k AGI (approximate)"></field>

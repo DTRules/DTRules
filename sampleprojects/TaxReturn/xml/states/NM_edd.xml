@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="NM.xlsx" access="rw">
+	<file_metadata>
+		<file_path>NM_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="NM.xlsx" access="rw">
 		<field name="nm_base_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="NM base tax before credits/rebates (computed)"></field>
 		<field name="nm_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.015" comment="NM tax rate bracket 1: 1.5% (2025). Source: NM TRD"></field>
 		<field name="nm_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.032" comment="NM tax rate bracket 2: 3.2% (2025)"></field>

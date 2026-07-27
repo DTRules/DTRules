@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="MO.xlsx" access="rw">
+	<file_metadata>
+		<file_path>MO_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="MO.xlsx" access="rw">
 		<field name="mo_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="1313.0" comment="MO tax bracket 1 upper limit (2025). Source: MO DOR"></field>
 		<field name="mo_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="MO tax rate for bracket 1 - 0% (2025)"></field>
 		<field name="mo_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="2626.0" comment="MO tax bracket 2 upper limit (2025). Source: MO DOR"></field>

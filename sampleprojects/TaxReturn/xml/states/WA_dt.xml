@@ -2,7 +2,12 @@
 <decision_tables>
 
 <!-- TABLE 44700: WA_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
+<source>
+<relative_path>WA.xlsx</relative_path>
+<file_name>WA.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>WA_Tax</table_name>
 <xls_file>WA.xlsx</xls_file>
 <attribute_fields>

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="NH.xlsx" access="rw">
+	<file_metadata>
+		<file_path>NH_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="NH.xlsx" access="rw">
 		<field name="nh_has_income_tax" type="boolean" subtype="" access="r" input="" default_value="false" comment="NH has no state income tax (2025 - repealed dividend/interest tax)"></field>
 		<field name="nh_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="NH state income tax rate - 0.0 (no income tax)"></field>
 	</entity>
