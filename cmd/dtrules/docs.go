@@ -236,6 +236,13 @@ Rounding:
     amount rounded to 2 decimal places     round to N decimal places
     amount rounded to 2 decimal places with boundary 0.5
                                            round with custom boundary
+    the ceiling of amount                  round up   (postfix: ceiling)
+    the floor of amount                    round down (postfix: floor)
+
+Min / max (also 'smaller of' / 'larger of'; 'the' is optional):
+    the minimum of a and b                 lesser of two values  (postfix: fmin)
+    the maximum of a and b                 greater of two values (postfix: fmax)
+    the maximum of (result.agi - deduction) and 0.0
 
 Mutating double operations:
     add to myDouble 1.5            add to variable in place
@@ -622,6 +629,11 @@ Entity Expressions (eexpr)
     new $myName entity             create new entity by name
     new myEntity entity            create new entity of same type
     clone of myEntity              shallow clone
+
+    Create-and-push idiom — create an entity AND put it on the entity
+    stack for the rest of the table run (postfix: createentity entitypush):
+        add new result entity to context of this table
+
     (entity) someTable(args)       table lookup returning entity
     first myEntity in myArray where bexpr    first matching entity in array
     first myEntity where bexpr     first matching entity in context
@@ -1490,6 +1502,12 @@ Rounding (double only):
     amount rounded                            double        3.7 rounded -> 4.0
     amount rounded to 2 decimal places        double
     amount rounded to 2 decimal places with boundary 0.5
+    the ceiling of amount                     double        3.2 -> 4.0   (postfix: ceiling)
+    the floor of amount                       double        3.7 -> 3.0   (postfix: floor)
+
+Min / max ('minimum of'/'smaller of', 'maximum of'/'larger of'; 'and' or comma):
+    the minimum of a and b                    double        min(a, b)    (postfix: fmin)
+    the maximum of a and b                    double        max(a, b)    (postfix: fmax)
 
 Mutating shortcuts (action statements):
     increment myLong                          (adds 1 to long field)
@@ -1708,6 +1726,10 @@ fexpr rounded                                 double    round to nearest integer
 fexpr rounded to N decimal places             double    round to N places
 fexpr rounded to N decimal places
     with boundary B                            double    round with custom boundary
+the ceiling of fexpr                          double    round up (postfix: ceiling)
+the floor of fexpr                            double    round down (postfix: floor)
+the minimum of fexpr and fexpr                double    lesser value (postfix: fmin)
+the maximum of fexpr and fexpr                double    greater value (postfix: fmax)
 double value of typedOperator(args)           double    custom operator result
 
 Cast to double:
@@ -2120,6 +2142,46 @@ Boolean assignment in action cell:
 Division in action cell (FPL calculation):
     set client_fpl = (100.0 * totalGroupIncome) / FPL
 
+
+Reverse Index: Postfix Op -> EL Phrase
+--------------------------------------
+When reading stored postfix (traces, legacy tables, the debug console) and
+working backward to the EL that produces it, use this table. Every op here
+HAS an EL surface form — do not conclude a form is missing without checking
+this list and 'dtrules docs el'.
+
+Postfix op        EL phrase that emits it
+----------------  ------------------------------------------------------------
+createentity      new <type> entity            (eexpr; also: create <type> as x)
+entitypush        add <entity> to context of this table
+memberof          <value> is one of <array>    (negated: is not one of)
+addto             add <value> to <array>       (emits: <value> <array> swap addto)
+xdef              set <entity.field> = <expr>  (emits: <expr> /<field> xdef)
+performtable      perform <TableName>          (runs the table's contexts too)
+executetable      execute <TableName>          (skips contexts; use inside own context)
+forall            for all <collection> [where <bexpr>]        (context row)
+                  also: sum of <field> in <array> [where ...]
+                  also: number of <array> where <bexpr>
+fmin / fmax       the minimum/maximum of <a> and <b>
+ceiling / floor   the ceiling/floor of <fexpr>
+fabs / abs        absolute value of <expr>
+streq             <s> is equal to "..."        (case-sensitive string compare)
+isnull            <field> is null              (negated: is not null)
+length            length of <array>
+if / ifelse       if <bexpr> then { ... } [else { ... }] endif
+cvb/cvi/cvd/cvs   implicit conversions inserted by the compiler (bool/int/
+                  double/string) — never authored directly
+
+Operand-order convention (matters when hand-reading postfix):
+  'if' and 'ifelse' pop the TEST from the TOP of the data stack. Compiled
+  form is '{ then } { else } <bexpr> ifelse'. Legacy hand postfix that put
+  the test FIRST ('<bexpr> [then] [else] ifelse') fails at runtime with a
+  BooleanValue conversion error — recompile the row from its DSL.
+
+Never hand-write postfix. If a stored-postfix idiom seems to have no EL
+equivalent, recheck the phrases above, then 'dtrules docs el' — and only
+then file a grammar-gap issue quoting both the postfix and the phrases you
+ruled out.
 
 See Also
 --------
