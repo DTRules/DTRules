@@ -33,7 +33,6 @@ direct edits nearly got clobbered by a stale-workbook mtime race).
 | sampleprojects/CHIP | DTRules.xml | Known hand-postfix warnings (Evaluate_MEDICAID/FOODSTAMPS_Eligibility); CHIP_dt_strip.xml is unparseable junk |
 | sampleprojects/ChipApp | DTRules.xml | Unknown; likely CHIP sibling |
 | sampleprojects/CorporateTax | xml/ | WORST: EDD uses wrong root element `<entity_dictionary>` (loader expects `entity_data_dictionary`); "condition table isn't balanced" load errors; `*_dt_core.xml` has XML syntax errors; state files carry test-first ifelse hand postfix (#947) |
-| sampleprojects/DTEligibility | xml/ | Test-first ifelse hand postfix (#947); no DTRules.xml |
 | sampleprojects/KidAid | DTRules.xml | #927: findmatch-era rules (`relationship-is-of` uses REMOVED op) — migration needs Paul's semantics call; map Excel round-trip formerly lossy; checked-in postfix predates numeric-add fix |
 | sampleprojects/KidAid_Application/repository | DTRules.xml | Unknown; nested project |
 | sampleprojects/Poker | xml/ | Unknown; no DTRules.xml |
@@ -49,7 +48,7 @@ project marker; #941/#942 established this model).
 ## Execution order
 
 Small/easy first to bed the workflow in, hardest last:
-TestProject → StateTax → Poker → DTEligibility → SinusitisTherapy (+
+TestProject → StateTax → Poker → SinusitisTherapy (+
 cmd/sinusitis-web/rules) → SyntaxTests → CHIP → ChipApp →
 KidAid_Application → KidAid (partial; #927 items need Paul) → CorporateTax.
 

@@ -351,7 +351,7 @@ Older samples remain for reference; some predate the current authoring contract.
 | **CHIP** / **ChipApp** | Health-insurance eligibility determination |
 | **KidAid** / **KidAid_Application** | Child-assistance program eligibility |
 | **CorporateTax** / **StateTax** | Tax calculation |
-| **DTEligibility**, **Poker** | Additional examples |
+| **Poker** | Decision-making by player archetype — the smallest end-to-end example |
 
 ---
 
