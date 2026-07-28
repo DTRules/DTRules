@@ -803,6 +803,7 @@ func (s *Server) handleProjectCurrent(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, map[string]interface{}{
 		"success":  true,
 		"path":     s.projectPath,
+		"rulesDir": projectXMLDir(s.projectPath),
 		"config":   s.configPayload(),
 		"eddFiles": s.eddFiles,
 		"dtFiles":  s.dtFiles,
@@ -880,6 +881,22 @@ func (s *Server) LoadProject(reqPath string) error {
 	s.ruleSet = buildRuleSetFromXML("ui-project", s.projectPath, s.eddFiles, s.dtFiles, logLoadWarning)
 
 	return nil
+}
+
+// ProjectSummary reports where the loaded project actually got its rules:
+// the project root, the resolved rules directory that was scanned
+// (DTRules.xml xml_dir override, else xml/, else the root itself), and the
+// discovered file lists (paths relative to the project root). `dtrules
+// edit` prints this at startup so a fallback-to-root scan that sweeps
+// multiple nested projects is visible instead of silent.
+func (s *Server) ProjectSummary() (projectPath, rulesDir string, dtFiles, eddFiles []string) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if s.projectPath == "" {
+		return "", "", nil, nil
+	}
+	return s.projectPath, projectXMLDir(s.projectPath),
+		append([]string(nil), s.dtFiles...), append([]string(nil), s.eddFiles...)
 }
 
 func (s *Server) handleProjectSave(w http.ResponseWriter, r *http.Request) {

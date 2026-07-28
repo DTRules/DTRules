@@ -22,6 +22,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 	"time"
 
@@ -146,6 +147,8 @@ reverse proxy that provides TLS and access control.`)
 	if err := server.LoadProject(absPath); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: could not open project %s: %v\n", absPath, err)
 		fmt.Fprintln(os.Stderr, "The editor will start without a project; open one from the UI.")
+	} else {
+		reportProjectScope(server)
 	}
 
 	// Preload a trace so the Debug tab opens ready (the `dtrules debug` flow).
@@ -218,6 +221,55 @@ reverse proxy that provides TLS and access control.`)
 }
 
 // launchBrowser best-effort opens the system browser at url.
+// reportProjectScope prints where the editor actually got its rules, and
+// warns when the scan fell back to the project root and swept rule files
+// out of multiple nested directories — the signature of launching from a
+// repo root that contains several projects (the whole tree gets walked,
+// and same-named tables from unrelated projects silently collide).
+func reportProjectScope(server *apiserver.Server) {
+	projectPath, rulesDir, dtFiles, eddFiles := server.ProjectSummary()
+	if projectPath == "" {
+		return
+	}
+	fmt.Printf("Project:   %s\n", projectPath)
+	fmt.Printf("Rules dir: %s  (%d decision-table files, %d EDD files)\n",
+		rulesDir, len(dtFiles), len(eddFiles))
+
+	if rulesDir != projectPath {
+		return
+	}
+	// Fallback-to-root scan: warn when NO decision tables live at the scan
+	// root itself and several subdirectories contributed them — a real
+	// project keeps its main *_dt.xml at its top level (subfolders like
+	// states/ are fine), while a repo root has everything nested under
+	// unrelated directories.
+	tops := map[string]bool{}
+	rootFiles := 0
+	for _, f := range dtFiles {
+		parts := strings.SplitN(filepath.ToSlash(f), "/", 2)
+		if len(parts) == 2 {
+			tops[parts[0]] = true
+		} else {
+			rootFiles++
+		}
+	}
+	if rootFiles == 0 && len(tops) > 1 {
+		names := make([]string, 0, len(tops))
+		for t := range tops {
+			names = append(names, t)
+		}
+		sort.Strings(names)
+		fmt.Fprintf(os.Stderr, `
+WARNING: no DTRules.xml or xml/ directory here, so the WHOLE tree was
+scanned and rule files were found under %d different top-level
+directories (%s).
+Tables from unrelated projects can collide. Run the editor from a
+project directory, or pass one:  dtrules edit <project-dir>
+
+`, len(tops), strings.Join(names, ", "))
+	}
+}
+
 func launchBrowser(url string) {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
