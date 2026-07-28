@@ -144,7 +144,34 @@ reverse proxy that provides TLS and access control.`)
 	}
 
 	server := apiserver.New(apiserver.Config{ProjectRoot: projectRoot, ReadOnly: readOnly})
-	if err := server.LoadProject(absPath); err != nil {
+
+	// A project is identified by its DTRules.xml (or, for older projects,
+	// the xml/ layout convention). Launching from a directory that is NOT
+	// a project used to silently scan the whole tree — sweeping unrelated
+	// projects together. Instead, discover the projects beneath it and let
+	// the user pick (in the terminal listing or the welcome screen).
+	if apiserver.ProjectMarker(absPath) == "" {
+		server.SetDiscoverRoot(absPath)
+		projects := apiserver.DiscoverProjects(absPath)
+		fmt.Printf("%s is not a project (no DTRules.xml, xml/ directory, or rule XML).\n", absPath)
+		if len(projects) == 0 {
+			fmt.Println("No projects found beneath it either; open one from the editor UI.")
+		} else {
+			fmt.Printf("Projects found beneath it:\n")
+			for _, p := range projects {
+				rel, err := filepath.Rel(absPath, p.Path)
+				if err != nil {
+					rel = p.Path
+				}
+				extra := ""
+				if p.Entry != "" {
+					extra = "  entry: " + p.Entry
+				}
+				fmt.Printf("  %-40s (%s)%s\n", rel, p.Marker, extra)
+			}
+			fmt.Println("Pick one on the editor's welcome screen, or rerun: dtrules edit <dir>")
+		}
+	} else if err := server.LoadProject(absPath); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: could not open project %s: %v\n", absPath, err)
 		fmt.Fprintln(os.Stderr, "The editor will start without a project; open one from the UI.")
 	} else {
@@ -192,7 +219,11 @@ reverse proxy that provides TLS and access control.`)
 	if !loopback {
 		url = fmt.Sprintf("http://%s:%d", host, boundPort)
 	}
-	fmt.Printf("DTRules editor: %s  (project: %s)\n", url, absPath)
+	if apiserver.ProjectMarker(absPath) == "" {
+		fmt.Printf("DTRules editor: %s  (no project loaded — pick one on the welcome screen)\n", url)
+	} else {
+		fmt.Printf("DTRules editor: %s  (project: %s)\n", url, absPath)
+	}
 	if projectRoot != "" {
 		fmt.Printf("Project access restricted to: %s\n", projectRoot)
 	}
