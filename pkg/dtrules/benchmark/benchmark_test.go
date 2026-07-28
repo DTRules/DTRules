@@ -28,8 +28,8 @@ import (
 
 // Paths to CHIP sample project
 const (
-	chipEDD = "../../../../sampleprojects/CHIP/repository/xml/CHIP_edd.xml"
-	chipDT  = "../../../../sampleprojects/CHIP/repository/xml/CHIP_dt.xml"
+	chipEDD = "../../../../sampleprojects/CHIP/xml/CHIP_edd.xml"
+	chipDT  = "../../../../sampleprojects/CHIP/xml/CHIP_dt.xml"
 )
 
 // mockSession for micro-benchmarks

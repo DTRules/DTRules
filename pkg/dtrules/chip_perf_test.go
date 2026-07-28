@@ -35,7 +35,7 @@ func BenchmarkCHIPDecisionTable(b *testing.B) {
 	// Load rule set once
 	rs := session.NewRuleSet("CHIP")
 
-	eddPath := filepath.Join(chipDir, "repository/xml/CHIP_edd.xml")
+	eddPath := filepath.Join(chipDir, "xml/CHIP_edd.xml")
 	eddFile, err := os.Open(eddPath)
 	if err != nil {
 		b.Fatalf("Failed to open EDD file: %v", err)
@@ -46,7 +46,7 @@ func BenchmarkCHIPDecisionTable(b *testing.B) {
 		b.Fatalf("Failed to load EDD: %v", err)
 	}
 
-	dtPath := filepath.Join(chipDir, "repository/xml/CHIP_dt.xml")
+	dtPath := filepath.Join(chipDir, "xml/CHIP_dt.xml")
 	dtFile, err := os.Open(dtPath)
 	if err != nil {
 		b.Fatalf("Failed to open DT file: %v", err)
@@ -67,7 +67,7 @@ func BenchmarkCHIPDecisionTable(b *testing.B) {
 		}
 
 		// Load mapping
-		mapPath := filepath.Join(chipDir, "repository/xml/CHIP_map.xml")
+		mapPath := filepath.Join(chipDir, "xml/CHIP_map.xml")
 		mapFile, err := os.Open(mapPath)
 		if err != nil {
 			b.Fatalf("Failed to open mapping file: %v", err)
@@ -112,12 +112,15 @@ func BenchmarkCHIPDecisionTable(b *testing.B) {
 
 // TestCHIPPerformance runs timing tests on CHIP decision tables
 func TestCHIPPerformance(t *testing.T) {
-	// Skipped: CHIP's rules do not execute — `Calculate_Group_Size` resolves
-	// `ThisClient` against nothing (#962). This test asserted a successful run
-	// while the mapping never populated the data, so it passed on a run that
-	// did nothing; fixing the mapping made the real defect visible. Unskip
-	// when CHIP is repaired.
-	t.Skip("CHIP execution is broken — see #962")
+	// Skipped: CHIP does not execute. Calculate_Group_Size declares
+	// `local entity ApplyingClient = client` in a context row and refers to it
+	// from every condition and action, but rows compile independently of their
+	// table's context locals, so the name resolves against nothing at run time
+	// (#965). Tracked for CHIP as #962.
+	//
+	// This test asserted a successful run while the mapping loaded nothing
+	// into the entities it read, so it passed on a run that did nothing.
+	t.Skip("CHIP execution is broken — see #962, blocked on #965")
 
 	chipDir := findCHIPDir(t)
 	if chipDir == "" {
@@ -140,7 +143,7 @@ func TestCHIPPerformance(t *testing.T) {
 	// Load rule set once
 	rs := session.NewRuleSet("CHIP")
 
-	eddPath := filepath.Join(chipDir, "repository/xml/CHIP_edd.xml")
+	eddPath := filepath.Join(chipDir, "xml/CHIP_edd.xml")
 	eddFile, err := os.Open(eddPath)
 	if err != nil {
 		t.Fatalf("Failed to open EDD file: %v", err)
@@ -151,7 +154,7 @@ func TestCHIPPerformance(t *testing.T) {
 		t.Fatalf("Failed to load EDD: %v", err)
 	}
 
-	dtPath := filepath.Join(chipDir, "repository/xml/CHIP_dt.xml")
+	dtPath := filepath.Join(chipDir, "xml/CHIP_dt.xml")
 	dtFile, err := os.Open(dtPath)
 	if err != nil {
 		t.Fatalf("Failed to open DT file: %v", err)
@@ -183,7 +186,7 @@ func TestCHIPPerformance(t *testing.T) {
 				t.Fatalf("Failed to create session: %v", err)
 			}
 
-			mapPath := filepath.Join(chipDir, "repository/xml/CHIP_map.xml")
+			mapPath := filepath.Join(chipDir, "xml/CHIP_map.xml")
 			mapFile, err := os.Open(mapPath)
 			if err != nil {
 				t.Fatalf("Failed to open mapping file: %v", err)
@@ -270,7 +273,7 @@ func TestCHIPPerTestCase(t *testing.T) {
 	// Load rule set once
 	rs := session.NewRuleSet("CHIP")
 
-	eddPath := filepath.Join(chipDir, "repository/xml/CHIP_edd.xml")
+	eddPath := filepath.Join(chipDir, "xml/CHIP_edd.xml")
 	eddFile, err := os.Open(eddPath)
 	if err != nil {
 		t.Fatalf("Failed to open EDD file: %v", err)
@@ -281,7 +284,7 @@ func TestCHIPPerTestCase(t *testing.T) {
 		t.Fatalf("Failed to load EDD: %v", err)
 	}
 
-	dtPath := filepath.Join(chipDir, "repository/xml/CHIP_dt.xml")
+	dtPath := filepath.Join(chipDir, "xml/CHIP_dt.xml")
 	dtFile, err := os.Open(dtPath)
 	if err != nil {
 		t.Fatalf("Failed to open DT file: %v", err)
@@ -307,7 +310,7 @@ func TestCHIPPerTestCase(t *testing.T) {
 			loadStart := time.Now()
 
 			sess, _ := rs.NewSession()
-			mapPath := filepath.Join(chipDir, "repository/xml/CHIP_map.xml")
+			mapPath := filepath.Join(chipDir, "xml/CHIP_map.xml")
 			mapFile, _ := os.Open(mapPath)
 			m := mapping.NewMapping(sess)
 			m.LoadMapping(mapFile)
@@ -347,7 +350,7 @@ func findCHIPDirB(b *testing.B) string {
 		if err != nil {
 			continue
 		}
-		if _, err := os.Stat(filepath.Join(absPath, "repository/xml/CHIP_edd.xml")); err == nil {
+		if _, err := os.Stat(filepath.Join(absPath, "xml/CHIP_edd.xml")); err == nil {
 			return absPath
 		}
 	}
