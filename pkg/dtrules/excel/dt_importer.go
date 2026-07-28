@@ -1078,8 +1078,13 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 			numCols = i.countHeaderColumns(row)
 			currentSection = "actions"
 
+		// Same one-row layout as conditions/actions above: the exporter writes
+		// "Policy:", the "Policy Statements" label, and the rule-column numbers
+		// on the title row, then one data row per statement. Routing through a
+		// separate *_header state ate the first statement of every table on
+		// round-trip (column 1's policy vanished).
 		case strings.HasPrefix(firstCellLower, "policy"):
-			currentSection = "policy_header"
+			currentSection = "policy"
 
 		default:
 			switch currentSection {
@@ -1184,10 +1189,6 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 					currentSection = ""
 				}
 
-			case "policy_header":
-				// Header row with column numbers
-				currentSection = "policy"
-
 			case "policy":
 				// New format: column number in A, policy text in B (one row per policy)
 				if firstCell != "" {
@@ -1197,12 +1198,18 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 							policy := PolicyStatementXML{
 								Column:      firstCell,
 								Description: desc,
-								Postfix:     fmt.Sprintf(`"%s"`, desc),
+								Postfix:     CompilePolicyStatement(desc),
 							}
 							table.PolicyStatements = append(table.PolicyStatements, policy)
 						}
 						continue
 					}
+				}
+				// A legacy two-row layout puts the rule-column numbers on their
+				// own row below the title. Skip it: those numbers are headers,
+				// not statements.
+				if isColumnNumberRow(row) {
+					continue
 				}
 				// Old format: empty A, "Column Policy" in B, statements in D, E, F...
 				if len(row) > 3 {
@@ -1212,7 +1219,7 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 							policy := PolicyStatementXML{
 								Column:      strconv.Itoa(col - 2), // 1-indexed
 								Description: val,
-								Postfix:     fmt.Sprintf(`"%s"`, val),
+								Postfix:     CompilePolicyStatement(val),
 							}
 							table.PolicyStatements = append(table.PolicyStatements, policy)
 						}
@@ -1271,6 +1278,28 @@ func (i *DTImporter) countHeaderColumns(row []string) int {
 		}
 	}
 	return count
+}
+
+// isColumnNumberRow reports whether a row is a bare rule-column header —
+// columns A and B empty and every remaining populated cell an integer, e.g.
+// the "1 2 3 4" row a legacy two-row section layout puts under its title.
+// Such a row carries no authored content and must not be parsed as data.
+func isColumnNumberRow(row []string) bool {
+	if strings.TrimSpace(safeGet(row, 0)) != "" || strings.TrimSpace(safeGet(row, 1)) != "" {
+		return false
+	}
+	numbers := 0
+	for j := 2; j < len(row); j++ {
+		cell := strings.TrimSpace(row[j])
+		if cell == "" {
+			continue
+		}
+		if _, err := strconv.Atoi(cell); err != nil {
+			return false
+		}
+		numbers++
+	}
+	return numbers > 0
 }
 
 // safeGet safely gets a string from a slice, returning empty string if out of bounds.

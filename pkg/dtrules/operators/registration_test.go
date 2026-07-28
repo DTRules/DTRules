@@ -276,6 +276,7 @@ func TestAllOperatorsRegistered(t *testing.T) {
 	"performcatcherror",
 	"performtable",
 	"pick",
+	"policystatements",
 	"pop",
 	"print",
 	"printtos",

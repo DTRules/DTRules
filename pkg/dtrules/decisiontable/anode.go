@@ -102,6 +102,14 @@ func (a *ANode) CountColumns() int {
 	return 1
 }
 
+// Columns returns the 1-based rule-column numbers that lead to this node.
+// Identical nodes are merged during tree building, so a node can answer for
+// more than one column. The `policystatements` operator reads this to know
+// which columns' policy statements fired (#949).
+func (a *ANode) Columns() []int {
+	return a.columns
+}
+
 // Execute runs all actions in this node
 func (a *ANode) Execute(state dtrules.State) error {
 	if cb := a.decisionTable.ColumnSelectedCallback; cb != nil && len(a.columns) > 0 {
@@ -116,6 +124,19 @@ func (a *ANode) Execute(state dtrules.State) error {
 	}
 	state.TraceOpen("column", "n", col)
 	defer state.TraceClose("column")
+
+	// Publish the table and node so operators that need to know which column
+	// fired can ask (`policystatements`, #949). Saved and restored rather than
+	// cleared: an action may perform another table, and that table's actions
+	// must not leave this one's node behind when they finish.
+	prevTable := state.GetCurrentTable()
+	prevNode := state.GetANode()
+	state.SetCurrentTable(a.decisionTable)
+	state.SetANode(a)
+	defer func() {
+		state.SetCurrentTable(prevTable)
+		state.SetANode(prevNode)
+	}()
 
 	for i, action := range a.actions {
 		num := a.actionNumbers[i]
@@ -162,7 +183,50 @@ func (a *ANode) EqualsNode(state dtrules.State, node DTNode) bool {
 			return false
 		}
 	}
-	return true
+	return a.samePolicyStatement(other)
+}
+
+// samePolicyStatement reports whether two action nodes are interchangeable as
+// far as policy statements go. The optimizer collapses branches that run the
+// same actions, which throws away which column got there — fine until the
+// column's policy statement is part of what it does (#949). Nodes whose
+// columns carry different statements have different effects and must stay
+// apart.
+func (a *ANode) samePolicyStatement(other *ANode) bool {
+	mine, ok := a.policyStatement()
+	if !ok {
+		return false
+	}
+	theirs, ok := other.policyStatement()
+	if !ok {
+		return false
+	}
+	return mine == theirs
+}
+
+// policyStatement returns the policy statement shared by every column of this
+// node. ok is false when the columns disagree, which makes the node itself
+// unmergeable.
+func (a *ANode) policyStatement() (statement string, ok bool) {
+	if a.decisionTable == nil {
+		return "", true
+	}
+	statements := a.decisionTable.policyStatements
+	first := true
+	for _, col := range a.columns {
+		var s string
+		if col >= 0 && col < len(statements) {
+			s = statements[col]
+		}
+		if first {
+			statement, first = s, false
+			continue
+		}
+		if s != statement {
+			return "", false
+		}
+	}
+	return statement, true
 }
 
 // GetCommonANode returns this node (an ANode has only one path)
