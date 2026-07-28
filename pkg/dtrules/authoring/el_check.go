@@ -62,3 +62,62 @@ func CheckContext(elStr string, symbols map[string]string) (postfix string, err 
 	}
 	return c.CompileContext(strings.TrimSpace(elStr))
 }
+
+// tableCompiler compiles every row of one decision table through a single EL
+// compiler, so locals a context row declares are in scope for the conditions
+// and actions beneath it (#965).
+//
+// `Compiler.ResetLocals` documents the rule — "within a single table, locals
+// persist across Context/Condition/Action calls" — but CheckCondition and
+// friends each build a fresh compiler, so a table written like
+//
+//	context:     local entity ApplyingClient = client
+//	condition 1: ApplyingClient == client
+//
+// compiled the condition with no knowledge of the slot and emitted
+// `ApplyingClient` as a bare name. It parsed, it produced plausible postfix,
+// and it died at execute with "The Name 'ApplyingClient' was not defined by
+// any Entity on the Entity Stack". CHIP's Calculate_Group_Size had been dead
+// that way for as long as the sample existed.
+//
+// Rows must be compiled in table order — contexts first — for the slots to be
+// declared before they are referenced. syncToXML already writes them that way.
+type tableCompiler struct {
+	c *el.Compiler
+}
+
+// newTableCompiler starts a fresh local scope for one table.
+func newTableCompiler(symbols map[string]string) *tableCompiler {
+	c := el.NewCompiler()
+	if symbols != nil {
+		c.SetSymbols(symbols)
+	}
+	// Slot indices must not bleed in from whatever was compiled before.
+	c.ResetLocals()
+	return &tableCompiler{c: c}
+}
+
+// compile returns the postfix for one row, or "" when the DSL is empty or does
+// not compile. An empty result lets the loader's hand-coded-postfix check flag
+// the table rather than silently preserving a stale prior compile.
+func (tc *tableCompiler) compile(dsl, kind string) string {
+	if strings.TrimSpace(dsl) == "" {
+		return ""
+	}
+	var (
+		postfix string
+		err     error
+	)
+	switch kind {
+	case "context":
+		postfix, err = tc.c.CompileContext(strings.TrimSpace(dsl))
+	case "condition":
+		postfix, err = tc.c.CompileCondition(strings.TrimSpace(dsl))
+	case "action":
+		postfix, err = tc.c.CompileAction(strings.TrimSpace(dsl))
+	}
+	if err != nil {
+		return ""
+	}
+	return postfix
+}

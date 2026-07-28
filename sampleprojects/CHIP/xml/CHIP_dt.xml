@@ -258,7 +258,7 @@ dup clients forall pop
 <condition_comment>Are we consider the client themselves?</condition_comment>
 <condition_dsl>ApplyingClient == client</condition_dsl>
 <condition_postfix>
-ApplyingClient client req
+0 local@ client req
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
@@ -329,7 +329,7 @@ client.age 18 &gt;
 <action_comment>Count the Client himself and particular relatives</action_comment>
 <action_dsl>add 1 to ApplyingClient's IncomeGroupCount</action_dsl>
 <action_postfix>
-1 ApplyingClient entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop
+1 0 local@ entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
@@ -344,7 +344,7 @@ client.age 18 &gt;
 <action_comment>Add 1 for each of the expected babies for a pregnant person</action_comment>
 <action_dsl>add expectedChildren to ApplyingClient's IncomeGroupCount</action_dsl>
 <action_postfix>
-expectedChildren ApplyingClient entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop
+expectedChildren 0 local@ entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 <action_column column_number="4" column_value="X" />
@@ -355,7 +355,7 @@ expectedChildren ApplyingClient entitypush IncomeGroupCount + /IncomeGroupCount 
 <action_comment>Add this person's Income to the ThisPerson's total group income</action_comment>
 <action_dsl>add the client.totalIncome to ApplyingClient's totalGroupIncome</action_dsl>
 <action_postfix>
-client.totalIncome ApplyingClient entitypush totalGroupIncome + /totalGroupIncome xdef entitypop
+client.totalIncome 0 local@ entitypush totalGroupIncome + /totalGroupIncome xdef entitypop
 </action_postfix>
 <action_column column_number="9" column_value="X" />
 <action_column column_number="10" column_value="X" />
