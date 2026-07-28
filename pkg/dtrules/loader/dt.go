@@ -534,6 +534,17 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		}
 	}
 	builder.SetPolicyStatements(policyStatements)
+	builder.SetPolicyStatementsPostfix(policyPostfix)
+
+	// Compile the policy statements so `policystatements` can evaluate the
+	// one belonging to the column that fired, resolving any `{expr}`
+	// substitution against live data (#949). Loading the postfix and then
+	// discarding it left the operator with nothing to run.
+	rpolicyStatements, err := l.compilePostfixExpressions(policyPostfix)
+	if err != nil {
+		return fmt.Errorf("failed to compile policy statements for %s: %w", name.StringValue(), err)
+	}
+	builder.SetRPolicyStatements(rpolicyStatements)
 
 	// Compile conditions using postfix notation (already compiled in XML)
 	rconditions, err := l.compilePostfixExpressions(conditionsPostfix)

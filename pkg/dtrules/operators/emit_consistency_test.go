@@ -42,8 +42,7 @@ var nonOpEmits = map[string]bool{
 	"true":  true, // boolean literals (values, not ops)
 	"false": true,
 	"null":  true,
-	"otherwise":        true, // decision-table control markers, not registry ops
-	"policystatements": true,
+	"otherwise": true, // decision-table control marker, not a registry op
 }
 
 // knownUnimplementedEmits are operator names the emitter produces for EL
