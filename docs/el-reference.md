@@ -700,7 +700,7 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Syntax**: `eexpr IS strexpr OF eexpr`
 **Semantics**: Tests a named relationship between two entities.
 **Example (EL)**: `client is "parent" of applicant`
-**Compiled postfix**: `"relationship-is-of form is not supported (findmatch was removed)" elstmterror false`
+**Compiled postfix**: `applicant "parent" getrelationship client req`
 
 #### Is in context
 

@@ -33,6 +33,16 @@ import (
 
 // TestCHIPSimpleExecution performs a simple load and execution test
 func TestCHIPSimpleExecution(t *testing.T) {
+	// Skipped: CHIP still does not execute end to end. Calculate_Group_Size
+	// works now — context locals resolve (#965) and `is the <R> of` compiles
+	// again (#927) — and execution reaches Compute_Eligibility action 3,
+	// which refers to `fpl` with nothing on the entity stack to resolve it.
+	// One more authoring defect, tracked in #962.
+	//
+	// This test asserted a successful run while the mapping loaded nothing
+	// into the entities it read, so it used to pass on a run that did nothing.
+	t.Skip("CHIP execution is incomplete — see #962")
+
 	// Skipped: CHIP does not execute. Calculate_Group_Size declares
 	// `local entity ApplyingClient = client` in a context row and refers to it
 	// from every condition and action, but rows compile independently of their
@@ -41,7 +51,6 @@ func TestCHIPSimpleExecution(t *testing.T) {
 	//
 	// This test asserted a successful run while the mapping loaded nothing
 	// into the entities it read, so it passed on a run that did nothing.
-	t.Skip("CHIP execution is broken — see #962, blocked on #965")
 
 	// Skipped: CHIP's rules do not execute — `Calculate_Group_Size` resolves
 	// `ThisClient` against nothing (#962). This test asserted a successful run

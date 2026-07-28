@@ -943,3 +943,50 @@ func TestCompile_RejectsTrailingTokens(t *testing.T) {
 		t.Errorf("expected 'unexpected tokens' in error, got: %v", err)
 	}
 }
+
+// TestRelationshipIsOf covers `<e1> is the <R> of <e2>` (#927).
+//
+// The form means exactly one thing: e2's R field holds e1. It compiles to the
+// same getrelationship the `"role" of entity` form uses, since that operator
+// is a field read by name. Between findmatch's removal and this, the form
+// parsed and emitted an elstmterror that killed the rule at run time.
+func TestRelationshipIsOf(t *testing.T) {
+	symbols := map[string]string{
+		"client":         "entity",
+		"ApplyingClient": "entity",
+	}
+	tests := []struct {
+		name string
+		el   string
+		want string
+	}{
+		{
+			name: "article is dropped from the relationship name",
+			el:   "the client is the parent of ApplyingClient",
+			want: `ApplyingClient "parent" getrelationship client req`,
+		},
+		{
+			name: "no article",
+			el:   "client is the sibling of ApplyingClient",
+			want: `ApplyingClient "sibling" getrelationship client req`,
+		},
+		{
+			name: "operand order is e2's field against e1",
+			el:   "ApplyingClient is the child of client",
+			want: `client "child" getrelationship ApplyingClient req`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewCompiler()
+			c.SetSymbols(symbols)
+			got, err := c.CompileCondition(tt.el)
+			if err != nil {
+				t.Fatalf("CompileCondition(%q): %v", tt.el, err)
+			}
+			if normalized := strings.Join(strings.Fields(got), " "); normalized != tt.want {
+				t.Errorf("CompileCondition(%q)\n got %s\nwant %s", tt.el, normalized, tt.want)
+			}
+		})
+	}
+}
