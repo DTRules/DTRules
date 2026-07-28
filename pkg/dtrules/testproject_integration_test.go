@@ -39,7 +39,7 @@ func TestTestProjectIntegration(t *testing.T) {
 	rs := session.NewRuleSet("TestProject")
 
 	// Load the EDD
-	eddPath := filepath.Join(testProjectDir, "repository/xml/Test_edd.xml")
+	eddPath := filepath.Join(testProjectDir, "xml/Test_edd.xml")
 	eddFile, err := os.Open(eddPath)
 	if err != nil {
 		t.Fatalf("Failed to open EDD file: %v", err)
@@ -74,7 +74,7 @@ func TestTestProjectIntegration(t *testing.T) {
 	}
 
 	// Load the decision tables
-	dtPath := filepath.Join(testProjectDir, "repository/xml/Test_dt.xml")
+	dtPath := filepath.Join(testProjectDir, "xml/Test_dt.xml")
 	dtFile, err := os.Open(dtPath)
 	if err != nil {
 		t.Fatalf("Failed to open DT file: %v", err)
@@ -114,7 +114,7 @@ func TestTestProjectIntegration(t *testing.T) {
 	t.Log("Session created successfully")
 
 	// Load the mapping
-	mapPath := filepath.Join(testProjectDir, "repository/xml/Test_map.xml")
+	mapPath := filepath.Join(testProjectDir, "xml/Test_map.xml")
 	mapFile, err := os.Open(mapPath)
 	if err != nil {
 		t.Fatalf("Failed to open mapping file: %v", err)
@@ -198,7 +198,7 @@ func TestTestProjectEDDLoad(t *testing.T) {
 
 	rs := session.NewRuleSet("TestProject")
 
-	eddPath := filepath.Join(testProjectDir, "repository/xml/Test_edd.xml")
+	eddPath := filepath.Join(testProjectDir, "xml/Test_edd.xml")
 	eddFile, err := os.Open(eddPath)
 	if err != nil {
 		t.Fatalf("Failed to open EDD file: %v", err)
@@ -252,7 +252,7 @@ func TestTestProjectDTLoad(t *testing.T) {
 	rs := session.NewRuleSet("TestProject")
 
 	// Must load EDD first
-	eddPath := filepath.Join(testProjectDir, "repository/xml/Test_edd.xml")
+	eddPath := filepath.Join(testProjectDir, "xml/Test_edd.xml")
 	eddFile, err := os.Open(eddPath)
 	if err != nil {
 		t.Fatalf("Failed to open EDD file: %v", err)
@@ -264,7 +264,7 @@ func TestTestProjectDTLoad(t *testing.T) {
 	}
 
 	// Load decision tables
-	dtPath := filepath.Join(testProjectDir, "repository/xml/Test_dt.xml")
+	dtPath := filepath.Join(testProjectDir, "xml/Test_dt.xml")
 	dtFile, err := os.Open(dtPath)
 	if err != nil {
 		t.Fatalf("Failed to open DT file: %v", err)
@@ -314,7 +314,7 @@ func findTestProjectDir(t *testing.T) string {
 		if err != nil {
 			continue
 		}
-		if _, err := os.Stat(filepath.Join(absPath, "repository/xml/Test_edd.xml")); err == nil {
+		if _, err := os.Stat(filepath.Join(absPath, "xml/Test_edd.xml")); err == nil {
 			return absPath
 		}
 	}
@@ -327,7 +327,7 @@ func findTestProjectDir(t *testing.T) string {
 	}
 
 	for _, p := range knownPaths {
-		if _, err := os.Stat(filepath.Join(p, "repository/xml/Test_edd.xml")); err == nil {
+		if _, err := os.Stat(filepath.Join(p, "xml/Test_edd.xml")); err == nil {
 			return p
 		}
 	}
