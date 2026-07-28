@@ -542,4 +542,59 @@ player.can_check true beq
 </policy_statement>
 </policy_statements>
 </decision_table>
+
+<!-- TABLE 1410: Evaluate_All_Players -->
+<decision_table>
+<source>
+<relative_path>Poker.xlsx</relative_path>
+<file_name>Poker.xlsx</file_name>
+<sheet_number>6</sheet_number>
+</source>
+<table_name>Evaluate_All_Players</table_name>
+<xls_file>Poker.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>1410</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all game.players</context_dsl>
+<context_postfix>
+dup game.players forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Always, for every player in the game</condition_comment>
+<condition_dsl>true</condition_dsl>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Decide this player's action using their archetype's table</action_comment>
+<action_dsl>perform Poker_Decision</action_dsl>
+<action_postfix>
+/Poker_Decision performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Evaluating {player.name}</policy_description>
+<policy_statement_postfix>"Evaluating " player.name cvs strconcat "" strconcat</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
 </decision_tables>
