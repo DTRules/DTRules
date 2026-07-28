@@ -35,6 +35,13 @@ type Mapping struct {
 	// entities maps entity name to cardinality ("1", "*", or "+")
 	entities map[string]string
 
+	// initialized holds the singleton instances Initialize created and
+	// pushed, keyed by entity name. The data loader seeds itself from these
+	// so a `createentity` naming a cardinality-1 entity binds to the instance
+	// already on the stack instead of building a second, disconnected one —
+	// which left the pushed singleton empty and the loaded values unreachable.
+	initialized map[string]dtrules.Entity
+
 	// requests maps XML tag to EntityInfo for entity creation
 	requests map[string]*EntityInfo
 
@@ -182,6 +189,10 @@ func (m *Mapping) Initialize() error {
 		if err != nil {
 			return fmt.Errorf("failed to create initial entity %s: %w", entityName, err)
 		}
+		if m.initialized == nil {
+			m.initialized = make(map[string]dtrules.Entity)
+		}
+		m.initialized[entityName] = entity
 		m.state.EntityPush(entity)
 	}
 	return nil

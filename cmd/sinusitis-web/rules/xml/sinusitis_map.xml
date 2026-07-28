@@ -12,6 +12,12 @@
 			<!-- Active medication fields -->
 			<setattribute tag='name'                RAttribute='name'                enclosure='medication' type='string'></setattribute>
 
+			<!-- The patient root element becomes the patient singleton. Without
+			     this, a run that loads input data before pushing singletons
+			     leaves the patient fields with no entity to attach to, and the
+			     singleton is pushed empty. -->
+			<createentity entity='patient' tag='patient' id='id'></createentity>
+
 			<!-- Each <medication> element becomes a medication entity on patient.active_medications -->
 			<createentity entity='medication' tag='medication' id='name' list='active_medications'></createentity>
 		</map>

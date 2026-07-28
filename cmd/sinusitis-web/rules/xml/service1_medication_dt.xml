@@ -76,8 +76,6 @@ true
 patient.penicillin_allergic true beq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -86,8 +84,8 @@ patient.penicillin_allergic true beq
 <condition_postfix>
 patient.age constants.adult_age &gt;=
 </condition_postfix>
-<condition_column column_number="3" column_value="N" />
 <condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
@@ -174,8 +172,6 @@ patient.age constants.adult_age &gt;=
 patient.pcr constants.renal_pcr_threshold f&gt; { pop result.ccr constants.renal_ccr_threshold f&lt; } over if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>

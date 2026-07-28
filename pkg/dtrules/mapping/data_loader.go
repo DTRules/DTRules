@@ -59,11 +59,19 @@ type pendingAttrib struct {
 
 // newDataLoader creates a new data loader.
 func newDataLoader(m *Mapping) *dataLoader {
+	// Adopt any singletons Initialize already created and pushed. Without
+	// this, `Initialize` then `LoadData` builds a second instance for a
+	// cardinality-1 entity that has a createentity, and the values land on
+	// the copy nobody is holding.
+	seeded := make(map[string]dtrules.Entity, len(m.initialized))
+	for name, e := range m.initialized {
+		seeded[name] = e
+	}
 	return &dataLoader{
 		mapping:            m,
 		session:            m.session,
 		state:              m.state,
-		entities:           make(map[string]dtrules.Entity),
+		entities:           seeded,
 		tagStack:           make([]string, 0),
 		pendingAttribs:     make([]pendingAttrib, 0),
 		entityCreatedStack: make([]bool, 0),
