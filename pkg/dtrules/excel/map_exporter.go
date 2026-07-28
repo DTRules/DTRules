@@ -143,6 +143,7 @@ func (e *MapExporter) writeMapSheet(f *excelize.File, styler *Styler, sheet stri
 			f.SetCellValue(sheet, cellName(1, row), ce.Entity)
 			f.SetCellValue(sheet, cellName(2, row), ce.Tag)
 			f.SetCellValue(sheet, cellName(3, row), ce.ID)
+			f.SetCellValue(sheet, cellName(4, row), ce.List)
 			f.SetCellStyle(sheet, cellName(1, row), cellName(mapColCount, row), styler.BodyStyle)
 			row++
 		}
@@ -171,7 +172,7 @@ func (e *MapExporter) writeMapSheet(f *excelize.File, styler *Styler, sheet stri
 
 // Section marker labels shared by the MAP exporter and importer.
 const (
-	mapSectionCreateEntities = "CREATE ENTITIES (entity | tag | id)"
+	mapSectionCreateEntities = "CREATE ENTITIES (entity | tag | id | list)"
 	mapSectionEntities       = "ENTITIES (name | number: 1 or *)"
 	mapSectionInitialization = "INITIALIZATION (entity | push)"
 )

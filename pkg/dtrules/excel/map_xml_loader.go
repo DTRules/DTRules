@@ -100,6 +100,8 @@ func loadMapXMLFromReader(r io.Reader, name string) (*MapXML, error) {
 						ce.Tag = attr.Value
 					case "id":
 						ce.ID = attr.Value
+					case "list":
+						ce.List = attr.Value
 					}
 				}
 				if ce.Entity != "" {

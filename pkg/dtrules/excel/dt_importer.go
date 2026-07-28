@@ -668,7 +668,7 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 			f.WriteString(fmt.Sprintf("<condition_comment>%s</condition_comment>\n", xmlEscapeText(cond.Comment)))
 			writeDSLOrPostfix(f, "condition_dsl", cond.DSL)
 			writeBlockPostfix(f, "condition_postfix", cond.Postfix)
-			for _, col := range cond.Columns {
+			for _, col := range sortedColumns(cond.Columns) {
 				f.WriteString(fmt.Sprintf("<condition_column column_number=\"%d\" column_value=\"%s\" />\n",
 					col.Number, xmlEscapeAttr(col.Value)))
 			}
@@ -688,7 +688,7 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 			f.WriteString(fmt.Sprintf("<action_comment>%s</action_comment>\n", xmlEscapeText(action.Comment)))
 			writeDSLOrPostfix(f, "action_dsl", action.DSL)
 			writeBlockPostfix(f, "action_postfix", action.Postfix)
-			for _, col := range action.Columns {
+			for _, col := range sortedColumns(action.Columns) {
 				f.WriteString(fmt.Sprintf("<action_column column_number=\"%d\" column_value=\"%s\" />\n",
 					col.Number, xmlEscapeAttr(col.Value)))
 			}
@@ -1278,6 +1278,17 @@ func (i *DTImporter) countHeaderColumns(row []string) int {
 		}
 	}
 	return count
+}
+
+// sortedColumns returns the column entries in column order without disturbing
+// the caller's slice. Written XML is a file under version control, so its
+// element order has to be a function of the content — not of whatever order a
+// Go map happened to yield upstream.
+func sortedColumns(cols []ColumnValueXML) []ColumnValueXML {
+	out := make([]ColumnValueXML, len(cols))
+	copy(out, cols)
+	sort.Slice(out, func(i, j int) bool { return out[i].Number < out[j].Number })
+	return out
 }
 
 // isColumnNumberRow reports whether a row is a bare rule-column header —

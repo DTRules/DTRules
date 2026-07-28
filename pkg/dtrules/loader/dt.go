@@ -417,6 +417,11 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	}
 
 	builder.SetContexts(contexts)
+	// Carry the comments through too. They were collected and then dropped,
+	// so the Excel exporter (which reads them off the table) wrote blank
+	// comment cells and the next Excel→XML build stored the blanks —
+	// silently erasing every context comment in the project.
+	builder.SetContextsComment(contextsComment)
 
 	// Process initial actions. Same strict policy as contexts: non-comment
 	// DSL paired with an empty postfix is a stale build — refuse to load.

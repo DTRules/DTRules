@@ -48,9 +48,13 @@ func writeMapXML(m *MapXML, path string) error {
 	}
 
 	for _, ce := range m.CreateEntities {
+		list := ""
+		if ce.List != "" {
+			list = fmt.Sprintf(" list='%s'", escAttr(ce.List))
+		}
 		sb.WriteString(fmt.Sprintf(
-			"\t\t\t<createentity entity='%s' tag='%s' id='%s'></createentity>\n",
-			escAttr(ce.Entity), escAttr(ce.Tag), escAttr(ce.ID),
+			"\t\t\t<createentity entity='%s' tag='%s' id='%s'%s></createentity>\n",
+			escAttr(ce.Entity), escAttr(ce.Tag), escAttr(ce.ID), list,
 		))
 	}
 

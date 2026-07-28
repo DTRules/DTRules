@@ -81,12 +81,18 @@ func (imp *MapImporter) ImportSheet(f *excelize.File, sheetName string) (*MapXML
 		}
 
 		colB := strings.TrimSpace(getCellValue(row, 1))
-		switch section {
+		// Match on the section's leading word rather than the whole label:
+		// the labels carry a column legend that has grown over time (the
+		// create-entities one gained "| list"), and a workbook exported by an
+		// older build must still import as the same section rather than
+		// silently degrading into attribute rows.
+		switch sectionKind(section) {
 		case mapSectionCreateEntities:
 			m.CreateEntities = append(m.CreateEntities, MapCreateEntity{
 				Entity: colA,
 				Tag:    colB,
 				ID:     strings.TrimSpace(getCellValue(row, 2)),
+				List:   strings.TrimSpace(getCellValue(row, 3)),
 			})
 		case mapSectionEntities:
 			m.EntityDecls = append(m.EntityDecls, MapEntityDecl{Name: colA, Number: colB})
@@ -130,4 +136,26 @@ func (imp *MapImporter) ImportFile(path string) (*MapXML, error) {
 		}
 	}
 	return nil, fmt.Errorf("%s: no MAP sheet found", path)
+}
+
+// sectionKind normalizes a MAP sheet section marker to its canonical label.
+// Markers embed a human-facing column legend ("CREATE ENTITIES (entity | tag
+// | id | list)"), and that legend changes as the format gains columns —
+// matching the whole string would make every older workbook's structural
+// sections unreadable.
+func sectionKind(section string) string {
+	for _, canonical := range []string{
+		mapSectionCreateEntities,
+		mapSectionEntities,
+		mapSectionInitialization,
+	} {
+		head := canonical
+		if i := strings.Index(canonical, " ("); i > 0 {
+			head = canonical[:i]
+		}
+		if strings.HasPrefix(section, head) {
+			return canonical
+		}
+	}
+	return section
 }

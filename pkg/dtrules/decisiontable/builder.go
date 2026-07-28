@@ -135,6 +135,14 @@ func (b *Builder) SetContexts(contexts []string) *Builder {
 	return b
 }
 
+// SetContextsComment sets the per-context comments, indexed alongside
+// SetContexts. The Excel exporter writes these into the CONTEXTS comment
+// column, so a loader that skips them erases them on the next build.
+func (b *Builder) SetContextsComment(comments []string) *Builder {
+	b.dt.contextsComment = comments
+	return b
+}
+
 // SetContextsPostfix sets the compiled context postfix.
 func (b *Builder) SetContextsPostfix(postfix []string) *Builder {
 	b.dt.contextsPostfix = postfix
