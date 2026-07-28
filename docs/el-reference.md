@@ -7,6 +7,23 @@
 
 Expression Language (EL) is the human-readable syntax used in DTRules condition, action, context, and policy-statement cells. The EL compiler (`pkg/dtrules/compiler/el`) parses EL via ANTLR4 and emits postfix notation. The DTRules runtime (`pkg/dtrules/compiler`) executes that postfix on a stack-based virtual machine.
 
+> **Note on the "legacy postfix" examples.** Several examples below are
+> labelled *legacy postfix*. They were taken from the DTEligibility sample,
+> which was removed in #959 — it was added by accident inside a documentation
+> commit, its postfix was hand-written, and none of it was ever produced by
+> this compiler. Those examples show a calling convention the compiler
+> abandoned:
+>
+> | legacy | what the compiler emits today |
+> |---|---|
+> | `<value> <entity> /<field> exch def` | `<value> cv? /<entity>.<field> xdef` |
+> | `<array> { <e> entitypush <Table> entitypop } forall` | `{ /<Table> performtable } <array> forall` |
+> | `<Table>` (bare name) | `/<Table> performtable` |
+>
+> They are kept because the shapes still illustrate the constructs, but do
+> not use them to recognize compiler output. For current postfix, compile the
+> EL and read the result, or use the reverse index in `dtrules docs operators`.
+
 ## Table of Contents
 
 1. [Overview](#overview)
@@ -249,7 +266,7 @@ EL supports standard arithmetic on integers, doubles, and bigints. The emitter m
 **Compiled postfix**: `person.incomes income.amount sumof 10000.0 f>=`
 
 **Tax example**: `sum of w2.wages in w2s >= 0.0`
-**Eligibility example (real postfix from DTEligibility)**:
+**Eligibility example** (legacy postfix — see note below):
 ```
 0 person.incomes { income entitypush income.is_earned { income.amount + } if entitypop } forall
 person /earned_income exch def
@@ -679,7 +696,7 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Example (EL)**: `household.primary_earner is null`
 **Compiled postfix**: `household.primary_earner isnull`
 
-**Eligibility example (real postfix from DTEligibility)**:
+**Eligibility example** (legacy postfix — see note below):
 `household.primary_earner null ne { true household.primary_earner /is_primary_earner exch def } if`
 
 #### Has a (relationship)
@@ -812,7 +829,7 @@ endif
 Compiles to:
 `result.taxable_income 523601.0 f>= { 0.37 cvd /result.marginal_rate xdef } { 0.35 cvd /result.marginal_rate xdef } ifelse`
 
-**Eligibility example (real postfix from DTEligibility)**:
+**Eligibility example** (legacy postfix — see note below):
 `true person /is_adult exch def false person /is_child exch def`
 
 ---
@@ -856,7 +873,7 @@ for each eexpr and its eexpr in arrayExpr { statements }
 **Semantics**: Iterate over an array, binding each element. Compiles to `entitypush`/`entitypop` loops using `forall`.
 
 **Example (EL)**: `for each person in household.members { Calculate_Individual_Income; }`
-**Real postfix (from DTEligibility)**: `household.members { person entitypush Calculate_Individual_Income entitypop } forall`
+**Legacy postfix** (see note below): `household.members { person entitypush Calculate_Individual_Income entitypop } forall`
 
 **Tax example**: `for each w2 in w2s { Process_W2_Income; }`
 **Real postfix**: `w2s { w2 entitypush Process_W2_Income entitypop } forall`
@@ -886,7 +903,7 @@ for all relatives as parent {
 }
 ```
 
-**Real postfix (from DTEligibility)**:
+**Legacy postfix** (see note below):
 ```
 household.members { person entitypush Determine_Adult_Status entitypop } forall
 household.members { person entitypush Evaluate_Non_EDG_Programs entitypop } forall
@@ -964,7 +981,7 @@ pop household /primary_earner exch def
 **Tax example (real postfix from TaxReturn)**:
 `0 cvi /result.qbi_deduction xdef`
 
-**Eligibility example (real postfix from DTEligibility)**:
+**Eligibility example** (legacy postfix — see note below):
 `true person /is_adult exch def false person /is_child exch def`
 `person.earned_income person.unearned_income + person /total_income exch def`
 
@@ -1017,7 +1034,7 @@ The type-conversion operators used in set statements:
 **Tax example (real from TaxReturn)**:
 `Apply_Tax_Brackets_Single` → `Apply_Tax_Brackets_Single`
 
-**Eligibility example (real from DTEligibility)**:
+**Eligibility example** (legacy postfix — see note below):
 `Calculate_Household_Totals` → `Calculate_Household_Totals`
 
 #### Perform with error handling
@@ -1141,7 +1158,7 @@ there is no eexpr in eexpr where bexpr
 **Compiled postfix**: `household.members { person entitypush person.is_adult entitypop } filter length 0 ==`
 
 **Tax example**: `there is person in household.members where person.has_income`
-**Eligibility example (real pattern from DTEligibility)**:
+**Eligibility example** (legacy postfix — see note below):
 `household.members { person entitypush person.is_adult entitypop } filter`
 
 ---
@@ -1172,7 +1189,7 @@ there is no eexpr in eexpr where bexpr
 **Compiled postfix**: `household.members { person entitypush person.is_adult entitypop } first`
 
 **Tax example**: `first bracket in brackets where bracket.min <= result.taxable_income`
-**Eligibility example (real pattern from DTEligibility)**:
+**Eligibility example** (legacy postfix — see note below):
 ```
 null 0 household.members { person entitypush person.is_adult
   { person.earned_income 2 index gt { pop pop person person.earned_income } if } if

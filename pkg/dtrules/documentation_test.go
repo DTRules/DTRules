@@ -66,7 +66,7 @@ func TestDocumentation_PerformTableCompiles(t *testing.T) {
 func TestDocumentation_ForAllOperatorRegistered(t *testing.T) {
 	// Verify the forall operator exists in the operators package
 	// This is tested by checking that sample projects use it
-	sampleFile := "../../sampleprojects/DTEligibility/xml/eligibility_dt.xml"
+	sampleFile := "../../sampleprojects/StateTax/xml/StateTax_dt.xml"
 
 	content, err := readFileContent(sampleFile)
 	if err != nil {
@@ -75,7 +75,7 @@ func TestDocumentation_ForAllOperatorRegistered(t *testing.T) {
 
 	// Verify sample uses forall in postfix (runtime operator)
 	if !strings.Contains(content, "forall") {
-		t.Error("DTEligibility sample should use 'forall' operator in postfix")
+		t.Error("StateTax sample should use 'forall' operator in postfix")
 	}
 }
 
