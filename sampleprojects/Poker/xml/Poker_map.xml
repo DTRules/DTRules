@@ -27,6 +27,7 @@
 			<!-- Create entities from XML tags -->
 			<!-- Singleton entities -->
 			<!-- Multiple instance entities -->
+			<createentity entity='game' tag='game' id='id'></createentity>
 			<createentity entity='player' tag='player' id='id' list='players'></createentity>
 			<createentity entity='decision' tag='decision' id='player_id' list='decisions'></createentity>
 		</map>

@@ -6,5 +6,5 @@
 
     Rules live in xml/ (the default), so no <xml_dir> override is needed.
   -->
-  <entry>Poker_Decision</entry>
+  <entry>Evaluate_All_Players</entry>
 </DTRules>
