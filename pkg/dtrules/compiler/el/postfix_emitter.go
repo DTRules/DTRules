@@ -6033,15 +6033,46 @@ func (e *PostfixEmitter) VisitSubDestColon(ctx *SubDestColonContext) interface{}
 	return nil
 }
 
-// VisitBoolEntityIsOf: `<e1> is <type> of <e2>` — the findmatch/relationship
-// lookup op this used to call was removed alongside the hash-table ops. The
-// emit now produces an elstmterror so the form parses but errors at runtime
-// with a clear message until a replacement relationship primitive lands.
+// VisitBoolEntityIsOf: `<e1> is the <R> of <e2>` — true when e2's R field
+// holds e1.
+//
+//	the client is the parent of ApplyingClient   ->   ApplyingClient.parent == client
+//
+// That is all the relationship means: the entity is held by the named field
+// of the other entity. The form used to call a findmatch-era lookup that went
+// away with the hash-table ops, and since then it emitted an elstmterror so
+// the row parsed and died at runtime (#927).
+//
+// It compiles to the same `getrelationship` the `"role" of entity` form uses
+// — that operator reads the named field off an entity, which is the whole of
+// the semantics:
+//
+//	<e2> "<R>" getrelationship <e1> req
 func (e *PostfixEmitter) VisitBoolEntityIsOf(ctx *BoolEntityIsOfContext) interface{} {
-	e.emit("\"relationship-is-of form is not supported (findmatch was removed)\"")
-	e.emit("elstmterror")
-	e.emit("false")
+	field := relationshipFieldName(ctx.Strexpr().GetText())
+	if field == "" {
+		e.emitError("relationship name is empty in `is ... of`")
+		e.emit("false")
+		return nil
+	}
+
+	e.Visit(ctx.Eexpr(1))
+	e.emit("\"" + field + "\"")
+	e.emit("getrelationship")
+	e.Visit(ctx.Eexpr(0))
+	e.emit("req")
 	return nil
+}
+
+// relationshipFieldName strips the article and any quoting from the
+// relationship in `is the <R> of`, leaving the field name to read.
+func relationshipFieldName(text string) string {
+	name := strings.TrimSpace(text)
+	name = strings.Trim(name, "\"'")
+	for _, article := range []string{"the ", "The ", "a ", "an "} {
+		name = strings.TrimPrefix(strings.TrimSpace(name), article)
+	}
+	return strings.TrimSpace(name)
 }
 
 func (e *PostfixEmitter) VisitEntityRelationship(ctx *EntityRelationshipContext) interface{} {

@@ -193,6 +193,12 @@ func (t *Table) syncFromXML() {
 //     original. ActionPostfix is regenerated from the carried ActionDSL.
 //   - Contexts: position-by-position over the Details slice.
 func (t *Table) syncToXML() {
+	// One compiler for the whole table, so a local declared in a context row
+	// is in scope for the conditions and actions beneath it (#965). Rows are
+	// compiled below in table order — contexts, initial actions, conditions,
+	// actions — which is the order the slots have to be declared in.
+	tc := newTableCompiler(t.symbols)
+
 	t.xml.TableName = t.Name
 	t.xml.AttributeFields.Type = t.Policy
 	// Only write a number when one is set, so an unspecified number keeps the
@@ -215,7 +221,7 @@ func (t *Table) syncToXML() {
 			entry.Name = origDetails[i].Name
 			entry.Description = origDetails[i].Description
 		}
-		entry.Postfix = compileDSLOrEmpty(c.DSL, t.symbols, "context")
+		entry.Postfix = tc.compile(c.DSL, "context")
 		newDetails = append(newDetails, entry)
 	}
 	t.xml.Contexts.Details = newDetails
@@ -228,9 +234,9 @@ func (t *Table) syncToXML() {
 		if i < len(origInits) {
 			entry.Comment = origInits[i].Comment
 			entry.ActionDSL = origInits[i].ActionDSL
-			entry.ActionPostfix = compileDSLOrEmpty(origInits[i].ActionDSL, t.symbols, "action")
+			entry.ActionPostfix = tc.compile(origInits[i].ActionDSL, "action")
 		}
-		entry.Postfix = compileDSLOrEmpty(ia.DSL, t.symbols, "action")
+		entry.Postfix = tc.compile(ia.DSL, "action")
 		newInits = append(newInits, entry)
 	}
 	t.xml.InitialActions = newInits
@@ -259,7 +265,7 @@ func (t *Table) syncToXML() {
 			DSL:     c.DSL,
 			Columns: cols,
 		}
-		entry.Postfix = compileDSLOrEmpty(c.DSL, t.symbols, "condition")
+		entry.Postfix = tc.compile(c.DSL, "condition")
 		t.xml.Conditions = append(t.xml.Conditions, entry)
 	}
 
@@ -279,7 +285,7 @@ func (t *Table) syncToXML() {
 			DSL:     a.DSL,
 			Columns: cols,
 		}
-		entry.Postfix = compileDSLOrEmpty(a.DSL, t.symbols, "action")
+		entry.Postfix = tc.compile(a.DSL, "action")
 		t.xml.Actions = append(t.xml.Actions, entry)
 	}
 
@@ -337,39 +343,6 @@ func (t *Table) DeletePolicyStatement(column int) error {
 		}
 	}
 	return fmt.Errorf("no policy statement for column %d", column)
-}
-
-// compileDSLOrEmpty compiles a single element's DSL via the EL compiler
-// and returns the postfix. Empty DSL returns empty postfix. A compile
-// failure also returns empty — the mutation entry points all validate
-// via CheckXxx before storing, so a compile failure here means the
-// underlying XML was loaded with broken DSL; surfacing it as empty
-// postfix lets the loader's hand-coded-postfix check flag the table
-// rather than silently preserving a stale prior compile.
-//
-// Per #817, this is the ONLY path that writes <*_postfix> bytes in
-// the authoring round-trip. There is no carry-through from the
-// original XML's postfix content.
-func compileDSLOrEmpty(dsl string, symbols map[string]string, kind string) string {
-	if strings.TrimSpace(dsl) == "" {
-		return ""
-	}
-	var (
-		postfix string
-		err     error
-	)
-	switch kind {
-	case "context":
-		postfix, err = CheckContext(dsl, symbols)
-	case "condition":
-		postfix, err = CheckCondition(dsl, symbols)
-	case "action":
-		postfix, err = CheckAction(dsl, symbols)
-	}
-	if err != nil {
-		return ""
-	}
-	return postfix
 }
 
 // Columns returns the number of rule columns in this table.

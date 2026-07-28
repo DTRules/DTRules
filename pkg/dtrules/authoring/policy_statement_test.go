@@ -127,3 +127,71 @@ func postfixFor(t *Table, column string) string {
 	}
 	return ""
 }
+
+// TestContextLocalsAreVisibleToRows guards #965.
+//
+// A table can declare a local in a context row and refer to it from its
+// conditions and actions. Compiling each row through its own EL compiler lost
+// the slot, so the name was emitted bare and the rule died at execute with
+// "The Name 'ApplyingClient' was not defined by any Entity on the Entity
+// Stack". CHIP's Calculate_Group_Size had been dead that way for as long as
+// the sample existed, and ChipApp, KidAid and SyntaxTests use the same idiom.
+func TestContextLocalsAreVisibleToRows(t *testing.T) {
+	symbols := map[string]string{
+		"client":          "entity",
+		"client.applying": "boolean",
+		"clients":         "array",
+	}
+	tbl := newTable(&excel.DecisionTableXML{
+		TableName: "Calculate_Group_Size",
+		Contexts: excel.ContextsField{Details: []excel.ContextDetailXML{
+			{Number: 1, DSL: "for all clients"},
+			{Number: 2, DSL: "local entity ApplyingClient = client"},
+		}},
+		Conditions: []excel.ConditionXML{
+			{Number: "1", DSL: "ApplyingClient == client"},
+		},
+	}, symbols)
+
+	// Force a write-out, which is where postfix is generated.
+	if err := tbl.UpdateCondition(1, Condition{
+		Number:  1,
+		DSL:     "ApplyingClient == client",
+		Columns: map[int]string{1: "Y"},
+	}); err != nil {
+		t.Fatalf("UpdateCondition: %v", err)
+	}
+
+	got := strings.Join(strings.Fields(tbl.xml.Conditions[0].Postfix), " ")
+	if strings.Contains(got, "ApplyingClient") {
+		t.Errorf("the local is emitted as a bare name and will not resolve at run time: %s", got)
+	}
+	if !strings.Contains(got, "local@") {
+		t.Errorf("condition postfix does not reference a local slot: %s", got)
+	}
+}
+
+// TestLocalSlotsDoNotBleedBetweenTables: each table gets a fresh scope, so
+// slot indices from one table's contexts cannot be reused by another's rows.
+func TestLocalSlotsDoNotBleedBetweenTables(t *testing.T) {
+	symbols := map[string]string{"client": "entity", "clients": "array"}
+	build := func(name string) string {
+		tbl := newTable(&excel.DecisionTableXML{
+			TableName: name,
+			Contexts: excel.ContextsField{Details: []excel.ContextDetailXML{
+				{Number: 1, DSL: "for all clients"},
+				{Number: 2, DSL: "local entity Held = client"},
+			}},
+			Conditions: []excel.ConditionXML{{Number: "1", DSL: "Held == client"}},
+		}, symbols)
+		if err := tbl.UpdateCondition(1, Condition{Number: 1, DSL: "Held == client", Columns: map[int]string{1: "Y"}}); err != nil {
+			t.Fatalf("UpdateCondition: %v", err)
+		}
+		return strings.Join(strings.Fields(tbl.xml.Conditions[0].Postfix), " ")
+	}
+
+	first, second := build("First_Table"), build("Second_Table")
+	if first != second {
+		t.Errorf("slot indices differ between tables that declare the same locals:\n  %s\n  %s", first, second)
+	}
+}
