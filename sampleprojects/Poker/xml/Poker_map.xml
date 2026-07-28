@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <mapping>
 	<XMLtoEDD>
 		<map>
@@ -7,7 +8,6 @@
 			<setattribute tag='current_bet' RAttribute='current_bet' enclosure='game' type='double'></setattribute>
 			<setattribute tag='big_blind' RAttribute='big_blind' enclosure='game' type='double'></setattribute>
 			<setattribute tag='phase' RAttribute='phase' enclosure='game' type='string'></setattribute>
-
 			<!-- Player mappings -->
 			<setattribute tag='id' RAttribute='id' enclosure='player' type='string'></setattribute>
 			<setattribute tag='name' RAttribute='name' enclosure='player' type='string'></setattribute>
@@ -18,28 +18,23 @@
 			<setattribute tag='position' RAttribute='position' enclosure='player' type='string'></setattribute>
 			<setattribute tag='stack_size' RAttribute='stack_size' enclosure='player' type='double'></setattribute>
 			<setattribute tag='is_small_bet' RAttribute='is_small_bet' enclosure='player' type='boolean'></setattribute>
-
 			<!-- Decision mappings (output only, created during execution) -->
 			<setattribute tag='player_id' RAttribute='player_id' enclosure='decision' type='string'></setattribute>
 			<setattribute tag='archetype' RAttribute='archetype' enclosure='decision' type='string'></setattribute>
 			<setattribute tag='action' RAttribute='action' enclosure='decision' type='string'></setattribute>
 			<setattribute tag='raise_amount' RAttribute='raise_amount' enclosure='decision' type='double'></setattribute>
 			<setattribute tag='reasoning' RAttribute='reasoning' enclosure='decision' type='string'></setattribute>
-
 			<!-- Create entities from XML tags -->
+			<!-- Singleton entities -->
+			<!-- Multiple instance entities -->
 			<createentity entity='player' tag='player' id='id' list='players'></createentity>
 			<createentity entity='decision' tag='decision' id='player_id' list='decisions'></createentity>
 		</map>
-
 		<entities>
-			<!-- Singleton entities -->
 			<entity name='game' number='1'></entity>
 			<entity name='decision' number='*'></entity>
-
-			<!-- Multiple instance entities -->
 			<entity name='player' number='*'></entity>
 		</entities>
-
 		<initialization>
 			<initialentity entity='game' epush='true'></initialentity>
 		</initialization>

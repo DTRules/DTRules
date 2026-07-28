@@ -411,7 +411,12 @@ func undefinedOperators(postfixFrags []string, symbols *projectSymbols) []string
 // the exemptions and why each is dictionary-resolved rather than an
 // operator.
 func operatorCandidate(tok string) bool {
-	if tok == "" || tok == "{" || tok == "}" {
+	// Block delimiters, including the empty block the ifelse emitter writes
+	// for an `if` with no else branch. The compiler builds these into
+	// executable arrays; they never reach the operator registry, which is
+	// why operators.nonOpEmits lists "{}" too. Missing this one made every
+	// table containing a bare `if` fail the external-reference check.
+	if tok == "" || tok == "{" || tok == "}" || tok == "{}" {
 		return false
 	}
 	switch tok[0] {

@@ -1,36 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
-<!--
-  Poker Demo - Decision Tables
 
-  4 AI archetypes for poker decisions:
-  - TAG (Tight-Aggressive): Plays premium hands aggressively
-  - LAG (Loose-Aggressive): Plays many hands with aggression, uses position
-  - Rock (Tight-Passive): Only plays very strong hands, rarely raises
-  - Calling Station: Calls frequently, rarely folds or raises
--->
-
-<!-- Entry point table - dispatches to appropriate archetype decision table -->
-<decision_table>
+<!-- TABLE 1000: Poker_Decision -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Poker.xlsx</relative_path>
+<file_name>Poker.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>Poker_Decision</table_name>
-<xls_file>Poker.xls</xls_file>
+<xls_file>Poker.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Entry point for poker AI decision. Dispatches to the appropriate archetype decision table based on player's archetype setting.</COMMENTS>
 <TABLE_NUMBER>1000</TABLE_NUMBER>
 </attribute_fields>
-<contexts>
-<context>player</context>
-</contexts>
+<contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl>Create decision entity for this player</action_dsl>
-<action_postfix>
-/decision createentity entitypush
-player.id /decision.player_id xdef
-player.archetype /decision.archetype xdef
-"Evaluating decision for " player.name strconcat " (" strconcat player.archetype strconcat ") with hand strength " strconcat player.hand_strength cvs strconcat game.audit_trail swap addto
-</action_postfix>
+<initial_action_dsl>add new decision entity to context of this table; set decision.player_id = player.id; set decision.archetype = player.archetype; add "Evaluating decision for " + player.name + " (" + player.archetype + ") with hand strength " + player.hand_strength to game.audit_trail;</initial_action_dsl>
+<initial_action_postfix>
+/decision createentity entitypush player.id cvs /decision.player_id xdef player.archetype cvs /decision.archetype xdef "Evaluating decision for " player.name strconcat " (" strconcat player.archetype strconcat ") with hand strength " strconcat player.hand_strength strconcat game.audit_trail swap addto
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -38,29 +29,37 @@ player.archetype /decision.archetype xdef
 <condition_number>1</condition_number>
 <condition_comment>TAG archetype</condition_comment>
 <condition_dsl>player.archetype is equal to "TAG"</condition_dsl>
-<condition_postfix>player.archetype &quot;TAG&quot; streq</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
+<condition_postfix>
+player.archetype "TAG" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>LAG archetype</condition_comment>
 <condition_dsl>player.archetype is equal to "LAG"</condition_dsl>
-<condition_postfix>player.archetype &quot;LAG&quot; streq</condition_postfix>
-<condition_column column_number="2" column_value="Y"></condition_column>
+<condition_postfix>
+player.archetype "LAG" streq
+</condition_postfix>
+<condition_column column_number="2" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Rock archetype</condition_comment>
 <condition_dsl>player.archetype is equal to "Rock"</condition_dsl>
-<condition_postfix>player.archetype &quot;Rock&quot; streq</condition_postfix>
-<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_postfix>
+player.archetype "Rock" streq
+</condition_postfix>
+<condition_column column_number="3" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Calling Station archetype</condition_comment>
 <condition_dsl>player.archetype is equal to "Calling"</condition_dsl>
-<condition_postfix>player.archetype &quot;Calling&quot; streq</condition_postfix>
-<condition_column column_number="4" column_value="Y"></condition_column>
+<condition_postfix>
+player.archetype "Calling" streq
+</condition_postfix>
+<condition_column column_number="4" column_value="Y" />
 </condition_details>
 </conditions>
 <actions>
@@ -68,458 +67,479 @@ player.archetype /decision.archetype xdef
 <action_number>1</action_number>
 <action_comment>Execute TAG decision table</action_comment>
 <action_dsl>TAG_Decision</action_dsl>
-<action_postfix>/TAG_Decision performtable</action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_postfix>
+/TAG_Decision performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Execute LAG decision table</action_comment>
 <action_dsl>LAG_Decision</action_dsl>
-<action_postfix>/LAG_Decision performtable</action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_postfix>
+/LAG_Decision performtable
+</action_postfix>
+<action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Execute Rock decision table</action_comment>
 <action_dsl>Rock_Decision</action_dsl>
-<action_postfix>/Rock_Decision performtable</action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_postfix>
+/Rock_Decision performtable
+</action_postfix>
+<action_column column_number="3" column_value="X" />
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>Execute Calling Station decision table</action_comment>
 <action_dsl>CallingStation_Decision</action_dsl>
-<action_postfix>/CallingStation_Decision performtable</action_postfix>
-<action_column column_number="4" column_value="X"></action_column>
+<action_postfix>
+/CallingStation_Decision performtable
+</action_postfix>
+<action_column column_number="4" column_value="X" />
 </action_details>
 <action_details>
 <action_number>5</action_number>
 <action_comment>Add decision to game decisions</action_comment>
 <action_dsl>Add decision to game.decisions</action_dsl>
-<action_postfix>decision game.decisions swap addto</action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value="X"></action_column>
-<action_column column_number="3" column_value="X"></action_column>
-<action_column column_number="4" column_value="X"></action_column>
+<action_postfix>
+decision game.decisions swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="2" column_value="X" />
+<action_column column_number="3" column_value="X" />
+<action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
 <policy_description>Processing TAG (Tight-Aggressive) decision</policy_description>
-<policy_statement_postfix>"Using TAG decision logic"</policy_statement_postfix>
+<policy_statement_postfix>"Processing TAG (Tight-Aggressive) decision"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>Processing LAG (Loose-Aggressive) decision</policy_description>
-<policy_statement_postfix>"Using LAG decision logic"</policy_statement_postfix>
+<policy_statement_postfix>"Processing LAG (Loose-Aggressive) decision"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>Processing Rock (Tight-Passive) decision</policy_description>
-<policy_statement_postfix>"Using Rock decision logic"</policy_statement_postfix>
+<policy_statement_postfix>"Processing Rock (Tight-Passive) decision"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="4">
 <policy_description>Processing Calling Station decision</policy_description>
-<policy_statement_postfix>"Using Calling Station decision logic"</policy_statement_postfix>
+<policy_statement_postfix>"Processing Calling Station decision"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
 
-<!-- TAG (Tight-Aggressive) Decision Table -->
-<!-- VPIP ~18%: Plays premium hands, bets/raises with strength, folds weak hands -->
-<decision_table>
+<!-- TABLE 1100: TAG_Decision -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Poker.xlsx</relative_path>
+<file_name>Poker.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>TAG_Decision</table_name>
-<xls_file>Poker.xls</xls_file>
+<xls_file>Poker.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>TAG (Tight-Aggressive) decision logic. Plays premium hands aggressively, folds weak hands but bets/raises when in a pot. VPIP ~18%.</COMMENTS>
 <TABLE_NUMBER>1100</TABLE_NUMBER>
 </attribute_fields>
-<contexts>
-<context>player</context>
-<context>decision</context>
-</contexts>
-<initial_actions>
-</initial_actions>
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Execute decision logic</condition_comment>
 <condition_dsl>perform when called</condition_dsl>
-<condition_postfix>perform when called</condition_postfix>
-<condition_column column_number="1" column_value="*"></condition_column>
+<condition_postfix>
+perform when called
+</condition_postfix>
+<condition_column column_number="1" column_value="*" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>TAG decision logic with if-else</action_comment>
-<action_dsl>Decide based on hand strength and situation</action_dsl>
+<action_dsl>if player.hand_strength &gt;= 0.70 then
+  set decision.action = "RAISE";
+  set decision.raise_amount = game.big_blind * 3;
+  set decision.reasoning = "TAG: Strong hand, RAISE 3x BB";
+endif
+if decision.action is null and player.hand_strength &gt;= 0.50 and player.pot_odds &lt; player.hand_strength * 0.8 then
+  set decision.action = "CALL";
+  set decision.reasoning = "TAG: Medium hand with good pot odds, CALL";
+endif
+if decision.action is null and player.hand_strength &gt;= 0.50 and player.can_check then
+  set decision.action = "CHECK";
+  set decision.reasoning = "TAG: Medium hand, poor odds, CHECK";
+endif
+if decision.action is null and player.hand_strength &lt; 0.50 and player.can_check then
+  set decision.action = "CHECK";
+  set decision.reasoning = "TAG: Weak hand, CHECK for free card";
+endif
+if decision.action is null then
+  set decision.action = "FOLD";
+  set decision.reasoning = "TAG: Default FOLD";
+endif</action_dsl>
 <action_postfix>
-{ "RAISE" /decision.action xdef game.big_blind 3 * /decision.raise_amount xdef "TAG: Strong hand, RAISE 3x BB" /decision.reasoning xdef }
-player.hand_strength 0.70 >=
-if
-{ "CALL" /decision.action xdef "TAG: Medium hand with good pot odds, CALL" /decision.reasoning xdef }
-decision.action isnull player.hand_strength 0.50 >= and player.pot_odds player.hand_strength 0.8 * &lt; and
-if
-{ "CHECK" /decision.action xdef "TAG: Medium hand, poor odds, CHECK" /decision.reasoning xdef }
-decision.action isnull player.hand_strength 0.50 >= and player.can_check and
-if
-{ "CHECK" /decision.action xdef "TAG: Weak hand, CHECK for free card" /decision.reasoning xdef }
-decision.action isnull player.hand_strength 0.50 &lt; and player.can_check and
-if
-{ "FOLD" /decision.action xdef "TAG: Default FOLD" /decision.reasoning xdef }
-decision.action isnull
-if
+{ "RAISE" cvs /decision.action xdef game.big_blind 3 fmul cvd /decision.raise_amount xdef "TAG: Strong hand, RAISE 3x BB" cvs /decision.reasoning xdef } {} player.hand_strength 0.70 f&gt;= ifelse { "CALL" cvs /decision.action xdef "TAG: Medium hand with good pot odds, CALL" cvs /decision.reasoning xdef } {} decision.action isnull { pop player.hand_strength 0.50 f&gt;= } over if { pop player.pot_odds player.hand_strength 0.8 fmul f&lt; } over if ifelse { "CHECK" cvs /decision.action xdef "TAG: Medium hand, poor odds, CHECK" cvs /decision.reasoning xdef } {} decision.action isnull { pop player.hand_strength 0.50 f&gt;= } over if { pop player.can_check } over if ifelse { "CHECK" cvs /decision.action xdef "TAG: Weak hand, CHECK for free card" cvs /decision.reasoning xdef } {} decision.action isnull { pop player.hand_strength 0.50 f&lt; } over if { pop player.can_check } over if ifelse { "FOLD" cvs /decision.action xdef "TAG: Default FOLD" cvs /decision.reasoning xdef } {} decision.action isnull ifelse
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
 <policy_description>TAG decision logic</policy_description>
-<policy_statement_postfix>"TAG plays tight-aggressive"</policy_statement_postfix>
+<policy_statement_postfix>"TAG decision logic"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
 
-<!-- LAG (Loose-Aggressive) Decision Table -->
-<!-- VPIP ~35%: Plays many hands with aggression, uses position to bluff -->
-<decision_table>
+<!-- TABLE 1200: LAG_Decision -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Poker.xlsx</relative_path>
+<file_name>Poker.xlsx</file_name>
+<sheet_number>3</sheet_number>
+</source>
 <table_name>LAG_Decision</table_name>
-<xls_file>Poker.xls</xls_file>
+<xls_file>Poker.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>LAG (Loose-Aggressive) decision logic. Plays many hands, applies pressure with bets and raises. Uses position to bluff. VPIP ~35%.</COMMENTS>
 <TABLE_NUMBER>1200</TABLE_NUMBER>
 </attribute_fields>
-<contexts>
-<context>player</context>
-<context>decision</context>
-</contexts>
-<initial_actions>
-</initial_actions>
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Hand strength >= 50%</condition_comment>
-<condition_dsl>player.hand_strength >= 0.50</condition_dsl>
-<condition_postfix>player.hand_strength 0.50 f&gt;=</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
-<condition_column column_number="5" column_value="N"></condition_column>
+<condition_comment>Hand strength &gt;= 50%</condition_comment>
+<condition_dsl>player.hand_strength &gt;= 0.50</condition_dsl>
+<condition_postfix>
+player.hand_strength 0.50 f&gt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Position is late or button</condition_comment>
-<condition_dsl>player.position is "late" or "button"</condition_dsl>
+<condition_dsl>player.position is equal to "late" or player.position is equal to "button"</condition_dsl>
 <condition_postfix>
-player.position "late" streq player.position "button" streq or
+player.position "late" streq { pop player.position "button" streq } over not if
 </condition_postfix>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
-<condition_column column_number="5" column_value="N"></condition_column>
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
-<condition_comment>Hand strength >= 25%</condition_comment>
-<condition_dsl>player.hand_strength >= 0.25</condition_dsl>
-<condition_postfix>player.hand_strength 0.25 f&gt;=</condition_postfix>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="Y"></condition_column>
-<condition_column column_number="5" column_value="N"></condition_column>
+<condition_comment>Hand strength &gt;= 25%</condition_comment>
+<condition_dsl>player.hand_strength &gt;= 0.25</condition_dsl>
+<condition_postfix>
+player.hand_strength 0.25 f&gt;=
+</condition_postfix>
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="Y" />
+<condition_column column_number="5" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Can check</condition_comment>
 <condition_dsl>player.can_check is true</condition_dsl>
-<condition_postfix>player.can_check true beq</condition_postfix>
-<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_postfix>
+player.can_check true beq
+</condition_postfix>
+<condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>RAISE - Strong hand or position play</action_comment>
-<action_dsl>Set action to RAISE</action_dsl>
+<action_dsl>set decision.action = "RAISE"; set decision.raise_amount = game.big_blind * 2.5; set decision.reasoning = "LAG: Hand &gt;= 50% or good position with &gt;= 25%, RAISE";</action_dsl>
 <action_postfix>
-"RAISE" /decision.action xdef
-game.big_blind 2.5 * /decision.raise_amount xdef
-"LAG: Hand >= 50% or good position with >= 25%, RAISE" /decision.reasoning xdef
+"RAISE" cvs /decision.action xdef game.big_blind 2.5 fmul cvd /decision.raise_amount xdef "LAG: Hand &gt;= 50% or good position with &gt;= 25%, RAISE" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>CHECK - Weak hand in position</action_comment>
-<action_dsl>Set action to CHECK</action_dsl>
+<action_dsl>set decision.action = "CHECK"; set decision.reasoning = "LAG: Weak hand in position, CHECK for free card";</action_dsl>
 <action_postfix>
-"CHECK" /decision.action xdef
-"LAG: Weak hand in position, CHECK for free card" /decision.reasoning xdef
+"CHECK" cvs /decision.action xdef "LAG: Weak hand in position, CHECK for free card" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>CALL - Marginal hand out of position</action_comment>
-<action_dsl>Set action to CALL</action_dsl>
+<action_dsl>set decision.action = "CALL"; set decision.reasoning = "LAG: Marginal hand (&gt;= 25%) out of position, CALL";</action_dsl>
 <action_postfix>
-"CALL" /decision.action xdef
-"LAG: Marginal hand (>= 25%) out of position, CALL" /decision.reasoning xdef
+"CALL" cvs /decision.action xdef "LAG: Marginal hand (&gt;= 25%) out of position, CALL" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="4" column_value="X" />
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>FOLD - Very weak hand</action_comment>
-<action_dsl>Set action to FOLD</action_dsl>
+<action_dsl>set decision.action = "FOLD"; set decision.reasoning = "LAG: Weak hand (less than 25%) out of position, FOLD";</action_dsl>
 <action_postfix>
-"FOLD" /decision.action xdef
-"LAG: Weak hand (less than 25%) out of position, FOLD" /decision.reasoning xdef
+"FOLD" cvs /decision.action xdef "LAG: Weak hand (less than 25%) out of position, FOLD" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="5" column_value="X"></action_column>
+<action_column column_number="5" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
 <policy_description>Strong hand - raise</policy_description>
-<policy_statement_postfix>"LAG raises strong hands"</policy_statement_postfix>
+<policy_statement_postfix>"Strong hand - raise"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>Position play - raise to steal</policy_description>
-<policy_statement_postfix>"LAG uses position to raise"</policy_statement_postfix>
+<policy_statement_postfix>"Position play - raise to steal"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>Weak hand in position - check</policy_description>
-<policy_statement_postfix>"LAG checks weak hands in position"</policy_statement_postfix>
+<policy_statement_postfix>"Weak hand in position - check"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="4">
 <policy_description>Marginal hand - call</policy_description>
-<policy_statement_postfix>"LAG calls with marginal hands"</policy_statement_postfix>
+<policy_statement_postfix>"Marginal hand - call"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="5">
 <policy_description>Very weak hand - fold</policy_description>
-<policy_statement_postfix>"LAG folds very weak hands"</policy_statement_postfix>
+<policy_statement_postfix>"Very weak hand - fold"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
 
-<!-- Rock (Tight-Passive) Decision Table -->
-<!-- VPIP ~12%: Only plays very strong hands, rarely raises, prefers to call -->
-<decision_table>
+<!-- TABLE 1300: Rock_Decision -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Poker.xlsx</relative_path>
+<file_name>Poker.xlsx</file_name>
+<sheet_number>4</sheet_number>
+</source>
 <table_name>Rock_Decision</table_name>
-<xls_file>Poker.xls</xls_file>
+<xls_file>Poker.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Rock (Tight-Passive) decision logic. Only plays very strong hands. Rarely raises, prefers to call. Very predictable. VPIP ~12%.</COMMENTS>
 <TABLE_NUMBER>1300</TABLE_NUMBER>
 </attribute_fields>
-<contexts>
-<context>player</context>
-<context>decision</context>
-</contexts>
-<initial_actions>
-</initial_actions>
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Hand strength >= 85%</condition_comment>
-<condition_dsl>player.hand_strength >= 0.85</condition_dsl>
-<condition_postfix>player.hand_strength 0.85 f&gt;=</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
+<condition_comment>Hand strength &gt;= 85%</condition_comment>
+<condition_dsl>player.hand_strength &gt;= 0.85</condition_dsl>
+<condition_postfix>
+player.hand_strength 0.85 f&gt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Hand strength >= 60%</condition_comment>
-<condition_dsl>player.hand_strength >= 0.60</condition_dsl>
-<condition_postfix>player.hand_strength 0.60 f&gt;=</condition_postfix>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
+<condition_comment>Hand strength &gt;= 60%</condition_comment>
+<condition_dsl>player.hand_strength &gt;= 0.60</condition_dsl>
+<condition_postfix>
+player.hand_strength 0.60 f&gt;=
+</condition_postfix>
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Can check</condition_comment>
 <condition_dsl>player.can_check is true</condition_dsl>
-<condition_postfix>player.can_check true beq</condition_postfix>
-<condition_column column_number="3" column_value="Y"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
+<condition_postfix>
+player.can_check true beq
+</condition_postfix>
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>RAISE - Only with monster hands</action_comment>
-<action_dsl>Set action to RAISE</action_dsl>
+<action_dsl>set decision.action = "RAISE"; set decision.raise_amount = game.big_blind * 2; set decision.reasoning = "Rock: Monster hand (&gt;= 85%), RAISE (rare for Rock)";</action_dsl>
 <action_postfix>
-"RAISE" /decision.action xdef
-game.big_blind 2 * /decision.raise_amount xdef
-"Rock: Monster hand (>= 85%), RAISE (rare for Rock)" /decision.reasoning xdef
+"RAISE" cvs /decision.action xdef game.big_blind 2 fmul cvd /decision.raise_amount xdef "Rock: Monster hand (&gt;= 85%), RAISE (rare for Rock)" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>CALL - Strong hand, play it safe</action_comment>
-<action_dsl>Set action to CALL</action_dsl>
+<action_dsl>set decision.action = "CALL"; set decision.reasoning = "Rock: Strong hand (60-85%), CALL to see the showdown";</action_dsl>
 <action_postfix>
-"CALL" /decision.action xdef
-"Rock: Strong hand (60-85%), CALL to see the showdown" /decision.reasoning xdef
+"CALL" cvs /decision.action xdef "Rock: Strong hand (60-85%), CALL to see the showdown" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>CHECK - Weak hand, free card</action_comment>
-<action_dsl>Set action to CHECK</action_dsl>
+<action_dsl>set decision.action = "CHECK"; set decision.reasoning = "Rock: Weak hand (less than 60%), CHECK for free card";</action_dsl>
 <action_postfix>
-"CHECK" /decision.action xdef
-"Rock: Weak hand (less than 60%), CHECK for free card" /decision.reasoning xdef
+"CHECK" cvs /decision.action xdef "Rock: Weak hand (less than 60%), CHECK for free card" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>FOLD - Weak hand with bet</action_comment>
-<action_dsl>Set action to FOLD</action_dsl>
+<action_dsl>set decision.action = "FOLD"; set decision.reasoning = "Rock: Weak hand (less than 60%) facing a bet, FOLD";</action_dsl>
 <action_postfix>
-"FOLD" /decision.action xdef
-"Rock: Weak hand (less than 60%) facing a bet, FOLD" /decision.reasoning xdef
+"FOLD" cvs /decision.action xdef "Rock: Weak hand (less than 60%) facing a bet, FOLD" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
 <policy_description>Monster hand - rare raise</policy_description>
-<policy_statement_postfix>"Rock rarely raises, only with monsters"</policy_statement_postfix>
+<policy_statement_postfix>"Monster hand - rare raise"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>Strong hand - call</policy_description>
-<policy_statement_postfix>"Rock calls with strong hands"</policy_statement_postfix>
+<policy_statement_postfix>"Strong hand - call"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>Weak hand - check</policy_description>
-<policy_statement_postfix>"Rock checks weak hands"</policy_statement_postfix>
+<policy_statement_postfix>"Weak hand - check"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="4">
 <policy_description>Weak hand facing bet - fold</policy_description>
-<policy_statement_postfix>"Rock folds to bets with weak hands"</policy_statement_postfix>
+<policy_statement_postfix>"Weak hand facing bet - fold"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
 
-<!-- Calling Station Decision Table -->
-<!-- VPIP ~40%: Calls frequently with weak hands, rarely folds or raises -->
-<decision_table>
+<!-- TABLE 1400: CallingStation_Decision -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Poker.xlsx</relative_path>
+<file_name>Poker.xlsx</file_name>
+<sheet_number>5</sheet_number>
+</source>
 <table_name>CallingStation_Decision</table_name>
-<xls_file>Poker.xls</xls_file>
+<xls_file>Poker.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calling Station decision logic. Calls frequently with weak hands. Rarely folds or raises. Easy to value bet against. VPIP ~40%.</COMMENTS>
 <TABLE_NUMBER>1400</TABLE_NUMBER>
 </attribute_fields>
-<contexts>
-<context>player</context>
-<context>decision</context>
-</contexts>
-<initial_actions>
-</initial_actions>
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Hand strength >= 20%</condition_comment>
-<condition_dsl>player.hand_strength >= 0.20</condition_dsl>
-<condition_postfix>player.hand_strength 0.20 f&gt;=</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
+<condition_comment>Hand strength &gt;= 20%</condition_comment>
+<condition_dsl>player.hand_strength &gt;= 0.20</condition_dsl>
+<condition_postfix>
+player.hand_strength 0.20 f&gt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Bet is small (2x big blind or less)</condition_comment>
 <condition_dsl>player.is_small_bet is true</condition_dsl>
-<condition_postfix>player.is_small_bet true beq</condition_postfix>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
+<condition_postfix>
+player.is_small_bet true beq
+</condition_postfix>
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Can check</condition_comment>
 <condition_dsl>player.can_check is true</condition_dsl>
-<condition_postfix>player.can_check true beq</condition_postfix>
-<condition_column column_number="3" column_value="Y"></condition_column>
-<condition_column column_number="4" column_value="N"></condition_column>
+<condition_postfix>
+player.can_check true beq
+</condition_postfix>
+<condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>CALL - Any hand with some value</action_comment>
-<action_dsl>Set action to CALL</action_dsl>
+<action_dsl>set decision.action = "CALL"; set decision.reasoning = "Calling Station: Any hand &gt;= 20%, CALL (love to see showdowns)";</action_dsl>
 <action_postfix>
-"CALL" /decision.action xdef
-"Calling Station: Any hand >= 20%, CALL (love to see showdowns)" /decision.reasoning xdef
+"CALL" cvs /decision.action xdef "Calling Station: Any hand &gt;= 20%, CALL (love to see showdowns)" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>CALL - Small bet is worth calling</action_comment>
-<action_dsl>Set action to CALL</action_dsl>
+<action_dsl>set decision.action = "CALL"; set decision.reasoning = "Calling Station: Small bet, CALL (too cheap to fold)";</action_dsl>
 <action_postfix>
-"CALL" /decision.action xdef
-"Calling Station: Small bet, CALL (too cheap to fold)" /decision.reasoning xdef
+"CALL" cvs /decision.action xdef "Calling Station: Small bet, CALL (too cheap to fold)" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>CHECK - Weak hand but free</action_comment>
-<action_dsl>Set action to CHECK</action_dsl>
+<action_dsl>set decision.action = "CHECK"; set decision.reasoning = "Calling Station: Weak hand but can check, CHECK";</action_dsl>
 <action_postfix>
-"CHECK" /decision.action xdef
-"Calling Station: Weak hand but can check, CHECK" /decision.reasoning xdef
+"CHECK" cvs /decision.action xdef "Calling Station: Weak hand but can check, CHECK" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>FOLD - Very weak with big bet</action_comment>
-<action_dsl>Set action to FOLD</action_dsl>
+<action_dsl>set decision.action = "FOLD"; set decision.reasoning = "Calling Station: Very weak hand (less than 20%) with large bet, FOLD (reluctantly)";</action_dsl>
 <action_postfix>
-"FOLD" /decision.action xdef
-"Calling Station: Very weak hand (less than 20%) with large bet, FOLD (reluctantly)" /decision.reasoning xdef
+"FOLD" cvs /decision.action xdef "Calling Station: Very weak hand (less than 20%) with large bet, FOLD (reluctantly)" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="4" column_value="X"></action_column>
+<action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
 <policy_statement column="1">
 <policy_description>Any value - call</policy_description>
-<policy_statement_postfix>"Calling Station calls with any value"</policy_statement_postfix>
+<policy_statement_postfix>"Any value - call"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>Small bet - call</policy_description>
-<policy_statement_postfix>"Calling Station calls small bets"</policy_statement_postfix>
+<policy_statement_postfix>"Small bet - call"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>Free card - check</policy_description>
-<policy_statement_postfix>"Calling Station takes free cards"</policy_statement_postfix>
+<policy_statement_postfix>"Free card - check"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="4">
 <policy_description>Big bet weak hand - fold</policy_description>
-<policy_statement_postfix>"Calling Station only folds to big bets"</policy_statement_postfix>
+<policy_statement_postfix>"Big bet weak hand - fold"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
-
 </decision_tables>
