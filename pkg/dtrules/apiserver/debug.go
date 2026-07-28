@@ -83,10 +83,33 @@ func (s *Server) configPayload() map[string]interface{} {
 	if err != nil {
 		rel = xmlDir
 	}
+	// A fallback-to-root scan that found decision tables under more than
+	// one top-level subdirectory almost certainly swept several unrelated
+	// projects (e.g. the editor was launched from a repo root). Surface
+	// that so the UI can warn instead of showing a truthful-but-useless
+	// "rules: .".
+	multiRoot := false
+	if rel == "." {
+		tops := map[string]bool{}
+		rootFiles := 0
+		for _, f := range s.dtFiles {
+			parts := strings.SplitN(filepath.ToSlash(f), "/", 2)
+			if len(parts) == 2 {
+				tops[parts[0]] = true
+			} else {
+				rootFiles++
+			}
+		}
+		// A real project keeps its main *_dt.xml at the scan root
+		// (subfolders like states/ are fine); a repo-root sweep has
+		// everything nested under several unrelated directories.
+		multiRoot = rootFiles == 0 && len(tops) > 1
+	}
 	return map[string]interface{}{
-		"xmlDir":   rel,
-		"entry":    cfg.Entry,
-		"declared": cfg.XMLDir != "" || cfg.Entry != "",
+		"xmlDir":    rel,
+		"entry":     cfg.Entry,
+		"declared":  cfg.XMLDir != "" || cfg.Entry != "",
+		"multiRoot": multiRoot,
 	}
 }
 

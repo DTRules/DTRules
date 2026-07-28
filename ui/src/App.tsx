@@ -125,12 +125,21 @@ function App() {
               {/* Effective configuration (DTRules.xml) — visible, not hidden in a file */}
               {projectConfig && (
                 <span className="ml-auto flex items-center gap-2 text-xs font-mono shrink-0">
-                  <span
-                    className="px-2 py-0.5 rounded-full border border-border text-muted-foreground"
-                    title="Where this project's rules load from (DTRules.xml xml_dir)"
-                  >
-                    rules: {projectConfig.xmlDir}
-                  </span>
+                  {projectConfig.multiRoot ? (
+                    <span
+                      className="px-2 py-0.5 rounded-full border border-amber-500 text-amber-500"
+                      title="No DTRules.xml or xml/ directory here, so the whole tree was scanned and rule files were found under multiple top-level directories — tables from unrelated projects can collide. Open a specific project directory instead."
+                    >
+                      ⚠ rules: whole tree (multiple projects)
+                    </span>
+                  ) : (
+                    <span
+                      className="px-2 py-0.5 rounded-full border border-border text-muted-foreground"
+                      title="Where this project's rules load from (DTRules.xml xml_dir, else xml/, else this directory)"
+                    >
+                      rules: {projectConfig.xmlDir}
+                    </span>
+                  )}
                   {projectConfig.entry && (
                     <span
                       className="px-2 py-0.5 rounded-full border border-border text-muted-foreground"

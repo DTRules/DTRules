@@ -37,6 +37,10 @@ export interface ProjectConfig {
   xmlDir: string;
   entry: string;
   declared: boolean;
+  /** True when a fallback whole-tree scan found decision tables under
+   * multiple top-level directories — likely several unrelated projects
+   * swept together (e.g. the editor was launched from a repo root). */
+  multiRoot?: boolean;
 }
 
 /** localStorage key for the recently-opened-projects list. */
