@@ -62,6 +62,11 @@ func TestSampleProjectsProduceLoadableTraces(t *testing.T) {
 			minColumns: 5, // the tables Compute_Tax routes through
 		},
 		{
+			project:    "SinusitisTherapy",
+			input:      "testfiles/TestScenarios/AdultStandard/input.xml",
+			minColumns: 5, // orchestrator + medication, dose, CCr, interactions
+		},
+		{
 			project:    "Poker",
 			input:      "testfiles/TestScenarios/basic_scenarios.xml",
 			minColumns: 24, // 12 players, at least two tables deep
@@ -168,9 +173,15 @@ func runSampleWithTrace(t *testing.T, dir, entry, input, tracePath string) {
 }
 
 // declaredEntry reads <entry> out of a project's DTRules.xml.
+//
+// A malformed marker is reported as such rather than as a missing entry.
+// They are easy to confuse and the fix is completely different: XML forbids
+// "--" inside a comment, so a marker documenting a flag like the interactive
+// one parses as garbage and every <entry> in it silently disappears.
 func declaredEntry(t *testing.T, dir string) string {
 	t.Helper()
-	data, err := os.ReadFile(filepath.Join(dir, "DTRules.xml"))
+	path := filepath.Join(dir, "DTRules.xml")
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return ""
 	}
@@ -178,7 +189,7 @@ func declaredEntry(t *testing.T, dir string) string {
 		Entry string `xml:"entry"`
 	}
 	if err := xml.Unmarshal(data, &cfg); err != nil {
-		return ""
+		t.Fatalf("%s is not well-formed XML: %v", path, err)
 	}
 	return strings.TrimSpace(cfg.Entry)
 }

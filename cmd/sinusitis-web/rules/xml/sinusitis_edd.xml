@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="constants" xls_file="sinusitis.xlsx" access="rw">
+	<file_metadata>
+		<file_path>sinusitis_edd</file_path>
+	</file_metadata>
+	<entity name="constants" number="100" xls_file="sinusitis.xlsx" access="rw">
 		<source>
 			<relative_path>sinusitis.xlsx</relative_path>
 			<file_name>sinusitis.xlsx</file_name>
@@ -16,7 +19,7 @@
 		<field name="standard_dose" type="integer" subtype="" access="r" input="" default_value="500" comment="Standard dose in mg"></field>
 		<field name="therapy_duration_days" type="integer" subtype="" access="r" input="" default_value="14" comment="Standard therapy duration in days"></field>
 	</entity>
-	<entity name="medication" xls_file="sinusitis.xlsx" access="rw">
+	<entity name="medication" number="200" xls_file="sinusitis.xlsx" access="rw">
 		<source>
 			<relative_path>sinusitis.xlsx</relative_path>
 			<file_name>sinusitis.xlsx</file_name>
@@ -24,7 +27,7 @@
 		</source>
 		<field name="name" type="string" subtype="" access="rw" input="main" default_value="" comment="Drug name (brand or generic)"></field>
 	</entity>
-	<entity name="patient" xls_file="sinusitis.xlsx" access="rw">
+	<entity name="patient" number="300" xls_file="sinusitis.xlsx" access="rw">
 		<source>
 			<relative_path>sinusitis.xlsx</relative_path>
 			<file_name>sinusitis.xlsx</file_name>
@@ -50,7 +53,7 @@
 			</question>
 		</field>
 	</entity>
-	<entity name="result" xls_file="sinusitis.xlsx" access="rw">
+	<entity name="result" number="400" xls_file="sinusitis.xlsx" access="rw">
 		<source>
 			<relative_path>sinusitis.xlsx</relative_path>
 			<file_name>sinusitis.xlsx</file_name>
