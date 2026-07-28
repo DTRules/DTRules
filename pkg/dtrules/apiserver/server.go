@@ -75,6 +75,9 @@ type Server struct {
 	cfg           Config
 	mu            sync.RWMutex
 	projectPath   string
+	// discoverRoot is the non-project directory `dtrules edit` was
+	// launched from; the welcome screen lists projects found beneath it.
+	discoverRoot string
 	ruleSet       *session.RuleSet
 	eddFiles      []string
 	dtFiles       []string
@@ -404,6 +407,7 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("/api/project/save", s.handleProjectSave)
 	mux.HandleFunc("/api/project/files", s.handleProjectFiles)
 	mux.HandleFunc("/api/project/current", s.handleProjectCurrent)
+	mux.HandleFunc("/api/project/discover", s.handleProjectDiscover)
 
 	// EDD endpoints
 	mux.HandleFunc("/api/edd", s.handleEDD)

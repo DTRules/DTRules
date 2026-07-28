@@ -463,6 +463,29 @@ export async function getSampleProjects(): Promise<{
   return fetchJSON(`${API_BASE}/samples`);
 }
 
+/** A project discovered beneath the directory the editor was launched from.
+ * A project is identified by its DTRules.xml (one per project), or by the
+ * xml/-directory layout convention for projects that predate the config. */
+export interface DiscoveredProject {
+  path: string;
+  name: string;
+  marker: string;
+  entry: string;
+}
+
+/**
+ * Lists projects discovered beneath the editor's launch directory. Returns
+ * an empty list when the editor was launched inside a project (nothing to
+ * pick) or when nothing was found.
+ */
+export async function discoverProjects(): Promise<{
+  success: boolean;
+  root: string;
+  projects: DiscoveredProject[];
+}> {
+  return fetchJSON(`${API_BASE}/project/discover`);
+}
+
 // ============================================================================
 // Trace Debugger Endpoints
 // ============================================================================
