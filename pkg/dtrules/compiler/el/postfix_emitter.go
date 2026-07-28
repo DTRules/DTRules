@@ -6194,6 +6194,14 @@ func (e *PostfixEmitter) VisitAddArrayToArray(ctx *AddArrayToArrayContext) inter
 	srcExpr := ctx.ArrayExpr(0)
 	srcIsArray := false // Default to entity-to-array (safer)
 
+	// `the policy statements` is an array with no name to look up, so the
+	// symbol-table test below can never see it. Without this it fell to the
+	// single-element branch and a report got the whole accumulator as one
+	// blob instead of its statements (#956).
+	if _, ok := srcExpr.(*ArrayPolicyStatementsContext); ok {
+		srcIsArray = true
+	}
+
 	if baseCtx, ok := srcExpr.(*ArrayBaseContext); ok {
 		if arrayExpr2 := baseCtx.ArrayExpr2(); arrayExpr2 != nil {
 			if typedCtx, ok := arrayExpr2.(*ArrayTypedContext); ok {

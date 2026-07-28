@@ -92,6 +92,11 @@ type DTState struct {
 	numberInSection     int
 	anode               interface{} // *ANode when implemented
 
+	// policyStatements accumulates the statement of every column that
+	// fires, in fire order, until a rule clears it (#956). Lazily created:
+	// a run whose tables carry no policy statements never allocates one.
+	policyStatements *dtrules.RArray
+
 	// Operator table for bytecode execution (set externally to avoid import cycle)
 	operatorTable []dtrules.Object
 
@@ -910,6 +915,33 @@ func (s *DTState) GetANode() interface{} {
 // SetANode sets the current action node.
 func (s *DTState) SetANode(anode interface{}) {
 	s.currentANode = anode
+}
+
+// PolicyStatements returns the live policy-statement accumulator, creating
+// it on first use. Live rather than a copy: `clear the policy statements`
+// compiles to `policystatements cleararray`, so emptying this object is what
+// resets a report between phases.
+func (s *DTState) PolicyStatements() *dtrules.RArray {
+	if s.policyStatements == nil {
+		// Duplicates are allowed — two columns can legitimately reach the
+		// same conclusion, and a report that silently dropped the second
+		// would misrepresent the run.
+		arr, err := dtrules.NewArray(s.session, true, false)
+		if err != nil {
+			// NewArray only fails on session ID allocation, which cannot
+			// fail for a live session. An empty detached array keeps the
+			// read path total rather than propagating an error into every
+			// caller of a getter.
+			return dtrules.NewArrayTraceInterface(0, true, false)
+		}
+		s.policyStatements = arr
+	}
+	return s.policyStatements
+}
+
+// AppendPolicyStatement records one rendered statement.
+func (s *DTState) AppendPolicyStatement(statement dtrules.Object) {
+	s.PolicyStatements().Add(statement)
 }
 
 // GetCurrentTableSection returns the current section (Condition, Action, etc).

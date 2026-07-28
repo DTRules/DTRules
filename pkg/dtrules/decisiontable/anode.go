@@ -138,6 +138,13 @@ func (a *ANode) Execute(state dtrules.State) error {
 		state.SetANode(prevNode)
 	}()
 
+	// Record what this column concluded before its actions run, so an action
+	// in the same column can read its own statement and so the statement
+	// renders against the data as of the decision (#956).
+	if err := a.collectPolicyStatements(state); err != nil {
+		return fmt.Errorf("policy statement in table %s: %w", a.decisionTable.GetName(), err)
+	}
+
 	for i, action := range a.actions {
 		num := a.actionNumbers[i]
 
@@ -160,6 +167,57 @@ func (a *ANode) Execute(state dtrules.State) error {
 
 		// Restore section
 		state.SetCurrentTableSection(section, numHld)
+	}
+	return nil
+}
+
+// collectPolicyStatements appends this node's columns' statements to the
+// run's accumulator (#956). Statements collect on their own — no rule has to
+// ask — which is what lets a driver table document conclusions the tables it
+// performed reached.
+//
+// Each statement is a template compiled to postfix at build time (see
+// excel.CompilePolicyStatement), so `{expr}` substitutions are evaluated here
+// against live data rather than reported as literal braces. Columns with no
+// statement contribute nothing, and a table with no statements at all does no
+// work here.
+func (a *ANode) collectPolicyStatements(state dtrules.State) error {
+	dt := a.decisionTable
+	if dt == nil || len(dt.policyStatements) == 0 {
+		return nil
+	}
+
+	for _, col := range a.columns {
+		if col < 0 || col >= len(dt.policyStatements) || dt.policyStatements[col] == "" {
+			continue
+		}
+
+		if col < len(dt.rpolicyStatements) && dt.rpolicyStatements[col] != nil {
+			// Execute directly rather than through State.Evaluate: Evaluate
+			// discards whatever the code leaves on the stack, and the value
+			// it leaves is the statement.
+			depth := state.DataStackDepth()
+			if err := dt.rpolicyStatements[col].Execute(state); err != nil {
+				return err
+			}
+			if state.DataStackDepth() > depth {
+				value, err := state.DataPop()
+				if err != nil {
+					return err
+				}
+				state.AppendPolicyStatement(value)
+				// Drop anything else the statement left behind so
+				// collection has no net effect on the data stack.
+				for state.DataStackDepth() > depth {
+					if _, err := state.DataPop(); err != nil {
+						return err
+					}
+				}
+				continue
+			}
+		}
+		// No compiled form (older XML): the authored text is the statement.
+		state.AppendPolicyStatement(dtrules.NewRString(dt.policyStatements[col]))
 	}
 	return nil
 }

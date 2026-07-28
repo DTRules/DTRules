@@ -20,33 +20,6 @@ import (
 	"github.com/DTRules/DTRules/pkg/dtrules"
 )
 
-// fakePolicyTable stands in for RDecisionTable. The operator reads the table
-// structurally, so the decisiontable package (which reaches operators through
-// the interpreter) stays out of this test's imports.
-type fakePolicyTable struct {
-	text     []string
-	compiled []dtrules.Object
-}
-
-func (f *fakePolicyTable) GetPolicyStatements() []string          { return f.text }
-func (f *fakePolicyTable) GetRPolicyStatements() []dtrules.Object { return f.compiled }
-
-// fakeANode stands in for the action node currently executing.
-type fakeANode struct{ cols []int }
-
-func (f *fakeANode) Columns() []int { return f.cols }
-
-// pushString is a compiled policy statement that leaves one string behind,
-// the way the postfix `"text"` does.
-type pushString struct {
-	dtrules.Object
-	value string
-}
-
-func (p *pushString) Execute(state dtrules.State) error {
-	return state.DataPush(dtrules.NewRString(p.value))
-}
-
 func policyResult(t *testing.T, state dtrules.State) []string {
 	t.Helper()
 	obj, err := state.DataPop()
@@ -68,73 +41,30 @@ func policyResult(t *testing.T, state dtrules.State) []string {
 	return out
 }
 
-func TestPolicyStatementsForFiredColumn(t *testing.T) {
+// TestPolicyStatementsReturnsWhatAccumulated is the operator's whole job:
+// hand back what the columns that fired have concluded so far. Collection
+// happens in the decision table as columns fire (#956), so the operator is a
+// read — which is what lets a rule report on tables it merely performed.
+func TestPolicyStatementsReturnsWhatAccumulated(t *testing.T) {
 	state := newTestState()
-	state.SetCurrentTable(&fakePolicyTable{
-		text: []string{"", "value is 1", "value is 2"},
-		compiled: []dtrules.Object{
-			nil,
-			&pushString{value: "value is 1"},
-			&pushString{value: "value is 2"},
-		},
-	})
-	state.SetANode(&fakeANode{cols: []int{2}})
+	state.AppendPolicyStatement(dtrules.NewRString("first"))
+	state.AppendPolicyStatement(dtrules.NewRString("second"))
 
 	if err := opPolicyStatements(state); err != nil {
 		t.Fatalf("opPolicyStatements: %v", err)
 	}
 	got := policyResult(t, state)
-	if len(got) != 1 || got[0] != "value is 2" {
-		t.Errorf("got %q, want [\"value is 2\"]", got)
+	if len(got) != 2 || got[0] != "first" || got[1] != "second" {
+		t.Errorf("got %q, want [\"first\" \"second\"] in fire order", got)
 	}
 	if depth := state.DataStackDepth(); depth != 0 {
 		t.Errorf("operator left %d extra values on the stack", depth)
 	}
 }
 
-// A node reached by several columns — an ALL table, or columns the optimizer
-// merged — reports each of their statements, in column order.
-func TestPolicyStatementsForMergedColumns(t *testing.T) {
-	state := newTestState()
-	state.SetCurrentTable(&fakePolicyTable{
-		text: []string{"", "first", "", "third"},
-		compiled: []dtrules.Object{
-			nil,
-			&pushString{value: "first"},
-			nil,
-			&pushString{value: "third"},
-		},
-	})
-	state.SetANode(&fakeANode{cols: []int{1, 2, 3}})
-
-	if err := opPolicyStatements(state); err != nil {
-		t.Fatalf("opPolicyStatements: %v", err)
-	}
-	got := policyResult(t, state)
-	if len(got) != 2 || got[0] != "first" || got[1] != "third" {
-		t.Errorf("got %q, want [\"first\" \"third\"] — column 2 has no statement", got)
-	}
-}
-
-// Without a compiled form (older XML that carries only the description) the
-// authored text is used as-is rather than dropped.
-func TestPolicyStatementsFallsBackToText(t *testing.T) {
-	state := newTestState()
-	state.SetCurrentTable(&fakePolicyTable{text: []string{"", "uncompiled"}})
-	state.SetANode(&fakeANode{cols: []int{1}})
-
-	if err := opPolicyStatements(state); err != nil {
-		t.Fatalf("opPolicyStatements: %v", err)
-	}
-	got := policyResult(t, state)
-	if len(got) != 1 || got[0] != "uncompiled" {
-		t.Errorf("got %q, want [\"uncompiled\"]", got)
-	}
-}
-
-// Outside a decision-table action there is no column, so the operator yields
-// an empty array instead of failing the rule.
-func TestPolicyStatementsOutsideATable(t *testing.T) {
+// TestPolicyStatementsBeforeAnyColumnFires: a run that has concluded nothing
+// reports nothing, rather than failing.
+func TestPolicyStatementsBeforeAnyColumnFires(t *testing.T) {
 	state := newTestState()
 
 	if err := opPolicyStatements(state); err != nil {
@@ -142,5 +72,33 @@ func TestPolicyStatementsOutsideATable(t *testing.T) {
 	}
 	if got := policyResult(t, state); len(got) != 0 {
 		t.Errorf("got %q, want an empty array", got)
+	}
+}
+
+// TestPolicyStatementsArrayIsLive is what makes `clear the policy statements`
+// work: it compiles to `policystatements cleararray`, so the operator has to
+// hand back the accumulator itself and not a copy of it.
+func TestPolicyStatementsArrayIsLive(t *testing.T) {
+	state := newTestState()
+	state.AppendPolicyStatement(dtrules.NewRString("before the clear"))
+
+	if err := opPolicyStatements(state); err != nil {
+		t.Fatalf("opPolicyStatements: %v", err)
+	}
+	if err := opClearArray(state); err != nil {
+		t.Fatalf("cleararray: %v", err)
+	}
+
+	if got := state.PolicyStatements().Size(); got != 0 {
+		t.Errorf("accumulator still holds %d statements after clear", got)
+	}
+
+	state.AppendPolicyStatement(dtrules.NewRString("after the clear"))
+	if err := opPolicyStatements(state); err != nil {
+		t.Fatalf("opPolicyStatements: %v", err)
+	}
+	got := policyResult(t, state)
+	if len(got) != 1 || got[0] != "after the clear" {
+		t.Errorf("got %q, want only the statement recorded after the clear", got)
 	}
 }
