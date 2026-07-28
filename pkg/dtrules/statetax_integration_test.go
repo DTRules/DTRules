@@ -37,7 +37,7 @@ func TestStateTaxIntegration(t *testing.T) {
 	rs := session.NewRuleSet("StateTax")
 
 	// Load the EDD
-	eddPath := filepath.Join(stateTaxDir, "repository/xml/StateTax_edd.xml")
+	eddPath := filepath.Join(stateTaxDir, "xml/StateTax_edd.xml")
 	eddFile, err := os.Open(eddPath)
 	if err != nil {
 		t.Fatalf("Failed to open EDD file: %v", err)
@@ -72,7 +72,7 @@ func TestStateTaxIntegration(t *testing.T) {
 	}
 
 	// Load the decision tables
-	dtPath := filepath.Join(stateTaxDir, "repository/xml/StateTax_dt.xml")
+	dtPath := filepath.Join(stateTaxDir, "xml/StateTax_dt.xml")
 	dtFile, err := os.Open(dtPath)
 	if err != nil {
 		t.Fatalf("Failed to open DT file: %v", err)
@@ -124,7 +124,7 @@ func TestStateTaxIntegration(t *testing.T) {
 	t.Log("Session created successfully")
 
 	// Load the mapping
-	mapPath := filepath.Join(stateTaxDir, "repository/xml/StateTax_map.xml")
+	mapPath := filepath.Join(stateTaxDir, "xml/StateTax_map.xml")
 	mapFile, err := os.Open(mapPath)
 	if err != nil {
 		t.Fatalf("Failed to open mapping file: %v", err)
@@ -173,12 +173,12 @@ func TestStateTaxIntegration(t *testing.T) {
 
 	// Execute the decision table
 	state := sess.GetState()
-	err = dtObj.Execute(state)
-	if err != nil {
-		t.Logf("Decision table execution error (may be expected if not all operators implemented): %v", err)
-	} else {
-		t.Log("Decision table executed successfully")
+	// Execution failures are failures. Logging and continuing is how the
+	// missing policystatements operator (#949) survived unnoticed.
+	if err = dtObj.Execute(state); err != nil {
+		t.Fatalf("Decision table execution failed: %v", err)
 	}
+	t.Log("Decision table executed successfully")
 
 	// Check results
 	jobEntity, err := state.EntityFetch(0)
@@ -203,7 +203,7 @@ func TestStateTaxEDDLoad(t *testing.T) {
 
 	rs := session.NewRuleSet("StateTax")
 
-	eddPath := filepath.Join(stateTaxDir, "repository/xml/StateTax_edd.xml")
+	eddPath := filepath.Join(stateTaxDir, "xml/StateTax_edd.xml")
 	eddFile, err := os.Open(eddPath)
 	if err != nil {
 		t.Fatalf("Failed to open EDD file: %v", err)
@@ -272,7 +272,7 @@ func TestStateTaxDTLoad(t *testing.T) {
 	rs := session.NewRuleSet("StateTax")
 
 	// Must load EDD first
-	eddPath := filepath.Join(stateTaxDir, "repository/xml/StateTax_edd.xml")
+	eddPath := filepath.Join(stateTaxDir, "xml/StateTax_edd.xml")
 	eddFile, err := os.Open(eddPath)
 	if err != nil {
 		t.Fatalf("Failed to open EDD file: %v", err)
@@ -284,7 +284,7 @@ func TestStateTaxDTLoad(t *testing.T) {
 	}
 
 	// Load decision tables
-	dtPath := filepath.Join(stateTaxDir, "repository/xml/StateTax_dt.xml")
+	dtPath := filepath.Join(stateTaxDir, "xml/StateTax_dt.xml")
 	dtFile, err := os.Open(dtPath)
 	if err != nil {
 		t.Fatalf("Failed to open DT file: %v", err)
@@ -344,7 +344,7 @@ func findStateTaxDir(t *testing.T) string {
 		if err != nil {
 			continue
 		}
-		if _, err := os.Stat(filepath.Join(absPath, "repository/xml/StateTax_edd.xml")); err == nil {
+		if _, err := os.Stat(filepath.Join(absPath, "xml/StateTax_edd.xml")); err == nil {
 			return absPath
 		}
 	}
@@ -357,7 +357,7 @@ func findStateTaxDir(t *testing.T) string {
 	}
 
 	for _, p := range knownPaths {
-		if _, err := os.Stat(filepath.Join(p, "repository/xml/StateTax_edd.xml")); err == nil {
+		if _, err := os.Stat(filepath.Join(p, "xml/StateTax_edd.xml")); err == nil {
 			return p
 		}
 	}
