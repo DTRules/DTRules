@@ -95,6 +95,25 @@ func TestStateTaxScenarios(t *testing.T) {
 func runStateTaxScenario(t *testing.T, dir, scenarioPath string) int {
 	t.Helper()
 
+	sess := loadStateTaxScenario(t, dir, scenarioPath)
+	state := sess.GetState()
+
+	dtObj, err := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Compute_Tax"))
+	if err != nil {
+		t.Fatalf("GetDecisionTable: %v", err)
+	}
+	if err := dtObj.Execute(state); err != nil {
+		t.Fatalf("Compute_Tax: %v", err)
+	}
+
+	return resultTaxOwed(t, state)
+}
+
+// loadStateTaxScenario builds a session with the rules loaded and one
+// scenario's data mapped in, ready to execute.
+func loadStateTaxScenario(t *testing.T, dir, scenarioPath string) dtrules.Session {
+	t.Helper()
+
 	rs := session.NewRuleSet("StateTax")
 	if err := rs.LoadFromDirectory(filepath.Join(dir, "xml")); err != nil {
 		t.Fatalf("LoadFromDirectory: %v", err)
@@ -129,17 +148,7 @@ func runStateTaxScenario(t *testing.T, dir, scenarioPath string) int {
 		t.Fatalf("LoadDataAndPush: %v", err)
 	}
 
-	dtObj, err := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Compute_Tax"))
-	if err != nil {
-		t.Fatalf("GetDecisionTable: %v", err)
-	}
-
-	state := sess.GetState()
-	if err := dtObj.Execute(state); err != nil {
-		t.Fatalf("Compute_Tax: %v", err)
-	}
-
-	return resultTaxOwed(t, state)
+	return sess
 }
 
 // resultTaxOwed digs the computed tax out of job.results, which Evaluate_Results
@@ -179,4 +188,70 @@ func resultTaxOwed(t *testing.T, state dtrules.State) int {
 		t.Fatalf("result.taxOwed is not an integer (%s): %v", owed.StringValue(), err)
 	}
 	return int(v)
+}
+
+// TestStateTaxPolicyStatementsDocumentTheRun is the cross-table half of the
+// policy-statement report (#956): statements collect as columns fire, so one
+// run of the entry table yields the path it took through every table it
+// performed — which is what lets a driver document conclusions it did not
+// reach itself.
+//
+// This is the household case in miniature. Clearing between units of work and
+// draining into a per-unit field is how "5 people, each evaluated for a set of
+// programs" becomes a report per person.
+func TestStateTaxPolicyStatementsDocumentTheRun(t *testing.T) {
+	dir := findStateTaxDir(t)
+	if dir == "" {
+		t.Skip("StateTax sample project not found")
+	}
+
+	sess := loadStateTaxScenario(t, dir, filepath.Join(dir, "testfiles/TestScenarios/TestCase_AL_progressive.xml"))
+	state := sess.GetState()
+
+	dtObj, err := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Compute_Tax"))
+	if err != nil {
+		t.Fatalf("GetDecisionTable: %v", err)
+	}
+	if err := dtObj.Execute(state); err != nil {
+		t.Fatalf("Compute_Tax: %v", err)
+	}
+
+	// One statement per table that fired a column carrying one, in fire
+	// order, each rendered against the data as of that decision.
+	want := []string{
+		"Computing progressive-bracket tax for Alabama",
+		"Adding WA income of $55000 to gross income",
+		"Filing as Single: deduction $3000, exemption $1500",
+		"Taxable income computed as AGI minus deductions and exemptions",
+		"Applied bracket: 500 bps on income above $3000",
+	}
+
+	report := state.PolicyStatements()
+	if report.Size() != len(want) {
+		var lines []string
+		for i := 0; i < report.Size(); i++ {
+			e, err := report.Get(i)
+			if err != nil {
+				t.Fatalf("report[%d]: %v", i, err)
+			}
+			lines = append(lines, e.StringValue())
+		}
+		t.Fatalf("report holds %d statements, want %d:\n%s", report.Size(), len(want), strings.Join(lines, "\n"))
+	}
+	for i, expected := range want {
+		entry, err := report.Get(i)
+		if err != nil {
+			t.Fatalf("report[%d]: %v", i, err)
+		}
+		if got := entry.StringValue(); got != expected {
+			t.Errorf("report[%d] = %q, want %q", i, got, expected)
+		}
+	}
+
+	// `clear the policy statements` starts the next unit of work — the same
+	// reset a per-person report does between household members.
+	report.Clear()
+	if report.Size() != 0 {
+		t.Errorf("report still holds %d statements after clear", report.Size())
+	}
 }

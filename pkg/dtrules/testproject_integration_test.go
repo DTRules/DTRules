@@ -168,24 +168,54 @@ func TestTestProjectIntegration(t *testing.T) {
 	}
 	t.Log("Decision table executed successfully")
 
-	// Check results on the job entity - notes should have been populated
+	// job.notes is the report the table builds: `clear the policy statements`
+	// runs once per `for all things` pass, the fired column records what it
+	// concluded about that thing, and `add the policy statements to the
+	// job.notes` copies it in. So the report is one statement per thing, in
+	// order, with `{thing.value}` resolved against that thing (#956).
 	jobEntity, err := state.EntityFetch(0)
 	if err != nil {
-		t.Logf("Could not fetch job entity: %v", err)
-	} else {
-		t.Logf("Entity at stack position 0: %s", jobEntity.GetName().StringValue())
+		t.Fatalf("Could not fetch job entity: %v", err)
+	}
 
-		// Try to get the notes array (populated by the decision table)
-		notes, err := jobEntity.Get(dtrules.GetRName("notes"))
-		if err == nil && notes != nil {
-			t.Logf("Notes: %s", notes.StringValue())
-		}
+	notesObj, err := jobEntity.Get(dtrules.GetRName("notes"))
+	if err != nil {
+		t.Fatalf("job.notes: %v", err)
+	}
+	notes, err := notesObj.RArrayValue()
+	if err != nil {
+		t.Fatalf("job.notes is not an array: %v", err)
+	}
 
-		// Try to get the things array
-		things, err := jobEntity.Get(dtrules.GetRName("things"))
-		if err == nil && things != nil {
-			t.Logf("Things: %s", things.StringValue())
+	want := []string{
+		"thing.value == 1",
+		"thing.value == 2",
+		"thing.value == 3",
+		"thing.value is out of range, i.e.  99",
+	}
+	if notes.Size() != len(want) {
+		t.Fatalf("job.notes holds %d statements, want %d: %s", notes.Size(), len(want), notesObj.StringValue())
+	}
+	for i, expected := range want {
+		entry, err := notes.Get(i)
+		if err != nil {
+			t.Fatalf("job.notes[%d]: %v", i, err)
 		}
+		if got := entry.StringValue(); got != expected {
+			t.Errorf("job.notes[%d] = %q, want %q", i, got, expected)
+		}
+	}
+
+	things, err := jobEntity.Get(dtrules.GetRName("things"))
+	if err != nil {
+		t.Fatalf("job.things: %v", err)
+	}
+	thingArr, err := things.RArrayValue()
+	if err != nil {
+		t.Fatalf("job.things is not an array: %v", err)
+	}
+	if thingArr.Size() != 4 {
+		t.Errorf("job.things holds %d entities, want 4 — the mapping did not build the test data", thingArr.Size())
 	}
 }
 

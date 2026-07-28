@@ -604,7 +604,7 @@ Array Expressions (arrayExpr)
 ------------------------------
 Sources:
     myArray                        typed array field
-    policy statements              special context array
+    policy statements              the run's policy-statement report
     taxpayer's accounts            possessive array
 
 Constructors:
@@ -1272,6 +1272,45 @@ BALANCED:
   - Requires all condition combinations to be defined
   - Compile-time check for completeness
   - Use for: exhaustive rule sets
+
+
+Policy Statements
+-----------------
+
+A policy statement documents the conclusion a column reached. Each rule
+column can carry one, and the text is a template: {expr} substitutes a
+runtime value.
+
+    Column 4: thing.value is out of range, i.e.  {thing.value}
+
+Statements collect on their own. When a column fires, its statement is
+rendered against the data as of that decision and appended to the run's
+policy-statement report — no rule has to ask, and the report spans every
+table performed since the last clear. Two EL phrases use it:
+
+    add the policy statements to <array>    copy the report into a field
+    clear the policy statements             start the next report
+
+That is what documents a run rather than a single table. Evaluate a
+household member against every program, then read back everything those
+program tables concluded for that member:
+
+    for all household.members
+      clear the policy statements;
+      perform Evaluate_All_Programs;
+      add new person_report entity to context of this table;
+      set person_report.person = person.name;
+      add the policy statements to person_report.findings;
+      add person_report to household.report;
+
+Without the clear, each member's findings would also carry every earlier
+member's — the report accumulates until something empties it.
+
+A table that reports per iteration puts the clear in an initial action,
+which runs once per pass of its context. TestProject does exactly this: a
+"for all things" context, "clear the policy statements" as the initial
+action, and "add the policy statements to the job.notes" as the action —
+one statement per thing, each naming that thing's value.
 
 
 Condition Values
@@ -2156,6 +2195,10 @@ createentity      new <type> entity            (eexpr; also: create <type> as x)
 entitypush        add <entity> to context of this table
 memberof          <value> is one of <array>    (negated: is not one of)
 addto             add <value> to <array>       (emits: <value> <array> swap addto)
+addarray          add <array> to <array>       (element-wise; also what
+                  "add the policy statements to X" emits)
+policystatements  the policy statements        (the run's report; see
+                  dtrules docs decision-tables)
 xdef              set <entity.field> = <expr>  (emits: <expr> /<field> xdef)
 performtable      perform <TableName>          (runs the table's contexts too)
 executetable      execute <TableName>          (skips contexts; use inside own context)

@@ -25,7 +25,14 @@ dup things forall pop
 </context_postfix>
 </context_details>
 </contexts>
-<initial_actions></initial_actions>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>clear the policy statements</initial_action_dsl>
+<initial_action_postfix>
+policystatements cleararray
+</initial_action_postfix>
+</initial_action>
+</initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
@@ -70,7 +77,7 @@ otherwise
 <action_comment></action_comment>
 <action_dsl>add the policy statements to the job.notes</action_dsl>
 <action_postfix>
-policystatements job.notes swap addto
+policystatements job.notes true addarray
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
