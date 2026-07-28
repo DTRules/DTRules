@@ -16,6 +16,7 @@ package authoring
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -25,13 +26,14 @@ import (
 // Table is a typed view of a single decision table. All mutations validate EL
 // before committing, so invalid expressions are rejected at the API boundary.
 type Table struct {
-	Name           string
-	Number         int // TABLE_NUMBER — load/sheet ordering; 0 means unset
-	Policy         string
-	Contexts       []Context
-	InitialActions []InitialAction
-	Conditions     []Condition
-	Actions        []Action
+	Name             string
+	Number           int // TABLE_NUMBER — load/sheet ordering; 0 means unset
+	Policy           string
+	Contexts         []Context
+	InitialActions   []InitialAction
+	Conditions       []Condition
+	Actions          []Action
+	PolicyStatements []PolicyStatement
 
 	xml     *excel.DecisionTableXML
 	symbols map[string]string
@@ -69,6 +71,22 @@ type Action struct {
 	Comment string
 	DSL     string
 	Columns map[int]bool // col -> executes on that column?
+}
+
+// PolicyStatement is the statement a rule column contributes when it fires.
+//
+// Description is a template, not an EL expression: `{expr}` substitutes the
+// runtime value of expr, so
+//
+//	State {state_config.state_code} has no income tax
+//
+// reports the actual state. Like every other postfix in the authoring view,
+// the compiled form is regenerated from Description on write-out — see
+// excel.CompilePolicyStatement — so hand-written statement postfix that has
+// drifted from its description is replaced, not preserved (#817).
+type PolicyStatement struct {
+	Column      int // 1-based rule column
+	Description string
 }
 
 // newTable builds a Table view from an underlying XML struct.
@@ -143,6 +161,18 @@ func (t *Table) syncFromXML() {
 			Columns: cols,
 		})
 	}
+
+	t.PolicyStatements = nil
+	for _, ps := range t.xml.PolicyStatements {
+		col, _ := strconv.Atoi(strings.TrimSpace(ps.Column))
+		t.PolicyStatements = append(t.PolicyStatements, PolicyStatement{
+			Column:      col,
+			Description: ps.Description,
+		})
+	}
+	sort.Slice(t.PolicyStatements, func(i, j int) bool {
+		return t.PolicyStatements[i].Column < t.PolicyStatements[j].Column
+	})
 }
 
 // syncToXML writes the typed view back into the underlying XML model,
@@ -219,6 +249,10 @@ func (t *Table) syncToXML() {
 				cols = append(cols, excel.ColumnValueXML{Number: n, Value: v})
 			}
 		}
+		// Go map iteration is randomized, so writing columns in map order
+		// reshuffled them on every save and every authoring write produced a
+		// spurious diff. Emit them in column order.
+		sortColumns(cols)
 		entry := excel.ConditionXML{
 			Number:  strconv.Itoa(c.Number),
 			Comment: c.Comment,
@@ -238,6 +272,7 @@ func (t *Table) syncToXML() {
 				cols = append(cols, excel.ColumnValueXML{Number: n, Value: "X"})
 			}
 		}
+		sortColumns(cols)
 		entry := excel.ActionXML{
 			Number:  strconv.Itoa(a.Number),
 			Comment: a.Comment,
@@ -247,6 +282,61 @@ func (t *Table) syncToXML() {
 		entry.Postfix = compileDSLOrEmpty(a.DSL, t.symbols, "action")
 		t.xml.Actions = append(t.xml.Actions, entry)
 	}
+
+	// Policy statements. Their postfix is compiled from the description
+	// template for the same reason every other postfix is (#817): a stored
+	// form that has drifted from the text it claims to render is a lie the
+	// next build would erase anyway.
+	t.xml.PolicyStatements = nil
+	for _, ps := range t.PolicyStatements {
+		t.xml.PolicyStatements = append(t.xml.PolicyStatements, excel.PolicyStatementXML{
+			Column:      strconv.Itoa(ps.Column),
+			Description: ps.Description,
+			Postfix:     excel.CompilePolicyStatement(ps.Description),
+		})
+	}
+}
+
+// sortColumns orders column entries by column number so write-out is
+// deterministic regardless of Go's randomized map iteration.
+func sortColumns(cols []excel.ColumnValueXML) {
+	sort.Slice(cols, func(i, j int) bool { return cols[i].Number < cols[j].Number })
+}
+
+// SetPolicyStatement sets the statement for a rule column, replacing any
+// existing one. Statements stay sorted by column.
+func (t *Table) SetPolicyStatement(column int, description string) error {
+	if column < 1 {
+		return fmt.Errorf("policy statement column must be >= 1, got %d", column)
+	}
+	for i := range t.PolicyStatements {
+		if t.PolicyStatements[i].Column == column {
+			t.PolicyStatements[i].Description = description
+			t.syncToXML()
+			return nil
+		}
+	}
+	t.PolicyStatements = append(t.PolicyStatements, PolicyStatement{
+		Column:      column,
+		Description: description,
+	})
+	sort.Slice(t.PolicyStatements, func(i, j int) bool {
+		return t.PolicyStatements[i].Column < t.PolicyStatements[j].Column
+	})
+	t.syncToXML()
+	return nil
+}
+
+// DeletePolicyStatement removes the statement for a rule column.
+func (t *Table) DeletePolicyStatement(column int) error {
+	for i := range t.PolicyStatements {
+		if t.PolicyStatements[i].Column == column {
+			t.PolicyStatements = append(t.PolicyStatements[:i], t.PolicyStatements[i+1:]...)
+			t.syncToXML()
+			return nil
+		}
+	}
+	return fmt.Errorf("no policy statement for column %d", column)
 }
 
 // compileDSLOrEmpty compiles a single element's DSL via the EL compiler

@@ -42,6 +42,7 @@ type tablePatch struct {
 	Policy          string `json:"policy,omitempty"`
 	DSL             string `json:"dsl,omitempty"`
 	Comment         string `json:"comment,omitempty"`
+	Description     string `json:"description,omitempty"`
 	File            string `json:"file,omitempty"`
 	Range           string `json:"range,omitempty"`
 	Reason          string `json:"reason,omitempty"`
@@ -242,6 +243,18 @@ func (p *tablePatch) apply(proj *authoring.Project, t *authoring.Table) error {
 
 	case "delete-context":
 		return t.DeleteContext(p.Index)
+
+	case "set-policy-statement":
+		if p.Column < 1 {
+			return fmt.Errorf("set-policy-statement requires \"column\" >= 1")
+		}
+		return t.SetPolicyStatement(p.Column, p.Description)
+
+	case "delete-policy-statement":
+		if p.Column < 1 {
+			return fmt.Errorf("delete-policy-statement requires \"column\" >= 1")
+		}
+		return t.DeletePolicyStatement(p.Column)
 
 	default:
 		return fmt.Errorf("unknown op %q (see `dtrules table schema --patch`)", p.Op)

@@ -43,6 +43,11 @@ type MapCreateEntity struct {
 	Entity string
 	Tag    string
 	ID     string
+	// List is the optional list='<array field>' attribute: the created
+	// entity is appended to that array on its enclosing entity. Dropping it
+	// leaves the array empty at runtime, and the rules that iterate it
+	// silently compute nothing — StateTax's brackets went this way.
+	List string
 }
 
 // MapEntityDecl is one <entities><entity name='X' number='1|*'/> row.
