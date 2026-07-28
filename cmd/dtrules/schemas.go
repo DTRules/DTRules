@@ -78,6 +78,18 @@ const tableSchemaJSON = `{
           }
         }
       }
+    },
+    "policy_statements": {
+      "type": "array",
+      "description": "what each column reports when it fires",
+      "items": {
+        "type": "object",
+        "required": ["column", "description"],
+        "properties": {
+          "column":      {"type": "integer", "minimum": 1},
+          "description": {"type": "string", "description": "template text; {expr} substitutes a runtime value"}
+        }
+      }
     }
   }
 }
@@ -115,7 +127,9 @@ const tablePatchSchema = `{
         "delete-initial-action",
         "add-context",
         "update-context",
-        "delete-context"
+        "delete-context",
+        "set-policy-statement",
+        "delete-policy-statement"
       ]
     },
     "column":           {"type": "integer", "minimum": 1},
@@ -132,6 +146,7 @@ const tablePatchSchema = `{
     "policy":           {"type": "string"},
     "dsl":              {"type": "string"},
     "comment":          {"type": "string"},
+    "description":      {"type": "string", "description": "set-policy-statement: template text; {expr} substitutes a runtime value"},
     "conditions": {
       "type": "object",
       "description": "add-column / update-column: condition-number (stringified) to Y/N/-",

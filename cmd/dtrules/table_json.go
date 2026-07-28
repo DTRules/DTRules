@@ -39,6 +39,9 @@ type TableJSON struct {
 	InitialActions []InitialActionJSON `json:"initial_actions,omitempty"`
 	Conditions     []ConditionJSON     `json:"conditions,omitempty"`
 	Actions        []ActionJSON        `json:"actions,omitempty"`
+	// PolicyStatements is what each column reports when it fires. Empty for
+	// the many tables that have none.
+	PolicyStatements []PolicyStatementJSON `json:"policy_statements,omitempty"`
 }
 
 // ContextJSON is a single context statement for a table.
@@ -66,6 +69,13 @@ type ActionJSON struct {
 	Comment string          `json:"comment,omitempty"`
 	DSL     string          `json:"dsl"`
 	Columns map[string]bool `json:"columns,omitempty"`
+}
+
+// PolicyStatementJSON mirrors authoring.PolicyStatement. Description is a
+// template: `{expr}` substitutes a runtime value.
+type PolicyStatementJSON struct {
+	Column      int    `json:"column"`
+	Description string `json:"description"`
 }
 
 // EDDJSON is the JSON projection of an EDD (entity data dictionary).
@@ -131,6 +141,12 @@ func tableToJSON(t *authoring.Table) TableJSON {
 			Comment: a.Comment,
 			DSL:     a.DSL,
 			Columns: intBoolMapToString(a.Columns),
+		})
+	}
+	for _, ps := range t.PolicyStatements {
+		out.PolicyStatements = append(out.PolicyStatements, PolicyStatementJSON{
+			Column:      ps.Column,
+			Description: ps.Description,
 		})
 	}
 	return out
@@ -245,6 +261,16 @@ func (tj *TableJSON) ApplyTo(t *authoring.Table) error {
 			Columns: cols,
 		}); err != nil {
 			return fmt.Errorf("actions[%d]: %w", i, err)
+		}
+	}
+	for i := len(t.PolicyStatements) - 1; i >= 0; i-- {
+		if err := t.DeletePolicyStatement(t.PolicyStatements[i].Column); err != nil {
+			return err
+		}
+	}
+	for i, ps := range tj.PolicyStatements {
+		if err := t.SetPolicyStatement(ps.Column, ps.Description); err != nil {
+			return fmt.Errorf("policy_statements[%d]: %w", i, err)
 		}
 	}
 	return nil
