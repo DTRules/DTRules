@@ -1,5 +1,8 @@
 <DTRules>
 
+  <!-- Entry table: what `dtrules run`, `dtrules debug` and the editor start from. -->
+  <entry>Compute_Eligibility</entry>
+
   <RuleSet name="SampleProject2" source="file">
      <RuleSetFilePath>/xml</RuleSetFilePath>
      <WorkingDirectory>/temp</WorkingDirectory>
