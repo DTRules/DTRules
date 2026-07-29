@@ -72,6 +72,14 @@ func TestSampleProjectsProduceLoadableTraces(t *testing.T) {
 			minColumns: 8, // income, group size, and the three program tables
 		},
 		{
+			// The embedding demo: same rules as CHIP, wrapped by an
+			// application. It had no scenarios of its own, so it carries a
+			// copy of CHIP's — without one there is nothing to demonstrate.
+			project:    "ChipApp",
+			input:      "testfiles/TestScenarios/TestCase_001.xml",
+			minColumns: 8,
+		},
+		{
 			project:    "Poker",
 			input:      "testfiles/TestScenarios/basic_scenarios.xml",
 			minColumns: 24, // 12 players, at least two tables deep
