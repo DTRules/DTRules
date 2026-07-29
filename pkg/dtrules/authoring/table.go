@@ -93,7 +93,7 @@ type PolicyStatement struct {
 func newTable(x *excel.DecisionTableXML, symbols map[string]string) *Table {
 	t := &Table{
 		Name:    x.TableName,
-		Policy:  x.AttributeFields.Type,
+		Policy:  x.AttributeFields.EffectiveType(),
 		xml:     x,
 		symbols: symbols,
 	}
@@ -116,7 +116,7 @@ func newTableWithProject(x *excel.DecisionTableXML, symbols map[string]string, p
 // can carry it back through write-out.
 func (t *Table) syncFromXML() {
 	t.Name = t.xml.TableName
-	t.Policy = t.xml.AttributeFields.Type
+	t.Policy = t.xml.AttributeFields.EffectiveType()
 	t.Number, _ = strconv.Atoi(strings.TrimSpace(t.xml.AttributeFields.TableNumber))
 
 	t.Contexts = nil
@@ -200,7 +200,11 @@ func (t *Table) syncToXML() {
 	tc := newTableCompiler(t.symbols)
 
 	t.xml.TableName = t.Name
+	// Write the canonical spelling and clear the legacy ones, so a table
+	// cannot end up carrying two different types.
 	t.xml.AttributeFields.Type = t.Policy
+	t.xml.AttributeFields.TypeUppercase = ""
+	t.xml.AttributeFields.TypeLowercase = ""
 	// Only write a number when one is set, so an unspecified number keeps the
 	// value AddTable auto-assigned rather than clobbering it with 0.
 	if t.Number > 0 {

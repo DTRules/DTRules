@@ -221,11 +221,33 @@ func (c *ContextsField) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 }
 
 // AttributeFieldsXML holds metadata fields for the table.
+//
+// The table type has three spellings in real DTRules XML — <Type>, <TYPE>
+// and <type> — and the runtime loader accepts all three. This model used to
+// read only <Type>, so a table written in the legacy uppercase form loaded
+// with an empty type and, on the next authoring write, was SAVED with an
+// empty <Type>: the policy that decides whether a table is FIRST, ALL or
+// BALANCED, silently erased. KidAid's tables are all <TYPE>.
+//
+// EffectiveType resolves the three; the marshaller writes <Type>.
 type AttributeFieldsXML struct {
-	Type        string `xml:"Type"`
-	Comments    string `xml:"COMMENTS"`
-	TableNumber string `xml:"TABLE_NUMBER"`
-	FilePath    string `xml:"FILE_PATH,omitempty"`
+	Type          string `xml:"Type"`
+	TypeUppercase string `xml:"TYPE,omitempty"`
+	TypeLowercase string `xml:"type,omitempty"`
+	Comments      string `xml:"COMMENTS"`
+	TableNumber   string `xml:"TABLE_NUMBER"`
+	FilePath      string `xml:"FILE_PATH,omitempty"`
+}
+
+// EffectiveType returns the table type from whichever spelling carries it.
+func (a AttributeFieldsXML) EffectiveType() string {
+	if a.Type != "" {
+		return a.Type
+	}
+	if a.TypeUppercase != "" {
+		return a.TypeUppercase
+	}
+	return a.TypeLowercase
 }
 
 // valueAfterColon returns everything after the first colon in a "Label: value"
@@ -618,7 +640,7 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 
 	// Attribute fields
 	f.WriteString("<attribute_fields>\n")
-	f.WriteString(fmt.Sprintf("<Type>%s</Type>\n", xmlEscapeText(table.AttributeFields.Type)))
+	f.WriteString(fmt.Sprintf("<Type>%s</Type>\n", xmlEscapeText(table.AttributeFields.EffectiveType())))
 	f.WriteString(fmt.Sprintf("<COMMENTS>%s</COMMENTS>\n", xmlEscapeText(table.AttributeFields.Comments)))
 	f.WriteString(fmt.Sprintf("<TABLE_NUMBER>%s</TABLE_NUMBER>\n", xmlEscapeText(table.AttributeFields.TableNumber)))
 	if table.AttributeFields.FilePath != "" {
