@@ -89,6 +89,42 @@ type PolicyStatement struct {
 	Description string
 }
 
+// HandCodedRows reports rows that carry postfix but no DSL, as
+// "<kind> <number>" strings.
+//
+// These rows are the one thing a recompile destroys. syncToXML regenerates
+// every postfix from its DSL (#817), so a row whose only content IS postfix
+// comes back empty — its logic deleted, silently, by an operation that looks
+// like normalization. Four sample projects lost rows that way before anyone
+// noticed, because the emptied rows were not covered by any scenario.
+//
+// Author the EL first (read the stored postfix, write the DSL that compiles
+// to it, check they match), then recompile.
+func (t *Table) HandCodedRows() []string {
+	var out []string
+	for i, c := range t.xml.Contexts.Details {
+		if strings.TrimSpace(c.Postfix) != "" && strings.TrimSpace(c.DSL) == "" {
+			out = append(out, fmt.Sprintf("context %d", i+1))
+		}
+	}
+	for i, ia := range t.xml.InitialActions {
+		if strings.TrimSpace(ia.EffectivePostfix()) != "" && strings.TrimSpace(ia.EffectiveDSL()) == "" {
+			out = append(out, fmt.Sprintf("initial action %d", i+1))
+		}
+	}
+	for _, c := range t.xml.Conditions {
+		if strings.TrimSpace(c.Postfix) != "" && strings.TrimSpace(c.DSL) == "" {
+			out = append(out, "condition "+c.Number)
+		}
+	}
+	for _, a := range t.xml.Actions {
+		if strings.TrimSpace(a.Postfix) != "" && strings.TrimSpace(a.DSL) == "" {
+			out = append(out, "action "+a.Number)
+		}
+	}
+	return out
+}
+
 // newTable builds a Table view from an underlying XML struct.
 func newTable(x *excel.DecisionTableXML, symbols map[string]string) *Table {
 	t := &Table{
