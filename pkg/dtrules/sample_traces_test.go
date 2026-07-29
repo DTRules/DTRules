@@ -85,6 +85,14 @@ func TestSampleProjectsProduceLoadableTraces(t *testing.T) {
 			minColumns: 8,
 		},
 		{
+			// The nested project: its repository/ IS the project (the campaign's
+			// one exception to deleting those), and it carries two rule sets in
+			// one xml/ — kidaid_* and sp2_*.
+			project:    "KidAid_Application/repository",
+			input:      "testfiles/TestScenarios/TestCase_001.xml",
+			minColumns: 8,
+		},
+		{
 			project:    "Poker",
 			input:      "testfiles/TestScenarios/basic_scenarios.xml",
 			minColumns: 24, // 12 players, at least two tables deep
