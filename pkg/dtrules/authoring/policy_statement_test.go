@@ -195,3 +195,41 @@ func TestLocalSlotsDoNotBleedBetweenTables(t *testing.T) {
 		t.Errorf("slot indices differ between tables that declare the same locals:\n  %s\n  %s", first, second)
 	}
 }
+
+// TestHandCodedRowsAreReportedBeforeARecompileEatsThem is the guard for the
+// one operation in this package that destroys content.
+//
+// syncToXML regenerates every postfix from its DSL, so a row whose only
+// content is postfix comes back empty — its logic gone, from an operation
+// that reads like normalization. Four sample projects lost rows that way
+// during the repair campaign, and no test caught it because the emptied rows
+// were not covered by any scenario. HandCodedRows names them first.
+func TestHandCodedRowsAreReportedBeforeARecompileEatsThem(t *testing.T) {
+	tbl := newTable(&excel.DecisionTableXML{
+		TableName: "Evaluate_MEDICAID_Eligibility",
+		Conditions: []excel.ConditionXML{
+			{Number: "1", DSL: "client.age > 18", Postfix: "client.age 18 >"},
+		},
+		Actions: []excel.ActionXML{
+			{Number: "1", DSL: "set client.eligible = false", Postfix: "false cvb /client.eligible xdef"},
+			// The shape that gets destroyed: postfix, no DSL.
+			{Number: "2", Postfix: `"not supported" client.notes swap addto`},
+		},
+	}, map[string]string{})
+
+	got := tbl.HandCodedRows()
+	if len(got) != 1 || got[0] != "action 2" {
+		t.Fatalf("HandCodedRows() = %v, want [\"action 2\"]", got)
+	}
+
+	// A table authored in EL throughout has nothing to report.
+	clean := newTable(&excel.DecisionTableXML{
+		TableName: "Clean",
+		Actions: []excel.ActionXML{
+			{Number: "1", DSL: "set client.eligible = true", Postfix: "true cvb /client.eligible xdef"},
+		},
+	}, map[string]string{})
+	if rows := clean.HandCodedRows(); len(rows) != 0 {
+		t.Errorf("a fully authored table reports %v, want nothing", rows)
+	}
+}

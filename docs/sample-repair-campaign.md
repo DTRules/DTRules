@@ -102,3 +102,21 @@ KidAid_Application → KidAid (partial; #927 items need Paul) → CorporateTax.
 - Task list: task #8 "Inventory all sample projects" created, in progress.
 - Nothing for this campaign has been committed yet; the only artifact is the
   scratchpad inventory scanner (broken, see above) and this plan.
+
+## Recompiling a project (learned the hard way, 2026-07-29)
+
+Re-applying a row's own DSL through `dtrules table patch update-condition-dsl`
+/ `update-action-dsl` recompiles the WHOLE table — that is how a project picks
+up compiler fixes. Two things to know before doing it:
+
+- **`set-policy` does not recompile.** It reports success and re-syncs
+  nothing; only the real mutators call `syncToXML`.
+- **It deletes hand-coded rows.** `syncToXML` regenerates every postfix from
+  its DSL, so a row whose only content IS postfix comes back empty. Check
+  `Table.HandCodedRows()` first and author the EL for anything it names —
+  read the stored postfix, write the DSL, confirm it compiles to the same
+  thing. CHIP, ChipApp, KidAid and KidAid_Application each lost rows this way
+  before anyone noticed, because the emptied rows were in no scenario.
+
+Always diff before committing a recompile. `+<Type></Type>` is what caught
+the type-erasure bug; missing `<*_postfix>` content is what catches this one.

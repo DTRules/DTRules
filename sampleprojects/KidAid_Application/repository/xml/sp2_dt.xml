@@ -1028,8 +1028,10 @@ false cvb /client.eligible xdef
 <action_details>
 <action_number>8</action_number>
 <action_comment>Add "Must be 18 or younger to qualify for KidAid" to client.notes</action_comment>
-<action_dsl />
-<action_postfix></action_postfix>
+<action_dsl>add "Must be 18 or younger to qualify for KidAid" to the client.notes</action_dsl>
+<action_postfix>
+"Must be 18 or younger to qualify for KidAid" client.notes swap addto
+</action_postfix>
 <action_column column_number="15" column_value="X" />
 </action_details>
 <action_details>
@@ -1120,8 +1122,10 @@ false cvb /client.eligible xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Note rejection reason; add "The System does not yet support Medicaid Applications" to client.notes</action_comment>
-<action_dsl />
-<action_postfix></action_postfix>
+<action_dsl>add "The System does not yet support Medicaid Applications" to the client.notes</action_dsl>
+<action_postfix>
+"The System does not yet support Medicaid Applications" client.notes swap addto
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
@@ -1192,8 +1196,10 @@ false cvb /client.eligible xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment>Note rejection reason; add "The System does not yet support Food Stamp Applications" to client.notes</action_comment>
-<action_dsl />
-<action_postfix></action_postfix>
+<action_dsl>add "The System does not yet support Food Stamp Applications" to the client.notes</action_dsl>
+<action_postfix>
+"The System does not yet support Food Stamp Applications" client.notes swap addto
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
