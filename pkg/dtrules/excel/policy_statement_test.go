@@ -168,3 +168,36 @@ func TestParseExporterFormatSkipsLegacyColumnNumberRow(t *testing.T) {
 		t.Errorf("policy description = %q, want %q", got, "first statement")
 	}
 }
+
+// TestLegacyTypeTagSurvivesAuthoring guards the table's policy against the
+// three spellings of its type element.
+//
+// Real DTRules XML writes <Type>, <TYPE> or <type>, and the runtime loader
+// accepts all three. The authoring model read only <Type>, so a table written
+// in the legacy uppercase form loaded with an empty type and was saved back
+// with an empty <Type> — silently erasing whether the table is FIRST, ALL or
+// BALANCED. Every KidAid table is <TYPE>, and a recompile flattened them all
+// until this was fixed.
+func TestLegacyTypeTagSurvivesAuthoring(t *testing.T) {
+	tests := map[string]AttributeFieldsXML{
+		"canonical": {Type: "FIRST"},
+		"uppercase": {TypeUppercase: "FIRST"},
+		"lowercase": {TypeLowercase: "FIRST"},
+	}
+	for name, attrs := range tests {
+		t.Run(name, func(t *testing.T) {
+			if got := attrs.EffectiveType(); got != "FIRST" {
+				t.Errorf("EffectiveType() = %q, want FIRST", got)
+			}
+		})
+	}
+
+	if got := (AttributeFieldsXML{}).EffectiveType(); got != "" {
+		t.Errorf("a table with no type at all reports %q, want empty", got)
+	}
+	// The canonical spelling wins when more than one is present.
+	both := AttributeFieldsXML{Type: "ALL", TypeUppercase: "FIRST"}
+	if got := both.EffectiveType(); got != "ALL" {
+		t.Errorf("EffectiveType() = %q, want the canonical <Type> to win", got)
+	}
+}

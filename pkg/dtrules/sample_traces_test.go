@@ -80,6 +80,11 @@ func TestSampleProjectsProduceLoadableTraces(t *testing.T) {
 			minColumns: 8,
 		},
 		{
+			project:    "KidAid",
+			input:      "testfiles/TestScenarios/TestCase_001.xml",
+			minColumns: 8,
+		},
+		{
 			project:    "Poker",
 			input:      "testfiles/TestScenarios/basic_scenarios.xml",
 			minColumns: 24, // 12 players, at least two tables deep
