@@ -112,15 +112,6 @@ func BenchmarkCHIPDecisionTable(b *testing.B) {
 
 // TestCHIPPerformance runs timing tests on CHIP decision tables
 func TestCHIPPerformance(t *testing.T) {
-	// Skipped: CHIP still does not execute end to end. Calculate_Group_Size
-	// works now — context locals resolve (#965) and `is the <R> of` compiles
-	// again (#927) — and execution reaches Compute_Eligibility action 3,
-	// which refers to `fpl` with nothing on the entity stack to resolve it.
-	// One more authoring defect, tracked in #962.
-	//
-	// This test asserted a successful run while the mapping loaded nothing
-	// into the entities it read, so it used to pass on a run that did nothing.
-	t.Skip("CHIP execution is incomplete — see #962")
 
 	chipDir := findCHIPDir(t)
 	if chipDir == "" {

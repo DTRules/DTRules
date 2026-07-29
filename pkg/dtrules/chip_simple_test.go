@@ -41,7 +41,6 @@ func TestCHIPSimpleExecution(t *testing.T) {
 	//
 	// This test asserted a successful run while the mapping loaded nothing
 	// into the entities it read, so it used to pass on a run that did nothing.
-	t.Skip("CHIP execution is incomplete — see #962")
 
 	// Skipped: CHIP does not execute. Calculate_Group_Size declares
 	// `local entity ApplyingClient = client` in a context row and refers to it
