@@ -67,6 +67,11 @@ func TestSampleProjectsProduceLoadableTraces(t *testing.T) {
 			minColumns: 5, // orchestrator + medication, dose, CCr, interactions
 		},
 		{
+			project:    "CHIP",
+			input:      "testfiles/TestScenarios/TestCase_001.xml",
+			minColumns: 8, // income, group size, and the three program tables
+		},
+		{
 			project:    "Poker",
 			input:      "testfiles/TestScenarios/basic_scenarios.xml",
 			minColumns: 24, // 12 players, at least two tables deep
