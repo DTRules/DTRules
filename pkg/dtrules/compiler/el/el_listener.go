@@ -208,6 +208,12 @@ type ELListener interface {
 	// EnterForallAllowRemove is called when entering the forallAllowRemove production.
 	EnterForallAllowRemove(c *ForallAllowRemoveContext)
 
+	// EnterForallReverse is called when entering the forallReverse production.
+	EnterForallReverse(c *ForallReverseContext)
+
+	// EnterForallReverseWhere is called when entering the forallReverseWhere production.
+	EnterForallReverseWhere(c *ForallReverseWhereContext)
+
 	// EnterForallInEntity is called when entering the forallInEntity production.
 	EnterForallInEntity(c *ForallInEntityContext)
 
@@ -2196,6 +2202,12 @@ type ELListener interface {
 
 	// ExitForallAllowRemove is called when exiting the forallAllowRemove production.
 	ExitForallAllowRemove(c *ForallAllowRemoveContext)
+
+	// ExitForallReverse is called when exiting the forallReverse production.
+	ExitForallReverse(c *ForallReverseContext)
+
+	// ExitForallReverseWhere is called when exiting the forallReverseWhere production.
+	ExitForallReverseWhere(c *ForallReverseWhereContext)
 
 	// ExitForallInEntity is called when exiting the forallInEntity production.
 	ExitForallInEntity(c *ForallInEntityContext)

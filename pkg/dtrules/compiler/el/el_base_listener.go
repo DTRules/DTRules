@@ -422,6 +422,18 @@ func (s *BaseELListener) EnterForallAllowRemove(ctx *ForallAllowRemoveContext) {
 // ExitForallAllowRemove is called when production forallAllowRemove is exited.
 func (s *BaseELListener) ExitForallAllowRemove(ctx *ForallAllowRemoveContext) {}
 
+// EnterForallReverse is called when production forallReverse is entered.
+func (s *BaseELListener) EnterForallReverse(ctx *ForallReverseContext) {}
+
+// ExitForallReverse is called when production forallReverse is exited.
+func (s *BaseELListener) ExitForallReverse(ctx *ForallReverseContext) {}
+
+// EnterForallReverseWhere is called when production forallReverseWhere is entered.
+func (s *BaseELListener) EnterForallReverseWhere(ctx *ForallReverseWhereContext) {}
+
+// ExitForallReverseWhere is called when production forallReverseWhere is exited.
+func (s *BaseELListener) ExitForallReverseWhere(ctx *ForallReverseWhereContext) {}
+
 // EnterForallInEntity is called when production forallInEntity is entered.
 func (s *BaseELListener) EnterForallInEntity(ctx *ForallInEntityContext) {}
 

@@ -208,6 +208,12 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#forallAllowRemove.
 	VisitForallAllowRemove(ctx *ForallAllowRemoveContext) interface{}
 
+	// Visit a parse tree produced by ELParser#forallReverse.
+	VisitForallReverse(ctx *ForallReverseContext) interface{}
+
+	// Visit a parse tree produced by ELParser#forallReverseWhere.
+	VisitForallReverseWhere(ctx *ForallReverseWhereContext) interface{}
+
 	// Visit a parse tree produced by ELParser#forallInEntity.
 	VisitForallInEntity(ctx *ForallInEntityContext) interface{}
 
