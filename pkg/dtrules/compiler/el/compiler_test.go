@@ -990,3 +990,35 @@ func TestRelationshipIsOf(t *testing.T) {
 		})
 	}
 }
+
+// TestForallAllowingRemovalIteratesInReverse: the `allowing array to be
+// removed` phrase must emit forallr.
+//
+// Walking an array forward while the body removes elements skips entries —
+// the iterator's index and the array's contents move against each other.
+// That is precisely why `remove each ... where ...` has always compiled to
+// forallr. The three `allowing array to be removed` variants emitted plain
+// `forall`, so a rule that announced it was going to remove elements got the
+// iteration order that makes removal unsafe.
+func TestForallAllowingRemovalIteratesInReverse(t *testing.T) {
+	symbols := map[string]string{"clients": "array", "age": "integer"}
+	tests := []struct{ name, el, want string }{
+		{"plain forall stays forward", "for all clients", "dup clients forall pop"},
+		{"allowing removal goes in reverse", "for all clients allowing array to be removed", "dup clients forallr pop"},
+		{"where + allowing removal", "for all clients where age > 18 allowing array to be removed",
+			"{ { dup execute } age 18 > if } clients forallr pop"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewCompiler()
+			c.SetSymbols(symbols)
+			got, err := c.CompileContext(tt.el)
+			if err != nil {
+				t.Fatalf("CompileContext(%q): %v", tt.el, err)
+			}
+			if n := strings.Join(strings.Fields(got), " "); n != tt.want {
+				t.Errorf("CompileContext(%q)\n got %s\nwant %s", tt.el, n, tt.want)
+			}
+		})
+	}
+}
