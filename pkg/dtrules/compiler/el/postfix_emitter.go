@@ -3314,10 +3314,17 @@ func (e *PostfixEmitter) VisitForallSimple(ctx *ForallSimpleContext) interface{}
 }
 
 // VisitForallAllowRemove: `for all <array> allowing array to be removed`.
+// The `allowing array to be removed` variants iterate in REVERSE. That is
+// the whole point of the phrase: walking forward while the body removes
+// elements skips entries, because the iterator's index and the array's
+// contents move against each other. VisitRemoveEachWhere has always used
+// forallr for exactly this reason. These three emitted plain `forall`, so a
+// rule that said it was going to remove elements got the iteration order
+// that makes removal unsafe.
 func (e *PostfixEmitter) VisitForallAllowRemove(ctx *ForallAllowRemoveContext) interface{} {
 	e.emit("dup")
 	e.Visit(ctx.ArrayExpr())
-	e.emit("forall")
+	e.emit("forallr")
 	e.emit("pop")
 	return nil
 }
@@ -3350,7 +3357,7 @@ func (e *PostfixEmitter) VisitForallWhereAllowRemove(ctx *ForallWhereAllowRemove
 	e.emit("if")
 	e.emit("}")
 	e.Visit(ctx.ArrayExpr())
-	e.emit("forall")
+	e.emit("forallr")
 	e.emit("pop")
 	return nil
 }
@@ -3518,7 +3525,7 @@ func (e *PostfixEmitter) VisitForallInEntityAllowRemove(ctx *ForallInEntityAllow
 	e.emit("entitypush")
 	e.emit("dup")
 	e.Visit(ctx.ArrayExpr())
-	e.emit("forall")
+	e.emit("forallr")
 	e.emit("pop")
 	e.emit("entitypop")
 	e.emit("pop")
