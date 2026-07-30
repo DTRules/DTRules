@@ -159,6 +159,8 @@ ifstatement
 forallctl
     : FORALL arrayExpr                                      # forallSimple
     | FORALL arrayExpr ALLOWING ARRAY TOBEREMOVED           # forallAllowRemove
+    | FORALL arrayExpr INREVERSE                            # forallReverse
+    | FORALL arrayExpr INREVERSE WHERE bexpr                # forallReverseWhere
     | FORALL arrayExpr IN eexpr                             # forallInEntity
     | FORALL arrayExpr IN eexpr ALLOWING ARRAY TOBEREMOVED  # forallInEntityAllowRemove
     | FORALL arrayExpr IN eexpr WHERE bexpr                 # forallInEntityWhere
@@ -1028,6 +1030,9 @@ ACTION              : 'action' ;
 CONDITION           : 'condition' ;
 POLICYSTATEMENT     : 'policystatement' ;
 POLICYSTATEMENTS    : 'policy' WS+ 'statements' ;
+// Multiword so it cannot be mistaken for `in <entity>` where the entity
+// happens to be called reverse; maximal munch picks this over IN.
+INREVERSE           : 'in' WS+ 'reverse' ;
 
 // Boolean literals
 RBOOLEAN            : 'true' | 'false' | 'default' | 'otherwise' | 'always'

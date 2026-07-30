@@ -3314,6 +3314,39 @@ func (e *PostfixEmitter) VisitForallSimple(ctx *ForallSimpleContext) interface{}
 }
 
 // VisitForallAllowRemove: `for all <array> allowing array to be removed`.
+// VisitForallReverse: `for all <array> in reverse` — iterate the array from
+// the last element to the first.
+//
+// The runtime has always had forallr; until now the only EL that reached it
+// was `remove each ... where ...` and the `allowing array to be removed`
+// variants, both of which iterate backwards for removal safety rather than
+// because the caller wanted that order. Rules that simply need reverse order
+// had to be written as hand-coded postfix — SyntaxTests has 48 such rows
+// (#975).
+func (e *PostfixEmitter) VisitForallReverse(ctx *ForallReverseContext) interface{} {
+	e.emit("dup")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forallr")
+	e.emit("pop")
+	return nil
+}
+
+// VisitForallReverseWhere: `for all <array> in reverse where <bexpr>`.
+func (e *PostfixEmitter) VisitForallReverseWhere(ctx *ForallReverseWhereContext) interface{} {
+	e.emit("{")
+	e.emit("{")
+	e.emit("dup")
+	e.emit("execute")
+	e.emit("}")
+	e.Visit(ctx.Bexpr())
+	e.emit("if")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forallr")
+	e.emit("pop")
+	return nil
+}
+
 // The `allowing array to be removed` variants iterate in REVERSE. That is
 // the whole point of the phrase: walking forward while the body removes
 // elements skips entries, because the iterator's index and the array's

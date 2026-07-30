@@ -275,6 +275,14 @@ func (v *BaseELVisitor) VisitForallAllowRemove(ctx *ForallAllowRemoveContext) in
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitForallReverse(ctx *ForallReverseContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitForallReverseWhere(ctx *ForallReverseWhereContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitForallInEntity(ctx *ForallInEntityContext) interface{} {
 	return v.VisitChildren(ctx)
 }

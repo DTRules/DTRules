@@ -1022,3 +1022,37 @@ func TestForallAllowingRemovalIteratesInReverse(t *testing.T) {
 		})
 	}
 }
+
+// TestForallInReverse covers the reverse-iteration form (#975).
+//
+// The runtime has always had forallr, but the only EL that reached it was
+// `remove each ... where ...` and the `allowing array to be removed`
+// variants — both of which go backwards for removal safety, not because the
+// author asked for that order. A rule that simply needs reverse order had to
+// be written as hand-coded postfix; SyntaxTests has 48 such rows.
+func TestForallInReverse(t *testing.T) {
+	symbols := map[string]string{"clients": "array", "age": "integer", "job.cases": "array"}
+	tests := []struct{ name, el, want string }{
+		{"reverse", "for all clients in reverse", "dup clients forallr pop"},
+		{"reverse with where", "for all clients in reverse where age > 18",
+			"{ { dup execute } age 18 > if } clients forallr pop"},
+		{"qualified array", "for all job.cases in reverse", "dup job.cases forallr pop"},
+		// The plain form must stay forward — reverse is opt-in.
+		{"plain stays forward", "for all clients", "dup clients forall pop"},
+		{"where stays forward", "for all clients where age > 18",
+			"{ { dup execute } age 18 > if } clients forall pop"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewCompiler()
+			c.SetSymbols(symbols)
+			got, err := c.CompileContext(tt.el)
+			if err != nil {
+				t.Fatalf("CompileContext(%q): %v", tt.el, err)
+			}
+			if n := strings.Join(strings.Fields(got), " "); n != tt.want {
+				t.Errorf("CompileContext(%q)\n got %s\nwant %s", tt.el, n, tt.want)
+			}
+		})
+	}
+}

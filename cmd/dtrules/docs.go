@@ -612,6 +612,13 @@ Constructors:
     array of values [ v1, v2 ]     array of scalar values
     tokenize "a,b,c" by ","        split string into array
 
+Iteration (context cell):
+    for all myArray                forward, the usual form
+    for all myArray in reverse     last element to first
+    for all myArray where bexpr    filtered
+    for all myArray allowing array to be removed
+                                   reverse, so removing inside the body is safe
+
 Copies:
     get copy of myArray            shallow copy
     copy of myArray                shallow copy (shorthand)
