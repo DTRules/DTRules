@@ -1056,3 +1056,56 @@ func TestForallInReverse(t *testing.T) {
 		})
 	}
 }
+
+// TestForallBlockInReverse covers the action-cell form of reverse iteration.
+//
+// `for all <array> in reverse { ... }` is the shape SyntaxTests' 48 hand-coded
+// rows are written in as postfix. The context form landed in #977; without
+// this one those rows still had no authorable EL (#975).
+func TestForallBlockInReverse(t *testing.T) {
+	symbols := map[string]string{
+		"clients": "array", "job.cases": "array",
+		"eligible": "boolean", "age": "integer",
+	}
+	tests := []struct{ name, el, want string }{
+		{"reverse block", "for all clients in reverse { set eligible = true; }",
+			"{ true cvb /eligible xdef } clients forallr"},
+		{"qualified array", "for all job.cases in reverse { set eligible = true; }",
+			"{ true cvb /eligible xdef } job.cases forallr"},
+		{"reverse block with where", "for all clients in reverse where age < 18 { set eligible = false; }",
+			"{ { false cvb /eligible xdef } age 18 < if } clients forallr"},
+		// Forward stays forward.
+		{"plain block", "for all clients { set eligible = true; }",
+			"{ true cvb /eligible xdef } clients forall"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewCompiler()
+			c.SetSymbols(symbols)
+			got, err := c.CompileAction(tt.el)
+			if err != nil {
+				t.Fatalf("CompileAction(%q): %v", tt.el, err)
+			}
+			if n := strings.Join(strings.Fields(got), " "); n != tt.want {
+				t.Errorf("CompileAction(%q)\n got %s\nwant %s", tt.el, n, tt.want)
+			}
+		})
+	}
+}
+
+// TestCompileActionReportsThePrefixedParseError: an action cell that needs a
+// fix inside its own statement must not be told the problem is at the entry
+// rule. Before this, a block missing an internal semicolon reported
+// "mismatched input '{' expecting {'action', 'condition', ...}".
+func TestCompileActionReportsThePrefixedParseError(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{"clients": "array", "eligible": "boolean"})
+
+	_, err := c.CompileAction("for all clients { set eligible = true }") // no inner ;
+	if err == nil {
+		t.Fatal("expected a parse error")
+	}
+	if strings.Contains(err.Error(), "expecting {'action'") {
+		t.Errorf("error points at the entry rule instead of the real mistake:\n  %v", err)
+	}
+}

@@ -241,6 +241,12 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#forallAsWhere.
 	VisitForallAsWhere(ctx *ForallAsWhereContext) interface{}
 
+	// Visit a parse tree produced by ELParser#forallBlockReverse.
+	VisitForallBlockReverse(ctx *ForallBlockReverseContext) interface{}
+
+	// Visit a parse tree produced by ELParser#forallBlockReverseWhere.
+	VisitForallBlockReverseWhere(ctx *ForallBlockReverseWhereContext) interface{}
+
 	// Visit a parse tree produced by ELParser#forallBlockSimple.
 	VisitForallBlockSimple(ctx *ForallBlockSimpleContext) interface{}
 

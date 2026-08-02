@@ -619,6 +619,11 @@ Iteration (context cell):
     for all myArray allowing array to be removed
                                    reverse, so removing inside the body is safe
 
+  In an action cell the body is a block, and its statements need their own
+  semicolons:
+    for all myArray in reverse { set x = 1; }
+    for all myArray in reverse where bexpr { set x = 1; }
+
 Copies:
     get copy of myArray            shallow copy
     copy of myArray                shallow copy (shorthand)
