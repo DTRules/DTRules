@@ -241,6 +241,12 @@ type ELListener interface {
 	// EnterForallAsWhere is called when entering the forallAsWhere production.
 	EnterForallAsWhere(c *ForallAsWhereContext)
 
+	// EnterForallBlockReverse is called when entering the forallBlockReverse production.
+	EnterForallBlockReverse(c *ForallBlockReverseContext)
+
+	// EnterForallBlockReverseWhere is called when entering the forallBlockReverseWhere production.
+	EnterForallBlockReverseWhere(c *ForallBlockReverseWhereContext)
+
 	// EnterForallBlockSimple is called when entering the forallBlockSimple production.
 	EnterForallBlockSimple(c *ForallBlockSimpleContext)
 
@@ -2235,6 +2241,12 @@ type ELListener interface {
 
 	// ExitForallAsWhere is called when exiting the forallAsWhere production.
 	ExitForallAsWhere(c *ForallAsWhereContext)
+
+	// ExitForallBlockReverse is called when exiting the forallBlockReverse production.
+	ExitForallBlockReverse(c *ForallBlockReverseContext)
+
+	// ExitForallBlockReverseWhere is called when exiting the forallBlockReverseWhere production.
+	ExitForallBlockReverseWhere(c *ForallBlockReverseWhereContext)
 
 	// ExitForallBlockSimple is called when exiting the forallBlockSimple production.
 	ExitForallBlockSimple(c *ForallBlockSimpleContext)

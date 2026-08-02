@@ -155,13 +155,19 @@ func (c *Compiler) CompileAction(el string) (string, error) {
 	}
 
 	// Try without action prefix (might be a raw statement)
+	prefixErr := err
 	result, err = c.compile(el)
 	if err == nil {
 		return result, nil
 	}
 
-	// Return original error
-	return "", err
+	// Report the PREFIXED attempt's error. Nearly every action cell is meant
+	// to be read as `action <statement>`, so that is the parse the author
+	// cares about. Returning the raw attempt's error instead reported
+	// "mismatched input '{' expecting {'action', 'condition', ...}" for a
+	// statement that merely needed a semicolon inside its block — an error
+	// pointing at the entry rule rather than the actual mistake.
+	return "", prefixErr
 }
 
 // isIdentifier checks if the string is a simple identifier (table name)

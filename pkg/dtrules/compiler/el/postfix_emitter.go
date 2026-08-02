@@ -4495,6 +4495,33 @@ func (e *PostfixEmitter) VisitUsingBlockBase(ctx *UsingBlockBaseContext) interfa
 // Forallblock emitters (action position, explicit block body).
 
 // VisitForallBlockSimple: `<arr> { block }`. Action form with no filter.
+// VisitForallBlockReverse: `for all <array> in reverse { ... }` — the
+// action-cell form of reverse iteration (#975). SyntaxTests has 48 rows of
+// exactly this shape written as hand-coded postfix, because until now the
+// only EL that reached forallr was the removal-safety phrasing.
+func (e *PostfixEmitter) VisitForallBlockReverse(ctx *ForallBlockReverseContext) interface{} {
+	e.emit("{")
+	e.Visit(ctx.Block())
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forallr")
+	return nil
+}
+
+// VisitForallBlockReverseWhere: the same with a filter.
+func (e *PostfixEmitter) VisitForallBlockReverseWhere(ctx *ForallBlockReverseWhereContext) interface{} {
+	e.emit("{")
+	e.emit("{")
+	e.Visit(ctx.Block())
+	e.emit("}")
+	e.Visit(ctx.Bexpr())
+	e.emit("if")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forallr")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitForallBlockSimple(ctx *ForallBlockSimpleContext) interface{} {
 	e.emit("{")
 	e.Visit(ctx.Block())

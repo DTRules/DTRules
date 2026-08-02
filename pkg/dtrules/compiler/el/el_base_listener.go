@@ -488,6 +488,18 @@ func (s *BaseELListener) EnterForallAsWhere(ctx *ForallAsWhereContext) {}
 // ExitForallAsWhere is called when production forallAsWhere is exited.
 func (s *BaseELListener) ExitForallAsWhere(ctx *ForallAsWhereContext) {}
 
+// EnterForallBlockReverse is called when production forallBlockReverse is entered.
+func (s *BaseELListener) EnterForallBlockReverse(ctx *ForallBlockReverseContext) {}
+
+// ExitForallBlockReverse is called when production forallBlockReverse is exited.
+func (s *BaseELListener) ExitForallBlockReverse(ctx *ForallBlockReverseContext) {}
+
+// EnterForallBlockReverseWhere is called when production forallBlockReverseWhere is entered.
+func (s *BaseELListener) EnterForallBlockReverseWhere(ctx *ForallBlockReverseWhereContext) {}
+
+// ExitForallBlockReverseWhere is called when production forallBlockReverseWhere is exited.
+func (s *BaseELListener) ExitForallBlockReverseWhere(ctx *ForallBlockReverseWhereContext) {}
+
 // EnterForallBlockSimple is called when production forallBlockSimple is entered.
 func (s *BaseELListener) EnterForallBlockSimple(ctx *ForallBlockSimpleContext) {}
 

@@ -319,6 +319,14 @@ func (v *BaseELVisitor) VisitForallAsWhere(ctx *ForallAsWhereContext) interface{
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitForallBlockReverse(ctx *ForallBlockReverseContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitForallBlockReverseWhere(ctx *ForallBlockReverseWhereContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitForallBlockSimple(ctx *ForallBlockSimpleContext) interface{} {
 	return v.VisitChildren(ctx)
 }

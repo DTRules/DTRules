@@ -173,7 +173,9 @@ forallctl
     ;
 
 forallblock
-    : arrayExpr block                                       # forallBlockSimple
+    : arrayExpr INREVERSE block                             # forallBlockReverse
+    | arrayExpr INREVERSE WHERE bexpr block                 # forallBlockReverseWhere
+    | arrayExpr block                                       # forallBlockSimple
     | arrayExpr WHERE bexpr block                           # forallBlockWhere
     ;
 
