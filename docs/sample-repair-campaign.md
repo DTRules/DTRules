@@ -183,13 +183,24 @@ Its tests pass by reading a Phase-1-era `repository/` mirror, swallowing 23
 load errors as "simplified format", and running zero scenarios —
 `Total: 0, Passed: 0, Failed: 0`.
 
-Repaired: 130 unescaped `&`, 8 unescaped `<`, 3 `<field>` elements split by
-pasted blocks, and the merged EDD's missing root close. 111 of 112 files parse.
+**It loads now — 19 entities, 164 decision tables, 0 stubs.** The cause of the
+whole mess was one line: `merge-states.sh` counted with `((count++))`, which
+returns the pre-increment value, so the first state file produced a non-zero
+exit and `set -e` killed the script. Every run it ever had stopped after one
+state. That is why the merged DT held 24 tables instead of 164, why the merged
+EDD lost its closing tag, and where the "26 stub tables" came from.
 
-Open: `CorporateTax_dt_core.xml` is in a `<rule>`/`<policy>` schema **the loader
-has no support for**, is corrupt beyond what any revision holds, and is
-referenced by nothing but `merge-states.sh`. Recommendation is to drop it and
-keep the state tier; the alternative is the DTEligibility route. Paul's call.
+Repaired: 130 unescaped `&`, 8 unescaped `<`, 3 split `<field>` elements, the
+merge bug, 6 prose rows the loader read as uncompiled EL, and a `DTRules.xml`
+project marker. `CorporateTax_dt_core.xml` was removed — never parsed, schema
+the loader cannot read, referenced only by the merge script.
+
+Open: no `<entry>` yet (the orchestrator needs a naming convention settled
+across two batches of states, and a shape for the four states with no corporate
+income tax), and **551 rows of authoring debt** — 413 with postfix and no DSL,
+138 whose DSL no longer compiles. Until those are resolved the authoring API
+cannot be used on this project at all: any `table put` regenerates postfix from
+DSL and deletes them.
 
 Reference material for this work — 76 official state forms, instructions and
 published regulations across 43 jurisdictions — is committed under
