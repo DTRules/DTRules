@@ -29,7 +29,26 @@ while IFS=$'\t' read -r juris doc url; do
     if [ -n "$want" ] && ! grep -qw "$juris" <<<"$want"; then continue; fi
 
     mkdir -p "forms/$juris"
-    out="forms/$juris/$(basename "${url%%\?*}")"
+
+    # Derive the filename. Several states end their download URLs with a
+    # generic segment — NCDOR uses ".../open", Georgia and Massachusetts use
+    # ".../download" — so a plain basename collides: North Carolina's return
+    # and its instructions both landed on "forms/NC/open" and the second
+    # silently overwrote the first. When the last segment is not a PDF name,
+    # fall back to the segment above it, which is the document slug.
+    path="${url%%\?*}"
+    name="$(basename "$path")"
+    case "$name" in
+        *.pdf|*.PDF) ;;
+        *)  # Name it from the document description. Deriving it from the URL
+            # gives "open.pdf", "download.pdf" or "forms.in.gov.pdf" — unique
+            # after the collision fix, but meaningless to anyone browsing
+            # forms/. The description is unique per row by construction.
+            name="$(printf '%s' "$doc" \
+                    | tr '[:upper:]' '[:lower:]' \
+                    | sed 's#[^a-z0-9]\+#-#g; s#^-##; s#-$##').pdf" ;;
+    esac
+    out="forms/$juris/$name"
 
     # `< /dev/null` matters: curl inherits the loop's stdin, which IS
     # sources.tsv, and will happily swallow the next lines of it. That showed
