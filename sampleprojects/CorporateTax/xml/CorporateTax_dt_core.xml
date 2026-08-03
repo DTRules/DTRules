@@ -618,7 +618,7 @@
         </actions>
         <policy>
           If (Payments + Credits) > Tax: Refund
-          If (Payments + Credits) < Tax: Amount owed
+          If (Payments + Credits) &lt; Tax: Amount owed
           Reference: Form 1120 Instructions, Lines 32-35
           Line 32: Total payments and refundable credits
           Line 33: Estimated tax penalty (not implemented Phase 1)
@@ -5111,7 +5111,7 @@
 
     Schedule E is critical for:
     - Foreign tax credit calculations (Form 1118)
-    - E&P calculations (foreign taxes reduce E&P)
+    - E&amp;P calculations (foreign taxes reduce E&amp;P)
     - GILTI and Subpart F income calculations
 
     Categories tracked:
@@ -5155,7 +5155,7 @@
               form_5471.sched_e_war_profits_taxes +
               form_5471.sched_e_excess_profits_taxes;
 
-            // Foreign taxes reduce E&P (tracked in Schedule H)
+            // Foreign taxes reduce E&amp;P (tracked in Schedule H)
             form_5471.sched_h_foreign_taxes_paid =
               form_5471.sched_e_total_foreign_taxes;
           </action>
@@ -5178,9 +5178,9 @@
           - Capital gains
           - Foreign personal holding company income (FPHCI)
 
-          Impact on E&P Calculation:
-          Foreign income taxes REDUCE earnings and profits (E&P).
-          E&P = Net income per books - Foreign taxes paid + Other adjustments
+          Impact on E&amp;P Calculation:
+          Foreign income taxes REDUCE earnings and profits (E&amp;P).
+          E&amp;P = Net income per books - Foreign taxes paid + Other adjustments
 
           Impact on Foreign Tax Credit:
           Foreign taxes paid by CFC can be "deemed paid" by U.S. shareholder
@@ -5188,7 +5188,7 @@
 
           Reference: IRC § 904(d) - Separate limitation baskets
           Reference: IRC § 960 - Deemed paid foreign tax credit
-          Reference: IRC § 312(a) - E&P calculation
+          Reference: IRC § 312(a) - E&amp;P calculation
           Reference: Form 5471 Instructions, Schedule E
           Reference: Form 1118 (Foreign Tax Credit)
         </policy>
@@ -5226,29 +5226,29 @@
 
   <!--
     ============================================================================
-    TABLE 11000: Calculate CFC Earnings and Profits (E&P)
+    TABLE 11000: Calculate CFC Earnings and Profits (E&amp;P)
     ============================================================================
 
-    Calculates current year and accumulated earnings and profits (E&P).
+    Calculates current year and accumulated earnings and profits (E&amp;P).
 
-    E&P is different from:
+    E&amp;P is different from:
     - Book income (GAAP/IFRS)
     - Taxable income (U.S. tax rules)
     - Foreign taxable income (foreign country rules)
 
-    E&P determines:
+    E&amp;P determines:
     - Whether distributions are dividends (taxable) or return of capital
     - Subpart F income inclusions
     - GILTI inclusions
     - PTEP reclassifications
 
-    Schedule H: Current E&P
-    Schedule J: Accumulated E&P
+    Schedule H: Current E&amp;P
+    Schedule J: Accumulated E&amp;P
   -->
   <decision_table name="Calculate_CFC_Earnings_And_Profits" number="11000">
     <description>
-      Calculate current year earnings and profits (E&P) and accumulated E&P.
-      E&P uses modified U.S. tax accounting rules, different from book income.
+      Calculate current year earnings and profits (E&amp;P) and accumulated E&amp;P.
+      E&amp;P uses modified U.S. tax accounting rules, different from book income.
     </description>
 
     <conditions>
@@ -5264,12 +5264,12 @@
 
       <condition name="has_positive_current_ep">
         <expression>form_5471.sched_h_current_earnings_and_profits > 0</expression>
-        <comment>Has positive current year E&P</comment>
+        <comment>Has positive current year E&amp;P</comment>
       </condition>
     </conditions>
 
     <rules>
-      <!-- Rule 1: Calculate current year E&P (Schedule H) -->
+      <!-- Rule 1: Calculate current year E&amp;P (Schedule H) -->
       <rule number="1">
         <conditions>
           <has_net_income>Y</has_net_income>
@@ -5282,18 +5282,18 @@
             form_5471.sched_h_net_income_per_books = form_5471.sched_c_net_income;
 
             // Adjust for depreciation differences (book vs U.S. tax rules)
-            // Positive adjustment = U.S. depreciation > book depreciation (increases E&P)
-            // Negative adjustment = U.S. depreciation < book depreciation (decreases E&P)
+            // Positive adjustment = U.S. depreciation > book depreciation (increases E&amp;P)
+            // Negative adjustment = U.S. depreciation &lt; book depreciation (decreases E&amp;P)
             double ep_before_taxes =
               form_5471.sched_h_net_income_per_books +
               form_5471.sched_h_us_depreciation_adjustment +
               form_5471.sched_h_other_adjustments;
 
-            // Subtract foreign income taxes (they reduce E&P)
+            // Subtract foreign income taxes (they reduce E&amp;P)
             form_5471.sched_h_current_earnings_and_profits =
               ep_before_taxes - form_5471.sched_h_foreign_taxes_paid;
 
-            // Handle E&P deficit
+            // Handle E&amp;P deficit
             if (form_5471.sched_h_current_earnings_and_profits &lt; 0) {
               form_5471.sched_h_current_year_deficit =
                 Math.abs(form_5471.sched_h_current_earnings_and_profits);
@@ -5301,45 +5301,45 @@
               form_5471.sched_h_current_year_deficit = 0.0;
             }
 
-            // Pass current E&P to Schedule J
+            // Pass current E&amp;P to Schedule J
             form_5471.sched_j_current_year_ep =
               form_5471.sched_h_current_earnings_and_profits;
           </action>
         </actions>
         <policy>
-          Form 5471 Schedule H: Current Earnings and Profits (E&P)
+          Form 5471 Schedule H: Current Earnings and Profits (E&amp;P)
 
-          Current E&P Calculation:
+          Current E&amp;P Calculation:
           1. Start with net income per books (Schedule C)
           2. Add: U.S. depreciation adjustments
              - If U.S. depreciation > book depreciation: positive adjustment
-             - If U.S. depreciation < book depreciation: negative adjustment
-          3. Add/subtract: Other E&P adjustments
-             - Tax-exempt income (increases E&P)
-             - Nondeductible expenses (decreases E&P)
-             - Federal income tax (decreases E&P for domestic corps)
+             - If U.S. depreciation &lt; book depreciation: negative adjustment
+          3. Add/subtract: Other E&amp;P adjustments
+             - Tax-exempt income (increases E&amp;P)
+             - Nondeductible expenses (decreases E&amp;P)
+             - Federal income tax (decreases E&amp;P for domestic corps)
           4. Subtract: Foreign income taxes paid (Schedule E)
-          5. Result: Current year E&P
+          5. Result: Current year E&amp;P
 
-          E&P vs. Taxable Income Differences:
-          - Municipal bond interest: Included in E&P, excluded from taxable income
-          - Depreciation: E&P uses ADS (slower), taxable income uses MACRS (faster)
-          - Foreign taxes: Reduce E&P, but credited against U.S. tax
-          - Dividends received deduction: Reduces taxable income, not E&P
+          E&amp;P vs. Taxable Income Differences:
+          - Municipal bond interest: Included in E&amp;P, excluded from taxable income
+          - Depreciation: E&amp;P uses ADS (slower), taxable income uses MACRS (faster)
+          - Foreign taxes: Reduce E&amp;P, but credited against U.S. tax
+          - Dividends received deduction: Reduces taxable income, not E&amp;P
 
-          Current E&P Priority:
-          Current E&P is applied to distributions BEFORE accumulated E&P.
-          If current E&P is sufficient to cover distributions, entire distribution
-          is a dividend regardless of accumulated E&P deficit.
+          Current E&amp;P Priority:
+          Current E&amp;P is applied to distributions BEFORE accumulated E&amp;P.
+          If current E&amp;P is sufficient to cover distributions, entire distribution
+          is a dividend regardless of accumulated E&amp;P deficit.
 
-          Reference: IRC § 312 - E&P calculation rules
+          Reference: IRC § 312 - E&amp;P calculation rules
           Reference: IRC § 316 - Dividend definition
-          Reference: Treas. Reg. § 1.312-6 - E&P ordering rules
+          Reference: Treas. Reg. § 1.312-6 - E&amp;P ordering rules
           Reference: Form 5471 Instructions, Schedule H
         </policy>
       </rule>
 
-      <!-- Rule 2: Calculate accumulated E&P (Schedule J) -->
+      <!-- Rule 2: Calculate accumulated E&amp;P (Schedule J) -->
       <rule number="2">
         <conditions>
           <has_net_income>Y</has_net_income>
@@ -5348,38 +5348,38 @@
           <action>
             // Schedule J: Accumulated Earnings and Profits
 
-            // Start with beginning accumulated E&P
+            // Start with beginning accumulated E&amp;P
             double accumulated_ep = form_5471.sched_j_beginning_accumulated_ep;
 
-            // Add current year E&P (or subtract current year deficit)
+            // Add current year E&amp;P (or subtract current year deficit)
             accumulated_ep += form_5471.sched_j_current_year_ep;
 
             // Subtract distributions
             accumulated_ep -= form_5471.sched_j_distributions;
 
             // Adjust for PTEP reclassifications
-            // When PTEP is distributed, it's removed from accumulated E&P
+            // When PTEP is distributed, it's removed from accumulated E&amp;P
             // (it was already taxed to U.S. shareholder)
             accumulated_ep += form_5471.sched_j_reclassifications;
 
-            // Set ending accumulated E&P
+            // Set ending accumulated E&amp;P
             form_5471.sched_j_ending_accumulated_ep = accumulated_ep;
           </action>
         </actions>
         <policy>
-          Form 5471 Schedule J: Accumulated Earnings and Profits (E&P)
+          Form 5471 Schedule J: Accumulated Earnings and Profits (E&amp;P)
 
-          Accumulated E&P Calculation:
-          1. Beginning accumulated E&P (prior year ending balance)
-          2. + Current year E&P (from Schedule H)
+          Accumulated E&amp;P Calculation:
+          1. Beginning accumulated E&amp;P (prior year ending balance)
+          2. + Current year E&amp;P (from Schedule H)
           3. - Distributions during the year
           4. +/- Reclassifications to/from PTEP
-          5. = Ending accumulated E&P
+          5. = Ending accumulated E&amp;P
 
           Distribution Ordering Rules (IRC § 316(a)):
           Distributions are treated as coming from:
-          1. FIRST: Current E&P (dividends, taxable to extent of current E&P)
-          2. SECOND: Accumulated E&P (dividends, taxable to extent available)
+          1. FIRST: Current E&amp;P (dividends, taxable to extent of current E&amp;P)
+          2. SECOND: Accumulated E&amp;P (dividends, taxable to extent available)
           3. THIRD: Return of basis (nontaxable, reduces shareholder basis)
           4. FOURTH: Gain from sale of stock (capital gain)
 
@@ -5387,12 +5387,12 @@
           Previously Taxed Earnings and Profits (PTEP) are tracked separately.
           When PTEP is distributed:
           - Distribution is NOT taxable (already taxed via Subpart F or GILTI)
-          - Accumulated E&P is reduced
+          - Accumulated E&amp;P is reduced
           - Shareholder stock basis is reduced
 
-          Negative Accumulated E&P:
-          A deficit in accumulated E&P does NOT prevent current E&P from being
-          a dividend. Current E&P and accumulated E&P are tested separately.
+          Negative Accumulated E&amp;P:
+          A deficit in accumulated E&amp;P does NOT prevent current E&amp;P from being
+          a dividend. Current E&amp;P and accumulated E&amp;P are tested separately.
 
           Reference: IRC § 316(a) - Dividend definition and ordering
           Reference: IRC § 959 - PTEP exclusion from gross income
@@ -5419,7 +5419,7 @@
         <policy>
           No income or distributions during the year.
 
-          Accumulated E&P carries forward unchanged.
+          Accumulated E&amp;P carries forward unchanged.
           Form 5471 still required if U.S. shareholder owns 10%+ of CFC.
 
           Reference: Form 5471 Instructions
@@ -5442,7 +5442,7 @@
     When PTEP is distributed, it is:
     - Excluded from U.S. shareholder's gross income (already taxed)
     - Reduces shareholder's stock basis
-    - Reduces CFC's accumulated E&P
+    - Reduces CFC's accumulated E&amp;P
 
     PTEP Ordering Rules:
     1. Section 951(a)(1)(A) - Subpart F income (highest priority)
@@ -5526,7 +5526,7 @@
           When CFC distributes PTEP to U.S. shareholder:
           - Distribution is NOT included in gross income (already taxed)
           - U.S. shareholder's stock basis is decreased (IRC § 961(b))
-          - CFC's accumulated E&P is reduced
+          - CFC's accumulated E&amp;P is reduced
 
           Reference: IRC § 951(a) - Subpart F inclusion
           Reference: IRC § 952 - Subpart F income definition
@@ -5639,7 +5639,7 @@
               basis_increases -
               form_5471.stock_basis_distributions_from_ptep;
 
-            // Reclassify PTEP distributions out of accumulated E&P
+            // Reclassify PTEP distributions out of accumulated E&amp;P
             form_5471.sched_j_reclassifications =
               -form_5471.stock_basis_distributions_from_ptep;
           </action>
@@ -5652,17 +5652,17 @@
           Increases to Basis:
           - Subpart F income inclusions (IRC § 951(a))
           - GILTI inclusions (IRC § 951A)
-          - Pro rata share of CFC's increase in E&P from investments in U.S. property
+          - Pro rata share of CFC's increase in E&amp;P from investments in U.S. property
 
           Decreases to Basis:
           - Distributions of PTEP (excluded from income under IRC § 959)
-          - Pro rata share of CFC's decrease in E&P from investments in U.S. property
+          - Pro rata share of CFC's decrease in E&amp;P from investments in U.S. property
 
           PTEP Distribution Ordering (IRC § 959(c)):
           Distributions are treated as coming from (in order):
           1. Section 959(c)(1) PTEP - Previously taxed Subpart F income
           2. Section 959(c)(2) PTEP - Previously taxed under other provisions
-          3. Section 959(c)(3) - Other E&P (currently taxable as dividend)
+          3. Section 959(c)(3) - Other E&amp;P (currently taxable as dividend)
 
           Within Section 959(c)(1), ordering is:
           1. Section 951(a)(1)(A) PTEP - Subpart F income (priority)
@@ -5670,8 +5670,8 @@
 
           Within each category, LIFO (last-in-first-out) ordering applies by tax year.
 
-          Impact on Accumulated E&P:
-          PTEP distributions reduce accumulated E&P but are not taxable dividends.
+          Impact on Accumulated E&amp;P:
+          PTEP distributions reduce accumulated E&amp;P but are not taxable dividends.
           Must track PTEP separately to properly characterize distributions.
 
           Form 5471 Reporting:
@@ -6271,7 +6271,7 @@
   <!--
     Table 12400: Calculate Total Subpart F Income
 
-    Calculates total Subpart F income and applies de minimis, full inclusion, and E&P limitations
+    Calculates total Subpart F income and applies de minimis, full inclusion, and E&amp;P limitations
 
     Reference: IRC §§ 952, 954
   -->
@@ -6399,7 +6399,7 @@
             form_5471.subpart_f_de_minimis_applied = false;
             form_5471.subpart_f_full_inclusion_applied = true;
 
-            // Still subject to E&P limitation
+            // Still subject to E&amp;P limitation
             form_5471.subpart_f_ep_limitation =
               form_5471.sched_h_current_earnings_and_profits;
 
@@ -6421,11 +6421,11 @@
 
           The full inclusion rule overrides the de minimis rule.
 
-          However, the E&P limitation still applies - cannot include more
+          However, the E&amp;P limitation still applies - cannot include more
           than current year earnings and profits.
 
           Reference: IRC § 954(b)(3)(B)
-          Reference: IRC § 952(c) - E&P limitation
+          Reference: IRC § 952(c) - E&amp;P limitation
           Reference: Form 5471 Instructions
         </policy>
       </rule>
@@ -6439,12 +6439,12 @@
         </conditions>
         <actions>
           <action>
-            // Normal Subpart F calculation with E&P limitation
+            // Normal Subpart F calculation with E&amp;P limitation
             form_5471.subpart_f_de_minimis_applied = false;
             form_5471.subpart_f_full_inclusion_applied = false;
 
-            // E&P Limitation (IRC § 952(c))
-            // Subpart F income cannot exceed current E&P
+            // E&amp;P Limitation (IRC § 952(c))
+            // Subpart F income cannot exceed current E&amp;P
             form_5471.subpart_f_ep_limitation =
               form_5471.sched_h_current_earnings_and_profits;
 
@@ -6460,22 +6460,22 @@
 
           When neither de minimis nor full inclusion rules apply,
           Subpart F income equals the calculated amount, subject to
-          the current E&P limitation.
+          the current E&amp;P limitation.
 
-          E&P Limitation (IRC § 952(c)):
+          E&amp;P Limitation (IRC § 952(c)):
           Subpart F income cannot exceed current year earnings and profits.
 
-          If current E&P is negative or zero, Subpart F income is zero.
+          If current E&amp;P is negative or zero, Subpart F income is zero.
 
-          If current E&P is less than calculated Subpart F income,
-          Subpart F income is limited to current E&P.
+          If current E&amp;P is less than calculated Subpart F income,
+          Subpart F income is limited to current E&amp;P.
 
           Purpose: Prevent inclusion of income that has not been earned
           economically (e.g., due to high foreign tax deductions).
 
-          Reference: IRC § 952(c) - E&P limitation
+          Reference: IRC § 952(c) - E&amp;P limitation
           Reference: Treas. Reg. § 1.952-1(c)
-          Reference: Form 5471, Schedule H (E&P calculation)
+          Reference: Form 5471, Schedule H (E&amp;P calculation)
         </policy>
       </rule>
     </rules>
@@ -6636,7 +6636,7 @@
           No Subpart F Income
 
           If there is no Subpart F income (e.g., due to de minimis rule
-          or zero E&P), the high-tax exception is not relevant.
+          or zero E&amp;P), the high-tax exception is not relevant.
 
           Reference: IRC § 954(b)(4)
         </policy>
@@ -7153,7 +7153,7 @@
           Inclusion in Gross Income:
           U.S. shareholder includes GILTI in gross income for the tax year.
           GILTI is treated as a dividend from the CFC (for foreign tax credit
-          purposes) but does not reduce CFC's E&P.
+          purposes) but does not reduce CFC's E&amp;P.
 
           Interaction with Subpart F:
           GILTI is calculated AFTER Subpart F inclusions.
@@ -9432,7 +9432,7 @@
           3. **Reporting Requirements**:
              - Form 8858 required (Information Return for Foreign Disregarded Entities)
              - Form 1118 Schedule H (foreign branch basket)
-             - Must track branch E&P separately from CFC E&P
+             - Must track branch E&amp;P separately from CFC E&amp;P
 
           4. **Differences from CFC**:
              - No Subpart F income (branch income taxed currently)
@@ -9620,7 +9620,7 @@
             result.ftc_foreign_branch_income = foreign_branch.ftc_branch_basket_income;
             result.ftc_foreign_branch_taxes = foreign_branch.ftc_branch_basket_taxes;
 
-            // Step 6: Calculate branch E&P (in USD)
+            // Step 6: Calculate branch E&amp;P (in USD)
             foreign_branch.branch_current_ep = foreign_branch.ftc_branch_basket_income;
           </action>
         </actions>
@@ -9641,7 +9641,7 @@
           - Interest expense: Asset-based or gross income method (Treas. Reg. § 1.861-10)
           - R&amp;D expense: Sales method or gross income method (Treas. Reg. § 1.861-17)
           - Stewardship expense: Factual relationship
-          - General & administrative: Gross income method
+          - General &amp; administrative: Gross income method
 
           **Separate Basket Requirement**:
           Foreign branch income CANNOT be combined with:
@@ -9918,7 +9918,7 @@
             // Character: Ordinary income or loss (not capital)
             result.other_income += foreign_branch.section_987_realized_gain_loss;
 
-            // Step 6: Adjust branch E&P
+            // Step 6: Adjust branch E&amp;P
             foreign_branch.branch_ep_adjustment_section_987 =
               foreign_branch.section_987_realized_gain_loss;
           </action>
@@ -9951,8 +9951,8 @@
           - No capital gain preferential rate
           - No Section 1231 treatment
 
-          **E&P Impact**:
-          § 987 gain/loss adjusts branch E&P for book/tax differences.
+          **E&amp;P Impact**:
+          § 987 gain/loss adjusts branch E&amp;P for book/tax differences.
 
           **Policy Rationale**:
           Remittance represents permanent repatriation of funds.
@@ -9991,11 +9991,11 @@
             // Step 3: Include in taxable income
             result.other_income += foreign_branch.section_987_realized_gain_loss;
 
-            // Step 4: Adjust branch E&P
+            // Step 4: Adjust branch E&amp;P
             foreign_branch.branch_ep_adjustment_section_987 =
               foreign_branch.section_987_realized_gain_loss;
 
-            // Step 5: Final branch E&P calculation
+            // Step 5: Final branch E&amp;P calculation
             foreign_branch.branch_accumulated_ep +=
               foreign_branch.branch_current_ep +
               foreign_branch.branch_ep_adjustment_section_987;

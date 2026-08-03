@@ -252,7 +252,7 @@
 <action_details>
 <action_number>2</action_number>
 <action_comment>Low gross receipts - $250 minimum</action_comment>
-<action_dsl>// Minimum tax: $250 for gross receipts <= $1M; set result.dc_minimum_tax = 250.0; set apportionment.state_tax = max(apportionment.state_tax, result.dc_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>// Minimum tax: $250 for gross receipts &lt;= $1M; set result.dc_minimum_tax = 250.0; set apportionment.state_tax = max(apportionment.state_tax, result.dc_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
 250.0 cvd /result.dc_minimum_tax xdef apportionment.state_tax result.dc_minimum_tax f> { apportionment.state_tax } { result.dc_minimum_tax } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
