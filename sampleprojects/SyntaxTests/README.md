@@ -21,21 +21,20 @@ This project serves as both a test suite and reference implementation for the DT
 
 ```
 SyntaxTests/
-├── DTRules.xml                        # Project configuration
+├── DTRules.xml                        # Project marker; <entry> names the start table
 ├── DecisionTables/
 │   ├── SyntaxExampleDTs.xls           # Main syntax examples
 │   ├── RunTimeTests.xls               # Runtime feature tests
 │   └── PSSyntaxExampleDTs.xls         # PowerScript syntax examples
 ├── edd/
 │   └── SampleSyntaxEDD.xls            # Entity definitions for testing
-├── xml/                               # Compiled XML (generated)
-├── testfiles/                         # Test input files
-├── EL Documentation-1.odt             # EL language reference document
-└── src/main/java/
-    └── com/dtrules/samples/sampleproject2/
-        ├── CompileSyntaxExamples.java # Compiles Excel → XML
-        └── TestSyntaxExamples.java    # Runs tests
+├── xml/                               # The rules: EDD, decision tables, mapping
+├── testfiles/test.xml                 # Test input: one job, two cases, two clients each
+└── EL Documentation-1.odt             # EL language reference document
 ```
+
+The `.xls` files are the historical authoring source. `xml/` is what the engine
+reads and what the authoring API writes.
 
 ## Entities
 
@@ -71,25 +70,58 @@ PowerScript syntax variations and extensions.
 
 ## Running This Sample
 
-### Prerequisites
+From the repository root:
 
-Build DTRules from the repository root:
 ```bash
-cd /path/to/DTRules
-mvn clean install
+make build
+build/dtrules run ./sampleprojects/SyntaxTests \
+  --input sampleprojects/SyntaxTests/testfiles/test.xml \
+  --trace /tmp/syntax-trace.xml
 ```
 
-### Compile Decision Tables
+The entry table is `Run_Syntax_Examples`, declared in `DTRules.xml`. It iterates
+`job.cases` and performs the tables that execute cleanly.
+
+## What executes, and what does not
+
+This is a **syntax catalogue**, not an application. Every row compiles from EL —
+there is no hand-written postfix anywhere in the project — but not every table
+runs to completion against the test data, and that is expected.
+
+Three tables execute clean and are performed by the entry table:
+
+| Table | Demonstrates |
+|---|---|
+| `Syntax_Examples_5` | Date and string operators, comparison phrasings, the `does` / `is` / `was` prefixes |
+| `Run_Test_15` | Context locals declared in one row and read by the rows beneath it |
+| `Error_Handling_Table` | The `perform ... and on error ...` path |
+
+The rest compile and load but do not execute, for three reasons:
+
+- **Entity scope.** Most tables open `for all clients`, but `clients` is a field
+  of `case`, and only `job` and `constants` are pushed at load. Several rows go
+  further and reference an `address` field (`street`, `city`) while iterating
+  cases or clients — broken against any data, not just this input. The entry
+  table supplies the missing `case` scope for the tables it performs.
+- **Forms the compiler does not implement.** `attribute <name> of <entity>`
+  compiles to a deliberate error stub, so any table containing it stops there.
+  Likewise `perform $<name>`: it parses but has no emitter, so those two rows
+  are commented out and point at the supported `perform table named (...)`.
+- **Uninitialised context locals.** `local boolean Test` with no initialiser,
+  then `does test == true ?`, puts a null where a boolean is required.
+
+`TestSyntaxTestsExecuteEachTable` pins the executable set;
+`TestSampleProjectsProduceLoadableTraces` pins that the project runs and leaves
+a trace with real fired columns.
+
+## Editing the rules
+
+Never hand-edit `xml/`. Use the authoring API, which writes the DSL, compiles
+the postfix, and keeps the two in step:
 
 ```bash
-cd sampleprojects/SyntaxTests
-mvn exec:java -Dexec.mainClass="com.dtrules.samples.sampleproject2.CompileSyntaxExamples"
-```
-
-### Run Tests
-
-```bash
-mvn exec:java -Dexec.mainClass="com.dtrules.samples.sampleproject2.TestSyntaxExamples"
+build/dtrules table get Syntax_Examples_5 --project sampleprojects/SyntaxTests
+build/dtrules table put Syntax_Examples_5 --project sampleprojects/SyntaxTests < table.json
 ```
 
 ## EL Quick Reference

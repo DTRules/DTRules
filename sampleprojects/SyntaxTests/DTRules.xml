@@ -1,4 +1,17 @@
 <DTRules>
+  <!--
+    <entry> names the table `dtrules run`, `dtrules debug` and the editor
+    start from. SyntaxTests had none, and no table orchestrated any other,
+    so nothing ever executed this project — its integration test was
+    skipped as "archived" and its rows had never run.
+
+    Run_Syntax_Examples iterates job.cases and performs the tables that
+    execute cleanly against testfiles/test.xml. This is a syntax catalogue,
+    not an application: several of the other tables demonstrate forms the
+    compiler deliberately does not implement, and are not performed here.
+    See README.md.
+  -->
+  <entry>Run_Syntax_Examples</entry>
 
   <RuleSet name="SyntaxExamples" source="file"  >
      <RuleSetFilePath>/xml</RuleSetFilePath>
