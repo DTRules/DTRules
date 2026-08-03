@@ -167,12 +167,35 @@ reference owns.
 
 ### CorporateTax
 
-Never scoped. From the initial inventory: 26 stub tables; the EDD uses root
-element `<entity_dictionary>` where the loader expects
-`<entity_data_dictionary>`; `*_dt_core.xml` and `states/DC_corp_dt.xml` have
-XML syntax errors; `CorporateTax_edd.xml` has an unescaped `<` inside a quoted
-string. Its `PHASE1_COMPLETE.md`-style status files come from a real feature
-effort (#316–#320), not an accident.
+Scoped 2026-08-02. **Full findings are in
+`sampleprojects/CorporateTax/STATUS.md` — read that, not this summary, before
+touching the project.** The mechanical repairs are done; one scope decision is
+open.
+
+Nothing in this project has ever loaded. `CorporateTax_dt_core.xml` fails to
+parse in every commit since it was introduced; `CorporateTax_edd.xml` parsed
+only in the first Phase 1 commit. The "26 stub tables" in the earlier inventory
+were an artifact of reading the merged file, which holds 24 tables (23 stubs)
+because the merge never picked up the state tier — where the real work is: 52
+files, 167 tables, 757 rows, 3 stubs, in the supported format.
+
+Its tests pass by reading a Phase-1-era `repository/` mirror, swallowing 23
+load errors as "simplified format", and running zero scenarios —
+`Total: 0, Passed: 0, Failed: 0`.
+
+Repaired: 130 unescaped `&`, 8 unescaped `<`, 3 `<field>` elements split by
+pasted blocks, and the merged EDD's missing root close. 111 of 112 files parse.
+
+Open: `CorporateTax_dt_core.xml` is in a `<rule>`/`<policy>` schema **the loader
+has no support for**, is corrupt beyond what any revision holds, and is
+referenced by nothing but `merge-states.sh`. Recommendation is to drop it and
+keep the state tier; the alternative is the DTEligibility route. Paul's call.
+
+Reference material for this work — 76 official state forms, instructions and
+published regulations across 43 jurisdictions — is committed under
+`sampleprojects/CorporateTax/reference/`, with a sha256 manifest and a refetch
+script. It is committed rather than gitignored because state form URLs rotate
+every filing season.
 
 ### CHIP's open question (#962)
 
