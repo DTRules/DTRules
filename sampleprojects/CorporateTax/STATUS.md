@@ -8,12 +8,13 @@ touching this project.**
 
 | | |
 |---|---|
-| XML files that parse | **111 of 112** |
+| XML files that parse | **all of them** (111; the corrupt core was removed) |
+| Does the rule set load? | **yes — 19 entities, 164 decision tables.** First time ever |
 | `xml/states/*_corp_dt.xml` | 52 files, **167 tables**, 757 rows with content, only 3 stubs — in the supported format |
 | …of those rows, hand-coded postfix | **413 of 757 (55%)** |
-| `xml/CorporateTax_dt.xml` (merged) | 24 tables, **23 of them stubs** — the merge never picked up the state content |
-| `xml/CorporateTax_dt_core.xml` | **does not parse**, and is in a format the loader cannot read |
-| `DTRules.xml` | **does not exist** — no project marker, no `<entry>` |
+| `xml/CorporateTax_dt.xml` (merged) | **164 tables, 0 stubs** — was 24/23 until the merge bug was fixed |
+| `xml/CorporateTax_dt_core.xml` | **removed** — never parsed, unsupported schema |
+| `DTRules.xml` | present; **no `<entry>` yet** — needs the orchestrator decision |
 | Excel authoring source | **none** — the only sample with no `edd/` or `DecisionTables/` |
 | Reference material | `reference/` — 76 official state forms and instructions, committed |
 
@@ -36,6 +37,22 @@ This is the campaign's pattern at its limit: not one test executing nothing,
 but an entire feature programme whose primary artifact the engine has never
 been able to read.
 
+## The merge had never run past its first file
+
+`merge-states.sh` incremented its counter with `((count++))`, which evaluates to
+the *pre-increment* value — so on the very first state file it returned 0, a
+non-zero exit status, and `set -e` aborted the script. Every run it had ever
+had died after one state.
+
+That is the whole explanation for two things that looked like separate
+mysteries: the merged DT holding 24 tables (the core's) instead of 164, and the
+merged EDD missing its closing tag (the script never reached the line that
+writes it). The "26 stub tables" in the original campaign inventory was this
+bug, not missing content.
+
+Fixed, along with making the federal core optional so the merge can run without
+one. The merged file now carries all 164 state tables and no stubs.
+
 ## What has been repaired
 
 Mechanical only — the file-level damage that stopped any tool from reading the
@@ -47,38 +64,85 @@ project:
   but were not: the element's opening line and its `comment=…/>` close were both
   intact with an unrelated block of 60–80 lines wedged between them. Rejoined,
   nothing deleted.
-- **The merged EDD's missing `</entity_dictionary>`.**
+- **The merged EDD's missing `</entity_dictionary>`** — a symptom of the merge
+  bug above, now produced correctly by the script.
+- **6 prose action rows marked as comments.** Each held an English sentence in
+  `<action_dsl>` against a comment-only `<action_postfix>` ("Apportionment will
+  be calculated by tables 7000-7500"), which the loader reads as EL somebody
+  forgot to compile and refuses the file over. In HI, NJ, NY, OR.
 
-No rule content was changed. No decision-table logic was touched.
+No decision-table logic was changed.
 
-## What is still open — needs a decision
+## The authoring debt, measured
 
-`CorporateTax_dt_core.xml` is the federal core, and three things are true of it
-at once:
+`go run ./tools/elcheck -project sampleprojects/CorporateTax -exclude CorporateTax_dt.xml`
 
-1. It is written in a `<rule>` / `<actions><action>` / `<policy>` schema. **The
-   loader has no support for this format** — grep for `xml:"rule` in
-   `pkg/dtrules/loader`; there is nothing. Only 2 of 54 files use it (this one
-   and `states/TEMPLATE_corp_dt.xml`); the other 51 use the standard
-   `<*_details>` form.
-2. It is structurally corrupt: 91 `<decision_table` opens against 89 closes,
+```
+TOTAL ok=176 prose=30 resolved=0 hand=413 diff=0 err=138
+```
+
+**551 rows need authoring: 413 carry postfix with no DSL, 138 more have DSL
+that no longer compiles.** Both kinds are emptied by `syncToXML`, so:
+
+> **The authoring API cannot be used on this project yet.** Any `table put`, or
+> any patch — including a rename — regenerates every postfix in that table from
+> its DSL and deletes those rows. A table becomes safe to edit only once every
+> one of its rows is resolved.
+
+That is the gate on all remaining work, including the table renames the
+orchestrator would want.
+
+Feasibility is measured, not guessed. Every one of the 413 hand rows carries a
+comment shaped `<description>; <the EL>`, so candidates can be bulk-extracted
+(`tools/elcheck/seed_from_comments.py`). Of 169 candidates that survive a
+prose filter: **65 compile byte-identical to the stored postfix**, 52 compile
+but differ, 52 do not compile. The remaining 244 hand rows have prose-only
+comments and need their EL derived from the postfix — repetitive work, since
+the patterns are few (`0.0 cvd /apportionment.state_tax xdef …`), but manual.
+
+## The federal core, and why it was removed
+
+`CorporateTax_dt_core.xml` was removed rather than repaired. Three things were
+true of it at once:
+
+1. It was written in a `<rule>` / `<actions><action>` / `<policy>` schema. **The
+   loader has no support for that format** — grep `xml:"rule` in
+   `pkg/dtrules/loader`; there is nothing. Only 2 of 54 files used it (this one
+   and `states/TEMPLATE_corp_dt.xml`, which is authoring documentation and
+   excluded from the merge); the other 51 use the standard `<*_details>` form.
+2. It was structurally corrupt: 91 `<decision_table` opens against 89 closes,
    274 `<rule ` against 273 `</rule>`, and the Table 15000 block's opening tags
-   were overwritten by a comment. The lost content is in no revision.
-3. It is referenced by nothing except `scripts/merge-states.sh`.
+   overwritten by a comment. The lost content is in no revision.
+3. Nothing referenced it but `scripts/merge-states.sh`.
 
-**The recommendation is: keep the state tier, drop the federal core.** Delete
-`CorporateTax_dt_core.xml`, write a real `DTRules.xml` with an entry table, fix
-the merge so the 167 state tables actually reach the merged file, then
-transcribe the 413 hand-coded rows the way SyntaxTests' 48 were. That last part
-is the bulk of the work and needs a federal core rebuilt in the supported
-format to hang the states off — which is new content, not repair.
+Removing it costs nothing that worked: no state table performs any other table,
+and only two state rows reference a federal result at all. It is recoverable
+from git if that judgement turns out wrong.
 
-The alternative is the DTEligibility route (#959/#960): delete the project.
-Against that, unlike DTEligibility this was deliberate and there are 167 tables
-of genuine work in the right format.
+## What is still open
 
-**Paul's call.** Nothing beyond the mechanical repairs should proceed until it
-is made.
+**1. The entry point.** There is no `<entry>` and no orchestrator. The shape is
+clear — dispatch on `apportionment.state_code` with
+`perform table named ("Determine_" + apportionment.state_code + "_Filing_Requirement")`,
+a supported and tested EL form — but two content decisions come first:
+
+- **Naming.** 36 states use `Determine_XX_Filing_Requirement` /
+  `Calculate_XX_Income_Adjustments` / `Calculate_XX_State_Tax`; 15 (CO IA ID IN
+  KS KY LA MA MD ME MI MN MO MS MT — clearly one authoring batch) use
+  `Determine_XX_Corporate_Filing_Requirement` and friends. Dynamic dispatch
+  needs one convention. Renaming is safe in itself — nothing performs anything
+  — but it goes through the authoring API, which is gated on the debt above.
+- **States with no corporate income tax.** NV, SD, WA and WY have no
+  equivalent table trio and need an agreed shape.
+
+**2. The federal computation.** Form 1120 itself is gone with the core. The
+states apportion from federal taxable income, which now has to come from the
+input rather than being computed. Whether to rebuild it is a scope question,
+not a repair.
+
+**3. Whether the project stays at all.** The alternative remains the
+DTEligibility route (#959/#960). Against it: unlike DTEligibility this was
+deliberate, and 164 tables of genuine work now load.
 
 ## Traps
 

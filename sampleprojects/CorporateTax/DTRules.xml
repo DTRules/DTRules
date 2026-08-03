@@ -1,0 +1,23 @@
+<DTRules>
+  <!--
+    Project marker. Its presence is what makes this directory a project to
+    `dtrules edit` and to project discovery (#941/#942).
+
+    There is deliberately no <entry> yet. The federal core that would have
+    orchestrated the state tables was removed — it never parsed in any commit
+    and was written in a <rule>/<policy> schema the loader cannot read (see
+    STATUS.md). The 164 state tables load and are self-contained: none of them
+    performs another, and each operates on the flat corporation / apportionment
+    / result singletons.
+
+    What an entry needs to do is dispatch on apportionment.state_code, e.g.
+
+        perform table named ("Determine_" + apportionment.state_code + "_Filing_Requirement")
+
+    which is a supported EL form. Writing it means settling two things first:
+    the 15 states spelled Determine_XX_Corporate_Filing_Requirement rather than
+    Determine_XX_Filing_Requirement need one convention, and the states with no
+    corporate income tax at all (NV, SD, WA, WY) need an agreed shape. Both are
+    content decisions, not repairs.
+  -->
+</DTRules>

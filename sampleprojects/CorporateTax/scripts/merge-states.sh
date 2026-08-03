@@ -35,7 +35,14 @@ if [ ! -d "$STATES_DIR" ]; then
     mkdir -p "$STATES_DIR"
 fi
 
-# Function to merge XML files
+# Function to merge XML files.
+#
+# The header used to be lifted out of the core file with `head -n 100 | grep`,
+# which meant the merge could not run without a core and inherited whatever
+# attributes the core's root tag carried. It now emits its own header, and the
+# core is optional — CorporateTax has no federal core since the original was
+# removed (unparseable in every revision, and in a schema the loader cannot
+# read; see ../STATUS.md).
 merge_xml_files() {
     local output_file=$1
     local core_file=$2
@@ -44,11 +51,12 @@ merge_xml_files() {
 
     echo -e "${YELLOW}Merging $tag_name files...${NC}"
 
-    # Start with XML declaration and opening tag from core file
-    head -n 100 "$core_file" | grep -E "^<\?xml|^<$tag_name" > "$output_file"
+    printf '<?xml version="1.0" encoding="UTF-8"?>\n<%s>\n' "$tag_name" > "$output_file"
 
-    # Add core content (skip declaration and opening/closing tags)
-    sed '1,/^<'$tag_name'/d; /^<\/'$tag_name'/d' "$core_file" >> "$output_file"
+    # Add core content, if there is a core (skip declaration and open/close tags)
+    if [ -n "$core_file" ] && [ -f "$core_file" ]; then
+        sed '1,/^<'$tag_name'/d; /^<\/'$tag_name'/d' "$core_file" >> "$output_file"
+    fi
 
     # Add state files (skip declaration and opening/closing tags)
     local count=0
@@ -60,7 +68,13 @@ merge_xml_files() {
             echo "" >> "$output_file"
             echo "  <!-- State: $state -->" >> "$output_file"
             sed '1,/^<'$tag_name'/d; /^<\/'$tag_name'/d' "$state_file" >> "$output_file"
-            ((count++))
+            # NOT `((count++))`: that evaluates to the pre-increment value, so
+            # the very first file makes it return 0, which is a non-zero exit
+            # status, which `set -e` treats as failure. The merge aborted after
+            # one state file every time it was ever run — which is why the
+            # merged DT only ever contained the core's tables and the merged
+            # EDD was missing its closing tag.
+            count=$((count + 1))
         fi
     done
 
@@ -80,9 +94,10 @@ if [ ! -f "$CORE_EDD" ]; then
     exit 1
 fi
 
+# A core DT is optional; see the note on merge_xml_files.
 if [ ! -f "$CORE_DT" ]; then
-    echo -e "${RED}Error: Core DT not found: $CORE_DT${NC}"
-    exit 1
+    echo -e "${YELLOW}No federal core DT — merging state tables only${NC}"
+    CORE_DT=""
 fi
 
 # Merge EDD files
@@ -103,6 +118,6 @@ echo "  - $OUTPUT_EDD"
 echo "  - $OUTPUT_DT"
 echo ""
 echo "Next steps:"
-echo "  cd ../../go"
+echo "  go run ./tools/elcheck -project sampleprojects/CorporateTax"
 echo "  go test ./pkg/dtrules/... -run TestCorporateTax"
 echo ""

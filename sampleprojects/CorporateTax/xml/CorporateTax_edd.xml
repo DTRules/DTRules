@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<entity_dictionary name="CorporateTax_Core_EDD">
+<entity_dictionary>
 
   <!-- Corporation Entity -->
   <entity name="corporation">
@@ -2311,6 +2311,1667 @@
   -->
   <entity name="result">
     <!-- No Alaska-specific fields required -->
+  </entity>
+
+
+  <!-- State: AL -->
+
+  <!--
+    Apportionment Entity: Alabama Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='AL'
+           comment='Alabama state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='250000.0'
+           comment='Alabama economic nexus gross receipts threshold - $250,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Economic nexus transaction count threshold - 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Alabama uses single-sales factor apportionment'/>
+
+    <!-- Alabama Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.065'
+           comment='Alabama corporate income tax rate - 6.5% flat rate (AL Code § 40-18-31)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='Alabama additions: interest on federal bonds, IRC 199A addback, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='Alabama subtractions: municipal interest, state taxes, Alabama NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='Alabama tax credits: jobs credit, R&amp;D credit, historic preservation, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Alabama-Specific Extensions
+
+    No special Alabama-specific fields needed beyond standard apportionment.
+    Alabama uses a straightforward flat 6.5% rate with single-sales apportionment.
+  -->
+  <entity name="result">
+    <!-- No Alabama-specific result fields required -->
+  </entity>
+
+
+  <!-- State: AR -->
+
+  <!--
+    Apportionment Entity: Arkansas-Specific Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='AR'
+           comment='Arkansas state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Economic nexus gross receipts threshold - $100K'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Economic nexus transaction count threshold - 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Arkansas uses single-sales factor apportionment'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.055'
+           comment='Arkansas corporate income tax rate: 5.5% flat rate (AR Code § 26-51-205)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&amp;D, jobs, film, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Arkansas-Specific Extensions
+
+    No special Arkansas-specific fields are required for the basic implementation.
+    Arkansas follows a straightforward flat-rate structure without special surcharges
+    or alternative minimum tax.
+  -->
+  <entity name="result">
+    <!-- No Arkansas-specific fields needed for basic implementation -->
+  </entity>
+
+
+  <!-- State: AZ -->
+
+  <!--
+    Apportionment Entity: Arizona-Specific Configuration
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='AZ'
+           comment='Arizona two-letter state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='AZ economic nexus gross receipts threshold: $100,000 (AZ Rev. Stat. § 43-1102)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='AZ economic nexus transaction count threshold: 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='AZ uses single-sales factor apportionment (AZ Rev. Stat. § 43-1139)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.049'
+           comment='AZ corporate income tax rate: 4.9% flat rate (AZ Rev. Stat. § 43-1111)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='AZ additions: federal interest, IRC 199A addback, bonus depreciation (if decoupled)'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='AZ subtractions: AZ municipal interest, state taxes, AZ NOL'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='AZ tax credits: R&amp;D, renewable energy, employment, film production'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Arizona-Specific Extensions
+
+    Arizona does not have special requirements beyond standard apportionment.
+    No AMT, no surcharges, no special industry rates.
+  -->
+  <entity name="result">
+    <!-- No AZ-specific fields needed at this time -->
+  </entity>
+
+
+  <!-- State: CA -->
+
+  <!-- Apportionment Entity: California Configuration -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='CA'
+           comment='California state code'/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name='economic_nexus_threshold' type='double' default_value='610395.0'
+           comment='CA economic nexus threshold (2025: $610,395, indexed annually)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='0'
+           comment='CA has no transaction count threshold (sales threshold only)'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='CA uses single-sales factor apportionment (100% sales)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.0884'
+           comment='CA corporate tax rate: 8.84% (flat rate)'/>
+
+    <!-- State Additions -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='CA additions: federal interest, IRC 199A addback, etc.'/>
+
+    <!-- State Subtractions -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='CA subtractions: CA municipal interest, CA NOL, etc.'/>
+
+    <!-- State Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='CA credits: R&amp;D, hiring, film, etc.'/>
+
+  </entity>
+
+  <!-- Result Entity: California-Specific Extensions -->
+  <entity name="result">
+
+    <!-- California Water's Edge Election -->
+    <field name='ca_waters_edge_election' type='boolean' default_value='true'
+           comment='Water s edge election for worldwide combined reporting (most taxpayers elect)'/>
+
+    <!-- California Unitary Group -->
+    <field name='ca_unitary_group_count' type='integer' default_value='1'
+           comment='Number of corporations in CA unitary group (1 = standalone)'/>
+
+    <!-- California Minimum Franchise Tax -->
+    <field name='ca_minimum_franchise_tax' type='double' default_value='800.0'
+           comment='CA minimum franchise tax ($800 for most corporations)'/>
+
+    <!-- California Enterprise Zone Credits (being phased out) -->
+    <field name='ca_enterprise_zone_credit' type='double' default_value='0.0'
+           comment='CA enterprise zone hiring credit (legacy, being phased out)'/>
+
+  </entity>
+
+
+  <!-- State: CO -->
+
+  <!-- State: CT -->
+
+  <!-- State: DC -->
+
+  <!--
+    Apportionment Entity: District of Columbia Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment and DC-specific tables 55000-55099.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='DC'
+           comment='District of Columbia code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='DC economic nexus gross receipts threshold: $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='DC economic nexus transaction count threshold: 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='DC uses 100% single-sales factor apportionment (effective 2015, DC Code § 47-1810.02)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.0825'
+           comment='DC corporate franchise tax rate: 8.25% flat rate (DC Code § 47-1807.02)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='DC-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='DC-specific subtractions: DC municipal bond interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='DC tax credits: R&amp;D, jobs, historic preservation, low-income housing, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: DC-Specific Extensions
+
+    DC has minimum tax requirements based on gross receipts that differ from
+    the standard income-based calculation.
+  -->
+  <entity name="result">
+
+    <!-- DC Minimum Tax -->
+    <field name='dc_gross_receipts' type='double' default_value='0.0'
+           comment='DC gross receipts for minimum tax calculation'/>
+
+    <field name='dc_minimum_tax' type='double' default_value='0.0'
+           comment='DC minimum franchise tax: $250 if receipts &lt;= $1M, $1000 if receipts > $1M'/>
+
+  </entity>
+
+
+  <!-- State: DE -->
+
+  <!--
+    Delaware Corporate Income Tax - Entity Data Dictionary
+
+    Delaware has an 8.8% flat corporate income tax rate (DE Code Title 30 § 1902).
+    Uses single-sales factor apportionment.
+    Economic nexus threshold: $100,000.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='DE'
+           comment='Delaware two-letter state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='DE economic nexus gross receipts threshold - $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='DE economic nexus transaction count threshold - 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='DE uses single-sales factor apportionment'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.088'
+           comment='DE corporate income tax rate: 8.8% flat rate (DE Code Title 30 § 1902)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='DE additions: federal interest, state tax refunds included in federal income, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='DE subtractions: municipal interest from other states, state income taxes paid, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='DE tax credits: research and development, brownfield development, historic preservation, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Delaware-Specific Extensions
+
+    Delaware does not require special state-specific fields beyond the standard
+    apportionment entity. DE uses a simple flat-rate tax structure.
+  -->
+  <entity name="result">
+    <!-- No DE-specific result fields needed -->
+  </entity>
+
+
+  <!-- State: FL -->
+
+  <!--
+    Florida Corporate Income Tax - Entity Data Dictionary
+
+    Florida has a flat 5.5% corporate income tax rate (FL Statute § 220.11).
+    Uses single-sales factor apportionment.
+    Economic nexus threshold: $50,000 (lower than typical $100K).
+  -->
+  <entity name="apportionment" xls_file='FL_Corp.xls'>
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='FL'
+           comment='Florida two-letter state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='50000.0'
+           comment='FL economic nexus gross receipts threshold - $50K (lower than typical $100K threshold)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='FL economic nexus transaction count threshold - 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='FL uses single-sales factor apportionment (FL Statute § 220.15)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.055'
+           comment='FL corporate income tax rate: 5.5% flat rate (FL Statute § 220.11)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='FL additions: federal interest, state tax refunds included in federal income, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='FL subtractions: municipal interest from other states, state income taxes paid, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='FL tax credits: enterprise zone, R&amp;D, community contribution, capital investment, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Florida-Specific Extensions
+
+    Florida does not require special state-specific fields beyond the standard
+    apportionment entity. FL uses a simple flat-rate tax structure.
+  -->
+  <entity name="result" xls_file='FL_Corp.xls'>
+    <!-- No FL-specific result fields needed -->
+  </entity>
+
+
+  <!-- State: GA -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='GA'
+           comment='Georgia state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='GA economic nexus gross receipts threshold: $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='GA economic nexus transaction count threshold: 200'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='GA uses single-sales factor apportionment (100% sales)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.0575'
+           comment='GA corporate income tax rate: 5.75% (GA Code § 48-7-21)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='GA-specific additions: federal interest, state addbacks'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='GA-specific subtractions: municipal interest, state deductions'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='GA tax credits: jobs credits, R&amp;D credits, film credits, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: GA-Specific Extensions
+
+    No special GA-specific fields needed for basic implementation.
+    GA uses standard flat rate structure with single-sales apportionment.
+  -->
+  <entity name="result">
+    <!-- No additional GA-specific fields required -->
+  </entity>
+
+
+  <!-- State: HI -->
+
+  <!--
+    Apportionment Entity: Hawaii-Specific Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification (REQUIRED) -->
+    <field name='state_code' type='string' default_value='HI'
+           comment='Hawaii state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Economic nexus gross receipts threshold - $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Economic nexus transaction count threshold - 200 transactions'/>
+
+    <!-- Apportionment Formula (REQUIRED) -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Hawaii uses single-sales factor apportionment'/>
+
+    <!-- State Tax Rate (REQUIRED) -->
+    <field name='state_tax_rate' type='double' default_value='0.064'
+           comment='Hawaii corporate income tax rate: 6.4% (HI Rev. Stat. § 235-71)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&amp;D, jobs, film, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: State-Specific Extensions (OPTIONAL)
+
+    No state-specific fields needed for Hawaii basic implementation.
+  -->
+  <entity name="result">
+    <!-- No Hawaii-specific extensions required for basic implementation -->
+  </entity>
+
+
+  <!-- State: IA -->
+
+  <!-- State: ID -->
+
+  <!-- State: IL -->
+
+  <!--
+    Apportionment Entity: State-Specific Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment" xls_file='IL_Corp.xls'>
+
+    <!-- State Identification (REQUIRED) -->
+    <field name='state_code' type='string' default_value='IL'
+           comment='Two-letter state code - Illinois'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Economic nexus gross receipts threshold - IL uses $100K threshold'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Economic nexus transaction count threshold - Default 200'/>
+
+    <!-- Apportionment Formula (REQUIRED) -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Illinois uses single-sales factor apportionment'/>
+
+    <!-- State Tax Rate (REQUIRED) -->
+    <field name='state_tax_rate' type='double' default_value='0.095'
+           comment='IL corporate income tax rate - 9.5% per 35 ILCS 5/201 (highest in nation)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&amp;D, jobs, film, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: State-Specific Extensions (OPTIONAL)
+
+    Illinois-specific fields for Personal Property Replacement Tax (PPRT)
+    The replacement tax is an additional 2.5% tax on corporate income,
+    bringing the effective tax rate to 12.0% (9.5% + 2.5%).
+  -->
+  <entity name="result" xls_file='IL_Corp.xls'>
+
+    <!-- Illinois Personal Property Replacement Tax -->
+    <field name='il_replacement_tax_rate' type='double' default_value='0.025'
+           comment='IL personal property replacement tax rate - 2.5% per 35 ILCS 5/201(c)'/>
+
+    <field name='il_replacement_tax' type='double' default_value='0.0'
+           comment='IL personal property replacement tax amount calculated'/>
+
+  </entity>
+
+
+  <!-- State: IN -->
+
+  <!-- State: KS -->
+
+  <!-- State: KY -->
+
+  <!-- State: LA -->
+
+  <!-- State: MA -->
+
+  <!--
+    Apportionment Entity: Massachusetts-Specific Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='MA'
+           comment='Massachusetts state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='500000.0'
+           comment='MA economic nexus gross receipts threshold - $500,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='MA economic nexus transaction count threshold - 200'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='MA uses single-sales factor apportionment'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.080'
+           comment='MA corporate excise tax rate - 8% flat rate (M.G.L. c. 63 § 39)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='MA-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='MA-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='MA tax credits: Economic Development Incentive Program (EDIP), R&amp;D, film, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Massachusetts-Specific Extensions
+
+    No special state-specific fields are required for Massachusetts.
+    The standard apportionment fields are sufficient for MA's 8% flat rate.
+  -->
+  <entity name="result">
+    <!-- No MA-specific fields needed -->
+  </entity>
+
+
+  <!-- State: MD -->
+
+  <!-- State: ME -->
+
+  <!-- State: MI -->
+
+  <!--
+    Apportionment Entity: Michigan-Specific Configuration
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='MI'
+           comment='Michigan state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Economic nexus gross receipts threshold - $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Economic nexus transaction count threshold - 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Michigan uses single-sales factor apportionment'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.060'
+           comment='Michigan corporate income tax rate: 6.0% (MCL 206.623)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&amp;D, jobs, film, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Michigan-Specific Extensions
+
+    No special state-specific fields needed for Michigan's flat-rate system.
+  -->
+  <entity name="result">
+    <!-- Michigan uses standard apportionment - no special fields required -->
+  </entity>
+
+
+  <!-- State: MN -->
+  <file_metadata>
+    <file_path>states/MN/51500_MN_constants</file_path>
+  </file_metadata>
+
+  <!--
+    Apportionment Entity: Minnesota State Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification (REQUIRED) -->
+    <field name='state_code' type='string' default_value='MN'
+           comment='Minnesota two-letter state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Economic nexus gross receipts threshold - $100K per MN DOR guidance'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Economic nexus transaction count threshold - 200 transactions'/>
+
+    <!-- Apportionment Formula (REQUIRED) -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Minnesota uses single-sales factor apportionment (100% sales)'/>
+
+    <!-- State Tax Rate (REQUIRED) -->
+    <field name='state_tax_rate' type='double' default_value='0.095'
+           comment='Minnesota flat corporate income tax rate: 9.5% (MN Stat. § 290.06)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, foreign dividend deduction, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, state taxes, state NOL, small business deduction, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&amp;D, jobs, Angel investment, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: State-Specific Extensions (OPTIONAL)
+
+    Minnesota-specific fields can be added here if needed for detailed tracking.
+    The standard apportionment entity fields are sufficient for basic implementation.
+  -->
+  <entity name="result">
+    <!-- Optional: MN-specific tracking fields -->
+    <!-- Example:
+    <field name='mn_small_business_deduction' type='double' default_value='0.0'
+           comment='MN small business income deduction (if applicable)'/>
+    <field name='mn_nol_carryforward' type='double' default_value='0.0'
+           comment='MN NOL carryforward (80% of income limitation)'/>
+    -->
+  </entity>
+
+
+  <!-- State: MO -->
+
+  <!-- State: MS -->
+
+  <!-- State: MT -->
+
+  <!-- State: NC -->
+
+  <!-- State: ND -->
+
+  <!-- State: NE -->
+
+  <!-- State: NH -->
+
+  <!-- State: NJ -->
+
+  <!--
+    Apportionment Entity: State-Specific Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment" xls_file='NJ_Corp.xls'>
+
+    <!-- State Identification (REQUIRED) -->
+    <field name='state_code' type='string' default_value='NJ'
+           comment='Two-letter state code - New Jersey'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Economic nexus gross receipts threshold - NJ uses standard $100K threshold'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Economic nexus transaction count threshold - Default 200'/>
+
+    <!-- Apportionment Formula (REQUIRED) -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='NJ uses single-sales factor apportionment'/>
+
+    <!-- State Tax Rate (REQUIRED) -->
+    <field name='state_tax_rate' type='double' default_value='0.0900'
+           comment='NJ base corporate income tax rate - 9% (11.5% for income > $1M with surtax)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&amp;D, jobs, film, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: State-Specific Extensions (OPTIONAL)
+
+    New Jersey-specific fields for Corporation Business Tax
+  -->
+  <entity name="result" xls_file='NJ_Corp.xls'>
+
+    <!-- New Jersey Entire Net Income -->
+    <field name='nj_entire_net_income' type='double' default_value='0.0'
+           comment='NJ entire net income (NJ term for taxable income base)'/>
+
+    <!-- New Jersey Surtax (2.5% for income > $1M) -->
+    <field name='nj_surtax_rate' type='double' default_value='0.025'
+           comment='NJ surtax rate (2.5% for corporations with income > $1M)'/>
+
+    <field name='nj_surtax_threshold' type='double' default_value='1000000.0'
+           comment='NJ surtax threshold ($1,000,000 entire net income)'/>
+
+    <field name='nj_surtax' type='double' default_value='0.0'
+           comment='NJ surtax amount calculated (2.5% of entire net income > $1M)'/>
+
+  </entity>
+
+
+  <!-- State: NM -->
+
+  <!-- State: NV -->
+
+  <!-- State: NY -->
+
+  <!--
+    Apportionment Entity: State-Specific Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment" xls_file='NY_Corp.xls'>
+
+    <!-- State Identification (REQUIRED) -->
+    <field name='state_code' type='string' default_value='NY'
+           comment='Two-letter state code - New York'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='1000000.0'
+           comment='Economic nexus gross receipts threshold - NY uses $1M threshold'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Economic nexus transaction count threshold - Default 200 (update if state differs)'/>
+
+    <!-- Apportionment Formula (REQUIRED) -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='REQUIRED: Set to three_factor, single_sales, or double_weighted_sales'/>
+
+    <!-- State Tax Rate (REQUIRED) -->
+    <field name='state_tax_rate' type='double' default_value='0.065'
+           comment='NY corporate income tax rate - 6.5% per Tax Law § 209'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&amp;D, jobs, film, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: State-Specific Extensions (OPTIONAL)
+
+    Add state-specific fields here if your state has unique requirements
+    not covered by the standard apportionment entity.
+
+    Examples:
+    - NY MTA surcharge for NYC metro area businesses
+    - CA water's edge election for worldwide combined reporting
+    - State alternative minimum tax
+    - Special industry taxes (financial institutions, utilities)
+    - State-specific NOL rules that differ from federal
+  -->
+  <entity name="result" xls_file='NY_Corp.xls'>
+
+    <!--
+      Uncomment and customize examples below as needed for your state:
+    -->
+
+    <!-- New York MTA Surcharge -->
+    <field name='ny_in_mta_region' type='boolean' default_value='false'
+           comment='Business located in MTA region (NYC metro area)'/>
+    <field name='ny_mta_surcharge_rate' type='double' default_value='0.0034'
+           comment='NY MTA surcharge rate (0.34% for businesses in MTA region)'/>
+    <field name='ny_mta_surcharge' type='double' default_value='0.0'
+           comment='NY MTA surcharge amount calculated'/>
+
+    <!-- Example: California Water's Edge Election -->
+    <!--
+    <field name='ca_waters_edge_election' type='boolean' default_value='false'
+           comment='Elected water s edge treatment for worldwide combined reporting'/>
+    <field name='ca_unitary_group_count' type='integer' default_value='1'
+           comment='Number of corporations in CA unitary group'/>
+    -->
+
+    <!-- Example: Texas Margin Tax (not an income tax) -->
+    <!--
+    <field name='tx_total_revenue' type='double' default_value='0.0'
+           comment='Total revenue for Texas margin tax'/>
+    <field name='tx_margin' type='double' default_value='0.0'
+           comment='Taxable margin (revenue minus cost of goods sold or compensation)'/>
+    <field name='tx_margin_tax_rate' type='double' default_value='0.0075'
+           comment='TX franchise tax rate on taxable margin (0.75%)'/>
+    <field name='tx_franchise_tax' type='double' default_value='0.0'
+           comment='Texas franchise tax (not income tax)'/>
+    -->
+
+    <!-- Example: State Alternative Minimum Tax -->
+    <!--
+    <field name='xx_amt_income' type='double' default_value='0.0'
+           comment='State AMT income (federal AMTI with state adjustments)'/>
+    <field name='xx_amt_rate' type='double' default_value='0.03'
+           comment='State AMT rate (example: 3%)'/>
+    <field name='xx_amt_exemption' type='double' default_value='40000'
+           comment='State AMT exemption amount'/>
+    <field name='xx_amt' type='double' default_value='0.0'
+           comment='State alternative minimum tax'/>
+    -->
+
+    <!-- Example: Special Industry Tax Rate -->
+    <!--
+    <field name='xx_is_financial_institution' type='boolean' default_value='false'
+           comment='Is financial institution (may have different tax rate/base)'/>
+    <field name='xx_financial_institution_rate' type='double' default_value='0.0'
+           comment='Special tax rate for financial institutions'/>
+    -->
+
+  </entity>
+
+
+  <!-- State: OH -->
+  <file_metadata>
+    <file_path>states/OH/50700_OH_corp_constants</file_path>
+  </file_metadata>
+
+  <!--
+    Apportionment Entity: Ohio-Specific Configuration
+
+    Note: Ohio does NOT use traditional apportionment since the CAT is a gross receipts tax.
+    These fields are maintained for consistency with the framework but many are not used.
+  -->
+  <entity name="apportionment" xls_file='OH_Corp.xls'>
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='OH'
+           comment='Ohio state code'/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name='economic_nexus_threshold' type='double' default_value='500000.0'
+           comment='Ohio CAT economic nexus: $500,000 in Ohio-sourced gross receipts'/>
+
+    <field name='transaction_threshold' type='integer' default_value='0'
+           comment='Ohio does not use transaction count threshold'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Ohio uses single-sales sourcing for gross receipts (situsing rules)'/>
+
+    <!-- State Tax Rate (NOT USED - Ohio has no income tax) -->
+    <field name='state_tax_rate' type='double' default_value='0.0'
+           comment='Ohio has NO corporate income tax (CAT is calculated separately)'/>
+
+    <!-- State Additions/Subtractions (NOT USED - no income tax) -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='Not applicable - Ohio has no income tax'/>
+
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='Not applicable - Ohio has no income tax'/>
+
+    <!-- State Tax Credits (NOT USED for CAT - CAT has no credits) -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='Ohio CAT has no credits (tax is based on gross receipts only)'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Ohio Commercial Activity Tax (CAT) Fields
+
+    These fields implement the Ohio CAT calculation.
+    The CAT is NOT an income tax - it's based on gross receipts.
+  -->
+  <entity name="result" xls_file='OH_Corp.xls'>
+
+    <!-- Ohio Taxable Gross Receipts -->
+    <field name='oh_taxable_gross_receipts' type='double' default_value='0.0'
+           comment='Ohio-sourced taxable gross receipts for CAT calculation'/>
+
+    <!-- Ohio CAT Exclusion Threshold -->
+    <field name='oh_cat_exclusion_threshold' type='double' default_value='150000.0'
+           comment='Ohio CAT exclusion threshold ($150K - no tax due below this amount)'/>
+
+    <!-- Ohio CAT Minimum Tax Threshold -->
+    <field name='oh_cat_minimum_threshold' type='double' default_value='1000000.0'
+           comment='Ohio CAT minimum tax threshold ($1M - minimum tax applies $150K-$1M)'/>
+
+    <!-- Ohio CAT Minimum Tax -->
+    <field name='oh_cat_minimum_tax' type='double' default_value='150.0'
+           comment='Ohio CAT minimum tax ($150 for receipts between $150K and $1M)'/>
+
+    <!-- Ohio CAT Tax Rate -->
+    <field name='oh_cat_rate' type='double' default_value='0.0026'
+           comment='Ohio CAT rate (0.26% = 0.0026) on receipts over $1M'/>
+
+    <!-- Ohio CAT Calculation -->
+    <field name='oh_cat_tax' type='double' default_value='0.0'
+           comment='Ohio Commercial Activity Tax liability (NOT an income tax)'/>
+
+    <!-- Ohio CAT Exclusions -->
+    <field name='oh_cat_excluded_receipts' type='double' default_value='0.0'
+           comment='Receipts excluded from CAT (certain sales, dividends, interest, etc.)'/>
+
+    <!-- Ohio CAT Annual Filing Threshold -->
+    <field name='oh_annual_filing_threshold' type='double' default_value='150000.0'
+           comment='Ohio CAT annual filing threshold ($150K - no filing required below this)'/>
+
+    <!-- Ohio CAT Quarterly Filing Threshold -->
+    <field name='oh_quarterly_filing_threshold' type='double' default_value='1000000.0'
+           comment='Ohio CAT quarterly filing threshold ($1M - quarterly filing required above this)'/>
+
+    <!-- Ohio CAT Qualifies for No Tax Due -->
+    <field name='oh_qualifies_for_no_cat' type='boolean' default_value='false'
+           comment='Ohio-sourced receipts below $150K exclusion threshold - no CAT due'/>
+
+  </entity>
+
+
+  <!-- State: OK -->
+
+  <!-- State: OR -->
+
+  <!-- State: PA -->
+
+  <!--
+    Apportionment Entity: Pennsylvania Configuration
+  -->
+  <entity name="apportionment" xls_file='PA_Corp.xls'>
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='PA'
+           comment='Pennsylvania state code'/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name='economic_nexus_threshold' type='double' default_value='500000.0'
+           comment='PA economic nexus threshold: $500,000 gross receipts (higher than typical $100K)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='0'
+           comment='PA has no transaction count threshold (receipts only)'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='PA uses 100% single-sales factor apportionment (PA Code § 7401(3)2.(a)(17))'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.0899'
+           comment='PA Corporate Net Income Tax rate: 8.99% (PA Code § 7401(3)1.(a), 2025)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='PA additions: federal interest income, IRC 199A deduction addback, state/local taxes deducted'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='PA subtractions: state/municipal bond interest, dividends (qualified), PA NOL'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='PA tax credits: R&amp;D, Film, Manufacturing, Job Creation, Keystone Opportunity Zone'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Pennsylvania-Specific Extensions
+
+    PA generally conforms to federal definitions with few special adjustments.
+    No additional fields needed for basic PA CNIT calculation.
+  -->
+  <entity name="result" xls_file='PA_Corp.xls'>
+    <!-- No PA-specific result fields needed at this time -->
+  </entity>
+
+
+  <!-- State: RI -->
+
+  <!-- State: SC -->
+
+  <!--
+    Apportionment Entity: South Carolina Configuration
+
+    Used by decision tables 7000-7500 for multi-state tax apportionment
+    and SC-specific tables 54400-54499.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='SC'
+           comment='South Carolina state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='SC economic nexus gross receipts threshold: $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='SC economic nexus transaction count threshold: 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='SC uses single-sales factor apportionment (100% sales factor)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.050'
+           comment='SC corporate income tax rate: 5.0% flat rate - SC Code § 12-6-530'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='SC additions: federal interest income, certain expenses, IRC 199A addback, state income tax refunds, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='SC subtractions: SC municipal bond interest, state income taxes, state NOL, dividend income deductions, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='SC tax credits: job development, corporate headquarters, port volume increase, research and development, etc.'/>
+
+    <!-- License Fee -->
+    <field name='license_fee_rate' type='double' default_value='0.001'
+           comment='SC annual license fee rate: 0.1% (0.001) of capital and paid-in surplus'/>
+
+    <field name='license_fee_minimum' type='double' default_value='15.0'
+           comment='SC minimum annual license fee: $15'/>
+
+  </entity>
+
+  <!--
+    Result Entity: SC does not require special state-specific fields
+
+    South Carolina uses a straightforward flat-rate system without:
+    - Alternative minimum tax
+    - Special surcharges
+    - Industry-specific tax rates
+    - Complex combined reporting (though unitary rules apply)
+  -->
+  <entity name="result">
+    <!-- No SC-specific fields required -->
+  </entity>
+
+
+  <!-- State: SD -->
+
+  <!--
+    Apportionment Entity: South Dakota-Specific Configuration
+
+    Note: South Dakota has NO corporate income tax, so apportionment is not needed.
+    These fields are maintained for consistency with the framework but are not used.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='SD'
+           comment='South Dakota state code'/>
+
+    <!-- Economic Nexus Thresholds (for sales tax, not income tax) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='SD economic nexus for SALES TAX: $100,000 in sales (Wayfair standard)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='SD economic nexus for SALES TAX: 200 or more transactions'/>
+
+    <!-- Apportionment Formula (NOT USED - no income tax) -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Not applicable - South Dakota has no corporate income tax'/>
+
+    <!-- State Tax Rate (NO INCOME TAX) -->
+    <field name='state_tax_rate' type='double' default_value='0.0'
+           comment='South Dakota has NO corporate income tax - rate is 0.0%'/>
+
+    <!-- State Additions/Subtractions (NOT USED - no income tax) -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='Not applicable - South Dakota has no corporate income tax'/>
+
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='Not applicable - South Dakota has no corporate income tax'/>
+
+    <!-- State Tax Credits (NOT USED - no income tax) -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='Not applicable - South Dakota has no corporate income tax or credits'/>
+
+  </entity>
+
+  <!--
+    Result Entity: South Dakota Tax Fields
+
+    South Dakota has NO corporate income tax and NO alternative taxes on corporations
+    (unlike Texas franchise tax or Nevada commerce tax).
+
+    Note: Financial institutions pay Bank Franchise Tax, but that's separate
+    and not part of general corporate income tax.
+  -->
+  <entity name="result">
+
+    <!-- South Dakota No Tax Flag -->
+    <field name='sd_no_corporate_tax' type='boolean' default_value='true'
+           comment='South Dakota has NO corporate income tax - always true'/>
+
+    <!-- South Dakota Bank Franchise Tax (ONLY for financial institutions) -->
+    <field name='sd_is_financial_institution' type='boolean' default_value='false'
+           comment='Is financial institution subject to SD Bank Franchise Tax (NOT general corporations)'/>
+
+    <field name='sd_bank_franchise_tax' type='double' default_value='0.0'
+           comment='SD Bank Franchise Tax (ONLY for banks/financial institutions, NOT general corporations)'/>
+
+    <!-- South Dakota Insurance Premium Tax (ONLY for insurance companies) -->
+    <field name='sd_is_insurance_company' type='boolean' default_value='false'
+           comment='Is insurance company subject to SD Insurance Premium Tax (NOT general corporations)'/>
+
+    <field name='sd_insurance_premium_tax' type='double' default_value='0.0'
+           comment='SD Insurance Premium Tax (ONLY for insurance companies, NOT general corporations)'/>
+
+  </entity>
+
+
+  <!-- State: TN -->
+
+  <!-- State: TX -->
+
+  <!--
+    Apportionment Entity: Texas-Specific Configuration
+
+    Note: Texas does NOT use traditional apportionment since it's not an income tax.
+    These fields are maintained for consistency with the framework but many are not used.
+  -->
+  <entity name="apportionment" xls_file='TX_Corp.xls'>
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='TX'
+           comment='Texas state code'/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name='economic_nexus_threshold' type='double' default_value='500000.0'
+           comment='Texas economic nexus: $500,000 in Texas receipts (NOT the federal $100K standard)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='0'
+           comment='Texas does not use transaction count threshold'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Texas uses single-sales factor for apportionment (sourcing receipts to Texas)'/>
+
+    <!-- State Tax Rate (NOT USED - Texas has no income tax) -->
+    <field name='state_tax_rate' type='double' default_value='0.0'
+           comment='Texas has NO corporate income tax (franchise tax is calculated separately)'/>
+
+    <!-- State Additions/Subtractions (NOT USED - no income tax) -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='Not applicable - Texas has no income tax'/>
+
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='Not applicable - Texas has no income tax'/>
+
+    <!-- State Tax Credits (NOT USED - no income tax) -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='Texas franchise tax credits (film, enterprise zone, R&amp;D, etc.)'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Texas Franchise Tax (Margin Tax) Fields
+
+    These fields implement the Texas franchise tax calculation.
+    The franchise tax is NOT an income tax - it's based on gross margin.
+  -->
+  <entity name="result" xls_file='TX_Corp.xls'>
+
+    <!-- Texas Total Revenue -->
+    <field name='tx_total_revenue' type='double' default_value='0.0'
+           comment='Total revenue for Texas franchise tax (gross receipts from all sources)'/>
+
+    <!-- Texas Cost of Goods Sold -->
+    <field name='tx_cogs' type='double' default_value='0.0'
+           comment='Texas COGS for margin tax calculation (optional deduction method)'/>
+
+    <!-- Texas Compensation -->
+    <field name='tx_compensation' type='double' default_value='0.0'
+           comment='Texas compensation (wages and benefits) for margin tax calculation (optional deduction method)'/>
+
+    <!-- Texas Deduction Method Selection -->
+    <field name='tx_deduction_method' type='string' default_value='cogs'
+           comment='Method used to calculate margin: cogs, compensation, or 70_percent (taxpayer selects most beneficial)'/>
+
+    <!-- Texas Margin Calculation -->
+    <field name='tx_margin_deduction' type='double' default_value='0.0'
+           comment='Amount deducted from revenue based on selected method'/>
+
+    <field name='tx_taxable_margin' type='double' default_value='0.0'
+           comment='Taxable margin after deduction (revenue minus COGS or compensation)'/>
+
+    <field name='tx_apportioned_margin' type='double' default_value='0.0'
+           comment='Margin apportioned to Texas based on receipts'/>
+
+    <!-- Texas Franchise Tax Rate -->
+    <field name='tx_margin_tax_rate' type='double' default_value='0.0075'
+           comment='TX franchise tax rate on taxable margin (0.75% for most businesses, 0.375% for retail/wholesale)'/>
+
+    <field name='tx_is_retail_wholesale' type='boolean' default_value='false'
+           comment='Business primarily engaged in retail or wholesale (qualifies for 0.375% rate)'/>
+
+    <!-- Texas Franchise Tax Calculation -->
+    <field name='tx_franchise_tax' type='double' default_value='0.0'
+           comment='Texas franchise tax liability (NOT an income tax)'/>
+
+    <!-- Texas E-Z Computation (Simplified Calculation) -->
+    <field name='tx_qualifies_for_ez_computation' type='boolean' default_value='false'
+           comment='Qualifies for Texas E-Z computation ($20M revenue or less)'/>
+
+    <field name='tx_ez_computation_rate' type='double' default_value='0.00575'
+           comment='E-Z computation rate (0.575% of revenue over $1.23M threshold)'/>
+
+    <!-- Texas No Tax Due Threshold -->
+    <field name='tx_no_tax_due_threshold' type='double' default_value='1230000.0'
+           comment='Texas no tax due threshold ($1.23M in revenue for 2025)'/>
+
+    <field name='tx_qualifies_for_no_tax_due' type='boolean' default_value='false'
+           comment='Total revenue below $1.23M threshold - no franchise tax due'/>
+
+  </entity>
+
+
+  <!-- State: UT -->
+
+  <!--
+    Apportionment Entity: Utah Configuration
+
+    Used by decision tables 7000-7500 for multi-state tax apportionment
+    and UT-specific tables 54600-54699.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='UT'
+           comment='Utah state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='UT economic nexus gross receipts threshold: $100,000 (transaction count removed July 1, 2025)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='0'
+           comment='UT transaction threshold removed as of July 1, 2025 per S.B. 47'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='UT uses single-sales factor apportionment (100% sales factor)'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.045'
+           comment='UT corporate income tax rate: 4.50% (reduced from 4.55% effective January 1, 2025) - UT Code § 59-7-104'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='UT additions: federal interest income, state income tax refunds, certain expenses, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='UT subtractions: UT municipal bond interest, state income taxes paid, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='UT tax credits: renewable energy, research activities, economic development, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: UT does not require special state-specific fields
+
+    Utah uses a straightforward flat-rate system without:
+    - Alternative minimum tax
+    - Special surcharges
+    - Industry-specific tax rates
+    - Complex combined reporting requirements
+  -->
+  <entity name="result">
+    <!-- No UT-specific fields required for basic implementation -->
+  </entity>
+
+
+  <!-- State: VA -->
+  <file_metadata>
+    <file_path>states/VA/50900_VA_corporate_constants</file_path>
+  </file_metadata>
+
+  <!--
+    Apportionment Entity: Virginia State Configuration
+
+    This entity is used by decision tables 7000-7500 to calculate
+    multi-state tax apportionment.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification (REQUIRED) -->
+    <field name='state_code' type='string' default_value='VA'
+           comment='Virginia two-letter state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='VA economic nexus gross receipts threshold: $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='VA economic nexus transaction count threshold: 200 transactions'/>
+
+    <!-- Apportionment Formula (REQUIRED) -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='Virginia uses single-sales factor apportionment (100% sales)'/>
+
+    <!-- State Tax Rate (REQUIRED) -->
+    <field name='state_tax_rate' type='double' default_value='0.060'
+           comment='Virginia flat corporate income tax rate: 6% (VA Code § 58.1-400)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='State-specific additions: federal interest, IRC 199A addback, state income tax, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='State-specific subtractions: municipal interest, affiliated dividends, state NOL, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='State tax credits: R&amp;D, jobs, historic rehabilitation, renewable energy, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: State-Specific Extensions (OPTIONAL)
+
+    Virginia does not require special state-specific fields for basic corporate tax.
+    The standard apportionment entity fields are sufficient.
+  -->
+  <entity name="result">
+    <!-- No special Virginia-specific fields required for basic implementation -->
+  </entity>
+
+
+  <!-- State: VT -->
+
+  <!--
+    Apportionment Entity: Vermont Configuration
+
+    Used by decision tables 7000-7500 for multi-state tax apportionment
+    and VT-specific tables 54700-54799.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='VT'
+           comment='Vermont state code'/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='VT economic nexus threshold: $100,000 (sales tax standard; income tax uses "doing business" test)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='0'
+           comment='VT no longer uses transaction threshold (repealed July 1, 2022)'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='VT uses single-sales factor apportionment (100% sales factor)'/>
+
+    <!-- Vermont Graduated Tax Rates -->
+    <field name='vt_tax_rate_tier1' type='double' default_value='0.060'
+           comment='VT corporate tax rate tier 1: 6.0% on income $0-$10,000 - 32 V.S.A. § 5832'/>
+
+    <field name='vt_tax_rate_tier2' type='double' default_value='0.070'
+           comment='VT corporate tax rate tier 2: 7.0% on income $10,001-$25,000 - 32 V.S.A. § 5832'/>
+
+    <field name='vt_tax_rate_tier3' type='double' default_value='0.085'
+           comment='VT corporate tax rate tier 3: 8.5% on income over $25,000 - 32 V.S.A. § 5832'/>
+
+    <field name='vt_bracket_threshold_1' type='double' default_value='10000.0'
+           comment='VT first bracket threshold: $10,000'/>
+
+    <field name='vt_bracket_threshold_2' type='double' default_value='25000.0'
+           comment='VT second bracket threshold: $25,000'/>
+
+    <!-- State Tax Rate (highest marginal rate for reference) -->
+    <field name='state_tax_rate' type='double' default_value='0.085'
+           comment='VT top corporate income tax rate: 8.5% (one of highest state rates) - 32 V.S.A. § 5832'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='VT additions: federal interest income, certain expenses, state tax modifications, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='VT subtractions: VT municipal bond interest, state NOL, dividend deductions, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='VT tax credits: R&amp;D, affordable housing, renewable energy, historic preservation, etc.'/>
+
+    <!-- VT Calculated Tax (before credits) -->
+    <field name='vt_calculated_tax' type='double' default_value='0.0'
+           comment='VT corporate tax calculated using graduated brackets (before credits)'/>
+
+  </entity>
+
+  <!--
+    Result Entity: VT does not require special state-specific fields
+
+    Vermont uses a graduated rate system but the calculations are handled
+    within the decision tables using the bracket thresholds defined above.
+  -->
+  <entity name="result">
+    <!-- No VT-specific fields required -->
+  </entity>
+
+
+  <!-- State: WA -->
+
+  <!-- State: WI -->
+
+  <!-- State: WV -->
+
+  <!--
+    Apportionment Entity: West Virginia Configuration
+
+    Used by decision tables 7000-7500 for multi-state tax apportionment
+    and WV-specific tables 54800-54899.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='WV'
+           comment='West Virginia state code'/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='WV economic nexus gross receipts threshold: $100,000'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='WV economic nexus transaction count threshold: 200 transactions'/>
+
+    <!-- Apportionment Formula -->
+    <field name='apportionment_formula' type='string' default_value='single_sales'
+           comment='WV uses single-sales factor apportionment (100% sales factor) effective 2022+'/>
+
+    <!-- State Tax Rate -->
+    <field name='state_tax_rate' type='double' default_value='0.065'
+           comment='WV corporate income tax rate: 6.5% flat rate (WV Code § 11-24-4)'/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='WV additions: federal NOL, foreign taxes deducted, state income taxes, etc.'/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='WV subtractions: qualified opportunity zone income, foreign source income, etc.'/>
+
+    <!-- State Tax Credits -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='WV tax credits: economic development, jobs creation, research &amp; development, etc.'/>
+
+  </entity>
+
+  <!--
+    Result Entity: WV does not require special state-specific fields
+
+    West Virginia uses a straightforward flat-rate system without:
+    - Alternative minimum tax
+    - Special surcharges
+    - Industry-specific tax rates
+    - Complex combined reporting (though unitary rules apply)
+  -->
+  <entity name="result">
+    <!-- No WV-specific fields required -->
+  </entity>
+
+
+  <!-- State: WY -->
+
+  <!--
+    Apportionment Entity: Wyoming-Specific Configuration
+
+    Note: Wyoming does NOT have corporate income tax or gross receipts tax.
+    These fields are maintained for consistency with the framework but are not used.
+  -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name='state_code' type='string' default_value='WY'
+           comment='Wyoming state code'/>
+
+    <!-- Economic Nexus Thresholds (for sales tax purposes only) -->
+    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
+           comment='Wyoming economic nexus: $100,000 in Wyoming receipts (Wayfair standard, applies to sales tax only)'/>
+
+    <field name='transaction_threshold' type='integer' default_value='200'
+           comment='Wyoming economic nexus: 200 or more separate transactions (applies to sales tax only)'/>
+
+    <!-- Apportionment Formula (NOT USED - no corporate tax) -->
+    <field name='apportionment_formula' type='string' default_value='none'
+           comment='Not applicable - Wyoming has no corporate income tax or gross receipts tax'/>
+
+    <!-- State Tax Rate (NO TAX) -->
+    <field name='state_tax_rate' type='double' default_value='0.0'
+           comment='Wyoming has NO corporate income tax, NO gross receipts tax, NO franchise tax'/>
+
+    <!-- State Additions/Subtractions (NOT USED - no income tax) -->
+    <field name='state_additions' type='double' default_value='0.0'
+           comment='Not applicable - Wyoming has no corporate income tax'/>
+
+    <field name='state_subtractions' type='double' default_value='0.0'
+           comment='Not applicable - Wyoming has no corporate income tax'/>
+
+    <!-- State Tax Credits (NOT USED - no tax to credit against) -->
+    <field name='state_credits' type='double' default_value='0.0'
+           comment='Not applicable - Wyoming has no corporate income tax to credit'/>
+
+  </entity>
+
+  <!--
+    Result Entity: Wyoming Corporate Tax Fields
+
+    Wyoming has NO corporate income tax and NO gross receipts tax.
+    These fields confirm zero tax liability.
+  -->
+  <entity name="result">
+
+    <!-- Wyoming Tax Status -->
+    <field name='wy_no_corporate_tax' type='boolean' default_value='true'
+           comment='Wyoming has NO corporate income tax (always true)'/>
+
+    <field name='wy_no_gross_receipts_tax' type='boolean' default_value='true'
+           comment='Wyoming has NO gross receipts tax (always true)'/>
+
+    <field name='wy_no_franchise_tax' type='boolean' default_value='true'
+           comment='Wyoming has NO franchise tax (always true)'/>
+
+    <!-- Annual Report Filing Fee -->
+    <field name='wy_annual_report_fee_domestic' type='double' default_value='60.0'
+           comment='Wyoming annual report filing fee for domestic corporations (2025)'/>
+
+    <field name='wy_annual_report_fee_foreign' type='double' default_value='120.0'
+           comment='Wyoming annual report filing fee for foreign corporations (2025)'/>
+
+    <field name='wy_annual_report_fee' type='double' default_value='0.0'
+           comment='Actual annual report fee based on corporation type (domestic or foreign)'/>
+
+    <!-- Wyoming Tax Liability (Always Zero) -->
+    <field name='wy_state_tax' type='double' default_value='0.0'
+           comment='Wyoming state tax liability (always $0 - no corporate income tax)'/>
+
   </entity>
 
 

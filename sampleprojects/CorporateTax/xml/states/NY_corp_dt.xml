@@ -36,7 +36,7 @@
   <action_details>
   <action_number>1</action_number>
   <action_comment>Physical nexus established - filing required</action_comment>
-  <action_dsl>Apportionment will be calculated by tables 7000-7500</action_dsl>
+  <action_dsl>// Apportionment will be calculated by tables 7000-7500</action_dsl>
   <action_postfix>
 // Physical nexus established - filing required
 // Apportionment will be calculated by tables 7000-7500
@@ -46,7 +46,7 @@
   <action_details>
   <action_number>2</action_number>
   <action_comment>Economic nexus established per Wayfair - filing required</action_comment>
-  <action_dsl>Apportionment will be calculated by tables 7000-7500</action_dsl>
+  <action_dsl>// Apportionment will be calculated by tables 7000-7500</action_dsl>
   <action_postfix>
 // Economic nexus established per Wayfair - filing required
 // Apportionment will be calculated by tables 7000-7500
