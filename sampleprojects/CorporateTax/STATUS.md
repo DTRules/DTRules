@@ -2,7 +2,7 @@
 
 Scoped 2026-08-02 as the last project in the sample repair campaign (#948).
 This file exists so the scoping does not have to be redone. **Read it before
-touching this project.**
+touching this project.** What to *do* about it is in [PLAN.md](PLAN.md).
 
 ## Where it stands
 
