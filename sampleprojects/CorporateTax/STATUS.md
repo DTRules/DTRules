@@ -73,6 +73,65 @@ project:
 
 No decision-table logic was changed.
 
+## The hand-coded postfix is not an oracle
+
+The postfix predates the authoring API. Written directly, never compiled from
+anything, and — critically — **never executed**, so nothing ever forced it to be
+correct. A census of the 413 hand rows:
+
+| | rows |
+|---|---|
+| operators all real — postfix *is* an exact oracle | **253** |
+| uses operators that do not exist, or `xdef` with operands reversed | **145** |
+| comment-only: no executable code at all | **15** |
+
+`add` (78 uses), `sub` (132) and `mul` (69) are not registered operators;
+`xdef` appears 258 times with its operands the wrong way round
+(`ga_tax apportionment.state_tax xdef` instead of
+`ga_tax cvd /apportionment.state_tax xdef`). 39 states are affected.
+
+Even among the 253 "real operator" rows the postfix is not trustworthy as
+*behaviour*: Alaska's tax calculation is test-first `ifelse`, which the Go
+runtime cannot execute correctly (#943/#947), and untyped `-` is used on
+double operands throughout.
+
+So the method is: **read the postfix as intent, write the EL, and recompile.**
+Where the operators are real, a byte-identical recompile confirms the reading.
+Where they are not, the new postfix will and should differ — the original never
+ran. `tools/elcheck/derive_from_postfix.py` mechanises the repeating shapes;
+`tools/elcheck` is the check.
+
+Worked example, Alaska — 7 of 8 rows recompile byte-identical, and the eighth
+is a correction:
+
+```
+stored: … f> { then } { else } ifelse     test first — never executed on Go
+got:    { then } { else } … f> ifelse     test last — correct, and f- not -
+```
+
+## 504 references to fields the EDD never declares
+
+The state tables read and write 190 distinct fields that are declared nowhere,
+504 references in all — `co_refund_or_owed`, `has_physical_presence_co`,
+`federal_tax_liability`. Writing to an undeclared field is a runtime error, so
+these tables cannot execute regardless of how good their EL is.
+
+That number was 304 fields / 910 references until the EDD merge was fixed (see
+below); the remainder is genuine content that was never authored.
+
+## A second merge bug: the EDD root spelling
+
+`merge-states.sh` stripped each file's root element by name, using
+`entity_dictionary`. The core EDD spells it that way — but **every state EDD
+spells it `entity_data_dictionary`**, so the pattern never matched, and
+`sed '1,/pattern/d'` with no delimiter deletes the file to its end.
+
+**173 of 240 state field declarations were dropped on every merge.** That is
+where most of the undeclared-field references came from. Fixed by accepting
+either spelling and emitting the canonical `entity_data_dictionary`, which is
+also the root the loader looks for first. Merged fields went 1170 → 1340, state
+fields present 67 → 237.
+
 ## The authoring debt, measured
 
 `go run ./tools/elcheck -project sampleprojects/CorporateTax -exclude CorporateTax_dt.xml`

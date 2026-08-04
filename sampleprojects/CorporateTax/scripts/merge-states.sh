@@ -48,6 +48,15 @@ merge_xml_files() {
     local core_file=$2
     local file_pattern=$3
     local tag_name=$4
+    # Root elements are not spelled consistently across these files: the core
+    # EDD says <entity_dictionary>, every state EDD says
+    # <entity_data_dictionary>. The strip below used $tag_name alone, so on a
+    # file whose root did not match, `sed '1,/pat/d'` found no delimiter and
+    # deleted the file to its end — 173 of 240 state field declarations were
+    # dropped on every merge, which is why the state tables reference fields the
+    # EDD has never heard of. $root_re accepts either.
+    local root_re=$5
+    [ -z "$root_re" ] && root_re="$tag_name"
 
     echo -e "${YELLOW}Merging $tag_name files...${NC}"
 
@@ -55,7 +64,7 @@ merge_xml_files() {
 
     # Add core content, if there is a core (skip declaration and open/close tags)
     if [ -n "$core_file" ] && [ -f "$core_file" ]; then
-        sed '1,/^<'$tag_name'/d; /^<\/'$tag_name'/d' "$core_file" >> "$output_file"
+        sed -E '1,/^<'"$root_re"'/d; /^<\/'"$root_re"'/d' "$core_file" >> "$output_file"
     fi
 
     # Add state files (skip declaration and opening/closing tags)
@@ -67,7 +76,7 @@ merge_xml_files() {
             echo "  - Adding $state"
             echo "" >> "$output_file"
             echo "  <!-- State: $state -->" >> "$output_file"
-            sed '1,/^<'$tag_name'/d; /^<\/'$tag_name'/d' "$state_file" >> "$output_file"
+            sed -E '1,/^<'"$root_re"'/d; /^<\/'"$root_re"'/d' "$state_file" >> "$output_file"
             # NOT `((count++))`: that evaluates to the pre-increment value, so
             # the very first file makes it return 0, which is a non-zero exit
             # status, which `set -e` treats as failure. The merge aborted after
@@ -102,11 +111,11 @@ fi
 
 # Merge EDD files
 OUTPUT_EDD="$XML_DIR/CorporateTax_edd.xml"
-merge_xml_files "$OUTPUT_EDD" "$CORE_EDD" "*_corp_edd.xml" "entity_dictionary"
+merge_xml_files "$OUTPUT_EDD" "$CORE_EDD" "*_corp_edd.xml" "entity_data_dictionary" "entity(_data)?_dictionary"
 
 # Merge DT files
 OUTPUT_DT="$XML_DIR/CorporateTax_dt.xml"
-merge_xml_files "$OUTPUT_DT" "$CORE_DT" "*_corp_dt.xml" "decision_tables"
+merge_xml_files "$OUTPUT_DT" "$CORE_DT" "*_corp_dt.xml" "decision_tables" "decision_tables"
 
 echo ""
 echo -e "${GREEN}======================================${NC}"

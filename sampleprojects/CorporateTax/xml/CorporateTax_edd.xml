@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<entity_dictionary>
+<entity_data_dictionary>
 
   <!-- Corporation Entity -->
   <entity name="corporation">
@@ -2535,8 +2535,96 @@
 
 
   <!-- State: CO -->
+  <file_metadata>
+    <file_path>states/CO/51400_CO_corporate_constants</file_path>
+  </file_metadata>
+  <entity name="result">
+    <!-- Colorado Corporate Tax Rate -->
+    <field name="co_corp_tax_rate" type="double" default_value="0.0455"
+           comment="CO corporate income tax rate: 4.55% (CO Rev. Stat. § 39-22-104, 2025)"/>
+
+    <!-- Apportionment Configuration -->
+    <field name="co_apportionment_formula" type="string" default_value="single_sales"
+           comment="CO uses single-sales factor apportionment (100% sales)"/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name="co_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="CO economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="co_transaction_threshold" type="integer" default_value="200"
+           comment="CO economic nexus transaction count threshold: 200 transactions"/>
+
+    <!-- State Modifications Working Variables -->
+    <field name="co_state_additions" type="double" default_value="0.0"
+           comment="CO additions to federal taxable income (U.S. interest, IRC 199A addback, etc.)"/>
+
+    <field name="co_state_subtractions" type="double" default_value="0.0"
+           comment="CO subtractions from federal taxable income (state taxes, CO NOL, etc.)"/>
+
+    <field name="co_state_credits" type="double" default_value="0.0"
+           comment="CO state tax credits (R&amp;D, jobs, film, renewable energy, etc.)"/>
+
+    <!-- Calculation Results -->
+    <field name="co_taxable_income" type="double" default_value="0.0"
+           comment="CO taxable income after apportionment and modifications"/>
+
+    <field name="co_tax_liability" type="double" default_value="0.0"
+           comment="CO corporate income tax liability"/>
+
+    <field name="co_has_nexus" type="boolean" default_value="false"
+           comment="Whether corporation has nexus with Colorado"/>
+  </entity>
 
   <!-- State: CT -->
+  <file_metadata>
+    <file_path>states/CT/51800_CT_corp_constants</file_path>
+  </file_metadata>
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name="state_code" type="string" default_value="CT"
+           comment="Connecticut state code"/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="economic_nexus_threshold" type="double" default_value="500000.0"
+           comment="CT economic nexus threshold: $500,000 gross receipts (higher than typical)"/>
+
+    <field name="transaction_threshold" type="integer" default_value="0"
+           comment="CT has no transaction count threshold (only receipts-based)"/>
+
+    <!-- Apportionment Formula -->
+    <field name="apportionment_formula" type="string" default_value="single_sales"
+           comment="CT uses single-sales factor apportionment"/>
+
+    <!-- State Tax Rate -->
+    <field name="state_tax_rate" type="double" default_value="0.075"
+           comment="CT corporate tax rate: 7.5% flat rate (CT Gen. Stat. § 12-214)"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="state_additions" type="double" default_value="0.0"
+           comment="CT additions: federal interest, bonus depreciation addback, etc."/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="state_subtractions" type="double" default_value="0.0"
+           comment="CT subtractions: municipal interest, CT NOL, etc."/>
+
+    <!-- State Tax Credits -->
+    <field name="state_credits" type="double" default_value="0.0"
+           comment="CT tax credits: R&amp;D, jobs, film, manufacturing credits, etc."/>
+
+  </entity>
+
+  <!--
+    Result Entity: CT-Specific Extensions
+
+    Connecticut does not require special state-specific fields beyond
+    the standard apportionment entity. CT uses a straightforward
+    flat-rate tax with standard single-sales apportionment.
+  -->
+  <entity name="result">
+    <!-- No CT-specific fields required -->
+  </entity>
+
 
   <!-- State: DC -->
 
@@ -2810,8 +2898,98 @@
 
 
   <!-- State: IA -->
+  <file_metadata>
+    <file_path>states/IA/52600_IA_corporate_constants</file_path>
+  </file_metadata>
+  <entity name="result">
+    <!-- Iowa Corporate Tax Rate - Graduated System -->
+    <field name="ia_corp_tax_rate_bracket_1" type="double" default_value="0.055"
+           comment="IA corporate income tax rate bracket 1: 5.5% on income up to $100,000 (Iowa Code § 422.33)"/>
+
+    <field name="ia_corp_tax_rate_bracket_2" type="double" default_value="0.071"
+           comment="IA corporate income tax rate bracket 2: 7.1% on income over $100,000 (Iowa Code § 422.33)"/>
+
+    <field name="ia_tax_bracket_threshold" type="double" default_value="100000.0"
+           comment="IA tax bracket threshold: $100,000"/>
+
+    <!-- Apportionment Configuration -->
+    <field name="ia_apportionment_formula" type="string" default_value="single_sales"
+           comment="IA uses single-sales factor apportionment (100% sales)"/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name="ia_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="IA economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="ia_transaction_threshold" type="integer" default_value="0"
+           comment="IA eliminated transaction count threshold as of 7/1/2023"/>
+
+    <!-- State Modifications Working Variables -->
+    <field name="ia_state_additions" type="double" default_value="0.0"
+           comment="IA additions to federal taxable income (state income taxes deducted federally, certain expenses, etc.)"/>
+
+    <field name="ia_state_subtractions" type="double" default_value="0.0"
+           comment="IA subtractions from federal taxable income (federal interest income, IA municipal bond interest, state NOL, etc.)"/>
+
+    <field name="ia_state_credits" type="double" default_value="0.0"
+           comment="IA tax credits (research activities, high quality jobs, renewable energy, historic preservation, etc.)"/>
+
+    <!-- Calculation Results -->
+    <field name="ia_taxable_income" type="double" default_value="0.0"
+           comment="IA taxable income after apportionment and modifications"/>
+
+    <field name="ia_tax_bracket_1" type="double" default_value="0.0"
+           comment="IA tax on first $100,000 at 5.5%"/>
+
+    <field name="ia_tax_bracket_2" type="double" default_value="0.0"
+           comment="IA tax on income over $100,000 at 7.1%"/>
+
+    <field name="ia_tax_liability" type="double" default_value="0.0"
+           comment="IA corporate income tax liability"/>
+
+    <field name="ia_has_nexus" type="boolean" default_value="false"
+           comment="Whether corporation has nexus with Iowa"/>
+  </entity>
 
   <!-- State: ID -->
+  <file_metadata>
+    <file_path>states/ID/52700_ID_corporate_constants</file_path>
+  </file_metadata>
+  <entity name="result">
+    <!-- Idaho Corporate Tax Rate -->
+    <field name="id_corp_tax_rate" type="double" default_value="0.053"
+           comment="ID corporate income tax rate: 5.3% flat rate (effective 2025, Idaho Code § 63-3025)"/>
+
+    <!-- Apportionment Configuration -->
+    <field name="id_apportionment_formula" type="string" default_value="single_sales"
+           comment="ID uses single-sales factor apportionment (100% sales)"/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name="id_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="ID economic nexus gross receipts threshold: $100,000 (primarily for sales tax)"/>
+
+    <field name="id_transaction_threshold" type="integer" default_value="0"
+           comment="ID does not use transaction count for corporate income tax nexus"/>
+
+    <!-- State Modifications Working Variables -->
+    <field name="id_state_additions" type="double" default_value="0.0"
+           comment="ID additions to federal taxable income (state income taxes deducted federally, certain expenses, etc.)"/>
+
+    <field name="id_state_subtractions" type="double" default_value="0.0"
+           comment="ID subtractions from federal taxable income (U.S. government interest, Idaho municipal bond interest, state NOL, etc.)"/>
+
+    <field name="id_state_credits" type="double" default_value="0.0"
+           comment="ID tax credits (investment tax credit, R&amp;D credit, broadband equipment credit, etc.)"/>
+
+    <!-- Calculation Results -->
+    <field name="id_taxable_income" type="double" default_value="0.0"
+           comment="ID taxable income after apportionment and modifications"/>
+
+    <field name="id_tax_liability" type="double" default_value="0.0"
+           comment="ID corporate income tax liability"/>
+
+    <field name="id_has_nexus" type="boolean" default_value="false"
+           comment="Whether corporation has nexus with Idaho"/>
+  </entity>
 
   <!-- State: IL -->
 
@@ -2876,12 +3054,194 @@
 
 
   <!-- State: IN -->
+  <file_metadata>
+    <file_path>states/IN/52800_IN_corporate_constants</file_path>
+  </file_metadata>
+  <entity name="result">
+    <!-- Indiana Corporate Tax Rate -->
+    <field name="in_corp_tax_rate" type="double" default_value="0.049"
+           comment="IN corporate income tax rate: 4.9% flat rate (2025, Indiana Code § 6-3-2-1)"/>
+
+    <!-- Apportionment Configuration -->
+    <field name="in_apportionment_formula" type="string" default_value="single_sales"
+           comment="IN uses single-sales factor apportionment (100% sales)"/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name="in_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="IN economic nexus gross receipts threshold: $100,000 (transaction threshold removed Jan 1, 2024)"/>
+
+    <field name="in_transaction_threshold" type="integer" default_value="0"
+           comment="IN transaction threshold eliminated as of January 1, 2024 (previously 200)"/>
+
+    <!-- State Modifications Working Variables -->
+    <field name="in_state_additions" type="double" default_value="0.0"
+           comment="IN additions to federal taxable income (out-of-state municipal bond interest acquired after 12/31/2011, certain expenses, etc.)"/>
+
+    <field name="in_state_subtractions" type="double" default_value="0.0"
+           comment="IN subtractions from federal taxable income (IN municipal bond interest, state income taxes, state NOL, etc.)"/>
+
+    <field name="in_state_credits" type="double" default_value="0.0"
+           comment="IN tax credits (economic development, R&amp;D, headquarters relocation, neighborhood assistance, etc.)"/>
+
+    <!-- Calculation Results -->
+    <field name="in_taxable_income" type="double" default_value="0.0"
+           comment="IN taxable income after apportionment and modifications"/>
+
+    <field name="in_tax_liability" type="double" default_value="0.0"
+           comment="IN corporate income tax liability"/>
+
+    <field name="in_has_nexus" type="boolean" default_value="false"
+           comment="Whether corporation has nexus with Indiana"/>
+  </entity>
 
   <!-- State: KS -->
+  <file_metadata>
+    <file_path>states/KS/52900_KS_corporate_constants</file_path>
+  </file_metadata>
+  <entity name="result">
+    <!-- Kansas Corporate Tax Rate - Two-Tier Structure -->
+    <field name="ks_corp_tax_base_rate" type="double" default_value="0.04"
+           comment="KS corporate income tax base rate: 4.0% (includes 0.5% temporary increase, K.S.A. 79-32,110)"/>
+
+    <field name="ks_corp_tax_surtax_rate" type="double" default_value="0.03"
+           comment="KS corporate income tax surtax: 3.0% on income over $50,000 (K.S.A. 79-32,110)"/>
+
+    <field name="ks_surtax_threshold" type="double" default_value="50000.0"
+           comment="KS surtax threshold: $50,000 - surtax applies to income above this amount"/>
+
+    <field name="ks_corp_tax_rate" type="double" default_value="0.07"
+           comment="KS effective combined rate: 7.0% (4.0% base + 3.0% surtax) on income over $50,000"/>
+
+    <!-- Apportionment Configuration -->
+    <field name="ks_apportionment_formula" type="string" default_value="three_factor"
+           comment="KS uses three-factor apportionment (property, payroll, sales) with optional two-factor; single-sales for 2027+"/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name="ks_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="KS economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="ks_transaction_threshold" type="integer" default_value="200"
+           comment="KS economic nexus transaction count threshold: 200 transactions"/>
+
+    <!-- State Modifications Working Variables -->
+    <field name="ks_state_additions" type="double" default_value="0.0"
+           comment="KS additions to federal taxable income (federal interest income, state income tax refunds, IRC 163(j) adjustments, etc.)"/>
+
+    <field name="ks_state_subtractions" type="double" default_value="0.0"
+           comment="KS subtractions from federal taxable income (Kansas municipal bond interest, state income taxes paid, Kansas NOL, etc.)"/>
+
+    <field name="ks_state_credits" type="double" default_value="0.0"
+           comment="KS tax credits (job creation, film production, historic preservation, community service contribution, etc.)"/>
+
+    <!-- Two-Tier Tax Calculation Fields -->
+    <field name="ks_income_below_threshold" type="double" default_value="0.0"
+           comment="KS taxable income below $50,000 surtax threshold"/>
+
+    <field name="ks_income_above_threshold" type="double" default_value="0.0"
+           comment="KS taxable income above $50,000 surtax threshold (subject to surtax)"/>
+
+    <field name="ks_base_tax" type="double" default_value="0.0"
+           comment="KS base tax at 4.0% on all income"/>
+
+    <field name="ks_surtax" type="double" default_value="0.0"
+           comment="KS surtax at 3.0% on income above $50,000"/>
+
+    <!-- Calculation Results -->
+    <field name="ks_taxable_income" type="double" default_value="0.0"
+           comment="KS taxable income after apportionment and modifications"/>
+
+    <field name="ks_tax_liability" type="double" default_value="0.0"
+           comment="KS corporate income tax liability"/>
+
+    <field name="ks_has_nexus" type="boolean" default_value="false"
+           comment="Whether corporation has nexus with Kansas"/>
+  </entity>
 
   <!-- State: KY -->
+  <file_metadata>
+    <file_path>states/KY/53000_KY_corporate_constants</file_path>
+  </file_metadata>
+  <entity name="result">
+    <!-- Kentucky Corporate Tax Rate -->
+    <field name="ky_corp_tax_rate" type="double" default_value="0.045"
+           comment="KY corporate income tax rate: 4.5% flat rate (KRS 141.040, effective 2025)"/>
+
+    <!-- Apportionment Configuration -->
+    <field name="ky_apportionment_formula" type="string" default_value="single_sales"
+           comment="KY uses single-sales factor apportionment (100% sales)"/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name="ky_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="KY economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="ky_transaction_threshold" type="integer" default_value="200"
+           comment="KY economic nexus transaction count threshold: 200 transactions"/>
+
+    <!-- State Modifications Working Variables -->
+    <field name="ky_state_additions" type="double" default_value="0.0"
+           comment="KY additions to federal taxable income (federal interest income, IRC 199A addback, state tax refunds, etc.)"/>
+
+    <field name="ky_state_subtractions" type="double" default_value="0.0"
+           comment="KY subtractions from federal taxable income (KY municipal bond interest, dividends from KY corporations, etc.)"/>
+
+    <field name="ky_state_credits" type="double" default_value="0.0"
+           comment="KY tax credits (industrial development, film industry, coal incentive, recycling, etc.)"/>
+
+    <!-- Calculation Results -->
+    <field name="ky_taxable_income" type="double" default_value="0.0"
+           comment="KY taxable income after apportionment and modifications"/>
+
+    <field name="ky_tax_liability" type="double" default_value="0.0"
+           comment="KY corporate income tax liability"/>
+
+    <field name="ky_has_nexus" type="boolean" default_value="false"
+           comment="Whether corporation has nexus with Kentucky"/>
+  </entity>
 
   <!-- State: LA -->
+  <file_metadata>
+    <file_path>states/LA/53100_LA_corporate_constants</file_path>
+  </file_metadata>
+  <entity name="result">
+    <!-- Louisiana Corporate Tax Rate - NEW 2025 FLAT RATE -->
+    <field name="la_corp_tax_rate" type="double" default_value="0.055"
+           comment="LA corporate income tax rate: 5.5% flat rate (effective 2025, replaced graduated rates up to 7.5%, LA R.S. 47:287)"/>
+
+    <!-- Louisiana Standard Deduction - NEW 2025 -->
+    <field name="la_standard_deduction" type="double" default_value="20000.0"
+           comment="LA corporate standard deduction: $20,000 (new for 2025 tax reform)"/>
+
+    <!-- Apportionment Configuration -->
+    <field name="la_apportionment_formula" type="string" default_value="single_sales"
+           comment="LA uses single-sales factor apportionment (100% sales)"/>
+
+    <!-- Economic Nexus Thresholds -->
+    <field name="la_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="LA economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="la_transaction_threshold" type="integer" default_value="0"
+           comment="LA eliminated transaction count threshold in 2023"/>
+
+    <!-- State Modifications Working Variables -->
+    <field name="la_state_additions" type="double" default_value="0.0"
+           comment="LA additions to federal taxable income (federal bond interest, certain state tax refunds, etc.)"/>
+
+    <field name="la_state_subtractions" type="double" default_value="0.0"
+           comment="LA subtractions from federal taxable income (standard deduction, LA municipal interest, qualified property expensing, etc.)"/>
+
+    <field name="la_state_credits" type="double" default_value="0.0"
+           comment="LA tax credits (reduced significantly in 2025 reform - many credits eliminated)"/>
+
+    <!-- Calculation Results -->
+    <field name="la_taxable_income" type="double" default_value="0.0"
+           comment="LA taxable income after apportionment and modifications"/>
+
+    <field name="la_tax_liability" type="double" default_value="0.0"
+           comment="LA corporate income tax liability"/>
+
+    <field name="la_has_nexus" type="boolean" default_value="false"
+           comment="Whether corporation has nexus with Louisiana"/>
+  </entity>
 
   <!-- State: MA -->
 
@@ -2938,8 +3298,106 @@
 
 
   <!-- State: MD -->
+  <file_metadata>
+    <file_path>states/MD/51700_MD_corp_constants</file_path>
+  </file_metadata>
+
+  <!-- Maryland corporate tax constants -->
+  <entity name="result">
+    <!-- Tax Rate -->
+    <field name="md_corp_tax_rate" type="double" default_value="0.0825"
+           comment="MD corporate income tax rate - 8.25% flat rate (MD Tax-General Code § 10-105)"/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="md_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="MD economic nexus threshold - $100,000 gross receipts"/>
+
+    <field name="md_transaction_threshold" type="integer" default_value="200"
+           comment="MD economic nexus transaction count threshold - 200 transactions"/>
+
+    <!-- Apportionment Formula -->
+    <field name="md_apportionment_formula" type="string" default_value="single_sales"
+           comment="MD uses single-sales factor apportionment (100% sales)"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="md_state_additions" type="double" default_value="0.0"
+           comment="MD-specific additions: federal interest, state tax refunds, bonus depreciation addback, etc."/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="md_state_subtractions" type="double" default_value="0.0"
+           comment="MD-specific subtractions: municipal interest, NOL modifications, etc."/>
+
+    <!-- State Tax Credits -->
+    <field name="md_state_credits" type="double" default_value="0.0"
+           comment="MD tax credits: R&amp;D, job creation, biotechnology investment, etc."/>
+
+  </entity>
 
   <!-- State: ME -->
+  <file_metadata>
+    <file_path>states/ME/53200_ME_corporate_constants</file_path>
+  </file_metadata>
+
+  <!-- Apportionment Entity: Maine-Specific Configuration -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name="state_code" type="string" default_value="ME"
+           comment="Maine state code"/>
+
+    <!-- Economic Nexus Thresholds (Factor Presence Standards) -->
+    <field name="economic_nexus_property_threshold" type="double" default_value="250000.0"
+           comment="ME economic nexus property threshold - $250,000"/>
+
+    <field name="economic_nexus_payroll_threshold" type="double" default_value="250000.0"
+           comment="ME economic nexus payroll threshold - $250,000"/>
+
+    <field name="economic_nexus_sales_threshold" type="double" default_value="500000.0"
+           comment="ME economic nexus sales threshold - $500,000"/>
+
+    <field name="economic_nexus_factor_percentage" type="double" default_value="0.25"
+           comment="ME economic nexus 25% factor presence threshold"/>
+
+    <!-- Apportionment Formula -->
+    <field name="apportionment_formula" type="string" default_value="single_sales"
+           comment="ME uses single-sales factor apportionment"/>
+
+    <!-- Maine Tax Rates (Graduated) -->
+    <field name="tax_rate_tier1" type="double" default_value="0.035"
+           comment="ME tax rate tier 1 - 3.5% on income up to $350,000"/>
+
+    <field name="tax_rate_tier2" type="double" default_value="0.075"
+           comment="ME tax rate tier 2 - 7.5% on income $350,000 to $1,050,000"/>
+
+    <field name="tax_rate_tier3" type="double" default_value="0.083"
+           comment="ME tax rate tier 3 - 8.3% on income $1,050,000 to $3,500,000"/>
+
+    <field name="tax_rate_tier4" type="double" default_value="0.0893"
+           comment="ME tax rate tier 4 - 8.93% on income over $3,500,000"/>
+
+    <field name="tax_bracket_1" type="double" default_value="350000.0"
+           comment="ME tax bracket 1 threshold"/>
+
+    <field name="tax_bracket_2" type="double" default_value="1050000.0"
+           comment="ME tax bracket 2 threshold"/>
+
+    <field name="tax_bracket_3" type="double" default_value="3500000.0"
+           comment="ME tax bracket 3 threshold"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="state_additions" type="double" default_value="0.0"
+           comment="ME-specific additions: IRC 199A addback, bonus depreciation, etc."/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="state_subtractions" type="double" default_value="0.0"
+           comment="ME-specific subtractions: federal interest, municipal interest, state NOL, etc."/>
+
+    <!-- State Tax Credits -->
+    <field name="state_credits" type="double" default_value="0.0"
+           comment="ME tax credits: Pine Tree Zone, R&amp;D, employment, etc."/>
+
+  </entity>
+
 
   <!-- State: MI -->
 
@@ -3055,18 +3513,275 @@
 
 
   <!-- State: MO -->
+  <file_metadata>
+    <file_path>states/MO/53300_MO_corporate_constants</file_path>
+  </file_metadata>
+
+  <!-- Apportionment Entity: Missouri Configuration -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name="state_code" type="string" default_value="MO"
+           comment="Missouri state code"/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="Missouri economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="transaction_threshold" type="integer" default_value="0"
+           comment="Missouri does not have a transaction count threshold"/>
+
+    <!-- Apportionment Formula -->
+    <field name="apportionment_formula" type="string" default_value="single_sales"
+           comment="Missouri uses single-sales factor apportionment (100% sales factor)"/>
+
+    <!-- State Tax Rate -->
+    <field name="state_tax_rate" type="double" default_value="0.040"
+           comment="Missouri corporate income tax rate: 4.0% flat rate - MO Rev. Stat. § 143.071"/>
+
+    <!-- Federal Tax Deduction Percentage - UNIQUE MISSOURI FEATURE -->
+    <field name="mo_federal_tax_deduction_percentage" type="double" default_value="0.50"
+           comment="Missouri allows deduction of 50% of federal income tax paid - MO Rev. Stat. § 143.121"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="state_additions" type="double" default_value="0.0"
+           comment="Missouri additions: federal interest income, certain expenses, IRC 199A addback, etc."/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="state_subtractions" type="double" default_value="0.0"
+           comment="Missouri subtractions: 50% federal tax deduction, MO municipal interest, state NOL, etc."/>
+
+    <!-- State Tax Credits -->
+    <field name="state_credits" type="double" default_value="0.0"
+           comment="Missouri tax credits: jobs creation, historic preservation, film production, etc."/>
+
+  </entity>
+
 
   <!-- State: MS -->
+  <file_metadata>
+    <file_path>states/MS/53400_MS_corporate_constants</file_path>
+  </file_metadata>
+
+  <!-- Apportionment Entity: Mississippi Configuration -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name="state_code" type="string" default_value="MS"
+           comment="Mississippi state code"/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="economic_nexus_threshold" type="double" default_value="250000.0"
+           comment="MS economic nexus gross receipts threshold: $250,000"/>
+
+    <field name="transaction_threshold" type="integer" default_value="0"
+           comment="MS does not have a separate transaction count threshold"/>
+
+    <!-- Apportionment Formula -->
+    <field name="apportionment_formula" type="string" default_value="single_sales"
+           comment="MS uses single-sales factor apportionment (100% sales factor) for most businesses"/>
+
+    <!-- State Tax Rates - Graduated Structure -->
+    <field name="state_tax_rate" type="double" default_value="0.05"
+           comment="MS top corporate income tax rate: 5% on income over $10,000 - MS Code § 27-7-5"/>
+
+    <field name="ms_tax_rate_tier1" type="double" default_value="0.03"
+           comment="MS tier 1 tax rate: 3% on first $5,000 of taxable income"/>
+
+    <field name="ms_tax_rate_tier2" type="double" default_value="0.04"
+           comment="MS tier 2 tax rate: 4% on next $5,000 of taxable income ($5,001-$10,000)"/>
+
+    <field name="ms_tax_rate_tier3" type="double" default_value="0.05"
+           comment="MS tier 3 tax rate: 5% on taxable income over $10,000"/>
+
+    <field name="ms_bracket_tier1" type="double" default_value="5000.0"
+           comment="MS tier 1 bracket limit: $5,000"/>
+
+    <field name="ms_bracket_tier2" type="double" default_value="10000.0"
+           comment="MS tier 2 bracket limit: $10,000"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="state_additions" type="double" default_value="0.0"
+           comment="MS additions: federal interest income, IRC 199A addback, certain bonus depreciation, etc."/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="state_subtractions" type="double" default_value="0.0"
+           comment="MS subtractions: MS municipal bond interest, state income taxes, state NOL (5-year carryforward), etc."/>
+
+    <!-- State Tax Credits -->
+    <field name="state_credits" type="double" default_value="0.0"
+           comment="MS tax credits: jobs creation, investment, research &amp; development, film production, etc."/>
+
+  </entity>
+
 
   <!-- State: MT -->
+  <file_metadata>
+    <file_path>states/MT/53500_MT_corporate_constants</file_path>
+  </file_metadata>
+
+  <!-- Apportionment Entity: Montana Configuration -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name="state_code" type="string" default_value="MT"
+           comment="Montana state code"/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="MT economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="transaction_threshold" type="integer" default_value="200"
+           comment="MT economic nexus transaction count threshold: 200 transactions"/>
+
+    <!-- Apportionment Formula -->
+    <field name="apportionment_formula" type="string" default_value="single_sales"
+           comment="MT uses single-sales factor apportionment (100% sales factor)"/>
+
+    <!-- State Tax Rate -->
+    <field name="state_tax_rate" type="double" default_value="0.0675"
+           comment="MT corporate income tax rate: 6.75% (7.0% for waters edge election)"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="state_additions" type="double" default_value="0.0"
+           comment="MT additions: federal interest income, state tax refunds, certain expenses, etc."/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="state_subtractions" type="double" default_value="0.0"
+           comment="MT subtractions: MT municipal bond interest, state income taxes, MT NOL, etc."/>
+
+    <!-- State Tax Credits -->
+    <field name="state_credits" type="double" default_value="0.0"
+           comment="MT tax credits: jobs creation, research, energy production, infrastructure, etc."/>
+
+  </entity>
+
+  <!-- Result Entity: Montana-Specific Extensions -->
+  <entity name="result">
+
+    <!-- Montana Water's Edge Election -->
+    <field name="mt_waters_edge_election" type="boolean" default_value="false"
+           comment="MT waters edge election - if true, rate is 7.0% instead of 6.75%"/>
+
+    <field name="mt_effective_rate" type="double" default_value="0.0675"
+           comment="MT effective tax rate (6.75% standard, 7.0% with waters edge election)"/>
+
+  </entity>
+
 
   <!-- State: NC -->
 
   <!-- State: ND -->
+  <file_metadata>
+    <file_path>states/ND/53600_ND_corporate_constants</file_path>
+  </file_metadata>
+
+  <!-- Apportionment Entity: North Dakota Configuration -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name="state_code" type="string" default_value="ND"
+           comment="North Dakota state code"/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="ND economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="transaction_threshold" type="integer" default_value="200"
+           comment="ND economic nexus transaction count threshold: 200 transactions"/>
+
+    <!-- Apportionment Formula -->
+    <field name="apportionment_formula" type="string" default_value="single_sales"
+           comment="ND uses single-sales factor apportionment (100% sales factor)"/>
+
+    <!-- State Tax Rate -->
+    <field name="state_tax_rate" type="double" default_value="0.035"
+           comment="ND corporate income tax rate: 3.5% (reduced from 4.31%) - ND Century Code § 57-38-30.3"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="state_additions" type="double" default_value="0.0"
+           comment="ND additions: federal interest income, state income taxes, IRC 199A addback, etc."/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="state_subtractions" type="double" default_value="0.0"
+           comment="ND subtractions: ND municipal bond interest, state NOL, dividend income, etc."/>
+
+    <!-- State Tax Credits -->
+    <field name="state_credits" type="double" default_value="0.0"
+           comment="ND tax credits: Renaissance Zone, seed capital, biodiesel, geothermal, etc."/>
+
+  </entity>
+
 
   <!-- State: NE -->
+  <file_metadata>
+    <file_path>states/NE/53700_NE_corporate_constants</file_path>
+  </file_metadata>
+
+  <!-- Apportionment Entity: Nebraska Configuration -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name="state_code" type="string" default_value="NE"
+           comment="Nebraska state code"/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="NE economic nexus threshold: $100,000 (for sales tax); income tax subject to PL 86-272"/>
+
+    <field name="transaction_threshold" type="integer" default_value="200"
+           comment="NE transaction threshold: 200 transactions (sales tax threshold)"/>
+
+    <!-- Apportionment Formula -->
+    <field name="apportionment_formula" type="string" default_value="single_sales"
+           comment="NE uses single-sales factor apportionment (100% sales factor)"/>
+
+    <!-- State Tax Rate -->
+    <field name="state_tax_rate" type="double" default_value="0.052"
+           comment="NE corporate income tax rate: 5.20% for 2025 (Neb. Rev. Stat. § 77-2734.02). Future: 4.55% (2026), 3.99% (2027)"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="state_additions" type="double" default_value="0.0"
+           comment="NE additions: interest on non-NE state/local bonds, federal interest income, etc. (Neb. Rev. Stat. § 77-2716)"/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="state_subtractions" type="double" default_value="0.0"
+           comment="NE subtractions: federal interest (U.S. obligations), NE Build America Bond interest, etc. (Neb. Rev. Stat. § 77-2716)"/>
+
+    <!-- State Tax Credits -->
+    <field name="state_credits" type="double" default_value="0.0"
+           comment="NE tax credits: jobs creation, R&amp;D, renewable energy, etc."/>
+
+  </entity>
+
 
   <!-- State: NH -->
+  <file_metadata>
+    <file_path>states/NH/53800_NH_constants</file_path>
+  </file_metadata>
+
+  <!-- New Hampshire state-specific constants -->
+  <entity name="apportionment">
+    <!-- Economic Nexus Thresholds -->
+    <field name="nh_economic_nexus_threshold" type="double" default_value="109000.0"
+           comment="NH economic nexus gross receipts threshold: $109,000 (2025)"/>
+
+    <field name="nh_transaction_threshold" type="integer" default_value="0"
+           comment="NH has no transaction count threshold - only gross receipts"/>
+
+    <!-- State Tax Rate - Business Profits Tax -->
+    <field name="nh_state_tax_rate" type="double" default_value="0.075"
+           comment="NH Business Profits Tax rate: 7.5% flat rate (RSA 77-A:2)"/>
+
+  </entity>
+
+  <entity name="result">
+    <!-- NH static conformity to IRC as of December 31, 2018 -->
+    <field name="nh_irc_conformity_date" type="string" default_value="2018-12-31"
+           comment="NH uses static conformity to IRC as of December 31, 2018"/>
+
+  </entity>
+
 
   <!-- State: NJ -->
 
@@ -3136,8 +3851,104 @@
 
 
   <!-- State: NM -->
+  <file_metadata>
+    <file_path>states/NM/53900_NM_constants</file_path>
+  </file_metadata>
+
+  <!-- New Mexico state-specific constants -->
+  <entity name="apportionment">
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="nm_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="NM economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="nm_transaction_threshold" type="integer" default_value="0"
+           comment="NM has no transaction count threshold (simplified to sales-only)"/>
+
+    <!-- State Tax Rate -->
+    <field name="nm_state_tax_rate" type="double" default_value="0.059"
+           comment="NM corporate income tax rate: 5.9% flat rate (NMSA § 7-2A-5, effective 2025)"/>
+
+  </entity>
+
 
   <!-- State: NV -->
+  <file_metadata>
+    <file_path>states/NV/54000_NV_constants</file_path>
+  </file_metadata>
+
+  <!-- Nevada state-specific constants -->
+  <entity name="apportionment">
+    <!-- Economic Nexus Thresholds -->
+    <field name="nv_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="Nevada economic nexus: $100,000 in Nevada receipts (follows Wayfair standard)"/>
+
+    <field name="nv_transaction_threshold" type="integer" default_value="200"
+           comment="Nevada economic nexus: 200 or more separate transactions"/>
+
+    <!-- State Tax Rate (NOT USED - Nevada has no income tax) -->
+    <field name="nv_state_tax_rate" type="double" default_value="0.0"
+           comment="Nevada has NO corporate income tax (Commerce Tax is calculated separately)"/>
+
+  </entity>
+
+  <entity name="result">
+    <!-- Nevada Gross Revenue -->
+    <field name="nv_gross_revenue" type="double" default_value="0.0"
+           comment="Nevada-sourced gross revenue for Commerce Tax (receipts from Nevada activities)"/>
+
+    <!-- Nevada Commerce Tax Threshold -->
+    <field name="nv_commerce_tax_threshold" type="double" default_value="4000000.0"
+           comment="Nevada Commerce Tax threshold: $4,000,000 in Nevada gross revenue (2025)"/>
+
+    <field name="nv_qualifies_for_exemption" type="boolean" default_value="false"
+           comment="Nevada gross revenue below $4M threshold - no Commerce Tax due"/>
+
+    <!-- Nevada Business Classification (NAICS-based) -->
+    <field name="nv_business_classification" type="string" default_value="other"
+           comment="Nevada business classification: financial, mining, retail, professional, manufacturing, other"/>
+
+    <!-- Nevada Commerce Tax Rate (varies by industry) -->
+    <field name="nv_commerce_tax_rate" type="double" default_value="0.00051"
+           comment="Nevada Commerce Tax rate based on industry classification (0.051% default for lowest tier)"/>
+
+    <!-- Nevada Commerce Tax Rates by Industry Classification -->
+    <field name="nv_financial_services_rate" type="double" default_value="0.00331"
+           comment="Financial Services Commerce Tax rate: 0.331% (highest rate)"/>
+
+    <field name="nv_mining_rate" type="double" default_value="0.00262"
+           comment="Mining Commerce Tax rate: 0.262%"/>
+
+    <field name="nv_utilities_rate" type="double" default_value="0.00266"
+           comment="Utilities Commerce Tax rate: 0.266%"/>
+
+    <field name="nv_retail_trade_rate" type="double" default_value="0.00091"
+           comment="Retail Trade Commerce Tax rate: 0.091%"/>
+
+    <field name="nv_professional_services_rate" type="double" default_value="0.00128"
+           comment="Professional, Scientific, Technical Services Commerce Tax rate: 0.128%"/>
+
+    <field name="nv_manufacturing_rate" type="double" default_value="0.00091"
+           comment="Manufacturing Commerce Tax rate: 0.091%"/>
+
+    <field name="nv_wholesale_trade_rate" type="double" default_value="0.00101"
+           comment="Wholesale Trade Commerce Tax rate: 0.101%"/>
+
+    <field name="nv_other_rate" type="double" default_value="0.00051"
+           comment="Other Services Commerce Tax rate: 0.051% (lowest rate)"/>
+
+    <!-- Nevada Commerce Tax Calculation -->
+    <field name="nv_taxable_revenue" type="double" default_value="0.0"
+           comment="Taxable revenue for Commerce Tax (gross revenue minus $4M threshold)"/>
+
+    <field name="nv_commerce_tax" type="double" default_value="0.0"
+           comment="Nevada Commerce Tax liability (NOT an income tax - based on gross receipts)"/>
+
+    <!-- Nevada Sitused Revenue -->
+    <field name="nv_sitused_revenue" type="double" default_value="0.0"
+           comment="Nevada sitused revenue (gross revenue sourced to Nevada using market-based rules)"/>
+
+  </entity>
+
 
   <!-- State: NY -->
 
@@ -3349,8 +4160,62 @@
 
 
   <!-- State: OK -->
+  <file_metadata>
+    <file_path>states/OK/54100_OK_constants</file_path>
+  </file_metadata>
+
+  <!-- Oklahoma state-specific constants -->
+  <entity name="apportionment">
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="ok_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="OK economic nexus gross receipts threshold: $100,000"/>
+
+    <field name="ok_transaction_threshold" type="integer" default_value="200"
+           comment="OK economic nexus transaction count threshold: 200 transactions"/>
+
+    <!-- State Tax Rate -->
+    <field name="ok_state_tax_rate" type="double" default_value="0.040"
+           comment="OK corporate income tax rate: 4.0% flat rate (68 Okla. Stat. § 2355)"/>
+
+  </entity>
+
 
   <!-- State: OR -->
+  <file_metadata>
+    <file_path>states/OR/54200_OR_constants</file_path>
+  </file_metadata>
+
+  <!-- Oregon state-specific constants -->
+  <entity name="apportionment">
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="or_economic_nexus_threshold" type="double" default_value="750000.0"
+           comment="OR economic nexus threshold: $750,000 in Oregon sales (higher than typical)"/>
+
+    <field name="or_transaction_threshold" type="integer" default_value="200"
+           comment="OR economic nexus transaction count threshold: 200 transactions"/>
+
+    <!-- State Tax Rate -->
+    <field name="or_state_tax_rate" type="double" default_value="0.066"
+           comment="OR corporate excise tax rate: 6.6% flat rate (7.6% for financial institutions) - ORS 317.061"/>
+
+  </entity>
+
+  <entity name="result">
+    <!-- Oregon Minimum Tax -->
+    <field name="or_sales_in_oregon" type="double" default_value="0.0"
+           comment="Sales attributed to Oregon for minimum tax calculation"/>
+
+    <field name="or_minimum_tax" type="double" default_value="150.0"
+           comment="OR minimum excise tax based on Oregon sales - ORS 317.090"/>
+
+    <field name="or_is_financial_institution" type="boolean" default_value="false"
+           comment="Is financial institution subject to 7.6% rate instead of 6.6%"/>
+
+    <field name="or_financial_institution_rate" type="double" default_value="0.076"
+           comment="OR tax rate for financial institutions: 7.6% - ORS 317.061(2)"/>
+
+  </entity>
+
 
   <!-- State: PA -->
 
@@ -3404,6 +4269,25 @@
 
 
   <!-- State: RI -->
+  <file_metadata>
+    <file_path>states/RI/54300_RI_constants</file_path>
+  </file_metadata>
+
+  <!-- Rhode Island state-specific constants -->
+  <entity name="apportionment">
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="ri_economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="RI economic nexus gross receipts threshold - $100,000"/>
+
+    <field name="ri_transaction_threshold" type="integer" default_value="200"
+           comment="RI economic nexus transaction count threshold - 200"/>
+
+    <!-- State Tax Rate -->
+    <field name="ri_state_tax_rate" type="double" default_value="0.070"
+           comment="RI corporate income tax rate - 7% flat rate (R.I. Gen. Laws § 44-11-2)"/>
+
+  </entity>
+
 
   <!-- State: SC -->
 
@@ -3544,6 +4428,76 @@
 
 
   <!-- State: TN -->
+  <file_metadata>
+    <file_path>states/TN/51900_TN_constants</file_path>
+  </file_metadata>
+
+  <!-- Result Entity: Tennessee-Specific Fields -->
+  <entity name="result">
+
+    <!-- Tennessee Franchise Tax Fields -->
+    <field name="tn_franchise_tax_rate" type="double" default_value="0.0025"
+           comment="TN franchise tax rate: 0.25% (TN Code § 67-4-2104)"/>
+
+    <field name="tn_net_worth" type="double" default_value="0.0"
+           comment="TN net worth: greater of (1) capital stock + surplus + undivided profits or (2) property owned/used in TN"/>
+
+    <field name="tn_net_worth_method" type="string" default_value="greater_of_book_or_property"
+           comment="TN net worth calculation method: greater_of_book_or_property"/>
+
+    <field name="tn_franchise_tax" type="double" default_value="0.0"
+           comment="TN franchise tax calculated: net_worth × 0.0025"/>
+
+    <!-- Tennessee Excise Tax Fields -->
+    <field name="tn_excise_tax" type="double" default_value="0.0"
+           comment="TN excise tax calculated: apportioned_income × 0.065"/>
+
+    <!-- Tennessee Total Tax Liability -->
+    <field name="tn_total_tax" type="double" default_value="0.0"
+           comment="TN total tax: franchise_tax + excise_tax"/>
+
+    <!-- Tennessee Minimum Tax -->
+    <field name="tn_minimum_tax" type="double" default_value="100.0"
+           comment="TN minimum combined tax: $100 (applies to both franchise + excise)"/>
+
+  </entity>
+
+  <!-- Apportionment Entity: Tennessee-Specific Configuration -->
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name="state_code" type="string" default_value="TN"
+           comment="Tennessee - Two-letter state code"/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="TN economic nexus threshold: $100,000 gross receipts"/>
+
+    <field name="transaction_threshold" type="integer" default_value="200"
+           comment="TN economic nexus transaction threshold: 200 transactions"/>
+
+    <!-- Apportionment Formula -->
+    <field name="apportionment_formula" type="string" default_value="single_sales"
+           comment="TN uses single-sales factor apportionment"/>
+
+    <!-- State Tax Rate (Excise Tax) -->
+    <field name="state_tax_rate" type="double" default_value="0.0650"
+           comment="TN excise tax rate: 6.5% on net earnings (TN Code § 67-4-2007)"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="state_additions" type="double" default_value="0.0"
+           comment="TN-specific additions to federal taxable income"/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="state_subtractions" type="double" default_value="0.0"
+           comment="TN-specific subtractions from federal taxable income"/>
+
+    <!-- State Tax Credits -->
+    <field name="state_credits" type="double" default_value="0.0"
+           comment="TN tax credits: jobs, investment, research, headquarters, etc."/>
+
+  </entity>
+
 
   <!-- State: TX -->
 
@@ -3839,7 +4793,129 @@
 
   <!-- State: WA -->
 
+  <!-- ================================================================== -->
+  <!-- APPORTIONMENT - Washington-Specific Configuration                  -->
+  <!-- Note: Washington does NOT use traditional apportionment since      -->
+  <!-- it's not an income tax. Fields maintained for framework consistency-->
+  <!-- ================================================================== -->
+  <entity name='apportionment' xls_file='WA_Corp.xls' access='rw' comment='Washington-specific apportionment configuration for B&amp;O tax'>
+
+		<!-- State Identification -->
+		<field name='state_code' type='string' subtype='' access='rw' input='main' default_value='WA' comment='Washington state code'></field>
+
+		<!-- Economic Nexus Thresholds -->
+		<field name='economic_nexus_threshold' type='double' subtype='' access='rw' input='main' default_value='100000.0' comment='Washington economic nexus: $100,000 in Washington receipts (follows Wayfair standard)'></field>
+
+		<field name='transaction_threshold' type='integer' subtype='' access='rw' input='main' default_value='200' comment='Washington economic nexus: 200 or more separate transactions'></field>
+
+		<!-- Apportionment Formula -->
+		<field name='apportionment_formula' type='string' subtype='' access='rw' input='main' default_value='single_sales' comment='Washington uses single-sales factor for sourcing receipts to Washington'></field>
+
+		<!-- State Tax Rate (NOT USED - Washington has no income tax) -->
+		<field name='state_tax_rate' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Washington has NO corporate income tax (B&amp;O tax is calculated separately)'></field>
+
+		<!-- State Additions/Subtractions (NOT USED - no income tax) -->
+		<field name='state_additions' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Not applicable - Washington has no income tax'></field>
+
+		<field name='state_subtractions' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Not applicable - Washington has no income tax'></field>
+
+		<!-- State Tax Credits -->
+		<field name='state_credits' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Washington B&amp;O tax credits (small business credit, high tech, aerospace, etc.)'></field>
+
+  </entity>
+
+  <!-- ================================================================== -->
+  <!-- RESULT - Washington Business &amp; Occupation (B&amp;O) Tax Fields        -->
+  <!-- The B&amp;O tax is NOT an income tax - it's based on gross receipts   -->
+  <!-- ================================================================== -->
+  <entity name='result' xls_file='WA_Corp.xls' access='rw' comment='Washington B&amp;O tax calculation results'>
+
+		<!-- Washington Gross Receipts -->
+		<field name='wa_gross_receipts' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Washington-sourced gross receipts for B&amp;O tax (all revenue from WA activities)'></field>
+
+		<!-- Washington Business Classification -->
+		<field name='wa_business_classification' type='string' subtype='' access='rw' input='main' default_value='service' comment='WA business classification: service, retailing, wholesaling, manufacturing, professional, financial'></field>
+
+		<!-- Washington B&amp;O Tax Rate (varies by classification) -->
+		<field name='wa_bo_tax_rate' type='double' subtype='' access='rw' input='' default_value='0.00484' comment='WA B&amp;O tax rate based on business classification (0.484% default for service/other)'></field>
+
+		<!-- Washington B&amp;O Tax Rate by Classification -->
+		<field name='wa_service_rate' type='double' subtype='' access='r' input='' default_value='0.00484' comment='Service and Other Activities B&amp;O rate: 0.484%'></field>
+
+		<field name='wa_retailing_rate' type='double' subtype='' access='r' input='' default_value='0.00471' comment='Retailing B&amp;O rate: 0.471%'></field>
+
+		<field name='wa_wholesaling_rate' type='double' subtype='' access='r' input='' default_value='0.00484' comment='Wholesaling B&amp;O rate: 0.484%'></field>
+
+		<field name='wa_manufacturing_rate' type='double' subtype='' access='r' input='' default_value='0.00484' comment='Manufacturing B&amp;O rate: 0.484%'></field>
+
+		<field name='wa_professional_rate' type='double' subtype='' access='r' input='' default_value='0.00484' comment='Professional Services B&amp;O rate: 0.484%'></field>
+
+		<field name='wa_financial_rate' type='double' subtype='' access='r' input='' default_value='0.015' comment='Financial Business B&amp;O rate: 1.5%'></field>
+
+		<!-- Washington B&amp;O Tax Calculation -->
+		<field name='wa_bo_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Washington B&amp;O tax liability (NOT an income tax - based on gross receipts)'></field>
+
+		<!-- Washington Small Business B&amp;O Credit -->
+		<field name='wa_small_business_credit_threshold' type='double' subtype='' access='r' input='' default_value='250000.0' comment='Small business B&amp;O credit available for businesses with gross revenue under $250K'></field>
+
+		<field name='wa_qualifies_for_small_business_credit' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Qualifies for Washington small business B&amp;O credit'></field>
+
+		<field name='wa_small_business_credit' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Washington small business B&amp;O credit amount'></field>
+
+		<!-- Washington Manufacturing Tax Incentives -->
+		<field name='wa_qualifies_for_manufacturing_exemption' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Qualifies for B&amp;O manufacturing tax exemptions or preferential rates'></field>
+
+		<!-- Washington High Tech / Aerospace Credits -->
+		<field name='wa_high_tech_credit' type='double' subtype='' access='rw' input='main' default_value='0.0' comment='Washington high-tech B&amp;O tax credit'></field>
+
+		<field name='wa_aerospace_credit' type='double' subtype='' access='rw' input='main' default_value='0.0' comment='Washington aerospace industry B&amp;O tax credit'></field>
+
+	</entity>
+
+
   <!-- State: WI -->
+  <file_metadata>
+    <file_path>states/WI/51600_WI_constants</file_path>
+  </file_metadata>
+  <entity name="apportionment">
+
+    <!-- State Identification -->
+    <field name="state_code" type="string" default_value="WI"
+           comment="Wisconsin state code"/>
+
+    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
+    <field name="economic_nexus_threshold" type="double" default_value="100000.0"
+           comment="Wisconsin economic nexus gross receipts threshold - $100,000"/>
+
+    <field name="transaction_threshold" type="integer" default_value="200"
+           comment="Wisconsin economic nexus transaction count threshold - 200"/>
+
+    <!-- Apportionment Formula -->
+    <field name="apportionment_formula" type="string" default_value="single_sales"
+           comment="Wisconsin uses single-sales apportionment formula"/>
+
+    <!-- State Tax Rate -->
+    <field name="state_tax_rate" type="double" default_value="0.079"
+           comment="Wisconsin corporate income tax rate - 7.9% flat rate (WI Stat. § 71.27)"/>
+
+    <!-- State Additions to Federal Taxable Income -->
+    <field name="state_additions" type="double" default_value="0.0"
+           comment="Wisconsin-specific additions to federal taxable income"/>
+
+    <!-- State Subtractions from Federal Taxable Income -->
+    <field name="state_subtractions" type="double" default_value="0.0"
+           comment="Wisconsin-specific subtractions from federal taxable income"/>
+
+    <!-- State Tax Credits -->
+    <field name="state_credits" type="double" default_value="0.0"
+           comment="Wisconsin tax credits: business development, jobs, R&amp;D, etc."/>
+
+  </entity>
+
+  <entity name="result">
+    <!-- No Wisconsin-specific result fields required for basic implementation -->
+  </entity>
+
 
   <!-- State: WV -->
 
@@ -3975,4 +5051,4 @@
   </entity>
 
 
-</entity_dictionary>
+</entity_data_dictionary>
