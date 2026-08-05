@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 52800: Determine_IN_Corporate_Filing_Requirement -->
+<!-- TABLE 52800: Determine_IN_Filing_Requirement -->
 <decision_table>
 <source>
 <relative_path>IN_Corp.xls</relative_path>
 <file_name>IN_Corp.xls</file_name>
 <sheet_number>1</sheet_number>
 </source>
-<table_name>Determine_IN_Corporate_Filing_Requirement</table_name>
+<table_name>Determine_IN_Filing_Requirement</table_name>
 <xls_file>IN_Corp.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -78,14 +78,14 @@ false cvb /result.in_has_nexus xdef 0.0 cvd /result.in_tax_liability xdef
 <policy_statements></policy_statements>
 </decision_table>
 
-<!-- TABLE 52820: Calculate_IN_Corporate_Income_Adjustments -->
+<!-- TABLE 52820: Calculate_IN_Income_Adjustments -->
 <decision_table>
 <source>
 <relative_path>IN_Corp.xls</relative_path>
 <file_name>IN_Corp.xls</file_name>
 <sheet_number>2</sheet_number>
 </source>
-<table_name>Calculate_IN_Corporate_Income_Adjustments</table_name>
+<table_name>Calculate_IN_Income_Adjustments</table_name>
 <xls_file>IN_Corp.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -134,14 +134,14 @@ result.in_has_nexus true beq
 <policy_statements></policy_statements>
 </decision_table>
 
-<!-- TABLE 52880: Calculate_IN_Corporate_Tax -->
+<!-- TABLE 52880: Calculate_IN_State_Tax -->
 <decision_table>
 <source>
 <relative_path>IN_Corp.xls</relative_path>
 <file_name>IN_Corp.xls</file_name>
 <sheet_number>3</sheet_number>
 </source>
-<table_name>Calculate_IN_Corporate_Tax</table_name>
+<table_name>Calculate_IN_State_Tax</table_name>
 <xls_file>IN_Corp.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>

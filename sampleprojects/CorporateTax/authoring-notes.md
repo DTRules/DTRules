@@ -66,4 +66,50 @@
 - 2026-08-05 — add table `Calculate_WA_State_Tax` to `states/WA_corp_dt.xml` — "standard-name wrapper so state dispatch resolves (#948 Phase 3)"
 - 2026-08-05 — add file `orchestrator_dt.xml` [100-199] — "entry/orchestration tables live above the per-state ranges"
 - 2026-08-05 — add table `Run_Corporate_Tax` to `orchestrator_dt.xml` — "entry table: dispatches to the state trio by apportionment.state_code (#948 Phase 3)"
+- 2026-08-05 — renamed table Calculate_CO_Corporate_Tax -> Calculate_CO_State_Tax
+- 2026-08-05 — renamed table Determine_CO_Corporate_Filing_Requirement -> Determine_CO_Filing_Requirement
+- 2026-08-05 — renamed table Calculate_CO_Corporate_Income_Adjustments -> Calculate_CO_Income_Adjustments
+- 2026-08-05 — renamed table Determine_IA_Corporate_Filing_Requirement -> Determine_IA_Filing_Requirement
+- 2026-08-05 — renamed table Calculate_IA_Corporate_Income_Adjustments -> Calculate_IA_Income_Adjustments
+- 2026-08-05 — renamed table Calculate_IA_Corporate_Tax -> Calculate_IA_State_Tax
+- 2026-08-05 — renamed table Determine_ID_Corporate_Filing_Requirement -> Determine_ID_Filing_Requirement
+- 2026-08-05 — renamed table Calculate_ID_Corporate_Income_Adjustments -> Calculate_ID_Income_Adjustments
+- 2026-08-05 — renamed table Calculate_ID_Corporate_Tax -> Calculate_ID_State_Tax
+- 2026-08-05 — renamed table Calculate_IN_Corporate_Income_Adjustments -> Calculate_IN_Income_Adjustments
+- 2026-08-05 — renamed table Calculate_IN_Corporate_Tax -> Calculate_IN_State_Tax
+- 2026-08-05 — renamed table Determine_IN_Corporate_Filing_Requirement -> Determine_IN_Filing_Requirement
+- 2026-08-05 — renamed table Determine_KS_Corporate_Filing_Requirement -> Determine_KS_Filing_Requirement
+- 2026-08-05 — renamed table Calculate_KS_Corporate_Income_Adjustments -> Calculate_KS_Income_Adjustments
+- 2026-08-05 — renamed table Calculate_KS_Corporate_Tax -> Calculate_KS_State_Tax
+- 2026-08-05 — renamed table Determine_KY_Corporate_Filing_Requirement -> Determine_KY_Filing_Requirement
+- 2026-08-05 — renamed table Calculate_KY_Corporate_Income_Adjustments -> Calculate_KY_Income_Adjustments
+- 2026-08-05 — renamed table Calculate_KY_Corporate_Tax -> Calculate_KY_State_Tax
+- 2026-08-05 — renamed table Calculate_LA_Corporate_Tax -> Calculate_LA_State_Tax
+- 2026-08-05 — renamed table Determine_LA_Corporate_Filing_Requirement -> Determine_LA_Filing_Requirement
+- 2026-08-05 — renamed table Calculate_LA_Corporate_Income_Adjustments -> Calculate_LA_Income_Adjustments
+- 2026-08-05 — renamed table Determine_MA_Corporate_Filing_Requirement -> Determine_MA_Filing_Requirement
+- 2026-08-05 — renamed table Calculate_MA_Corporate_Income_Adjustments -> Calculate_MA_Income_Adjustments
+- 2026-08-05 — renamed table Calculate_MA_Corporate_Tax -> Calculate_MA_State_Tax
+- 2026-08-05 — renamed table Determine_MD_Corporate_Filing_Requirement -> Determine_MD_Filing_Requirement
+- 2026-08-05 — renamed table Calculate_MD_Corporate_Income_Adjustments -> Calculate_MD_Income_Adjustments
+- 2026-08-05 — renamed table Calculate_MD_Corporate_Tax -> Calculate_MD_State_Tax
+- 2026-08-05 — renamed table Determine_ME_Corporate_Filing_Requirement -> Determine_ME_Filing_Requirement
+- 2026-08-05 — renamed table Calculate_ME_Corporate_Income_Adjustments -> Calculate_ME_Income_Adjustments
+- 2026-08-05 — renamed table Calculate_ME_Corporate_Tax -> Calculate_ME_State_Tax
+- 2026-08-05 — renamed table Determine_MI_Corporate_Filing_Requirement -> Determine_MI_Filing_Requirement
+- 2026-08-05 — renamed table Calculate_MI_Corporate_Income_Adjustments -> Calculate_MI_Income_Adjustments
+- 2026-08-05 — renamed table Calculate_MI_Corporate_Tax -> Calculate_MI_State_Tax
+- 2026-08-05 — renamed table Determine_MN_Corporate_Filing_Requirement -> Determine_MN_Filing_Requirement
+- 2026-08-05 — renamed table Calculate_MN_Corporate_Income_Adjustments -> Calculate_MN_Income_Adjustments
+- 2026-08-05 — renamed table Calculate_MN_Corporate_Tax -> Calculate_MN_State_Tax
+- 2026-08-05 — renamed table Determine_MO_Corporate_Filing_Requirement -> Determine_MO_Filing_Requirement
+- 2026-08-05 — renamed table Calculate_MO_Corporate_Income_Adjustments -> Calculate_MO_Income_Adjustments
+- 2026-08-05 — renamed table Calculate_MO_Corporate_Tax -> Calculate_MO_State_Tax
+- 2026-08-05 — renamed table Calculate_MS_Corporate_Income_Adjustments -> Calculate_MS_Income_Adjustments
+- 2026-08-05 — renamed table Calculate_MS_Corporate_Tax -> Calculate_MS_State_Tax
+- 2026-08-05 — renamed table Determine_MS_Corporate_Filing_Requirement -> Determine_MS_Filing_Requirement
+- 2026-08-05 — renamed table Calculate_MT_Corporate_Income_Adjustments -> Calculate_MT_Income_Adjustments
+- 2026-08-05 — renamed table Calculate_MT_Corporate_Tax -> Calculate_MT_State_Tax
+- 2026-08-05 — renamed table Determine_MT_Corporate_Filing_Requirement -> Determine_MT_Filing_Requirement
+
 

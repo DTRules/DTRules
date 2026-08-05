@@ -62,14 +62,12 @@ func main() {
 			"Calculate_" + st + "_Corporate_Income_Adjustments": "Calculate_" + st + "_Income_Adjustments",
 			"Calculate_" + st + "_Corporate_Tax":                "Calculate_" + st + "_State_Tax",
 		} {
-			t := p.Table(old)
-			if t == nil {
-				continue
+			if p.Table(old) == nil {
+				continue // already renamed (idempotent re-run)
 			}
-			if p.Table(new_) != nil {
-				fatal("rename %s -> %s: target exists", old, new_)
+			if err := p.RenameTable(old, new_); err != nil {
+				fatal("rename %s -> %s: %v", old, new_, err)
 			}
-			t.Name = new_ // same mechanism as the set-name patch
 			renamed++
 		}
 	}

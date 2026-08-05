@@ -328,6 +328,35 @@ func (p *Project) refreshExcelFromXML() error {
 	return RefreshExcelInDir(p.xmlDir)
 }
 
+// RenameTable renames a decision table in place.
+//
+// This exists because assigning to a Table view's Name field does nothing
+// durable: Project.Table builds a fresh view per call, and only the SDK's
+// mutator methods sync a view back to the underlying XML. The CLI's
+// `set-name` patch did exactly that assignment and was a silent no-op — the
+// response said "patched", Save ran, and the XML kept the old name.
+func (p *Project) RenameTable(old, new string) error {
+	if strings.TrimSpace(new) == "" {
+		return fmt.Errorf("new table name must be non-empty")
+	}
+	if old == new {
+		return nil
+	}
+	if p.Table(new) != nil {
+		return fmt.Errorf("a table named %q already exists", new)
+	}
+	for fi := range p.dtFiles {
+		for ti := range p.dtFiles[fi].tables.Tables {
+			if p.dtFiles[fi].tables.Tables[ti].TableName == old {
+				p.dtFiles[fi].tables.Tables[ti].TableName = new
+				p.logChange("renamed table %s -> %s", old, new)
+				return nil
+			}
+		}
+	}
+	return fmt.Errorf("table %q not found", old)
+}
+
 // Tables lists the names of every decision table in the project.
 func (p *Project) Tables() []string {
 	var names []string

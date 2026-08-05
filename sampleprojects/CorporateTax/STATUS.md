@@ -6,17 +6,22 @@ touching this project.** What to *do* about it is in [PLAN.md](PLAN.md).
 
 ## Where it stands
 
+**DONE (2026-08-05).** All four phases of [PLAN.md](PLAN.md) are complete:
+
 | | |
 |---|---|
-| XML files that parse | **all of them** (111; the corrupt core was removed) |
-| Does the rule set load? | **yes — 19 entities, 164 decision tables.** First time ever |
-| `xml/states/*_corp_dt.xml` | 52 files, **167 tables**, 757 rows with content, only 3 stubs — in the supported format |
-| …of those rows, hand-coded postfix | **413 of 757 (55%)** |
-| `xml/CorporateTax_dt.xml` (merged) | **164 tables, 0 stubs** — was 24/23 until the merge bug was fixed |
-| `xml/CorporateTax_dt_core.xml` | **removed** — never parsed, unsupported schema |
-| `DTRules.xml` | present; **no `<entry>` yet** — needs the orchestrator decision |
-| Excel authoring source | **none** — the only sample with no `edd/` or `DecisionTables/` |
-| Reference material | `reference/` — 76 official state forms and instructions, committed |
+| EDD | complete — 0 undeclared field references (was 190 fields / 504 refs) |
+| EL | every row carries EL; elcheck `hand=0 diff=0 err=0` (was 413 hand + 138 err) |
+| Naming | one convention; 45 tables renamed, wrappers for OH TN TX WA |
+| Entry | `Run_Corporate_Tax` dispatches on `apportionment.state_code` |
+| Map | createentity + entities + initialization; six singletons pushed |
+| Executes | **yes** — CA scenario: 1,000,000 × 8.84% = 88,400 tax, 1,600 refund |
+| Enforcement | trace-test floor, strict-load + arithmetic + no-hand-postfix tests |
+
+Remaining, deliberately out of scope here: map tags for the `result.XX_*`
+inputs the 15 renamed states read (scenarios currently exercise the
+`apportionment.*` states); scenarios for graduated/gross-receipts states; and
+whether to rebuild the federal Form 1120 computation at all.
 
 ## Nothing here has ever loaded
 
