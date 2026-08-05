@@ -1,0 +1,8 @@
+<DTRules>
+  <!--
+    Project marker for the Cribbage sample (#984): hand scoring driven
+    entirely by decision tables over the combinatorial primitives (#980).
+    <entry> names the table `dtrules debug` and the editor start from.
+  -->
+  <entry>Score_Hand</entry>
+</DTRules>
