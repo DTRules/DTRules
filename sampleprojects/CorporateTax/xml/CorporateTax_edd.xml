@@ -3,6 +3,8 @@
 
   <!-- Corporation Entity -->
   <entity name="corporation">
+    <field name="state_of_incorporation" type="string" default_value=""
+           comment="Declared from decision-table usage; referenced by WY but never declared (campaign #948 Phase 1)"/>
     <field name='ein' type='string' comment='Employer Identification Number'/>
     <field name='corporation_name' type='string' comment='Legal name of corporation'/>
     <field name='incorporation_date' type='date' comment='Date of incorporation'/>
@@ -15,6 +17,12 @@
 
   <!-- Revenue Entity -->
   <entity name="revenue">
+    <field name="federal_bond_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"/>
+    <field name="qualified_subsidiary_dividends" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"/>
+    <field name="total_revenue" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by NV,WA but never declared (campaign #948 Phase 1)"/>
     <field name='gross_receipts' type='double' default_value='0.0' comment='Gross receipts or sales (Form 1120 line 1a)'/>
     <field name='returns_and_allowances' type='double' default_value='0.0' comment='Returns and allowances (Form 1120 line 1b)'/>
     <field name='net_receipts' type='double' default_value='0.0' comment='Net receipts (line 1c = 1a - 1b)'/>
@@ -60,6 +68,46 @@
 
   <!-- Result Entity (tax calculation results and audit trail) -->
   <entity name="result">
+    <field name="federal_tax_liability" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_co" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_ia" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_id" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_in" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_ks" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_ky" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_la" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_ma" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_md" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_me" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_mi" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_mn" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_mo" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_ms" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_mt" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_nv" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by NV but never declared (campaign #948 Phase 1)"/>
+    <field name="policy_statements" type="array" default_value=""
+           comment="Declared from decision-table usage; referenced by IL but never declared (campaign #948 Phase 1)"/>
+    <field name="section_199a_deduction" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"/>
+    <field name="state_income_taxes_paid" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"/>
     <!-- Federal Income -->
     <field name='total_income' type='double' default_value='0.0' comment='Total income (Form 1120 line 11)'/>
 
@@ -1416,6 +1464,8 @@
 
   <!-- Apportionment Entity (for state tax allocation) -->
   <entity name="apportionment">
+    <field name="apportionment_factor" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by TX but never declared (campaign #948 Phase 1)"/>
     <field name='state_code' type='string' comment='Two-letter state code (e.g., CA, NY, TX)'/>
 
     <!-- Nexus Determination -->
@@ -2539,6 +2589,18 @@
     <file_path>states/CO/51400_CO_corporate_constants</file_path>
   </file_metadata>
   <entity name="result">
+    <field name="co_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"/>
+    <field name="co_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"/>
+    <field name="co_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"/>
+    <field name="co_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"/>
+    <field name="co_state_tax_deduction" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"/>
+    <field name="co_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"/>
     <!-- Colorado Corporate Tax Rate -->
     <field name="co_corp_tax_rate" type="double" default_value="0.0455"
            comment="CO corporate income tax rate: 4.55% (CO Rev. Stat. § 39-22-104, 2025)"/>
@@ -2902,6 +2964,20 @@
     <file_path>states/IA/52600_IA_corporate_constants</file_path>
   </file_metadata>
   <entity name="result">
+    <field name="ia_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
+    <field name="ia_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
+    <field name="ia_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
+    <field name="ia_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
+    <field name="ia_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
+    <field name="ia_state_taxes_deducted" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
+    <field name="ia_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
     <!-- Iowa Corporate Tax Rate - Graduated System -->
     <field name="ia_corp_tax_rate_bracket_1" type="double" default_value="0.055"
            comment="IA corporate income tax rate bracket 1: 5.5% on income up to $100,000 (Iowa Code § 422.33)"/>
@@ -2955,6 +3031,20 @@
     <file_path>states/ID/52700_ID_corporate_constants</file_path>
   </file_metadata>
   <entity name="result">
+    <field name="id_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
+    <field name="id_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
+    <field name="id_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
+    <field name="id_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
+    <field name="id_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
+    <field name="id_state_taxes_deducted" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
+    <field name="id_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
     <!-- Idaho Corporate Tax Rate -->
     <field name="id_corp_tax_rate" type="double" default_value="0.053"
            comment="ID corporate income tax rate: 5.3% flat rate (effective 2025, Idaho Code § 63-3025)"/>
@@ -3058,6 +3148,20 @@
     <file_path>states/IN/52800_IN_corporate_constants</file_path>
   </file_metadata>
   <entity name="result">
+    <field name="in_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
+    <field name="in_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
+    <field name="in_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
+    <field name="in_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
+    <field name="in_out_of_state_muni_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
+    <field name="in_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
+    <field name="in_state_taxes_paid" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
     <!-- Indiana Corporate Tax Rate -->
     <field name="in_corp_tax_rate" type="double" default_value="0.049"
            comment="IN corporate income tax rate: 4.9% flat rate (2025, Indiana Code § 6-3-2-1)"/>
@@ -3099,6 +3203,22 @@
     <file_path>states/KS/52900_KS_corporate_constants</file_path>
   </file_metadata>
   <entity name="result">
+    <field name="ks_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="ks_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="ks_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="ks_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="ks_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="ks_state_tax_refunds" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="ks_state_taxes_paid" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="ks_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
     <!-- Kansas Corporate Tax Rate - Two-Tier Structure -->
     <field name="ks_corp_tax_base_rate" type="double" default_value="0.04"
            comment="KS corporate income tax base rate: 4.0% (includes 0.5% temporary increase, K.S.A. 79-32,110)"/>
@@ -3162,6 +3282,20 @@
     <file_path>states/KY/53000_KY_corporate_constants</file_path>
   </file_metadata>
   <entity name="result">
+    <field name="ky_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"/>
+    <field name="ky_dividends_from_ky_corps" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"/>
+    <field name="ky_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"/>
+    <field name="ky_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"/>
+    <field name="ky_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"/>
+    <field name="ky_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"/>
+    <field name="ky_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"/>
     <!-- Kentucky Corporate Tax Rate -->
     <field name="ky_corp_tax_rate" type="double" default_value="0.045"
            comment="KY corporate income tax rate: 4.5% flat rate (KRS 141.040, effective 2025)"/>
@@ -3203,6 +3337,18 @@
     <file_path>states/LA/53100_LA_corporate_constants</file_path>
   </file_metadata>
   <entity name="result">
+    <field name="la_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"/>
+    <field name="la_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"/>
+    <field name="la_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"/>
+    <field name="la_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"/>
+    <field name="la_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"/>
+    <field name="la_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"/>
     <!-- Louisiana Corporate Tax Rate - NEW 2025 FLAT RATE -->
     <field name="la_corp_tax_rate" type="double" default_value="0.055"
            comment="LA corporate income tax rate: 5.5% flat rate (effective 2025, replaced graduated rates up to 7.5%, LA R.S. 47:287)"/>
@@ -3293,6 +3439,36 @@
     The standard apportionment fields are sufficient for MA's 8% flat rate.
   -->
   <entity name="result">
+    <field name="ma_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_corp_tax_rate" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_economic_nexus_threshold" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_has_nexus" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_qualified_dividend_deduction" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_state_additions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_state_credits" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_state_subtractions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_tax_liability" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_taxable_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
     <!-- No MA-specific fields needed -->
   </entity>
 
@@ -3304,6 +3480,24 @@
 
   <!-- Maryland corporate tax constants -->
   <entity name="result">
+    <field name="md_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_has_nexus" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_tax_liability" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_taxable_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
     <!-- Tax Rate -->
     <field name="md_corp_tax_rate" type="double" default_value="0.0825"
            comment="MD corporate income tax rate - 8.25% flat rate (MD Tax-General Code § 10-105)"/>
@@ -3398,6 +3592,45 @@
 
   </entity>
 
+  <entity name="result">
+    <field name="me_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_corp_tax_rate_tier1" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_corp_tax_rate_tier2" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_corp_tax_rate_tier3" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_corp_tax_rate_tier4" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_economic_nexus_threshold" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_has_nexus" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_section_199a_addback" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_state_additions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_state_credits" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_state_subtractions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_tax_liability" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_taxable_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+  </entity>
+
 
   <!-- State: MI -->
 
@@ -3445,6 +3678,34 @@
     No special state-specific fields needed for Michigan's flat-rate system.
   -->
   <entity name="result">
+    <field name="mi_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_corp_tax_rate" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_economic_nexus_threshold" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_has_nexus" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_state_additions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_state_credits" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_state_subtractions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_tax_liability" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_taxable_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
     <!-- Michigan uses standard apportionment - no special fields required -->
   </entity>
 
@@ -3502,6 +3763,34 @@
     The standard apportionment entity fields are sufficient for basic implementation.
   -->
   <entity name="result">
+    <field name="mn_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="mn_corp_tax_rate" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="mn_economic_nexus_threshold" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="mn_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="mn_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="mn_has_nexus" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="mn_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="mn_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="mn_state_additions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="mn_state_credits" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="mn_state_subtractions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="mn_tax_liability" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="mn_taxable_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="mn_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
     <!-- Optional: MN-specific tracking fields -->
     <!-- Example:
     <field name='mn_small_business_deduction' type='double' default_value='0.0'
@@ -3555,6 +3844,37 @@
     <field name="state_credits" type="double" default_value="0.0"
            comment="Missouri tax credits: jobs creation, historic preservation, film production, etc."/>
 
+  </entity>
+
+  <entity name="result">
+    <field name="mo_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="mo_corp_tax_rate" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="mo_economic_nexus_threshold" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="mo_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="mo_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="mo_has_nexus" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="mo_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="mo_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="mo_state_additions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="mo_state_credits" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="mo_state_subtractions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="mo_tax_liability" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="mo_taxable_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="mo_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
   </entity>
 
 
@@ -3614,6 +3934,41 @@
 
   </entity>
 
+  <entity name="result">
+    <field name="ms_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_corp_tax_rate_tier1" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_corp_tax_rate_tier2" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_corp_tax_rate_tier3" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_economic_nexus_threshold" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_has_nexus" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_state_additions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_state_credits" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_state_subtractions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_tax_liability" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_taxable_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="ms_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+  </entity>
+
 
   <!-- State: MT -->
   <file_metadata>
@@ -3658,6 +4013,36 @@
 
   <!-- Result Entity: Montana-Specific Extensions -->
   <entity name="result">
+    <field name="mt_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_corp_tax_rate" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_corp_tax_rate_waters_edge" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_economic_nexus_threshold" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_has_nexus" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_state_additions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_state_credits" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_state_subtractions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_tax_liability" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_taxable_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
 
     <!-- Montana Water's Edge Election -->
     <field name="mt_waters_edge_election" type="boolean" default_value="false"
@@ -4434,6 +4819,8 @@
 
   <!-- Result Entity: Tennessee-Specific Fields -->
   <entity name="result">
+    <field name="tn_nol_deduction" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"/>
 
     <!-- Tennessee Franchise Tax Fields -->
     <field name="tn_franchise_tax_rate" type="double" default_value="0.0025"
@@ -4496,6 +4883,11 @@
     <field name="state_credits" type="double" default_value="0.0"
            comment="TN tax credits: jobs, investment, research, headquarters, etc."/>
 
+  </entity>
+
+  <entity name="revenue">
+    <field name="tn_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"/>
   </entity>
 
 

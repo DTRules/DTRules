@@ -17,6 +17,8 @@
 
   <!-- Result Entity: Tennessee-Specific Fields -->
   <entity name="result">
+    <field name="tn_nol_deduction" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"/>
 
     <!-- Tennessee Franchise Tax Fields -->
     <field name="tn_franchise_tax_rate" type="double" default_value="0.0025"
@@ -79,6 +81,11 @@
     <field name="state_credits" type="double" default_value="0.0"
            comment="TN tax credits: jobs, investment, research, headquarters, etc."/>
 
+  </entity>
+
+  <entity name="revenue">
+    <field name="tn_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"/>
   </entity>
 
 </entity_data_dictionary>

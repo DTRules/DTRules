@@ -20,6 +20,20 @@
     <file_path>states/IN/52800_IN_corporate_constants</file_path>
   </file_metadata>
   <entity name="result">
+    <field name="in_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
+    <field name="in_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
+    <field name="in_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
+    <field name="in_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
+    <field name="in_out_of_state_muni_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
+    <field name="in_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
+    <field name="in_state_taxes_paid" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
     <!-- Indiana Corporate Tax Rate -->
     <field name="in_corp_tax_rate" type="double" default_value="0.049"
            comment="IN corporate income tax rate: 4.9% flat rate (2025, Indiana Code § 6-3-2-1)"/>

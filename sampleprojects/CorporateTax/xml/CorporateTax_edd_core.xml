@@ -12,6 +12,8 @@
 
   <!-- Corporation Entity -->
   <entity name="corporation">
+    <field name="state_of_incorporation" type="string" default_value=""
+           comment="Declared from decision-table usage; referenced by WY but never declared (campaign #948 Phase 1)"/>
     <field name='ein' type='string' comment='Employer Identification Number'/>
     <field name='corporation_name' type='string' comment='Legal name of corporation'/>
     <field name='incorporation_date' type='date' comment='Date of incorporation'/>
@@ -24,6 +26,12 @@
 
   <!-- Revenue Entity -->
   <entity name="revenue">
+    <field name="federal_bond_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"/>
+    <field name="qualified_subsidiary_dividends" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"/>
+    <field name="total_revenue" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by NV,WA but never declared (campaign #948 Phase 1)"/>
     <field name='gross_receipts' type='double' default_value='0.0' comment='Gross receipts or sales (Form 1120 line 1a)'/>
     <field name='returns_and_allowances' type='double' default_value='0.0' comment='Returns and allowances (Form 1120 line 1b)'/>
     <field name='net_receipts' type='double' default_value='0.0' comment='Net receipts (line 1c = 1a - 1b)'/>
@@ -69,6 +77,46 @@
 
   <!-- Result Entity (tax calculation results and audit trail) -->
   <entity name="result">
+    <field name="federal_tax_liability" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_co" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_ia" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_id" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_in" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_ks" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_ky" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_la" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_ma" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_md" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_me" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_mi" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_mn" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_mo" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_ms" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_mt" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="has_physical_presence_nv" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by NV but never declared (campaign #948 Phase 1)"/>
+    <field name="policy_statements" type="array" default_value=""
+           comment="Declared from decision-table usage; referenced by IL but never declared (campaign #948 Phase 1)"/>
+    <field name="section_199a_deduction" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"/>
+    <field name="state_income_taxes_paid" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"/>
     <!-- Federal Income -->
     <field name='total_income' type='double' default_value='0.0' comment='Total income (Form 1120 line 11)'/>
 
@@ -1425,6 +1473,8 @@
 
   <!-- Apportionment Entity (for state tax allocation) -->
   <entity name="apportionment">
+    <field name="apportionment_factor" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by TX but never declared (campaign #948 Phase 1)"/>
     <field name='state_code' type='string' comment='Two-letter state code (e.g., CA, NY, TX)'/>
 
     <!-- Nexus Determination -->

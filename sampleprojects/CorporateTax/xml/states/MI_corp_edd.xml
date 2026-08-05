@@ -61,6 +61,34 @@
     No special state-specific fields needed for Michigan's flat-rate system.
   -->
   <entity name="result">
+    <field name="mi_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_corp_tax_rate" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_economic_nexus_threshold" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_has_nexus" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_state_additions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_state_credits" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_state_subtractions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_tax_liability" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_taxable_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
     <!-- Michigan uses standard apportionment - no special fields required -->
   </entity>
 

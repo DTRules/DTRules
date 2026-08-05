@@ -20,6 +20,20 @@
     <file_path>states/ID/52700_ID_corporate_constants</file_path>
   </file_metadata>
   <entity name="result">
+    <field name="id_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
+    <field name="id_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
+    <field name="id_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
+    <field name="id_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
+    <field name="id_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
+    <field name="id_state_taxes_deducted" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
+    <field name="id_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"/>
     <!-- Idaho Corporate Tax Rate -->
     <field name="id_corp_tax_rate" type="double" default_value="0.053"
            comment="ID corporate income tax rate: 5.3% flat rate (effective 2025, Idaho Code § 63-3025)"/>

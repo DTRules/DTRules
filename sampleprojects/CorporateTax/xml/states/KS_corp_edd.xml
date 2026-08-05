@@ -22,6 +22,22 @@
     <file_path>states/KS/52900_KS_corporate_constants</file_path>
   </file_metadata>
   <entity name="result">
+    <field name="ks_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="ks_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="ks_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="ks_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="ks_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="ks_state_tax_refunds" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="ks_state_taxes_paid" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
+    <field name="ks_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"/>
     <!-- Kansas Corporate Tax Rate - Two-Tier Structure -->
     <field name="ks_corp_tax_base_rate" type="double" default_value="0.04"
            comment="KS corporate income tax base rate: 4.0% (includes 0.5% temporary increase, K.S.A. 79-32,110)"/>
