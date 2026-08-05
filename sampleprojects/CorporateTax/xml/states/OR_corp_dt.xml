@@ -1,11 +1,13 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-
-
-
-
+<!-- TABLE 54200: Determine_OR_Filing_Requirement -->
 <decision_table>
+<source>
+<relative_path>OR_Corp.xls</relative_path>
+<file_name>OR_Corp.xls</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>Determine_OR_Filing_Requirement</table_name>
 <xls_file>OR_Corp.xls</xls_file>
 <attribute_fields>
@@ -14,98 +16,79 @@
 <TABLE_NUMBER>54200</TABLE_NUMBER>
 <FILE_PATH>states/OR/54200_Determine_OR_Filing_Requirement</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in OR</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true and state_code == 'OR'</condition_dsl>
-<condition_postfix>apportionment.has_physical_presence true beq { pop state_code &apos;OR&apos; streq } over if</condition_postfix>
+<condition_postfix>
+apportionment.has_physical_presence true beq { pop state_code 'OR' streq } over if
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in OR</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true and state_code == 'OR'</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop state_code &apos;OR&apos; streq } over if</condition_postfix>
-<condition_column column_number="1" column_value="" />
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop state_code 'OR' streq } over if
+</condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus - filing required</action_comment>
 <action_dsl>// Physical nexus established - filing required. Apportionment will be calculated by tables 7000-7500</action_dsl>
-<action_postfix>
-// Physical nexus established - filing required
-</action_postfix>
+<action_postfix></action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus - filing required; Economic nexus established per Wayfair - filing required. OR threshold: $750,000 in sales</action_comment>
-<action_dsl />
-<action_postfix>
-// Economic nexus established per Wayfair - filing required
-</action_postfix>
+<action_dsl>// Economic nexus established per Wayfair - filing required</action_dsl>
+<action_postfix></action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required; No nexus - no filing required</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-// No nexus - no filing required
-apportionment.state_tax 0.0 xdef
-apportionment.state_refund_or_owed apportionment.state_payments xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
 <policy_statements>
 <policy_statement column="1">
 <policy_description>OR filing required due to physical presence</policy_description>
-<policy_statement_postfix>
-"OR filing required due to physical presence (office, employees, or property in state). A corporation has physical presence nexus in Oregon if it has: an office, warehouse, or other place of business in Oregon; employees working in Oregon; tangible personal property located in Oregon; or real property located in Oregon. Reference: ORS 317.010-317.665 (Corporation Excise Tax), Oregon Form 20 Instructions (Filing requirements), Oregon Department of Revenue Corporate Income Tax Guide."
-</policy_statement_postfix>
+<policy_statement_postfix>"OR filing required due to physical presence"</policy_statement_postfix>
 </policy_statement>
-
 <policy_statement column="2">
 <policy_description>OR filing required due to economic nexus</policy_description>
-<policy_statement_postfix>
-"OR filing required due to economic nexus (post-Wayfair). Economic nexus threshold: $750,000 in Oregon sales (higher than the typical $100,000 threshold). Following South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), Oregon requires filing if a corporation exceeds economic nexus thresholds, even without physical presence. Oregon uses a higher economic nexus threshold ($750,000) compared to most states that use $100,000 or $500,000 thresholds. Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), Oregon Department of Revenue Economic Nexus Guidance, ORS 317.010 (Definitions and nexus standards)."
-</policy_statement_postfix>
+<policy_statement_postfix>"OR filing required due to economic nexus"</policy_statement_postfix>
 </policy_statement>
-
 <policy_statement column="3">
 <policy_description>No OR nexus - no filing requirement</policy_description>
-<policy_statement_postfix>
-"No OR nexus - no filing requirement. Corporation does not meet physical presence or economic nexus thresholds. Any estimated payments would be refunded. Reference: ORS 317.010 (Nexus requirements)."
-</policy_statement_postfix>
+<policy_statement_postfix>"No OR nexus - no filing requirement"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
-
 </decision_table>
 
-
-
-
-
+<!-- TABLE 54220: Calculate_OR_Income_Adjustments -->
 <decision_table>
+<source>
+<relative_path>OR_Corp.xls</relative_path>
+<file_name>OR_Corp.xls</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>Calculate_OR_Income_Adjustments</table_name>
 <xls_file>OR_Corp.xls</xls_file>
 <attribute_fields>
@@ -114,76 +97,59 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <TABLE_NUMBER>54220</TABLE_NUMBER>
 <FILE_PATH>states/OR/54220_Calculate_OR_Income_Adjustments</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus; Must have nexus to calculate adjustments</condition_comment>
-<condition_dsl />
+<condition_dsl>apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true</condition_dsl>
 <condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate OR state additions and subtractions; Calculate OR state additions and subtractions to federal taxable income</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-// Calculate OR state additions and subtractions
-apportionment.state_additions 0.0 xdef
-apportionment.state_subtractions 0.0 xdef
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments; No nexus - no state adjustments calculated</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-// No nexus - no state adjustments
-apportionment.state_additions 0.0 xdef
-apportionment.state_subtractions 0.0 xdef
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-
 <policy_statements>
 <policy_statement column="1">
 <policy_description>OR state-specific income adjustments</policy_description>
-<policy_statement_postfix>
-"OR state-specific income adjustments to federal taxable income. OR ADDITIONS to federal taxable income include: interest income from U.S. government obligations (exempt federally, taxable to OR); IRC Section 199A qualified business income deduction addback (OR conformity varies); state income tax refunds included in federal income; bonus depreciation addback (OR may decouple from federal accelerated depreciation); expenses related to income exempt from Oregon tax. OR SUBTRACTIONS from federal taxable income include: interest on Oregon state and municipal bonds (exempt for OR purposes); Oregon net operating loss deduction (subject to OR limitations); dividends from certain subsidiaries (subject to ownership requirements); federal income taxes paid (to extent included in federal taxable income). Reference: Oregon Form 20 Schedule OR-ASC (Additions and Subtractions), ORS 317.267 (Oregon taxable income determination), Oregon Department of Revenue Publication 17-118 (Federal tax changes)."
-</policy_statement_postfix>
+<policy_statement_postfix>"OR state-specific income adjustments"</policy_statement_postfix>
 </policy_statement>
-
 <policy_statement column="2">
 <policy_description>No nexus - no adjustments</policy_description>
-<policy_statement_postfix>
-"No nexus - no state adjustments calculated. Corporation does not have OR nexus, so no income adjustments are needed."
-</policy_statement_postfix>
+<policy_statement_postfix>"No nexus - no adjustments"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
-
 </decision_table>
 
-
-
-
-
+<!-- TABLE 54280: Calculate_OR_State_Tax -->
 <decision_table>
+<source>
+<relative_path>OR_Corp.xls</relative_path>
+<file_name>OR_Corp.xls</file_name>
+<sheet_number>3</sheet_number>
+</source>
 <table_name>Calculate_OR_State_Tax</table_name>
 <xls_file>OR_Corp.xls</xls_file>
 <attribute_fields>
@@ -192,152 +158,98 @@ apportionment.state_subtractions 0.0 xdef
 <TABLE_NUMBER>54280</TABLE_NUMBER>
 <FILE_PATH>states/OR/54280_Calculate_OR_State_Tax</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus</condition_comment>
-<condition_dsl>Must have nexus to owe tax</condition_dsl>
+<condition_dsl>apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true</condition_dsl>
 <condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="Y" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_dsl>Has positive state taxable income</condition_dsl>
+<condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 gt
+apportionment.state_taxable_income 0 f&gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="" />
 <condition_column column_number="4" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Is financial institution; Is financial institution subject to 7.6% rate</condition_comment>
-<condition_dsl />
+<condition_dsl>result.or_is_financial_institution == true</condition_dsl>
 <condition_postfix>
-result.or_is_financial_institution true eq
+result.or_is_financial_institution true beq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="" />
-<condition_column column_number="4" column_value="" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate OR tax for financial institutions (7.6% rate); Financial institutions use 7.6% rate instead of 6.6%</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * result.or_financial_institution_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax) and (result.or_minimum_tax); set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (result.or_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-// Financial institutions use 7.6% rate
-apportionment.state_tax apportionment.state_taxable_income result.or_financial_institution_rate mul xdef
-// Minimum tax calculated by separate table
-result.or_minimum_tax result.or_minimum_tax xdef
-// Tax liability is GREATER of excise tax or minimum tax
-apportionment.state_tax apportionment.state_tax result.or_minimum_tax max xdef
-// Subtract state credits (but cannot reduce below minimum tax)
-apportionment.state_tax apportionment.state_tax apportionment.state_credits sub result.or_minimum_tax max xdef
-// Calculate refund or amount owed
-apportionment.state_refund_or_owed apportionment.state_payments apportionment.state_tax sub xdef
+apportionment.state_taxable_income result.or_financial_institution_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax result.or_minimum_tax fmax cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- result.or_minimum_tax fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate OR tax for regular corporations (6.6% rate); Regular corporations use 6.6% flat rate</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax) and (result.or_minimum_tax); set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (result.or_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-// Regular corporations use 6.6% flat rate
-apportionment.state_tax apportionment.state_taxable_income apportionment.state_tax_rate mul xdef
-// Minimum tax calculated by separate table
-result.or_minimum_tax result.or_minimum_tax xdef
-// Tax liability is GREATER of excise tax or minimum tax
-apportionment.state_tax apportionment.state_tax result.or_minimum_tax max xdef
-// Subtract state credits (but cannot reduce below minimum tax)
-apportionment.state_tax apportionment.state_tax apportionment.state_credits sub result.or_minimum_tax max xdef
-// Calculate refund or amount owed
-apportionment.state_refund_or_owed apportionment.state_payments apportionment.state_tax sub xdef
+apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax result.or_minimum_tax fmax cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- result.or_minimum_tax fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no tax liability; No nexus - no tax liability</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = 0.0; set result.or_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-// No nexus - no tax liability
-apportionment.state_tax 0.0 xdef
-result.or_minimum_tax 0.0 xdef
-apportionment.state_refund_or_owed apportionment.state_payments xdef
+0.0 cvd /apportionment.state_tax xdef 0.0 cvd /result.or_minimum_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>4</action_number>
 <action_comment>Nexus but no taxable income (still owe minimum tax!); No excise tax, but MINIMUM TAX STILL APPLIES</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = result.or_minimum_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-// Nexus but no taxable income - minimum tax still applies
-// Minimum tax calculated by separate table
-apportionment.state_tax result.or_minimum_tax xdef
-// Calculate refund or amount owed
-apportionment.state_refund_or_owed apportionment.state_payments apportionment.state_tax sub xdef
+result.or_minimum_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
-
 <policy_statements>
 <policy_statement column="1">
 <policy_description>OR corporate excise tax (FINANCIAL INSTITUTIONS)</policy_description>
-<policy_statement_postfix>
-"OR state corporate excise tax calculation (FINANCIAL INSTITUTIONS): 1. Federal taxable income [Form 1120 line 28]; 2. Apportioned to OR × [Single-sales apportionment %]; 3. OR additions + [Federal interest, 199A addback, etc.]; 4. OR subtractions - [OR municipal interest, OR NOL, etc.]; 5. OR taxable income = [Result]; 6. OR tax rate × 7.6% (FINANCIAL INSTITUTION RATE); 7. OR excise tax = [Tax before minimum]; 8. OR minimum tax = [Based on Oregon sales - see ORS 317.090]; 9. OR tax before credits = MAX(excise tax, minimum tax); 10. OR credits - [Film, renewable energy, business expansion credits]; 11. OR tax liability = MAX(minimum tax, tax - credits). Note: Credits cannot reduce tax below the minimum tax amount. Reference: Oregon Form 20 Instructions (Corporation Excise Tax Return), ORS 317.061(2) (Financial institution tax rate - 7.6%), ORS 317.090 (Minimum tax schedule), ORS 317.267 (Single-sales factor apportionment)."
-</policy_statement_postfix>
+<policy_statement_postfix>"OR corporate excise tax (FINANCIAL INSTITUTIONS)"</policy_statement_postfix>
 </policy_statement>
-
 <policy_statement column="2">
 <policy_description>OR corporate excise tax (REGULAR CORPORATIONS)</policy_description>
-<policy_statement_postfix>
-"OR state corporate excise tax calculation: 1. Federal taxable income [Form 1120 line 28]; 2. Apportioned to OR × [Single-sales apportionment %]; 3. OR additions + [Federal interest, 199A addback, state tax refunds, etc.]; 4. OR subtractions - [OR municipal interest, OR NOL, qualified dividends, etc.]; 5. OR taxable income = [Result]; 6. OR tax rate × 6.6% (flat rate for regular corporations); 7. OR excise tax = [Tax before minimum]; 8. OR minimum tax = [Based on Oregon sales - see schedule below]; 9. OR tax before credits = MAX(excise tax, minimum tax); 10. OR credits - [Film, renewable energy, business expansion, etc.]; 11. OR tax liability = MAX(minimum tax, tax - credits). CRITICAL: Credits cannot reduce tax below the minimum tax amount. Oregon Minimum Tax Schedule (ORS 317.090): Less than $500,000 in OR sales: $150; $500,000 to $999,999: $500; $1 million to $1.999 million: $1,000; $2 million to $2.999 million: $1,500; $3 million to $4.999 million: $2,000; $5 million to $6.999 million: $4,000; $7 million to $9.999 million: $7,500; $10 million to $24.999 million: $15,000; $25 million to $49.999 million: $30,000; $50 million to $74.999 million: $50,000; $75 million to $99.999 million: $75,000; $100 million or more: $100,000. Oregon provides various tax credits including: Film and video production credit; Renewable energy development credit; Business expansion credit; Housing development credit. Reference: Oregon Form 20 Instructions (Corporation Excise Tax Return), ORS 317.061(1) (Tax rate - 6.6%), ORS 317.090 (Minimum tax schedule), ORS 317.267 (Single-sales factor apportionment), Oregon Department of Revenue Corporate Tax Credits Guide."
-</policy_statement_postfix>
+<policy_statement_postfix>"OR corporate excise tax (REGULAR CORPORATIONS)"</policy_statement_postfix>
 </policy_statement>
-
 <policy_statement column="3">
 <policy_description>No OR nexus - no tax liability</policy_description>
-<policy_statement_postfix>
-"No OR nexus - no tax liability. Corporation does not have physical presence or economic nexus in OR. Any estimated payments are refunded. Reference: ORS 317.010 (Nexus requirements)."
-</policy_statement_postfix>
+<policy_statement_postfix>"No OR nexus - no tax liability"</policy_statement_postfix>
 </policy_statement>
-
 <policy_statement column="4">
 <policy_description>No OR taxable income - but MINIMUM TAX STILL APPLIES</policy_description>
-<policy_statement_postfix>
-"No OR taxable income - but MINIMUM TAX STILL APPLIES. Corporation has OR nexus but no positive taxable income after apportionment and adjustments. However, Oregon MINIMUM TAX is still required based on Oregon sales. CRITICAL: Even with no taxable income or a loss, corporations with Oregon nexus must pay the minimum tax. The minimum tax ranges from $150 to $100,000 based on Oregon sales. Oregon net operating loss (NOL) rules: Oregon allows NOL carryforward; Carryback rules vary by tax year; NOL does not eliminate minimum tax requirement. Reference: Oregon Form 20 Instructions (Corporation Excise Tax Return), ORS 317.090 (Minimum tax - applies regardless of income), ORS 317.476 (Net operating loss deduction)."
-</policy_statement_postfix>
+<policy_statement_postfix>"No OR taxable income - but MINIMUM TAX STILL APPLIES"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
-
 </decision_table>
-
 </decision_tables>

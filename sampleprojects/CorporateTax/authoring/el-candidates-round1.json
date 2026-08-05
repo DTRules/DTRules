@@ -1,0 +1,864 @@
+{
+  "Calculate_AK_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_AK_State_Tax": {
+    "action@1": "if apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits > 0.0 then set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = 0.0; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_AL_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_AL_State_Tax": {
+    "action@1": "if apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits > 0.0 then set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = 0.0; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_AR_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_AR_State_Tax": {
+    "action@1": "if apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits > 0.0 then set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = 0.0; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_AZ_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_AZ_State_Tax": {
+    "action@1": "if apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits > 0.0 then set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = 0.0; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_CA_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "(apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true) and (apportionment.state_code == \"CA\")"
+  },
+  "Calculate_CA_State_Tax": {
+    "action@1": "if apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits > result.ca_minimum_franchise_tax then set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = result.ca_minimum_franchise_tax; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = result.ca_minimum_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "(apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true) and (apportionment.state_code == \"CA\")"
+  },
+  "Calculate_CO_Corporate_Income_Adjustments": {
+    "action@1": "set result.co_state_additions = result.co_us_interest_income; set result.co_state_subtractions = result.co_state_tax_deduction;",
+    "action@2": "set result.co_state_additions = 0.0; set result.co_state_subtractions = 0.0;"
+  },
+  "Calculate_CO_Corporate_Tax": {
+    "action@1": "if result.co_apportioned_income + result.co_state_additions - result.co_state_subtractions > 0.0 then set result.co_taxable_income = result.co_apportioned_income + result.co_state_additions - result.co_state_subtractions; else set result.co_taxable_income = 0.0; endif if result.co_taxable_income * result.co_corp_tax_rate - result.co_state_credits > 0.0 then set result.co_tax_liability = result.co_taxable_income * result.co_corp_tax_rate - result.co_state_credits; else set result.co_tax_liability = 0.0; endif set result.co_refund_or_owed = result.co_estimated_payments - result.co_tax_liability;",
+    "action@2": "set result.co_taxable_income = 0.0; set result.co_tax_liability = 0.0; set result.co_refund_or_owed = result.co_estimated_payments;",
+    "action@3": "set result.co_taxable_income = 0.0; set result.co_tax_liability = 0.0; set result.co_refund_or_owed = result.co_estimated_payments;"
+  },
+  "Calculate_CT_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_CT_State_Tax": {
+    "action@1": "if apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits > 0.0 then set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = 0.0; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_DE_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_DE_State_Tax": {
+    "action@1": "if apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits > 0.0 then set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = 0.0; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_FL_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_FL_State_Tax": {
+    "action@1": "if apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits > 0.0 then set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = 0.0; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_GA_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add (((\"GA income adjustments calculated. Additions: \" + string value of (apportionment.state_additions)) + \", Subtractions: \") + string value of (apportionment.state_subtractions)) + \". Reference: GA Form 600 Schedule 1, GA Code \u00a7 48-7-27\" to job.audit_trail;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_GA_State_Tax": {
+    "action@1": "set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add (((((((\"GA tax calculation: Taxable income: $\" + string value of (apportionment.state_taxable_income)) + \" x 5.75% = $\") + string value of (apportionment.state_tax)) + \". Credits: $\") + string value of (apportionment.state_credits)) + \". Final tax: $\") + string value of (apportionment.state_tax)) + \". Reference: GA Form 600, GA Code \u00a7 48-7-21\" to job.audit_trail;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true",
+    "condition@2": "apportionment.state_taxable_income > 0"
+  },
+  "Calculate_HI_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_HI_State_Tax": {
+    "action@1": "set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true",
+    "condition@2": "apportionment.state_taxable_income > 0"
+  },
+  "Calculate_IA_Corporate_Income_Adjustments": {
+    "action@1": "set result.ia_state_additions = 0.0; if result.ia_state_taxes_deducted != 0.0 then set result.ia_state_additions = result.ia_state_additions + result.ia_state_taxes_deducted; endif set result.ia_state_subtractions = 0.0; if result.ia_us_interest_income != 0.0 then set result.ia_state_subtractions = result.ia_state_subtractions + result.ia_us_interest_income; endif if result.ia_municipal_interest != 0.0 then set result.ia_state_subtractions = result.ia_state_subtractions + result.ia_municipal_interest; endif add ((\"Iowa additions: $\" + string value of (result.ia_state_additions)) + \", subtractions: $\") + string value of (result.ia_state_subtractions) to job.audit_trail;",
+    "action@2": "set result.ia_state_additions = 0.0; set result.ia_state_subtractions = 0.0;"
+  },
+  "Calculate_IA_Corporate_Tax": {
+    "action@1": "set result.ia_taxable_income = the maximum of (result.ia_apportioned_income + result.ia_state_additions - result.ia_state_subtractions) and (0.0); set result.ia_tax_bracket_1 = result.ia_tax_bracket_threshold * result.ia_corp_tax_rate_bracket_1; set result.ia_tax_bracket_2 = (result.ia_taxable_income - result.ia_tax_bracket_threshold) * result.ia_corp_tax_rate_bracket_2; set result.ia_tax_liability = the maximum of (result.ia_tax_bracket_1 + result.ia_tax_bracket_2 - result.ia_state_credits) and (0.0); set result.ia_refund_or_owed = result.ia_estimated_payments - result.ia_tax_liability; add \"Iowa taxable income: $\" + string value of (result.ia_taxable_income) to job.audit_trail; add \"Iowa tax bracket 1 (5.5% on $100K): $\" + string value of (result.ia_tax_bracket_1) to job.audit_trail; add \"Iowa tax bracket 2 (7.1% on excess): $\" + string value of (result.ia_tax_bracket_2) to job.audit_trail; add \"Iowa tax liability: $\" + string value of (result.ia_tax_liability) to job.audit_trail;",
+    "action@2": "set result.ia_taxable_income = the maximum of (result.ia_apportioned_income + result.ia_state_additions - result.ia_state_subtractions) and (0.0); set result.ia_tax_bracket_1 = result.ia_taxable_income * result.ia_corp_tax_rate_bracket_1; set result.ia_tax_bracket_2 = 0.0; set result.ia_tax_liability = the maximum of (result.ia_tax_bracket_1 - result.ia_state_credits) and (0.0); set result.ia_refund_or_owed = result.ia_estimated_payments - result.ia_tax_liability; add \"Iowa taxable income: $\" + string value of (result.ia_taxable_income) to job.audit_trail; add \"Iowa tax liability (5.5%): $\" + string value of (result.ia_tax_liability) to job.audit_trail;",
+    "action@3": "set result.ia_taxable_income = 0.0; set result.ia_tax_liability = 0.0;",
+    "action@4": "set result.ia_taxable_income = 0.0; set result.ia_tax_liability = 0.0;",
+    "condition@2": "result.ia_apportioned_income > 0.0",
+    "condition@3": "result.ia_taxable_income > result.ia_tax_bracket_threshold"
+  },
+  "Calculate_ID_Corporate_Income_Adjustments": {
+    "action@1": "set result.id_state_additions = 0.0; if result.id_state_taxes_deducted != 0.0 then set result.id_state_additions = result.id_state_additions + result.id_state_taxes_deducted; endif set result.id_state_subtractions = 0.0; if result.id_us_interest_income != 0.0 then set result.id_state_subtractions = result.id_state_subtractions + result.id_us_interest_income; endif if result.id_municipal_interest != 0.0 then set result.id_state_subtractions = result.id_state_subtractions + result.id_municipal_interest; endif add ((\"Idaho additions: $\" + string value of (result.id_state_additions)) + \", subtractions: $\") + string value of (result.id_state_subtractions) to job.audit_trail;",
+    "action@2": "set result.id_state_additions = 0.0; set result.id_state_subtractions = 0.0;"
+  },
+  "Calculate_ID_Corporate_Tax": {
+    "action@1": "set result.id_taxable_income = the maximum of (result.id_apportioned_income + result.id_state_additions - result.id_state_subtractions) and (0.0); set result.id_tax_liability = the maximum of (result.id_taxable_income * result.id_corp_tax_rate - result.id_state_credits) and (0.0); set result.id_refund_or_owed = result.id_estimated_payments - result.id_tax_liability; add \"Idaho taxable income: $\" + string value of (result.id_taxable_income) to job.audit_trail; add \"Idaho tax liability (5.3%): $\" + string value of (result.id_tax_liability) to job.audit_trail;",
+    "action@2": "set result.id_taxable_income = 0.0; set result.id_tax_liability = 0.0;",
+    "action@3": "set result.id_taxable_income = 0.0; set result.id_tax_liability = 0.0;",
+    "condition@2": "result.id_apportioned_income > 0.0"
+  },
+  "Calculate_IL_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"IL state-specific income adjustments to federal taxable income. Additions may include: Interest on U.S. government obligations (35 ILCS 5/203(a)(2)(G)), IRC Section 199A qualified business income deduction addback, Depreciation adjustments for pre-2012 assets. Subtractions may include: Interest on IL state and local government bonds, IL state income taxes paid. Reference: IL Form IL-1120 Instructions, 35 ILCS 5/203 (Base income defined), 86 Ill. Admin. Code \u00a7 100.2110 (Additions and Subtractions)\" to result.policy_statements;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_IL_Replacement_Tax": {
+    "action@1": "set result.il_replacement_tax = apportionment.state_taxable_income * result.il_replacement_tax_rate; set apportionment.state_tax = apportionment.state_tax + result.il_replacement_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"IL Personal Property Replacement Tax (PPRT) applies to corporations. Replacement Tax Calculation: Net income base: [State taxable income], Replacement tax rate: x 2.5%, Replacement tax: = [Replacement tax amount], Total IL tax: Income tax (9.5%) + Replacement tax (2.5%) = 12.0%. The replacement tax applies to the same income base as the income tax. It was enacted to replace revenue lost when the personal property tax on corporations was abolished by the 1970 Illinois Constitution. The replacement tax revenue is distributed to local governments to replace the lost personal property tax revenue. Reference: 35 ILCS 5/201(c) (Replacement tax rate: 2.5%), 35 ILCS 5/201(d) (Replacement tax base), IL Form IL-1120 Instructions (Schedule of Replacement Tax), 86 Ill. Admin. Code \u00a7 100.2260 (Personal Property Replacement Tax)\" to result.policy_statements;",
+    "action@2": "set result.il_replacement_tax = 0.0;",
+    "action@3": "set result.il_replacement_tax = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true",
+    "condition@2": "apportionment.state_taxable_income > 0"
+  },
+  "Calculate_IL_State_Tax": {
+    "action@1": "set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (0.0) and (apportionment.state_tax - apportionment.state_credits); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"IL state corporate income tax calculation: 1. Federal taxable income: [Form 1120 line 28], 2. Apportioned to IL: x [Apportionment %], 3. State additions: + [Additions], 4. State subtractions: - [Subtractions], 5. IL taxable income: = [Result], 6. IL tax rate: x 9.5% (highest in the nation), 7. IL income tax: = [Tax before credits], 8. IL credits: - [Credits], 9. IL tax liability (before replacement tax): = [Tax]. Note: Personal Property Replacement Tax (2.5%) calculated separately. Total effective IL corporate tax rate is 12.0% (9.5% + 2.5%). Reference: IL Form IL-1120 Instructions, 35 ILCS 5/201(b) (Tax rate: 9.5%), 35 ILCS 5/201(c) (Replacement tax: 2.5%), 86 Ill. Admin. Code \u00a7 100.2250 (Computation of tax)\" to result.policy_statements;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true",
+    "condition@2": "apportionment.state_taxable_income > 0"
+  },
+  "Calculate_IN_Corporate_Income_Adjustments": {
+    "action@1": "set result.in_state_additions = 0.0; if result.in_out_of_state_muni_interest != 0.0 then set result.in_state_additions = result.in_state_additions + result.in_out_of_state_muni_interest; endif set result.in_state_subtractions = 0.0; if result.in_municipal_interest != 0.0 then set result.in_state_subtractions = result.in_state_subtractions + result.in_municipal_interest; endif if result.in_state_taxes_paid != 0.0 then set result.in_state_subtractions = result.in_state_subtractions + result.in_state_taxes_paid; endif add ((\"Indiana additions: $\" + string value of (result.in_state_additions)) + \", subtractions: $\") + string value of (result.in_state_subtractions) to job.audit_trail;",
+    "action@2": "set result.in_state_additions = 0.0; set result.in_state_subtractions = 0.0;"
+  },
+  "Calculate_IN_Corporate_Tax": {
+    "action@1": "set result.in_taxable_income = the maximum of (result.in_apportioned_income + result.in_state_additions - result.in_state_subtractions) and (0.0); set result.in_tax_liability = the maximum of (result.in_taxable_income * result.in_corp_tax_rate - result.in_state_credits) and (0.0); set result.in_refund_or_owed = result.in_estimated_payments - result.in_tax_liability; add \"Indiana taxable income: $\" + string value of (result.in_taxable_income) to job.audit_trail; add \"Indiana tax liability (4.9%): $\" + string value of (result.in_tax_liability) to job.audit_trail;",
+    "action@2": "set result.in_taxable_income = 0.0; set result.in_tax_liability = 0.0;",
+    "action@3": "set result.in_taxable_income = 0.0; set result.in_tax_liability = 0.0;",
+    "condition@2": "result.in_apportioned_income > 0.0"
+  },
+  "Calculate_KS_Corporate_Income_Adjustments": {
+    "action@1": "set result.ks_state_additions = 0.0; if result.ks_us_interest_income != 0.0 then set result.ks_state_additions = result.ks_state_additions + result.ks_us_interest_income; endif if result.ks_state_tax_refunds != 0.0 then set result.ks_state_additions = result.ks_state_additions + result.ks_state_tax_refunds; endif set result.ks_state_subtractions = 0.0; if result.ks_municipal_interest != 0.0 then set result.ks_state_subtractions = result.ks_state_subtractions + result.ks_municipal_interest; endif if result.ks_state_taxes_paid != 0.0 then set result.ks_state_subtractions = result.ks_state_subtractions + result.ks_state_taxes_paid; endif add ((\"Kansas additions: $\" + string value of (result.ks_state_additions)) + \", subtractions: $\") + string value of (result.ks_state_subtractions) to job.audit_trail;",
+    "action@2": "set result.ks_state_additions = 0.0; set result.ks_state_subtractions = 0.0;"
+  },
+  "Calculate_KS_Corporate_Tax": {
+    "action@1": "set result.ks_taxable_income = the maximum of (result.ks_apportioned_income + result.ks_state_additions - result.ks_state_subtractions) and (0.0); set result.ks_base_tax = result.ks_taxable_income * result.ks_corp_tax_base_rate; set result.ks_surtax = (result.ks_taxable_income - result.ks_surtax_threshold) * result.ks_corp_tax_surtax_rate; set result.ks_tax_liability = the maximum of (result.ks_base_tax + result.ks_surtax - result.ks_state_credits) and (0.0); set result.ks_refund_or_owed = result.ks_estimated_payments - result.ks_tax_liability; add \"Kansas taxable income: $\" + string value of (result.ks_taxable_income) to job.audit_trail; add \"Kansas base tax (4.0%): $\" + string value of (result.ks_base_tax) to job.audit_trail; add \"Kansas surtax (3.0% on excess over $50K): $\" + string value of (result.ks_surtax) to job.audit_trail; add \"Kansas tax liability: $\" + string value of (result.ks_tax_liability) to job.audit_trail;",
+    "action@2": "set result.ks_taxable_income = the maximum of (result.ks_apportioned_income + result.ks_state_additions - result.ks_state_subtractions) and (0.0); set result.ks_base_tax = result.ks_taxable_income * result.ks_corp_tax_base_rate; set result.ks_surtax = 0.0; set result.ks_tax_liability = the maximum of (result.ks_base_tax - result.ks_state_credits) and (0.0); set result.ks_refund_or_owed = result.ks_estimated_payments - result.ks_tax_liability; add \"Kansas taxable income: $\" + string value of (result.ks_taxable_income) to job.audit_trail; add \"Kansas tax liability (4.0%): $\" + string value of (result.ks_tax_liability) to job.audit_trail;",
+    "action@3": "set result.ks_taxable_income = 0.0; set result.ks_tax_liability = 0.0;",
+    "action@4": "set result.ks_taxable_income = 0.0; set result.ks_tax_liability = 0.0;",
+    "condition@2": "result.ks_apportioned_income > 0.0",
+    "condition@3": "result.ks_taxable_income > result.ks_surtax_threshold"
+  },
+  "Calculate_KY_Corporate_Income_Adjustments": {
+    "action@1": "set result.ky_state_additions = 0.0; if result.ky_us_interest_income != 0.0 then set result.ky_state_additions = result.ky_state_additions + result.ky_us_interest_income; endif set result.ky_state_subtractions = 0.0; if result.ky_municipal_interest != 0.0 then set result.ky_state_subtractions = result.ky_state_subtractions + result.ky_municipal_interest; endif if result.ky_dividends_from_ky_corps != 0.0 then set result.ky_state_subtractions = result.ky_state_subtractions + result.ky_dividends_from_ky_corps; endif add ((\"Kentucky additions: $\" + string value of (result.ky_state_additions)) + \", subtractions: $\") + string value of (result.ky_state_subtractions) to job.audit_trail;",
+    "action@2": "set result.ky_state_additions = 0.0; set result.ky_state_subtractions = 0.0;"
+  },
+  "Calculate_KY_Corporate_Tax": {
+    "action@1": "set result.ky_taxable_income = the maximum of (result.ky_apportioned_income + result.ky_state_additions - result.ky_state_subtractions) and (0.0); set result.ky_tax_liability = the maximum of (result.ky_taxable_income * result.ky_corp_tax_rate - result.ky_state_credits) and (0.0); set result.ky_refund_or_owed = result.ky_estimated_payments - result.ky_tax_liability; add \"Kentucky taxable income: $\" + string value of (result.ky_taxable_income) to job.audit_trail; add \"Kentucky tax liability (4.5%): $\" + string value of (result.ky_tax_liability) to job.audit_trail;",
+    "action@2": "set result.ky_taxable_income = 0.0; set result.ky_tax_liability = 0.0;",
+    "action@3": "set result.ky_taxable_income = 0.0; set result.ky_tax_liability = 0.0;",
+    "condition@2": "result.ky_apportioned_income > 0.0"
+  },
+  "Calculate_LA_Corporate_Income_Adjustments": {
+    "action@1": "set result.la_state_additions = 0.0; if result.la_us_interest_income != 0.0 then set result.la_state_additions = result.la_state_additions + result.la_us_interest_income; endif set result.la_state_subtractions = 0.0; set result.la_state_subtractions = result.la_standard_deduction; if result.la_municipal_interest != 0.0 then set result.la_state_subtractions = result.la_state_subtractions + result.la_municipal_interest; endif add ((\"Louisiana additions: $\" + string value of (result.la_state_additions)) + \", subtractions: $\") + string value of (result.la_state_subtractions) to job.audit_trail; add (\"Louisiana standard deduction: $\" + string value of (result.la_standard_deduction)) + \" (new for 2025)\" to job.audit_trail;",
+    "action@2": "set result.la_state_additions = 0.0; set result.la_state_subtractions = 0.0;"
+  },
+  "Calculate_LA_Corporate_Tax": {
+    "action@1": "set result.la_taxable_income = the maximum of (result.la_apportioned_income + result.la_state_additions - result.la_state_subtractions) and (0.0); set result.la_tax_liability = the maximum of (result.la_taxable_income * result.la_corp_tax_rate - result.la_state_credits) and (0.0); set result.la_refund_or_owed = result.la_estimated_payments - result.la_tax_liability; add \"Louisiana taxable income: $\" + string value of (result.la_taxable_income) to job.audit_trail; add \"Louisiana tax liability (5.5% flat rate, effective 2025): $\" + string value of (result.la_tax_liability) to job.audit_trail;",
+    "action@2": "set result.la_taxable_income = 0.0; set result.la_tax_liability = 0.0;",
+    "action@3": "set result.la_taxable_income = 0.0; set result.la_tax_liability = 0.0;",
+    "condition@2": "result.la_apportioned_income > 0.0"
+  },
+  "Calculate_MA_Corporate_Income_Adjustments": {
+    "action@1": "set result.ma_state_additions = 0.0; if result.ma_us_interest_income != 0.0 then set result.ma_state_additions = result.ma_state_additions + result.ma_us_interest_income; endif set result.ma_state_subtractions = 0.0; if result.ma_municipal_interest != 0.0 then set result.ma_state_subtractions = result.ma_state_subtractions + result.ma_municipal_interest; endif if result.ma_qualified_dividend_deduction != 0.0 then set result.ma_state_subtractions = result.ma_state_subtractions + result.ma_qualified_dividend_deduction; endif add ((\"Massachusetts additions: $\" + string value of (result.ma_state_additions)) + \", subtractions: $\") + string value of (result.ma_state_subtractions) to job.audit_trail;",
+    "action@2": "set result.ma_state_additions = 0.0; set result.ma_state_subtractions = 0.0;"
+  },
+  "Calculate_MA_Corporate_Tax": {
+    "action@1": "set result.ma_taxable_income = the maximum of (result.ma_apportioned_income + result.ma_state_additions - result.ma_state_subtractions) and (0.0); set result.ma_tax_liability = the maximum of (result.ma_taxable_income * result.ma_corp_tax_rate - result.ma_state_credits) and (0.0); set result.ma_refund_or_owed = result.ma_estimated_payments - result.ma_tax_liability; add \"Massachusetts taxable income: $\" + string value of (result.ma_taxable_income) to job.audit_trail; add \"Massachusetts tax liability (8.0%): $\" + string value of (result.ma_tax_liability) to job.audit_trail;",
+    "action@2": "set result.ma_taxable_income = 0.0; set result.ma_tax_liability = 0.0;",
+    "action@3": "set result.ma_taxable_income = 0.0; set result.ma_tax_liability = 0.0;",
+    "condition@2": "result.ma_apportioned_income > 0.0"
+  },
+  "Calculate_MD_Corporate_Income_Adjustments": {
+    "action@1": "set result.md_state_additions = 0.0; if result.md_us_interest_income != 0.0 then set result.md_state_additions = result.md_state_additions + result.md_us_interest_income; endif set result.md_state_subtractions = 0.0; if result.md_municipal_interest != 0.0 then set result.md_state_subtractions = result.md_state_subtractions + result.md_municipal_interest; endif add ((\"Maryland additions: $\" + string value of (result.md_state_additions)) + \", subtractions: $\") + string value of (result.md_state_subtractions) to job.audit_trail;",
+    "action@2": "set result.md_state_additions = 0.0; set result.md_state_subtractions = 0.0;"
+  },
+  "Calculate_MD_Corporate_Tax": {
+    "action@1": "set result.md_taxable_income = the maximum of (result.md_apportioned_income + result.md_state_additions - result.md_state_subtractions) and (0.0); set result.md_tax_liability = the maximum of (result.md_taxable_income * result.md_corp_tax_rate - result.md_state_credits) and (0.0); set result.md_refund_or_owed = result.md_estimated_payments - result.md_tax_liability; add \"Maryland taxable income: $\" + string value of (result.md_taxable_income) to job.audit_trail; add \"Maryland tax liability (8.25%): $\" + string value of (result.md_tax_liability) to job.audit_trail;",
+    "action@2": "set result.md_taxable_income = 0.0; set result.md_tax_liability = 0.0;",
+    "action@3": "set result.md_taxable_income = 0.0; set result.md_tax_liability = 0.0;",
+    "condition@2": "result.md_apportioned_income > 0.0"
+  },
+  "Calculate_ME_Corporate_Income_Adjustments": {
+    "action@1": "set result.me_state_additions = 0.0; if result.me_section_199a_addback != 0.0 then set result.me_state_additions = result.me_state_additions + result.me_section_199a_addback; endif set result.me_state_subtractions = 0.0; if result.me_us_interest_income != 0.0 then set result.me_state_subtractions = result.me_state_subtractions + result.me_us_interest_income; endif if result.me_municipal_interest != 0.0 then set result.me_state_subtractions = result.me_state_subtractions + result.me_municipal_interest; endif add ((\"Maine additions: $\" + string value of (result.me_state_additions)) + \", subtractions: $\") + string value of (result.me_state_subtractions) to job.audit_trail;",
+    "action@2": "set result.me_state_additions = 0.0; set result.me_state_subtractions = 0.0;"
+  },
+  "Calculate_ME_Corporate_Tax": {
+    "action@1": "set result.me_taxable_income = the maximum of (result.me_apportioned_income + result.me_state_additions - result.me_state_subtractions) and (0.0); set result.me_tier1_tax = (the minimum of (result.me_taxable_income) and (350000.0)) * result.me_corp_tax_rate_tier1; set result.me_tier2_tax = 0.0; set result.me_tier3_tax = 0.0; set result.me_tier4_tax = 0.0; if result.me_taxable_income > 350000.0 then set result.me_tier2_tax = ((the minimum of (result.me_taxable_income) and (1050000.0)) - 350000.0) * result.me_corp_tax_rate_tier2; endif if result.me_taxable_income > 1050000.0 then set result.me_tier3_tax = ((the minimum of (result.me_taxable_income) and (3500000.0)) - 1050000.0) * result.me_corp_tax_rate_tier3; endif if result.me_taxable_income > 3500000.0 then set result.me_tier4_tax = (result.me_taxable_income - 3500000.0) * result.me_corp_tax_rate_tier4; endif set result.me_tax_liability = the maximum of (result.me_tier1_tax + result.me_tier2_tax + result.me_tier3_tax + result.me_tier4_tax - result.me_state_credits) and (0.0); set result.me_refund_or_owed = result.me_estimated_payments - result.me_tax_liability; add \"Maine taxable income: $\" + string value of (result.me_taxable_income) to job.audit_trail; add \"Maine tax liability (graduated rates 3.5%-8.93%): $\" + string value of (result.me_tax_liability) to job.audit_trail;",
+    "action@2": "set result.me_taxable_income = 0.0; set result.me_tax_liability = 0.0;",
+    "action@3": "set result.me_taxable_income = 0.0; set result.me_tax_liability = 0.0;",
+    "condition@2": "result.me_apportioned_income > 0.0"
+  },
+  "Calculate_MI_Corporate_Income_Adjustments": {
+    "action@1": "set result.mi_state_additions = 0.0; if result.mi_us_interest_income != 0.0 then set result.mi_state_additions = result.mi_state_additions + result.mi_us_interest_income; endif set result.mi_state_subtractions = 0.0; if result.mi_municipal_interest != 0.0 then set result.mi_state_subtractions = result.mi_state_subtractions + result.mi_municipal_interest; endif add ((\"Michigan additions: $\" + string value of (result.mi_state_additions)) + \", subtractions: $\") + string value of (result.mi_state_subtractions) to job.audit_trail;",
+    "action@2": "set result.mi_state_additions = 0.0; set result.mi_state_subtractions = 0.0;"
+  },
+  "Calculate_MI_Corporate_Tax": {
+    "action@1": "set result.mi_taxable_income = the maximum of (result.mi_apportioned_income + result.mi_state_additions - result.mi_state_subtractions) and (0.0); set result.mi_tax_liability = the maximum of (result.mi_taxable_income * result.mi_corp_tax_rate - result.mi_state_credits) and (0.0); set result.mi_refund_or_owed = result.mi_estimated_payments - result.mi_tax_liability; add \"Michigan taxable income: $\" + string value of (result.mi_taxable_income) to job.audit_trail; add \"Michigan tax liability (6.0%): $\" + string value of (result.mi_tax_liability) to job.audit_trail;",
+    "action@2": "set result.mi_taxable_income = 0.0; set result.mi_tax_liability = 0.0;",
+    "action@3": "set result.mi_taxable_income = 0.0; set result.mi_tax_liability = 0.0;",
+    "condition@2": "result.mi_apportioned_income > 0.0"
+  },
+  "Calculate_MN_Corporate_Income_Adjustments": {
+    "action@1": "set result.mn_state_additions = 0.0; if result.mn_us_interest_income != 0.0 then set result.mn_state_additions = result.mn_state_additions + result.mn_us_interest_income; endif set result.mn_state_subtractions = 0.0; if result.mn_municipal_interest != 0.0 then set result.mn_state_subtractions = result.mn_state_subtractions + result.mn_municipal_interest; endif add ((\"Minnesota additions: $\" + string value of (result.mn_state_additions)) + \", subtractions: $\") + string value of (result.mn_state_subtractions) to job.audit_trail;",
+    "action@2": "set result.mn_state_additions = 0.0; set result.mn_state_subtractions = 0.0;"
+  },
+  "Calculate_MN_Corporate_Tax": {
+    "action@1": "set result.mn_taxable_income = the maximum of (result.mn_apportioned_income + result.mn_state_additions - result.mn_state_subtractions) and (0.0); set result.mn_tax_liability = the maximum of (result.mn_taxable_income * result.mn_corp_tax_rate - result.mn_state_credits) and (0.0); set result.mn_refund_or_owed = result.mn_estimated_payments - result.mn_tax_liability; add \"Minnesota taxable income: $\" + string value of (result.mn_taxable_income) to job.audit_trail; add \"Minnesota tax liability (9.5%): $\" + string value of (result.mn_tax_liability) to job.audit_trail;",
+    "action@2": "set result.mn_taxable_income = 0.0; set result.mn_tax_liability = 0.0;",
+    "action@3": "set result.mn_taxable_income = 0.0; set result.mn_tax_liability = 0.0;",
+    "condition@2": "result.mn_apportioned_income > 0.0"
+  },
+  "Calculate_MO_Corporate_Income_Adjustments": {
+    "action@1": "set result.mo_state_additions = 0.0; if result.mo_us_interest_income != 0.0 then set result.mo_state_additions = result.mo_state_additions + result.mo_us_interest_income; endif set result.mo_state_subtractions = 0.0; set result.mo_state_subtractions = result.mo_state_subtractions + result.federal_tax_liability * result.mo_federal_tax_deduction_percentage; if result.mo_municipal_interest != 0.0 then set result.mo_state_subtractions = result.mo_state_subtractions + result.mo_municipal_interest; endif add ((\"Missouri additions: $\" + string value of (result.mo_state_additions)) + \", subtractions: $\") + string value of (result.mo_state_subtractions) to job.audit_trail; add \"Missouri 50% federal tax deduction: $\" + string value of (result.federal_tax_liability * result.mo_federal_tax_deduction_percentage) to job.audit_trail;",
+    "action@2": "set result.mo_state_additions = 0.0; set result.mo_state_subtractions = 0.0;"
+  },
+  "Calculate_MO_Corporate_Tax": {
+    "action@1": "set result.mo_taxable_income = the maximum of (result.mo_apportioned_income + result.mo_state_additions - result.mo_state_subtractions) and (0.0); set result.mo_tax_liability = the maximum of (result.mo_taxable_income * result.mo_corp_tax_rate - result.mo_state_credits) and (0.0); set result.mo_refund_or_owed = result.mo_estimated_payments - result.mo_tax_liability; add \"Missouri taxable income: $\" + string value of (result.mo_taxable_income) to job.audit_trail; add \"Missouri tax liability (4.0%, effective ~3.6% after 50% federal tax deduction): $\" + string value of (result.mo_tax_liability) to job.audit_trail;",
+    "action@2": "set result.mo_taxable_income = 0.0; set result.mo_tax_liability = 0.0;",
+    "action@3": "set result.mo_taxable_income = 0.0; set result.mo_tax_liability = 0.0;",
+    "condition@2": "result.mo_apportioned_income > 0.0"
+  },
+  "Calculate_MS_Corporate_Income_Adjustments": {
+    "action@1": "set result.ms_state_additions = 0.0; if result.ms_us_interest_income != 0.0 then set result.ms_state_additions = result.ms_state_additions + result.ms_us_interest_income; endif set result.ms_state_subtractions = 0.0; if result.ms_municipal_interest != 0.0 then set result.ms_state_subtractions = result.ms_state_subtractions + result.ms_municipal_interest; endif add ((\"Mississippi additions: $\" + string value of (result.ms_state_additions)) + \", subtractions: $\") + string value of (result.ms_state_subtractions) to job.audit_trail;",
+    "action@2": "set result.ms_state_additions = 0.0; set result.ms_state_subtractions = 0.0;"
+  },
+  "Calculate_MS_Corporate_Tax": {
+    "action@1": "set result.ms_taxable_income = the maximum of (result.ms_apportioned_income + result.ms_state_additions - result.ms_state_subtractions) and (0.0); set result.ms_tier1_tax = (the minimum of (result.ms_taxable_income) and (5000.0)) * result.ms_corp_tax_rate_tier1; set result.ms_tier2_tax = 0.0; set result.ms_tier3_tax = 0.0; if result.ms_taxable_income > 5000.0 then set result.ms_tier2_tax = ((the minimum of (result.ms_taxable_income) and (10000.0)) - 5000.0) * result.ms_corp_tax_rate_tier2; endif if result.ms_taxable_income > 10000.0 then set result.ms_tier3_tax = (result.ms_taxable_income - 10000.0) * result.ms_corp_tax_rate_tier3; endif set result.ms_tax_liability = the maximum of (result.ms_tier1_tax + result.ms_tier2_tax + result.ms_tier3_tax - result.ms_state_credits) and (0.0); set result.ms_refund_or_owed = result.ms_estimated_payments - result.ms_tax_liability; add \"Mississippi taxable income: $\" + string value of (result.ms_taxable_income) to job.audit_trail; add \"Mississippi tax liability (graduated rates 3%-5%): $\" + string value of (result.ms_tax_liability) to job.audit_trail;",
+    "action@2": "set result.ms_taxable_income = 0.0; set result.ms_tax_liability = 0.0;",
+    "action@3": "set result.ms_taxable_income = 0.0; set result.ms_tax_liability = 0.0;",
+    "condition@2": "result.ms_apportioned_income > 0.0"
+  },
+  "Calculate_MT_Corporate_Income_Adjustments": {
+    "action@1": "set result.mt_state_additions = 0.0; if result.mt_us_interest_income != 0.0 then set result.mt_state_additions = result.mt_state_additions + result.mt_us_interest_income; endif set result.mt_state_subtractions = 0.0; if result.mt_municipal_interest != 0.0 then set result.mt_state_subtractions = result.mt_state_subtractions + result.mt_municipal_interest; endif add ((\"Montana additions: $\" + string value of (result.mt_state_additions)) + \", subtractions: $\") + string value of (result.mt_state_subtractions) to job.audit_trail;",
+    "action@2": "set result.mt_state_additions = 0.0; set result.mt_state_subtractions = 0.0;"
+  },
+  "Calculate_MT_Corporate_Tax": {
+    "action@1": "set result.mt_taxable_income = the maximum of (result.mt_apportioned_income + result.mt_state_additions - result.mt_state_subtractions) and (0.0); set result.mt_tax_liability = the maximum of (result.mt_taxable_income * result.mt_corp_tax_rate - result.mt_state_credits) and (0.0); set result.mt_refund_or_owed = result.mt_estimated_payments - result.mt_tax_liability; add \"Montana taxable income: $\" + string value of (result.mt_taxable_income) to job.audit_trail; add \"Montana tax liability (6.75% standard rate): $\" + string value of (result.mt_tax_liability) to job.audit_trail;",
+    "action@2": "set result.mt_taxable_income = the maximum of (result.mt_apportioned_income + result.mt_state_additions - result.mt_state_subtractions) and (0.0); set result.mt_tax_liability = the maximum of (result.mt_taxable_income * result.mt_corp_tax_rate_waters_edge - result.mt_state_credits) and (0.0); set result.mt_refund_or_owed = result.mt_estimated_payments - result.mt_tax_liability; add \"Montana taxable income: $\" + string value of (result.mt_taxable_income) to job.audit_trail; add \"Montana tax liability (7.0% water's edge rate): $\" + string value of (result.mt_tax_liability) to job.audit_trail;",
+    "action@3": "set result.mt_taxable_income = 0.0; set result.mt_tax_liability = 0.0;",
+    "action@4": "set result.mt_taxable_income = 0.0; set result.mt_tax_liability = 0.0;",
+    "condition@2": "result.mt_apportioned_income > 0.0"
+  },
+  "Calculate_NC_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"NC state-specific income adjustments to federal taxable income. NC ADDITIONS: Interest income from U.S. government obligations (exempt federally, taxable to NC), IRC Section 199A qualified business income deduction addback (NC does not conform), State income taxes deducted on federal return, Bonus depreciation addback (varies by tax year), Expenses related to exempt income. NC SUBTRACTIONS: Interest on NC state and municipal bonds, NC net operating loss deduction (subject to NC limitations), Dividend income eligible for NC dividend received deduction, Certain refunds of state income taxes. Reference: NC Form CD-405 Schedule A/B, NC General Statute \u00a7 105-130.5.\" to job.audit_trail;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_NC_State_Tax": {
+    "action@1": "set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_ND_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;"
+  },
+  "Calculate_ND_State_Tax": {
+    "action@1": "set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Calculate_NE_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;"
+  },
+  "Calculate_NE_State_Tax": {
+    "action@1": "set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Calculate_NH_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_NH_State_Tax": {
+    "action@1": "set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_NJ_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; set result.nj_entire_net_income = apportionment.state_taxable_income;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; set result.nj_entire_net_income = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_NJ_State_Tax": {
+    "action@1": "set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_NJ_Surtax": {
+    "action@1": "set result.nj_surtax = result.nj_entire_net_income * result.nj_surtax_rate; set apportionment.state_tax = apportionment.state_tax + result.nj_surtax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set result.nj_surtax = 0.0;",
+    "action@3": "set result.nj_surtax = 0.0;",
+    "action@4": "set result.nj_surtax = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true",
+    "condition@2": "result.nj_entire_net_income > result.nj_surtax_threshold"
+  },
+  "Calculate_NM_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_NM_State_Tax": {
+    "action@1": "set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_NV_Income_Adjustments": {
+    "action@1": "set result.state_tax_rate = 0.0; set result.state_additions = 0.0; set result.state_subtractions = 0.0;",
+    "action@2": "set result.state_tax_rate = 0.0; set result.state_additions = 0.0; set result.state_subtractions = 0.0;",
+    "condition@1": "result.has_physical_presence_nv or result.nv_gross_revenue >= result.nv_economic_nexus_threshold"
+  },
+  "Calculate_NV_Sitused_Revenue": {
+    "action@1": "set result.nv_sitused_revenue = result.total_revenue * result.apportionment_percentage; set result.nv_gross_revenue = result.nv_sitused_revenue;",
+    "action@2": "set result.nv_sitused_revenue = result.total_revenue; set result.nv_gross_revenue = result.total_revenue;",
+    "action@3": "set result.nv_sitused_revenue = 0.0; set result.nv_gross_revenue = 0.0;"
+  },
+  "Calculate_NV_State_Tax": {
+    "action@1": "set result.nv_taxable_revenue = the maximum of (result.nv_gross_revenue - result.nv_commerce_tax_threshold) and (0.0); set result.nv_commerce_tax = result.nv_taxable_revenue * result.nv_commerce_tax_rate; set result.nv_commerce_tax = the maximum of (result.nv_commerce_tax - result.state_credits) and (0.0); set result.state_tax = result.nv_commerce_tax; set result.state_refund_or_owed = result.state_payments - result.state_tax;",
+    "action@2": "set result.nv_qualifies_for_exemption = true; set result.nv_taxable_revenue = 0.0; set result.nv_commerce_tax = 0.0; set result.state_tax = 0.0; set result.state_refund_or_owed = result.state_payments;",
+    "action@3": "set result.nv_qualifies_for_exemption = true; set result.nv_taxable_revenue = 0.0; set result.nv_commerce_tax = 0.0; set result.state_tax = 0.0; set result.state_refund_or_owed = result.state_payments;",
+    "condition@1": "(result.has_physical_presence_nv or result.nv_gross_revenue >= result.nv_economic_nexus_threshold) and result.nv_gross_revenue >= result.nv_commerce_tax_threshold",
+    "condition@2": "(result.has_physical_presence_nv or result.nv_gross_revenue >= result.nv_economic_nexus_threshold) and result.nv_gross_revenue < result.nv_commerce_tax_threshold"
+  },
+  "Calculate_NY_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_NY_MTA_Surcharge": {
+    "action@1": "set result.ny_mta_surcharge = apportionment.state_taxable_income * result.ny_mta_surcharge_rate; set apportionment.state_tax = apportionment.state_tax + result.ny_mta_surcharge; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set result.ny_mta_surcharge = 0.0;",
+    "action@3": "set result.ny_mta_surcharge = 0.0;",
+    "action@4": "set result.ny_mta_surcharge = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_NY_State_Tax": {
+    "action@1": "set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_OH_CAT": {
+    "action@1": "set result.oh_cat_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@2": "set result.oh_cat_tax = (result.oh_taxable_gross_receipts - result.oh_cat_minimum_threshold) * result.oh_cat_rate + result.oh_cat_minimum_tax; set apportionment.state_tax = result.oh_cat_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@3": "set result.oh_cat_tax = result.oh_cat_minimum_tax; set apportionment.state_tax = result.oh_cat_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@4": "set result.oh_cat_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@1": "result.oh_qualifies_for_no_cat == false",
+    "condition@3": "result.oh_taxable_gross_receipts >= result.oh_cat_minimum_threshold"
+  },
+  "Calculate_OH_Taxable_Gross_Receipts": {
+    "action@1": "set result.oh_taxable_gross_receipts = 0.0;",
+    "action@2": "set result.oh_taxable_gross_receipts = the maximum of (result.oh_taxable_gross_receipts - result.oh_cat_excluded_receipts) and (0.0);",
+    "action@3": "// Use Ohio-sourced gross receipts (no exclusions)",
+    "condition@1": "result.oh_qualifies_for_no_cat == false"
+  },
+  "Calculate_OK_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;"
+  },
+  "Calculate_OK_State_Tax": {
+    "action@1": "set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Calculate_OR_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_OR_State_Tax": {
+    "action@1": "set apportionment.state_tax = apportionment.state_taxable_income * result.or_financial_institution_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax) and (result.or_minimum_tax); set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (result.or_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@2": "set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax) and (result.or_minimum_tax); set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (result.or_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "action@3": "set apportionment.state_tax = 0.0; set result.or_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "action@4": "set apportionment.state_tax = result.or_minimum_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true",
+    "condition@2": "apportionment.state_taxable_income > 0",
+    "condition@3": "result.or_is_financial_institution == true"
+  },
+  "Calculate_PA_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"PA income adjustments calculated. Additions: Federal interest, IRC 199A addback, state taxes. Subtractions: PA municipal interest, dividends (100% DRD), PA NOL. Reference: PA Code 7401(3)1.(b)\" to job.audit_trail;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"No PA nexus - no adjustments calculated.\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_PA_State_Tax": {
+    "action@1": "set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"PA CNIT calculated at 8.99% flat rate (one of highest state corporate rates). Reference: PA Code 7401(3)1.(a)\" to job.audit_trail;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No PA nexus - no tax liability. Any estimated payments are refunded.\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No PA taxable income - no tax. PA NOL may be carried forward indefinitely (80% limitation). Reference: PA Code 7401(3)1.(b)(2)(B)(III)\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_RI_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"RI income adjustments calculated. Additions may include: Interest on U.S. government obligations, IRC Section 199A qualified business income deduction, Federal bonus depreciation not allowed by RI. Subtractions may include: Interest on Rhode Island state and municipal obligations, Capital gains on certain qualified Rhode Island investments, Rhode Island net operating loss deduction. Reference: RI Form RI-1120C Instructions, R.I. Gen. Laws 44-11-11\" to job.audit_trail;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"RI - no nexus, no adjustments\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_RI_State_Tax": {
+    "action@1": "set apportionment.state_tax = apportionment.state_taxable_income * apportionment.ri_state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"RI tax calculated at 7% flat rate. Reference: R.I. Gen. Laws 44-11-2\" to job.audit_trail;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"RI - nexus but no taxable income. RI NOL carryforward rules may apply. Reference: R.I. Gen. Laws 44-11-11\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"RI - no nexus, no tax liability. Any estimated payments are refunded.\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_SC_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"SC income adjustments calculated. Reference: SC Code 12-6-1130 (additions), 12-6-1140 (subtractions)\" to job.audit_trail;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"No SC nexus - no adjustments calculated.\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_SC_State_Tax": {
+    "action@1": "set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = apportionment.state_tax + apportionment.license_fee_minimum; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"SC tax calculated at 5% flat rate plus license fee ($15 minimum). Reference: SC Code 12-6-530, 12-20-50\" to job.audit_trail;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No SC nexus - no tax liability. Any estimated payments are refunded.\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = apportionment.license_fee_minimum; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"No SC taxable income - license fee only ($15 minimum). NOL carryforward 15 years. Reference: SC Code 12-6-1500, 12-20-50\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_SD_Income_Adjustments": {
+    "action@1": "set apportionment.state_tax_rate = 0.0; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; set apportionment.state_taxable_income = 0.0; add \"SD has NO corporate income tax. No adjustments needed.\" to job.audit_trail;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"Specialized entity (financial/insurance) - no income tax adjustments.\" to job.audit_trail;"
+  },
+  "Calculate_SD_State_Tax": {
+    "action@1": "set apportionment.state_tax = 0.0; set apportionment.state_tax_rate = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; set result.sd_no_corporate_tax = true; add \"South Dakota Corporate Tax: $0. NO corporate income tax, NO franchise tax, NO gross receipts tax. Any estimated payments refunded.\" to job.audit_trail;",
+    "action@2": "add \"Specialized entity tax (Bank Franchise or Insurance Premium) calculated separately.\" to job.audit_trail;"
+  },
+  "Calculate_TN_Excise_Tax": {
+    "action@1": "set result.tn_excise_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set result.tn_excise_tax = the maximum of (result.tn_excise_tax - apportionment.state_credits) and (0.0); set result.tn_total_tax = result.tn_franchise_tax + result.tn_excise_tax; set result.tn_total_tax = the maximum of (result.tn_minimum_tax) and (result.tn_total_tax); set apportionment.state_tax = result.tn_total_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"TN franchise and excise tax calculated. Excise: 6.5% on net earnings. Franchise: 0.25% on net worth. Minimum $100. Reference: TN Code 67-4-2007, 67-4-2104\" to job.audit_trail;",
+    "action@2": "set result.tn_excise_tax = 0.0; set result.tn_total_tax = result.tn_franchise_tax; if result.tn_franchise_tax > 0 then set result.tn_total_tax = the maximum of (result.tn_minimum_tax) and (result.tn_total_tax); endif set apportionment.state_tax = result.tn_total_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"No TN net earnings - no excise tax. Franchise tax still applies if there is net worth. Minimum $100 if franchise tax owed.\" to job.audit_trail;",
+    "action@3": "set result.tn_excise_tax = 0.0; set result.tn_total_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No TN nexus - no excise tax or franchise tax liability. Any estimated payments are refunded.\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_TN_Franchise_Tax": {
+    "action@1": "set result.tn_franchise_tax = result.tn_net_worth * result.tn_franchise_tax_rate; add \"TN franchise tax calculation: Net worth \u00d7 0.25%. Combined minimum tax (franchise + excise): $100. Reference: TN Code 67-4-2104\" to job.audit_trail;",
+    "action@2": "set result.tn_franchise_tax = 0.0; add \"No net worth in TN - no franchise tax liability. Excise tax may still apply if there is net earnings.\" to job.audit_trail;",
+    "action@3": "set result.tn_franchise_tax = 0.0; add \"No TN nexus - no franchise tax liability.\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_TN_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; if revenue.federal_bond_interest != null then set apportionment.state_additions = apportionment.state_additions + revenue.federal_bond_interest; endif if result.section_199a_deduction != null then set apportionment.state_additions = apportionment.state_additions + result.section_199a_deduction; endif if result.state_income_taxes_paid != null then set apportionment.state_additions = apportionment.state_additions + result.state_income_taxes_paid; endif set apportionment.state_subtractions = 0.0; if revenue.tn_municipal_interest != null then set apportionment.state_subtractions = apportionment.state_subtractions + revenue.tn_municipal_interest; endif if revenue.qualified_subsidiary_dividends != null then set apportionment.state_subtractions = apportionment.state_subtractions + revenue.qualified_subsidiary_dividends; endif if result.tn_nol_deduction != null then set apportionment.state_subtractions = apportionment.state_subtractions + result.tn_nol_deduction; endif add \"TN state-specific income adjustments to federal taxable income. Additions include: Interest on federal obligations (U.S. Treasury bonds, etc.), IRC \u00a7 199A qualified business income deduction addback, State franchise and excise taxes paid (not deductible). Subtractions include: Interest on TN state and local bonds, Dividends from 80%+ owned subsidiaries, TN NOL carryforward deduction. Reference: TN Code \u00a7 67-4-2006 (Definitions of net earnings), Form FAE 170 Instructions (Schedule J - Adjustments), TN Revenue Ruling 09-13 (IRC conformity)\" to job.audit_trail;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"No nexus - no TN state adjustments calculated.\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_TX_Franchise_Tax": {
+    "action@1": "set result.tx_franchise_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No TX franchise tax due. Any estimated payments will be refunded. Reference: TX Tax Code 171.002(d)(2)\" to job.audit_trail;",
+    "action@2": "set result.tx_franchise_tax = (the maximum of (result.tx_total_revenue - result.tx_no_tax_due_threshold) and (0.0)) * result.tx_ez_computation_rate * apportionment.apportionment_factor; set result.tx_franchise_tax = the maximum of (result.tx_franchise_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = result.tx_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"TX franchise tax: E-Z computation. (Revenue - $1.23M) \u00d7 0.575%. NOT an income tax. Reference: TX Tax Code 171.1016\" to job.audit_trail;",
+    "action@3": "set result.tx_margin_tax_rate = 0.00375; set result.tx_franchise_tax = result.tx_apportioned_margin * result.tx_margin_tax_rate; set result.tx_franchise_tax = the maximum of (result.tx_franchise_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = result.tx_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"TX franchise tax: Retail/wholesale rate 0.375%. NOT an income tax. Reference: TX Tax Code 171.002(b)\" to job.audit_trail;",
+    "action@4": "set result.tx_margin_tax_rate = 0.0075; set result.tx_franchise_tax = result.tx_apportioned_margin * result.tx_margin_tax_rate; set result.tx_franchise_tax = the maximum of (result.tx_franchise_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = result.tx_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"TX franchise tax: Standard rate 0.75%. NOT an income tax. Reference: TX Tax Code 171.002(a)\" to job.audit_trail;",
+    "action@5": "set result.tx_franchise_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No TX franchise tax due - zero or negative margin. No loss carryforward. Reference: TX Tax Code 171.101\" to job.audit_trail;",
+    "condition@1": "result.tx_qualifies_for_no_tax_due == false",
+    "condition@3": "result.tx_qualifies_for_ez_computation == true"
+  },
+  "Calculate_TX_Margin": {
+    "action@1": "set result.tx_taxable_margin = 0.0; set result.tx_apportioned_margin = 0.0; add \"No TX franchise tax due - margin calculation not applicable.\" to job.audit_trail;",
+    "action@2": "set result.tx_qualifies_for_ez_computation = true; set result.tx_taxable_margin = the maximum of (result.tx_total_revenue - result.tx_margin_deduction) and (0.0); set result.tx_apportioned_margin = result.tx_taxable_margin * apportionment.apportionment_factor; add \"TX margin calculated. E-Z computation available. Reference: TX Tax Code 171.1016\" to job.audit_trail;",
+    "action@3": "set result.tx_qualifies_for_ez_computation = false; set result.tx_taxable_margin = the maximum of (result.tx_total_revenue - result.tx_margin_deduction) and (0.0); set result.tx_apportioned_margin = result.tx_taxable_margin * apportionment.apportionment_factor; add \"TX margin calculated using standard method. Reference: TX Tax Code 171.101\" to job.audit_trail;",
+    "condition@1": "result.tx_qualifies_for_no_tax_due == false"
+  },
+  "Calculate_UT_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"UT income adjustments calculated. Reference: UT Code 59-7-105 (additions), 59-7-106 (subtractions)\" to job.audit_trail;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"No UT nexus - no adjustments calculated.\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_UT_State_Tax": {
+    "action@1": "set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"UT tax calculated at 4.50% flat rate. Reference: UT Code 59-7-104\" to job.audit_trail;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No UT nexus - no tax liability. Any estimated payments are refunded.\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No UT taxable income - no tax. UT NOL rules may apply. Reference: UT Code 59-7-110\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_VA_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"VA income adjustments calculated. Reference: VA Code 58.1-402 (Modifications)\" to job.audit_trail;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"No VA nexus - no adjustments calculated.\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_VA_State_Tax": {
+    "action@1": "set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"VA tax calculated at 6% flat rate. Reference: VA Code 58.1-400\" to job.audit_trail;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No VA nexus - no tax liability. Any estimated payments are refunded.\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No VA taxable income - no tax. VA NOL carryforward 15 years. Reference: VA Code 58.1-402.B.4\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_VT_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"VT income adjustments calculated. Reference: 32 V.S.A. 5832\" to job.audit_trail;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"No VT nexus - no adjustments calculated.\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_VT_State_Tax": {
+    "action@1": "set apportionment.vt_calculated_tax = (the minimum of (apportionment.state_taxable_income) and (apportionment.vt_bracket_threshold_1)) * apportionment.vt_tax_rate_tier1; if apportionment.state_taxable_income > apportionment.vt_bracket_threshold_1 then set apportionment.vt_calculated_tax = apportionment.vt_calculated_tax + ((the minimum of (apportionment.state_taxable_income) and (apportionment.vt_bracket_threshold_2)) - apportionment.vt_bracket_threshold_1) * apportionment.vt_tax_rate_tier2; endif if apportionment.state_taxable_income > apportionment.vt_bracket_threshold_2 then set apportionment.vt_calculated_tax = apportionment.vt_calculated_tax + (apportionment.state_taxable_income - apportionment.vt_bracket_threshold_2) * apportionment.vt_tax_rate_tier3; endif set apportionment.state_tax = the maximum of (apportionment.vt_calculated_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"VT tax calculated using graduated brackets: 6% on first $10K, 7% on $10K-$25K, 8.5% over $25K (one of highest state rates). Reference: 32 V.S.A. 5832\" to job.audit_trail;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.vt_calculated_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No VT nexus - no tax liability. Any estimated payments are refunded.\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.vt_calculated_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No VT taxable income - no tax. VT NOL rules may apply. Reference: 32 V.S.A. 5832\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_WA_BO_Tax": {
+    "action@1": "set result.wa_bo_tax = result.wa_gross_receipts * result.wa_bo_tax_rate; set result.wa_bo_tax = the maximum of (result.wa_bo_tax - result.wa_small_business_credit) and (0.0); set result.wa_bo_tax = the maximum of (result.wa_bo_tax - result.wa_high_tech_credit) and (0.0); set result.wa_bo_tax = the maximum of (result.wa_bo_tax - result.wa_aerospace_credit) and (0.0); set result.wa_bo_tax = the maximum of (result.wa_bo_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = result.wa_bo_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"Washington B&O Tax calculated. Gross receipts tax, NOT income tax. Reference: RCW 82.04\" to job.audit_trail;",
+    "action@2": "set result.wa_bo_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No Washington nexus - no B&O tax liability. Any estimated payments are refunded.\" to job.audit_trail;",
+    "action@3": "set result.wa_bo_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No Washington gross receipts - no B&O tax liability. Filing may still be required to report no tax due.\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_WA_Gross_Receipts": {
+    "action@1": "set result.wa_gross_receipts = revenue.total_revenue * apportionment.apportionment_percentage; add \"Washington gross receipts calculation for B&O tax using market-based sourcing. Reference: RCW 82.04.460\" to job.audit_trail;",
+    "action@2": "set result.wa_gross_receipts = revenue.total_revenue; add \"No apportionment percentage - treating all receipts as Washington-sourced.\" to job.audit_trail;",
+    "action@3": "set result.wa_gross_receipts = 0.0; add \"No Washington nexus - no gross receipts attributed to Washington.\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_WA_Small_Business_Credit": {
+    "action@1": "set result.wa_qualifies_for_small_business_credit = true; set result.wa_small_business_credit = 1440.0 * (1.0 - revenue.total_revenue / result.wa_small_business_credit_threshold); add \"Washington Small Business B&O Tax Credit applied. Revenue under $250K. Reference: RCW 82.04.4451\" to job.audit_trail;",
+    "action@2": "set result.wa_qualifies_for_small_business_credit = false; set result.wa_small_business_credit = 0.0; add \"No small business credit - gross revenue exceeds $250,000 threshold.\" to job.audit_trail;",
+    "action@3": "set result.wa_qualifies_for_small_business_credit = false; set result.wa_small_business_credit = 0.0; add \"No small business credit - no Washington gross receipts.\" to job.audit_trail;",
+    "condition@1": "revenue.total_revenue < result.wa_small_business_credit_threshold"
+  },
+  "Calculate_WI_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"Wisconsin state-specific income adjustments to federal taxable income.\" to job.audit_trail; add \"Common Wisconsin additions:\" to job.audit_trail; add \"- Interest on U.S. government obligations (tax-exempt federally but taxable to Wisconsin)\" to job.audit_trail; add \"- IRC Section 199A qualified business income deduction addback\" to job.audit_trail; add \"- Federal bonus depreciation addback (Wisconsin partial conformity)\" to job.audit_trail; add \"- State NOL if deducted on federal return\" to job.audit_trail; add \"Common Wisconsin subtractions:\" to job.audit_trail; add \"- Municipal bond interest from other states\" to job.audit_trail; add \"- Wisconsin net operating loss deduction\" to job.audit_trail; add \"- Capital gains from qualified Wisconsin small business stock\" to job.audit_trail; add \"Reference: Wisconsin Form 4 Schedule RT (Apportionment and Allocation)\" to job.audit_trail; add \"Reference: Wisconsin Form 4I Instructions (Income and Franchise Tax)\" to job.audit_trail; add \"Reference: WI Stat. \u00a7 71.26 (Surtax on tax-option corporations)\" to job.audit_trail; add \"Reference: WI Stat. \u00a7 71.05 (Income - additions and subtractions)\" to job.audit_trail;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"No nexus - no state adjustments calculated.\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_WI_State_Tax": {
+    "action@1": "set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"Wisconsin corporate income tax at 7.9% flat rate. Reference: WI Stat. 71.27\" to job.audit_trail;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No Wisconsin nexus - no tax liability. Any estimated payments are refunded.\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No Wisconsin taxable income - no tax liability. Wisconsin NOL rules may apply. Reference: WI Stat. 71.26(4)\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_WV_Income_Adjustments": {
+    "action@1": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"WV income adjustments calculated. Reference: WV Code 11-24-6\" to job.audit_trail;",
+    "action@2": "set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add \"No WV nexus - no adjustments calculated.\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_WV_State_Tax": {
+    "action@1": "set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add \"WV tax calculated at 6.5% flat rate. Single-sales factor effective 2022+. Reference: WV Code 11-24-4, 11-24-7\" to job.audit_trail;",
+    "action@2": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No WV nexus - no tax liability. Any estimated payments are refunded.\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No WV taxable income - no tax. WV NOL rules apply (separate from federal). Reference: WV Code 11-24-6\" to job.audit_trail;",
+    "condition@1": "apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true"
+  },
+  "Calculate_WY_Income_Adjustments": {
+    "action@1": "set apportionment.state_tax_rate = 0.0; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; set result.wy_no_corporate_tax = true; set result.wy_no_gross_receipts_tax = true; set result.wy_no_franchise_tax = true; add \"Wyoming has NO corporate income tax, franchise tax, or gross receipts tax. No adjustments needed.\" to job.audit_trail;",
+    "action@2": "set apportionment.state_tax_rate = 0.0; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; set result.wy_no_corporate_tax = true; set result.wy_no_gross_receipts_tax = true; set result.wy_no_franchise_tax = true; add \"No Wyoming presence - no tax liability (WY has no corporate income tax anyway).\" to job.audit_trail;"
+  },
+  "Calculate_WY_State_Tax": {
+    "action@1": "set result.wy_state_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"Wyoming State Tax: $0. NO corporate income tax, NO franchise tax, NO gross receipts tax. Any estimated payments refunded. Reference: Wyoming Statutes Title 39\" to job.audit_trail;",
+    "action@2": "set result.wy_state_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No Wyoming presence - $0 tax. Wyoming has no corporate income tax anyway. Any payments refunded.\" to job.audit_trail;"
+  },
+  "Determine_AK_Filing_Requirement": {
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_AL_Filing_Requirement": {
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_AR_Filing_Requirement": {
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_AZ_Filing_Requirement": {
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_CA_Filing_Requirement": {
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_CO_Corporate_Filing_Requirement": {
+    "action@3": "set result.co_has_nexus = false; set result.co_tax_liability = 0.0;",
+    "condition@2": "result.co_gross_receipts >= result.co_economic_nexus_threshold"
+  },
+  "Determine_CT_Filing_Requirement": {
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_DE_Filing_Requirement": {
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_FL_Filing_Requirement": {
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_GA_Filing_Requirement": {
+    "action@1": "add \"GA filing required: Physical presence (office, employees, or property in state). Reference: GA Code \u00a7 48-7-21, \u00a7 48-7-31\" to job.audit_trail;",
+    "action@2": "add \"GA filing required: Economic nexus (post-Wayfair). Threshold: $100,000 gross receipts OR 200 transactions. Reference: GA Code \u00a7 48-8-2(8)(K)\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_HI_Filing_Requirement": {
+    "action@2": "// Economic nexus established per Wayfair - filing required",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_IA_Corporate_Filing_Requirement": {
+    "action@1": "set result.ia_has_nexus = true;",
+    "action@2": "set result.ia_has_nexus = true;",
+    "action@3": "set result.ia_has_nexus = false; set result.ia_tax_liability = 0.0;",
+    "condition@2": "result.ia_gross_receipts >= result.ia_economic_nexus_threshold"
+  },
+  "Determine_ID_Corporate_Filing_Requirement": {
+    "action@1": "set result.id_has_nexus = true;",
+    "action@2": "set result.id_has_nexus = true;",
+    "action@3": "set result.id_has_nexus = false; set result.id_tax_liability = 0.0;",
+    "condition@2": "result.id_gross_receipts >= result.id_economic_nexus_threshold"
+  },
+  "Determine_IL_Filing_Requirement": {
+    "action@1": "add \"IL filing required due to physical presence (office, employees, or property in state). Reference: IL Income Tax Act, 35 ILCS 5/201; IL Department of Revenue Publication 101; 86 Ill. Admin. Code \u00a7 100.9710\" to result.policy_statements;",
+    "action@2": "add \"IL filing required due to economic nexus (post-Wayfair). Threshold: $100,000 in IL gross receipts OR 200 transactions. Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018); 35 ILCS 5/1501(a)(1); IL Department of Revenue ST 19-0001-GIL\" to result.policy_statements;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_IN_Corporate_Filing_Requirement": {
+    "action@1": "set result.in_has_nexus = true;",
+    "action@2": "set result.in_has_nexus = true;",
+    "action@3": "set result.in_has_nexus = false; set result.in_tax_liability = 0.0;",
+    "condition@2": "result.in_gross_receipts >= result.in_economic_nexus_threshold"
+  },
+  "Determine_KS_Corporate_Filing_Requirement": {
+    "action@1": "set result.ks_has_nexus = true;",
+    "action@2": "set result.ks_has_nexus = true;",
+    "action@3": "set result.ks_has_nexus = false; set result.ks_tax_liability = 0.0;",
+    "condition@2": "result.ks_gross_receipts >= result.ks_economic_nexus_threshold"
+  },
+  "Determine_KY_Corporate_Filing_Requirement": {
+    "action@1": "set result.ky_has_nexus = true;",
+    "action@2": "set result.ky_has_nexus = true;",
+    "action@3": "set result.ky_has_nexus = false; set result.ky_tax_liability = 0.0;",
+    "condition@2": "result.ky_gross_receipts >= result.ky_economic_nexus_threshold"
+  },
+  "Determine_LA_Corporate_Filing_Requirement": {
+    "action@1": "set result.la_has_nexus = true;",
+    "action@2": "set result.la_has_nexus = true;",
+    "action@3": "set result.la_has_nexus = false; set result.la_tax_liability = 0.0;",
+    "condition@2": "result.la_gross_receipts >= result.la_economic_nexus_threshold"
+  },
+  "Determine_MA_Corporate_Filing_Requirement": {
+    "action@1": "set result.ma_has_nexus = true;",
+    "action@2": "set result.ma_has_nexus = true;",
+    "action@3": "set result.ma_has_nexus = false; set result.ma_tax_liability = 0.0;",
+    "condition@2": "result.ma_gross_receipts >= result.ma_economic_nexus_threshold"
+  },
+  "Determine_MD_Corporate_Filing_Requirement": {
+    "action@1": "set result.md_has_nexus = true;",
+    "action@2": "set result.md_has_nexus = true;",
+    "action@3": "set result.md_has_nexus = false; set result.md_tax_liability = 0.0;",
+    "condition@2": "result.md_gross_receipts >= result.md_economic_nexus_threshold"
+  },
+  "Determine_ME_Corporate_Filing_Requirement": {
+    "action@1": "set result.me_has_nexus = true;",
+    "action@2": "set result.me_has_nexus = true;",
+    "action@3": "set result.me_has_nexus = false; set result.me_tax_liability = 0.0;",
+    "condition@2": "result.me_gross_receipts >= result.me_economic_nexus_threshold"
+  },
+  "Determine_MI_Corporate_Filing_Requirement": {
+    "action@1": "set result.mi_has_nexus = true;",
+    "action@2": "set result.mi_has_nexus = true;",
+    "action@3": "set result.mi_has_nexus = false; set result.mi_tax_liability = 0.0;",
+    "condition@2": "result.mi_gross_receipts >= result.mi_economic_nexus_threshold"
+  },
+  "Determine_MN_Corporate_Filing_Requirement": {
+    "action@1": "set result.mn_has_nexus = true;",
+    "action@2": "set result.mn_has_nexus = true;",
+    "action@3": "set result.mn_has_nexus = false; set result.mn_tax_liability = 0.0;",
+    "condition@2": "result.mn_gross_receipts >= result.mn_economic_nexus_threshold"
+  },
+  "Determine_MO_Corporate_Filing_Requirement": {
+    "action@1": "set result.mo_has_nexus = true;",
+    "action@2": "set result.mo_has_nexus = true;",
+    "action@3": "set result.mo_has_nexus = false; set result.mo_tax_liability = 0.0;",
+    "condition@2": "result.mo_gross_receipts >= result.mo_economic_nexus_threshold"
+  },
+  "Determine_MS_Corporate_Filing_Requirement": {
+    "action@1": "set result.ms_has_nexus = true;",
+    "action@2": "set result.ms_has_nexus = true;",
+    "action@3": "set result.ms_has_nexus = false; set result.ms_tax_liability = 0.0;",
+    "condition@2": "result.ms_gross_receipts >= result.ms_economic_nexus_threshold"
+  },
+  "Determine_MT_Corporate_Filing_Requirement": {
+    "action@1": "set result.mt_has_nexus = true;",
+    "action@2": "set result.mt_has_nexus = true;",
+    "action@3": "set result.mt_has_nexus = false; set result.mt_tax_liability = 0.0;",
+    "condition@2": "result.mt_gross_receipts >= result.mt_economic_nexus_threshold"
+  },
+  "Determine_NC_Filing_Requirement": {
+    "action@1": "// Physical nexus established - filing required",
+    "action@2": "// Economic nexus established per Wayfair - filing required",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_ND_Filing_Requirement": {
+    "action@1": "// Physical nexus established - filing required",
+    "action@2": "// Economic nexus established per Wayfair - filing required",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_NE_Filing_Requirement": {
+    "action@1": "// Physical nexus established - filing required",
+    "action@2": "// Economic nexus established per Wayfair - filing required",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_NH_Filing_Requirement": {
+    "action@1": "// Physical nexus established - filing required",
+    "action@2": "// Economic nexus established per Wayfair - filing required",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_NJ_Filing_Requirement": {
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_NM_Filing_Requirement": {
+    "action@1": "// Physical nexus established - filing required",
+    "action@2": "// Economic nexus established per Wayfair - filing required",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_NV_Business_Classification": {
+    "action@1": "set result.nv_commerce_tax_rate = result.nv_financial_services_rate;",
+    "action@2": "set result.nv_commerce_tax_rate = result.nv_mining_rate;",
+    "action@3": "set result.nv_commerce_tax_rate = result.nv_utilities_rate;",
+    "action@4": "set result.nv_commerce_tax_rate = result.nv_professional_services_rate;",
+    "action@5": "set result.nv_commerce_tax_rate = result.nv_retail_trade_rate;",
+    "action@6": "set result.nv_commerce_tax_rate = result.nv_manufacturing_rate;",
+    "action@7": "set result.nv_commerce_tax_rate = result.nv_wholesale_trade_rate;",
+    "action@8": "set result.nv_commerce_tax_rate = result.nv_other_rate;",
+    "condition@1": "result.nv_business_classification == financial",
+    "condition@2": "result.nv_business_classification == mining",
+    "condition@3": "result.nv_business_classification == utilities",
+    "condition@4": "result.nv_business_classification == professional",
+    "condition@5": "result.nv_business_classification == retail",
+    "condition@6": "result.nv_business_classification == manufacturing",
+    "condition@7": "result.nv_business_classification == wholesale"
+  },
+  "Determine_NV_Filing_Requirement": {
+    "action@1": "set result.nv_qualifies_for_exemption = true; set result.nv_commerce_tax = 0.0; set result.state_tax = 0.0;",
+    "action@2": "set result.nv_qualifies_for_exemption = false;",
+    "action@3": "set result.nv_qualifies_for_exemption = false;",
+    "action@4": "set result.nv_qualifies_for_exemption = true; set result.nv_commerce_tax = 0.0; set result.state_tax = 0.0; set result.state_refund_or_owed = result.state_payments;",
+    "condition@1": "result.has_physical_presence_nv and result.nv_gross_revenue < result.nv_commerce_tax_threshold",
+    "condition@2": "result.has_physical_presence_nv and result.nv_gross_revenue >= result.nv_commerce_tax_threshold",
+    "condition@3": "result.nv_gross_revenue >= result.nv_economic_nexus_threshold and result.nv_gross_revenue >= result.nv_commerce_tax_threshold"
+  },
+  "Determine_NY_Filing_Requirement": {
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_OH_Filing_Requirement": {
+    "action@1": "set result.oh_qualifies_for_no_cat = true; set result.oh_cat_tax = 0.0; set apportionment.state_tax = 0.0;",
+    "action@2": "set result.oh_qualifies_for_no_cat = false;",
+    "action@3": "set result.oh_qualifies_for_no_cat = false;",
+    "action@4": "set result.oh_qualifies_for_no_cat = true; set result.oh_cat_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;",
+    "condition@3": "result.oh_taxable_gross_receipts < result.oh_cat_exclusion_threshold"
+  },
+  "Determine_OK_Filing_Requirement": {
+    "action@1": "// Physical nexus established - filing required",
+    "action@2": "// Economic nexus established per Wayfair - filing required",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_OR_Filing_Requirement": {
+    "action@2": "// Economic nexus established per Wayfair - filing required",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;"
+  },
+  "Determine_PA_Filing_Requirement": {
+    "action@1": "add \"PA CNIT filing required due to physical presence. Reference: PA Code Title 72 7401(3)2.(a)(15)\" to job.audit_trail;",
+    "action@2": "add \"PA CNIT filing required due to economic nexus. PA threshold: $500,000 (higher than typical $100K). Reference: PA Code Title 72 7401(3)2.(a)(15)(C)\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No PA nexus - no filing required. Any estimated payments would be refunded.\" to job.audit_trail;"
+  },
+  "Determine_RI_Filing_Requirement": {
+    "action@1": "add \"RI filing required - physical nexus\" to job.audit_trail;",
+    "action@2": "add \"RI filing required - economic nexus\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"RI - no nexus, no filing required. Any estimated payments would be refunded.\" to job.audit_trail;"
+  },
+  "Determine_SC_Filing_Requirement": {
+    "action@1": "add \"SC filing required due to physical presence. Reference: SC Code 12-6-2320\" to job.audit_trail;",
+    "action@2": "add \"SC filing required due to economic nexus. Threshold: $100K OR 200 transactions. Reference: SC Code 12-36-2691\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No SC nexus - no filing requirement. Any estimated payments would be refunded.\" to job.audit_trail;"
+  },
+  "Determine_SD_Filing_Requirement": {
+    "action@1": "set result.sd_no_corporate_tax = true; set apportionment.state_tax = 0.0; set apportionment.state_tax_rate = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"South Dakota has NO corporate income tax. Any estimated payments are refunded. Reference: SD Constitution Article XI\" to job.audit_trail;",
+    "action@2": "set apportionment.state_tax = result.sd_bank_franchise_tax; set apportionment.state_tax_rate = 0.0; add \"SD Bank Franchise Tax applies (NOT corporate income tax). Reference: SDCL 10-43\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = result.sd_insurance_premium_tax; set apportionment.state_tax_rate = 0.0; add \"SD Insurance Premium Tax applies (NOT corporate income tax). Reference: SDCL 10-44\" to job.audit_trail;"
+  },
+  "Determine_TN_Filing_Requirement": {
+    "action@1": "add \"TN franchise and excise tax filing required due to physical presence in Tennessee. Both taxes apply: 1. Franchise tax: 0.25% on net worth (greater of book value or property) 2. Excise tax: 6.5% on net earnings (apportioned income). Reference: TN Code \u00a7 67-4-2007 (Excise tax), TN Code \u00a7 67-4-2104 (Franchise tax), Form FAE 170 (Franchise and Excise Tax Return), TN Revenue Ruling 07-24 (Physical presence nexus)\" to job.audit_trail;",
+    "action@2": "add \"TN franchise and excise tax filing required due to economic nexus. Threshold: $100,000 gross receipts OR 200 transactions in TN. Economic nexus applies to both franchise and excise taxes. Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), TN Code \u00a7 67-4-2007(b) (Economic nexus), TN Notice 20-11 (Marketplace Facilitator Act and Economic Nexus)\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set result.tn_franchise_tax = 0.0; set result.tn_excise_tax = 0.0; set result.tn_total_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No TN nexus - no filing requirement for franchise or excise tax. Any estimated payments would be refunded.\" to job.audit_trail;"
+  },
+  "Determine_TX_Deduction_Method": {
+    "action@1": "set result.tx_deduction_method = \"none\"; set result.tx_margin_deduction = 0.0; add \"No TX franchise tax due - deduction method not applicable.\" to job.audit_trail;",
+    "action@2": "set result.tx_deduction_method = \"70_percent\"; set result.tx_margin_deduction = result.tx_total_revenue * 0.70; add \"TX franchise tax: Using 70% of revenue deduction method. Reference: TX Tax Code 171.1012(f)\" to job.audit_trail;",
+    "action@3": "set result.tx_deduction_method = \"cogs\"; set result.tx_margin_deduction = result.tx_cogs; add \"TX franchise tax: Using COGS deduction method. Reference: TX Tax Code 171.1012(i)\" to job.audit_trail;",
+    "action@4": "set result.tx_deduction_method = \"compensation\"; set result.tx_margin_deduction = result.tx_compensation; add \"TX franchise tax: Using compensation deduction method. Reference: TX Tax Code 171.1012(f)\" to job.audit_trail;",
+    "condition@1": "result.tx_qualifies_for_no_tax_due == false"
+  },
+  "Determine_TX_Filing_Requirement": {
+    "action@1": "set result.tx_qualifies_for_no_tax_due = true; set result.tx_franchise_tax = 0.0; set apportionment.state_tax = 0.0; add \"TX franchise tax: No tax due (revenue below $1.23M threshold). Reference: TX Tax Code 171.002(d)(2)\" to job.audit_trail;",
+    "action@2": "set result.tx_qualifies_for_no_tax_due = false; add \"TX franchise tax filing required due to physical presence. Reference: TX Tax Code 171.001\" to job.audit_trail;",
+    "action@3": "set result.tx_qualifies_for_no_tax_due = false; add \"TX franchise tax filing required due to economic nexus ($500K TX receipts). Reference: TX Tax Code 171.0001(a)(1)\" to job.audit_trail;",
+    "action@4": "set result.tx_qualifies_for_no_tax_due = true; set result.tx_franchise_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No TX nexus - no filing required. Any estimated payments would be refunded.\" to job.audit_trail;",
+    "condition@3": "result.tx_total_revenue < result.tx_no_tax_due_threshold"
+  },
+  "Determine_UT_Filing_Requirement": {
+    "action@1": "add \"UT filing required due to physical presence. Reference: UT Code 59-7-102\" to job.audit_trail;",
+    "action@2": "add \"UT filing required due to economic nexus. $100K threshold (200-transaction threshold removed per S.B. 47). Reference: UT Code 59-7-102\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No UT nexus - no filing requirement. Any estimated payments would be refunded.\" to job.audit_trail;"
+  },
+  "Determine_VA_Filing_Requirement": {
+    "action@1": "add \"VA filing required due to physical presence. Reference: VA Code 58.1-400\" to job.audit_trail;",
+    "action@2": "add \"VA filing required due to economic nexus. Threshold: $100K OR 200 transactions. Reference: VA Code 58.1-612\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No VA nexus - no filing requirement. Any estimated payments would be refunded.\" to job.audit_trail;"
+  },
+  "Determine_VT_Filing_Requirement": {
+    "action@1": "add \"VT filing required due to physical presence. Reference: 32 V.S.A. 5833\" to job.audit_trail;",
+    "action@2": "add \"VT filing required due to economic nexus (doing business standard). Reference: 32 V.S.A. 5833\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No VT nexus - no filing requirement. Any estimated payments would be refunded.\" to job.audit_trail;"
+  },
+  "Determine_WA_Business_Classification": {
+    "action@1": "set result.wa_bo_tax_rate = result.wa_retailing_rate; add \"Washington B&O tax - Retailing classification: 0.471%. Retailing includes sales of tangible personal property to consumers for consumption or use (not for resale). References: RCW 82.04.250 (Retailing), RCW 82.04.470 (Retailing B&O Tax Rate)\" to job.audit_trail;",
+    "action@2": "set result.wa_bo_tax_rate = result.wa_wholesaling_rate; add \"Washington B&O tax - Wholesaling classification: 0.484%. Wholesaling includes sales of tangible personal property to persons for purpose of resale. References: RCW 82.04.060 (Wholesaling), RCW 82.04.270 (Wholesaling B&O Tax)\" to job.audit_trail;",
+    "action@3": "set result.wa_bo_tax_rate = result.wa_manufacturing_rate; add \"Washington B&O tax - Manufacturing classification: 0.484%. Manufacturing includes production of articles for sale from raw materials, including processing, fabricating, assembling, extracting. Note: Certain manufacturers may qualify for preferential rates or exemptions. References: RCW 82.04.240 (Manufacturing), RCW 82.04.440 (Manufacturing B&O Tax)\" to job.audit_trail;",
+    "action@4": "set result.wa_bo_tax_rate = result.wa_financial_rate; add \"Washington B&O tax - Financial Business classification: 1.5% (highest rate). Financial business includes banks, savings and loan associations, credit unions, finance companies, insurance companies, and similar institutions. Reference: RCW 82.04.290 (Financial Business)\" to job.audit_trail;",
+    "action@5": "set result.wa_bo_tax_rate = result.wa_professional_rate; add \"Washington B&O tax - Professional Services classification: 0.484%. Professional services include legal, accounting, engineering, consulting, and other professional activities. Reference: RCW 82.04.290 (Service and Other Activities)\" to job.audit_trail;",
+    "action@6": "set result.wa_bo_tax_rate = result.wa_service_rate; add \"Washington B&O tax - Service and Other Activities classification: 0.484%. This is the catch-all classification for business activities not specifically classified elsewhere. Reference: RCW 82.04.290 (Service and Other Activities)\" to job.audit_trail;"
+  },
+  "Determine_WA_Filing_Requirement": {
+    "action@1": "add \"Washington B&O tax filing required due to physical presence. Physical presence includes: office/business in WA, employees in WA, tangible property in WA, inventory in WA, or regular solicitation in WA. References: RCW 82.04.067 (Nexus), WAC 458-20-193 (Interstate Sales), WAC 458-20-19401 (Economic Nexus)\" to job.audit_trail;",
+    "action@2": "add \"Washington B&O tax filing required due to economic nexus. Economic nexus threshold (either): $100,000 or more in Washington receipts (gross revenue), OR 200 or more separate transactions in Washington. Washington adopted economic nexus following South Dakota v. Wayfair (2018). References: RCW 82.04.067 (Economic Nexus), WAC 458-20-19401 (Economic Nexus Rules), South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)\" to job.audit_trail;",
+    "action@3": "set result.wa_bo_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No Washington nexus - no B&O tax filing requirement. Any estimated payments would be refunded.\" to job.audit_trail;"
+  },
+  "Determine_WI_Filing_Requirement": {
+    "action@1": "add \"Wisconsin filing required due to physical presence (office, employees, or property in state).\" to job.audit_trail; add \"Reference: Wisconsin Form 4 (Corporation Franchise or Income Tax Return)\" to job.audit_trail; add \"Reference: WI Stat. \u00a7 71.22 (Corporations, general provisions)\" to job.audit_trail; add \"Reference: WI Department of Revenue Publication 112\" to job.audit_trail;",
+    "action@2": "add \"Wisconsin filing required due to economic nexus (post-Wayfair).\" to job.audit_trail; add \"Threshold: $100,000 gross receipts OR 200 transactions.\" to job.audit_trail; add \"Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)\" to job.audit_trail; add \"Reference: Wisconsin Tax Bulletin 203 (July 2018) - Economic Nexus Guidance\" to job.audit_trail; add \"Reference: WI Stat. \u00a7 71.22(1r) (Definitions - doing business)\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No Wisconsin nexus - no filing requirement.\" to job.audit_trail; add \"Any estimated payments would be refunded.\" to job.audit_trail;"
+  },
+  "Determine_WV_Filing_Requirement": {
+    "action@1": "add \"WV filing required due to physical presence. Reference: WV Code 11-24-7\" to job.audit_trail;",
+    "action@2": "add \"WV filing required due to economic nexus. Threshold: $100K OR 200 transactions. Reference: WV Code 11-24-7\" to job.audit_trail;",
+    "action@3": "set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No WV nexus - no filing requirement. Any estimated payments would be refunded.\" to job.audit_trail;"
+  },
+  "Determine_WY_Filing_Requirement": {
+    "action@1": "set result.wy_annual_report_fee = result.wy_annual_report_fee_domestic; set result.wy_state_tax = 0.0; set apportionment.state_tax = 0.0; add \"Wyoming has NO corporate income tax. Domestic corp annual report: $60. Reference: Wyoming Statutes 17-16-1630\" to job.audit_trail;",
+    "action@2": "set result.wy_annual_report_fee = result.wy_annual_report_fee_foreign; set result.wy_state_tax = 0.0; set apportionment.state_tax = 0.0; add \"Wyoming has NO corporate income tax. Foreign corp annual report: $120. Reference: Wyoming Statutes 17-16-1630\" to job.audit_trail;",
+    "action@3": "set result.wy_annual_report_fee = 0.0; set result.wy_state_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add \"No Wyoming presence - no filing required. WY has no corporate income tax anyway. Any payments refunded.\" to job.audit_trail;"
+  }
+}

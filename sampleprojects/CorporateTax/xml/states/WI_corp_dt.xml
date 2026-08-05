@@ -1,10 +1,13 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-
-
-
+<!-- TABLE 51600: Determine_WI_Filing_Requirement -->
 <decision_table>
+<source>
+<relative_path>WI_Corp.xls</relative_path>
+<file_name>WI_Corp.xls</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>Determine_WI_Filing_Requirement</table_name>
 <xls_file>WI_Corp.xls</xls_file>
 <attribute_fields>
@@ -13,90 +16,75 @@
 <TABLE_NUMBER>51600</TABLE_NUMBER>
 <FILE_PATH>states/WI/51600_Determine_WI_Filing_Requirement</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
+<contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize Wisconsin filing requirement determination</action_dsl>
-<action_postfix>
-"Wisconsin Filing Requirement Check Started" job.audit_trail swap addto
-</action_postfix>
+<initial_action_dsl>// Initialize Wisconsin filing requirement determination</initial_action_dsl>
+<initial_action_postfix></initial_action_postfix>
 </initial_action>
 </initial_actions>
-
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in Wisconsin</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "WI"</condition_dsl>
-<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;WI&quot; streq } over if</condition_postfix>
+<condition_postfix>
+apportionment.has_physical_presence true beq { pop apportionment.state_code "WI" streq } over if
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets Wisconsin economic nexus threshold</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "WI"</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &quot;WI&quot; streq } over if</condition_postfix>
-<condition_column column_number="1" column_value="" />
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.state_code "WI" streq } over if
+</condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus established - filing required</action_comment>
+<action_dsl>add "Wisconsin filing required due to physical presence (office, employees, or property in state)." to job.audit_trail; add "Reference: Wisconsin Form 4 (Corporation Franchise or Income Tax Return)" to job.audit_trail; add "Reference: WI Stat. § 71.22 (Corporations, general provisions)" to job.audit_trail; add "Reference: WI Department of Revenue Publication 112" to job.audit_trail;</action_dsl>
 <action_postfix>
-
-
-"Wisconsin filing required due to physical presence (office, employees, or property in state)." job.audit_trail swap addto
-"Reference: Wisconsin Form 4 (Corporation Franchise or Income Tax Return)" job.audit_trail swap addto
-"Reference: WI Stat. § 71.22 (Corporations, general provisions)" job.audit_trail swap addto
-"Reference: WI Department of Revenue Publication 112" job.audit_trail swap addto
+"Wisconsin filing required due to physical presence (office, employees, or property in state)." job.audit_trail swap addto "Reference: Wisconsin Form 4 (Corporation Franchise or Income Tax Return)" job.audit_trail swap addto "Reference: WI Stat. § 71.22 (Corporations, general provisions)" job.audit_trail swap addto "Reference: WI Department of Revenue Publication 112" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established per Wayfair - filing required</action_comment>
+<action_dsl>add "Wisconsin filing required due to economic nexus (post-Wayfair)." to job.audit_trail; add "Threshold: $100,000 gross receipts OR 200 transactions." to job.audit_trail; add "Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)" to job.audit_trail; add "Reference: Wisconsin Tax Bulletin 203 (July 2018) - Economic Nexus Guidance" to job.audit_trail; add "Reference: WI Stat. § 71.22(1r) (Definitions - doing business)" to job.audit_trail;</action_dsl>
 <action_postfix>
-
-
-"Wisconsin filing required due to economic nexus (post-Wayfair)." job.audit_trail swap addto
-"Threshold: $100,000 gross receipts OR 200 transactions." job.audit_trail swap addto
-"Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)" job.audit_trail swap addto
-"Reference: Wisconsin Tax Bulletin 203 (July 2018) - Economic Nexus Guidance" job.audit_trail swap addto
-"Reference: WI Stat. § 71.22(1r) (Definitions - doing business)" job.audit_trail swap addto
+"Wisconsin filing required due to economic nexus (post-Wayfair)." job.audit_trail swap addto "Threshold: $100,000 gross receipts OR 200 transactions." job.audit_trail swap addto "Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)" job.audit_trail swap addto "Reference: Wisconsin Tax Bulletin 203 (July 2018) - Economic Nexus Guidance" job.audit_trail swap addto "Reference: WI Stat. § 71.22(1r) (Definitions - doing business)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No Wisconsin nexus - no filing requirement." to job.audit_trail; add "Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments /apportionment.state_refund_or_owed xdef
-"No Wisconsin nexus - no filing requirement." job.audit_trail swap addto
-"Any estimated payments would be refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No Wisconsin nexus - no filing requirement." job.audit_trail swap addto "Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 51620: Calculate_WI_Income_Adjustments -->
 <decision_table>
+<source>
+<relative_path>WI_Corp.xls</relative_path>
+<file_name>WI_Corp.xls</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>Calculate_WI_Income_Adjustments</table_name>
 <xls_file>WI_Corp.xls</xls_file>
 <attribute_fields>
@@ -105,94 +93,55 @@ apportionment.state_payments /apportionment.state_refund_or_owed xdef
 <TABLE_NUMBER>51620</TABLE_NUMBER>
 <FILE_PATH>states/WI/51620_Calculate_WI_Income_Adjustments</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
+<contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize Wisconsin income adjustments calculation</action_dsl>
-<action_postfix>
-"Wisconsin Income Adjustments Calculation Started" job.audit_trail swap addto
-</action_postfix>
+<initial_action_dsl>// Initialize Wisconsin income adjustments calculation</initial_action_dsl>
+<initial_action_postfix></initial_action_postfix>
 </initial_action>
 </initial_actions>
-
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to calculate adjustments; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_dsl />
+<condition_dsl>apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true</condition_dsl>
 <condition_postfix>
-apportionment.has_economic_nexus get true eq
-apportionment.has_physical_presence get true eq or
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Wisconsin state additions and subtractions</action_comment>
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add "Wisconsin state-specific income adjustments to federal taxable income." to job.audit_trail; add "Common Wisconsin additions:" to job.audit_trail; add "- Interest on U.S. government obligations (tax-exempt federally but taxable to Wisconsin)" to job.audit_trail; add "- IRC Section 199A qualified business income deduction addback" to job.audit_trail; add "- Federal bonus depreciation addback (Wisconsin partial conformity)" to job.audit_trail; add "- State NOL if deducted on federal return" to job.audit_trail; add "Common Wisconsin subtractions:" to job.audit_trail; add "- Municipal bond interest from other states" to job.audit_trail; add "- Wisconsin net operating loss deduction" to job.audit_trail; add "- Capital gains from qualified Wisconsin small business stock" to job.audit_trail; add "Reference: Wisconsin Form 4 Schedule RT (Apportionment and Allocation)" to job.audit_trail; add "Reference: Wisconsin Form 4I Instructions (Income and Franchise Tax)" to job.audit_trail; add "Reference: WI Stat. § 71.26 (Surtax on tax-option corporations)" to job.audit_trail; add "Reference: WI Stat. § 71.05 (Income - additions and subtractions)" to job.audit_trail;</action_dsl>
 <action_postfix>
-
-0.0 /additions xdef
-
-
-
-
-
-
-
-additions /apportionment.state_additions xdef
-
-
-0.0 /subtractions xdef
-
-
-
-
-
-
-subtractions /apportionment.state_subtractions xdef
-
-"Wisconsin state-specific income adjustments to federal taxable income." job.audit_trail swap addto
-"Common Wisconsin additions:" job.audit_trail swap addto
-"- Interest on U.S. government obligations (tax-exempt federally but taxable to Wisconsin)" job.audit_trail swap addto
-"- IRC Section 199A qualified business income deduction addback" job.audit_trail swap addto
-"- Federal bonus depreciation addback (Wisconsin partial conformity)" job.audit_trail swap addto
-"- State NOL if deducted on federal return" job.audit_trail swap addto
-"Common Wisconsin subtractions:" job.audit_trail swap addto
-"- Municipal bond interest from other states" job.audit_trail swap addto
-"- Wisconsin net operating loss deduction" job.audit_trail swap addto
-"- Capital gains from qualified Wisconsin small business stock" job.audit_trail swap addto
-"Reference: Wisconsin Form 4 Schedule RT (Apportionment and Allocation)" job.audit_trail swap addto
-"Reference: Wisconsin Form 4I Instructions (Income and Franchise Tax)" job.audit_trail swap addto
-"Reference: WI Stat. § 71.26 (Surtax on tax-option corporations)" job.audit_trail swap addto
-"Reference: WI Stat. § 71.05 (Income - additions and subtractions)" job.audit_trail swap addto
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "Wisconsin state-specific income adjustments to federal taxable income." job.audit_trail swap addto "Common Wisconsin additions:" job.audit_trail swap addto "- Interest on U.S. government obligations (tax-exempt federally but taxable to Wisconsin)" job.audit_trail swap addto "- IRC Section 199A qualified business income deduction addback" job.audit_trail swap addto "- Federal bonus depreciation addback (Wisconsin partial conformity)" job.audit_trail swap addto "- State NOL if deducted on federal return" job.audit_trail swap addto "Common Wisconsin subtractions:" job.audit_trail swap addto "- Municipal bond interest from other states" job.audit_trail swap addto "- Wisconsin net operating loss deduction" job.audit_trail swap addto "- Capital gains from qualified Wisconsin small business stock" job.audit_trail swap addto "Reference: Wisconsin Form 4 Schedule RT (Apportionment and Allocation)" job.audit_trail swap addto "Reference: Wisconsin Form 4I Instructions (Income and Franchise Tax)" job.audit_trail swap addto "Reference: WI Stat. § 71.26 (Surtax on tax-option corporations)" job.audit_trail swap addto "Reference: WI Stat. § 71.05 (Income - additions and subtractions)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no state adjustments calculated</action_comment>
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add "No nexus - no state adjustments calculated." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_additions xdef
-0.0 /apportionment.state_subtractions xdef
-"No nexus - no state adjustments calculated." job.audit_trail swap addto
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "No nexus - no state adjustments calculated." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 51680: Calculate_WI_State_Tax -->
 <decision_table>
+<source>
+<relative_path>WI_Corp.xls</relative_path>
+<file_name>WI_Corp.xls</file_name>
+<sheet_number>3</sheet_number>
+</source>
 <table_name>Calculate_WI_State_Tax</table_name>
 <xls_file>WI_Corp.xls</xls_file>
 <attribute_fields>
@@ -201,79 +150,65 @@ subtractions /apportionment.state_subtractions xdef
 <TABLE_NUMBER>51680</TABLE_NUMBER>
 <FILE_PATH>states/WI/51680_Calculate_WI_State_Tax</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
+<contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl>Initialize Wisconsin state tax calculation</action_dsl>
-<action_postfix>
-"Wisconsin State Tax Calculation Started" job.audit_trail swap addto
-</action_postfix>
+<initial_action_dsl>// Initialize Wisconsin state tax calculation</initial_action_dsl>
+<initial_action_postfix></initial_action_postfix>
 </initial_action>
 </initial_actions>
-
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe tax; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_dsl />
+<condition_dsl>apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true</condition_dsl>
 <condition_postfix>
-apportionment.has_economic_nexus get true eq
-apportionment.has_physical_presence get true eq or
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
-<condition_postfix>apportionment.state_taxable_income 0 f&gt;</condition_postfix>
+<condition_postfix>
+apportionment.state_taxable_income 0 f&gt;
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Wisconsin tax with 7.9% flat rate</action_comment>
+<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "Wisconsin corporate income tax at 7.9% flat rate. Reference: WI Stat. 71.27" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income get apportionment.state_tax_rate get mul /apportionment.state_tax xdef
-apportionment.state_tax get apportionment.state_credits get sub 0.0 max /apportionment.state_tax xdef
-apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
-"Wisconsin corporate income tax at 7.9% flat rate. Reference: WI Stat. 71.27" job.audit_trail swap addto
+apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "Wisconsin corporate income tax at 7.9% flat rate. Reference: WI Stat. 71.27" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No Wisconsin nexus - no tax liability</action_comment>
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No Wisconsin nexus - no tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-"No Wisconsin nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No Wisconsin nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No Wisconsin taxable income - no tax liability</action_comment>
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No Wisconsin taxable income - no tax liability. Wisconsin NOL rules may apply. Reference: WI Stat. 71.26(4)" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-"No Wisconsin taxable income - no tax liability. Wisconsin NOL rules may apply. Reference: WI Stat. 71.26(4)" job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No Wisconsin taxable income - no tax liability. Wisconsin NOL rules may apply. Reference: WI Stat. 71.26(4)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
-
 </decision_tables>

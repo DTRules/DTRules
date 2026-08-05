@@ -1,10 +1,13 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-
-
-
+<!-- TABLE 50000: Determine_CA_Filing_Requirement -->
 <decision_table>
+<source>
+<relative_path>CA_Corp.xls</relative_path>
+<file_name>CA_Corp.xls</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>Determine_CA_Filing_Requirement</table_name>
 <xls_file>CA_Corp.xls</xls_file>
 <attribute_fields>
@@ -13,33 +16,32 @@
 <TABLE_NUMBER>50000</TABLE_NUMBER>
 <FILE_PATH>states/CA/50000_Determine_CA_Filing_Requirement</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions />
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in CA</condition_comment>
 <condition_dsl>apportionment.has_physical_presence is true and apportionment.state_code == "CA"</condition_dsl>
-<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;CA&quot; streq } over if</condition_postfix>
+<condition_postfix>
+apportionment.has_physical_presence true beq { pop apportionment.state_code "CA" streq } over if
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets CA economic nexus threshold</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus is true and apportionment.state_code == "CA"</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &quot;CA&quot; streq } over if</condition_postfix>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" streq } over if
+</condition_postfix>
 <condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
@@ -48,7 +50,6 @@
 <action_postfix></action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established - filing required</action_comment>
@@ -56,24 +57,26 @@
 <action_postfix></action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required; // No CA nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 50020: Calculate_CA_Income_Adjustments -->
 <decision_table>
+<source>
+<relative_path>CA_Corp.xls</relative_path>
+<file_name>CA_Corp.xls</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>Calculate_CA_Income_Adjustments</table_name>
 <xls_file>CA_Corp.xls</xls_file>
 <attribute_fields>
@@ -82,16 +85,13 @@
 <TABLE_NUMBER>50020</TABLE_NUMBER>
 <FILE_PATH>states/CA/50020_Calculate_CA_Income_Adjustments</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions />
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have CA nexus; (apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true) and apportionment.state_code == "CA"</condition_comment>
-<condition_dsl />
+<condition_dsl>(apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true) and (apportionment.state_code == "CA")</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if { pop apportionment.state_code "CA" streq } over if
 </condition_postfix>
@@ -99,35 +99,36 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate CA additions and subtractions; // CA Additions and Subtractions - placeholder; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No CA nexus - no adjustments; // No CA nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 50080: Calculate_CA_State_Tax -->
 <decision_table>
+<source>
+<relative_path>CA_Corp.xls</relative_path>
+<file_name>CA_Corp.xls</file_name>
+<sheet_number>3</sheet_number>
+</source>
 <table_name>Calculate_CA_State_Tax</table_name>
 <xls_file>CA_Corp.xls</xls_file>
 <attribute_fields>
@@ -136,16 +137,13 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <TABLE_NUMBER>50080</TABLE_NUMBER>
 <FILE_PATH>states/CA/50080_Calculate_CA_State_Tax</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions />
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have CA nexus; (apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true) and apportionment.state_code == "CA"</condition_comment>
-<condition_dsl />
+<condition_dsl>(apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true) and (apportionment.state_code == "CA")</condition_dsl>
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if { pop apportionment.state_code "CA" streq } over if
 </condition_postfix>
@@ -153,56 +151,57 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive CA taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0.0</condition_dsl>
-<condition_postfix>apportionment.state_taxable_income 0.0 f&gt;</condition_postfix>
+<condition_postfix>
+apportionment.state_taxable_income 0.0 f&gt;
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="-" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate CA income tax at 8.84% with $800 minimum; // Calculate CA income tax at 8.84%, enforce $800 minimum; set apportionment.state_tax = max(result.ca_minimum_franchise_tax, apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
-<action_dsl />
+<action_dsl>if apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits &gt; result.ca_minimum_franchise_tax then set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = result.ca_minimum_franchise_tax; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - result.ca_minimum_franchise_tax f&gt; { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits - } { result.ca_minimum_franchise_tax } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
+{ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- cvd /apportionment.state_tax xdef } { result.ca_minimum_franchise_tax cvd /apportionment.state_tax xdef } apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- result.ca_minimum_franchise_tax f&gt; ifelse apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No income but still owe minimum franchise tax; // No CA taxable income, but $800 minimum franchise tax still applies; set apportionment.state_tax = result.ca_minimum_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = result.ca_minimum_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-result.ca_minimum_franchise_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
+result.ca_minimum_franchise_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No CA nexus - no tax or minimum franchise tax; // No CA nexus - no tax or minimum franchise tax; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 50090: Apply_CA_Waters_Edge_Election -->
 <decision_table>
+<source>
+<relative_path>CA_Corp.xls</relative_path>
+<file_name>CA_Corp.xls</file_name>
+<sheet_number>4</sheet_number>
+</source>
 <table_name>Apply_CA_Waters_Edge_Election</table_name>
 <xls_file>CA_Corp.xls</xls_file>
 <attribute_fields>
@@ -211,33 +210,32 @@ result.ca_minimum_franchise_tax cvd /apportionment.state_tax xdef apportionment.
 <TABLE_NUMBER>50090</TABLE_NUMBER>
 <FILE_PATH>states/CA/50090_Apply_CA_Waters_Edge_Election</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions />
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has elected water's edge treatment</condition_comment>
 <condition_dsl>result.ca_waters_edge_election is true</condition_dsl>
-<condition_postfix>result.ca_waters_edge_election true beq</condition_postfix>
+<condition_postfix>
+result.ca_waters_edge_election true beq
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="-" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has unitary group members</condition_comment>
 <condition_dsl>result.ca_unitary_group_count &gt; 1</condition_dsl>
-<condition_postfix>result.ca_unitary_group_count 1 &gt;</condition_postfix>
+<condition_postfix>
+result.ca_unitary_group_count 1 &gt;
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
@@ -246,7 +244,6 @@ result.ca_minimum_franchise_tax cvd /apportionment.state_tax xdef apportionment.
 <action_postfix></action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Worldwide combined reporting</action_comment>
@@ -254,17 +251,14 @@ result.ca_minimum_franchise_tax cvd /apportionment.state_tax xdef apportionment.
 <action_postfix></action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>Standalone corporation - no combined reporting; // Standalone corporation - no combined reporting required</action_comment>
 <action_dsl />
-<action_postfix>
-</action_postfix>
+<action_postfix></action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
-
 </decision_tables>

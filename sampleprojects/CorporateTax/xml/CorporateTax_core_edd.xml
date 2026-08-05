@@ -317,7 +317,7 @@
            comment='Penalties accrued from stay lifted to payment date.'/>
 
     <!-- Audit Trail -->
-    <field name='audit_trail' type='string' comment='Complete audit trail with IRS form/publication references'/>
+    <field name='audit_trail' type='array' comment='Complete audit trail with IRS form/publication references. Type array, not string: every reference in the corpus is `"..." job.audit_trail swap addto` — an array append (campaign #948 Phase 2)'/>
 
     <!-- Schedule M-1: Reconciliation of Income per Books With Income per Return -->
     <field name='m1_net_income_per_books' type='double' default_value='0.0' comment='Net income per books (Schedule M-1 line 1)'/>

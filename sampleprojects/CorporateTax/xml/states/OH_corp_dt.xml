@@ -1,10 +1,13 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-
-
-
+<!-- TABLE 50700: Determine_OH_Filing_Requirement -->
 <decision_table>
+<source>
+<relative_path>OH_Corp.xls</relative_path>
+<file_name>OH_Corp.xls</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>Determine_OH_Filing_Requirement</table_name>
 <xls_file>OH_Corp.xls</xls_file>
 <attribute_fields>
@@ -13,117 +16,91 @@
 <TABLE_NUMBER>50700</TABLE_NUMBER>
 <FILE_PATH>states/OH/50700_Determine_OH_Filing_Requirement</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in Ohio (bright-line presence)</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == 'OH'</condition_dsl>
-<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &apos;OH&apos; streq } over if</condition_postfix>
+<condition_postfix>
+apportionment.has_physical_presence true beq { pop apportionment.state_code 'OH' streq } over if
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets Ohio economic nexus threshold ($500K Ohio receipts)</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == 'OH'</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &apos;OH&apos; streq } over if</condition_postfix>
-<condition_column column_number="1" column_value="" />
-<condition_column column_number="2" column_value="" />
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.state_code 'OH' streq } over if
+</condition_postfix>
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Ohio receipts below $150K exclusion threshold; result.oh_taxable_gross_receipts &lt; result.oh_cat_exclusion_threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>result.oh_taxable_gross_receipts &lt; result.oh_cat_exclusion_threshold</condition_dsl>
 <condition_postfix>
-result.oh_taxable_gross_receipts result.oh_cat_exclusion_threshold lt
+result.oh_taxable_gross_receipts result.oh_cat_exclusion_threshold f&lt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical presence but below exclusion threshold - no tax due; Set no CAT due and zero tax</action_comment>
-<action_dsl />
+<action_dsl>set result.oh_qualifies_for_no_cat = true; set result.oh_cat_tax = 0.0; set apportionment.state_tax = 0.0;</action_dsl>
 <action_postfix>
-// Physical presence but below threshold - no CAT due
-result.oh_qualifies_for_no_cat true xdef
-result.oh_cat_tax 0.0 xdef
-apportionment.state_tax 0.0 xdef
+true cvb /result.oh_qualifies_for_no_cat xdef 0.0 cvd /result.oh_cat_tax xdef 0.0 cvd /apportionment.state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="" />
-<action_column column_number="3" column_value="" />
-<action_column column_number="4" column_value="" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Physical nexus established - CAT calculation required; Mark CAT as due and log bright-line presence</action_comment>
-<action_dsl />
+<action_dsl>set result.oh_qualifies_for_no_cat = false;</action_dsl>
 <action_postfix>
-// Physical nexus - CAT calculation required
-result.oh_qualifies_for_no_cat false xdef
+false cvb /result.oh_qualifies_for_no_cat xdef
 </action_postfix>
-<action_column column_number="1" column_value="" />
 <action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="" />
-<action_column column_number="4" column_value="" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>Economic nexus established - CAT calculation required; Mark CAT as due and log economic nexus</action_comment>
-<action_dsl />
+<action_dsl>set result.oh_qualifies_for_no_cat = false;</action_dsl>
 <action_postfix>
-// Economic nexus - CAT calculation required
-result.oh_qualifies_for_no_cat false xdef
+false cvb /result.oh_qualifies_for_no_cat xdef
 </action_postfix>
-<action_column column_number="1" column_value="" />
-<action_column column_number="2" column_value="" />
 <action_column column_number="3" column_value="X" />
-<action_column column_number="4" column_value="" />
 </action_details>
-
 <action_details>
 <action_number>4</action_number>
 <action_comment>No nexus - no filing required; Set no CAT due, zero tax, and refund any payments</action_comment>
-<action_dsl />
+<action_dsl>set result.oh_qualifies_for_no_cat = true; set result.oh_cat_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-// No nexus - no filing required
-result.oh_qualifies_for_no_cat true xdef
-result.oh_cat_tax 0.0 xdef
-apportionment.state_tax 0.0 xdef
-apportionment.state_refund_or_owed apportionment.state_payments xdef
+true cvb /result.oh_qualifies_for_no_cat xdef 0.0 cvd /result.oh_cat_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="" />
-<action_column column_number="2" column_value="" />
-<action_column column_number="3" column_value="" />
 <action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 50720: Calculate_OH_Taxable_Gross_Receipts -->
 <decision_table>
+<source>
+<relative_path>OH_Corp.xls</relative_path>
+<file_name>OH_Corp.xls</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>Calculate_OH_Taxable_Gross_Receipts</table_name>
 <xls_file>OH_Corp.xls</xls_file>
 <attribute_fields>
@@ -132,83 +109,68 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <TABLE_NUMBER>50720</TABLE_NUMBER>
 <FILE_PATH>states/OH/50720_Calculate_OH_Taxable_Gross_Receipts</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus and above exclusion threshold; result.oh_qualifies_for_no_cat == false</condition_comment>
-<condition_dsl />
+<condition_dsl>result.oh_qualifies_for_no_cat == false</condition_dsl>
 <condition_postfix>
-result.oh_qualifies_for_no_cat false eq
+result.oh_qualifies_for_no_cat false beq
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has receipts excluded from CAT calculation</condition_comment>
 <condition_dsl>result.oh_cat_excluded_receipts &gt; 0</condition_dsl>
-<condition_postfix>result.oh_cat_excluded_receipts 0 f&gt;</condition_postfix>
-<condition_column column_number="1" column_value="" />
+<condition_postfix>
+result.oh_cat_excluded_receipts 0 f&gt;
+</condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>No nexus or below threshold - no calculation needed</action_comment>
-<action_dsl>Set taxable receipts to zero</action_dsl>
+<action_dsl>set result.oh_taxable_gross_receipts = 0.0;</action_dsl>
 <action_postfix>
-// No nexus or below threshold - no calculation needed
-result.oh_taxable_gross_receipts 0.0 xdef
+0.0 cvd /result.oh_taxable_gross_receipts xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="" />
-<action_column column_number="3" column_value="" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate gross receipts after exclusions; Apply exclusions to Ohio-sourced receipts</action_comment>
-<action_dsl />
+<action_dsl>set result.oh_taxable_gross_receipts = the maximum of (result.oh_taxable_gross_receipts - result.oh_cat_excluded_receipts) and (0.0);</action_dsl>
 <action_postfix>
-// Calculate gross receipts after exclusions
-result.oh_taxable_gross_receipts result.oh_cat_excluded_receipts sub
-0.0 max
-/result.oh_taxable_gross_receipts xdef
+result.oh_taxable_gross_receipts result.oh_cat_excluded_receipts f- 0.0 fmax cvd /result.oh_taxable_gross_receipts xdef
 </action_postfix>
-<action_column column_number="1" column_value="" />
 <action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>Use Ohio-sourced gross receipts (no exclusions); Log CAT basis and situsing</action_comment>
-<action_dsl />
-<action_postfix>
-// Use Ohio-sourced gross receipts (no exclusions)
-</action_postfix>
-<action_column column_number="1" column_value="" />
-<action_column column_number="2" column_value="" />
+<action_dsl>// Use Ohio-sourced gross receipts (no exclusions)</action_dsl>
+<action_postfix></action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 50780: Calculate_OH_CAT -->
 <decision_table>
+<source>
+<relative_path>OH_Corp.xls</relative_path>
+<file_name>OH_Corp.xls</file_name>
+<sheet_number>3</sheet_number>
+</source>
 <table_name>Calculate_OH_CAT</table_name>
 <xls_file>OH_Corp.xls</xls_file>
 <attribute_fields>
@@ -217,122 +179,81 @@ result.oh_taxable_gross_receipts result.oh_cat_excluded_receipts sub
 <TABLE_NUMBER>50780</TABLE_NUMBER>
 <FILE_PATH>states/OH/50780_Calculate_OH_CAT</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus and above exclusion threshold; result.oh_qualifies_for_no_cat == false</condition_comment>
-<condition_dsl />
+<condition_dsl>result.oh_qualifies_for_no_cat == false</condition_dsl>
 <condition_postfix>
-result.oh_qualifies_for_no_cat false eq
+result.oh_qualifies_for_no_cat false beq
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="Y" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive Ohio-sourced gross receipts</condition_comment>
 <condition_dsl>result.oh_taxable_gross_receipts &gt; 0</condition_dsl>
-<condition_postfix>result.oh_taxable_gross_receipts 0 f&gt;</condition_postfix>
-<condition_column column_number="1" column_value="" />
+<condition_postfix>
+result.oh_taxable_gross_receipts 0 f&gt;
+</condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Ohio receipts at or above $1M (subject to percentage tax); result.oh_taxable_gross_receipts &gt;= result.oh_cat_minimum_threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>result.oh_taxable_gross_receipts &gt;= result.oh_cat_minimum_threshold</condition_dsl>
 <condition_postfix>
-result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold ge
+result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold f&gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>No nexus or below exclusion threshold - no CAT</action_comment>
-<action_dsl>Set zero tax and refund payments</action_dsl>
+<action_dsl>set result.oh_cat_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-// No nexus or below exclusion threshold - no CAT
-result.oh_cat_tax 0.0 xdef
-apportionment.state_tax 0.0 xdef
-apportionment.state_refund_or_owed apportionment.state_payments xdef
+0.0 cvd /result.oh_cat_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="" />
-<action_column column_number="3" column_value="" />
-<action_column column_number="4" column_value="" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Receipts over $1M - calculate percentage tax + minimum; CAT = $150 + (Receipts - $1M) × 0.26%</action_comment>
-<action_dsl />
+<action_dsl>set result.oh_cat_tax = (result.oh_taxable_gross_receipts - result.oh_cat_minimum_threshold) * result.oh_cat_rate + result.oh_cat_minimum_tax; set apportionment.state_tax = result.oh_cat_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-// Receipts over $1M - CAT = $150 + (Receipts - $1M) x 0.26%
-result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold sub
-result.oh_cat_rate mul
-result.oh_cat_minimum_tax add
-/result.oh_cat_tax xdef
-
-apportionment.state_tax result.oh_cat_tax xdef
-apportionment.state_payments apportionment.state_tax sub
-/apportionment.state_refund_or_owed xdef
+result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold f- result.oh_cat_rate fmul result.oh_cat_minimum_tax f+ cvd /result.oh_cat_tax xdef result.oh_cat_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="" />
 <action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="" />
-<action_column column_number="4" column_value="" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>Receipts between $150K and $1M - minimum tax only</action_comment>
-<action_dsl>CAT = $150 flat minimum</action_dsl>
+<action_dsl>set result.oh_cat_tax = result.oh_cat_minimum_tax; set apportionment.state_tax = result.oh_cat_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-// Receipts between $150K and $1M - minimum tax only ($150)
-result.oh_cat_tax result.oh_cat_minimum_tax xdef
-apportionment.state_tax result.oh_cat_tax xdef
-apportionment.state_payments apportionment.state_tax sub
-/apportionment.state_refund_or_owed xdef
+result.oh_cat_minimum_tax cvd /result.oh_cat_tax xdef result.oh_cat_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="" />
-<action_column column_number="2" column_value="" />
 <action_column column_number="3" column_value="X" />
-<action_column column_number="4" column_value="" />
 </action_details>
-
 <action_details>
 <action_number>4</action_number>
 <action_comment>No taxable receipts - no CAT</action_comment>
-<action_dsl>Set zero tax and refund payments</action_dsl>
+<action_dsl>set result.oh_cat_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-// No taxable receipts - no CAT
-result.oh_cat_tax 0.0 xdef
-apportionment.state_tax 0.0 xdef
-apportionment.state_refund_or_owed apportionment.state_payments xdef
+0.0 cvd /result.oh_cat_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="" />
-<action_column column_number="2" column_value="" />
-<action_column column_number="3" column_value="" />
 <action_column column_number="4" column_value="X" />
 </action_details>
 </actions>
+<policy_statements></policy_statements>
 </decision_table>
-
 </decision_tables>

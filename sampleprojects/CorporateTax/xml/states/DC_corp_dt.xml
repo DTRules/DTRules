@@ -1,28 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  District of Columbia Corporate Franchise Tax Decision Tables
-
-  DC uses "franchise tax" terminology but it functions as a corporate income tax.
-  The tax is levied on corporate net income apportioned to DC using single-sales factor.
-
-  Table allocation: 55000-55099 (District of Columbia)
-  - 55000: Determine_DC_Filing_Requirement
-  - 55020: Calculate_DC_Income_Adjustments
-  - 55080: Calculate_DC_State_Tax
-  - 55090: Calculate_DC_Minimum_Tax
-
-  References:
-  - DC Code Section 47-1807.02 (Tax rate: 8.25%)
-  - DC Code Section 47-1810.02 (Apportionment: single-sales factor)
-  - DC Form D-20 (Corporation Franchise Tax Return)
-  - DC Office of Tax and Revenue (OTR) guidance
--->
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 55000: Determine DC Corporate Tax Filing Requirement            -->
-<!-- ====================================================================== -->
+<!-- TABLE 55000: Determine_DC_Filing_Requirement -->
 <decision_table>
+<source>
+<relative_path>DC_Corp.xls</relative_path>
+<file_name>DC_Corp.xls</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>Determine_DC_Filing_Requirement</table_name>
 <xls_file>DC_Corp.xls</xls_file>
 <attribute_fields>
@@ -31,65 +16,65 @@
 <TABLE_NUMBER>55000</TABLE_NUMBER>
 <FILE_PATH>states/DC/55000_Determine_DC_Filing_Requirement</FILE_PATH>
 </attribute_fields>
-
 <contexts></contexts>
-
 <initial_actions></initial_actions>
-
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in DC (office, employees, property)</condition_comment>
 <condition_dsl>apportionment.has_physical_presence is true and apportionment.state_code == "DC"</condition_dsl>
-<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;DC&quot; streq } over if</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_postfix>
+apportionment.has_physical_presence true beq { pop apportionment.state_code "DC" streq } over if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets DC economic nexus threshold</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus is true and apportionment.state_code == "DC"</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &quot;DC&quot; streq } over if</condition_postfix>
-<condition_column column_number="1" column_value="-"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.state_code "DC" streq } over if
+</condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus established - filing required</action_comment>
 <action_dsl>// Physical nexus established - filing required</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established per Wayfair - filing required</action_comment>
 <action_dsl>// Economic nexus established per Wayfair - filing required</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
 <action_dsl>// No nexus - no filing required; set apportionment.state_tax = 0.0; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 55020: Calculate DC State-Specific Income Adjustments           -->
-<!-- ====================================================================== -->
+<!-- TABLE 55020: Calculate_DC_Income_Adjustments -->
 <decision_table>
+<source>
+<relative_path>DC_Corp.xls</relative_path>
+<file_name>DC_Corp.xls</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>Calculate_DC_Income_Adjustments</table_name>
 <xls_file>DC_Corp.xls</xls_file>
 <attribute_fields>
@@ -98,46 +83,46 @@
 <TABLE_NUMBER>55020</TABLE_NUMBER>
 <FILE_PATH>states/DC/55020_Calculate_DC_Income_Adjustments</FILE_PATH>
 </attribute_fields>
-
 <contexts></contexts>
-
 <initial_actions></initial_actions>
-
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to calculate adjustments</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate DC state additions and subtractions</action_comment>
 <action_dsl>// Calculate DC state additions and subtractions; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments</action_comment>
 <action_dsl>// No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 55080: Calculate DC State Tax                                   -->
-<!-- ====================================================================== -->
+<!-- TABLE 55080: Calculate_DC_State_Tax -->
 <decision_table>
+<source>
+<relative_path>DC_Corp.xls</relative_path>
+<file_name>DC_Corp.xls</file_name>
+<sheet_number>3</sheet_number>
+</source>
 <table_name>Calculate_DC_State_Tax</table_name>
 <xls_file>DC_Corp.xls</xls_file>
 <attribute_fields>
@@ -146,65 +131,65 @@
 <TABLE_NUMBER>55080</TABLE_NUMBER>
 <FILE_PATH>states/DC/55080_Calculate_DC_State_Tax</FILE_PATH>
 </attribute_fields>
-
 <contexts></contexts>
-
 <initial_actions></initial_actions>
-
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe tax</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="Y"></condition_column>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="Y" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_dsl>apportionment.state_taxable_income > 0.0</condition_dsl>
-<condition_postfix>apportionment.state_taxable_income 0.0 f&gt;</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="-"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_dsl>apportionment.state_taxable_income &gt; 0.0</condition_dsl>
+<condition_postfix>
+apportionment.state_taxable_income 0.0 f&gt;
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>DC flat rate calculation (8.25%)</action_comment>
 <action_dsl>// DC uses 8.25% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no tax liability</action_comment>
 <action_dsl>// No DC nexus - no tax liability; set apportionment.state_tax = 0.0; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>Nexus but no taxable income - minimum tax applies</action_comment>
 <action_dsl>// No income-based tax, but minimum tax still applies; set apportionment.state_tax = 0.0;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 55090: Calculate DC Minimum Tax                                 -->
-<!-- ====================================================================== -->
+<!-- TABLE 55090: Calculate_DC_Minimum_Tax -->
 <decision_table>
+<source>
+<relative_path>DC_Corp.xls</relative_path>
+<file_name>DC_Corp.xls</file_name>
+<sheet_number>4</sheet_number>
+</source>
 <table_name>Calculate_DC_Minimum_Tax</table_name>
 <xls_file>DC_Corp.xls</xls_file>
 <attribute_fields>
@@ -213,61 +198,57 @@
 <TABLE_NUMBER>55090</TABLE_NUMBER>
 <FILE_PATH>states/DC/55090_Calculate_DC_Minimum_Tax</FILE_PATH>
 </attribute_fields>
-
 <contexts></contexts>
-
 <initial_actions></initial_actions>
-
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe minimum tax</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus is true or apportionment.has_physical_presence is true</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>DC gross receipts exceed $1 million</condition_comment>
-<condition_dsl>result.dc_gross_receipts > 1000000.0</condition_dsl>
-<condition_postfix>result.dc_gross_receipts 1000000.0 f&gt;</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value="-"></condition_column>
+<condition_dsl>result.dc_gross_receipts &gt; 1000000.0</condition_dsl>
+<condition_postfix>
+result.dc_gross_receipts 1000000.0 f&gt;
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>High gross receipts - $1,000 minimum</action_comment>
-<action_dsl>// Minimum tax: $1,000 for gross receipts > $1M; set result.dc_minimum_tax = 1000.0; set apportionment.state_tax = max(apportionment.state_tax, result.dc_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>// Minimum tax: $1,000 for gross receipts &gt; $1M; set result.dc_minimum_tax = 1000.0; set apportionment.state_tax = max(apportionment.state_tax, result.dc_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Low gross receipts - $250 minimum</action_comment>
-<action_dsl>// Minimum tax: $250 for gross receipts &lt;= $1M; set result.dc_minimum_tax = 250.0; set apportionment.state_tax = max(apportionment.state_tax, result.dc_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>set result.dc_minimum_tax = 250.0; if apportionment.state_tax &gt; result.dc_minimum_tax then set apportionment.state_tax = apportionment.state_tax; else set apportionment.state_tax = result.dc_minimum_tax; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-250.0 cvd /result.dc_minimum_tax xdef apportionment.state_tax result.dc_minimum_tax f> { apportionment.state_tax } { result.dc_minimum_tax } ifelse cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvd /apportionment.state_refund_or_owed xdef
+250.0 cvd /result.dc_minimum_tax xdef { apportionment.state_tax cvd /apportionment.state_tax xdef } { result.dc_minimum_tax cvd /apportionment.state_tax xdef } apportionment.state_tax result.dc_minimum_tax f&gt; ifelse apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no minimum tax</action_comment>
 <action_dsl>// No DC nexus - no minimum tax requirement; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
-
 </decision_tables>
