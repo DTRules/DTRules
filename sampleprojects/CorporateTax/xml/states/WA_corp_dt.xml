@@ -373,4 +373,104 @@ result.wa_gross_receipts result.wa_bo_tax_rate fmul cvd /result.wa_bo_tax xdef r
 </actions>
 <policy_statements></policy_statements>
 </decision_table>
+
+<!-- TABLE 55150: Calculate_WA_Income_Adjustments -->
+<decision_table>
+<source>
+<relative_path>WA_Corp.xls</relative_path>
+<file_name>WA_Corp.xls</file_name>
+<sheet_number>6</sheet_number>
+</source>
+<table_name>Calculate_WA_Income_Adjustments</table_name>
+<xls_file>WA_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>55150</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>wrapper: dispatch arrives here for WA</condition_comment>
+<condition_dsl>apportionment.state_code == "WA"</condition_dsl>
+<condition_postfix>
+apportionment.state_code "WA" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>performs the state's real computation</action_comment>
+<action_dsl>perform Determine_WA_Business_Classification</action_dsl>
+<action_postfix>
+/Determine_WA_Business_Classification performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>performs the state's real computation</action_comment>
+<action_dsl>perform Calculate_WA_Gross_Receipts</action_dsl>
+<action_postfix>
+/Calculate_WA_Gross_Receipts performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 55160: Calculate_WA_State_Tax -->
+<decision_table>
+<source>
+<relative_path>WA_Corp.xls</relative_path>
+<file_name>WA_Corp.xls</file_name>
+<sheet_number>7</sheet_number>
+</source>
+<table_name>Calculate_WA_State_Tax</table_name>
+<xls_file>WA_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>55160</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>wrapper: dispatch arrives here for WA</condition_comment>
+<condition_dsl>apportionment.state_code == "WA"</condition_dsl>
+<condition_postfix>
+apportionment.state_code "WA" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>performs the state's real computation</action_comment>
+<action_dsl>perform Calculate_WA_BO_Tax</action_dsl>
+<action_postfix>
+/Calculate_WA_BO_Tax performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>performs the state's real computation</action_comment>
+<action_dsl>perform Calculate_WA_Small_Business_Credit</action_dsl>
+<action_postfix>
+/Calculate_WA_Small_Business_Credit performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
 </decision_tables>

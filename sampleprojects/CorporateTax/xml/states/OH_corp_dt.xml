@@ -256,4 +256,86 @@ result.oh_cat_minimum_tax cvd /result.oh_cat_tax xdef result.oh_cat_tax cvd /app
 </actions>
 <policy_statements></policy_statements>
 </decision_table>
+
+<!-- TABLE 55100: Calculate_OH_Income_Adjustments -->
+<decision_table>
+<source>
+<relative_path>OH_Corp.xls</relative_path>
+<file_name>OH_Corp.xls</file_name>
+<sheet_number>4</sheet_number>
+</source>
+<table_name>Calculate_OH_Income_Adjustments</table_name>
+<xls_file>OH_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>55100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>wrapper: dispatch arrives here for OH</condition_comment>
+<condition_dsl>apportionment.state_code == "OH"</condition_dsl>
+<condition_postfix>
+apportionment.state_code "OH" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>performs the state's real computation</action_comment>
+<action_dsl>perform Calculate_OH_Taxable_Gross_Receipts</action_dsl>
+<action_postfix>
+/Calculate_OH_Taxable_Gross_Receipts performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 55110: Calculate_OH_State_Tax -->
+<decision_table>
+<source>
+<relative_path>OH_Corp.xls</relative_path>
+<file_name>OH_Corp.xls</file_name>
+<sheet_number>5</sheet_number>
+</source>
+<table_name>Calculate_OH_State_Tax</table_name>
+<xls_file>OH_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>55110</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>wrapper: dispatch arrives here for OH</condition_comment>
+<condition_dsl>apportionment.state_code == "OH"</condition_dsl>
+<condition_postfix>
+apportionment.state_code "OH" streq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>performs the state's real computation</action_comment>
+<action_dsl>perform Calculate_OH_CAT</action_dsl>
+<action_postfix>
+/Calculate_OH_CAT performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
 </decision_tables>
