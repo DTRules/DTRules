@@ -38,7 +38,7 @@ Point 4 was added late and matters most. See "The pattern".
 | KidAid_Application | done — #973 |
 | DTEligibility | deleted — #959 / #960 |
 | SyntaxTests | done — #975; no hand postfix, runs, traces |
-| **CorporateTax** | **remaining** — never scoped |
+| CorporateTax | done — #986 / PR pending; executes, CA scenario computes correct tax |
 
 DTEligibility was deleted rather than repaired. It arrived on 2026-02-05 inside
 a commit titled "docs: Consolidate documentation into /docs directory", unnamed
@@ -165,48 +165,34 @@ reference owns.
 
 ## Remaining work
 
-### CorporateTax
+### CorporateTax (#986)
 
-Scoped 2026-08-02. **Full findings are in
-`sampleprojects/CorporateTax/STATUS.md` — read that, not this summary, before
-touching the project.** The mechanical repairs are done; one scope decision is
-open.
+Done, 2026-08-05, all four phases of `sampleprojects/CorporateTax/PLAN.md` —
+that file and `STATUS.md` carry the full record. The short version: nothing in
+it had ever loaded (federal core unparseable in every commit, merge script dead
+on its first state file, 173 of 240 state EDD field declarations dropped by a
+root-spelling mismatch, 145 of 413 hand rows using operators that do not
+exist). Now: single-sourced on `xml/states/`, every row authored in EL
+(elcheck `hand=0 diff=0 err=0` across 172 tables), one naming convention with
+wrappers for the four gross-receipts states, `Run_Corporate_Tax` dispatching
+on `apportionment.state_code`, and a CA scenario computing 88,400 tax / 1,600
+refund, enforced by trace floor + arithmetic + no-hand-postfix tests.
 
-Nothing in this project has ever loaded. `CorporateTax_dt_core.xml` fails to
-parse in every commit since it was introduced; `CorporateTax_edd.xml` parsed
-only in the first Phase 1 commit. The "26 stub tables" in the earlier inventory
-were an artifact of reading the merged file, which holds 24 tables (23 stubs)
-because the merge never picked up the state tier — where the real work is: 52
-files, 167 tables, 757 rows, 3 stubs, in the supported format.
+The hand postfix predated the authoring API and was never an oracle — it was
+read as intent (Paul's framing), decompiled to EL by
+`tools/elcheck/decompile_postfix.py`, verified byte-identical where its
+operators were real, and the originals retained in git as reference.
 
-Its tests pass by reading a Phase-1-era `repository/` mirror, swallowing 23
-load errors as "simplified format", and running zero scenarios —
-`Total: 0, Passed: 0, Failed: 0`.
+Engine bugs it flushed out, both fixed with tests: the authoring `set-name`
+patch was a silent no-op (view assignment never synced — `Project.RenameTable`
+now exists), and `<initial_action_details>` was invisible to every reader
+(312 rows in SyntaxTests; fixed on the SyntaxTests branch).
 
-**It loads now — 19 entities, 164 decision tables, 0 stubs.** The cause of the
-whole mess was one line: `merge-states.sh` counted with `((count++))`, which
-returns the pre-increment value, so the first state file produced a non-zero
-exit and `set -e` killed the script. Every run it ever had stopped after one
-state. That is why the merged DT held 24 tables instead of 164, why the merged
-EDD lost its closing tag, and where the "26 stub tables" came from.
-
-Repaired: 130 unescaped `&`, 8 unescaped `<`, 3 split `<field>` elements, the
-merge bug, 6 prose rows the loader read as uncompiled EL, and a `DTRules.xml`
-project marker. `CorporateTax_dt_core.xml` was removed — never parsed, schema
-the loader cannot read, referenced only by the merge script.
-
-Open: no `<entry>` yet (the orchestrator needs a naming convention settled
-across two batches of states, and a shape for the four states with no corporate
-income tax), and **551 rows of authoring debt** — 413 with postfix and no DSL,
-138 whose DSL no longer compiles. Until those are resolved the authoring API
-cannot be used on this project at all: any `table put` regenerates postfix from
-DSL and deletes them.
-
-Reference material for this work — 76 official state forms, instructions and
-published regulations across 43 jurisdictions — is committed under
-`sampleprojects/CorporateTax/reference/`, with a sha256 manifest and a refetch
-script. It is committed rather than gitignored because state form URLs rotate
-every filing season.
+Still open, deliberately: map tags for the `result.XX_*` inputs the 15
+renamed states read; scenarios for graduated and gross-receipts states (the
+ME/MS/VT bracket rows are verified by compilation, not yet by execution);
+the Excel-bootstrap decision (this is the only sample with no workbooks);
+and whether Form 1120 is rebuilt at all.
 
 ### CHIP's open question (#962)
 
