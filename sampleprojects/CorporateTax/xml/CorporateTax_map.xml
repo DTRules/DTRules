@@ -107,7 +107,52 @@
 
 			<!-- Audit Trail -->
 			<setattribute tag='audit_trail' RAttribute='audit_trail' enclosure='result' type='string'></setattribute>
+
+			<!-- State tier inputs (campaign #948 Phase 3). The map predated the
+			     state tables entirely: it had no <apportionment> tags and no
+			     <entities> block, so the singletons the tables read were never
+			     created and no state input could load. Added by hand because the
+			     mapping authoring API covers only setattribute entries. -->
+			<setattribute tag='state_code' RAttribute='state_code' enclosure='apportionment' type='string'></setattribute>
+			<setattribute tag='has_physical_presence' RAttribute='has_physical_presence' enclosure='apportionment' type='boolean'></setattribute>
+			<setattribute tag='has_economic_nexus' RAttribute='has_economic_nexus' enclosure='apportionment' type='boolean'></setattribute>
+			<setattribute tag='gross_receipts_in_state' RAttribute='gross_receipts_in_state' enclosure='apportionment' type='double'></setattribute>
+			<setattribute tag='transactions_in_state' RAttribute='transactions_in_state' enclosure='apportionment' type='integer'></setattribute>
+			<setattribute tag='state_taxable_income' RAttribute='state_taxable_income' enclosure='apportionment' type='double'></setattribute>
+			<setattribute tag='state_tax_rate' RAttribute='state_tax_rate' enclosure='apportionment' type='double'></setattribute>
+			<setattribute tag='state_payments' RAttribute='state_payments' enclosure='apportionment' type='double'></setattribute>
+			<setattribute tag='state_credits' RAttribute='state_credits' enclosure='apportionment' type='double'></setattribute>
+			<setattribute tag='state_additions' RAttribute='state_additions' enclosure='apportionment' type='double'></setattribute>
+			<setattribute tag='state_subtractions' RAttribute='state_subtractions' enclosure='apportionment' type='double'></setattribute>
+
+			<!-- Every enclosure tag must be declared or the loader treats it as
+			     an unknown wrapper and the values inside have nowhere to land —
+			     the exact failure Poker and SinusitisTherapy had (#948). -->
+			<createentity entity='job' tag='job' id='id'></createentity>
+			<createentity entity='corporation' tag='corporation' id='id'></createentity>
+			<createentity entity='apportionment' tag='apportionment' id='id'></createentity>
+			<createentity entity='result' tag='result' id='id'></createentity>
+			<createentity entity='revenue' tag='revenue' id='id'></createentity>
+			<createentity entity='expense' tag='expense' id='id'></createentity>
 		</map>
+
+		<entities>
+			<entity name='job' number='1'></entity>
+			<entity name='corporation' number='1'></entity>
+			<entity name='apportionment' number='1'></entity>
+			<entity name='result' number='1'></entity>
+			<entity name='revenue' number='1'></entity>
+			<entity name='expense' number='1'></entity>
+		</entities>
+
+		<initialization>
+			<initialentity entity='job' epush='true'></initialentity>
+			<initialentity entity='corporation' epush='true'></initialentity>
+			<initialentity entity='revenue' epush='true'></initialentity>
+			<initialentity entity='expense' epush='true'></initialentity>
+			<initialentity entity='result' epush='true'></initialentity>
+			<initialentity entity='apportionment' epush='true'></initialentity>
+		</initialization>
 	</XMLtoEDD>
 
 	<EDDtoXML>

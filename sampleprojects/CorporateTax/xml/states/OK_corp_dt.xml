@@ -1,20 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific decision tables for Oklahoma
-
-  OK Corporate Income Tax Overview:
-  - Tax rate: 4.0% flat rate
-  - Apportionment: Single-sales factor
-  - Economic nexus: $100,000 gross receipts threshold
-
-  This file will be merged into CorporateTax_dt.xml by scripts/merge-states.sh
--->
 <decision_tables>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54100: Determine_OK_Filing_Requirement                          -->
-<!-- ====================================================================== -->
+<!-- TABLE 54100: Determine_OK_Filing_Requirement -->
 <decision_table>
+<source>
+<relative_path>OK_Corp.xls</relative_path>
+<file_name>OK_Corp.xls</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>Determine_OK_Filing_Requirement</table_name>
 <xls_file>OK_Corp.xls</xls_file>
 <attribute_fields>
@@ -23,71 +16,65 @@
 <TABLE_NUMBER>54100</TABLE_NUMBER>
 <FILE_PATH>states/OK/54100_Determine_OK_Filing_Requirement</FILE_PATH>
 </attribute_fields>
-
 <contexts></contexts>
-
-<initial_actions>
-</initial_actions>
-
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in OK</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true &amp;&amp; apportionment.state_code == 'OK'</condition_dsl>
-<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &apos;OK&apos; streq } over if</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value=""></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_postfix>
+apportionment.has_physical_presence true beq { pop apportionment.state_code 'OK' streq } over if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in OK</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true &amp;&amp; apportionment.state_code == 'OK'</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &apos;OK&apos; streq } over if</condition_postfix>
-<condition_column column_number="1" column_value=""></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.state_code 'OK' streq } over if
+</condition_postfix>
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus - filing required</action_comment>
-<action_postfix>
-// Physical nexus established - filing required
-</action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_dsl>// Physical nexus established - filing required</action_dsl>
+<action_postfix></action_postfix>
+<action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus - filing required</action_comment>
-<action_postfix>
-// Economic nexus established per Wayfair - filing required
-</action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_dsl>// Economic nexus established per Wayfair - filing required</action_dsl>
+<action_postfix></action_postfix>
+<action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-// No nexus - no filing required
-apportionment.state_tax 0.0 xdef
-apportionment.state_refund_or_owed apportionment.state_payments xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54120: Calculate_OK_Income_Adjustments                          -->
-<!-- ====================================================================== -->
+<!-- TABLE 54120: Calculate_OK_Income_Adjustments -->
 <decision_table>
+<source>
+<relative_path>OK_Corp.xls</relative_path>
+<file_name>OK_Corp.xls</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>Calculate_OK_Income_Adjustments</table_name>
 <xls_file>OK_Corp.xls</xls_file>
 <attribute_fields>
@@ -96,53 +83,50 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <TABLE_NUMBER>54120</TABLE_NUMBER>
 <FILE_PATH>states/OK/54120_Calculate_OK_Income_Adjustments</FILE_PATH>
 </attribute_fields>
-
 <contexts></contexts>
-
-<initial_actions>
-</initial_actions>
-
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus with OK</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate OK state additions and subtractions</action_comment>
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-// Calculate OK state additions and subtractions
-apportionment.state_additions 0.0 xdef
-apportionment.state_subtractions 0.0 xdef
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments</action_comment>
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-// No nexus - no state adjustments
-apportionment.state_additions 0.0 xdef
-apportionment.state_subtractions 0.0 xdef
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-<!-- ====================================================================== -->
-<!-- TABLE 54180: Calculate_OK_State_Tax                                   -->
-<!-- ====================================================================== -->
+<!-- TABLE 54180: Calculate_OK_State_Tax -->
 <decision_table>
+<source>
+<relative_path>OK_Corp.xls</relative_path>
+<file_name>OK_Corp.xls</file_name>
+<sheet_number>3</sheet_number>
+</source>
 <table_name>Calculate_OK_State_Tax</table_name>
 <xls_file>OK_Corp.xls</xls_file>
 <attribute_fields>
@@ -151,72 +135,60 @@ apportionment.state_subtractions 0.0 xdef
 <TABLE_NUMBER>54180</TABLE_NUMBER>
 <FILE_PATH>states/OK/54180_Calculate_OK_State_Tax</FILE_PATH>
 </attribute_fields>
-
 <contexts></contexts>
-
-<initial_actions>
-</initial_actions>
-
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus with OK</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true || apportionment.has_physical_presence == true</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="Y"></condition_column>
-<condition_column column_number="3" column_value="N"></condition_column>
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
-<condition_dsl>apportionment.state_taxable_income > 0</condition_dsl>
-<condition_postfix>apportionment.state_taxable_income 0 f&gt;</condition_postfix>
-<condition_column column_number="1" column_value="Y"></condition_column>
-<condition_column column_number="2" column_value="N"></condition_column>
-<condition_column column_number="3" column_value=""></condition_column>
+<condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
+<condition_postfix>
+apportionment.state_taxable_income 0 f&gt;
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate OK tax at 4% flat rate</action_comment>
+<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-// OK uses 4.0% flat rate
-apportionment.state_tax apportionment.state_taxable_income apportionment.state_tax_rate mul xdef
-// Subtract state credits
-apportionment.state_tax apportionment.state_tax apportionment.state_credits sub 0.0 max xdef
-// Calculate refund or amount owed
-apportionment.state_refund_or_owed apportionment.state_payments apportionment.state_tax sub xdef
+apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X"></action_column>
+<action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Nexus but no taxable income</action_comment>
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-// Nexus but no taxable income - no tax liability
-apportionment.state_tax 0.0 xdef
-apportionment.state_refund_or_owed apportionment.state_payments xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="2" column_value="X"></action_column>
+<action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no tax liability</action_comment>
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-// No nexus - no tax liability
-apportionment.state_tax 0.0 xdef
-apportionment.state_refund_or_owed apportionment.state_payments xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X"></action_column>
+<action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
-
 </decision_tables>

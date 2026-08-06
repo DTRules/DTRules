@@ -1,10 +1,13 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-
-
-
+<!-- TABLE 53900: Determine_NM_Filing_Requirement -->
 <decision_table>
+<source>
+<relative_path>NM_Corp.xls</relative_path>
+<file_name>NM_Corp.xls</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>Determine_NM_Filing_Requirement</table_name>
 <xls_file>NM_Corp.xls</xls_file>
 <attribute_fields>
@@ -13,73 +16,65 @@
 <TABLE_NUMBER>53900</TABLE_NUMBER>
 <FILE_PATH>states/NM/53900_Determine_NM_Filing_Requirement</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in NM</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "NM"</condition_dsl>
-<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;NM&quot; streq } over if</condition_postfix>
+<condition_postfix>
+apportionment.has_physical_presence true beq { pop apportionment.state_code "NM" streq } over if
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has economic nexus in NM</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "NM"</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &quot;NM&quot; streq } over if</condition_postfix>
-<condition_column column_number="1" column_value="" />
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.state_code "NM" streq } over if
+</condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus - filing required</action_comment>
-<action_postfix>
-// Physical nexus established - filing required
-// Apportionment will be calculated by tables 7000-7500
-</action_postfix>
+<action_dsl>// Physical nexus established - filing required</action_dsl>
+<action_postfix></action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus - filing required</action_comment>
-<action_postfix>
-// Economic nexus established per Wayfair - filing required
-// Apportionment will be calculated by tables 7000-7500
-</action_postfix>
+<action_dsl>// Economic nexus established per Wayfair - filing required</action_dsl>
+<action_postfix></action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-// No nexus - no filing required
-apportionment.state_tax 0.0 xdef
-apportionment.state_refund_or_owed apportionment.state_payments xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 53920: Calculate_NM_Income_Adjustments -->
 <decision_table>
+<source>
+<relative_path>NM_Corp.xls</relative_path>
+<file_name>NM_Corp.xls</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>Calculate_NM_Income_Adjustments</table_name>
 <xls_file>NM_Corp.xls</xls_file>
 <attribute_fields>
@@ -88,59 +83,50 @@ apportionment.state_refund_or_owed apportionment.state_payments xdef
 <TABLE_NUMBER>53920</TABLE_NUMBER>
 <FILE_PATH>states/NM/53920_Calculate_NM_Income_Adjustments</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus with NM; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_dsl />
+<condition_dsl>apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true</condition_dsl>
 <condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate NM state additions and subtractions</action_comment>
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-// Calculate NM state additions and subtractions
-0.0 /additions xdef
-0.0 /subtractions xdef
-apportionment.state_additions additions xdef
-apportionment.state_subtractions subtractions xdef
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments</action_comment>
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-// No nexus - no state adjustments
-apportionment.state_additions 0.0 xdef
-apportionment.state_subtractions 0.0 xdef
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 53980: Calculate_NM_State_Tax -->
 <decision_table>
+<source>
+<relative_path>NM_Corp.xls</relative_path>
+<file_name>NM_Corp.xls</file_name>
+<sheet_number>3</sheet_number>
+</source>
 <table_name>Calculate_NM_State_Tax</table_name>
 <xls_file>NM_Corp.xls</xls_file>
 <attribute_fields>
@@ -149,82 +135,60 @@ apportionment.state_subtractions 0.0 xdef
 <TABLE_NUMBER>53980</TABLE_NUMBER>
 <FILE_PATH>states/NM/53980_Calculate_NM_State_Tax</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus with NM; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_dsl />
+<condition_dsl>apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true</condition_dsl>
 <condition_postfix>
-apportionment.has_economic_nexus true eq
-apportionment.has_physical_presence true eq
-or
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
-<condition_postfix>apportionment.state_taxable_income 0 f&gt;</condition_postfix>
+<condition_postfix>
+apportionment.state_taxable_income 0 f&gt;
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate NM tax at 5.9% flat rate</action_comment>
+<action_dsl>set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-// NM uses 5.9% flat rate (effective 2025)
-apportionment.state_taxable_income apportionment.state_tax_rate mul
-/state_tax_before_credits xdef
-
-// Subtract state credits
-state_tax_before_credits apportionment.state_credits sub
-0.0 max
-/apportionment.state_tax xdef
-
-// Calculate refund or amount owed
-apportionment.state_payments apportionment.state_tax sub
-/apportionment.state_refund_or_owed xdef
+apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Nexus but no taxable income</action_comment>
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-// Nexus but no taxable income - no tax liability
-apportionment.state_tax 0.0 xdef
-apportionment.state_refund_or_owed apportionment.state_payments xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no tax liability</action_comment>
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-// No nexus - no tax liability
-apportionment.state_tax 0.0 xdef
-apportionment.state_refund_or_owed apportionment.state_payments xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
-
 </decision_tables>

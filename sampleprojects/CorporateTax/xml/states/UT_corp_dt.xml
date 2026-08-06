@@ -1,10 +1,13 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-
-
-
+<!-- TABLE 54600: Determine_UT_Filing_Requirement -->
 <decision_table>
+<source>
+<relative_path>UT_Corp.xls</relative_path>
+<file_name>UT_Corp.xls</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>Determine_UT_Filing_Requirement</table_name>
 <xls_file>UT_Corp.xls</xls_file>
 <attribute_fields>
@@ -13,74 +16,70 @@
 <TABLE_NUMBER>54600</TABLE_NUMBER>
 <FILE_PATH>states/UT/54600_Determine_UT_Filing_Requirement</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in UT (office, employees, property)</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "UT"</condition_dsl>
-<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;UT&quot; streq } over if</condition_postfix>
+<condition_postfix>
+apportionment.has_physical_presence true beq { pop apportionment.state_code "UT" streq } over if
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets UT economic nexus threshold ($100K)</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "UT"</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &quot;UT&quot; streq } over if</condition_postfix>
-<condition_column column_number="1" column_value="" />
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.state_code "UT" streq } over if
+</condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus established - filing required</action_comment>
-<action_dsl>UT filing required due to physical presence</action_dsl>
+<action_dsl>add "UT filing required due to physical presence. Reference: UT Code 59-7-102" to job.audit_trail;</action_dsl>
 <action_postfix>
 "UT filing required due to physical presence. Reference: UT Code 59-7-102" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established - filing required; UT filing required due to economic nexus ($100K threshold)</action_comment>
-<action_dsl />
+<action_dsl>add "UT filing required due to economic nexus. $100K threshold (200-transaction threshold removed per S.B. 47). Reference: UT Code 59-7-102" to job.audit_trail;</action_dsl>
 <action_postfix>
 "UT filing required due to economic nexus. $100K threshold (200-transaction threshold removed per S.B. 47). Reference: UT Code 59-7-102" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required; No UT nexus - no filing requirement</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No UT nexus - no filing requirement. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-"No UT nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No UT nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 54620: Calculate_UT_Income_Adjustments -->
 <decision_table>
+<source>
+<relative_path>UT_Corp.xls</relative_path>
+<file_name>UT_Corp.xls</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>Calculate_UT_Income_Adjustments</table_name>
 <xls_file>UT_Corp.xls</xls_file>
 <attribute_fields>
@@ -89,58 +88,50 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <TABLE_NUMBER>54620</TABLE_NUMBER>
 <FILE_PATH>states/UT/54620_Calculate_UT_Income_Adjustments</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to calculate adjustments; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_dsl />
+<condition_dsl>apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true</condition_dsl>
 <condition_postfix>
-apportionment.has_economic_nexus get true eq
-apportionment.has_physical_presence get true eq or
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate UT state additions and subtractions; Calculate UT-specific income adjustments</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add "UT income adjustments calculated. Reference: UT Code 59-7-105 (additions), 59-7-106 (subtractions)" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_additions xdef
-0.0 /apportionment.state_subtractions xdef
-"UT income adjustments calculated. Reference: UT Code 59-7-105 (additions), 59-7-106 (subtractions)" job.audit_trail swap addto
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "UT income adjustments calculated. Reference: UT Code 59-7-105 (additions), 59-7-106 (subtractions)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no state adjustments; No UT nexus - no adjustments calculated</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add "No UT nexus - no adjustments calculated." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_additions xdef
-0.0 /apportionment.state_subtractions xdef
-"No UT nexus - no adjustments calculated." job.audit_trail swap addto
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "No UT nexus - no adjustments calculated." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 54680: Calculate_UT_State_Tax -->
 <decision_table>
+<source>
+<relative_path>UT_Corp.xls</relative_path>
+<file_name>UT_Corp.xls</file_name>
+<sheet_number>3</sheet_number>
+</source>
 <table_name>Calculate_UT_State_Tax</table_name>
 <xls_file>UT_Corp.xls</xls_file>
 <attribute_fields>
@@ -149,76 +140,60 @@ apportionment.has_physical_presence get true eq or
 <TABLE_NUMBER>54680</TABLE_NUMBER>
 <FILE_PATH>states/UT/54680_Calculate_UT_State_Tax</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe tax; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_dsl />
+<condition_dsl>apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true</condition_dsl>
 <condition_postfix>
-apportionment.has_economic_nexus get true eq
-apportionment.has_physical_presence get true eq or
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
-<condition_postfix>apportionment.state_taxable_income 0 f&gt;</condition_postfix>
+<condition_postfix>
+apportionment.state_taxable_income 0 f&gt;
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate UT tax at 4.50% flat rate; UT income tax at 4.50% (reduced from 4.55% in 2025)</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "UT tax calculated at 4.50% flat rate. Reference: UT Code 59-7-104" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income get apportionment.state_tax_rate get mul /apportionment.state_tax xdef
-apportionment.state_tax get apportionment.state_credits get sub 0.0 max /apportionment.state_tax xdef
-apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
-"UT tax calculated at 4.50% flat rate. Reference: UT Code 59-7-104" job.audit_trail swap addto
+apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "UT tax calculated at 4.50% flat rate. Reference: UT Code 59-7-104" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No UT nexus - no tax liability; No UT nexus - no tax</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No UT nexus - no tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-"No UT nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No UT nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>Nexus but no taxable income; No UT taxable income - no tax</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No UT taxable income - no tax. UT NOL rules may apply. Reference: UT Code 59-7-110" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-"No UT taxable income - no tax. UT NOL rules may apply. Reference: UT Code 59-7-110" job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No UT taxable income - no tax. UT NOL rules may apply. Reference: UT Code 59-7-110" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
-
 </decision_tables>

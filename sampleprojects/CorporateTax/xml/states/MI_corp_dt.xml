@@ -1,268 +1,213 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-  
-  <decision_table>
-    <table_name>Determine_MI_Corporate_Filing_Requirement</table_name>
-    <xls_file>MI_Corp.xls</xls_file>
-    <attribute_fields>
-      <Type>FIRST</Type>
-      <COMMENTS>Determine if corporation must file Michigan corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
-      <TABLE_NUMBER>51300</TABLE_NUMBER>
-    </attribute_fields>
-    <contexts />
-    <initial_actions>
-      <initial_action>
-        <action_dsl>Initialize Michigan filing requirement check</action_dsl>
-        <action_postfix>
-"Michigan Corporate Filing Requirement Check Started" job.audit_trail swap addto
-false result.mi_has_nexus xdef
-</action_postfix>
-      </initial_action>
-    </initial_actions>
-    <conditions>
-      <condition_details>
-        <condition_number>1</condition_number>
-        <condition_comment>Has physical presence in Michigan</condition_comment>
-        <condition_dsl>result.has_physical_presence_mi is equal to true</condition_dsl>
-        <condition_postfix>result.has_physical_presence_mi true beq</condition_postfix>
-        <condition_column column_number="1" column_value="Y" />
-        <condition_column column_number="2" column_value="N" />
-        <condition_column column_number="3" column_value="N" />
-      </condition_details>
-      <condition_details>
-        <condition_number>2</condition_number>
-        <condition_comment>Meets economic nexus threshold ($100K gross receipts); result.mi_gross_receipts is greater than or equal to result.mi_economic_nexus_threshold</condition_comment>
-        <condition_dsl />
-        <condition_postfix>
-result.mi_gross_receipts result.mi_economic_nexus_threshold &gt;=
+<!-- TABLE 51300: Determine_MI_Filing_Requirement -->
+<decision_table>
+<source>
+<relative_path>MI_Corp.xls</relative_path>
+<file_name>MI_Corp.xls</file_name>
+<sheet_number>1</sheet_number>
+</source>
+<table_name>Determine_MI_Filing_Requirement</table_name>
+<xls_file>MI_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Determine if corporation must file Michigan corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
+<TABLE_NUMBER>51300</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>// Initialize Michigan filing requirement check</initial_action_dsl>
+<initial_action_postfix></initial_action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has physical presence in Michigan</condition_comment>
+<condition_dsl>result.has_physical_presence_mi is equal to true</condition_dsl>
+<condition_postfix>
+result.has_physical_presence_mi true beq
 </condition_postfix>
-        <condition_column column_number="1" column_value="-" />
-        <condition_column column_number="2" column_value="Y" />
-        <condition_column column_number="3" column_value="N" />
-      </condition_details>
-    </conditions>
-    <actions>
-      <action_details>
-        <action_number>1</action_number>
-        <action_comment>Physical nexus - filing required</action_comment>
-        <action_dsl>result.mi_has_nexus = true</action_dsl>
-        <action_postfix>
-// Physical nexus established - filing required
-true result.mi_has_nexus xdef
-"Michigan filing required: Physical presence (office, employees, or property in state)" job.audit_trail swap addto
-</action_postfix>
-        <action_column column_number="1" column_value="X" />
-      </action_details>
-      <action_details>
-        <action_number>2</action_number>
-        <action_comment>Economic nexus - filing required</action_comment>
-        <action_dsl>result.mi_has_nexus = true</action_dsl>
-        <action_postfix>
-// Economic nexus established per Wayfair - filing required
-true result.mi_has_nexus xdef
-"Michigan filing required: Economic nexus (exceeds $100,000 gross receipts threshold)" job.audit_trail swap addto
-</action_postfix>
-        <action_column column_number="2" column_value="X" />
-      </action_details>
-      <action_details>
-        <action_number>3</action_number>
-        <action_comment>No nexus - no filing required</action_comment>
-        <action_dsl>result.mi_has_nexus = false; result.mi_tax_liability = 0.0</action_dsl>
-        <action_postfix>
-// No nexus - no filing required
-false result.mi_has_nexus xdef
-0.0 result.mi_tax_liability xdef
-"Michigan filing not required: No nexus with state" job.audit_trail swap addto
-</action_postfix>
-        <action_column column_number="3" column_value="X" />
-      </action_details>
-    </actions>
-  </decision_table>
-
-  
-  <decision_table>
-    <table_name>Calculate_MI_Corporate_Income_Adjustments</table_name>
-    <xls_file>MI_Corp.xls</xls_file>
-    <attribute_fields>
-      <Type>FIRST</Type>
-      <COMMENTS>Calculate Michigan state-specific additions and subtractions to federal taxable income. MI requires addback of federal bond interest, IRC 199A, bonus depreciation. MI allows MI municipal bond interest subtraction.</COMMENTS>
-      <TABLE_NUMBER>51320</TABLE_NUMBER>
-    </attribute_fields>
-    <contexts />
-    <initial_actions>
-      <initial_action>
-        <action_dsl>Initialize Michigan income adjustments</action_dsl>
-        <action_postfix>
-"Michigan Corporate Income Adjustments Calculation Started" job.audit_trail swap addto
-0.0 result.mi_state_additions xdef
-0.0 result.mi_state_subtractions xdef
-</action_postfix>
-      </initial_action>
-    </initial_actions>
-    <conditions>
-      <condition_details>
-        <condition_number>1</condition_number>
-        <condition_comment>Has Michigan nexus</condition_comment>
-        <condition_dsl>result.mi_has_nexus is equal to true</condition_dsl>
-        <condition_postfix>result.mi_has_nexus true beq</condition_postfix>
-        <condition_column column_number="1" column_value="Y" />
-        <condition_column column_number="2" column_value="N" />
-      </condition_details>
-    </conditions>
-    <actions>
-      <action_details>
-        <action_number>1</action_number>
-        <action_comment>Calculate Michigan state additions and subtractions; Calculate state-specific income adjustments</action_comment>
-        <action_dsl />
-        <action_postfix>
-// Calculate Michigan state additions
-0.0 /mi_additions xdef
-
-// Common Michigan additions:
-// - Federal bond interest
-// - IRC 199A qualified business income deduction addback
-// - Bonus depreciation (partial decoupling)
-
-result.mi_us_interest_income 0.0 ne
-{
-  mi_additions result.mi_us_interest_income add /mi_additions xdef
-} if
-
-mi_additions result.mi_state_additions xdef
-
-// Calculate Michigan state subtractions
-0.0 /mi_subtractions xdef
-
-// Common Michigan subtractions:
-// - Michigan municipal bond interest
-// - Michigan NOL deduction
-
-result.mi_municipal_interest 0.0 ne
-{
-  mi_subtractions result.mi_municipal_interest add /mi_subtractions xdef
-} if
-
-mi_subtractions result.mi_state_subtractions xdef
-
-"Michigan additions: $" result.mi_state_additions cvs strconcat ", subtractions: $" strconcat result.mi_state_subtractions cvs strconcat job.audit_trail swap addto
-</action_postfix>
-        <action_column column_number="1" column_value="X" />
-      </action_details>
-      <action_details>
-        <action_number>2</action_number>
-        <action_comment>No nexus - no adjustments</action_comment>
-        <action_dsl>result.mi_state_additions = 0.0; result.mi_state_subtractions = 0.0</action_dsl>
-        <action_postfix>
-0.0 result.mi_state_additions xdef
-0.0 result.mi_state_subtractions xdef
-"Michigan adjustments not calculated: No nexus" job.audit_trail swap addto
-</action_postfix>
-        <action_column column_number="2" column_value="X" />
-      </action_details>
-    </actions>
-  </decision_table>
-
-  
-  <decision_table>
-    <table_name>Calculate_MI_Corporate_Tax</table_name>
-    <xls_file>MI_Corp.xls</xls_file>
-    <attribute_fields>
-      <Type>FIRST</Type>
-      <COMMENTS>Calculate Michigan corporate income tax. Applies Michigan flat rate (6.0%) to apportioned and adjusted taxable income.</COMMENTS>
-      <TABLE_NUMBER>51380</TABLE_NUMBER>
-    </attribute_fields>
-    <contexts />
-    <initial_actions>
-      <initial_action>
-        <action_dsl>Initialize Michigan tax calculation</action_dsl>
-        <action_postfix>
-"Michigan Corporate Tax Calculation Started" job.audit_trail swap addto
-0.0 result.mi_taxable_income xdef
-0.0 result.mi_tax_liability xdef
-</action_postfix>
-      </initial_action>
-    </initial_actions>
-    <conditions>
-      <condition_details>
-        <condition_number>1</condition_number>
-        <condition_comment>Has Michigan nexus</condition_comment>
-        <condition_dsl>result.mi_has_nexus is equal to true</condition_dsl>
-        <condition_postfix>result.mi_has_nexus true beq</condition_postfix>
-        <condition_column column_number="1" column_value="Y" />
-        <condition_column column_number="2" column_value="Y" />
-        <condition_column column_number="3" column_value="N" />
-      </condition_details>
-      <condition_details>
-        <condition_number>2</condition_number>
-        <condition_comment>Has positive taxable income; result.mi_apportioned_income is greater than 0</condition_comment>
-        <condition_dsl />
-        <condition_postfix>
-result.mi_apportioned_income 0.0 &gt;
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Meets economic nexus threshold ($100K gross receipts); result.mi_gross_receipts is greater than or equal to result.mi_economic_nexus_threshold</condition_comment>
+<condition_dsl>result.mi_gross_receipts &gt;= result.mi_economic_nexus_threshold</condition_dsl>
+<condition_postfix>
+result.mi_gross_receipts result.mi_economic_nexus_threshold f&gt;=
 </condition_postfix>
-        <condition_column column_number="1" column_value="Y" />
-        <condition_column column_number="2" column_value="N" />
-        <condition_column column_number="3" column_value="-" />
-      </condition_details>
-    </conditions>
-    <actions>
-      <action_details>
-        <action_number>1</action_number>
-        <action_comment>Calculate Michigan corporate tax (flat rate 6.0%); Apply Michigan 6.0% flat rate</action_comment>
-        <action_dsl />
-        <action_postfix>
-// Calculate Michigan taxable income
-// Federal taxable income apportioned to MI + additions - subtractions
-result.mi_apportioned_income
-result.mi_state_additions add
-result.mi_state_subtractions sub
-0.0 max
-result.mi_taxable_income xdef
-
-// Calculate Michigan tax using flat rate: 6.0%
-result.mi_taxable_income result.mi_corp_tax_rate mul
-/mi_tax_before_credits xdef
-
-// Subtract Michigan state credits
-mi_tax_before_credits result.mi_state_credits sub 0.0 max
-result.mi_tax_liability xdef
-
-// Calculate refund or amount owed
-result.mi_estimated_payments result.mi_tax_liability sub
-result.mi_refund_or_owed xdef
-
-"Michigan taxable income: $" result.mi_taxable_income cvs strconcat job.audit_trail swap addto
-"Michigan tax liability (6.0%): $" result.mi_tax_liability cvs strconcat job.audit_trail swap addto
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Physical nexus - filing required</action_comment>
+<action_dsl>set result.mi_has_nexus = true;</action_dsl>
+<action_postfix>
+true cvb /result.mi_has_nexus xdef
 </action_postfix>
-        <action_column column_number="1" column_value="X" />
-      </action_details>
-      <action_details>
-        <action_number>2</action_number>
-        <action_comment>No taxable income - no tax liability</action_comment>
-        <action_dsl>result.mi_taxable_income = 0.0; result.mi_tax_liability = 0.0</action_dsl>
-        <action_postfix>
-// No taxable income - no tax liability
-0.0 result.mi_taxable_income xdef
-0.0 result.mi_tax_liability xdef
-result.mi_estimated_payments result.mi_refund_or_owed xdef
-"Michigan tax liability: $0 (no taxable income)" job.audit_trail swap addto
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Economic nexus - filing required</action_comment>
+<action_dsl>set result.mi_has_nexus = true;</action_dsl>
+<action_postfix>
+true cvb /result.mi_has_nexus xdef
 </action_postfix>
-        <action_column column_number="2" column_value="X" />
-      </action_details>
-      <action_details>
-        <action_number>3</action_number>
-        <action_comment>No nexus - no tax liability</action_comment>
-        <action_dsl>result.mi_taxable_income = 0.0; result.mi_tax_liability = 0.0</action_dsl>
-        <action_postfix>
-// No nexus - no tax liability
-0.0 result.mi_taxable_income xdef
-0.0 result.mi_tax_liability xdef
-result.mi_estimated_payments result.mi_refund_or_owed xdef
-"Michigan tax liability: $0 (no nexus)" job.audit_trail swap addto
+<action_column column_number="2" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no filing required</action_comment>
+<action_dsl>set result.mi_has_nexus = false; set result.mi_tax_liability = 0.0;</action_dsl>
+<action_postfix>
+false cvb /result.mi_has_nexus xdef 0.0 cvd /result.mi_tax_liability xdef
 </action_postfix>
-        <action_column column_number="3" column_value="X" />
-      </action_details>
-    </actions>
-  </decision_table>
+<action_column column_number="3" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
 
+<!-- TABLE 51320: Calculate_MI_Income_Adjustments -->
+<decision_table>
+<source>
+<relative_path>MI_Corp.xls</relative_path>
+<file_name>MI_Corp.xls</file_name>
+<sheet_number>2</sheet_number>
+</source>
+<table_name>Calculate_MI_Income_Adjustments</table_name>
+<xls_file>MI_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Michigan state-specific additions and subtractions to federal taxable income. MI requires addback of federal bond interest, IRC 199A, bonus depreciation. MI allows MI municipal bond interest subtraction.</COMMENTS>
+<TABLE_NUMBER>51320</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>// Initialize Michigan income adjustments</initial_action_dsl>
+<initial_action_postfix></initial_action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Michigan nexus</condition_comment>
+<condition_dsl>result.mi_has_nexus is equal to true</condition_dsl>
+<condition_postfix>
+result.mi_has_nexus true beq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Michigan state additions and subtractions; Calculate state-specific income adjustments</action_comment>
+<action_dsl>set result.mi_state_additions = 0.0; if result.mi_us_interest_income != 0.0 then set result.mi_state_additions = result.mi_state_additions + result.mi_us_interest_income; endif set result.mi_state_subtractions = 0.0; if result.mi_municipal_interest != 0.0 then set result.mi_state_subtractions = result.mi_state_subtractions + result.mi_municipal_interest; endif add (("Michigan additions: $" + string value of (result.mi_state_additions)) + ", subtractions: $") + string value of (result.mi_state_subtractions) to job.audit_trail;</action_dsl>
+<action_postfix>
+0.0 cvd /result.mi_state_additions xdef { result.mi_state_additions result.mi_us_interest_income f+ cvd /result.mi_state_additions xdef } {} result.mi_us_interest_income 0.0 f== not ifelse 0.0 cvd /result.mi_state_subtractions xdef { result.mi_state_subtractions result.mi_municipal_interest f+ cvd /result.mi_state_subtractions xdef } {} result.mi_municipal_interest 0.0 f== not ifelse "Michigan additions: $" result.mi_state_additions cvs strconcat ", subtractions: $" strconcat result.mi_state_subtractions cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No nexus - no adjustments</action_comment>
+<action_dsl>set result.mi_state_additions = 0.0; set result.mi_state_subtractions = 0.0;</action_dsl>
+<action_postfix>
+0.0 cvd /result.mi_state_additions xdef 0.0 cvd /result.mi_state_subtractions xdef
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 51380: Calculate_MI_State_Tax -->
+<decision_table>
+<source>
+<relative_path>MI_Corp.xls</relative_path>
+<file_name>MI_Corp.xls</file_name>
+<sheet_number>3</sheet_number>
+</source>
+<table_name>Calculate_MI_State_Tax</table_name>
+<xls_file>MI_Corp.xls</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Calculate Michigan corporate income tax. Applies Michigan flat rate (6.0%) to apportioned and adjusted taxable income.</COMMENTS>
+<TABLE_NUMBER>51380</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>// Initialize Michigan tax calculation</initial_action_dsl>
+<initial_action_postfix></initial_action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Has Michigan nexus</condition_comment>
+<condition_dsl>result.mi_has_nexus is equal to true</condition_dsl>
+<condition_postfix>
+result.mi_has_nexus true beq
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Has positive taxable income; result.mi_apportioned_income is greater than 0</condition_comment>
+<condition_dsl>result.mi_apportioned_income &gt; 0.0</condition_dsl>
+<condition_postfix>
+result.mi_apportioned_income 0.0 f&gt;
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Calculate Michigan corporate tax (flat rate 6.0%); Apply Michigan 6.0% flat rate</action_comment>
+<action_dsl>set result.mi_taxable_income = the maximum of (result.mi_apportioned_income + result.mi_state_additions - result.mi_state_subtractions) and (0.0); set result.mi_tax_liability = the maximum of (result.mi_taxable_income * result.mi_corp_tax_rate - result.mi_state_credits) and (0.0); set result.mi_refund_or_owed = result.mi_estimated_payments - result.mi_tax_liability; add "Michigan taxable income: $" + string value of (result.mi_taxable_income) to job.audit_trail; add "Michigan tax liability (6.0%): $" + string value of (result.mi_tax_liability) to job.audit_trail;</action_dsl>
+<action_postfix>
+result.mi_apportioned_income result.mi_state_additions f+ result.mi_state_subtractions f- 0.0 fmax cvd /result.mi_taxable_income xdef result.mi_taxable_income result.mi_corp_tax_rate fmul result.mi_state_credits f- 0.0 fmax cvd /result.mi_tax_liability xdef result.mi_estimated_payments result.mi_tax_liability f- cvd /result.mi_refund_or_owed xdef "Michigan taxable income: $" result.mi_taxable_income cvs strconcat job.audit_trail swap addto "Michigan tax liability (6.0%): $" result.mi_tax_liability cvs strconcat job.audit_trail swap addto
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>No taxable income - no tax liability</action_comment>
+<action_dsl>set result.mi_taxable_income = 0.0; set result.mi_tax_liability = 0.0;</action_dsl>
+<action_postfix>
+0.0 cvd /result.mi_taxable_income xdef 0.0 cvd /result.mi_tax_liability xdef
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>No nexus - no tax liability</action_comment>
+<action_dsl>set result.mi_taxable_income = 0.0; set result.mi_tax_liability = 0.0;</action_dsl>
+<action_postfix>
+0.0 cvd /result.mi_taxable_income xdef 0.0 cvd /result.mi_tax_liability xdef
+</action_postfix>
+<action_column column_number="3" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
 </decision_tables>

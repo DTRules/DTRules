@@ -1,10 +1,13 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-
-
-
+<!-- TABLE 50600: Determine_PA_Filing_Requirement -->
 <decision_table>
+<source>
+<relative_path>PA_Corp.xls</relative_path>
+<file_name>PA_Corp.xls</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>Determine_PA_Filing_Requirement</table_name>
 <xls_file>PA_Corp.xls</xls_file>
 <attribute_fields>
@@ -13,74 +16,70 @@
 <TABLE_NUMBER>50600</TABLE_NUMBER>
 <FILE_PATH>states/PA/50600_Determine_PA_Filing_Requirement</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in PA (office, employees, property)</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "PA"</condition_dsl>
-<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;PA&quot; streq } over if</condition_postfix>
+<condition_postfix>
+apportionment.has_physical_presence true beq { pop apportionment.state_code "PA" streq } over if
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets PA economic nexus threshold ($500,000)</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "PA"</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &quot;PA&quot; streq } over if</condition_postfix>
-<condition_column column_number="1" column_value="" />
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.state_code "PA" streq } over if
+</condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus established - PA CNIT filing required</action_comment>
-<action_dsl>PA filing required due to physical presence</action_dsl>
+<action_dsl>add "PA CNIT filing required due to physical presence. Reference: PA Code Title 72 7401(3)2.(a)(15)" to job.audit_trail;</action_dsl>
 <action_postfix>
 "PA CNIT filing required due to physical presence. Reference: PA Code Title 72 7401(3)2.(a)(15)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established - PA CNIT filing required; PA filing required due to economic nexus ($500K threshold)</action_comment>
-<action_dsl />
+<action_dsl>add "PA CNIT filing required due to economic nexus. PA threshold: $500,000 (higher than typical $100K). Reference: PA Code Title 72 7401(3)2.(a)(15)(C)" to job.audit_trail;</action_dsl>
 <action_postfix>
 "PA CNIT filing required due to economic nexus. PA threshold: $500,000 (higher than typical $100K). Reference: PA Code Title 72 7401(3)2.(a)(15)(C)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no PA filing required; No PA nexus - no filing requirement</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No PA nexus - no filing required. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-"No PA nexus - no filing required. Any estimated payments would be refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No PA nexus - no filing required. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 50620: Calculate_PA_Income_Adjustments -->
 <decision_table>
+<source>
+<relative_path>PA_Corp.xls</relative_path>
+<file_name>PA_Corp.xls</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>Calculate_PA_Income_Adjustments</table_name>
 <xls_file>PA_Corp.xls</xls_file>
 <attribute_fields>
@@ -89,58 +88,50 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <TABLE_NUMBER>50620</TABLE_NUMBER>
 <FILE_PATH>states/PA/50620_Calculate_PA_Income_Adjustments</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to calculate PA adjustments; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_dsl />
+<condition_dsl>apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true</condition_dsl>
 <condition_postfix>
-apportionment.has_economic_nexus get true eq
-apportionment.has_physical_presence get true eq or
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate PA state additions and subtractions; Calculate PA-specific income adjustments</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add "PA income adjustments calculated. Additions: Federal interest, IRC 199A addback, state taxes. Subtractions: PA municipal interest, dividends (100% DRD), PA NOL. Reference: PA Code 7401(3)1.(b)" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_additions xdef
-0.0 /apportionment.state_subtractions xdef
-"PA income adjustments calculated. Additions: Federal interest, IRC 199A addback, state taxes. Subtractions: PA municipal interest, dividends (100% DRD), PA NOL. Reference: PA Code 7401(3)1.(b)" job.audit_trail swap addto
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "PA income adjustments calculated. Additions: Federal interest, IRC 199A addback, state taxes. Subtractions: PA municipal interest, dividends (100% DRD), PA NOL. Reference: PA Code 7401(3)1.(b)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no PA state adjustments; No PA nexus - no adjustments calculated</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add "No PA nexus - no adjustments calculated." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_additions xdef
-0.0 /apportionment.state_subtractions xdef
-"No PA nexus - no adjustments calculated." job.audit_trail swap addto
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "No PA nexus - no adjustments calculated." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 50680: Calculate_PA_State_Tax -->
 <decision_table>
+<source>
+<relative_path>PA_Corp.xls</relative_path>
+<file_name>PA_Corp.xls</file_name>
+<sheet_number>3</sheet_number>
+</source>
 <table_name>Calculate_PA_State_Tax</table_name>
 <xls_file>PA_Corp.xls</xls_file>
 <attribute_fields>
@@ -149,76 +140,60 @@ apportionment.has_physical_presence get true eq or
 <TABLE_NUMBER>50680</TABLE_NUMBER>
 <FILE_PATH>states/PA/50680_Calculate_PA_State_Tax</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe PA tax; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_dsl />
+<condition_dsl>apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true</condition_dsl>
 <condition_postfix>
-apportionment.has_economic_nexus get true eq
-apportionment.has_physical_presence get true eq or
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive PA taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
-<condition_postfix>apportionment.state_taxable_income 0 f&gt;</condition_postfix>
+<condition_postfix>
+apportionment.state_taxable_income 0 f&gt;
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate PA tax (8.99% flat rate); PA CNIT at 8.99% flat rate (one of highest state corporate rates)</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "PA CNIT calculated at 8.99% flat rate (one of highest state corporate rates). Reference: PA Code 7401(3)1.(a)" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income get apportionment.state_tax_rate get mul /apportionment.state_tax xdef
-apportionment.state_tax get apportionment.state_credits get sub 0.0 max /apportionment.state_tax xdef
-apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
-"PA CNIT calculated at 8.99% flat rate (one of highest state corporate rates). Reference: PA Code 7401(3)1.(a)" job.audit_trail swap addto
+apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "PA CNIT calculated at 8.99% flat rate (one of highest state corporate rates). Reference: PA Code 7401(3)1.(a)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No PA nexus - no tax liability; No PA nexus - no tax</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No PA nexus - no tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-"No PA nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No PA nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No PA taxable income (loss year); No PA taxable income - no tax</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No PA taxable income - no tax. PA NOL may be carried forward indefinitely (80% limitation). Reference: PA Code 7401(3)1.(b)(2)(B)(III)" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-"No PA taxable income - no tax. PA NOL may be carried forward indefinitely (80% limitation). Reference: PA Code 7401(3)1.(b)(2)(B)(III)" job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No PA taxable income - no tax. PA NOL may be carried forward indefinitely (80% limitation). Reference: PA Code 7401(3)1.(b)(2)(B)(III)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
-
 </decision_tables>

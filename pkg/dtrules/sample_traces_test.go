@@ -112,6 +112,17 @@ func TestSampleProjectsProduceLoadableTraces(t *testing.T) {
 			input:      "testfiles/test.xml",
 			minColumns: 6, // 2 cases x (orchestrator + 3 performed tables)
 		},
+		{
+			// The state corporate-tax project. Nothing in it had ever
+			// executed — its federal core never parsed in any commit, its
+			// merge script died on its first state file, and its own tests
+			// passed while swallowing 23 load errors and running zero
+			// scenarios. Run_Corporate_Tax dispatches on
+			// apportionment.state_code to the per-state trio (#948).
+			project:    "CorporateTax",
+			input:      "testfiles/TestScenarios/TestCase_CA_flat_rate.xml",
+			minColumns: 4, // orchestrator + the CA trio
+		},
 	}
 
 	for _, s := range samples {

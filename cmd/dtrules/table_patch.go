@@ -92,6 +92,12 @@ func (p *tablePatch) apply(proj *authoring.Project, t *authoring.Table) error {
 		if p.Name == "" {
 			return fmt.Errorf("set-name requires a non-empty \"name\"")
 		}
+		// Through the project, not the view: a bare `t.Name = ...` mutates a
+		// throwaway view and never reaches the XML — set-name used to be a
+		// silent no-op that reported "patched".
+		if err := proj.RenameTable(t.Name, p.Name); err != nil {
+			return err
+		}
 		t.Name = p.Name
 		return nil
 

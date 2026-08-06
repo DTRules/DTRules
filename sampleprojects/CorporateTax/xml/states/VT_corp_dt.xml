@@ -1,10 +1,13 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-
-
-
+<!-- TABLE 54700: Determine_VT_Filing_Requirement -->
 <decision_table>
+<source>
+<relative_path>VT_Corp.xls</relative_path>
+<file_name>VT_Corp.xls</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>Determine_VT_Filing_Requirement</table_name>
 <xls_file>VT_Corp.xls</xls_file>
 <attribute_fields>
@@ -13,74 +16,70 @@
 <TABLE_NUMBER>54700</TABLE_NUMBER>
 <FILE_PATH>states/VT/54700_Determine_VT_Filing_Requirement</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in VT (office, employees, property)</condition_comment>
 <condition_dsl>apportionment.has_physical_presence == true AND apportionment.state_code == "VT"</condition_dsl>
-<condition_postfix>apportionment.has_physical_presence true beq { pop apportionment.state_code &quot;VT&quot; streq } over if</condition_postfix>
+<condition_postfix>
+apportionment.has_physical_presence true beq { pop apportionment.state_code "VT" streq } over if
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets VT economic nexus ("doing business" standard)</condition_comment>
 <condition_dsl>apportionment.has_economic_nexus == true AND apportionment.state_code == "VT"</condition_dsl>
-<condition_postfix>apportionment.has_economic_nexus true beq { pop apportionment.state_code &quot;VT&quot; streq } over if</condition_postfix>
-<condition_column column_number="1" column_value="" />
+<condition_postfix>
+apportionment.has_economic_nexus true beq { pop apportionment.state_code "VT" streq } over if
+</condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus established - filing required</action_comment>
-<action_dsl>VT filing required due to physical presence</action_dsl>
+<action_dsl>add "VT filing required due to physical presence. Reference: 32 V.S.A. 5833" to job.audit_trail;</action_dsl>
 <action_postfix>
 "VT filing required due to physical presence. Reference: 32 V.S.A. 5833" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established - filing required; VT filing required due to economic nexus ("doing business" standard)</action_comment>
-<action_dsl />
+<action_dsl>add "VT filing required due to economic nexus (doing business standard). Reference: 32 V.S.A. 5833" to job.audit_trail;</action_dsl>
 <action_postfix>
 "VT filing required due to economic nexus (doing business standard). Reference: 32 V.S.A. 5833" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required; No VT nexus - no filing requirement</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No VT nexus - no filing requirement. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-"No VT nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No VT nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 54720: Calculate_VT_Income_Adjustments -->
 <decision_table>
+<source>
+<relative_path>VT_Corp.xls</relative_path>
+<file_name>VT_Corp.xls</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>Calculate_VT_Income_Adjustments</table_name>
 <xls_file>VT_Corp.xls</xls_file>
 <attribute_fields>
@@ -89,58 +88,50 @@ apportionment.state_payments get /apportionment.state_refund_or_owed xdef
 <TABLE_NUMBER>54720</TABLE_NUMBER>
 <FILE_PATH>states/VT/54720_Calculate_VT_Income_Adjustments</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to calculate adjustments; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_dsl />
+<condition_dsl>apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true</condition_dsl>
 <condition_postfix>
-apportionment.has_economic_nexus get true eq
-apportionment.has_physical_presence get true eq or
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate VT state additions and subtractions; Calculate VT-specific income adjustments</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add "VT income adjustments calculated. Reference: 32 V.S.A. 5832" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_additions xdef
-0.0 /apportionment.state_subtractions xdef
-"VT income adjustments calculated. Reference: 32 V.S.A. 5832" job.audit_trail swap addto
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "VT income adjustments calculated. Reference: 32 V.S.A. 5832" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no state adjustments; No VT nexus - no adjustments calculated</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add "No VT nexus - no adjustments calculated." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_additions xdef
-0.0 /apportionment.state_subtractions xdef
-"No VT nexus - no adjustments calculated." job.audit_trail swap addto
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "No VT nexus - no adjustments calculated." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 54780: Calculate_VT_State_Tax -->
 <decision_table>
+<source>
+<relative_path>VT_Corp.xls</relative_path>
+<file_name>VT_Corp.xls</file_name>
+<sheet_number>3</sheet_number>
+</source>
 <table_name>Calculate_VT_State_Tax</table_name>
 <xls_file>VT_Corp.xls</xls_file>
 <attribute_fields>
@@ -149,96 +140,60 @@ apportionment.has_physical_presence get true eq or
 <TABLE_NUMBER>54780</TABLE_NUMBER>
 <FILE_PATH>states/VT/54780_Calculate_VT_State_Tax</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
-<initial_actions>
-</initial_actions>
-
+<contexts></contexts>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Must have nexus to owe tax; apportionment.has_economic_nexus == true OR apportionment.has_physical_presence == true</condition_comment>
-<condition_dsl />
+<condition_dsl>apportionment.has_economic_nexus == true or apportionment.has_physical_presence == true</condition_dsl>
 <condition_postfix>
-apportionment.has_economic_nexus get true eq
-apportionment.has_physical_presence get true eq or
+apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
-<condition_postfix>apportionment.state_taxable_income 0 f&gt;</condition_postfix>
+<condition_postfix>
+apportionment.state_taxable_income 0 f&gt;
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate VT tax using graduated brackets (6%, 7%, 8.5%); VT income tax using graduated rates: 6% up to $10K, 7% $10K-$25K, 8.5% over $25K</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.vt_calculated_tax = (the minimum of (apportionment.state_taxable_income) and (apportionment.vt_bracket_threshold_1)) * apportionment.vt_tax_rate_tier1; if apportionment.state_taxable_income &gt; apportionment.vt_bracket_threshold_1 then set apportionment.vt_calculated_tax = apportionment.vt_calculated_tax + ((the minimum of (apportionment.state_taxable_income) and (apportionment.vt_bracket_threshold_2)) - apportionment.vt_bracket_threshold_1) * apportionment.vt_tax_rate_tier2; endif if apportionment.state_taxable_income &gt; apportionment.vt_bracket_threshold_2 then set apportionment.vt_calculated_tax = apportionment.vt_calculated_tax + (apportionment.state_taxable_income - apportionment.vt_bracket_threshold_2) * apportionment.vt_tax_rate_tier3; endif set apportionment.state_tax = the maximum of (apportionment.vt_calculated_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "VT tax calculated using graduated brackets: 6% on first $10K, 7% on $10K-$25K, 8.5% over $25K (one of highest state rates). Reference: 32 V.S.A. 5832" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income get /taxable_income xdef
-0.0 /calculated_tax xdef
-taxable_income get apportionment.vt_bracket_threshold_1 get le
-{
-  taxable_income get apportionment.vt_tax_rate_tier1 get mul /calculated_tax xdef
-}
-{
-  taxable_income get apportionment.vt_bracket_threshold_2 get le
-  {
-    apportionment.vt_bracket_threshold_1 get apportionment.vt_tax_rate_tier1 get mul /calculated_tax xdef
-    taxable_income get apportionment.vt_bracket_threshold_1 get sub apportionment.vt_tax_rate_tier2 get mul calculated_tax get add /calculated_tax xdef
-  }
-  {
-    apportionment.vt_bracket_threshold_1 get apportionment.vt_tax_rate_tier1 get mul /calculated_tax xdef
-    apportionment.vt_bracket_threshold_2 get apportionment.vt_bracket_threshold_1 get sub apportionment.vt_tax_rate_tier2 get mul calculated_tax get add /calculated_tax xdef
-    taxable_income get apportionment.vt_bracket_threshold_2 get sub apportionment.vt_tax_rate_tier3 get mul calculated_tax get add /calculated_tax xdef
-  } ifelse
-} ifelse
-calculated_tax get /apportionment.vt_calculated_tax xdef
-calculated_tax get apportionment.state_credits get sub 0.0 max /apportionment.state_tax xdef
-apportionment.state_payments get apportionment.state_tax get sub /apportionment.state_refund_or_owed xdef
-"VT tax calculated using graduated brackets: 6% on first $10K, 7% on $10K-$25K, 8.5% over $25K (one of highest state rates). Reference: 32 V.S.A. 5832" job.audit_trail swap addto
+apportionment.state_taxable_income apportionment.vt_bracket_threshold_1 fmin apportionment.vt_tax_rate_tier1 fmul cvd /apportionment.vt_calculated_tax xdef { apportionment.vt_calculated_tax apportionment.state_taxable_income apportionment.vt_bracket_threshold_2 fmin apportionment.vt_bracket_threshold_1 f- apportionment.vt_tax_rate_tier2 fmul f+ cvd /apportionment.vt_calculated_tax xdef } {} apportionment.state_taxable_income apportionment.vt_bracket_threshold_1 f&gt; ifelse { apportionment.vt_calculated_tax apportionment.state_taxable_income apportionment.vt_bracket_threshold_2 f- apportionment.vt_tax_rate_tier3 fmul f+ cvd /apportionment.vt_calculated_tax xdef } {} apportionment.state_taxable_income apportionment.vt_bracket_threshold_2 f&gt; ifelse apportionment.vt_calculated_tax apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "VT tax calculated using graduated brackets: 6% on first $10K, 7% on $10K-$25K, 8.5% over $25K (one of highest state rates). Reference: 32 V.S.A. 5832" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No VT nexus - no tax liability; No VT nexus - no tax</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.vt_calculated_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No VT nexus - no tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-0.0 /apportionment.vt_calculated_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-"No VT nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef 0.0 cvd /apportionment.vt_calculated_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No VT nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>Nexus but no taxable income; No VT taxable income - no tax</action_comment>
-<action_dsl />
+<action_dsl>set apportionment.state_tax = 0.0; set apportionment.vt_calculated_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No VT taxable income - no tax. VT NOL rules may apply. Reference: 32 V.S.A. 5832" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 /apportionment.state_tax xdef
-0.0 /apportionment.vt_calculated_tax xdef
-apportionment.state_payments get /apportionment.state_refund_or_owed xdef
-"No VT taxable income - no tax. VT NOL rules may apply. Reference: 32 V.S.A. 5832" job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef 0.0 cvd /apportionment.vt_calculated_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No VT taxable income - no tax. VT NOL rules may apply. Reference: 32 V.S.A. 5832" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
-
 </decision_tables>

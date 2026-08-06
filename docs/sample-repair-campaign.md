@@ -38,7 +38,7 @@ Point 4 was added late and matters most. See "The pattern".
 | KidAid_Application | done — #973 |
 | DTEligibility | deleted — #959 / #960 |
 | SyntaxTests | done — #975; no hand postfix, runs, traces |
-| **CorporateTax** | **remaining** — never scoped |
+| CorporateTax | done — #986 / PR pending; executes, CA scenario computes correct tax |
 
 DTEligibility was deleted rather than repaired. It arrived on 2026-02-05 inside
 a commit titled "docs: Consolidate documentation into /docs directory", unnamed
@@ -165,14 +165,34 @@ reference owns.
 
 ## Remaining work
 
-### CorporateTax
+### CorporateTax (#986)
 
-Never scoped. From the initial inventory: 26 stub tables; the EDD uses root
-element `<entity_dictionary>` where the loader expects
-`<entity_data_dictionary>`; `*_dt_core.xml` and `states/DC_corp_dt.xml` have
-XML syntax errors; `CorporateTax_edd.xml` has an unescaped `<` inside a quoted
-string. Its `PHASE1_COMPLETE.md`-style status files come from a real feature
-effort (#316–#320), not an accident.
+Done, 2026-08-05, all four phases of `sampleprojects/CorporateTax/PLAN.md` —
+that file and `STATUS.md` carry the full record. The short version: nothing in
+it had ever loaded (federal core unparseable in every commit, merge script dead
+on its first state file, 173 of 240 state EDD field declarations dropped by a
+root-spelling mismatch, 145 of 413 hand rows using operators that do not
+exist). Now: single-sourced on `xml/states/`, every row authored in EL
+(elcheck `hand=0 diff=0 err=0` across 172 tables), one naming convention with
+wrappers for the four gross-receipts states, `Run_Corporate_Tax` dispatching
+on `apportionment.state_code`, and a CA scenario computing 88,400 tax / 1,600
+refund, enforced by trace floor + arithmetic + no-hand-postfix tests.
+
+The hand postfix predated the authoring API and was never an oracle — it was
+read as intent (Paul's framing), decompiled to EL by
+`tools/elcheck/decompile_postfix.py`, verified byte-identical where its
+operators were real, and the originals retained in git as reference.
+
+Engine bugs it flushed out, both fixed with tests: the authoring `set-name`
+patch was a silent no-op (view assignment never synced — `Project.RenameTable`
+now exists), and `<initial_action_details>` was invisible to every reader
+(312 rows in SyntaxTests; fixed on the SyntaxTests branch).
+
+Still open, deliberately: map tags for the `result.XX_*` inputs the 15
+renamed states read; scenarios for graduated and gross-receipts states (the
+ME/MS/VT bracket rows are verified by compilation, not yet by execution);
+the Excel-bootstrap decision (this is the only sample with no workbooks);
+and whether Form 1120 is rebuilt at all.
 
 ### CHIP's open question (#962)
 
