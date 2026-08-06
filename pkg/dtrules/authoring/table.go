@@ -107,7 +107,7 @@ func (t *Table) HandCodedRows() []string {
 			out = append(out, fmt.Sprintf("context %d", i+1))
 		}
 	}
-	for i, ia := range t.xml.InitialActions {
+	for i, ia := range t.xml.EffectiveInitialActions() {
 		if strings.TrimSpace(ia.EffectivePostfix()) != "" && strings.TrimSpace(ia.EffectiveDSL()) == "" {
 			out = append(out, fmt.Sprintf("initial action %d", i+1))
 		}
@@ -164,7 +164,7 @@ func (t *Table) syncFromXML() {
 	}
 
 	t.InitialActions = nil
-	for _, ia := range t.xml.InitialActions {
+	for _, ia := range t.xml.EffectiveInitialActions() {
 		t.InitialActions = append(t.InitialActions, InitialAction{DSL: ia.EffectiveDSL()})
 	}
 
@@ -266,13 +266,16 @@ func (t *Table) syncToXML() {
 	}
 	t.xml.Contexts.Details = newDetails
 
-	// Initial actions.
-	origInits := t.xml.InitialActions
+	// Initial actions. Read through the accessor so a table that arrived with
+	// the `<initial_action_details>` spelling keeps its rows, and write the
+	// canonical spelling only — same normalisation the legacy <TYPE> tag gets,
+	// so a table cannot end up carrying two lists.
+	origInits := t.xml.EffectiveInitialActions()
 	newInits := make([]excel.InitialActionXML, 0, len(t.InitialActions))
 	for i, ia := range t.InitialActions {
 		entry := excel.InitialActionXML{DSL: ia.DSL}
 		if i < len(origInits) {
-			entry.Comment = origInits[i].Comment
+			entry.Comment = origInits[i].EffectiveComment()
 			entry.ActionDSL = origInits[i].ActionDSL
 			entry.ActionPostfix = tc.compile(origInits[i].ActionDSL, "action")
 		}
@@ -280,6 +283,7 @@ func (t *Table) syncToXML() {
 		newInits = append(newInits, entry)
 	}
 	t.xml.InitialActions = newInits
+	t.xml.InitialActionsLegacy = nil
 
 	// Conditions.
 	origConds := map[int]excel.ConditionXML{}

@@ -116,7 +116,12 @@ func isCommentOnly(s string) bool {
 // compiling conditions and actions in the same table.
 func (c *Compiler) CompileContext(el string) (string, error) {
 	el = strings.TrimSpace(el)
-	if el == "" {
+	if isCommentOnly(el) {
+		// Same rule CompileCondition applies: a row that is only a comment
+		// is documentation and compiles to nothing. Without this, a table
+		// carrying a commented-out context row could not be written through
+		// the authoring API at all — `table put` rejected the whole table on
+		// a parse error for a row that was never meant to execute.
 		return "", nil
 	}
 	return c.compile("context " + el)
@@ -127,7 +132,8 @@ func (c *Compiler) CompileContext(el string) (string, error) {
 // If the input is just an identifier (table name), it's treated as "perform TableName".
 func (c *Compiler) CompileAction(el string) (string, error) {
 	el = strings.TrimSpace(el)
-	if el == "" {
+	if isCommentOnly(el) {
+		// Documentation row — see CompileCondition.
 		return "", nil
 	}
 

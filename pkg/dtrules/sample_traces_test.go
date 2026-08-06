@@ -97,6 +97,21 @@ func TestSampleProjectsProduceLoadableTraces(t *testing.T) {
 			input:      "testfiles/TestScenarios/basic_scenarios.xml",
 			minColumns: 24, // 12 players, at least two tables deep
 		},
+		{
+			// The syntax catalogue. It had no <entry> and no table that
+			// performed any other, so nothing ever executed it — its
+			// integration test was skipped as "archived", and all 312 of its
+			// initial actions were unreachable by the loader besides.
+			//
+			// Run_Syntax_Examples iterates job.cases and performs the tables
+			// that run clean. The rest of the catalogue is not performed:
+			// those tables demonstrate forms the compiler deliberately does
+			// not implement, or reference fields outside the entity scope
+			// they iterate. See the project README.
+			project:    "SyntaxTests",
+			input:      "testfiles/test.xml",
+			minColumns: 6, // 2 cases x (orchestrator + 3 performed tables)
+		},
 	}
 
 	for _, s := range samples {

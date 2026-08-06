@@ -37,7 +37,7 @@ Point 4 was added late and matters most. See "The pattern".
 | KidAid | done — #972 |
 | KidAid_Application | done — #973 |
 | DTEligibility | deleted — #959 / #960 |
-| **SyntaxTests** | **remaining** — #975 |
+| SyntaxTests | done — #975; no hand postfix, runs, traces |
 | **CorporateTax** | **remaining** — never scoped |
 
 DTEligibility was deleted rather than repaired. It arrived on 2026-02-05 inside
@@ -60,6 +60,7 @@ for six, a different cause each time:
 | SinusitisTherapy | map never declared the `<patient>` root, so the singleton loaded empty |
 | CHIP | same as SinusitisTherapy |
 | KidAid | tables loaded typeless after a recompile erased `<TYPE>` |
+| SyntaxTests | test skipped as "archived"; no `<entry>`, no orchestrator, and 312 initial actions the loader could not see |
 
 A run that does nothing still exits 0 and still writes a well-formed trace. The
 **fired-column floor** in `TestSampleProjectsProduceLoadableTraces` is the only
@@ -89,7 +90,16 @@ re-syncs the whole table. Two hazards:
 
 **Always diff before committing a recompile.** `+<Type></Type>` caught the
 type-erasure bug (#972); missing `<*_postfix>` content caught the row deletion
-(#974). Both were mine.
+(#974); an emptied `<initial_actions>` caught 312 rows being deleted in
+SyntaxTests. All three were mine, and all three were invisible in the tool
+output — only the diff showed them.
+
+**Key rows by position, not by number.** `table get` renumbers every row to its
+position on load. A patch keyed by the number written in the XML lands on
+whatever row now holds that number, which is one row off wherever the stored
+numbering had a gap. That silently overwrote two live rows in SyntaxTests before
+the diff caught it. Verify each patch against the row it claims to target —
+a hand row should currently be empty, a repair should hold the exact broken DSL.
 
 ## Scope decisions (Paul, 2026-07-28)
 
@@ -111,6 +121,23 @@ preserved their hand-written postfix, so #817 stopped at the table's last
 section. Then, to Paul's design (#956): statements collect automatically, drain
 with `add the policy statements to <array>`, reset with `clear the policy
 statements` — and that add was appending the whole accumulator as one blob.
+
+**A whole section nobody read.** `<initial_actions>` was parsed only as
+`<initial_action>`, but every other section of a DT file is spelled
+`<*_details>` and SyntaxTests spells this one `<initial_action_details>`
+throughout. Its 312 initial-action rows were invisible: not loaded, not
+compiled, not executed, unreachable from the authoring API. Worse, the writer
+emitted `<initial_actions></initial_actions>` over them, so the first
+`table put` deleted all 312 — caught in the diff, reverted. Reader, writer and
+runtime loader now take both spellings and normalise to the canonical one.
+**The same class of bug as `<TYPE>` (#972); look for it in any section whose
+element name has two spellings.**
+
+**Comment-only rows were not authorable.** `CompileCondition` skipped a row
+that is only a comment; `CompileContext` and `CompileAction` did not. A table
+containing one commented-out documentation row could not be written through the
+authoring API at all — `table put` rejected the whole table on a parse error
+for a row that was never meant to execute.
 
 **Sync and round-trip.** `<createentity list='…'>` dropped on every map round
 trip, which emptied StateTax's bracket schedules so 29 states computed zero.
@@ -137,28 +164,6 @@ and gated by `docs/el_reference_postfix_test.go` against a fixture EDD the
 reference owns.
 
 ## Remaining work
-
-### SyntaxTests (#975)
-
-23 tables: 48 hand rows, 30 prose rows, 3 stub tables, plus an EDD type
-conflict (#783).
-
-The 48 are mostly reverse iteration, and since #978 they have an authorable
-form producing byte-identical postfix:
-
-```
-for all clients in reverse { set eligible = true; }
-  ->  { true cvb /eligible xdef } clients forallr
-```
-
-Transcribing them is mechanical: compile, diff, apply on exact match. The 30
-prose rows need reading individually. **Do not run the recompile recipe here** —
-those 48 rows are exactly what it deletes.
-
-Two gotchas: statements inside a block need their own semicolons
-(`{ set x = 1; }`), and the inventory scanner reports rows referencing context
-locals as "stale" because it compiles each row independently. Those are false
-positives.
 
 ### CorporateTax
 

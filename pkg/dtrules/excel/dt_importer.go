@@ -104,6 +104,14 @@ type DecisionTableXML struct {
 	AttributeFields  AttributeFieldsXML   `xml:"attribute_fields"`
 	Contexts         ContextsField        `xml:"contexts"`
 	InitialActions   []InitialActionXML   `xml:"initial_actions>initial_action"`
+	// InitialActionsLegacy is the `<initial_action_details>` spelling, which
+	// every other section of the file uses (`<condition_details>`,
+	// `<action_details>`, `<context_details>`) and which SyntaxTests uses
+	// throughout. Only `<initial_action>` was ever read, so those rows were
+	// invisible: not loaded, not compiled, not executable, and not reachable
+	// from the authoring API — 312 rows of one sample that had never run.
+	// Read both, normalise to the canonical spelling on write-out.
+	InitialActionsLegacy []InitialActionXML `xml:"initial_actions>initial_action_details,omitempty"`
 	Conditions       []ConditionXML       `xml:"conditions>condition_details"`
 	Actions          []ActionXML          `xml:"actions>action_details"`
 	PolicyStatements []PolicyStatementXML `xml:"policy_statements>policy_statement"`
@@ -250,6 +258,16 @@ func (a AttributeFieldsXML) EffectiveType() string {
 	return a.TypeLowercase
 }
 
+// EffectiveInitialActions returns the table's initial actions from whichever
+// element spelling carries them. Writers must assign to InitialActions and
+// clear InitialActionsLegacy so a table cannot end up carrying two lists.
+func (d DecisionTableXML) EffectiveInitialActions() []InitialActionXML {
+	if len(d.InitialActions) > 0 {
+		return d.InitialActions
+	}
+	return d.InitialActionsLegacy
+}
+
 // valueAfterColon returns everything after the first colon in a "Label: value"
 // attribute cell, or "" when the cell carries only the label (e.g. an empty
 // "TABLE_NUMBER:" cell). The older TrimPrefix("LABEL: ") approach assumed a
@@ -272,11 +290,20 @@ func valueAfterColon(cell string) string {
 // On read, either form is accepted. On write, the modern form is emitted.
 // The Comment field maps to <action_comment>, which both conventions share.
 type InitialActionXML struct {
-	Comment       string `xml:"action_comment"`
-	DSL           string `xml:"initial_action_dsl"`
-	Postfix       string `xml:"initial_action_postfix"`
-	ActionDSL     string `xml:"action_dsl"`     // legacy alternate of DSL
-	ActionPostfix string `xml:"action_postfix"` // legacy alternate of Postfix
+	Comment        string `xml:"action_comment"`
+	InitialComment string `xml:"initial_action_comment,omitempty"` // legacy alternate of Comment
+	DSL            string `xml:"initial_action_dsl"`
+	Postfix        string `xml:"initial_action_postfix"`
+	ActionDSL      string `xml:"action_dsl"`     // legacy alternate of DSL
+	ActionPostfix  string `xml:"action_postfix"` // legacy alternate of Postfix
+}
+
+// EffectiveComment returns the comment from whichever spelling carries it.
+func (a InitialActionXML) EffectiveComment() string {
+	if a.Comment != "" {
+		return a.Comment
+	}
+	return a.InitialComment
 }
 
 // EffectiveDSL returns the DSL with precedence: modern tag > legacy tag.
@@ -650,18 +677,25 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 
 	writeContextsXML(f, table.Contexts)
 
-	// Initial actions. Both DSL/postfix tag conventions are accepted on read;
-	// on write we emit the modern <initial_action_dsl> / <initial_action_postfix>
-	// form for new content and preserve whichever form was present for entries
-	// originally read from legacy XML.
-	if len(table.InitialActions) == 0 {
+	// Initial actions. Both element spellings and both DSL/postfix tag
+	// conventions are accepted on read; on write we emit the canonical
+	// <initial_action> element and the modern <initial_action_dsl> /
+	// <initial_action_postfix> tags for new content, preserving whichever
+	// form was present for entries originally read from legacy XML.
+	//
+	// Read through EffectiveInitialActions, not the canonical field alone: a
+	// table that arrived spelled <initial_action_details> has an empty
+	// canonical list, and writing that emitted <initial_actions></initial_actions>
+	// — silently deleting every initial action in the table on the first save.
+	initialActions := table.EffectiveInitialActions()
+	if len(initialActions) == 0 {
 		f.WriteString("<initial_actions></initial_actions>\n")
 	} else {
 		f.WriteString("<initial_actions>\n")
-		for _, action := range table.InitialActions {
+		for _, action := range initialActions {
 			f.WriteString("<initial_action>\n")
-			if action.Comment != "" {
-				f.WriteString(fmt.Sprintf("<action_comment>%s</action_comment>\n", xmlEscapeText(action.Comment)))
+			if c := action.EffectiveComment(); c != "" {
+				f.WriteString(fmt.Sprintf("<action_comment>%s</action_comment>\n", xmlEscapeText(c)))
 			}
 			writeDSLOrPostfix(f, "initial_action_dsl", action.DSL)
 			writeBlockPostfix(f, "initial_action_postfix", action.Postfix)
