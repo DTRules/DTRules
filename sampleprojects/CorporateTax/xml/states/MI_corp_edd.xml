@@ -63,8 +63,8 @@
   <entity name="result">
     <field name="mi_apportioned_income" type="double" default_value="0.0"
            comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
-    <field name="mi_corp_tax_rate" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
+    <field name="mi_corp_tax_rate" type="double" default_value="0.06"
+           comment="Form 4890 (2025): the CIT tax rate is 6 percent"/>
     <field name="mi_economic_nexus_threshold" type="double" default_value="0.0"
            comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
     <field name="mi_estimated_payments" type="double" default_value="0.0"

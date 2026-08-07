@@ -115,71 +115,129 @@ func TestCorporateTaxLoadsStrict(t *testing.T) {
 	}
 }
 
-// TestCorporateTaxCAScenario runs the checked-in California scenario through
-// the entry table and checks the arithmetic: 1,000,000 x 8.84% = 88,400 tax,
-// 90,000 of payments leaves a 1,600 refund.
-func TestCorporateTaxCAScenario(t *testing.T) {
-	dir := corporateTaxDir(t)
-	rs := loadCorporateTax(t, dir)
+// TestCorporateTaxScenarios runs each checked-in scenario through the entry
+// table and checks the arithmetic against the state's own published form.
+// Every expected figure below is traceable to a document under
+// reference/forms/<STATE>/ — that is what those were downloaded for.
+func TestCorporateTaxScenarios(t *testing.T) {
+	cases := []struct {
+		name     string
+		file     string
+		entity   string
+		expected map[string]float64
+		why      string
+	}{
+		{
+			name:   "CA flat rate",
+			file:   "TestCase_CA_flat_rate.xml",
+			entity: "apportionment",
+			expected: map[string]float64{
+				"state_tax":            88400,
+				"state_refund_or_owed": 1600,
+			},
+			why: "1,000,000 x 8.84%; 90,000 paid",
+		},
+		{
+			// The bracket path. Until this scenario existed the graduated-rate
+			// rows were verified by compilation only — they were hand-authored
+			// from postfix that used operators which never existed, so nothing
+			// had ever executed them.
+			name:   "ME graduated brackets",
+			file:   "TestCase_ME_graduated.xml",
+			entity: "result",
+			expected: map[string]float64{
+				"me_tier1_tax":      12250,  // 350,000 x 3.5%
+				"me_tier2_tax":      55510,  // 700,000 x 7.93%
+				"me_tier3_tax":      204085, // 2,450,000 x 8.33%
+				"me_tier4_tax":      44650,  // 500,000 x 8.93%
+				"me_tax_liability":  316495, // = 271,845 + 8.93% over 3.5M
+				"me_refund_or_owed": -16495,
+			},
+			why: "1120ME instructions: $271,845 plus 8.93% of the excess over $3,500,000",
+		},
+		{
+			// A renamed _Corporate_ state, driven through its result.mt_*
+			// inputs — the map tags those states needed.
+			name:   "MT flat rate",
+			file:   "TestCase_MT_flat_rate.xml",
+			entity: "result",
+			expected: map[string]float64{
+				"mt_taxable_income": 800000,
+				"mt_tax_liability":  54000,
+				"mt_refund_or_owed": -4000,
+			},
+			why: "Form CIT instructions: a tax of 6.75 percent on total Montana net income",
+		},
+	}
 
-	sess, err := rs.NewSession()
-	if err != nil {
-		t.Fatal(err)
-	}
-	m := mapping.NewMapping(sess)
-	mf, err := os.Open(filepath.Join(dir, "xml", "CorporateTax_map.xml"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer mf.Close()
-	if err := m.LoadMapping(mf); err != nil {
-		t.Fatalf("mapping: %v", err)
-	}
-	df, err := os.Open(filepath.Join(dir, "testfiles", "TestScenarios", "TestCase_CA_flat_rate.xml"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer df.Close()
-	if err := m.LoadDataAndPushSingletons(df); err != nil {
-		t.Fatalf("data: %v", err)
-	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := corporateTaxDir(t)
+			rs := loadCorporateTax(t, dir)
 
-	state := sess.GetState()
-	entry, err := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Run_Corporate_Tax"))
-	if err != nil || entry == nil {
-		t.Fatalf("entry table: %v", err)
-	}
-	if err := entry.Execute(state); err != nil {
-		t.Fatalf("execute: %v", err)
-	}
-
-	get := func(field string) float64 {
-		t.Helper()
-		for i := 0; i < state.EntityDepth(); i++ {
-			e, _ := state.EntityFetch(i)
-			if e == nil || e.GetName().StringValue() != "apportionment" {
-				continue
-			}
-			v, err := e.Get(dtrules.GetRName(field))
-			if err != nil || v == nil {
-				t.Fatalf("apportionment.%s: %v", field, err)
-			}
-			f, err := v.DoubleValue()
+			sess, err := rs.NewSession()
 			if err != nil {
-				t.Fatalf("apportionment.%s not a double: %v", field, err)
+				t.Fatal(err)
 			}
-			return f
-		}
-		t.Fatalf("apportionment not on the entity stack")
-		return 0
-	}
+			m := mapping.NewMapping(sess)
+			mf, err := os.Open(filepath.Join(dir, "xml", "CorporateTax_map.xml"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer mf.Close()
+			if err := m.LoadMapping(mf); err != nil {
+				t.Fatalf("mapping: %v", err)
+			}
+			df, err := os.Open(filepath.Join(dir, "testfiles", "TestScenarios", tc.file))
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer df.Close()
+			if err := m.LoadDataAndPushSingletons(df); err != nil {
+				t.Fatalf("data: %v", err)
+			}
 
-	if tax := get("state_tax"); math.Abs(tax-88400.0) > 0.005 {
-		t.Errorf("state_tax = %v, want 88400 (1,000,000 x 8.84%%)", tax)
+			state := sess.GetState()
+			entry, err := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Run_Corporate_Tax"))
+			if err != nil || entry == nil {
+				t.Fatalf("entry table: %v", err)
+			}
+			if err := entry.Execute(state); err != nil {
+				t.Fatalf("execute: %v", err)
+			}
+
+			for field, want := range tc.expected {
+				got, ok := entityDouble(state, tc.entity, field)
+				if !ok {
+					t.Errorf("%s.%s not readable", tc.entity, field)
+					continue
+				}
+				if math.Abs(got-want) > 0.005 {
+					t.Errorf("%s.%s = %v, want %v (%s)", tc.entity, field, got, want, tc.why)
+				}
+			}
+		})
 	}
-	if refund := get("state_refund_or_owed"); math.Abs(refund-1600.0) > 0.005 {
-		t.Errorf("state_refund_or_owed = %v, want 1600 (90,000 - 88,400)", refund)
+}
+
+// entityDouble reads a double field off a named entity on the stack.
+func entityDouble(state dtrules.State, entity, field string) (float64, bool) {
+	for i := 0; i < state.EntityDepth(); i++ {
+		e, _ := state.EntityFetch(i)
+		if e == nil || e.GetName().StringValue() != entity {
+			continue
+		}
+		v, err := e.Get(dtrules.GetRName(field))
+		if err != nil || v == nil {
+			return 0, false
+		}
+		f, err := v.DoubleValue()
+		if err != nil {
+			return 0, false
+		}
+		return f, true
 	}
+	return 0, false
 }
 
 // TestCorporateTaxNoHandCodedPostfix is the campaign gate (#948): postfix is

@@ -18,10 +18,25 @@ touching this project.** What to *do* about it is in [PLAN.md](PLAN.md).
 | Executes | **yes** — CA scenario: 1,000,000 × 8.84% = 88,400 tax, 1,600 refund |
 | Enforcement | trace-test floor, strict-load + arithmetic + no-hand-postfix tests |
 
-Remaining, deliberately out of scope here: map tags for the `result.XX_*`
-inputs the 15 renamed states read (scenarios currently exercise the
-`apportionment.*` states); scenarios for graduated/gross-receipts states; and
-whether to rebuild the federal Form 1120 computation at all.
+**Follow-up landed 2026-08-07:** the `result.XX_*` map gap is closed (134
+taxpayer-input tags added; rates and thresholds correctly left as EDD
+constants), and the bracket path is verified by *execution* rather than
+compilation — Maine computes **316,495** on 4,000,000, matching the 1120ME
+instructions' "$271,845 plus 8.93% of the excess over $3,500,000" tier for
+tier. Three scenarios are pinned in `TestCorporateTaxScenarios`: CA flat,
+ME graduated, MT flat.
+
+Also fixed there: nine tax-rate constants were Phase-1 placeholders sitting at
+`0.0`, so ME/MI/MN/MO/MT computed zero tax. Each is now set from the state's
+own downloaded form, with the citation in its EDD comment. And `audit_trail`
+was declared on `result` while all 406 references say `job.audit_trail` — every
+append failed at runtime; it is declared on `job` now.
+
+Still out of scope: scenarios for the gross-receipts states (OH CAT, WA B&O,
+TX margin, TN franchise/excise — their wrapper paths have never fired); MA and
+MS rates, whose forms are the ones their sites blocked us from downloading;
+whether CorporateTax gets an Excel bootstrap; and whether the federal Form
+1120 computation is rebuilt at all.
 
 ## Nothing here has ever loaded
 

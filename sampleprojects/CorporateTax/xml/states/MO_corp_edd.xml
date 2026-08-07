@@ -61,8 +61,8 @@
   <entity name="result">
     <field name="mo_apportioned_income" type="double" default_value="0.0"
            comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
-    <field name="mo_corp_tax_rate" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
+    <field name="mo_corp_tax_rate" type="double" default_value="0.04"
+           comment="MO-1120 instructions LINE 14: line 13 multiplied by 4 percent"/>
     <field name="mo_economic_nexus_threshold" type="double" default_value="0.0"
            comment="Declared from decision-table usage; referenced by MO but never declared (campaign #948 Phase 1)"/>
     <field name="mo_estimated_payments" type="double" default_value="0.0"

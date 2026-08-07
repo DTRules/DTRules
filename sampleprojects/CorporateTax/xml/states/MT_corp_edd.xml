@@ -56,10 +56,10 @@
   <entity name="result">
     <field name="mt_apportioned_income" type="double" default_value="0.0"
            comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
-    <field name="mt_corp_tax_rate" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
-    <field name="mt_corp_tax_rate_waters_edge" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
+    <field name="mt_corp_tax_rate" type="double" default_value="0.0675"
+           comment="Form CIT instructions: a tax of 6.75 percent on total Montana net income"/>
+    <field name="mt_corp_tax_rate_waters_edge" type="double" default_value="0.07"
+           comment="Form CIT instructions: a valid water-s-edge election pays 7 percent"/>
     <field name="mt_economic_nexus_threshold" type="double" default_value="0.0"
            comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"/>
     <field name="mt_estimated_payments" type="double" default_value="0.0"
