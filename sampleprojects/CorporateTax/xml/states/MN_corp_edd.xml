@@ -69,8 +69,8 @@
   <entity name="result">
     <field name="mn_apportioned_income" type="double" default_value="0.0"
            comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
-    <field name="mn_corp_tax_rate" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
+    <field name="mn_corp_tax_rate" type="double" default_value="0.098"
+           comment="Form M4 line 10: regular tax = line 9 multiplied by 0.098"/>
     <field name="mn_economic_nexus_threshold" type="double" default_value="0.0"
            comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
     <field name="mn_estimated_payments" type="double" default_value="0.0"
