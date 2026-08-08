@@ -42,9 +42,9 @@ const parityEDD = `<entity_data_dictionary version='2'>
 var parityCorpus = []string{
 	"supply_limit >= acme_issued",               // fixed comparison -> fp>=
 	"budget.supply_limit >= budget.acme_issued", // entity-qualified keys
-	"rate > 1.0",                                // double comparison -> f>
-	"count > 1",                                 // integer comparison
-	"supply_limit != acme_issued",               // fixed inequality -> fp!=
+	"rate > 1.0",                  // double comparison -> f>
+	"count > 1",                   // integer comparison
+	"supply_limit != acme_issued", // fixed inequality -> fp!=
 }
 
 // TestGeneratorParity (#898) pins that the two independent EDD→symbol builders

@@ -44,10 +44,27 @@ func (e *dtFileEntry) ranged() bool { return e.lo > 0 && e.hi >= e.lo }
 // ---- path helpers ---------------------------------------------------------
 
 func (p *Project) projectRoot() string {
+	// Prefer the root the project was opened at. Inferring it by stripping a
+	// trailing "xml" is right only for the conventional layout; a project whose
+	// DTRules.xml declares something else got a root one level too deep, and
+	// everything derived from it — notes file, Excel directory — followed
+	// (#1049).
+	if p.root != "" {
+		return p.root
+	}
 	if filepath.Base(p.xmlDir) == "xml" {
 		return filepath.Dir(p.xmlDir)
 	}
 	return p.xmlDir
+}
+
+// excelDirectory is where this project's workbooks live: what DTRules.xml
+// declares, or `excel/` beside the rules.
+func (p *Project) excelDirectory() string {
+	if p.excelDir != "" {
+		return p.excelDir
+	}
+	return filepath.Join(p.projectRoot(), "excel")
 }
 
 func (p *Project) notesFile() string {
@@ -584,7 +601,7 @@ func (p *Project) removeOrphans() {
 		// Best-effort: remove the combined Excel workbook (CO_dt.xml -> CO.xlsx).
 		rel := p.relPathOf(abs)
 		stem := strings.TrimSuffix(rel, "_dt.xml")
-		excelDir := filepath.Join(p.projectRoot(), "excel")
+		excelDir := p.excelDirectory()
 		_ = os.Remove(filepath.Join(excelDir, filepath.FromSlash(stem)+".xlsx"))
 	}
 	p.orphans = nil

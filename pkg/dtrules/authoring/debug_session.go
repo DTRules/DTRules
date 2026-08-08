@@ -55,9 +55,9 @@ type EntityView struct {
 // DebugSession is a live session paused before a specific invocation.
 type DebugSession struct {
 	project    *Project
-	trace      *RunTrace     // Original trace from which we replayed
-	pauseIndex int           // The index we are paused before
-	execSt     *execState    // Dedicated exec state for this session
+	trace      *RunTrace  // Original trace from which we replayed
+	pauseIndex int        // The index we are paused before
+	execSt     *execState // Dedicated exec state for this session
 }
 
 // traceBuilder accumulates TableInvocation records during ExecuteEntry.
@@ -65,7 +65,7 @@ type traceBuilder struct {
 	invocations  []*TableInvocation
 	project      *Project
 	currentDepth int
-	stopAt       int  // if > 0, stop (via sentinel error) after this many invocations
+	stopAt       int        // if > 0, stop (via sentinel error) after this many invocations
 	execSt       *execState // if set, used instead of project.execSt for snapshots
 }
 
@@ -217,11 +217,11 @@ func (w *depthAwareWrapper) StringValue() string { return w.name.StringValue() }
 func (w *depthAwareWrapper) PostFix() string     { return w.name.StringValue() + " performaliased " }
 
 func (w *depthAwareWrapper) Clone(s dtrules.Session) (dtrules.Object, error) { return w, nil }
-func (w *depthAwareWrapper) RClone() dtrules.Object                           { return w }
-func (w *depthAwareWrapper) IntValue() (int, error)                           { return 0, unsupported("IntValue") }
-func (w *depthAwareWrapper) LongValue() (int64, error)                        { return 0, unsupported("LongValue") }
-func (w *depthAwareWrapper) DoubleValue() (float64, error)                    { return 0, unsupported("DoubleValue") }
-func (w *depthAwareWrapper) BooleanValue() (bool, error)                      { return false, unsupported("BooleanValue") }
+func (w *depthAwareWrapper) RClone() dtrules.Object                          { return w }
+func (w *depthAwareWrapper) IntValue() (int, error)                          { return 0, unsupported("IntValue") }
+func (w *depthAwareWrapper) LongValue() (int64, error)                       { return 0, unsupported("LongValue") }
+func (w *depthAwareWrapper) DoubleValue() (float64, error)                   { return 0, unsupported("DoubleValue") }
+func (w *depthAwareWrapper) BooleanValue() (bool, error)                     { return false, unsupported("BooleanValue") }
 func (w *depthAwareWrapper) TimeValue() (time.Time, error) {
 	return time.Time{}, unsupported("TimeValue")
 }

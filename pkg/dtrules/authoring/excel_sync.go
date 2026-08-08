@@ -46,7 +46,18 @@ import (
 //
 // Returns nil on no-manifest projects.
 func GuardExcelInDir(xmlDir string, overwrite bool) error {
-	m, manifestDir := LoadSyncManifestForXMLDir(xmlDir)
+	return GuardExcelIn(xmlDir, "", overwrite)
+}
+
+// GuardExcelIn is GuardExcelInDir with the project's declared Excel directory.
+// Pass "" to fall back to searching the conventional layouts.
+//
+// The search is adjacency-based, so a project whose rules sit beside a second,
+// unused workbook directory guards — and writes — the wrong one. Staking has
+// exactly that shape: excel/ is declared and used by build and verify, while a
+// stale pkg/dtrules/excel/ sits next to the rules and won the search (#1049).
+func GuardExcelIn(xmlDir, excelDir string, overwrite bool) error {
+	m, manifestDir := loadSyncManifest(xmlDir, excelDir)
 	if m == nil {
 		return nil
 	}
@@ -78,7 +89,13 @@ func GuardExcelInDir(xmlDir string, overwrite bool) error {
 //
 // Returns nil on no-manifest projects.
 func RefreshExcelInDir(xmlDir string) error {
-	m, manifestDir := LoadSyncManifestForXMLDir(xmlDir)
+	return RefreshExcelIn(xmlDir, "")
+}
+
+// RefreshExcelIn is RefreshExcelInDir with the project's declared Excel
+// directory. Pass "" to search the conventional layouts (#1049).
+func RefreshExcelIn(xmlDir, excelDir string) error {
+	m, manifestDir := loadSyncManifest(xmlDir, excelDir)
 	if m == nil {
 		return nil
 	}
@@ -206,4 +223,23 @@ func loadRuleSetForExportInDir(xmlDir string) (*session.RuleSet, error) {
 		}
 	}
 	return rs, nil
+}
+
+// loadSyncManifest prefers an explicitly declared Excel directory over the
+// adjacency search, so a project that says where its workbooks live is
+// believed (#1049).
+func loadSyncManifest(xmlDir, excelDir string) (*sync.Manifest, string) {
+	if excelDir != "" {
+		path := filepath.Join(excelDir, ".sync-manifest.json")
+		if _, err := os.Stat(path); err == nil {
+			if m, err := sync.LoadManifest(path); err == nil {
+				return m, excelDir
+			}
+		}
+		// Declared but with no manifest: that is a project whose Excel has
+		// never been exported, not an invitation to guard a different
+		// directory's workbooks.
+		return nil, ""
+	}
+	return LoadSyncManifestForXMLDir(xmlDir)
 }
