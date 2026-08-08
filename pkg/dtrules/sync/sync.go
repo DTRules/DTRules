@@ -126,6 +126,18 @@ type SyncOptions struct {
 	// GracePeriod is the duration within which timestamps are considered equal.
 	// This helps handle filesystem timestamp precision issues.
 	GracePeriod time.Duration
+
+	// ForceDirection overrides timestamp-based direction detection and syncs
+	// every pair the named way. NoSync (the zero value) leaves detection in
+	// charge.
+	//
+	// This exists for `verify`, which must rebuild XML from Excel and compare.
+	// Detection cannot serve that: hand-editing the XML is precisely what
+	// makes it newer, so detection answers XMLToExcel and the edit is
+	// exported INTO Excel rather than being overwritten by it. The rebuild
+	// then matches the edit and the gate passes — the check could never fail
+	// for the one thing it exists to catch.
+	ForceDirection SyncDirection
 }
 
 // DefaultOptions returns default sync options.
@@ -657,6 +669,10 @@ func (s *Syncer) SyncAll() (*SyncResult, error) {
 	for i := range pairs {
 		pair := &pairs[i]
 
+		if s.options.ForceDirection != NoSync {
+			pair.Direction = s.options.ForceDirection
+		}
+
 		switch pair.Direction {
 		case ExcelToXML:
 			if s.options.DryRun {
@@ -706,6 +722,10 @@ func (s *Syncer) syncAllCombined() (*SyncResult, error) {
 
 	for i := range workbooks {
 		wb := &workbooks[i]
+
+		if s.options.ForceDirection != NoSync {
+			wb.Direction = s.options.ForceDirection
+		}
 
 		switch wb.Direction {
 		case ExcelToXML:

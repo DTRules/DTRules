@@ -191,6 +191,13 @@ func checkBuildIdempotency(projectDir, xmlDir, excelDir string, opts *verifyOpti
 	// Run the build pipeline on the copy (always Excel-authored: Excel→XML)
 	if dirExists(tmpExcel) {
 		syncOpts := sync.DefaultOptions()
+		// FORCE Excel→XML. Detection cannot serve this check: hand-editing
+		// the XML is exactly what makes it newer, so detection answers
+		// XMLToExcel and exports the edit INTO Excel instead of letting
+		// Excel overwrite it. The rebuild then matches the edit and verify
+		// passes — the gate could never fail for the one thing it exists to
+		// catch (#1010).
+		syncOpts.ForceDirection = sync.ExcelToXML
 		syncer := sync.NewSyncerWithOptions(tmpXML, tmpExcel, syncOpts)
 		syncer.SetUseCombinedWorkbooks(true)
 
