@@ -1195,10 +1195,20 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 							Comment: strings.TrimSpace(safeGet(row, 1)),
 							DSL:     strings.TrimSpace(safeGet(row, 2)),
 						}
-						// Parse column values (columns start at index 3)
+						// Parse column values (columns start at index 3).
+						//
+						// An explicit "-" is kept. It means the same thing to
+						// the runtime as an absent entry (Stepper.processColumn:
+						// `if !hasVal || colVal == "-" { continue }`), but
+						// discarding it made the round trip lossy — the XML's
+						// "-" came back as nothing, so an Excel-authored rebuild
+						// always differed from the committed XML and the #1010
+						// gate reported a difference no author could act on
+						// (#1017). An empty cell still yields no entry, so a
+						// project that never used "-" is unaffected.
 						for col := 3; col < len(row) && col < numCols+3; col++ {
 							val := strings.TrimSpace(row[col])
-							if val != "" && val != "-" {
+							if val != "" {
 								cond.Columns = append(cond.Columns, ColumnValueXML{
 									Number: col - 2, // 1-indexed
 									Value:  val,
@@ -1228,10 +1238,10 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 							Comment: strings.TrimSpace(safeGet(row, 1)),
 							DSL:     strings.TrimSpace(safeGet(row, 2)),
 						}
-						// Parse column values (columns start at index 3)
+						// "-" kept, as for conditions above (#1017).
 						for col := 3; col < len(row) && col < numCols+3; col++ {
 							val := strings.TrimSpace(row[col])
-							if val != "" && val != "-" {
+							if val != "" {
 								action.Columns = append(action.Columns, ColumnValueXML{
 									Number: col - 2, // 1-indexed
 									Value:  val,

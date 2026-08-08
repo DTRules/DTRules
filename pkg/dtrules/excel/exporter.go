@@ -911,7 +911,17 @@ func (e *Exporter) writeConditions(f *excelize.File, sheet string, dt *decisiont
 		if i < len(condTable) {
 			for j := 0; j < numCols; j++ {
 				val := ""
-				if j < len(condTable[i]) && condTable[i][j] != "-" {
+				// "-" is written through, not blanked. It and an absent entry
+				// mean the same thing to the runtime (see Stepper.processColumn:
+				// `if !hasVal || colVal == "-" { continue }`), but blanking it
+				// here made the round trip lossy: the XML's "-" came back as
+				// nothing, so an Excel-authored rebuild always differed from the
+				// committed XML and the #1010 verify gate reported a difference
+				// no author could act on. Ten of them on the staking rules
+				// (#1017). "-" is also the conventional don't-care notation, so
+				// showing it distinguishes "considered, irrelevant" from "not
+				// filled in yet".
+				if j < len(condTable[i]) {
 					val = condTable[i][j]
 				}
 				cell := cellName(4+j, row)
@@ -957,7 +967,9 @@ func (e *Exporter) writeActions(f *excelize.File, sheet string, dt *decisiontabl
 		if i < len(actionTable) {
 			for j := 0; j < numCols; j++ {
 				val := ""
-				if j < len(actionTable[i]) && actionTable[i][j] != "" && actionTable[i][j] != "-" {
+				// Same as conditions above: "-" round-trips rather than being
+				// blanked (#1017).
+				if j < len(actionTable[i]) {
 					val = actionTable[i][j]
 				}
 				cell := cellName(4+j, row)
