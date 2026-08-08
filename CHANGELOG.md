@@ -1,5 +1,52 @@
 # DTRules Changelog
 
+## v1.22.2 — 2026-08-08
+
+Unblocks using `dtrules verify` as the CI authoring-contract gate.
+
+### Fixed
+
+- **`verify` rejected the integer-form fixed-point literal `0fp`** as an
+  undefined operator (#1006). The literal is valid — `EL.g4`'s `FP_LITERAL`
+  has three alternatives and `DIGIT+ 'fp'` is one of them — and the engine
+  builds, loads and executes it correctly, so this was the checker
+  disagreeing with its own grammar. The operator check exempted numeric
+  literals through a helper that rejects any token containing a letter, so
+  every *typed* literal fell through to "must be a registered operator".
+
+  Reported against the Accumulate staking rules, where it was 44 uses across
+  8 tables producing 14 errors and a non-zero exit — enough to stop `verify`
+  being wired into CI, which is the mechanical control
+  `docs/authoring-contract.md` depends on.
+
+  Two things came out with it. The decimal form `0.5fp` had *appeared* to
+  work, but only because it contains a `.` and fell through the
+  dotted-field-reference branch — right answer, wrong reason. And the
+  hex-bytes literal `0x1f` had the identical defect, unhit. Both are now
+  recognised deliberately, matched against the grammar's shapes and
+  case-insensitively, as EL names are.
+
+  Verified against a v1.22.1 control over 32 distinct literal forms: 23
+  findings before, none after, with a genuinely undefined operator still
+  reported and sample-project `verify` output unchanged byte for byte.
+
+- **`TestAllSampleProjects` had never run** (#999). Its `sampleprojects/`
+  candidate paths were all two levels too high, then two absolute paths under
+  one developer's home, so it reported `SKIP` from the day it was added.
+  Missing the directory is now fatal — a skip that can never succeed is
+  indistinguishable from a passing test.
+
+  The same helper gated the eligibility and sinusitis suites, so fixing it
+  un-skipped three files. What they found: the sweep read the legacy
+  `repository/xml` mirror in preference to `xml/`, and KidAid's still carried
+  `income.amount client.totalIncome swap addto` — appending a number to a
+  number — six weeks after `xml/` was corrected in #974. So it exercised rules
+  nobody ships. The mirror is deleted (`KidAid_Application/repository`, which
+  *is* a project, is untouched). Also fixed: table names compared
+  case-sensitively though EL names are not, sp2 expectations that omitted the
+  `-1` suffix the file itself declares, and an independence check that only
+  confirmed two lookups succeeded rather than that they resolved differently.
+
 ## v1.22.1 — 2026-08-08
 
 A patch release, and every fix in it is the same bug wearing different
