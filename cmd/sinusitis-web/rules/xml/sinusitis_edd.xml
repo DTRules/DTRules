@@ -63,9 +63,9 @@
 		<field name="dose_mg" type="integer" subtype="" access="w" input="" default_value="0" comment="Service 1 output: single dose in mg"></field>
 		<field name="duration_days" type="integer" subtype="" access="w" input="" default_value="0" comment="Service 1 output: therapy duration in days"></field>
 		<field name="frequency_hours" type="integer" subtype="" access="w" input="" default_value="0" comment="Service 1 output: hours between doses"></field>
+		<field name="rationale" type="array" subtype="string" access="rw" input="" default_value="" comment="Human-readable rationale for each service decision (explainability)"></field>
 		<field name="recommended_drug" type="string" subtype="" access="rw" input="" default_value="" comment="Service 1 output: drug of choice"></field>
 		<field name="renal_adjustment" type="boolean" subtype="" access="w" input="" default_value="false" comment="True if the dose was reduced for renal impairment"></field>
 		<field name="warnings" type="array" subtype="string" access="rw" input="" default_value="" comment="Service 3 output: drug-interaction warnings"></field>
-		<field name="rationale" type="array" subtype="string" access="rw" input="" default_value="" comment="Human-readable rationale for each service decision (explainability)"></field>
 	</entity>
 </entity_data_dictionary>
