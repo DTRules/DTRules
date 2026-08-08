@@ -50,6 +50,14 @@ type ELCompiler interface {
 	CompileContext(el string) (string, error)
 }
 
+// LocalResetter is implemented by compilers that carry per-table local
+// variable state. Local slot indices are numbered per table, so a compiler
+// reused across tables must be reset between them or the numbering keeps
+// climbing — see compileTableEL.
+type LocalResetter interface {
+	ResetLocals()
+}
+
 // NewDTImporter creates a new decision table importer.
 func NewDTImporter() *DTImporter {
 	return &DTImporter{}
@@ -1433,6 +1441,20 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 		}
 		return fmt.Errorf("%s: refusing to compile with no EDD symbols — "+
 			"every field would be typed as integer", table.TableName)
+	}
+
+	// Local slot indices are numbered per table, and this importer reuses one
+	// compiler for every table in a workbook. Without a reset the counter
+	// keeps climbing, so the second table's `local@` indices come out one
+	// higher than the frame the runtime allocates, the third two higher, and
+	// so on. The rules still build — the postfix is well formed — and fail at
+	// execution with "[OutOfBounds] GetFrameValue" (#1047).
+	//
+	// Compiler.ResetLocals documents the rule and authoring already obeys it;
+	// this path never did, which is why it only showed up when a project was
+	// rebuilt from Excel rather than authored through the API.
+	if r, ok := i.elCompiler.(LocalResetter); ok {
+		r.ResetLocals()
 	}
 
 	// Set symbols if available
