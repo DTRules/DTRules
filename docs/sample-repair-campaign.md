@@ -6,8 +6,12 @@ done using the authoring API of DTRules." Later: "goal is to make all sample
 projects work, demonstrate DTRules, with traces that can be loaded into an
 editor."*
 
-Parent issue: **#948**. One sub-issue per project, one PR per project, merged
-only via `scripts/merge-pr.sh`. `make check` green is the definition of done.
+Parent issue: **#948** — **closed 2026-08-07**. One sub-issue per project, one
+PR per project, merged only via `scripts/merge-pr.sh`. `make check` green is the
+definition of done.
+
+What remains open is listed under "Still open" at the end; none of it is repair
+work.
 
 ## Definition of done
 
@@ -27,18 +31,18 @@ Point 4 was added late and matters most. See "The pattern".
 
 | Project | State |
 |---|---|
-| TaxReturn | done before this campaign (#520, PRs #933–#938) |
+| TaxReturn | done before this campaign (#520, PRs #933–#938); expected-value drift closed by #935 / #998 |
 | TestProject | done — #950 / #951 |
 | StateTax | done — #952 / #953, all 51 state scenarios compute correct tax |
 | Poker | done — #954 / #955, #958, 12 documented decisions checked |
 | SinusitisTherapy | done — #963 / #964 |
-| CHIP | done — #962 / #969, #970, one open data-model question below |
+| CHIP | done — #962 / #969, #970, #997 |
 | ChipApp | done — #971 |
 | KidAid | done — #972 |
 | KidAid_Application | done — #973 |
 | DTEligibility | deleted — #959 / #960 |
 | SyntaxTests | done — #975; no hand postfix, runs, traces |
-| CorporateTax | done — #986 / PR pending; executes, CA scenario computes correct tax |
+| CorporateTax | done — #986 / #988, #992; executes, CA scenario computes correct tax |
 
 DTEligibility was deleted rather than repaired. It arrived on 2026-02-05 inside
 a commit titled "docs: Consolidate documentation into /docs directory", unnamed
@@ -163,7 +167,7 @@ not emit in 70 of its 116 examples (#961) — now regenerated from the compiler
 and gated by `docs/el_reference_postfix_test.go` against a fixture EDD the
 reference owns.
 
-## Remaining work
+## How it went, project by project
 
 ### CorporateTax (#986)
 
@@ -194,15 +198,59 @@ ME/MS/VT bracket rows are verified by compilation, not yet by execution);
 the Excel-bootstrap decision (this is the only sample with no workbooks);
 and whether Form 1120 is rebuilt at all.
 
-### CHIP's open question (#962)
+### CHIP (#962) — resolved
 
-CHIP executes, but its EDD models relationships as a separate `relationship`
-entity — `source` / `target` / `type`, its own field comment reading *"Source
-is the &lt;relationship type&gt; of the target"* — not as `client.parent`
-fields. Its three `is the <R> of` rows compile and execute correctly under the
-stated semantics but evaluate false against that data shape. Either the EDD
-grows the fields or those rows are re-authored to search the relationship
-entities. Paul's call.
+The question was which of two changes to make: grow `client.parent`-style
+fields on the EDD, or re-author the three `is the <R> of` rows to search the
+relationship entities. **Neither would have worked**, because the relationship
+entities never had endpoints to search.
+
+CHIP's map has tags that both create an entity and set an attribute —
+`<source id="1001"/>` inside a `<relationship>` creates a `client` *and* sets
+`relationship.source` to it. The loader resolved the enclosing entity from the
+top of the entity stack, but the tag had already pushed the client it just
+created, so the attribute landed on the client and `relationship.source` /
+`.target` stayed null on every relationship CHIP ever loaded. Fixed in #997 by
+reading one below the top when the tag created an entity. Household size went
+from 1 to 2 — it had been counting the applicant and nobody else.
+
+**The lesson is the shape, not the bug:** a question framed as "which of these
+two designs" was really "neither, because the data the designs disagree about
+was never there". Check that the thing being reasoned about actually loads
+before choosing between models of it.
+
+### Two more of the pattern, found last
+
+**A test whose input was not in the repository (#998).** `.gitignore` carried a
+blanket `testfiles/`. 577 sample test files predate the rule and stayed tracked
+— which is why nobody noticed, since git ignores nothing about a file already
+added — but every scenario written *during this campaign* was silently never
+committed: CorporateTax's CA/ME/MT, ChipApp's, KidAid_Application's. Those
+tests passed on the authoring machine and could not have passed on any other
+checkout. **Run `make check` in a clean worktree, not just in yours.**
+
+**Three sets of expected values, no two agreeing (#935).** TaxReturn's
+`Family_2025` figures existed hardcoded in the test *and* in the scenario, with
+a third answer from the rules. The scenario's copy was even commented "updated
+to match actual calculations" — it had been a capture of rule output once, and
+then drifted, because the test kept its own copy. The test now reads the
+scenario. Two copies of a number that must agree will not stay agreeing.
+
+## Still open
+
+None of this is repair work; it is scope the campaign deliberately did not take.
+
+- **CorporateTax** — scenarios for the gross-receipts states (OH CAT, WA B&O,
+  TX margin, TN franchise/excise; those wrapper paths have never fired); MA and
+  MS rates, whose forms their sites blocked us from downloading; whether the
+  project gets an Excel bootstrap (it is the only sample with no workbooks);
+  whether Form 1120 is rebuilt at all. Full detail in
+  `sampleprojects/CorporateTax/STATUS.md`.
+- **TaxReturn** — the ~8.5k total-tax disagreement with the external reference
+  model, and the SE-tax and QBI treatment behind it. Needs a tax reference, not
+  a code change. #935 closed on the drift between copies, not on this.
+- **SinusitisTherapy** — the shipped PDF is guarded against rule drift, but not
+  against changes visible only in the PDF (styling, print flags).
 
 ## Tools
 
