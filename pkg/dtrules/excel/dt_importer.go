@@ -1410,6 +1410,32 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 		return nil
 	}
 
+	// Compiling with no symbol table is not a degraded mode, it is a wrong
+	// one: with no types, every field reference compiles as an integer. A
+	// `fixed` subtraction becomes `-` instead of `fp-` and the assignment
+	// stores `cvi` instead of `cvfp`, so a money calculation silently changes
+	// its arithmetic — and the build reports "no drops" and exits 0.
+	//
+	// This is reachable whenever the workbook set carries no EDD sheet and the
+	// output directory has no EDD either, which is exactly what
+	// `build --from-excel` into a fresh directory does: symbols come from the
+	// *output* dir (newWorkbookImporter → LoadEDDSymbols(xmlDir)). The
+	// Accumulate staking rules hit it — 35 tables, entities=0, every
+	// fixed-point operator downgraded (#1029).
+	//
+	// A table with no DSL has nothing to type, so it is unaffected.
+	if n := countDSLRows(table); len(i.symbols) == 0 && n > 0 {
+		if i.stats != nil {
+			i.stats.AddDrop(table.TableName, 0, "postfix",
+				fmt.Sprintf("no EDD symbols available: %d DSL row(s) would compile untyped, "+
+					"emitting integer operators for typed fields (fp- becomes -, cvfp becomes cvi). "+
+					"Import the EDD alongside the decision tables, or build into a directory that "+
+					"already holds the project's *_edd.xml", n))
+		}
+		return fmt.Errorf("%s: refusing to compile with no EDD symbols — "+
+			"every field would be typed as integer", table.TableName)
+	}
+
 	// Set symbols if available
 	if i.symbols != nil {
 		i.elCompiler.SetSymbols(i.symbols)
