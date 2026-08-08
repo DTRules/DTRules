@@ -24,6 +24,18 @@
     <file_path>states/LA/53100_LA_corporate_constants</file_path>
   </file_metadata>
   <entity name="result">
+    <field name="la_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"/>
+    <field name="la_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"/>
+    <field name="la_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"/>
+    <field name="la_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"/>
+    <field name="la_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"/>
+    <field name="la_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"/>
     <!-- Louisiana Corporate Tax Rate - NEW 2025 FLAT RATE -->
     <field name="la_corp_tax_rate" type="double" default_value="0.055"
            comment="LA corporate income tax rate: 5.5% flat rate (effective 2025, replaced graduated rates up to 7.5%, LA R.S. 47:287)"/>

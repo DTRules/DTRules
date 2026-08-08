@@ -31,6 +31,8 @@ func init() {
 	Register("req", opReq)
 	Register("isdefined", opIsDefined)
 	Alias("isdefined", "wheredef")
+	Register("getrelationship", opGetRelationship)
+	Register("hasrelationship", opHasRelationship)
 }
 
 // opEntityPush: ( entity -- ) pushes entity onto entity stack
@@ -202,6 +204,60 @@ func opReq(state dtrules.State) error {
 	// Compare by entity ID (unique instance identifier)
 	result := entity1.GetID() == entity2.GetID()
 	return state.DataPush(dtrules.GetRBoolean(result))
+}
+
+// opGetRelationship: ( entity name -- related ) resolves `<name> of <entity>`
+// to the entity's attribute named <name> — a relationship is modeled as an
+// entity-typed attribute, but this returns the attribute's value whatever its
+// type. Returns null when the entity has no such attribute (or it is unset).
+func opGetRelationship(state dtrules.State) error {
+	nameObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	entityObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	entity, err := entityObj.REntityValue()
+	if err != nil {
+		return err
+	}
+	val, err := entity.Get(dtrules.GetRName(nameObj.StringValue()))
+	if err != nil {
+		return err
+	}
+	if val == nil {
+		return state.DataPush(dtrules.GetRNull())
+	}
+	return state.DataPush(val)
+}
+
+// opHasRelationship: ( entity name -- boolean ) true when the entity has an
+// attribute <name> holding a non-null entity — i.e. the relationship is set.
+func opHasRelationship(state dtrules.State) error {
+	nameObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	entityObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	entity, err := entityObj.REntityValue()
+	if err != nil {
+		return err
+	}
+	rname := dtrules.GetRName(nameObj.StringValue())
+	if !entity.ContainsAttribute(rname) {
+		return state.DataPush(dtrules.GetRBoolean(false))
+	}
+	val, err := entity.Get(rname)
+	if err != nil {
+		return state.DataPush(dtrules.GetRBoolean(false))
+	}
+	has := val != nil && val.Type() == dtrules.TypeEntity
+	return state.DataPush(dtrules.GetRBoolean(has))
 }
 
 // opIsDefined: ( /name -- boolean ) checks if a name is defined on the entity stack

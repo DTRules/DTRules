@@ -8,13 +8,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ProjectPicker } from '@/components/ProjectPicker';
 import { useProjectStore } from '@/stores/projectStore';
 import { useOnboardingStore } from '@/stores/onboardingStore';
 import { FileText, Table2, GitBranch, FolderOpen, Play, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getSampleProjects, type SampleProject } from '@/api/client';
+import { getSampleProjects, discoverProjects, type SampleProject, type DiscoveredProject } from '@/api/client';
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -55,9 +54,10 @@ export function WelcomeScreen() {
   const { openProject, autoSelectFirstItems, error: projectError } = useProjectStore();
   const { setShowWelcome, startTutorial } = useOnboardingStore();
   const [customPathDialogOpen, setCustomPathDialogOpen] = useState(false);
-  const [customPath, setCustomPath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sampleProjects, setSampleProjects] = useState<SampleProject[]>([]);
+  const [discovered, setDiscovered] = useState<DiscoveredProject[]>([]);
+  const [discoveredRoot, setDiscoveredRoot] = useState<string>('');
   const [loadError, setLoadError] = useState<string | null>(null);
 
   // Fetch available sample projects from the backend on mount
@@ -73,6 +73,21 @@ export function WelcomeScreen() {
       }
     };
     fetchSamples();
+    // Projects discovered beneath the launch directory (when the editor was
+    // started somewhere that is not itself a project) — offered for one-click
+    // opening instead of the old whole-tree scan.
+    const fetchDiscovered = async () => {
+      try {
+        const result = await discoverProjects();
+        if (result.success && result.projects) {
+          setDiscovered(result.projects);
+          setDiscoveredRoot(result.root);
+        }
+      } catch (error) {
+        console.error('Failed to discover projects:', error);
+      }
+    };
+    fetchDiscovered();
   }, []);
 
   // Find the CHIP project from the discovered samples
@@ -163,10 +178,10 @@ export function WelcomeScreen() {
     setIsLoading(false);
   };
 
-  const handleOpenCustomProject = async () => {
-    if (!customPath) return;
+  const handleOpenCustomProject = async (path: string) => {
+    if (!path) return;
     setIsLoading(true);
-    const success = await openProject(customPath);
+    const success = await openProject(path);
     if (success) {
       // Auto-select first items so all editors have content visible
       await autoSelectFirstItems();
@@ -217,6 +232,31 @@ export function WelcomeScreen() {
           />
         </div>
 
+        {/* Projects discovered beneath the launch directory */}
+        {discovered.length > 0 && (
+          <div className="glass rounded-2xl p-6 space-y-3">
+            <div className="text-sm font-semibold">
+              Projects found under <span className="font-mono text-muted-foreground">{discoveredRoot}</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+              {discovered.map((p) => (
+                <button
+                  key={p.path}
+                  onClick={() => handleOpenCustomProject(p.path)}
+                  disabled={isLoading}
+                  className="flex items-baseline gap-2 px-3 py-2 rounded-lg border border-border/50 hover:border-blue-500/50 hover:bg-accent/50 text-left transition-colors"
+                  title={p.path}
+                >
+                  <span className="font-medium">{p.name}</span>
+                  <span className="text-xs text-muted-foreground font-mono truncate">
+                    {p.marker}{p.entry ? ` · entry: ${p.entry}` : ''}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex flex-col items-center gap-4">
           <Button
@@ -263,36 +303,24 @@ export function WelcomeScreen() {
         setCustomPathDialogOpen(open);
         if (!open) setLoadError(null);
       }}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[640px]">
           <DialogHeader>
             <DialogTitle>Open Project</DialogTitle>
             <DialogDescription>
-              Enter the path to a DTRules project directory containing EDD and DT XML files.
+              Pick a recent project, or browse to a directory containing EDD and DT XML files.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4">
             {loadError && (
               <div className="p-3 rounded bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
                 {loadError}
               </div>
             )}
-            <div className="grid gap-2">
-              <Label htmlFor="customProjectPath">Project Path</Label>
-              <Input
-                id="customProjectPath"
-                placeholder="/path/to/project/xml"
-                value={customPath}
-                onChange={(e) => setCustomPath(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleOpenCustomProject()}
-              />
-            </div>
+            <ProjectPicker onOpen={handleOpenCustomProject} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCustomPathDialogOpen(false)}>
               Cancel
-            </Button>
-            <Button onClick={handleOpenCustomProject} disabled={!customPath || isLoading}>
-              Open Project
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -159,40 +159,15 @@ func NewInMemoryProject(dir string) (*Project, error) {
 	return p, nil
 }
 
-// loadEDD parses *_edd.xml files and extracts field names+types for validation.
+// loadEDD populates p.symbols with EDD field names+types for type-aware
+// compilation. It delegates to LoadEDDSymbols (the shared builder also used by
+// the cmd/dtrules build path) so discovery scope and key form cannot drift:
+// both walk xmlDir recursively (finding nested EDDs like xml/states/CO_edd.xml)
+// and register both the bare and entity-qualified keys. A flat Glob here used
+// to miss nested EDDs, degrading their fixed/double ops to integer (#874/#879).
 func (p *Project) loadEDD(xmlDir string) error {
-	entries, err := filepath.Glob(filepath.Join(xmlDir, "*_edd.xml"))
-	if err != nil {
-		return err
-	}
-
-	type eddField struct {
-		Name string `xml:"name,attr"`
-		Type string `xml:"type,attr"`
-	}
-	type eddEntity struct {
-		Name   string     `xml:"name,attr"`
-		Fields []eddField `xml:"field"`
-	}
-	type eddFile struct {
-		Entities []eddEntity `xml:"entity"`
-	}
-
-	for _, path := range entries {
-		data, err := os.ReadFile(path)
-		if err != nil {
-			continue
-		}
-		var f eddFile
-		if err := xml.Unmarshal(data, &f); err != nil {
-			continue
-		}
-		for _, ent := range f.Entities {
-			for _, field := range ent.Fields {
-				key := ent.Name + "." + field.Name
-				p.symbols[key] = field.Type
-			}
-		}
+	for k, v := range LoadEDDSymbols(xmlDir) {
+		p.symbols[k] = v
 	}
 	return nil
 }
@@ -351,6 +326,35 @@ func (p *Project) preWriteExcelGuard() error {
 // (Save, SaveEDD, dtrules compile).
 func (p *Project) refreshExcelFromXML() error {
 	return RefreshExcelInDir(p.xmlDir)
+}
+
+// RenameTable renames a decision table in place.
+//
+// This exists because assigning to a Table view's Name field does nothing
+// durable: Project.Table builds a fresh view per call, and only the SDK's
+// mutator methods sync a view back to the underlying XML. The CLI's
+// `set-name` patch did exactly that assignment and was a silent no-op — the
+// response said "patched", Save ran, and the XML kept the old name.
+func (p *Project) RenameTable(old, new string) error {
+	if strings.TrimSpace(new) == "" {
+		return fmt.Errorf("new table name must be non-empty")
+	}
+	if old == new {
+		return nil
+	}
+	if p.Table(new) != nil {
+		return fmt.Errorf("a table named %q already exists", new)
+	}
+	for fi := range p.dtFiles {
+		for ti := range p.dtFiles[fi].tables.Tables {
+			if p.dtFiles[fi].tables.Tables[ti].TableName == old {
+				p.dtFiles[fi].tables.Tables[ti].TableName = new
+				p.logChange("renamed table %s -> %s", old, new)
+				return nil
+			}
+		}
+	}
+	return fmt.Errorf("table %q not found", old)
 }
 
 // Tables lists the names of every decision table in the project.

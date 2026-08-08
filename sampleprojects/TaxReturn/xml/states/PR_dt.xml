@@ -2,7 +2,12 @@
 <decision_tables>
 
 <!-- TABLE 50000: PR_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
+<source>
+<relative_path>PR.xlsx</relative_path>
+<file_name>PR.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>PR_Tax</table_name>
 <xls_file>PR.xlsx</xls_file>
 <attribute_fields>
@@ -14,10 +19,12 @@
 <initial_actions></initial_actions>
 <conditions>
 <condition_details>
-<condition_number>2</condition_number>
+<condition_number>1</condition_number>
 <condition_comment>Qualifies for Act 60 business benefits; Act 60 business (4% rate)</condition_comment>
 <condition_dsl>result.pr_act60_business is true</condition_dsl>
-<condition_postfix>result.pr_act60_business true beq</condition_postfix>
+<condition_postfix>
+result.pr_act60_business true beq
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>

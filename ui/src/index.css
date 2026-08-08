@@ -74,6 +74,14 @@
 }
 
 /* AG Grid custom styles */
+
+/* In autoHeight mode AG Grid reserves ~150px for rows even when there are
+   fewer; shrink that so short condition/action lists don't leave dead space. */
+.ag-theme-alpine-dark .ag-center-cols-viewport,
+.ag-theme-alpine-dark .ag-center-cols-container {
+  min-height: 32px !important;
+}
+
 .ag-theme-alpine-dark {
   --ag-background-color: hsl(222.2, 84%, 4.9%);
   --ag-header-background-color: hsl(217.2, 32.6%, 12%);
@@ -83,28 +91,41 @@
   --ag-border-color: hsl(217.2, 32.6%, 17.5%);
 }
 
-/* Monaco Editor container */
-.monaco-container {
-  height: 100%;
-  width: 100%;
+/* Dense variant for the decision-table rules grid: tight cell padding and
+   compact rows so the matrix reads like a spreadsheet, not a data browser. */
+.ag-theme-alpine-dark.ag-tight {
+  --ag-grid-size: 4px;
+  --ag-cell-horizontal-padding: 6px;
+  --ag-row-height: 26px;
+  --ag-header-height: 28px;
+  font-size: 12px;
+}
+.ag-theme-alpine-dark.ag-tight .ag-cell {
+  display: flex;
+  align-items: center;
+}
+/* Auto-height (wrapped) cells get the same breathing room single-line rows
+   have from the fixed row height, so row spacing stays consistent. */
+.ag-theme-alpine-dark.ag-tight .ag-cell-wrap-text {
+  white-space: pre-wrap;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+/* Center the numeric rule-column headers over their narrow cells */
+.ag-theme-alpine-dark.ag-tight .rule-col-header .ag-header-cell-label {
+  justify-content: center;
+}
+/* Visible vertical separators on the rule columns so a rule can be traced
+   straight down the grid; the first rule column also separates from the DSL. */
+.ag-theme-alpine-dark.ag-tight .ag-cell[col-id^="col_"],
+.ag-theme-alpine-dark.ag-tight .ag-header-cell[col-id^="col_"] {
+  border-right: 1px solid var(--ag-border-color);
+}
+.ag-theme-alpine-dark.ag-tight .ag-cell[col-id="col_1"],
+.ag-theme-alpine-dark.ag-tight .ag-header-cell[col-id="col_1"] {
+  border-left: 1px solid var(--ag-border-color);
 }
 
-/* React Flow custom styles */
-.react-flow__node-condition {
-  background: hsl(210, 40%, 25%);
-  border: 1px solid hsl(210, 40%, 40%);
-  border-radius: 8px;
-  padding: 10px;
-  color: white;
-}
-
-.react-flow__node-action {
-  background: hsl(120, 40%, 25%);
-  border: 1px solid hsl(120, 40%, 40%);
-  border-radius: 8px;
-  padding: 10px;
-  color: white;
-}
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {

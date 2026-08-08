@@ -2,9 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 46600: SD_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
+<source>
+<relative_path>SD.xlsx</relative_path>
+<file_name>SD.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>SD_Tax</table_name>
-<xls_file>State.xls</xls_file>
+<xls_file>SD.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>South Dakota does not impose a state income tax (per sd_has_income_tax=false in SD_edd.xml). The hypothetical progressive-bracket postfix stored here is factually incorrect and slated for removal. NEEDS AUTHORSHIP: existing postfix should be replaced with a no-tax stub; for now the EL DSL sets result.sd_tax = 0 to reflect the actual SD policy.</COMMENTS>
@@ -13,10 +18,10 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl />
-<initial_action_postfix></initial_action_postfix>
-<action_dsl>add "SOUTH DAKOTA - no state income tax (sd_has_income_tax=false)" to job.audit_trail; set result.sd_agi = result.agi</action_dsl>
-<action_postfix>&quot;SOUTH DAKOTA - no state income tax (sd_has_income_tax=false)&quot; job.audit_trail swap addto result.agi cvi /result.sd_agi xdef</action_postfix>
+<initial_action_dsl>add "SOUTH DAKOTA - no state income tax (sd_has_income_tax=false)" to job.audit_trail; set result.sd_agi = result.agi</initial_action_dsl>
+<initial_action_postfix>
+"SOUTH DAKOTA - no state income tax (sd_has_income_tax=false)" job.audit_trail swap addto result.agi cvi /result.sd_agi xdef
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -24,7 +29,9 @@
 <condition_number>1</condition_number>
 <condition_comment>Married Filing Jointly</condition_comment>
 <condition_dsl>job.filing_status is equal to "married_filing_jointly"</condition_dsl>
-<condition_postfix>job.filing_status &quot;married_filing_jointly&quot; streq</condition_postfix>
+<condition_postfix>
+job.filing_status "married_filing_jointly" streq
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -33,7 +40,9 @@
 <condition_number>2</condition_number>
 <condition_comment>Single</condition_comment>
 <condition_dsl>job.filing_status is equal to "single"</condition_dsl>
-<condition_postfix>job.filing_status &quot;single&quot; streq</condition_postfix>
+<condition_postfix>
+job.filing_status "single" streq
+</condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
@@ -42,7 +51,9 @@
 <condition_number>3</condition_number>
 <condition_comment>Head of Household</condition_comment>
 <condition_dsl>job.filing_status is equal to "head_of_household"</condition_dsl>
-<condition_postfix>job.filing_status &quot;head_of_household&quot; streq</condition_postfix>
+<condition_postfix>
+job.filing_status "head_of_household" streq
+</condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="Y" />
@@ -53,36 +64,38 @@
 <action_number>1</action_number>
 <action_comment>SD tax MFJ - no state income tax in South Dakota (sd_has_income_tax=false)</action_comment>
 <action_dsl>set result.sd_tax = 0; add "  South Dakota has no state income tax (MFJ): $0" to job.audit_trail</action_dsl>
-<action_postfix>0 cvi /result.sd_tax xdef &quot;  South Dakota has no state income tax (MFJ): $0&quot; job.audit_trail swap addto</action_postfix>
+<action_postfix>
+0 cvi /result.sd_tax xdef "  South Dakota has no state income tax (MFJ): $0" job.audit_trail swap addto
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>SD tax Single - no state income tax in South Dakota (sd_has_income_tax=false)</action_comment>
 <action_dsl>set result.sd_tax = 0; add "  South Dakota has no state income tax (Single): $0" to job.audit_trail</action_dsl>
-<action_postfix>0 cvi /result.sd_tax xdef &quot;  South Dakota has no state income tax (Single): $0&quot; job.audit_trail swap addto</action_postfix>
+<action_postfix>
+0 cvi /result.sd_tax xdef "  South Dakota has no state income tax (Single): $0" job.audit_trail swap addto
+</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>SD tax HOH - no state income tax in South Dakota (sd_has_income_tax=false)</action_comment>
 <action_dsl>set result.sd_tax = 0; add "  South Dakota has no state income tax (HOH): $0" to job.audit_trail</action_dsl>
-<action_postfix>0 cvi /result.sd_tax xdef &quot;  South Dakota has no state income tax (HOH): $0&quot; job.audit_trail swap addto</action_postfix>
+<action_postfix>
+0 cvi /result.sd_tax xdef "  South Dakota has no state income tax (HOH): $0" job.audit_trail swap addto
+</action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
-<policy_statement column="1">
-<policy_description>SD progressive tax MFJ with standard deduction</policy_description>
-<policy_statement_postfix>"South Dakota progressive tax for MFJ per South Dakota Form SD-1040"</policy_statement_postfix>
-</policy_statement>
 <policy_statement column="2">
 <policy_description>SD progressive tax Single with standard deduction</policy_description>
-<policy_statement_postfix>"South Dakota progressive tax for Single per South Dakota Form SD-1040"</policy_statement_postfix>
+<policy_statement_postfix>"SD progressive tax Single with standard deduction"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>SD progressive tax HOH with standard deduction</policy_description>
-<policy_statement_postfix>"South Dakota progressive tax for HOH per South Dakota Form SD-1040"</policy_statement_postfix>
+<policy_statement_postfix>"SD progressive tax HOH with standard deduction"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

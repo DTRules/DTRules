@@ -75,4 +75,51 @@
 
   </entity>
 
+  <entity name="result">
+    <field name="me_tier1_tax" type="double" default_value="0.0"
+           comment="Per-bracket tax; tax from bracket 1 (3.5% up to $350,000). The original postfix held this in a fake local, which the EL authoring promoted to a real field (campaign #948)."/>
+    <field name="me_tier2_tax" type="double" default_value="0.0"
+           comment="Per-bracket tax; tax from bracket 2 (7.93% of $350,001-$1,050,000). The original postfix held this in a fake local, which the EL authoring promoted to a real field (campaign #948)."/>
+    <field name="me_tier3_tax" type="double" default_value="0.0"
+           comment="Per-bracket tax; tax from bracket 3 (8.33% of $1,050,001-$3,500,000). The original postfix held this in a fake local, which the EL authoring promoted to a real field (campaign #948)."/>
+    <field name="me_tier4_tax" type="double" default_value="0.0"
+           comment="Per-bracket tax; tax from bracket 4 (8.93% over $3,500,000). The original postfix held this in a fake local, which the EL authoring promoted to a real field (campaign #948)."/>
+    <field name="me_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_corp_tax_rate_tier1" type="double" default_value="0.035"
+           comment="1120ME instructions: 3.5% of adjusted federal taxable income up to $350,000"/>
+    <field name="me_corp_tax_rate_tier2" type="double" default_value="0.0793"
+           comment="1120ME instructions: $12,250 plus 7.93% of the excess over $350,000"/>
+    <field name="me_corp_tax_rate_tier3" type="double" default_value="0.0833"
+           comment="1120ME instructions: $67,760 plus 8.33% of the excess over $1,050,000"/>
+    <field name="me_corp_tax_rate_tier4" type="double" default_value="0.0893"
+           comment="1120ME instructions: $271,845 plus 8.93% of the excess over $3,500,000"/>
+    <field name="me_economic_nexus_threshold" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_has_nexus" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_section_199a_addback" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_state_additions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_state_credits" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_state_subtractions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_tax_liability" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_taxable_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+    <field name="me_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by ME but never declared (campaign #948 Phase 1)"/>
+  </entity>
+
 </entity_data_dictionary>

@@ -2,7 +2,12 @@
 <decision_tables>
 
 <!-- TABLE 52828: OH_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
+<source>
+<relative_path>OH.xlsx</relative_path>
+<file_name>OH.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>OH_Tax</table_name>
 <xls_file>OH.xlsx</xls_file>
 <attribute_fields>
@@ -13,14 +18,10 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset and log</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Ohio Tax Calculation (top marginal 3.5%)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef &quot;  Ohio Tax Calculation (top marginal 3.5%)&quot; job.audit_trail swap addto</initial_action_postfix>
-<action_postfix>
-0.0 /result.computed_state_tax xdef
-0.0 /result.computed_state_taxable_income xdef
-"  Ohio Tax Calculation (top marginal 3.5%)" job.audit_trail swap addto
-</action_postfix>
+<initial_action_postfix>
+0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef "  Ohio Tax Calculation (top marginal 3.5%)" job.audit_trail swap addto
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -28,7 +29,9 @@
 <condition_number>1</condition_number>
 <condition_comment>Always</condition_comment>
 <condition_dsl>true</condition_dsl>
-<condition_postfix>true</condition_postfix>
+<condition_postfix>
+true
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 </condition_details>
 </conditions>
@@ -37,15 +40,12 @@
 <action_number>1</action_number>
 <action_comment>OH tax = max(AGI - $0, 0) x 3.5%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 0.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.035</action_dsl>
-<action_postfix>result.agi 0.0 - 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.035 fmul cvd /result.computed_state_tax xdef</action_postfix>
+<action_postfix>
+result.agi 0.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.035 fmul cvi /result.computed_state_tax xdef
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements>
-<policy_statement column="1">
-<policy_description>OH: 3.5% x max(AGI - $0, 0) per Ohio Rev. Code § 5747.02</policy_description>
-<policy_statement_postfix>"Ohio top-marginal-rate approximation per Ohio Rev. Code § 5747.02"</policy_statement_postfix>
-</policy_statement>
-</policy_statements>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

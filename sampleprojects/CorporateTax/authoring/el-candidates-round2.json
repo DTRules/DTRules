@@ -1,0 +1,170 @@
+{
+  "Calculate_IA_Corporate_Income_Adjustments": {
+    "initial action 1": "// Initialize Iowa income adjustments"
+  },
+  "Calculate_IA_Corporate_Tax": {
+    "initial action 1": "// Initialize Iowa tax calculation"
+  },
+  "Calculate_ID_Corporate_Income_Adjustments": {
+    "initial action 1": "// Initialize Idaho income adjustments"
+  },
+  "Calculate_ID_Corporate_Tax": {
+    "initial action 1": "// Initialize Idaho tax calculation"
+  },
+  "Calculate_IN_Corporate_Income_Adjustments": {
+    "initial action 1": "// Initialize Indiana income adjustments"
+  },
+  "Calculate_IN_Corporate_Tax": {
+    "initial action 1": "// Initialize Indiana tax calculation"
+  },
+  "Calculate_KS_Corporate_Income_Adjustments": {
+    "initial action 1": "// Initialize Kansas income adjustments"
+  },
+  "Calculate_KS_Corporate_Tax": {
+    "initial action 1": "// Initialize Kansas tax calculation"
+  },
+  "Calculate_KY_Corporate_Income_Adjustments": {
+    "initial action 1": "// Initialize Kentucky income adjustments"
+  },
+  "Calculate_KY_Corporate_Tax": {
+    "initial action 1": "// Initialize Kentucky tax calculation"
+  },
+  "Calculate_LA_Corporate_Income_Adjustments": {
+    "initial action 1": "// Initialize Louisiana income adjustments"
+  },
+  "Calculate_LA_Corporate_Tax": {
+    "initial action 1": "// Initialize Louisiana tax calculation"
+  },
+  "Calculate_MA_Corporate_Income_Adjustments": {
+    "initial action 1": "// Initialize Massachusetts income adjustments"
+  },
+  "Calculate_MA_Corporate_Tax": {
+    "initial action 1": "// Initialize Massachusetts tax calculation"
+  },
+  "Calculate_MD_Corporate_Income_Adjustments": {
+    "initial action 1": "// Initialize Maryland income adjustments"
+  },
+  "Calculate_MD_Corporate_Tax": {
+    "initial action 1": "// Initialize Maryland tax calculation"
+  },
+  "Calculate_ME_Corporate_Income_Adjustments": {
+    "initial action 1": "// Initialize Maine income adjustments"
+  },
+  "Calculate_ME_Corporate_Tax": {
+    "initial action 1": "// Initialize Maine tax calculation"
+  },
+  "Calculate_MI_Corporate_Income_Adjustments": {
+    "initial action 1": "// Initialize Michigan income adjustments"
+  },
+  "Calculate_MI_Corporate_Tax": {
+    "initial action 1": "// Initialize Michigan tax calculation"
+  },
+  "Calculate_MN_Corporate_Income_Adjustments": {
+    "initial action 1": "// Initialize Minnesota income adjustments"
+  },
+  "Calculate_MN_Corporate_Tax": {
+    "initial action 1": "// Initialize Minnesota tax calculation"
+  },
+  "Calculate_MO_Corporate_Income_Adjustments": {
+    "initial action 1": "// Initialize Missouri income adjustments"
+  },
+  "Calculate_MO_Corporate_Tax": {
+    "initial action 1": "// Initialize Missouri tax calculation"
+  },
+  "Calculate_MS_Corporate_Income_Adjustments": {
+    "initial action 1": "// Initialize Mississippi income adjustments"
+  },
+  "Calculate_MS_Corporate_Tax": {
+    "initial action 1": "// Initialize Mississippi tax calculation"
+  },
+  "Calculate_MT_Corporate_Income_Adjustments": {
+    "initial action 1": "// Initialize Montana income adjustments"
+  },
+  "Calculate_MT_Corporate_Tax": {
+    "initial action 1": "// Initialize Montana tax calculation"
+  },
+  "Calculate_NV_Sitused_Revenue": {
+    "initial action 1": "// Initialize Nevada sitused revenue calculation"
+  },
+  "Calculate_NV_State_Tax": {
+    "initial action 1": "// Initialize Nevada Commerce Tax calculation"
+  },
+  "Calculate_RI_Income_Adjustments": {
+    "initial action 1": "// Initialize RI income adjustments"
+  },
+  "Calculate_RI_State_Tax": {
+    "initial action 1": "// Initialize RI state tax calculation"
+  },
+  "Calculate_TN_Excise_Tax": {
+    "initial action 1": "// Initialize Tennessee excise tax calculation"
+  },
+  "Calculate_TN_Franchise_Tax": {
+    "initial action 1": "// Initialize Tennessee franchise tax calculation"
+  },
+  "Calculate_TN_Income_Adjustments": {
+    "initial action 1": "// Initialize Tennessee income adjustments"
+  },
+  "Calculate_WI_Income_Adjustments": {
+    "initial action 1": "// Initialize Wisconsin income adjustments calculation"
+  },
+  "Calculate_WI_State_Tax": {
+    "initial action 1": "// Initialize Wisconsin state tax calculation"
+  },
+  "Determine_IA_Corporate_Filing_Requirement": {
+    "initial action 1": "// Initialize Iowa filing requirement check"
+  },
+  "Determine_ID_Corporate_Filing_Requirement": {
+    "initial action 1": "// Initialize Idaho filing requirement check"
+  },
+  "Determine_IN_Corporate_Filing_Requirement": {
+    "initial action 1": "// Initialize Indiana filing requirement check"
+  },
+  "Determine_KS_Corporate_Filing_Requirement": {
+    "initial action 1": "// Initialize Kansas filing requirement check"
+  },
+  "Determine_KY_Corporate_Filing_Requirement": {
+    "initial action 1": "// Initialize Kentucky filing requirement check"
+  },
+  "Determine_LA_Corporate_Filing_Requirement": {
+    "initial action 1": "// Initialize Louisiana filing requirement check"
+  },
+  "Determine_MA_Corporate_Filing_Requirement": {
+    "initial action 1": "// Initialize Massachusetts filing requirement check"
+  },
+  "Determine_MD_Corporate_Filing_Requirement": {
+    "initial action 1": "// Initialize Maryland filing requirement check"
+  },
+  "Determine_ME_Corporate_Filing_Requirement": {
+    "initial action 1": "// Initialize Maine filing requirement check"
+  },
+  "Determine_MI_Corporate_Filing_Requirement": {
+    "initial action 1": "// Initialize Michigan filing requirement check"
+  },
+  "Determine_MN_Corporate_Filing_Requirement": {
+    "initial action 1": "// Initialize Minnesota filing requirement check"
+  },
+  "Determine_MO_Corporate_Filing_Requirement": {
+    "initial action 1": "// Initialize Missouri filing requirement check"
+  },
+  "Determine_MS_Corporate_Filing_Requirement": {
+    "initial action 1": "// Initialize Mississippi filing requirement check"
+  },
+  "Determine_MT_Corporate_Filing_Requirement": {
+    "initial action 1": "// Initialize Montana filing requirement check"
+  },
+  "Determine_NV_Business_Classification": {
+    "initial action 1": "// Initialize Nevada business classification determination"
+  },
+  "Determine_NV_Filing_Requirement": {
+    "initial action 1": "// Initialize Nevada filing requirement check"
+  },
+  "Determine_RI_Filing_Requirement": {
+    "initial action 1": "// Initialize RI filing requirement check"
+  },
+  "Determine_TN_Filing_Requirement": {
+    "initial action 1": "// Initialize Tennessee filing requirement check"
+  },
+  "Determine_WI_Filing_Requirement": {
+    "initial action 1": "// Initialize Wisconsin filing requirement determination"
+  }
+}

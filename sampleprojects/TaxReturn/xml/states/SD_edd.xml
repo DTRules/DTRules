@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="SD.xlsx" access="rw">
+	<file_metadata>
+		<file_path>SD_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="SD.xlsx" access="rw">
+		<source>
+			<relative_path>SD.xlsx</relative_path>
+			<file_name>SD.xlsx</file_name>
+			<sheet_number>2</sheet_number>
+		</source>
 		<field name="sd_has_income_tax" type="boolean" subtype="" access="r" input="" default_value="false" comment="South Dakota does not impose state income tax (2025)"></field>
 		<field name="sd_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="SD tax rate: 0% - no state income tax (2025)"></field>
 	</entity>

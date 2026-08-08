@@ -1,8 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
+<!-- TABLE 42100: MA_Tax -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>MA.xlsx</relative_path>
+<file_name>MA.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
+<table_name>MA_Tax</table_name>
+<xls_file>MA.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Massachusetts state income tax. Flat 5.00% rate (MA Gen. Laws ch. 62, § 4, 2025) on AGI minus the filing-status personal exemption. Personal exemption: $4,400 Single/MFS, $8,800 MFJ, $6,800 HOH. Plus a 4% surtax (Fair Share Amendment) on AGI above the surtax threshold ($1,083,150 in 2025). Writes result.ma_taxable_income, result.ma_state_tax, result.ma_surtax.</COMMENTS>
+<TABLE_NUMBER>42100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>set result.ma_state_tax = 0; set result.ma_taxable_income = 0; set result.ma_surtax = 0; add "  Massachusetts Tax Calculation (Form 1) - flat 5.00% + 4% surtax over $1,083,150" to job.audit_trail</initial_action_dsl>
+<initial_action_postfix>
+0 cvd /result.ma_state_tax xdef 0 cvd /result.ma_taxable_income xdef 0 cvd /result.ma_surtax xdef "  Massachusetts Tax Calculation (Form 1) - flat 5.00% + 4% surtax over $1,083,150" job.audit_trail swap addto
+</initial_action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Filing status is Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
+<condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
+<condition_postfix>
+job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Filing status is Head of Household</condition_comment>
+<condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
+<condition_postfix>
+job.filing_status "HOH" streq
+</condition_postfix>
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>MFJ/QSS: exemption $8,800; tax = max(AGI − 8,800, 0) × 5.00% + surtax</action_comment>
+<action_dsl>set result.ma_taxable_income = the maximum of (result.agi - 8800.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
+<action_postfix>
+result.agi 8800.0 f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>HOH: exemption $6,800; tax = max(AGI − 6,800, 0) × 5.00% + surtax</action_comment>
+<action_dsl>set result.ma_taxable_income = the maximum of (result.agi - 6800.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
+<action_postfix>
+result.agi 6800.0 f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Default (Single/MFS): exemption $4,400; tax = max(AGI − 4,400, 0) × 5.00% + surtax</action_comment>
+<action_dsl>set result.ma_taxable_income = the maximum of (result.agi - 4400.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
+<action_postfix>
+result.agi 4400.0 f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef
+</action_postfix>
+<action_column column_number="3" column_value="X" />
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
+<action_dsl>set result.computed_state_taxable_income = result.ma_taxable_income; set result.computed_state_tax = result.ma_state_tax</action_dsl>
+<action_postfix>
+result.ma_taxable_income cvi /result.computed_state_taxable_income xdef result.ma_state_tax cvi /result.computed_state_tax xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="2" column_value="X" />
+<action_column column_number="3" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="2">
+<policy_description>MA tax HOH: 5.00% × max(AGI − $6,800, 0) + 4% × max(AGI − $1,083,150, 0)</policy_description>
+<policy_statement_postfix>"MA tax HOH: 5.00% × max(AGI − $6,800, 0) + 4% × max(AGI − $1,083,150, 0)"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>MA tax Single/MFS: 5.00% × max(AGI − $4,400, 0) + 4% × max(AGI − $1,083,150, 0)</policy_description>
+<policy_statement_postfix>"MA tax Single/MFS: 5.00% × max(AGI − $4,400, 0) + 4% × max(AGI − $1,083,150, 0)"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
 <!-- TABLE 42101: MA_Military_Retirement_Exclusion -->
-<decision_table>
+<decision_table el_compiled="true">
+<source>
+<relative_path>MA.xlsx</relative_path>
+<file_name>MA.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>MA_Military_Retirement_Exclusion</table_name>
 <xls_file>MA.xlsx</xls_file>
 <attribute_fields>
@@ -15,87 +118,5 @@
 <conditions></conditions>
 <actions></actions>
 <policy_statements></policy_statements>
-</decision_table>
-
-<!-- TABLE 42100: MA_Tax -->
-<decision_table>
-<table_name>MA_Tax</table_name>
-<xls_file>MA.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Massachusetts state income tax. Flat 5.00% rate (MA Gen. Laws ch. 62, § 4, 2025) on AGI minus the filing-status personal exemption. Personal exemption: $4,400 Single/MFS, $8,800 MFJ, $6,800 HOH. Plus a 4% surtax (Fair Share Amendment) on AGI above the surtax threshold ($1,083,150 in 2025). Writes result.ma_taxable_income, result.ma_state_tax, result.ma_surtax.</COMMENTS>
-<TABLE_NUMBER>42100</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions>
-<initial_action>
-<action_comment>Reset MA tax fields and log calculation start</action_comment>
-<initial_action_dsl>set result.ma_state_tax = 0; set result.ma_taxable_income = 0; set result.ma_surtax = 0; add "  Massachusetts Tax Calculation (Form 1) - flat 5.00% + 4% surtax over $1,083,150" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvd /result.ma_state_tax xdef 0 cvd /result.ma_taxable_income xdef 0 cvd /result.ma_surtax xdef &quot;  Massachusetts Tax Calculation (Form 1) - flat 5.00% + 4% surtax over $1,083,150&quot; job.audit_trail swap addto</initial_action_postfix>
-<action_postfix>
-0.0 /result.ma_state_tax xdef
-0.0 /result.ma_taxable_income xdef
-0.0 /result.ma_surtax xdef
-"  Massachusetts Tax Calculation (Form 1) — flat 5.00% + 4% surtax over $1,083,150" job.audit_trail swap addto
-</action_postfix>
-</initial_action>
-</initial_actions>
-<conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>Filing status is Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
-<condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
-<condition_postfix>job.filing_status &quot;MFJ&quot; streq { pop job.filing_status &quot;QSS&quot; streq } over not if</condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-</condition_details>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Filing status is Head of Household</condition_comment>
-<condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
-<condition_postfix>job.filing_status &quot;HOH&quot; streq</condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-</condition_details>
-</conditions>
-<actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment>MFJ/QSS: exemption $8,800; tax = max(AGI − 8,800, 0) × 5.00% + surtax</action_comment>
-<action_dsl>set result.ma_taxable_income = the maximum of (result.agi - 8800.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
-<action_postfix>result.agi 8800.0 - 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef</action_postfix>
-<action_column column_number="1" column_value="X" />
-</action_details>
-<action_details>
-<action_number>2</action_number>
-<action_comment>HOH: exemption $6,800; tax = max(AGI − 6,800, 0) × 5.00% + surtax</action_comment>
-<action_dsl>set result.ma_taxable_income = the maximum of (result.agi - 6800.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
-<action_postfix>result.agi 6800.0 - 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef</action_postfix>
-<action_column column_number="2" column_value="X" />
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>Default (Single/MFS): exemption $4,400; tax = max(AGI − 4,400, 0) × 5.00% + surtax</action_comment>
-<action_dsl>set result.ma_taxable_income = the maximum of (result.agi - 4400.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
-<action_postfix>result.agi 4400.0 - 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef</action_postfix>
-<action_column column_number="3" column_value="X" />
-</action_details>
-</actions>
-<policy_statements>
-<policy_statement column="1">
-<policy_description>MA tax MFJ: 5.00% × max(AGI − $8,800, 0) + 4% × max(AGI − $1,083,150, 0)</policy_description>
-<policy_statement_postfix>"MA flat tax MFJ per MA Gen. Laws ch. 62, § 4 (5% + Fair Share surtax)"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="2">
-<policy_description>MA tax HOH: 5.00% × max(AGI − $6,800, 0) + 4% × max(AGI − $1,083,150, 0)</policy_description>
-<policy_statement_postfix>"MA flat tax HOH per MA Gen. Laws ch. 62, § 4 (5% + Fair Share surtax)"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="3">
-<policy_description>MA tax Single/MFS: 5.00% × max(AGI − $4,400, 0) + 4% × max(AGI − $1,083,150, 0)</policy_description>
-<policy_statement_postfix>"MA flat tax Single/MFS per MA Gen. Laws ch. 62, § 4 (5% + Fair Share surtax)"</policy_statement_postfix>
-</policy_statement>
-</policy_statements>
 </decision_table>
 </decision_tables>

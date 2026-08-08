@@ -24,11 +24,19 @@
 package el
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
 )
+
+// errEmission marks a failure that occurred after a clean parse, while the
+// emitter was producing postfix (e.g. a type error). CompileAction uses it to
+// distinguish a definitive emission failure from a parse-structure mismatch:
+// the former must not trigger the raw-statement fallback, which would reparse
+// and report a confusing parse error that masks the real diagnostic.
+var errEmission = errors.New("emission errors")
 
 // Compiler compiles Expression Language (EL) to postfix notation.
 type Compiler struct {
@@ -79,7 +87,27 @@ func (c *Compiler) SetCollectionResolver(fn CollectionResolver) {
 // CompileCondition compiles an EL condition expression to postfix.
 // The input should be a boolean expression like "applicant.age >= 18".
 func (c *Compiler) CompileCondition(el string) (string, error) {
+	if isCommentOnly(el) {
+		// Documentation rows: a comment-only condition compiles to
+		// nothing; the loader substitutes "true always" at load time.
+		return "", nil
+	}
 	return c.compile("condition " + el)
+}
+
+// isCommentOnly reports whether the input is empty or consists solely of
+// a comment (// line, # line, or a /* block */) — a documentation row
+// with no executable content.
+func isCommentOnly(s string) bool {
+	t := strings.TrimSpace(s)
+	if t == "" {
+		return true
+	}
+	if strings.HasPrefix(t, "//") || strings.HasPrefix(t, "#") {
+		return true
+	}
+	return strings.HasPrefix(t, "/*") && strings.HasSuffix(t, "*/") &&
+		!strings.Contains(t[2:len(t)-2], "*/")
 }
 
 // CompileContext compiles an EL context statement to postfix.
@@ -88,7 +116,12 @@ func (c *Compiler) CompileCondition(el string) (string, error) {
 // compiling conditions and actions in the same table.
 func (c *Compiler) CompileContext(el string) (string, error) {
 	el = strings.TrimSpace(el)
-	if el == "" {
+	if isCommentOnly(el) {
+		// Same rule CompileCondition applies: a row that is only a comment
+		// is documentation and compiles to nothing. Without this, a table
+		// carrying a commented-out context row could not be written through
+		// the authoring API at all — `table put` rejected the whole table on
+		// a parse error for a row that was never meant to execute.
 		return "", nil
 	}
 	return c.compile("context " + el)
@@ -99,7 +132,8 @@ func (c *Compiler) CompileContext(el string) (string, error) {
 // If the input is just an identifier (table name), it's treated as "perform TableName".
 func (c *Compiler) CompileAction(el string) (string, error) {
 	el = strings.TrimSpace(el)
-	if el == "" {
+	if isCommentOnly(el) {
+		// Documentation row — see CompileCondition.
 		return "", nil
 	}
 
@@ -119,14 +153,27 @@ func (c *Compiler) CompileAction(el string) (string, error) {
 		return result, nil
 	}
 
+	// A clean parse that failed only at emission (e.g. a type error) is
+	// definitive — don't fall back to the raw-statement attempt, which would
+	// reparse and report a confusing parse error that hides the real one.
+	if errors.Is(err, errEmission) {
+		return "", err
+	}
+
 	// Try without action prefix (might be a raw statement)
+	prefixErr := err
 	result, err = c.compile(el)
 	if err == nil {
 		return result, nil
 	}
 
-	// Return original error
-	return "", err
+	// Report the PREFIXED attempt's error. Nearly every action cell is meant
+	// to be read as `action <statement>`, so that is the parse the author
+	// cares about. Returning the raw attempt's error instead reported
+	// "mismatched input '{' expecting {'action', 'condition', ...}" for a
+	// statement that merely needed a semicolon inside its block — an error
+	// pointing at the entry rule rather than the actual mistake.
+	return "", prefixErr
 }
 
 // isIdentifier checks if the string is a simple identifier (table name)
@@ -202,7 +249,7 @@ func (c *Compiler) compile(el string) (string, error) {
 		for i, err := range errs {
 			errStrs[i] = err.Error()
 		}
-		return "", fmt.Errorf("emission errors: %s", strings.Join(errStrs, "; "))
+		return "", fmt.Errorf("%w: %s", errEmission, strings.Join(errStrs, "; "))
 	}
 
 	return c.emitter.Emit(), nil

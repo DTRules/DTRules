@@ -22,6 +22,20 @@
     <file_path>states/IA/52600_IA_corporate_constants</file_path>
   </file_metadata>
   <entity name="result">
+    <field name="ia_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
+    <field name="ia_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
+    <field name="ia_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
+    <field name="ia_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
+    <field name="ia_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
+    <field name="ia_state_taxes_deducted" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
+    <field name="ia_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"/>
     <!-- Iowa Corporate Tax Rate - Graduated System -->
     <field name="ia_corp_tax_rate_bracket_1" type="double" default_value="0.055"
            comment="IA corporate income tax rate bracket 1: 5.5% on income up to $100,000 (Iowa Code § 422.33)"/>

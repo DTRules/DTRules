@@ -104,6 +104,14 @@ type DecisionTableXML struct {
 	AttributeFields  AttributeFieldsXML   `xml:"attribute_fields"`
 	Contexts         ContextsField        `xml:"contexts"`
 	InitialActions   []InitialActionXML   `xml:"initial_actions>initial_action"`
+	// InitialActionsLegacy is the `<initial_action_details>` spelling, which
+	// every other section of the file uses (`<condition_details>`,
+	// `<action_details>`, `<context_details>`) and which SyntaxTests uses
+	// throughout. Only `<initial_action>` was ever read, so those rows were
+	// invisible: not loaded, not compiled, not executable, and not reachable
+	// from the authoring API — 312 rows of one sample that had never run.
+	// Read both, normalise to the canonical spelling on write-out.
+	InitialActionsLegacy []InitialActionXML `xml:"initial_actions>initial_action_details,omitempty"`
 	Conditions       []ConditionXML       `xml:"conditions>condition_details"`
 	Actions          []ActionXML          `xml:"actions>action_details"`
 	PolicyStatements []PolicyStatementXML `xml:"policy_statements>policy_statement"`
@@ -221,11 +229,43 @@ func (c *ContextsField) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 }
 
 // AttributeFieldsXML holds metadata fields for the table.
+//
+// The table type has three spellings in real DTRules XML — <Type>, <TYPE>
+// and <type> — and the runtime loader accepts all three. This model used to
+// read only <Type>, so a table written in the legacy uppercase form loaded
+// with an empty type and, on the next authoring write, was SAVED with an
+// empty <Type>: the policy that decides whether a table is FIRST, ALL or
+// BALANCED, silently erased. KidAid's tables are all <TYPE>.
+//
+// EffectiveType resolves the three; the marshaller writes <Type>.
 type AttributeFieldsXML struct {
-	Type        string `xml:"Type"`
-	Comments    string `xml:"COMMENTS"`
-	TableNumber string `xml:"TABLE_NUMBER"`
-	FilePath    string `xml:"FILE_PATH,omitempty"`
+	Type          string `xml:"Type"`
+	TypeUppercase string `xml:"TYPE,omitempty"`
+	TypeLowercase string `xml:"type,omitempty"`
+	Comments      string `xml:"COMMENTS"`
+	TableNumber   string `xml:"TABLE_NUMBER"`
+	FilePath      string `xml:"FILE_PATH,omitempty"`
+}
+
+// EffectiveType returns the table type from whichever spelling carries it.
+func (a AttributeFieldsXML) EffectiveType() string {
+	if a.Type != "" {
+		return a.Type
+	}
+	if a.TypeUppercase != "" {
+		return a.TypeUppercase
+	}
+	return a.TypeLowercase
+}
+
+// EffectiveInitialActions returns the table's initial actions from whichever
+// element spelling carries them. Writers must assign to InitialActions and
+// clear InitialActionsLegacy so a table cannot end up carrying two lists.
+func (d DecisionTableXML) EffectiveInitialActions() []InitialActionXML {
+	if len(d.InitialActions) > 0 {
+		return d.InitialActions
+	}
+	return d.InitialActionsLegacy
 }
 
 // valueAfterColon returns everything after the first colon in a "Label: value"
@@ -250,11 +290,20 @@ func valueAfterColon(cell string) string {
 // On read, either form is accepted. On write, the modern form is emitted.
 // The Comment field maps to <action_comment>, which both conventions share.
 type InitialActionXML struct {
-	Comment       string `xml:"action_comment"`
-	DSL           string `xml:"initial_action_dsl"`
-	Postfix       string `xml:"initial_action_postfix"`
-	ActionDSL     string `xml:"action_dsl"`     // legacy alternate of DSL
-	ActionPostfix string `xml:"action_postfix"` // legacy alternate of Postfix
+	Comment        string `xml:"action_comment"`
+	InitialComment string `xml:"initial_action_comment,omitempty"` // legacy alternate of Comment
+	DSL            string `xml:"initial_action_dsl"`
+	Postfix        string `xml:"initial_action_postfix"`
+	ActionDSL      string `xml:"action_dsl"`     // legacy alternate of DSL
+	ActionPostfix  string `xml:"action_postfix"` // legacy alternate of Postfix
+}
+
+// EffectiveComment returns the comment from whichever spelling carries it.
+func (a InitialActionXML) EffectiveComment() string {
+	if a.Comment != "" {
+		return a.Comment
+	}
+	return a.InitialComment
 }
 
 // EffectiveDSL returns the DSL with precedence: modern tag > legacy tag.
@@ -426,7 +475,140 @@ func (i *DTImporter) ImportDecisionTablesFromDir(dir string) (*DecisionTablesXML
 }
 
 // WriteXML writes the decision tables to an XML file.
+// normalizeProvenance backfills workbook provenance — XLSFile and the
+// <source> element — for tables that have none, before the XML is written.
+// Emitted XML is then a complete record an editor or sync tool can use to
+// locate every table's workbook, every compile.
+//
+// Tables created through the authoring SDK (Project.AddTable) historically
+// carried an empty <xls_file> and no <source> at all, while Excel-imported
+// tables carried both. Tooling that locates a table's workbook/sheet through
+// this metadata then sees two classes of table — and the SDK-authored ones
+// look like they don't exist even though the engine resolves and runs them
+// (observed in the staking rules: 19 of 34 tables were provenance-less).
+// The emitter owns this metadata: DTRules produces the XML on every compile,
+// so every compile must emit it for every table.
+//
+// Existing provenance is PRESERVED, never rewritten — <source> records where
+// a table was imported from, and the round-trip contract keeps original
+// sheet positions intact (see TestRoundTripSourceMetadata). Backfill rules
+// for tables without provenance:
+//   - Workbook: inherited from the first table in the file that has one;
+//     failing that, derived from the XML filename ("staking_dt.xml" ->
+//     "staking.xlsx"). RelativePath inherits the same way.
+//   - Sheet numbers: appended after the file's highest existing sheet
+//     number, in ascending numeric TABLE_NUMBER order (non-numeric numbers
+//     after numeric, ties by name — the exporter's ordering), so assignment
+//     is deterministic across compiles and reads as "these tables land as
+//     appended sheets".
+func normalizeProvenance(tables *DecisionTablesXML, xmlPath string) {
+	if tables == nil || len(tables.Tables) == 0 {
+		return
+	}
+
+	workbook, rel, maxSheet := "", "", 0
+	var missing []int
+	for i := range tables.Tables {
+		t := &tables.Tables[i]
+		if workbook == "" && strings.TrimSpace(t.XLSFile) != "" {
+			workbook = strings.TrimSpace(t.XLSFile)
+		}
+		if t.Source != nil {
+			if rel == "" && strings.TrimSpace(t.Source.RelativePath) != "" {
+				rel = strings.TrimSpace(t.Source.RelativePath)
+			}
+			if t.Source.SheetNumber > maxSheet {
+				maxSheet = t.Source.SheetNumber
+			}
+		} else {
+			missing = append(missing, i)
+		}
+	}
+	if workbook == "" {
+		base := strings.TrimSuffix(filepath.Base(xmlPath), ".xml")
+		base = strings.TrimSuffix(base, "_dt")
+		workbook = base + ".xlsx"
+	}
+	if rel == "" {
+		rel = workbook
+	}
+	fileName := filepath.Base(workbook)
+
+	// Deterministic append order for the provenance-less tables.
+	sort.SliceStable(missing, func(a, b int) bool {
+		ta, tb := &tables.Tables[missing[a]], &tables.Tables[missing[b]]
+		na, errA := strconv.Atoi(strings.TrimSpace(ta.AttributeFields.TableNumber))
+		nb, errB := strconv.Atoi(strings.TrimSpace(tb.AttributeFields.TableNumber))
+		if errA == nil && errB == nil {
+			return na < nb
+		}
+		if errA == nil {
+			return true
+		}
+		if errB == nil {
+			return false
+		}
+		return ta.TableName < tb.TableName
+	})
+	for _, i := range missing {
+		t := &tables.Tables[i]
+		maxSheet++
+		t.Source = &SourceXML{RelativePath: rel, FileName: fileName, SheetNumber: maxSheet}
+	}
+	for i := range tables.Tables {
+		if strings.TrimSpace(tables.Tables[i].XLSFile) == "" {
+			tables.Tables[i].XLSFile = workbook
+		}
+	}
+}
+
+// normalizeTableNumbers backfills missing TABLE_NUMBERs. Tables that already
+// carry a numeric number keep it; the rest are assigned numbers in document
+// order, in increments of 100, continuing above the highest existing number
+// (starting at 100 when none are numbered).
+func normalizeTableNumbers(tables *DecisionTablesXML) {
+	max := 0
+	for i := range tables.Tables {
+		if n, err := strconv.Atoi(strings.TrimSpace(tables.Tables[i].AttributeFields.TableNumber)); err == nil && n > max {
+			max = n
+		}
+	}
+	next := (max/100)*100 + 100
+	for i := range tables.Tables {
+		t := &tables.Tables[i]
+		if _, err := strconv.Atoi(strings.TrimSpace(t.AttributeFields.TableNumber)); err != nil {
+			t.AttributeFields.TableNumber = strconv.Itoa(next)
+			next += 100
+		}
+	}
+}
+
+// normalizeSectionNumbers renumbers every per-table section sequentially
+// (1..N in document order): contexts, conditions, actions. Section numbers
+// are display labels with no semantic value — the engine executes by
+// position — so a user-specified sequence buys nothing, and drifted
+// numbering (1,2,4,7,...) made the editor, the debugger, and engine error
+// messages disagree about which action was which.
+func normalizeSectionNumbers(tables *DecisionTablesXML) {
+	for i := range tables.Tables {
+		t := &tables.Tables[i]
+		for j := range t.Contexts.Details {
+			t.Contexts.Details[j].Number = j + 1
+		}
+		for j := range t.Conditions {
+			t.Conditions[j].Number = strconv.Itoa(j + 1)
+		}
+		for j := range t.Actions {
+			t.Actions[j].Number = strconv.Itoa(j + 1)
+		}
+	}
+}
+
 func (i *DTImporter) WriteXML(tables *DecisionTablesXML, filename string) error {
+	normalizeTableNumbers(tables)
+	normalizeSectionNumbers(tables)
+	normalizeProvenance(tables, filename)
+
 	// Open file for writing
 	f, err := os.Create(filename)
 	if err != nil {
@@ -485,7 +667,7 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 
 	// Attribute fields
 	f.WriteString("<attribute_fields>\n")
-	f.WriteString(fmt.Sprintf("<Type>%s</Type>\n", xmlEscapeText(table.AttributeFields.Type)))
+	f.WriteString(fmt.Sprintf("<Type>%s</Type>\n", xmlEscapeText(table.AttributeFields.EffectiveType())))
 	f.WriteString(fmt.Sprintf("<COMMENTS>%s</COMMENTS>\n", xmlEscapeText(table.AttributeFields.Comments)))
 	f.WriteString(fmt.Sprintf("<TABLE_NUMBER>%s</TABLE_NUMBER>\n", xmlEscapeText(table.AttributeFields.TableNumber)))
 	if table.AttributeFields.FilePath != "" {
@@ -495,18 +677,25 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 
 	writeContextsXML(f, table.Contexts)
 
-	// Initial actions. Both DSL/postfix tag conventions are accepted on read;
-	// on write we emit the modern <initial_action_dsl> / <initial_action_postfix>
-	// form for new content and preserve whichever form was present for entries
-	// originally read from legacy XML.
-	if len(table.InitialActions) == 0 {
+	// Initial actions. Both element spellings and both DSL/postfix tag
+	// conventions are accepted on read; on write we emit the canonical
+	// <initial_action> element and the modern <initial_action_dsl> /
+	// <initial_action_postfix> tags for new content, preserving whichever
+	// form was present for entries originally read from legacy XML.
+	//
+	// Read through EffectiveInitialActions, not the canonical field alone: a
+	// table that arrived spelled <initial_action_details> has an empty
+	// canonical list, and writing that emitted <initial_actions></initial_actions>
+	// — silently deleting every initial action in the table on the first save.
+	initialActions := table.EffectiveInitialActions()
+	if len(initialActions) == 0 {
 		f.WriteString("<initial_actions></initial_actions>\n")
 	} else {
 		f.WriteString("<initial_actions>\n")
-		for _, action := range table.InitialActions {
+		for _, action := range initialActions {
 			f.WriteString("<initial_action>\n")
-			if action.Comment != "" {
-				f.WriteString(fmt.Sprintf("<action_comment>%s</action_comment>\n", xmlEscapeText(action.Comment)))
+			if c := action.EffectiveComment(); c != "" {
+				f.WriteString(fmt.Sprintf("<action_comment>%s</action_comment>\n", xmlEscapeText(c)))
 			}
 			writeDSLOrPostfix(f, "initial_action_dsl", action.DSL)
 			writeBlockPostfix(f, "initial_action_postfix", action.Postfix)
@@ -535,7 +724,7 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 			f.WriteString(fmt.Sprintf("<condition_comment>%s</condition_comment>\n", xmlEscapeText(cond.Comment)))
 			writeDSLOrPostfix(f, "condition_dsl", cond.DSL)
 			writeBlockPostfix(f, "condition_postfix", cond.Postfix)
-			for _, col := range cond.Columns {
+			for _, col := range sortedColumns(cond.Columns) {
 				f.WriteString(fmt.Sprintf("<condition_column column_number=\"%d\" column_value=\"%s\" />\n",
 					col.Number, xmlEscapeAttr(col.Value)))
 			}
@@ -555,7 +744,7 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 			f.WriteString(fmt.Sprintf("<action_comment>%s</action_comment>\n", xmlEscapeText(action.Comment)))
 			writeDSLOrPostfix(f, "action_dsl", action.DSL)
 			writeBlockPostfix(f, "action_postfix", action.Postfix)
-			for _, col := range action.Columns {
+			for _, col := range sortedColumns(action.Columns) {
 				f.WriteString(fmt.Sprintf("<action_column column_number=\"%d\" column_value=\"%s\" />\n",
 					col.Number, xmlEscapeAttr(col.Value)))
 			}
@@ -945,8 +1134,13 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 			numCols = i.countHeaderColumns(row)
 			currentSection = "actions"
 
+		// Same one-row layout as conditions/actions above: the exporter writes
+		// "Policy:", the "Policy Statements" label, and the rule-column numbers
+		// on the title row, then one data row per statement. Routing through a
+		// separate *_header state ate the first statement of every table on
+		// round-trip (column 1's policy vanished).
 		case strings.HasPrefix(firstCellLower, "policy"):
-			currentSection = "policy_header"
+			currentSection = "policy"
 
 		default:
 			switch currentSection {
@@ -1051,10 +1245,6 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 					currentSection = ""
 				}
 
-			case "policy_header":
-				// Header row with column numbers
-				currentSection = "policy"
-
 			case "policy":
 				// New format: column number in A, policy text in B (one row per policy)
 				if firstCell != "" {
@@ -1064,12 +1254,18 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 							policy := PolicyStatementXML{
 								Column:      firstCell,
 								Description: desc,
-								Postfix:     fmt.Sprintf(`"%s"`, desc),
+								Postfix:     CompilePolicyStatement(desc),
 							}
 							table.PolicyStatements = append(table.PolicyStatements, policy)
 						}
 						continue
 					}
+				}
+				// A legacy two-row layout puts the rule-column numbers on their
+				// own row below the title. Skip it: those numbers are headers,
+				// not statements.
+				if isColumnNumberRow(row) {
+					continue
 				}
 				// Old format: empty A, "Column Policy" in B, statements in D, E, F...
 				if len(row) > 3 {
@@ -1079,7 +1275,7 @@ func (i *DTImporter) parseExporterFormat(rows [][]string, sheetName string, tabl
 							policy := PolicyStatementXML{
 								Column:      strconv.Itoa(col - 2), // 1-indexed
 								Description: val,
-								Postfix:     fmt.Sprintf(`"%s"`, val),
+								Postfix:     CompilePolicyStatement(val),
 							}
 							table.PolicyStatements = append(table.PolicyStatements, policy)
 						}
@@ -1138,6 +1334,39 @@ func (i *DTImporter) countHeaderColumns(row []string) int {
 		}
 	}
 	return count
+}
+
+// sortedColumns returns the column entries in column order without disturbing
+// the caller's slice. Written XML is a file under version control, so its
+// element order has to be a function of the content — not of whatever order a
+// Go map happened to yield upstream.
+func sortedColumns(cols []ColumnValueXML) []ColumnValueXML {
+	out := make([]ColumnValueXML, len(cols))
+	copy(out, cols)
+	sort.Slice(out, func(i, j int) bool { return out[i].Number < out[j].Number })
+	return out
+}
+
+// isColumnNumberRow reports whether a row is a bare rule-column header —
+// columns A and B empty and every remaining populated cell an integer, e.g.
+// the "1 2 3 4" row a legacy two-row section layout puts under its title.
+// Such a row carries no authored content and must not be parsed as data.
+func isColumnNumberRow(row []string) bool {
+	if strings.TrimSpace(safeGet(row, 0)) != "" || strings.TrimSpace(safeGet(row, 1)) != "" {
+		return false
+	}
+	numbers := 0
+	for j := 2; j < len(row); j++ {
+		cell := strings.TrimSpace(row[j])
+		if cell == "" {
+			continue
+		}
+		if _, err := strconv.Atoi(cell); err != nil {
+			return false
+		}
+		numbers++
+	}
+	return numbers > 0
 }
 
 // safeGet safely gets a string from a slice, returning empty string if out of bounds.

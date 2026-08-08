@@ -1,11 +1,14 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-
-
-
+<!-- TABLE 51400: Determine_CO_Filing_Requirement -->
 <decision_table>
-<table_name>Determine_CO_Corporate_Filing_Requirement</table_name>
+<source>
+<relative_path>CO_Corp.xls</relative_path>
+<file_name>CO_Corp.xls</file_name>
+<sheet_number>1</sheet_number>
+</source>
+<table_name>Determine_CO_Filing_Requirement</table_name>
 <xls_file>CO_Corp.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -13,40 +16,36 @@
 <TABLE_NUMBER>51400</TABLE_NUMBER>
 <FILE_PATH>states/CO/51400_Determine_CO_Corporate_Filing_Requirement</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
+<contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl>// Initialize Colorado filing requirement check; set result.co_has_nexus = false;</action_dsl>
-<action_postfix></action_postfix>
+<initial_action_dsl>// Initialize Colorado filing requirement check; set result.co_has_nexus = false;</initial_action_dsl>
+<initial_action_postfix></initial_action_postfix>
 </initial_action>
 </initial_actions>
-
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has physical presence in Colorado</condition_comment>
 <condition_dsl>result.has_physical_presence_co is true</condition_dsl>
-<condition_postfix>result.has_physical_presence_co true beq</condition_postfix>
+<condition_postfix>
+result.has_physical_presence_co true beq
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets economic nexus threshold; result.co_gross_receipts &gt;= result.co_economic_nexus_threshold</condition_comment>
-<condition_dsl />
+<condition_dsl>result.co_gross_receipts &gt;= result.co_economic_nexus_threshold</condition_dsl>
 <condition_postfix>
 result.co_gross_receipts result.co_economic_nexus_threshold f&gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
@@ -55,7 +54,6 @@ result.co_gross_receipts result.co_economic_nexus_threshold f&gt;=
 <action_postfix></action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus - filing required</action_comment>
@@ -63,25 +61,27 @@ result.co_gross_receipts result.co_economic_nexus_threshold f&gt;=
 <action_postfix></action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required; // No nexus - no filing required; set result.co_has_nexus = false; set result.co_tax_liability = 0.0;</action_comment>
-<action_dsl />
+<action_dsl>set result.co_has_nexus = false; set result.co_tax_liability = 0.0;</action_dsl>
 <action_postfix>
 false cvb /result.co_has_nexus xdef 0.0 cvd /result.co_tax_liability xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 51420: Calculate_CO_Income_Adjustments -->
 <decision_table>
-<table_name>Calculate_CO_Corporate_Income_Adjustments</table_name>
+<source>
+<relative_path>CO_Corp.xls</relative_path>
+<file_name>CO_Corp.xls</file_name>
+<sheet_number>2</sheet_number>
+</source>
+<table_name>Calculate_CO_Income_Adjustments</table_name>
 <xls_file>CO_Corp.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -89,56 +89,56 @@ false cvb /result.co_has_nexus xdef 0.0 cvd /result.co_tax_liability xdef
 <TABLE_NUMBER>51420</TABLE_NUMBER>
 <FILE_PATH>states/CO/51420_Calculate_CO_Corporate_Income_Adjustments</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
+<contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl>// Initialize Colorado income adjustments; set result.co_state_additions = 0.0; set result.co_state_subtractions = 0.0;</action_dsl>
-<action_postfix></action_postfix>
+<initial_action_dsl>// Initialize Colorado income adjustments; set result.co_state_additions = 0.0; set result.co_state_subtractions = 0.0;</initial_action_dsl>
+<initial_action_postfix></initial_action_postfix>
 </initial_action>
 </initial_actions>
-
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has Colorado nexus</condition_comment>
 <condition_dsl>result.co_has_nexus is true</condition_dsl>
-<condition_postfix>result.co_has_nexus true beq</condition_postfix>
+<condition_postfix>
+result.co_has_nexus true beq
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Colorado state additions and subtractions; // Calculate Colorado state additions and subtractions; set result.co_state_additions = result.co_us_interest_income; set result.co_state_subtractions = result.co_state_tax_deduction;</action_comment>
-<action_dsl />
+<action_dsl>set result.co_state_additions = result.co_us_interest_income; set result.co_state_subtractions = result.co_state_tax_deduction;</action_dsl>
 <action_postfix>
 result.co_us_interest_income cvd /result.co_state_additions xdef result.co_state_tax_deduction cvd /result.co_state_subtractions xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments; // No nexus - no adjustments; set result.co_state_additions = 0.0; set result.co_state_subtractions = 0.0;</action_comment>
-<action_dsl />
+<action_dsl>set result.co_state_additions = 0.0; set result.co_state_subtractions = 0.0;</action_dsl>
 <action_postfix>
 0.0 cvd /result.co_state_additions xdef 0.0 cvd /result.co_state_subtractions xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
 
-
-
-
+<!-- TABLE 51480: Calculate_CO_State_Tax -->
 <decision_table>
-<table_name>Calculate_CO_Corporate_Tax</table_name>
+<source>
+<relative_path>CO_Corp.xls</relative_path>
+<file_name>CO_Corp.xls</file_name>
+<sheet_number>3</sheet_number>
+</source>
+<table_name>Calculate_CO_State_Tax</table_name>
 <xls_file>CO_Corp.xls</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -146,70 +146,65 @@ result.co_us_interest_income cvd /result.co_state_additions xdef result.co_state
 <TABLE_NUMBER>51480</TABLE_NUMBER>
 <FILE_PATH>states/CO/51480_Calculate_CO_Corporate_Tax</FILE_PATH>
 </attribute_fields>
-
-<contexts />
-
+<contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_dsl>// Initialize Colorado tax calculation; set result.co_taxable_income = 0.0; set result.co_tax_liability = 0.0;</action_dsl>
-<action_postfix></action_postfix>
+<initial_action_dsl>// Initialize Colorado tax calculation; set result.co_taxable_income = 0.0; set result.co_tax_liability = 0.0;</initial_action_dsl>
+<initial_action_postfix></initial_action_postfix>
 </initial_action>
 </initial_actions>
-
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has Colorado nexus</condition_comment>
 <condition_dsl>result.co_has_nexus is true</condition_dsl>
-<condition_postfix>result.co_has_nexus true beq</condition_postfix>
+<condition_postfix>
+result.co_has_nexus true beq
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
-
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive taxable income</condition_comment>
 <condition_dsl>result.co_apportioned_income &gt; 0.0</condition_dsl>
-<condition_postfix>result.co_apportioned_income 0.0 f&gt;</condition_postfix>
+<condition_postfix>
+result.co_apportioned_income 0.0 f&gt;
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="" />
 </condition_details>
 </conditions>
-
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Colorado corporate tax (flat rate 4.55%); // Calculate Colorado taxable income and tax; set result.co_taxable_income = (result.co_apportioned_income + result.co_state_additions - result.co_state_subtractions); set result.co_tax_liability = result.co_taxable_income * result.co_corp_tax_rate - result.co_state_credits; set result.co_refund_or_owed = result.co_estimated_payments - result.co_tax_liability;</action_comment>
-<action_dsl />
+<action_dsl>if result.co_apportioned_income + result.co_state_additions - result.co_state_subtractions &gt; 0.0 then set result.co_taxable_income = result.co_apportioned_income + result.co_state_additions - result.co_state_subtractions; else set result.co_taxable_income = 0.0; endif if result.co_taxable_income * result.co_corp_tax_rate - result.co_state_credits &gt; 0.0 then set result.co_tax_liability = result.co_taxable_income * result.co_corp_tax_rate - result.co_state_credits; else set result.co_tax_liability = 0.0; endif set result.co_refund_or_owed = result.co_estimated_payments - result.co_tax_liability;</action_dsl>
 <action_postfix>
-result.co_apportioned_income result.co_state_additions + result.co_state_subtractions - 0.0 f&gt; { result.co_apportioned_income result.co_state_additions + result.co_state_subtractions - } { 0.0 } ifelse cvd /result.co_taxable_income xdef result.co_taxable_income result.co_corp_tax_rate fmul result.co_state_credits - 0.0 f&gt; { result.co_taxable_income result.co_corp_tax_rate fmul result.co_state_credits - } { 0.0 } ifelse cvd /result.co_tax_liability xdef result.co_estimated_payments result.co_tax_liability - cvd /result.co_refund_or_owed xdef
+{ result.co_apportioned_income result.co_state_additions f+ result.co_state_subtractions f- cvd /result.co_taxable_income xdef } { 0.0 cvd /result.co_taxable_income xdef } result.co_apportioned_income result.co_state_additions f+ result.co_state_subtractions f- 0.0 f&gt; ifelse { result.co_taxable_income result.co_corp_tax_rate fmul result.co_state_credits f- cvd /result.co_tax_liability xdef } { 0.0 cvd /result.co_tax_liability xdef } result.co_taxable_income result.co_corp_tax_rate fmul result.co_state_credits f- 0.0 f&gt; ifelse result.co_estimated_payments result.co_tax_liability f- cvd /result.co_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>2</action_number>
 <action_comment>No taxable income - no tax liability; // No taxable income - no tax liability; set result.co_taxable_income = 0.0; set result.co_tax_liability = 0.0; set result.co_refund_or_owed = result.co_estimated_payments;</action_comment>
-<action_dsl />
+<action_dsl>set result.co_taxable_income = 0.0; set result.co_tax_liability = 0.0; set result.co_refund_or_owed = result.co_estimated_payments;</action_dsl>
 <action_postfix>
 0.0 cvd /result.co_taxable_income xdef 0.0 cvd /result.co_tax_liability xdef result.co_estimated_payments cvd /result.co_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
-
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no tax liability; // No nexus - no tax liability; set result.co_taxable_income = 0.0; set result.co_tax_liability = 0.0; set result.co_refund_or_owed = result.co_estimated_payments;</action_comment>
-<action_dsl />
+<action_dsl>set result.co_taxable_income = 0.0; set result.co_tax_liability = 0.0; set result.co_refund_or_owed = result.co_estimated_payments;</action_dsl>
 <action_postfix>
 0.0 cvd /result.co_taxable_income xdef 0.0 cvd /result.co_tax_liability xdef result.co_estimated_payments cvd /result.co_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
-
+<policy_statements></policy_statements>
 </decision_table>
-
 </decision_tables>

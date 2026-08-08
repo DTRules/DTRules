@@ -70,6 +70,8 @@ var (
 var subcommands = map[string]bool{
 	"build":    true,
 	"run":      true,
+	"debug":    true,
+	"report":   true,
 	"verify":   true,
 	"sync":     true,
 	"internal": true,
@@ -83,13 +85,21 @@ var subcommands = map[string]bool{
 	"edd":      true,
 	"mcp":      true,
 	"project":  true,
+	"edit":     true,
 }
 
 func main() {
-	// Route bare invocation and help flags to the full subcommand usage so
-	// `dtrules`, `dtrules -h`, and `dtrules --help` all list every command —
-	// not the stale legacy flag usage below.
-	if len(os.Args) <= 1 || os.Args[1] == "-h" || os.Args[1] == "--help" {
+	// Bare invocation inside a project prints a project-aware overview
+	// (config, rules, inputs, traces, suggested commands); elsewhere — and
+	// for -h/--help — the full subcommand usage.
+	if len(os.Args) <= 1 {
+		cli := NewCLI()
+		if cli.projectOverview() {
+			os.Exit(0)
+		}
+		os.Exit(cli.Run([]string{"help"}))
+	}
+	if os.Args[1] == "-h" || os.Args[1] == "--help" {
 		cli := NewCLI()
 		os.Exit(cli.Run([]string{"help"}))
 	}

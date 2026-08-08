@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="MN.xlsx" access="rw">
+	<file_metadata>
+		<file_path>MN_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="MN.xlsx" access="rw">
 		<field name="mn_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="47620" comment="MN tax bracket 1 upper limit MFJ: $0-$47,620 (2025)"></field>
 		<field name="mn_bracket_1_limit_single" type="double" subtype="" access="r" input="" default_value="32570" comment="MN tax bracket 1 upper limit single: $0-$32,570 (2025)"></field>
 		<field name="mn_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.0535" comment="MN tax rate for bracket 1: 5.35% (2025)"></field>

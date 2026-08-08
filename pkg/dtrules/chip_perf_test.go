@@ -35,7 +35,7 @@ func BenchmarkCHIPDecisionTable(b *testing.B) {
 	// Load rule set once
 	rs := session.NewRuleSet("CHIP")
 
-	eddPath := filepath.Join(chipDir, "repository/xml/CHIP_edd.xml")
+	eddPath := filepath.Join(chipDir, "xml/CHIP_edd.xml")
 	eddFile, err := os.Open(eddPath)
 	if err != nil {
 		b.Fatalf("Failed to open EDD file: %v", err)
@@ -46,7 +46,7 @@ func BenchmarkCHIPDecisionTable(b *testing.B) {
 		b.Fatalf("Failed to load EDD: %v", err)
 	}
 
-	dtPath := filepath.Join(chipDir, "repository/xml/CHIP_dt.xml")
+	dtPath := filepath.Join(chipDir, "xml/CHIP_dt.xml")
 	dtFile, err := os.Open(dtPath)
 	if err != nil {
 		b.Fatalf("Failed to open DT file: %v", err)
@@ -67,7 +67,7 @@ func BenchmarkCHIPDecisionTable(b *testing.B) {
 		}
 
 		// Load mapping
-		mapPath := filepath.Join(chipDir, "repository/xml/CHIP_map.xml")
+		mapPath := filepath.Join(chipDir, "xml/CHIP_map.xml")
 		mapFile, err := os.Open(mapPath)
 		if err != nil {
 			b.Fatalf("Failed to open mapping file: %v", err)
@@ -112,6 +112,7 @@ func BenchmarkCHIPDecisionTable(b *testing.B) {
 
 // TestCHIPPerformance runs timing tests on CHIP decision tables
 func TestCHIPPerformance(t *testing.T) {
+
 	chipDir := findCHIPDir(t)
 	if chipDir == "" {
 		t.Skip("CHIP sample project not found")
@@ -133,7 +134,7 @@ func TestCHIPPerformance(t *testing.T) {
 	// Load rule set once
 	rs := session.NewRuleSet("CHIP")
 
-	eddPath := filepath.Join(chipDir, "repository/xml/CHIP_edd.xml")
+	eddPath := filepath.Join(chipDir, "xml/CHIP_edd.xml")
 	eddFile, err := os.Open(eddPath)
 	if err != nil {
 		t.Fatalf("Failed to open EDD file: %v", err)
@@ -144,7 +145,7 @@ func TestCHIPPerformance(t *testing.T) {
 		t.Fatalf("Failed to load EDD: %v", err)
 	}
 
-	dtPath := filepath.Join(chipDir, "repository/xml/CHIP_dt.xml")
+	dtPath := filepath.Join(chipDir, "xml/CHIP_dt.xml")
 	dtFile, err := os.Open(dtPath)
 	if err != nil {
 		t.Fatalf("Failed to open DT file: %v", err)
@@ -176,7 +177,7 @@ func TestCHIPPerformance(t *testing.T) {
 				t.Fatalf("Failed to create session: %v", err)
 			}
 
-			mapPath := filepath.Join(chipDir, "repository/xml/CHIP_map.xml")
+			mapPath := filepath.Join(chipDir, "xml/CHIP_map.xml")
 			mapFile, err := os.Open(mapPath)
 			if err != nil {
 				t.Fatalf("Failed to open mapping file: %v", err)
@@ -263,7 +264,7 @@ func TestCHIPPerTestCase(t *testing.T) {
 	// Load rule set once
 	rs := session.NewRuleSet("CHIP")
 
-	eddPath := filepath.Join(chipDir, "repository/xml/CHIP_edd.xml")
+	eddPath := filepath.Join(chipDir, "xml/CHIP_edd.xml")
 	eddFile, err := os.Open(eddPath)
 	if err != nil {
 		t.Fatalf("Failed to open EDD file: %v", err)
@@ -274,7 +275,7 @@ func TestCHIPPerTestCase(t *testing.T) {
 		t.Fatalf("Failed to load EDD: %v", err)
 	}
 
-	dtPath := filepath.Join(chipDir, "repository/xml/CHIP_dt.xml")
+	dtPath := filepath.Join(chipDir, "xml/CHIP_dt.xml")
 	dtFile, err := os.Open(dtPath)
 	if err != nil {
 		t.Fatalf("Failed to open DT file: %v", err)
@@ -300,7 +301,7 @@ func TestCHIPPerTestCase(t *testing.T) {
 			loadStart := time.Now()
 
 			sess, _ := rs.NewSession()
-			mapPath := filepath.Join(chipDir, "repository/xml/CHIP_map.xml")
+			mapPath := filepath.Join(chipDir, "xml/CHIP_map.xml")
 			mapFile, _ := os.Open(mapPath)
 			m := mapping.NewMapping(sess)
 			m.LoadMapping(mapFile)
@@ -340,7 +341,7 @@ func findCHIPDirB(b *testing.B) string {
 		if err != nil {
 			continue
 		}
-		if _, err := os.Stat(filepath.Join(absPath, "repository/xml/CHIP_edd.xml")); err == nil {
+		if _, err := os.Stat(filepath.Join(absPath, "xml/CHIP_edd.xml")); err == nil {
 			return absPath
 		}
 	}

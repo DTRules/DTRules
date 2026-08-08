@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 3000: Score_Hand -->
+<decision_table>
+<source>
+<relative_path>Cribbage.xlsx</relative_path>
+<file_name>Cribbage.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
+<table_name>Score_Hand</table_name>
+<xls_file>Cribbage.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>3000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>set hand.fifteen_points = 0; set hand.pair_points = 0; set hand.run_points = 0; set hand.flush_points = 0; set hand.nobs_points = 0; set hand.total = 0;</initial_action_dsl>
+<initial_action_postfix>
+0 cvi /hand.fifteen_points xdef 0 cvi /hand.pair_points xdef 0 cvi /hand.run_points xdef 0 cvi /hand.flush_points xdef 0 cvi /hand.nobs_points xdef 0 cvi /hand.total xdef
+</initial_action_postfix>
+</initial_action>
+<initial_action>
+<initial_action_dsl>subsets(hand.cards, "combo", "value", hand.combos)</initial_action_dsl>
+<initial_action_postfix>
+hand.cards "combo" "value" hand.combos subsets
+</initial_action_postfix>
+</initial_action>
+<initial_action>
+<initial_action_dsl>groupby(hand.cards, "rank", "grp", hand.rank_groups)</initial_action_dsl>
+<initial_action_postfix>
+hand.cards "rank" "grp" hand.rank_groups groupby
+</initial_action_postfix>
+</initial_action>
+<initial_action>
+<initial_action_dsl>groupby(hand.kept, "suit", "grp", hand.suit_groups)</initial_action_dsl>
+<initial_action_postfix>
+hand.kept "suit" "grp" hand.suit_groups groupby
+</initial_action_postfix>
+</initial_action>
+<initial_action>
+<initial_action_dsl>maximalruns(hand.cards, "rank", 3, "seq", hand.run_list)</initial_action_dsl>
+<initial_action_postfix>
+hand.cards "rank" 3 "seq" hand.run_list maximalruns
+</initial_action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>always</condition_comment>
+<condition_dsl>true</condition_dsl>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>perform Score_Fifteens</action_dsl>
+<action_postfix>
+/Score_Fifteens performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment></action_comment>
+<action_dsl>perform Score_Pairs</action_dsl>
+<action_postfix>
+/Score_Pairs performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment></action_comment>
+<action_dsl>perform Score_Runs</action_dsl>
+<action_postfix>
+/Score_Runs performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment></action_comment>
+<action_dsl>perform Score_Flush</action_dsl>
+<action_postfix>
+/Score_Flush performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment></action_comment>
+<action_dsl>perform Score_Nobs</action_dsl>
+<action_postfix>
+/Score_Nobs performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment></action_comment>
+<action_dsl>set hand.total = hand.fifteen_points + hand.pair_points + hand.run_points + hand.flush_points + hand.nobs_points;</action_dsl>
+<action_postfix>
+hand.fifteen_points hand.pair_points + hand.run_points + hand.flush_points + hand.nobs_points + cvi /hand.total xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 3010: Score_Runs -->
+<decision_table>
+<source>
+<relative_path>Cribbage.xlsx</relative_path>
+<file_name>Cribbage.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
+<table_name>Score_Runs</table_name>
+<xls_file>Cribbage.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>3010</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all hand.run_list</context_dsl>
+<context_postfix>
+dup hand.run_list forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>maximalruns already filtered to span &gt;= 3</condition_comment>
+<condition_dsl>true</condition_dsl>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>set hand.run_points = hand.run_points + seq.span * seq.multiplicity;</action_dsl>
+<action_postfix>
+hand.run_points seq.span seq.multiplicity * + cvi /hand.run_points xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>A run of {seq.span}</policy_description>
+<policy_statement_postfix>"A run of " seq.span cvs strconcat "" strconcat</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 3020: Score_Fifteens -->
+<decision_table>
+<source>
+<relative_path>Cribbage.xlsx</relative_path>
+<file_name>Cribbage.xlsx</file_name>
+<sheet_number>3</sheet_number>
+</source>
+<table_name>Score_Fifteens</table_name>
+<xls_file>Cribbage.xlsx</xls_file>
+<attribute_fields>
+<Type>ALL</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>3020</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all hand.combos</context_dsl>
+<context_postfix>
+dup hand.combos forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>this subset counts fifteen</condition_comment>
+<condition_dsl>combo.sum == 15</condition_dsl>
+<condition_postfix>
+combo.sum 15 ==
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>add 2 to hand.fifteen_points</action_dsl>
+<action_postfix>
+2 hand.fifteen_points + /hand.fifteen_points xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Fifteen for 2</policy_description>
+<policy_statement_postfix>"Fifteen for 2"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 3030: Score_Pairs -->
+<decision_table>
+<source>
+<relative_path>Cribbage.xlsx</relative_path>
+<file_name>Cribbage.xlsx</file_name>
+<sheet_number>4</sheet_number>
+</source>
+<table_name>Score_Pairs</table_name>
+<xls_file>Cribbage.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>3030</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all hand.rank_groups</context_dsl>
+<context_postfix>
+dup hand.rank_groups forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>a pair</condition_comment>
+<condition_dsl>grp.count == 2</condition_dsl>
+<condition_postfix>
+grp.count 2 ==
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>pair royal</condition_comment>
+<condition_dsl>grp.count == 3</condition_dsl>
+<condition_postfix>
+grp.count 3 ==
+</condition_postfix>
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>double pair royal</condition_comment>
+<condition_dsl>grp.count == 4</condition_dsl>
+<condition_postfix>
+grp.count 4 ==
+</condition_postfix>
+<condition_column column_number="3" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>add 2 to hand.pair_points</action_dsl>
+<action_postfix>
+2 hand.pair_points + /hand.pair_points xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment></action_comment>
+<action_dsl>add 6 to hand.pair_points</action_dsl>
+<action_postfix>
+6 hand.pair_points + /hand.pair_points xdef
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment></action_comment>
+<action_dsl>add 12 to hand.pair_points</action_dsl>
+<action_postfix>
+12 hand.pair_points + /hand.pair_points xdef
+</action_postfix>
+<action_column column_number="3" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>A pair for 2</policy_description>
+<policy_statement_postfix>"A pair for 2"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Pair royal for 6</policy_description>
+<policy_statement_postfix>"Pair royal for 6"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>Double pair royal for 12</policy_description>
+<policy_statement_postfix>"Double pair royal for 12"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 3040: Score_Flush -->
+<decision_table>
+<source>
+<relative_path>Cribbage.xlsx</relative_path>
+<file_name>Cribbage.xlsx</file_name>
+<sheet_number>5</sheet_number>
+</source>
+<table_name>Score_Flush</table_name>
+<xls_file>Cribbage.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>3040</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all hand.suit_groups</context_dsl>
+<context_postfix>
+dup hand.suit_groups forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>all four kept cards share a suit</condition_comment>
+<condition_dsl>grp.count == 4</condition_dsl>
+<condition_postfix>
+grp.count 4 ==
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>the starter matches too</condition_comment>
+<condition_dsl>grp.key == hand.starter_suit</condition_dsl>
+<condition_postfix>
+grp.key hand.starter_suit ==
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>a crib flush needs all five</condition_comment>
+<condition_dsl>hand.is_crib</condition_dsl>
+<condition_postfix>
+hand.is_crib
+</condition_postfix>
+<condition_column column_number="2" column_value="N" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>add 5 to hand.flush_points</action_dsl>
+<action_postfix>
+5 hand.flush_points + /hand.flush_points xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment></action_comment>
+<action_dsl>add 4 to hand.flush_points</action_dsl>
+<action_postfix>
+4 hand.flush_points + /hand.flush_points xdef
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Five-card flush</policy_description>
+<policy_statement_postfix>"Five-card flush"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Four-card flush</policy_description>
+<policy_statement_postfix>"Four-card flush"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 3050: Score_Nobs -->
+<decision_table>
+<source>
+<relative_path>Cribbage.xlsx</relative_path>
+<file_name>Cribbage.xlsx</file_name>
+<sheet_number>6</sheet_number>
+</source>
+<table_name>Score_Nobs</table_name>
+<xls_file>Cribbage.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>3050</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all hand.kept</context_dsl>
+<context_postfix>
+dup hand.kept forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>a jack</condition_comment>
+<condition_dsl>card.rank == 11</condition_dsl>
+<condition_postfix>
+card.rank 11 ==
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>of the starter suit</condition_comment>
+<condition_dsl>card.suit == hand.starter_suit</condition_dsl>
+<condition_postfix>
+card.suit hand.starter_suit ==
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>add 1 to hand.nobs_points</action_dsl>
+<action_postfix>
+1 hand.nobs_points + /hand.nobs_points xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>His nobs for 1</policy_description>
+<policy_statement_postfix>"His nobs for 1"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+</decision_tables>

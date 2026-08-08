@@ -29,6 +29,42 @@ import type {
 } from '@/types/dtrules';
 import * as api from '@/api/client';
 
+/** Top-level editor tabs. */
+export type AppTab = 'edd' | 'dt' | 'test' | 'debug';
+
+/** What the project's DTRules.xml declares, as resolved by the server. */
+export interface ProjectConfig {
+  xmlDir: string;
+  entry: string;
+  declared: boolean;
+  /** True when a fallback whole-tree scan found decision tables under
+   * multiple top-level directories — likely several unrelated projects
+   * swept together (e.g. the editor was launched from a repo root). */
+  multiRoot?: boolean;
+}
+
+/** localStorage key for the recently-opened-projects list. */
+const RECENT_PROJECTS_KEY = 'dtrules.recentProjects';
+const MAX_RECENT_PROJECTS = 10;
+
+function loadRecentProjects(): string[] {
+  try {
+    const raw = localStorage.getItem(RECENT_PROJECTS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((p): p is string => typeof p === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentProjects(paths: string[]): void {
+  try {
+    localStorage.setItem(RECENT_PROJECTS_KEY, JSON.stringify(paths));
+  } catch {
+    // localStorage unavailable — history just won't persist
+  }
+}
+
 /**
  * Complete state interface for the project store.
  *
@@ -37,8 +73,20 @@ import * as api from '@/api/client';
 interface ProjectState {
   // Project state
   projectPath: string | null;
+  /** Effective project configuration reported by the server (DTRules.xml). */
+  projectConfig: ProjectConfig | null;
   isLoading: boolean;
   error: string | null;
+
+  // Recently opened projects (persisted to localStorage, most recent first)
+  recentProjects: string[];
+  removeRecentProject: (path: string) => void;
+
+  // True when the backend is serving read-only (dtrules edit --read-only).
+  // The server rejects all mutations; this flag hides the editing surfaces.
+  readOnly: boolean;
+  setReadOnly: (readOnly: boolean) => void;
+  setProjectConfig: (cfg: ProjectConfig | null) => void;
 
   // Files
   files: FileInfo[];
@@ -53,15 +101,18 @@ interface ProjectState {
   currentTable: DecisionTable | null;
 
   // UI state
-  activeTab: 'edd' | 'dt' | 'test' | 'tree';
+  activeTab: AppTab;
   selectedFile: string | null;
 
   // Navigation history (browser-style back/forward)
-  navigationHistory: Array<'edd' | 'dt' | 'test' | 'tree'>;
+  navigationHistory: AppTab[];
   navigationIndex: number;
 
   // Actions
   openProject: (path: string) => Promise<boolean>;
+  /** Adopt a project the backend already has loaded (GETs only — works on
+   *  read-only servers, unlike openProject's POST). */
+  adoptProject: (path: string, eddFiles: string[], dtFiles: string[], mapFiles: string[]) => Promise<void>;
   saveProject: () => Promise<boolean>;
   refreshFiles: () => Promise<void>;
 
@@ -80,8 +131,8 @@ interface ProjectState {
   deleteTable: (name: string) => Promise<boolean>;
 
   // UI actions
-  setActiveTab: (tab: 'edd' | 'dt' | 'test' | 'tree') => void;
-  setActiveTabWithHistory: (tab: 'edd' | 'dt' | 'test' | 'tree') => void;
+  setActiveTab: (tab: AppTab) => void;
+  setActiveTabWithHistory: (tab: AppTab) => void;
   setSelectedFile: (file: string | null) => void;
   clearError: () => void;
   closeProject: () => void;
@@ -97,8 +148,13 @@ interface ProjectState {
 export const useProjectStore = create<ProjectState>((set, get) => ({
   // Initial state
   projectPath: null,
+  projectConfig: null,
   isLoading: false,
   error: null,
+  recentProjects: loadRecentProjects(),
+  readOnly: false,
+  setReadOnly: (readOnly) => set({ readOnly }),
+  setProjectConfig: (cfg) => set({ projectConfig: cfg }),
   files: [],
   eddFiles: [],
   dtFiles: [],
@@ -124,11 +180,21 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
       set({
         projectPath: path,
+        projectConfig: (response as { config?: ProjectConfig }).config || null,
         eddFiles: response.eddFiles || [],
         dtFiles: response.dtFiles || [],
         mapFiles: response.mapFiles || [],
+        // Clear selections from any previously open project
+        currentEntity: null,
+        currentTable: null,
         isLoading: false,
       });
+
+      // Record in the recent-projects history (most recent first, deduped)
+      const recents = [path, ...get().recentProjects.filter((p) => p !== path)]
+        .slice(0, MAX_RECENT_PROJECTS);
+      saveRecentProjects(recents);
+      set({ recentProjects: recents });
 
       // Load initial data
       await get().loadEDD();
@@ -140,6 +206,20 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       set({ isLoading: false, error: String(err) });
       return false;
     }
+  },
+
+  adoptProject: async (path, eddFiles, dtFiles, mapFiles) => {
+    set({
+      projectPath: path,
+      eddFiles,
+      dtFiles,
+      mapFiles,
+      currentEntity: null,
+      currentTable: null,
+    });
+    await get().loadEDD();
+    await get().loadDecisionTables();
+    await get().refreshFiles();
   },
 
   saveProject: async () => {
@@ -343,6 +423,12 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       set({ error: String(err) });
       return false;
     }
+  },
+
+  removeRecentProject: (path) => {
+    const recents = get().recentProjects.filter((p) => p !== path);
+    saveRecentProjects(recents);
+    set({ recentProjects: recents });
   },
 
   // UI actions

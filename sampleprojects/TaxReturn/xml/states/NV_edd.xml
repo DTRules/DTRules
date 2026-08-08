@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="NV.xlsx" access="rw">
+	<file_metadata>
+		<file_path>NV_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="NV.xlsx" access="rw">
+		<source>
+			<relative_path>NV.xlsx</relative_path>
+			<file_name>NV.xlsx</file_name>
+			<sheet_number>2</sheet_number>
+		</source>
 		<field name="nv_has_income_tax" type="boolean" subtype="" access="r" input="" default_value="false" comment="Nevada has no state income tax"></field>
 		<field name="nv_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="NV tax rate (0.0 - no income tax)"></field>
 	</entity>

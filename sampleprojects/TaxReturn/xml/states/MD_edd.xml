@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="MD.xlsx" access="rw">
+	<file_metadata>
+		<file_path>MD_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="MD.xlsx" access="rw">
 		<field name="md_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="1000.0" comment="MD tax bracket 1 upper limit (2025)"></field>
 		<field name="md_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.02" comment="MD tax rate for bracket 1 - 2% (2025)"></field>
 		<field name="md_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="2000.0" comment="MD tax bracket 2 upper limit (2025)"></field>

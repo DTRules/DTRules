@@ -220,8 +220,17 @@ type State interface {
 	// PStack prints all stacks for debugging
 	PStack()
 
-	// TraceInfo outputs trace information
-	TraceInfo(tag, attr, value, content string)
+	// TraceInfo emits a leaf trace element: <tag attrs...>body</tag>.
+	// attrs are alternating name, value pairs.
+	TraceInfo(tag, body string, attrs ...string)
+
+	// TraceOpen emits an opening trace element: <tag attrs...>. Nested
+	// trace output (performed tables, actions) lands inside until the
+	// matching TraceClose.
+	TraceOpen(tag string, attrs ...string)
+
+	// TraceClose emits the closing trace element for TraceOpen.
+	TraceClose(tag string)
 
 	// Evaluate executes code and verifies stack is balanced
 	Evaluate(code Object) error
@@ -273,6 +282,24 @@ type State interface {
 	// "first pass" predicate is meaningless outside a loop, so the
 	// safe answer is false.
 	IsFirstLoopPass() bool
+
+	// PolicyStatements returns the run's policy-statement accumulator: the
+	// statements of every column that has fired since the last clear, in
+	// fire order. Statements collect on their own — no rule has to ask —
+	// so a table can document a conclusion its callees reached (#956).
+	//
+	// The array is live, not a copy. `clear the policy statements` empties
+	// this object, which is how a run starts a fresh report between phases;
+	// `add the policy statements to <array>` copies what has accumulated
+	// into a report array.
+	//
+	// Created on first use, so a run whose tables carry no policy
+	// statements never allocates one.
+	PolicyStatements() *RArray
+
+	// AppendPolicyStatement records one rendered statement. Called by the
+	// decision table as a column fires, not by rules.
+	AppendPolicyStatement(statement Object)
 }
 
 // Session represents an execution context.

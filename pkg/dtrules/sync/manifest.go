@@ -209,10 +209,19 @@ func (m *Manifest) RecordExport(excelPath string, xmlFiles []string) error {
 
 	now := time.Now()
 
+	// Store XML paths relative to the manifest dir, like every other path
+	// in the manifest. Absolute paths are machine-specific: a committed
+	// manifest (Excel as system of record means the manifest ships with it)
+	// would break on any other checkout.
+	relXML := make([]string, 0, len(xmlFiles))
+	for _, f := range xmlFiles {
+		relXML = append(relXML, m.normalizePath(f))
+	}
+
 	m.Files[relPath] = &FileEntry{
 		LastExportTime:       now,
 		ExcelModTimeAtExport: excelModTime,
-		XMLFiles:             xmlFiles,
+		XMLFiles:             relXML,
 	}
 
 	return m.Save()

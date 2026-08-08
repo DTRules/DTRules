@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Fixture EDD for docs/el-reference.md.
+
+  Every **Example (EL)** on that page is compiled against this dictionary by
+  TestELReference_PostfixMatchesCompiler, and the **Compiled postfix** line
+  beneath it is the compiler's actual output. The reference owns its own
+  dictionary so the page stays reproducible when sample projects change — and
+  so it can never again cite entities from a project that no longer exists.
+
+  Types are chosen to exercise the typed operators the page documents: an
+  integer age compares with `==`, a double agi with `f>=`, a string
+  filing_status with `streq`.
+-->
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>el_reference_edd</file_path>
+	</file_metadata>
+
+	<entity name="taxpayer" number="100" access="rw" comment="Filer used by the tax-flavored examples">
+		<field name="age" type="integer" subtype="" access="rw" input="main" default_value="0" comment=""></field>
+		<field name="birth_date" type="date" subtype="" access="rw" input="main" default_value="" comment=""></field>
+		<field name="filing_status" type="string" subtype="" access="rw" input="main" default_value="" comment=""></field>
+		<field name="is_blind" type="boolean" subtype="" access="rw" input="main" default_value="false" comment=""></field>
+	</entity>
+
+	<entity name="result" number="200" access="rw" comment="Computed output of a tax run">
+		<field name="agi" type="double" subtype="" access="rw" input="" default_value="0.0" comment=""></field>
+		<field name="eligible" type="boolean" subtype="" access="rw" input="" default_value="false" comment=""></field>
+		<field name="taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment=""></field>
+		<field name="total_deduction" type="double" subtype="" access="rw" input="" default_value="0.0" comment=""></field>
+		<field name="total_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment=""></field>
+	</entity>
+
+	<entity name="previous" number="300" access="rw" comment="Prior-year figures, for year-over-year examples">
+		<field name="agi" type="double" subtype="" access="rw" input="" default_value="0.0" comment=""></field>
+	</entity>
+
+	<entity name="w2" number="400" access="rw" comment="A wage statement">
+		<field name="wages" type="double" subtype="" access="rw" input="main" default_value="0.0" comment=""></field>
+	</entity>
+
+	<entity name="income" number="500" access="rw" comment="One income source">
+		<field name="amount" type="double" subtype="" access="rw" input="main" default_value="0.0" comment=""></field>
+	</entity>
+
+	<entity name="bracket" number="600" access="rw" comment="A rate-schedule bracket">
+		<field name="rate" type="double" subtype="" access="rw" input="main" default_value="0.0" comment=""></field>
+	</entity>
+
+	<entity name="person" number="700" access="rw" comment="A household member, for the eligibility-flavored examples">
+		<field name="age" type="integer" subtype="" access="rw" input="main" default_value="0" comment=""></field>
+		<field name="first_name" type="string" subtype="" access="rw" input="main" default_value="" comment=""></field>
+		<field name="last_name" type="string" subtype="" access="rw" input="main" default_value="" comment=""></field>
+		<field name="incomes" type="array" subtype="income" access="rw" input="main" default_value="" comment=""></field>
+		<field name="is_adult" type="boolean" subtype="" access="rw" input="" default_value="false" comment=""></field>
+		<field name="is_eligible" type="boolean" subtype="" access="rw" input="" default_value="false" comment=""></field>
+	</entity>
+
+	<entity name="household" number="800" access="rw" comment="A household of people">
+		<field name="head" type="entity" subtype="person" access="rw" input="" default_value="" comment=""></field>
+		<field name="members" type="array" subtype="person" access="rw" input="main" default_value="" comment=""></field>
+		<field name="primary_earner" type="entity" subtype="person" access="rw" input="" default_value="" comment=""></field>
+	</entity>
+
+	<entity name="error_entity" number="850" access="rw" comment="Carrier for the perform-and-on-error example">
+		<field name="message" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+	</entity>
+
+	<entity name="input" number="900" access="rw" comment="Raw input, for the conversion examples">
+		<field name="amount_string" type="string" subtype="" access="rw" input="main" default_value="" comment=""></field>
+	</entity>
+
+	<!--
+	  Loose names the page uses without an entity prefix. LoadEDDSymbols
+	  registers a bare key alongside the qualified one, so declaring them here
+	  is what makes `brackets`, `count`, `csv_line` and friends resolve.
+	-->
+	<entity name="doc" number="1000" access="rw" comment="Unqualified names used by the examples">
+		<field name="brackets" type="array" subtype="bracket" access="rw" input="" default_value="" comment=""></field>
+		<field name="count" type="integer" subtype="" access="rw" input="" default_value="0" comment=""></field>
+		<field name="csv_line" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="name" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="pending_dates" type="array" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="status" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="total" type="double" subtype="" access="rw" input="" default_value="0.0" comment=""></field>
+		<field name="valid_statuses" type="array" subtype="" access="rw" input="" default_value="" comment=""></field>
+	</entity>
+
+	<!--
+	  Probe fields. A bare expression (`copy of household.members`) is not a
+	  cell on its own, so the checker compiles it as `set probe.<t> = <expr>`
+	  and strips the store back off. One field per type so the wrapper never
+	  changes the expression's own conversions.
+	-->
+	<entity name="probe" number="1100" access="rw" comment="Wrapper targets for compiling bare expressions">
+		<field name="a" type="array" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="b" type="boolean" subtype="" access="rw" input="" default_value="false" comment=""></field>
+		<field name="d" type="double" subtype="" access="rw" input="" default_value="0.0" comment=""></field>
+		<field name="dt" type="date" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="e" type="entity" subtype="person" access="rw" input="" default_value="" comment=""></field>
+		<field name="i" type="integer" subtype="" access="rw" input="" default_value="0" comment=""></field>
+		<field name="s" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+	</entity>
+</entity_data_dictionary>

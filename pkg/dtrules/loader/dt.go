@@ -190,9 +190,25 @@ func (c *DTContextDetail) GetDSL() string {
 	return c.Description
 }
 
-// DTInitialActions represents the initial actions section
+// DTInitialActions represents the initial actions section.
+//
+// Two element spellings are accepted. `<initial_action>` is canonical, but
+// every other section of a DT file is named `<*_details>` and SyntaxTests
+// spells this one `<initial_action_details>` throughout. Reading only the
+// canonical name meant those rows loaded as an empty list — the table ran,
+// exited 0, and skipped its entire initial-action section in silence.
 type DTInitialActions struct {
 	Actions []DTInitialAction `xml:"initial_action" json:"initial_action"`
+	Details []DTInitialAction `xml:"initial_action_details" json:"initial_action_details,omitempty"`
+}
+
+// All returns the initial actions from whichever spelling carries them.
+// Callers must use this rather than reading Actions directly.
+func (a DTInitialActions) All() []DTInitialAction {
+	if len(a.Actions) > 0 {
+		return a.Actions
+	}
+	return a.Details
 }
 
 // DTInitialAction represents a single initial action. Two DSL/postfix tag
@@ -202,6 +218,7 @@ type DTInitialActions struct {
 type DTInitialAction struct {
 	Number             int    `xml:"action_number" json:"action_number"`
 	Comment            string `xml:"action_comment" json:"action_comment,omitempty"`
+	InitialComment     string `xml:"initial_action_comment" json:"initial_action_comment,omitempty"`
 	DSL                string `xml:"initial_action_dsl" json:"initial_action_dsl,omitempty"`
 	ActionDSL          string `xml:"action_dsl" json:"action_dsl,omitempty"`
 	Description        string `xml:"action_description" json:"action_description"`
@@ -219,6 +236,14 @@ func (a *DTInitialAction) GetDSL() string {
 		return a.ActionDSL
 	}
 	return a.Description
+}
+
+// GetComment returns the row comment from whichever XML tag form is populated.
+func (a *DTInitialAction) GetComment() string {
+	if a.Comment != "" {
+		return a.Comment
+	}
+	return a.InitialComment
 }
 
 // GetPostfix returns the postfix expression from whichever XML tag form is
@@ -417,18 +442,23 @@ func (l *DTLoader) processTable(table *DTTable) error {
 	}
 
 	builder.SetContexts(contexts)
+	// Carry the comments through too. They were collected and then dropped,
+	// so the Excel exporter (which reads them off the table) wrote blank
+	// comment cells and the next Excel→XML build stored the blanks —
+	// silently erasing every context comment in the project.
+	builder.SetContextsComment(contextsComment)
 
 	// Process initial actions. Same strict policy as contexts: non-comment
 	// DSL paired with an empty postfix is a stale build — refuse to load.
-	initialActions := make([]string, len(table.InitialActions.Actions))
-	initialActionsPostfix := make([]string, len(table.InitialActions.Actions))
-	for i, action := range table.InitialActions.Actions {
+	initialActions := make([]string, len(table.InitialActions.All()))
+	initialActionsPostfix := make([]string, len(table.InitialActions.All()))
+	for i, action := range table.InitialActions.All() {
 		dsl := action.GetDSL()
 		initialActions[i] = dsl
 		postfix := strings.TrimSpace(action.GetPostfix())
 
 		dslTrimmed := strings.TrimSpace(dsl)
-		commentTrimmed := strings.TrimSpace(action.Comment)
+		commentTrimmed := strings.TrimSpace(action.GetComment())
 		if !l.Tolerant && isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) && dslTrimmed != commentTrimmed {
 			return fmt.Errorf("initial action %d ('%s') has DSL but no compiled postfix in table %s — run `dtrules build` or `dtrules compile` before loading",
 				i+1, dsl, name.StringValue())
@@ -534,6 +564,17 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		}
 	}
 	builder.SetPolicyStatements(policyStatements)
+	builder.SetPolicyStatementsPostfix(policyPostfix)
+
+	// Compile the policy statements so `policystatements` can evaluate the
+	// one belonging to the column that fired, resolving any `{expr}`
+	// substitution against live data (#949). Loading the postfix and then
+	// discarding it left the operator with nothing to run.
+	rpolicyStatements, err := l.compilePostfixExpressions(policyPostfix)
+	if err != nil {
+		return fmt.Errorf("failed to compile policy statements for %s: %w", name.StringValue(), err)
+	}
+	builder.SetRPolicyStatements(rpolicyStatements)
 
 	// Compile conditions using postfix notation (already compiled in XML)
 	rconditions, err := l.compilePostfixExpressions(conditionsPostfix)
@@ -956,7 +997,7 @@ func collectPostfixEntries(table *DTTable) []decisiontable.PostfixEntry {
 			Postfix: ctx.Postfix,
 		})
 	}
-	for i, action := range table.InitialActions.Actions {
+	for i, action := range table.InitialActions.All() {
 		entries = append(entries, decisiontable.PostfixEntry{
 			Kind: "initial_action", Number: i + 1,
 			DSL:     action.GetDSL(),
@@ -1014,5 +1055,10 @@ func isEmptyOrCommentOnly(postfix string) bool {
 // isCommentLine checks if a string is a comment line (starts with // or #).
 func isCommentLine(s string) bool {
 	trimmed := strings.TrimSpace(s)
+	// Block comments (/* ... */) count only when the WHOLE line is the
+	// comment — a trailing block comment after real DSL is still DSL.
+	if strings.HasPrefix(trimmed, "/*") && strings.HasSuffix(trimmed, "*/") {
+		return true
+	}
 	return strings.HasPrefix(trimmed, "//") || strings.HasPrefix(trimmed, "#")
 }

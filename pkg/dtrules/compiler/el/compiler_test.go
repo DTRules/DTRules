@@ -943,3 +943,169 @@ func TestCompile_RejectsTrailingTokens(t *testing.T) {
 		t.Errorf("expected 'unexpected tokens' in error, got: %v", err)
 	}
 }
+
+// TestRelationshipIsOf covers `<e1> is the <R> of <e2>` (#927).
+//
+// The form means exactly one thing: e2's R field holds e1. It compiles to the
+// same getrelationship the `"role" of entity` form uses, since that operator
+// is a field read by name. Between findmatch's removal and this, the form
+// parsed and emitted an elstmterror that killed the rule at run time.
+func TestRelationshipIsOf(t *testing.T) {
+	symbols := map[string]string{
+		"client":         "entity",
+		"ApplyingClient": "entity",
+	}
+	tests := []struct {
+		name string
+		el   string
+		want string
+	}{
+		{
+			name: "article is dropped from the relationship name",
+			el:   "the client is the parent of ApplyingClient",
+			want: `ApplyingClient "parent" getrelationship client req`,
+		},
+		{
+			name: "no article",
+			el:   "client is the sibling of ApplyingClient",
+			want: `ApplyingClient "sibling" getrelationship client req`,
+		},
+		{
+			name: "operand order is e2's field against e1",
+			el:   "ApplyingClient is the child of client",
+			want: `client "child" getrelationship ApplyingClient req`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewCompiler()
+			c.SetSymbols(symbols)
+			got, err := c.CompileCondition(tt.el)
+			if err != nil {
+				t.Fatalf("CompileCondition(%q): %v", tt.el, err)
+			}
+			if normalized := strings.Join(strings.Fields(got), " "); normalized != tt.want {
+				t.Errorf("CompileCondition(%q)\n got %s\nwant %s", tt.el, normalized, tt.want)
+			}
+		})
+	}
+}
+
+// TestForallAllowingRemovalIteratesInReverse: the `allowing array to be
+// removed` phrase must emit forallr.
+//
+// Walking an array forward while the body removes elements skips entries —
+// the iterator's index and the array's contents move against each other.
+// That is precisely why `remove each ... where ...` has always compiled to
+// forallr. The three `allowing array to be removed` variants emitted plain
+// `forall`, so a rule that announced it was going to remove elements got the
+// iteration order that makes removal unsafe.
+func TestForallAllowingRemovalIteratesInReverse(t *testing.T) {
+	symbols := map[string]string{"clients": "array", "age": "integer"}
+	tests := []struct{ name, el, want string }{
+		{"plain forall stays forward", "for all clients", "dup clients forall pop"},
+		{"allowing removal goes in reverse", "for all clients allowing array to be removed", "dup clients forallr pop"},
+		{"where + allowing removal", "for all clients where age > 18 allowing array to be removed",
+			"{ { dup execute } age 18 > if } clients forallr pop"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewCompiler()
+			c.SetSymbols(symbols)
+			got, err := c.CompileContext(tt.el)
+			if err != nil {
+				t.Fatalf("CompileContext(%q): %v", tt.el, err)
+			}
+			if n := strings.Join(strings.Fields(got), " "); n != tt.want {
+				t.Errorf("CompileContext(%q)\n got %s\nwant %s", tt.el, n, tt.want)
+			}
+		})
+	}
+}
+
+// TestForallInReverse covers the reverse-iteration form (#975).
+//
+// The runtime has always had forallr, but the only EL that reached it was
+// `remove each ... where ...` and the `allowing array to be removed`
+// variants — both of which go backwards for removal safety, not because the
+// author asked for that order. A rule that simply needs reverse order had to
+// be written as hand-coded postfix; SyntaxTests has 48 such rows.
+func TestForallInReverse(t *testing.T) {
+	symbols := map[string]string{"clients": "array", "age": "integer", "job.cases": "array"}
+	tests := []struct{ name, el, want string }{
+		{"reverse", "for all clients in reverse", "dup clients forallr pop"},
+		{"reverse with where", "for all clients in reverse where age > 18",
+			"{ { dup execute } age 18 > if } clients forallr pop"},
+		{"qualified array", "for all job.cases in reverse", "dup job.cases forallr pop"},
+		// The plain form must stay forward — reverse is opt-in.
+		{"plain stays forward", "for all clients", "dup clients forall pop"},
+		{"where stays forward", "for all clients where age > 18",
+			"{ { dup execute } age 18 > if } clients forall pop"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewCompiler()
+			c.SetSymbols(symbols)
+			got, err := c.CompileContext(tt.el)
+			if err != nil {
+				t.Fatalf("CompileContext(%q): %v", tt.el, err)
+			}
+			if n := strings.Join(strings.Fields(got), " "); n != tt.want {
+				t.Errorf("CompileContext(%q)\n got %s\nwant %s", tt.el, n, tt.want)
+			}
+		})
+	}
+}
+
+// TestForallBlockInReverse covers the action-cell form of reverse iteration.
+//
+// `for all <array> in reverse { ... }` is the shape SyntaxTests' 48 hand-coded
+// rows are written in as postfix. The context form landed in #977; without
+// this one those rows still had no authorable EL (#975).
+func TestForallBlockInReverse(t *testing.T) {
+	symbols := map[string]string{
+		"clients": "array", "job.cases": "array",
+		"eligible": "boolean", "age": "integer",
+	}
+	tests := []struct{ name, el, want string }{
+		{"reverse block", "for all clients in reverse { set eligible = true; }",
+			"{ true cvb /eligible xdef } clients forallr"},
+		{"qualified array", "for all job.cases in reverse { set eligible = true; }",
+			"{ true cvb /eligible xdef } job.cases forallr"},
+		{"reverse block with where", "for all clients in reverse where age < 18 { set eligible = false; }",
+			"{ { false cvb /eligible xdef } age 18 < if } clients forallr"},
+		// Forward stays forward.
+		{"plain block", "for all clients { set eligible = true; }",
+			"{ true cvb /eligible xdef } clients forall"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewCompiler()
+			c.SetSymbols(symbols)
+			got, err := c.CompileAction(tt.el)
+			if err != nil {
+				t.Fatalf("CompileAction(%q): %v", tt.el, err)
+			}
+			if n := strings.Join(strings.Fields(got), " "); n != tt.want {
+				t.Errorf("CompileAction(%q)\n got %s\nwant %s", tt.el, n, tt.want)
+			}
+		})
+	}
+}
+
+// TestCompileActionReportsThePrefixedParseError: an action cell that needs a
+// fix inside its own statement must not be told the problem is at the entry
+// rule. Before this, a block missing an internal semicolon reported
+// "mismatched input '{' expecting {'action', 'condition', ...}".
+func TestCompileActionReportsThePrefixedParseError(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{"clients": "array", "eligible": "boolean"})
+
+	_, err := c.CompileAction("for all clients { set eligible = true }") // no inner ;
+	if err == nil {
+		t.Fatal("expected a parse error")
+	}
+	if strings.Contains(err.Error(), "expecting {'action'") {
+		t.Errorf("error points at the entry rule instead of the real mistake:\n  %v", err)
+	}
+}

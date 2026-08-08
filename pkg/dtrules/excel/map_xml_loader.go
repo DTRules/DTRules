@@ -67,7 +67,8 @@ func loadMapXMLFromReader(r io.Reader, name string) (*MapXML, error) {
 				m.Entries = append(m.Entries, MapEntry{IsSection: true, Comment: text})
 			}
 		case xml.StartElement:
-			if strings.ToLower(t.Name.Local) == "setattribute" {
+			switch strings.ToLower(t.Name.Local) {
+			case "setattribute":
 				entry := MapEntry{}
 				for _, attr := range t.Attr {
 					switch strings.ToLower(attr.Name.Local) {
@@ -88,6 +89,50 @@ func loadMapXMLFromReader(r io.Reader, name string) (*MapXML, error) {
 				}
 				if entry.Tag != "" {
 					m.Entries = append(m.Entries, entry)
+				}
+			case "createentity":
+				ce := MapCreateEntity{}
+				for _, attr := range t.Attr {
+					switch strings.ToLower(attr.Name.Local) {
+					case "entity":
+						ce.Entity = attr.Value
+					case "tag":
+						ce.Tag = attr.Value
+					case "id":
+						ce.ID = attr.Value
+					case "list":
+						ce.List = attr.Value
+					}
+				}
+				if ce.Entity != "" {
+					m.CreateEntities = append(m.CreateEntities, ce)
+				}
+			case "entity":
+				// <entity name number> only appears inside <entities>.
+				ed := MapEntityDecl{}
+				for _, attr := range t.Attr {
+					switch strings.ToLower(attr.Name.Local) {
+					case "name":
+						ed.Name = attr.Value
+					case "number":
+						ed.Number = attr.Value
+					}
+				}
+				if ed.Name != "" {
+					m.EntityDecls = append(m.EntityDecls, ed)
+				}
+			case "initialentity":
+				ie := MapInitialEntity{}
+				for _, attr := range t.Attr {
+					switch strings.ToLower(attr.Name.Local) {
+					case "entity":
+						ie.Entity = attr.Value
+					case "epush":
+						ie.EPush = strings.EqualFold(strings.TrimSpace(attr.Value), "true")
+					}
+				}
+				if ie.Entity != "" {
+					m.InitialEntities = append(m.InitialEntities, ie)
 				}
 			}
 		}

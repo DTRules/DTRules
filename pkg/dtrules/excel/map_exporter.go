@@ -128,5 +128,51 @@ func (e *MapExporter) writeMapSheet(f *excelize.File, styler *Styler, sheet stri
 		row++
 	}
 
+	// Structural sections ("## ..." markers switch the importer's parsing
+	// mode). Without these, an Excel round-trip dropped createentity /
+	// cardinality / initialization and the regenerated map couldn't load
+	// data at all.
+	marker := func(label string) {
+		f.SetCellValue(sheet, cellName(1, row), "## "+label)
+		f.SetCellStyle(sheet, cellName(1, row), cellName(mapColCount, row), sectionStyle)
+		row++
+	}
+	if len(m.CreateEntities) > 0 {
+		marker(mapSectionCreateEntities)
+		for _, ce := range m.CreateEntities {
+			f.SetCellValue(sheet, cellName(1, row), ce.Entity)
+			f.SetCellValue(sheet, cellName(2, row), ce.Tag)
+			f.SetCellValue(sheet, cellName(3, row), ce.ID)
+			f.SetCellValue(sheet, cellName(4, row), ce.List)
+			f.SetCellStyle(sheet, cellName(1, row), cellName(mapColCount, row), styler.BodyStyle)
+			row++
+		}
+	}
+	if len(m.EntityDecls) > 0 {
+		marker(mapSectionEntities)
+		for _, ed := range m.EntityDecls {
+			f.SetCellValue(sheet, cellName(1, row), ed.Name)
+			f.SetCellValue(sheet, cellName(2, row), ed.Number)
+			f.SetCellStyle(sheet, cellName(1, row), cellName(mapColCount, row), styler.BodyStyle)
+			row++
+		}
+	}
+	if len(m.InitialEntities) > 0 {
+		marker(mapSectionInitialization)
+		for _, ie := range m.InitialEntities {
+			f.SetCellValue(sheet, cellName(1, row), ie.Entity)
+			f.SetCellValue(sheet, cellName(2, row), fmt.Sprintf("%t", ie.EPush))
+			f.SetCellStyle(sheet, cellName(1, row), cellName(mapColCount, row), styler.BodyStyle)
+			row++
+		}
+	}
+
 	return nil
 }
+
+// Section marker labels shared by the MAP exporter and importer.
+const (
+	mapSectionCreateEntities = "CREATE ENTITIES (entity | tag | id | list)"
+	mapSectionEntities       = "ENTITIES (name | number: 1 or *)"
+	mapSectionInitialization = "INITIALIZATION (entity | push)"
+)

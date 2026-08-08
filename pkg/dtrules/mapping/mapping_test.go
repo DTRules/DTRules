@@ -499,3 +499,66 @@ func TestBigIntSerializesToString(t *testing.T) {
 		t.Errorf("PostFix() lost precision: expected %s, got %s", largeNum, postfix)
 	}
 }
+
+// TestSingletonCreateEntityBindsToInitializedInstance covers the two load
+// orders agreeing.
+//
+// `dtrules run --input` loads data and then pushes singletons, so a root tag
+// like <patient> needs a createentity or its fields have no entity to attach
+// to. The interview path does the reverse — Initialize, then LoadData — and
+// with that same createentity it used to build a SECOND patient, leaving the
+// pushed singleton empty and the loaded values unreachable. SinusitisTherapy
+// divided by a zero plasma creatinine that way.
+func TestSingletonCreateEntityBindsToInitializedInstance(t *testing.T) {
+	const mapXML = `<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<setattribute tag='pcr' RAttribute='pcr' enclosure='patient' type='double'></setattribute>
+			<createentity entity='patient' tag='patient' id='id'></createentity>
+		</map>
+		<entities>
+			<entity name='patient' number='1'></entity>
+		</entities>
+		<initialization>
+			<initialentity entity='patient' epush='true'></initialentity>
+		</initialization>
+	</XMLtoEDD>
+</mapping>`
+	const data = `<patient><pcr>0.9</pcr></patient>`
+
+	sess := newMockSession()
+	patientRef, _ := sess.factory.FindCreateRefEntity(false, dtrules.GetRName("patient"))
+	patientRef.AddAttribute(dtrules.GetRName("pcr"), "", dtrules.GetRDoubleValue(0),
+		true, true, dtrules.TypeDouble, "", "", "", "")
+
+	m := NewMapping(sess)
+	if err := m.LoadMapping(strings.NewReader(mapXML)); err != nil {
+		t.Fatalf("LoadMapping: %v", err)
+	}
+	if err := m.Initialize(); err != nil {
+		t.Fatalf("Initialize: %v", err)
+	}
+	if err := m.LoadData(strings.NewReader(data)); err != nil {
+		t.Fatalf("LoadData: %v", err)
+	}
+
+	// The value has to be readable through the entity that is actually on
+	// the stack — that is what the rules resolve against.
+	state := sess.GetState()
+	ent, err := state.FindEntity(dtrules.GetRName("pcr"))
+	if err != nil {
+		t.Fatalf("no entity on the stack carries pcr: %v", err)
+	}
+	got, err := ent.Get(dtrules.GetRName("pcr"))
+	if err != nil {
+		t.Fatalf("patient.pcr: %v", err)
+	}
+	v, err := got.DoubleValue()
+	if err != nil {
+		t.Fatalf("patient.pcr is not a double: %v", err)
+	}
+	if v != 0.9 {
+		t.Errorf("patient.pcr = %v, want 0.9 — the loaded value landed on a different instance", v)
+	}
+}

@@ -31,6 +31,7 @@ var docTopics = map[string]string{
 	"xml-format":         docXMLFormat,
 	"edd":                docEDD,
 	"decision-tables":    docDecisionTables,
+	"debug":              docDebug,
 	"operators":          docOperators,
 	"examples":           docExamples,
 	"mapping":            docMapping,
@@ -85,6 +86,7 @@ func printDocIndex() {
 		"xml-format":         "XML file format specification (EDD and DT)",
 		"edd":                "Entity Data Dictionary - defining entities and fields",
 		"decision-tables":    "How to write decision tables",
+		"debug":              "Traces, the trace debugger, Find/why, reports, and speculative reruns",
 		"operators":          "All available operators with examples",
 		"examples":           "Complete working examples",
 		"mapping":            "Mapping XML and xlsx schema for translating input data into EDD entities",
@@ -187,6 +189,7 @@ Built-in integer functions:
     length of myString                    string length
     index of "sub" in "string"            position of substring (-1 if absent)
     sum of count in orders                sum of integer field across array
+    sum of count in orders where active   sum with filter (parity with number of)
     absolute value of amount              absolute value
     get days in year of someDate          days in year containing date
     get days in months for someDate       days in month of date
@@ -233,6 +236,13 @@ Rounding:
     amount rounded to 2 decimal places     round to N decimal places
     amount rounded to 2 decimal places with boundary 0.5
                                            round with custom boundary
+    the ceiling of amount                  round up   (postfix: ceiling)
+    the floor of amount                    round down (postfix: floor)
+
+Min / max (also 'smaller of' / 'larger of'; 'the' is optional):
+    the minimum of a and b                 lesser of two values  (postfix: fmin)
+    the maximum of a and b                 greater of two values (postfix: fmax)
+    the maximum of (result.agi - deduction) and 0.0
 
 Mutating double operations:
     add to myDouble 1.5            add to variable in place
@@ -594,13 +604,25 @@ Array Expressions (arrayExpr)
 ------------------------------
 Sources:
     myArray                        typed array field
-    policy statements              special context array
+    policy statements              the run's policy-statement report
     taxpayer's accounts            possessive array
 
 Constructors:
     { e1, e2, e3 }                 array literal (entities, strings, numbers)
     array of values [ v1, v2 ]     array of scalar values
     tokenize "a,b,c" by ","        split string into array
+
+Iteration (context cell):
+    for all myArray                forward, the usual form
+    for all myArray in reverse     last element to first
+    for all myArray where bexpr    filtered
+    for all myArray allowing array to be removed
+                                   reverse, so removing inside the body is safe
+
+  In an action cell the body is a block, and its statements need their own
+  semicolons:
+    for all myArray in reverse { set x = 1; }
+    for all myArray in reverse where bexpr { set x = 1; }
 
 Copies:
     get copy of myArray            shallow copy
@@ -619,6 +641,11 @@ Entity Expressions (eexpr)
     new $myName entity             create new entity by name
     new myEntity entity            create new entity of same type
     clone of myEntity              shallow clone
+
+    Create-and-push idiom — create an entity AND put it on the entity
+    stack for the rest of the table run (postfix: createentity entitypush):
+        add new result entity to context of this table
+
     (entity) someTable(args)       table lookup returning entity
     first myEntity in myArray where bexpr    first matching entity in array
     first myEntity where bexpr     first matching entity in context
@@ -771,6 +798,14 @@ FOR ALL - iterate over array (one execution per element):
     for all items in myEntity allowing array to be removed
     for all items in myEntity where bexpr
     for all items where bexpr allowing array to be removed
+    for all payouts as p                 bind each element to alias p
+    for all payouts as p where p.amount > 0   alias + filter
+
+    The "as <alias>" form binds each iteration's element to a named local,
+    referenced as <alias>.field. Use it to disambiguate nested loops over the
+    same entity type (no shadowing):
+        for all relatives as parent
+            for all relatives as child where child.parent_id == parent.id
 
 FOR FIRST - find first matching entity:
     for first of dependents where dependent.age < 18
@@ -1251,6 +1286,45 @@ BALANCED:
   - Use for: exhaustive rule sets
 
 
+Policy Statements
+-----------------
+
+A policy statement documents the conclusion a column reached. Each rule
+column can carry one, and the text is a template: {expr} substitutes a
+runtime value.
+
+    Column 4: thing.value is out of range, i.e.  {thing.value}
+
+Statements collect on their own. When a column fires, its statement is
+rendered against the data as of that decision and appended to the run's
+policy-statement report — no rule has to ask, and the report spans every
+table performed since the last clear. Two EL phrases use it:
+
+    add the policy statements to <array>    copy the report into a field
+    clear the policy statements             start the next report
+
+That is what documents a run rather than a single table. Evaluate a
+household member against every program, then read back everything those
+program tables concluded for that member:
+
+    for all household.members
+      clear the policy statements;
+      perform Evaluate_All_Programs;
+      add new person_report entity to context of this table;
+      set person_report.person = person.name;
+      add the policy statements to person_report.findings;
+      add person_report to household.report;
+
+Without the clear, each member's findings would also carry every earlier
+member's — the report accumulates until something empties it.
+
+A table that reports per iteration puts the clear in an initial action,
+which runs once per pass of its context. TestProject does exactly this: a
+"for all things" context, "clear the policy statements" as the initial
+action, and "add the policy statements to the job.notes" as the action —
+one statement per thing, each naming that thing's value.
+
+
 Condition Values
 ----------------
 
@@ -1357,6 +1431,8 @@ FOR ALL - Iteration:
     for all job.taxpayers           Iterate with entity path
     for all accounts where active   Iterate with filter condition
     for all items allowing array to be removed
+    for all payouts as p            Bind each element to alias p (p.field)
+    for all payouts as p where p.amount > 0   Alias + filter
 
 FOR FIRST - Find First Match:
     for first of dependents where dependent.age < 18
@@ -1381,6 +1457,41 @@ DEBUG - Output Before Processing:
     debug "Starting execution"
 
 
+Shared Constants: Push Once, Reference Unqualified (RECOMMENDED)
+---------------------------------------------------------------
+A bare identifier resolves against the ENTITY STACK: DTRules searches the
+stack from the most-recently-pushed entity downward and uses the first one
+that declares the field. The stack PROPAGATES DOWN the perform call chain —
+an entity pushed by a table is still on the stack while every table it
+performs runs.
+
+This makes a powerful pattern for the constant pools that regulations and
+policies need by the dozen. Instead of qualifying every read:
+
+    constants.reduced_dose            constants.standard_dose
+    constants.adult_age               constants.renal_ccr_threshold
+
+push the constants entity ONCE onto the context of the ENTRY (top) table:
+
+    add constants to context of this table       (in Determine_Therapy)
+
+Now every table reachable from that entry — Select_Medication,
+Determine_Dose, Check_Drug_Interactions, ... — can write the fields bare:
+
+    reduced_dose      standard_dose      adult_age      renal_ccr_threshold
+
+Guidance for authors and LLMs generating rules:
+- Put a project's shared constants/config in one entity and push it at the
+  single entry table. Do NOT add the context to every leaf table — the
+  stack already propagates down perform calls.
+- Prefer unqualified field names once the entity is on the stack; reach for
+  the entity.field form only to disambiguate when two stacked entities
+  declare the same field name.
+- "dtrules review" emits a context hint when a table references one entity's
+  fields with a qualifier many times and that entity is not on its stack —
+  that's the cue to push the entity at the entry table.
+
+
 Best Practices
 --------------
 1. Use descriptive table names: Calculate_Tax, Validate_Input
@@ -1390,6 +1501,8 @@ Best Practices
 5. Keep tables focused on one decision
 6. Use EXECUTE columns for side effects
 7. Document complex conditions in column headers
+8. Push shared constants onto the entry table's context and reference their
+   fields unqualified (see "Shared Constants" above)
 
 
 Common Patterns
@@ -1440,6 +1553,12 @@ Rounding (double only):
     amount rounded                            double        3.7 rounded -> 4.0
     amount rounded to 2 decimal places        double
     amount rounded to 2 decimal places with boundary 0.5
+    the ceiling of amount                     double        3.2 -> 4.0   (postfix: ceiling)
+    the floor of amount                       double        3.7 -> 3.0   (postfix: floor)
+
+Min / max ('minimum of'/'smaller of', 'maximum of'/'larger of'; 'and' or comma):
+    the minimum of a and b                    double        min(a, b)    (postfix: fmin)
+    the maximum of a and b                    double        max(a, b)    (postfix: fmax)
 
 Mutating shortcuts (action statements):
     increment myLong                          (adds 1 to long field)
@@ -1601,6 +1720,7 @@ Length:
 Sum:
     sum of intField in myArray           sum integer field across array
     sum of doubleField in myArray        sum double field across array
+    sum of amount in myArray where bexpr sum only matching elements
 
 Array inclusion:
     myArray includes value N             contains integer N
@@ -1657,6 +1777,10 @@ fexpr rounded                                 double    round to nearest integer
 fexpr rounded to N decimal places             double    round to N places
 fexpr rounded to N decimal places
     with boundary B                            double    round with custom boundary
+the ceiling of fexpr                          double    round up (postfix: ceiling)
+the floor of fexpr                            double    round down (postfix: floor)
+the minimum of fexpr and fexpr                double    lesser value (postfix: fmin)
+the maximum of fexpr and fexpr                double    greater value (postfix: fmax)
 double value of typedOperator(args)           double    custom operator result
 
 Cast to double:
@@ -1664,6 +1788,47 @@ Cast to double:
     (double) 42                               double    promote integer
     (double) someTable("key")                 double    table lookup
     (double) myArray[i]                       double    array element
+
+
+Combinatorial Operators
+-----------------------
+Generators that discover structures in an entity array — subsets, key
+groups, consecutive runs — and materialize each structure as an entity of
+a caller-named EDD type appended to a destination array. Tables then
+iterate the results with ordinary 'for all' contexts and score them with
+ordinary conditions: the loop stays in the operator, the policy stays in
+the table. All four are statement-form operator calls (#980).
+
+    combinations(src, k, "combo", "value", dest)
+        Every k-card combination of src as a "combo" entity with fields
+        members (the k entities, by reference), count, and sum of the
+        named integer field ("" skips the sum). Source cap: 20.
+
+    subsets(src, "combo", "value", dest)
+        Every non-empty subset of src: 2^n - 1 combo entities.
+        Source cap: 12 (4095 subsets).
+
+    groupby(src, "rank", "group", dest)
+        Partition src by an integer field; one "group" entity per
+        distinct value, in first-seen order, with fields key, count,
+        and members.
+
+    maximalruns(src, "rank", 3, "run", dest)
+        Every maximal interval of consecutive field values of length >=
+        minlen as a "run" entity with fields start, length, and
+        multiplicity (product of value counts: 2 = double run). The
+        fields are count and span, not size and length — those are EL
+        keywords.
+
+Example — cribbage fifteens, pairs, and runs from decision tables:
+
+    subsets(hand.cards, "combo", "value", hand.combos);
+    groupby(hand.cards, "rank", "group", hand.rank_groups);
+    maximalruns(hand.cards, "rank", 3, "run", hand.runs)
+
+then score with conditions like 'combo.sum == 15' (add 2),
+'group.count == 2/3/4' (add 2/6/12), and actions adding
+'run.span * run.multiplicity'.
 
 
 BigInt Operators
@@ -2069,6 +2234,50 @@ Boolean assignment in action cell:
 Division in action cell (FPL calculation):
     set client_fpl = (100.0 * totalGroupIncome) / FPL
 
+
+Reverse Index: Postfix Op -> EL Phrase
+--------------------------------------
+When reading stored postfix (traces, legacy tables, the debug console) and
+working backward to the EL that produces it, use this table. Every op here
+HAS an EL surface form — do not conclude a form is missing without checking
+this list and 'dtrules docs el'.
+
+Postfix op        EL phrase that emits it
+----------------  ------------------------------------------------------------
+createentity      new <type> entity            (eexpr; also: create <type> as x)
+entitypush        add <entity> to context of this table
+memberof          <value> is one of <array>    (negated: is not one of)
+addto             add <value> to <array>       (emits: <value> <array> swap addto)
+addarray          add <array> to <array>       (element-wise; also what
+                  "add the policy statements to X" emits)
+policystatements  the policy statements        (the run's report; see
+                  dtrules docs decision-tables)
+xdef              set <entity.field> = <expr>  (emits: <expr> /<field> xdef)
+performtable      perform <TableName>          (runs the table's contexts too)
+executetable      execute <TableName>          (skips contexts; use inside own context)
+forall            for all <collection> [where <bexpr>]        (context row)
+                  also: sum of <field> in <array> [where ...]
+                  also: number of <array> where <bexpr>
+fmin / fmax       the minimum/maximum of <a> and <b>
+ceiling / floor   the ceiling/floor of <fexpr>
+fabs / abs        absolute value of <expr>
+streq             <s> is equal to "..."        (case-sensitive string compare)
+isnull            <field> is null              (negated: is not null)
+length            length of <array>
+if / ifelse       if <bexpr> then { ... } [else { ... }] endif
+cvb/cvi/cvd/cvs   implicit conversions inserted by the compiler (bool/int/
+                  double/string) — never authored directly
+
+Operand-order convention (matters when hand-reading postfix):
+  'if' and 'ifelse' pop the TEST from the TOP of the data stack. Compiled
+  form is '{ then } { else } <bexpr> ifelse'. Legacy hand postfix that put
+  the test FIRST ('<bexpr> [then] [else] ifelse') fails at runtime with a
+  BooleanValue conversion error — recompile the row from its DSL.
+
+Never hand-write postfix. If a stored-postfix idiom seems to have no EL
+equivalent, recheck the phrases above, then 'dtrules docs el' — and only
+then file a grammar-gap issue quoting both the postfix and the phrases you
+ruled out.
 
 See Also
 --------
@@ -3554,7 +3763,11 @@ Top-level command map
 
     dtrules init       Scaffold a new project directory
     dtrules build      Extract DSL from Excel + compile postfix (the human path)
-    dtrules run        Run a decision table; --interactive collects missing inputs
+    dtrules run        Run a decision table; --interactive collects missing inputs;
+                       --trace records a debugger-ready execution trace
+    dtrules debug      Run + trace + open the editor's trace debugger (one command)
+    dtrules report     Generate an EDD-driven report from a trace (see docs debug)
+    dtrules edit       Serve the visual editor/debugger in the browser
     dtrules table      JSON-first per-table read/write (the programmatic path)
     dtrules edd        JSON-first EDD read/write (the programmatic path)
     dtrules sync       Fine-grained Excel/XML sync (status/check/import/export/auto)

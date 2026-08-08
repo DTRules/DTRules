@@ -7,6 +7,12 @@
 
 Expression Language (EL) is the human-readable syntax used in DTRules condition, action, context, and policy-statement cells. The EL compiler (`pkg/dtrules/compiler/el`) parses EL via ANTLR4 and emits postfix notation. The DTRules runtime (`pkg/dtrules/compiler`) executes that postfix on a stack-based virtual machine.
 
+> **Every postfix on this page is generated.** `docs/el_reference_postfix_test.go`
+> compiles each **Example (EL)** against `docs/testdata/el_reference_edd.xml`
+> and fails if the documented postfix is not exactly what came out. If you
+> change an example, run the test and paste what it reports — do not hand-write
+> postfix here.
+
 ## Table of Contents
 
 1. [Overview](#overview)
@@ -77,7 +83,7 @@ Each decision-table cell holds EL that is compiled once and stored as postfix in
 **Example (EL)**: `taxpayer.age == 18`
 **Compiled postfix**: `taxpayer.age 18 ==`
 
-**Tax example**: `result.total_deduction == 0` → `result.total_deduction 0 ==`
+**Tax example**: `result.total_deduction == 0` → `result.total_deduction 0 f==`
 **Eligibility example**: `person.age >= 18` → `person.age 18 >=`
 
 ---
@@ -181,37 +187,37 @@ EL supports standard arithmetic on integers, doubles, and bigints. The emitter m
 **Syntax**: `iexpr / iexpr` or `iexpr div iexpr`
 **Semantics**: Integer division (truncates). Postfix operator: `/`.
 **Example (EL)**: `total / count >= 0`
-**Compiled postfix**: `total count / 0 >=`
+**Compiled postfix**: `total count fdiv 0 f>=`
 
 #### Float addition
 
 **Syntax**: `fexpr + fexpr` or `fexpr + iexpr`
 **Semantics**: Float addition. Postfix operator: `+` (VM dispatches on stack types).
 **Example (EL)**: `income.amount + result.agi >= 100.0`
-**Compiled postfix**: `income.amount result.agi + 100.0 f>=`
+**Compiled postfix**: `income.amount result.agi f+ 100.0 f>=`
 
-**Tax example**: `result.agi - result.total_deduction > 0.0` → `result.agi result.total_deduction - 0.0 f>`
+**Tax example**: `result.agi - result.total_deduction > 0.0` → `result.agi result.total_deduction f- 0.0 f>`
 
 #### Float multiplication
 
 **Syntax**: `fexpr * fexpr`
 **Semantics**: Float multiplication. Postfix operator: `fmul`.
 **Example (EL)**: `bracket.rate * result.taxable_income >= 0.0`
-**Compiled postfix**: `bracket.rate result.taxable_income * 0.0 f>=`
+**Compiled postfix**: `bracket.rate result.taxable_income fmul 0.0 f>=`
 
 #### Float division
 
 **Syntax**: `fexpr / fexpr`
 **Semantics**: Float division. Postfix operator: `fdiv`.
 **Example (EL)**: `result.total_tax / result.agi >= 0.0`
-**Compiled postfix**: `result.total_tax result.agi / 0.0 f>=`
+**Compiled postfix**: `result.total_tax result.agi fdiv 0.0 f>=`
 
 #### Negation
 
 **Syntax**: `-iexpr` or `-fexpr`
 **Semantics**: Unary minus. Postfix operator: `neg`.
 **Example (EL)**: `-count == 0`
-**Compiled postfix**: `count neg 0 ==`
+**Compiled postfix**: `count negate 0 ==`
 
 #### BigInt arithmetic
 
@@ -238,17 +244,18 @@ EL supports standard arithmetic on integers, doubles, and bigints. The emitter m
 **Syntax**: `fexpr rounded` or `fexpr rounded to N decimal places`
 **Semantics**: Round float to nearest integer or to N decimal places. Postfix operator: `round`.
 **Example (EL)**: `result.agi rounded == 50000`
-**Compiled postfix**: `result.agi round 50000 ==`
+**Compiled postfix**: `result.agi 0 0.5 roundto 50000 f==`
 
 #### Sum of
 
-**Syntax**: `sum of fexpr IN arrayExpr` or `sum of iexpr IN arrayExpr`
-**Semantics**: Sums a numeric field across all elements of an array. Postfix operator: `sumof`.
+**Syntax**: `sum of fexpr IN arrayExpr` or `sum of iexpr IN arrayExpr`, with an optional `WHERE bexpr` filter (`sum of iexpr IN arrayExpr WHERE bexpr`) — parity with `number of … where`.
+**Semantics**: Sums a numeric field across all elements of an array. With `where`, only elements matching the predicate contribute. The unfiltered form uses the `sumof` postfix operator; the filtered form lowers to a `forall` fold that gates each addition on the predicate (`0 arr { bexpr { iexpr + } if } forall`).
 **Example (EL)**: `sum of income.amount in person.incomes >= 10000.0`
-**Compiled postfix**: `person.incomes income.amount sumof 10000.0 f>=`
+**Filtered example (EL)**: `sum of payout.amount in payouts where payout.amount > 0` (#864, Accumulate staking)
+**Compiled postfix**: `0 { income.amount + } person.incomes forall 10000.0 f>=`
 
 **Tax example**: `sum of w2.wages in w2s >= 0.0`
-**Eligibility example (real postfix from DTEligibility)**:
+**Eligibility example** (legacy postfix — see note below):
 ```
 0 person.incomes { income entitypush income.is_earned { income.amount + } if entitypop } forall
 person /earned_income exch def
@@ -281,7 +288,7 @@ Natural language forms (`is greater than`, `at or above`, etc.) compile identica
 **Compiled postfix**: `taxpayer.filing_status "MFJ" streq`
 
 **Example (EL)**: `taxpayer.birth_date is before current date`
-**Compiled postfix**: `taxpayer.birth_date currentdate d<`
+**Compiled postfix**: `taxpayer.birth_date today d<`
 
 **Tax example (natural language)**: `taxpayer.age is greater than or equal to 65` → `taxpayer.age 65 >=`
 **Eligibility example (real postfix)**: `person.age constants.adult_age ge`
@@ -291,14 +298,14 @@ Natural language forms (`is greater than`, `at or above`, etc.) compile identica
 **Syntax**: `strexpr IS ONE OF arrayExpr`
 **Semantics**: True if the string is a member of the array. Postfix: `memberof`.
 **Example (EL)**: `taxpayer.filing_status is one of valid_statuses`
-**Compiled postfix**: `taxpayer.filing_status valid_statuses memberof`
+**Compiled postfix**: `valid_statuses taxpayer.filing_status memberof`
 
 #### Within percent
 
 **Syntax**: `fexpr IS WITHIN number PERCENT OF fexpr`
 **Semantics**: True if the two values differ by no more than N%.
 **Example (EL)**: `result.agi is within 10 percent of previous.agi`
-**Compiled postfix**: `result.agi 10 previous.agi withinpct`
+**Compiled postfix**: `result.agi previous.agi f- previous.agi fdiv fabs 100.0 f* 10 cvd f<=`
 
 ---
 
@@ -342,7 +349,7 @@ Natural language forms (`is greater than`, `at or above`, etc.) compile identica
 **Syntax**: `bexpr == bexpr`
 **Semantics**: Tests two booleans for equality. Postfix operator: `beq`.
 **Example (EL)**: `person.is_adult == person.is_eligible`
-**Compiled postfix**: `person.is_adult person.is_eligible beq`
+**Compiled postfix**: `person.is_adult person.is_eligible streq`
 
 #### Boolean "is" test
 
@@ -373,10 +380,10 @@ Natural language forms (`is greater than`, `at or above`, etc.) compile identica
 **Syntax**: `CHANGE strexpr TO LOWER_CASE` / `CHANGE strexpr TO UPPER_CASE`
 **Semantics**: Convert string case. Postfix operators: `tolower`, `toupper`.
 **Example (EL)**: `change status to lower case == "active"`
-**Compiled postfix**: `status tolower "active" streq`
+**Compiled postfix**: `status lowercase "active" streq`
 
 **Example (EL)**: `change taxpayer.filing_status to upper case == "MFJ"`
-**Compiled postfix**: `taxpayer.filing_status toupper "MFJ" streq`
+**Compiled postfix**: `taxpayer.filing_status uppercase "MFJ" streq`
 
 #### Trim
 
@@ -397,28 +404,28 @@ Natural language forms (`is greater than`, `at or above`, etc.) compile identica
 **Syntax**: `strexpr MATCHES strexpr`
 **Semantics**: True if the string matches the regular expression. Postfix operator: `matches`.
 **Example (EL)**: `taxpayer.filing_status matches "MF.*"`
-**Compiled postfix**: `taxpayer.filing_status "MF.*" matches`
+**Compiled postfix**: `taxpayer.filing_status "MF.*" regexmatch`
 
 #### Equals ignore case
 
 **Syntax**: `strexpr is equal to ignore case strexpr`
 **Semantics**: Case-insensitive string equality. Postfix operator: `sic==`.
 **Example (EL)**: `taxpayer.filing_status is equal to ignore case "mfj"`
-**Compiled postfix**: `taxpayer.filing_status "mfj" sic==`
+**Compiled postfix**: `taxpayer.filing_status "mfj" s==i`
 
 #### Substring
 
 **Syntax**: `SUBSTRING OF strexpr FROM iexpr TO iexpr`
 **Semantics**: Extract a substring by character index. Postfix operator: `substring`.
 **Example (EL)**: `substring of taxpayer.filing_status from 0 to 1 == "M"`
-**Compiled postfix**: `taxpayer.filing_status 0 1 substring "M" streq`
+**Compiled postfix**: `taxpayer.filing_status 0 1 over - substring "M" streq`
 
 #### Index of
 
 **Syntax**: `INDEX_OF strexpr IN strexpr`
 **Semantics**: Returns the index of the first occurrence, or -1. Postfix operator: `indexof`.
 **Example (EL)**: `index of "M" in taxpayer.filing_status >= 0`
-**Compiled postfix**: `"M" taxpayer.filing_status indexof 0 >=`
+**Compiled postfix**: `taxpayer.filing_status "M" indexof 0 >=`
 
 #### String value of
 
@@ -428,7 +435,7 @@ Natural language forms (`is greater than`, `at or above`, etc.) compile identica
 **Compiled postfix**: `taxpayer.age cvs "65" streq`
 
 **Example (EL)**: `string value of boolean taxpayer.is_blind == "true"`
-**Compiled postfix**: `taxpayer.is_blind cvb cvs "true" streq`
+**Compiled postfix**: `taxpayer.is_blind cvs "true" streq`
 
 #### Length of
 
@@ -446,7 +453,7 @@ Natural language forms (`is greater than`, `at or above`, etc.) compile identica
 **Syntax**: `current date` or `current time`
 **Semantics**: Returns the current date/time. Postfix: `currentdate`.
 **Example (EL)**: `taxpayer.birth_date is before current date`
-**Compiled postfix**: `taxpayer.birth_date currentdate d<`
+**Compiled postfix**: `taxpayer.birth_date today d<`
 
 #### Date from string
 
@@ -462,7 +469,7 @@ The parser accepts both pure dates and full timestamps. Formats tried in order:
 Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize as RFC 3339.
 
 **Example (EL)**: `(date)"2024-01-01" is before current date`
-**Compiled postfix**: `"2024-01-01" cvdate currentdate d<`
+**Compiled postfix**: `"2024-01-01" cvdate today d<`
 
 **Example (EL with timestamp)**: `(date)"2026-04-17T21:05:30Z" is before current date`
 **Compiled postfix**: `"2026-04-17T21:05:30Z" cvdate currentdate d<`
@@ -472,11 +479,11 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Syntax**: `dexpr plus N days|months|years` / `dexpr minus N days|months|years`
 **Semantics**: Add or subtract a date interval. Postfix operators: `adddays`, `subdays`, `addmonths`, `submonths`, `addyears`, `subyears`.
 
-**Example (EL)**: `taxpayer.birth_date plus 18 years is before current date`
-**Compiled postfix**: `taxpayer.birth_date 18 addyears currentdate d<`
+**Example (EL)**: `taxpayer.birth_date + 18 years is before current date`
+**Compiled postfix**: `taxpayer.birth_date 18 addyears today d<`
 
-**Example (EL)**: `taxpayer.birth_date minus 1 months == current date`
-**Compiled postfix**: `taxpayer.birth_date 1 submonths currentdate d==`
+**Example (EL)**: `taxpayer.birth_date - 1 months == current date`
+**Compiled postfix**: `taxpayer.birth_date 1 negate addmonths today d==`
 
 #### Date statement arithmetic (modifies field in place)
 
@@ -490,7 +497,7 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Syntax**: `DAYS FROM dexpr TO dexpr` / `MONTHS FROM dexpr TO dexpr` / `YEARS FROM dexpr TO dexpr`
 **Semantics**: Returns integer difference. Postfix operators: `daysbetween`, `monthsbetween`, `yearsbetween`.
 **Example (EL)**: `years from taxpayer.birth_date to current date >= 18`
-**Compiled postfix**: `taxpayer.birth_date currentdate yearsbetween 18 >=`
+**Compiled postfix**: `taxpayer.birth_date today yearsbetween 18 >=`
 
 **Tax example**: `years from taxpayer.birth_date to current date >= 65` → age 65+ check
 **Eligibility example**: `years from taxpayer.birth_date to current date >= constants.adult_age`
@@ -510,17 +517,17 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 | `d1 <= d2`                 | `d1 d2 d> not`        |
 
 **Example (EL)**: `taxpayer.birth_date is after current date`
-**Compiled postfix**: `taxpayer.birth_date currentdate d>`
+**Compiled postfix**: `taxpayer.birth_date today d>`
 
 #### First of year/month, end of month
 
 **Syntax**: `FIRST OF YEARS OF dexpr` / `FIRST OF MONTHS OF dexpr` / `END OF MONTHS OF dexpr`
 **Semantics**: Returns the first or last day of the year or month containing the date.
 **Example (EL)**: `first of years of taxpayer.birth_date == current date`
-**Compiled postfix**: `taxpayer.birth_date firstofyear currentdate d==`
+**Compiled postfix**: `taxpayer.birth_date firstofyear today d==`
 
 **Example (EL)**: `end of months of taxpayer.birth_date == current date`
-**Compiled postfix**: `taxpayer.birth_date endofmonth currentdate d==`
+**Compiled postfix**: `taxpayer.birth_date endofmonth today d==`
 
 #### Get year of / days in year / days in month
 
@@ -530,7 +537,7 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Compiled postfix**: `taxpayer.birth_date yearof 1980 >=`
 
 **Example (EL)**: `get days in yearof taxpayer.birth_date == 365`
-**Compiled postfix**: `taxpayer.birth_date daysinyr 365 ==`
+**Compiled postfix**: `taxpayer.birth_date getdaysinyear 365 ==`
 
 ---
 
@@ -541,10 +548,10 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Syntax**: `NUMBEROF arrayExpr` or `NUMBEROF arrayExpr WHERE bexpr`
 **Semantics**: Count of elements in an array, optionally filtered. Postfix: `numberof`.
 **Example (EL)**: `number of household.members == 4`
-**Compiled postfix**: `household.members numberof 4 ==`
+**Compiled postfix**: `household.members length 4 ==`
 
 **Example (EL)**: `number of household.members where person.is_adult >= 1`
-**Compiled postfix**: `household.members { person entitypush person.is_adult entitypop } filter numberof 1 >=`
+**Compiled postfix**: `0 { { 1 + } person.is_adult if } household.members forall 1 >=`
 
 **Tax example**: `number of w2s > 0`
 **Eligibility example**: `number of household.members where person.is_adult >= 1`
@@ -578,45 +585,45 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Syntax**: `CLEAR arrayExpr`
 **Semantics**: Remove all elements from an array. Postfix: `clear`.
 **Example (EL)**: `clear household.members`
-**Compiled postfix**: `household.members clear`
+**Compiled postfix**: `household.members cleararray`
 
 #### Sort array
 
 **Syntax**: `SORT arrayExpr IN ASCENDINGORDER BY nexpr` / `SORT arrayExpr IN DESCENDINGORDER BY nexpr`
 **Semantics**: Sort an array by a named field.
 **Example (EL)**: `sort household.members in ascending order by name`
-**Compiled postfix**: `household.members /name sortasc`
+**Compiled postfix**: `household.members /name true sortentities`
 
 **Example (EL)**: `sort household.members in descending order by name`
-**Compiled postfix**: `household.members /name sortdesc`
+**Compiled postfix**: `household.members /name false sortentities`
 
 #### Remove from array
 
 **Syntax**: `REMOVE eexpr FROM arrayExpr ARRAY`
 **Semantics**: Remove a specific element from an array. Postfix: `removefrom`.
 **Example (EL)**: `remove person from household.members array`
-**Compiled postfix**: `person household.members removefrom`
+**Compiled postfix**: `household.members person remove`
 
 #### Remove each where
 
 **Syntax**: `REMOVE EACH eexpr FROM arrayExpr WHERE bexpr`
 **Semantics**: Remove all elements matching a condition.
 **Example (EL)**: `remove each person from household.members where not person.is_adult`
-**Compiled postfix**: `household.members { person entitypush person.is_adult not entitypop } filter removefromall`
+**Compiled postfix**: `household.members dup { person.is_adult not { dup 0 entityfetch remove } if } swap forallr pop`
 
 #### Array literal
 
 **Syntax**: `{ item, item, ... }`
 **Semantics**: Construct an inline array of values.
-**Example (EL)**: `{ 1, 2, 3 }`
-**Compiled postfix**: `1 2 3 3 array`
+**Example (EL)**: `array of values [ 1, 2, 3 ]`
+**Compiled postfix**: `newarray dup 1 addto dup 2 addto dup 3 addto`
 
 #### Array at index
 
 **Syntax**: `(string) arrayExpr[iexpr]` / `(long) arrayExpr[iexpr]`
 **Semantics**: Access an array element by index with a type cast.
 **Example (EL)**: `(string) myarray[idx] == "foo"`
-**Compiled postfix**: `myarray idx getat cvs "foo" streq`
+**Compiled postfix**: `myarray idx bytesidx cvs "foo" streq`
 
 #### Copy / deep copy
 
@@ -630,14 +637,14 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Syntax**: `MAP arrayExpr THROUGH texpr`
 **Semantics**: Apply a decision table to each element and collect results. Postfix: `mapthrough`.
 **Example (EL)**: `map brackets through Apply_Bracket`
-**Compiled postfix**: `brackets Apply_Bracket mapthrough`
+**Compiled postfix**: `"map ... through ... not yet implemented" elstmterror`
 
 #### Tokenize
 
 **Syntax**: `TOKENIZE strexpr BY strexpr`
 **Semantics**: Split a string by delimiter into an array. Postfix: `tokenize`.
 **Example (EL)**: `tokenize csv_line by ","`
-**Compiled postfix**: `csv_line "," tokenize`
+**Compiled postfix**: `csv_line "," split`
 
 ---
 
@@ -669,7 +676,7 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Syntax**: `eexpr == eexpr` / `eexpr != eexpr`
 **Semantics**: Reference equality. Postfix: `req`, or `req not`.
 **Example (EL)**: `person == primary_applicant`
-**Compiled postfix**: `person primary_applicant req`
+**Compiled postfix**: `person primary_applicant streq`
 
 #### Entity null test
 
@@ -678,14 +685,14 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Example (EL)**: `household.primary_earner is null`
 **Compiled postfix**: `household.primary_earner isnull`
 
-**Eligibility example (real postfix from DTEligibility)**:
+**Eligibility example** (legacy postfix — see note below):
 `household.primary_earner null ne { true household.primary_earner /is_primary_earner exch def } if`
 
 #### Has a (relationship)
 
 **Syntax**: `eexpr HASA strexpr` / `eexpr DOES NOT HAVE strexpr`
 **Semantics**: Tests if an entity has a named relationship. Postfix: `hasrelationship`.
-**Example (EL)**: `person hasa "child"`
+**Example (EL)**: `person has a "child"`
 **Compiled postfix**: `person "child" hasrelationship`
 
 #### Entity is of (relationship)
@@ -693,14 +700,14 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Syntax**: `eexpr IS strexpr OF eexpr`
 **Semantics**: Tests a named relationship between two entities.
 **Example (EL)**: `client is "parent" of applicant`
-**Compiled postfix**: `/source client /target applicant /type "parent" relationships findmatch swap pop`
+**Compiled postfix**: `applicant "parent" getrelationship client req`
 
 #### Is in context
 
 **Syntax**: `typedEntity ENTITY IS IN CONTEXT` / `typedEntity ENTITY IS NOT IN CONTEXT`
 **Semantics**: Tests if an entity type is in the current rule context.
 **Example (EL)**: `person entity is in context`
-**Compiled postfix**: `person isincontext`
+**Compiled postfix**: `/person incontext`
 
 ---
 
@@ -711,21 +718,21 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Syntax**: `absolute value of iexpr|fexpr|bigexpr`
 **Semantics**: Returns the absolute value. Postfix: `abs`.
 **Example (EL)**: `absolute value of result.agi > 0.0`
-**Compiled postfix**: `result.agi abs 0.0 f>`
+**Compiled postfix**: `result.agi fabs 0.0 f>`
 
 ### Nameof
 
 **Syntax**: `nameof eexpr`
 **Semantics**: Returns the name (type identifier) of an entity. Postfix: `nameof`.
 **Example (EL)**: `nameof person == "Person"`
-**Compiled postfix**: `person nameof "Person" streq`
+**Compiled postfix**: `person entityname "Person" streq`
 
 ### Earliest of after
 
 **Syntax**: `EARLIEST OF arrayExpr AFTER dexpr`
 **Semantics**: Returns the earliest date in an array that is after a given date.
 **Example (EL)**: `earliest of pending_dates after current date`
-**Compiled postfix**: `pending_dates currentdate earliestafter`
+**Compiled postfix**: `"earliest of <arr> after <d> not yet implemented (needs earliestafter runtime op)" elstmterror`
 
 ### Randomize
 
@@ -739,42 +746,42 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Syntax**: `REMOVE iexpr ELEMENT FROM arrayExpr ARRAY`
 **Semantics**: Remove the element at a specific index.
 **Example (EL)**: `remove 0 element from household.members array`
-**Compiled postfix**: `0 household.members removeat`
+**Compiled postfix**: `household.members 0 removeat`
 
 ### Table lookup
 
 **Syntax**: `(long) typedTable(key)` / `(double) typedTable(key)` / `(string) typedTable(key)`
 **Semantics**: Look up a value in a named decision table using a key string.
 **Example (EL)**: `(double) bracket_table("0.22")`
-**Compiled postfix**: `"0.22" bracket_table tablelookup cvd`
+**Compiled postfix**: `"hash tables removed — (double) table-lookup unsupported" elstmterror 0.0`
 
 ### Using (delegation)
 
 **Syntax**: `USING eexpr (expr)`
 **Semantics**: Evaluate an expression in the context of a different entity.
 **Example (EL)**: `using person (person.age >= 18)`
-**Compiled postfix**: `person entitypush person.age 18 >= entitypop`
+**Compiled postfix**: `person entitypush person.age 18 >= entitypop swap pop`
 
 ### Get current timestamp
 
 **Syntax**: `get current timestamp`
 **Semantics**: Returns the current date/time as a formatted string.
 **Example (EL)**: `get current timestamp == ""`
-**Compiled postfix**: `currenttimestamp ""`
+**Compiled postfix**: `gettimestamp "" streq`
 
 ### Mapping key
 
 **Syntax**: `mapping key`
 **Semantics**: Returns the current key when iterating over a mapped structure.
 **Example (EL)**: `mapping key == "CHIP"`
-**Compiled postfix**: `mappingkey "CHIP" streq`
+**Compiled postfix**: `"mappingkey not yet implemented" elstmterror "CHIP" streq`
 
 ### Relationship between
 
 **Syntax**: `RELATIONSHIP_BETWEEN eexpr AND eexpr`
 **Semantics**: Returns the relationship string between two entities.
 **Example (EL)**: `relationship between person and household.head == "SPOUSE"`
-**Compiled postfix**: `person household.head relationshipbetween "SPOUSE" streq`
+**Compiled postfix**: `"relationship between ... not yet implemented" elstmterror "SPOUSE" streq`
 
 ---
 
@@ -798,7 +805,7 @@ endif
 **Semantics**: Conditional execution. Compiles to the pattern `condition { then-block } { else-block } ifelse`. An `if...endif` with no else emits `{}` for the empty else block.
 
 **Example (EL)**: `if x > 0 then { set y = 1; } else { set y = 0; } endif`
-**Compiled postfix**: `x 0 > { 1 cvi /y xdef } { 0 cvi /y xdef } ifelse`
+**Compiled postfix**: `{ 1 cvi /y xdef } { 0 cvi /y xdef } x 0 > ifelse`
 
 **Tax example**:
 ```
@@ -811,7 +818,7 @@ endif
 Compiles to:
 `result.taxable_income 523601.0 f>= { 0.37 cvd /result.marginal_rate xdef } { 0.35 cvd /result.marginal_rate xdef } ifelse`
 
-**Eligibility example (real postfix from DTEligibility)**:
+**Eligibility example** (legacy postfix — see note below):
 `true person /is_adult exch def false person /is_child exch def`
 
 ---
@@ -855,7 +862,7 @@ for each eexpr and its eexpr in arrayExpr { statements }
 **Semantics**: Iterate over an array, binding each element. Compiles to `entitypush`/`entitypop` loops using `forall`.
 
 **Example (EL)**: `for each person in household.members { Calculate_Individual_Income; }`
-**Real postfix (from DTEligibility)**: `household.members { person entitypush Calculate_Individual_Income entitypop } forall`
+**Legacy postfix** (see note below): `household.members { person entitypush Calculate_Individual_Income entitypop } forall`
 
 **Tax example**: `for each w2 in w2s { Process_W2_Income; }`
 **Real postfix**: `w2s { w2 entitypush Process_W2_Income entitypop } forall`
@@ -870,11 +877,22 @@ for all arrayExpr { statements }
 for all arrayExpr where bexpr { statements }
 for all arrayExpr in eexpr { statements }
 for all arrayExpr allowing array to be removed { statements }
+for all arrayExpr as alias { statements }              -- named binding (#712)
+for all arrayExpr as alias where bexpr { statements }   -- named binding + filter
 ```
 
 **Semantics**: Variant of foreach for cases where the entity binding is implicit. Also compiles to `forall` postfix loops.
 
-**Real postfix (from DTEligibility)**:
+The `as <alias>` form binds each iteration's element to a named local, referenced as `<alias>.field`. Unlike the implicit binding (where a bare field resolves against the topmost entity), the alias is explicit, so it disambiguates **nested loops over the same entity type** without shadowing:
+```
+for all relatives as parent {
+    for all relatives as child where child.parent_id == parent.id {
+        ...
+    }
+}
+```
+
+**Legacy postfix** (see note below):
 ```
 household.members { person entitypush Determine_Adult_Status entitypop } forall
 household.members { person entitypush Evaluate_Non_EDG_Programs entitypop } forall
@@ -923,7 +941,7 @@ pop household /primary_earner exch def
 **Syntax**: `for leftIexpr = number ; bexpr ; statement`
 **Semantics**: Classic for-loop used in context cells to iterate with an index.
 **Example (EL)**: `for i = 0; i < 10; increment i;`
-**Compiled postfix**: `0 cvi /i xdef { i 10 < } { i 1 + /i xdef } while`
+**Compiled postfix**: `0 cvi /i xdef { dup execute 1 i + /i xdef } { i 10 < } while pop`
 
 ---
 
@@ -947,12 +965,12 @@ pop household /primary_earner exch def
 **Compiled postfix**: `"SINGLE" cvs /taxpayer.filing_status xdef`
 
 **Example (EL)**: `set result.taxable_income = result.agi - result.total_deduction`
-**Compiled postfix**: `result.agi result.total_deduction - cvd /result.taxable_income xdef`
+**Compiled postfix**: `result.agi result.total_deduction f- cvd /result.taxable_income xdef`
 
 **Tax example (real postfix from TaxReturn)**:
 `0 cvi /result.qbi_deduction xdef`
 
-**Eligibility example (real postfix from DTEligibility)**:
+**Eligibility example** (legacy postfix — see note below):
 `true person /is_adult exch def false person /is_child exch def`
 `person.earned_income person.unearned_income + person /total_income exch def`
 
@@ -976,10 +994,10 @@ The type-conversion operators used in set statements:
 **Syntax**: `INCREMENT typedLong` / `DECREMENT typedLong`
 **Semantics**: Add or subtract 1 from an integer field in place.
 **Example (EL)**: `increment taxpayer.age`
-**Compiled postfix**: `taxpayer.age 1 + /taxpayer.age xdef`
+**Compiled postfix**: `1 taxpayer.age + /taxpayer.age xdef`
 
 **Example (EL)**: `decrement count`
-**Compiled postfix**: `count 1 - /count xdef`
+**Compiled postfix**: `1 count swap - /count xdef`
 
 ---
 
@@ -988,10 +1006,10 @@ The type-conversion operators used in set statements:
 **Syntax**: `ADD number TO typedDouble|typedLong` / `SUBTRACT number FROM typedDouble|typedLong`
 **Semantics**: Add or subtract a constant from a numeric field in place.
 **Example (EL)**: `add 500.0 to result.total_deduction`
-**Compiled postfix**: `result.total_deduction 500.0 + /result.total_deduction xdef`
+**Compiled postfix**: `500.0 cvd result.total_deduction f+ /result.total_deduction xdef`
 
 **Example (EL)**: `subtract 1000 from taxpayer.age`
-**Compiled postfix**: `taxpayer.age 1000 - /taxpayer.age xdef`
+**Compiled postfix**: `1000 taxpayer.age swap - /taxpayer.age xdef`
 
 ---
 
@@ -1000,20 +1018,20 @@ The type-conversion operators used in set statements:
 **Syntax**: `PERFORM typedDecisionTable` or bare `typedDecisionTable`
 **Semantics**: Execute a named decision table. Emits just the table name token; the runtime executes it.
 **Example (EL)**: `perform Calculate_Tax`
-**Compiled postfix**: `Calculate_Tax`
+**Compiled postfix**: `/Calculate_Tax performtable`
 
 **Tax example (real from TaxReturn)**:
 `Apply_Tax_Brackets_Single` → `Apply_Tax_Brackets_Single`
 
-**Eligibility example (real from DTEligibility)**:
+**Eligibility example** (legacy postfix — see note below):
 `Calculate_Household_Totals` → `Calculate_Household_Totals`
 
 #### Perform with error handling
 
 **Syntax**: `PERFORM typedDecisionTable AND ON ERROR ADD eexpr TO CONTEXT AND PERFORM typedDecisionTable`
 **Semantics**: Execute a table; on error, add an entity to context and run the error handler.
-**Example (EL)**: `perform Calculate_State_Tax and on error add error to context and perform Handle_Tax_Error`
-**Compiled postfix**: `Calculate_State_Tax error context addto Handle_Tax_Error`
+**Example (EL)**: `perform Calculate_State_Tax and on error add error_entity to context and perform Handle_Tax_Error`
+**Compiled postfix**: `/Calculate_State_Tax /Handle_Tax_Error /error_entity performcatcherror`
 
 ---
 
@@ -1028,10 +1046,10 @@ typedXmlValue : add attribute strexpr = xmlvalues
 
 **Semantics**: Set or add an XML attribute on an entity's backing XML element.
 **Example (EL)**: `w2 : set attribute "wages" = w2.wages`
-**Compiled postfix**: `w2 "wages" w2.wages setattr`
+**Compiled postfix**: `"xml mutation unsupported — xmlvaluestatements have no runtime" elstmterror`
 
 **Example (EL)**: `w2 : add attribute "employer" = employer_name`
-**Compiled postfix**: `w2 "employer" employer_name addattr`
+**Compiled postfix**: `"xml mutation unsupported — xmlvaluestatements have no runtime" elstmterror`
 
 ---
 
@@ -1086,7 +1104,7 @@ action warn "Tax bracket lookup returned null";
 **Syntax**: `ADD eexpr TO CONTEXT OF THIS TABLE` / `ADD eexpr TO CONTEXT FOR THIS TABLE`
 **Semantics**: Add an entity to the decision table's context stack.
 **Example (EL)**: `add person to context of this table`
-**Compiled postfix**: `person context addto`
+**Compiled postfix**: `person entitypush`
 
 ---
 
@@ -1103,7 +1121,7 @@ See [Local Variables](#local-variables) section.
 **Syntax**: `MAP arrayExpr THROUGH texpr`
 **Semantics**: Apply a decision table to each element in an array and collect the results into a new array.
 **Example (EL)**: `map brackets through Apply_Bracket`
-**Compiled postfix**: `brackets Apply_Bracket mapthrough`
+**Compiled postfix**: `"map ... through ... not yet implemented" elstmterror`
 
 **Tax example**: Map each W2 through a processing table:
 `map w2s through Process_W2_Income`
@@ -1123,13 +1141,13 @@ there is no eexpr in eexpr where bexpr
 **Semantics**: Existential quantifier over an array. Returns boolean.
 
 **Example (EL)**: `there is person in household.members where person.is_adult`
-**Compiled postfix**: `household.members { person entitypush person.is_adult entitypop } filter length 0 >`
+**Compiled postfix**: `false { person.is_adult or } household.members forall`
 
 **Example (EL)**: `there is no person in household.members where person.is_adult`
-**Compiled postfix**: `household.members { person entitypush person.is_adult entitypop } filter length 0 ==`
+**Compiled postfix**: `false { person.is_adult or } household.members forall not`
 
 **Tax example**: `there is person in household.members where person.has_income`
-**Eligibility example (real pattern from DTEligibility)**:
+**Eligibility example** (legacy postfix — see note below):
 `household.members { person entitypush person.is_adult entitypop } filter`
 
 ---
@@ -1139,7 +1157,7 @@ there is no eexpr in eexpr where bexpr
 **Syntax**: `ALL arrayExpr HAVE bexpr` / `ONE OF arrayExpr HASA bexpr`
 **Semantics**: Universal and existential quantifiers.
 **Example (EL)**: `all household.members have person.is_adult`
-**Compiled postfix**: `household.members { person entitypush person.is_adult entitypop } filter length household.members length ==`
+**Compiled postfix**: `true { person.is_adult and } household.members forall`
 
 ---
 
@@ -1148,7 +1166,7 @@ there is no eexpr in eexpr where bexpr
 **Syntax**: `there is MATCH FORALL arrayExpr TO nexpr IN arrayExpr`
 **Semantics**: Tests that every element in one array has a matching entry in another.
 **Example (EL)**: `there is match forall required_docs to doc.name in submitted_docs`
-**Compiled postfix**: `required_docs submitted_docs doc.name matchforall`
+**Compiled postfix**: `true { false { doc.name 1 entityfetch == or } submitted_docs forall and } required_docs forall`
 
 ---
 
@@ -1157,10 +1175,10 @@ there is no eexpr in eexpr where bexpr
 **Syntax**: `FIRST eexpr IN arrayExpr WHERE bexpr`
 **Semantics**: Returns the first element in an array matching a condition, or null.
 **Example (EL)**: `first person in household.members where person.is_adult`
-**Compiled postfix**: `household.members { person entitypush person.is_adult entitypop } first`
+**Compiled postfix**: `"first <e> in <arr> where ... not yet implemented (needs firstwhere runtime op)" elstmterror`
 
 **Tax example**: `first bracket in brackets where bracket.min <= result.taxable_income`
-**Eligibility example (real pattern from DTEligibility)**:
+**Eligibility example** (legacy postfix — see note below):
 ```
 null 0 household.members { person entitypush person.is_adult
   { person.earned_income 2 index gt { pop pop person person.earned_income } if } if

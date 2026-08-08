@@ -1,5 +1,8 @@
 <DTRules>
 
+  <!-- Entry table: what `dtrules run`, `dtrules debug` and the editor start from. -->
+  <entry>Compute_Eligibility</entry>
+
   <compileralias name="EL">com.dtrules.compiler.el.EL</compileralias> 
   <compiler>EL</compiler>
   

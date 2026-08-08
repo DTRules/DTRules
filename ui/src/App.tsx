@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useProjectStore } from '@/stores/projectStore';
+import { useStoredWidth } from '@/lib/resize';
 import { useOnboardingStore } from '@/stores/onboardingStore';
 import { ProjectExplorer } from '@/components/ProjectExplorer';
 import { EDDEditor } from '@/components/EDDEditor';
 import { DTEditor } from '@/components/DTEditor';
+import { DebugPanel } from '@/components/DebugPanel';
 import { TestPanel } from '@/components/TestPanel';
-import { TreeVisualization } from '@/components/TreeVisualization';
 import { Toolbar } from '@/components/Toolbar';
 import { StatusBar } from '@/components/StatusBar';
 import { WelcomeScreen } from '@/components/WelcomeScreen';
@@ -14,10 +15,12 @@ import { TutorialOfferDialog } from '@/components/TutorialOfferDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
-import { healthCheck } from '@/api/client';
+import { getCurrentProject, healthCheck } from '@/api/client';
+import { deriveProjectName } from '@/lib/utils';
 
 function App() {
-  const { activeTab, setActiveTabWithHistory, projectPath, error, clearError, isLoading } = useProjectStore();
+  const { activeTab, setActiveTabWithHistory, projectPath, projectConfig, error, clearError, isLoading, adoptProject, autoSelectFirstItems, setReadOnly, setProjectConfig } = useProjectStore();
+  const { width: sidebarWidth, onDragStart: onSidebarDrag } = useStoredWidth('dtrules.sidebarWidth', 256, 160, 520);
   const { showWelcome } = useOnboardingStore();
   const { toast } = useToast();
   const [backendConnected, setBackendConnected] = useState(false);
@@ -36,6 +39,33 @@ function App() {
     checkBackend();
     const interval = setInterval(checkBackend, 5000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Adopt a project the backend already has loaded (e.g. `dtrules edit <dir>`)
+  // so the editor opens straight into it instead of the welcome screen.
+  useEffect(() => {
+    if (projectPath) return;
+    (async () => {
+      try {
+        const current = await getCurrentProject();
+        if (current.success) {
+          setReadOnly(!!current.readOnly);
+          setProjectConfig((current as { config?: import('@/stores/projectStore').ProjectConfig }).config || null);
+          if (current.path) {
+            await adoptProject(
+              current.path,
+              current.eddFiles || [],
+              current.dtFiles || [],
+              current.mapFiles || []
+            );
+            await autoSelectFirstItems();
+          }
+        }
+      } catch {
+        // Backend absent or older — welcome screen handles it
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Show errors as toasts
@@ -69,23 +99,66 @@ function App() {
 
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Project Explorer */}
+        {/* Project Explorer (drag the divider to resize) */}
         <div
-          className="w-64 border-r border-border/50 overflow-hidden flex flex-col"
+          className="overflow-hidden flex flex-col shrink-0"
+          style={{ width: sidebarWidth }}
           data-tutorial="project-explorer"
         >
           <ProjectExplorer />
         </div>
+        <div
+          className="w-1 shrink-0 cursor-col-resize bg-border/50 hover:bg-blue-500/60 transition-colors"
+          onMouseDown={onSidebarDrag}
+          title="Drag to resize the Project Explorer"
+        />
 
         {/* Editor Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Project identity: dominant single line above the editor tabs */}
+          {projectPath && (
+            <div className="px-4 py-2 border-b border-border/50 bg-gradient-to-r from-blue-950/30 to-transparent flex items-baseline gap-3 min-w-0">
+              <span className="text-2xl font-bold leading-tight">{deriveProjectName(projectPath)}</span>
+              <span className="text-xs font-mono text-muted-foreground truncate" title={projectPath}>
+                {projectPath}
+              </span>
+              {/* Effective configuration (DTRules.xml) — visible, not hidden in a file */}
+              {projectConfig && (
+                <span className="ml-auto flex items-center gap-2 text-xs font-mono shrink-0">
+                  {projectConfig.multiRoot ? (
+                    <span
+                      className="px-2 py-0.5 rounded-full border border-amber-500 text-amber-500"
+                      title="No DTRules.xml or xml/ directory here, so the whole tree was scanned and rule files were found under multiple top-level directories — tables from unrelated projects can collide. Open a specific project directory instead."
+                    >
+                      ⚠ rules: whole tree (multiple projects)
+                    </span>
+                  ) : (
+                    <span
+                      className="px-2 py-0.5 rounded-full border border-border text-muted-foreground"
+                      title="Where this project's rules load from (DTRules.xml xml_dir, else xml/, else this directory)"
+                    >
+                      rules: {projectConfig.xmlDir}
+                    </span>
+                  )}
+                  {projectConfig.entry && (
+                    <span
+                      className="px-2 py-0.5 rounded-full border border-border text-muted-foreground"
+                      title="Default entry decision table (DTRules.xml <entry>)"
+                    >
+                      entry: {projectConfig.entry}
+                    </span>
+                  )}
+                </span>
+              )}
+            </div>
+          )}
           <Tabs value={activeTab} onValueChange={(v) => setActiveTabWithHistory(v as typeof activeTab)} className="flex-1 flex flex-col">
             <div className="border-b border-border/50 px-4 bg-muted/20">
               <TabsList className="h-10">
                 <TabsTrigger value="edd" data-tutorial="tab-edd">Entity Editor</TabsTrigger>
                 <TabsTrigger value="dt" data-tutorial="tab-dt">Decision Tables</TabsTrigger>
                 <TabsTrigger value="test" data-tutorial="tab-test">Test & Execute</TabsTrigger>
-                <TabsTrigger value="tree" data-tutorial="tab-tree">Tree View</TabsTrigger>
+                <TabsTrigger value="debug" data-tutorial="tab-debug">Debug</TabsTrigger>
               </TabsList>
             </div>
 
@@ -103,8 +176,9 @@ function App() {
                 <TestPanel />
               </TabsContent>
 
-              <TabsContent value="tree" className="absolute inset-0 data-[state=inactive]:hidden" forceMount>
-                <TreeVisualization />
+
+              <TabsContent value="debug" className="absolute inset-0 data-[state=inactive]:hidden" forceMount>
+                <DebugPanel />
               </TabsContent>
             </div>
           </Tabs>

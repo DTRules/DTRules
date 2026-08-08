@@ -91,12 +91,13 @@ func (w *WorkbookImporter) ImportWorkbook(excelPath string) (*WorkbookResult, er
 	return w.importWorkbookWithSource(excelPath, filepath.Base(excelPath), "")
 }
 
-// eddSymbols flattens an EDD into the field→type map the EL compiler expects,
-// keyed by both the bare field name and the entity-qualified name (e.g.
-// "lean_body_weight" and "patient.lean_body_weight"). Mirrors the CLI's
-// loadEDDSymbols so the Excel build types operands the same way `dtrules
-// compile` does.
-func eddSymbols(edd *EDDXML) map[string]string {
+// EDDSymbols flattens a parsed EDD into the field→type map the EL compiler
+// expects, keyed by both the bare field name and the entity-qualified name
+// (e.g. "lean_body_weight" and "patient.lean_body_weight"). This is the
+// content-based (workbook-import) builder; it must agree with the file-based
+// authoring.LoadEDDSymbols so every generator types operands identically — a
+// cross-generator parity test pins that (#874/#898). Exported for that test.
+func EDDSymbols(edd *EDDXML) map[string]string {
 	if edd == nil {
 		return nil
 	}
@@ -105,13 +106,18 @@ func eddSymbols(edd *EDDXML) map[string]string {
 		if ent == nil {
 			continue
 		}
+		// EL is case-insensitive: lower-cased keys/types, matching the
+		// emitter's lower-cased lookups (see authoring.LoadEDDSymbols).
+		entName := strings.ToLower(ent.Name)
 		for _, fld := range ent.Fields {
 			if fld == nil || fld.Name == "" || fld.Type == "" {
 				continue
 			}
-			symbols[fld.Name] = fld.Type
-			if ent.Name != "" {
-				symbols[ent.Name+"."+fld.Name] = fld.Type
+			name := strings.ToLower(fld.Name)
+			typ := strings.ToLower(fld.Type)
+			symbols[name] = typ
+			if entName != "" {
+				symbols[entName+"."+name] = typ
 			}
 		}
 	}
@@ -187,7 +193,7 @@ func (w *WorkbookImporter) importWorkbookWithSource(excelPath, xlsFile, relPath 
 	// -Gault "(140 - age) * weight / (pcr * 72)" emits integer ops and cvi,
 	// silently truncating the result to 0. Combined workbooks carry their EDD
 	// in the same file (parsed above), so the symbols are available here.
-	if symbols := eddSymbols(result.EDD); len(symbols) > 0 {
+	if symbols := EDDSymbols(result.EDD); len(symbols) > 0 {
 		w.dtImporter.SetSymbols(symbols)
 	}
 

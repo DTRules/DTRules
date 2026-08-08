@@ -47,7 +47,41 @@ func writeMapXML(m *MapXML, path string) error {
 		}
 	}
 
+	for _, ce := range m.CreateEntities {
+		list := ""
+		if ce.List != "" {
+			list = fmt.Sprintf(" list='%s'", escAttr(ce.List))
+		}
+		sb.WriteString(fmt.Sprintf(
+			"\t\t\t<createentity entity='%s' tag='%s' id='%s'%s></createentity>\n",
+			escAttr(ce.Entity), escAttr(ce.Tag), escAttr(ce.ID), list,
+		))
+	}
+
 	sb.WriteString("\t\t</map>\n")
+
+	if len(m.EntityDecls) > 0 {
+		sb.WriteString("\t\t<entities>\n")
+		for _, ed := range m.EntityDecls {
+			sb.WriteString(fmt.Sprintf(
+				"\t\t\t<entity name='%s' number='%s'></entity>\n",
+				escAttr(ed.Name), escAttr(ed.Number),
+			))
+		}
+		sb.WriteString("\t\t</entities>\n")
+	}
+
+	if len(m.InitialEntities) > 0 {
+		sb.WriteString("\t\t<initialization>\n")
+		for _, ie := range m.InitialEntities {
+			sb.WriteString(fmt.Sprintf(
+				"\t\t\t<initialentity entity='%s' epush='%t'></initialentity>\n",
+				escAttr(ie.Entity), ie.EPush,
+			))
+		}
+		sb.WriteString("\t\t</initialization>\n")
+	}
+
 	sb.WriteString("\t</XMLtoEDD>\n")
 	sb.WriteString("</mapping>\n")
 

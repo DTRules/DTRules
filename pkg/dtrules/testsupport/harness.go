@@ -28,6 +28,8 @@ import (
 	"github.com/DTRules/DTRules/pkg/dtrules"
 	"github.com/DTRules/DTRules/pkg/dtrules/interpreter"
 	"github.com/DTRules/DTRules/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/pkg/dtrules/trace"
+	"github.com/DTRules/DTRules/pkg/dtrules/version"
 )
 
 // TestHarness provides test execution and comparison capabilities for DTRules.
@@ -295,8 +297,11 @@ func (th *TestHarness) RunFile(num int, path, filename string) error {
 		if th.Verbose {
 			state.EnableVerbose()
 		}
-		// Write trace header
-		fmt.Fprintln(traceFile, "<DTRulesTrace>")
+		// Write trace header with provenance. The harness has no single
+		// rules directory to fingerprint (rules come via the repository
+		// config), so only the DTRules version is recorded here;
+		// `dtrules run --trace` records the full fingerprint.
+		trace.WriteHeader(traceFile, trace.Provenance{DTRulesVersion: version.Version})
 	}
 
 	// Load test data
@@ -311,7 +316,7 @@ func (th *TestHarness) RunFile(num int, path, filename string) error {
 		if err := rsess.Execute(th.DecisionTableName); err != nil {
 			th.writeError(resultsFile, err)
 			if th.Trace && traceFile != nil {
-				fmt.Fprintln(traceFile, "</DTRulesTrace>")
+				trace.WriteFooter(traceFile)
 			}
 			return fmt.Errorf("execution error: %w", err)
 		}
@@ -321,7 +326,8 @@ func (th *TestHarness) RunFile(num int, path, filename string) error {
 	th.printReport(rsess, resultsFile, testData)
 
 	if th.Trace && traceFile != nil {
-		fmt.Fprintln(traceFile, "</DTRulesTrace>")
+		trace.WriteFinalState(traceFile, rsess.GetState())
+		trace.WriteFooter(traceFile)
 	}
 
 	if th.Console {

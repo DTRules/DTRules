@@ -166,6 +166,14 @@ func (t *Trace) replayNode(node *TraceNode, target *TraceNode) error {
 		t.handleNewArray(node)
 	}
 
+	// Handle arraybind: attach an entity's array attribute to the traced
+	// array instance so subsequent addto/remove events reach it.
+	if node.Name == "arraybind" {
+		if err := t.handleArrayBind(node); err != nil {
+			return err
+		}
+	}
+
 	// Handle addto
 	if node.Name == "addto" {
 		if err := t.handleAddTo(node); err != nil {
@@ -176,6 +184,18 @@ func (t *Trace) replayNode(node *TraceNode, target *TraceNode) error {
 	// Handle remove
 	if node.Name == "remove" {
 		if err := t.handleRemove(node); err != nil {
+			return err
+		}
+	}
+
+	// Positional array mutations (addat / removeat operators)
+	if node.Name == "addat" {
+		if err := t.handleAddAt(node); err != nil {
+			return err
+		}
+	}
+	if node.Name == "removeat" {
+		if err := t.handleRemoveAt(node); err != nil {
 			return err
 		}
 	}
@@ -217,6 +237,16 @@ func (t *Trace) getOrCreateEntity(node *TraceNode) (dtrules.Entity, error) {
 		return nil, fmt.Errorf("failed to create entity %s: %w", entityName, err)
 	}
 
+	// Force the RECORDED id onto the replayed instance. A replayed session
+	// that continues executing (speculative reruns) emits trace events with
+	// entity.GetID() — those must match the ids already recorded, or the
+	// produced trace cannot replay.
+	if recorded, aerr := strconv.Atoi(id); aerr == nil {
+		if setter, ok := entity.(interface{ SetID(int) }); ok {
+			setter.SetID(recorded)
+		}
+	}
+
 	t.entityTable[id] = entity
 	return entity, nil
 }
@@ -235,6 +265,28 @@ func (t *Trace) handleDef(node *TraceNode) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	// Entity-reference defs record the referenced entity's identity in
+	// refentity/refid attributes; a postfix body cannot rebuild an entity.
+	if refid := node.Attributes["refid"]; refid != "" {
+		ref, ok := t.entityTable[refid]
+		if !ok {
+			name := dtrules.GetRName(node.Attributes["refentity"])
+			if name == nil {
+				return nil
+			}
+			var err error
+			ref, err = t.session.CreateEntity(name)
+			if err != nil {
+				return nil
+			}
+			t.entityTable[refid] = ref
+		}
+		if rname := dtrules.GetRName(attrName); rname != nil {
+			return entity.Put(rname, ref)
+		}
+		return nil
 	}
 
 	// Parse and execute the body to get the value
@@ -303,6 +355,34 @@ func (t *Trace) parseSimpleValue(body string) dtrules.Object {
 	return dtrules.NewRString(body)
 }
 
+// handleArrayBind attaches an entity attribute to the traced array with the
+// recorded id, creating the array if no newarray/addto has been seen yet.
+// Without this binding, replayed addto events would populate arrays no
+// entity references.
+func (t *Trace) handleArrayBind(node *TraceNode) error {
+	entityID := node.Attributes["id"]
+	attrName := node.Attributes["attr"]
+	arrayID := node.GetArrayID()
+	if entityID == "" || attrName == "" || arrayID == 0 {
+		return nil
+	}
+
+	entity, ok := t.entityTable[entityID]
+	if !ok {
+		return nil // entity not seen yet; a later push will re-bind
+	}
+	ar, ok := t.arrayTable[arrayID]
+	if !ok {
+		ar = dtrules.NewArrayTraceInterface(arrayID, true, false)
+		t.arrayTable[arrayID] = ar
+	}
+	rname := dtrules.GetRName(attrName)
+	if rname == nil {
+		return nil
+	}
+	return entity.Put(rname, ar)
+}
+
 // handleNewArray creates a new array from a trace node.
 func (t *Trace) handleNewArray(node *TraceNode) {
 	id := node.GetArrayID()
@@ -326,6 +406,21 @@ func (t *Trace) handleAddTo(node *TraceNode) error {
 		// Create the array if it doesn't exist
 		ar = dtrules.NewArrayTraceInterface(id, true, false)
 		t.arrayTable[id] = ar
+	}
+
+	// Entity elements are recorded by reference (entity + id attributes),
+	// not as a postfix body.
+	if eid := node.Attributes["id"]; eid != "" {
+		e, ok := t.entityTable[eid]
+		if !ok {
+			var err error
+			e, err = t.getOrCreateEntity(node)
+			if err != nil {
+				return err
+			}
+		}
+		ar.Add(e)
+		return nil
 	}
 
 	// Get the value to add
@@ -363,6 +458,14 @@ func (t *Trace) handleRemove(node *TraceNode) error {
 		return nil
 	}
 
+	// Entity elements are recorded by reference (entity + id attributes).
+	if eid := node.Attributes["id"]; eid != "" {
+		if e, ok := t.entityTable[eid]; ok {
+			ar.Remove(e)
+		}
+		return nil
+	}
+
 	body := node.Body
 	if body == "" {
 		return nil
@@ -383,6 +486,84 @@ func (t *Trace) handleRemove(node *TraceNode) error {
 	return nil
 }
 
+// handleAddAt inserts an element into an array at the recorded index —
+// the positional cousin of handleAddTo (addat operator).
+func (t *Trace) handleAddAt(node *TraceNode) error {
+	id := node.GetArrayID()
+	if id == 0 {
+		return nil
+	}
+	index, err := strconv.Atoi(node.Attributes["index"])
+	if err != nil {
+		return nil
+	}
+
+	ar, ok := t.arrayTable[id]
+	if !ok {
+		ar = dtrules.NewArrayTraceInterface(id, true, false)
+		t.arrayTable[id] = ar
+	}
+
+	// Entity elements are recorded by reference (entity + id attributes).
+	if eid := node.Attributes["id"]; eid != "" {
+		e, ok := t.entityTable[eid]
+		if !ok {
+			var eerr error
+			e, eerr = t.getOrCreateEntity(node)
+			if eerr != nil {
+				return eerr
+			}
+		}
+		return ar.AddAt(index, e)
+	}
+
+	body := node.Body
+	var value dtrules.Object
+	if body == "" {
+		value = dtrules.GetRNull()
+	} else {
+		compiled, cerr := t.session.Compile(body)
+		if cerr != nil {
+			value = t.parseSimpleValue(body)
+		} else {
+			state := t.session.GetState()
+			if xerr := compiled.Execute(state); xerr != nil {
+				value = t.parseSimpleValue(body)
+			} else {
+				value, _ = state.DataPop()
+			}
+		}
+	}
+	return ar.AddAt(index, value)
+}
+
+// handleRemoveAt deletes the element at the recorded index (removeat).
+func (t *Trace) handleRemoveAt(node *TraceNode) error {
+	id := node.GetArrayID()
+	if id == 0 {
+		return nil
+	}
+	index, err := strconv.Atoi(node.Attributes["index"])
+	if err != nil {
+		return nil
+	}
+	if ar, ok := t.arrayTable[id]; ok {
+		ar.Delete(index)
+	}
+	return nil
+}
+
+// EntityByID returns the replayed entity instance for a recorded id, or
+// nil. Valid for the position the trace was last replayed to.
+func (t *Trace) EntityByID(id string) dtrules.Entity {
+	return t.entityTable[id]
+}
+
+// ArrayByID returns the replayed array for a recorded arrayId, or nil.
+func (t *Trace) ArrayByID(id int) *dtrules.RArray {
+	return t.arrayTable[id]
+}
+
 // InstancesOf returns all entities of the given type that were created
 // up to the current position.
 func (t *Trace) InstancesOf(entityName string) []dtrules.Entity {
@@ -390,12 +571,37 @@ func (t *Trace) InstancesOf(entityName string) []dtrules.Entity {
 		return nil
 	}
 
+	// Java-era traces identify instances with <createentity> events;
+	// Go traces carry entity + id attributes on entitypush / def / addto
+	// events. Collect from both, first-seen order, deduped.
 	var entityIDs []int
 	t.root.SearchTree(t, entityName, &entityIDs)
 
-	result := make([]dtrules.Entity, 0, len(entityIDs))
+	seen := map[string]bool{}
 	for _, id := range entityIDs {
-		if entity, ok := t.entityTable[strconv.Itoa(id)]; ok {
+		seen[strconv.Itoa(id)] = true
+	}
+	ids := make([]string, 0, len(entityIDs))
+	for _, id := range entityIDs {
+		ids = append(ids, strconv.Itoa(id))
+	}
+	var walk func(n *TraceNode)
+	walk = func(n *TraceNode) {
+		if strings.EqualFold(n.Attributes["entity"], entityName) {
+			if id := n.Attributes["id"]; id != "" && !seen[id] {
+				seen[id] = true
+				ids = append(ids, id)
+			}
+		}
+		for _, c := range n.Children {
+			walk(c)
+		}
+	}
+	walk(t.root)
+
+	result := make([]dtrules.Entity, 0, len(ids))
+	for _, id := range ids {
+		if entity, ok := t.entityTable[id]; ok {
 			result = append(result, entity)
 		}
 	}

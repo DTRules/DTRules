@@ -2,7 +2,12 @@
 <decision_tables>
 
 <!-- TABLE 52416: ME_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
+<source>
+<relative_path>ME.xlsx</relative_path>
+<file_name>ME.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>ME_Tax</table_name>
 <xls_file>ME.xlsx</xls_file>
 <attribute_fields>
@@ -13,14 +18,10 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset and log</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Maine Tax Calculation (top marginal 7.15%)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef &quot;  Maine Tax Calculation (top marginal 7.15%)&quot; job.audit_trail swap addto</initial_action_postfix>
-<action_postfix>
-0.0 /result.computed_state_tax xdef
-0.0 /result.computed_state_taxable_income xdef
-"  Maine Tax Calculation (top marginal 7.15%)" job.audit_trail swap addto
-</action_postfix>
+<initial_action_postfix>
+0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Maine Tax Calculation (top marginal 7.15%)" job.audit_trail swap addto
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -28,19 +29,22 @@
 <condition_number>1</condition_number>
 <condition_comment>Filing status is Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
 <condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
-<condition_postfix>job.filing_status &quot;MFJ&quot; streq { pop job.filing_status &quot;QSS&quot; streq } over not if</condition_postfix>
+<condition_postfix>
+job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
-<condition_column column_number="1" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
 <condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
-<condition_postfix>job.filing_status &quot;HOH&quot; streq</condition_postfix>
+<condition_postfix>
+job.filing_status "HOH" streq
+</condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
-<condition_column column_number="1" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -48,36 +52,38 @@
 <action_number>1</action_number>
 <action_comment>MFJ/QSS: $29,200 std ded, 7.15%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 29200.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0715</action_dsl>
-<action_postfix>result.agi 29200.0 - 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0715 fmul cvd /result.computed_state_tax xdef</action_postfix>
+<action_postfix>
+result.agi 29200.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0715 fmul cvd /result.computed_state_tax xdef
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>HOH: $21,900 std ded, 7.15%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 21900.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0715</action_dsl>
-<action_postfix>result.agi 21900.0 - 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0715 fmul cvd /result.computed_state_tax xdef</action_postfix>
+<action_postfix>
+result.agi 21900.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0715 fmul cvd /result.computed_state_tax xdef
+</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Default (Single/MFS): $14,600 std ded, 7.15%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 14600.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0715</action_dsl>
-<action_postfix>result.agi 14600.0 - 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0715 fmul cvd /result.computed_state_tax xdef</action_postfix>
+<action_postfix>
+result.agi 14600.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0715 fmul cvd /result.computed_state_tax xdef
+</action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
-<policy_statement column="1">
-<policy_description>ME MFJ: 7.15% x max(AGI - $29,200, 0) per 36 M.R.S. § 5111</policy_description>
-<policy_statement_postfix>"Maine MFJ top-marginal-rate approximation per 36 M.R.S. § 5111"</policy_statement_postfix>
-</policy_statement>
 <policy_statement column="2">
 <policy_description>ME HOH: 7.15% x max(AGI - $21,900, 0) per 36 M.R.S. § 5111</policy_description>
-<policy_statement_postfix>"Maine HOH top-marginal-rate approximation per 36 M.R.S. § 5111"</policy_statement_postfix>
+<policy_statement_postfix>"ME HOH: 7.15% x max(AGI - $21,900, 0) per 36 M.R.S. § 5111"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>ME Single/MFS: 7.15% x max(AGI - $14,600, 0) per 36 M.R.S. § 5111</policy_description>
-<policy_statement_postfix>"Maine Single/MFS top-marginal-rate approximation per 36 M.R.S. § 5111"</policy_statement_postfix>
+<policy_statement_postfix>"ME Single/MFS: 7.15% x max(AGI - $14,600, 0) per 36 M.R.S. § 5111"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

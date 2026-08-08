@@ -67,6 +67,18 @@ func (f *Factory) GetUniqueID() int {
 	return id
 }
 
+// EnsureUniqueIDAbove advances the id counter past floor, so ids handed
+// out from here on cannot collide with ids already in use — a replay that
+// seeds a session from recorded events (which carry their own ids) must
+// call this before live execution allocates new entities or arrays.
+func (f *Factory) EnsureUniqueIDAbove(floor int) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.uniqueID <= floor {
+		f.uniqueID = floor + 1
+	}
+}
+
 // Freeze marks the factory as frozen (after first session created).
 func (f *Factory) Freeze() {
 	f.mu.Lock()

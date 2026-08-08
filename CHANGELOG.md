@@ -1,5 +1,350 @@
 # DTRules Changelog
 
+## v1.22.0 — 2026-08-07
+
+The samples release: every sample project in the repository now loads, runs
+from the command line, and leaves a trace an editor can open — enforced by a
+fired-column floor so a project can never again pass its tests while deciding
+nothing. Plus combinatorial primitives and the Cribbage sample that shows them
+off, and a data-loss fix for Excel round-trips.
+
+### Added
+- **Combinatorial primitives** (#980): `subsets`, `combinations`, `groupby`
+  and `maximalruns` materialize the combinatorial structure of a collection as
+  entities, so decision tables can score it directly instead of needing
+  procedural code around them.
+- **Cribbage sample** (#984): the show scored entirely from decision tables —
+  fifteens from `subsets`, pairs from `groupby`, runs from `maximalruns`.
+- **`for all <array> in reverse`** (#975, #977, #978), in context cells and
+  action cells. `allowing array to be removed` now emits the reverse iteration
+  that makes removal safe (#976).
+- **Policy statements** as a first-class report (#949, #956): statements
+  collect automatically, drain with `add the policy statements to <array>`,
+  reset with `clear the policy statements`.
+- **`tools/elcheck`**: reports, per row, whether a table's stored postfix is
+  what its EL DSL compiles to today — the check that says whether a project is
+  safe to edit through the authoring API at all. It had been written twice as a
+  throwaway and lost twice.
+- **Project discovery for `dtrules edit`** (#941, #942): launching outside a
+  project lists projects to pick from instead of sweeping the tree.
+
+### Fixed
+- **Excel round-trip silently deleted `createentity list=`** (#993). A
+  workbook written before that column existed reads back with its rows present
+  but the attribute empty, and the clobber guard only fired on a wholly empty
+  section — so the rewrite dropped it while the build printed "OK — no drops".
+  On a production ruleset every `for all` then ran over an empty array and
+  returned zero. An import can no longer *remove* structure, and the map export
+  now also runs on the "nothing to sync" path, which previously meant a stale
+  sheet could never be refreshed at all.
+- **The sample repair campaign** (#948): TaxReturn, TestProject, StateTax,
+  Poker, SinusitisTherapy, CHIP, ChipApp, KidAid, KidAid_Application,
+  SyntaxTests and CorporateTax. Every project's rows are authored in EL with
+  postfix compiled from it, every project runs and traces, and DTEligibility
+  was removed — it had never worked and nothing executed it.
+  - **SyntaxTests** (#975, #783): 48 hand-postfix rows, 205 rows whose postfix
+    disagreed with their own DSL, and 11 that would not compile — all zero now.
+  - **CorporateTax** (#986): had never loaded in its life. Its federal core
+    failed to parse in every commit since introduction, its merge script died
+    on its first state file, and 145 of 413 hand rows used operators that were
+    never registered. Now 164 tables load and a California return computes
+    88,400 of tax; Maine's graduated brackets compute 316,495, reconciling
+    tier-for-tier with the published 1120ME table.
+- **`if`/`ifelse` operand order** (#943, #947): the runtime pops the test from
+  the top of the stack, so legacy test-first postfix across the older samples
+  was silently unexecutable.
+- **`<initial_action_details>` was invisible to every reader** (#990) — 312
+  rows in one sample were never loaded, compiled or executed, and saving
+  deleted them.
+- **`set-name` was a silent no-op** (#989): it assigned to a throwaway view, so
+  a rename reported success and never reached the XML.
+- **Comment-only context and action rows** made a whole table unwritable
+  through the authoring API (#991).
+- **Excel/XML sync**: `<createentity list=…>` dropped on map round-trips,
+  context comments erased one build at a time, and the legacy `<TYPE>` spelling
+  erased on write — leaving tables typeless and unloadable (#972).
+- **`docs/el-reference.md`** documented postfix the compiler does not emit in
+  70 of its 116 examples (#961); it is now generated from the compiler and
+  gated by a test.
+
+### Known issues
+- `TestTaxReturnResults` (Family_2025) remains red in the archived lane
+  (`-tags archive`) — its expected values come from an external reference
+  calculator whose model differs from the sample rules (#935). Every other
+  archived test passes.
+- CHIP models relationships as a separate `relationship` entity rather than
+  `client.parent` fields, so its three `is the <R> of` rows evaluate false
+  against that data shape (#962).
+
+## v1.21.0 — 2026-07-26
+
+The analysis release: the trace debugger learns to answer questions —
+where a value came from, what the outcomes were, and what would change
+if a table were different — plus a structural entity explorer and a
+round of alpha polish.
+
+### Added
+- **Field provenance — Find writes** (#915, #917): search the trace for
+  writes of a field, scoped to ONE instance
+  (`staking_account[account_url=acc://x].is_eligible`); every hit
+  carries the why-chain — for the writing table and each caller, the
+  fired column's required cells joined to actual results. Jump straight
+  to that account's own iteration.
+- **EDD-driven report generator** (#915, #918): compose reports from the
+  EDD — entity instances or array elements, field chips, filters, sort,
+  diff key. Saveable specs (`reports/*.report.json`), a visual designer
+  in the Debug tab, and `dtrules report <trace> --spec <file>
+  [--baseline <trace2>]` with row-level diffs.
+- **Speculative reruns — What if…** (#915): edit ONE table in a scratch
+  overlay (DSL recompiled), reseed from the trace's recorded initial
+  data — the same inputs, no input file — and re-execute. SPECULATIVE
+  chip, Restore baseline, reports auto-diff against the baseline.
+  Project files are never touched.
+- **Entity explorer** (#921, #922, #923): drill any entity-stack
+  instance — fields, entity references, arrays (paged), nested
+  composition — lazily fetched, position-true. The engine-built
+  self-reference field (the entity's name field) leads the list,
+  non-navigable; EDD entity numbers (№) shown throughout.
+- **Full-sheet debug view** (#916): the table under execution renders
+  every section in sheet order — CONTEXTS, INITIAL ACTIONS, CONDITIONS,
+  ACTIONS — matching the editor.
+- **Resizable panels** (#925, #926): the Project Explorer and
+  entity-stack dividers drag (widths persist).
+- **Embedded docs** (#919, #920): `dtrules docs debug` — the complete
+  debug story including tracing from an embedding Go program (the
+  staking pattern) and the HTTP debug API for AI agents; cross-linked
+  from `docs embedding`.
+
+### Fixed
+- Build normalization now also backfills EDD entity numbers, runs on
+  the nothing-to-sync branch (a plain `dtrules build` always leaves
+  normalized files), and a clobber guard keeps pre-fix map spreadsheets
+  from wiping createentity/cardinality/initialization sections (#925).
+- Entity stack: content stays inside its rail; frames truncate with
+  hover tooltips (#924).
+- Replay: entities carry their recorded ids and new allocations start
+  above the trace's max — the invariants that make speculative traces
+  verify clean (#915).
+
+## v1.20.0 — 2026-07-25
+
+The debuggability release: execution tracing wired end to end with verified
+replay, a trace debugger and sheet-faithful editor embedded in the binary,
+and emission fixes so external projects (staking) are first-class.
+
+### Added
+- **Execution tracing, end to end** (#912): the engine emits real traces —
+  table/column/action events, def events with value postfix, entity ids,
+  initial mapping data, array ops — with a verified replayer.
+- **Trace debugger** (#913): `dtrules edit` Debug tab — the executing table
+  as the primary view, breakpoints and stepping, collapsible entity-stack
+  frames, hover values, zero-pass call handling.
+- **Editor embedded in the binary** (#910): `dtrules edit`, sheet-faithful
+  UI; API server extracted as an importable package (#911).
+- **First-class external projects**: `DTRules.xml` project config honored
+  (xml_dir, entry table), lone-EDD loads, project-aware bare `dtrules`,
+  one-command `dtrules debug <input.xml>`.
+- Build normalizes section numbering in every decision table (contexts,
+  conditions, actions 1..N in document order) — numbers are labels, the
+  engine executes by position, and drifted numbering made the editor,
+  debugger, and engine errors disagree about which action was which.
+- Entity/table number backfill on emission (#908).
+
+### Fixed
+- **Trace correctness + hygiene** (#914): positional array ops traced and
+  replayed, date replay, mapping round-trip, UI tests.
+- **EDD symbol tables case-fold**: camel-case fields lost their declared
+  type at compile (emitter queries lower-case) and compiled down the wrong
+  postfix path; EL name matching is case-insensitive everywhere, typed case
+  preserved for display.
+- **`dtrules run` pushes loaded singletons** — it executed against
+  default-valued singletons disconnected from the input, silently taking
+  fallback columns.
+- **Sync manifest stores relative paths** (`RecordExport`) — absolute
+  machine paths broke a committed manifest on any other checkout.
+- **XML emission backfills workbook provenance for every table** (`DTImporter.WriteXML`).
+  Tables created through the authoring SDK (`Project.AddTable`) were emitted with an empty
+  `<xls_file>` and no `<source>` element, while Excel-imported tables carried both — so
+  editors and sync tooling that locate a table's workbook/sheet through this metadata saw
+  two classes of table, and SDK-authored ones looked like they didn't exist even though the
+  engine resolves and runs them (observed in the staking rules: 19 of 34 tables were
+  provenance-less). Every write now backfills missing provenance: workbook inherited from a
+  sibling table or derived from the XML filename (`staking_dt.xml` → `staking.xlsx`), sheet
+  numbers appended after the file's highest existing sheet in TABLE_NUMBER order. Existing
+  provenance is preserved untouched (round-trip contract).
+
+## v1.19.0 — 2026-07-11
+
+The staking gate-4 unblock: the three EL codegen issues filed while
+implementing the staking recipient-aggregation and budget tables (#903, #904,
+#869) are fixed, with execution tests for each. In-action entity building now
+works end to end, and fixed-point dispatch is correct in every fexpr context.
+
+### Fixed
+
+- **fp dispatch for fexpr mul/div; divide-rounding operands coerced to fixed**
+  (#903). The six fexpr mul/div visitors emitted `fmul`/`fdiv` unconditionally,
+  so the top-level multiply of a `divide … rounding by` dividend degraded to
+  double math even for fixed×fixed operands — silently losing precision above
+  2^53 and breaking the `fphalfup/` fixed-operand contract. All six now route
+  through the same promote/cvfp/dispatch path as add/sub (#884); `getExprType`
+  propagates types through float-arithmetic compounds; `divideRoundingBy`
+  promotes integer/bigint operands via `cvfp` and rejects double operands with
+  a cast hint per the #876 policy.
+- **In-action entity building** (#904), four defects that all compiled clean
+  and failed at runtime:
+  - Local declarations in action bodies now have a real scope: the remaining
+    statements of the list become the executed block
+    (`<init> allocate { <rest> } execute deallocate pop`). The flat
+    context-level shape (unchanged) underflowed at `execute` in actions.
+  - `create T as <alias>` with an undeclared alias routes through the same
+    scoped-local machinery, so typed sets dispatch by the alias's EDD field
+    types instead of degrading to `cvi`, and the runtime `xdef` refusal is
+    gone. A declared-attribute alias keeps the legacy xdef binding.
+  - `add new T entity to coll` (and the entity/string/date dup-destination
+    forms) double-emitted the `swap addto` trailer the destination visitor
+    already owns — same class as the #781 string fix.
+- **`there is <x> in <array> where <p>` crashed at runtime** (#869). The
+  grammar's entity alternatives shadow the array alternatives, so the form
+  compiled to `<arr> entitypush …` and `entitypush` refused the array. The
+  entity-form visitors now route array-typed operands to the OR-accumulator
+  fold (`false { <p> or } <arr> forall`), covering all three `in/for/on`
+  spellings and both `there is` / `is there` orders.
+
+### Added
+
+- **`lowercase of <s>` / `uppercase of <s>`** strexpr surfaces (#904). New
+  `LOWERCASE`/`UPPERCASE` tokens; emits the registered `lowercase`/`uppercase`
+  ops and types as string, so `lowercase of a == lowercase of b` compiles to
+  `streq` — the case-insensitive URL dedup shape the staking spec needs.
+  (`change <s> to lower/upper case` continues to work.)
+
+### Tests
+
+- Execution tests for every fix: the staking budget shape at a
+  non-float64-representable mantissa (#903), in-action entity building over
+  real entities including nested locals and empty tail blocks (#904), and the
+  there-is-in-array folds (#869). Compile-shape pins for the add-family
+  trailers, case-fold postfix, and divide-rounding dispatch.
+
+## v1.18.0 — 2026-07-02
+
+A comprehensive EL → postfix code-generation correctness pass: a cluster of
+type-dispatch, operand-order, and unregistered-operator fixes — several of
+which silently produced wrong results or crashed at runtime — plus a durable
+execution-test and consistency-guard layer so the same classes can't recur.
+Most were surfaced by auditing the emitter against the operator registry and
+by execution testing (compile → run → assert), which catches operand-order and
+type-dispatch bugs that token-presence tests cannot.
+
+### Fixed
+
+- **Double mixed with an exact type is now rejected, not silently degraded**
+  (#876, #882, #894). Combining a `double` with a `fixed`/`bigint` operand
+  (arithmetic, comparison, field mutation, `multiply/divide … by`, and — the
+  subtle cases — double literals and fixed/bigint fields that parse in the
+  float branch) used to compute through `double` and snap the result back,
+  losing precision (a bigint round-tripped through a float mantissa). It now
+  fails at compile time with a cast hint. The runtime already refused the
+  implicit promotion; the compiler now matches it.
+- **forall boolean-aggregation operand order** (#877). `all … have`,
+  `one of … has a`, `there is … where`, and `match for all …` emitted
+  `seed array { body } forall`, reversed against `opForall ( body array -- )`,
+  crashing with "non-Entity entry in array". Reordered to `seed { body } array
+  forall`.
+- **Float-expression negation emitted an unregistered `neg`** (#878) — any
+  `-(fexpr)` crashed at runtime. Now emits `fnegate`. Negating a bare `double`
+  field emitted the truncating integer `negate`; now `fnegate` too (#894).
+- **Mixed float add/subtract truncated** (#884). `double + 1.0` and friends
+  emitted the integer `+`/`-` (truncating the fraction); now `f+`/`f-`.
+- **Unregistered / wrong-name operators** (#888). `date is between` emitted
+  `d<=`/`d>=`, which were never registered (now implemented); `to lower/upper
+  case`, current-date, and `name of` emitted `tolower`/`toupper`/`currentdate`/
+  `nameof` instead of the registered `lowercase`/`uppercase`/`today`/
+  `entityname`; date subtraction emitted nonexistent `subdays`/`submonths`/
+  `subyears` (now `negate add*`). Each had crashed at runtime.
+- **`substring … from a to b` used the end index as the length** (#889),
+  correct only when `a == 0`. Now emits `end - start`.
+- **bigint `min`/`max` truncated beyond int64** (#899). They fell back to the
+  integer `min`/`max` (`IntValue`); new `bmin`/`bmax` compare via `big.Int`.
+- **Authoring Save degraded fixed-point postfix** (#874, #879). `Project.Save`
+  built its EDD symbol map with only entity-qualified keys and via a
+  non-recursive scan, so bare-name and nested-EDD fields lost their declared
+  type and compiled to integer ops. Unified into one recursive
+  `authoring.LoadEDDSymbols`, shared by Save and `dtrules build`.
+
+### Added
+
+- **Entity relationships** (#890) — `<name> of <entity>` (`getrelationship`)
+  and `<entity> has a <name>` (`hasrelationship`) resolve against the entity
+  attribute model; `has a` is true for a non-null entity-typed attribute.
+- **Emit-consistency guard** (#888) — `TestEmittedOpsAreRegistered` asserts
+  every operator literal the EL emitter can emit resolves in the operator
+  registry, so an emitted-but-unregistered op (the #878 class) fails the build.
+- **Cross-generator parity test** (#898) — pins that the file-based
+  (`authoring.LoadEDDSymbols`) and content-based (`excel.EDDSymbols`) EDD
+  symbol builders produce identical maps and identical postfix, guarding the
+  #874 divergence structurally.
+- **Execution-test coverage** across the emitter (compile → run → assert):
+  forall aggregations, double/fixed/bigint dispatch, mixed-type comparisons,
+  date extraction and arithmetic, in-zone dates, string ops, substring, and
+  the relationship ops.
+
+## v1.17.0 — 2026-06-24
+
+A forall-fold runtime-crash fix, a predicated `sum of … where`, a
+context-push authoring advisory, and the release pipeline finally going
+green — the prior release workflow had been silently skipping its GitHub
+Release step on every tag.
+
+### Fixed
+
+- **forall-fold operand order — runtime crash (#867).** The fold emitters
+  `sum of … in …` and `number of … where …` emitted `seed arr { body }
+  forall`, but `opForall` is `( body array -- )` and pops the array off the
+  top — so it took the *body block* as the array and threw at runtime
+  ("non-Entity entry in array"); the `where` variant had a matching `if`
+  operand-order bug. Reordered to the working template (body before array,
+  inner block before predicate). Added `TestForallFoldExecution`, which
+  compiles EL and **runs** it over real entities asserting numeric results —
+  the existing feature tests only checked token presence, so they couldn't
+  see operand order. The boolean aggregations (`there is … where`,
+  `all have`, …) share the shape and are tracked as a follow-up.
+
+### Added
+
+- **`sum of … where` — predicated sum (#864).** Parity fill for
+  `number of … where`: new EL alternatives `intSumOfWhere` /
+  `floatSumOfWhere` (parser regenerated, ANTLR 4.13.1), lowering to a
+  `forall` fold that gates each addition on the predicate — no new VM op.
+  Documented in `dtrules docs el` and `el-reference.md`.
+- **Context-push advisory (#864).** `analysis.SuggestContextPushes` flags an
+  entity referenced with a qualifier ≥3× in tables where it isn't on the
+  effective stack (own contexts ∪ inherited via the #776 call-graph
+  propagation), targets the suggestion at the call-graph root, and goes
+  silent once an `add X to context` push is adopted. Surfaced as
+  `context_hints` in `dtrules review` — advisory only. Embedded docs:
+  "Shared Constants: Push Once, Reference Unqualified" in
+  `dtrules docs decision-tables`.
+
+### Changed
+
+- **Release pipeline now completes (#870).** Every prior release run failed at
+  the test step and **skipped "Create GitHub Release"** — tags landed but got
+  no automated release. Not a real test failure: a single ~50s test loading
+  the 523-table TaxReturn project pushed the 2-vCPU runner into a SIGTERM
+  kill. The legacy TaxReturn project is now fully archived behind
+  `//go:build archive` (#872), removing that test from the default
+  `make check`; the `verify` workflow skips the unmaintained legacy samples
+  (CHIP, ChipApp, DTEligibility, TestProject) the same way; and the release
+  job gained a `timeout-minutes` guard so a future hang fails loudly instead
+  of silently.
+
+### Docs
+
+- **Interactive data collection guide (#863)** — end-to-end walkthrough of
+  running a rule set as a CLI or web interview.
+
 ## v1.16.0 — 2026-06-17
 
 Interactive data collection (run a rule set as a CLI or web interview),

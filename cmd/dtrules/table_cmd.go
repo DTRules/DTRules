@@ -634,7 +634,8 @@ Patch operations:
   add-condition, update-condition, update-condition-dsl, delete-condition,
   add-action, update-action, update-action-dsl, delete-action,
   add-initial-action, update-initial-action, delete-initial-action,
-  add-context, update-context, delete-context`)
+  add-context, update-context, delete-context,
+  set-policy-statement, delete-policy-statement`)
 }
 
 func (c *CLI) printEDDUsage() {

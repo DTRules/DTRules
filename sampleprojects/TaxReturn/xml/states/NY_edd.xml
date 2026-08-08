@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="NY.xlsx" access="rw">
+	<file_metadata>
+		<file_path>NY_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="NY.xlsx" access="rw">
+		<source>
+			<relative_path>NY.xlsx</relative_path>
+			<file_name>NY.xlsx</file_name>
+			<sheet_number>2</sheet_number>
+		</source>
 		<field name="ny_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="17150.0" comment="NY bracket 1 upper limit joint (2025)"></field>
 		<field name="ny_bracket_1_limit_single" type="double" subtype="" access="r" input="" default_value="8500.0" comment="NY bracket 1 upper limit single $8,500 (2025). New York Tax Law §601. New York IT-201 tax rate schedule. Income $0-$8,500. Source: NYS Tax Department"></field>
 		<field name="ny_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.04" comment="NY tax rate bracket 1 - 4.0% (2025). New York Tax Law §601. Lowest marginal rate. Source: NYS Tax Department"></field>

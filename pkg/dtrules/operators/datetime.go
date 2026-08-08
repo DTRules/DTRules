@@ -50,6 +50,8 @@ func init() {
 	Register("getdayofmonth", opGetDayOfMonth)
 	Register("d<", opDateLT)
 	Register("d>", opDateGT)
+	Register("d<=", opDateLE)
+	Register("d>=", opDateGE)
 	Register("d==", opDateEQ)
 	Register("d+", opDatePlus)
 	Register("d-", opDateMinus)
@@ -656,6 +658,48 @@ func opDateGT(state dtrules.State) error {
 		return err
 	}
 	return state.DataPush(dtrules.GetRBoolean(t1.After(t2)))
+}
+
+// opDateLE: ( date1 date2 -- boolean ) returns true if date1 <= date2
+func opDateLE(state dtrules.State) error {
+	date2Obj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	date1Obj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	t1, err := date1Obj.TimeValue()
+	if err != nil {
+		return err
+	}
+	t2, err := date2Obj.TimeValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRBoolean(!t1.After(t2)))
+}
+
+// opDateGE: ( date1 date2 -- boolean ) returns true if date1 >= date2
+func opDateGE(state dtrules.State) error {
+	date2Obj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	date1Obj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	t1, err := date1Obj.TimeValue()
+	if err != nil {
+		return err
+	}
+	t2, err := date2Obj.TimeValue()
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRBoolean(!t1.Before(t2)))
 }
 
 // opDateEQ: ( date1 date2 -- boolean ) returns true if dates are equal

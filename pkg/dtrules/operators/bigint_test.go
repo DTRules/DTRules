@@ -953,3 +953,44 @@ func TestBigIntUnaryOperatorEmptyStack(t *testing.T) {
 		t.Error("Expected error for empty stack")
 	}
 }
+
+// TestBigIntMinMax (#899): bmin/bmax compare via big.Int, so a bigint beyond
+// int64 range is returned intact — the integer min/max would truncate it via
+// IntValue.
+func TestBigIntMinMax(t *testing.T) {
+	// Two values far beyond int64 (max int64 ~ 9.2e18).
+	small, _ := dtrules.GetRBigIntFromString("100000000000000000000000000000")
+	large, _ := dtrules.GetRBigIntFromString("999999999999999999999999999999")
+
+	run := func(op string, a, b dtrules.Object) string {
+		state := newBigIntTestState()
+		state.DataPush(a)
+		state.DataPush(b)
+		o, ok := Get(dtrules.GetRName(op))
+		if !ok {
+			t.Fatalf("%s not registered", op)
+		}
+		if err := o.Execute(state); err != nil {
+			t.Fatalf("%s: %v", op, err)
+		}
+		top, _ := state.DataPop()
+		bi, err := top.RBigIntValue()
+		if err != nil {
+			t.Fatalf("%s result not bigint: %v", op, err)
+		}
+		return bi.BigIntValue().String()
+	}
+
+	if got := run("bmin", small, large); got != small.BigIntValue().String() {
+		t.Errorf("bmin(small,large) = %s, want %s", got, small.BigIntValue().String())
+	}
+	if got := run("bmin", large, small); got != small.BigIntValue().String() {
+		t.Errorf("bmin(large,small) = %s, want %s", got, small.BigIntValue().String())
+	}
+	if got := run("bmax", small, large); got != large.BigIntValue().String() {
+		t.Errorf("bmax(small,large) = %s, want %s", got, large.BigIntValue().String())
+	}
+	if got := run("bmax", large, small); got != large.BigIntValue().String() {
+		t.Errorf("bmax(large,small) = %s, want %s", got, large.BigIntValue().String())
+	}
+}

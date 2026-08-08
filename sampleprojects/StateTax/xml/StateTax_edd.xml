@@ -1,77 +1,102 @@
-<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
-	<entity name='adjustment' access='rw' comment='Above-the-line adjustment to income'>
-		<field name='adjustment' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
-		<field name='amount' type='integer' subtype='' access='r' input='main' default_value='0' comment='Annual adjustment amount in dollars'></field>
-		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
-		<field name='type' type='string' subtype='' access='r' input='main' default_value='' comment='Adjustment type: SLI (Student Loan Interest), IRA, HSA'></field>
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>StateTax_edd</file_path>
+	</file_metadata>
+	<entity name="adjustment" number="100" xls_file="StateTax.xlsx" access="rw">
+		<source>
+			<relative_path>StateTax.xlsx</relative_path>
+			<file_name>StateTax.xlsx</file_name>
+			<sheet_number>10</sheet_number>
+		</source>
+		<field name="amount" type="integer" subtype="" access="r" input="main" default_value="0" comment="Annual adjustment amount in dollars"></field>
+		<field name="type" type="string" subtype="" access="r" input="main" default_value="" comment="Adjustment type: SLI (Student Loan Interest), IRA, HSA"></field>
 	</entity>
-	<entity name='bracket' access='rw' comment='A single tax bracket in a progressive rate schedule'>
-		<field name='base_tax' type='integer' subtype='' access='r' input='main' default_value='0' comment='Cumulative tax owed at the floor of this bracket'></field>
-		<field name='bracket' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
-		<field name='ceiling' type='integer' subtype='' access='r' input='main' default_value='999999999' comment='Top of bracket range (use 999999999 for highest bracket)'></field>
-		<field name='floor' type='integer' subtype='' access='r' input='main' default_value='0' comment='Bottom of bracket range'></field>
-		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
-		<field name='rate_bps' type='integer' subtype='' access='r' input='main' default_value='0' comment='Marginal rate in basis points (e.g., 495 = 4.95%)'></field>
+	<entity name="bracket" number="200" xls_file="StateTax.xlsx" access="rw">
+		<source>
+			<relative_path>StateTax.xlsx</relative_path>
+			<file_name>StateTax.xlsx</file_name>
+			<sheet_number>10</sheet_number>
+		</source>
+		<field name="base_tax" type="integer" subtype="" access="r" input="main" default_value="0" comment="Cumulative tax owed at the floor of this bracket"></field>
+		<field name="ceiling" type="integer" subtype="" access="r" input="main" default_value="999999999" comment="Top of bracket range (use 999999999 for highest bracket)"></field>
+		<field name="floor" type="integer" subtype="" access="r" input="main" default_value="0" comment="Bottom of bracket range"></field>
+		<field name="rate_bps" type="integer" subtype="" access="r" input="main" default_value="0" comment="Marginal rate in basis points (e.g., 495 = 4.95%)"></field>
 	</entity>
-	<entity name='income' access='rw' comment='A source of income'>
-		<field name='amount' type='integer' subtype='' access='r' input='main' default_value='0' comment='Annual income amount in dollars'></field>
-		<field name='income' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
-		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
-		<field name='type' type='string' subtype='' access='r' input='main' default_value='' comment='Income type: WA (Wages), INT (Interest), DIV (Dividends), CG (Capital Gains), OTH (Other)'></field>
+	<entity name="income" number="300" xls_file="StateTax.xlsx" access="rw">
+		<source>
+			<relative_path>StateTax.xlsx</relative_path>
+			<file_name>StateTax.xlsx</file_name>
+			<sheet_number>10</sheet_number>
+		</source>
+		<field name="amount" type="integer" subtype="" access="r" input="main" default_value="0" comment="Annual income amount in dollars"></field>
+		<field name="type" type="string" subtype="" access="r" input="main" default_value="" comment="Income type: WA (Wages), INT (Interest), DIV (Dividends), CG (Capital Gains), OTH (Other)"></field>
 	</entity>
-	<entity name='job' access='rw' comment='Tax processing job'>
-		<field name='job' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
-		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
-		<field name='results' type='array' subtype='result' access='r' input='' default_value='' comment='Tax computation results'></field>
-		<field name='state' type='string' subtype='' access='r' input='main' default_value='' comment='State code for which tax is computed'></field>
-		<field name='tax_year' type='string' subtype='' access='r' input='main' default_value='2025' comment='Tax year'></field>
+	<entity name="job" number="400" xls_file="StateTax.xlsx" access="rw">
+		<source>
+			<relative_path>StateTax.xlsx</relative_path>
+			<file_name>StateTax.xlsx</file_name>
+			<sheet_number>10</sheet_number>
+		</source>
+		<field name="results" type="array" subtype="result" access="r" input="" default_value="" comment="Tax computation results"></field>
+		<field name="state" type="string" subtype="" access="r" input="main" default_value="" comment="State code for which tax is computed"></field>
+		<field name="tax_year" type="string" subtype="" access="r" input="main" default_value="2025" comment="Tax year"></field>
 	</entity>
-	<entity name='result' access='rw' comment='Tax computation result'>
-		<field name='agi' type='integer' subtype='' access='rw' input='' default_value='0' comment='Adjusted Gross Income'></field>
-		<field name='deduction' type='integer' subtype='' access='rw' input='' default_value='0' comment='Standard deduction applied'></field>
-		<field name='exemptions' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of exemptions'></field>
-		<field name='filing_status' type='string' subtype='' access='rw' input='' default_value='' comment='Filing status used'></field>
-		<field name='grossIncome' type='integer' subtype='' access='rw' input='' default_value='0' comment='Total gross income'></field>
-		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
-		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Processing notes and audit trail'></field>
-		<field name='result' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
-		<field name='state_code' type='string' subtype='' access='rw' input='' default_value='' comment='State code for this result'></field>
-		<field name='taxableIncome' type='integer' subtype='' access='rw' input='' default_value='0' comment='Taxable income after deductions and exemptions'></field>
-		<field name='taxpayer' type='entity' subtype='' access='rw' input='' default_value='' comment='Reference to taxpayer entity'></field>
-		<field name='taxpayer_ID' type='string' subtype='' access='rw' input='' default_value='' comment='Taxpayer identifier'></field>
-		<field name='taxOwed' type='integer' subtype='' access='rw' input='' default_value='0' comment='Total state income tax owed'></field>
+	<entity name="result" number="500" xls_file="StateTax.xlsx" access="rw">
+		<source>
+			<relative_path>StateTax.xlsx</relative_path>
+			<file_name>StateTax.xlsx</file_name>
+			<sheet_number>10</sheet_number>
+		</source>
+		<field name="agi" type="integer" subtype="" access="rw" input="" default_value="0" comment="Adjusted Gross Income"></field>
+		<field name="deduction" type="integer" subtype="" access="rw" input="" default_value="0" comment="Standard deduction applied"></field>
+		<field name="exemptions" type="integer" subtype="" access="rw" input="" default_value="0" comment="Number of exemptions"></field>
+		<field name="filing_status" type="string" subtype="" access="rw" input="" default_value="" comment="Filing status used"></field>
+		<field name="grossIncome" type="integer" subtype="" access="rw" input="" default_value="0" comment="Total gross income"></field>
+		<field name="notes" type="array" subtype="" access="rw" input="" default_value="" comment="Processing notes and audit trail"></field>
+		<field name="state_code" type="string" subtype="" access="rw" input="" default_value="" comment="State code for this result"></field>
+		<field name="taxOwed" type="integer" subtype="" access="rw" input="" default_value="0" comment="Total state income tax owed"></field>
+		<field name="taxableIncome" type="integer" subtype="" access="rw" input="" default_value="0" comment="Taxable income after deductions and exemptions"></field>
+		<field name="taxpayer" type="entity" subtype="" access="rw" input="" default_value="" comment="Reference to taxpayer entity"></field>
+		<field name="taxpayer_ID" type="string" subtype="" access="rw" input="" default_value="" comment="Taxpayer identifier"></field>
 	</entity>
-	<entity name='state_config' access='rw' comment='State-specific tax configuration for one state'>
-		<field name='brackets_hoh' type='array' subtype='bracket' access='r' input='main' default_value='' comment='Tax brackets for Head of Household filers'></field>
-		<field name='brackets_mfj' type='array' subtype='bracket' access='r' input='main' default_value='' comment='Tax brackets for Married Filing Jointly filers'></field>
-		<field name='brackets_single' type='array' subtype='bracket' access='r' input='main' default_value='' comment='Tax brackets for Single filers'></field>
-		<field name='exemption_amount' type='integer' subtype='' access='r' input='main' default_value='0' comment='Per-exemption deduction amount'></field>
-		<field name='flat_rate_bps' type='integer' subtype='' access='r' input='main' default_value='0' comment='Flat tax rate in basis points (e.g., 495 = 4.95%) for flat-tax states'></field>
-		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
-		<field name='standard_deduction_hoh' type='integer' subtype='' access='r' input='main' default_value='0' comment='Standard deduction for Head of Household'></field>
-		<field name='standard_deduction_mfj' type='integer' subtype='' access='r' input='main' default_value='0' comment='Standard deduction for Married Filing Jointly'></field>
-		<field name='standard_deduction_single' type='integer' subtype='' access='r' input='main' default_value='0' comment='Standard deduction for Single filers'></field>
-		<field name='state_code' type='string' subtype='' access='r' input='main' default_value='' comment='Two-letter state abbreviation'></field>
-		<field name='state_config' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
-		<field name='state_name' type='string' subtype='' access='r' input='main' default_value='' comment='Full state name'></field>
-		<field name='tax_type' type='string' subtype='' access='r' input='main' default_value='progressive' comment='Tax type: none, flat, progressive'></field>
+	<entity name="state_config" number="600" xls_file="StateTax.xlsx" access="rw">
+		<source>
+			<relative_path>StateTax.xlsx</relative_path>
+			<file_name>StateTax.xlsx</file_name>
+			<sheet_number>10</sheet_number>
+		</source>
+		<field name="brackets_hoh" type="array" subtype="bracket" access="r" input="main" default_value="" comment="Tax brackets for Head of Household filers"></field>
+		<field name="brackets_mfj" type="array" subtype="bracket" access="r" input="main" default_value="" comment="Tax brackets for Married Filing Jointly filers"></field>
+		<field name="brackets_single" type="array" subtype="bracket" access="r" input="main" default_value="" comment="Tax brackets for Single filers"></field>
+		<field name="exemption_amount" type="integer" subtype="" access="r" input="main" default_value="0" comment="Per-exemption deduction amount"></field>
+		<field name="flat_rate_bps" type="integer" subtype="" access="r" input="main" default_value="0" comment="Flat tax rate in basis points (e.g., 495 = 4.95%) for flat-tax states"></field>
+		<field name="standard_deduction_hoh" type="integer" subtype="" access="r" input="main" default_value="0" comment="Standard deduction for Head of Household"></field>
+		<field name="standard_deduction_mfj" type="integer" subtype="" access="r" input="main" default_value="0" comment="Standard deduction for Married Filing Jointly"></field>
+		<field name="standard_deduction_single" type="integer" subtype="" access="r" input="main" default_value="0" comment="Standard deduction for Single filers"></field>
+		<field name="state_code" type="string" subtype="" access="r" input="main" default_value="" comment="Two-letter state abbreviation"></field>
+		<field name="state_name" type="string" subtype="" access="r" input="main" default_value="" comment="Full state name"></field>
+		<field name="tax_type" type="string" subtype="" access="r" input="main" default_value="progressive" comment="Tax type: none, flat, progressive"></field>
 	</entity>
-	<entity name='taxpayer' access='rw' comment='Individual taxpayer'>
-		<field name='active_brackets' type='array' subtype='bracket' access='rw' input='' default_value='' comment='Working bracket array selected for filing status'></field>
-		<field name='adjustments' type='array' subtype='adjustment' access='r' input='main' default_value='' comment='Above-the-line adjustments'></field>
-		<field name='agi' type='integer' subtype='' access='rw' input='' default_value='0' comment='Adjusted Gross Income'></field>
-		<field name='bracket_applied' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Guard flag: true after matching bracket found'></field>
-		<field name='deduction' type='integer' subtype='' access='rw' input='' default_value='0' comment='Standard deduction amount'></field>
-		<field name='exemptions' type='integer' subtype='' access='rw' input='' default_value='0' comment='Number of exemptions claimed'></field>
-		<field name='filing_status' type='string' subtype='' access='r' input='main' default_value='SINGLE' comment='Filing status: SINGLE, MFJ, HOH'></field>
-		<field name='grossIncome' type='integer' subtype='' access='rw' input='' default_value='0' comment='Total gross income from all sources'></field>
-		<field name='incomes' type='array' subtype='income' access='r' input='main' default_value='' comment='Income sources'></field>
-		<field name='mapping*key' type='string' subtype='' access='r' input='' default_value='' comment='Mapping Key'></field>
-		<field name='notes' type='array' subtype='' access='rw' input='' default_value='' comment='Processing notes'></field>
-		<field name='num_dependents' type='integer' subtype='' access='r' input='main' default_value='0' comment='Number of dependents claimed'></field>
-		<field name='taxableIncome' type='integer' subtype='' access='rw' input='' default_value='0' comment='Taxable income after deductions and exemptions'></field>
-		<field name='taxOwed' type='integer' subtype='' access='rw' input='' default_value='0' comment='Computed state income tax'></field>
-		<field name='taxpayer' type='entity' subtype='' access='r' input='' default_value='' comment='Self Reference'></field>
-		<field name='taxpayer_ID' type='string' subtype='' access='r' input='main' default_value='' comment='Taxpayer identifier'></field>
+	<entity name="taxpayer" number="700" xls_file="StateTax.xlsx" access="rw">
+		<source>
+			<relative_path>StateTax.xlsx</relative_path>
+			<file_name>StateTax.xlsx</file_name>
+			<sheet_number>10</sheet_number>
+		</source>
+		<field name="active_brackets" type="array" subtype="bracket" access="rw" input="" default_value="" comment="Working bracket array selected for filing status"></field>
+		<field name="adjustments" type="array" subtype="adjustment" access="r" input="main" default_value="" comment="Above-the-line adjustments"></field>
+		<field name="agi" type="integer" subtype="" access="rw" input="" default_value="0" comment="Adjusted Gross Income"></field>
+		<field name="bracket_applied" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Guard flag: true after matching bracket found"></field>
+		<field name="deduction" type="integer" subtype="" access="rw" input="" default_value="0" comment="Standard deduction amount"></field>
+		<field name="exemptions" type="integer" subtype="" access="rw" input="" default_value="0" comment="Number of exemptions claimed"></field>
+		<field name="filing_status" type="string" subtype="" access="r" input="main" default_value="SINGLE" comment="Filing status: SINGLE, MFJ, HOH"></field>
+		<field name="grossIncome" type="integer" subtype="" access="rw" input="" default_value="0" comment="Total gross income from all sources"></field>
+		<field name="incomes" type="array" subtype="income" access="r" input="main" default_value="" comment="Income sources"></field>
+		<field name="notes" type="array" subtype="" access="rw" input="" default_value="" comment="Processing notes"></field>
+		<field name="num_dependents" type="integer" subtype="" access="r" input="main" default_value="0" comment="Number of dependents claimed"></field>
+		<field name="taxOwed" type="integer" subtype="" access="rw" input="" default_value="0" comment="Computed state income tax"></field>
+		<field name="taxableIncome" type="integer" subtype="" access="rw" input="" default_value="0" comment="Taxable income after deductions and exemptions"></field>
+		<field name="taxpayer_ID" type="string" subtype="" access="r" input="main" default_value="" comment="Taxpayer identifier"></field>
 	</entity>
 </entity_data_dictionary>

@@ -3,7 +3,12 @@
 	<file_metadata>
 		<file_path>TaxReturn_edd</file_path>
 	</file_metadata>
-	<entity name="adoption" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="adoption" number="100" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="adoption_finalized" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Adoption finalized"></field>
 		<field name="adoption_type" type="string" subtype="" access="r" input="main" default_value="domestic" comment="Type: domestic, foreign, special_needs"></field>
 		<field name="carryforward" type="double" subtype="" access="rw" input="" default_value="0" comment="Unused credit carryforward"></field>
@@ -19,7 +24,12 @@
 		<field name="prior_year_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Expenses claimed in prior years"></field>
 		<field name="qualified_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Qualified adoption expenses"></field>
 	</entity>
-	<entity name="casualty_loss" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="casualty_loss" number="200" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="cost_basis" type="double" subtype="" access="r" input="main" default_value="0" comment="Cost or adjusted basis"></field>
 		<field name="decrease_in_fmv" type="double" subtype="" access="rw" input="" default_value="0" comment="Decrease in FMV"></field>
 		<field name="deductible_loss" type="double" subtype="" access="rw" input="" default_value="0" comment="Deductible loss (after $100 floor for personal)"></field>
@@ -35,7 +45,12 @@
 		<field name="property_description" type="string" subtype="" access="r" input="main" default_value="" comment="Description of property"></field>
 		<field name="property_type" type="string" subtype="" access="r" input="main" default_value="personal" comment="Type: personal, business, income_producing"></field>
 	</entity>
-	<entity name="child_unearned_income" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="child_unearned_income" number="300" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="child_age" type="integer" subtype="" access="r" input="main" default_value="" comment="Child age at year end"></field>
 		<field name="child_earned_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Child earned income"></field>
 		<field name="child_itemized_deductions" type="double" subtype="" access="r" input="main" default_value="0" comment="Child itemized deductions allocable to unearned"></field>
@@ -49,7 +64,12 @@
 		<field name="subject_to_kiddie_tax" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Subject to kiddie tax (computed)"></field>
 		<field name="unearned_income_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Child unearned income (interest, dividends, CG)"></field>
 	</entity>
-	<entity name="clean_vehicle" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="clean_vehicle" number="400" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="battery_capacity" type="double" subtype="" access="r" input="main" default_value="0" comment="Battery capacity in kWh"></field>
 		<field name="battery_components_pct" type="double" subtype="" access="r" input="main" default_value="0" comment="Battery components domestic content %"></field>
 		<field name="battery_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Battery components credit ($3,750)"></field>
@@ -66,7 +86,12 @@
 		<field name="vehicle_type" type="string" subtype="" access="r" input="main" default_value="new" comment="Type: new, used, commercial"></field>
 		<field name="vin" type="string" subtype="" access="r" input="main" default_value="" comment="Vehicle Identification Number"></field>
 	</entity>
-	<entity name="constants" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="constants" number="500" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="HOH" type="string" subtype="" access="r" input="" default_value="HOH" comment="Head of Household"></field>
 		<field name="MFJ" type="string" subtype="" access="r" input="" default_value="MFJ" comment="Married Filing Jointly"></field>
 		<field name="MFS" type="string" subtype="" access="r" input="" default_value="MFS" comment="Married Filing Separately"></field>
@@ -207,6 +232,7 @@
 		<field name="ira_phaseout_start_mfj" type="double" subtype="" access="r" input="" default_value="126000" comment="IRA phaseout start MFJ covered by plan (2025)"></field>
 		<field name="ira_phaseout_start_single" type="double" subtype="" access="r" input="" default_value="79000" comment="IRA phaseout start Single covered by plan (2025)"></field>
 		<field name="kiddie_tax_age_limit" type="integer" subtype="" access="r" input="" default_value="19" comment="Age limit for kiddie tax (under 19, or 24 if student)"></field>
+		<field name="kiddie_tax_parent_rate" type="double" subtype="" access="r" input="" default_value="0.37" comment="Simplified parent marginal rate applied to excess unearned income (Form 8615)"></field>
 		<field name="kiddie_tax_standard_deduction" type="double" subtype="" access="r" input="" default_value="1300" comment="2025 standard deduction for dependents with unearned income (Rev. Proc. 2024-40)"></field>
 		<field name="kiddie_tax_student_age" type="integer" subtype="" access="r" input="" default_value="24" comment="Age limit for full-time students"></field>
 		<field name="kiddie_tax_threshold" type="double" subtype="" access="r" input="" default_value="2700" comment="2025 threshold for unearned income subject to kiddie tax (IRC 1(g)(4)(A))"></field>
@@ -233,14 +259,6 @@
 		<field name="nh_bracket_3_threshold" type="double" subtype="" access="r" input="" default_value="150000" comment="NH bracket 3 threshold (above this uses 7.5%)"></field>
 		<field name="nh_standard_deduction_mfj" type="double" subtype="" access="r" input="" default_value="16000" comment="NH standard deduction MFJ (2025)"></field>
 		<field name="nh_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="8000" comment="NH standard deduction Single (2025)"></field>
-		<field name="sc_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="3560" comment="SC tax bracket 1 upper limit (2025)"></field>
-		<field name="sc_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.00" comment="SC tax rate for bracket 1: 0% (2025)"></field>
-		<field name="sc_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="17830" comment="SC tax bracket 2 upper limit (2025)"></field>
-		<field name="sc_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.03" comment="SC tax rate for bracket 2: 3% (2025)"></field>
-		<field name="sc_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.06" comment="SC tax rate for bracket 3: 6% (2025)"></field>
-		<field name="sc_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="23625" comment="SC standard deduction head of household (2025)"></field>
-		<field name="sc_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="31500" comment="SC standard deduction married filing jointly (2025)"></field>
-		<field name="sc_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="15750" comment="SC standard deduction single (2025)"></field>
 		<field name="niit_rate" type="double" subtype="" access="r" input="" default_value="0.038" comment="3.8% NIIT rate (IRC 1411)"></field>
 		<field name="niit_threshold_mfj" type="double" subtype="" access="r" input="" default_value="250000" comment="NIIT threshold MFJ (IRC 1411(b))"></field>
 		<field name="niit_threshold_mfs" type="double" subtype="" access="r" input="" default_value="125000" comment="NIIT threshold MFS (IRC 1411(b))"></field>
@@ -294,6 +312,14 @@
 		<field name="savers_50_percent_mfj" type="double" subtype="" access="r" input="" default_value="46000" comment="50% rate AGI limit MFJ (2025)"></field>
 		<field name="savers_50_percent_single" type="double" subtype="" access="r" input="" default_value="23000" comment="50% rate AGI limit Single (2025)"></field>
 		<field name="savers_credit_max_contribution" type="double" subtype="" access="r" input="" default_value="2000" comment="Max eligible contribution per person"></field>
+		<field name="sc_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="3560" comment="SC tax bracket 1 upper limit (2025)"></field>
+		<field name="sc_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.00" comment="SC tax rate for bracket 1: 0% (2025)"></field>
+		<field name="sc_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="17830" comment="SC tax bracket 2 upper limit (2025)"></field>
+		<field name="sc_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.03" comment="SC tax rate for bracket 2: 3% (2025)"></field>
+		<field name="sc_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.06" comment="SC tax rate for bracket 3: 6% (2025)"></field>
+		<field name="sc_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="23625" comment="SC standard deduction head of household (2025)"></field>
+		<field name="sc_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="31500" comment="SC standard deduction married filing jointly (2025)"></field>
+		<field name="sc_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="15750" comment="SC standard deduction single (2025)"></field>
 		<field name="se_deduction_rate" type="double" subtype="" access="r" input="" default_value="0.5" comment="Deductible portion of SE tax (IRC 164(f))"></field>
 		<field name="se_income_multiplier" type="double" subtype="" access="r" input="" default_value="0.9235" comment="92.35% of net SE earnings (IRC 1402(a)(12))"></field>
 		<field name="se_tax_rate" type="double" subtype="" access="r" input="" default_value="0.153" comment="SE tax rate: 15.3% (12.4% SS + 2.9% Medicare)"></field>
@@ -321,7 +347,12 @@
 		<field name="tips_phaseout_joint" type="double" subtype="" access="r" input="" default_value="300000" comment="Tips deduction phase-out threshold MFJ"></field>
 		<field name="tips_phaseout_single" type="double" subtype="" access="r" input="" default_value="150000" comment="Tips deduction phase-out threshold Single"></field>
 	</entity>
-	<entity name="credit" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="credit" number="600" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit amount (computed)"></field>
 		<field name="description" type="string" subtype="" access="rw" input="" default_value="" comment="Description"></field>
 		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Credit ID"></field>
@@ -332,7 +363,12 @@
 		<field name="is_refundable" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Whether credit is refundable"></field>
 		<field name="type" type="string" subtype="" access="rw" input="" default_value="" comment="Credit type: CTC, ODC, ACTC, EITC, education, etc."></field>
 	</entity>
-	<entity name="deduction" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="deduction" number="700" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="allowed_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Allowed amount after limitations (computed)"></field>
 		<field name="amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Claimed amount"></field>
 		<field name="category" type="string" subtype="" access="r" input="main" default_value="" comment="Category: medical, taxes, interest, charity, casualty, other"></field>
@@ -343,7 +379,12 @@
 		<field name="irs_publication" type="string" subtype="" access="rw" input="" default_value="" comment="IRS publication reference"></field>
 		<field name="limitation_applies" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Whether a limitation applies (computed)"></field>
 	</entity>
-	<entity name="dependent" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="dependent" number="800" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="age" type="integer" subtype="" access="r" input="main" default_value="0" comment="Age at end of tax year"></field>
 		<field name="aotc_used_years" type="integer" subtype="" access="r" input="main" default_value="0" comment="Years AOTC already claimed (max 4)"></field>
 		<field name="care_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Care expenses for this dependent"></field>
@@ -358,6 +399,7 @@
 		<field name="is_disabled" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Physically or mentally incapable of self-care"></field>
 		<field name="is_student" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Full-time student"></field>
 		<field name="kiddie_tax_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Calculated kiddie tax amount (computed) - Form 8615"></field>
+		<field name="kiddie_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Unearned income above the kiddie tax threshold (Form 8615 line 1)"></field>
 		<field name="months_lived_with" type="integer" subtype="" access="r" input="main" default_value="12" comment="Months lived with taxpayer"></field>
 		<field name="name" type="string" subtype="" access="r" input="main" default_value="" comment="Full name"></field>
 		<field name="notes" type="array" subtype="" access="rw" input="" default_value="" comment="Notes about dependent eligibility"></field>
@@ -373,7 +415,12 @@
 		<field name="tuition_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="Tuition paid (Form 1098-T Box 1)"></field>
 		<field name="unearned_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Unearned income (investment income, dividends, interest) - Form 8615"></field>
 	</entity>
-	<entity name="early_distribution" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="early_distribution" number="900" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="account_type" type="string" subtype="" access="r" input="main" default_value="ira" comment="Account type: ira, 401k, 403b, 457, roth_ira"></field>
 		<field name="age_at_distribution" type="integer" subtype="" access="r" input="main" default_value="0" comment="Age at time of distribution"></field>
 		<field name="distribution_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Gross distribution (Form 1099-R Box 1)"></field>
@@ -387,7 +434,12 @@
 		<field name="taxable_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Taxable amount (Form 1099-R Box 2a)"></field>
 		<field name="taxpayer_id" type="integer" subtype="" access="r" input="main" default_value="" comment="Associated taxpayer ID"></field>
 	</entity>
-	<entity name="elderly_disabled" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="elderly_disabled" number="1000" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="age_65_or_older" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Age 65 or older at end of year"></field>
 		<field name="agi_reduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Reduction for excess AGI"></field>
 		<field name="credit_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit amount (15% of base)"></field>
@@ -402,7 +454,12 @@
 		<field name="ss_tier1_rr" type="double" subtype="" access="r" input="main" default_value="0" comment="Nontaxable SS and Tier 1 RR benefits"></field>
 		<field name="taxpayer_id" type="integer" subtype="" access="r" input="main" default_value="" comment="Associated taxpayer ID"></field>
 	</entity>
-	<entity name="energy_improvement" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="energy_improvement" number="1100" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="category" type="string" subtype="" access="r" input="main" default_value="" comment="Category: clean_energy (25D) or efficiency (25C)"></field>
 		<field name="cost" type="double" subtype="" access="r" input="main" default_value="0" comment="Total cost of improvement"></field>
 		<field name="credit_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Computed credit amount"></field>
@@ -411,7 +468,12 @@
 		<field name="installation_date" type="date" subtype="" access="r" input="main" default_value="" comment="Date installed"></field>
 		<field name="type" type="string" subtype="" access="r" input="main" default_value="" comment="Type: solar, wind, geothermal, battery, heat_pump, insulation, windows, doors, water_heater, hvac, audit"></field>
 	</entity>
-	<entity name="estimated_payment" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="estimated_payment" number="1200" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="days_late" type="integer" subtype="" access="rw" input="" default_value="0" comment="Days payment was late"></field>
 		<field name="due_date" type="date" subtype="" access="r" input="main" default_value="" comment="Due date for quarter"></field>
 		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Payment ID"></field>
@@ -422,7 +484,12 @@
 		<field name="required_payment" type="double" subtype="" access="rw" input="" default_value="0" comment="Required quarterly payment"></field>
 		<field name="underpayment" type="double" subtype="" access="rw" input="" default_value="0" comment="Underpayment amount"></field>
 	</entity>
-	<entity name="farm_income" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="farm_income" number="1300" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="accounting_method" type="string" subtype="" access="r" input="main" default_value="cash" comment="Method: cash or accrual"></field>
 		<field name="agricultural_payments" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 6: Agricultural program payments"></field>
 		<field name="car_truck_expense" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 12: Car and truck expenses"></field>
@@ -464,7 +531,12 @@
 		<field name="utilities" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 32: Utilities"></field>
 		<field name="veterinary" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 33: Veterinary, breeding, medicine"></field>
 	</entity>
-	<entity name="foreign_earned_income" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="foreign_earned_income" number="1400" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="bona_fide_resident" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Bona fide residence test (full tax year)"></field>
 		<field name="country" type="string" subtype="" access="r" input="main" default_value="" comment="Foreign country of residence"></field>
 		<field name="exclusion_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Foreign earned income exclusion (max $126,500 for 2024)"></field>
@@ -481,7 +553,12 @@
 		<field name="tax_home" type="string" subtype="" access="r" input="main" default_value="" comment="Tax home location"></field>
 		<field name="taxpayer_id" type="integer" subtype="" access="r" input="main" default_value="" comment="Associated taxpayer ID"></field>
 	</entity>
-	<entity name="foreign_income" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="foreign_income" number="1500" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="capital_gains" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign capital gains"></field>
 		<field name="country" type="string" subtype="" access="r" input="main" default_value="" comment="Country name"></field>
 		<field name="country_code" type="string" subtype="" access="r" input="main" default_value="" comment="Country code (2-letter)"></field>
@@ -502,7 +579,12 @@
 		<field name="rental_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign rental income"></field>
 		<field name="wages" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign wages"></field>
 	</entity>
-	<entity name="household_employee" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="household_employee" number="1600" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="cash_wages" type="double" subtype="" access="r" input="main" default_value="0" comment="Cash wages paid"></field>
 		<field name="federal_withholding" type="double" subtype="" access="r" input="main" default_value="0" comment="Federal income tax withheld"></field>
 		<field name="futa_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="FUTA tax (0.6% after credit)"></field>
@@ -517,7 +599,12 @@
 		<field name="state_unemployment_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="State unemployment tax paid"></field>
 		<field name="total_household_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Total household employment taxes"></field>
 	</entity>
-	<entity name="income" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="income" number="1700" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="gross_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Gross income amount"></field>
 		<field name="holding_period" type="string" subtype="" access="r" input="main" default_value="" comment="Holding period: short_term or long_term (Schedule D)"></field>
 		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Income ID"></field>
@@ -532,7 +619,12 @@
 		<field name="taxpayer_id" type="integer" subtype="" access="r" input="main" default_value="" comment="Associated taxpayer ID"></field>
 		<field name="type" type="string" subtype="" access="r" input="main" default_value="" comment="Type: W2, 1099-NEC, 1099-MISC, rental, interest, dividend, capital_gain"></field>
 	</entity>
-	<entity name="installment_sale" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="installment_sale" number="1800" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="adjusted_basis" type="double" subtype="" access="r" input="main" default_value="0" comment="Adjusted basis in property"></field>
 		<field name="contract_price" type="double" subtype="" access="rw" input="" default_value="0" comment="Contract price for GP ratio"></field>
 		<field name="date_sold" type="date" subtype="" access="r" input="main" default_value="" comment="Date of sale"></field>
@@ -549,7 +641,12 @@
 		<field name="selling_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Selling expenses"></field>
 		<field name="selling_price" type="double" subtype="" access="r" input="main" default_value="0" comment="Total selling price"></field>
 	</entity>
-	<entity name="ira_account" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="ira_account" number="1900" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="account_number" type="string" subtype="" access="r" input="main" default_value="" comment="Account number (last 4)"></field>
 		<field name="account_type" type="string" subtype="" access="r" input="main" default_value="traditional" comment="Type: traditional, roth, sep, simple"></field>
 		<field name="contribution_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Current year contribution"></field>
@@ -565,7 +662,12 @@
 		<field name="total_basis" type="double" subtype="" access="rw" input="" default_value="0" comment="Total non-deductible basis (computed)"></field>
 		<field name="year_end_balance" type="double" subtype="" access="r" input="main" default_value="0" comment="Balance as of 12/31"></field>
 	</entity>
-	<entity name="job" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="job" number="2000" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="actively_participates_rental" type="boolean" subtype="" access="r" input="main" default_value="true" comment="Actively participates in rental activities"></field>
 		<field name="adoptions" type="array" subtype="adoption" access="r" input="" default_value="" comment="Form 8839 Adoption Credits"></field>
 		<field name="advance_ptc_received" type="double" subtype="" access="r" input="main" default_value="0" comment="Advance PTC received (Form 1095-A)"></field>
@@ -624,7 +726,12 @@
 		<field name="unreported_tips_records" type="array" subtype="unreported_tips" access="r" input="" default_value="" comment="Form 4137 Unreported Tip Income"></field>
 		<field name="vehicles" type="array" subtype="vehicle" access="r" input="" default_value="" comment="Vehicles used for business"></field>
 	</entity>
-	<entity name="k1_income" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="k1_income" number="2100" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="ein" type="string" subtype="" access="r" input="main" default_value="" comment="Entity EIN"></field>
 		<field name="entity_name" type="string" subtype="" access="r" input="main" default_value="" comment="Partnership/S-corp/Trust name"></field>
 		<field name="foreign_source_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 16: Foreign source income"></field>
@@ -653,7 +760,12 @@
 		<field name="unrecaptured_1250" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 9b: Unrecaptured Section 1250 gain"></field>
 		<field name="w2_wages_qbi" type="double" subtype="" access="r" input="main" default_value="0" comment="Box 20: W-2 wages for QBI limitation"></field>
 	</entity>
-	<entity name="lihtc_recapture" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="lihtc_recapture" number="2200" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="accelerated_portion" type="double" subtype="" access="r" input="main" default_value="0" comment="Accelerated portion of credit previously claimed"></field>
 		<field name="building_identification" type="string" subtype="" access="r" input="main" default_value="" comment="Building identification number (BIN)"></field>
 		<field name="building_name" type="string" subtype="" access="r" input="main" default_value="" comment="Building name or address"></field>
@@ -667,7 +779,12 @@
 		<field name="total_credits_claimed" type="double" subtype="" access="r" input="main" default_value="0" comment="Total LIHTC credits claimed in prior years"></field>
 		<field name="total_recapture_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Total tax including interest"></field>
 	</entity>
-	<entity name="like_kind_exchange" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="like_kind_exchange" number="2300" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="boot_received" type="double" subtype="" access="rw" input="" default_value="0" comment="Total boot received"></field>
 		<field name="cash_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="Cash boot paid"></field>
 		<field name="cash_received" type="double" subtype="" access="r" input="main" default_value="0" comment="Cash boot received"></field>
@@ -687,7 +804,12 @@
 		<field name="replacement_description" type="string" subtype="" access="r" input="main" default_value="" comment="Description of property received"></field>
 		<field name="replacement_fmv" type="double" subtype="" access="r" input="main" default_value="0" comment="FMV of replacement property"></field>
 	</entity>
-	<entity name="mortgage_credit_certificate" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="mortgage_credit_certificate" number="2400" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="carryforward_to_next" type="double" subtype="" access="rw" input="" default_value="0" comment="Unused credit carried to next year"></field>
 		<field name="certificate_number" type="string" subtype="" access="r" input="main" default_value="" comment="MCC certificate number"></field>
 		<field name="certified_indebtedness" type="double" subtype="" access="r" input="main" default_value="0" comment="Certified indebtedness amount on MCC"></field>
@@ -702,7 +824,12 @@
 		<field name="prior_year_carryforward" type="double" subtype="" access="r" input="main" default_value="0" comment="Carryforward from prior 3 years"></field>
 		<field name="tentative_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Tentative credit (interest x rate)"></field>
 	</entity>
-	<entity name="nol_carryover" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="nol_carryover" number="2500" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="amount_available" type="double" subtype="" access="r" input="main" default_value="0" comment="Amount available this year"></field>
 		<field name="amount_used" type="double" subtype="" access="rw" input="" default_value="0" comment="Amount used this year"></field>
 		<field name="amount_used_prior" type="double" subtype="" access="r" input="main" default_value="0" comment="Amount used in prior years"></field>
@@ -713,7 +840,12 @@
 		<field name="original_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Original NOL amount"></field>
 		<field name="remaining_carryover" type="double" subtype="" access="rw" input="" default_value="0" comment="Remaining carryover"></field>
 	</entity>
-	<entity name="noncash_contribution" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="noncash_contribution" number="2600" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="acquisition_method" type="string" subtype="" access="r" input="main" default_value="purchase" comment="How acquired: purchase, gift, inheritance, exchange"></field>
 		<field name="agi_limitation" type="double" subtype="" access="rw" input="" default_value="0" comment="AGI percentage limitation (30% or 50%)"></field>
 		<field name="appraisal_date" type="date" subtype="" access="r" input="main" default_value="" comment="Date of appraisal"></field>
@@ -738,7 +870,12 @@
 		<field name="requires_appraisal" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Requires qualified appraisal (Section B - over $5,000)"></field>
 		<field name="valuation_method" type="string" subtype="" access="r" input="main" default_value="comparable_sales" comment="Method: comparable_sales, appraisal, replacement_cost"></field>
 	</entity>
-	<entity name="partnership_audit" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="partnership_audit" number="2700" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="additional_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Additional tax due from adjustments"></field>
 		<field name="adjustment_year" type="integer" subtype="" access="r" input="main" default_value="" comment="Adjustment year (current year)"></field>
 		<field name="capital_gain_adjustment" type="double" subtype="" access="r" input="main" default_value="0" comment="Adjustment to capital gains"></field>
@@ -757,7 +894,12 @@
 		<field name="total_amount_due" type="double" subtype="" access="rw" input="" default_value="0" comment="Total amount due including interest"></field>
 		<field name="total_income_adjustment" type="double" subtype="" access="rw" input="" default_value="0" comment="Total income adjustments"></field>
 	</entity>
-	<entity name="prior_year_amt" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="prior_year_amt" number="2800" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="amt_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="AMT paid in origin year"></field>
 		<field name="carryforward_remaining" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit remaining for future years"></field>
 		<field name="credit_allowed" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit allowed this year"></field>
@@ -769,7 +911,12 @@
 		<field name="prior_credit_used" type="double" subtype="" access="r" input="main" default_value="0" comment="Credit already used in prior years"></field>
 		<field name="tentative_minimum_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Tentative minimum tax"></field>
 	</entity>
-	<entity name="property" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="property" number="2900" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="active_participation" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Taxpayer actively participates in rental (PAL exception)"></field>
 		<field name="address" type="string" subtype="" access="r" input="main" default_value="" comment="Property address"></field>
 		<field name="current_fmv" type="double" subtype="" access="r" input="main" default_value="0" comment="Current fair market value"></field>
@@ -796,7 +943,12 @@
 		<field name="rental_utilities" type="double" subtype="" access="r" input="main" default_value="0" comment="Utilities expense"></field>
 		<field name="type" type="string" subtype="" access="r" input="main" default_value="primary_residence" comment="Type: primary_residence, rental, second_home"></field>
 	</entity>
-	<entity name="property_sale" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="property_sale" number="3000" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="adjusted_basis" type="double" subtype="" access="rw" input="" default_value="0" comment="Adjusted basis (cost + improvements - depreciation)"></field>
 		<field name="amount_realized" type="double" subtype="" access="rw" input="" default_value="0" comment="Amount realized (sales price - expenses)"></field>
 		<field name="cost_basis" type="double" subtype="" access="r" input="main" default_value="0" comment="Original cost basis"></field>
@@ -815,7 +967,12 @@
 		<field name="total_gain_loss" type="double" subtype="" access="rw" input="" default_value="0" comment="Total gain or loss"></field>
 		<field name="unrecaptured_1250_gain" type="double" subtype="" access="rw" input="" default_value="0" comment="Unrecaptured Section 1250 gain (25% rate)"></field>
 	</entity>
-	<entity name="result" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="result" number="3100" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="additional_medicare_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Additional Medicare Tax (Form 8959)"></field>
 		<field name="adoption_credit_carryforward" type="double" subtype="" access="rw" input="" default_value="0" comment="Adoption credit carryforward to next year"></field>
 		<field name="agi" type="double" subtype="" access="rw" input="" default_value="0" comment="Adjusted Gross Income (Form 1040 Line 11)"></field>
@@ -830,6 +987,7 @@
 		<field name="amti" type="double" subtype="" access="rw" input="" default_value="0" comment="Alternative Minimum Taxable Income"></field>
 		<field name="annual_contribution" type="double" subtype="" access="rw" input="" default_value="0" comment="Expected annual contribution"></field>
 		<field name="applicable_percentage" type="double" subtype="" access="rw" input="" default_value="0" comment="PTC applicable percentage"></field>
+		<field name="balance_due" type="double" subtype="" access="rw" input="" default_value="0" comment="Balance due before refund determination (Form 1040 line 37 intermediate)"></field>
 		<field name="capital_gains_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Capital gains tax at preferential rates"></field>
 		<field name="carryforward_mortgage_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Unused mortgage credit to carry forward (Form 8396)"></field>
 		<field name="cdcc_allowed_expenses" type="double" subtype="" access="rw" input="" default_value="0" comment="CDCC allowed expenses (lesser of actual or limit)"></field>
@@ -837,8 +995,14 @@
 		<field name="cdcc_expense_limit" type="double" subtype="" access="rw" input="" default_value="0" comment="CDCC expense limit based on qualifying persons"></field>
 		<field name="cdcc_rate" type="double" subtype="" access="rw" input="" default_value="0" comment="CDCC credit rate based on AGI"></field>
 		<field name="cdcc_rate_reductions" type="double" subtype="" access="rw" input="" default_value="0" comment="Number of rate reduction steps for CDCC"></field>
+		<field name="cg_ordinary_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Taxable income excluding preferential-rate income (Schedule D worksheet stacking base)"></field>
+		<field name="cg_taxed_at_0" type="double" subtype="" access="rw" input="" default_value="0" comment="Preferential income falling in the 0 percent bracket"></field>
+		<field name="cg_taxed_at_15" type="double" subtype="" access="rw" input="" default_value="0" comment="Preferential income falling in the 15 percent bracket"></field>
+		<field name="cg_taxed_at_20" type="double" subtype="" access="rw" input="" default_value="0" comment="Preferential income falling in the 20 percent bracket"></field>
 		<field name="clean_energy_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Residential Clean Energy Credit (Form 5695 Part I)"></field>
 		<field name="combined_military_foreign_exclusion" type="double" subtype="" access="rw" input="" default_value="0" comment="Combined military combat zone + spouse FEIE"></field>
+		<field name="computed_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Shared state-tax output written by XX_Tax tables without per-state result fields. Dispatch_State_Tax copies this to state_tax_result.state_tax_liability."></field>
+		<field name="computed_state_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Shared state-taxable-income output written by XX_Tax tables without per-state result fields."></field>
 		<field name="ctc_after_phaseout" type="double" subtype="" access="rw" input="" default_value="0" comment="CTC+ODC after phase-out"></field>
 		<field name="ctc_before_phaseout" type="double" subtype="" access="rw" input="" default_value="0" comment="CTC+ODC before phase-out"></field>
 		<field name="ctc_phase_out_reduction" type="double" subtype="" access="rw" input="" default_value="0" comment="CTC/ODC phase-out reduction per IRC 24(b)"></field>
@@ -850,6 +1014,7 @@
 		<field name="disabled_access_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Disabled Access Credit (Form 8826)"></field>
 		<field name="education_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Education credits (AOTC/LLC)"></field>
 		<field name="educator_expense_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Educator expense deduction (Schedule 1 Line 11)"></field>
+		<field name="effective_salt_cap" type="double" subtype="" access="rw" input="" default_value="0" comment="SALT cap after MAGI-based phaseout (intermediate result)"></field>
 		<field name="eitc" type="double" subtype="" access="rw" input="" default_value="0" comment="Earned Income Tax Credit"></field>
 		<field name="eitc_qualifying_children" type="integer" subtype="" access="rw" input="" default_value="0" comment="Number of qualifying children for EITC"></field>
 		<field name="elderly_disabled_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit for elderly or disabled (Schedule R)"></field>
@@ -866,6 +1031,8 @@
 		<field name="fpl_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Federal Poverty Level for household"></field>
 		<field name="fpl_percentage" type="double" subtype="" access="rw" input="" default_value="0" comment="Household income as % of FPL"></field>
 		<field name="gambling_winnings" type="double" subtype="" access="rw" input="main" default_value="0" comment="Gambling winnings (Form 1040 Line 8b). Source: IRC 61"></field>
+		<field name="gbc_available_limit" type="double" subtype="" access="rw" input="" default_value="0" comment="GBC: §38(c)(1) limitation = tax - 75% * excess (Form 3800 Part II, intermediate)"></field>
+		<field name="gbc_excess_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="GBC: amount of tax_before_credits over gbc_threshold (Form 3800 Part II, intermediate)"></field>
 		<field name="general_business_credit_carryforward" type="double" subtype="" access="rw" input="" default_value="0" comment="Unused GBC to carry forward to next year"></field>
 		<field name="general_business_credit_total" type="double" subtype="" access="rw" input="" default_value="0" comment="Total General Business Credit from Form 3800 Part I"></field>
 		<field name="general_business_credit_used" type="double" subtype="" access="rw" input="" default_value="0" comment="Amount of GBC used against current year tax"></field>
@@ -907,10 +1074,7 @@
 		<field name="nh_standard_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="NH standard deduction amount"></field>
 		<field name="nh_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="New Hampshire state income tax (renamed from nh_tax to avoid RName collision with NH_Tax decision table)"></field>
 		<field name="nh_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="New Hampshire taxable income"></field>
-		<field name="computed_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Shared state-tax output written by XX_Tax tables without per-state result fields. Dispatch_State_Tax copies this to state_tax_result.state_tax_liability."></field>
-		<field name="computed_state_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Shared state-taxable-income output written by XX_Tax tables without per-state result fields."></field>
-		<field name="sc_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="South Carolina state income tax"></field>
-		<field name="sc_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="South Carolina taxable income"></field>
+		<field name="niit_excess" type="double" subtype="" access="rw" input="" default_value="0" comment="MAGI in excess of the NIIT threshold (Form 8960 line 15)"></field>
 		<field name="niit_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Net Investment Income Tax (Form 8960)"></field>
 		<field name="nol_carryforward_remaining" type="double" subtype="" access="rw" input="" default_value="0" comment="NOL carryforward to future years"></field>
 		<field name="nol_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="NOL deduction used this year"></field>
@@ -921,6 +1085,7 @@
 		<field name="pal_phaseout_reduction" type="double" subtype="" access="rw" input="" default_value="0" comment="PAL phaseout reduction amount"></field>
 		<field name="pal_reduced_allowance" type="double" subtype="" access="rw" input="" default_value="0" comment="PAL allowance after phaseout"></field>
 		<field name="partnership_audit_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Partnership audit additional tax (Form 8978)"></field>
+		<field name="preferential_rate_income" type="double" subtype="" access="rw" input="" default_value="0" comment="LTCG + qualified dividends taxed at preferential rates (Schedule D Tax Worksheet)"></field>
 		<field name="premium_tax_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Premium Tax Credit (Form 8962)"></field>
 		<field name="prior_year_amt_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Prior year AMT credit (Form 8801)"></field>
 		<field name="provisional_income" type="double" subtype="" access="rw" input="" default_value="0" comment="AGI + 50% SS + tax-exempt interest (Pub 915)"></field>
@@ -929,25 +1094,26 @@
 		<field name="qbi_from_income" type="double" subtype="" access="rw" input="" default_value="0" comment="20% of qualified business income"></field>
 		<field name="qbi_taxable_limit" type="double" subtype="" access="rw" input="" default_value="0" comment="20% of taxable income limit for QBI"></field>
 		<field name="qualifying_care_persons" type="integer" subtype="" access="rw" input="" default_value="0" comment="Number of qualifying persons for CDCC"></field>
+		<field name="refund" type="double" subtype="" access="rw" input="" default_value="0" comment="Overpayment to be refunded (Form 1040 line 34 intermediate)"></field>
 		<field name="refund_or_owed" type="double" subtype="" access="rw" input="" default_value="0" comment="Refund (positive) or amount owed (negative)"></field>
 		<field name="regular_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Regular tax (Form 1040 Line 16)"></field>
 		<field name="rental_loss_allowed" type="double" subtype="" access="rw" input="" default_value="0" comment="Rental loss allowed after PAL rules (Form 8582)"></field>
 		<field name="research_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Research Credit (Form 6765)"></field>
 		<field name="safe_harbor_met" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Safe harbor exception met"></field>
 		<field name="salt_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="SALT deduction amount (for AMT add-back)"></field>
-		<field name="total_salt_collected" type="double" subtype="" access="rw" input="" default_value="0" comment="Sum of property taxes + state/local tax deductions before SALT cap (intermediate result)"></field>
-		<field name="effective_salt_cap" type="double" subtype="" access="rw" input="" default_value="0" comment="SALT cap after MAGI-based phaseout (intermediate result)"></field>
-		<field name="gbc_excess_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="GBC: amount of tax_before_credits over gbc_threshold (Form 3800 Part II, intermediate)"></field>
-		<field name="gbc_available_limit" type="double" subtype="" access="rw" input="" default_value="0" comment="GBC: §38(c)(1) limitation = tax - 75% * excess (Form 3800 Part II, intermediate)"></field>
 		<field name="savers_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Saver Credit (Form 8880)"></field>
 		<field name="savers_credit_rate" type="double" subtype="" access="rw" input="" default_value="0" comment="Saver Credit rate (0.50, 0.20, 0.10, or 0)"></field>
+		<field name="sc_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="South Carolina state income tax"></field>
+		<field name="sc_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="South Carolina taxable income"></field>
 		<field name="schedule_h_futa_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="FUTA tax on household employees (Schedule H)"></field>
 		<field name="schedule_h_medicare_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Medicare tax on household employees (Schedule H)"></field>
 		<field name="schedule_h_social_security_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Social Security tax on household employees (Schedule H)"></field>
 		<field name="schedule_h_total_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Total household employment tax (Schedule H)"></field>
+		<field name="se_base" type="double" subtype="" access="rw" input="" default_value="0" comment="SE tax base: total SE income x 92.35% (Schedule SE line 4a)"></field>
 		<field name="se_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Self-employment tax (Schedule SE)"></field>
 		<field name="senior_count" type="integer" subtype="" access="rw" input="" default_value="0" comment="Number of seniors (65+) for deduction"></field>
 		<field name="senior_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Senior Additional deduction (OBBBA 2025, $6k per senior)"></field>
+		<field name="senior_std_count" type="integer" subtype="" access="rw" input="" default_value="0" comment="Seniors counted for the additional standard deduction (not gated on W-2 income)"></field>
 		<field name="sgli_exclusion" type="double" subtype="" access="rw" input="" default_value="0" comment="SGLI life insurance exclusion"></field>
 		<field name="small_employer_health_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Small Employer Health Insurance Credit (Form 8941)"></field>
 		<field name="small_employer_pension_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Small Employer Pension Plan Startup Credit (Form 8881)"></field>
@@ -1019,6 +1185,7 @@
 		<field name="total_rental_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Net rental income (Schedule E)"></field>
 		<field name="total_rental_loss" type="double" subtype="" access="rw" input="" default_value="0" comment="Total rental losses before PAL limits"></field>
 		<field name="total_roth_conversions" type="double" subtype="" access="rw" input="" default_value="0" comment="Total converted to Roth IRA"></field>
+		<field name="total_salt_collected" type="double" subtype="" access="rw" input="" default_value="0" comment="Sum of property taxes + state/local tax deductions before SALT cap (intermediate result)"></field>
 		<field name="total_savers_contribution" type="double" subtype="" access="rw" input="" default_value="0" comment="Total eligible retirement contributions for Saver Credit"></field>
 		<field name="total_se_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Net self-employment income (Schedule C)"></field>
 		<field name="total_short_term_gains" type="double" subtype="" access="rw" input="" default_value="0" comment="Total short-term capital gains (Schedule D)"></field>
@@ -1036,7 +1203,12 @@
 		<field name="wages_for_additional_medicare" type="double" subtype="" access="rw" input="" default_value="0" comment="Wages subject to Additional Medicare"></field>
 		<field name="work_opportunity_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Work Opportunity Credit (Form 5884)"></field>
 	</entity>
-	<entity name="state_period" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="state_period" number="3200" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="allocated_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Income allocated to this state (computed)"></field>
 		<field name="allocated_withholding" type="double" subtype="" access="rw" input="" default_value="0" comment="Withholding allocated to this state (computed)"></field>
 		<field name="allocation_percentage" type="double" subtype="" access="rw" input="" default_value="0" comment="Percentage of income allocated to this state (computed)"></field>
@@ -1048,7 +1220,12 @@
 		<field name="start_date" type="date" subtype="" access="r" input="main" default_value="" comment="Start date of residence/work in this state"></field>
 		<field name="state_code" type="string" subtype="" access="r" input="main" default_value="" comment="Two-letter state code (e.g., NY, FL, CA, TX)"></field>
 	</entity>
-	<entity name="state_tax_result" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="state_tax_result" number="3300" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="state_agi" type="double" subtype="" access="rw" input="" default_value="0" comment="State adjusted gross income"></field>
 		<field name="state_code" type="string" subtype="" access="rw" input="main" default_value="" comment="Two-letter state code (e.g., CA, NY, TX)"></field>
 		<field name="state_credits" type="double" subtype="" access="rw" input="" default_value="0" comment="Total state tax credits"></field>
@@ -1058,7 +1235,12 @@
 		<field name="state_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="State taxable income after deductions"></field>
 		<field name="state_withholding" type="double" subtype="" access="rw" input="" default_value="0" comment="State tax withheld"></field>
 	</entity>
-	<entity name="taxpayer" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="taxpayer" number="3400" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="age_50_or_over" type="boolean" subtype="" access="rw" input="main" default_value="false" comment="Age 50 or over for catchup contributions"></field>
 		<field name="appliance_type" type="string" subtype="" access="r" input="main" default_value="" comment="Type: dishwasher, clothes_washer, refrigerator (Form 8909)"></field>
 		<field name="bah_amount" type="double" subtype="" access="rw" input="main" default_value="0" comment="Basic Allowance for Housing (nontaxable)"></field>
@@ -1083,9 +1265,11 @@
 		<field name="hospitalized_combat_injury" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Hospitalized from combat zone injury"></field>
 		<field name="hsa_contribution" type="double" subtype="" access="rw" input="main" default_value="0" comment="HSA contribution (Form 8889)"></field>
 		<field name="hsa_coverage_type" type="string" subtype="" access="rw" input="main" default_value="self" comment="HSA coverage: self or family"></field>
+		<field name="hsa_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="HSA deduction for this taxpayer (Form 8889, computed)"></field>
 		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Taxpayer ID"></field>
 		<field name="imminent_danger_pay" type="double" subtype="" access="rw" input="main" default_value="0" comment="Imminent danger/hostile fire pay"></field>
 		<field name="incomes" type="array" subtype="income" access="r" input="" default_value="" comment="Income sources for this taxpayer"></field>
+		<field name="ira_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Traditional IRA deduction for this taxpayer (computed)"></field>
 		<field name="is_educator" type="boolean" subtype="" access="rw" input="main" default_value="false" comment="K-12 teacher, instructor, counselor, principal, or aide"></field>
 		<field name="is_military" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Active duty military service member"></field>
 		<field name="is_military_spouse" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Spouse of active duty military member (MSRRA)"></field>
@@ -1128,7 +1312,12 @@
 		<field name="w2_wages" type="double" subtype="" access="rw" input="main" default_value="0" comment="W-2 wage income"></field>
 		<field name="w2_withholding" type="double" subtype="" access="rw" input="main" default_value="0" comment="Federal tax withheld from W-2"></field>
 	</entity>
-	<entity name="unreported_tips" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="unreported_tips" number="3500" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="employer_ein" type="string" subtype="" access="r" input="main" default_value="" comment="Employer EIN"></field>
 		<field name="employer_name" type="string" subtype="" access="r" input="main" default_value="" comment="Employer name"></field>
 		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Record ID"></field>
@@ -1144,7 +1333,12 @@
 		<field name="w2_ss_tips" type="double" subtype="" access="r" input="main" default_value="0" comment="Social security tips from W-2 Box 7"></field>
 		<field name="w2_wages" type="double" subtype="" access="r" input="main" default_value="0" comment="Wages from W-2 Box 1"></field>
 	</entity>
-	<entity name="vehicle" xls_file="TaxReturn_edd.xlsx" access="rw">
+	<entity name="vehicle" number="3600" xls_file="TaxReturn.xlsx" access="rw">
+		<source>
+			<relative_path>TaxReturn.xlsx</relative_path>
+			<file_name>TaxReturn.xlsx</file_name>
+			<sheet_number>126</sheet_number>
+		</source>
 		<field name="actual_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Actual vehicle expenses if using actual method"></field>
 		<field name="business_miles" type="integer" subtype="" access="r" input="main" default_value="0" comment="Business miles driven"></field>
 		<field name="business_use_percentage" type="double" subtype="" access="rw" input="" default_value="0" comment="Business use percentage (computed)"></field>

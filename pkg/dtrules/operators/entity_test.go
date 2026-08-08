@@ -249,3 +249,61 @@ func TestDefAssignsAttribute(t *testing.T) {
 		t.Errorf("def did not set value: got %d, want 99", v)
 	}
 }
+
+// runRelOp pushes (entity, name) and executes op, returning the top result.
+func runRelOp(t *testing.T, op string, ent dtrules.Object, name string) dtrules.Object {
+	t.Helper()
+	state := newTestState()
+	state.DataPush(ent)
+	state.DataPush(dtrules.NewRString(name))
+	o, ok := Get(dtrules.GetRName(op))
+	if !ok {
+		t.Fatalf("op %q not registered", op)
+	}
+	if err := o.Execute(state); err != nil {
+		t.Fatalf("%s: %v", op, err)
+	}
+	top, err := state.DataPop()
+	if err != nil {
+		t.Fatalf("DataPop: %v", err)
+	}
+	return top
+}
+
+// TestRelationshipOps (#890) covers getrelationship/hasrelationship directly,
+// including the edge cases the end-to-end test doesn't: missing attribute and
+// a non-entity attribute.
+func TestRelationshipOps(t *testing.T) {
+	physician := entity.NewREntity(1, false, dtrules.GetRName("physician"))
+	patient := entity.NewREntity(2, false, dtrules.GetRName("patient"))
+	patient.AddAttribute(dtrules.GetRName("doctor"), "", physician, true, true, dtrules.TypeEntity, "physician", "", "", "")
+	patient.AddAttribute(dtrules.GetRName("pname"), "", dtrules.NewRString("Bob"), true, true, dtrules.TypeString, "", "", "", "")
+
+	// getrelationship: existing entity attribute -> that entity.
+	got := runRelOp(t, "getrelationship", patient, "doctor")
+	if e, err := got.REntityValue(); err != nil || e.GetID() != 1 {
+		t.Errorf("getrelationship(doctor) = %v (%T), want physician(id 1)", got, got)
+	}
+	// getrelationship: missing attribute -> null.
+	if got := runRelOp(t, "getrelationship", patient, "nurse"); got.Type() != dtrules.TypeNull {
+		t.Errorf("getrelationship(nurse) = %v, want null", got)
+	}
+
+	// hasrelationship: entity attribute set -> true.
+	if b, _ := runRelOp(t, "hasrelationship", patient, "doctor").BooleanValue(); !b {
+		t.Error("hasrelationship(doctor) = false, want true")
+	}
+	// hasrelationship: missing attribute -> false.
+	if b, _ := runRelOp(t, "hasrelationship", patient, "nurse").BooleanValue(); b {
+		t.Error("hasrelationship(nurse) = true, want false")
+	}
+	// hasrelationship: non-entity attribute -> false.
+	if b, _ := runRelOp(t, "hasrelationship", patient, "pname").BooleanValue(); b {
+		t.Error("hasrelationship(pname) = true, want false (string, not a relationship)")
+	}
+	// hasrelationship: entity attribute cleared to null -> false.
+	patient.Put(dtrules.GetRName("doctor"), dtrules.GetRNull())
+	if b, _ := runRelOp(t, "hasrelationship", patient, "doctor").BooleanValue(); b {
+		t.Error("hasrelationship(doctor) = true after null, want false")
+	}
+}

@@ -1,0 +1,8 @@
+# Nothing is ignored here on purpose.
+#
+# The forms were gitignored at first, on the reasoning that manifest.tsv
+# records every URL so they can be re-fetched. That reasoning is wrong: state
+# revenue departments rotate form URLs every filing season, so within a year
+# the manifest would be a list of 404s and the material would be gone again.
+# These are primary sources the rules are derived from and audited against.
+# They are committed.

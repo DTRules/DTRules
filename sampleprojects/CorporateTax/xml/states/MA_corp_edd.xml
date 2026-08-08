@@ -58,6 +58,36 @@
     The standard apportionment fields are sufficient for MA's 8% flat rate.
   -->
   <entity name="result">
+    <field name="ma_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_corp_tax_rate" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_economic_nexus_threshold" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_has_nexus" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_qualified_dividend_deduction" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_state_additions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_state_credits" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_state_subtractions" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_tax_liability" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_taxable_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
+    <field name="ma_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
     <!-- No MA-specific fields needed -->
   </entity>
 

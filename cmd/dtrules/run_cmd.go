@@ -29,6 +29,8 @@ import (
 	"github.com/DTRules/DTRules/pkg/dtrules/interpreter"
 	"github.com/DTRules/DTRules/pkg/dtrules/mapping"
 	"github.com/DTRules/DTRules/pkg/dtrules/session"
+	"github.com/DTRules/DTRules/pkg/dtrules/trace"
+	"github.com/DTRules/DTRules/pkg/dtrules/version"
 	webpkg "github.com/DTRules/DTRules/pkg/dtrules/web"
 )
 
@@ -38,7 +40,7 @@ import (
 // value hasn't been provided (#850/#854).
 func (c *CLI) runRun(args []string) int {
 	path, entry, input, resultEntity := ".", "", "", "result"
-	var save, data, review string
+	var save, data, review, tracePath string
 	interactive, web, noOpen := false, false, false
 	port := "0" // 0 = let the OS pick a free port
 	for i := 0; i < len(args); i++ {
@@ -68,6 +70,15 @@ func (c *CLI) runRun(args []string) int {
 				review = args[i+1]
 				i++
 			}
+		case "--trace":
+			// Value is optional: bare --trace writes to the project's
+			// traces/ directory, named after the input file (or entry).
+			if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
+				tracePath = args[i+1]
+				i++
+			} else {
+				tracePath = traceDefaultSentinel
+			}
 		case "--result-entity":
 			if i+1 < len(args) {
 				resultEntity = args[i+1]
@@ -96,10 +107,19 @@ func (c *CLI) runRun(args []string) int {
 			path = args[i]
 		}
 	}
+	// The project's DTRules.xml may declare the default entry table.
 	if entry == "" {
-		fmt.Fprintln(os.Stderr, "Error: --entry <table> is required")
+		if cfg, err := loadProjectConfig(mustAbs(path)); err == nil {
+			entry = cfg.Entry
+		}
+	}
+	if entry == "" {
+		fmt.Fprintln(os.Stderr, "Error: --entry <table> is required (or declare <entry> in DTRules.xml)")
 		c.printRunUsage()
 		return 1
+	}
+	if tracePath == traceDefaultSentinel {
+		tracePath = defaultTracePath(mustAbs(path), entry, input)
 	}
 
 	xmlDir, _, err := resolveDirs(mustAbs(path), "", "")
@@ -126,6 +146,34 @@ func (c *CLI) runRun(args []string) int {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating session: %v\n", err)
 		return 1
+	}
+
+	// Trace capture: enabled before data loading so the trace records the
+	// initial data, then execution, then the resulting state — a complete
+	// document the trace debugger can replay and verify.
+	var traceFile *os.File
+	if tracePath != "" {
+		dts, ok := sess.GetState().(*interpreter.DTState)
+		if !ok {
+			fmt.Fprintln(os.Stderr, "Error: tracing unavailable for this session state")
+			return 1
+		}
+		traceFile, err = os.Create(tracePath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error creating trace file: %v\n", err)
+			return 1
+		}
+		defer traceFile.Close()
+		fingerprint, ferr := trace.FingerprintRules(xmlDir)
+		if ferr != nil {
+			fingerprint = ""
+		}
+		trace.WriteHeader(traceFile, trace.Provenance{
+			DTRulesVersion:   version.Version,
+			RulesFingerprint: fingerprint,
+		})
+		dts.SetOutput(traceFile, nil)
+		dts.EnableTrace()
 	}
 
 	// Initialize entities (and optionally load input data) via the mapping.
@@ -165,8 +213,17 @@ func (c *CLI) runRun(args []string) int {
 		return 1
 	}
 	if err := dt.Execute(state); err != nil {
+		if traceFile != nil {
+			trace.WriteFooter(traceFile)
+		}
 		fmt.Fprintf(os.Stderr, "Error executing %q: %v\n", entry, err)
 		return 1
+	}
+
+	if traceFile != nil {
+		trace.WriteFinalState(traceFile, state)
+		trace.WriteFooter(traceFile)
+		fmt.Fprintf(os.Stderr, "Trace written: %s\n", tracePath)
 	}
 
 	// Save the collected dataset as canonical, mapping-free data XML — an
@@ -207,20 +264,18 @@ func initMapping(sess dtrules.Session, xmlDir, input string) error {
 	if err := m.LoadMapping(mapFile); err != nil {
 		return err
 	}
-	if err := m.Initialize(); err != nil {
-		return err
-	}
 	if input != "" {
+		// Load the data first, then push singletons so the stack holds the
+		// LOADED instances — Initialize+LoadData would push default-valued
+		// entities disconnected from the input.
 		f, err := os.Open(input)
 		if err != nil {
 			return err
 		}
 		defer f.Close()
-		if err := m.LoadData(f); err != nil {
-			return err
-		}
+		return m.LoadDataAndPushSingletons(f)
 	}
-	return nil
+	return m.Initialize()
 }
 
 // dataEntities returns the live, executed data entities (the instances on the
@@ -336,6 +391,9 @@ Options:
   --data <file.xml>      Load canonical (mapping-free) data, authoritative
   --review <file.xml>    Load canonical data for re-interview (pre-filled, asked)
   --save <file.xml>      Save the collected data as canonical XML after the run
+  --trace <file.xml>     Write a complete execution trace (initial data,
+                         every table/column/action, resulting state) with
+                         DTRules version + rules fingerprint for replay
   --interactive, -i      Prompt for any reached collect field not supplied
   --web                  Serve an interactive web interview instead of a CLI run
   --port <n>             Port for --web (default: an unused port chosen by the OS)

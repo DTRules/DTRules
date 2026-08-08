@@ -1,0 +1,19 @@
+<DTRules>
+  <!--
+    Project marker. Its presence is what makes this directory a project to
+    `dtrules edit` and to project discovery (#941/#942); <entry> names the
+    table `dtrules run`, `dtrules debug` and the editor start from.
+
+    Run_Corporate_Tax dispatches on apportionment.state_code to each state's
+    trio — Determine_XX_Filing_Requirement, Calculate_XX_Income_Adjustments,
+    Calculate_XX_State_Tax — via `perform table named (...)`. The 15 states
+    that spelled the trio with _Corporate_ were renamed to the majority
+    convention, and the four gross-receipts states (OH TN TX WA) carry thin
+    standard-named wrappers that perform their real tables (#948 Phase 3).
+
+    The federal core (Form 1120) was removed — it never parsed in any commit
+    and used a schema the loader cannot read (see STATUS.md). Federal taxable
+    income arrives as input on the apportionment singleton.
+  -->
+  <entry>Run_Corporate_Tax</entry>
+</DTRules>

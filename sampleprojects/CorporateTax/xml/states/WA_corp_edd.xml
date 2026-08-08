@@ -4,7 +4,7 @@
 
   IMPORTANT: Washington has NO corporate income tax.
 
-  Washington imposes a Business & Occupation (B&amp;O) tax instead of a traditional income tax.
+  Washington imposes a Business &amp; Occupation (B&amp;O) tax instead of a traditional income tax.
   The B&amp;O tax is based on gross receipts (not net income) and varies by business classification.
 
   Tax Rates (2025):
@@ -53,7 +53,7 @@
   </entity>
 
   <!-- ================================================================== -->
-  <!-- RESULT - Washington Business & Occupation (B&amp;O) Tax Fields        -->
+  <!-- RESULT - Washington Business &amp; Occupation (B&amp;O) Tax Fields        -->
   <!-- The B&amp;O tax is NOT an income tax - it's based on gross receipts   -->
   <!-- ================================================================== -->
   <entity name='result' xls_file='WA_Corp.xls' access='rw' comment='Washington B&amp;O tax calculation results'>

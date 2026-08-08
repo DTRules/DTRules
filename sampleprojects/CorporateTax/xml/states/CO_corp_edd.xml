@@ -16,6 +16,18 @@
     <file_path>states/CO/51400_CO_corporate_constants</file_path>
   </file_metadata>
   <entity name="result">
+    <field name="co_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"/>
+    <field name="co_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"/>
+    <field name="co_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"/>
+    <field name="co_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"/>
+    <field name="co_state_tax_deduction" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"/>
+    <field name="co_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"/>
     <!-- Colorado Corporate Tax Rate -->
     <field name="co_corp_tax_rate" type="double" default_value="0.0455"
            comment="CO corporate income tax rate: 4.55% (CO Rev. Stat. § 39-22-104, 2025)"/>

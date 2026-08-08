@@ -2,7 +2,12 @@
 <decision_tables>
 
 <!-- TABLE 50616: DE_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
+<source>
+<relative_path>DE.xlsx</relative_path>
+<file_name>DE.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>DE_Tax</table_name>
 <xls_file>DE.xlsx</xls_file>
 <attribute_fields>
@@ -13,14 +18,10 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset and log</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Delaware Tax Calculation (top marginal 6.6%)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef &quot;  Delaware Tax Calculation (top marginal 6.6%)&quot; job.audit_trail swap addto</initial_action_postfix>
-<action_postfix>
-0.0 /result.computed_state_tax xdef
-0.0 /result.computed_state_taxable_income xdef
-"  Delaware Tax Calculation (top marginal 6.6%)" job.audit_trail swap addto
-</action_postfix>
+<initial_action_postfix>
+0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef "  Delaware Tax Calculation (top marginal 6.6%)" job.audit_trail swap addto
+</initial_action_postfix>
 </initial_action>
 </initial_actions>
 <conditions>
@@ -28,19 +29,22 @@
 <condition_number>1</condition_number>
 <condition_comment>Filing status is Married Filing Jointly or Qualifying Surviving Spouse</condition_comment>
 <condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
-<condition_postfix>job.filing_status &quot;MFJ&quot; streq { pop job.filing_status &quot;QSS&quot; streq } over not if</condition_postfix>
-<condition_column column_number="3" column_value="N" />
+<condition_postfix>
+job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
+</condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Filing status is Head of Household</condition_comment>
 <condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
-<condition_postfix>job.filing_status &quot;HOH&quot; streq</condition_postfix>
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="1" column_value="-" />
+<condition_postfix>
+job.filing_status "HOH" streq
+</condition_postfix>
 <condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
@@ -48,36 +52,38 @@
 <action_number>1</action_number>
 <action_comment>MFJ/QSS: $6,500 std ded, 6.6%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 6500.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.066</action_dsl>
-<action_postfix>result.agi 6500.0 - 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.066 fmul cvd /result.computed_state_tax xdef</action_postfix>
+<action_postfix>
+result.agi 6500.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.066 fmul cvi /result.computed_state_tax xdef
+</action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>HOH: $3,250 std ded, 6.6%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 3250.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.066</action_dsl>
-<action_postfix>result.agi 3250.0 - 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.066 fmul cvd /result.computed_state_tax xdef</action_postfix>
+<action_postfix>
+result.agi 3250.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.066 fmul cvi /result.computed_state_tax xdef
+</action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Default (Single/MFS): $3,250 std ded, 6.6%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 3250.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.066</action_dsl>
-<action_postfix>result.agi 3250.0 - 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.066 fmul cvd /result.computed_state_tax xdef</action_postfix>
+<action_postfix>
+result.agi 3250.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.066 fmul cvi /result.computed_state_tax xdef
+</action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
 </actions>
 <policy_statements>
-<policy_statement column="1">
-<policy_description>DE MFJ: 6.6% x max(AGI - $6,500, 0) per 30 Del. C. § 1102</policy_description>
-<policy_statement_postfix>"Delaware MFJ top-marginal-rate approximation per 30 Del. C. § 1102"</policy_statement_postfix>
-</policy_statement>
 <policy_statement column="2">
 <policy_description>DE HOH: 6.6% x max(AGI - $3,250, 0) per 30 Del. C. § 1102</policy_description>
-<policy_statement_postfix>"Delaware HOH top-marginal-rate approximation per 30 Del. C. § 1102"</policy_statement_postfix>
+<policy_statement_postfix>"DE HOH: 6.6% x max(AGI - $3,250, 0) per 30 Del. C. § 1102"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>DE Single/MFS: 6.6% x max(AGI - $3,250, 0) per 30 Del. C. § 1102</policy_description>
-<policy_statement_postfix>"Delaware Single/MFS top-marginal-rate approximation per 30 Del. C. § 1102"</policy_statement_postfix>
+<policy_statement_postfix>"DE Single/MFS: 6.6% x max(AGI - $3,250, 0) per 30 Del. C. § 1102"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

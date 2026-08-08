@@ -94,6 +94,10 @@ func (c *CLI) Run(args []string) int {
 		return c.runBuild(cmdArgs)
 	case "run":
 		return c.runRun(cmdArgs)
+	case "debug":
+		return c.runDebug(cmdArgs)
+	case "report":
+		return c.runReport(cmdArgs)
 	case "verify":
 		return c.runVerify(cmdArgs)
 	case "sync":
@@ -118,6 +122,8 @@ func (c *CLI) Run(args []string) int {
 		return c.runMCP(cmdArgs)
 	case "project":
 		return c.runProject(cmdArgs)
+	case "edit":
+		return c.runEdit(cmdArgs)
 	case "help", "-h", "--help":
 		c.printUsage()
 		return 0
@@ -144,6 +150,7 @@ Commands:
   table     JSON-first decision-table read/write (for AI agents)
   edd       JSON-first entity data dictionary read/write (for AI agents)
   project   Project-level JSON surface (diagnostics, ...)
+  edit      Serve the editor UI in your browser (editor-enabled builds)
   mcp       Run a Model Context Protocol server over stdio (for AI agents)
   docs      Show embedded documentation (for AI and developers)
   version   Show version information

@@ -1156,7 +1156,7 @@ func TestSouthCarolinaTax(t *testing.T) {
 			fmt.Printf("AGI: $%.0f (expected $%.0f)\n", agi, tc.expectedAGI)
 			fmt.Printf("SC Taxable Income: $%.0f\n", scTaxable)
 			fmt.Printf("SC State Tax: $%.0f (expected $%.0f)\n", scTax, tc.expectedSCTax)
-			fmt.Printf("Total Tax (Federal + SC): $%.0f\n", totalTax)
+			fmt.Printf("Total Tax (Federal): $%.0f\n", totalTax)
 
 			// Verify AGI
 			checkValueResult(t, "AGI", agi, tc.expectedAGI, 10)
@@ -1164,9 +1164,11 @@ func TestSouthCarolinaTax(t *testing.T) {
 			// Verify SC state tax
 			checkValueResult(t, "SC State Tax", scTax, tc.expectedSCTax, 10)
 
-			// Verify SC tax is included in total tax
-			if totalTax < scTax {
-				t.Errorf("Total tax $%.0f should include SC tax $%.0f", totalTax, scTax)
+			// State tax is reported separately (job.state_tax_results),
+			// not folded into the federal total_tax; verify the published
+			// generic field matches the SC-specific one.
+			if computed := getFloatAttr(result, "computed_state_tax"); computed != scTax {
+				t.Errorf("computed_state_tax $%.0f should equal sc_state_tax $%.0f", computed, scTax)
 			}
 
 			// Print audit trail for SC calculation

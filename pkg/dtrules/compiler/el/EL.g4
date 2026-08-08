@@ -159,6 +159,8 @@ ifstatement
 forallctl
     : FORALL arrayExpr                                      # forallSimple
     | FORALL arrayExpr ALLOWING ARRAY TOBEREMOVED           # forallAllowRemove
+    | FORALL arrayExpr INREVERSE                            # forallReverse
+    | FORALL arrayExpr INREVERSE WHERE bexpr                # forallReverseWhere
     | FORALL arrayExpr IN eexpr                             # forallInEntity
     | FORALL arrayExpr IN eexpr ALLOWING ARRAY TOBEREMOVED  # forallInEntityAllowRemove
     | FORALL arrayExpr IN eexpr WHERE bexpr                 # forallInEntityWhere
@@ -171,7 +173,9 @@ forallctl
     ;
 
 forallblock
-    : arrayExpr block                                       # forallBlockSimple
+    : arrayExpr INREVERSE block                             # forallBlockReverse
+    | arrayExpr INREVERSE WHERE bexpr block                 # forallBlockReverseWhere
+    | arrayExpr block                                       # forallBlockSimple
     | arrayExpr WHERE bexpr block                           # forallBlockWhere
     ;
 
@@ -608,6 +612,11 @@ strexpr
     | LPAREN STRING RPAREN indxExpr                         # strFromIndex
     | CHANGE strexpr TO LOWER_CASE                          # strToLower
     | CHANGE strexpr TO UPPER_CASE                          # strToUpper
+    // #904: direct case-fold surface. Without a dedicated token,
+    // `lowercase of url` parsed as relationship traversal (`url lowercase
+    // getrelationship`) and errored at runtime on string operands.
+    | LOWERCASE OF strexpr                                  # strLowercaseOf
+    | UPPERCASE OF strexpr                                  # strUppercaseOf
     | GET CURRENT_TIMESTAMP                                 # strTimestamp
     | USING eexpr LPAREN strexpr RPAREN                     # strUsing
     | RELATIONSHIP_BETWEEN eexpr AND eexpr                  # strRelationship
@@ -651,12 +660,17 @@ fexpr
     | DIVIDE typedDouble BY number                          # floatDivBy
     | DIVIDE fexpr BY fexpr ROUNDING BY FP_LITERAL          # divideRoundingBy
     | ABSOLUTEVALUE OF fexpr                                # floatAbs
+    | CEILINGOF fexpr                                       # floatCeilingOf
+    | CEILINGOF iexpr                                       # floatCeilingOfInt
+    | FLOOROF fexpr                                         # floatFloorOf
+    | FLOOROF iexpr                                         # floatFloorOfInt
     | USING eexpr LPAREN fexpr RPAREN                       # floatUsing
     | DOUBLE VALUE OF operatorstatements                    # floatValueOfOp
     | fexpr ROUNDED                                         # floatRounded
     | fexpr ROUNDED TO iexpr DECIMAL_PLACES                 # floatRoundedTo
     | fexpr ROUNDED TO iexpr DECIMAL_PLACES WITH_BOUNDRY fexpr # floatRoundedBoundry
     | SUM_OF typedDouble IN arrayExpr                       # floatSumOf
+    | SUM_OF typedDouble IN arrayExpr WHERE bexpr           # floatSumOfWhere
     | MINIMUM fexpr AND fexpr                               # floatMinOfFloat
     | MINIMUM fexpr AND iexpr                               # floatMinOfInt
     | MINIMUM iexpr AND fexpr                               # floatMinIntOf
@@ -731,6 +745,7 @@ iexpr
     | GET WEEKOFYEAR OF dexpr                               # intWeekOfYear
     | LONG VALUE OF operatorstatements                      # intValueOfOp
     | SUM_OF iexpr IN arrayExpr                             # intSumOf
+    | SUM_OF iexpr IN arrayExpr WHERE bexpr                 # intSumOfWhere
     | MINIMUM iexpr AND iexpr                               # intMinOf
     | MINIMUM iexpr COMMA iexpr                             # intMinOfComma
     | MAXIMUM iexpr AND iexpr                               # intMaxOf
@@ -1017,6 +1032,9 @@ ACTION              : 'action' ;
 CONDITION           : 'condition' ;
 POLICYSTATEMENT     : 'policystatement' ;
 POLICYSTATEMENTS    : 'policy' WS+ 'statements' ;
+// Multiword so it cannot be mistaken for `in <entity>` where the entity
+// happens to be called reverse; maximal munch picks this over IN.
+INREVERSE           : 'in' WS+ 'reverse' ;
 
 // Boolean literals
 RBOOLEAN            : 'true' | 'false' | 'default' | 'otherwise' | 'always'
@@ -1193,6 +1211,8 @@ ISNOTNULL           : 'is' WS+ 'not' WS+ 'null' ;
 CHANGE              : 'change' ;
 UPPER_CASE          : 'upper' WS+ 'case' ;
 LOWER_CASE          : 'lower' WS+ 'case' ;
+LOWERCASE           : 'lowercase' ;
+UPPERCASE           : 'uppercase' ;
 BETWEEN             : 'between' ;
 BEFORE              : 'before' ;
 AFTER               : 'after' ;
@@ -1222,6 +1242,8 @@ ONERROR             : 'on' WS+ 'error' ;
 ABSOLUTEVALUE       : 'absolute' WS+ 'value' ;
 MINIMUM             : 'minimum' WS+ 'of' | 'smaller' WS+ 'of' ;
 MAXIMUM             : 'maximum' WS+ 'of' | 'larger' WS+ 'of' ;
+CEILINGOF           : 'ceiling' WS+ 'of' ;
+FLOOROF             : 'floor' WS+ 'of' ;
 HASA                : 'has' WS+ ('a' | 'an') ;
 DESCENDINGORDER     : 'descending' WS+ 'order'? ;
 ASCENDINGORDER      : 'ascending' WS+ 'order'? ;

@@ -92,6 +92,11 @@ type DTState struct {
 	numberInSection     int
 	anode               interface{} // *ANode when implemented
 
+	// policyStatements accumulates the statement of every column that
+	// fires, in fire order, until a rule clears it (#956). Lazily created:
+	// a run whose tables carry no policy statements never allocates one.
+	policyStatements *dtrules.RArray
+
 	// Operator table for bytecode execution (set externally to avoid import cycle)
 	operatorTable []dtrules.Object
 
@@ -109,6 +114,10 @@ type DTState struct {
 	// Outside any loop the stack is empty and IsFirstLoopPass returns
 	// false, since "first pass of nothing" has no defensible meaning.
 	loopIterations []int
+
+	// traceBound records entity ids whose arraybind events were emitted,
+	// so repeated pushes of one entity bind only once.
+	traceBound map[int]bool
 
 	// collector, when non-nil, enables interactive data collection (#852):
 	// it is consulted at each field read in Find. nil means batch execution
@@ -216,7 +225,7 @@ func (s *DTState) DataPush(obj dtrules.Object) error {
 	}
 	s.dataStk = append(s.dataStk, obj)
 	if s.TestState(VERBOSE) {
-		s.TraceInfo("datapush", "attribs", obj.PostFix(), "")
+		s.TraceInfo("datapush", "", "attribs", obj.PostFix())
 	}
 	return nil
 }
@@ -230,7 +239,7 @@ func (s *DTState) DataPop() (dtrules.Object, error) {
 	obj := s.dataStk[idx]
 	s.dataStk = s.dataStk[:idx]
 	if s.TestState(VERBOSE) {
-		s.TraceInfo("datapop", "", "", obj.StringValue())
+		s.TraceInfo("datapop", obj.StringValue())
 	}
 	return obj, nil
 }
@@ -392,7 +401,31 @@ func (s *DTState) EntityPush(entity dtrules.Entity) error {
 		return dtrules.StackOverflowError("EntityPush", "Entity Stack overflow")
 	}
 	if s.TestState(TRACE) {
-		s.TraceInfo("entitypush", "entity", entity.GetName().StringValue(), fmt.Sprintf("id=%d", entity.GetID()))
+		s.TraceInfo("entitypush", "",
+			"entity", entity.GetName().StringValue(),
+			"id", fmt.Sprintf("%d", entity.GetID()))
+		// Bind the entity's array-valued attributes to their array ids so
+		// trace replay can attach <addto> events to the right attribute.
+		// Emitted once per entity — a forall pushing the same entity every
+		// iteration must not bloat the trace with repeated binds.
+		if s.traceBound == nil {
+			s.traceBound = make(map[int]bool)
+		}
+		if s.traceBound[entity.GetID()] {
+			s.entityStk = append(s.entityStk, entity)
+			return nil
+		}
+		s.traceBound[entity.GetID()] = true
+		for _, attr := range entity.GetAttributeNames() {
+			if v, err := entity.Get(attr); err == nil {
+				if arr, ok := v.(*dtrules.RArray); ok {
+					s.TraceInfo("arraybind", "",
+						"id", fmt.Sprintf("%d", entity.GetID()),
+						"attr", attr.StringValue(),
+						"arrayId", fmt.Sprintf("%d", arr.GetID()))
+				}
+			}
+		}
 	}
 	s.entityStk = append(s.entityStk, entity)
 	return nil
@@ -404,7 +437,7 @@ func (s *DTState) EntityPop() (dtrules.Entity, error) {
 		return nil, dtrules.NewRulesError("Entity Stack Underflow", "EntityPop", "Entity Stack underflow")
 	}
 	if s.TestState(TRACE) {
-		s.TraceInfo("entitypop", "", "", "")
+		s.TraceInfo("entitypop", "")
 	}
 	idx := len(s.entityStk) - 1
 	entity := s.entityStk[idx]
@@ -612,9 +645,21 @@ func (s *DTState) Def(name *dtrules.RName, value dtrules.Object, trace bool) (bo
 	}
 
 	if trace && s.TestState(TRACE) {
-		s.TraceInfo("def",
+		// Body carries the value's postfix so trace replay can recompute
+		// the assigned value (matches the historical trace format).
+		s.TraceInfo("def", value.PostFix(),
 			"entity", entity.GetName().StringValue(),
-			fmt.Sprintf("name=%s id=%d", name.StringValue(), entity.GetID()))
+			"name", name.GetName(),
+			"id", fmt.Sprintf("%d", entity.GetID()))
+		// An array assignment replaces the attr's array object; without a
+		// fresh bind, later <addto arrayId=...> events reference an array
+		// the replay never registered and the attr replays empty.
+		if arr, ok := value.(*dtrules.RArray); ok {
+			s.TraceInfo("arraybind", "",
+				"id", fmt.Sprintf("%d", entity.GetID()),
+				"attr", name.GetName(),
+				"arrayId", fmt.Sprintf("%d", arr.GetID()))
+		}
 	}
 
 	// Use attribute-only name for Put (without entity prefix)
@@ -714,51 +759,47 @@ func (s *DTState) Evaluate(c dtrules.Object) error {
 
 // Trace output
 
-// TraceInfo outputs trace information in XML format.
-func (s *DTState) TraceInfo(tag, attr, value, content string) {
-	if s.TestState(TRACE) {
-		if s.traceOut != nil {
-			fmt.Fprintf(s.traceOut, "<%s", tag)
-			if attr != "" {
-				fmt.Fprintf(s.traceOut, " %s=\"%s\"", attr, value)
-			}
-			if content != "" {
-				fmt.Fprintf(s.traceOut, ">%s</%s>\n", content, tag)
-			} else {
-				fmt.Fprintf(s.traceOut, "/>\n")
-			}
+// traceAttrs writes alternating name, value attribute pairs.
+func (s *DTState) traceAttrs(attrs []string) {
+	for i := 0; i+1 < len(attrs); i += 2 {
+		fmt.Fprintf(s.traceOut, " %s=\"%s\"", attrs[i], traceEscape(attrs[i+1]))
+	}
+}
+
+// traceEscaper escapes XML-special characters in trace output.
+var traceEscaper = strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;")
+
+func traceEscape(v string) string {
+	return traceEscaper.Replace(v)
+}
+
+// TraceInfo emits a leaf trace element: <tag attrs...>body</tag>.
+func (s *DTState) TraceInfo(tag, body string, attrs ...string) {
+	if s.TestState(TRACE) && s.traceOut != nil {
+		fmt.Fprintf(s.traceOut, "<%s", tag)
+		s.traceAttrs(attrs)
+		if body != "" {
+			fmt.Fprintf(s.traceOut, ">%s</%s>\n", traceEscape(body), tag)
+		} else {
+			fmt.Fprint(s.traceOut, "/>\n")
 		}
 	}
 }
 
-// TraceTable traces decision table entry/exit.
-func (s *DTState) TraceTable(tableName string, entering bool) {
-	if s.TestState(TRACE) {
-		if s.traceOut != nil {
-			if entering {
-				fmt.Fprintf(s.traceOut, "<table name=\"%s\">\n", tableName)
-			} else {
-				fmt.Fprintf(s.traceOut, "</table>\n")
-			}
-		}
+// TraceOpen emits an opening trace element; nested trace output lands
+// inside until the matching TraceClose.
+func (s *DTState) TraceOpen(tag string, attrs ...string) {
+	if s.TestState(TRACE) && s.traceOut != nil {
+		fmt.Fprintf(s.traceOut, "<%s", tag)
+		s.traceAttrs(attrs)
+		fmt.Fprint(s.traceOut, ">\n")
 	}
 }
 
-// TraceCondition traces condition evaluation.
-func (s *DTState) TraceCondition(condNum int, result bool) {
-	if s.TestState(TRACE) {
-		if s.traceOut != nil {
-			fmt.Fprintf(s.traceOut, "  <condition num=\"%d\" result=\"%t\"/>\n", condNum, result)
-		}
-	}
-}
-
-// TraceAction traces action execution.
-func (s *DTState) TraceAction(actionNum int) {
-	if s.TestState(TRACE) {
-		if s.traceOut != nil {
-			fmt.Fprintf(s.traceOut, "  <action num=\"%d\"/>\n", actionNum)
-		}
+// TraceClose emits the closing element for TraceOpen.
+func (s *DTState) TraceClose(tag string) {
+	if s.TestState(TRACE) && s.traceOut != nil {
+		fmt.Fprintf(s.traceOut, "</%s>\n", tag)
 	}
 }
 
@@ -874,6 +915,33 @@ func (s *DTState) GetANode() interface{} {
 // SetANode sets the current action node.
 func (s *DTState) SetANode(anode interface{}) {
 	s.currentANode = anode
+}
+
+// PolicyStatements returns the live policy-statement accumulator, creating
+// it on first use. Live rather than a copy: `clear the policy statements`
+// compiles to `policystatements cleararray`, so emptying this object is what
+// resets a report between phases.
+func (s *DTState) PolicyStatements() *dtrules.RArray {
+	if s.policyStatements == nil {
+		// Duplicates are allowed — two columns can legitimately reach the
+		// same conclusion, and a report that silently dropped the second
+		// would misrepresent the run.
+		arr, err := dtrules.NewArray(s.session, true, false)
+		if err != nil {
+			// NewArray only fails on session ID allocation, which cannot
+			// fail for a live session. An empty detached array keeps the
+			// read path total rather than propagating an error into every
+			// caller of a getter.
+			return dtrules.NewArrayTraceInterface(0, true, false)
+		}
+		s.policyStatements = arr
+	}
+	return s.policyStatements
+}
+
+// AppendPolicyStatement records one rendered statement.
+func (s *DTState) AppendPolicyStatement(statement dtrules.Object) {
+	s.PolicyStatements().Add(statement)
 }
 
 // GetCurrentTableSection returns the current section (Condition, Action, etc).

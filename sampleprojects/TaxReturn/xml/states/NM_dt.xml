@@ -3,6 +3,11 @@
 
 <!-- TABLE 43100: NM_Tax -->
 <decision_table>
+<source>
+<relative_path>NM.xlsx</relative_path>
+<file_name>NM.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>NM_Tax</table_name>
 <xls_file>NM.xlsx</xls_file>
 <attribute_fields>
@@ -14,10 +19,12 @@
 <initial_actions></initial_actions>
 <conditions>
 <condition_details>
-<condition_number>2</condition_number>
+<condition_number>1</condition_number>
 <condition_comment>Head of household</condition_comment>
 <condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
-<condition_postfix>job.filing_status &quot;HOH&quot; streq</condition_postfix>
+<condition_postfix>
+job.filing_status "HOH" streq
+</condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="Y" />
@@ -29,6 +36,11 @@
 
 <!-- TABLE 43101: NM_Military_Retirement_Exclusion -->
 <decision_table>
+<source>
+<relative_path>NM.xlsx</relative_path>
+<file_name>NM.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>NM_Military_Retirement_Exclusion</table_name>
 <xls_file>NM.xlsx</xls_file>
 <attribute_fields>

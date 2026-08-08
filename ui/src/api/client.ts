@@ -12,6 +12,7 @@
  */
 
 import type {
+  ApiResponse,
   ProjectOpenResponse,
   EDDResponse,
   DTListResponse,
@@ -25,7 +26,14 @@ import type {
 } from '@/types/dtrules';
 
 /** Base URL for all API requests - can be overridden via VITE_API_URL env variable */
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+// API base resolution: explicit override first; in dev (vite on :5173) the
+// backend is the separate cmd/api process on :8080; in a production build
+// the UI is served BY the API server (dtrules edit), so use its own origin —
+// hard-coding :8080 made an editor on any other port silently talk to
+// whatever happened to be listening on 8080.
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'http://localhost:8080/api' : '/api');
 
 /**
  * Generic fetch wrapper that handles JSON serialization/deserialization.
@@ -89,6 +97,74 @@ export async function saveProject(): Promise<{ success: boolean; error?: string;
  */
 export async function listFiles(): Promise<{ success: boolean; error?: string; files?: FileInfo[] }> {
   return fetchJSON(`${API_BASE}/project/files`);
+}
+
+/** One entry in a directory listing from the browse endpoint. */
+export interface BrowseEntry {
+  name: string;
+  path: string;
+  isDir: boolean;
+  /** File size in bytes (absent for directories). */
+  size?: number;
+}
+
+/** Response from the directory browse endpoint. */
+export interface BrowseResponse {
+  success: boolean;
+  error?: string;
+  /** Absolute path of the listed directory */
+  currentPath?: string;
+  /** Directory contents: '..' parent first, then dirs, then files */
+  entries?: BrowseEntry[];
+  /** True when the directory contains *_dt.xml / *_edd.xml files */
+  isProject?: boolean;
+}
+
+/**
+ * Lists a server-side directory for the project picker.
+ *
+ * @param path - Directory to list; omit for the server's home directory
+ */
+export async function browseDirectory(path?: string): Promise<BrowseResponse> {
+  const url = path ? `${API_BASE}/browse?path=${encodeURIComponent(path)}` : `${API_BASE}/browse`;
+  return fetchJSON(url);
+}
+
+/**
+ * Reports the project the backend already has loaded (e.g. passed to
+ * `dtrules edit` at startup). `path` is empty when none is loaded.
+ */
+export async function getCurrentProject(): Promise<{
+  success: boolean;
+  path?: string;
+  readOnly?: boolean;
+  eddFiles?: string[];
+  dtFiles?: string[];
+  mapFiles?: string[];
+}> {
+  return fetchJSON(`${API_BASE}/project/current`);
+}
+
+/**
+ * Renumbers decision tables to match the given order (100, 200, ...).
+ * Used by drag-and-drop reordering.
+ */
+export async function reorderDecisionTables(order: string[]): Promise<ApiResponse> {
+  return fetchJSON(`${API_BASE}/dt/reorder`, {
+    method: 'POST',
+    body: JSON.stringify({ order }),
+  });
+}
+
+/**
+ * Renumbers entities to match the given order (100, 200, ...).
+ * Used by drag-and-drop reordering.
+ */
+export async function reorderEntities(order: string[]): Promise<ApiResponse> {
+  return fetchJSON(`${API_BASE}/edd/reorder`, {
+    method: 'POST',
+    body: JSON.stringify({ order }),
+  });
 }
 
 // ============================================================================
@@ -385,4 +461,295 @@ export async function getSampleProjects(): Promise<{
   message?: string;
 }> {
   return fetchJSON(`${API_BASE}/samples`);
+}
+
+/** A project discovered beneath the directory the editor was launched from.
+ * A project is identified by its DTRules.xml (one per project), or by the
+ * xml/-directory layout convention for projects that predate the config. */
+export interface DiscoveredProject {
+  path: string;
+  name: string;
+  marker: string;
+  entry: string;
+}
+
+/**
+ * Lists projects discovered beneath the editor's launch directory. Returns
+ * an empty list when the editor was launched inside a project (nothing to
+ * pick) or when nothing was found.
+ */
+export async function discoverProjects(): Promise<{
+  success: boolean;
+  root: string;
+  projects: DiscoveredProject[];
+}> {
+  return fetchJSON(`${API_BASE}/project/discover`);
+}
+
+// ============================================================================
+// Trace Debugger Endpoints
+// ============================================================================
+
+/** A node in the loaded trace tree. */
+export interface DebugNode {
+  number: number;
+  name: string;
+  attrs?: Record<string, string>;
+  body?: string;
+  children: DebugNode[];
+}
+
+/** An entity frame in the replayed entity stack. */
+export interface DebugFrame {
+  name: string;
+  id: number;
+  attrs: Record<string, string>;
+}
+
+/** Result of loading a trace for debugging. */
+export interface DebugLoadResponse {
+  success: boolean;
+  error?: string;
+  tracePath?: string;
+  nodes?: number;
+  dtrulesVersion?: string;
+  rulesFingerprint?: string;
+  fingerprintMatch?: 'match' | 'mismatch' | 'unknown' | 'speculative';
+  verifyMismatches?: string[];
+  /** True when the active session is a speculative rerun. */
+  speculative?: boolean;
+}
+
+/** Result of positioning the replay session at a trace node. */
+export interface DebugPositionResponse {
+  success: boolean;
+  error?: string;
+  position?: number;
+  nodes?: number;
+  context?: { table?: string; column?: string; action?: string };
+  stack?: DebugFrame[];
+}
+
+/** Loads a trace file into the server's debug session. */
+export async function debugLoad(path: string): Promise<DebugLoadResponse> {
+  return fetchJSON(`${API_BASE}/debug/load`, { method: 'POST', body: JSON.stringify({ path }) });
+}
+
+/** Fetches the loaded trace as a tree. */
+export async function debugTree(): Promise<{ success: boolean; error?: string; tree?: DebugNode }> {
+  return fetchJSON(`${API_BASE}/debug/tree`);
+}
+
+/** Reports whether the server already has a debug session (e.g. preloaded
+ *  by `dtrules debug`), with the same fields as debugLoad when it does. */
+export async function debugStatus(): Promise<DebugLoadResponse & { loaded?: boolean }> {
+  return fetchJSON(`${API_BASE}/debug/status`);
+}
+
+/** One condition requirement in a find why-chain. */
+export interface FindConditionStep {
+  number: number;
+  dsl: string;
+  required: string;
+  actual: string;
+}
+
+/** One frame of a find why-chain (innermost table first). */
+export interface FindChainLink {
+  table: string;
+  pass: number;
+  passCount: number;
+  column: string;
+  action: string;
+  passNode: number;
+  conditions: FindConditionStep[] | null;
+}
+
+/** One recorded write of a searched field. */
+export interface FindHit {
+  node: number;
+  entity: string;
+  id: string;
+  attr: string;
+  value: string;
+  chain: FindChainLink[];
+}
+
+/** Searches the loaded trace for writes of a field (EL case-insensitive).
+ *  Instance scoping: pass id (a specific instance) or keyField/keyValue
+ *  ("the staking_account whose account_url is ...") to ask about ONE
+ *  entity out of all of them. */
+export async function debugFind(opts: {
+  attr: string;
+  entity?: string;
+  value?: string;
+  id?: string;
+  keyField?: string;
+  keyValue?: string;
+}): Promise<{
+  success: boolean;
+  error?: string;
+  total?: number;
+  hits?: FindHit[];
+  note?: string;
+}> {
+  const q = new URLSearchParams({ attr: opts.attr });
+  if (opts.entity) q.set('entity', opts.entity);
+  if (opts.value) q.set('value', opts.value);
+  if (opts.id) q.set('id', opts.id);
+  if (opts.keyField) q.set('keyField', opts.keyField);
+  if (opts.keyValue) q.set('keyValue', opts.keyValue);
+  return fetchJSON(`${API_BASE}/debug/find?${q}`);
+}
+
+// ── report generator ─────────────────────────────────────────────────
+
+/** One predicate on a report section's rows. */
+export interface ReportFilter {
+  field: string;
+  op: string;
+  value: string;
+}
+
+/** One section of a report spec: entity instances or array elements. */
+export interface ReportSection {
+  title?: string;
+  entity?: string;
+  source?: string;
+  fields?: string[];
+  where?: ReportFilter[];
+  sort?: string;
+  key?: string;
+}
+
+/** A user-composed, saveable report description. */
+export interface ReportSpec {
+  name: string;
+  sections: ReportSection[];
+}
+
+/** One rendered report section. */
+export interface ReportSectionResult {
+  title: string;
+  entity: string;
+  key: string;
+  fields: string[];
+  rows: Record<string, string>[] | null;
+  total: number;
+  error?: string;
+}
+
+export interface ReportResult {
+  name: string;
+  sections: ReportSectionResult[];
+}
+
+export interface RowChange {
+  key: string;
+  before: Record<string, string>;
+  after: Record<string, string>;
+  fields: string[];
+}
+
+export interface SectionDiff {
+  title: string;
+  fields: string[];
+  added: Record<string, string>[] | null;
+  removed: Record<string, string>[] | null;
+  changed: RowChange[] | null;
+}
+
+export interface ReportDiffResult {
+  name: string;
+  sections: SectionDiff[];
+}
+
+/** Runs a report spec against the active debug trace (and the baseline,
+ *  with a diff, when a speculative session is active). */
+export async function debugReport(spec: ReportSpec): Promise<{
+  success: boolean;
+  error?: string;
+  report?: ReportResult;
+  baseline?: ReportResult;
+  diff?: ReportDiffResult;
+}> {
+  return fetchJSON(`${API_BASE}/debug/report`, { method: 'POST', body: JSON.stringify(spec) });
+}
+
+/** Reruns the trace's execution with ONE table speculatively edited —
+ *  same inputs (seeded from the trace), project files untouched. The
+ *  speculative trace becomes the active session; the original stays as
+ *  the baseline for report diffs and restore. */
+export async function debugSpeculate(table: unknown): Promise<DebugLoadResponse> {
+  return fetchJSON(`${API_BASE}/debug/speculate`, { method: 'POST', body: JSON.stringify(table) });
+}
+
+/** Restores the baseline trace session after a speculation. */
+export async function debugSpeculateReset(): Promise<DebugLoadResponse> {
+  return fetchJSON(`${API_BASE}/debug/speculate/reset`, { method: 'POST', body: '{}' });
+}
+
+/** Lists report specs saved in the project (reports/*.report.json). */
+export async function listReportSpecs(): Promise<{
+  success: boolean;
+  error?: string;
+  specs?: { name: string; spec: ReportSpec }[];
+}> {
+  return fetchJSON(`${API_BASE}/reports`);
+}
+
+/** Saves a report spec into the project. */
+export async function saveReportSpec(name: string, spec: ReportSpec): Promise<{ success: boolean; error?: string }> {
+  return fetchJSON(`${API_BASE}/reports`, { method: 'POST', body: JSON.stringify({ name, spec }) });
+}
+
+// ── entity explorer ──────────────────────────────────────────────────
+
+/** One classified value: a scalar, an entity reference, or an array. */
+export interface ExplorerValue {
+  kind: 'value' | 'entity' | 'array';
+  type?: string;
+  value?: string;
+  entity?: string;
+  id?: number;
+  /** The conventional self-reference field — listed first, not navigable. */
+  self?: boolean;
+  arrayId?: number;
+  length?: number;
+}
+
+export interface ExplorerField extends ExplorerValue {
+  name: string;
+}
+
+/** Inspects one entity instance at the current replay position. */
+export async function debugEntity(id: number | string): Promise<{
+  success: boolean;
+  error?: string;
+  name?: string;
+  id?: number;
+  fields?: ExplorerField[];
+}> {
+  return fetchJSON(`${API_BASE}/debug/entity?id=${encodeURIComponent(String(id))}`);
+}
+
+/** Lists an array's elements at the current replay position. */
+export async function debugArray(id: number, offset = 0, limit = 200): Promise<{
+  success: boolean;
+  error?: string;
+  total?: number;
+  offset?: number;
+  elements?: ExplorerValue[];
+}> {
+  return fetchJSON(`${API_BASE}/debug/array?id=${id}&offset=${offset}&limit=${limit}`);
+}
+
+/** Replays to a trace node ("run to here" / stepping). */
+export async function debugPosition(node: number): Promise<DebugPositionResponse> {
+  return fetchJSON(`${API_BASE}/debug/position`, { method: 'POST', body: JSON.stringify({ node }) });
+}
+
+/** Executes read-only postfix at the current position; returns the leftover data stack. */
+export async function debugConsole(postfix: string): Promise<{ success: boolean; error?: string; results?: string[] }> {
+  return fetchJSON(`${API_BASE}/debug/console`, { method: 'POST', body: JSON.stringify({ postfix }) });
 }

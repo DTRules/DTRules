@@ -1,5 +1,8 @@
 <DTRules>
 
+  <!-- Entry table: what `dtrules debug` and the editor run by default. -->
+  <entry>Test_Entry_Point</entry>
+
   <compileralias name="EL">com.dtrules.compiler.el.EL</compileralias> 
   <compiler>EL</compiler>
   

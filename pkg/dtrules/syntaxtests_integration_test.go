@@ -17,6 +17,7 @@ package dtrules_test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -45,7 +46,7 @@ func findSyntaxTestsDir(t *testing.T) string {
 		if err != nil {
 			continue
 		}
-		if _, err := os.Stat(filepath.Join(absPath, "repository/xml/syntaxexample_edd.xml")); err == nil {
+		if _, err := os.Stat(filepath.Join(absPath, "xml/syntaxexample_edd.xml")); err == nil {
 			return absPath
 		}
 	}
@@ -58,7 +59,7 @@ func findSyntaxTestsDir(t *testing.T) string {
 	}
 
 	for _, p := range knownPaths {
-		if _, err := os.Stat(filepath.Join(p, "repository/xml/syntaxexample_edd.xml")); err == nil {
+		if _, err := os.Stat(filepath.Join(p, "xml/syntaxexample_edd.xml")); err == nil {
 			return p
 		}
 	}
@@ -73,7 +74,7 @@ func loadSyntaxTestsRuleSet(t *testing.T, syntaxDir string) *session.RuleSet {
 	rs := session.NewRuleSet("SyntaxExamples")
 
 	// Load EDD
-	eddPath := filepath.Join(syntaxDir, "repository/xml/syntaxexample_edd.xml")
+	eddPath := filepath.Join(syntaxDir, "xml/syntaxexample_edd.xml")
 	eddFile, err := os.Open(eddPath)
 	if err != nil {
 		t.Fatalf("Failed to open EDD file: %v", err)
@@ -86,7 +87,7 @@ func loadSyntaxTestsRuleSet(t *testing.T, syntaxDir string) *session.RuleSet {
 	}
 
 	// Load decision tables
-	dtPath := filepath.Join(syntaxDir, "repository/xml/syntaxexample_dt.xml")
+	dtPath := filepath.Join(syntaxDir, "xml/syntaxexample_dt.xml")
 	dtFile, err := os.Open(dtPath)
 	if err != nil {
 		t.Fatalf("Failed to open DT file: %v", err)
@@ -111,7 +112,7 @@ func setupSyntaxTestsSession(t *testing.T, rs *session.RuleSet, syntaxDir string
 	}
 
 	// Load mapping
-	mapPath := filepath.Join(syntaxDir, "repository/xml/syntaxexample_map.xml")
+	mapPath := filepath.Join(syntaxDir, "xml/syntaxexample_map.xml")
 	mapFile, err := os.Open(mapPath)
 	if err != nil {
 		t.Fatalf("Failed to open mapping file: %v", err)
@@ -146,23 +147,60 @@ func setupSyntaxTestsSession(t *testing.T, rs *session.RuleSet, syntaxDir string
 }
 
 // allSyntaxTables lists all decision tables in the SyntaxTests project.
+//
+// This used to name five, because the tests read a stale `repository/xml/`
+// mirror that held only five. The project has always had 23.
 var allSyntaxTables = []string{
 	"Syntax_Examples",
 	"Syntax_Examples_2",
 	"Syntax_Examples_3",
 	"Syntax_Examples_4",
+	"Syntax_Examples_5",
+	"Run_Syntax_Examples",
 	"Error_Handling_Table",
+	"Run_Test",
+	"Run_Test_2",
+	"Run_Test_3",
+	"Run_Test_4",
+	"Run_Test_5",
+	"Run_Test_6",
+	"Run_Test_7",
+	"Run_Test_8",
+	"Run_Test_9",
+	"Run_Test_10",
+	"Run_Test_11",
+	"Run_Test_12",
+	"Run_Test_13",
+	"Run_Test_14",
+	"Run_Test_15",
+	"Run_Test_16",
+	"Run_Test_17",
 }
 
-// executableSyntaxTables lists the tables whose contexts and actions are compatible
-// with the provided test data. Syntax_Examples and Syntax_Examples_2 have contexts
-// that reference attributes across entity boundaries (e.g., 'street' from address
-// during client iteration, 'validatedCitizenship' from client during case iteration),
-// which causes runtime errors with the test data. These tables are still valuable
-// for testing EDD/DT compilation -- see TestSyntaxTestsCompile.
+// executableSyntaxTables lists the tables that run to completion against
+// testfiles/test.xml when executed as a top-level entry.
+//
+// The rest of the catalogue does not, for three reasons, none of which this
+// test can paper over:
+//
+//   - Scope. Most tables open `for all clients`, but `clients` is a field of
+//     `case` and only job + constants are pushed at load, so the name is not
+//     on the entity stack. Several rows go further and reference an `address`
+//     field (`street`, `city`) while iterating cases or clients — broken
+//     regardless of the data. Run_Syntax_Examples supplies the missing case
+//     scope for the tables it performs.
+//   - Unimplemented forms. `attribute <name> of <entity>` compiles to a
+//     deliberate elstmterror stub, so any table containing it dies at that
+//     row. That is the compiler telling the truth, not a defect here.
+//   - Uninitialised context locals. `local boolean Test` with no initialiser,
+//     read by `does test == true ?`, is a null on the stack.
+//
+// This is a syntax catalogue: it is expected to contain examples that compile
+// and load but do not execute. What is NOT acceptable is the whole project
+// executing nothing, which is where it was.
 var executableSyntaxTables = []string{
-	"Syntax_Examples_3",
-	"Syntax_Examples_4",
+	"Run_Syntax_Examples",
+	"Syntax_Examples_5",
 	"Error_Handling_Table",
 }
 
@@ -181,7 +219,6 @@ var executableSyntaxTables = []string{
 //
 // This makes it the most valuable test for catching Go/Java behavioral differences.
 func TestSyntaxTestsIntegration(t *testing.T) {
-	t.Skip("archived: SyntaxTests execution depends on a fixture with DSL but no compiled postfix; revisit #520")
 	syntaxDir := findSyntaxTestsDir(t)
 	if syntaxDir == "" {
 		t.Skip("SyntaxTests sample project not found")
@@ -218,10 +255,13 @@ func TestSyntaxTestsIntegration(t *testing.T) {
 	if len(dtNames) != len(allSyntaxTables) {
 		t.Errorf("Expected %d decision tables, got %d", len(allSyntaxTables), len(dtNames))
 	}
+	// Case-insensitive: EL names are case-insensitive and RName interns the
+	// first spelling it sees, so a table declared <table_name>Error_Handling_Table
+	// surfaces as whatever spelling a `perform` reached first.
 	for _, expected := range allSyntaxTables {
 		found := false
 		for _, name := range dtNames {
-			if name.StringValue() == expected {
+			if strings.EqualFold(name.StringValue(), expected) {
 				found = true
 				break
 			}
@@ -277,8 +317,8 @@ func TestSyntaxTestsCompile(t *testing.T) {
 	rs := loadSyntaxTestsRuleSet(t, syntaxDir)
 
 	dtNames := rs.GetDecisionTableNames()
-	if len(dtNames) != 5 {
-		t.Fatalf("Expected 5 decision tables, got %d", len(dtNames))
+	if len(dtNames) != len(allSyntaxTables) {
+		t.Fatalf("Expected %d decision tables, got %d", len(allSyntaxTables), len(dtNames))
 	}
 
 	// Verify every table is retrievable (compilation succeeded)
@@ -306,7 +346,7 @@ func TestSyntaxTestsLoadEDD(t *testing.T) {
 
 	rs := session.NewRuleSet("SyntaxExamples")
 
-	eddPath := filepath.Join(syntaxDir, "repository/xml/syntaxexample_edd.xml")
+	eddPath := filepath.Join(syntaxDir, "xml/syntaxexample_edd.xml")
 	eddFile, err := os.Open(eddPath)
 	if err != nil {
 		t.Fatalf("Failed to open EDD file: %v", err)
@@ -395,7 +435,6 @@ func TestSyntaxTestsMapping(t *testing.T) {
 // individually with a fresh session. This ensures each table can run independently
 // without relying on side effects from other tables.
 func TestSyntaxTestsExecuteEachTable(t *testing.T) {
-	t.Skip("archived: SyntaxTests execution depends on a fixture with DSL but no compiled postfix; revisit #520")
 	syntaxDir := findSyntaxTestsDir(t)
 	if syntaxDir == "" {
 		t.Skip("SyntaxTests sample project not found")

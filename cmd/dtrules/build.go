@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/analysis"
+	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
 	"github.com/DTRules/DTRules/pkg/dtrules/compiler/el"
 	"github.com/DTRules/DTRules/pkg/dtrules/decisiontable"
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
@@ -40,7 +41,7 @@ import (
 func newWorkbookImporter(xmlDir string) *excel.WorkbookImporter {
 	imp := excel.NewWorkbookImporter()
 	imp.SetELCompiler(el.NewCompiler())
-	if syms := loadEDDSymbols(xmlDir); len(syms) > 0 {
+	if syms := authoring.LoadEDDSymbols(xmlDir); len(syms) > 0 {
 		imp.SetSymbols(syms)
 	}
 	return imp
@@ -176,6 +177,14 @@ func (c *CLI) runBuild(args []string) int {
 	case "xml":
 		code = c.runXMLAuthoredBuild(xmlDir, excelDir, opts)
 	default:
+		// MAP files sit outside the main sync pipeline, whose "nothing to
+		// sync" verdict only considers DT/EDD workbooks. Without this, a map
+		// sheet stale enough to be missing createentity `list=` could never
+		// be refreshed by `dtrules build` at all — and the #993 guard's
+		// advice to re-export would be advice the tool could not take.
+		if err := c.syncMAPFiles(xmlDir, excelDir, "xml-to-excel", opts.verbose); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: MAP sync error: %v\n", err)
+		}
 		code = runNoSyncAdvisory(xmlDir)
 	}
 	if code != 0 {
@@ -225,7 +234,14 @@ func dupGate(xmlDir string) int {
 // a copyProject is unreliable because mtimes and hashes drift on
 // copy. Direct invocation pins the behavior end-to-end.
 func runNoSyncAdvisory(xmlDir string) int {
-	fmt.Println("Nothing to sync — running advisory pass on existing XML.")
+	fmt.Println("Nothing to sync — normalizing XML and running the advisory pass.")
+	// Normalization (section renumbering, entity-number backfill) is
+	// idempotent — run it even when Excel and XML are in sync, so a plain
+	// `dtrules build` always leaves normalized files.
+	if err := normalizeDTXMLFiles(xmlDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Error normalizing XML: %v\n", err)
+		return 1
+	}
 	step := &dtrsync.StepSummary{}
 	runStaticAnalysis(xmlDir, step)
 	if len(step.Warnings) > 0 {
@@ -263,7 +279,7 @@ func detectAuthoringPath(xmlDir, excelDir string, opts *buildOptions) (string, e
 	exporter := excel.NewWorkbookExporter()
 	syncer.SetExporter(&workbookExporterAdapter{impl: exporter})
 
-	direction, _, err := syncer.CheckSyncCombined()
+	direction, workbooks, err := syncer.CheckSyncCombined()
 	if err != nil {
 		return "", err
 	}
@@ -273,6 +289,21 @@ func detectAuthoringPath(xmlDir, excelDir string, opts *buildOptions) (string, e
 		return "excel", nil
 	case dtrsync.XMLToExcel:
 		return "xml", nil
+	case dtrsync.Conflict:
+		// Some workbooks are newer than their XML and vice versa. Silently
+		// treating this as "none" used to report "No changes detected" and
+		// hide the divergence entirely. Surface it and make the user pick a
+		// direction explicitly.
+		fmt.Fprintln(os.Stderr, "ERROR: Excel and XML have diverged in different directions:")
+		for _, wb := range workbooks {
+			switch wb.Direction {
+			case dtrsync.ExcelToXML:
+				fmt.Fprintf(os.Stderr, "  %-40s Excel is newer\n", wb.RelPath)
+			case dtrsync.XMLToExcel:
+				fmt.Fprintf(os.Stderr, "  %-40s XML is newer\n", wb.RelPath)
+			}
+		}
+		return "", fmt.Errorf("sync conflict: pass --from-excel to make Excel win, or touch the XML files to make XML win")
 	default:
 		// No sync needed — re-compile from existing Excel to produce execution XML
 		return "none", nil
@@ -335,6 +366,47 @@ func exportStatsToStep(s *excel.ExportStats) *dtrsync.StepSummary {
 		})
 	}
 	return step
+}
+
+// normalizeDTXMLFiles rewrites every *_dt.xml AND *_edd.xml under xmlDir
+// through the canonical WriteXML funnels, which renumber DT sections
+// sequentially and backfill missing entity numbers (the 100 grid).
+func normalizeDTXMLFiles(xmlDir string) error {
+	return filepath.WalkDir(xmlDir, func(p string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		lower := strings.ToLower(d.Name())
+		switch {
+		case strings.HasSuffix(lower, "_dt.xml"):
+			before, rerr := os.ReadFile(p)
+			if rerr != nil {
+				return rerr
+			}
+			doc, perr := excel.UnmarshalDecisionTablesXML(before)
+			if perr != nil {
+				return fmt.Errorf("%s: %w", p, perr)
+			}
+			imp := excel.NewDTImporter()
+			if werr := imp.WriteXML(doc, p); werr != nil {
+				return fmt.Errorf("%s: %w", p, werr)
+			}
+		case strings.HasSuffix(lower, "_edd.xml"):
+			before, rerr := os.ReadFile(p)
+			if rerr != nil {
+				return rerr
+			}
+			doc, perr := excel.UnmarshalEDDXML(before)
+			if perr != nil {
+				return fmt.Errorf("%s: %w", p, perr)
+			}
+			imp := excel.NewEDDImporter()
+			if werr := imp.WriteXML(doc, p); werr != nil {
+				return fmt.Errorf("%s: %w", p, werr)
+			}
+		}
+		return nil
+	})
 }
 
 // printBuildSummary prints the build summary unless quiet mode suppresses it.
@@ -434,6 +506,16 @@ func (c *CLI) runXMLAuthoredBuild(xmlDir, excelDir string, opts *buildOptions) i
 
 	if err := os.MkdirAll(excelDir, 0755); err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating excel dir: %v\n", err)
+		return 1
+	}
+
+	// Normalize the source XML in place BEFORE exporting: section numbers
+	// (contexts/conditions/actions) become clean ordinals via the canonical
+	// WriteXML funnel. The step-2 re-import may be skipped as already-in-
+	// sync, so this is the only guaranteed normalization pass for
+	// XML-authored projects.
+	if err := normalizeDTXMLFiles(xmlDir); err != nil {
+		fmt.Fprintf(os.Stderr, "Error normalizing XML: %v\n", err)
 		return 1
 	}
 
@@ -543,6 +625,56 @@ func (c *CLI) runBuildDryRun(xmlDir, excelDir, authoringPath string, opts *build
 	return 0
 }
 
+// createEntityKey identifies a createentity row across a round trip. Entity
+// plus tag is what the mapping loader keys on; `list` is the attribute at
+// risk, so it is deliberately not part of the identity.
+func createEntityKey(ce excel.MapCreateEntity) string {
+	return ce.Entity + "\x00" + ce.Tag + "\x00" + ce.ID
+}
+
+// listsLost reports whether the imported rows dropped a `list=` that the
+// existing XML carried. A sheet predating the list column reads back with
+// every List empty (#993).
+func listsLost(imported, existing []excel.MapCreateEntity) bool {
+	have := map[string]string{}
+	for _, ce := range existing {
+		if ce.List != "" {
+			have[createEntityKey(ce)] = ce.List
+		}
+	}
+	if len(have) == 0 {
+		return false
+	}
+	for _, ce := range imported {
+		if ce.List == "" && have[createEntityKey(ce)] != "" {
+			return true
+		}
+	}
+	return false
+}
+
+// mergeCreateEntityLists restores a `list=` the sheet could not carry,
+// leaving every other imported value alone — an edit made in Excel still
+// wins, only the unrepresentable attribute is recovered.
+func mergeCreateEntityLists(imported, existing []excel.MapCreateEntity) []excel.MapCreateEntity {
+	have := map[string]string{}
+	for _, ce := range existing {
+		if ce.List != "" {
+			have[createEntityKey(ce)] = ce.List
+		}
+	}
+	out := make([]excel.MapCreateEntity, len(imported))
+	copy(out, imported)
+	for i := range out {
+		if out[i].List == "" {
+			if l, ok := have[createEntityKey(out[i])]; ok {
+				out[i].List = l
+			}
+		}
+	}
+	return out
+}
+
 // syncMAPFiles handles _map.xml ↔ _map.xlsx synchronization which the main
 // sync pipeline skips. direction is "xml-to-excel" or "excel-to-xml".
 func (c *CLI) syncMAPFiles(xmlDir, excelDir, direction string, verbose bool) error {
@@ -606,6 +738,45 @@ func (c *CLI) syncMAPFiles(xmlDir, excelDir, direction string, verbose bool) err
 		}
 		if mapXML == nil || len(mapXML.Entries) == 0 {
 			return nil
+		}
+		// Clobber guard. A workbook written by an older DTRules can be
+		// missing structure the XML has, and importing it would quietly
+		// delete that structure from a working ruleset. Two shapes, both
+		// seen in the wild:
+		//
+		//   1. No structural rows at all (pre-#938 sheet).
+		//   2. createentity rows present but their `list` column empty,
+		//      because the sheet predates that column (#993). This one is
+		//      nastier: the section is non-empty, so a count-based guard
+		//      passes it through, and `list=` is what appends each parsed
+		//      entity onto the collection the tables iterate. Losing it
+		//      leaves every `for all` running over an empty array — the
+		//      Accumulate staking ruleset silently returned 0 for every
+		//      staked balance while the build printed "OK — no drops".
+		//
+		// The rule: never let an import *remove* structure. Compare
+		// against the XML being replaced and carry forward anything the
+		// sheet cannot account for.
+		if existing, lerr := excel.LoadMapXMLFromFile(xmlPath); lerr == nil {
+			warn := func(what string) {
+				fmt.Printf("  Warning: %s is missing %s that %s has; kept the existing values — re-export to refresh the sheet\n",
+					filepath.Base(path), what, filepath.Base(xmlPath))
+			}
+			if len(mapXML.CreateEntities) == 0 && len(existing.CreateEntities) > 0 {
+				mapXML.CreateEntities = existing.CreateEntities
+				warn("createentity rows")
+			} else if listsLost(mapXML.CreateEntities, existing.CreateEntities) {
+				mapXML.CreateEntities = mergeCreateEntityLists(mapXML.CreateEntities, existing.CreateEntities)
+				warn("createentity list= attributes")
+			}
+			if len(mapXML.EntityDecls) == 0 && len(existing.EntityDecls) > 0 {
+				mapXML.EntityDecls = existing.EntityDecls
+				warn("entity cardinality declarations")
+			}
+			if len(mapXML.InitialEntities) == 0 && len(existing.InitialEntities) > 0 {
+				mapXML.InitialEntities = existing.InitialEntities
+				warn("the initialization stack")
+			}
 		}
 		if err := os.MkdirAll(filepath.Dir(xmlPath), 0755); err != nil {
 			return err

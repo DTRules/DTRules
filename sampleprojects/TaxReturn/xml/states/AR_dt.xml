@@ -1,24 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 40401: AR_Military_Retirement_Exclusion -->
-<decision_table>
-<table_name>AR_Military_Retirement_Exclusion</table_name>
-<xls_file>AR.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Arkansas military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per AR Code § 26-51-426 (2025).</COMMENTS>
-<TABLE_NUMBER>40401</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions></initial_actions>
-<conditions></conditions>
-<actions></actions>
-<policy_statements></policy_statements>
-</decision_table>
-
 <!-- TABLE 40400: AR_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
+<source>
+<relative_path>AR.xlsx</relative_path>
+<file_name>AR.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>AR_Tax</table_name>
 <xls_file>AR.xlsx</xls_file>
 <attribute_fields>
@@ -30,44 +19,77 @@
 <initial_actions></initial_actions>
 <conditions>
 <condition_details>
-<condition_number>2</condition_number>
+<condition_number>1</condition_number>
 <condition_comment>Married filing jointly</condition_comment>
 <condition_dsl>filing_status == "MFJ"</condition_dsl>
-<condition_postfix>filing_status &quot;MFJ&quot; streq</condition_postfix>
+<condition_postfix>
+filing_status "MFJ" streq
+</condition_postfix>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Head of household</condition_comment>
+<condition_dsl>filing_status == "HOH"</condition_dsl>
+<condition_postfix>
+filing_status "HOH" streq
+</condition_postfix>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
-<condition_comment>Head of household</condition_comment>
-<condition_dsl>filing_status == "HOH"</condition_dsl>
-<condition_postfix>filing_status &quot;HOH&quot; streq</condition_postfix>
-</condition_details>
-<condition_details>
-<condition_number>4</condition_number>
 <condition_comment>Married filing separately</condition_comment>
 <condition_dsl>filing_status == "MFS"</condition_dsl>
-<condition_postfix>filing_status &quot;MFS&quot; streq</condition_postfix>
+<condition_postfix>
+filing_status "MFS" streq
+</condition_postfix>
 </condition_details>
 </conditions>
 <actions>
 <action_details>
-<action_number>2</action_number>
+<action_number>1</action_number>
 <action_comment>Calculate Arkansas tax - Married filing jointly (5-tier progressive: 0%/2%/3%/3.4%/3.9%). NOTE: result.ar_taxable_income / result.ar_state_tax not declared in AR_edd — EDD authorship needed.</action_comment>
 <action_dsl>set result.ar_taxable_income = the maximum of (result.agi - ar_standard_deduction_joint) and 0.0; set result.ar_state_tax = (the minimum of result.ar_taxable_income and ar_bracket_1_limit) * ar_bracket_1_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_2_limit) - ar_bracket_1_limit) and 0.0) * ar_bracket_2_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_3_limit) - ar_bracket_2_limit) and 0.0) * ar_bracket_3_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_4_limit) - ar_bracket_3_limit) and 0.0) * ar_bracket_4_rate + (the maximum of (result.ar_taxable_income - ar_bracket_4_limit) and 0.0) * ar_bracket_5_rate; add "  AR tax (MFJ, 5 brackets): $" + result.ar_state_tax to job.audit_trail</action_dsl>
-<action_postfix>result.agi ar_standard_deduction_joint - 0.0 fmax cvi /result.ar_taxable_income xdef result.ar_taxable_income ar_bracket_1_limit fmin ar_bracket_1_rate fmul result.ar_taxable_income ar_bracket_2_limit fmin ar_bracket_1_limit - 0.0 fmax ar_bracket_2_rate fmul + result.ar_taxable_income ar_bracket_3_limit fmin ar_bracket_2_limit - 0.0 fmax ar_bracket_3_rate fmul + result.ar_taxable_income ar_bracket_4_limit fmin ar_bracket_3_limit - 0.0 fmax ar_bracket_4_rate fmul + result.ar_taxable_income ar_bracket_4_limit - 0.0 fmax ar_bracket_5_rate fmul + cvi /result.ar_state_tax xdef &quot;  AR tax (MFJ, 5 brackets): $&quot; result.ar_state_tax strconcat job.audit_trail swap addto</action_postfix>
+<action_postfix>
+result.agi ar_standard_deduction_joint f- 0.0 fmax cvi /result.ar_taxable_income xdef result.ar_taxable_income ar_bracket_1_limit fmin ar_bracket_1_rate fmul result.ar_taxable_income ar_bracket_2_limit fmin ar_bracket_1_limit f- 0.0 fmax ar_bracket_2_rate fmul f+ result.ar_taxable_income ar_bracket_3_limit fmin ar_bracket_2_limit f- 0.0 fmax ar_bracket_3_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit fmin ar_bracket_3_limit f- 0.0 fmax ar_bracket_4_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit f- 0.0 fmax ar_bracket_5_rate fmul f+ cvi /result.ar_state_tax xdef "  AR tax (MFJ, 5 brackets): $" result.ar_state_tax strconcat job.audit_trail swap addto
+</action_postfix>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Calculate Arkansas tax - Head of household (5-tier progressive: 0%/2%/3%/3.4%/3.9%).</action_comment>
+<action_dsl>set result.ar_taxable_income = the maximum of (result.agi - ar_standard_deduction_hoh) and 0.0; set result.ar_state_tax = (the minimum of result.ar_taxable_income and ar_bracket_1_limit) * ar_bracket_1_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_2_limit) - ar_bracket_1_limit) and 0.0) * ar_bracket_2_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_3_limit) - ar_bracket_2_limit) and 0.0) * ar_bracket_3_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_4_limit) - ar_bracket_3_limit) and 0.0) * ar_bracket_4_rate + (the maximum of (result.ar_taxable_income - ar_bracket_4_limit) and 0.0) * ar_bracket_5_rate; add "  AR tax (HOH, 5 brackets): $" + result.ar_state_tax to job.audit_trail</action_dsl>
+<action_postfix>
+result.agi ar_standard_deduction_hoh f- 0.0 fmax cvi /result.ar_taxable_income xdef result.ar_taxable_income ar_bracket_1_limit fmin ar_bracket_1_rate fmul result.ar_taxable_income ar_bracket_2_limit fmin ar_bracket_1_limit f- 0.0 fmax ar_bracket_2_rate fmul f+ result.ar_taxable_income ar_bracket_3_limit fmin ar_bracket_2_limit f- 0.0 fmax ar_bracket_3_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit fmin ar_bracket_3_limit f- 0.0 fmax ar_bracket_4_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit f- 0.0 fmax ar_bracket_5_rate fmul f+ cvi /result.ar_state_tax xdef "  AR tax (HOH, 5 brackets): $" result.ar_state_tax strconcat job.audit_trail swap addto
+</action_postfix>
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Calculate Arkansas tax - Head of household (5-tier progressive: 0%/2%/3%/3.4%/3.9%).</action_comment>
-<action_dsl>set result.ar_taxable_income = the maximum of (result.agi - ar_standard_deduction_hoh) and 0.0; set result.ar_state_tax = (the minimum of result.ar_taxable_income and ar_bracket_1_limit) * ar_bracket_1_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_2_limit) - ar_bracket_1_limit) and 0.0) * ar_bracket_2_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_3_limit) - ar_bracket_2_limit) and 0.0) * ar_bracket_3_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_4_limit) - ar_bracket_3_limit) and 0.0) * ar_bracket_4_rate + (the maximum of (result.ar_taxable_income - ar_bracket_4_limit) and 0.0) * ar_bracket_5_rate; add "  AR tax (HOH, 5 brackets): $" + result.ar_state_tax to job.audit_trail</action_dsl>
-<action_postfix>result.agi ar_standard_deduction_hoh - 0.0 fmax cvi /result.ar_taxable_income xdef result.ar_taxable_income ar_bracket_1_limit fmin ar_bracket_1_rate fmul result.ar_taxable_income ar_bracket_2_limit fmin ar_bracket_1_limit - 0.0 fmax ar_bracket_2_rate fmul + result.ar_taxable_income ar_bracket_3_limit fmin ar_bracket_2_limit - 0.0 fmax ar_bracket_3_rate fmul + result.ar_taxable_income ar_bracket_4_limit fmin ar_bracket_3_limit - 0.0 fmax ar_bracket_4_rate fmul + result.ar_taxable_income ar_bracket_4_limit - 0.0 fmax ar_bracket_5_rate fmul + cvi /result.ar_state_tax xdef &quot;  AR tax (HOH, 5 brackets): $&quot; result.ar_state_tax strconcat job.audit_trail swap addto</action_postfix>
-</action_details>
-<action_details>
-<action_number>4</action_number>
 <action_comment>Calculate Arkansas tax - Married filing separately (5-tier progressive: 0%/2%/3%/3.4%/3.9%).</action_comment>
 <action_dsl>set result.ar_taxable_income = the maximum of (result.agi - ar_standard_deduction_mfs) and 0.0; set result.ar_state_tax = (the minimum of result.ar_taxable_income and ar_bracket_1_limit) * ar_bracket_1_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_2_limit) - ar_bracket_1_limit) and 0.0) * ar_bracket_2_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_3_limit) - ar_bracket_2_limit) and 0.0) * ar_bracket_3_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_4_limit) - ar_bracket_3_limit) and 0.0) * ar_bracket_4_rate + (the maximum of (result.ar_taxable_income - ar_bracket_4_limit) and 0.0) * ar_bracket_5_rate; add "  AR tax (MFS, 5 brackets): $" + result.ar_state_tax to job.audit_trail</action_dsl>
-<action_postfix>result.agi ar_standard_deduction_mfs - 0.0 fmax cvi /result.ar_taxable_income xdef result.ar_taxable_income ar_bracket_1_limit fmin ar_bracket_1_rate fmul result.ar_taxable_income ar_bracket_2_limit fmin ar_bracket_1_limit - 0.0 fmax ar_bracket_2_rate fmul + result.ar_taxable_income ar_bracket_3_limit fmin ar_bracket_2_limit - 0.0 fmax ar_bracket_3_rate fmul + result.ar_taxable_income ar_bracket_4_limit fmin ar_bracket_3_limit - 0.0 fmax ar_bracket_4_rate fmul + result.ar_taxable_income ar_bracket_4_limit - 0.0 fmax ar_bracket_5_rate fmul + cvi /result.ar_state_tax xdef &quot;  AR tax (MFS, 5 brackets): $&quot; result.ar_state_tax strconcat job.audit_trail swap addto</action_postfix>
+<action_postfix>
+result.agi ar_standard_deduction_mfs f- 0.0 fmax cvi /result.ar_taxable_income xdef result.ar_taxable_income ar_bracket_1_limit fmin ar_bracket_1_rate fmul result.ar_taxable_income ar_bracket_2_limit fmin ar_bracket_1_limit f- 0.0 fmax ar_bracket_2_rate fmul f+ result.ar_taxable_income ar_bracket_3_limit fmin ar_bracket_2_limit f- 0.0 fmax ar_bracket_3_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit fmin ar_bracket_3_limit f- 0.0 fmax ar_bracket_4_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit f- 0.0 fmax ar_bracket_5_rate fmul f+ cvi /result.ar_state_tax xdef "  AR tax (MFS, 5 brackets): $" result.ar_state_tax strconcat job.audit_trail swap addto
+</action_postfix>
 </action_details>
 </actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 40401: AR_Military_Retirement_Exclusion -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>AR.xlsx</relative_path>
+<file_name>AR.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
+<table_name>AR_Military_Retirement_Exclusion</table_name>
+<xls_file>AR.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Arkansas military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per AR Code § 26-51-426 (2025).</COMMENTS>
+<TABLE_NUMBER>40401</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
 <policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

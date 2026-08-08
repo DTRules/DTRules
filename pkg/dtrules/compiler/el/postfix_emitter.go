@@ -259,6 +259,42 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 		}
 	}
 
+	// Float-typed NAME contexts: a fixed/bigint/double field that matched the
+	// grammar's TypedDouble alternative. Resolve to the DECLARED type so a
+	// fixed/bigint field used in a float position is still seen as exact and
+	// caught by the double/exact reject — not silently treated as double (#894).
+	if typedCtx, ok := ctx.(*FloatTypedContext); ok {
+		if td := typedCtx.TypedDouble(); td != nil {
+			if ident := td.IDENT(); ident != nil {
+				name := ident.GetText()
+				if lv, ok := e.lookupLocal(name); ok {
+					return lv.Type
+				}
+				if t := e.lookupType(name); t != "" {
+					return t
+				}
+			}
+		}
+	}
+	if colonCtx, ok := ctx.(*FloatColonRefContext); ok {
+		if td := colonCtx.TypedDouble(); td != nil {
+			if ident := td.IDENT(); ident != nil {
+				name := ident.GetText()
+				if lv, ok := e.lookupLocal(name); ok {
+					return lv.Type
+				}
+				if cr := colonCtx.ColonRef(); cr != nil {
+					if t := e.lookupType(cr.GetText() + "." + name); t != "" {
+						return t
+					}
+				}
+				if t := e.lookupType(name); t != "" {
+					return t
+				}
+			}
+		}
+	}
+
 	// For compound expressions, propagate the widest operand type via
 	// promoteArithType (Fixed > BigInt > Double > Integer).
 	switch c := ctx.(type) {
@@ -274,6 +310,70 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 		return e.getExprType(c.Iexpr())
 	case *IntParenContext:
 		return e.getExprType(c.Iexpr())
+	}
+
+	// Float ARITHMETIC compounds promote through their operands, mirroring
+	// what their emitters actually produce (emitMixedFloatArith): two fixed
+	// operands that matched the grammar's fexpr alternative yield a fixed
+	// result (fp-family op), not a double (#903). Without this, a nested
+	// `a * b` dividend types as double and downstream dispatch degrades.
+	switch c := ctx.(type) {
+	case *FloatAddFloatContext:
+		return promoteArithType(e.getExprType(c.Fexpr(0)), e.getExprType(c.Fexpr(1)))
+	case *FloatSubFloatContext:
+		return promoteArithType(e.getExprType(c.Fexpr(0)), e.getExprType(c.Fexpr(1)))
+	case *FloatMulFloatContext:
+		return promoteArithType(e.getExprType(c.Fexpr(0)), e.getExprType(c.Fexpr(1)))
+	case *FloatDivFloatContext:
+		return promoteArithType(e.getExprType(c.Fexpr(0)), e.getExprType(c.Fexpr(1)))
+	case *FloatAddIntContext:
+		return promoteArithType(e.getExprType(c.Fexpr()), e.getExprType(c.Iexpr()))
+	case *FloatSubIntContext:
+		return promoteArithType(e.getExprType(c.Fexpr()), e.getExprType(c.Iexpr()))
+	case *FloatMulIntContext:
+		return promoteArithType(e.getExprType(c.Fexpr()), e.getExprType(c.Iexpr()))
+	case *FloatDivIntContext:
+		return promoteArithType(e.getExprType(c.Fexpr()), e.getExprType(c.Iexpr()))
+	case *IntAddFloatContext:
+		return promoteArithType(e.getExprType(c.Iexpr()), e.getExprType(c.Fexpr()))
+	case *IntSubFloatContext:
+		return promoteArithType(e.getExprType(c.Iexpr()), e.getExprType(c.Fexpr()))
+	case *IntMulFloatContext:
+		return promoteArithType(e.getExprType(c.Iexpr()), e.getExprType(c.Fexpr()))
+	case *IntDivFloatContext:
+		return promoteArithType(e.getExprType(c.Iexpr()), e.getExprType(c.Fexpr()))
+	}
+
+	// Float-VALUED expressions (literals, explicit (double) casts, float
+	// negation) produce a double. Typed-name fexprs were resolved above;
+	// what reaches here is genuinely double — so a double literal mixed with a
+	// fixed/bigint field is caught by the double/exact reject (#894).
+	switch c := ctx.(type) {
+	case *FloatLiteralContext, *FloatFromStrContext, *FloatFromIntContext,
+		*FloatFromIndexContext, *FloatNegateContext:
+		return TypeDouble
+	case *DivideRoundingByContext:
+		// The fp-family divide ops (fp/, fphalfup/, fpdivr/) always produce
+		// a fixed result.
+		return TypeFixed
+	case *FloatParenContext:
+		return e.getExprType(c.Fexpr())
+	}
+
+	// Fallback: a bare-identifier expression in any wrapper context (Number,
+	// ArrayExpr, FloatTyped, …) whose specific case isn't enumerated above.
+	// A compound expression's text always contains operators/parens, so an
+	// identifier-only text is necessarily a simple name reference — resolve
+	// its declared type instead of defaulting to integer, which let double/
+	// fixed operands slip past the #876 reject on the mul-by and mutation
+	// paths (#882).
+	if name := ctx.GetText(); isIdentifier(name) {
+		if lv, ok := e.lookupLocal(name); ok {
+			return lv.Type
+		}
+		if t := e.lookupType(name); t != "" {
+			return t
+		}
 	}
 
 	return TypeInteger
@@ -305,6 +405,42 @@ func promoteArithType(a, b string) string {
 		return TypeDouble
 	}
 	return TypeInteger
+}
+
+// isDoubleExactMix reports whether one operand is double and the other is an
+// exact type (fixed or bigint) — a combination DTRules will not promote
+// implicitly.
+func isDoubleExactMix(a, b string) bool {
+	isExact := func(t string) bool { return t == TypeFixed || t == TypeBigInt }
+	return (a == TypeDouble && isExact(b)) || (b == TypeDouble && isExact(a))
+}
+
+// promote is the emission-site wrapper over promoteArithType. It records a
+// compile error when a double is mixed with an exact type (fixed or bigint)
+// instead of silently emitting a cast: the runtime deliberately refuses to
+// promote double→fixed implicitly (see RFixed.promote), and truncating
+// double→bigint would silently drop precision. Authors must opt in with an
+// explicit cast, e.g. `(double) x` or `(fixed) x`. (#876)
+func (e *PostfixEmitter) promote(a, b string) string {
+	if isDoubleExactMix(a, b) {
+		e.emitDoubleMixError(exactOf(a, b))
+	}
+	return promoteArithType(a, b)
+}
+
+// exactOf returns whichever of a/b is the exact type in a double/exact mix.
+func exactOf(a, b string) string {
+	if a == TypeDouble {
+		return b
+	}
+	return a
+}
+
+// emitDoubleMixError records the standard #876 diagnostic for an implicit
+// double/exact-type combination.
+func (e *PostfixEmitter) emitDoubleMixError(exact string) {
+	e.emitError("cannot combine double with %s implicitly; add an explicit cast "+
+		"(e.g. \"(%s) x\" to keep exactness, or \"(double) x\" to compute in double)", exact, exact)
 }
 
 // arithOp picks the correct postfix opcode for an arithmetic or comparison
@@ -606,7 +742,7 @@ func (e *PostfixEmitter) VisitBoolIntEq(ctx *BoolIntEqContext) interface{} {
 		return nil
 	}
 
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, "==", "b==", "f==", "fp=="))
@@ -624,7 +760,7 @@ func (e *PostfixEmitter) VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{} {
 		return nil
 	}
 
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	switch target {
@@ -643,7 +779,7 @@ func (e *PostfixEmitter) VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolIntGt(ctx *BoolIntGtContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, ">", "b>", "f>", "fp>"))
@@ -652,7 +788,7 @@ func (e *PostfixEmitter) VisitBoolIntGt(ctx *BoolIntGtContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolIntGte(ctx *BoolIntGteContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, ">=", "b>=", "f>=", "fp>="))
@@ -661,7 +797,7 @@ func (e *PostfixEmitter) VisitBoolIntGte(ctx *BoolIntGteContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolIntLt(ctx *BoolIntLtContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, "<", "b<", "f<", "fp<"))
@@ -670,7 +806,7 @@ func (e *PostfixEmitter) VisitBoolIntLt(ctx *BoolIntLtContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolIntLte(ctx *BoolIntLteContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, "<=", "b<=", "f<=", "fp<="))
@@ -1149,12 +1285,20 @@ func (e *PostfixEmitter) VisitBoolNameEq(ctx *BoolNameEqContext) interface{} {
 	// string forms happen to match. Dispatch to the proper family with
 	// Fixed > BigInt > Integer promotion when both sides are numeric.
 	if t0, t1 := e.identNumericType(name0), e.identNumericType(name1); t0 != "" && t1 != "" {
-		target := promoteArithType(t0, t1)
+		target := e.promote(t0, t1)
 		e.Visit(ctx.Nexpr(0))
 		e.emitTypeCast(t0, target)
 		e.Visit(ctx.Nexpr(1))
 		e.emitTypeCast(t1, target)
 		e.emit(arithOp(target, "==", "b==", "f==", "fp=="))
+		return nil
+	}
+
+	// The numeric block above excludes double, so fixed/bigint == double would
+	// otherwise fall through to a meaningless string compare. Reject the
+	// implicit mix the same way the arithmetic path does (#876).
+	if t0, t1 := e.lookupType(name0), e.lookupType(name1); isDoubleExactMix(t0, t1) {
+		e.emitDoubleMixError(exactOf(t0, t1))
 		return nil
 	}
 
@@ -1196,7 +1340,7 @@ func (e *PostfixEmitter) VisitBoolNameNeq(ctx *BoolNameNeqContext) interface{} {
 	// Fixed > BigInt > Integer promotion as BoolNameEq; fp!= and b!=
 	// are distinct ops, integer falls back to the historic `== not`.
 	if t0, t1 := e.identNumericType(name0), e.identNumericType(name1); t0 != "" && t1 != "" {
-		target := promoteArithType(t0, t1)
+		target := e.promote(t0, t1)
 		e.Visit(ctx.Nexpr(0))
 		e.emitTypeCast(t0, target)
 		e.Visit(ctx.Nexpr(1))
@@ -1210,6 +1354,12 @@ func (e *PostfixEmitter) VisitBoolNameNeq(ctx *BoolNameNeqContext) interface{} {
 			e.emit("==")
 			e.emit("not")
 		}
+		return nil
+	}
+
+	// Reject an implicit fixed/bigint != double the same way == does (#876).
+	if t0, t1 := e.lookupType(name0), e.lookupType(name1); isDoubleExactMix(t0, t1) {
+		e.emitDoubleMixError(exactOf(t0, t1))
 		return nil
 	}
 
@@ -1362,7 +1512,7 @@ func (e *PostfixEmitter) VisitIntAdd(ctx *IntAddContext) interface{} {
 		return nil
 	}
 
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, "+", "b+", "f+", "fp+"))
@@ -1371,7 +1521,7 @@ func (e *PostfixEmitter) VisitIntAdd(ctx *IntAddContext) interface{} {
 
 func (e *PostfixEmitter) VisitIntSub(ctx *IntSubContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, "-", "b-", "f-", "fp-"))
@@ -1380,7 +1530,7 @@ func (e *PostfixEmitter) VisitIntSub(ctx *IntSubContext) interface{} {
 
 func (e *PostfixEmitter) VisitIntMul(ctx *IntMulContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, "*", "b*", "fmul", "fp*"))
@@ -1389,7 +1539,7 @@ func (e *PostfixEmitter) VisitIntMul(ctx *IntMulContext) interface{} {
 
 func (e *PostfixEmitter) VisitIntDiv(ctx *IntDivContext) interface{} {
 	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(left), e.getExprType(right))
+	target := e.promote(e.getExprType(left), e.getExprType(right))
 	e.emitWithTypeConversion(left, target)
 	e.emitWithTypeConversion(right, target)
 	e.emit(arithOp(target, "/", "b/", "fdiv", "fp/"))
@@ -1405,6 +1555,8 @@ func (e *PostfixEmitter) VisitIntNegate(ctx *IntNegateContext) interface{} {
 		e.emit("fpnegate")
 	case TypeBigInt:
 		e.emit("bnegate")
+	case TypeDouble:
+		e.emit("fnegate") // negate would truncate the double via IntValue (#894)
 	default:
 		e.emit("negate")
 	}
@@ -1427,35 +1579,75 @@ func (e *PostfixEmitter) VisitIntNumberOf(ctx *IntNumberOfContext) interface{} {
 }
 
 // VisitIntNumberOfWhere: `number of <arrayExpr> where <bexpr>` — count
-// elements matching bexpr. Emit a count-accumulator fold: seed 0, iterate
-// the array with forall (auto-pushes element entity), and for each element
-// increment the accumulator when bexpr is true.
+// elements matching bexpr. Emit a count-accumulator fold:
+//
+//	0 { { 1 + } <bexpr> if } <arrayExpr> forall
+//
+// Two stack-discipline rules govern the operand order (both verified by the
+// predicated-fold execution test, and both matched by the working
+// VisitForallWhere template):
+//
+//  1. forall is ( body array -- ): opForall pops the ARRAY off the TOP, then
+//     the body block. So the array is emitted LAST, after the body — emitting
+//     it before leaves the body block on top and forall iterates the block's
+//     tokens ("non-Entity entry in array").
+//  2. if is ( body boolean -- ): it pops the boolean off the top, then the
+//     body. So the inner block goes BEFORE the predicate: `{ 1 + } bexpr if`.
+//
+// The seed 0 stays on the data stack below the body and array, untouched by
+// forall's two pops, and the body accumulates into it per element.
 func (e *PostfixEmitter) VisitIntNumberOfWhere(ctx *IntNumberOfWhereContext) interface{} {
 	e.emit("0")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
-	e.Visit(ctx.Bexpr())
 	e.emit("{")
 	e.emit("1")
 	e.emit("+")
 	e.emit("}")
+	e.Visit(ctx.Bexpr())
 	e.emit("if")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	return nil
 }
 
 // VisitIntSumOf: `sum of <iexpr> in <arrayExpr>` — fold the array
 // accumulating <iexpr> per element. Element entity is auto-pushed by
-// forall, so <iexpr> may reference the element's fields directly.
-// Pre-fix this rule silently emitted nothing.
+// forall, so <iexpr> may reference the element's fields directly. Emits
+// `0 { <iexpr> + } <arrayExpr> forall` — body before array, since opForall
+// pops the array off the top (see VisitIntNumberOfWhere for the full
+// stack-discipline note).
 func (e *PostfixEmitter) VisitIntSumOf(ctx *IntSumOfContext) interface{} {
 	e.emit("0")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
 	e.Visit(ctx.Iexpr())
 	e.emit("+")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	return nil
+}
+
+// VisitIntSumOfWhere: `sum of <iexpr> in <arrayExpr> where <bexpr>` —
+// predicated sum, the parity fill for `number of … where`. Same fold as
+// IntSumOf, but each element only contributes <iexpr> when <bexpr> holds.
+// The element entity is auto-pushed by forall, so both <bexpr> and
+// <iexpr> may reference the element's fields directly.
+func (e *PostfixEmitter) VisitIntSumOfWhere(ctx *IntSumOfWhereContext) interface{} {
+	// Emits `0 { { <iexpr> + } <bexpr> if } <arrayExpr> forall` — body before
+	// array (opForall pops the array off the top) and inner block before the
+	// predicate (`if` pops the boolean off the top). Same operand-order
+	// discipline as the plain folds (#867) and the VisitForallWhere template.
+	e.emit("0")
+	e.emit("{")
+	e.emit("{")
+	e.Visit(ctx.Iexpr())
+	e.emit("+")
+	e.emit("}")
+	e.Visit(ctx.Bexpr())
+	e.emit("if")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	return nil
 }
@@ -1517,16 +1709,15 @@ func (e *PostfixEmitter) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface
 // don't hit IntValue at runtime — closes the same dispatch gap
 // promoteArithType's Double arm opened up.
 //
-// No dedicated `bmin` / `bmax` ops exist, so bigint targets fall back
-// to the integer `min` / `max` — which calls IntValue() on both
-// operands and errors for any bigint exceeding int64 range. That's
-// a pre-existing bug independent of this PR; fixing it cleanly
-// requires registering `bmin` / `bmax` operators that dispatch via
-// RBigInt.Compare. Tracked as a follow-up.
-func minMaxOp(target, intOp, dblOp, fpOp string) string {
+// The bigint path uses the dedicated bmin/bmax ops (compare via big.Int) so a
+// bigint exceeding int64 range is not truncated by the integer min/max's
+// IntValue() (#899).
+func minMaxOp(target, intOp, bigOp, dblOp, fpOp string) string {
 	switch target {
 	case TypeFixed:
 		return fpOp
+	case TypeBigInt:
+		return bigOp
 	case TypeDouble:
 		return dblOp
 	default:
@@ -1536,37 +1727,37 @@ func minMaxOp(target, intOp, dblOp, fpOp string) string {
 
 func (e *PostfixEmitter) VisitIntMinOf(ctx *IntMinOfContext) interface{} {
 	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	target := e.promote(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
-	e.emit(minMaxOp(target, "min", "fmin", "fpmin"))
+	e.emit(minMaxOp(target, "min", "bmin", "fmin", "fpmin"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMinOfComma(ctx *IntMinOfCommaContext) interface{} {
 	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	target := e.promote(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
-	e.emit(minMaxOp(target, "min", "fmin", "fpmin"))
+	e.emit(minMaxOp(target, "min", "bmin", "fmin", "fpmin"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMaxOf(ctx *IntMaxOfContext) interface{} {
 	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	target := e.promote(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
-	e.emit(minMaxOp(target, "max", "fmax", "fpmax"))
+	e.emit(minMaxOp(target, "max", "bmax", "fmax", "fpmax"))
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMaxOfComma(ctx *IntMaxOfCommaContext) interface{} {
 	l, r := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := promoteArithType(e.getExprType(l), e.getExprType(r))
+	target := e.promote(e.getExprType(l), e.getExprType(r))
 	e.emitWithTypeConversion(l, target)
 	e.emitWithTypeConversion(r, target)
-	e.emit(minMaxOp(target, "max", "fmax", "fpmax"))
+	e.emit(minMaxOp(target, "max", "bmax", "fmax", "fpmax"))
 	return nil
 }
 
@@ -1584,59 +1775,62 @@ func (e *PostfixEmitter) VisitFloatTyped(ctx *FloatTypedContext) interface{} {
 	return nil
 }
 
+// emitMixedFloatArith handles +/- where at least one operand is a float
+// expression (fexpr — always double-typed). It promotes through e.promote so
+// the float forces a double result (f+/f-) with any integer operand promoted
+// by the op, and a fixed/bigint operand mixed with the float is rejected
+// (#876) rather than silently truncated. Without it these visitors emitted a
+// bare integer `+`/`-` that truncated e.g. `db2 + 1.0` at runtime (#884).
+// Pass TypeDouble for an fexpr operand (getExprType only types iexprs).
+func (e *PostfixEmitter) emitMixedFloatArith(left, right antlr.ParseTree, leftType, rightType, intOp, bigOp, dblOp, fpOp string) {
+	target := e.promote(leftType, rightType)
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	e.emit(arithOp(target, intOp, bigOp, dblOp, fpOp))
+}
+
 func (e *PostfixEmitter) VisitFloatAddFloat(ctx *FloatAddFloatContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("+")
+	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), "+", "b+", "f+", "fp+")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitFloatSubFloat(ctx *FloatSubFloatContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("-")
+	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), "-", "b-", "f-", "fp-")
 	return nil
 }
 
+// Mul/div route through emitMixedFloatArith exactly like the fexpr add/sub
+// visitors: a fixed field that matched the grammar's fexpr alternative (e.g.
+// the dividend of `divide … rounding by`) must dispatch to fp*/fp/, not the
+// double ops — staking mantissas exceed a double's exact-integer range, so an
+// unconditional fmul silently loses precision (#903, same class as #874/#884).
 func (e *PostfixEmitter) VisitFloatMulFloat(ctx *FloatMulFloatContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("fmul")
+	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), "*", "b*", "fmul", "fp*")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitFloatDivFloat(ctx *FloatDivFloatContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("fdiv")
+	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), "/", "b/", "fdiv", "fp/")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitFloatAddInt(ctx *FloatAddIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("+")
+	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), "+", "b+", "f+", "fp+")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitFloatSubInt(ctx *FloatSubIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("-")
+	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), "-", "b-", "f-", "fp-")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitFloatMulInt(ctx *FloatMulIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("fmul")
+	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), "*", "b*", "fmul", "fp*")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitFloatDivInt(ctx *FloatDivIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("fdiv")
+	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), "/", "b/", "fdiv", "fp/")
 	return nil
 }
 
@@ -1653,8 +1847,20 @@ func (e *PostfixEmitter) VisitFloatDivInt(ctx *FloatDivIntContext) interface{} {
 // is currently impossible by grammar; if the rule is ever relaxed, the
 // emitter falls through to the ternary path with the visited expression.
 func (e *PostfixEmitter) VisitDivideRoundingBy(ctx *DivideRoundingByContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
+	// The fp-family divide ops require fixed operands. Integer/bigint
+	// operands are promoted via cvfp; a double operand is rejected per the
+	// #876 policy (the runtime will not promote double→fixed implicitly, and
+	// staking mantissas exceed a double's exact-integer range) — authors opt
+	// in with an explicit `(fixed)` cast. (#903)
+	for i := 0; i < 2; i++ {
+		if t := e.getExprType(ctx.Fexpr(i)); t == TypeDouble {
+			e.emitError("divide … rounding by requires fixed operands; " +
+				"cast the double operand explicitly (e.g. \"(fixed) x\")")
+			return nil
+		}
+	}
+	e.emitWithTypeConversion(ctx.Fexpr(0), TypeFixed)
+	e.emitWithTypeConversion(ctx.Fexpr(1), TypeFixed)
 
 	rText := ctx.FP_LITERAL().GetText()
 	rMantissa, err := parseFpLiteralToMantissa(rText)
@@ -1794,6 +2000,13 @@ func emitMulDivBy(e *PostfixEmitter, lhs, rhs antlr.ParseTree, intOp, bigOp, dbl
 	if target == "" {
 		target = TypeInteger
 	}
+	// Reject `multiply/divide <fixed|bigint> by <double>` rather than feed the
+	// exact-type op an un-cast double (a runtime promote error) or silently
+	// snap it — same policy as the binary-op reject (#876/#882).
+	if rt := e.getExprType(rhs); isDoubleExactMix(rt, target) {
+		e.emitDoubleMixError(exactOf(rt, target))
+		return
+	}
 	e.Visit(lhs)
 	e.emitWithTypeConversion(rhs, target)
 	e.emit(arithOp(target, intOp, bigOp, dblOp, fpOp))
@@ -1804,9 +2017,16 @@ func emitMulDivBy(e *PostfixEmitter, lhs, rhs antlr.ParseTree, intOp, bigOp, dbl
 // result). Without this override the entire substring call silently
 // disappeared from the postfix.
 func (e *PostfixEmitter) VisitStrSubstring(ctx *StrSubstringContext) interface{} {
+	// Grammar is `from <start> to <end>` (end exclusive, by character index),
+	// but opSubstring is ( str start length -- ). Compute length = end - start
+	// instead of passing the end index as the length — the latter was correct
+	// only when start == 0 (where end == length) and silently wrong otherwise
+	// (#889). Stack: str start end -> over (copy start back) -> `-` = end-start.
 	e.Visit(ctx.Strexpr())
-	e.Visit(ctx.Iexpr(0))
-	e.Visit(ctx.Iexpr(1))
+	e.Visit(ctx.Iexpr(0)) // start
+	e.Visit(ctx.Iexpr(1)) // end
+	e.emit("over")
+	e.emit("-")
 	e.emit("substring")
 	return nil
 }
@@ -1949,36 +2169,32 @@ func (e *PostfixEmitter) VisitDateEndOfMonth(ctx *DateEndOfMonthContext) interfa
 }
 
 func (e *PostfixEmitter) VisitIntAddFloat(ctx *IntAddFloatContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("+")
+	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), "+", "b+", "f+", "fp+")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntSubFloat(ctx *IntSubFloatContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("-")
+	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), "-", "b-", "f-", "fp-")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntMulFloat(ctx *IntMulFloatContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("fmul")
+	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), "*", "b*", "fmul", "fp*")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitIntDivFloat(ctx *IntDivFloatContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("fdiv")
+	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), "/", "b/", "fdiv", "fp/")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitFloatNegate(ctx *FloatNegateContext) interface{} {
 	e.Visit(ctx.Fexpr())
-	e.emit("neg")
+	// fnegate (opFNegate) negates via DoubleValue; the previously emitted
+	// `neg` was never registered, so any float-expr negation crashed at
+	// runtime with operator-not-found. `negate` would truncate the double
+	// via IntValue, so it is not a substitute here. (#878)
+	e.emit("fnegate")
 	return nil
 }
 
@@ -2026,6 +2242,34 @@ func (e *PostfixEmitter) VisitFloatAbs(ctx *FloatAbsContext) interface{} {
 		return nil
 	}
 	e.emit("fabs")
+	return nil
+}
+
+// VisitFloatCeilingOf / VisitFloatFloorOf: `ceiling of <expr>` and
+// `floor of <expr>`. The runtime ops coerce to double and return the
+// rounded double, so both the fexpr and iexpr alternatives emit the
+// same op after visiting the operand.
+func (e *PostfixEmitter) VisitFloatCeilingOf(ctx *FloatCeilingOfContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.emit("ceiling")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatCeilingOfInt(ctx *FloatCeilingOfIntContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.emit("ceiling")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatFloorOf(ctx *FloatFloorOfContext) interface{} {
+	e.Visit(ctx.Fexpr())
+	e.emit("floor")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatFloorOfInt(ctx *FloatFloorOfIntContext) interface{} {
+	e.Visit(ctx.Iexpr())
+	e.emit("floor")
 	return nil
 }
 
@@ -2161,11 +2405,31 @@ func (e *PostfixEmitter) VisitFloatRoundedBoundry(ctx *FloatRoundedBoundryContex
 // floatSumOf reachable. See TestIssue803_FloatSumOf_Unreachable.
 func (e *PostfixEmitter) VisitFloatSumOf(ctx *FloatSumOfContext) interface{} {
 	e.emit("0.0")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
 	e.Visit(ctx.TypedDouble())
 	e.emit("f+")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forall")
+	return nil
+}
+
+// VisitFloatSumOfWhere: `sum of <typedDouble> in <arrayExpr> where <bexpr>`
+// — the float counterpart of VisitIntSumOfWhere. Each element contributes
+// <typedDouble> to the running total only when <bexpr> holds.
+func (e *PostfixEmitter) VisitFloatSumOfWhere(ctx *FloatSumOfWhereContext) interface{} {
+	// Body before array, inner block before predicate — see
+	// VisitIntSumOfWhere.
+	e.emit("0.0")
+	e.emit("{")
+	e.emit("{")
+	e.Visit(ctx.TypedDouble())
+	e.emit("f+")
+	e.emit("}")
+	e.Visit(ctx.Bexpr())
+	e.emit("if")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	return nil
 }
@@ -2310,7 +2574,24 @@ func (e *PostfixEmitter) VisitStrTrim(ctx *StrTrimContext) interface{} {
 
 func (e *PostfixEmitter) VisitStrToLower(ctx *StrToLowerContext) interface{} {
 	e.Visit(ctx.Strexpr())
-	e.emit("tolower")
+	e.emit("lowercase") // registered op name (#888)
+	return nil
+}
+
+// VisitStrLowercaseOf / VisitStrUppercaseOf: `lowercase of <s>` /
+// `uppercase of <s>` (#904). Before the dedicated tokens, `lowercase of url`
+// parsed as relationship traversal (`url lowercase getrelationship`), which
+// errors at runtime on string operands — the op existed with no surface.
+// Equivalent to the `change <s> to lower/upper case` forms.
+func (e *PostfixEmitter) VisitStrLowercaseOf(ctx *StrLowercaseOfContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("lowercase")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitStrUppercaseOf(ctx *StrUppercaseOfContext) interface{} {
+	e.Visit(ctx.Strexpr())
+	e.emit("uppercase")
 	return nil
 }
 
@@ -2395,7 +2676,7 @@ func (e *PostfixEmitter) VisitXmlvalues(ctx *XmlvaluesContext) interface{} {
 
 func (e *PostfixEmitter) VisitStrToUpper(ctx *StrToUpperContext) interface{} {
 	e.Visit(ctx.Strexpr())
-	e.emit("toupper")
+	e.emit("uppercase") // registered op name (#888)
 	return nil
 }
 
@@ -2450,7 +2731,7 @@ func (e *PostfixEmitter) VisitDateParen(ctx *DateParenContext) interface{} {
 }
 
 func (e *PostfixEmitter) VisitDateCurrentDate(ctx *DateCurrentDateContext) interface{} {
-	e.emit("currentdate")
+	e.emit("today") // registered op name (#888)
 	return nil
 }
 
@@ -2627,7 +2908,7 @@ func (e *PostfixEmitter) VisitNameLiteral(ctx *NameLiteralContext) interface{} {
 
 func (e *PostfixEmitter) VisitNameOf(ctx *NameOfContext) interface{} {
 	e.Visit(ctx.Eexpr())
-	e.emit("nameof")
+	e.emit("entityname") // registered op name (#888)
 	return nil
 }
 
@@ -3033,10 +3314,50 @@ func (e *PostfixEmitter) VisitForallSimple(ctx *ForallSimpleContext) interface{}
 }
 
 // VisitForallAllowRemove: `for all <array> allowing array to be removed`.
+// VisitForallReverse: `for all <array> in reverse` — iterate the array from
+// the last element to the first.
+//
+// The runtime has always had forallr; until now the only EL that reached it
+// was `remove each ... where ...` and the `allowing array to be removed`
+// variants, both of which iterate backwards for removal safety rather than
+// because the caller wanted that order. Rules that simply need reverse order
+// had to be written as hand-coded postfix — SyntaxTests has 48 such rows
+// (#975).
+func (e *PostfixEmitter) VisitForallReverse(ctx *ForallReverseContext) interface{} {
+	e.emit("dup")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forallr")
+	e.emit("pop")
+	return nil
+}
+
+// VisitForallReverseWhere: `for all <array> in reverse where <bexpr>`.
+func (e *PostfixEmitter) VisitForallReverseWhere(ctx *ForallReverseWhereContext) interface{} {
+	e.emit("{")
+	e.emit("{")
+	e.emit("dup")
+	e.emit("execute")
+	e.emit("}")
+	e.Visit(ctx.Bexpr())
+	e.emit("if")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forallr")
+	e.emit("pop")
+	return nil
+}
+
+// The `allowing array to be removed` variants iterate in REVERSE. That is
+// the whole point of the phrase: walking forward while the body removes
+// elements skips entries, because the iterator's index and the array's
+// contents move against each other. VisitRemoveEachWhere has always used
+// forallr for exactly this reason. These three emitted plain `forall`, so a
+// rule that said it was going to remove elements got the iteration order
+// that makes removal unsafe.
 func (e *PostfixEmitter) VisitForallAllowRemove(ctx *ForallAllowRemoveContext) interface{} {
 	e.emit("dup")
 	e.Visit(ctx.ArrayExpr())
-	e.emit("forall")
+	e.emit("forallr")
 	e.emit("pop")
 	return nil
 }
@@ -3069,7 +3390,7 @@ func (e *PostfixEmitter) VisitForallWhereAllowRemove(ctx *ForallWhereAllowRemove
 	e.emit("if")
 	e.emit("}")
 	e.Visit(ctx.ArrayExpr())
-	e.emit("forall")
+	e.emit("forallr")
 	e.emit("pop")
 	return nil
 }
@@ -3237,7 +3558,7 @@ func (e *PostfixEmitter) VisitForallInEntityAllowRemove(ctx *ForallInEntityAllow
 	e.emit("entitypush")
 	e.emit("dup")
 	e.Visit(ctx.ArrayExpr())
-	e.emit("forall")
+	e.emit("forallr")
 	e.emit("pop")
 	e.emit("entitypop")
 	e.emit("pop")
@@ -3683,10 +4004,154 @@ func (e *PostfixEmitter) VisitEmptyCondition(ctx *EmptyConditionContext) interfa
 // ============================================================================
 
 func (e *PostfixEmitter) VisitStatementList(ctx *StatementListContext) interface{} {
-	for _, block := range ctx.AllBlock() {
-		e.Visit(block)
+	e.visitBlocksScoped(ctx.AllBlock())
+	return nil
+}
+
+// visitBlocksScoped walks a statement list, giving local-variable and
+// create-as declarations a real scope (#904). The runtime local machinery is
+// `<init> allocate <body> execute deallocate pop` — the declared slot is only
+// live while <body> runs. At context level the table body block is already on
+// the data stack when the declaration postfix runs, so the flat shape works;
+// inside an action body there is no block on the stack, and the flat shape
+// emitted by the Local* visitors underflowed at `execute` while the
+// statements that used the local ran AFTER `deallocate`. Here the remaining
+// statements of the list become the executed block:
+//
+//	<init> allocate { <rest of statements> } execute deallocate pop
+//
+// nesting recursively for each declaration, mirroring how
+// compileContextsPostfix nests per-cell context declarations.
+func (e *PostfixEmitter) visitBlocksScoped(blocks []IBlockContext) {
+	for i, b := range blocks {
+		if decl := scopedDeclOf(b); decl != nil && e.emitScopedLocalPrefix(decl) {
+			e.emit("allocate")
+			e.emit("{")
+			e.visitBlocksScoped(blocks[i+1:])
+			e.emit("}")
+			e.emit("execute")
+			e.emit("deallocate")
+			e.emit("pop")
+			return
+		}
+		e.Visit(b)
+	}
+}
+
+// scopedDeclOf returns the localvariables or createstatement context when a
+// block consists of a single declaration statement, nil otherwise.
+func scopedDeclOf(b IBlockContext) antlr.ParseTree {
+	bs, ok := b.(*BlockStatementContext)
+	if !ok {
+		return nil
+	}
+	st, ok := bs.Statement().(*StatementContext)
+	if !ok || st == nil {
+		return nil
+	}
+	if lv := st.Localvariables(); lv != nil {
+		// The concrete alternative context is the localvariables child.
+		if pt, ok := lv.(antlr.ParseTree); ok {
+			return pt
+		}
+	}
+	if cs := st.Createstatement(); cs != nil {
+		if pt, ok := cs.(antlr.ParseTree); ok {
+			return pt
+		}
 	}
 	return nil
+}
+
+// emitScopedLocalPrefix declares the local and emits its initial value for
+// the scoped shape (everything up to, but not including, `allocate`).
+// Returns false for declaration forms that don't bind a new local (the
+// *Defined reference alts) and for create-as with a name that resolves in
+// the EDD — that form keeps the legacy attribute-binding lowering for
+// back-compat (see VisitCreateEntityAs).
+func (e *PostfixEmitter) emitScopedLocalPrefix(decl antlr.ParseTree) bool {
+	switch c := decl.(type) {
+	case *CreateEntityAsContext:
+		name := c.UndefinedIdent().GetText()
+		if e.lookupType(name) != "" {
+			return false // declared-attribute binding — legacy lowering
+		}
+		typeName := c.TypedEntity().GetText()
+		e.declareLocalEntity(name, TypeEntity, typeName)
+		e.emit("/" + typeName)
+		e.emit("createentity")
+	case *LocalEntityInitContext:
+		e.declareLocalEntity(c.UndefinedIdent().GetText(), TypeEntity, entityTypeFromEexpr(c.Eexpr()))
+		e.Visit(c.Eexpr())
+		e.emit("cve")
+	case *LocalEntityUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeEntity)
+		e.emit("null")
+	case *LocalLongInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeInteger)
+		e.Visit(c.Number())
+		e.emit("cvi")
+	case *LocalLongUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeInteger)
+		e.emit("null")
+	case *LocalDoubleInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeDouble)
+		e.Visit(c.Number())
+		e.emit("cvd")
+	case *LocalDoubleUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeDouble)
+		e.emit("null")
+	case *LocalBoolInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeBoolean)
+		e.Visit(c.Bexpr())
+		e.emit("cvb")
+	case *LocalBoolUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeBoolean)
+		e.emit("null")
+	case *LocalDateInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeDate)
+		e.Visit(c.Dexpr())
+		e.emit("cvd")
+	case *LocalDateUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeDate)
+		e.emit("null")
+	case *LocalArrayInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeArray)
+		e.Visit(c.ArrayExpr())
+	case *LocalArrayUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeArray)
+		e.emit("null")
+	case *LocalStringInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeString)
+		e.Visit(c.Strexpr())
+		e.emit("cvs")
+	case *LocalStringUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeString)
+		e.emit("null")
+	case *LocalBigIntInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeBigInt)
+		e.Visit(c.Bigexpr())
+		e.emit("cvbi")
+	case *LocalBigIntUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeBigInt)
+		e.emit("null")
+	case *LocalFixedInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeFixed)
+		e.emitWithTypeConversion(c.Iexpr(), TypeFixed)
+	case *LocalFixedUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeFixed)
+		e.emit("null")
+	case *LocalBytesInitContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeBytes)
+		e.Visit(c.Bytesexpr())
+		e.emit("cvbytes")
+	case *LocalBytesUndefContext:
+		e.declareLocal(c.UndefinedIdent().GetText(), TypeBytes)
+		e.emit("null")
+	default:
+		return false // *Defined reference alts keep their existing lowering
+	}
+	return true
 }
 
 func (e *PostfixEmitter) VisitBlockStatement(ctx *BlockStatementContext) interface{} {
@@ -4030,6 +4495,33 @@ func (e *PostfixEmitter) VisitUsingBlockBase(ctx *UsingBlockBaseContext) interfa
 // Forallblock emitters (action position, explicit block body).
 
 // VisitForallBlockSimple: `<arr> { block }`. Action form with no filter.
+// VisitForallBlockReverse: `for all <array> in reverse { ... }` — the
+// action-cell form of reverse iteration (#975). SyntaxTests has 48 rows of
+// exactly this shape written as hand-coded postfix, because until now the
+// only EL that reached forallr was the removal-safety phrasing.
+func (e *PostfixEmitter) VisitForallBlockReverse(ctx *ForallBlockReverseContext) interface{} {
+	e.emit("{")
+	e.Visit(ctx.Block())
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forallr")
+	return nil
+}
+
+// VisitForallBlockReverseWhere: the same with a filter.
+func (e *PostfixEmitter) VisitForallBlockReverseWhere(ctx *ForallBlockReverseWhereContext) interface{} {
+	e.emit("{")
+	e.emit("{")
+	e.Visit(ctx.Block())
+	e.emit("}")
+	e.Visit(ctx.Bexpr())
+	e.emit("if")
+	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
+	e.emit("forallr")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitForallBlockSimple(ctx *ForallBlockSimpleContext) interface{} {
 	e.emit("{")
 	e.Visit(ctx.Block())
@@ -4082,12 +4574,17 @@ func (e *PostfixEmitter) VisitFirstBlockItsElse(ctx *FirstBlockItsElseContext) i
 	return nil
 }
 
+// VisitIfblock: the runtime's ifelse pops the TEST from the top of the
+// stack (matching the lazy and/or `over if` emission and hasrelationship
+// forms), so the bodies are pushed first and the bexpr last:
+// `{ then } { else } <bexpr> ifelse`. Blocks are literals, so deferring
+// the bexpr evaluation is side-effect free.
 func (e *PostfixEmitter) VisitIfblock(ctx *IfblockContext) interface{} {
-	e.Visit(ctx.Bexpr())
 	e.emit("{")
 	e.Visit(ctx.StatementList())
 	e.emit("}")
 	e.Visit(ctx.Ifcontinue())
+	e.Visit(ctx.Bexpr())
 	e.emit("ifelse")
 	return nil
 }
@@ -4388,27 +4885,31 @@ func (e *PostfixEmitter) VisitBoolStrIsNotOneOf(ctx *BoolStrIsNotOneOfContext) i
 //     <value> dup <dest1> swap addto <dest2> swap addto
 // Same shape works for entity / string / number / date values.
 
-// VisitAddDateToDest: `add <dexpr> to <addtodest>`. Non-dup counterpart —
-// was previously falling through and the default visit emitted the wrong
-// shape (arithmetic `+` instead of addto). Now uses the same swap+addto
-// pattern as AddEntityToDest.
+// VisitAddDateToDest: `add <dexpr> to <addtodest>`. The destination visitor
+// owns the store (`<arr> swap addto` for arrays) — appending another
+// `swap addto` here double-emitted the trailer for non-IDENT dexprs (#904;
+// bare-IDENT date values match the arrayExpr alternatives and never reach
+// this visitor). Mirrors VisitAddStrToDest (#781).
 func (e *PostfixEmitter) VisitAddDateToDest(ctx *AddDateToDestContext) interface{} {
 	e.Visit(ctx.Dexpr())
 	e.Visit(ctx.Addtodest())
-	e.emit("swap")
-	e.emit("addto")
 	return nil
 }
 
+// The dup-destination family relies on each destination visitor emitting its
+// own store (`<arr> swap addto` for array dests, `<field> + /<field> xdef`
+// for numeric dests) — appending an explicit `swap addto` here after the
+// dest visit double-emitted the trailer and corrupted the stack (#904, same
+// class as the #781 single-dest string fix). Shape:
+//
+//	<value> dup <dest0-with-store> <dest1-with-store>
+//
+// The first store consumes the dup'd copy, the second consumes the original.
 func (e *PostfixEmitter) VisitAddEntityToDestDup(ctx *AddEntityToDestDupContext) interface{} {
 	e.Visit(ctx.Eexpr())
 	e.emit("dup")
 	e.Visit(ctx.Addtodest(0))
-	e.emit("swap")
-	e.emit("addto")
 	e.Visit(ctx.Addtodest(1))
-	e.emit("swap")
-	e.emit("addto")
 	return nil
 }
 
@@ -4416,11 +4917,7 @@ func (e *PostfixEmitter) VisitAddStrToDestDup(ctx *AddStrToDestDupContext) inter
 	e.Visit(ctx.Strexpr())
 	e.emit("dup")
 	e.Visit(ctx.Addtodest(0))
-	e.emit("swap")
-	e.emit("addto")
 	e.Visit(ctx.Addtodest(1))
-	e.emit("swap")
-	e.emit("addto")
 	return nil
 }
 
@@ -4428,11 +4925,7 @@ func (e *PostfixEmitter) VisitAddDateToDestDup(ctx *AddDateToDestDupContext) int
 	e.Visit(ctx.Dexpr())
 	e.emit("dup")
 	e.Visit(ctx.Addtodest(0))
-	e.emit("swap")
-	e.emit("addto")
 	e.Visit(ctx.Addtodest(1))
-	e.emit("swap")
-	e.emit("addto")
 	return nil
 }
 
@@ -4578,6 +5071,9 @@ func (e *PostfixEmitter) VisitSubDestDouble(ctx *SubDestDoubleContext) interface
 // VisitSubtractNum: `subtract <number> from <subtodest>` → push the number,
 // then delegate to subtodest which computes field - value and stores.
 func (e *PostfixEmitter) VisitSubtractNum(ctx *SubtractNumContext) interface{} {
+	if e.rejectMutationDoubleMix(ctx.Number(), ctx.Subtodest()) {
+		return nil
+	}
 	e.Visit(ctx.Number())
 	e.Visit(ctx.Subtodest())
 	return nil
@@ -4883,23 +5379,26 @@ func (e *PostfixEmitter) VisitEntityColonRef(ctx *EntityColonRefContext) interfa
 //   eexpr HASA str WHERE bexpr      # boolEntityHasaWhere       →  ifelse on hasrelationship
 
 func (e *PostfixEmitter) VisitBoolAllHave(ctx *BoolAllHaveContext) interface{} {
+	// opForall is ( body array -- ): the block must be emitted BEFORE the
+	// array, else forall iterates the block as the array (#867 / #877).
 	e.emit("true")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
 	e.Visit(ctx.Bexpr())
 	e.emit("and")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitBoolOneOfHasa(ctx *BoolOneOfHasaContext) interface{} {
+	// Block before array — opForall is ( body array -- ). See #877.
 	e.emit("false")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
 	e.Visit(ctx.Bexpr())
 	e.emit("or")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	return nil
 }
@@ -4914,7 +5413,50 @@ func (e *PostfixEmitter) VisitBoolThereIsNoWhere(ctx *BoolThereIsNoWhereContext)
 	return nil
 }
 
+// eexprIsArray reports whether an eexpr that matched an entity-scope grammar
+// alternative actually names an array (local or declared). The parser cannot
+// tell `there is x in <entity> where …` from the array form — typedEntity and
+// typedArray both come from IDENT — so the entity alternatives shadow
+// boolThereIsInArrayWhere/NoInArrayWhere entirely and an array operand used
+// to compile to `<arr> entitypush …`, crashing at runtime when entitypush
+// calls REntityValue on the array (#869). Route by declared type instead.
+func (e *PostfixEmitter) eexprIsArray(ctx antlr.ParseTree) bool {
+	name := ctx.GetText()
+	if lv, ok := e.lookupLocal(name); ok {
+		return lv.Type == TypeArray
+	}
+	if e.lookupType(name) == TypeArray {
+		return true
+	}
+	// Dotted reference: fall back to the field segment, mirroring the
+	// colon-ref resolution in getExprType.
+	if idx := strings.LastIndex(name, "."); idx > 0 {
+		return e.lookupType(name[idx+1:]) == TypeArray
+	}
+	return false
+}
+
+// emitThereIsInArrayFold lowers `there is <x> in <array> where <p>` to the
+// OR-accumulator fold, same shape as boolOneOfHasa: forall pushes each
+// element onto the entity stack while running the body, so bare attribute
+// names in the predicate resolve against the current element. The bound name
+// <x> carries no scope of its own (exactly like `all … have`).
+func (e *PostfixEmitter) emitThereIsInArrayFold(arr, pred antlr.ParseTree) {
+	// Block before array — opForall is ( body array -- ). See #877.
+	e.emit("false")
+	e.emit("{")
+	e.Visit(pred)
+	e.emit("or")
+	e.emit("}")
+	e.Visit(arr)
+	e.emit("forall")
+}
+
 func (e *PostfixEmitter) VisitBoolThereIsInEntityWhere(ctx *BoolThereIsInEntityWhereContext) interface{} {
+	if e.eexprIsArray(ctx.Eexpr(1)) {
+		e.emitThereIsInArrayFold(ctx.Eexpr(1), ctx.Bexpr())
+		return nil
+	}
 	e.Visit(ctx.Eexpr(1))
 	e.emit("entitypush")
 	e.Visit(ctx.Bexpr())
@@ -4925,6 +5467,11 @@ func (e *PostfixEmitter) VisitBoolThereIsInEntityWhere(ctx *BoolThereIsInEntityW
 }
 
 func (e *PostfixEmitter) VisitBoolThereIsNoInEntityWhere(ctx *BoolThereIsNoInEntityWhereContext) interface{} {
+	if e.eexprIsArray(ctx.Eexpr(1)) {
+		e.emitThereIsInArrayFold(ctx.Eexpr(1), ctx.Bexpr())
+		e.emit("not")
+		return nil
+	}
 	e.Visit(ctx.Eexpr(1))
 	e.emit("entitypush")
 	e.Visit(ctx.Bexpr())
@@ -4936,23 +5483,25 @@ func (e *PostfixEmitter) VisitBoolThereIsNoInEntityWhere(ctx *BoolThereIsNoInEnt
 }
 
 func (e *PostfixEmitter) VisitBoolThereIsInArrayWhere(ctx *BoolThereIsInArrayWhereContext) interface{} {
+	// Block before array — opForall is ( body array -- ). See #877.
 	e.emit("false")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
 	e.Visit(ctx.Bexpr())
 	e.emit("or")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	return nil
 }
 
 func (e *PostfixEmitter) VisitBoolThereIsNoInArrayWhere(ctx *BoolThereIsNoInArrayWhereContext) interface{} {
+	// Block before array — opForall is ( body array -- ). See #877.
 	e.emit("false")
-	e.Visit(ctx.ArrayExpr())
 	e.emit("{")
 	e.Visit(ctx.Bexpr())
 	e.emit("or")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
 	e.emit("not")
 	return nil
@@ -5234,12 +5783,14 @@ func (e *PostfixEmitter) VisitRemoveEachWhere(ctx *RemoveEachWhereContext) inter
 // stack at depth 1). Semantic approximation; runtime correctness depends
 // on the specific types of arr1/arr2/nexpr.
 func (e *PostfixEmitter) VisitBoolMatchForall(ctx *BoolMatchForallContext) interface{} {
+	// Both folds emit the block before the array — opForall is
+	// ( body array -- ). Reordering tokens does not change the runtime
+	// entity-stack depth (forall pushes each element while running the
+	// body), so `entityfetch 1` still resolves the outer element. See #877.
 	e.emit("true")
-	e.Visit(ctx.ArrayExpr(0))
 	e.emit("{")
 	// Inner existence check over arr2
 	e.emit("false")
-	e.Visit(ctx.ArrayExpr(1))
 	e.emit("{")
 	e.Visit(ctx.Nexpr())     // y.<nexpr>
 	e.emit("1")              // depth 1 = outer element x
@@ -5247,10 +5798,12 @@ func (e *PostfixEmitter) VisitBoolMatchForall(ctx *BoolMatchForallContext) inter
 	e.emit("==")
 	e.emit("or")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr(1))
 	e.emit("forall")
 	// AND with outer accumulator
 	e.emit("and")
 	e.emit("}")
+	e.Visit(ctx.ArrayExpr(0))
 	e.emit("forall")
 	return nil
 }
@@ -5547,15 +6100,46 @@ func (e *PostfixEmitter) VisitSubDestColon(ctx *SubDestColonContext) interface{}
 	return nil
 }
 
-// VisitBoolEntityIsOf: `<e1> is <type> of <e2>` — the findmatch/relationship
-// lookup op this used to call was removed alongside the hash-table ops. The
-// emit now produces an elstmterror so the form parses but errors at runtime
-// with a clear message until a replacement relationship primitive lands.
+// VisitBoolEntityIsOf: `<e1> is the <R> of <e2>` — true when e2's R field
+// holds e1.
+//
+//	the client is the parent of ApplyingClient   ->   ApplyingClient.parent == client
+//
+// That is all the relationship means: the entity is held by the named field
+// of the other entity. The form used to call a findmatch-era lookup that went
+// away with the hash-table ops, and since then it emitted an elstmterror so
+// the row parsed and died at runtime (#927).
+//
+// It compiles to the same `getrelationship` the `"role" of entity` form uses
+// — that operator reads the named field off an entity, which is the whole of
+// the semantics:
+//
+//	<e2> "<R>" getrelationship <e1> req
 func (e *PostfixEmitter) VisitBoolEntityIsOf(ctx *BoolEntityIsOfContext) interface{} {
-	e.emit("\"relationship-is-of form is not supported (findmatch was removed)\"")
-	e.emit("elstmterror")
-	e.emit("false")
+	field := relationshipFieldName(ctx.Strexpr().GetText())
+	if field == "" {
+		e.emitError("relationship name is empty in `is ... of`")
+		e.emit("false")
+		return nil
+	}
+
+	e.Visit(ctx.Eexpr(1))
+	e.emit("\"" + field + "\"")
+	e.emit("getrelationship")
+	e.Visit(ctx.Eexpr(0))
+	e.emit("req")
 	return nil
+}
+
+// relationshipFieldName strips the article and any quoting from the
+// relationship in `is the <R> of`, leaving the field name to read.
+func relationshipFieldName(text string) string {
+	name := strings.TrimSpace(text)
+	name = strings.Trim(name, "\"'")
+	for _, article := range []string{"the ", "The ", "a ", "an "} {
+		name = strings.TrimPrefix(strings.TrimSpace(name), article)
+	}
+	return strings.TrimSpace(name)
 }
 
 func (e *PostfixEmitter) VisitEntityRelationship(ctx *EntityRelationshipContext) interface{} {
@@ -5601,7 +6185,9 @@ func (e *PostfixEmitter) VisitDatePlusDays(ctx *DatePlusDaysContext) interface{}
 func (e *PostfixEmitter) VisitDateMinusDays(ctx *DateMinusDaysContext) interface{} {
 	e.Visit(ctx.Dexpr())
 	e.Visit(ctx.Number())
-	e.emit("subdays")
+	// No `subdays` op exists; negate the count and reuse adddays (#888).
+	e.emit("negate")
+	e.emit("adddays")
 	return nil
 }
 
@@ -5615,7 +6201,8 @@ func (e *PostfixEmitter) VisitDatePlusMonths(ctx *DatePlusMonthsContext) interfa
 func (e *PostfixEmitter) VisitDateMinusMonths(ctx *DateMinusMonthsContext) interface{} {
 	e.Visit(ctx.Dexpr())
 	e.Visit(ctx.Number())
-	e.emit("submonths")
+	e.emit("negate")
+	e.emit("addmonths")
 	return nil
 }
 
@@ -5629,7 +6216,8 @@ func (e *PostfixEmitter) VisitDatePlusYears(ctx *DatePlusYearsContext) interface
 func (e *PostfixEmitter) VisitDateMinusYears(ctx *DateMinusYearsContext) interface{} {
 	e.Visit(ctx.Dexpr())
 	e.Visit(ctx.Number())
-	e.emit("subyears")
+	e.emit("negate")
+	e.emit("addyears")
 	return nil
 }
 
@@ -5652,6 +6240,10 @@ func (e *PostfixEmitter) VisitAddArrayToArray(ctx *AddArrayToArrayContext) inter
 	if colonRefCtx, ok := destExpr.(*ArrayColonRefContext); ok {
 		fieldName := colonRefCtx.TypedArray().GetText()
 		if isNumericType(e.lookupType(fieldName)) {
+			if vt := e.getExprType(ctx.ArrayExpr(0)); isDoubleExactMix(vt, e.lookupType(fieldName)) {
+				e.emitDoubleMixError(exactOf(vt, e.lookupType(fieldName)))
+				return nil
+			}
 			e.Visit(ctx.ArrayExpr(0))
 			if possChain, ok := colonRefCtx.ColonRef().PossessiveRef().(*PossessiveChainContext); ok {
 				tokens := possChain.AllPOSSESSIVE()
@@ -5677,6 +6269,10 @@ func (e *PostfixEmitter) VisitAddArrayToArray(ctx *AddArrayToArrayContext) inter
 			if typedCtx, ok := arrayExpr2.(*ArrayTypedContext); ok {
 				fieldName := typedCtx.TypedArray().GetText()
 				if isNumericType(e.mutationType(fieldName)) {
+					if vt := e.getExprType(ctx.ArrayExpr(0)); isDoubleExactMix(vt, e.mutationType(fieldName)) {
+						e.emitDoubleMixError(exactOf(vt, e.mutationType(fieldName)))
+						return nil
+					}
 					e.Visit(ctx.ArrayExpr(0))
 					e.emitTypeAwareAddSub(fieldName, "+")
 					return nil
@@ -5695,6 +6291,14 @@ func (e *PostfixEmitter) VisitAddArrayToArray(ctx *AddArrayToArrayContext) inter
 	// array-to-array merge requires explicitly typed arrays in the EDD.
 	srcExpr := ctx.ArrayExpr(0)
 	srcIsArray := false // Default to entity-to-array (safer)
+
+	// `the policy statements` is an array with no name to look up, so the
+	// symbol-table test below can never see it. Without this it fell to the
+	// single-element branch and a report got the whole accumulator as one
+	// blob instead of its statements (#956).
+	if _, ok := srcExpr.(*ArrayPolicyStatementsContext); ok {
+		srcIsArray = true
+	}
 
 	if baseCtx, ok := srcExpr.(*ArrayBaseContext); ok {
 		if arrayExpr2 := baseCtx.ArrayExpr2(); arrayExpr2 != nil {
@@ -5735,10 +6339,15 @@ func (e *PostfixEmitter) VisitAddArrayNoMember(ctx *AddArrayNoMemberContext) int
 }
 
 func (e *PostfixEmitter) VisitAddEntityToDest(ctx *AddEntityToDestContext) interface{} {
+	// The destination visitor (VisitAddDestArray for the common array case)
+	// emits its own `swap addto` after pushing the array — emitting it here
+	// too produced a duplicate trailer that corrupted the stack on
+	// `add new T entity to <array>` (#904, same class as the #781 string
+	// fix). Bare-IDENT entity values match the arrayExpr alternatives
+	// instead, so this visitor is only reached for constructor-shaped
+	// eexprs.
 	e.Visit(ctx.Eexpr())
 	e.Visit(ctx.Addtodest())
-	e.emit("swap") // Java pattern: value dest swap addto
-	e.emit("addto")
 	return nil
 }
 
@@ -5756,9 +6365,31 @@ func (e *PostfixEmitter) VisitAddStrToDest(ctx *AddStrToDestContext) interface{}
 func (e *PostfixEmitter) VisitAddNumToDest(ctx *AddNumToDestContext) interface{} {
 	// Pattern: value field + /field xdef
 	// e.g., "add 5 to client.income" => "5 client.income + /client.income xdef"
+	if e.rejectMutationDoubleMix(ctx.Number(), ctx.Addtodest()) {
+		return nil
+	}
 	e.Visit(ctx.Number())
 	e.Visit(ctx.Addtodest())
 	return nil
+}
+
+// rejectMutationDoubleMix records the #876 error and returns true when a
+// field mutation (`add/subtract <value> to/from <field>`) would fold a double
+// value into a fixed or bigint field — the mutation analogue of the binary-op
+// reject (#882). The dest's text is the bare field name for the common simple
+// target; a complex dest (possessive/colon) that doesn't resolve is left to
+// the existing snap rather than risk a false positive.
+func (e *PostfixEmitter) rejectMutationDoubleMix(value, dest antlr.ParseTree) bool {
+	if dest == nil || value == nil {
+		return false
+	}
+	vt := e.getExprType(value)
+	dt := e.mutationType(dest.GetText())
+	if isDoubleExactMix(vt, dt) {
+		e.emitDoubleMixError(exactOf(vt, dt))
+		return true
+	}
+	return false
 }
 
 // isNumericType reports whether a declared EDD type string is one of the
@@ -6818,25 +7449,26 @@ func (e *PostfixEmitter) VisitDateNewYMDhmsInZoneWithDST(ctx *DateNewYMDhmsInZon
 // Pre-fix the whole if-statement silently emitted nothing; conditional
 // action blocks were entirely lost.
 func (e *PostfixEmitter) VisitIfThen(ctx *IfThenContext) interface{} {
-	e.Visit(ctx.Bexpr())
+	// Runtime `if` pops the test from the top: `{ body } <bexpr> if`.
 	e.emit("{")
 	e.Visit(ctx.Block())
 	e.emit("}")
+	e.Visit(ctx.Bexpr())
 	e.emit("if")
 	return nil
 }
 
 // VisitIfThenElse: `if <bexpr> then <t> else <e> endif`
-// → `<bexpr> { <t> } { <e> } ifelse`. Pre-fix this silently emitted
-// nothing.
+// → `{ <t> } { <e> } <bexpr> ifelse` — runtime ifelse pops the test
+// from the top of the stack. Pre-fix this silently emitted nothing.
 func (e *PostfixEmitter) VisitIfThenElse(ctx *IfThenElseContext) interface{} {
-	e.Visit(ctx.Bexpr())
 	e.emit("{")
 	e.Visit(ctx.Block(0))
 	e.emit("}")
 	e.emit("{")
 	e.Visit(ctx.Block(1))
 	e.emit("}")
+	e.Visit(ctx.Bexpr())
 	e.emit("ifelse")
 	return nil
 }

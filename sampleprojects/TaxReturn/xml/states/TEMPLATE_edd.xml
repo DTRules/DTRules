@@ -1,44 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for [STATE NAME]
-
-  Instructions:
-  1. Copy this template to XX_edd.xml (where XX is the 2-letter state code)
-  2. Replace [STATE NAME] with full state name
-  3. Add state-specific constants as fields in the 'result' entity
-  4. Use descriptive field names with state prefix (e.g., ca_tax_rate, ny_bracket_1_limit)
-
-  Example:
-    <field name="co_tax_rate" type="double" default_value="0.044"
-           comment="CO flat rate 4.4% (2025)"/>
-
-  This file will be merged into TaxReturn_edd.xml by scripts/merge-states.sh
--->
 <entity_data_dictionary version="1.0">
-  <!-- Add state-specific constants to the 'result' entity -->
-  <entity name="result">
-    <!-- Tax rates -->
-    <field name="xx_tax_rate" type="double" default_value="0.0"
-           comment="[STATE] tax rate (2025)"/>
-
-    <!-- Standard deductions -->
-    <field name="xx_standard_deduction_single" type="double" default_value="0.0"
-           comment="[STATE] standard deduction single (2025)"/>
-    <field name="xx_standard_deduction_joint" type="double" default_value="0.0"
-           comment="[STATE] standard deduction married filing jointly (2025)"/>
-    <field name="xx_standard_deduction_hoh" type="double" default_value="0.0"
-           comment="[STATE] standard deduction head of household (2025)"/>
-
-    <!-- Progressive tax brackets (if applicable) -->
-    <field name="xx_bracket_1_limit" type="double" default_value="0.0"
-           comment="[STATE] tax bracket 1 upper limit (2025)"/>
-    <field name="xx_bracket_1_rate" type="double" default_value="0.0"
-           comment="[STATE] tax rate for bracket 1 (2025)"/>
-
-    <!-- Add more brackets as needed -->
-
-    <!-- State-specific rules -->
-    <!-- Add any state-specific constants here (conformity dates, exemptions, credits, etc.) -->
-
-  </entity>
+	<file_metadata>
+		<file_path>TEMPLATE_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" access="">
+		<field name="xx_tax_rate" type="double" subtype="" access="" input="" default_value="0.0" comment="[STATE] tax rate (2025)"></field>
+		<field name="xx_standard_deduction_single" type="double" subtype="" access="" input="" default_value="0.0" comment="[STATE] standard deduction single (2025)"></field>
+		<field name="xx_standard_deduction_joint" type="double" subtype="" access="" input="" default_value="0.0" comment="[STATE] standard deduction married filing jointly (2025)"></field>
+		<field name="xx_standard_deduction_hoh" type="double" subtype="" access="" input="" default_value="0.0" comment="[STATE] standard deduction head of household (2025)"></field>
+		<field name="xx_bracket_1_limit" type="double" subtype="" access="" input="" default_value="0.0" comment="[STATE] tax bracket 1 upper limit (2025)"></field>
+		<field name="xx_bracket_1_rate" type="double" subtype="" access="" input="" default_value="0.0" comment="[STATE] tax rate for bracket 1 (2025)"></field>
+	</entity>
 </entity_data_dictionary>

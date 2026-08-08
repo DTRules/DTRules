@@ -876,6 +876,16 @@ func (s *Syncer) collectCombinedWorkbooks() ([]CombinedWorkbook, error) {
 		relPath, _ := filepath.Rel(s.excelDir, excelPath)
 		base := strings.TrimSuffix(relPath, ".xlsx")
 
+		// Mapping workbooks have no sync support yet (#929). Pairing one as
+		// a mixed-artifact workbook would look for <base>_dt.xml, conclude
+		// "Excel exists but no XML", and IMPORT the map sheets into
+		// fabricated <base>_dt.xml/_edd.xml files — corrupting the project
+		// and flipping the whole build's direction detection to Conflict.
+		// Skip them until map sync exists.
+		if strings.HasSuffix(base, "_map") {
+			continue
+		}
+
 		var wb *CombinedWorkbook
 
 		// Single-artifact workbooks have a _dt or _edd suffix in the filename.

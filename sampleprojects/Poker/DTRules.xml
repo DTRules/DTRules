@@ -1,0 +1,10 @@
+<DTRules>
+  <!--
+    Project marker. Its presence is what makes this directory a project to
+    `dtrules edit` and to project discovery (#941/#942); <entry> names the
+    table `dtrules debug` and the editor start from.
+
+    Rules live in xml/ (the default), so no <xml_dir> override is needed.
+  -->
+  <entry>Evaluate_All_Players</entry>
+</DTRules>

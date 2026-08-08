@@ -16,6 +16,7 @@ package authoring
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -25,13 +26,14 @@ import (
 // Table is a typed view of a single decision table. All mutations validate EL
 // before committing, so invalid expressions are rejected at the API boundary.
 type Table struct {
-	Name           string
-	Number         int // TABLE_NUMBER — load/sheet ordering; 0 means unset
-	Policy         string
-	Contexts       []Context
-	InitialActions []InitialAction
-	Conditions     []Condition
-	Actions        []Action
+	Name             string
+	Number           int // TABLE_NUMBER — load/sheet ordering; 0 means unset
+	Policy           string
+	Contexts         []Context
+	InitialActions   []InitialAction
+	Conditions       []Condition
+	Actions          []Action
+	PolicyStatements []PolicyStatement
 
 	xml     *excel.DecisionTableXML
 	symbols map[string]string
@@ -71,11 +73,63 @@ type Action struct {
 	Columns map[int]bool // col -> executes on that column?
 }
 
+// PolicyStatement is the statement a rule column contributes when it fires.
+//
+// Description is a template, not an EL expression: `{expr}` substitutes the
+// runtime value of expr, so
+//
+//	State {state_config.state_code} has no income tax
+//
+// reports the actual state. Like every other postfix in the authoring view,
+// the compiled form is regenerated from Description on write-out — see
+// excel.CompilePolicyStatement — so hand-written statement postfix that has
+// drifted from its description is replaced, not preserved (#817).
+type PolicyStatement struct {
+	Column      int // 1-based rule column
+	Description string
+}
+
+// HandCodedRows reports rows that carry postfix but no DSL, as
+// "<kind> <number>" strings.
+//
+// These rows are the one thing a recompile destroys. syncToXML regenerates
+// every postfix from its DSL (#817), so a row whose only content IS postfix
+// comes back empty — its logic deleted, silently, by an operation that looks
+// like normalization. Four sample projects lost rows that way before anyone
+// noticed, because the emptied rows were not covered by any scenario.
+//
+// Author the EL first (read the stored postfix, write the DSL that compiles
+// to it, check they match), then recompile.
+func (t *Table) HandCodedRows() []string {
+	var out []string
+	for i, c := range t.xml.Contexts.Details {
+		if strings.TrimSpace(c.Postfix) != "" && strings.TrimSpace(c.DSL) == "" {
+			out = append(out, fmt.Sprintf("context %d", i+1))
+		}
+	}
+	for i, ia := range t.xml.EffectiveInitialActions() {
+		if strings.TrimSpace(ia.EffectivePostfix()) != "" && strings.TrimSpace(ia.EffectiveDSL()) == "" {
+			out = append(out, fmt.Sprintf("initial action %d", i+1))
+		}
+	}
+	for _, c := range t.xml.Conditions {
+		if strings.TrimSpace(c.Postfix) != "" && strings.TrimSpace(c.DSL) == "" {
+			out = append(out, "condition "+c.Number)
+		}
+	}
+	for _, a := range t.xml.Actions {
+		if strings.TrimSpace(a.Postfix) != "" && strings.TrimSpace(a.DSL) == "" {
+			out = append(out, "action "+a.Number)
+		}
+	}
+	return out
+}
+
 // newTable builds a Table view from an underlying XML struct.
 func newTable(x *excel.DecisionTableXML, symbols map[string]string) *Table {
 	t := &Table{
 		Name:    x.TableName,
-		Policy:  x.AttributeFields.Type,
+		Policy:  x.AttributeFields.EffectiveType(),
 		xml:     x,
 		symbols: symbols,
 	}
@@ -98,7 +152,7 @@ func newTableWithProject(x *excel.DecisionTableXML, symbols map[string]string, p
 // can carry it back through write-out.
 func (t *Table) syncFromXML() {
 	t.Name = t.xml.TableName
-	t.Policy = t.xml.AttributeFields.Type
+	t.Policy = t.xml.AttributeFields.EffectiveType()
 	t.Number, _ = strconv.Atoi(strings.TrimSpace(t.xml.AttributeFields.TableNumber))
 
 	t.Contexts = nil
@@ -110,7 +164,7 @@ func (t *Table) syncFromXML() {
 	}
 
 	t.InitialActions = nil
-	for _, ia := range t.xml.InitialActions {
+	for _, ia := range t.xml.EffectiveInitialActions() {
 		t.InitialActions = append(t.InitialActions, InitialAction{DSL: ia.EffectiveDSL()})
 	}
 
@@ -143,6 +197,18 @@ func (t *Table) syncFromXML() {
 			Columns: cols,
 		})
 	}
+
+	t.PolicyStatements = nil
+	for _, ps := range t.xml.PolicyStatements {
+		col, _ := strconv.Atoi(strings.TrimSpace(ps.Column))
+		t.PolicyStatements = append(t.PolicyStatements, PolicyStatement{
+			Column:      col,
+			Description: ps.Description,
+		})
+	}
+	sort.Slice(t.PolicyStatements, func(i, j int) bool {
+		return t.PolicyStatements[i].Column < t.PolicyStatements[j].Column
+	})
 }
 
 // syncToXML writes the typed view back into the underlying XML model,
@@ -163,8 +229,18 @@ func (t *Table) syncFromXML() {
 //     original. ActionPostfix is regenerated from the carried ActionDSL.
 //   - Contexts: position-by-position over the Details slice.
 func (t *Table) syncToXML() {
+	// One compiler for the whole table, so a local declared in a context row
+	// is in scope for the conditions and actions beneath it (#965). Rows are
+	// compiled below in table order — contexts, initial actions, conditions,
+	// actions — which is the order the slots have to be declared in.
+	tc := newTableCompiler(t.symbols)
+
 	t.xml.TableName = t.Name
+	// Write the canonical spelling and clear the legacy ones, so a table
+	// cannot end up carrying two different types.
 	t.xml.AttributeFields.Type = t.Policy
+	t.xml.AttributeFields.TypeUppercase = ""
+	t.xml.AttributeFields.TypeLowercase = ""
 	// Only write a number when one is set, so an unspecified number keeps the
 	// value AddTable auto-assigned rather than clobbering it with 0.
 	if t.Number > 0 {
@@ -185,25 +261,29 @@ func (t *Table) syncToXML() {
 			entry.Name = origDetails[i].Name
 			entry.Description = origDetails[i].Description
 		}
-		entry.Postfix = compileDSLOrEmpty(c.DSL, t.symbols, "context")
+		entry.Postfix = tc.compile(c.DSL, "context")
 		newDetails = append(newDetails, entry)
 	}
 	t.xml.Contexts.Details = newDetails
 
-	// Initial actions.
-	origInits := t.xml.InitialActions
+	// Initial actions. Read through the accessor so a table that arrived with
+	// the `<initial_action_details>` spelling keeps its rows, and write the
+	// canonical spelling only — same normalisation the legacy <TYPE> tag gets,
+	// so a table cannot end up carrying two lists.
+	origInits := t.xml.EffectiveInitialActions()
 	newInits := make([]excel.InitialActionXML, 0, len(t.InitialActions))
 	for i, ia := range t.InitialActions {
 		entry := excel.InitialActionXML{DSL: ia.DSL}
 		if i < len(origInits) {
-			entry.Comment = origInits[i].Comment
+			entry.Comment = origInits[i].EffectiveComment()
 			entry.ActionDSL = origInits[i].ActionDSL
-			entry.ActionPostfix = compileDSLOrEmpty(origInits[i].ActionDSL, t.symbols, "action")
+			entry.ActionPostfix = tc.compile(origInits[i].ActionDSL, "action")
 		}
-		entry.Postfix = compileDSLOrEmpty(ia.DSL, t.symbols, "action")
+		entry.Postfix = tc.compile(ia.DSL, "action")
 		newInits = append(newInits, entry)
 	}
 	t.xml.InitialActions = newInits
+	t.xml.InitialActionsLegacy = nil
 
 	// Conditions.
 	origConds := map[int]excel.ConditionXML{}
@@ -219,13 +299,17 @@ func (t *Table) syncToXML() {
 				cols = append(cols, excel.ColumnValueXML{Number: n, Value: v})
 			}
 		}
+		// Go map iteration is randomized, so writing columns in map order
+		// reshuffled them on every save and every authoring write produced a
+		// spurious diff. Emit them in column order.
+		sortColumns(cols)
 		entry := excel.ConditionXML{
 			Number:  strconv.Itoa(c.Number),
 			Comment: c.Comment,
 			DSL:     c.DSL,
 			Columns: cols,
 		}
-		entry.Postfix = compileDSLOrEmpty(c.DSL, t.symbols, "condition")
+		entry.Postfix = tc.compile(c.DSL, "condition")
 		t.xml.Conditions = append(t.xml.Conditions, entry)
 	}
 
@@ -238,48 +322,71 @@ func (t *Table) syncToXML() {
 				cols = append(cols, excel.ColumnValueXML{Number: n, Value: "X"})
 			}
 		}
+		sortColumns(cols)
 		entry := excel.ActionXML{
 			Number:  strconv.Itoa(a.Number),
 			Comment: a.Comment,
 			DSL:     a.DSL,
 			Columns: cols,
 		}
-		entry.Postfix = compileDSLOrEmpty(a.DSL, t.symbols, "action")
+		entry.Postfix = tc.compile(a.DSL, "action")
 		t.xml.Actions = append(t.xml.Actions, entry)
+	}
+
+	// Policy statements. Their postfix is compiled from the description
+	// template for the same reason every other postfix is (#817): a stored
+	// form that has drifted from the text it claims to render is a lie the
+	// next build would erase anyway.
+	t.xml.PolicyStatements = nil
+	for _, ps := range t.PolicyStatements {
+		t.xml.PolicyStatements = append(t.xml.PolicyStatements, excel.PolicyStatementXML{
+			Column:      strconv.Itoa(ps.Column),
+			Description: ps.Description,
+			Postfix:     excel.CompilePolicyStatement(ps.Description),
+		})
 	}
 }
 
-// compileDSLOrEmpty compiles a single element's DSL via the EL compiler
-// and returns the postfix. Empty DSL returns empty postfix. A compile
-// failure also returns empty — the mutation entry points all validate
-// via CheckXxx before storing, so a compile failure here means the
-// underlying XML was loaded with broken DSL; surfacing it as empty
-// postfix lets the loader's hand-coded-postfix check flag the table
-// rather than silently preserving a stale prior compile.
-//
-// Per #817, this is the ONLY path that writes <*_postfix> bytes in
-// the authoring round-trip. There is no carry-through from the
-// original XML's postfix content.
-func compileDSLOrEmpty(dsl string, symbols map[string]string, kind string) string {
-	if strings.TrimSpace(dsl) == "" {
-		return ""
+// sortColumns orders column entries by column number so write-out is
+// deterministic regardless of Go's randomized map iteration.
+func sortColumns(cols []excel.ColumnValueXML) {
+	sort.Slice(cols, func(i, j int) bool { return cols[i].Number < cols[j].Number })
+}
+
+// SetPolicyStatement sets the statement for a rule column, replacing any
+// existing one. Statements stay sorted by column.
+func (t *Table) SetPolicyStatement(column int, description string) error {
+	if column < 1 {
+		return fmt.Errorf("policy statement column must be >= 1, got %d", column)
 	}
-	var (
-		postfix string
-		err     error
-	)
-	switch kind {
-	case "context":
-		postfix, err = CheckContext(dsl, symbols)
-	case "condition":
-		postfix, err = CheckCondition(dsl, symbols)
-	case "action":
-		postfix, err = CheckAction(dsl, symbols)
+	for i := range t.PolicyStatements {
+		if t.PolicyStatements[i].Column == column {
+			t.PolicyStatements[i].Description = description
+			t.syncToXML()
+			return nil
+		}
 	}
-	if err != nil {
-		return ""
+	t.PolicyStatements = append(t.PolicyStatements, PolicyStatement{
+		Column:      column,
+		Description: description,
+	})
+	sort.Slice(t.PolicyStatements, func(i, j int) bool {
+		return t.PolicyStatements[i].Column < t.PolicyStatements[j].Column
+	})
+	t.syncToXML()
+	return nil
+}
+
+// DeletePolicyStatement removes the statement for a rule column.
+func (t *Table) DeletePolicyStatement(column int) error {
+	for i := range t.PolicyStatements {
+		if t.PolicyStatements[i].Column == column {
+			t.PolicyStatements = append(t.PolicyStatements[:i], t.PolicyStatements[i+1:]...)
+			t.syncToXML()
+			return nil
+		}
 	}
-	return postfix
+	return fmt.Errorf("no policy statement for column %d", column)
 }
 
 // Columns returns the number of rule columns in this table.

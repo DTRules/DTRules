@@ -41,30 +41,10 @@ func setupTaxReturn(b *testing.B) *session.RuleSet {
 
 	rs := session.NewRuleSet("TaxReturn")
 
-	// Load EDD
-	eddPath := filepath.Join(xmlDir, "TaxReturn_edd.xml")
-	eddFile, err := os.Open(eddPath)
-	if err != nil {
-		b.Fatalf("Failed to open EDD: %v", err)
-	}
-	defer eddFile.Close()
-
-	err = rs.LoadEDD(eddFile)
-	if err != nil {
-		b.Fatalf("Failed to load EDD: %v", err)
-	}
-
-	// Load Decision Tables
-	dtPath := filepath.Join(xmlDir, "TaxReturn_dt.xml")
-	dtFile, err := os.Open(dtPath)
-	if err != nil {
-		b.Fatalf("Failed to open DT: %v", err)
-	}
-	defer dtFile.Close()
-
-	err = rs.LoadDecisionTables(dtFile)
-	if err != nil {
-		b.Fatalf("Failed to load DT: %v", err)
+	// Load the whole xml/ tree (including states/) so Dispatch_State_Tax
+	// finds every XX_Tax table, matching how the other tax suites load.
+	if err := rs.LoadFromDirectory(xmlDir); err != nil {
+		b.Fatalf("Failed to load rules from %s: %v", xmlDir, err)
 	}
 
 	return rs
@@ -411,28 +391,10 @@ func setupTaxReturnForTest(t *testing.T) *session.RuleSet {
 
 	rs := session.NewRuleSet("TaxReturn")
 
-	eddPath := filepath.Join(xmlDir, "TaxReturn_edd.xml")
-	eddFile, err := os.Open(eddPath)
-	if err != nil {
-		t.Fatalf("Failed to open EDD: %v", err)
-	}
-	defer eddFile.Close()
-
-	err = rs.LoadEDD(eddFile)
-	if err != nil {
-		t.Fatalf("Failed to load EDD: %v", err)
-	}
-
-	dtPath := filepath.Join(xmlDir, "TaxReturn_dt.xml")
-	dtFile, err := os.Open(dtPath)
-	if err != nil {
-		t.Fatalf("Failed to open DT: %v", err)
-	}
-	defer dtFile.Close()
-
-	err = rs.LoadDecisionTables(dtFile)
-	if err != nil {
-		t.Fatalf("Failed to load DT: %v", err)
+	// Load the whole xml/ tree (including states/) so Dispatch_State_Tax
+	// finds every XX_Tax table, matching how the other tax suites load.
+	if err := rs.LoadFromDirectory(xmlDir); err != nil {
+		t.Fatalf("Failed to load rules from %s: %v", xmlDir, err)
 	}
 
 	return rs

@@ -17,6 +17,24 @@
 
   <!-- Maryland corporate tax constants -->
   <entity name="result">
+    <field name="md_apportioned_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_estimated_payments" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_gross_receipts" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_has_nexus" type="boolean" default_value="false"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_municipal_interest" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_refund_or_owed" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_tax_liability" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_taxable_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
+    <field name="md_us_interest_income" type="double" default_value="0.0"
+           comment="Declared from decision-table usage; referenced by MD but never declared (campaign #948 Phase 1)"/>
     <!-- Tax Rate -->
     <field name="md_corp_tax_rate" type="double" default_value="0.0825"
            comment="MD corporate income tax rate - 8.25% flat rate (MD Tax-General Code § 10-105)"/>

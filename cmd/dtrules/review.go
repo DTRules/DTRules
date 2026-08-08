@@ -45,6 +45,7 @@ type reviewReport struct {
 	Errors       []reviewError           `json:"errors"`
 	Warnings     []decisiontable.Warning `json:"warnings"`
 	EDDWarnings  []analysis.EDDWarning   `json:"edd_warnings"`
+	ContextHints []analysis.ContextSuggestion `json:"context_hints"`
 	Diagnostics  []authoring.Diagnostic  `json:"diagnostics"`
 	Structure    interface{}             `json:"structure"`
 	ELCompliance interface{}             `json:"el_compliance"`
@@ -96,8 +97,9 @@ func runFullReview(projectPath string) (*reviewReport, error) {
 		Timestamp:   time.Now().UTC().Format(time.RFC3339),
 		Errors:      []reviewError{},
 		Warnings:    []decisiontable.Warning{},
-		EDDWarnings: []analysis.EDDWarning{},
-		Diagnostics: []authoring.Diagnostic{},
+		EDDWarnings:  []analysis.EDDWarning{},
+		ContextHints: []analysis.ContextSuggestion{},
+		Diagnostics:  []authoring.Diagnostic{},
 	}
 
 	// 1. Structure validation.
@@ -207,6 +209,13 @@ func runFullReview(projectPath string) (*reviewReport, error) {
 	eddWarns, eddErr := analysis.AnalyzeEDDUsage(xmlDir)
 	if eddErr == nil {
 		rep.EDDWarnings = append(rep.EDDWarnings, eddWarns...)
+	}
+
+	// 5b. Context-push hints (advisory): entities referenced with a
+	// qualifier many times that could be pushed onto an entry table's
+	// context so their fields read unqualified. Never an error.
+	if hints, hintErr := analysis.SuggestContextPushes(xmlDir); hintErr == nil {
+		rep.ContextHints = append(rep.ContextHints, hints...)
 	}
 
 	// 6. Table call graph — orphan `perform <Name>` calls surface as

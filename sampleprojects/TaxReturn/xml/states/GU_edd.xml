@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
-	<entity name="result" xls_file="GU.xlsx" access="rw">
+	<file_metadata>
+		<file_path>GU_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="GU.xlsx" access="rw">
 		<field name="gu_bona_fide_resident" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer meets bona fide resident test for Guam"></field>
 		<field name="gu_closer_connection" type="boolean" subtype="" access="r" input="" default_value="false" comment="True if taxpayer has closer connection to Guam than US"></field>
 		<field name="gu_days_present" type="integer" subtype="" access="r" input="" default_value="0" comment="Number of days present in Guam during tax year (183+ required)"></field>

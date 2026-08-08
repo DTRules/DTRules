@@ -27,10 +27,16 @@ import (
 // 'policystatement', 'context'}" because the action-statement grammar
 // didn't list localvariables as an option.
 //
-// The emission shape stays the same as the context case — the existing
-// localvariables visitors already produce the runtime
-// `<value> cv<type> allocate execute deallocate pop` pattern that
-// scopes the local to the surrounding execution block.
+// The emission shape DIFFERS from the context case as of #904: at context
+// level the table body block is already on the data stack when the
+// declaration postfix runs, so the flat
+// `<value> cv<type> allocate execute deallocate pop` works. Inside an
+// action body there is no block on the stack — the flat shape underflowed
+// at `execute` while the statements using the local ran after
+// `deallocate`. The action form now wraps the remaining statements of the
+// list as the executed block:
+//
+//	<value> cv<type> allocate { <rest> } execute deallocate pop
 
 // TestIssue812_LocalEntityParsesInActionBody is the issue's headline
 // case: declare a fresh local entity at action-statement level, the
@@ -46,23 +52,24 @@ func TestIssue812_LocalEntityParsesInActionBody(t *testing.T) {
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
-	// Expected emission matches the same DSL when used in a context
-	// block (verified by an adjacent assertion below).
-	want := "/token_recipient createentity cve allocate execute deallocate pop"
+	// Action form: the rest of the statement list (here empty) is the
+	// executed block (#904).
+	want := "/token_recipient createentity cve allocate { } execute deallocate pop"
 	if got != want {
-		t.Errorf("action emission != context emission:\n  got:  %q\n  want: %q", got, want)
+		t.Errorf("action emission:\n  got:  %q\n  want: %q", got, want)
 	}
 
-	// Equivalence guard: the same DSL must produce identical postfix
-	// whether compiled as a context or an action. If the two diverge
-	// in the future, the runtime scope semantics could subtly differ
-	// and that's worth a loud failure.
+	// Context form keeps the flat shape — the table body block is on the
+	// stack at context level, so `execute` has its operand there. The two
+	// forms deliberately diverge (#904); this pins the context side.
+	c.ResetLocals()
 	ctxOut, err := c.CompileContext(dsl)
 	if err != nil {
 		t.Fatalf("compile (context): %v", err)
 	}
-	if got != ctxOut {
-		t.Errorf("action vs context emission must match:\n  action:  %q\n  context: %q", got, ctxOut)
+	ctxWant := "/token_recipient createentity cve allocate execute deallocate pop"
+	if ctxOut != ctxWant {
+		t.Errorf("context emission:\n  got:  %q\n  want: %q", ctxOut, ctxWant)
 	}
 }
 

@@ -37,6 +37,11 @@ type xmlFileInfo struct {
 	Number          int
 	IsDecisionTable bool
 	FilePath        string // The FILE_PATH or file_path value
+	// SuspectMerged marks a large EDD with no file_path. Whether that is
+	// a merged/generated artifact (skip) or a legitimate hand-maintained
+	// EDD (load) depends on whether sibling EDDs exist — decided by the
+	// caller, which can see the whole file set.
+	SuspectMerged bool
 }
 
 // shouldSkipFile determines if a file should be skipped during collection.
@@ -203,7 +208,7 @@ func parseFileMetadataFS(fsys fs.FS, filePath string) (*xmlFileInfo, error) {
 				base := filepath.Base(filePath)
 				base = strings.TrimSuffix(base, filepath.Ext(base))
 				if entityCount > 10 {
-					return nil, fmt.Errorf("EDD file missing file_path (likely a merged/generated file)")
+					info.SuspectMerged = true
 				}
 				filePathStr = base
 				info.FilePath = filePathStr
@@ -443,6 +448,22 @@ func LoadRulesFromFS(rs dtrules.RuleSet, fsys fs.FS, root string) error {
 		} else {
 			edds = append(edds, info)
 		}
+	}
+
+	// A large EDD with no file_path alongside OTHER EDDs is almost
+	// certainly the merged/generated artifact — loading it would define
+	// every entity twice. A lone one is a legitimate hand-maintained EDD
+	// (e.g. staking's rules dir, which never went through Excel) — load it.
+	if len(edds) > 1 {
+		kept := edds[:0]
+		for _, e := range edds {
+			if e.SuspectMerged {
+				fmt.Printf("Warning: skipping file %s: EDD missing file_path (likely a merged/generated file)\n", e.Path)
+				continue
+			}
+			kept = append(kept, e)
+		}
+		edds = kept
 	}
 
 	// Get session and factory

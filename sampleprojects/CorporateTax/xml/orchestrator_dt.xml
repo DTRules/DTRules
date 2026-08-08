@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 100: Run_Corporate_Tax -->
+<decision_table>
+<source>
+<relative_path>orchestrator.xlsx</relative_path>
+<file_name>orchestrator.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
+<table_name>Run_Corporate_Tax</table_name>
+<xls_file>orchestrator.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>a state must be selected</condition_comment>
+<condition_dsl>apportionment.state_code is not null</condition_dsl>
+<condition_postfix>
+apportionment.state_code isnull not
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>nexus: does this corporation file in the state at all?</action_comment>
+<action_dsl>perform table named ("Determine_" + apportionment.state_code + "_Filing_Requirement");</action_dsl>
+<action_postfix>
+"Determine_" apportionment.state_code strconcat "_Filing_Requirement" strconcat performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>state additions and subtractions to federal taxable income</action_comment>
+<action_dsl>perform table named ("Calculate_" + apportionment.state_code + "_Income_Adjustments");</action_dsl>
+<action_postfix>
+"Calculate_" apportionment.state_code strconcat "_Income_Adjustments" strconcat performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>the state's tax, credits, and refund-or-owed</action_comment>
+<action_dsl>perform table named ("Calculate_" + apportionment.state_code + "_State_Tax");</action_dsl>
+<action_postfix>
+"Calculate_" apportionment.state_code strconcat "_State_Tax" strconcat performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+</decision_tables>

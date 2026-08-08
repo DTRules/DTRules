@@ -3,6 +3,11 @@
 
 <!-- TABLE 41901: LA_Military_Retirement_Exclusion -->
 <decision_table>
+<source>
+<relative_path>LA.xlsx</relative_path>
+<file_name>LA.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
 <table_name>LA_Military_Retirement_Exclusion</table_name>
 <xls_file>LA.xlsx</xls_file>
 <attribute_fields>
@@ -19,6 +24,11 @@
 
 <!-- TABLE 41900: LA_Tax -->
 <decision_table>
+<source>
+<relative_path>LA.xlsx</relative_path>
+<file_name>LA.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>LA_Tax</table_name>
 <xls_file>LA.xlsx</xls_file>
 <attribute_fields>
@@ -30,20 +40,24 @@
 <initial_actions></initial_actions>
 <conditions>
 <condition_details>
-<condition_number>2</condition_number>
+<condition_number>1</condition_number>
 <condition_comment>Filing status is Married Filing Jointly or Head of Household; filing_status == "married_filing_jointly" OR filing_status == "head_of_household"</condition_comment>
 <condition_dsl>job.filing_status == "married_filing_jointly" || job.filing_status == "head_of_household"</condition_dsl>
-<condition_postfix>job.filing_status &quot;married_filing_jointly&quot; streq { pop job.filing_status &quot;head_of_household&quot; streq } over not if</condition_postfix>
+<condition_postfix>
+job.filing_status "married_filing_jointly" streq { pop job.filing_status "head_of_household" streq } over not if
+</condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="Y" />
 </condition_details>
 </conditions>
 <actions>
 <action_details>
-<action_number>2</action_number>
+<action_number>1</action_number>
 <action_comment>Calculate LA tax with joint/HOH standard deduction</action_comment>
 <action_dsl>set result.la_standard_deduction = la_standard_deduction_joint; set result.la_taxable_income = the maximum of (result.agi - result.la_standard_deduction) and 0.0; set result.la_tax = result.la_taxable_income * la_tax_rate; add "  LA flat tax (3%, MFJ/HOH std deduction): $" + result.la_tax to job.audit_trail</action_dsl>
-<action_postfix>la_standard_deduction_joint cvd /result.la_standard_deduction xdef result.agi result.la_standard_deduction - 0.0 fmax cvd /result.la_taxable_income xdef result.la_taxable_income la_tax_rate fmul cvi /result.la_tax xdef &quot;  LA flat tax (3%, MFJ/HOH std deduction): $&quot; result.la_tax strconcat job.audit_trail swap addto</action_postfix>
+<action_postfix>
+la_standard_deduction_joint cvi /result.la_standard_deduction xdef result.agi result.la_standard_deduction f- 0.0 fmax cvi /result.la_taxable_income xdef result.la_taxable_income la_tax_rate fmul cvi /result.la_tax xdef "  LA flat tax (3%, MFJ/HOH std deduction): $" result.la_tax strconcat job.audit_trail swap addto
+</action_postfix>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
