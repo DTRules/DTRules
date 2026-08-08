@@ -329,6 +329,12 @@ func (l *EDDLoader) processField(refEntity *entity.REntity, field *EDDField) err
 		return fmt.Errorf("failed to add field %s: %s", field.Name, errStr)
 	}
 
+	// Record the spelling the author used, so writing the EDD back out does
+	// not rename the field to whatever casing was interned first (#1040).
+	if entry := refEntity.GetEntry(attributeName); entry != nil {
+		entry.AuthoredName = strings.TrimSpace(field.Name)
+	}
+
 	// Carry collect/question metadata onto the entity entry (#850) so the
 	// runtime read-point and the Excel exporter can see it.
 	if strings.EqualFold(field.Collect, "true") {

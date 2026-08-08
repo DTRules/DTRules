@@ -669,7 +669,13 @@ func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*
 			f.SetCellValue(sheet, cellName(1, row), "")
 			f.SetCellStyle(sheet, cellName(1, row), cellName(1, row), rowStyle)
 
-			f.SetCellValue(sheet, cellName(2, row), attrName.StringValue())
+			// The authored spelling, not the interned one — see
+			// EntityEntry.AuthoredName (#1040).
+			fieldName := attrName.StringValue()
+			if entry.AuthoredName != "" {
+				fieldName = entry.AuthoredName
+			}
+			f.SetCellValue(sheet, cellName(2, row), fieldName)
 			f.SetCellStyle(sheet, cellName(2, row), cellName(2, row), s.attribute)
 
 			typeStyle := e.getTypeStyle(s, entry.Type.String())

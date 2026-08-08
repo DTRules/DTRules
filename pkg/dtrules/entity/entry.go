@@ -27,6 +27,13 @@ import (
 type EntityEntry struct {
 	Entity       *REntity       // The owning entity
 	Attribute    *dtrules.RName // The name of this attribute
+	// AuthoredName is the field name exactly as written in the EDD, before
+	// interning. RNames are case-insensitive and the intern cache keeps the
+	// first spelling seen across the whole process, so a field `Status` on one
+	// entity is reported as `status` when another entity declared `status`
+	// first — and the exporter wrote that back, renaming the author's field
+	// (#1040). Empty for entries created by paths that record no spelling.
+	AuthoredName string
 	DefaultTxt   string         // Text representation of default value
 	DefaultValue dtrules.Object // Default value (may be nil)
 	Writable     bool           // Whether attribute is writable by decision tables
