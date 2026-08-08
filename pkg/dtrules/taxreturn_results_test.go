@@ -6,6 +6,7 @@
 package dtrules_test
 
 import (
+	"encoding/xml"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -86,17 +87,13 @@ func TestTaxReturnResults(t *testing.T) {
 		t.Fatalf("Failed to find job entity: %v", err)
 	}
 
-	// Expected values based on test data (updated 2026-05-11):
-	// Includes: unemployment, gambling, alimony, state tax refund
-	// AOTC refundable portion properly split (40%/60%)
-	// Enhanced credit calculations
-	// Standard deduction reflects OBBBA Section 13404 (2025-2028):
-	// MFJ raised from $30,000 to $31,500, dropping taxable income by
-	// $1,500 and total tax by $330 (22% bracket) vs pre-OBBBA values.
-	expectedAGI := 252515.105850
-	expectedTaxable := 193875.105850
-	expectedTax := 35273.897309
-	expectedRefund := 0.0
+	// Expected values come from the scenario itself, not from a copy kept
+	// here. There used to be a copy here, it disagreed with the scenario's
+	// own <expected_*> on two of the four figures, and neither matched what
+	// the rules computed — three sets of numbers, none authoritative (#935).
+	// Reading them from the one file the scenario owns is what stops that
+	// recurring; see the comment there for what they do and do not mean.
+	expectedAGI, expectedTaxable, expectedTax, expectedRefund := expectedResults(t, testPath)
 
 	// Get computed results
 	resultsName := dtrules.GetRName("results")
@@ -1187,4 +1184,32 @@ func TestSouthCarolinaTax(t *testing.T) {
 			}
 		})
 	}
+}
+
+// expectedResults reads a scenario's <expected_*> figures.
+//
+// A scenario that declares no expectations is a failure, not a pass: the
+// silent-success mode this whole campaign kept finding is a test that asserts
+// nothing and reports green.
+func expectedResults(t *testing.T, scenarioPath string) (agi, taxable, tax, refund float64) {
+	t.Helper()
+
+	data, err := os.ReadFile(scenarioPath)
+	if err != nil {
+		t.Fatalf("read scenario: %v", err)
+	}
+	var scenario struct {
+		AGI     *float64 `xml:"expected_agi"`
+		Taxable *float64 `xml:"expected_taxable_income"`
+		Tax     *float64 `xml:"expected_total_tax"`
+		Refund  *float64 `xml:"expected_refund"`
+	}
+	if err := xml.Unmarshal(data, &scenario); err != nil {
+		t.Fatalf("%s is not well-formed XML: %v", scenarioPath, err)
+	}
+	if scenario.AGI == nil || scenario.Taxable == nil || scenario.Tax == nil || scenario.Refund == nil {
+		t.Fatalf("%s declares no expected_agi/taxable_income/total_tax/refund — "+
+			"there is nothing for this test to check", scenarioPath)
+	}
+	return *scenario.AGI, *scenario.Taxable, *scenario.Tax, *scenario.Refund
 }
