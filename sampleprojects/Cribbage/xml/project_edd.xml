@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>project_edd</file_path>
+	</file_metadata>
+	<entity name="card" number="100" access="rw">
+		<field name="rank" type="integer" subtype="" access="rw" input="true" default_value="" comment="1=Ace .. 13=King"></field>
+		<field name="suit" type="integer" subtype="" access="rw" input="true" default_value="" comment="0-3"></field>
+		<field name="value" type="integer" subtype="" access="rw" input="true" default_value="" comment="counting value: face cards are 10"></field>
+	</entity>
+	<entity name="combo" number="200" access="rw">
+		<field name="count" type="integer" subtype="" access="rw" input="" default_value="" comment="written by subsets/combinations; count, not size — SIZE is an EL keyword"></field>
+		<field name="sum" type="integer" subtype="" access="rw" input="" default_value="" comment="sum of member values"></field>
+		<field name="members" type="array" subtype="card" access="rw" input="" default_value="" comment=""></field>
+	</entity>
+	<entity name="grp" number="300" access="rw">
+		<field name="key" type="integer" subtype="" access="rw" input="" default_value="" comment="written by groupby: the shared field value"></field>
+		<field name="count" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="members" type="array" subtype="card" access="rw" input="" default_value="" comment=""></field>
+	</entity>
+	<entity name="hand" number="400" access="rw">
+		<field name="cards" type="array" subtype="card" access="rw" input="true" default_value="" comment="all five cards: the four kept plus the starter"></field>
+		<field name="kept" type="array" subtype="card" access="rw" input="true" default_value="" comment="the four kept cards only — flush and nobs never count the starter alone"></field>
+		<field name="starter_suit" type="integer" subtype="" access="rw" input="true" default_value="" comment=""></field>
+		<field name="is_crib" type="boolean" subtype="" access="rw" input="true" default_value="" comment="a crib flush needs all five cards"></field>
+		<field name="combos" type="array" subtype="combo" access="rw" input="" default_value="" comment="work: every subset of cards"></field>
+		<field name="rank_groups" type="array" subtype="grp" access="rw" input="" default_value="" comment="work: cards grouped by rank"></field>
+		<field name="suit_groups" type="array" subtype="grp" access="rw" input="" default_value="" comment="work: kept cards grouped by suit"></field>
+		<field name="run_list" type="array" subtype="seq" access="rw" input="" default_value="" comment="work: maximal rank runs"></field>
+		<field name="fifteen_points" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="pair_points" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="run_points" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="flush_points" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="nobs_points" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="total" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
+	</entity>
+	<entity name="seq" number="500" access="rw">
+		<field name="start" type="integer" subtype="" access="rw" input="" default_value="" comment="written by maximalruns: lowest rank in the run"></field>
+		<field name="span" type="integer" subtype="" access="rw" input="" default_value="" comment="run length; span, not length — LENGTH is an EL keyword"></field>
+		<field name="multiplicity" type="integer" subtype="" access="rw" input="" default_value="" comment="1 single, 2 double run, 4 double-double"></field>
+	</entity>
+</entity_data_dictionary>

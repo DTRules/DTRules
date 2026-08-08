@@ -1790,6 +1790,47 @@ Cast to double:
     (double) myArray[i]                       double    array element
 
 
+Combinatorial Operators
+-----------------------
+Generators that discover structures in an entity array — subsets, key
+groups, consecutive runs — and materialize each structure as an entity of
+a caller-named EDD type appended to a destination array. Tables then
+iterate the results with ordinary 'for all' contexts and score them with
+ordinary conditions: the loop stays in the operator, the policy stays in
+the table. All four are statement-form operator calls (#980).
+
+    combinations(src, k, "combo", "value", dest)
+        Every k-card combination of src as a "combo" entity with fields
+        members (the k entities, by reference), count, and sum of the
+        named integer field ("" skips the sum). Source cap: 20.
+
+    subsets(src, "combo", "value", dest)
+        Every non-empty subset of src: 2^n - 1 combo entities.
+        Source cap: 12 (4095 subsets).
+
+    groupby(src, "rank", "group", dest)
+        Partition src by an integer field; one "group" entity per
+        distinct value, in first-seen order, with fields key, count,
+        and members.
+
+    maximalruns(src, "rank", 3, "run", dest)
+        Every maximal interval of consecutive field values of length >=
+        minlen as a "run" entity with fields start, length, and
+        multiplicity (product of value counts: 2 = double run). The
+        fields are count and span, not size and length — those are EL
+        keywords.
+
+Example — cribbage fifteens, pairs, and runs from decision tables:
+
+    subsets(hand.cards, "combo", "value", hand.combos);
+    groupby(hand.cards, "rank", "group", hand.rank_groups);
+    maximalruns(hand.cards, "rank", 3, "run", hand.runs)
+
+then score with conditions like 'combo.sum == 15' (add 2),
+'group.count == 2/3/4' (add 2/6/12), and actions adding
+'run.span * run.multiplicity'.
+
+
 BigInt Operators
 ----------------
 Operator   EL Syntax                       Example
