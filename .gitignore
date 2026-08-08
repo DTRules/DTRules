@@ -56,7 +56,13 @@ generated-sources
 surefire-reports
 test-classes
 KidAid/testfiles/output/*.*
-testfiles/
+
+# Generated run artifacts under a project's testfiles/, but NOT the scenarios
+# themselves. This was a blanket `testfiles/` and it silently kept five sample
+# scenarios out of the repo — the tests that consume them passed locally and
+# could never have passed anywhere else (#865).
+testfiles/output/
+testfiles/**/*.trace.xml
 
 # Sync manifest (local state)
 .dtrules-manifest.json

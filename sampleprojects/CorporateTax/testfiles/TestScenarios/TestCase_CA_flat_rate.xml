@@ -1,0 +1,21 @@
+<job>
+  <id>1</id>
+  <test_case_name>CA flat 8.84% on 1,000,000 apportioned</test_case_name>
+  <tax_year>2025</tax_year>
+  <corporation>
+    <ein>94-0000001</ein>
+    <corporation_name>Golden State Widgets, Inc.</corporation_name>
+    <gross_receipts>25000000.0</gross_receipts>
+    <total_assets>10000000.0</total_assets>
+  </corporation>
+  <apportionment>
+    <state_code>CA</state_code>
+    <has_physical_presence>true</has_physical_presence>
+    <has_economic_nexus>true</has_economic_nexus>
+    <gross_receipts_in_state>5000000.0</gross_receipts_in_state>
+    <state_taxable_income>1000000.0</state_taxable_income>
+    <state_tax_rate>0.0884</state_tax_rate>
+    <state_payments>90000.0</state_payments>
+    <state_credits>0.0</state_credits>
+  </apportionment>
+</job>

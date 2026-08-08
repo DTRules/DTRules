@@ -1,0 +1,22 @@
+<job>
+  <id>3</id>
+  <test_case_name>MT flat 6.75% — a renamed _Corporate_ state driven through result.mt_*</test_case_name>
+  <tax_year>2025</tax_year>
+  <corporation>
+    <ein>81-0000003</ein>
+    <corporation_name>Big Sky Extraction Co.</corporation_name>
+  </corporation>
+  <apportionment>
+    <state_code>MT</state_code>
+    <has_physical_presence>true</has_physical_presence>
+    <has_economic_nexus>true</has_economic_nexus>
+  </apportionment>
+  <result>
+    <!-- Form CIT instructions: "a tax of 6.75 percent on their total Montana
+         net income". 800,000 x 6.75% = 54,000; payments 50,000 leaves 4,000 owed. -->
+    <mt_apportioned_income>800000.0</mt_apportioned_income>
+    <mt_estimated_payments>50000.0</mt_estimated_payments>
+    <mt_state_credits>0.0</mt_state_credits>
+    <has_physical_presence_mt>true</has_physical_presence_mt>
+  </result>
+</job>
