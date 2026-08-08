@@ -26,6 +26,7 @@ import (
 	"github.com/DTRules/DTRules/pkg/dtrules/compiler/el"
 	"github.com/DTRules/DTRules/pkg/dtrules/decisiontable"
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
+	"github.com/DTRules/DTRules/pkg/dtrules/operators"
 	dtrsync "github.com/DTRules/DTRules/pkg/dtrules/sync"
 )
 
@@ -40,7 +41,14 @@ import (
 // per-workbook during import.
 func newWorkbookImporter(xmlDir string) *excel.WorkbookImporter {
 	imp := excel.NewWorkbookImporter()
-	imp.SetELCompiler(el.NewCompiler())
+	c := el.NewCompiler()
+	// Reject calls to operators the engine does not implement, at build time
+	// rather than mid-execution (#1020).
+	c.SetOperatorChecker(func(name string) bool {
+		_, ok := operators.GetByString(name)
+		return ok
+	})
+	imp.SetELCompiler(c)
 	if syms := authoring.LoadEDDSymbols(xmlDir); len(syms) > 0 {
 		imp.SetSymbols(syms)
 	}

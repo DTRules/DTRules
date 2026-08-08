@@ -40,11 +40,18 @@ type LocalVar struct {
 // PostfixEmitter walks the EL parse tree and emits postfix notation.
 type PostfixEmitter struct {
 	*BaseELVisitor
-	output    strings.Builder
-	errors    []error
-	symbols   map[string]string   // symbol table for type resolution from EDD
-	locals    map[string]LocalVar // local variable stack frame indices
-	localCnt  int                 // next available local variable index
+	output  strings.Builder
+	errors  []error
+	symbols map[string]string // symbol table for type resolution from EDD
+	// operatorExists reports whether a statement-form operator name is
+	// registered with the engine. Injected rather than imported: the runtime
+	// registry lives under pkg/dtrules/operators, which imports pkg/dtrules,
+	// and pkg/dtrules's own tests import this package — importing it here
+	// closes that loop. nil means no check, which is what el's isolated unit
+	// tests want when they exercise emission with a stand-in operator name.
+	operatorExists    func(string) bool
+	locals            map[string]LocalVar // local variable stack frame indices
+	localCnt          int                 // next available local variable index
 	resolveCollection func(entityType string) (ownerEntity, fieldName string, err error)
 }
 
@@ -5000,8 +5007,10 @@ func (e *PostfixEmitter) VisitAddStrNoDupsDup(ctx *AddStrNoDupsDupContext) inter
 // VisitForctl: `for <leftIexpr> = <number>; <bexpr>; <statement>`.
 // Context-position only (reachable via contextForTable/contextFor). The
 // outer table body is on the data stack when this runs. Emit:
-//   init: <number> cvi leftIexpr-assign
-//   loop: { dup execute <statement> } { <bexpr> } while pop
+//
+//	init: <number> cvi leftIexpr-assign
+//	loop: { dup execute <statement> } { <bexpr> } while pop
+//
 // The body block dups the table body and executes it, then runs the
 // increment statement; the test block evaluates bexpr. After while consumes
 // body and test, the surviving outer body is dropped with pop.
@@ -5760,8 +5769,29 @@ func (e *PostfixEmitter) VisitPrintArray(ctx *PrintArrayContext) interface{} {
 // then the operator name as an executable token. The runtime's executable-
 // name dispatch finds the op and invokes it.
 func (e *PostfixEmitter) VisitOperatorstatements(ctx *OperatorstatementsContext) interface{} {
+	name := ctx.TypedOperator().GetText()
+
+	// Reject a name the engine does not implement, here rather than at
+	// execution.
+	//
+	// Nothing on this path used to check the registry, so `subests(...)` for
+	// `subsets(...)` compiled clean, wrote postfix, passed build, and failed
+	// only when that row ran — as "The Name 'subests' was not defined by any
+	// Entity on the Entity Stack", which does not read like a typo (#1020).
+	// For a rule set computing money that is a defect discovered mid-period.
+	//
+	// Checked against the registry directly: operators does not import el, so
+	// there is no cycle, and a compiler that emits operator names should know
+	// which ones exist. An injected checker would be forgettable, which is how
+	// the EL compiler came to be missing from `sync import` in #929.
+	if e.operatorExists != nil && !e.operatorExists(name) {
+		e.emitError("unknown operator %q — it is not registered with the engine; "+
+			"check the spelling, or see `dtrules docs operators` for the list", name)
+		return nil
+	}
+
 	e.Visit(ctx.Operatorlist())
-	e.emit(ctx.TypedOperator().GetText())
+	e.emit(name)
 	return nil
 }
 
@@ -5806,8 +5836,8 @@ func (e *PostfixEmitter) VisitBoolMatchForall(ctx *BoolMatchForallContext) inter
 	// Inner existence check over arr2
 	e.emit("false")
 	e.emit("{")
-	e.Visit(ctx.Nexpr())     // y.<nexpr>
-	e.emit("1")              // depth 1 = outer element x
+	e.Visit(ctx.Nexpr()) // y.<nexpr>
+	e.emit("1")          // depth 1 = outer element x
 	e.emit("entityfetch")
 	e.emit("==")
 	e.emit("or")
@@ -7419,8 +7449,6 @@ func (e *PostfixEmitter) VisitDateNewYMDInZone(ctx *DateNewYMDInZoneContext) int
 	return nil
 }
 
-
-
 func (e *PostfixEmitter) VisitDateNewYMDInZoneWithDST(ctx *DateNewYMDInZoneWithDSTContext) interface{} {
 	e.Visit(ctx.Iexpr(0))
 	e.Visit(ctx.Iexpr(1))
@@ -7442,7 +7470,6 @@ func (e *PostfixEmitter) VisitDateNewYMDhmsInZone(ctx *DateNewYMDhmsInZoneContex
 	e.emit("newdateinzone")
 	return nil
 }
-
 
 func (e *PostfixEmitter) VisitDateNewYMDhmsInZoneWithDST(ctx *DateNewYMDhmsInZoneWithDSTContext) interface{} {
 	for i := 0; i < 6; i++ {

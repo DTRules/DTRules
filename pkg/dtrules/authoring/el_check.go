@@ -28,6 +28,7 @@ import (
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/compiler/el"
+	"github.com/DTRules/DTRules/pkg/dtrules/operators"
 )
 
 // CheckCondition compiles an EL condition expression to postfix using the
@@ -38,7 +39,7 @@ func CheckCondition(elStr string, symbols map[string]string) (postfix string, er
 	if elStr == "" {
 		return "", nil
 	}
-	c := el.NewCompiler()
+	c := newCheckedCompiler()
 	if symbols != nil {
 		c.SetSymbols(symbols)
 	}
@@ -47,7 +48,7 @@ func CheckCondition(elStr string, symbols map[string]string) (postfix string, er
 
 // CheckAction compiles an EL action statement to postfix. See CheckCondition.
 func CheckAction(elStr string, symbols map[string]string) (postfix string, err error) {
-	c := el.NewCompiler()
+	c := newCheckedCompiler()
 	if symbols != nil {
 		c.SetSymbols(symbols)
 	}
@@ -56,7 +57,7 @@ func CheckAction(elStr string, symbols map[string]string) (postfix string, err e
 
 // CheckContext compiles an EL context statement to postfix. See CheckCondition.
 func CheckContext(elStr string, symbols map[string]string) (postfix string, err error) {
-	c := el.NewCompiler()
+	c := newCheckedCompiler()
 	if symbols != nil {
 		c.SetSymbols(symbols)
 	}
@@ -88,7 +89,7 @@ type tableCompiler struct {
 
 // newTableCompiler starts a fresh local scope for one table.
 func newTableCompiler(symbols map[string]string) *tableCompiler {
-	c := el.NewCompiler()
+	c := newCheckedCompiler()
 	if symbols != nil {
 		c.SetSymbols(symbols)
 	}
@@ -120,4 +121,20 @@ func (tc *tableCompiler) compile(dsl, kind string) string {
 		return ""
 	}
 	return postfix
+}
+
+// newCheckedCompiler builds an EL compiler that rejects calls to operators the
+// engine does not implement.
+//
+// Every authoring entry point goes through here, so a misspelled operator is
+// refused when the rule is written rather than when the row runs — the
+// difference between a parse error at your desk and "The Name 'subests' was not
+// defined by any Entity on the Entity Stack" mid-period (#1020).
+func newCheckedCompiler() *el.Compiler {
+	c := el.NewCompiler()
+	c.SetOperatorChecker(func(name string) bool {
+		_, ok := operators.GetByString(name)
+		return ok
+	})
+	return c
 }
