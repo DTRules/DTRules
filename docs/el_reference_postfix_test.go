@@ -55,6 +55,13 @@ var probeTargets = []string{"probe.i", "probe.d", "probe.s", "probe.b", "probe.d
 //
 // Every **Example (EL)** is compiled here and its **Compiled postfix** line
 // must be exactly what came out.
+// notImplementedMarker labels an entry whose syntax the grammar accepts but
+// the compiler lowers to a runtime-error stub. Such entries are documented —
+// the grammar really does have them — but a rule author must be able to tell
+// them from working syntax at a glance, which `map ... through` claiming a
+// `mapthrough` postfix it never emitted did not allow (#1021).
+const notImplementedMarker = "**Status**: NOT IMPLEMENTED"
+
 func TestELReference_PostfixMatchesCompiler(t *testing.T) {
 	symbols := authoring.LoadEDDSymbols(elRefEDDDir)
 	if len(symbols) == 0 {
@@ -71,11 +78,20 @@ func TestELReference_PostfixMatchesCompiler(t *testing.T) {
 	scanner.Buffer(make([]byte, 1<<20), 1<<20)
 
 	var pendingEL string
-	var pendingLine, lineNo, checked int
+	var pendingLine, lineNo, checked, unlabelled int
+	var entryMarkedUnimplemented bool
 	for scanner.Scan() {
 		lineNo++
 		line := scanner.Text()
 
+		// A #### heading starts a new entry, so the NOT IMPLEMENTED label
+		// cannot leak from the entry above it.
+		if strings.HasPrefix(line, "####") {
+			entryMarkedUnimplemented = false
+		}
+		if strings.HasPrefix(line, notImplementedMarker) {
+			entryMarkedUnimplemented = true
+		}
 		if m := elExampleLine.FindStringSubmatch(line); m != nil {
 			pendingEL, pendingLine = m[1], lineNo
 			continue
@@ -85,6 +101,13 @@ func TestELReference_PostfixMatchesCompiler(t *testing.T) {
 			got, err := compileELExample(pendingEL, symbols)
 			if err != nil {
 				t.Errorf("%s:%d: EL does not compile: %s\n  %v", elRefFile, pendingLine, pendingEL, err)
+			} else if strings.Contains(got, "elstmterror") && !entryMarkedUnimplemented {
+				unlabelled++
+				t.Errorf("%s:%d: documented syntax compiles to a runtime-error stub but is not labelled\n"+
+					"  EL:     %s\n  emits:  %s\n"+
+					"Add a %q line to the entry, or remove the entry. Documenting dead syntax as usable\n"+
+					"is how `map ... through` sat in this reference claiming a `mapthrough` postfix it\n"+
+					"never emitted (#1021).", elRefFile, pendingLine, pendingEL, got, notImplementedMarker)
 			} else if got != normalizePostfix(m[1]) {
 				t.Errorf("%s:%d: documented postfix is not what the compiler emits\n  EL:       %s\n  document: %s\n  compiler: %s",
 					elRefFile, pendingLine, pendingEL, normalizePostfix(m[1]), got)
@@ -117,6 +140,7 @@ func TestELReference_PostfixMatchesCompiler(t *testing.T) {
 	// content count: if the example markup changes shape the extractor stops
 	// matching and silently checks nothing, which is the one way this test
 	// could pass while the page rots.
+	_ = unlabelled
 	if checked < 110 {
 		t.Errorf("only %d EL/postfix pairs checked in %s — the extractor has drifted from the page's example format",
 			checked, elRefFile)

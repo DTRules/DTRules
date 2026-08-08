@@ -636,6 +636,7 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 
 **Syntax**: `MAP arrayExpr THROUGH texpr`
 **Semantics**: Apply a decision table to each element and collect results. Postfix: `mapthrough`.
+**Status**: NOT IMPLEMENTED — the grammar accepts this, but the compiler emits a runtime-error stub. Do not use it in a rule.
 **Example (EL)**: `map brackets through Apply_Bracket`
 **Compiled postfix**: `"map ... through ... not yet implemented" elstmterror`
 
@@ -731,6 +732,7 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 
 **Syntax**: `EARLIEST OF arrayExpr AFTER dexpr`
 **Semantics**: Returns the earliest date in an array that is after a given date.
+**Status**: NOT IMPLEMENTED — the grammar accepts this, but the compiler emits a runtime-error stub. Do not use it in a rule.
 **Example (EL)**: `earliest of pending_dates after current date`
 **Compiled postfix**: `"earliest of <arr> after <d> not yet implemented (needs earliestafter runtime op)" elstmterror`
 
@@ -752,6 +754,7 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 
 **Syntax**: `(long) typedTable(key)` / `(double) typedTable(key)` / `(string) typedTable(key)`
 **Semantics**: Look up a value in a named decision table using a key string.
+**Status**: NOT IMPLEMENTED — the grammar accepts this, but the compiler emits a runtime-error stub. Do not use it in a rule.
 **Example (EL)**: `(double) bracket_table("0.22")`
 **Compiled postfix**: `"hash tables removed — (double) table-lookup unsupported" elstmterror 0.0`
 
@@ -773,6 +776,7 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 
 **Syntax**: `mapping key`
 **Semantics**: Returns the current key when iterating over a mapped structure.
+**Status**: NOT IMPLEMENTED — the grammar accepts this, but the compiler emits a runtime-error stub. Do not use it in a rule.
 **Example (EL)**: `mapping key == "CHIP"`
 **Compiled postfix**: `"mappingkey not yet implemented" elstmterror "CHIP" streq`
 
@@ -780,6 +784,7 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 
 **Syntax**: `RELATIONSHIP_BETWEEN eexpr AND eexpr`
 **Semantics**: Returns the relationship string between two entities.
+**Status**: NOT IMPLEMENTED — the grammar accepts this, but the compiler emits a runtime-error stub. Do not use it in a rule.
 **Example (EL)**: `relationship between person and household.head == "SPOUSE"`
 **Compiled postfix**: `"relationship between ... not yet implemented" elstmterror "SPOUSE" streq`
 
@@ -1045,9 +1050,11 @@ typedXmlValue : add attribute strexpr = xmlvalues
 ```
 
 **Semantics**: Set or add an XML attribute on an entity's backing XML element.
+**Status**: NOT IMPLEMENTED — the grammar accepts this, but the compiler emits a runtime-error stub. Do not use it in a rule.
 **Example (EL)**: `w2 : set attribute "wages" = w2.wages`
 **Compiled postfix**: `"xml mutation unsupported — xmlvaluestatements have no runtime" elstmterror`
 
+**Status**: NOT IMPLEMENTED — the grammar accepts this, but the compiler emits a runtime-error stub. Do not use it in a rule.
 **Example (EL)**: `w2 : add attribute "employer" = employer_name`
 **Compiled postfix**: `"xml mutation unsupported — xmlvaluestatements have no runtime" elstmterror`
 
@@ -1120,6 +1127,7 @@ See [Local Variables](#local-variables) section.
 
 **Syntax**: `MAP arrayExpr THROUGH texpr`
 **Semantics**: Apply a decision table to each element in an array and collect the results into a new array.
+**Status**: NOT IMPLEMENTED — the grammar accepts this, but the compiler emits a runtime-error stub. Do not use it in a rule.
 **Example (EL)**: `map brackets through Apply_Bracket`
 **Compiled postfix**: `"map ... through ... not yet implemented" elstmterror`
 
@@ -1174,6 +1182,7 @@ there is no eexpr in eexpr where bexpr
 
 **Syntax**: `FIRST eexpr IN arrayExpr WHERE bexpr`
 **Semantics**: Returns the first element in an array matching a condition, or null.
+**Status**: NOT IMPLEMENTED — the grammar accepts this, but the compiler emits a runtime-error stub. Do not use it in a rule.
 **Example (EL)**: `first person in household.members where person.is_adult`
 **Compiled postfix**: `"first <e> in <arr> where ... not yet implemented (needs firstwhere runtime op)" elstmterror`
 

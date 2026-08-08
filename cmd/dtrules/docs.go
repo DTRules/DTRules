@@ -201,12 +201,14 @@ Built-in integer functions:
     long value of myOperator(args)        integer result from a custom operator
 
 Mutating integer operations (used in actions):
-    add to myLong 5                add 5 to variable
-    subtract from myLong 3         subtract 3 from variable
-    multiply myLong by 2           multiply variable in place
-    divide myLong by 4             divide variable in place
+    add 5 to myLong                add 5 to variable
+    subtract 3 from myLong         subtract 3 from variable
     increment myLong               add 1
     decrement myLong               subtract 1
+
+    There is no in-place multiply or divide shortcut; write the assignment:
+    set myLong = myLong * 2
+    set myLong = myLong / 4
 
 Cast to integer:
     (long) "42"                    parse string to integer
@@ -245,10 +247,10 @@ Min / max (also 'smaller of' / 'larger of'; 'the' is optional):
     the maximum of (result.agi - deduction) and 0.0
 
 Mutating double operations:
-    add to myDouble 1.5            add to variable in place
-    subtract from myDouble 0.5     subtract from variable in place
-    multiply myDouble by 1.1       multiply in place
-    divide myDouble by 2.0         divide in place
+    add 1.5 to myDouble            add to variable in place
+    subtract 0.5 from myDouble     subtract from variable in place
+    set myDouble = myDouble * 1.1  multiply in place (no shortcut form)
+    set myDouble = myDouble / 2.0  divide in place (no shortcut form)
 
 Cast to double:
     (double) "3.14"                parse string to double
@@ -1565,14 +1567,16 @@ Mutating shortcuts (action statements):
     decrement myLong                          (subtracts 1)
     increment myDouble
     decrement myDouble
-    add to myLong 5                           (myLong = myLong + 5)
-    subtract from myLong 3                    (myLong = myLong - 3)
-    multiply myLong by 2                      (myLong = myLong * 2)
-    divide myLong by 4                        (myLong = myLong / 4)
-    add to myDouble 1.5
-    subtract from myDouble 0.5
-    multiply myDouble by 1.1
-    divide myDouble by 2.0
+    add 5 to myLong                           (myLong = myLong + 5)
+    subtract 3 from myLong                    (myLong = myLong - 3)
+    add 1.5 to myDouble
+    subtract 0.5 from myDouble
+
+    No in-place multiply or divide shortcut exists — use the assignment form:
+    set myLong = myLong * 2                   (myLong = myLong * 2)
+    set myLong = myLong / 4                   (myLong = myLong / 4)
+    set myDouble = myDouble * 1.1
+    set myDouble = myDouble / 2.0
 
 
 Comparison Operators
