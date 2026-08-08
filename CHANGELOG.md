@@ -1,5 +1,65 @@
 # DTRules Changelog
 
+## v1.22.1 — 2026-08-08
+
+A patch release, and every fix in it is the same bug wearing different
+clothes: something reported success while doing nothing, or while doing the
+wrong thing quietly. Two of them affect anyone running v1.22.0.
+
+### Fixed
+
+- **`dtrules sync import` wrote every postfix empty** (#929). It built its
+  importer without the EL compiler — only `build` used the constructor that
+  wires one. Against the same workbook `build` compiles correctly, `sync
+  import` produced a 490-line degradation of KidAid's decision table, dropped
+  `el_compiled`, and printed `✓ Imported 1 file(s)`. The result loads and
+  decides nothing. `dtrules verify` had the same bare importer, so it was
+  verifying a pipeline nobody runs. Both now use the same constructor as
+  `build`, and the two pipelines produce byte-identical XML.
+- **The editor's Save kept the postfix from before the edit** (#928). The save
+  path merged edited DSL into the XML without recompiling, which is worse than
+  writing none: the file stays well-formed and loads, so the table goes on
+  executing the old logic while displaying the new. The editor disagreed with
+  itself, too — "Run speculation" has always compiled. Save now compiles, and
+  a compile failure fails the save (HTTP 400, naming the table) instead of
+  being written past.
+- **CHIP counted a household of one** (#962). A mapping tag that both creates
+  an entity and sets an attribute — `<source id="1001"/>` inside a
+  `<relationship>` — resolved its enclosure against the entity it had just
+  pushed, so `relationship.source` and `.target` were null on every
+  relationship CHIP ever loaded. The open question in #962 was which of two
+  data-model changes to make; neither could have worked, because the endpoints
+  the two designs disagreed about were never there.
+- **Five sample scenarios were never in the repository** (#998). A blanket
+  `testfiles/` in `.gitignore` kept every scenario written during the sample
+  campaign out of git — CorporateTax's CA/ME/MT, ChipApp's,
+  KidAid_Application's. The tests consuming them passed on one machine and
+  could not have passed on any other checkout. The rule is narrowed to the
+  generated artifacts it was aimed at.
+- **TaxReturn had three sets of expected values** (#935), no two agreeing: one
+  hardcoded in the test, one in the scenario, and a third from the rules. The
+  test now reads the scenario, so there is one place to update. The values are
+  labelled for what they are — a regression guard, not a verified tax result —
+  and the external reference figures are kept alongside, documented and
+  unasserted.
+
+### Added
+
+- **Rules-reference PDF for SinusitisTherapy** (#865), linked from the
+  `/sinusitis` page: the EDD, the interview questions, and all six decision
+  tables as classic grids. `cmd/tabledoc` generates it for any project, and a
+  digest test fails when the rules change without the shipped PDF being
+  regenerated.
+
+### Also
+
+- The compiler skip is no longer silent: an importer that has DSL to compile
+  and no compiler records a drop naming the table and row count, so the next
+  path that forgets cannot fail quietly.
+- The sample repair campaign (#948) is closed;
+  `docs/sample-repair-campaign.md` carries the full record and what was
+  deliberately left open.
+
 ## v1.22.0 — 2026-08-07
 
 The samples release: every sample project in the repository now loads, runs
