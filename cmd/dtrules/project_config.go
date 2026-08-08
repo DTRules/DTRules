@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/DTRules/DTRules/pkg/dtrules/sync"
 )
 
 // projectConfig holds optional project settings declared in DTRules.xml.
@@ -99,4 +101,26 @@ func checkDirWithHint(dir, flagName string) error {
 		"could not find directory\n  Tried: %s\n  Use %s <path> or declare the element in DTRules.xml.",
 		dir, flagName,
 	)
+}
+
+// validateStructure runs the project-structure check against the directories
+// the project actually declares.
+//
+// `sync.ValidateProjectStructure` falls back to the literal "excel" and "xml"
+// names when given no override, which is right for the function but wrong for
+// every caller that has a manifest available and does not pass it. `review`
+// and the MCP project tools both passed empty strings, so a project declaring
+// <excel_dir>source</excel_dir> was told `excel/ directory not found` — naming
+// a path it does not use — while `verify` on the same project resolved it
+// correctly. One layout, two answers (#1031).
+//
+// Callers with their own --xml-dir/--excel-dir flags should keep calling
+// resolveDirs themselves and pass the result; this is for the callers that
+// have no flags to honour.
+func validateStructure(projectRoot string) (*sync.StructureValidationResult, error) {
+	xmlDir, excelDir, err := resolveDirs(projectRoot, "", "")
+	if err != nil {
+		return nil, err
+	}
+	return sync.ValidateProjectStructure(projectRoot, xmlDir, excelDir)
 }

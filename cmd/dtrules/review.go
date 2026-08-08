@@ -103,7 +103,7 @@ func runFullReview(projectPath string) (*reviewReport, error) {
 	}
 
 	// 1. Structure validation.
-	structRes, err := sync.ValidateProjectStructure(projectPath, "", "")
+	structRes, err := validateStructure(projectPath)
 	if err != nil {
 		rep.Errors = append(rep.Errors, reviewError{
 			Category: reviewCategoryStructure,
