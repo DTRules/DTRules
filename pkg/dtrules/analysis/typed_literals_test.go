@@ -14,7 +14,10 @@
 
 package analysis
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 // TestTypedNumericLiteralsAreNotOperators pins #1006.
 //
@@ -42,11 +45,23 @@ func TestTypedNumericLiteralsAreNotOperators(t *testing.T) {
 		// HEX_BYTES_LITERAL: '0x' HEX_DIGIT*
 		"0x1f", "0xdeadbeef", "0xDEADBEEF", "0x",
 	}
+	// Every single digit, because the reported symptom was specific to one
+	// value (`0fp`) and "is it fixed for 5fp too?" is the obvious next
+	// question. It is not digit-dependent, and this says so.
+	for d := 0; d <= 9; d++ {
+		literals = append(literals, fmt.Sprintf("%dfp", d))
+	}
+	literals = append(literals,
+		"10fp", "100fp", "999fp", "123456789fp", "007fp", "00fp",
+		"0.0fp", "5.0fp", "12.34fp", "0.00000001fp",
+	)
+
 	for _, tok := range literals {
 		if operatorCandidate(tok) {
 			t.Errorf("%q treated as an operator; it is a literal the compiler emits verbatim", tok)
 		}
 	}
+	t.Logf("checked %d typed-literal forms", len(literals))
 }
 
 // TestTypedLiteralFixIsNotOverPermissive keeps the #1006 fix from swallowing
