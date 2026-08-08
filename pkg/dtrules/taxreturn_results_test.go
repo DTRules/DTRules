@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -205,7 +206,6 @@ func TestTaxReturnResults(t *testing.T) {
 	checkValueResult(t, "Total Tax", totalTax, expectedTax, 100)
 	checkValueResult(t, "Refund", refund, expectedRefund, 100)
 }
-
 
 func checkValueResult(t *testing.T, name string, actual, expected, tolerance float64) {
 	diff := actual - expected
@@ -600,7 +600,49 @@ func TestNewTaxScenarios(t *testing.T) {
 			if agi == 0 && taxableIncome == 0 {
 				t.Errorf("Calculation produced zero AGI and taxable income")
 			}
+
+			assertNoValidationFailures(t, job)
 		})
+	}
+}
+
+// assertNoValidationFailures fails when TaxReturn's own rules report a
+// mismatch.
+//
+// The rule set validates itself: Validate_Summary compares computed figures
+// against the scenario's expected values and appends the verdict to
+// job.audit_trail. Nothing listened, so a passing run contained
+//
+//	FAIL: Taxable income mismatch - calculated $42250 vs expected $43000
+//	VALIDATION: SOME TESTS FAILED
+//
+// and reported success — the engine detected the problem, wrote it down,
+// printed it, and discarded it (#1000).
+//
+// The audit trail is the assertion surface rather than a Go-side comparison
+// deliberately: the rules already know which fields matter and what they
+// should be, and a second copy in Go is exactly the divergence #935 was.
+func assertNoValidationFailures(t *testing.T, job dtrules.Entity) {
+	t.Helper()
+
+	auditObj, _ := job.Get(dtrules.GetRName("audit_trail"))
+	if auditObj == nil {
+		return
+	}
+	auditArr, _ := auditObj.ArrayValue()
+
+	var failures []string
+	for _, entry := range auditArr {
+		line := strings.TrimSpace(entry.StringValue())
+		// Collect the per-check lines rather than the "SOME TESTS FAILED"
+		// summary: they name which figure is wrong.
+		if strings.HasPrefix(line, "FAIL:") {
+			failures = append(failures, line)
+		}
+	}
+	if len(failures) > 0 {
+		t.Errorf("the rules report %d validation failure(s) of their own:\n  %s",
+			len(failures), strings.Join(failures, "\n  "))
 	}
 }
 
@@ -622,21 +664,21 @@ func Test2025Constants(t *testing.T) {
 	// These verify that 2025 standard deductions are applied correctly
 	// Tax amounts calculated using 2025 brackets per Rev. Proc. 2024-40
 	testCases := []struct {
-		name             string
-		file             string
-		expectedAGI      float64
-		expectedTaxable  float64
-		expectedTax      float64
-		expectedStdDed   float64
-		description      string
+		name            string
+		file            string
+		expectedAGI     float64
+		expectedTaxable float64
+		expectedTax     float64
+		expectedStdDed  float64
+		description     string
 	}{
 		{
 			name:            "Single_W2_Standard",
 			file:            "Level1_Simple/TestCase_L1_01_Single_W2_Standard.xml",
 			expectedAGI:     65000,
-			expectedTaxable: 49250,  // 65000 - 15750 std ded
-			expectedTax:     5749,   // 2025 brackets: 10% on $11,925 + 12% on $36,550 + 22% on $775
-			expectedStdDed:  15750,  // 2025 Single std ded per Rev. Proc. 2024-40
+			expectedTaxable: 49250, // 65000 - 15750 std ded
+			expectedTax:     5749,  // 2025 brackets: 10% on $11,925 + 12% on $36,550 + 22% on $775
+			expectedStdDed:  15750, // 2025 Single std ded per Rev. Proc. 2024-40
 			description:     "Verifies Single standard deduction $15,750",
 		},
 		{
@@ -652,9 +694,9 @@ func Test2025Constants(t *testing.T) {
 			name:            "HOH_W2_One_Child",
 			file:            "Level1_Simple/TestCase_L1_04_HOH_W2_One_Child.xml",
 			expectedAGI:     70000,
-			expectedTaxable: 46375,  // 70000 - 23625 std ded
-			expectedTax:     3127,   // HOH brackets - credits
-			expectedStdDed:  23625,  // 2025 HOH std ded per Rev. Proc. 2024-40
+			expectedTaxable: 46375, // 70000 - 23625 std ded
+			expectedTax:     3127,  // HOH brackets - credits
+			expectedStdDed:  23625, // 2025 HOH std ded per Rev. Proc. 2024-40
 			description:     "Verifies HOH standard deduction $23,625",
 		},
 	}
@@ -1054,32 +1096,32 @@ func TestSouthCarolinaTax(t *testing.T) {
 
 	// Test cases for SC tax implementation
 	testCases := []struct {
-		name            string
-		file            string
-		expectedAGI     float64
-		expectedSCTax   float64
-		description     string
+		name          string
+		file          string
+		expectedAGI   float64
+		expectedSCTax float64
+		description   string
 	}{
 		{
-			name:        "SC_Low_Income",
-			file:        "SC/TestCase_SC_Low_Income.xml",
-			expectedAGI: 18000,
+			name:          "SC_Low_Income",
+			file:          "SC/TestCase_SC_Low_Income.xml",
+			expectedAGI:   18000,
 			expectedSCTax: 0, // SC taxable: $2,250 (under $3,560 threshold, 0% bracket)
-			description: "SC resident with income under first bracket threshold",
+			description:   "SC resident with income under first bracket threshold",
 		},
 		{
-			name:        "SC_Middle_Income",
-			file:        "SC/TestCase_SC_Middle_Income.xml",
-			expectedAGI: 32000,
+			name:          "SC_Middle_Income",
+			file:          "SC/TestCase_SC_Middle_Income.xml",
+			expectedAGI:   32000,
 			expectedSCTax: 381, // SC taxable: $16,250, tax: ($16,250 - $3,560) * 3% = $380.70
-			description: "SC resident in 3% bracket",
+			description:   "SC resident in 3% bracket",
 		},
 		{
-			name:        "SC_High_Income",
-			file:        "SC/TestCase_SC_High_Income.xml",
-			expectedAGI: 100000,
+			name:          "SC_High_Income",
+			file:          "SC/TestCase_SC_High_Income.xml",
+			expectedAGI:   100000,
 			expectedSCTax: 3468, // SC taxable: $68,500, tax: $428.10 + ($68,500 - $17,830) * 6% = $3,468.30
-			description: "SC resident MFJ in 6% bracket",
+			description:   "SC resident MFJ in 6% bracket",
 		},
 	}
 
