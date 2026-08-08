@@ -20,10 +20,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
 	"github.com/DTRules/DTRules/pkg/dtrules/interpreter"
+	"github.com/DTRules/DTRules/pkg/dtrules/project"
 	"github.com/DTRules/DTRules/pkg/dtrules/session"
 	"github.com/DTRules/DTRules/pkg/dtrules/testsupport"
 	"github.com/DTRules/DTRules/pkg/dtrules/trace"
@@ -425,25 +427,73 @@ func handleCompare(_ *session.RuleSet) {
 }
 
 func resolveFilePaths() (eddPath, dtPath string, err error) {
-	if *rulesDir != "" {
-		// Look for common file names in the rules directory
-		eddPath = findFile(*rulesDir, "EDD.xml", "edd.xml")
-		dtPath = findFile(*rulesDir, "DecisionTables.xml", "decisiontables.xml", "DT.xml", "dt.xml")
-
-		if eddPath == "" {
-			return "", "", fmt.Errorf("could not find EDD.xml in %s", *rulesDir)
-		}
-		if dtPath == "" {
-			return "", "", fmt.Errorf("could not find DecisionTables.xml in %s", *rulesDir)
-		}
-		return eddPath, dtPath, nil
-	}
-
 	if *eddFile != "" && *dtFile != "" {
 		return *eddFile, *dtFile, nil
 	}
 
-	return "", "", fmt.Errorf("must specify either -rules directory or both -edd and -dt files")
+	dir := *rulesDir
+	explicit := dir != ""
+	if !explicit {
+		// No flags: fall back to the project's declared rules directory, the
+		// same one build/verify/table use. Before #1052 this hard-errored
+		// with "-rules directory", so being inside a project bought you
+		// nothing.
+		cwd, cwdErr := os.Getwd()
+		if cwdErr != nil {
+			return "", "", fmt.Errorf("must specify either -rules directory or both -edd and -dt files")
+		}
+		dir = project.Load(cwd).XMLDir
+	}
+
+	eddPath = findFile(dir, "EDD.xml", "edd.xml")
+	dtPath = findFile(dir, "DecisionTables.xml", "decisiontables.xml", "DT.xml", "dt.xml")
+
+	// Fall back to the project naming convention (*_edd.xml, *_dt.xml) that
+	// every other command globs for. The canonical names above are the legacy
+	// single-file layout; no sample project has used them in years.
+	//
+	// This interface loads exactly one EDD and one DT file, so a project
+	// split across several must be refused rather than half-loaded — a
+	// partial rule set reported as the whole is worse than an error.
+	if eddPath == "" || dtPath == "" {
+		edds, dts := matches(dir, "*_edd.xml"), matches(dir, "*_dt.xml")
+		if len(edds) > 1 || len(dts) > 1 {
+			return "", "", fmt.Errorf(
+				"%s holds %d EDD and %d decision-table files; the legacy -rules/-edd/-dt interface loads one of each\n  Use the subcommands instead: dtrules verify, dtrules table list, dtrules run.",
+				dir, len(edds), len(dts))
+		}
+		if eddPath == "" && len(edds) == 1 {
+			eddPath = edds[0]
+		}
+		if dtPath == "" && len(dts) == 1 {
+			dtPath = dts[0]
+		}
+	}
+
+	if eddPath == "" || dtPath == "" {
+		if !explicit {
+			return "", "", fmt.Errorf(
+				"no EDD/decision-table files in %s\n  Use -rules <dir>, or -edd and -dt, or declare <xml_dir> in %s.",
+				dir, project.ManifestName)
+		}
+		missing := "EDD.xml"
+		if eddPath != "" {
+			missing = "DecisionTables.xml"
+		}
+		return "", "", fmt.Errorf("could not find %s in %s", missing, dir)
+	}
+	return eddPath, dtPath, nil
+}
+
+// matches returns dir's files matching pattern, sorted so the result is stable
+// across runs and across filesystems.
+func matches(dir, pattern string) []string {
+	found, err := filepath.Glob(filepath.Join(dir, pattern))
+	if err != nil {
+		return nil
+	}
+	sort.Strings(found)
+	return found
 }
 
 func findFile(dir string, names ...string) string {

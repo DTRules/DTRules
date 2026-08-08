@@ -15,80 +15,23 @@
 package main
 
 import (
-	"encoding/xml"
 	"fmt"
-	"os"
-	"path/filepath"
+	"github.com/DTRules/DTRules/pkg/dtrules/project"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/sync"
 )
 
 // projectConfig holds optional project settings declared in DTRules.xml.
-type projectConfig struct {
-	XMLDir   string `xml:"xml_dir"`
-	ExcelDir string `xml:"excel_dir"`
-	// Entry is the project's default entry decision table, so `dtrules run`
-	// and `dtrules debug` don't need --entry every invocation.
-	Entry string `xml:"entry"`
+// loadProjectConfig resolves a project's settings. Thin wrapper kept so the
+// existing call sites read naturally; the resolution itself lives in
+// pkg/dtrules/project, which every layer shares (#1052).
+func loadProjectConfig(projectRoot string) (*project.Config, error) {
+	return project.Load(projectRoot), nil
 }
 
-// loadProjectConfig reads DTRules.xml from projectRoot and returns any
-// declared directory overrides. Returns an empty config (not an error) if
-// the file does not exist or contains no override elements.
-func loadProjectConfig(projectRoot string) (*projectConfig, error) {
-	configPath := filepath.Join(projectRoot, "DTRules.xml")
-	data, err := os.ReadFile(configPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return &projectConfig{}, nil
-		}
-		return nil, fmt.Errorf("reading DTRules.xml: %w", err)
-	}
-
-	var cfg projectConfig
-	if err := xml.Unmarshal(data, &cfg); err != nil {
-		// Malformed DTRules.xml — ignore overrides, don't fail.
-		return &projectConfig{}, nil
-	}
-	return &cfg, nil
-}
-
-// resolveDirs determines the xml and excel directories for a project using
-// the three-level precedence:
-//  1. CLI flags (flagXMLDir / flagExcelDir) — non-empty string wins
-//  2. DTRules.xml declarations in projectRoot
-//  3. Default: "xml" and "excel" relative to projectRoot
-//
-// Returned paths are absolute.
 func resolveDirs(projectRoot, flagXMLDir, flagExcelDir string) (xmlDir, excelDir string, err error) {
-	cfg, err := loadProjectConfig(projectRoot)
-	if err != nil {
-		return "", "", err
-	}
-
-	resolveOne := func(flag, fromCfg, defaultName string) (string, error) {
-		rel := flag
-		if rel == "" {
-			rel = fromCfg
-		}
-		if rel == "" {
-			rel = defaultName
-		}
-		if filepath.IsAbs(rel) {
-			return rel, nil
-		}
-		return filepath.Abs(filepath.Join(projectRoot, rel))
-	}
-
-	xmlDir, err = resolveOne(flagXMLDir, cfg.XMLDir, "xml")
-	if err != nil {
-		return "", "", err
-	}
-	excelDir, err = resolveOne(flagExcelDir, cfg.ExcelDir, "excel")
-	if err != nil {
-		return "", "", err
-	}
-	return xmlDir, excelDir, nil
+	c := project.Load(projectRoot).WithDirs(flagXMLDir, flagExcelDir)
+	return c.XMLDir, c.ExcelDir, nil
 }
 
 // checkDirWithHint returns a non-nil error with a helpful message if the
