@@ -162,8 +162,23 @@ func (l *dataLoader) handleStartElement(elem xml.StartElement) error {
 	// Check if this tag sets an attribute
 	aInfo := l.mapping.GetAttributeInfo(tag)
 	if aInfo != nil {
-		// Get the top entity from stack to find enclosure
-		topEntity, err := l.state.EntityFetch(0)
+		// Resolve the enclosure against the entity that OWNS this tag, which
+		// is the one below any entity this same tag just created.
+		//
+		// A tag can do both jobs at once — CHIP maps
+		//   <createentity entity='client' tag='source' id='id'>
+		//   <setattribute  tag='source' RAttribute='source' enclosure='relationship' type='entity'>
+		// so <source id="1001"/> means "the client with id 1001, stored on the
+		// enclosing relationship". Reading the enclosure off the top of the
+		// stack saw the just-pushed *client*, so the lookup for
+		// (source, relationship) missed, the pending attribute got an empty
+		// RAttribute, and relationship.source stayed null — leaving CHIP's
+		// three relationship rows unable to match anything (#962).
+		depth := 0
+		if entityCreated {
+			depth = 1
+		}
+		topEntity, err := l.state.EntityFetch(depth)
 		if err == nil && topEntity != nil {
 			enclosure := topEntity.GetName().StringValue()
 			attrib := aInfo.Lookup(enclosure)
