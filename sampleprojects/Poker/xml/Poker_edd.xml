@@ -7,7 +7,7 @@
 		<source>
 			<relative_path>Poker.xlsx</relative_path>
 			<file_name>Poker.xlsx</file_name>
-			<sheet_number>6</sheet_number>
+			<sheet_number>7</sheet_number>
 		</source>
 		<field name="action" type="string" subtype="" access="rw" input="" default_value="" comment="Action: RAISE, CALL, CHECK, FOLD"></field>
 		<field name="archetype" type="string" subtype="" access="rw" input="" default_value="" comment="AI archetype that made decision"></field>
@@ -19,7 +19,7 @@
 		<source>
 			<relative_path>Poker.xlsx</relative_path>
 			<file_name>Poker.xlsx</file_name>
-			<sheet_number>6</sheet_number>
+			<sheet_number>7</sheet_number>
 		</source>
 		<field name="audit_trail" type="array" subtype="" access="rw" input="" default_value="" comment="Detailed trace of decisions"></field>
 		<field name="big_blind" type="double" subtype="" access="rw" input="main" default_value="20" comment="Big blind amount"></field>
@@ -34,7 +34,7 @@
 		<source>
 			<relative_path>Poker.xlsx</relative_path>
 			<file_name>Poker.xlsx</file_name>
-			<sheet_number>6</sheet_number>
+			<sheet_number>7</sheet_number>
 		</source>
 		<field name="archetype" type="string" subtype="" access="r" input="main" default_value="TAG" comment="AI archetype: TAG, LAG, Rock, Calling"></field>
 		<field name="can_check" type="boolean" subtype="" access="rw" input="main" default_value="false" comment="Whether player can check (no bet to call)"></field>

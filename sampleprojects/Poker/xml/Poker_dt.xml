@@ -544,7 +544,7 @@ player.can_check true beq
 </decision_table>
 
 <!-- TABLE 1410: Evaluate_All_Players -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>Poker.xlsx</relative_path>
 <file_name>Poker.xlsx</file_name>
