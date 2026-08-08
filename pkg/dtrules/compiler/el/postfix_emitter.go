@@ -1859,8 +1859,22 @@ func (e *PostfixEmitter) VisitDivideRoundingBy(ctx *DivideRoundingByContext) int
 			return nil
 		}
 	}
-	e.emitWithTypeConversion(ctx.Fexpr(0), TypeFixed)
-	e.emitWithTypeConversion(ctx.Fexpr(1), TypeFixed)
+	// Emit both operands left-associated. Everywhere else in the language a
+	// bare `x * y * z` groups left, but the two operands of this rule parse
+	// right-nested: `iexpr TIMES fexpr` is not a left-recursive alternative of
+	// fexpr, so ANTLR tries it as a primary here and its right operand
+	// swallows the rest of the chain.
+	//
+	// That matters because fp* rounds. Regrouping a product moves the rounding
+	// point, so the two forms are not interchangeable: on the Accumulate
+	// staking rules the right-nested form shifts a payout by 1 nanoACME and
+	// breaks their on-chain period reproduction. Their committed postfix is
+	// left-associated, compiled before this regressed (#1015).
+	//
+	// Only unparenthesised chains are re-associated — a parenthesised
+	// subexpression is its own node and is emitted as the author grouped it.
+	e.emitFixedProductLeftAssoc(ctx.Fexpr(0))
+	e.emitFixedProductLeftAssoc(ctx.Fexpr(1))
 
 	rText := ctx.FP_LITERAL().GetText()
 	rMantissa, err := parseFpLiteralToMantissa(rText)
@@ -7533,4 +7547,43 @@ func (e *PostfixEmitter) VisitDateEarliestAfter(ctx *DateEarliestAfterContext) i
 	e.emit(`"earliest of <arr> after <d> not yet implemented (needs earliestafter runtime op)"`)
 	e.emit("elstmterror")
 	return nil
+}
+
+// emitFixedProductLeftAssoc emits an fexpr as fixed, forcing a bare
+// multiplication chain to group left-to-right.
+//
+// See VisitDivideRoundingBy for why: fp* rounds, so `(x*y)*z` and `x*(y*z)`
+// are different numbers, and every other context in the language groups left.
+// A chain of fewer than three operands has nothing to re-associate and takes
+// the ordinary path.
+func (e *PostfixEmitter) emitFixedProductLeftAssoc(ctx antlr.ParseTree) {
+	operands := flattenMulChain(ctx)
+	if len(operands) < 3 {
+		e.emitWithTypeConversion(ctx, TypeFixed)
+		return
+	}
+	e.emitWithTypeConversion(operands[0], TypeFixed)
+	for _, operand := range operands[1:] {
+		e.emitWithTypeConversion(operand, TypeFixed)
+		e.emit("fp*")
+	}
+}
+
+// flattenMulChain returns the operands of a multiplication chain in source
+// order, whatever shape the parse gave it.
+//
+// It descends only through the three multiply alternatives. A parenthesised
+// subexpression is a FloatParen node, not a multiply node, so it is returned
+// whole — explicit grouping by the author survives, which is what makes
+// `divide n by x * (y * z) rounding by 0.5fp` still mean what it says.
+func flattenMulChain(t antlr.ParseTree) []antlr.ParseTree {
+	switch c := t.(type) {
+	case *FloatMulFloatContext:
+		return append(flattenMulChain(c.Fexpr(0)), flattenMulChain(c.Fexpr(1))...)
+	case *FloatMulIntContext:
+		return append(flattenMulChain(c.Fexpr()), c.Iexpr())
+	case *IntMulFloatContext:
+		return append([]antlr.ParseTree{c.Iexpr()}, flattenMulChain(c.Fexpr())...)
+	}
+	return []antlr.ParseTree{t}
 }
