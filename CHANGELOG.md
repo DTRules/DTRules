@@ -1,5 +1,56 @@
 # DTRules Changelog
 
+## v1.22.5 — 2026-08-08
+
+Round-tripping. A project's XML should be exactly what building from its Excel
+produces, and for several projects it could not be — not because anything was
+lost, but because the writer kept changing its mind about how to spell things.
+Each of these made `dtrules verify` report a difference no author could act on.
+
+### Fixed
+
+- **An EDD field could silently rename a decision table** (#1040). RNames are
+  interned case-insensitively and the cache keeps the first spelling it sees,
+  process-wide and across namespaces. A field `period_state.matches_onchain`,
+  loaded before the tables, made a table authored as `Matches_Onchain` report
+  under the field's casing — and the exporter named the sheet from that, so the
+  next import read the new name back. Resolution stays case-insensitive; only
+  the name written back out changes. The leak was the loader passing
+  `name.StringValue()`, already through the intern cache, rather than the XML's
+  `table_name`.
+
+- **The map writer emitted `id=''`** on every `<createentity>` (#1036). `list`
+  was conditional; `id` was not. So a hand-authored map could never round-trip
+  to itself — the first build rewrote every singleton to add an empty
+  attribute. An empty attribute is not what an author writes and not what the
+  reader needs.
+
+- **`sync export` and `sync import` ignored map files** entirely (#1036), while
+  `build` synced them. An export left the map workbook stale and a later
+  from-Excel build read that stale sheet.
+
+- **Compiling with no EDD symbols is refused** rather than silently emitting
+  integer operators for fixed-point fields (#1029) — `fp-` became `-` and
+  `cvfp` became `cvi`, changing money arithmetic while the build reported
+  success. Reachable whenever the workbook set carries no EDD and the output
+  directory has none either, which is what building into a fresh directory
+  does.
+
+- **`review` and the MCP tools ignored `<xml_dir>`/`<excel_dir>`** (#1031) and
+  always looked for the literal `excel/`, so they disagreed with `verify` about
+  where a project lives.
+
+- **Docs advertised syntax the compiler rejects** (#985, #1021): eight of
+  fourteen mutating shortcuts did not parse, and nine el-reference entries
+  compile to a runtime-error stub while presenting themselves as usable. Both
+  surfaces are now gated by tests.
+
+- **TaxReturn's own validation verdict is asserted** (#1000). The rules compare
+  computed figures against each scenario's expected values and write the result
+  to the audit trail; nothing read it, so three scenarios failed silently inside
+  passing runs. All three were stale expectations predating the OBBBA standard
+  deduction the rules implement.
+
 ## v1.22.4 — 2026-08-08
 
 Two fixed-point correctness fixes found by putting the Accumulate staking
