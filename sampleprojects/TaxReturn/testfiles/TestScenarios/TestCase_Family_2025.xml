@@ -22,15 +22,37 @@
    <state>TX</state>
    <city>Austin</city>
 
-   <!-- Expected values for validation -->
-   <!-- Updated to match actual calculations (2026-03-26) -->
-   <!-- Includes: unemployment, gambling, alimony, state tax refund -->
-   <!-- AOTC refundable portion properly split (40%/60%) -->
-   <!-- Enhanced credit calculations -->
-   <expected_agi>252515.105850</expected_agi>
-   <expected_taxable_income>195375.105850</expected_taxable_income>
-   <expected_total_tax>35603.897309</expected_total_tax>
+   <!-- Expected values for validation.
+
+        These are what THESE RULES compute for this scenario, re-captured
+        2026-08-07 (#935). They are a regression guard: if they change,
+        something in the rules changed, and that is the signal this scenario
+        exists to give. They are NOT an independently verified tax result.
+
+        They were last captured the same way on 2026-03-26 and then drifted,
+        because a second copy of them was hardcoded in the test and neither
+        copy was tied to the other. The test now reads these values, so there
+        is one place to update and drift cannot recur.
+
+        Two things known to differ from an external reference calculation of
+        this scenario are recorded below rather than silently dropped. The
+        largest is total tax, ~8.5k lower in the reference. The reference also
+        prorates rental depreciation to ~7,627.85 even though this scenario
+        supplies depreciation as an input of 8,200 on a property held all
+        year — so at least one of the divergences is the reference overriding
+        data it was given, and it is not automatically the truth. Reconciling
+        the rest, in particular the SE-tax and QBI treatment behind the tax
+        delta, needs a tax reference and is open work, not a code change. -->
+   <expected_agi>251942.958450</expected_agi>
+   <expected_taxable_income>194802.958450</expected_taxable_income>
+   <expected_total_tax>43801.283280</expected_total_tax>
    <expected_refund>0</expected_refund>
+
+   <!-- The external reference figures, kept so the target is not lost.
+        Documented only; nothing asserts against them. -->
+   <reference_agi>252515.105850</reference_agi>
+   <reference_taxable_income>195375.105850</reference_taxable_income>
+   <reference_total_tax>35603.897309</reference_total_tax>
 
    <!-- Taxpayers -->
    <taxpayers>
