@@ -15,6 +15,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -168,5 +170,58 @@ func TestRunGolden(t *testing.T) {
 	}
 	if !strings.Contains(html, "&amp;") {
 		t.Errorf("expected escaped &amp; in output")
+	}
+}
+
+// publishedDoc is the one generated document this repo actually ships:
+// website/public/sinusitis-decision-tables.pdf, rendered from the web demo's
+// rules. Regenerate both with
+//
+//	go run ./cmd/tabledoc -o sinusitis.html -title SinusitisTherapy cmd/sinusitis-web/rules
+//	google-chrome --headless --disable-gpu --no-pdf-header-footer \
+//	  --print-to-pdf=website/public/sinusitis-decision-tables.pdf sinusitis.html
+//	sha256sum sinusitis.html   # paste below
+//
+// The --no-pdf-header-footer matters: without it Chrome stamps every page with
+// the date and the source file:// URL, which is how you can tell a regenerated
+// PDF apart from the shipped one.
+const (
+	publishedRulesDir  = "../sinusitis-web/rules"
+	publishedDocTitle  = "SinusitisTherapy"
+	publishedDocDigest = "11c25be19a08b4d8ca250a18ff0d38bf5d40786048af99006176445e6401b09f"
+)
+
+// TestPublishedPDFIsCurrent fails when the rules change without the shipped PDF
+// being regenerated.
+//
+// The PDF is a committed binary; nothing about editing a rule forces it to be
+// rebuilt, so without this it goes quietly stale and the website serves a
+// reference document that no longer describes the rules — the same
+// documentation-drifts-from-behaviour failure #961 found in el-reference.md.
+//
+// It guards the rendered HTML rather than the PDF because that is what can be
+// checked without Chrome installed: the renderer's output is deterministic, so
+// a digest over it covers every rule change that reaches the page. A change
+// visible only in the PDF (styling, print flags) is not caught, and does not
+// need to be.
+func TestPublishedPDFIsCurrent(t *testing.T) {
+	if _, err := os.Stat(publishedRulesDir); err != nil {
+		t.Skipf("web demo rules not present: %v", err)
+	}
+	out := filepath.Join(t.TempDir(), "published.html")
+	if err := run(publishedRulesDir, out, publishedDocTitle); err != nil {
+		t.Fatalf("render %s: %v", publishedRulesDir, err)
+	}
+	data, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := fmt.Sprintf("%x", sha256.Sum256(data))
+	if got != publishedDocDigest {
+		t.Errorf("rules changed but website/public/sinusitis-decision-tables.pdf was not regenerated\n"+
+			"  rendered digest: %s\n"+
+			"  recorded digest: %s\n"+
+			"Regenerate the PDF and update publishedDocDigest — see the comment above this test.",
+			got, publishedDocDigest)
 	}
 }
