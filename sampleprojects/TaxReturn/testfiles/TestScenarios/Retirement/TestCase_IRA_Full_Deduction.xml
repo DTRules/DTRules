@@ -8,10 +8,16 @@
     <filing_status>Single</filing_status>
     <state>TX</state>
 
+    <!-- Expected taxable income and tax updated for the OBBBA standard
+         deduction the rules implement (Single 15,000 -> 15,750). The prior
+         values were computed against the pre-OBBBA amount, so the rules'
+         own Validate_Summary reported a mismatch on every run - and
+         nothing asserted on it until #1000. AGI was already correct;
+         only the deduction-dependent figures moved. -->
     <!-- Expected results -->
     <expected_agi>58000</expected_agi>
-    <expected_taxable_income>43000</expected_taxable_income>
-    <expected_total_tax>4900</expected_total_tax>
+    <expected_taxable_income>42250</expected_taxable_income>
+    <expected_total_tax>4831.50</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

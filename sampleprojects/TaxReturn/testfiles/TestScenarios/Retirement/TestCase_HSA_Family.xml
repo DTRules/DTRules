@@ -8,10 +8,16 @@
     <filing_status>MFJ</filing_status>
     <state>OH</state>
 
+    <!-- Expected taxable income and tax updated for the OBBBA standard
+         deduction the rules implement (MFJ 30,000 -> 31,500). The prior
+         values were computed against the pre-OBBBA amount, so the rules'
+         own Validate_Summary reported a mismatch on every run - and
+         nothing asserted on it until #1000. AGI was already correct;
+         only the deduction-dependent figures moved. -->
     <!-- Expected results -->
     <expected_agi>91700</expected_agi>
-    <expected_taxable_income>61700</expected_taxable_income>
-    <expected_total_tax>5500</expected_total_tax>
+    <expected_taxable_income>60200</expected_taxable_income>
+    <expected_total_tax>4547</expected_total_tax>
 
     <taxpayers>
         <taxpayer>
