@@ -1382,6 +1382,21 @@ func safeGet(row []string, idx int) string {
 // If no EL compiler is set, this method does nothing.
 func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 	if !i.compileEL || i.elCompiler == nil {
+		// Skipping compilation is only harmless when there is no DSL to
+		// compile. With DSL present it means every postfix element in this
+		// table is about to be written empty, producing a rule set that loads
+		// and decides nothing.
+		//
+		// This was silent, and it is exactly how `dtrules sync import` shipped
+		// a 490-line degradation of KidAid while reporting success — two
+		// import pipelines, only one of which wired a compiler (#929). A
+		// caller that legitimately wants no compilation passes no DSL or
+		// collects no stats, so this costs them nothing.
+		if n := countDSLRows(table); n > 0 && i.stats != nil {
+			i.stats.AddDrop(table.TableName, 0, "postfix",
+				fmt.Sprintf("no EL compiler wired: %d DSL row(s) would be written with empty postfix — "+
+					"construct the importer with SetELCompiler (see newWorkbookImporter in cmd/dtrules)", n))
+		}
 		return nil
 	}
 
@@ -1531,4 +1546,30 @@ func SortTablesByNumber(tables *DecisionTablesXML) {
 		}
 		return numI < numJ
 	})
+}
+
+// countDSLRows reports how many rows of a table carry EL DSL that would need
+// compiling. Used to tell "nothing to compile" apart from "a compiler was
+// needed and none was wired" — the two cases look identical at the point
+// compilation is skipped, and conflating them is what made #929 silent.
+func countDSLRows(table *DecisionTableXML) int {
+	n := 0
+	count := func(dsl string) {
+		if strings.TrimSpace(dsl) != "" {
+			n++
+		}
+	}
+	for _, c := range table.Contexts.Details {
+		count(c.DSL)
+	}
+	for _, a := range table.EffectiveInitialActions() {
+		count(a.DSL)
+	}
+	for _, c := range table.Conditions {
+		count(c.DSL)
+	}
+	for _, a := range table.Actions {
+		count(a.DSL)
+	}
+	return n
 }

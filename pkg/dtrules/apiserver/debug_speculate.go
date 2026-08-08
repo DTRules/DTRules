@@ -256,13 +256,42 @@ func applySpeculativeEdit(overlay string, table *DecisionTableData) error {
 	return fmt.Errorf("table %q not found in the rules", table.TableName)
 }
 
-// compileTableDSL recompiles every condition/action row of one table from
-// its DSL, with the overlay's EDD symbols for type-aware dispatch. Rows
-// with no DSL keep their existing postfix.
+// compileTableDSL recompiles every row of one table from its DSL, with the
+// overlay's EDD symbols for type-aware dispatch. Rows with no DSL keep their
+// existing postfix — that is how a hand-coded row survives, and it is the only
+// case where keeping the stored postfix is correct.
+//
+// All four sections are covered. Contexts and initial actions were not, which
+// was survivable while this only served speculation but is not once a save
+// depends on it (#928): a table whose iteration lives in a context would have
+// been written with its edited context DSL against the previous postfix.
 func compileTableDSL(overlay string, x *excel.DecisionTableXML) error {
 	c := el.NewCompiler()
 	if syms := authoring.LoadEDDSymbols(overlay); len(syms) > 0 {
 		c.SetSymbols(syms)
+	}
+	for i := range x.Contexts.Details {
+		dsl := strings.TrimSpace(x.Contexts.Details[i].DSL)
+		if dsl == "" {
+			continue
+		}
+		pf, err := c.CompileContext(dsl)
+		if err != nil {
+			return fmt.Errorf("context %d: %v", i+1, err)
+		}
+		x.Contexts.Details[i].Postfix = pf
+	}
+	initial := x.EffectiveInitialActions()
+	for i := range initial {
+		dsl := strings.TrimSpace(initial[i].DSL)
+		if dsl == "" {
+			continue
+		}
+		pf, err := c.CompileAction(dsl)
+		if err != nil {
+			return fmt.Errorf("initial action %d: %v", i+1, err)
+		}
+		initial[i].Postfix = pf
 	}
 	for i := range x.Conditions {
 		dsl := strings.TrimSpace(x.Conditions[i].DSL)
@@ -323,3 +352,14 @@ func firstDecisionTable(n *trace.TraceNode) *trace.TraceNode {
 	}
 	return nil
 }
+
+// compileError marks a save that failed because the author's DSL would not
+// compile, as opposed to an I/O or parse failure. The distinction is what lets
+// the editor answer "fix your rule" rather than "the server broke" (#928).
+type compileError struct {
+	Table string
+	Err   error
+}
+
+func (e *compileError) Error() string { return e.Table + ": " + e.Err.Error() }
+func (e *compileError) Unwrap() error { return e.Err }
