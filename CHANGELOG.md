@@ -1,5 +1,53 @@
 # DTRules Changelog
 
+## v1.22.4 — 2026-08-08
+
+Two fixed-point correctness fixes found by putting the Accumulate staking
+ruleset through the verify gate that v1.22.3 turned on. With these, that
+ruleset rebuilds from Excel with no change in behaviour; what remains for it is
+in its own repository. Background and the full analysis: #1027.
+
+### Fixed
+
+- **Multiply chains grouped right inside `divide … by … rounding by`** (#1015).
+  A bare `x * y * z` groups left everywhere else in the language. In the two
+  operands of this one rule it grouped right, because `iexpr TIMES fexpr` is
+  not a left-recursive alternative of `fexpr` — ANTLR tries it as a primary
+  there and its right operand swallows the rest of the chain.
+
+      before   x y z fp* fp*      x * (y * z)
+      after    x y fp* z fp*      (x * y) * z
+
+  Not cosmetic: `fp*` rounds, so regrouping a product moves the rounding point.
+  Recompiling **unchanged DSL** shifted a staking payout by 1 nanoACME and
+  broke their on-chain period reproduction. Parenthesised grouping is
+  untouched — `x * (y * z)` still means what it says.
+
+  Fixed in the emitter rather than the grammar: there is no ANTLR toolchain in
+  this repository, and regenerating a grammar this size to change precedence
+  would put every other construct's postfix at risk to fix one rule.
+
+- **Don't-care `-` was dropped on the Excel round trip** (#1017). The exporter
+  blanked it and the importer discarded it, so a `-` in the XML came back as
+  nothing. Nothing misbehaved — `-` and an absent entry are identical to the
+  runtime — but the round trip was not idempotent, which defeats the #1010
+  verify gate: an Excel-authored rebuild always differed from the committed XML
+  and the author had nothing they could act on.
+
+  A blank cell still yields no entry, so a project that never used `-` is
+  unaffected. Note this cannot recover markers a workbook has already lost; a
+  project in that state needs one `sync export` to push them back in, after
+  which the round trip is stable.
+
+### Note for anyone hand-writing postfix
+
+`divide … by … rounding by R` has existed since #801. If a rule set still
+carries a hand-written `fphalfup/` against a DSL that says `/` — a reasonable
+workaround before that syntax existed — it is now expressible, and should be,
+because the compiler emits truncating `fp/` for `/` and always has. One caveat:
+`divide … by (fixed) X rounding by …` does not parse and the cast is
+unnecessary, since the rule promotes integer and bigint operands itself.
+
 ## v1.22.3 — 2026-08-08
 
 `dtrules verify` now actually performs the check the authoring contract rests
