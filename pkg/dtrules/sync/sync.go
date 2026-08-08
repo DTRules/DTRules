@@ -1253,8 +1253,11 @@ func (s *Syncer) importCombinedWorkbook(wb *CombinedWorkbook) error {
 			return fmt.Errorf("failed to create directory: %w", err)
 		}
 
-		_, _, err := s.workbookImporter.ImportWorkbook(wb.ExcelPath, xmlDir)
-		return err
+		if _, _, err := s.workbookImporter.ImportWorkbook(wb.ExcelPath, xmlDir); err != nil {
+			return err
+		}
+		s.recordSynced(wb)
+		return nil
 	}
 
 	// Fallback to separate importers if workbook importer not available
@@ -1283,7 +1286,41 @@ func (s *Syncer) importCombinedWorkbook(wb *CombinedWorkbook) error {
 		}
 	}
 
+	s.recordSynced(wb)
 	return nil
+}
+
+// recordSynced marks a workbook and its XML as agreeing as of now.
+//
+// The manifest used to be written only when exporting, so an import left the
+// old export timestamp in place. The authoring guard compares that timestamp
+// against the workbook's mtime and refuses to write when the workbook is
+// newer -- advising "Import Excel to XML first, then re-apply your changes".
+// Doing exactly that changed nothing, because the import did not touch the
+// manifest, so the guard blocked forever on any project whose workbooks were
+// merely touched (a fresh clone stamps every file with the checkout time).
+// The tool's own instructions have to work (#1000).
+//
+// A failure here is not worth failing the import over -- the files are
+// already written -- so it is reported only under Verbose, matching the
+// export path.
+func (s *Syncer) recordSynced(wb *CombinedWorkbook) {
+	m, err := s.GetManifest()
+	if err != nil {
+		if s.options.Verbose {
+			fmt.Printf("Warning: could not load manifest to record import: %v\n", err)
+		}
+		return
+	}
+	var xmlFiles []string
+	for _, p := range []string{wb.DTXMLPath, wb.EDDXMLPath} {
+		if p != "" {
+			xmlFiles = append(xmlFiles, p)
+		}
+	}
+	if err := m.RecordExport(wb.ExcelPath, xmlFiles); err != nil && s.options.Verbose {
+		fmt.Printf("Warning: failed to update manifest after import: %v\n", err)
+	}
 }
 
 // exportCombinedWorkbook exports XML files to a combined Excel workbook.
