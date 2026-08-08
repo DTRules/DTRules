@@ -100,6 +100,25 @@ type CombinedWorkbook struct {
 	Direction SyncDirection
 }
 
+// outputDir is the directory this workbook's XML belongs in.
+//
+// A workbook produces a DT file, an EDD file, or both, and the unused path is
+// left empty — so taking filepath.Dir of DTXMLPath alone answers "." for an
+// EDD-only workbook, and the import lands in the process's working directory
+// instead of the project. That is how `dtrules verify` came to leave a
+// TaxReturn_edd.xml at the root of any project holding a *_edd.xlsx (#1056);
+// verify is a read-only gate and should not write into the tree at all.
+//
+// fallback is the syncer's own xml directory, used when neither path is set.
+func (wb *CombinedWorkbook) outputDir(fallback string) string {
+	for _, p := range []string{wb.DTXMLPath, wb.EDDXMLPath} {
+		if p != "" {
+			return filepath.Dir(p)
+		}
+	}
+	return fallback
+}
+
 // SyncResult holds the result of a sync operation.
 type SyncResult struct {
 	// Pairs contains all file pairs discovered.
@@ -1229,7 +1248,7 @@ func (s *Syncer) importCombinedWorkbook(wb *CombinedWorkbook) error {
 	if s.workbookImporter != nil {
 		// Use the combined workbook importer
 		// Ensure parent directory exists
-		xmlDir := filepath.Dir(wb.DTXMLPath)
+		xmlDir := wb.outputDir(s.xmlDir)
 		if err := os.MkdirAll(xmlDir, 0755); err != nil {
 			return fmt.Errorf("failed to create directory: %w", err)
 		}
@@ -1244,7 +1263,7 @@ func (s *Syncer) importCombinedWorkbook(wb *CombinedWorkbook) error {
 	}
 
 	// Ensure parent directory exists
-	if err := os.MkdirAll(filepath.Dir(wb.DTXMLPath), 0755); err != nil {
+	if err := os.MkdirAll(wb.outputDir(s.xmlDir), 0755); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
