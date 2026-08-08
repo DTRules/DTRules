@@ -240,7 +240,7 @@ func (s *mcpServer) toolEDDGet(project string) (map[string]interface{}, error) {
 }
 
 func (s *mcpServer) toolProjectValidate(project string) (map[string]interface{}, error) {
-	structRes, err := sync.ValidateProjectStructure(project, "", "")
+	structRes, err := validateStructure(project)
 	if err != nil {
 		return nil, newToolError("io_error", "structure validation failed", err.Error())
 	}
