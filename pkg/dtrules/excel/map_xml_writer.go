@@ -48,13 +48,23 @@ func writeMapXML(m *MapXML, path string) error {
 	}
 
 	for _, ce := range m.CreateEntities {
+		// id and list are omitted when empty rather than written as id=''.
+		// An empty attribute is not what an author writes and not what the
+		// reader needs, and emitting one meant a hand-authored map could never
+		// round-trip to itself: the first build rewrote every singleton
+		// createentity, so `verify` reported a difference with nothing behind
+		// it (#1036).
+		id := ""
+		if ce.ID != "" {
+			id = fmt.Sprintf(" id='%s'", escAttr(ce.ID))
+		}
 		list := ""
 		if ce.List != "" {
 			list = fmt.Sprintf(" list='%s'", escAttr(ce.List))
 		}
 		sb.WriteString(fmt.Sprintf(
-			"\t\t\t<createentity entity='%s' tag='%s' id='%s'%s></createentity>\n",
-			escAttr(ce.Entity), escAttr(ce.Tag), escAttr(ce.ID), list,
+			"\t\t\t<createentity entity='%s' tag='%s'%s%s></createentity>\n",
+			escAttr(ce.Entity), escAttr(ce.Tag), id, list,
 		))
 	}
 
