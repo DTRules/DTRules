@@ -194,7 +194,10 @@ func checkBuildIdempotency(projectDir, xmlDir, excelDir string, opts *verifyOpti
 		syncer := sync.NewSyncerWithOptions(tmpXML, tmpExcel, syncOpts)
 		syncer.SetUseCombinedWorkbooks(true)
 
-		importer := excel.NewWorkbookImporter()
+		// Same constructor as `build`: verify runs the build pipeline on a
+		// copy, so an importer without the EL compiler would have it
+		// verifying a pipeline nobody runs, and passing (#929).
+		importer := newWorkbookImporter(tmpXML)
 		syncer.SetWorkbookImporter(&workbookImporterAdapter{impl: importer})
 
 		exporter := excel.NewWorkbookExporter()

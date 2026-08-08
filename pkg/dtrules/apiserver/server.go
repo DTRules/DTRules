@@ -27,6 +27,7 @@ package apiserver
 import (
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -932,7 +933,15 @@ func (s *Server) handleProjectSave(w http.ResponseWriter, r *http.Request) {
 		if s.modified[dtFile] {
 			path := filepath.Join(s.projectPath, dtFile)
 			if err := s.saveDTFile(path, dtFile); err != nil {
-				jsonError(w, fmt.Sprintf("Failed to save %s: %v", dtFile, err), http.StatusInternalServerError)
+				// A compile error is the author's DSL, not a server fault, so
+				// it comes back 400. The editor can tell "fix your rule" from
+				// "the server broke" only if we make that distinction here.
+				status := http.StatusInternalServerError
+				var ce *compileError
+				if errors.As(err, &ce) {
+					status = http.StatusBadRequest
+				}
+				jsonError(w, fmt.Sprintf("Failed to save %s: %v", dtFile, err), status)
 				return
 			}
 			savedFiles = append(savedFiles, dtFile)
@@ -2473,9 +2482,25 @@ func (s *Server) saveDTFile(path, relPath string) error {
 		}
 	}
 
-	// Apply the API-editable fields onto the canonical model.
+	// Apply the API-editable fields onto the canonical model, then recompile
+	// each table's DSL to postfix.
+	//
+	// Without the recompile a save wrote the edited DSL against the postfix
+	// from before the edit (#928). That is worse than writing none: the file
+	// stays well-formed and loads, so the table goes on executing the old
+	// logic while displaying the new — and the editor's own "Run speculation"
+	// disagreed with it, because that path has always compiled.
+	//
+	// A compile error fails the save rather than being written past. Refusing
+	// to save is a visible problem the author can fix; a save that silently
+	// keeps stale postfix is not.
+	xmlDir := projectXMLDir(s.projectPath)
 	for i := range doc.Tables {
 		applyTableEdits(&doc.Tables[i], keep[doc.Tables[i].TableName])
+		if err := compileTableDSL(xmlDir, &doc.Tables[i]); err != nil {
+			return &compileError{Table: doc.Tables[i].TableName, Err: err}
+		}
+		doc.Tables[i].ELCompiled = true
 	}
 
 	importer := excel.NewDTImporter()

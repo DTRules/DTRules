@@ -330,9 +330,15 @@ func (c *CLI) initSyncer() error {
 	}
 	c.syncer = sync.NewSyncerWithOptions(c.xmlDir, c.excelDir, opts)
 
-	// Set up importer (combined workbook mode)
+	// Set up importer (combined workbook mode).
+	//
+	// This must be the same constructor `build` uses. A bare
+	// excel.NewWorkbookImporter() has no EL compiler, and an importer without
+	// one writes every postfix element empty — `sync import` produced a
+	// 490-line degradation of KidAid's decision table against the same
+	// workbook `build` compiled correctly, and reported success (#929).
 	c.syncer.SetUseCombinedWorkbooks(true)
-	c.importer = excel.NewWorkbookImporter()
+	c.importer = newWorkbookImporter(c.xmlDir)
 	c.importer.SetVerbose(c.verbose)
 	c.syncer.SetWorkbookImporter(&workbookImporterAdapter{impl: c.importer})
 
