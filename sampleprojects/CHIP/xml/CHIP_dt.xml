@@ -267,9 +267,9 @@ dup clients forall pop
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Include ApplyingClient's parents</condition_comment>
-<condition_dsl>the client is the parent of ApplyingClient</condition_dsl>
+<condition_dsl>is there relationship in case.relationships where (type == "parent" and source == client and target == ApplyingClient)</condition_dsl>
 <condition_postfix>
-0 local@ "parent" getrelationship client req
+false { type "parent" streq { pop source client req } over if { pop target 0 local@ req } over if or } case.relationships forall
 </condition_postfix>
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="Y" />
@@ -278,9 +278,9 @@ dup clients forall pop
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Include ApplyingClient's siblings</condition_comment>
-<condition_dsl>the client is the sibling of ApplyingClient</condition_dsl>
+<condition_dsl>is there relationship in case.relationships where (type == "sibling" and source == client and target == ApplyingClient)</condition_dsl>
 <condition_postfix>
-0 local@ "sibling" getrelationship client req
+false { type "sibling" streq { pop source client req } over if { pop target 0 local@ req } over if or } case.relationships forall
 </condition_postfix>
 <condition_column column_number="5" column_value="Y" />
 <condition_column column_number="6" column_value="Y" />
@@ -289,9 +289,9 @@ dup clients forall pop
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Include ApplyingClient's children</condition_comment>
-<condition_dsl>the client is the child of ApplyingClient</condition_dsl>
+<condition_dsl>is there relationship in case.relationships where (type == "child" and source == client and target == ApplyingClient)</condition_dsl>
 <condition_postfix>
-0 local@ "child" getrelationship client req
+false { type "child" streq { pop source client req } over if { pop target 0 local@ req } over if or } case.relationships forall
 </condition_postfix>
 <condition_column column_number="7" column_value="Y" />
 <condition_column column_number="12" column_value="Y" />
