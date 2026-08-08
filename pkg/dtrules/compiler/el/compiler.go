@@ -61,6 +61,22 @@ func (c *Compiler) SetSymbols(symbols map[string]string) {
 	c.emitter.SetSymbols(symbols)
 }
 
+// SetOperatorChecker supplies the lookup used to reject statement-form calls to
+// operators the engine does not implement.
+//
+// Without it a misspelled or invented operator compiles clean, writes postfix,
+// passes build, and fails only when that row executes — reported as "The Name
+// 'subests' was not defined by any Entity on the Entity Stack", which does not
+// read like a typo (#1020).
+//
+// Injected rather than imported: pkg/dtrules/operators imports pkg/dtrules, and
+// pkg/dtrules's tests import this package, so importing the registry here
+// closes that loop. Every path that compiles rules for real should set this —
+// pass operators.GetByString.
+func (c *Compiler) SetOperatorChecker(exists func(string) bool) {
+	c.emitter.operatorExists = exists
+}
+
 // ResetLocals clears per-table local variable state (names + slot indices).
 // Callers that reuse a Compiler across multiple tables must call this between
 // tables so slot indices don't bleed across independent compilation scopes.
