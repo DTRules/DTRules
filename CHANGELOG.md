@@ -1,5 +1,81 @@
 # DTRules Changelog
 
+## v1.22.0 — 2026-08-07
+
+The samples release: every sample project in the repository now loads, runs
+from the command line, and leaves a trace an editor can open — enforced by a
+fired-column floor so a project can never again pass its tests while deciding
+nothing. Plus combinatorial primitives and the Cribbage sample that shows them
+off, and a data-loss fix for Excel round-trips.
+
+### Added
+- **Combinatorial primitives** (#980): `subsets`, `combinations`, `groupby`
+  and `maximalruns` materialize the combinatorial structure of a collection as
+  entities, so decision tables can score it directly instead of needing
+  procedural code around them.
+- **Cribbage sample** (#984): the show scored entirely from decision tables —
+  fifteens from `subsets`, pairs from `groupby`, runs from `maximalruns`.
+- **`for all <array> in reverse`** (#975, #977, #978), in context cells and
+  action cells. `allowing array to be removed` now emits the reverse iteration
+  that makes removal safe (#976).
+- **Policy statements** as a first-class report (#949, #956): statements
+  collect automatically, drain with `add the policy statements to <array>`,
+  reset with `clear the policy statements`.
+- **`tools/elcheck`**: reports, per row, whether a table's stored postfix is
+  what its EL DSL compiles to today — the check that says whether a project is
+  safe to edit through the authoring API at all. It had been written twice as a
+  throwaway and lost twice.
+- **Project discovery for `dtrules edit`** (#941, #942): launching outside a
+  project lists projects to pick from instead of sweeping the tree.
+
+### Fixed
+- **Excel round-trip silently deleted `createentity list=`** (#993). A
+  workbook written before that column existed reads back with its rows present
+  but the attribute empty, and the clobber guard only fired on a wholly empty
+  section — so the rewrite dropped it while the build printed "OK — no drops".
+  On a production ruleset every `for all` then ran over an empty array and
+  returned zero. An import can no longer *remove* structure, and the map export
+  now also runs on the "nothing to sync" path, which previously meant a stale
+  sheet could never be refreshed at all.
+- **The sample repair campaign** (#948): TaxReturn, TestProject, StateTax,
+  Poker, SinusitisTherapy, CHIP, ChipApp, KidAid, KidAid_Application,
+  SyntaxTests and CorporateTax. Every project's rows are authored in EL with
+  postfix compiled from it, every project runs and traces, and DTEligibility
+  was removed — it had never worked and nothing executed it.
+  - **SyntaxTests** (#975, #783): 48 hand-postfix rows, 205 rows whose postfix
+    disagreed with their own DSL, and 11 that would not compile — all zero now.
+  - **CorporateTax** (#986): had never loaded in its life. Its federal core
+    failed to parse in every commit since introduction, its merge script died
+    on its first state file, and 145 of 413 hand rows used operators that were
+    never registered. Now 164 tables load and a California return computes
+    88,400 of tax; Maine's graduated brackets compute 316,495, reconciling
+    tier-for-tier with the published 1120ME table.
+- **`if`/`ifelse` operand order** (#943, #947): the runtime pops the test from
+  the top of the stack, so legacy test-first postfix across the older samples
+  was silently unexecutable.
+- **`<initial_action_details>` was invisible to every reader** (#990) — 312
+  rows in one sample were never loaded, compiled or executed, and saving
+  deleted them.
+- **`set-name` was a silent no-op** (#989): it assigned to a throwaway view, so
+  a rename reported success and never reached the XML.
+- **Comment-only context and action rows** made a whole table unwritable
+  through the authoring API (#991).
+- **Excel/XML sync**: `<createentity list=…>` dropped on map round-trips,
+  context comments erased one build at a time, and the legacy `<TYPE>` spelling
+  erased on write — leaving tables typeless and unloadable (#972).
+- **`docs/el-reference.md`** documented postfix the compiler does not emit in
+  70 of its 116 examples (#961); it is now generated from the compiler and
+  gated by a test.
+
+### Known issues
+- `TestTaxReturnResults` (Family_2025) remains red in the archived lane
+  (`-tags archive`) — its expected values come from an external reference
+  calculator whose model differs from the sample rules (#935). Every other
+  archived test passes.
+- CHIP models relationships as a separate `relationship` entity rather than
+  `client.parent` fields, so its three `is the <R> of` rows evaluate false
+  against that data shape (#962).
+
 ## v1.21.0 — 2026-07-26
 
 The analysis release: the trace debugger learns to answer questions —
