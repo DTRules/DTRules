@@ -196,7 +196,9 @@ func TestForallAs_WhereClauseReadsAliasField(t *testing.T) {
 // TestForallAs_NestedNonShadowing: nested iteration with distinct aliases.
 // Inner filters by inner_a.balance > outer_a.balance. With balances 100,200,300
 // and labels A,B,C, the pairs emitted (outer<inner) are:
-//   A<B, A<C, B<C
+//
+//	A<B, A<C, B<C
+//
 // joined by ";" with a trailing ";".
 func TestForallAs_NestedNonShadowing(t *testing.T) {
 	state := runForallAs(t, "FA_Nested")

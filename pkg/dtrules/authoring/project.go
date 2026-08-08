@@ -29,7 +29,15 @@ import (
 // Project holds all loaded decision tables for a DTRules project. It provides
 // a typed Go API for reading and mutating tables without touching XML directly.
 type Project struct {
-	xmlDir      string
+	xmlDir string
+	// root and excelDir come from the project's DTRules.xml when it declares
+	// them. Both used to be inferred — root by stripping a trailing "xml" from
+	// xmlDir, excel by joining "excel" onto that — which is wrong for any
+	// project that declares a different layout, and silently wrong rather than
+	// loudly: writes landed in a workbook the rest of the toolchain ignores
+	// (#1049). Empty means "infer", which keeps the conventional layout working.
+	root        string
+	excelDir    string
 	dtFiles     []dtFileEntry // one entry per loaded _dt.xml file
 	symbols     map[string]string
 	edd         *EDD         // lazily loaded
@@ -84,14 +92,24 @@ type dtFileEntry struct {
 //
 // If neither layout matches, returns an error explaining both options.
 func OpenProject(path string) (*Project, error) {
-	xmlDir, err := resolveProjectXMLDir(path)
-	if err != nil {
-		return nil, err
+	declaredXML, declaredExcel := readProjectManifest(path)
+
+	xmlDir := declaredXML
+	if xmlDir == "" {
+		var err error
+		xmlDir, err = resolveProjectXMLDir(path)
+		if err != nil {
+			return nil, err
+		}
+	} else if info, err := os.Stat(xmlDir); err != nil || !info.IsDir() {
+		return nil, fmt.Errorf("DTRules.xml declares <xml_dir> %s, which is not a directory", xmlDir)
 	}
 
 	p := &Project{
-		xmlDir:  xmlDir,
-		symbols: make(map[string]string),
+		xmlDir:   xmlDir,
+		root:     path,
+		excelDir: declaredExcel,
+		symbols:  make(map[string]string),
 	}
 
 	if err := p.loadEDD(xmlDir); err != nil {
@@ -299,7 +317,7 @@ func (p *Project) Save() error {
 // path runs whether the caller is Project.Save or a non-Project
 // surface like dtrules compile.
 func (p *Project) preWriteExcelGuard() error {
-	return GuardExcelInDir(p.xmlDir, p.OverwriteExcel)
+	return GuardExcelIn(p.xmlDir, p.excelDir, p.OverwriteExcel)
 }
 
 // refreshExcelFromXML re-exports every Excel file the sync manifest
@@ -325,7 +343,7 @@ func (p *Project) preWriteExcelGuard() error {
 // the package-level helper so the same code path runs from any caller
 // (Save, SaveEDD, dtrules compile).
 func (p *Project) refreshExcelFromXML() error {
-	return RefreshExcelInDir(p.xmlDir)
+	return RefreshExcelIn(p.xmlDir, p.excelDir)
 }
 
 // RenameTable renames a decision table in place.
@@ -439,4 +457,44 @@ func (p *Project) DeleteTable(name, reason string) error {
 	p.logChange("delete table `%s` from `%s` — %q", name, rel, strings.TrimSpace(reason))
 	p.dropIfEmpty(fi, fmt.Sprintf("last table removed: %s", strings.TrimSpace(reason)))
 	return nil
+}
+
+// projectManifest is the subset of DTRules.xml the authoring layer needs.
+type projectManifest struct {
+	XMLDir   string `xml:"xml_dir"`
+	ExcelDir string `xml:"excel_dir"`
+}
+
+// readProjectManifest returns the directories a project declares, resolved
+// against its root. Empty strings mean "not declared" and the caller falls back
+// to the conventional layout.
+//
+// The authoring API used to hardcode `<path>/xml` and `<path>/excel`, so a
+// project laid out per its own manifest could not be opened at all — and the
+// obvious workaround, pointing --project at whatever directory happened to
+// contain an xml/, silently retargeted writes at a different workbook (#1049).
+// build and verify have read the manifest since #1031; this closes the gap.
+func readProjectManifest(root string) (xmlDir, excelDir string) {
+	data, err := os.ReadFile(filepath.Join(root, "DTRules.xml"))
+	if err != nil {
+		return "", ""
+	}
+	var m projectManifest
+	if err := xml.Unmarshal(data, &m); err != nil {
+		// A malformed manifest is not the authoring layer's to report; the
+		// conventional layout is a reasonable answer and `verify` says so
+		// properly.
+		return "", ""
+	}
+	resolve := func(rel string) string {
+		rel = strings.TrimSpace(rel)
+		if rel == "" {
+			return ""
+		}
+		if filepath.IsAbs(rel) {
+			return rel
+		}
+		return filepath.Join(root, rel)
+	}
+	return resolve(m.XMLDir), resolve(m.ExcelDir)
 }

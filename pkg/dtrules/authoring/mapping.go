@@ -24,9 +24,9 @@ import (
 
 // Mapping is a view over a project's _map.xml file, supporting read and mutate operations.
 type Mapping struct {
-	project  *Project
-	path     string
-	mapXML   *excel.MapXML
+	project *Project
+	path    string
+	mapXML  *excel.MapXML
 }
 
 // SetAttribute is a single non-section entry in the mapping.

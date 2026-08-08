@@ -221,9 +221,9 @@ func TestBatchResult_Summary(t *testing.T) {
 // TestBatchResult_AllPassed checks AllPassed logic.
 func TestBatchResult_AllPassed(t *testing.T) {
 	tests := []struct {
-		name    string
-		batch   authoring.BatchResult
-		want    bool
+		name  string
+		batch authoring.BatchResult
+		want  bool
 	}{
 		{"all pass", authoring.BatchResult{Passed: 3}, true},
 		{"has failure", authoring.BatchResult{Passed: 2, Failed: 1}, false},

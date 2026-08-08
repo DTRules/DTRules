@@ -56,8 +56,8 @@ func TestLoadEDDSymbols(t *testing.T) {
 	syms := authoring.LoadEDDSymbols(xmlDir)
 
 	want := map[string]string{
-		"supply_limit":        "fixed", // top-level, bare
-		"budget.supply_limit": "fixed", // top-level, qualified
+		"supply_limit":        "fixed",  // top-level, bare
+		"budget.supply_limit": "fixed",  // top-level, qualified
 		"rate":                "double", // nested, bare (recursive discovery)
 		"state.rate":          "double", // nested, qualified
 	}
