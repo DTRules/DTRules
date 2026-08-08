@@ -64,7 +64,7 @@ func TestNoEDDSymbolsIsRefused(t *testing.T) {
 	// The drop has to be actionable: it must say what goes wrong, not just
 	// that something did.
 	reason := stats.Drops[0].Reason
-	for _, want := range []string{"4 DSL row(s)", "cvfp becomes cvi", "*_edd.xml"} {
+	for _, want := range []string{"4 DSL row(s)", "cvfp into cvi", "sync export"} {
 		if !strings.Contains(reason, want) {
 			t.Errorf("drop reason missing %q; got: %s", want, reason)
 		}

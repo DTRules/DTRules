@@ -1427,10 +1427,9 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 	if n := countDSLRows(table); len(i.symbols) == 0 && n > 0 {
 		if i.stats != nil {
 			i.stats.AddDrop(table.TableName, 0, "postfix",
-				fmt.Sprintf("no EDD symbols available: %d DSL row(s) would compile untyped, "+
-					"emitting integer operators for typed fields (fp- becomes -, cvfp becomes cvi). "+
-					"Import the EDD alongside the decision tables, or build into a directory that "+
-					"already holds the project's *_edd.xml", n))
+				fmt.Sprintf("no EDD in the Excel source: %d DSL row(s) would compile untyped, "+
+					"turning fp- into - and cvfp into cvi. Export your EDD into the workbook "+
+					"(dtrules sync export --force), then rebuild", n))
 		}
 		return fmt.Errorf("%s: refusing to compile with no EDD symbols — "+
 			"every field would be typed as integer", table.TableName)
