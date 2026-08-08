@@ -1,5 +1,21 @@
 # DTRules Changelog
 
+## v1.22.6 — 2026-08-08
+
+### Fixed
+
+- **EDD field names lost their authored case** (#1040). The other half of the
+  fix released in v1.22.5: decision-table names were corrected there, and EDD
+  fields go out through the same accessor with the same defect. A field
+  `Status` declared on one entity was written back as `status` once another
+  entity had declared `status` earlier, because RNames intern
+  case-insensitively and the cache keeps the first spelling seen process-wide.
+
+  Reproduced through a full export/import before fixing, with two entities
+  ordered so the lower-case spelling interns first — reversed, the bug hides,
+  which is why it survived unnoticed. Entity names were already unaffected.
+  Resolution stays case-insensitive; only the name written back out changes.
+
 ## v1.22.5 — 2026-08-08
 
 Round-tripping. A project's XML should be exactly what building from its Excel
