@@ -459,6 +459,15 @@ func (c *CLI) syncImport() int {
 		fmt.Println("No files needed import (XML is up to date).")
 	}
 
+	// Map files travel outside the main sync pipeline, so they need their own
+	// call — `build` makes it and `sync` did not. That asymmetry loses data:
+	// `sync export` left a stale map workbook behind, and a later
+	// `build --from-excel` imported that stale sheet over a good map, deleting
+	// its createentity elements and the setattributes feeding them (#1036).
+	if err := c.syncMAPFiles(c.xmlDir, c.excelDir, "excel-to-xml", c.verbose); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: MAP sync error: %v\n", err)
+	}
+
 	if len(result.Errors) > 0 {
 		fmt.Fprintf(os.Stderr, "\nErrors occurred:\n")
 		for _, e := range result.Errors {
@@ -506,6 +515,12 @@ func (c *CLI) syncExport() int {
 		fmt.Printf("✓ Exported %d file(s) from XML to Excel.\n", result.XMLToExcelCount)
 	} else {
 		fmt.Println("No files needed export (Excel is up to date).")
+	}
+
+	// See syncImport: maps need their own call, and leaving them out of the
+	// export is what makes a later from-Excel build destructive (#1036).
+	if err := c.syncMAPFiles(c.xmlDir, c.excelDir, "xml-to-excel", c.verbose); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: MAP sync error: %v\n", err)
 	}
 
 	if len(result.Errors) > 0 {
