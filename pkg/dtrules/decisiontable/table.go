@@ -59,6 +59,13 @@ type RDecisionTable struct {
 	dtrules.BaseObject
 
 	name      *dtrules.RName // The decision table's name
+	// authoredName is the name exactly as written in the source, before
+	// interning. RNames are case-insensitive and the intern cache keeps the
+	// first spelling it sees across the whole process — so an EDD field named
+	// matches_onchain, loaded before the tables, makes GetName() report a
+	// table authored as Matches_Onchain under the field's casing. Resolution
+	// should ignore case; writing the name back out should not (#1040).
+	authoredName string
 	filename  string         // Filename where the table is defined
 	filePath  string         // FILE_PATH: canonical path for Excel generation
 	tableType TableType      // Type of decision table
@@ -160,6 +167,22 @@ func (dt *RDecisionTable) Type() *dtrules.RType {
 // GetName returns the decision table's name as a string
 func (dt *RDecisionTable) GetName() string {
 	return dt.name.StringValue()
+}
+
+// AuthoredName returns the table name as written in the source, falling back
+// to the interned name when the source spelling was not recorded. Use it when
+// writing the name back out — to Excel, to XML, to a report — so a round trip
+// preserves what the author wrote. Use GetName for lookup and comparison.
+func (dt *RDecisionTable) AuthoredName() string {
+	if dt.authoredName != "" {
+		return dt.authoredName
+	}
+	return dt.GetName()
+}
+
+// SetAuthoredName records the source spelling of the table name.
+func (dt *RDecisionTable) SetAuthoredName(name string) {
+	dt.authoredName = name
 }
 
 // GetRName returns the decision table's name

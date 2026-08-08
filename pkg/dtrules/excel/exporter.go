@@ -728,7 +728,10 @@ func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*
 }
 
 func (e *Exporter) writeDecisionTable(f *excelize.File, dt *decisiontable.RDecisionTable, styler *Styler) error {
-	name := dt.GetName()
+	// AuthoredName, not GetName: the interned name carries whatever casing was
+	// seen first anywhere in the project, so writing it back renames the
+	// author's table (#1040).
+	name := dt.AuthoredName()
 	sheetName := sanitizeSheetName(name)
 
 	for i := 1; ; i++ {
@@ -774,7 +777,7 @@ func (e *Exporter) writeDecisionTable(f *excelize.File, dt *decisiontable.RDecis
 }
 
 func (e *Exporter) writeName(f *excelize.File, sheet string, dt *decisiontable.RDecisionTable, row, numCols int, styler *Styler) int {
-	displayName := strings.ReplaceAll(dt.GetName(), "_", " ")
+	displayName := strings.ReplaceAll(dt.AuthoredName(), "_", " ")
 	startCell := cellName(1, row)
 	endCell := cellName(3+numCols, row)
 	f.MergeCell(sheet, startCell, endCell)
