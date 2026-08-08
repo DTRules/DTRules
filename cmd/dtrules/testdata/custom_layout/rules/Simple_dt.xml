@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
-<decision_table>
+
+<!-- TABLE 100: SimpleRule -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Simple.xlsx</relative_path>
+<file_name>Simple.xlsx</file_name>
+<sheet_number>1</sheet_number>
+</source>
 <table_name>SimpleRule</table_name>
+<xls_file>Simple.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>A simple test rule</COMMENTS>
+<TABLE_NUMBER>100</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
 <conditions></conditions>
 <actions></actions>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>
