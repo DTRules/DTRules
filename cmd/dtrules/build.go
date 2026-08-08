@@ -434,6 +434,21 @@ func (c *CLI) runExcelAuthoredBuild(xmlDir, excelDir string, opts *buildOptions)
 	syncOpts := dtrsync.DefaultOptions()
 	syncOpts.Verbose = opts.verbose
 
+	// Reaching this branch already decided the answer: --from-excel, or an
+	// xml/ that does not exist yet, or detection saying Excel is newer.
+	// Without forcing it, SyncAll re-derives direction per workbook from
+	// mtimes and answers NoSync whenever the XML is not older — so the
+	// import silently did not run, reporting "XML is already up to date"
+	// with tables=0 and files-written=0.
+	//
+	// That made content drift uncorrectable. Excel is the system of record,
+	// but a project whose XML was written by an older exporter could not be
+	// brought back into agreement through build at any timestamp, while
+	// verify's rebuild (into an empty directory, so always written) saw the
+	// current format. verify then reported `content differs from build
+	// output` forever (#1051).
+	syncOpts.ForceDirection = dtrsync.ExcelToXML
+
 	syncer := dtrsync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
 	syncer.SetUseCombinedWorkbooks(true)
 
