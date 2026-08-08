@@ -77,15 +77,27 @@ load, and in what order. A typical file looks like this:
       </RuleSet>
     </DTRules>
 
-Key elements:
-  - RuleSet name      Identifier used when loading the rule set in code
-  - RuleSetFilePath   Path prefix for XML file loading (relative to project root)
-  - Entities          EDD file (entity definitions)
-  - Decisiontables    DT file (business rules)
-  - Map               Map file (value mappings, optional)
+What DTRules actually reads
+---------------------------
+Only three elements affect behaviour today:
 
-Multiple <Entities> and <Decisiontables> elements are allowed — the engine
-loads them in the order listed.
+  - xml_dir           Where the rules XML lives (see the next section)
+  - excel_dir         Where the workbooks live
+  - entry             Default entry table, so run and debug need no --entry
+  - RuleSetFilePath   Legacy spelling of xml_dir, root-relative ("/xml").
+                      Honoured when xml_dir is absent; xml_dir wins.
+
+Everything else in the example above is inert. The engine discovers rule files
+by scanning the rules directory, so it does not consult these:
+
+  - RuleSet name, WorkingDirectory, compiler, compileralias
+  - Entities, Decisiontables, Map — file lists; the loader globs instead
+  - DTExcelFolder, EDDExcelFolder, EDDExcelFile — these name the historical
+    .xls authoring directories, not the .xlsx workbooks excel_dir means, so
+    they are deliberately not treated as excel_dir
+
+They are harmless to leave in place; a project carrying them is not broken. But
+changing one changes nothing, which is worth knowing before you try.
 
 
 Custom Directory Overrides in DTRules.xml

@@ -15,6 +15,7 @@
 package apiserver
 
 import (
+	"github.com/DTRules/DTRules/pkg/dtrules/project"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -94,7 +95,7 @@ func DiscoverProjects(root string) []DiscoveredProject {
 				Marker: marker,
 			}
 			if marker == "DTRules.xml" {
-				p.Entry = readProjectConfig(dir).Entry
+				p.Entry = project.Load(dir).Entry
 			}
 			found = append(found, p)
 			return

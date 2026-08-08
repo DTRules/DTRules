@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
+	"github.com/DTRules/DTRules/pkg/dtrules/project"
 )
 
 // Project holds all loaded decision tables for a DTRules project. It provides
@@ -92,7 +93,14 @@ type dtFileEntry struct {
 //
 // If neither layout matches, returns an error explaining both options.
 func OpenProject(path string) (*Project, error) {
-	declaredXML, declaredExcel := readProjectManifest(path)
+	cfg := project.Load(path)
+	declaredXML, declaredExcel := "", ""
+	if cfg.Declared["xml_dir"] || cfg.Declared["RuleSetFilePath"] {
+		declaredXML = cfg.XMLDir
+	}
+	if cfg.Declared["excel_dir"] {
+		declaredExcel = cfg.ExcelDir
+	}
 
 	xmlDir := declaredXML
 	if xmlDir == "" {
@@ -457,44 +465,4 @@ func (p *Project) DeleteTable(name, reason string) error {
 	p.logChange("delete table `%s` from `%s` — %q", name, rel, strings.TrimSpace(reason))
 	p.dropIfEmpty(fi, fmt.Sprintf("last table removed: %s", strings.TrimSpace(reason)))
 	return nil
-}
-
-// projectManifest is the subset of DTRules.xml the authoring layer needs.
-type projectManifest struct {
-	XMLDir   string `xml:"xml_dir"`
-	ExcelDir string `xml:"excel_dir"`
-}
-
-// readProjectManifest returns the directories a project declares, resolved
-// against its root. Empty strings mean "not declared" and the caller falls back
-// to the conventional layout.
-//
-// The authoring API used to hardcode `<path>/xml` and `<path>/excel`, so a
-// project laid out per its own manifest could not be opened at all — and the
-// obvious workaround, pointing --project at whatever directory happened to
-// contain an xml/, silently retargeted writes at a different workbook (#1049).
-// build and verify have read the manifest since #1031; this closes the gap.
-func readProjectManifest(root string) (xmlDir, excelDir string) {
-	data, err := os.ReadFile(filepath.Join(root, "DTRules.xml"))
-	if err != nil {
-		return "", ""
-	}
-	var m projectManifest
-	if err := xml.Unmarshal(data, &m); err != nil {
-		// A malformed manifest is not the authoring layer's to report; the
-		// conventional layout is a reasonable answer and `verify` says so
-		// properly.
-		return "", ""
-	}
-	resolve := func(rel string) string {
-		rel = strings.TrimSpace(rel)
-		if rel == "" {
-			return ""
-		}
-		if filepath.IsAbs(rel) {
-			return rel
-		}
-		return filepath.Join(root, rel)
-	}
-	return resolve(m.XMLDir), resolve(m.ExcelDir)
 }
