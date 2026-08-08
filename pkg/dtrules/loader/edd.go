@@ -329,8 +329,9 @@ func (l *EDDLoader) processField(refEntity *entity.REntity, field *EDDField) err
 		return fmt.Errorf("failed to add field %s: %s", field.Name, errStr)
 	}
 
-	// Record the spelling the author used, so writing the EDD back out does
-	// not rename the field to whatever casing was interned first (#1040).
+	// Record the spelling the author used. Case is display only — it never
+	// changes which field this is — but writing the EDD back out must not
+	// restyle it to whatever spelling was interned first (#1040).
 	if entry := refEntity.GetEntry(attributeName); entry != nil {
 		entry.AuthoredName = strings.TrimSpace(field.Name)
 	}

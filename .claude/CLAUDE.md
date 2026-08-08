@@ -102,6 +102,31 @@ Hard rules:
 
 See `dtrules docs workflow` for the build pipeline.
 
+## EL is case-insensitive (CRITICAL)
+
+`Status` and `status` are **one name**, not two that clash. There is no
+ambiguity to resolve and nothing to disambiguate — "collision" is a
+case-sensitive-language idea and does not apply here. If you catch yourself
+reasoning about the *risk* of two spellings meeting, the model is wrong: they
+were always the same thing.
+
+Case is for people — readability and project conventions (`Compute_Tax_Return`
+for a table, `taxpayer.gross_income` for a field). It means nothing to
+execution, and no rule ever behaves differently because of it.
+
+It must still be **preserved**, for two reasons, neither of them correctness:
+the author's chosen spelling is theirs to keep, and the XML must round-trip
+byte-identically because that is what `dtrules verify` compares.
+
+- Matching a name — regex, map key, comparison — must normalise
+  (`strings.EqualFold`, `/i`, lowercased keys).
+- Writing a name back out — Excel, XML, a report — must use the **authored**
+  spelling, never the interned one. `RDecisionTable.AuthoredName()` and
+  `EntityEntry.AuthoredName` exist for exactly this (#1040).
+- Do not describe differing case as a conflict in issues, commits or docs. It
+  teaches the wrong model to whoever reads next.
+
+
 ## State Tax Implementation
 
 ### CRITICAL: Use Separate Files Per State

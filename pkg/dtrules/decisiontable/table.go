@@ -58,17 +58,25 @@ func (t TableType) String() string {
 type RDecisionTable struct {
 	dtrules.BaseObject
 
-	name      *dtrules.RName // The decision table's name
-	// authoredName is the name exactly as written in the source, before
-	// interning. RNames are case-insensitive and the intern cache keeps the
-	// first spelling it sees across the whole process — so an EDD field named
-	// matches_onchain, loaded before the tables, makes GetName() report a
-	// table authored as Matches_Onchain under the field's casing. Resolution
-	// should ignore case; writing the name back out should not (#1040).
+	name *dtrules.RName // The decision table's name
+	// authoredName is the name exactly as written in the source.
+	//
+	// EL names are case-insensitive, so Matches_Onchain and matches_onchain are
+	// ONE name. Case means nothing to execution — it is for people, to make a
+	// table readable and to follow a project's conventions. Resolution ignores
+	// it deliberately.
+	//
+	// It still has to survive a write. The intern cache keeps the first
+	// spelling seen process-wide, so an EDD field written matches_onchain and
+	// loaded before the tables made GetName() report a table authored as
+	// Matches_Onchain under the field's spelling — and the exporter wrote that
+	// to the sheet. Nothing ran differently; the XML simply stopped matching
+	// what building from Excel produced, which is what `dtrules verify`
+	// compares (#1040).
 	authoredName string
-	filename  string         // Filename where the table is defined
-	filePath  string         // FILE_PATH: canonical path for Excel generation
-	tableType TableType      // Type of decision table
+	filename     string    // Filename where the table is defined
+	filePath     string    // FILE_PATH: canonical path for Excel generation
+	tableType    TableType // Type of decision table
 
 	maxCol int // Number of columns in this decision table
 
