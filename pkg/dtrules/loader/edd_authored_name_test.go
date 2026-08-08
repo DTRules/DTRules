@@ -25,11 +25,14 @@ import (
 // TestEDDFieldKeepsAuthoredCase is the EDD half of #1040.
 //
 // Decision-table names were fixed first; EDD fields go out through the same
-// accessor and had the same defect. RNames intern case-insensitively and the
-// cache keeps the first spelling seen process-wide, so a field `Status`
-// declared on one entity reported as `status` once another entity had declared
-// `status` earlier — and the exporter wrote that back, renaming the author's
-// field on every build.
+// accessor and had the same defect.
+//
+// `Status` and `status` are ONE name — EL is case-insensitive, and no rule ever
+// behaved differently. Case is display only, for readability and a project's
+// conventions. But the intern cache keeps the first spelling seen process-wide,
+// so a field declared `Status` was written back as `status` once another entity
+// had declared `status` earlier, and the XML stopped matching what building
+// from Excel produced.
 //
 // The entities are ordered so the lower-case spelling interns first. Reverse
 // them and the bug hides, which is why this fixture is written the way it is.

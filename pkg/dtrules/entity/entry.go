@@ -25,14 +25,24 @@ import (
 // EntityEntry holds attribute type and metadata for an entity attribute.
 // Each attribute has an index into the entity's values slice.
 type EntityEntry struct {
-	Entity       *REntity       // The owning entity
-	Attribute    *dtrules.RName // The name of this attribute
-	// AuthoredName is the field name exactly as written in the EDD, before
-	// interning. RNames are case-insensitive and the intern cache keeps the
-	// first spelling seen across the whole process, so a field `Status` on one
-	// entity is reported as `status` when another entity declared `status`
-	// first — and the exporter wrote that back, renaming the author's field
-	// (#1040). Empty for entries created by paths that record no spelling.
+	Entity    *REntity       // The owning entity
+	Attribute *dtrules.RName // The name of this attribute
+	// AuthoredName is the field name exactly as written in the EDD.
+	//
+	// EL names are case-insensitive, so `Status` and `status` are ONE name —
+	// not two that clash. Case carries no meaning to the engine at all; it is
+	// for people, to make a field readable and to follow a project's naming
+	// conventions. Resolution ignores it and always will.
+	//
+	// It still has to survive a write. The intern cache keeps the first
+	// spelling it sees process-wide, so without this the exporter wrote back
+	// whichever spelling happened to be interned first and silently restyled
+	// the author's field. Nothing computed differently — but the XML no longer
+	// matched what building from Excel produced, and byte-equality is what
+	// `dtrules verify` compares (#1040).
+	//
+	// Empty for entries created by paths that record no spelling; callers fall
+	// back to the interned name.
 	AuthoredName string
 	DefaultTxt   string         // Text representation of default value
 	DefaultValue dtrules.Object // Default value (may be nil)

@@ -22,16 +22,22 @@ import (
 
 // TestAuthoredNameSurvivesInterning pins #1040.
 //
-// RNames are interned case-insensitively and the cache keeps the first
-// spelling it sees, process-wide and across namespaces. So an EDD field named
-// `matches_onchain`, loaded before the decision tables, made GetName() report
-// a table authored as `Matches_Onchain` under the field's casing — and the
-// exporter, which named the sheet from GetName(), silently renamed the table.
-// The next import read the new name back, so the name could never round-trip.
+// EL names are case-insensitive: `Matches_Onchain` and `matches_onchain` are
+// ONE name, and always resolved to the same table. Case is display only — it
+// exists so people can read a name, not so the engine can tell two apart.
+//
+// The intern cache keeps the first spelling seen process-wide, so an EDD field
+// written `matches_onchain` and loaded before the tables made GetName() report
+// the table under the field's spelling, and the exporter wrote that to the
+// sheet. Nothing executed differently. What broke is that the XML stopped
+// matching what building from Excel produced, and byte-equality is what
+// `dtrules verify` compares.
 //
 // Resolution stays case-insensitive. Only what gets written back out changes.
 func TestAuthoredNameSurvivesInterning(t *testing.T) {
-	// Intern the lower-case spelling first, the way an EDD field would.
+	// Intern the lower-case spelling first, the way an EDD field declared
+	// earlier in the project would. Same name either way — this only decides
+	// which styling the cache hands back.
 	if rn := dtrules.GetRName("matches_onchain"); rn == nil {
 		t.Fatal("could not intern the lower-case name")
 	}

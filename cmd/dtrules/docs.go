@@ -124,6 +124,20 @@ EL is the REQUIRED format for writing decision table conditions and actions.
 EL is case-insensitive. Articles (a, an, the) are ignored by the parser.
 Statements are separated by semicolons. Comments use // or /* ... */.
 
+What case-insensitive means here:
+    taxpayer.filing_status and Taxpayer.Filing_Status are the SAME name.
+    Not two names that clash — one name, written two ways. There is no
+    ambiguity to resolve and nothing to disambiguate.
+
+    Case is for you, not the engine. Use it to make a name readable, or to
+    follow your project's conventions: Compute_Tax_Return for a table,
+    taxpayer.gross_income for a field. The engine ignores it entirely when
+    resolving a name, and always will.
+
+    DTRules preserves the spelling you write when it writes your rules back
+    out to Excel or XML, so your conventions survive a build. It does not
+    treat a different spelling as a different thing.
+
 Always use EL in *_dsl tags
 (e.g., condition_dsl, action_dsl, context_dsl, initial_action_dsl).
 

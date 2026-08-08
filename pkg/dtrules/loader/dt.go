@@ -108,7 +108,7 @@ type DTSource struct {
 type DTTable struct {
 	// NameAttr captures the 'name' attribute on <decision_table name="...">
 	// Used by the EL XML format (e.g., CorporateTax, staking)
-	NameAttr         string             `xml:"name,attr" json:"-"`
+	NameAttr string `xml:"name,attr" json:"-"`
 	// NumberAttr captures the 'number' attribute on <decision_table number="...">
 	NumberAttr       string             `xml:"number,attr" json:"-"`
 	Source           *DTSource          `xml:"source,omitempty" json:"-"`
@@ -216,14 +216,14 @@ func (a DTInitialActions) All() []DTInitialAction {
 // (action_dsl/action_postfix on <initial_action>) and the EL-aware
 // authoring SDK form (initial_action_dsl/initial_action_postfix).
 type DTInitialAction struct {
-	Number             int    `xml:"action_number" json:"action_number"`
-	Comment            string `xml:"action_comment" json:"action_comment,omitempty"`
-	InitialComment     string `xml:"initial_action_comment" json:"initial_action_comment,omitempty"`
-	DSL                string `xml:"initial_action_dsl" json:"initial_action_dsl,omitempty"`
-	ActionDSL          string `xml:"action_dsl" json:"action_dsl,omitempty"`
-	Description        string `xml:"action_description" json:"action_description"`
-	Postfix            string `xml:"action_postfix" json:"action_postfix"`
-	InitialActPostfix  string `xml:"initial_action_postfix" json:"initial_action_postfix,omitempty"`
+	Number            int    `xml:"action_number" json:"action_number"`
+	Comment           string `xml:"action_comment" json:"action_comment,omitempty"`
+	InitialComment    string `xml:"initial_action_comment" json:"initial_action_comment,omitempty"`
+	DSL               string `xml:"initial_action_dsl" json:"initial_action_dsl,omitempty"`
+	ActionDSL         string `xml:"action_dsl" json:"action_dsl,omitempty"`
+	Description       string `xml:"action_description" json:"action_description"`
+	Postfix           string `xml:"action_postfix" json:"action_postfix"`
+	InitialActPostfix string `xml:"initial_action_postfix" json:"initial_action_postfix,omitempty"`
 }
 
 // GetDSL returns the first non-empty DSL field, preferring initial_action_dsl
@@ -405,11 +405,11 @@ func (l *DTLoader) processTable(table *DTTable) error {
 
 	// Create the decision table using the builder.
 	//
-	// tableName, not name.StringValue(): the RName is interned
-	// case-insensitively and keeps whatever spelling was seen first anywhere
-	// in the project, so passing it through would hand the builder some other
-	// declaration's casing. The exporter writes the sheet from this, and an
-	// EDD field sharing the name was silently renaming the table (#1040).
+	// tableName, not name.StringValue(): the RName has already been through the
+	// intern cache, which keeps the first spelling seen anywhere in the
+	// project. Case is display only — it never changes which table this is —
+	// but passing the interned string here hands the builder some other
+	// declaration's styling, and the exporter writes the sheet from it (#1040).
 	builder := decisiontable.NewBuilder(tableName, l.session)
 
 	// Set table type
