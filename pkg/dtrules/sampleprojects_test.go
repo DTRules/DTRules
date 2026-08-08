@@ -93,48 +93,40 @@ var sampleProjects = []SampleProject{
 }
 
 // findSampleProjectsDir locates the sampleprojects directory
+// findSampleProjectsDir locates the sampleprojects directory.
+//
+// This test runs in pkg/dtrules, so the repo root is two levels up. It used to
+// try four, five and six — all of which resolve outside the repository — and
+// then two absolute paths under one developer's home. So it never found the
+// directory and reported SKIP on every run from the day it was added
+// (2026-03-30) until this was fixed. #520 lists it as *failing*, which means it
+// ran exactly once, in a layout that no longer exists (#999).
+//
+// Not finding the directory is now fatal rather than a skip. A skip that can
+// never succeed is indistinguishable from a passing test, and this file's whole
+// subject is samples that look fine while doing nothing.
 func findSampleProjectsDir(t *testing.T) string {
 	t.Helper()
 
-	// Try relative paths from test directory
-	candidates := []string{
-		"../../../../sampleprojects",
-		"../../../../../sampleprojects",
-		"../../../../../../sampleprojects",
-	}
-
-	// Get current working directory
-	cwd, err := os.Getwd()
-	if err == nil {
-		t.Logf("Current working directory: %s", cwd)
-	}
-
-	for _, candidate := range candidates {
+	for _, candidate := range []string{
+		"../../sampleprojects", // pkg/dtrules -> repo root
+		"../sampleprojects",
+		"sampleprojects",
+	} {
 		absPath, err := filepath.Abs(candidate)
 		if err != nil {
 			continue
 		}
-		if info, err := os.Stat(absPath); err == nil && info.IsDir() {
-			// Verify it's the right directory by checking for CHIP
-			chipPath := filepath.Join(absPath, "CHIP")
-			if info, err := os.Stat(chipPath); err == nil && info.IsDir() {
-				return absPath
-			}
+		// CHIP confirms this is the samples directory and not some other
+		// directory of that name.
+		if info, err := os.Stat(filepath.Join(absPath, "CHIP")); err == nil && info.IsDir() {
+			return absPath
 		}
 	}
 
-	// Try absolute paths
-	absolutePaths := []string{
-		"/home/paul/go/src/github.com/DTRules/DTRules/sampleprojects",
-		"/home/paul/repos/github.com/DTRules/DTRules/sampleprojects",
-	}
-
-	for _, path := range absolutePaths {
-		if info, err := os.Stat(path); err == nil && info.IsDir() {
-			return path
-		}
-	}
-
+	cwd, _ := os.Getwd()
+	t.Fatalf("sampleprojects/ not found from %s — this test cannot run, and skipping "+
+		"would report success for a sweep that executed nothing", cwd)
 	return ""
 }
 
@@ -162,13 +154,17 @@ func testSampleProject(t *testing.T, baseDir string, project SampleProject) {
 		t.Skipf("Project directory not found: %s", projectDir)
 	}
 
-	// Find XML directory (try repository/xml first, then xml)
-	xmlDir := filepath.Join(projectDir, "repository/xml")
+	// A project single-sources on xml/. This used to prefer repository/xml,
+	// which is the legacy mirror the sample-repair campaign deleted precisely
+	// because it drifts: KidAid's mirror still carried
+	// `income.amount client.totalIncome swap addto` — appending a number to a
+	// number — six weeks after xml/ was corrected to
+	// `income.amount client.totalIncome + /client.totalIncome xdef` (#974).
+	// This test read the mirror, so it exercised rules nobody ships. Nobody
+	// caught it because the test never ran at all (#999).
+	xmlDir := filepath.Join(projectDir, "xml")
 	if _, err := os.Stat(xmlDir); os.IsNotExist(err) {
-		xmlDir = filepath.Join(projectDir, "xml")
-		if _, err := os.Stat(xmlDir); os.IsNotExist(err) {
-			t.Fatalf("No XML directory found in %s", projectDir)
-		}
+		t.Fatalf("no xml/ directory in %s", projectDir)
 	}
 
 	// Create RuleSet
@@ -214,11 +210,16 @@ func testSampleProject(t *testing.T, baseDir string, project SampleProject) {
 		t.Logf("  - %s", name.StringValue())
 	}
 
-	// Verify expected tables exist
+	// Verify expected tables exist.
+	//
+	// Matched case-insensitively because EL names are: authored case is
+	// display only. Comparing with == made this test demand
+	// "Error_Handling_Table" of a table the project spells
+	// "Error_handling_table", which the engine treats as the same name.
 	for _, expected := range project.ExpectedTables {
 		found := false
 		for _, name := range dtNames {
-			if name.StringValue() == expected {
+			if strings.EqualFold(name.StringValue(), expected) {
 				found = true
 				break
 			}

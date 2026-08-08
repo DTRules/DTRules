@@ -247,14 +247,22 @@ func TestKidAid_Application(t *testing.T) {
 		"Evaluate_Results",
 	}
 
+	// sp2 is a second rule set inside the same project, and its tables are
+	// named with a "-1" suffix in sp2_dt.xml itself — that is how the two sets
+	// coexist. The list here omitted the suffix, so every name missed. It went
+	// unnoticed because the whole file skipped: findSampleProjectsDir could
+	// never locate sampleprojects/ (#999).
+	//
+	// Evaluate_FOODSTAMPS_Eligibilty carries no suffix, and the misspelling is
+	// in the data. Both are as authored; this list mirrors the file.
 	expectedSp2Tables := []string{
-		"Compute_Eligibility",
-		"Calculate_Individual_Income",
-		"Calculate_Group_Size",
-		"Evaluate_KidAid_Eligibility",
-		"Evaluate_MEDICAID_Eligibility",
-		"Evaluate_FOODSTAMPS_Eligibilty", // Note: typo in original
-		"Evaluate_Results",
+		"Compute_Eligibility-1",
+		"Calculate_Individual_Income-1",
+		"Calculate_Group_Size-1",
+		"Evaluate_KidAid_Eligibility-1",
+		"Evaluate_MEDICAID_Eligibility-1",
+		"Evaluate_FOODSTAMPS_Eligibilty",
+		"Evaluate_Results-1",
 	}
 
 	t.Run("LoadKidAidRuleset", func(t *testing.T) {
@@ -409,10 +417,18 @@ func TestKidAid_Application(t *testing.T) {
 			t.Fatal("Failed to get Compute_Eligibility from kidaid ruleset")
 		}
 
+		// sp2's entry table is Compute_Eligibility-1 — see expectedSp2Tables.
 		factory2 := sess2.GetEntityFactory()
-		dt2Obj, err := factory2.GetDecisionTable(dtrules.GetRName("Compute_Eligibility"))
+		dt2Obj, err := factory2.GetDecisionTable(dtrules.GetRName("Compute_Eligibility-1"))
 		if err != nil || dt2Obj == nil {
-			t.Fatal("Failed to get Compute_Eligibility from sp2 ruleset")
+			t.Fatal("Failed to get Compute_Eligibility-1 from sp2 ruleset")
+		}
+
+		// Independence is the point of this subtest, so assert it rather than
+		// inferring it from both lookups succeeding: the two rule sets must
+		// resolve that name to different tables, not to one shared instance.
+		if dt1Obj == dt2Obj {
+			t.Error("both rulesets resolved to the same decision table object — they are not independent")
 		}
 
 		t.Log("Both rulesets are independent and functional")
