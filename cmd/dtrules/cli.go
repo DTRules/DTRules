@@ -252,7 +252,21 @@ func (c *CLI) runSync(args []string) int {
 		}
 	}
 
-	// Set defaults
+	// Fall back to what the project declares before the conventional layout.
+	// This jumped straight to ./xml and ./excel, so `dtrules sync` on a project
+	// with <xml_dir> failed with "XML directory not found: ./xml" while verify
+	// and build on the same project worked — one project, two answers, which is
+	// the shape #1031 and #1049 were (#1051).
+	if c.xmlDir == "" || c.excelDir == "" {
+		if xd, ed, err := resolveDirs(".", c.xmlDir, c.excelDir); err == nil {
+			if c.xmlDir == "" {
+				c.xmlDir = xd
+			}
+			if c.excelDir == "" {
+				c.excelDir = ed
+			}
+		}
+	}
 	if c.xmlDir == "" {
 		c.xmlDir = "./xml"
 	}
@@ -691,8 +705,19 @@ func (c *CLI) runValidate(args []string) int {
 	}
 
 	// 1. Validate project structure
+	//
+	// Resolve through the project config rather than passing the raw flags:
+	// unset flags are empty strings, and ValidateProjectStructure falls back
+	// to the literal "xml"/"excel" when it gets them, so a project declaring
+	// <excel_dir>source</excel_dir> was told `excel/ directory not found` —
+	// naming a path it does not use — while verify and review resolved it
+	// correctly. One layout must mean one answer from every command (#1031).
+	vXMLDir, vExcelDir, rerr := resolveDirs(absProjectDir, flagXMLDir, flagExcelDir)
+	if rerr != nil {
+		vXMLDir, vExcelDir = flagXMLDir, flagExcelDir
+	}
 	fmt.Println("Checking project structure...")
-	structResult, err := sync.ValidateProjectStructure(absProjectDir, flagXMLDir, flagExcelDir)
+	structResult, err := sync.ValidateProjectStructure(absProjectDir, vXMLDir, vExcelDir)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error validating structure: %v\n", err)
 		return 1
