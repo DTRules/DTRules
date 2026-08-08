@@ -403,8 +403,14 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		return fmt.Errorf("invalid decision table name syntax: %s", tableName)
 	}
 
-	// Create the decision table using the builder
-	builder := decisiontable.NewBuilder(name.StringValue(), l.session)
+	// Create the decision table using the builder.
+	//
+	// tableName, not name.StringValue(): the RName is interned
+	// case-insensitively and keeps whatever spelling was seen first anywhere
+	// in the project, so passing it through would hand the builder some other
+	// declaration's casing. The exporter writes the sheet from this, and an
+	// EDD field sharing the name was silently renaming the table (#1040).
+	builder := decisiontable.NewBuilder(tableName, l.session)
 
 	// Set table type
 	builder.SetTypeFromString(table.AttributeFields.GetType())

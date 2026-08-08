@@ -33,9 +33,9 @@ func NewBuilder(name string, session dtrules.Session) *Builder {
 	if rname == nil {
 		return nil
 	}
-	return &Builder{
-		dt: NewRDecisionTable(rname, session),
-	}
+	dt := NewRDecisionTable(rname, session)
+	dt.SetAuthoredName(name)
+	return &Builder{dt: dt}
 }
 
 // SetType sets the table type (BALANCED, FIRST, or ALL).
