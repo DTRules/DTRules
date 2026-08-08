@@ -51,6 +51,34 @@ wrong thing quietly. Two of them affect anyone running v1.22.0.
   digest test fails when the rules change without the shipped PDF being
   regenerated.
 
+### Housekeeping
+
+Thirteen issues were closed without a line of code changing, because the work
+had already shipped and nobody had walked the children of a closed umbrella.
+Audited against each issue's own acceptance criteria, not against a file
+listing:
+
+- **#850–#855 — interactive data collection.** Shipped in **v1.16.0**
+  (2026-06-17), and that release's notes describe it in full. But only the
+  #850 umbrella was referenced by number, so five delivered sub-issues sat
+  open for two months: the EDD `collect` flag and question metadata with its
+  Excel round-trip test, the per-instance `collected []bool` on `REntity` and
+  the read-point resolver, `pkg/dtrules/datafile` with both load modes, and
+  the `--interactive` and `--web` front ends.
+- **#856–#862 — the v1.16.0 website refresh.** Merged — and therefore
+  deployed — weeks ago: `tax-return.astro` removed and its content re-homed as
+  an article, the SinusitisTherapy flagship page and nav, the interview
+  documented across the site plus a dedicated guide, the install and
+  `//go:embed` story, the FAQ and features refresh, and the layout pass.
+- The operator count #860 flagged as inconsistent (75+, 180+, 179+ in
+  different places) is reconciled and correct at 330+ — 295 registered names
+  plus 52 aliases is 347 distinct callable names.
+
+Also closed: #520, whose ten tracked test failures are resolved — nine pass
+and the tenth turned out never to have run, now #999. And #981–#983, the
+combinatorial operators, delivered in v1.22.0 under the #980 umbrella and left
+open for the same reason as #851–#855.
+
 ### Also
 
 - The compiler skip is no longer silent: an importer that has DSL to compile
