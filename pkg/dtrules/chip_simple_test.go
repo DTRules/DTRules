@@ -31,32 +31,16 @@ import (
 	"github.com/DTRules/DTRules/pkg/dtrules/session"
 )
 
-// TestCHIPSimpleExecution performs a simple load and execution test
+// TestCHIPSimpleExecution loads CHIP and executes it end to end.
+//
+// The long road here (#962): this test used to assert a successful run while
+// the mapping loaded nothing into the entities it read, so it passed on a run
+// that did nothing. Fixing the mapping made three real defects visible in
+// turn — context locals invisible to their own table's rows (#965), the
+// removed `is the <R> of` form (#927), and finally the relationship endpoints
+// never loading at all, because a tag that both creates an entity and sets an
+// attribute resolved its enclosure against the entity it had just created.
 func TestCHIPSimpleExecution(t *testing.T) {
-	// Skipped: CHIP still does not execute end to end. Calculate_Group_Size
-	// works now — context locals resolve (#965) and `is the <R> of` compiles
-	// again (#927) — and execution reaches Compute_Eligibility action 3,
-	// which refers to `fpl` with nothing on the entity stack to resolve it.
-	// One more authoring defect, tracked in #962.
-	//
-	// This test asserted a successful run while the mapping loaded nothing
-	// into the entities it read, so it used to pass on a run that did nothing.
-
-	// Skipped: CHIP does not execute. Calculate_Group_Size declares
-	// `local entity ApplyingClient = client` in a context row and refers to it
-	// from every condition and action, but rows compile independently of their
-	// table's context locals, so the name resolves against nothing at run time
-	// (#965). Tracked for CHIP as #962.
-	//
-	// This test asserted a successful run while the mapping loaded nothing
-	// into the entities it read, so it passed on a run that did nothing.
-
-	// Skipped: CHIP's rules do not execute — `Calculate_Group_Size` resolves
-	// `ThisClient` against nothing (#962). This test asserted a successful run
-	// while the mapping never populated the data, so it passed on a run that
-	// did nothing; fixing the mapping made the real defect visible. Unskip
-	// when CHIP is repaired.
-
 	chipDir := findCHIPDir(t)
 	if chipDir == "" {
 		t.Skip("CHIP sample project not found")
@@ -252,4 +236,107 @@ func findChipAppDir(t *testing.T) string {
 	}
 
 	return ""
+}
+
+// TestCHIPCountsTheHousehold pins the outcome of #962: CHIP's household
+// size must include relatives found through the relationship entities, not
+// just the applicant.
+//
+// The scenario has clients 1001 and 1002 with a parent/child relationship
+// between them, encoded as <source id="1001"/> / <target id="1002"/> — a tag
+// that both creates the client entity and stores it on the enclosing
+// relationship. Until the loader resolved that enclosure correctly, source
+// and target loaded as null, every relationship row evaluated false, and the
+// applicant was a household of one.
+func TestCHIPCountsTheHousehold(t *testing.T) {
+	chipDir := findCHIPDir(t)
+	if chipDir == "" {
+		t.Skip("CHIP sample project not found")
+	}
+
+	rs := session.NewRuleSet("CHIP")
+	if err := rs.LoadFromDirectory(filepath.Join(chipDir, "xml")); err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	sess, err := rs.NewSession()
+	if err != nil {
+		t.Fatal(err)
+	}
+	mf, err := os.Open(filepath.Join(chipDir, "xml", "CHIP_map.xml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer mf.Close()
+	m := mapping.NewMapping(sess)
+	if err := m.LoadMapping(mf); err != nil {
+		t.Fatalf("mapping: %v", err)
+	}
+	df, err := os.Open(filepath.Join(chipDir, "testfiles", "TestScenarios", "TestCase_001.xml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer df.Close()
+	if err := m.LoadDataAndPushSingletons(df); err != nil {
+		t.Fatalf("data: %v", err)
+	}
+
+	state := sess.GetState()
+
+	// The relationship endpoints must be entities, not null.
+	for i := 0; i < state.EntityDepth(); i++ {
+		e, _ := state.EntityFetch(i)
+		if e == nil || e.GetName().StringValue() != "case" {
+			continue
+		}
+		ro, err := e.Get(dtrules.GetRName("relationships"))
+		if err != nil || ro == nil || ro.Type() != dtrules.TypeArray {
+			t.Fatal("case.relationships did not load")
+		}
+		arr, _ := ro.RArrayValue()
+		if len(arr.GetIterator()) == 0 {
+			t.Fatal("case.relationships is empty")
+		}
+		for _, r := range arr.GetIterator() {
+			re, _ := r.REntityValue()
+			for _, f := range []string{"source", "target"} {
+				v, err := re.Get(dtrules.GetRName(f))
+				if err != nil || v == nil || v.Type() != dtrules.TypeEntity {
+					t.Errorf("relationship.%s is %v, want an entity — the endpoint did not resolve (#962)", f, v)
+				}
+			}
+		}
+	}
+
+	entry, err := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Compute_Eligibility"))
+	if err != nil || entry == nil {
+		t.Fatalf("entry table: %v", err)
+	}
+	if err := entry.Execute(state); err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+
+	// 1001 (applying, age 50) and 1002 (age 4) are parent and child, so the
+	// household is 2. A count of 1 means the relationship rows found nothing.
+	found := false
+	for i := 0; i < state.EntityDepth(); i++ {
+		e, _ := state.EntityFetch(i)
+		if e == nil || e.GetName().StringValue() != "client" {
+			continue
+		}
+		v, err := e.Get(dtrules.GetRName("incomeGroupCount"))
+		if err != nil || v == nil {
+			continue
+		}
+		n, err := v.IntValue()
+		if err != nil {
+			continue
+		}
+		found = true
+		if n != 2 {
+			t.Errorf("incomeGroupCount = %d, want 2 (applicant plus the related child)", n)
+		}
+	}
+	if !found {
+		t.Error("no client carried an incomeGroupCount")
+	}
 }
