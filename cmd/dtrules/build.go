@@ -177,6 +177,14 @@ func (c *CLI) runBuild(args []string) int {
 	case "xml":
 		code = c.runXMLAuthoredBuild(xmlDir, excelDir, opts)
 	default:
+		// MAP files sit outside the main sync pipeline, whose "nothing to
+		// sync" verdict only considers DT/EDD workbooks. Without this, a map
+		// sheet stale enough to be missing createentity `list=` could never
+		// be refreshed by `dtrules build` at all — and the #993 guard's
+		// advice to re-export would be advice the tool could not take.
+		if err := c.syncMAPFiles(xmlDir, excelDir, "xml-to-excel", opts.verbose); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: MAP sync error: %v\n", err)
+		}
 		code = runNoSyncAdvisory(xmlDir)
 	}
 	if code != 0 {
@@ -617,6 +625,56 @@ func (c *CLI) runBuildDryRun(xmlDir, excelDir, authoringPath string, opts *build
 	return 0
 }
 
+// createEntityKey identifies a createentity row across a round trip. Entity
+// plus tag is what the mapping loader keys on; `list` is the attribute at
+// risk, so it is deliberately not part of the identity.
+func createEntityKey(ce excel.MapCreateEntity) string {
+	return ce.Entity + "\x00" + ce.Tag + "\x00" + ce.ID
+}
+
+// listsLost reports whether the imported rows dropped a `list=` that the
+// existing XML carried. A sheet predating the list column reads back with
+// every List empty (#993).
+func listsLost(imported, existing []excel.MapCreateEntity) bool {
+	have := map[string]string{}
+	for _, ce := range existing {
+		if ce.List != "" {
+			have[createEntityKey(ce)] = ce.List
+		}
+	}
+	if len(have) == 0 {
+		return false
+	}
+	for _, ce := range imported {
+		if ce.List == "" && have[createEntityKey(ce)] != "" {
+			return true
+		}
+	}
+	return false
+}
+
+// mergeCreateEntityLists restores a `list=` the sheet could not carry,
+// leaving every other imported value alone — an edit made in Excel still
+// wins, only the unrepresentable attribute is recovered.
+func mergeCreateEntityLists(imported, existing []excel.MapCreateEntity) []excel.MapCreateEntity {
+	have := map[string]string{}
+	for _, ce := range existing {
+		if ce.List != "" {
+			have[createEntityKey(ce)] = ce.List
+		}
+	}
+	out := make([]excel.MapCreateEntity, len(imported))
+	copy(out, imported)
+	for i := range out {
+		if out[i].List == "" {
+			if l, ok := have[createEntityKey(out[i])]; ok {
+				out[i].List = l
+			}
+		}
+	}
+	return out
+}
+
 // syncMAPFiles handles _map.xml ↔ _map.xlsx synchronization which the main
 // sync pipeline skips. direction is "xml-to-excel" or "excel-to-xml".
 func (c *CLI) syncMAPFiles(xmlDir, excelDir, direction string, verbose bool) error {
@@ -681,20 +739,43 @@ func (c *CLI) syncMAPFiles(xmlDir, excelDir, direction string, verbose bool) err
 		if mapXML == nil || len(mapXML.Entries) == 0 {
 			return nil
 		}
-		// Clobber guard: a sheet written before the structural-section
-		// round-trip fix carries no createentity / cardinality /
-		// initialization rows. Overwriting an XML that HAS them with a
-		// model that has none would silently break the project's data
-		// loading — carry the existing sections forward and warn.
-		if len(mapXML.CreateEntities)+len(mapXML.EntityDecls)+len(mapXML.InitialEntities) == 0 {
-			if existing, lerr := excel.LoadMapXMLFromFile(xmlPath); lerr == nil {
-				if len(existing.CreateEntities)+len(existing.EntityDecls)+len(existing.InitialEntities) > 0 {
-					mapXML.CreateEntities = existing.CreateEntities
-					mapXML.EntityDecls = existing.EntityDecls
-					mapXML.InitialEntities = existing.InitialEntities
-					fmt.Printf("  Warning: %s has no structural sections (pre-fix sheet); kept the sections from %s — re-export to refresh the sheet\n",
-						filepath.Base(path), filepath.Base(xmlPath))
-				}
+		// Clobber guard. A workbook written by an older DTRules can be
+		// missing structure the XML has, and importing it would quietly
+		// delete that structure from a working ruleset. Two shapes, both
+		// seen in the wild:
+		//
+		//   1. No structural rows at all (pre-#938 sheet).
+		//   2. createentity rows present but their `list` column empty,
+		//      because the sheet predates that column (#993). This one is
+		//      nastier: the section is non-empty, so a count-based guard
+		//      passes it through, and `list=` is what appends each parsed
+		//      entity onto the collection the tables iterate. Losing it
+		//      leaves every `for all` running over an empty array — the
+		//      Accumulate staking ruleset silently returned 0 for every
+		//      staked balance while the build printed "OK — no drops".
+		//
+		// The rule: never let an import *remove* structure. Compare
+		// against the XML being replaced and carry forward anything the
+		// sheet cannot account for.
+		if existing, lerr := excel.LoadMapXMLFromFile(xmlPath); lerr == nil {
+			warn := func(what string) {
+				fmt.Printf("  Warning: %s is missing %s that %s has; kept the existing values — re-export to refresh the sheet\n",
+					filepath.Base(path), what, filepath.Base(xmlPath))
+			}
+			if len(mapXML.CreateEntities) == 0 && len(existing.CreateEntities) > 0 {
+				mapXML.CreateEntities = existing.CreateEntities
+				warn("createentity rows")
+			} else if listsLost(mapXML.CreateEntities, existing.CreateEntities) {
+				mapXML.CreateEntities = mergeCreateEntityLists(mapXML.CreateEntities, existing.CreateEntities)
+				warn("createentity list= attributes")
+			}
+			if len(mapXML.EntityDecls) == 0 && len(existing.EntityDecls) > 0 {
+				mapXML.EntityDecls = existing.EntityDecls
+				warn("entity cardinality declarations")
+			}
+			if len(mapXML.InitialEntities) == 0 && len(existing.InitialEntities) > 0 {
+				mapXML.InitialEntities = existing.InitialEntities
+				warn("the initialization stack")
 			}
 		}
 		if err := os.MkdirAll(filepath.Dir(xmlPath), 0755); err != nil {
