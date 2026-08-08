@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
-  <entity name="test" access="rw" comment="Test entity">
-    <field name="value" type="integer" subtype="" access="rw" input="" default_value="" comment="A test value" />
-  </entity>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>Simple_edd</file_path>
+	</file_metadata>
+	<entity name="test" number="100" xls_file="Simple.xlsx" access="rw">
+		<source>
+			<relative_path>Simple.xlsx</relative_path>
+			<file_name>Simple.xlsx</file_name>
+			<sheet_number>2</sheet_number>
+		</source>
+		<field name="value" type="integer" subtype="" access="rw" input="" default_value="" comment="A test value"></field>
+	</entity>
 </entity_data_dictionary>

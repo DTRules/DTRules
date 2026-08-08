@@ -41,27 +41,27 @@ func TestVerifyCustomLayoutViaFlags(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	var code int
 	stderr := captureStderr(t, func() {
 		cli := NewCLI()
-		cli.runVerify([]string{
+		code = cli.runVerify([]string{
 			"--xml-dir", "rules",
 			"--excel-dir", "workbooks",
 			absFixture,
 		})
 	})
 
-	// What this test is for is path resolution: --xml-dir and --excel-dir
-	// must be honoured. It is not a statement about the fixture being
-	// contract-clean.
+	// Path resolution is the subject, but the fixture is now contract-clean
+	// (its XML is what building from its workbook produces), so this asserts
+	// the stronger thing: verify passes end to end.
 	//
-	// It used to assert exit 0, on the stated premise that "workbooks/ is
-	// absent ... all checks are skipped due to missing excel dir". The
-	// workbook was added later, so that premise stopped holding — and the
-	// assertion kept passing anyway, because the build-idempotency gate was
-	// itself inert (#1010). With the gate working, the fixture does not
-	// round-trip: importing its workbook yields no tables at all, which is a
-	// real defect in its own right and tracked separately.
+	// It briefly asserted only resolution, on my mistaken reading that the
+	// fixture could not round-trip. It can — regenerating its XML from the
+	// workbook was all it needed (#1013).
 	assertDirsResolved(t, stderr)
+	if code != 0 {
+		t.Errorf("expected exit 0 on a clean custom-layout project, got %d\n%s", code, stderr)
+	}
 }
 
 // TestVerifyCustomLayoutViaDTRulesXML verifies that DTRules.xml declaring
@@ -78,13 +78,16 @@ func TestVerifyCustomLayoutViaDTRulesXML(t *testing.T) {
 	}
 
 	// No --xml-dir / --excel-dir flags; resolution should come from
-	// DTRules.xml. As above, the subject is resolution, not the fixture's
-	// consistency (#1010).
+	// DTRules.xml.
+	var code int
 	stderr := captureStderr(t, func() {
 		cli := NewCLI()
-		cli.runVerify([]string{absFixture})
+		code = cli.runVerify([]string{absFixture})
 	})
 	assertDirsResolved(t, stderr)
+	if code != 0 {
+		t.Errorf("expected exit 0 when DTRules.xml declares the dirs, got %d\n%s", code, stderr)
+	}
 }
 
 // assertDirsResolved fails if verify could not locate the project's xml or
