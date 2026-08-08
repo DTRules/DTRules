@@ -15,8 +15,11 @@
 package main
 
 import (
+	"bytes"
+	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -38,18 +41,27 @@ func TestVerifyCustomLayoutViaFlags(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cli := NewCLI()
-	code := cli.runVerify([]string{
-		"--xml-dir", "rules",
-		"--excel-dir", "workbooks",
-		absFixture,
+	stderr := captureStderr(t, func() {
+		cli := NewCLI()
+		cli.runVerify([]string{
+			"--xml-dir", "rules",
+			"--excel-dir", "workbooks",
+			absFixture,
+		})
 	})
-	// verify should exit 0: rules/ exists, workbooks/ is absent but that's
-	// acceptable (only fails when both are missing). All checks either pass
-	// or are skipped due to missing excel dir.
-	if code != 0 {
-		t.Errorf("expected exit 0, got %d", code)
-	}
+
+	// What this test is for is path resolution: --xml-dir and --excel-dir
+	// must be honoured. It is not a statement about the fixture being
+	// contract-clean.
+	//
+	// It used to assert exit 0, on the stated premise that "workbooks/ is
+	// absent ... all checks are skipped due to missing excel dir". The
+	// workbook was added later, so that premise stopped holding — and the
+	// assertion kept passing anyway, because the build-idempotency gate was
+	// itself inert (#1010). With the gate working, the fixture does not
+	// round-trip: importing its workbook yields no tables at all, which is a
+	// real defect in its own right and tracked separately.
+	assertDirsResolved(t, stderr)
 }
 
 // TestVerifyCustomLayoutViaDTRulesXML verifies that DTRules.xml declaring
@@ -65,12 +77,53 @@ func TestVerifyCustomLayoutViaDTRulesXML(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// No --xml-dir / --excel-dir flags; resolution should come from DTRules.xml.
-	cli := NewCLI()
-	code := cli.runVerify([]string{absFixture})
-	if code != 0 {
-		t.Errorf("expected exit 0 when DTRules.xml declares dirs, got %d", code)
+	// No --xml-dir / --excel-dir flags; resolution should come from
+	// DTRules.xml. As above, the subject is resolution, not the fixture's
+	// consistency (#1010).
+	stderr := captureStderr(t, func() {
+		cli := NewCLI()
+		cli.runVerify([]string{absFixture})
+	})
+	assertDirsResolved(t, stderr)
+}
+
+// assertDirsResolved fails if verify could not locate the project's xml or
+// excel directory. That error, and not the exit code, is what these tests are
+// actually about.
+func assertDirsResolved(t *testing.T, stderr string) {
+	t.Helper()
+	for _, bad := range []string{
+		"could not find xml directory",
+		"could not find excel directory",
+		"no xml/ or excel/ directory found",
+	} {
+		if strings.Contains(stderr, bad) {
+			t.Errorf("directory resolution failed: %s\n%s", bad, stderr)
+		}
 	}
+}
+
+// captureStderr runs fn with os.Stderr redirected and returns what it wrote.
+func captureStderr(t *testing.T, fn func()) string {
+	t.Helper()
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	orig := os.Stderr
+	os.Stderr = w
+	done := make(chan string, 1)
+	go func() {
+		var buf bytes.Buffer
+		_, _ = io.Copy(&buf, r)
+		done <- buf.String()
+	}()
+	fn()
+	os.Stderr = orig
+	_ = w.Close()
+	out := <-done
+	_ = r.Close()
+	return out
 }
 
 // TestVerifyLegacyLayoutStillWorks ensures that a project with the standard

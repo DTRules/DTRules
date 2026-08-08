@@ -185,8 +185,26 @@ func checkBuildIdempotency(projectDir, xmlDir, excelDir string, opts *verifyOpti
 		return []verifyFailure{{kind: "build", message: fmt.Sprintf("failed to copy project: %v", err)}}
 	}
 
-	tmpXML := filepath.Join(tmpDir, "xml")
-	tmpExcel := filepath.Join(tmpDir, "excel")
+	// copyDir places the project under tmpDir/<basename>, and xml/ and excel/
+	// are not always spelled that way — a project's DTRules.xml can point
+	// elsewhere, which is why this function is handed xmlDir and excelDir
+	// rather than guessing. Mirror the real layout instead of assuming.
+	//
+	// Both were previously hardcoded as tmpDir/xml and tmpDir/excel, one level
+	// above where the copy lands. Nothing existed at those paths, so the
+	// rebuild below was skipped and the comparison loop skipped both trees:
+	// this gate has never compared anything, and reported "consistent with its
+	// Excel source" for every project it was ever run on (#1010).
+	copyRoot := filepath.Join(tmpDir, filepath.Base(projectDir))
+	tmpXML := relocate(projectDir, copyRoot, xmlDir)
+	tmpExcel := relocate(projectDir, copyRoot, excelDir)
+
+	// A gate that cannot see its inputs must say so rather than pass. Silently
+	// skipping is what made this check inert for its entire existence.
+	if !dirExists(tmpXML) {
+		return []verifyFailure{{kind: "build", message: fmt.Sprintf(
+			"internal: copied XML tree not found at %s — the idempotency check cannot run", tmpXML)}}
+	}
 
 	// Run the build pipeline on the copy (always Excel-authored: Excel→XML)
 	if dirExists(tmpExcel) {
@@ -945,4 +963,16 @@ Examples:
   dtrules verify ./sampleprojects/TaxReturn
   dtrules verify --diff --strict
   dtrules verify --xml-dir pkg/dtrules/rules --excel-dir pkg/dtrules/excel /path/to/project`)
+}
+
+// relocate maps a path under root onto the same position under newRoot.
+// Used to find the copied xml/ and excel/ trees whatever they are named,
+// rather than assuming the conventional spelling (#1010).
+func relocate(root, newRoot, path string) string {
+	rel, err := filepath.Rel(root, path)
+	if err != nil || strings.HasPrefix(rel, "..") {
+		// Outside the project: not something the copy contains.
+		return filepath.Join(newRoot, filepath.Base(path))
+	}
+	return filepath.Join(newRoot, rel)
 }
