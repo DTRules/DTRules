@@ -1,5 +1,61 @@
 # DTRules Changelog
 
+## v1.22.3 — 2026-08-08
+
+`dtrules verify` now actually performs the check the authoring contract rests
+on. Read the second half of this entry before turning it on in CI.
+
+### Fixed
+
+- **The build-idempotency gate had never compared anything** (#1010). The
+  contract's first invariant is *"verify rebuilds XML from Excel and asserts
+  byte-equality"*. `checkBuildIdempotency` copies the project to a temp dir
+  with `copyDir`, which places it under `tmpDir/<basename>` — then looked for
+  the copy at `tmpDir/xml`, one level above where it lands. Nothing was there,
+  so the rebuild was skipped and the comparison loop skipped both trees. Zero
+  comparisons, no failures, "consistent with its Excel source", for every
+  project it was ever run on.
+
+  A hand-edited decision table therefore survived `build`, passed `verify`, and
+  shipped — precisely the state the contract says it prevents.
+
+  Worth recording because the reported diagnosis was different and the
+  distinction matters: the importer reconciles correctly, it was simply never
+  invoked. The #993 round-trip hardening is not implicated.
+
+- **`verify` exported hand edits into Excel** instead of overwriting them. It
+  called `SyncAll`, which picks a direction from modification times, and
+  hand-editing the XML is exactly what makes it newer — so the edit was written
+  *into* the workbook and the rebuild then matched it. Excel-authored direction
+  is now forced. On its own this fixes nothing observable except that drift is
+  no longer promoted into the system of record, which is worth having.
+
+  Three layers had to fail for this to survive: the gate never ran; the test
+  that exists to catch it (`TestVerifyModifiedXML`) was guarded by a hardcoded
+  absolute path under one developer's GOPATH and skipped everywhere else, the
+  same defect class as #999; and even when run it asserted nothing, logging the
+  exit code with the comment "the test verifies no panic occurs". It is now a
+  real assertion requiring the failure to name the tampered file.
+
+### Before you gate CI on this
+
+`verify` is stricter than it has ever been, because it is finally doing the
+comparison. Three sample projects that reported clean now fail on genuine
+pre-existing drift — for example StateTax's committed XML holds
+`taxpayer.filing_status == "SINGLE"` where its workbook holds it unquoted.
+TestProject still passes, which is the evidence this is real drift and not a
+new false positive.
+
+Expect the same on any project that has been verified clean up to now: the
+result was not meaningful. Tracked as #1012 (sample drift) and #1013 (a fixture
+whose workbook imports zero tables). `make check` is unaffected.
+
+### Also
+
+- The verify and build tests are repointed from TaxReturn to TestProject. They
+  never needed TaxReturn specifically, and un-skipping them cost 453s against
+  it versus 1.5s here. They also no longer write files into the repository.
+
 ## v1.22.2 — 2026-08-08
 
 Unblocks using `dtrules verify` as the CI authoring-contract gate.
