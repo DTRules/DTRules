@@ -15,7 +15,10 @@
 package apiserver
 
 import (
+	"encoding/json"
 	"errors"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -165,5 +168,108 @@ func TestSaveRejectsUncompilableDSL(t *testing.T) {
 	}
 	if string(before) != string(after) {
 		t.Error("a failed save must not modify the file on disk")
+	}
+}
+
+// postSave drives the real handler and returns the response.
+func postSave(t *testing.T, s *Server) *httptest.ResponseRecorder {
+	t.Helper()
+	rec := httptest.NewRecorder()
+	s.handleProjectSave(rec, httptest.NewRequest("POST", "/api/project/save", nil))
+	return rec
+}
+
+// decodeBody reads jsonError/jsonResponse's envelope.
+func decodeBody(t *testing.T, rec *httptest.ResponseRecorder) map[string]any {
+	t.Helper()
+	var body map[string]any
+	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil {
+		t.Fatalf("response is not JSON: %v (body: %s)", err, rec.Body.String())
+	}
+	return body
+}
+
+// TestSaveHandlerReportsCompileErrorAsBadRequest drives POST /api/project/save
+// end to end.
+//
+// The status code is the part the editor acts on. saveDTFile returning a typed
+// error is only half the fix — if the handler flattened it back to 500 the
+// editor would still be told the server broke when the author's rule is what
+// needs fixing (#928).
+func TestSaveHandlerReportsCompileErrorAsBadRequest(t *testing.T) {
+	s, dtPath := saveTestServer(t)
+	before, err := os.ReadFile(dtPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s.dtFiles = []string{"xml/p_dt.xml"}
+	s.modified = map[string]bool{"xml/p_dt.xml": true}
+	s.tables = []*DecisionTableData{{
+		TableName:  "Decide",
+		Source:     "xml/p_dt.xml",
+		Type:       "FIRST",
+		Conditions: []ConditionData{{Number: 1, Description: "client.age >= >= and and", Columns: map[string]string{"1": "Y"}}},
+	}}
+
+	rec := postSave(t, s)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Errorf("status = %d, want %d — a rule that does not compile is the author's input, not a server fault",
+			rec.Code, http.StatusBadRequest)
+	}
+	body := decodeBody(t, rec)
+	if body["success"] != false {
+		t.Errorf("success = %v, want false", body["success"])
+	}
+	// The message has to name the table, or the editor cannot point at anything.
+	if msg, _ := body["error"].(string); !strings.Contains(msg, "Decide") {
+		t.Errorf("error message does not name the table: %q", msg)
+	}
+
+	// A rejected save leaves the file alone and the file still marked dirty —
+	// otherwise the editor would show the edit as saved and the next save
+	// would skip it entirely.
+	after, err := os.ReadFile(dtPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(before) != string(after) {
+		t.Error("a rejected save must not modify the file on disk")
+	}
+	if !s.modified["xml/p_dt.xml"] {
+		t.Error("a rejected save must leave the file marked modified")
+	}
+}
+
+// TestSaveHandlerSucceedsOnValidDSL is the other half: the same route with DSL
+// that compiles returns 200, reports the file, and clears the dirty flag.
+// Without it the test above would pass just as well against a handler that
+// rejected everything.
+func TestSaveHandlerSucceedsOnValidDSL(t *testing.T) {
+	s, dtPath := saveTestServer(t)
+	s.dtFiles = []string{"xml/p_dt.xml"}
+	s.modified = map[string]bool{"xml/p_dt.xml": true}
+	s.tables = []*DecisionTableData{{
+		TableName:  "Decide",
+		Source:     "xml/p_dt.xml",
+		Type:       "FIRST",
+		Conditions: []ConditionData{{Number: 1, Description: "client.age >= 21", Columns: map[string]string{"1": "Y"}}},
+		Actions:    []ActionData{{Number: 1, Description: "set client.eligible = true", Columns: map[string]string{"1": "X"}}},
+	}}
+
+	rec := postSave(t, s)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200 (body: %s)", rec.Code, rec.Body.String())
+	}
+	body := decodeBody(t, rec)
+	if body["success"] != true {
+		t.Errorf("success = %v, want true", body["success"])
+	}
+	if s.modified["xml/p_dt.xml"] {
+		t.Error("a successful save must clear the modified flag")
+	}
+	if pf := tableFromFile(t, dtPath).Conditions[0].Postfix; !strings.Contains(pf, "21") {
+		t.Errorf("the saved postfix was not recompiled through the handler: %q", pf)
 	}
 }
