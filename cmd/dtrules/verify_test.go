@@ -21,18 +21,34 @@ import (
 	"testing"
 )
 
-const taxReturnDir = "/home/paul/go/src/github.com/DTRules/DTRules/sampleprojects/TaxReturn"
+// sampleFixture is the sample these verify tests run against.
+//
+// It was an absolute path to TaxReturn under one developer's GOPATH, so every
+// test guarded by it skipped on every other machine — including
+// TestVerifyModifiedXML, which exists precisely to prove verify catches a
+// hand-edited XML and would otherwise have caught #1010 years earlier. Same
+// class of defect as #999.
+//
+// Repointed to TestProject rather than to TaxReturn's real location: none of
+// these tests need TaxReturn specifically, they need a project, and TestProject
+// is the one sample that is contract-clean. It is also two orders of magnitude
+// faster — these tests take 453s against TaxReturn and under a second here,
+// which is the difference between `make check` staying usable and not.
+var sampleFixture = filepath.Join("..", "..", "sampleprojects", "TestProject")
 
-func skipIfNoTaxReturn(t *testing.T) {
+// sampleFixtureName is the directory name copyDir creates under a temp dir.
+var sampleFixtureName = filepath.Base(sampleFixture)
+
+func skipIfNoSampleFixture(t *testing.T) {
 	t.Helper()
-	if _, err := os.Stat(taxReturnDir); err != nil {
-		t.Skip("TaxReturn sample project not found")
+	if _, err := os.Stat(sampleFixture); err != nil {
+		t.Skip("verify fixture project not found")
 	}
-	if _, err := os.Stat(filepath.Join(taxReturnDir, "excel")); err != nil {
-		t.Skip("TaxReturn excel dir not found")
+	if _, err := os.Stat(filepath.Join(sampleFixture, "excel")); err != nil {
+		t.Skip("verify fixture excel dir not found")
 	}
-	if _, err := os.Stat(filepath.Join(taxReturnDir, "xml")); err != nil {
-		t.Skip("TaxReturn xml dir not found")
+	if _, err := os.Stat(filepath.Join(sampleFixture, "xml")); err != nil {
+		t.Skip("verify fixture xml dir not found")
 	}
 }
 
@@ -65,14 +81,14 @@ func TestVerifyMissingProject(t *testing.T) {
 // TestVerifyCleanProject runs verify on a project with a known-clean state.
 // Succeeds if the project has both excel/ and xml/ dirs and they're consistent.
 func TestVerifyCleanProject(t *testing.T) {
-	skipIfNoTaxReturn(t)
+	skipIfNoSampleFixture(t)
 
 	// Make a temp copy so we don't mutate the real project
 	tmpDir := t.TempDir()
-	if err := copyDir(taxReturnDir, tmpDir); err != nil {
+	if err := copyDir(sampleFixture, tmpDir); err != nil {
 		t.Fatalf("copyDir failed: %v", err)
 	}
-	projCopy := filepath.Join(tmpDir, "TaxReturn")
+	projCopy := filepath.Join(tmpDir, sampleFixtureName)
 
 	cli := NewCLI()
 	code := cli.runVerify([]string{projCopy})
@@ -84,14 +100,14 @@ func TestVerifyCleanProject(t *testing.T) {
 
 // TestVerifyModifiedXML verifies that tampering with an XML file causes verify to exit non-zero.
 func TestVerifyModifiedXML(t *testing.T) {
-	skipIfNoTaxReturn(t)
+	skipIfNoSampleFixture(t)
 
 	// Copy the project to a temp dir
 	tmpDir := t.TempDir()
-	if err := copyDir(taxReturnDir, tmpDir); err != nil {
+	if err := copyDir(sampleFixture, tmpDir); err != nil {
 		t.Fatalf("copyDir failed: %v", err)
 	}
-	projCopy := filepath.Join(tmpDir, "TaxReturn")
+	projCopy := filepath.Join(tmpDir, sampleFixtureName)
 	xmlDir := filepath.Join(projCopy, "xml")
 
 	// Find the first _dt.xml file and prepend whitespace
@@ -130,14 +146,14 @@ func TestVerifyModifiedXML(t *testing.T) {
 // TestVerifyStrippedSource verifies that stripping a <source> element
 // causes verify --strict to exit non-zero.
 func TestVerifyStrippedSource(t *testing.T) {
-	skipIfNoTaxReturn(t)
+	skipIfNoSampleFixture(t)
 
 	// Copy the project
 	tmpDir := t.TempDir()
-	if err := copyDir(taxReturnDir, tmpDir); err != nil {
+	if err := copyDir(sampleFixture, tmpDir); err != nil {
 		t.Fatalf("copyDir: %v", err)
 	}
-	projCopy := filepath.Join(tmpDir, "TaxReturn")
+	projCopy := filepath.Join(tmpDir, sampleFixtureName)
 	xmlDir := filepath.Join(projCopy, "xml")
 
 	// Find an XML file that has a <source> element
@@ -183,14 +199,14 @@ func TestVerifyStrippedSource(t *testing.T) {
 // TestVerifyPrefixOrderViolation verifies that renaming a DT file with a
 // mismatched NNN_ prefix causes the order check to fail.
 func TestVerifyPrefixOrderViolation(t *testing.T) {
-	skipIfNoTaxReturn(t)
+	skipIfNoSampleFixture(t)
 
 	// Copy project
 	tmpDir := t.TempDir()
-	if err := copyDir(taxReturnDir, tmpDir); err != nil {
+	if err := copyDir(sampleFixture, tmpDir); err != nil {
 		t.Fatalf("copyDir: %v", err)
 	}
-	projCopy := filepath.Join(tmpDir, "TaxReturn")
+	projCopy := filepath.Join(tmpDir, sampleFixtureName)
 	xmlDir := filepath.Join(projCopy, "xml", "states")
 	if _, err := os.Stat(xmlDir); err != nil {
 		t.Skip("no states subdir found")
@@ -222,14 +238,14 @@ func TestVerifyPrefixOrderViolation(t *testing.T) {
 
 // TestVerifyDiffFlag verifies --diff doesn't panic and produces output on failure.
 func TestVerifyDiffFlag(t *testing.T) {
-	skipIfNoTaxReturn(t)
+	skipIfNoSampleFixture(t)
 
 	// Make a dirty copy
 	tmpDir := t.TempDir()
-	if err := copyDir(taxReturnDir, tmpDir); err != nil {
+	if err := copyDir(sampleFixture, tmpDir); err != nil {
 		t.Fatalf("copyDir: %v", err)
 	}
-	projCopy := filepath.Join(tmpDir, "TaxReturn")
+	projCopy := filepath.Join(tmpDir, sampleFixtureName)
 	xmlDir := filepath.Join(projCopy, "xml")
 
 	entries, _ := os.ReadDir(xmlDir)
@@ -269,14 +285,14 @@ func stripSourceBlock(xml string) string {
 // TestVerifyStrictFlagFailsOnMissingSource verifies that --strict exits non-zero
 // when XML files are missing <source>, and exits 0 without --strict.
 func TestVerifyStrictFlagFailsOnMissingSource(t *testing.T) {
-	skipIfNoTaxReturn(t)
+	skipIfNoSampleFixture(t)
 
 	// Copy the project to a temp dir.
 	tmpDir := t.TempDir()
-	if err := copyDir(taxReturnDir, tmpDir); err != nil {
+	if err := copyDir(sampleFixture, tmpDir); err != nil {
 		t.Fatalf("copyDir: %v", err)
 	}
-	projCopy := filepath.Join(tmpDir, "TaxReturn")
+	projCopy := filepath.Join(tmpDir, sampleFixtureName)
 	xmlDir := filepath.Join(projCopy, "xml")
 
 	// Remove all <source> elements from every DT XML file.

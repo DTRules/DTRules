@@ -107,13 +107,13 @@ func TestInternalSyncIsHidden(t *testing.T) {
 func TestBuildDryRunTouchXLSX(t *testing.T) {
 	// Use the TaxReturn sample project as a real fixture.
 	// We need excel/ and xml/ dirs for this to be meaningful.
-	taxReturnDir := "/home/paul/go/src/github.com/DTRules/DTRules/sampleprojects/TaxReturn"
-	if _, err := os.Stat(taxReturnDir); err != nil {
-		t.Skip("TaxReturn sample project not found")
+	sampleFixture := "/home/paul/go/src/github.com/DTRules/DTRules/sampleprojects/TaxReturn"
+	if _, err := os.Stat(sampleFixture); err != nil {
+		t.Skip("sample fixture project not found")
 	}
-	excelDir := filepath.Join(taxReturnDir, "excel")
+	excelDir := filepath.Join(sampleFixture, "excel")
 	if _, err := os.Stat(excelDir); err != nil {
-		t.Skip("TaxReturn excel dir not found")
+		t.Skip("sample fixture excel dir not found")
 	}
 
 	// Find first xlsx to touch
@@ -155,7 +155,7 @@ func TestBuildDryRunTouchXLSX(t *testing.T) {
 	os.Stdout = w
 
 	cli := NewCLI()
-	code := cli.runBuild([]string{"--dry-run", taxReturnDir})
+	code := cli.runBuild([]string{"--dry-run", sampleFixture})
 
 	w.Close()
 	os.Stdout = old
@@ -225,18 +225,18 @@ func TestBuildIdempotent(t *testing.T) {
 // causes build to import (or at least detect the newer file) without panicking,
 // and that a second run is a no-op.
 func TestBuildFromExcelTouchProducesCanonicalOutput(t *testing.T) {
-	if _, err := os.Stat(taxReturnDir); err != nil {
-		t.Skip("TaxReturn sample project not found")
+	if _, err := os.Stat(sampleFixture); err != nil {
+		t.Skip("sample fixture project not found")
 	}
-	excelDir := filepath.Join(taxReturnDir, "excel")
+	excelDir := filepath.Join(sampleFixture, "excel")
 	if _, err := os.Stat(excelDir); err != nil {
-		t.Skip("TaxReturn excel dir not found")
+		t.Skip("sample fixture excel dir not found")
 	}
 
 	// Find first xlsx.
 	entries, err := os.ReadDir(excelDir)
 	if err != nil || len(entries) == 0 {
-		t.Skip("no entries in TaxReturn excel dir")
+		t.Skip("no entries in sample fixture excel dir")
 	}
 	var xlsxFile string
 	for _, e := range entries {
@@ -251,10 +251,10 @@ func TestBuildFromExcelTouchProducesCanonicalOutput(t *testing.T) {
 
 	// Copy TaxReturn to a temp dir to avoid mutating the real project.
 	tmpDir := t.TempDir()
-	if err := copyDir(taxReturnDir, tmpDir); err != nil {
+	if err := copyDir(sampleFixture, tmpDir); err != nil {
 		t.Fatalf("copyDir: %v", err)
 	}
-	projCopy := filepath.Join(tmpDir, filepath.Base(taxReturnDir))
+	projCopy := filepath.Join(tmpDir, filepath.Base(sampleFixture))
 
 	// Touch the xlsx copy to make it newer than any xml.
 	copiedExcelDir := filepath.Join(projCopy, "excel")
