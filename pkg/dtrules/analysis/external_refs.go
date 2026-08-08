@@ -430,6 +430,9 @@ func operatorCandidate(tok string) bool {
 	if isNumericLiteral(tok) {
 		return false
 	}
+	if isTypedNumericLiteral(tok) {
+		return false
+	}
 	if strings.Contains(tok, ".") { // dotted field reference
 		return false
 	}
@@ -437,6 +440,57 @@ func operatorCandidate(tok string) bool {
 		return false
 	}
 	return true
+}
+
+// isTypedNumericLiteral reports whether tok is a numeric literal carrying a
+// type marker: a fixed-point literal (`0fp`, `0.5fp`, `.5fp`) or a hex-bytes
+// literal (`0x1f`). These are literals the compiler emits verbatim into
+// postfix, not operators.
+//
+// isNumericLiteral cannot see them because it rejects any token containing a
+// letter, so `0fp` was reported as an undefined operator and `dtrules verify`
+// failed on a rule set that builds, loads and executes correctly (#1006). On
+// the Accumulate staking rules that was 44 uses across 8 tables — enough to
+// stop verify being usable as the authoring-contract gate in CI, which is the
+// point of the check.
+//
+// `0.5fp` appeared to work, but only by accident: it contains a `.`, so the
+// dotted-field-reference branch below let it through. Both forms are now
+// recognised for the right reason, and the hex form — which had the identical
+// defect and simply had not been hit yet — with them.
+//
+// The accepted shapes mirror the grammar exactly (EL.g4, FP_LITERAL and
+// HEX_BYTES_LITERAL):
+//
+//	FP_LITERAL        : DIGIT+ '.' DIGIT* 'fp' | DIGIT* '.' DIGIT+ 'fp' | DIGIT+ 'fp'
+//	HEX_BYTES_LITERAL : '0x' HEX_DIGIT*
+func isTypedNumericLiteral(tok string) bool {
+	if tok == "" {
+		return false
+	}
+	// Hex bytes: 0x followed by hex digits (the grammar permits none). No
+	// sign — it is a bytes literal, not an arithmetic one.
+	if len(tok) >= 2 && tok[0] == '0' && (tok[1] == 'x' || tok[1] == 'X') {
+		for _, r := range tok[2:] {
+			if !((r >= '0' && r <= '9') || (r >= 'a' && r <= 'f') || (r >= 'A' && r <= 'F')) {
+				return false
+			}
+		}
+		return true
+	}
+
+	// Fixed point: a numeric body followed by the fp suffix, matched
+	// case-insensitively because EL names and keywords are. The sign is left
+	// to isNumericLiteral, which permits exactly one; stripping it here as
+	// well would have accepted "--3fp".
+	if len(tok) < 3 {
+		return false
+	}
+	suffix := tok[len(tok)-2:]
+	if suffix != "fp" && suffix != "FP" && suffix != "Fp" && suffix != "fP" {
+		return false
+	}
+	return isNumericLiteral(tok[:len(tok)-2])
 }
 
 // isNumericLiteral reports whether tok is an integer or decimal numeric
