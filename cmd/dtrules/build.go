@@ -433,6 +433,21 @@ func (c *CLI) runExcelAuthoredBuild(xmlDir, excelDir string, opts *buildOptions)
 
 	syncOpts := dtrsync.DefaultOptions()
 	syncOpts.Verbose = opts.verbose
+	// --from-excel means Excel-authored, so say so instead of leaving the
+	// per-workbook timestamp check to decide. Selecting this branch only
+	// chose the code path; SyncAll still detected direction per workbook
+	// and answered NoSync whenever the XML was not older, so the import
+	// never ran: "XML is already up to date", tables=0, files-written=0.
+	//
+	// The visible cost was that a table could never acquire el_compiled.
+	// The attribute is written from the in-memory flag, which is set when
+	// the postfix is compiled from EL — and with the import skipped
+	// nothing was compiled, so an XML predating the attribute could not
+	// gain it through build, while verify's rebuild (into an empty
+	// directory, always written) always had it. verify then reported
+	// `content differs from build output` forever, on a project that was
+	// otherwise byte-identical (#1051).
+	syncOpts.ForceDirection = dtrsync.ExcelToXML
 
 	syncer := dtrsync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
 	syncer.SetUseCombinedWorkbooks(true)
