@@ -1486,29 +1486,6 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 		}
 	}
 
-	// Compile initial actions. Initial actions don't carry a comment field
-	// so the legacy-prose warning path doesn't apply — they're always drops.
-	for idx := range table.InitialActions {
-		action := &table.InitialActions[idx]
-		if action.DSL != "" {
-			postfix, err := i.elCompiler.CompileAction(action.DSL)
-			if err != nil {
-				errors = append(errors, fmt.Sprintf("initial action %d: %v", idx+1, err))
-				if i.stats != nil {
-					i.stats.AddDrop(table.TableName, 0,
-						fmt.Sprintf("initial action %d", idx+1), err.Error())
-				}
-				continue
-			}
-			i.warnNumericDowngrade(table.TableName,
-				fmt.Sprintf("initial action %d", idx+1), action.Postfix, postfix)
-			action.Postfix = postfix
-			if i.stats != nil {
-				i.stats.Compiled++
-			}
-		}
-	}
-
 	// Compile contexts (iterators, locals, and entity pushes that run before
 	// the conditions). These were previously left uncompiled, so a table with
 	// a "for all ..." context round-tripped to an empty <context_postfix> and
@@ -1527,6 +1504,29 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 			i.warnNumericDowngrade(table.TableName,
 				fmt.Sprintf("context %d", idx+1), ctx.Postfix, postfix)
 			ctx.Postfix = postfix
+			if i.stats != nil {
+				i.stats.Compiled++
+			}
+		}
+	}
+
+	// Compile initial actions. Initial actions don't carry a comment field
+	// so the legacy-prose warning path doesn't apply — they're always drops.
+	for idx := range table.InitialActions {
+		action := &table.InitialActions[idx]
+		if action.DSL != "" {
+			postfix, err := i.elCompiler.CompileAction(action.DSL)
+			if err != nil {
+				errors = append(errors, fmt.Sprintf("initial action %d: %v", idx+1, err))
+				if i.stats != nil {
+					i.stats.AddDrop(table.TableName, 0,
+						fmt.Sprintf("initial action %d", idx+1), err.Error())
+				}
+				continue
+			}
+			i.warnNumericDowngrade(table.TableName,
+				fmt.Sprintf("initial action %d", idx+1), action.Postfix, postfix)
+			action.Postfix = postfix
 			if i.stats != nil {
 				i.stats.Compiled++
 			}

@@ -1838,6 +1838,16 @@ the table. All four are statement-form operator calls (#980).
         fields are count and span, not size and length — those are EL
         keywords.
 
+    suffixes(src, 2, "rank", "combo", dest)
+        Every trailing window of src with length >= minlen, LONGEST
+        FIRST, as a "combo" entity with fields members (in source
+        order), count, sum, distinct, and spread (max - min) over the
+        named field. For order-dependent structure: a window is a run
+        iff distinct == count and spread == count - 1 (any lay order),
+        and a trailing pair block iff distinct == 1. The longest-first
+        order is part of the contract — "longest run only" policies
+        read as "the first qualifying window" behind a zero-guard.
+
 Example — cribbage fifteens, pairs, and runs from decision tables:
 
     subsets(hand.cards, "combo", "value", hand.combos);

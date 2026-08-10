@@ -321,6 +321,7 @@ func TestAllOperatorsRegistered(t *testing.T) {
 	"strtrim",
 	"subsets",
 	"substring",
+	"suffixes",
 	"swap",
 	"throwexception",
 	"today",
