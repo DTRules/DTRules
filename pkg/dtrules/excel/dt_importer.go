@@ -1500,6 +1500,8 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 				}
 				continue
 			}
+			i.warnNumericDowngrade(table.TableName,
+				fmt.Sprintf("initial action %d", idx+1), action.Postfix, postfix)
 			action.Postfix = postfix
 			if i.stats != nil {
 				i.stats.Compiled++
@@ -1522,6 +1524,8 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 					ctx.DSL, ctx.Comment, err)
 				continue
 			}
+			i.warnNumericDowngrade(table.TableName,
+				fmt.Sprintf("context %d", idx+1), ctx.Postfix, postfix)
 			ctx.Postfix = postfix
 			if i.stats != nil {
 				i.stats.Compiled++
@@ -1541,6 +1545,8 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 					cond.DSL, cond.Comment, err)
 				continue
 			}
+			i.warnNumericDowngrade(table.TableName,
+				"condition "+cond.Number, cond.Postfix, postfix)
 			cond.Postfix = postfix
 			if i.stats != nil {
 				i.stats.Compiled++
@@ -1560,6 +1566,8 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 					action.DSL, action.Comment, err)
 				continue
 			}
+			i.warnNumericDowngrade(table.TableName,
+				"action "+action.Number, action.Postfix, postfix)
 			action.Postfix = postfix
 			if i.stats != nil {
 				i.stats.Compiled++
@@ -1627,6 +1635,67 @@ func countDSLRows(table *DecisionTableXML) int {
 	}
 	for _, a := range table.Actions {
 		count(a.DSL)
+	}
+	return n
+}
+
+// numericDowngrades are the operator substitutions that quietly change what a
+// number means. Key is what the committed postfix had; value is what the
+// recompile produced and why it matters.
+//
+// Only losses are listed. Compiling `fp/` where the old artifact had `/` is an
+// upgrade and says nothing worrying, so it is not here.
+var numericDowngrades = map[string]struct{ to, meaning string }{
+	"fphalfup/": {"fp/", "round-half-up division became truncating"},
+	"fp/":       {"/", "fixed-point division became integer"},
+	"fp*":       {"*", "fixed-point multiply became integer"},
+	"fp+":       {"+", "fixed-point add became integer"},
+	"fp-":       {"-", "fixed-point subtract became integer"},
+	"cvfp":      {"cvi", "value stored as integer instead of fixed-point"},
+}
+
+// warnNumericDowngrade reports a recompile that silently weakens arithmetic.
+//
+// A committed artifact can carry postfix an older compiler produced from DSL
+// the current one reads differently. The staking rules are the case in point
+// (#1019): the DSL says `weighted_balance * staker_budget / total_weighted`,
+// plain `/`, which compiles to truncating `fp/` — but the committed postfix
+// says `fphalfup/`, because an older compiler conflated the two forms. The
+// spec requires round-half-up and their own test asserts it, so the correct
+// behaviour was being held up by a stale artifact. The first Excel-authored
+// rebuild would have switched that division to truncation with no drops
+// reported and exit 0.
+//
+// This is deliberately a warning, not a drop. Recompiling legitimately changes
+// postfix — #1015's associativity fix rewrote multiply chains across the
+// samples — so refusing would block real work. What must not happen is the
+// change going unmentioned.
+//
+// Only whole tokens count: postfix is space-separated, and matching on
+// substrings would see `fp/` inside `fphalfup/` and report every correct
+// round-half-up row as a downgrade.
+func (i *DTImporter) warnNumericDowngrade(tableName, item, before, after string) {
+	if i.stats == nil || before == "" || before == after {
+		return
+	}
+	old, recompiled := countOps(before), countOps(after)
+	for lost, d := range numericDowngrades {
+		// The operator has to actually disappear, and its weaker form has to
+		// actually appear, before this is a downgrade rather than an edit.
+		if old[lost] > recompiled[lost] && recompiled[d.to] > old[d.to] {
+			i.stats.AddWarning(tableName, 0, item,
+				fmt.Sprintf("recompiling changed %s to %s: %s. The DSL and the committed "+
+					"postfix disagree — say what you mean in the DSL (for round-half-up, "+
+					"`divide X by Y rounding by 0.5fp`) and rebuild", lost, d.to, d.meaning))
+		}
+	}
+}
+
+// countOps tallies whole-token occurrences in a postfix string.
+func countOps(postfix string) map[string]int {
+	n := make(map[string]int)
+	for _, tok := range strings.Fields(postfix) {
+		n[tok]++
 	}
 	return n
 }
