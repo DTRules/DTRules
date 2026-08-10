@@ -24,6 +24,7 @@
 <action_comment>No military retirement pay</action_comment>
 <action_dsl>/* No military retirement pay - no exemption. */</action_dsl>
 <action_postfix></action_postfix>
+<columns>-</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -60,7 +61,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -71,7 +72,7 @@ true
 <action_postfix>
 result.agi ky_standard_deduction f- 0.0 fmax cvd /result.ky_taxable_income xdef result.ky_taxable_income ky_tax_rate fmul cvd /result.ky_state_tax xdef "  KY taxable income (AGI - $3,270): $" result.ky_taxable_income strconcat job.audit_trail swap addto "  KY state tax (4.00%): $" result.ky_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -80,7 +81,7 @@ result.agi ky_standard_deduction f- 0.0 fmax cvd /result.ky_taxable_income xdef 
 <action_postfix>
 result.ky_taxable_income cvi /result.computed_state_taxable_income xdef result.ky_state_tax cvi /result.computed_state_tax xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements>

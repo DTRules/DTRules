@@ -25,9 +25,7 @@
 <condition_postfix>
 job.filing_status "HOH" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
+<columns>NNY</columns>
 </condition_details>
 </conditions>
 <actions></actions>

@@ -25,6 +25,7 @@
 <condition_postfix>
 filing_status "MFJ" streq
 </condition_postfix>
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -33,6 +34,7 @@ filing_status "MFJ" streq
 <condition_postfix>
 filing_status "HOH" streq
 </condition_postfix>
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -41,6 +43,7 @@ filing_status "HOH" streq
 <condition_postfix>
 filing_status "MFS" streq
 </condition_postfix>
+<columns>-</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -51,6 +54,7 @@ filing_status "MFS" streq
 <action_postfix>
 result.agi ar_standard_deduction_joint f- 0.0 fmax cvi /result.ar_taxable_income xdef result.ar_taxable_income ar_bracket_1_limit fmin ar_bracket_1_rate fmul result.ar_taxable_income ar_bracket_2_limit fmin ar_bracket_1_limit f- 0.0 fmax ar_bracket_2_rate fmul f+ result.ar_taxable_income ar_bracket_3_limit fmin ar_bracket_2_limit f- 0.0 fmax ar_bracket_3_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit fmin ar_bracket_3_limit f- 0.0 fmax ar_bracket_4_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit f- 0.0 fmax ar_bracket_5_rate fmul f+ cvi /result.ar_state_tax xdef "  AR tax (MFJ, 5 brackets): $" result.ar_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -59,6 +63,7 @@ result.agi ar_standard_deduction_joint f- 0.0 fmax cvi /result.ar_taxable_income
 <action_postfix>
 result.agi ar_standard_deduction_hoh f- 0.0 fmax cvi /result.ar_taxable_income xdef result.ar_taxable_income ar_bracket_1_limit fmin ar_bracket_1_rate fmul result.ar_taxable_income ar_bracket_2_limit fmin ar_bracket_1_limit f- 0.0 fmax ar_bracket_2_rate fmul f+ result.ar_taxable_income ar_bracket_3_limit fmin ar_bracket_2_limit f- 0.0 fmax ar_bracket_3_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit fmin ar_bracket_3_limit f- 0.0 fmax ar_bracket_4_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit f- 0.0 fmax ar_bracket_5_rate fmul f+ cvi /result.ar_state_tax xdef "  AR tax (HOH, 5 brackets): $" result.ar_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -67,6 +72,7 @@ result.agi ar_standard_deduction_hoh f- 0.0 fmax cvi /result.ar_taxable_income x
 <action_postfix>
 result.agi ar_standard_deduction_mfs f- 0.0 fmax cvi /result.ar_taxable_income xdef result.ar_taxable_income ar_bracket_1_limit fmin ar_bracket_1_rate fmul result.ar_taxable_income ar_bracket_2_limit fmin ar_bracket_1_limit f- 0.0 fmax ar_bracket_2_rate fmul f+ result.ar_taxable_income ar_bracket_3_limit fmin ar_bracket_2_limit f- 0.0 fmax ar_bracket_3_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit fmin ar_bracket_3_limit f- 0.0 fmax ar_bracket_4_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit f- 0.0 fmax ar_bracket_5_rate fmul f+ cvi /result.ar_state_tax xdef "  AR tax (MFS, 5 brackets): $" result.ar_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
+<columns>-</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

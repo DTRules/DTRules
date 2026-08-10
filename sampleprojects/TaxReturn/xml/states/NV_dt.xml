@@ -32,9 +32,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -43,9 +41,7 @@ true
 <condition_postfix>
 job.filing_status "single" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>NYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -54,9 +50,7 @@ job.filing_status "single" streq
 <condition_postfix>
 job.filing_status "head_of_household" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
+<columns>NNY</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -67,7 +61,7 @@ job.filing_status "head_of_household" streq
 <action_postfix>
 0 cvi /result.nv_state_tax xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -76,7 +70,7 @@ job.filing_status "head_of_household" streq
 <action_postfix>
 0 cvi /result.nv_state_tax xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -85,7 +79,7 @@ job.filing_status "head_of_household" streq
 <action_postfix>
 0 cvi /result.nv_state_tax xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>

@@ -15,6 +15,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -59,7 +60,9 @@ func exportedProject(t *testing.T, tables, sheets int) *CLI {
 	f := excelize.NewFile()
 	defer f.Close()
 	for i := 1; i < sheets; i++ { // NewFile already has one sheet
-		if _, err := f.NewSheet("S" + string(rune('A'+i))); err != nil {
+		// Numbered, not lettered: 'A'+i runs past 'Z' into characters Excel
+		// rejects in a sheet name.
+		if _, err := f.NewSheet(fmt.Sprintf("S%d", i)); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -115,5 +118,37 @@ func TestMissingWorkbookIsNotReportedHere(t *testing.T) {
 
 	if found := c.incompleteExports(); len(found) != 0 {
 		t.Errorf("a missing workbook is reported by verify, not here, got: %v", found)
+	}
+}
+
+// The opposite direction, which the check first ignored. A workbook holding
+// tables that belong to other files makes the reverse direction destructive:
+// build --from-excel writes each workbook's sheets into its paired XML, so
+// importing spreads those tables across every file. TaxReturn reached exactly
+// that state -- every one of its 58 workbooks held all 205 sheets -- and
+// nothing said so (#1086).
+func TestWorkbookHoldingOtherFilesTablesIsReported(t *testing.T) {
+	c := exportedProject(t, 1, 205) // the TaxReturn shape: one table, every sheet
+
+	found := c.incompleteExports()
+	if len(found) != 1 {
+		t.Fatalf("want 1 warning for a 205-sheet workbook covering 1 table, got %d: %v",
+			len(found), found)
+	}
+	for _, want := range []string{"205 sheet", "only 1 table", "belong to other files"} {
+		if !strings.Contains(found[0], want) {
+			t.Errorf("warning should mention %q, got: %s", want, found[0])
+		}
+	}
+}
+
+// An EDD sheet, or a notes sheet, beside the tables is normal and must stay
+// quiet -- otherwise the check cries wolf on every healthy project.
+func TestASmallNumberOfExtraSheetsStaysQuiet(t *testing.T) {
+	for _, extra := range []int{1, 2, 3, 5} {
+		c := exportedProject(t, 6, 6+extra)
+		if found := c.incompleteExports(); len(found) != 0 {
+			t.Errorf("%d extra sheet(s) should be quiet, got: %v", extra, found)
+		}
 	}
 }

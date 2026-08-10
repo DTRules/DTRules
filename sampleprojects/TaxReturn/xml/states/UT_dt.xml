@@ -32,7 +32,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -43,7 +43,7 @@ true
 <action_postfix>
 result.agi job.dependents length ut_personal_exemption fmul f- 0.0 fmax cvd /result.ut_taxable_income xdef result.ut_taxable_income ut_tax_rate fmul cvd /result.ut_tax xdef result.ut_tax cvd /result.ut_state_tax xdef "  UT taxable income (AGI - $2,111 per dependent): $" result.ut_taxable_income strconcat job.audit_trail swap addto "  UT state tax (4.5%): $" result.ut_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements>

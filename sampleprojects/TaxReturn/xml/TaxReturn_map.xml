@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <mapping>
 	<XMLtoEDD>
 		<map>
@@ -22,7 +23,6 @@
 			<!-- Passive Activity -->
 			<setattribute tag='is_real_estate_professional' RAttribute='is_real_estate_professional' enclosure='job' type='boolean'></setattribute>
 			<setattribute tag='actively_participates_rental' RAttribute='actively_participates_rental' enclosure='job' type='boolean'></setattribute>
-
 			<!-- Taxpayer mappings -->
 			<setattribute tag='id' RAttribute='id' enclosure='taxpayer' type='integer'></setattribute>
 			<setattribute tag='name' RAttribute='name' enclosure='taxpayer' type='string'></setattribute>
@@ -66,7 +66,6 @@
 			<setattribute tag='state_tax_refund' RAttribute='state_tax_refund' enclosure='taxpayer' type='double'></setattribute>
 			<setattribute tag='long_term_capital_gains' RAttribute='long_term_capital_gains' enclosure='taxpayer' type='double'></setattribute>
 			<setattribute tag='qualified_dividends' RAttribute='qualified_dividends' enclosure='taxpayer' type='double'></setattribute>
-
 			<!-- Dependent mappings -->
 			<setattribute tag='id' RAttribute='id' enclosure='dependent' type='integer'></setattribute>
 			<setattribute tag='name' RAttribute='name' enclosure='dependent' type='string'></setattribute>
@@ -87,7 +86,6 @@
 			<!-- Childcare eligibility -->
 			<setattribute tag='is_disabled' RAttribute='is_disabled' enclosure='dependent' type='boolean'></setattribute>
 			<setattribute tag='care_expenses' RAttribute='care_expenses' enclosure='dependent' type='double'></setattribute>
-
 			<!-- Income mappings -->
 			<setattribute tag='id' RAttribute='id' enclosure='income' type='integer'></setattribute>
 			<setattribute tag='taxpayer_id' RAttribute='taxpayer_id' enclosure='income' type='integer'></setattribute>
@@ -99,7 +97,6 @@
 			<!-- Capital Gains -->
 			<setattribute tag='holding_period' RAttribute='holding_period' enclosure='income' type='string'></setattribute>
 			<setattribute tag='is_qualified_dividend' RAttribute='is_qualified_dividend' enclosure='income' type='boolean'></setattribute>
-
 			<!-- Property mappings -->
 			<setattribute tag='id' RAttribute='id' enclosure='property' type='integer'></setattribute>
 			<setattribute tag='type' RAttribute='type' enclosure='property' type='string'></setattribute>
@@ -119,7 +116,6 @@
 			<setattribute tag='rental_utilities' RAttribute='rental_utilities' enclosure='property' type='double'></setattribute>
 			<setattribute tag='rental_management' RAttribute='rental_management' enclosure='property' type='double'></setattribute>
 			<setattribute tag='depreciation' RAttribute='depreciation' enclosure='property' type='double'></setattribute>
-
 			<!-- Vehicle mappings -->
 			<setattribute tag='id' RAttribute='id' enclosure='vehicle' type='integer'></setattribute>
 			<setattribute tag='taxpayer_id' RAttribute='taxpayer_id' enclosure='vehicle' type='integer'></setattribute>
@@ -131,13 +127,11 @@
 			<setattribute tag='method' RAttribute='method' enclosure='vehicle' type='string'></setattribute>
 			<setattribute tag='actual_expenses' RAttribute='actual_expenses' enclosure='vehicle' type='double'></setattribute>
 			<setattribute tag='vehicle_depreciation' RAttribute='vehicle_depreciation' enclosure='vehicle' type='double'></setattribute>
-
 			<!-- Deduction mappings -->
 			<setattribute tag='id' RAttribute='id' enclosure='deduction' type='integer'></setattribute>
 			<setattribute tag='category' RAttribute='category' enclosure='deduction' type='string'></setattribute>
 			<setattribute tag='description' RAttribute='description' enclosure='deduction' type='string'></setattribute>
 			<setattribute tag='amount' RAttribute='amount' enclosure='deduction' type='double'></setattribute>
-
 			<!-- Noncash Contribution mappings (Form 8283) -->
 			<setattribute tag='id' RAttribute='id' enclosure='noncash_contribution' type='integer'></setattribute>
 			<setattribute tag='description' RAttribute='description' enclosure='noncash_contribution' type='string'></setattribute>
@@ -159,7 +153,6 @@
 			<setattribute tag='holding_period' RAttribute='holding_period' enclosure='noncash_contribution' type='string'></setattribute>
 			<setattribute tag='is_ordinary_income_property' RAttribute='is_ordinary_income_property' enclosure='noncash_contribution' type='boolean'></setattribute>
 			<setattribute tag='elected_reduced_deduction' RAttribute='elected_reduced_deduction' enclosure='noncash_contribution' type='boolean'></setattribute>
-
 			<!-- Energy Improvement mappings (Form 5695) -->
 			<setattribute tag='id' RAttribute='id' enclosure='energy_improvement' type='integer'></setattribute>
 			<setattribute tag='type' RAttribute='type' enclosure='energy_improvement' type='string'></setattribute>
@@ -167,7 +160,6 @@
 			<setattribute tag='description' RAttribute='description' enclosure='energy_improvement' type='string'></setattribute>
 			<setattribute tag='cost' RAttribute='cost' enclosure='energy_improvement' type='double'></setattribute>
 			<setattribute tag='installation_date' RAttribute='installation_date' enclosure='energy_improvement' type='date'></setattribute>
-
 			<!-- Mortgage Credit Certificate mappings (Form 8396) -->
 			<setattribute tag='id' RAttribute='id' enclosure='mortgage_credit_certificate' type='integer'></setattribute>
 			<setattribute tag='certificate_number' RAttribute='certificate_number' enclosure='mortgage_credit_certificate' type='string'></setattribute>
@@ -177,7 +169,6 @@
 			<setattribute tag='mortgage_interest_paid' RAttribute='mortgage_interest_paid' enclosure='mortgage_credit_certificate' type='double'></setattribute>
 			<setattribute tag='certified_indebtedness' RAttribute='certified_indebtedness' enclosure='mortgage_credit_certificate' type='double'></setattribute>
 			<setattribute tag='prior_year_carryforward' RAttribute='prior_year_carryforward' enclosure='mortgage_credit_certificate' type='double'></setattribute>
-
 			<!-- Prior Year AMT mappings (Form 8801) -->
 			<setattribute tag='id' RAttribute='id' enclosure='prior_year_amt' type='integer'></setattribute>
 			<setattribute tag='origin_year' RAttribute='origin_year' enclosure='prior_year_amt' type='integer'></setattribute>
@@ -185,7 +176,6 @@
 			<setattribute tag='exclusion_preferences' RAttribute='exclusion_preferences' enclosure='prior_year_amt' type='double'></setattribute>
 			<setattribute tag='prior_credit_used' RAttribute='prior_credit_used' enclosure='prior_year_amt' type='double'></setattribute>
 			<setattribute tag='credit_available' RAttribute='credit_available' enclosure='prior_year_amt' type='double'></setattribute>
-
 			<!-- Partnership Audit mappings (Form 8978) -->
 			<setattribute tag='id' RAttribute='id' enclosure='partnership_audit' type='integer'></setattribute>
 			<setattribute tag='partnership_name' RAttribute='partnership_name' enclosure='partnership_audit' type='string'></setattribute>
@@ -200,7 +190,6 @@
 			<setattribute tag='rental_adjustment' RAttribute='rental_adjustment' enclosure='partnership_audit' type='double'></setattribute>
 			<setattribute tag='other_adjustment' RAttribute='other_adjustment' enclosure='partnership_audit' type='double'></setattribute>
 			<setattribute tag='credit_adjustment' RAttribute='credit_adjustment' enclosure='partnership_audit' type='double'></setattribute>
-
 			<!-- Unreported Tips mappings (Form 4137) -->
 			<setattribute tag='id' RAttribute='id' enclosure='unreported_tips' type='integer'></setattribute>
 			<setattribute tag='taxpayer_id' RAttribute='taxpayer_id' enclosure='unreported_tips' type='integer'></setattribute>
@@ -212,7 +201,6 @@
 			<setattribute tag='w2_wages' RAttribute='w2_wages' enclosure='unreported_tips' type='double'></setattribute>
 			<setattribute tag='w2_ss_tips' RAttribute='w2_ss_tips' enclosure='unreported_tips' type='double'></setattribute>
 			<setattribute tag='w2_allocated_tips' RAttribute='w2_allocated_tips' enclosure='unreported_tips' type='double'></setattribute>
-
 			<!-- LIHTC Recapture mappings (Form 8611) -->
 			<setattribute tag='id' RAttribute='id' enclosure='lihtc_recapture' type='integer'></setattribute>
 			<setattribute tag='building_name' RAttribute='building_name' enclosure='lihtc_recapture' type='string'></setattribute>
@@ -223,7 +211,6 @@
 			<setattribute tag='accelerated_portion' RAttribute='accelerated_portion' enclosure='lihtc_recapture' type='double'></setattribute>
 			<setattribute tag='total_credits_claimed' RAttribute='total_credits_claimed' enclosure='lihtc_recapture' type='double'></setattribute>
 			<setattribute tag='percentage_decrease' RAttribute='percentage_decrease' enclosure='lihtc_recapture' type='double'></setattribute>
-
 			<!-- State Tax Result mappings -->
 			<setattribute tag='state_code' RAttribute='state_code' enclosure='state_tax_result' type='string'></setattribute>
 			<setattribute tag='state_agi' RAttribute='state_agi' enclosure='state_tax_result' type='double'></setattribute>
@@ -233,9 +220,10 @@
 			<setattribute tag='state_tax_liability' RAttribute='state_tax_liability' enclosure='state_tax_result' type='double'></setattribute>
 			<setattribute tag='state_withholding' RAttribute='state_withholding' enclosure='state_tax_result' type='double'></setattribute>
 			<setattribute tag='state_refund_or_owed' RAttribute='state_refund_or_owed' enclosure='state_tax_result' type='double'></setattribute>
-
 			<!-- Create entities from XML tags -->
 			<!-- Note: job is an initialentity, not created from XML -->
+			<!-- Singleton entities -->
+			<!-- Multiple instance entities -->
 			<createentity entity='taxpayer' tag='taxpayer' id='id' list='taxpayers'></createentity>
 			<createentity entity='dependent' tag='dependent' id='id' list='dependents'></createentity>
 			<createentity entity='income' tag='income' id='id' list='incomes'></createentity>
@@ -254,14 +242,10 @@
 			<createentity entity='result' tag='result' id='id'></createentity>
 			<createentity entity='state_tax_result' tag='state_tax_result' id='state_code' list='state_tax_results'></createentity>
 		</map>
-
 		<entities>
-			<!-- Singleton entities -->
 			<entity name='constants' number='1'></entity>
 			<entity name='job' number='1'></entity>
 			<entity name='result' number='1'></entity>
-
-			<!-- Multiple instance entities -->
 			<entity name='taxpayer' number='*'></entity>
 			<entity name='dependent' number='*'></entity>
 			<entity name='income' number='*'></entity>
@@ -278,7 +262,6 @@
 			<entity name='credit' number='*'></entity>
 			<entity name='state_tax_result' number='*'></entity>
 		</entities>
-
 		<initialization>
 			<initialentity entity='result' epush='true'></initialentity>
 			<initialentity entity='constants' epush='true'></initialentity>
