@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/xuri/excelize/v2"
 	"os"
 	"path/filepath"
 	"strings"
@@ -553,6 +554,7 @@ func (c *CLI) syncExport() int {
 
 	if result.XMLToExcelCount > 0 {
 		fmt.Printf("✓ Exported %d file(s) from XML to Excel.\n", result.XMLToExcelCount)
+		c.warnIncompleteExport()
 	} else {
 		fmt.Println("No files needed export (Excel is up to date).")
 	}
@@ -873,4 +875,70 @@ func (c *CLI) runVersion() int {
 	fmt.Println("Decision Table Rules Engine")
 	fmt.Println("https://github.com/DTRules/DTRules")
 	return 0
+}
+
+// warnIncompleteExport reports workbooks that came out with fewer sheets than
+// their XML has tables.
+//
+// The export builds from a tolerantly-loaded rule set -- deliberately, so it
+// still works while an operator has DSL written and postfix not yet compiled.
+// A table that will not load is skipped, and the workbook is written without
+// it. That is the right tolerance and the wrong silence: bootstrapping
+// Cribbage produced a six-sheet workbook for an eleven-table project, reported
+// "Exported 2 file(s)", exited 0, and the five tables it left out were only
+// noticed after they had been committed (#1081).
+//
+// verify cannot catch it either: it compares the XML against a rebuild from
+// that same workbook, so both sides agree on the tables that survived and the
+// missing ones are never part of the comparison.
+//
+// Checking the outcome rather than instrumenting the loader keeps this honest
+// whichever stage does the dropping.
+func (c *CLI) warnIncompleteExport() {
+	for _, msg := range c.incompleteExports() {
+		fmt.Fprint(os.Stderr, msg)
+	}
+}
+
+// incompleteExports returns one message per workbook that has fewer sheets
+// than its XML has tables. Separated from the printing so it can be tested.
+func (c *CLI) incompleteExports() []string {
+	var found []string
+	dtFiles, _ := filepath.Glob(filepath.Join(c.xmlDir, "*_dt.xml"))
+	nested, _ := filepath.Glob(filepath.Join(c.xmlDir, "*", "*_dt.xml"))
+	dtFiles = append(dtFiles, nested...)
+
+	for _, dtPath := range dtFiles {
+		data, err := os.ReadFile(dtPath)
+		if err != nil {
+			continue
+		}
+		declared := strings.Count(string(data), "<table_name>")
+		if declared == 0 {
+			continue
+		}
+
+		base := strings.TrimSuffix(filepath.Base(dtPath), "_dt.xml")
+		rel, err := filepath.Rel(c.xmlDir, filepath.Dir(dtPath))
+		if err != nil {
+			rel = "."
+		}
+		excelPath := filepath.Join(c.excelDir, rel, base+".xlsx")
+
+		f, err := excelize.OpenFile(excelPath)
+		if err != nil {
+			continue // no paired workbook; verify reports that separately
+		}
+		written := len(f.GetSheetList())
+		_ = f.Close()
+
+		if written < declared {
+			found = append(found, fmt.Sprintf(
+				"WARNING: %s has %d sheet(s) for %d table(s) in %s.\n"+
+					"  Tables that fail to load are skipped by the export. Fix the load\n"+
+					"  errors and re-export, or the workbook is missing rules.\n",
+				filepath.Base(excelPath), written, declared, filepath.Base(dtPath)))
+		}
+	}
+	return found
 }
