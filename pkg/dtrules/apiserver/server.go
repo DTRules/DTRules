@@ -41,6 +41,8 @@ import (
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
+	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
+	"github.com/DTRules/DTRules/pkg/dtrules/project"
 	"github.com/DTRules/DTRules/pkg/dtrules/compiler"
 	"github.com/DTRules/DTRules/pkg/dtrules/entity"
 	"github.com/DTRules/DTRules/pkg/dtrules/interpreter"
@@ -913,6 +915,22 @@ func (s *Server) handleProjectSave(w http.ResponseWriter, r *http.Request) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	// Excel is the system of record, so the HTTP surface obeys the same
+	// contract as `dtrules table put` and the MCP write tools: refuse to write
+	// over a workbook someone has edited, and refresh Excel from the XML in
+	// the same operation.
+	//
+	// It did neither. A PUT followed by a save changed the XML and left the
+	// workbook byte-identical, reported success, and put the project straight
+	// into `content differs from build output` at the next verify. That is not
+	// a side-door API — `dtrules edit` embeds this server, so it was the
+	// browser editor breaking the contract on every save (#804).
+	xmlDir, excelDir := s.authoringDirs()
+	if err := authoring.GuardExcelIn(xmlDir, excelDir, false); err != nil {
+		jsonError(w, fmt.Sprintf("Refusing to save: %v", err), http.StatusConflict)
+		return
+	}
+
 	savedFiles := []string{}
 
 	// Save modified EDD files
@@ -949,9 +967,20 @@ func (s *Server) handleProjectSave(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Excel catches up in the same operation. Reported rather than fatal: the
+	// XML is already on disk, so failing the request would tell the caller the
+	// save did not happen when half of it did.
+	var excelErr string
+	if len(savedFiles) > 0 {
+		if err := authoring.RefreshExcelIn(xmlDir, excelDir); err != nil {
+			excelErr = err.Error()
+		}
+	}
+
 	jsonResponse(w, map[string]interface{}{
 		"success":    true,
 		"savedFiles": savedFiles,
+		"excelError": excelErr,
 	})
 }
 
@@ -2571,4 +2600,19 @@ func columnValues(cols map[string]string) []excel.ColumnValueXML {
 		out = append(out, excel.ColumnValueXML{Number: n, Value: v})
 	}
 	return out
+}
+
+// A caller may open a project by its root or by its rules directory -- the UI
+// does the latter -- so a declared excel_dir resolved against projectPath can
+// land somewhere that does not exist (<root>/xml/excel). An excelDir that is
+// not there would be taken as "declared, never exported" and silently skip the
+// refresh, which is the bug this is here to fix. Hand back "" in that case and
+// let the authoring helpers search the conventional layouts, which include the
+// rules directory's sibling excel/.
+func (s *Server) authoringDirs() (xmlDir, excelDir string) {
+	xmlDir = projectXMLDir(s.projectPath)
+	if cfg := project.Load(s.projectPath); dirExists(cfg.ExcelDir) {
+		return xmlDir, cfg.ExcelDir
+	}
+	return xmlDir, ""
 }
