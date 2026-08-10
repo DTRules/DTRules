@@ -4,6 +4,11 @@
 		<file_path>NC_edd</file_path>
 	</file_metadata>
 	<entity name="result" number="100" xls_file="NC.xlsx" access="rw">
+		<source>
+			<relative_path>NC.xlsx</relative_path>
+			<file_name>NC.xlsx</file_name>
+			<sheet_number>3</sheet_number>
+		</source>
 		<field name="nc_agi" type="double" subtype="" access="r" input="" default_value="0.0" comment="NC adjusted gross income (federal AGI with NC adjustments, computed)"></field>
 		<field name="nc_child_deduction" type="double" subtype="" access="r" input="" default_value="2500.0" comment="NC child deduction per qualifying child under 17 (subject to phase-out)"></field>
 		<field name="nc_child_deduction_phase_out_start" type="double" subtype="" access="r" input="" default_value="60000.0" comment="NC child deduction phase-out starts at $60k AGI (approximate)"></field>
@@ -15,10 +20,10 @@
 		<field name="nc_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="22500.0" comment="NC standard deduction for head of household (2025)"></field>
 		<field name="nc_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="25500.0" comment="NC standard deduction for married filing jointly (2025)"></field>
 		<field name="nc_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="12750.0" comment="NC standard deduction for single filers (2025)"></field>
+		<field name="nc_state_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="NC state income tax (computed). NC taxable income × 4.25% flat rate"></field>
 		<field name="nc_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="NC total subtractions from federal AGI (computed)"></field>
 		<field name="nc_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0425" comment="NC flat income tax rate - 4.25% for 2025 (reducing to 3.99% in 2026). Source: NC DOR"></field>
 		<field name="nc_taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="NC taxable income after deductions (computed)"></field>
 		<field name="nc_total_deduction" type="double" subtype="" access="rw" input="" default_value="0.0" comment="NC total deduction (greater of standard or itemized, computed)"></field>
-		<field name="nc_state_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="NC state income tax (computed). NC taxable income × 4.25% flat rate"></field>
 	</entity>
 </entity_data_dictionary>

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 42300: UT_Tax -->
-<decision_table>
+<!-- TABLE 42300: ut_tax -->
+<decision_table el_compiled="true">
 <source>
 <relative_path>UT.xlsx</relative_path>
 <file_name>UT.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
-<table_name>UT_Tax</table_name>
+<table_name>ut_tax</table_name>
 <xls_file>UT.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -18,7 +18,6 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset UT tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.ut_tax = 0; set result.ut_state_tax = 0; set result.ut_taxable_income = 0; add "  Utah Tax Calculation (Form TC-40) - flat 4.5%" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
 0 cvd /result.ut_tax xdef 0 cvd /result.ut_state_tax xdef 0 cvd /result.ut_taxable_income xdef "  Utah Tax Calculation (Form TC-40) - flat 4.5%" job.audit_trail swap addto
@@ -50,13 +49,13 @@ result.agi job.dependents length ut_personal_exemption fmul f- 0.0 fmax cvd /res
 <policy_statements>
 <policy_statement column="1">
 <policy_description>UT flat tax: 4.5% × max(AGI − $2,111 × #dependents, 0)</policy_description>
-<policy_statement_postfix>"UT flat tax per Utah Code § 59-10-104, 4.5% rate"</policy_statement_postfix>
+<policy_statement_postfix>"UT flat tax: 4.5% × max(AGI − $2,111 × #dependents, 0)"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
 
 <!-- TABLE 42301: UT_Military_Retirement_Exclusion -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>UT.xlsx</relative_path>
 <file_name>UT.xlsx</file_name>

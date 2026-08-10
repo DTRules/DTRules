@@ -87,7 +87,12 @@ result.sc_taxable_income cvi /result.computed_state_taxable_income xdef result.s
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>SC state income tax calculated per SC DOR 2025 progressive brackets</policy_description>
+<policy_statement_postfix>"SC state income tax calculated per SC DOR 2025 progressive brackets"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 45105: SC_Compute_Taxable_Income -->
@@ -247,6 +252,10 @@ sc_bracket_2_limit sc_bracket_1_limit f- sc_bracket_2_rate fmul result.sc_taxabl
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>SC tax: $0 (income under $3,560 at 0% rate)</policy_description>
+<policy_statement_postfix>"SC tax: $0 (income under $3,560 at 0% rate)"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>SC tax: 3% on income between $3,561-$17,830</policy_description>
 <policy_statement_postfix>"SC tax: 3% on income between $3,561-$17,830"</policy_statement_postfix>

@@ -4,6 +4,11 @@
 		<file_path>WV_edd</file_path>
 	</file_metadata>
 	<entity name="result" number="100" xls_file="WV.xlsx" access="rw">
+		<source>
+			<relative_path>WV.xlsx</relative_path>
+			<file_name>WV.xlsx</file_name>
+			<sheet_number>2</sheet_number>
+		</source>
 		<field name="wv_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="10000.0" comment="WV tax bracket 1 upper limit (2025)"></field>
 		<field name="wv_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.0216" comment="WV tax rate for bracket 1 - 2.16% (2025)"></field>
 		<field name="wv_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="25000.0" comment="WV tax bracket 2 upper limit (2025)"></field>

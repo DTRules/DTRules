@@ -55,6 +55,11 @@ result.pa_total_income cvi /result.computed_state_taxable_income xdef result.pa_
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>PA flat tax: 3.07% × AGI</policy_description>
+<policy_statement_postfix>"PA flat tax: 3.07% × AGI"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 </decision_tables>

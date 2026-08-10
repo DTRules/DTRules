@@ -4,6 +4,11 @@
 		<file_path>MD_edd</file_path>
 	</file_metadata>
 	<entity name="result" number="100" xls_file="MD.xlsx" access="rw">
+		<source>
+			<relative_path>MD.xlsx</relative_path>
+			<file_name>MD.xlsx</file_name>
+			<sheet_number>2</sheet_number>
+		</source>
 		<field name="md_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="1000.0" comment="MD tax bracket 1 upper limit (2025)"></field>
 		<field name="md_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.02" comment="MD tax rate for bracket 1 - 2% (2025)"></field>
 		<field name="md_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="2000.0" comment="MD tax bracket 2 upper limit (2025)"></field>

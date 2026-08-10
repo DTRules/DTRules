@@ -2,14 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 42250: NJ_Military_Retirement_Exclusion -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>State.xls</relative_path>
-<file_name>State.xls</file_name>
+<relative_path>NJ.xlsx</relative_path>
+<file_name>NJ.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>NJ_Military_Retirement_Exclusion</table_name>
-<xls_file>State.xls</xls_file>
+<xls_file>NJ.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Placeholder NJ military retirement exclusion. NJ exempts military pensions per N.J.S.A. 54A:6-26. Full implementation accumulates per-taxpayer military pension income; the current simplification sets the exclusion to 0 unless populated by per-income iteration in a follow-up sub-table.</COMMENTS>
@@ -22,15 +22,15 @@
 <policy_statements></policy_statements>
 </decision_table>
 
-<!-- TABLE 42300: NJ_Tax -->
-<decision_table>
+<!-- TABLE 42300: nj_tax -->
+<decision_table el_compiled="true">
 <source>
-<relative_path>State.xls</relative_path>
-<file_name>State.xls</file_name>
+<relative_path>NJ.xlsx</relative_path>
+<file_name>NJ.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
-<table_name>NJ_Tax</table_name>
-<xls_file>State.xls</xls_file>
+<table_name>nj_tax</table_name>
+<xls_file>NJ.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>New Jersey state income tax dispatcher per Form NJ-1040 / N.J.S.A. 54A. Computes NJ gross income (federal AGI as a conservative simplification), exemptions ($1,000 per taxpayer + $1,500 per dependent), taxable income, then dispatches to a bracket sub-table based on filing status.</COMMENTS>
@@ -81,7 +81,7 @@ job.filing_status "married_filing_jointly" streq { pop job.filing_status "MFJ" s
 <action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
 <action_dsl>set result.computed_state_taxable_income = result.nj_taxable_income; set result.computed_state_tax = result.nj_tax</action_dsl>
 <action_postfix>
-result.nj_taxable_income cvd /result.computed_state_taxable_income xdef result.nj_tax cvd /result.computed_state_tax xdef
+result.nj_taxable_income cvi /result.computed_state_taxable_income xdef result.nj_tax cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
@@ -90,24 +90,24 @@ result.nj_taxable_income cvd /result.computed_state_taxable_income xdef result.n
 <policy_statements>
 <policy_statement column="1">
 <policy_description>NJ progressive tax, MFJ brackets, $1k/$1.5k exemptions</policy_description>
-<policy_statement_postfix>"New Jersey progressive tax (1.4%-10.75%) MFJ schedule, exemptions per Form NJ-1040"</policy_statement_postfix>
+<policy_statement_postfix>"NJ progressive tax, MFJ brackets, $1k/$1.5k exemptions"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>NJ progressive tax, Single/HOH/MFS brackets, $1k/$1.5k exemptions</policy_description>
-<policy_statement_postfix>"New Jersey progressive tax (1.4%-10.75%) Single schedule, exemptions per Form NJ-1040"</policy_statement_postfix>
+<policy_statement_postfix>"NJ progressive tax, Single/HOH/MFS brackets, $1k/$1.5k exemptions"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
 
 <!-- TABLE 42310: NJ_Tax_MFJ_Brackets -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>State.xls</relative_path>
-<file_name>State.xls</file_name>
+<relative_path>NJ.xlsx</relative_path>
+<file_name>NJ.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>NJ_Tax_MFJ_Brackets</table_name>
-<xls_file>State.xls</xls_file>
+<xls_file>NJ.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>NJ MFJ progressive brackets, one column per bracket. Input: result.nj_taxable_income. Output: result.nj_tax.</COMMENTS>
@@ -123,7 +123,6 @@ result.nj_taxable_income cvd /result.computed_state_taxable_income xdef result.n
 <condition_postfix>
 result.nj_taxable_income nj_bracket_1_limit_joint f&lt;=
 </condition_postfix>
-<condition_column column_number="8" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
@@ -131,6 +130,7 @@ result.nj_taxable_income nj_bracket_1_limit_joint f&lt;=
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -139,7 +139,6 @@ result.nj_taxable_income nj_bracket_1_limit_joint f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_2_limit_joint f&lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
@@ -155,14 +154,12 @@ result.nj_taxable_income nj_bracket_2_limit_joint f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_3_limit_joint f&lt;=
 </condition_postfix>
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -171,14 +168,11 @@ result.nj_taxable_income nj_bracket_3_limit_joint f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_4_limit_joint f&lt;=
 </condition_postfix>
-<condition_column column_number="3" column_value="-" />
 <condition_column column_number="4" column_value="Y" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="7" column_value="N" />
 <condition_column column_number="8" column_value="N" />
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -187,14 +181,10 @@ result.nj_taxable_income nj_bracket_4_limit_joint f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_5_limit_joint f&lt;=
 </condition_postfix>
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
 <condition_column column_number="5" column_value="Y" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="7" column_value="N" />
 <condition_column column_number="8" column_value="N" />
-<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -206,11 +196,6 @@ result.nj_taxable_income nj_bracket_6_limit_joint f&lt;=
 <condition_column column_number="6" column_value="Y" />
 <condition_column column_number="7" column_value="N" />
 <condition_column column_number="8" column_value="N" />
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -219,14 +204,8 @@ result.nj_taxable_income nj_bracket_6_limit_joint f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_7_limit_joint f&lt;=
 </condition_postfix>
-<condition_column column_number="6" column_value="-" />
 <condition_column column_number="7" column_value="Y" />
 <condition_column column_number="8" column_value="N" />
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -307,14 +286,14 @@ nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_brac
 </decision_table>
 
 <!-- TABLE 42320: NJ_Tax_Single_Brackets -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>State.xls</relative_path>
-<file_name>State.xls</file_name>
+<relative_path>NJ.xlsx</relative_path>
+<file_name>NJ.xlsx</file_name>
 <sheet_number>4</sheet_number>
 </source>
 <table_name>NJ_Tax_Single_Brackets</table_name>
-<xls_file>State.xls</xls_file>
+<xls_file>NJ.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>NJ Single/HOH/MFS progressive brackets, one column per bracket. Input: result.nj_taxable_income. Output: result.nj_tax.</COMMENTS>
@@ -330,13 +309,13 @@ nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_brac
 <condition_postfix>
 result.nj_taxable_income nj_bracket_1_limit_single f&lt;=
 </condition_postfix>
-<condition_column column_number="7" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -345,7 +324,6 @@ result.nj_taxable_income nj_bracket_1_limit_single f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_2_limit_single f&lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
@@ -360,13 +338,11 @@ result.nj_taxable_income nj_bracket_2_limit_single f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_3_limit_single f&lt;=
 </condition_postfix>
+<condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="7" column_value="N" />
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -375,13 +351,10 @@ result.nj_taxable_income nj_bracket_3_limit_single f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_4_limit_single f&lt;=
 </condition_postfix>
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
 <condition_column column_number="4" column_value="Y" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -390,13 +363,9 @@ result.nj_taxable_income nj_bracket_4_limit_single f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_5_limit_single f&lt;=
 </condition_postfix>
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
 <condition_column column_number="5" column_value="Y" />
 <condition_column column_number="6" column_value="N" />
 <condition_column column_number="7" column_value="N" />
-<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -405,13 +374,8 @@ result.nj_taxable_income nj_bracket_5_limit_single f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_6_limit_single f&lt;=
 </condition_postfix>
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
 <condition_column column_number="6" column_value="Y" />
 <condition_column column_number="7" column_value="N" />
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
 </condition_details>
 </conditions>
 <actions>

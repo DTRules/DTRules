@@ -4,6 +4,11 @@
 		<file_path>NH_edd</file_path>
 	</file_metadata>
 	<entity name="result" number="100" xls_file="NH.xlsx" access="rw">
+		<source>
+			<relative_path>NH.xlsx</relative_path>
+			<file_name>NH.xlsx</file_name>
+			<sheet_number>2</sheet_number>
+		</source>
 		<field name="nh_has_income_tax" type="boolean" subtype="" access="r" input="" default_value="false" comment="NH has no state income tax (2025 - repealed dividend/interest tax)"></field>
 		<field name="nh_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="NH state income tax rate - 0.0 (no income tax)"></field>
 	</entity>

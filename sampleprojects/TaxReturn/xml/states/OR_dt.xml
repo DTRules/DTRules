@@ -77,6 +77,10 @@ result.agi 2745.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef res
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>OR MFJ: 9.9% x max(AGI - $5,495, 0) per ORS § 316.037</policy_description>
+<policy_statement_postfix>"OR MFJ: 9.9% x max(AGI - $5,495, 0) per ORS § 316.037"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>OR HOH: 9.9% x max(AGI - $4,415, 0) per ORS § 316.037</policy_description>
 <policy_statement_postfix>"OR HOH: 9.9% x max(AGI - $4,415, 0) per ORS § 316.037"</policy_statement_postfix>

@@ -1,29 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 41901: LA_Military_Retirement_Exclusion -->
-<decision_table>
-<source>
-<relative_path>LA.xlsx</relative_path>
-<file_name>LA.xlsx</file_name>
-<sheet_number>2</sheet_number>
-</source>
-<table_name>LA_Military_Retirement_Exclusion</table_name>
-<xls_file>LA.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Louisiana military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per LA Rev. Stat. § 47:293 (2025).</COMMENTS>
-<TABLE_NUMBER>41901</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions></initial_actions>
-<conditions></conditions>
-<actions></actions>
-<policy_statements></policy_statements>
-</decision_table>
-
 <!-- TABLE 41900: LA_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>LA.xlsx</relative_path>
 <file_name>LA.xlsx</file_name>
@@ -56,10 +35,31 @@ job.filing_status "married_filing_jointly" streq { pop job.filing_status "head_o
 <action_comment>Calculate LA tax with joint/HOH standard deduction</action_comment>
 <action_dsl>set result.la_standard_deduction = la_standard_deduction_joint; set result.la_taxable_income = the maximum of (result.agi - result.la_standard_deduction) and 0.0; set result.la_tax = result.la_taxable_income * la_tax_rate; add "  LA flat tax (3%, MFJ/HOH std deduction): $" + result.la_tax to job.audit_trail</action_dsl>
 <action_postfix>
-la_standard_deduction_joint cvi /result.la_standard_deduction xdef result.agi result.la_standard_deduction f- 0.0 fmax cvi /result.la_taxable_income xdef result.la_taxable_income la_tax_rate fmul cvi /result.la_tax xdef "  LA flat tax (3%, MFJ/HOH std deduction): $" result.la_tax strconcat job.audit_trail swap addto
+la_standard_deduction_joint cvi /result.la_standard_deduction xdef result.agi result.la_standard_deduction - 0.0 fmax cvi /result.la_taxable_income xdef result.la_taxable_income la_tax_rate fmul cvi /result.la_tax xdef "  LA flat tax (3%, MFJ/HOH std deduction): $" result.la_tax strconcat job.audit_trail swap addto
 </action_postfix>
 </action_details>
 </actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 41901: LA_Military_Retirement_Exclusion -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>LA.xlsx</relative_path>
+<file_name>LA.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
+<table_name>LA_Military_Retirement_Exclusion</table_name>
+<xls_file>LA.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Louisiana military retirement income exclusion. Provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA (spouse income exempt if different domicile) and SCRA (active duty pay exempt if different state of residence). Per LA Rev. Stat. § 47:293 (2025).</COMMENTS>
+<TABLE_NUMBER>41901</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
 <policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

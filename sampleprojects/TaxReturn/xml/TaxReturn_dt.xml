@@ -173,18 +173,6 @@ otherwise
 </action_details>
 <action_details>
 <action_number>11</action_number>
-<action_comment>Validate total tax if expected values exist (validation checkpoint); if job.expected_total_tax exists</action_comment>
-<action_dsl>perform Validate_Total_Tax</action_dsl>
-<action_postfix>
-/Validate_Total_Tax performtable
-</action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
-<action_column column_number="4" column_value="X" />
-</action_details>
-<action_details>
-<action_number>12</action_number>
 <action_comment>Calculate Alternative Minimum Tax (Form 6251)</action_comment>
 <action_dsl>perform Calculate_AMT</action_dsl>
 <action_postfix>
@@ -196,7 +184,7 @@ otherwise
 <action_column column_number="4" column_value="X" />
 </action_details>
 <action_details>
-<action_number>13</action_number>
+<action_number>12</action_number>
 <action_comment>Calculate kiddie tax for dependents with unearned income (Form 8615)</action_comment>
 <action_dsl>perform Calculate_Kiddie_Tax</action_dsl>
 <action_postfix>
@@ -208,7 +196,7 @@ otherwise
 <action_column column_number="4" column_value="X" />
 </action_details>
 <action_details>
-<action_number>14</action_number>
+<action_number>13</action_number>
 <action_comment>Calculate credits (Form 1040 Lines 19-21)</action_comment>
 <action_dsl>perform Calculate_Credits</action_dsl>
 <action_postfix>
@@ -220,7 +208,7 @@ otherwise
 <action_column column_number="4" column_value="X" />
 </action_details>
 <action_details>
-<action_number>15</action_number>
+<action_number>14</action_number>
 <action_comment>Calculate final balance (Form 1040 Lines 33-37)</action_comment>
 <action_dsl>perform Calculate_Final_Balance</action_dsl>
 <action_postfix>
@@ -232,7 +220,7 @@ otherwise
 <action_column column_number="4" column_value="X" />
 </action_details>
 <action_details>
-<action_number>16</action_number>
+<action_number>15</action_number>
 <action_comment>Calculate state income tax if applicable</action_comment>
 <action_dsl>perform Dispatch_State_Tax</action_dsl>
 <action_postfix>
@@ -244,7 +232,7 @@ otherwise
 <action_column column_number="4" column_value="X" />
 </action_details>
 <action_details>
-<action_number>17</action_number>
+<action_number>16</action_number>
 <action_comment>Run validation framework to verify calculations against expected values; master validation coordinator</action_comment>
 <action_dsl>perform Validate_Results</action_dsl>
 <action_postfix>
@@ -257,6 +245,10 @@ otherwise
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Processing tax return for Married Filing Jointly</policy_description>
+<policy_statement_postfix>"Processing tax return for Married Filing Jointly"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Processing tax return for Single filer</policy_description>
 <policy_statement_postfix>"Processing tax return for Single filer"</policy_statement_postfix>
@@ -607,6 +599,10 @@ taxpayer.tip_income cvd result.total_tip_income f+ /result.total_tip_income xdef
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>W-2 wages recorded for senior per Form 1040 Line 1a</policy_description>
+<policy_statement_postfix>"W-2 wages recorded for senior per Form 1040 Line 1a"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>W-2 wages recorded per Form 1040 Line 1a</policy_description>
 <policy_statement_postfix>"W-2 wages recorded per Form 1040 Line 1a"</policy_statement_postfix>
@@ -698,6 +694,10 @@ taxpayer.se_gross_income taxpayer.se_expenses f- cvd /taxpayer.se_net_profit xde
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Self-employment income calculated per Schedule C, IRC 162</policy_description>
+<policy_statement_postfix>"Self-employment income calculated per Schedule C, IRC 162"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>No self-employment income</policy_description>
 <policy_statement_postfix>"No self-employment income"</policy_statement_postfix>
@@ -754,6 +754,10 @@ taxpayer.se_net_profit constants.se_income_multiplier fmul cvd /result.se_base x
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>SE tax calculated per Schedule SE, IRC 1401</policy_description>
+<policy_statement_postfix>"SE tax calculated per Schedule SE, IRC 1401"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>SE tax not required (net profit below $400)</policy_description>
 <policy_statement_postfix>"SE tax not required (net profit below $400)"</policy_statement_postfix>
@@ -840,6 +844,10 @@ vehicle.actual_expenses vehicle.vehicle_depreciation f+ vehicle.business_use_per
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Standard mileage deduction calculated per Publication 463 Chapter 4</policy_description>
+<policy_statement_postfix>"Standard mileage deduction calculated per Publication 463 Chapter 4"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Actual expense deduction calculated per Publication 463 Chapter 4, IRC 274</policy_description>
 <policy_statement_postfix>"Actual expense deduction calculated per Publication 463 Chapter 4, IRC 274"</policy_statement_postfix>
@@ -960,6 +968,10 @@ property.rental_net_income cvd result.total_rental_income f+ /result.total_renta
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Net rental income per Schedule E Part I</policy_description>
+<policy_statement_postfix>"Net rental income per Schedule E Part I"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Net rental loss per Schedule E Part I</policy_description>
 <policy_statement_postfix>"Net rental loss per Schedule E Part I"</policy_statement_postfix>
@@ -1028,7 +1040,12 @@ income.tax_withheld cvd result.total_payments f+ /result.total_payments xdef
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Other income recorded per Form 1040</policy_description>
+<policy_statement_postfix>"Other income recorded per Form 1040"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 2400: Calculate_AGI_Adjustments -->
@@ -1148,6 +1165,10 @@ result.standard_deduction cvd /result.total_deduction xdef "standard" cvs /resul
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Itemized deduction claimed per Schedule A</policy_description>
+<policy_statement_postfix>"Itemized deduction claimed per Schedule A"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Standard deduction claimed per IRC 63(c)</policy_description>
 <policy_statement_postfix>"Standard deduction claimed per IRC 63(c)"</policy_statement_postfix>
@@ -1272,6 +1293,10 @@ constants.additional_std_deduction_single result.senior_std_count fmul cvd resul
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Standard deduction for MFJ/QSS with senior(s) per IRC 63(c)(2)(A) and 63(f)</policy_description>
+<policy_statement_postfix>"Standard deduction for MFJ/QSS with senior(s) per IRC 63(c)(2)(A) and 63(f)"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Standard deduction for MFJ/QSS per IRC 63(c)(2)(A)</policy_description>
 <policy_statement_postfix>"Standard deduction for MFJ/QSS per IRC 63(c)(2)(A)"</policy_statement_postfix>
@@ -1502,7 +1527,12 @@ result.total_salt_collected cvd /result.salt_deduction xdef result.total_itemize
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>SALT deduction limited per IRC 164(b)(6)(B). 2025-2028 cap is $40,000 with a 30% phase-out above $500,000 MAGI down to a $10,000 floor (OBBBA 2025).</policy_description>
+<policy_statement_postfix>"SALT deduction limited per IRC 164(b)(6)(B). 2025-2028 cap is $40,000 with a 30% phase-out above $500,000 MAGI down to a $10,000 floor (OBBBA 2025)."</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 3211: Calculate_Effective_SALT_Cap -->
@@ -1761,6 +1791,10 @@ property.mortgage_interest mortgage_limit_post_tcja property.mortgage_balance fd
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Full mortgage interest deduction allowed per IRC 163(h)(3)</policy_description>
+<policy_statement_postfix>"Full mortgage interest deduction allowed per IRC 163(h)(3)"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Mortgage interest limited due to debt exceeding $750,000 per IRC 163(h)(3)(F)(i)(I)</policy_description>
 <policy_statement_postfix>"Mortgage interest limited due to debt exceeding $750,000 per IRC 163(h)(3)(F)(i)(I)"</policy_statement_postfix>
@@ -1869,7 +1903,12 @@ deduction.amount cvd result.total_itemized f+ /result.total_itemized xdef
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Charitable contribution allowed per IRC 170, Publication 526</policy_description>
+<policy_statement_postfix>"Charitable contribution allowed per IRC 170, Publication 526"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 3231: Filter_Charity_Deduction -->
@@ -1978,7 +2017,12 @@ result.total_noncash_charitable cvd result.total_itemized f+ /result.total_itemi
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Noncash charitable deduction allowed per Form 8283, IRC 170</policy_description>
+<policy_statement_postfix>"Noncash charitable deduction allowed per Form 8283, IRC 170"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 3233: Process_Noncash_Contribution -->
@@ -2060,6 +2104,10 @@ noncash_contribution.fair_market_value cvd /noncash_contribution.deduction_amoun
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Capital gain property deduction at FMV with 30% AGI limitation (IRC 170(b)(1)(C))</policy_description>
+<policy_statement_postfix>"Capital gain property deduction at FMV with 30% AGI limitation (IRC 170(b)(1)(C))"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Ordinary income property deduction limited to basis (IRC 170(e)(1))</policy_description>
 <policy_statement_postfix>"Ordinary income property deduction limited to basis (IRC 170(e)(1))"</policy_statement_postfix>
@@ -2122,7 +2170,12 @@ result.agi result.total_deduction f- result.qbi_deduction f- 0 fmax cvd /result.
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Taxable income calculated with QBI deduction per IRC 199A</policy_description>
+<policy_statement_postfix>"Taxable income calculated with QBI deduction per IRC 199A"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 4100: Calculate_QBI_Deduction -->
@@ -2353,6 +2406,10 @@ otherwise
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Tax calculated using MFJ brackets per IRC 1(a), Form 1040 Line 16</policy_description>
+<policy_statement_postfix>"Tax calculated using MFJ brackets per IRC 1(a), Form 1040 Line 16"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Tax calculated using Single brackets per IRC 1(c), Form 1040 Line 16</policy_description>
 <policy_statement_postfix>"Tax calculated using Single brackets per IRC 1(c), Form 1040 Line 16"</policy_statement_postfix>
@@ -2770,6 +2827,10 @@ result.total_care_expenses result.cdcc_expense_limit fmin cvd /result.cdcc_allow
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>CDCC calculated with 2+ person limit per IRC 21</policy_description>
+<policy_statement_postfix>"CDCC calculated with 2+ person limit per IRC 21"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>CDCC calculated with 1 person limit per IRC 21</policy_description>
 <policy_statement_postfix>"CDCC calculated with 1 person limit per IRC 21"</policy_statement_postfix>
@@ -2852,6 +2913,10 @@ false cvb /dependent.qualifies_for_cdcc xdef
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Child under 13 with care expenses qualifies for CDCC per IRC 21(b)(1)(A)</policy_description>
+<policy_statement_postfix>"Child under 13 with care expenses qualifies for CDCC per IRC 21(b)(1)(A)"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Disabled person with care expenses qualifies for CDCC per IRC 21(b)(1)(B)</policy_description>
 <policy_statement_postfix>"Disabled person with care expenses qualifies for CDCC per IRC 21(b)(1)(B)"</policy_statement_postfix>
@@ -3118,6 +3183,10 @@ eligible_contributions result.savers_credit_rate fmul cvd /result.savers_credit 
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>MFJ 50% rate per IRC 25B</policy_description>
+<policy_statement_postfix>"MFJ 50% rate per IRC 25B"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>MFJ 20% rate per IRC 25B</policy_description>
 <policy_statement_postfix>"MFJ 20% rate per IRC 25B"</policy_statement_postfix>
@@ -3208,7 +3277,12 @@ result.total_savers_contribution taxpayer.traditional_ira_contribution taxpayer.
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Contribution counted for Saver's Credit per IRC 25B</policy_description>
+<policy_statement_postfix>"Contribution counted for Saver's Credit per IRC 25B"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 5800: Calculate_Energy_Credits -->
@@ -3275,7 +3349,12 @@ result.total_credits 0 f&gt;
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Energy credits calculated per IRC 25C/25D</policy_description>
+<policy_statement_postfix>"Energy credits calculated per IRC 25C/25D"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 5801: Calculate_Energy_Credit_Per_Improvement -->
@@ -3327,6 +3406,10 @@ improvement.cost 0.30 fmul cvd result.energy_efficiency_credit f+ /result.energy
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Clean energy credit per IRC 25D</policy_description>
+<policy_statement_postfix>"Clean energy credit per IRC 25D"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Energy efficiency credit per IRC 25C</policy_description>
 <policy_statement_postfix>"Energy efficiency credit per IRC 25C"</policy_statement_postfix>
@@ -3398,7 +3481,12 @@ result.total_rental_loss 0 f&gt;
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>PAL calculated per IRC 469</policy_description>
+<policy_statement_postfix>"PAL calculated per IRC 469"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 5901: Sum_Rental_Loss -->
@@ -3456,7 +3544,12 @@ rental.net_loss fnegate result.total_rental_losses swap addto
 <action_column column_number="2" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Rental property loss counted for PAL per IRC 469</policy_description>
+<policy_statement_postfix>"Rental property loss counted for PAL per IRC 469"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 6000: Calculate_AMT -->
@@ -3535,6 +3628,10 @@ result.amti amt_phaseout_single f- 0.25 fmul 0 fmax cvd /result.amt_exemption_re
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>AMT calculated for MFJ per IRC 55-59</policy_description>
+<policy_statement_postfix>"AMT calculated for MFJ per IRC 55-59"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>AMT calculated for MFS per IRC 55-59</policy_description>
 <policy_statement_postfix>"AMT calculated for MFS per IRC 55-59"</policy_statement_postfix>
@@ -3867,6 +3964,10 @@ result.ctc_before_phaseout cvd /result.ctc_after_phaseout xdef
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>MFJ/QSS with AGI over $400,000 threshold and credits - apply phase-out per IRC 24(b)</policy_description>
+<policy_statement_postfix>"MFJ/QSS with AGI over $400,000 threshold and credits - apply phase-out per IRC 24(b)"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>MFJ/QSS with AGI over $400,000 threshold but no credits</policy_description>
 <policy_statement_postfix>"MFJ/QSS with AGI over $400,000 threshold but no credits"</policy_statement_postfix>
@@ -3978,6 +4079,10 @@ constants.odc_amount cvd result.total_odc f+ /result.total_odc xdef
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Child Tax Credit awarded per IRC 24(a), Schedule 8812</policy_description>
+<policy_statement_postfix>"Child Tax Credit awarded per IRC 24(a), Schedule 8812"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Other Dependent Credit for child age 17+ per IRC 24(h)(4)</policy_description>
 <policy_statement_postfix>"Other Dependent Credit for child age 17+ per IRC 24(h)(4)"</policy_statement_postfix>
@@ -4097,6 +4202,10 @@ job.advance_ptc_received cvd /result.ptc_repayment xdef 0 cvd /result.premium_ta
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>PTC credit calculated per IRC 36B</policy_description>
+<policy_statement_postfix>"PTC credit calculated per IRC 36B"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>PTC repayment required per IRC 36B</policy_description>
 <policy_statement_postfix>"PTC repayment required per IRC 36B"</policy_statement_postfix>
@@ -4494,6 +4603,10 @@ dependent.qualified_expenses 0.20 fmul llc_max fmin cvd /dependent.education_cre
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>AOTC credit (full) per Form 8863, IRC 25A(b)</policy_description>
+<policy_statement_postfix>"AOTC credit (full) per Form 8863, IRC 25A(b)"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>AOTC credit with phase-out per Form 8863, IRC 25A(d)</policy_description>
 <policy_statement_postfix>"AOTC credit with phase-out per Form 8863, IRC 25A(d)"</policy_statement_postfix>
@@ -4601,6 +4714,10 @@ result.total_tax result.total_payments f- cvd /result.refund_or_owed xdef
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Credits exceed tax - total tax floored at zero, refund due</policy_description>
+<policy_statement_postfix>"Credits exceed tax - total tax floored at zero, refund due"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Taxpayer due refund per Form 1040 Line 34</policy_description>
 <policy_statement_postfix>"Taxpayer due refund per Form 1040 Line 34"</policy_statement_postfix>
@@ -5118,7 +5235,12 @@ job.dc_home_purchase_price 0 f&gt;
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>DC First-Time Homebuyer Credit allowed per Form 8859</policy_description>
+<policy_statement_postfix>"DC First-Time Homebuyer Credit allowed per Form 8859"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 8350: Calculate_Energy_Appliance_Credit -->
@@ -5827,6 +5949,10 @@ result.total_tip_income constants.tips_deduction_max fmin cvd /result.tips_deduc
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Tips deduction granted (MFJ below $300k) per OBBBA 2025</policy_description>
+<policy_statement_postfix>"Tips deduction granted (MFJ below $300k) per OBBBA 2025"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Tips deduction phased out (MFJ above $300k)</policy_description>
 <policy_statement_postfix>"Tips deduction phased out (MFJ above $300k)"</policy_statement_postfix>
@@ -5949,6 +6075,10 @@ result.total_overtime_income constants.overtime_deduction_max_single fmin cvd /r
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Overtime deduction granted (MFJ below $300k) per OBBBA 2025</policy_description>
+<policy_statement_postfix>"Overtime deduction granted (MFJ below $300k) per OBBBA 2025"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Overtime deduction phased out (MFJ above $300k)</policy_description>
 <policy_statement_postfix>"Overtime deduction phased out (MFJ above $300k)"</policy_statement_postfix>
@@ -6063,6 +6193,10 @@ result.senior_count constants.senior_deduction_amount fmul cvd /result.senior_de
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Senior deduction granted (MFJ below $150k) per OBBBA 2025</policy_description>
+<policy_statement_postfix>"Senior deduction granted (MFJ below $150k) per OBBBA 2025"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Senior deduction phased out (MFJ above $150k)</policy_description>
 <policy_statement_postfix>"Senior deduction phased out (MFJ above $150k)"</policy_statement_postfix>
@@ -6228,6 +6362,10 @@ result.total_social_security 0.85 fmul cvd /result.taxable_social_security xdef
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>MFJ 0% of SS taxable - below $32k base amount per Publication 915</policy_description>
+<policy_statement_postfix>"MFJ 0% of SS taxable - below $32k base amount per Publication 915"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>MFJ up to 50% of SS taxable - between $32k and $44k per Publication 915 Worksheet 1</policy_description>
 <policy_statement_postfix>"MFJ up to 50% of SS taxable - between $32k and $44k per Publication 915 Worksheet 1"</policy_statement_postfix>
@@ -6452,6 +6590,10 @@ job.filing_status "HOH" streq
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Capital gains tax calculated using MFJ brackets per IRC 1(h)</policy_description>
+<policy_statement_postfix>"Capital gains tax calculated using MFJ brackets per IRC 1(h)"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Capital gains tax calculated using HOH brackets per IRC 1(h)</policy_description>
 <policy_statement_postfix>"Capital gains tax calculated using HOH brackets per IRC 1(h)"</policy_statement_postfix>
@@ -7088,6 +7230,10 @@ result.magi_for_niit constants.niit_threshold_single f- 0.0 fmax cvd /result.nii
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>NIIT for MFJ - 3.8% on lesser of NII or MAGI over $250k per Form 8960</policy_description>
+<policy_statement_postfix>"NIIT for MFJ - 3.8% on lesser of NII or MAGI over $250k per Form 8960"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>No NIIT - MFJ MAGI below $250k threshold</policy_description>
 <policy_statement_postfix>"No NIIT - MFJ MAGI below $250k threshold"</policy_statement_postfix>
@@ -7237,6 +7383,10 @@ result.wages_for_additional_medicare constants.additional_medicare_threshold_sin
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>MFJ Additional Medicare Tax - 0.9% on wages over $250k per Form 8959</policy_description>
+<policy_statement_postfix>"MFJ Additional Medicare Tax - 0.9% on wages over $250k per Form 8959"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>No MFJ Additional Medicare Tax - wages below $250k</policy_description>
 <policy_statement_postfix>"No MFJ Additional Medicare Tax - wages below $250k"</policy_statement_postfix>
@@ -7406,6 +7556,10 @@ taxpayer.traditional_ira_contribution constants.ira_contribution_limit fmin cvd 
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Full IRA deduction with catchup per IRC 219</policy_description>
+<policy_statement_postfix>"Full IRA deduction with catchup per IRC 219"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Full IRA deduction per IRC 219</policy_description>
 <policy_statement_postfix>"Full IRA deduction per IRC 219"</policy_statement_postfix>
@@ -7543,6 +7697,10 @@ taxpayer.hsa_contribution constants.hsa_limit_self fmin cvd /taxpayer.hsa_deduct
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>HSA deduction - family coverage with catchup per IRC 223(b)</policy_description>
+<policy_statement_postfix>"HSA deduction - family coverage with catchup per IRC 223(b)"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>HSA deduction - family coverage per IRC 223(b)</policy_description>
 <policy_statement_postfix>"HSA deduction - family coverage per IRC 223(b)"</policy_statement_postfix>
@@ -7674,6 +7832,10 @@ constants.student_loan_max_deduction constants.student_loan_phaseout_end_mfj res
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Full MFJ student loan interest deduction per IRC 221</policy_description>
+<policy_statement_postfix>"Full MFJ student loan interest deduction per IRC 221"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>MFJ student loan interest deduction with phase-out per IRC 221(b)</policy_description>
 <policy_statement_postfix>"MFJ student loan interest deduction with phase-out per IRC 221(b)"</policy_statement_postfix>
@@ -9013,6 +9175,10 @@ taxpayer.combat_zone_pay constants.officer_combat_zone_cap fmin cvi /result.comb
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>IRC § 112(a): Enlisted members exclude all combat zone compensation</policy_description>
+<policy_statement_postfix>"IRC § 112(a): Enlisted members exclude all combat zone compensation"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>IRC § 112(b): Officers limited to maximum enlisted pay + imminent danger pay</policy_description>
 <policy_statement_postfix>"IRC § 112(b): Officers limited to maximum enlisted pay + imminent danger pay"</policy_statement_postfix>
@@ -9090,6 +9256,10 @@ taxpayer.moving_expense cvi /result.moving_expense_deduction xdef
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Military PCS moving expenses deductible (exception to TCJA suspension)</policy_description>
+<policy_statement_postfix>"Military PCS moving expenses deductible (exception to TCJA suspension)"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Not qualified for moving expense deduction</policy_description>
 <policy_statement_postfix>"Not qualified for moving expense deduction"</policy_statement_postfix>
@@ -9262,6 +9432,10 @@ result.total_combat_zone_exclusion 0 f&gt; { pop job.foreign_earned_incomes leng
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Military combat zone + civilian spouse foreign income: Both exclusions apply</policy_description>
+<policy_statement_postfix>"Military combat zone + civilian spouse foreign income: Both exclusions apply"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>No coordination needed</policy_description>
 <policy_statement_postfix>"No coordination needed"</policy_statement_postfix>
@@ -9613,6 +9787,10 @@ state_tax_result.state_tax_before_credits state_tax_result.state_credits f- 0.0 
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Part-year resident income and deduction allocation</policy_description>
+<policy_statement_postfix>"Part-year resident income and deduction allocation"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Full-year resident - no allocation</policy_description>
 <policy_statement_postfix>"Full-year resident - no allocation"</policy_statement_postfix>
@@ -11866,6 +12044,10 @@ job.state "MO" streq
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate Illinois state income tax</policy_description>
+<policy_statement_postfix>"Calculate Illinois state income tax"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Calculate New Hampshire state income tax</policy_description>
 <policy_statement_postfix>"Calculate New Hampshire state income tax"</policy_statement_postfix>
@@ -12063,6 +12245,10 @@ job.territory "MP" streq
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate Puerto Rico territory tax</policy_description>
+<policy_statement_postfix>"Calculate Puerto Rico territory tax"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>Calculate US Virgin Islands territory tax</policy_description>
 <policy_statement_postfix>"Calculate US Virgin Islands territory tax"</policy_statement_postfix>
@@ -12131,7 +12317,12 @@ perform when called
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Builds one state_tax_result per state_period; resident state is flagged by matching job.state</policy_description>
+<policy_statement_postfix>"Builds one state_tax_result per state_period; resident state is flagged by matching job.state"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 40510: Build_State_Tax_Result_For_Period -->
@@ -12177,7 +12368,7 @@ state_period.state_code job.state streq
 <action_comment>Resident-state period: create state_tax_result, mark is_resident=true</action_comment>
 <action_dsl>create state_tax_result as st_result; set st_result.state_code = state_period.state_code; set st_result.is_resident = true; set st_result.state_source_income = state_period.allocated_income; set st_result.state_agi = state_period.allocated_income; set st_result.state_withholding = st_result.state_withholding + state_period.allocated_withholding; add "  Resident state: " + state_period.state_code + " (allocated income $" + state_period.allocated_income + ")" to job.audit_trail; add st_result to job.state_tax_results</action_dsl>
 <action_postfix>
-/state_tax_result createentity allocate { state_period.state_code cvs 1 local@ entitypush /state_code xdef entitypop pop true cvb 1 local@ entitypush /is_resident xdef entitypop pop state_period.allocated_income cvi 1 local@ entitypush /state_source_income xdef entitypop pop state_period.allocated_income cvd 1 local@ entitypush /state_agi xdef entitypop pop 1 local@ /state_withholding get state_period.allocated_withholding f+ cvd 1 local@ entitypush /state_withholding xdef entitypop pop "  Resident state: " state_period.state_code strconcat " (allocated income $" strconcat state_period.allocated_income strconcat ")" strconcat job.audit_trail swap addto 1 local@ job.state_tax_results swap addto } execute deallocate pop
+/state_tax_result createentity allocate { state_period.state_code cvs 0 local@ entitypush /state_code xdef entitypop pop true cvb 0 local@ entitypush /is_resident xdef entitypop pop state_period.allocated_income cvi 0 local@ entitypush /state_source_income xdef entitypop pop state_period.allocated_income cvd 0 local@ entitypush /state_agi xdef entitypop pop 0 local@ /state_withholding get state_period.allocated_withholding f+ cvd 0 local@ entitypush /state_withholding xdef entitypop pop "  Resident state: " state_period.state_code strconcat " (allocated income $" strconcat state_period.allocated_income strconcat ")" strconcat job.audit_trail swap addto 0 local@ job.state_tax_results swap addto } execute deallocate pop
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -12186,7 +12377,7 @@ state_period.state_code job.state streq
 <action_comment>Non-resident period: create state_tax_result, mark is_resident=false</action_comment>
 <action_dsl>create state_tax_result as st_result; set st_result.state_code = state_period.state_code; set st_result.is_resident = false; set st_result.state_source_income = state_period.allocated_income; set st_result.state_agi = state_period.allocated_income; set st_result.state_withholding = st_result.state_withholding + state_period.allocated_withholding; add "  Non-resident state: " + state_period.state_code + " - source income $" + state_period.allocated_income to job.audit_trail; add st_result to job.state_tax_results</action_dsl>
 <action_postfix>
-/state_tax_result createentity allocate { state_period.state_code cvs 2 local@ entitypush /state_code xdef entitypop pop false cvb 2 local@ entitypush /is_resident xdef entitypop pop state_period.allocated_income cvi 2 local@ entitypush /state_source_income xdef entitypop pop state_period.allocated_income cvd 2 local@ entitypush /state_agi xdef entitypop pop 2 local@ /state_withholding get state_period.allocated_withholding f+ cvd 2 local@ entitypush /state_withholding xdef entitypop pop "  Non-resident state: " state_period.state_code strconcat " - source income $" strconcat state_period.allocated_income strconcat job.audit_trail swap addto 2 local@ job.state_tax_results swap addto } execute deallocate pop
+/state_tax_result createentity allocate { state_period.state_code cvs 1 local@ entitypush /state_code xdef entitypop pop false cvb 1 local@ entitypush /is_resident xdef entitypop pop state_period.allocated_income cvi 1 local@ entitypush /state_source_income xdef entitypop pop state_period.allocated_income cvd 1 local@ entitypush /state_agi xdef entitypop pop 1 local@ /state_withholding get state_period.allocated_withholding f+ cvd 1 local@ entitypush /state_withholding xdef entitypop pop "  Non-resident state: " state_period.state_code strconcat " - source income $" strconcat state_period.allocated_income strconcat job.audit_trail swap addto 1 local@ job.state_tax_results swap addto } execute deallocate pop
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -12266,7 +12457,12 @@ state_period.start_date state_period.end_date daysbetween cvi /state_period.days
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Allocate income across multiple states based on days in each state and source of income (Multistate Tax Compact / state-specific apportionment rules)</policy_description>
+<policy_statement_postfix>"Allocate income across multiple states based on days in each state and source of income (Multistate Tax Compact / state-specific apportionment rules)"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 45010: Allocate_Income_To_State_Period -->
@@ -12405,6 +12601,10 @@ total_other_state_taxes_paid result.state_tax_liability fmin cvi /result.other_s
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>Calculate credit for taxes paid to other states</policy_description>
+<policy_statement_postfix>"Calculate credit for taxes paid to other states"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>No other state credit needed for single state</policy_description>
 <policy_statement_postfix>"No other state credit needed for single state"</policy_statement_postfix>
@@ -12460,7 +12660,12 @@ result.educator_expense_deduction taxpayer.educator_expenses constants.educator_
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Educator expense deduction per IRC 62(a)(2)(D)</policy_description>
+<policy_statement_postfix>"Educator expense deduction per IRC 62(a)(2)(D)"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 45300: Calculate_Medical_Expense_Deduction -->
@@ -12509,6 +12714,11 @@ result.agi constants.medical_floor_percentage fmul cvd /result.medical_expense_f
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Medical expense deduction per IRC 213</policy_description>
+<policy_statement_postfix>"Medical expense deduction per IRC 213"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 </decision_tables>

@@ -2,7 +2,7 @@
 <decision_tables>
 
 <!-- TABLE 51200: GA_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>GA.xlsx</relative_path>
 <file_name>GA.xlsx</file_name>
@@ -18,10 +18,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset and log</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Georgia Tax Calculation (top marginal 5.39%)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Georgia Tax Calculation (top marginal 5.39%)" job.audit_trail swap addto
+0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef "  Georgia Tax Calculation (top marginal 5.39%)" job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -44,7 +43,6 @@ job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 <condition_postfix>
 job.filing_status "HOH" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -55,7 +53,7 @@ job.filing_status "HOH" streq
 <action_comment>MFJ/QSS: $24,000 std ded, 5.39%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 24000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0539</action_dsl>
 <action_postfix>
-result.agi 24000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0539 fmul cvd /result.computed_state_tax xdef
+result.agi 24000.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0539 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -64,7 +62,7 @@ result.agi 24000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef re
 <action_comment>HOH: $18,000 std ded, 5.39%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 18000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0539</action_dsl>
 <action_postfix>
-result.agi 18000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0539 fmul cvd /result.computed_state_tax xdef
+result.agi 18000.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0539 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -73,7 +71,7 @@ result.agi 18000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef re
 <action_comment>Default (Single/MFS): $12,000 std ded, 5.39%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 12000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0539</action_dsl>
 <action_postfix>
-result.agi 12000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0539 fmul cvd /result.computed_state_tax xdef
+result.agi 12000.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0539 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -81,15 +79,15 @@ result.agi 12000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef re
 <policy_statements>
 <policy_statement column="1">
 <policy_description>GA MFJ: 5.39% x max(AGI - $24,000, 0) per OCGA § 48-7-20</policy_description>
-<policy_statement_postfix>"Georgia MFJ top-marginal-rate approximation per OCGA § 48-7-20"</policy_statement_postfix>
+<policy_statement_postfix>"GA MFJ: 5.39% x max(AGI - $24,000, 0) per OCGA § 48-7-20"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>GA HOH: 5.39% x max(AGI - $18,000, 0) per OCGA § 48-7-20</policy_description>
-<policy_statement_postfix>"Georgia HOH top-marginal-rate approximation per OCGA § 48-7-20"</policy_statement_postfix>
+<policy_statement_postfix>"GA HOH: 5.39% x max(AGI - $18,000, 0) per OCGA § 48-7-20"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>GA Single/MFS: 5.39% x max(AGI - $12,000, 0) per OCGA § 48-7-20</policy_description>
-<policy_statement_postfix>"Georgia Single/MFS top-marginal-rate approximation per OCGA § 48-7-20"</policy_statement_postfix>
+<policy_statement_postfix>"GA Single/MFS: 5.39% x max(AGI - $12,000, 0) per OCGA § 48-7-20"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

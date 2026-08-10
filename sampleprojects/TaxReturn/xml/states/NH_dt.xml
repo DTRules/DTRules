@@ -2,7 +2,7 @@
 <decision_tables>
 
 <!-- TABLE 52628: NH_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>NH.xlsx</relative_path>
 <file_name>NH.xlsx</file_name>
@@ -18,10 +18,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>NewHampshire state tax is effectively 0</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  New Hampshire (Interest &amp; Dividends tax phased out 2025)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  New Hampshire (Interest &amp; Dividends tax phased out 2025)" job.audit_trail swap addto
+0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef "  New Hampshire (Interest &amp; Dividends tax phased out 2025)" job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>

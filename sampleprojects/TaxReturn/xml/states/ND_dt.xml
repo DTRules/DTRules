@@ -2,7 +2,7 @@
 <decision_tables>
 
 <!-- TABLE 52612: ND_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>ND.xlsx</relative_path>
 <file_name>ND.xlsx</file_name>
@@ -18,10 +18,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset and log</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  North Dakota Tax Calculation (top marginal 2.5%)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  North Dakota Tax Calculation (top marginal 2.5%)" job.audit_trail swap addto
+0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef "  North Dakota Tax Calculation (top marginal 2.5%)" job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -46,7 +45,6 @@ job.filing_status "HOH" streq
 </condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
-<condition_column column_number="1" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -55,7 +53,7 @@ job.filing_status "HOH" streq
 <action_comment>MFJ/QSS: $29,200 std ded, 2.5%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 29200.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.025</action_dsl>
 <action_postfix>
-result.agi 29200.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.025 fmul cvd /result.computed_state_tax xdef
+result.agi 29200.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.025 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -64,7 +62,7 @@ result.agi 29200.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef re
 <action_comment>HOH: $21,900 std ded, 2.5%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 21900.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.025</action_dsl>
 <action_postfix>
-result.agi 21900.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.025 fmul cvd /result.computed_state_tax xdef
+result.agi 21900.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.025 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -73,7 +71,7 @@ result.agi 21900.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef re
 <action_comment>Default (Single/MFS): $14,600 std ded, 2.5%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 14600.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.025</action_dsl>
 <action_postfix>
-result.agi 14600.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.025 fmul cvd /result.computed_state_tax xdef
+result.agi 14600.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.025 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -81,15 +79,15 @@ result.agi 14600.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef re
 <policy_statements>
 <policy_statement column="1">
 <policy_description>ND MFJ: 2.5% x max(AGI - $29,200, 0) per N.D.C.C. § 57-38-30.3</policy_description>
-<policy_statement_postfix>"NorthDakota MFJ top-marginal-rate approximation per N.D.C.C. § 57-38-30.3"</policy_statement_postfix>
+<policy_statement_postfix>"ND MFJ: 2.5% x max(AGI - $29,200, 0) per N.D.C.C. § 57-38-30.3"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>ND HOH: 2.5% x max(AGI - $21,900, 0) per N.D.C.C. § 57-38-30.3</policy_description>
-<policy_statement_postfix>"NorthDakota HOH top-marginal-rate approximation per N.D.C.C. § 57-38-30.3"</policy_statement_postfix>
+<policy_statement_postfix>"ND HOH: 2.5% x max(AGI - $21,900, 0) per N.D.C.C. § 57-38-30.3"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>ND Single/MFS: 2.5% x max(AGI - $14,600, 0) per N.D.C.C. § 57-38-30.3</policy_description>
-<policy_statement_postfix>"NorthDakota Single/MFS top-marginal-rate approximation per N.D.C.C. § 57-38-30.3"</policy_statement_postfix>
+<policy_statement_postfix>"ND Single/MFS: 2.5% x max(AGI - $14,600, 0) per N.D.C.C. § 57-38-30.3"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

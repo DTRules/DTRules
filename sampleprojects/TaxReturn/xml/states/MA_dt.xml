@@ -88,6 +88,10 @@ result.ma_taxable_income cvi /result.computed_state_taxable_income xdef result.m
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>MA tax MFJ: 5.00% × max(AGI − $8,800, 0) + 4% × max(AGI − $1,083,150, 0)</policy_description>
+<policy_statement_postfix>"MA tax MFJ: 5.00% × max(AGI − $8,800, 0) + 4% × max(AGI − $1,083,150, 0)"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>MA tax HOH: 5.00% × max(AGI − $6,800, 0) + 4% × max(AGI − $1,083,150, 0)</policy_description>
 <policy_statement_postfix>"MA tax HOH: 5.00% × max(AGI − $6,800, 0) + 4% × max(AGI − $1,083,150, 0)"</policy_statement_postfix>

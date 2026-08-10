@@ -2,7 +2,7 @@
 <decision_tables>
 
 <!-- TABLE 53432: RI_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>RI.xlsx</relative_path>
 <file_name>RI.xlsx</file_name>
@@ -18,10 +18,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset and log</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Rhode Island Tax Calculation (top marginal 5.99%)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Rhode Island Tax Calculation (top marginal 5.99%)" job.audit_trail swap addto
+0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef "  Rhode Island Tax Calculation (top marginal 5.99%)" job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -33,9 +32,9 @@
 <condition_postfix>
 job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 </condition_postfix>
-<condition_column column_number="3" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -44,7 +43,6 @@ job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 <condition_postfix>
 job.filing_status "HOH" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -55,7 +53,7 @@ job.filing_status "HOH" streq
 <action_comment>MFJ/QSS: $21,150 std ded, 5.99%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 21150.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0599</action_dsl>
 <action_postfix>
-result.agi 21150.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0599 fmul cvd /result.computed_state_tax xdef
+result.agi 21150.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0599 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -64,7 +62,7 @@ result.agi 21150.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef re
 <action_comment>HOH: $15,850 std ded, 5.99%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 15850.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0599</action_dsl>
 <action_postfix>
-result.agi 15850.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0599 fmul cvd /result.computed_state_tax xdef
+result.agi 15850.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0599 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -73,7 +71,7 @@ result.agi 15850.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef re
 <action_comment>Default (Single/MFS): $10,550 std ded, 5.99%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 10550.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0599</action_dsl>
 <action_postfix>
-result.agi 10550.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0599 fmul cvd /result.computed_state_tax xdef
+result.agi 10550.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0599 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -81,15 +79,15 @@ result.agi 10550.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef re
 <policy_statements>
 <policy_statement column="1">
 <policy_description>RI MFJ: 5.99% x max(AGI - $21,150, 0) per R.I. Gen. Laws § 44-30-2.6</policy_description>
-<policy_statement_postfix>"RhodeIsland MFJ top-marginal-rate approximation per R.I. Gen. Laws § 44-30-2.6"</policy_statement_postfix>
+<policy_statement_postfix>"RI MFJ: 5.99% x max(AGI - $21,150, 0) per R.I. Gen. Laws § 44-30-2.6"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>RI HOH: 5.99% x max(AGI - $15,850, 0) per R.I. Gen. Laws § 44-30-2.6</policy_description>
-<policy_statement_postfix>"RhodeIsland HOH top-marginal-rate approximation per R.I. Gen. Laws § 44-30-2.6"</policy_statement_postfix>
+<policy_statement_postfix>"RI HOH: 5.99% x max(AGI - $15,850, 0) per R.I. Gen. Laws § 44-30-2.6"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>RI Single/MFS: 5.99% x max(AGI - $10,550, 0) per R.I. Gen. Laws § 44-30-2.6</policy_description>
-<policy_statement_postfix>"RhodeIsland Single/MFS top-marginal-rate approximation per R.I. Gen. Laws § 44-30-2.6"</policy_statement_postfix>
+<policy_statement_postfix>"RI Single/MFS: 5.99% x max(AGI - $10,550, 0) per R.I. Gen. Laws § 44-30-2.6"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

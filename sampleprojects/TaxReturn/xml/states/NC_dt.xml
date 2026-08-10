@@ -2,7 +2,7 @@
 <decision_tables>
 
 <!-- TABLE 43000: NC_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>NC.xlsx</relative_path>
 <file_name>NC.xlsx</file_name>
@@ -18,7 +18,6 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset NC tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.nc_state_tax = 0; set result.nc_taxable_income = 0; set result.nc_total_deduction = 0; add "  North Carolina Tax Calculation (Form D-400) - flat 4.25%" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
 0 cvd /result.nc_state_tax xdef 0 cvd /result.nc_taxable_income xdef 0 cvd /result.nc_total_deduction xdef "  North Carolina Tax Calculation (Form D-400) - flat 4.25%" job.audit_trail swap addto
@@ -46,7 +45,6 @@ job.filing_status "HOH" streq
 </condition_postfix>
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
-<condition_column column_number="1" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -82,7 +80,7 @@ result.agi 12750.0 f- 0.0 fmax cvd /result.nc_taxable_income xdef result.nc_taxa
 <action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
 <action_dsl>set result.computed_state_taxable_income = result.nc_taxable_income; set result.computed_state_tax = result.nc_state_tax</action_dsl>
 <action_postfix>
-result.nc_taxable_income cvd /result.computed_state_taxable_income xdef result.nc_state_tax cvd /result.computed_state_tax xdef
+result.nc_taxable_income cvi /result.computed_state_taxable_income xdef result.nc_state_tax cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
@@ -92,27 +90,27 @@ result.nc_taxable_income cvd /result.computed_state_taxable_income xdef result.n
 <policy_statements>
 <policy_statement column="1">
 <policy_description>NC flat tax MFJ: 4.25% × max(AGI − $25,500, 0)</policy_description>
-<policy_statement_postfix>"NC flat tax MFJ per NCGS § 105-153.7"</policy_statement_postfix>
+<policy_statement_postfix>"NC flat tax MFJ: 4.25% × max(AGI − $25,500, 0)"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>NC flat tax HOH: 4.25% × max(AGI − $22,500, 0)</policy_description>
-<policy_statement_postfix>"NC flat tax HOH per NCGS § 105-153.7"</policy_statement_postfix>
+<policy_statement_postfix>"NC flat tax HOH: 4.25% × max(AGI − $22,500, 0)"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>NC flat tax Single/MFS: 4.25% × max(AGI − $12,750, 0)</policy_description>
-<policy_statement_postfix>"NC flat tax Single/MFS per NCGS § 105-153.7"</policy_statement_postfix>
+<policy_statement_postfix>"NC flat tax Single/MFS: 4.25% × max(AGI − $12,750, 0)"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>
 
-<!-- TABLE 43050: NC_Military_Retirement_Exclusion -->
-<decision_table>
+<!-- TABLE 43050: nc_military_retirement_exclusion -->
+<decision_table el_compiled="true">
 <source>
 <relative_path>NC.xlsx</relative_path>
 <file_name>NC.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
-<table_name>NC_Military_Retirement_Exclusion</table_name>
+<table_name>nc_military_retirement_exclusion</table_name>
 <xls_file>NC.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
