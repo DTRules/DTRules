@@ -94,9 +94,18 @@ func (e *Exporter) ExportDecisionTables(filename string) error {
 // recorded as Foo.xls, Foo.xlsx or a path -- and case-insensitively, because
 // nothing about a name in DTRules is case-sensitive.
 //
-// Returns 0 when no table claims the workbook. Callers should treat that as
-// "leave the file alone": overwriting it with nothing would empty a workbook
-// whose tables merely record a different spelling.
+// Returns 0 when nothing claims the workbook -- neither a table nor an entity.
+// Callers should treat that as "leave the file alone": overwriting it with
+// nothing would empty a workbook whose contents merely record a different
+// spelling.
+//
+// A workbook may hold entities and no tables, and that case has to be written
+// too. Returning early on "no tables" meant an EDD-only workbook was never
+// refreshed at all, so every `dtrules edd` edit updated the XML and left the
+// workbook stale -- and the next `build --from-excel` restored the XML from
+// that stale workbook, silently reverting the edit. Folding 401 fields into
+// CorporateTax's master EDD survived until the next build and then vanished
+// (#1094).
 func (e *Exporter) ExportDecisionTablesOwnedBy(filename string) (int, error) {
 	want := workbookKey(filename)
 
@@ -106,7 +115,8 @@ func (e *Exporter) ExportDecisionTablesOwnedBy(filename string) (int, error) {
 			owned = append(owned, dt)
 		}
 	}
-	if len(owned) == 0 {
+	ents := e.entitiesOwnedBy(filename)
+	if len(owned) == 0 && len(ents) == 0 {
 		return 0, nil
 	}
 	sortTablesByTableNumber(owned)
@@ -131,7 +141,7 @@ func (e *Exporter) ExportDecisionTablesOwnedBy(filename string) (int, error) {
 	// deleted the dictionary from the record. The next build then imported a
 	// workbook with no types and compiled the DSL untyped, turning `f<` into
 	// `<`: two fixed-point amounts compared as integers (#1094).
-	if ents := e.entitiesOwnedBy(filename); len(ents) > 0 {
+	if len(ents) > 0 {
 		if err := e.writeEDDSheet(f, styler, "EDD", ents); err != nil {
 			return 0, fmt.Errorf("failed to write EDD sheet: %w", err)
 		}
@@ -140,7 +150,9 @@ func (e *Exporter) ExportDecisionTablesOwnedBy(filename string) (int, error) {
 	if len(f.GetSheetList()) > 1 {
 		f.DeleteSheet(defaultSheet)
 	}
-	return len(owned), f.SaveAs(filename)
+	// Count both: the caller uses this to decide whether anything was
+	// written, and an EDD-only workbook writes no tables.
+	return len(owned) + len(ents), f.SaveAs(filename)
 }
 
 // workbookKey reduces a workbook reference to something comparable: base name,
