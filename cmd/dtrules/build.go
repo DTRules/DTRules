@@ -242,7 +242,22 @@ func dupGate(xmlDir string) int {
 // a copyProject is unreliable because mtimes and hashes drift on
 // copy. Direct invocation pins the behavior end-to-end.
 func runNoSyncAdvisory(xmlDir string) int {
-	fmt.Println("Nothing to sync — normalizing XML and running the advisory pass.")
+	// "Nothing to sync" used to be the whole message, and it was read as
+	// "Excel and XML agree". It means only that no workbook is newer than its
+	// XML. Content can still differ -- an XML written by an older exporter has
+	// the same mtimes and different bytes -- and that is exactly the state
+	// `verify` fails on, so a user could see this line and a red gate in the
+	// same minute with nothing connecting them (#1051).
+	//
+	// Saying which question was answered, and naming the one that was not, is
+	// as far as this branch can honestly go. Actually comparing content means
+	// rebuilding into a temp tree, which is what verify does and what takes
+	// minutes on TaxReturn -- too much for every build. And resolving a
+	// difference automatically would be worse than useless: on CHIP the XML is
+	// ahead of its workbook, so taking Excel silently reverts working rules
+	// (#1058).
+	fmt.Println("No workbook is newer than its XML — normalizing and running the advisory pass.")
+	fmt.Println("  (this compares timestamps, not content; `dtrules verify` checks the bytes)")
 	// Normalization (section renumbering, entity-number backfill) is
 	// idempotent — run it even when Excel and XML are in sync, so a plain
 	// `dtrules build` always leaves normalized files.

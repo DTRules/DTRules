@@ -474,8 +474,12 @@ func TestStaticAnalysis_UnusedEDDField(t *testing.T) {
 // branch (taken when sync detection returns "none") used to print
 // "Nothing to do: all files are in sync." and exit without running
 // the advisory pass. The fix routes through `runNoSyncAdvisory`,
-// which prints "Nothing to sync — running advisory pass…" and calls
-// `runStaticAnalysis`.
+// which prints a no-sync header and calls `runStaticAnalysis`.
+//
+// The header wording changed with #1051: "Nothing to sync" read as "Excel and
+// XML agree", when all it means is that no workbook is newer. What this test
+// exists for is the advisory pass running at all, so it asserts the header
+// names the comparison it actually made rather than pinning a phrase.
 //
 // We exercise `runNoSyncAdvisory` directly rather than going through
 // the full CLI dispatch because reaching the "none" sync state from
@@ -495,8 +499,8 @@ func TestRunNoSyncAdvisory(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Capture stdout: runNoSyncAdvisory writes the "Nothing to sync"
-	// header + the per-warning lines there.
+	// Capture stdout: runNoSyncAdvisory writes the no-sync header + the
+	// per-warning lines there.
 	stdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
@@ -510,8 +514,13 @@ func TestRunNoSyncAdvisory(t *testing.T) {
 	if code != 0 {
 		t.Errorf("runNoSyncAdvisory exit=%d; want 0", code)
 	}
-	if !strings.Contains(out, "Nothing to sync") {
-		t.Errorf("expected 'Nothing to sync' marker; got:\n%s", out)
+	if !strings.Contains(out, "newer than its XML") {
+		t.Errorf("expected the no-sync header; got:\n%s", out)
+	}
+	// The header must not leave the reader thinking content was compared --
+	// that is the confusion #1051 was reported as.
+	if !strings.Contains(out, "not content") {
+		t.Errorf("the header should say timestamps were compared, not content; got:\n%s", out)
 	}
 	// The fixture's no-op column finding must show up.
 	if !strings.Contains(out, "no-op column") && !strings.Contains(out, "no actions") {
