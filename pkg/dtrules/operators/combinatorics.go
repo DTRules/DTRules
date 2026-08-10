@@ -40,6 +40,7 @@ func init() {
 	Register("subsets", opSubsets)
 	Register("groupby", opGroupBy)
 	Register("maximalruns", opMaximalRuns)
+	Register("suffixes", opSuffixes)
 }
 
 // subsetsCap bounds opSubsets: 2^12-1 = 4095 entities is the design ceiling.
@@ -407,6 +408,103 @@ func opMaximalRuns(state dtrules.State) error {
 			dtrules.TraceArrayAdd(state, dest, ent)
 		}
 		i = j + 1
+	}
+	return nil
+}
+
+// opSuffixes: ( src minlen statfield typename dest -- ) for every trailing
+// window of src with length ≥ minlen — the last 2 elements, the last 3, … —
+// create an entity of EDD type `typename` with fields
+//
+//	members  : the window's entities, in source order, by reference
+//	count    : window length
+//	sum      : Σ member.<statfield>
+//	distinct : number of distinct <statfield> values in the window
+//	spread   : max − min of <statfield> over the window
+//
+// and append it to dest, LONGEST WINDOW FIRST. The emission order is part
+// of the contract: order-dependent policies like cribbage's longest-run-
+// only rule read as "the first qualifying window" — a plain zero-guard
+// condition in a table iterating the destination (#1023).
+//
+// The window shape makes order-dependent structure testable with plain
+// conditions: a window is a run iff distinct == count and spread ==
+// count−1 (any lay order), and a trailing pair block iff distinct == 1.
+func opSuffixes(state dtrules.State) error {
+	const op = "suffixes"
+	destObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	dest, err := destObj.RArrayValue()
+	if err != nil {
+		return fmt.Errorf("%s: dest must be an array: %w", op, err)
+	}
+	typeName, err := popRName(state, op, "typename")
+	if err != nil {
+		return err
+	}
+	statField, err := popString(state, op, "statfield")
+	if err != nil {
+		return err
+	}
+	if statField == "" {
+		return fmt.Errorf("%s: statfield must name an integer attribute", op)
+	}
+	minLen, err := popInt(state, op, "minlen")
+	if err != nil {
+		return err
+	}
+	if minLen < 1 {
+		minLen = 1
+	}
+	_, ents, err := popEntityArray(state, op)
+	if err != nil {
+		return err
+	}
+
+	fieldName := dtrules.GetRName(statField)
+	vals := make([]int, len(ents))
+	for i, ent := range ents {
+		v, err := intField(op, ent, fieldName)
+		if err != nil {
+			return err
+		}
+		vals[i] = v
+	}
+
+	for l := len(ents); l >= minLen; l-- {
+		start := len(ents) - l
+		sum, mn, mx := 0, vals[start], vals[start]
+		seen := make(map[int]bool, l)
+		members := make([]dtrules.Object, 0, l)
+		for i := start; i < len(ents); i++ {
+			members = append(members, ents[i].(dtrules.Object))
+			sum += vals[i]
+			seen[vals[i]] = true
+			if vals[i] < mn {
+				mn = vals[i]
+			}
+			if vals[i] > mx {
+				mx = vals[i]
+			}
+		}
+		membersArr, err := dtrules.NewArrayWithElements(state.GetSession(), true, members, false)
+		if err != nil {
+			return err
+		}
+		ent, err := makeStructEntity(state, op, typeName, map[string]dtrules.Object{
+			"members":  membersArr,
+			"count":    dtrules.GetRIntegerValue(int64(l)),
+			"sum":      dtrules.GetRIntegerValue(int64(sum)),
+			"distinct": dtrules.GetRIntegerValue(int64(len(seen))),
+			"spread":   dtrules.GetRIntegerValue(int64(mx - mn)),
+		})
+		if err != nil {
+			return err
+		}
+		dest.Add(ent)
+		dtrules.TraceArrayAdd(state, dest, ent)
 	}
 	return nil
 }

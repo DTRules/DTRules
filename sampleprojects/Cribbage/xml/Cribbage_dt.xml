@@ -485,4 +485,442 @@ card.suit hand.starter_suit ==
 </policy_statement>
 </policy_statements>
 </decision_table>
+
+<!-- TABLE 3060: Score_Play -->
+<decision_table>
+<source>
+<relative_path>Cribbage.xlsx</relative_path>
+<file_name>Cribbage.xlsx</file_name>
+<sheet_number>7</sheet_number>
+</source>
+<table_name>Score_Play</table_name>
+<xls_file>Cribbage.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>3060</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>set play.count_points = 0; set play.pair_points = 0; set play.run_points = 0; set play.go_points = 0; set play.total = 0;</initial_action_dsl>
+<initial_action_postfix>
+0 cvi /play.count_points xdef 0 cvi /play.pair_points xdef 0 cvi /play.run_points xdef 0 cvi /play.go_points xdef 0 cvi /play.total xdef
+</initial_action_postfix>
+</initial_action>
+<initial_action>
+<initial_action_dsl>suffixes(play.cards, 2, "rank", "combo", play.windows)</initial_action_dsl>
+<initial_action_postfix>
+play.cards 2 "rank" "combo" play.windows suffixes
+</initial_action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>always</condition_comment>
+<condition_dsl>true</condition_dsl>
+<condition_postfix>
+true
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>perform Score_Play_Count</action_dsl>
+<action_postfix>
+/Score_Play_Count performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment></action_comment>
+<action_dsl>perform Score_Play_Pairs</action_dsl>
+<action_postfix>
+/Score_Play_Pairs performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment></action_comment>
+<action_dsl>perform Score_Play_Runs</action_dsl>
+<action_postfix>
+/Score_Play_Runs performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment></action_comment>
+<action_dsl>perform Score_Play_Go</action_dsl>
+<action_postfix>
+/Score_Play_Go performtable
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment></action_comment>
+<action_dsl>set play.total = play.count_points + play.pair_points + play.run_points + play.go_points;</action_dsl>
+<action_postfix>
+play.count_points play.pair_points + play.run_points + play.go_points + cvi /play.total xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 3070: Score_Play_Count -->
+<decision_table>
+<source>
+<relative_path>Cribbage.xlsx</relative_path>
+<file_name>Cribbage.xlsx</file_name>
+<sheet_number>8</sheet_number>
+</source>
+<table_name>Score_Play_Count</table_name>
+<xls_file>Cribbage.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>3070</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>no card was laid on a go</condition_comment>
+<condition_dsl>play.is_go</condition_dsl>
+<condition_postfix>
+play.is_go
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>fifteen</condition_comment>
+<condition_dsl>play.count == 15</condition_dsl>
+<condition_postfix>
+play.count 15 ==
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>thirty-one</condition_comment>
+<condition_dsl>play.count == 31</condition_dsl>
+<condition_postfix>
+play.count 31 ==
+</condition_postfix>
+<condition_column column_number="2" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>add 2 to play.count_points</action_dsl>
+<action_postfix>
+2 play.count_points + /play.count_points xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="2" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Fifteen for 2</policy_description>
+<policy_statement_postfix>"Fifteen for 2"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Thirty-one for 2</policy_description>
+<policy_statement_postfix>"Thirty-one for 2"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 3080: Score_Play_Pairs -->
+<decision_table>
+<source>
+<relative_path>Cribbage.xlsx</relative_path>
+<file_name>Cribbage.xlsx</file_name>
+<sheet_number>9</sheet_number>
+</source>
+<table_name>Score_Play_Pairs</table_name>
+<xls_file>Cribbage.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>3080</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all play.windows</context_dsl>
+<context_postfix>
+dup play.windows forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>every card in the window shares a rank</condition_comment>
+<condition_dsl>combo.distinct == 1</condition_dsl>
+<condition_postfix>
+combo.distinct 1 ==
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>only the longest trailing block counts</condition_comment>
+<condition_dsl>play.pair_points == 0</condition_dsl>
+<condition_postfix>
+play.pair_points 0 ==
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>four of a kind</condition_comment>
+<condition_dsl>combo.count == 4</condition_dsl>
+<condition_postfix>
+combo.count 4 ==
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>three of a kind</condition_comment>
+<condition_dsl>combo.count == 3</condition_dsl>
+<condition_postfix>
+combo.count 3 ==
+</condition_postfix>
+<condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>a pair</condition_comment>
+<condition_dsl>combo.count == 2</condition_dsl>
+<condition_postfix>
+combo.count 2 ==
+</condition_postfix>
+<condition_column column_number="3" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>add 12 to play.pair_points</action_dsl>
+<action_postfix>
+12 play.pair_points + /play.pair_points xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment></action_comment>
+<action_dsl>add 6 to play.pair_points</action_dsl>
+<action_postfix>
+6 play.pair_points + /play.pair_points xdef
+</action_postfix>
+<action_column column_number="2" column_value="X" />
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment></action_comment>
+<action_dsl>add 2 to play.pair_points</action_dsl>
+<action_postfix>
+2 play.pair_points + /play.pair_points xdef
+</action_postfix>
+<action_column column_number="3" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Double pair royal for 12</policy_description>
+<policy_statement_postfix>"Double pair royal for 12"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>Pair royal for 6</policy_description>
+<policy_statement_postfix>"Pair royal for 6"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="3">
+<policy_description>A pair for 2</policy_description>
+<policy_statement_postfix>"A pair for 2"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 3090: Score_Play_Runs -->
+<decision_table>
+<source>
+<relative_path>Cribbage.xlsx</relative_path>
+<file_name>Cribbage.xlsx</file_name>
+<sheet_number>10</sheet_number>
+</source>
+<table_name>Score_Play_Runs</table_name>
+<xls_file>Cribbage.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>3090</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all play.windows</context_dsl>
+<context_postfix>
+dup play.windows forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>only the longest run counts</condition_comment>
+<condition_dsl>play.run_points == 0</condition_dsl>
+<condition_postfix>
+play.run_points 0 ==
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>runs start at three</condition_comment>
+<condition_dsl>combo.count &gt;= 3</condition_dsl>
+<condition_postfix>
+combo.count 3 &gt;=
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>no rank repeats</condition_comment>
+<condition_dsl>combo.distinct == combo.count</condition_dsl>
+<condition_postfix>
+combo.distinct combo.count ==
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>ranks are consecutive in some order</condition_comment>
+<condition_dsl>combo.spread == combo.count - 1</condition_dsl>
+<condition_postfix>
+combo.spread combo.count 1 - ==
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>set play.run_points = combo.count;</action_dsl>
+<action_postfix>
+combo.count cvi /play.run_points xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>A run of {combo.count}</policy_description>
+<policy_statement_postfix>"A run of " combo.count cvs strconcat "" strconcat</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 3100: Score_Play_Go -->
+<decision_table>
+<source>
+<relative_path>Cribbage.xlsx</relative_path>
+<file_name>Cribbage.xlsx</file_name>
+<sheet_number>11</sheet_number>
+</source>
+<table_name>Score_Play_Go</table_name>
+<xls_file>Cribbage.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>3100</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>thirty-one supersedes the single point</condition_comment>
+<condition_dsl>play.count == 31</condition_dsl>
+<condition_postfix>
+play.count 31 ==
+</condition_postfix>
+<condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>last card of the whole play</condition_comment>
+<condition_dsl>play.is_last</condition_dsl>
+<condition_postfix>
+play.is_last
+</condition_postfix>
+<condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>opponent said go and this side cannot play either</condition_comment>
+<condition_dsl>play.is_go</condition_dsl>
+<condition_postfix>
+play.is_go
+</condition_postfix>
+<condition_column column_number="2" column_value="Y" />
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>add 1 to play.go_points</action_dsl>
+<action_postfix>
+1 play.go_points + /play.go_points xdef
+</action_postfix>
+<action_column column_number="1" column_value="X" />
+<action_column column_number="2" column_value="X" />
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>One for last card</policy_description>
+<policy_statement_postfix>"One for last card"</policy_statement_postfix>
+</policy_statement>
+<policy_statement column="2">
+<policy_description>One for the go</policy_description>
+<policy_statement_postfix>"One for the go"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
 </decision_tables>

@@ -44,7 +44,7 @@ func newCombHarness(t *testing.T) *combHarness {
 	h := &combHarness{sess: sess, state: sess.GetState().(*interpreter.DTState), ef: ef}
 
 	h.declare(t, "card", []string{"rank", "suit", "value"}, nil)
-	h.declare(t, "combo", []string{"count", "sum"}, []string{"members"})
+	h.declare(t, "combo", []string{"count", "sum", "distinct", "spread"}, []string{"members"})
 	h.declare(t, "group", []string{"key", "count"}, []string{"members"})
 	h.declare(t, "run", []string{"start", "span", "multiplicity"}, nil)
 	return h
@@ -349,6 +349,80 @@ func TestMaximalRunsMinLen(t *testing.T) {
 	}
 	if dest.Size() != 0 {
 		t.Errorf("minlen 5 over a length-4 run: got %d runs, want 0", dest.Size())
+	}
+}
+
+func TestSuffixesEmitsTrailingWindowsLongestFirst(t *testing.T) {
+	h := newCombHarness(t)
+	// Lay order 4, 6, 5: the pegging classic — a run in any order.
+	src := h.cards(t, 4, 6, 5)
+	dest := h.emptyArray(t)
+
+	if err := h.exec(t, "suffixes", src, dtrules.GetRIntegerValue(2), str("rank"), str("combo"), dest); err != nil {
+		t.Fatalf("suffixes: %v", err)
+	}
+	elems, _ := dest.ArrayValue()
+	if len(elems) != 2 {
+		t.Fatalf("windows of len >= 2 from 3 cards: got %d, want 2", len(elems))
+	}
+	// Longest first: [4,6,5] then [6,5].
+	first := [3]int{intAttr(t, elems[0], "count"), intAttr(t, elems[0], "distinct"), intAttr(t, elems[0], "spread")}
+	if first != [3]int{3, 3, 2} {
+		t.Errorf("longest window = (count,distinct,spread) %v, want {3 3 2} — a run in any order", first)
+	}
+	second := [3]int{intAttr(t, elems[1], "count"), intAttr(t, elems[1], "distinct"), intAttr(t, elems[1], "spread")}
+	if second != [3]int{2, 2, 1} {
+		t.Errorf("second window = %v, want {2 2 1}", second)
+	}
+	if got := intAttr(t, elems[0], "sum"); got != 15 {
+		t.Errorf("sum over full window = %d, want 15", got)
+	}
+	if h.state.DataStackDepth() != 0 {
+		t.Errorf("stack not clean: depth %d", h.state.DataStackDepth())
+	}
+}
+
+func TestSuffixesPairAndBrokenPairShapes(t *testing.T) {
+	h := newCombHarness(t)
+
+	// Trailing trips: [K,8,8,8] — windows [K888]{4,2,5}, [888]{3,1,0}, [88]{2,1,0}.
+	dest := h.emptyArray(t)
+	if err := h.exec(t, "suffixes", h.cards(t, 13, 8, 8, 8), dtrules.GetRIntegerValue(2), str("rank"), str("combo"), dest); err != nil {
+		t.Fatalf("suffixes: %v", err)
+	}
+	elems, _ := dest.ArrayValue()
+	if len(elems) != 3 {
+		t.Fatalf("got %d windows, want 3", len(elems))
+	}
+	// The first window with distinct == 1 is the maximal trailing block.
+	if d, c := intAttr(t, elems[1], "distinct"), intAttr(t, elems[1], "count"); d != 1 || c != 3 {
+		t.Errorf("trips window = (distinct %d, count %d), want (1, 3)", d, c)
+	}
+
+	// A broken pair [7,2,7] has no window with distinct == 1.
+	dest = h.emptyArray(t)
+	if err := h.exec(t, "suffixes", h.cards(t, 7, 2, 7), dtrules.GetRIntegerValue(2), str("rank"), str("combo"), dest); err != nil {
+		t.Fatalf("suffixes: %v", err)
+	}
+	elems, _ = dest.ArrayValue()
+	for i, e := range elems {
+		if intAttr(t, e, "distinct") == 1 {
+			t.Errorf("window %d claims a trailing pair in a broken-pair stack", i)
+		}
+	}
+
+	// minlen respected; a single element yields nothing at minlen 2.
+	dest = h.emptyArray(t)
+	if err := h.exec(t, "suffixes", h.cards(t, 9), dtrules.GetRIntegerValue(2), str("rank"), str("combo"), dest); err != nil {
+		t.Fatalf("suffixes single: %v", err)
+	}
+	if dest.Size() != 0 {
+		t.Errorf("single card at minlen 2: got %d windows, want 0", dest.Size())
+	}
+
+	// Empty statfield is an error.
+	if err := h.exec(t, "suffixes", h.cards(t, 1, 2), dtrules.GetRIntegerValue(2), str(""), str("combo"), h.emptyArray(t)); err == nil {
+		t.Error("expected an error for an empty statfield")
 	}
 }
 
