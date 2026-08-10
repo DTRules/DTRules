@@ -2,14 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 52600: Determine_IA_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>IA_Corp.xls</relative_path>
-<file_name>IA_Corp.xls</file_name>
+<relative_path>IA_corp.xlsx</relative_path>
+<file_name>IA_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_IA_Filing_Requirement</table_name>
-<xls_file>IA_Corp.xls</xls_file>
+<xls_file>IA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file Iowa corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
@@ -79,14 +79,14 @@ false cvb /result.ia_has_nexus xdef 0.0 cvd /result.ia_tax_liability xdef
 </decision_table>
 
 <!-- TABLE 52620: Calculate_IA_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>IA_Corp.xls</relative_path>
-<file_name>IA_Corp.xls</file_name>
+<relative_path>IA_corp.xlsx</relative_path>
+<file_name>IA_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_IA_Income_Adjustments</table_name>
-<xls_file>IA_Corp.xls</xls_file>
+<xls_file>IA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Iowa state-specific additions and subtractions to federal taxable income. IA requires addback of state taxes deducted federally and allows subtraction of federal interest income.</COMMENTS>
@@ -135,14 +135,14 @@ result.ia_has_nexus true beq
 </decision_table>
 
 <!-- TABLE 52680: Calculate_IA_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>IA_Corp.xls</relative_path>
-<file_name>IA_Corp.xls</file_name>
+<relative_path>IA_corp.xlsx</relative_path>
+<file_name>IA_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_IA_State_Tax</table_name>
-<xls_file>IA_Corp.xls</xls_file>
+<xls_file>IA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Iowa corporate income tax. Applies Iowa graduated rates (5.5% on first $100K, 7.1% over $100K) to apportioned and adjusted taxable income.</COMMENTS>

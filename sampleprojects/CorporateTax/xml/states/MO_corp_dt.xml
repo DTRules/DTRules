@@ -2,14 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 53300: Determine_MO_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>MO_Corp.xls</relative_path>
-<file_name>MO_Corp.xls</file_name>
+<relative_path>MO_corp.xlsx</relative_path>
+<file_name>MO_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_MO_Filing_Requirement</table_name>
-<xls_file>MO_Corp.xls</xls_file>
+<xls_file>MO_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file Missouri corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
@@ -79,14 +79,14 @@ false cvb /result.mo_has_nexus xdef 0.0 cvd /result.mo_tax_liability xdef
 </decision_table>
 
 <!-- TABLE 53320: Calculate_MO_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>MO_Corp.xls</relative_path>
-<file_name>MO_Corp.xls</file_name>
+<relative_path>MO_corp.xlsx</relative_path>
+<file_name>MO_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_MO_Income_Adjustments</table_name>
-<xls_file>MO_Corp.xls</xls_file>
+<xls_file>MO_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Missouri state-specific additions and subtractions to federal taxable income. UNIQUE FEATURE: Missouri allows deduction of 50% of federal income tax paid.</COMMENTS>
@@ -135,14 +135,14 @@ result.mo_has_nexus true beq
 </decision_table>
 
 <!-- TABLE 53380: Calculate_MO_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>MO_Corp.xls</relative_path>
-<file_name>MO_Corp.xls</file_name>
+<relative_path>MO_corp.xlsx</relative_path>
+<file_name>MO_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_MO_State_Tax</table_name>
-<xls_file>MO_Corp.xls</xls_file>
+<xls_file>MO_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Missouri corporate income tax. Applies Missouri flat rate (4.0%) to apportioned and adjusted taxable income. The 50% federal tax deduction significantly reduces effective tax burden.</COMMENTS>

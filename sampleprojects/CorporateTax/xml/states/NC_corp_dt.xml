@@ -2,14 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 51200: Determine_NC_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NC_Corp.xls</relative_path>
-<file_name>NC_Corp.xls</file_name>
+<relative_path>NC_corp.xlsx</relative_path>
+<file_name>NC_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_NC_Filing_Requirement</table_name>
-<xls_file>NC_Corp.xls</xls_file>
+<xls_file>NC_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file North Carolina state corporate tax return. NC has the LOWEST state corporate income tax rate in the nation at 2.5%. Checks for physical presence or economic nexus (post-Wayfair). Physical presence includes office, employees, or property in NC. Economic nexus threshold: $100,000 gross receipts or 200 transactions. Reference: NC General Statute § 105-130.4 (Nexus and apportionment), NC Department of Revenue Directive CD-98-1 (Nexus standards).</COMMENTS>
@@ -26,6 +26,8 @@
 apportionment.has_physical_presence true beq { pop apportionment.state_code "NC" streq } over if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -34,6 +36,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "NC"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "NC" streq } over if
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -58,7 +61,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NC" st
 <action_comment>No nexus - no filing required</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -67,14 +70,14 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NC" st
 </decision_table>
 
 <!-- TABLE 51220: Calculate_NC_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NC_Corp.xls</relative_path>
-<file_name>NC_Corp.xls</file_name>
+<relative_path>NC_corp.xlsx</relative_path>
+<file_name>NC_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_NC_Income_Adjustments</table_name>
-<xls_file>NC_Corp.xls</xls_file>
+<xls_file>NC_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate NC state-specific additions and subtractions to federal taxable income. NC ADDITIONS include: Interest on U.S. government obligations (exempt federally, taxable to NC), IRC Section 199A qualified business income deduction addback (NC does not conform), State income taxes deducted on federal return, Bonus depreciation addback (varies by tax year), Expenses related to exempt income. NC SUBTRACTIONS include: Interest on NC state and municipal bonds, NC net operating loss deduction (subject to NC limitations), Dividend income eligible for NC dividend received deduction, Certain refunds of state income taxes. Reference: NC Form CD-405 Schedule A (Additions to Federal Taxable Income), NC Form CD-405 Schedule B (Deductions from Federal Taxable Income), NC General Statute § 105-130.5 (Adjustments to federal taxable income).</COMMENTS>
@@ -118,14 +121,14 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 </decision_table>
 
 <!-- TABLE 51280: Calculate_NC_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NC_Corp.xls</relative_path>
-<file_name>NC_Corp.xls</file_name>
+<relative_path>NC_corp.xlsx</relative_path>
+<file_name>NC_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_NC_State_Tax</table_name>
-<xls_file>NC_Corp.xls</xls_file>
+<xls_file>NC_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate NC state corporate income tax. Applies NC 2.5% flat rate to apportioned and adjusted taxable income. NC has the LOWEST state corporate tax rate in the nation at 2.5%. Process: (1) Federal taxable income apportioned to NC by table 7500, (2) Add NC-specific additions by table 51220, (3) Subtract NC-specific subtractions by table 51220, (4) Calculate NC state taxable income, (5) Apply NC 2.5% flat tax rate (LOWEST STATE RATE IN THE NATION), (6) Subtract NC state credits (Jobs creation, Film production, Renewable energy, Historic preservation, etc.), (7) Calculate refund or amount owed. NC uses single-sales factor apportionment (100% sales factor). NC tax rate history: 2025+ is 2.5% (lowest in nation), 2019-2024 varied from 2.5% to 6.9%, Before 2019 had progressive rates up to 6.9%. NC credits: Article 3J (Jobs creation), Article 3F (Film/entertainment production), Article 3B (Renewable energy), Article 3H (Historic rehabilitation). Reference: NC Form CD-405 (Corporation Income Tax Return), NC General Statute § 105-130.3 (Tax rate of 2.5%), NC General Statute § 105-130.4 (Single-sales apportionment), NC Department of Revenue Corporate Tax Bulletin 2025.</COMMENTS>
@@ -150,9 +153,10 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive NC taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 f&gt;
+apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
@@ -162,7 +166,7 @@ apportionment.state_taxable_income 0 f&gt;
 <action_comment>Calculate NC tax at 2.5% flat rate (LOWEST in nation); Calculate NC state tax using 2.5% flat rate, apply credits, calculate refund or owed</action_comment>
 <action_dsl>set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
+apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -171,7 +175,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_comment>No nexus - no tax liability</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -180,7 +184,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_comment>Nexus but no taxable income - no tax liability</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>

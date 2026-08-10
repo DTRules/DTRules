@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <mapping>
 	<XMLtoEDD>
 		<map>
@@ -11,7 +12,6 @@
 			<setattribute tag='expected_taxable_income' RAttribute='expected_taxable_income' enclosure='job' type='double'></setattribute>
 			<setattribute tag='expected_federal_tax' RAttribute='expected_federal_tax' enclosure='job' type='double'></setattribute>
 			<setattribute tag='expected_refund_or_owed' RAttribute='expected_refund_or_owed' enclosure='job' type='double'></setattribute>
-
 			<!-- Corporation mappings -->
 			<setattribute tag='ein' RAttribute='ein' enclosure='corporation' type='string'></setattribute>
 			<setattribute tag='corporation_name' RAttribute='corporation_name' enclosure='corporation' type='string'></setattribute>
@@ -21,7 +21,6 @@
 			<setattribute tag='tax_year_end' RAttribute='tax_year_end' enclosure='corporation' type='date'></setattribute>
 			<setattribute tag='total_assets' RAttribute='total_assets' enclosure='corporation' type='double'></setattribute>
 			<setattribute tag='gross_receipts' RAttribute='gross_receipts' enclosure='corporation' type='double'></setattribute>
-
 			<!-- Revenue mappings (Form 1120 lines 1-11) -->
 			<setattribute tag='gross_receipts' RAttribute='gross_receipts' enclosure='revenue' type='double'></setattribute>
 			<setattribute tag='returns_and_allowances' RAttribute='returns_and_allowances' enclosure='revenue' type='double'></setattribute>
@@ -36,14 +35,12 @@
 			<setattribute tag='net_gain_loss_4797' RAttribute='net_gain_loss_4797' enclosure='revenue' type='double'></setattribute>
 			<setattribute tag='other_income' RAttribute='other_income' enclosure='revenue' type='double'></setattribute>
 			<setattribute tag='total_income' RAttribute='total_income' enclosure='revenue' type='double'></setattribute>
-
 			<!-- Expense mappings (for business deductions) -->
 			<setattribute tag='id' RAttribute='id' enclosure='expense' type='integer'></setattribute>
 			<setattribute tag='category' RAttribute='category' enclosure='expense' type='string'></setattribute>
 			<setattribute tag='amount' RAttribute='amount' enclosure='expense' type='double'></setattribute>
 			<setattribute tag='deductible' RAttribute='deductible' enclosure='expense' type='boolean'></setattribute>
 			<setattribute tag='limitation_applied' RAttribute='limitation_applied' enclosure='expense' type='string'></setattribute>
-
 			<!-- Asset mappings (for depreciation) -->
 			<setattribute tag='id' RAttribute='id' enclosure='asset' type='integer'></setattribute>
 			<setattribute tag='description' RAttribute='description' enclosure='asset' type='string'></setattribute>
@@ -61,11 +58,9 @@
 			<setattribute tag='eligible_for_bonus' RAttribute='eligible_for_bonus' enclosure='asset' type='boolean'></setattribute>
 			<setattribute tag='listed_property' RAttribute='listed_property' enclosure='asset' type='boolean'></setattribute>
 			<setattribute tag='business_use_percentage' RAttribute='business_use_percentage' enclosure='asset' type='double'></setattribute>
-
 			<!-- Result mappings (Form 1120 lines 12-35) -->
 			<!-- Total Income -->
 			<setattribute tag='total_income' RAttribute='total_income' enclosure='result' type='double'></setattribute>
-
 			<!-- Deductions (lines 12-27) -->
 			<setattribute tag='compensation' RAttribute='compensation' enclosure='result' type='double'></setattribute>
 			<setattribute tag='salaries_and_wages' RAttribute='salaries_and_wages' enclosure='result' type='double'></setattribute>
@@ -82,7 +77,6 @@
 			<setattribute tag='employee_benefit_programs' RAttribute='employee_benefit_programs' enclosure='result' type='double'></setattribute>
 			<setattribute tag='other_deductions' RAttribute='other_deductions' enclosure='result' type='double'></setattribute>
 			<setattribute tag='total_deductions' RAttribute='total_deductions' enclosure='result' type='double'></setattribute>
-
 			<!-- Depreciation Tracking (Form 4562) -->
 			<setattribute tag='section_179_total' RAttribute='section_179_total' enclosure='result' type='double'></setattribute>
 			<setattribute tag='section_179_limit' RAttribute='section_179_limit' enclosure='result' type='double'></setattribute>
@@ -90,12 +84,10 @@
 			<setattribute tag='bonus_depreciation_total' RAttribute='bonus_depreciation_total' enclosure='result' type='double'></setattribute>
 			<setattribute tag='bonus_depreciation_rate' RAttribute='bonus_depreciation_rate' enclosure='result' type='double'></setattribute>
 			<setattribute tag='macrs_depreciation_total' RAttribute='macrs_depreciation_total' enclosure='result' type='double'></setattribute>
-
 			<!-- Tax Calculation (lines 28-35) -->
 			<setattribute tag='taxable_income' RAttribute='taxable_income' enclosure='result' type='double'></setattribute>
 			<setattribute tag='federal_tax_rate' RAttribute='federal_tax_rate' enclosure='result' type='double'></setattribute>
 			<setattribute tag='federal_tax' RAttribute='federal_tax' enclosure='result' type='double'></setattribute>
-
 			<!-- Credits (Form 3800) -->
 			<setattribute tag='general_business_credit' RAttribute='general_business_credit' enclosure='result' type='double'></setattribute>
 			<setattribute tag='research_development_credit' RAttribute='research_development_credit' enclosure='result' type='double'></setattribute>
@@ -104,10 +96,8 @@
 			<setattribute tag='estimated_tax_payments' RAttribute='estimated_tax_payments' enclosure='result' type='double'></setattribute>
 			<setattribute tag='total_payments' RAttribute='total_payments' enclosure='result' type='double'></setattribute>
 			<setattribute tag='refund_or_owed' RAttribute='refund_or_owed' enclosure='result' type='double'></setattribute>
-
 			<!-- Audit Trail -->
 			<setattribute tag='audit_trail' RAttribute='audit_trail' enclosure='result' type='string'></setattribute>
-
 			<!-- State tier inputs (campaign #948 Phase 3). The map predated the
 			     state tables entirely: it had no <apportionment> tags and no
 			     <entities> block, so the singletons the tables read were never
@@ -124,17 +114,9 @@
 			<setattribute tag='state_credits' RAttribute='state_credits' enclosure='apportionment' type='double'></setattribute>
 			<setattribute tag='state_additions' RAttribute='state_additions' enclosure='apportionment' type='double'></setattribute>
 			<setattribute tag='state_subtractions' RAttribute='state_subtractions' enclosure='apportionment' type='double'></setattribute>
-
 			<!-- Every enclosure tag must be declared or the loader treats it as
 			     an unknown wrapper and the values inside have nowhere to land —
 			     the exact failure Poker and SinusitisTherapy had (#948). -->
-			<createentity entity='job' tag='job' id='id'></createentity>
-			<createentity entity='corporation' tag='corporation' id='id'></createentity>
-			<createentity entity='apportionment' tag='apportionment' id='id'></createentity>
-			<createentity entity='result' tag='result' id='id'></createentity>
-			<createentity entity='revenue' tag='revenue' id='id'></createentity>
-			<createentity entity='expense' tag='expense' id='id'></createentity>
-
 			<!-- Per-state taxpayer inputs (campaign #948). Every field here is
 			     something a filer reports; the jurisdiction's own constants (rates,
 			     bracket thresholds, minimum taxes, statutory fees) are deliberately
@@ -273,36 +255,12 @@
 			<setattribute tag='tx_is_retail_wholesale' RAttribute='tx_is_retail_wholesale' enclosure='result' type='boolean'></setattribute>
 			<setattribute tag='tx_total_revenue' RAttribute='tx_total_revenue' enclosure='result' type='double'></setattribute>
 			<setattribute tag='wa_business_classification' RAttribute='wa_business_classification' enclosure='result' type='string'></setattribute>
-		</map>
-
-		<entities>
-			<entity name='job' number='1'></entity>
-			<entity name='corporation' number='1'></entity>
-			<entity name='apportionment' number='1'></entity>
-			<entity name='result' number='1'></entity>
-			<entity name='revenue' number='1'></entity>
-			<entity name='expense' number='1'></entity>
-		</entities>
-
-		<initialization>
-			<initialentity entity='job' epush='true'></initialentity>
-			<initialentity entity='corporation' epush='true'></initialentity>
-			<initialentity entity='revenue' epush='true'></initialentity>
-			<initialentity entity='expense' epush='true'></initialentity>
-			<initialentity entity='result' epush='true'></initialentity>
-			<initialentity entity='apportionment' epush='true'></initialentity>
-		</initialization>
-	</XMLtoEDD>
-
-	<EDDtoXML>
-		<map>
 			<!-- Job entity -->
 			<setattribute tag='id' RAttribute='id' enclosure='job' type='integer'></setattribute>
 			<setattribute tag='test_case_name' RAttribute='test_case_name' enclosure='job' type='string'></setattribute>
 			<setattribute tag='execution_date' RAttribute='execution_date' enclosure='job' type='date'></setattribute>
 			<setattribute tag='dtrules_version' RAttribute='dtrules_version' enclosure='job' type='string'></setattribute>
 			<setattribute tag='tax_year' RAttribute='tax_year' enclosure='job' type='integer'></setattribute>
-
 			<!-- Corporation entity -->
 			<setattribute tag='ein' RAttribute='ein' enclosure='corporation' type='string'></setattribute>
 			<setattribute tag='corporation_name' RAttribute='corporation_name' enclosure='corporation' type='string'></setattribute>
@@ -312,7 +270,6 @@
 			<setattribute tag='tax_year_end' RAttribute='tax_year_end' enclosure='corporation' type='date'></setattribute>
 			<setattribute tag='total_assets' RAttribute='total_assets' enclosure='corporation' type='double'></setattribute>
 			<setattribute tag='gross_receipts' RAttribute='gross_receipts' enclosure='corporation' type='double'></setattribute>
-
 			<!-- Revenue entity -->
 			<setattribute tag='gross_receipts' RAttribute='gross_receipts' enclosure='revenue' type='double'></setattribute>
 			<setattribute tag='returns_and_allowances' RAttribute='returns_and_allowances' enclosure='revenue' type='double'></setattribute>
@@ -327,14 +284,12 @@
 			<setattribute tag='net_gain_loss_4797' RAttribute='net_gain_loss_4797' enclosure='revenue' type='double'></setattribute>
 			<setattribute tag='other_income' RAttribute='other_income' enclosure='revenue' type='double'></setattribute>
 			<setattribute tag='total_income' RAttribute='total_income' enclosure='revenue' type='double'></setattribute>
-
 			<!-- Expense entity -->
 			<setattribute tag='id' RAttribute='id' enclosure='expense' type='integer'></setattribute>
 			<setattribute tag='category' RAttribute='category' enclosure='expense' type='string'></setattribute>
 			<setattribute tag='amount' RAttribute='amount' enclosure='expense' type='double'></setattribute>
 			<setattribute tag='deductible' RAttribute='deductible' enclosure='expense' type='boolean'></setattribute>
 			<setattribute tag='limitation_applied' RAttribute='limitation_applied' enclosure='expense' type='string'></setattribute>
-
 			<!-- Asset entity -->
 			<setattribute tag='id' RAttribute='id' enclosure='asset' type='integer'></setattribute>
 			<setattribute tag='description' RAttribute='description' enclosure='asset' type='string'></setattribute>
@@ -352,7 +307,6 @@
 			<setattribute tag='eligible_for_bonus' RAttribute='eligible_for_bonus' enclosure='asset' type='boolean'></setattribute>
 			<setattribute tag='listed_property' RAttribute='listed_property' enclosure='asset' type='boolean'></setattribute>
 			<setattribute tag='business_use_percentage' RAttribute='business_use_percentage' enclosure='asset' type='double'></setattribute>
-
 			<!-- Result entity -->
 			<setattribute tag='total_income' RAttribute='total_income' enclosure='result' type='double'></setattribute>
 			<setattribute tag='compensation' RAttribute='compensation' enclosure='result' type='double'></setattribute>
@@ -387,6 +341,28 @@
 			<setattribute tag='total_payments' RAttribute='total_payments' enclosure='result' type='double'></setattribute>
 			<setattribute tag='refund_or_owed' RAttribute='refund_or_owed' enclosure='result' type='double'></setattribute>
 			<setattribute tag='audit_trail' RAttribute='audit_trail' enclosure='result' type='string'></setattribute>
+			<createentity entity='job' tag='job' id='id'></createentity>
+			<createentity entity='corporation' tag='corporation' id='id'></createentity>
+			<createentity entity='apportionment' tag='apportionment' id='id'></createentity>
+			<createentity entity='result' tag='result' id='id'></createentity>
+			<createentity entity='revenue' tag='revenue' id='id'></createentity>
+			<createentity entity='expense' tag='expense' id='id'></createentity>
 		</map>
-	</EDDtoXML>
+		<entities>
+			<entity name='job' number='1'></entity>
+			<entity name='corporation' number='1'></entity>
+			<entity name='apportionment' number='1'></entity>
+			<entity name='result' number='1'></entity>
+			<entity name='revenue' number='1'></entity>
+			<entity name='expense' number='1'></entity>
+		</entities>
+		<initialization>
+			<initialentity entity='job' epush='true'></initialentity>
+			<initialentity entity='corporation' epush='true'></initialentity>
+			<initialentity entity='revenue' epush='true'></initialentity>
+			<initialentity entity='expense' epush='true'></initialentity>
+			<initialentity entity='result' epush='true'></initialentity>
+			<initialentity entity='apportionment' epush='true'></initialentity>
+		</initialization>
+	</XMLtoEDD>
 </mapping>

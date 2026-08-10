@@ -2,19 +2,18 @@
 <decision_tables>
 
 <!-- TABLE 54600: Determine_UT_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>UT_Corp.xls</relative_path>
-<file_name>UT_Corp.xls</file_name>
+<relative_path>UT_corp.xlsx</relative_path>
+<file_name>UT_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_UT_Filing_Requirement</table_name>
-<xls_file>UT_Corp.xls</xls_file>
+<xls_file>UT_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file Utah state corporate tax return. Checks for physical presence or economic nexus ($100K, no transaction count as of July 1, 2025).</COMMENTS>
 <TABLE_NUMBER>54600</TABLE_NUMBER>
-<FILE_PATH>states/UT/54600_Determine_UT_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -37,6 +36,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "UT"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "UT" streq } over if
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -65,7 +65,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "UT" st
 <action_comment>No nexus - no filing required; No UT nexus - no filing requirement</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No UT nexus - no filing requirement. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No UT nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No UT nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -74,19 +74,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "UT" st
 </decision_table>
 
 <!-- TABLE 54620: Calculate_UT_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>UT_Corp.xls</relative_path>
-<file_name>UT_Corp.xls</file_name>
+<relative_path>UT_corp.xlsx</relative_path>
+<file_name>UT_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_UT_Income_Adjustments</table_name>
-<xls_file>UT_Corp.xls</xls_file>
+<xls_file>UT_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate UT state-specific additions and subtractions to federal taxable income.</COMMENTS>
 <TABLE_NUMBER>54620</TABLE_NUMBER>
-<FILE_PATH>states/UT/54620_Calculate_UT_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -126,19 +125,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 </decision_table>
 
 <!-- TABLE 54680: Calculate_UT_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>UT_Corp.xls</relative_path>
-<file_name>UT_Corp.xls</file_name>
+<relative_path>UT_corp.xlsx</relative_path>
+<file_name>UT_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_UT_State_Tax</table_name>
-<xls_file>UT_Corp.xls</xls_file>
+<xls_file>UT_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate UT state corporate income tax. Applies UT 4.50% flat rate to apportioned and adjusted taxable income.</COMMENTS>
 <TABLE_NUMBER>54680</TABLE_NUMBER>
-<FILE_PATH>states/UT/54680_Calculate_UT_State_Tax</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -159,9 +157,10 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 f&gt;
+apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
@@ -171,7 +170,7 @@ apportionment.state_taxable_income 0 f&gt;
 <action_comment>Calculate UT tax at 4.50% flat rate; UT income tax at 4.50% (reduced from 4.55% in 2025)</action_comment>
 <action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "UT tax calculated at 4.50% flat rate. Reference: UT Code 59-7-104" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "UT tax calculated at 4.50% flat rate. Reference: UT Code 59-7-104" job.audit_trail swap addto
+apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "UT tax calculated at 4.50% flat rate. Reference: UT Code 59-7-104" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -180,7 +179,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apport
 <action_comment>No UT nexus - no tax liability; No UT nexus - no tax</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No UT nexus - no tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No UT nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No UT nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -189,7 +188,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apport
 <action_comment>Nexus but no taxable income; No UT taxable income - no tax</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No UT taxable income - no tax. UT NOL rules may apply. Reference: UT Code 59-7-110" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No UT taxable income - no tax. UT NOL rules may apply. Reference: UT Code 59-7-110" job.audit_trail swap addto
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No UT taxable income - no tax. UT NOL rules may apply. Reference: UT Code 59-7-110" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>

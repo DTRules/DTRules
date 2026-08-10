@@ -1,123 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  New York State Corporate Tax Entity Data Dictionary
-
-  NY Article 9-A General Business Corporation Tax
-  Tax Rate: 6.5% (Tax Law § 209)
-  Economic Nexus Threshold: $1,000,000 in NY receipts
-  Apportionment: Single-sales factor
-  MTA Surcharge: 0.34% for businesses in MTA region
--->
-<entity_dictionary name="CorporateTax_NY_Constants">
-
-  <!--
-    Apportionment Entity: State-Specific Configuration
-
-    This entity is used by decision tables 7000-7500 to calculate
-    multi-state tax apportionment.
-  -->
-  <entity name="apportionment" xls_file='NY_Corp.xls'>
-
-    <!-- State Identification (REQUIRED) -->
-    <field name='state_code' type='string' default_value='NY'
-           comment='Two-letter state code - New York'/>
-
-    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='1000000.0'
-           comment='Economic nexus gross receipts threshold - NY uses $1M threshold'/>
-
-    <field name='transaction_threshold' type='integer' default_value='200'
-           comment='Economic nexus transaction count threshold - Default 200 (update if state differs)'/>
-
-    <!-- Apportionment Formula (REQUIRED) -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='REQUIRED: Set to three_factor, single_sales, or double_weighted_sales'/>
-
-    <!-- State Tax Rate (REQUIRED) -->
-    <field name='state_tax_rate' type='double' default_value='0.065'
-           comment='NY corporate income tax rate - 6.5% per Tax Law § 209'/>
-
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
-
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
-
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='State tax credits: R&amp;D, jobs, film, renewable energy, etc.'/>
-
-  </entity>
-
-  <!--
-    Result Entity: State-Specific Extensions (OPTIONAL)
-
-    Add state-specific fields here if your state has unique requirements
-    not covered by the standard apportionment entity.
-
-    Examples:
-    - NY MTA surcharge for NYC metro area businesses
-    - CA water's edge election for worldwide combined reporting
-    - State alternative minimum tax
-    - Special industry taxes (financial institutions, utilities)
-    - State-specific NOL rules that differ from federal
-  -->
-  <entity name="result" xls_file='NY_Corp.xls'>
-
-    <!--
-      Uncomment and customize examples below as needed for your state:
-    -->
-
-    <!-- New York MTA Surcharge -->
-    <field name='ny_in_mta_region' type='boolean' default_value='false'
-           comment='Business located in MTA region (NYC metro area)'/>
-    <field name='ny_mta_surcharge_rate' type='double' default_value='0.0034'
-           comment='NY MTA surcharge rate (0.34% for businesses in MTA region)'/>
-    <field name='ny_mta_surcharge' type='double' default_value='0.0'
-           comment='NY MTA surcharge amount calculated'/>
-
-    <!-- Example: California Water's Edge Election -->
-    <!--
-    <field name='ca_waters_edge_election' type='boolean' default_value='false'
-           comment='Elected water s edge treatment for worldwide combined reporting'/>
-    <field name='ca_unitary_group_count' type='integer' default_value='1'
-           comment='Number of corporations in CA unitary group'/>
-    -->
-
-    <!-- Example: Texas Margin Tax (not an income tax) -->
-    <!--
-    <field name='tx_total_revenue' type='double' default_value='0.0'
-           comment='Total revenue for Texas margin tax'/>
-    <field name='tx_margin' type='double' default_value='0.0'
-           comment='Taxable margin (revenue minus cost of goods sold or compensation)'/>
-    <field name='tx_margin_tax_rate' type='double' default_value='0.0075'
-           comment='TX franchise tax rate on taxable margin (0.75%)'/>
-    <field name='tx_franchise_tax' type='double' default_value='0.0'
-           comment='Texas franchise tax (not income tax)'/>
-    -->
-
-    <!-- Example: State Alternative Minimum Tax -->
-    <!--
-    <field name='xx_amt_income' type='double' default_value='0.0'
-           comment='State AMT income (federal AMTI with state adjustments)'/>
-    <field name='xx_amt_rate' type='double' default_value='0.03'
-           comment='State AMT rate (example: 3%)'/>
-    <field name='xx_amt_exemption' type='double' default_value='40000'
-           comment='State AMT exemption amount'/>
-    <field name='xx_amt' type='double' default_value='0.0'
-           comment='State alternative minimum tax'/>
-    -->
-
-    <!-- Example: Special Industry Tax Rate -->
-    <!--
-    <field name='xx_is_financial_institution' type='boolean' default_value='false'
-           comment='Is financial institution (may have different tax rate/base)'/>
-    <field name='xx_financial_institution_rate' type='double' default_value='0.0'
-           comment='Special tax rate for financial institutions'/>
-    -->
-
-  </entity>
-
-</entity_dictionary>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>NY_corp_edd</file_path>
+	</file_metadata>
+	<entity name="apportionment" number="100" xls_file="NY_corp.xlsx" access="rw">
+		<source>
+			<relative_path>NY_corp.xlsx</relative_path>
+			<file_name>NY_corp.xlsx</file_name>
+			<sheet_number>5</sheet_number>
+		</source>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="REQUIRED: Set to three_factor, single_sales, or double_weighted_sales"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="1000000.0" comment="Economic nexus gross receipts threshold - NY uses $1M threshold"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc."></field>
+		<field name="state_code" type="string" subtype="" access="r" input="" default_value="NY" comment="Two-letter state code - New York"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="State tax credits: R&amp;D, jobs, film, renewable energy, etc."></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="State-specific subtractions: municipal interest, state taxes, state NOL, etc."></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.065" comment="NY corporate income tax rate - 6.5% per Tax Law § 209"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="Economic nexus transaction count threshold - Default 200 (update if state differs)"></field>
+	</entity>
+	<entity name="result" number="200" xls_file="NY_corp.xlsx" access="rw">
+		<source>
+			<relative_path>NY_corp.xlsx</relative_path>
+			<file_name>NY_corp.xlsx</file_name>
+			<sheet_number>5</sheet_number>
+		</source>
+		<field name="ny_in_mta_region" type="boolean" subtype="" access="r" input="" default_value="false" comment="Business located in MTA region (NYC metro area)"></field>
+		<field name="ny_mta_surcharge" type="double" subtype="" access="r" input="" default_value="0.0" comment="NY MTA surcharge amount calculated"></field>
+		<field name="ny_mta_surcharge_rate" type="double" subtype="" access="r" input="" default_value="0.0034" comment="NY MTA surcharge rate (0.34% for businesses in MTA region)"></field>
+	</entity>
+</entity_data_dictionary>

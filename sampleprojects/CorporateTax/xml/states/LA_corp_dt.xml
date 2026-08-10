@@ -2,14 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 53100: Determine_LA_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>LA_Corp.xls</relative_path>
-<file_name>LA_Corp.xls</file_name>
+<relative_path>LA_corp.xlsx</relative_path>
+<file_name>LA_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_LA_Filing_Requirement</table_name>
-<xls_file>LA_Corp.xls</xls_file>
+<xls_file>LA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file Louisiana corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
@@ -79,14 +79,14 @@ false cvb /result.la_has_nexus xdef 0.0 cvd /result.la_tax_liability xdef
 </decision_table>
 
 <!-- TABLE 53120: Calculate_LA_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>LA_Corp.xls</relative_path>
-<file_name>LA_Corp.xls</file_name>
+<relative_path>LA_corp.xlsx</relative_path>
+<file_name>LA_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_LA_Income_Adjustments</table_name>
-<xls_file>LA_Corp.xls</xls_file>
+<xls_file>LA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Louisiana state-specific additions and subtractions to federal taxable income. LA 2025 tax reform introduced $20,000 standard deduction and eliminated federal income tax deduction.</COMMENTS>
@@ -135,14 +135,14 @@ result.la_has_nexus true beq
 </decision_table>
 
 <!-- TABLE 53180: Calculate_LA_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>LA_Corp.xls</relative_path>
-<file_name>LA_Corp.xls</file_name>
+<relative_path>LA_corp.xlsx</relative_path>
+<file_name>LA_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_LA_State_Tax</table_name>
-<xls_file>LA_Corp.xls</xls_file>
+<xls_file>LA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Louisiana corporate income tax. Applies Louisiana flat rate (5.5%) to apportioned and adjusted taxable income. 2025 tax reform replaced graduated rates up to 7.5% with flat 5.5% rate and introduced $20,000 standard deduction.</COMMENTS>

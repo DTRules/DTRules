@@ -2,19 +2,18 @@
 <decision_tables>
 
 <!-- TABLE 54300: Determine_RI_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>RI_Corp.xls</relative_path>
-<file_name>RI_Corp.xls</file_name>
+<relative_path>RI_corp.xlsx</relative_path>
+<file_name>RI_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_RI_Filing_Requirement</table_name>
-<xls_file>RI_Corp.xls</xls_file>
+<xls_file>RI_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file RI state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
 <TABLE_NUMBER>54300</TABLE_NUMBER>
-<FILE_PATH>states/RI/54300_Determine_RI_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
@@ -32,6 +31,7 @@
 apportionment.has_physical_presence true beq { pop apportionment.state_code "RI" streq } over if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 <condition_details>
@@ -41,6 +41,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "RI"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "RI" streq } over if
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -69,7 +70,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "RI" st
 <action_comment>No nexus - no filing required</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "RI - no nexus, no filing required. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "RI - no nexus, no filing required. Any estimated payments would be refunded." job.audit_trail swap addto
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "RI - no nexus, no filing required. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -78,19 +79,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "RI" st
 </decision_table>
 
 <!-- TABLE 54320: Calculate_RI_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>RI_Corp.xls</relative_path>
-<file_name>RI_Corp.xls</file_name>
+<relative_path>RI_corp.xlsx</relative_path>
+<file_name>RI_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_RI_Income_Adjustments</table_name>
-<xls_file>RI_Corp.xls</xls_file>
+<xls_file>RI_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate RI state-specific additions and subtractions to federal taxable income.</COMMENTS>
 <TABLE_NUMBER>54320</TABLE_NUMBER>
-<FILE_PATH>states/RI/54320_Calculate_RI_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
@@ -117,7 +117,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_comment>Calculate RI state additions and subtractions</action_comment>
 <action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add "RI income adjustments calculated. Additions may include: Interest on U.S. government obligations, IRC Section 199A qualified business income deduction, Federal bonus depreciation not allowed by RI. Subtractions may include: Interest on Rhode Island state and municipal obligations, Capital gains on certain qualified Rhode Island investments, Rhode Island net operating loss deduction. Reference: RI Form RI-1120C Instructions, R.I. Gen. Laws 44-11-11" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "RI income adjustments calculated. Additions may include: Interest on U.S. government obligations, IRC Section 199A qualified business income deduction, Federal bonus depreciation not allowed by RI. Subtractions may include: Interest on Rhode Island state and municipal obligations, Capital gains on certain qualified Rhode Island investments, Rhode Island net operating loss deduction. Reference: RI Form RI-1120C Instructions, R.I. Gen. Laws 44-11-11" job.audit_trail swap addto
+0.0 cvi /apportionment.state_additions xdef 0.0 cvi /apportionment.state_subtractions xdef "RI income adjustments calculated. Additions may include: Interest on U.S. government obligations, IRC Section 199A qualified business income deduction, Federal bonus depreciation not allowed by RI. Subtractions may include: Interest on Rhode Island state and municipal obligations, Capital gains on certain qualified Rhode Island investments, Rhode Island net operating loss deduction. Reference: RI Form RI-1120C Instructions, R.I. Gen. Laws 44-11-11" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -126,7 +126,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_comment>No nexus - no adjustments</action_comment>
 <action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; add "RI - no nexus, no adjustments" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "RI - no nexus, no adjustments" job.audit_trail swap addto
+0.0 cvi /apportionment.state_additions xdef 0.0 cvi /apportionment.state_subtractions xdef "RI - no nexus, no adjustments" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -135,19 +135,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 </decision_table>
 
 <!-- TABLE 54380: Calculate_RI_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>RI_Corp.xls</relative_path>
-<file_name>RI_Corp.xls</file_name>
+<relative_path>RI_corp.xlsx</relative_path>
+<file_name>RI_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_RI_State_Tax</table_name>
-<xls_file>RI_Corp.xls</xls_file>
+<xls_file>RI_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate RI state corporate income tax. Applies 7% flat rate to apportioned and adjusted taxable income.</COMMENTS>
 <TABLE_NUMBER>54380</TABLE_NUMBER>
-<FILE_PATH>states/RI/54380_Calculate_RI_State_Tax</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
@@ -173,10 +172,11 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 f&gt;
+apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -185,7 +185,7 @@ apportionment.state_taxable_income 0 f&gt;
 <action_comment>Calculate RI tax at 7% flat rate</action_comment>
 <action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.ri_state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "RI tax calculated at 7% flat rate. Reference: R.I. Gen. Laws 44-11-2" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.ri_state_tax_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "RI tax calculated at 7% flat rate. Reference: R.I. Gen. Laws 44-11-2" job.audit_trail swap addto
+apportionment.state_taxable_income apportionment.ri_state_tax_rate fmul cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits - 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "RI tax calculated at 7% flat rate. Reference: R.I. Gen. Laws 44-11-2" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -194,7 +194,7 @@ apportionment.state_taxable_income apportionment.ri_state_tax_rate fmul cvd /app
 <action_comment>Nexus but no taxable income</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "RI - nexus but no taxable income. RI NOL carryforward rules may apply. Reference: R.I. Gen. Laws 44-11-11" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "RI - nexus but no taxable income. RI NOL carryforward rules may apply. Reference: R.I. Gen. Laws 44-11-11" job.audit_trail swap addto
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "RI - nexus but no taxable income. RI NOL carryforward rules may apply. Reference: R.I. Gen. Laws 44-11-11" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -203,7 +203,7 @@ apportionment.state_taxable_income apportionment.ri_state_tax_rate fmul cvd /app
 <action_comment>No nexus - no tax liability</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "RI - no nexus, no tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "RI - no nexus, no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "RI - no nexus, no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>

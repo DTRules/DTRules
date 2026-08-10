@@ -2,19 +2,18 @@
 <decision_tables>
 
 <!-- TABLE 50000: Determine_CA_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>CA_Corp.xls</relative_path>
-<file_name>CA_Corp.xls</file_name>
+<relative_path>CA_corp.xlsx</relative_path>
+<file_name>CA_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_CA_Filing_Requirement</table_name>
-<xls_file>CA_Corp.xls</xls_file>
+<xls_file>CA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file California state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
 <TABLE_NUMBER>50000</TABLE_NUMBER>
-<FILE_PATH>states/CA/50000_Determine_CA_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -62,7 +61,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" st
 <action_comment>No nexus - no filing required; // No CA nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -71,19 +70,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" st
 </decision_table>
 
 <!-- TABLE 50020: Calculate_CA_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>CA_Corp.xls</relative_path>
-<file_name>CA_Corp.xls</file_name>
+<relative_path>CA_corp.xlsx</relative_path>
+<file_name>CA_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_CA_Income_Adjustments</table_name>
-<xls_file>CA_Corp.xls</xls_file>
+<xls_file>CA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate CA state-specific additions and subtractions to federal taxable income.</COMMENTS>
 <TABLE_NUMBER>50020</TABLE_NUMBER>
-<FILE_PATH>states/CA/50020_Calculate_CA_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -123,19 +121,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 </decision_table>
 
 <!-- TABLE 50080: Calculate_CA_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>CA_Corp.xls</relative_path>
-<file_name>CA_Corp.xls</file_name>
+<relative_path>CA_corp.xlsx</relative_path>
+<file_name>CA_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_CA_State_Tax</table_name>
-<xls_file>CA_Corp.xls</xls_file>
+<xls_file>CA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate CA state corporate income tax. Applies 8.84% flat rate to apportioned and adjusted taxable income. Enforces $800 minimum franchise tax.</COMMENTS>
 <TABLE_NUMBER>50080</TABLE_NUMBER>
-<FILE_PATH>states/CA/50080_Calculate_CA_State_Tax</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -169,7 +166,7 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_comment>Calculate CA income tax at 8.84% with $800 minimum; // Calculate CA income tax at 8.84%, enforce $800 minimum; set apportionment.state_tax = max(result.ca_minimum_franchise_tax, apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
 <action_dsl>if apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits &gt; result.ca_minimum_franchise_tax then set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = result.ca_minimum_franchise_tax; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-{ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- cvd /apportionment.state_tax xdef } { result.ca_minimum_franchise_tax cvd /apportionment.state_tax xdef } apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- result.ca_minimum_franchise_tax f&gt; ifelse apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
+{ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- cvi /apportionment.state_tax xdef } { result.ca_minimum_franchise_tax cvi /apportionment.state_tax xdef } apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- result.ca_minimum_franchise_tax f&gt; ifelse apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -178,7 +175,7 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_comment>No income but still owe minimum franchise tax; // No CA taxable income, but $800 minimum franchise tax still applies; set apportionment.state_tax = result.ca_minimum_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
 <action_dsl>set apportionment.state_tax = result.ca_minimum_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-result.ca_minimum_franchise_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
+result.ca_minimum_franchise_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -187,7 +184,7 @@ result.ca_minimum_franchise_tax cvd /apportionment.state_tax xdef apportionment.
 <action_comment>No CA nexus - no tax or minimum franchise tax; // No CA nexus - no tax or minimum franchise tax; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -196,19 +193,18 @@ result.ca_minimum_franchise_tax cvd /apportionment.state_tax xdef apportionment.
 </decision_table>
 
 <!-- TABLE 50090: Apply_CA_Waters_Edge_Election -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>CA_Corp.xls</relative_path>
-<file_name>CA_Corp.xls</file_name>
+<relative_path>CA_corp.xlsx</relative_path>
+<file_name>CA_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
 </source>
 <table_name>Apply_CA_Waters_Edge_Election</table_name>
-<xls_file>CA_Corp.xls</xls_file>
+<xls_file>CA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Apply CA water's edge election for worldwide combined reporting. Most taxpayers elect water's edge to limit worldwide income inclusion.</COMMENTS>
 <TABLE_NUMBER>50090</TABLE_NUMBER>
-<FILE_PATH>states/CA/50090_Apply_CA_Waters_Edge_Election</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>

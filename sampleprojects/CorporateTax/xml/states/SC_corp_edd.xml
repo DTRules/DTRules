@@ -1,84 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  South Carolina Corporate Tax Entity Data Dictionary
-
-  SC has a competitive corporate income tax structure with a 5% flat rate.
-
-  Key Features:
-  - Flat 5% corporate income tax rate (SC Code § 12-6-530)
-  - Single-sales apportionment formula
-  - Economic nexus: $100,000 gross receipts threshold
-  - Annual license fee: 0.1% of capital and paid-in surplus, plus $15
-  - No alternative minimum tax
-  - No special surcharges
-
-  References:
-  - SC Code § 12-6-530 (Tax rate)
-  - SC Form SC1120 (Corporation Income Tax Return)
-  - SC Department of Revenue Corporate Tax Guidance
-  - SC Code § 12-6-2320 (Apportionment)
--->
-<entity_dictionary name="CorporateTax_SC_Constants">
-
-  <!--
-    Apportionment Entity: South Carolina Configuration
-
-    Used by decision tables 7000-7500 for multi-state tax apportionment
-    and SC-specific tables 54400-54499.
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='SC'
-           comment='South Carolina state code'/>
-
-    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='SC economic nexus gross receipts threshold: $100,000'/>
-
-    <field name='transaction_threshold' type='integer' default_value='200'
-           comment='SC economic nexus transaction count threshold: 200 transactions'/>
-
-    <!-- Apportionment Formula -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='SC uses single-sales factor apportionment (100% sales factor)'/>
-
-    <!-- State Tax Rate -->
-    <field name='state_tax_rate' type='double' default_value='0.050'
-           comment='SC corporate income tax rate: 5.0% flat rate - SC Code § 12-6-530'/>
-
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='SC additions: federal interest income, certain expenses, IRC 199A addback, state income tax refunds, etc.'/>
-
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='SC subtractions: SC municipal bond interest, state income taxes, state NOL, dividend income deductions, etc.'/>
-
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='SC tax credits: job development, corporate headquarters, port volume increase, research and development, etc.'/>
-
-    <!-- License Fee -->
-    <field name='license_fee_rate' type='double' default_value='0.001'
-           comment='SC annual license fee rate: 0.1% (0.001) of capital and paid-in surplus'/>
-
-    <field name='license_fee_minimum' type='double' default_value='15.0'
-           comment='SC minimum annual license fee: $15'/>
-
-  </entity>
-
-  <!--
-    Result Entity: SC does not require special state-specific fields
-
-    South Carolina uses a straightforward flat-rate system without:
-    - Alternative minimum tax
-    - Special surcharges
-    - Industry-specific tax rates
-    - Complex combined reporting (though unitary rules apply)
-  -->
-  <entity name="result">
-    <!-- No SC-specific fields required -->
-  </entity>
-
-</entity_dictionary>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>SC_corp_edd</file_path>
+	</file_metadata>
+	<entity name="apportionment" number="100" xls_file="SC_corp.xlsx" access="rw">
+		<source>
+			<relative_path>SC_corp.xlsx</relative_path>
+			<file_name>SC_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="SC uses single-sales factor apportionment (100% sales factor)"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="SC economic nexus gross receipts threshold: $100,000"></field>
+		<field name="license_fee_minimum" type="double" subtype="" access="r" input="" default_value="15.0" comment="SC minimum annual license fee: $15"></field>
+		<field name="license_fee_rate" type="double" subtype="" access="r" input="" default_value="0.001" comment="SC annual license fee rate: 0.1% (0.001) of capital and paid-in surplus"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="SC additions: federal interest income, certain expenses, IRC 199A addback, state income tax refunds, etc."></field>
+		<field name="state_code" type="string" subtype="" access="r" input="" default_value="SC" comment="South Carolina state code"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="SC tax credits: job development, corporate headquarters, port volume increase, research and development, etc."></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="SC subtractions: SC municipal bond interest, state income taxes, state NOL, dividend income deductions, etc."></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.050" comment="SC corporate income tax rate: 5.0% flat rate - SC Code § 12-6-530"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="SC economic nexus transaction count threshold: 200 transactions"></field>
+	</entity>
+</entity_data_dictionary>

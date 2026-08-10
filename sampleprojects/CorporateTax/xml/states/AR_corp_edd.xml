@@ -1,63 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Arkansas Corporate Tax Entity Data Dictionary
-
-  AR Code § 26-51-205: 5.5% flat rate
-  Apportionment: Single-sales factor
-  Economic Nexus: $100,000 gross receipts threshold
--->
-<entity_dictionary name="CorporateTax_AR_Constants">
-
-  <!--
-    Apportionment Entity: Arkansas-Specific Configuration
-
-    This entity is used by decision tables 7000-7500 to calculate
-    multi-state tax apportionment.
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='AR'
-           comment='Arkansas state code'/>
-
-    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='Economic nexus gross receipts threshold - $100K'/>
-
-    <field name='transaction_threshold' type='integer' default_value='200'
-           comment='Economic nexus transaction count threshold - 200 transactions'/>
-
-    <!-- Apportionment Formula -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='Arkansas uses single-sales factor apportionment'/>
-
-    <!-- State Tax Rate -->
-    <field name='state_tax_rate' type='double' default_value='0.055'
-           comment='Arkansas corporate income tax rate: 5.5% flat rate (AR Code § 26-51-205)'/>
-
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
-
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
-
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='State tax credits: R&amp;D, jobs, film, renewable energy, etc.'/>
-
-  </entity>
-
-  <!--
-    Result Entity: Arkansas-Specific Extensions
-
-    No special Arkansas-specific fields are required for the basic implementation.
-    Arkansas follows a straightforward flat-rate structure without special surcharges
-    or alternative minimum tax.
-  -->
-  <entity name="result">
-    <!-- No Arkansas-specific fields needed for basic implementation -->
-  </entity>
-
-</entity_dictionary>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>AR_corp_edd</file_path>
+	</file_metadata>
+	<entity name="apportionment" number="100" xls_file="AR_corp.xlsx" access="rw">
+		<source>
+			<relative_path>AR_corp.xlsx</relative_path>
+			<file_name>AR_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="Arkansas uses single-sales factor apportionment"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="Economic nexus gross receipts threshold - $100K"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc."></field>
+		<field name="state_code" type="string" subtype="" access="r" input="" default_value="AR" comment="Arkansas state code"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="State tax credits: R&amp;D, jobs, film, renewable energy, etc."></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="State-specific subtractions: municipal interest, state taxes, state NOL, etc."></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.055" comment="Arkansas corporate income tax rate: 5.5% flat rate (AR Code § 26-51-205)"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="Economic nexus transaction count threshold - 200 transactions"></field>
+	</entity>
+</entity_data_dictionary>

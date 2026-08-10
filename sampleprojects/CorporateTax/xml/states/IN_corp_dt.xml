@@ -2,14 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 52800: Determine_IN_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>IN_Corp.xls</relative_path>
-<file_name>IN_Corp.xls</file_name>
+<relative_path>IN_corp.xlsx</relative_path>
+<file_name>IN_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_IN_Filing_Requirement</table_name>
-<xls_file>IN_Corp.xls</xls_file>
+<xls_file>IN_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file Indiana corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
@@ -79,14 +79,14 @@ false cvb /result.in_has_nexus xdef 0.0 cvd /result.in_tax_liability xdef
 </decision_table>
 
 <!-- TABLE 52820: Calculate_IN_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>IN_Corp.xls</relative_path>
-<file_name>IN_Corp.xls</file_name>
+<relative_path>IN_corp.xlsx</relative_path>
+<file_name>IN_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_IN_Income_Adjustments</table_name>
-<xls_file>IN_Corp.xls</xls_file>
+<xls_file>IN_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Indiana state-specific additions and subtractions to federal taxable income. IN requires addback of out-of-state municipal bond interest acquired after 12/31/2011.</COMMENTS>
@@ -135,14 +135,14 @@ result.in_has_nexus true beq
 </decision_table>
 
 <!-- TABLE 52880: Calculate_IN_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>IN_Corp.xls</relative_path>
-<file_name>IN_Corp.xls</file_name>
+<relative_path>IN_corp.xlsx</relative_path>
+<file_name>IN_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_IN_State_Tax</table_name>
-<xls_file>IN_Corp.xls</xls_file>
+<xls_file>IN_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Indiana corporate income tax. Applies Indiana flat rate (4.9%) to apportioned and adjusted taxable income.</COMMENTS>

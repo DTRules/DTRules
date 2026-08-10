@@ -2,19 +2,18 @@
 <decision_tables>
 
 <!-- TABLE 51600: Determine_WI_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>WI_Corp.xls</relative_path>
-<file_name>WI_Corp.xls</file_name>
+<relative_path>WI_corp.xlsx</relative_path>
+<file_name>WI_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_WI_Filing_Requirement</table_name>
-<xls_file>WI_Corp.xls</xls_file>
+<xls_file>WI_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file Wisconsin state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
 <TABLE_NUMBER>51600</TABLE_NUMBER>
-<FILE_PATH>states/WI/51600_Determine_WI_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
@@ -42,6 +41,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "WI"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "WI" streq } over if
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -70,7 +70,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "WI" st
 <action_comment>No nexus - no filing required</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No Wisconsin nexus - no filing requirement." to job.audit_trail; add "Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No Wisconsin nexus - no filing requirement." job.audit_trail swap addto "Any estimated payments would be refunded." job.audit_trail swap addto
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No Wisconsin nexus - no filing requirement." job.audit_trail swap addto "Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -79,19 +79,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "WI" st
 </decision_table>
 
 <!-- TABLE 51620: Calculate_WI_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>WI_Corp.xls</relative_path>
-<file_name>WI_Corp.xls</file_name>
+<relative_path>WI_corp.xlsx</relative_path>
+<file_name>WI_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_WI_Income_Adjustments</table_name>
-<xls_file>WI_Corp.xls</xls_file>
+<xls_file>WI_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Wisconsin state-specific additions and subtractions to federal taxable income.</COMMENTS>
 <TABLE_NUMBER>51620</TABLE_NUMBER>
-<FILE_PATH>states/WI/51620_Calculate_WI_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
@@ -136,19 +135,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 </decision_table>
 
 <!-- TABLE 51680: Calculate_WI_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>WI_Corp.xls</relative_path>
-<file_name>WI_Corp.xls</file_name>
+<relative_path>WI_corp.xlsx</relative_path>
+<file_name>WI_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_WI_State_Tax</table_name>
-<xls_file>WI_Corp.xls</xls_file>
+<xls_file>WI_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Wisconsin state corporate income tax. Applies Wisconsin 7.9% flat rate to apportioned and adjusted taxable income.</COMMENTS>
 <TABLE_NUMBER>51680</TABLE_NUMBER>
-<FILE_PATH>states/WI/51680_Calculate_WI_State_Tax</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
@@ -174,9 +172,10 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 f&gt;
+apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
@@ -186,7 +185,7 @@ apportionment.state_taxable_income 0 f&gt;
 <action_comment>Calculate Wisconsin tax with 7.9% flat rate</action_comment>
 <action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "Wisconsin corporate income tax at 7.9% flat rate. Reference: WI Stat. 71.27" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "Wisconsin corporate income tax at 7.9% flat rate. Reference: WI Stat. 71.27" job.audit_trail swap addto
+apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "Wisconsin corporate income tax at 7.9% flat rate. Reference: WI Stat. 71.27" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -195,7 +194,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apport
 <action_comment>No Wisconsin nexus - no tax liability</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No Wisconsin nexus - no tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No Wisconsin nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No Wisconsin nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -204,7 +203,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apport
 <action_comment>No Wisconsin taxable income - no tax liability</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No Wisconsin taxable income - no tax liability. Wisconsin NOL rules may apply. Reference: WI Stat. 71.26(4)" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No Wisconsin taxable income - no tax liability. Wisconsin NOL rules may apply. Reference: WI Stat. 71.26(4)" job.audit_trail swap addto
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No Wisconsin taxable income - no tax liability. Wisconsin NOL rules may apply. Reference: WI Stat. 71.26(4)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>

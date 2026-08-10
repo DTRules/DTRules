@@ -2,14 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 52900: Determine_KS_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>KS_Corp.xls</relative_path>
-<file_name>KS_Corp.xls</file_name>
+<relative_path>KS_corp.xlsx</relative_path>
+<file_name>KS_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_KS_Filing_Requirement</table_name>
-<xls_file>KS_Corp.xls</xls_file>
+<xls_file>KS_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file Kansas corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
@@ -79,14 +79,14 @@ false cvb /result.ks_has_nexus xdef 0.0 cvd /result.ks_tax_liability xdef
 </decision_table>
 
 <!-- TABLE 52920: Calculate_KS_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>KS_Corp.xls</relative_path>
-<file_name>KS_Corp.xls</file_name>
+<relative_path>KS_corp.xlsx</relative_path>
+<file_name>KS_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_KS_Income_Adjustments</table_name>
-<xls_file>KS_Corp.xls</xls_file>
+<xls_file>KS_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Kansas state-specific additions and subtractions to federal taxable income. KS requires addback of federal interest income and state income tax refunds, with subtraction of Kansas municipal bond interest.</COMMENTS>
@@ -135,14 +135,14 @@ result.ks_has_nexus true beq
 </decision_table>
 
 <!-- TABLE 52980: Calculate_KS_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>KS_Corp.xls</relative_path>
-<file_name>KS_Corp.xls</file_name>
+<relative_path>KS_corp.xlsx</relative_path>
+<file_name>KS_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_KS_State_Tax</table_name>
-<xls_file>KS_Corp.xls</xls_file>
+<xls_file>KS_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Kansas corporate income tax. Applies Kansas two-tier rate (4.0% base + 3.0% surtax on income over $50K) to apportioned and adjusted taxable income.</COMMENTS>

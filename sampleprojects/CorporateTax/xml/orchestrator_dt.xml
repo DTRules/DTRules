@@ -2,7 +2,7 @@
 <decision_tables>
 
 <!-- TABLE 100: Run_Corporate_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>orchestrator.xlsx</relative_path>
 <file_name>orchestrator.xlsx</file_name>

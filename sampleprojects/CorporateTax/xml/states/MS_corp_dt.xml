@@ -2,14 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 53400: Determine_MS_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>MS_Corp.xls</relative_path>
-<file_name>MS_Corp.xls</file_name>
+<relative_path>MS_corp.xlsx</relative_path>
+<file_name>MS_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_MS_Filing_Requirement</table_name>
-<xls_file>MS_Corp.xls</xls_file>
+<xls_file>MS_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file Mississippi corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
@@ -79,14 +79,14 @@ false cvb /result.ms_has_nexus xdef 0.0 cvd /result.ms_tax_liability xdef
 </decision_table>
 
 <!-- TABLE 53420: Calculate_MS_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>MS_Corp.xls</relative_path>
-<file_name>MS_Corp.xls</file_name>
+<relative_path>MS_corp.xlsx</relative_path>
+<file_name>MS_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_MS_Income_Adjustments</table_name>
-<xls_file>MS_Corp.xls</xls_file>
+<xls_file>MS_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Mississippi state-specific additions and subtractions to federal taxable income.</COMMENTS>
@@ -135,14 +135,14 @@ result.ms_has_nexus true beq
 </decision_table>
 
 <!-- TABLE 53480: Calculate_MS_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>MS_Corp.xls</relative_path>
-<file_name>MS_Corp.xls</file_name>
+<relative_path>MS_corp.xlsx</relative_path>
+<file_name>MS_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_MS_State_Tax</table_name>
-<xls_file>MS_Corp.xls</xls_file>
+<xls_file>MS_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Mississippi corporate income tax. Applies graduated rates (3%, 4%, 5%) to apportioned and adjusted taxable income.</COMMENTS>

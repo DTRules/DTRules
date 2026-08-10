@@ -1,99 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  South Dakota Corporate Tax Entity Data Dictionary
-
-  IMPORTANT: South Dakota has NO corporate income tax.
-
-  South Dakota is one of the few states with truly NO corporate taxation:
-  - NO corporate income tax
-  - NO franchise tax
-  - NO gross receipts tax
-  - NO alternative minimum tax
-  - NO commerce tax
-
-  Historical Significance:
-  South Dakota brought South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018),
-  the landmark case that established economic nexus for sales tax.
-
-  Economic Nexus: $100,000 in South Dakota sales OR 200 transactions
-  (Note: This applies to SALES TAX, not corporate income tax, which doesn't exist)
-
-  Other South Dakota Taxes (NOT corporate income tax):
-  - Sales and Use Tax: 4.5% state rate (applies to retail sales)
-  - Bank Franchise Tax: Only applies to financial institutions (NOT general corporations)
-  - Insurance Premium Tax: Only applies to insurance companies (NOT general corporations)
--->
-<entity_dictionary name="CorporateTax_SD_Constants">
-
-  <!--
-    Apportionment Entity: South Dakota-Specific Configuration
-
-    Note: South Dakota has NO corporate income tax, so apportionment is not needed.
-    These fields are maintained for consistency with the framework but are not used.
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='SD'
-           comment='South Dakota state code'/>
-
-    <!-- Economic Nexus Thresholds (for sales tax, not income tax) -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='SD economic nexus for SALES TAX: $100,000 in sales (Wayfair standard)'/>
-
-    <field name='transaction_threshold' type='integer' default_value='200'
-           comment='SD economic nexus for SALES TAX: 200 or more transactions'/>
-
-    <!-- Apportionment Formula (NOT USED - no income tax) -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='Not applicable - South Dakota has no corporate income tax'/>
-
-    <!-- State Tax Rate (NO INCOME TAX) -->
-    <field name='state_tax_rate' type='double' default_value='0.0'
-           comment='South Dakota has NO corporate income tax - rate is 0.0%'/>
-
-    <!-- State Additions/Subtractions (NOT USED - no income tax) -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='Not applicable - South Dakota has no corporate income tax'/>
-
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='Not applicable - South Dakota has no corporate income tax'/>
-
-    <!-- State Tax Credits (NOT USED - no income tax) -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='Not applicable - South Dakota has no corporate income tax or credits'/>
-
-  </entity>
-
-  <!--
-    Result Entity: South Dakota Tax Fields
-
-    South Dakota has NO corporate income tax and NO alternative taxes on corporations
-    (unlike Texas franchise tax or Nevada commerce tax).
-
-    Note: Financial institutions pay Bank Franchise Tax, but that's separate
-    and not part of general corporate income tax.
-  -->
-  <entity name="result">
-
-    <!-- South Dakota No Tax Flag -->
-    <field name='sd_no_corporate_tax' type='boolean' default_value='true'
-           comment='South Dakota has NO corporate income tax - always true'/>
-
-    <!-- South Dakota Bank Franchise Tax (ONLY for financial institutions) -->
-    <field name='sd_is_financial_institution' type='boolean' default_value='false'
-           comment='Is financial institution subject to SD Bank Franchise Tax (NOT general corporations)'/>
-
-    <field name='sd_bank_franchise_tax' type='double' default_value='0.0'
-           comment='SD Bank Franchise Tax (ONLY for banks/financial institutions, NOT general corporations)'/>
-
-    <!-- South Dakota Insurance Premium Tax (ONLY for insurance companies) -->
-    <field name='sd_is_insurance_company' type='boolean' default_value='false'
-           comment='Is insurance company subject to SD Insurance Premium Tax (NOT general corporations)'/>
-
-    <field name='sd_insurance_premium_tax' type='double' default_value='0.0'
-           comment='SD Insurance Premium Tax (ONLY for insurance companies, NOT general corporations)'/>
-
-  </entity>
-
-</entity_dictionary>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>SD_corp_edd</file_path>
+	</file_metadata>
+	<entity name="apportionment" number="100" xls_file="SD_corp.xlsx" access="rw">
+		<source>
+			<relative_path>SD_corp.xlsx</relative_path>
+			<file_name>SD_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="Not applicable - South Dakota has no corporate income tax"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="SD economic nexus for SALES TAX: $100,000 in sales (Wayfair standard)"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Not applicable - South Dakota has no corporate income tax"></field>
+		<field name="state_code" type="string" subtype="" access="r" input="" default_value="SD" comment="South Dakota state code"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="Not applicable - South Dakota has no corporate income tax or credits"></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Not applicable - South Dakota has no corporate income tax"></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="South Dakota has NO corporate income tax - rate is 0.0%"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="SD economic nexus for SALES TAX: 200 or more transactions"></field>
+	</entity>
+	<entity name="result" number="200" xls_file="SD_corp.xlsx" access="rw">
+		<source>
+			<relative_path>SD_corp.xlsx</relative_path>
+			<file_name>SD_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="sd_bank_franchise_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="SD Bank Franchise Tax (ONLY for banks/financial institutions, NOT general corporations)"></field>
+		<field name="sd_insurance_premium_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="SD Insurance Premium Tax (ONLY for insurance companies, NOT general corporations)"></field>
+		<field name="sd_is_financial_institution" type="boolean" subtype="" access="r" input="" default_value="false" comment="Is financial institution subject to SD Bank Franchise Tax (NOT general corporations)"></field>
+		<field name="sd_is_insurance_company" type="boolean" subtype="" access="r" input="" default_value="false" comment="Is insurance company subject to SD Insurance Premium Tax (NOT general corporations)"></field>
+		<field name="sd_no_corporate_tax" type="boolean" subtype="" access="r" input="" default_value="true" comment="South Dakota has NO corporate income tax - always true"></field>
+	</entity>
+</entity_data_dictionary>

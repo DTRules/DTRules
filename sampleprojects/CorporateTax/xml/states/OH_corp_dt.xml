@@ -2,19 +2,18 @@
 <decision_tables>
 
 <!-- TABLE 50700: Determine_OH_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>OH_Corp.xls</relative_path>
-<file_name>OH_Corp.xls</file_name>
+<relative_path>OH_corp.xlsx</relative_path>
+<file_name>OH_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_OH_Filing_Requirement</table_name>
-<xls_file>OH_Corp.xls</xls_file>
+<xls_file>OH_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file Ohio Commercial Activity Tax (CAT) return. Checks for physical presence, economic nexus, or Ohio registration. Ohio CAT nexus: Physical presence (bright-line), Economic nexus ($500K Ohio receipts), or Ohio registration. No tax due threshold: $150K Ohio-sourced gross receipts.</COMMENTS>
 <TABLE_NUMBER>50700</TABLE_NUMBER>
-<FILE_PATH>states/OH/50700_Determine_OH_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -38,6 +37,8 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code 'OH'
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code 'OH' streq } over if
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
 </condition_details>
@@ -51,6 +52,7 @@ result.oh_taxable_gross_receipts result.oh_cat_exclusion_threshold f&lt;
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -59,7 +61,7 @@ result.oh_taxable_gross_receipts result.oh_cat_exclusion_threshold f&lt;
 <action_comment>Physical presence but below exclusion threshold - no tax due; Set no CAT due and zero tax</action_comment>
 <action_dsl>set result.oh_qualifies_for_no_cat = true; set result.oh_cat_tax = 0.0; set apportionment.state_tax = 0.0;</action_dsl>
 <action_postfix>
-true cvb /result.oh_qualifies_for_no_cat xdef 0.0 cvd /result.oh_cat_tax xdef 0.0 cvd /apportionment.state_tax xdef
+true cvb /result.oh_qualifies_for_no_cat xdef 0.0 cvd /result.oh_cat_tax xdef 0.0 cvi /apportionment.state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -86,7 +88,7 @@ false cvb /result.oh_qualifies_for_no_cat xdef
 <action_comment>No nexus - no filing required; Set no CAT due, zero tax, and refund any payments</action_comment>
 <action_dsl>set result.oh_qualifies_for_no_cat = true; set result.oh_cat_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-true cvb /result.oh_qualifies_for_no_cat xdef 0.0 cvd /result.oh_cat_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+true cvb /result.oh_qualifies_for_no_cat xdef 0.0 cvd /result.oh_cat_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="4" column_value="X" />
 </action_details>
@@ -95,19 +97,18 @@ true cvb /result.oh_qualifies_for_no_cat xdef 0.0 cvd /result.oh_cat_tax xdef 0.
 </decision_table>
 
 <!-- TABLE 50720: Calculate_OH_Taxable_Gross_Receipts -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>OH_Corp.xls</relative_path>
-<file_name>OH_Corp.xls</file_name>
+<relative_path>OH_corp.xlsx</relative_path>
+<file_name>OH_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_OH_Taxable_Gross_Receipts</table_name>
-<xls_file>OH_Corp.xls</xls_file>
+<xls_file>OH_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Ohio taxable gross receipts for CAT. Applies situsing rules to determine Ohio-sourced receipts and subtracts excluded receipts. Process: (1) Total gross receipts, (2) Apply situsing rules for OH portion, (3) Subtract excluded receipts, (4) Result is OH taxable gross receipts subject to CAT. Common exclusions: federal government sales, affiliate transactions, interest/dividends, previously taxed receipts.</COMMENTS>
 <TABLE_NUMBER>50720</TABLE_NUMBER>
-<FILE_PATH>states/OH/50720_Calculate_OH_Taxable_Gross_Receipts</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -130,6 +131,7 @@ result.oh_qualifies_for_no_cat false beq
 <condition_postfix>
 result.oh_cat_excluded_receipts 0 f&gt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -165,19 +167,18 @@ result.oh_taxable_gross_receipts result.oh_cat_excluded_receipts f- 0.0 fmax cvd
 </decision_table>
 
 <!-- TABLE 50780: Calculate_OH_CAT -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>OH_Corp.xls</relative_path>
-<file_name>OH_Corp.xls</file_name>
+<relative_path>OH_corp.xlsx</relative_path>
+<file_name>OH_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_OH_CAT</table_name>
-<xls_file>OH_Corp.xls</xls_file>
+<xls_file>OH_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Ohio Commercial Activity Tax (CAT) liability. Applies $150 minimum or 0.26% rate based on gross receipts. Tax structure: Receipts below $150K=No tax, $150K-$999,999=$150 minimum, $1M+=$150 minimum + 0.26% on receipts over $1M. Formula: CAT = $150 + (Taxable Receipts - $1M) × 0.0026. IMPORTANT: CAT has NO credits, purely based on gross receipts.</COMMENTS>
 <TABLE_NUMBER>50780</TABLE_NUMBER>
-<FILE_PATH>states/OH/50780_Calculate_OH_CAT</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -201,6 +202,7 @@ result.oh_qualifies_for_no_cat false beq
 <condition_postfix>
 result.oh_taxable_gross_receipts 0 f&gt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
@@ -212,8 +214,10 @@ result.oh_taxable_gross_receipts 0 f&gt;
 <condition_postfix>
 result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold f&gt;=
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -222,7 +226,7 @@ result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold f&gt;=
 <action_comment>No nexus or below exclusion threshold - no CAT</action_comment>
 <action_dsl>set result.oh_cat_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /result.oh_cat_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvd /result.oh_cat_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -231,7 +235,7 @@ result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold f&gt;=
 <action_comment>Receipts over $1M - calculate percentage tax + minimum; CAT = $150 + (Receipts - $1M) × 0.26%</action_comment>
 <action_dsl>set result.oh_cat_tax = (result.oh_taxable_gross_receipts - result.oh_cat_minimum_threshold) * result.oh_cat_rate + result.oh_cat_minimum_tax; set apportionment.state_tax = result.oh_cat_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold f- result.oh_cat_rate fmul result.oh_cat_minimum_tax f+ cvd /result.oh_cat_tax xdef result.oh_cat_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
+result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold f- result.oh_cat_rate fmul result.oh_cat_minimum_tax f+ cvd /result.oh_cat_tax xdef result.oh_cat_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -240,7 +244,7 @@ result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold f- result.oh_ca
 <action_comment>Receipts between $150K and $1M - minimum tax only</action_comment>
 <action_dsl>set result.oh_cat_tax = result.oh_cat_minimum_tax; set apportionment.state_tax = result.oh_cat_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-result.oh_cat_minimum_tax cvd /result.oh_cat_tax xdef result.oh_cat_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
+result.oh_cat_minimum_tax cvd /result.oh_cat_tax xdef result.oh_cat_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -249,7 +253,7 @@ result.oh_cat_minimum_tax cvd /result.oh_cat_tax xdef result.oh_cat_tax cvd /app
 <action_comment>No taxable receipts - no CAT</action_comment>
 <action_dsl>set result.oh_cat_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /result.oh_cat_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvd /result.oh_cat_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="4" column_value="X" />
 </action_details>
@@ -258,14 +262,14 @@ result.oh_cat_minimum_tax cvd /result.oh_cat_tax xdef result.oh_cat_tax cvd /app
 </decision_table>
 
 <!-- TABLE 55100: Calculate_OH_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>OH_Corp.xls</relative_path>
-<file_name>OH_Corp.xls</file_name>
+<relative_path>OH_corp.xlsx</relative_path>
+<file_name>OH_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
 </source>
 <table_name>Calculate_OH_Income_Adjustments</table_name>
-<xls_file>OH_Corp.xls</xls_file>
+<xls_file>OH_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS></COMMENTS>
@@ -299,14 +303,14 @@ apportionment.state_code "OH" streq
 </decision_table>
 
 <!-- TABLE 55110: Calculate_OH_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>OH_Corp.xls</relative_path>
-<file_name>OH_Corp.xls</file_name>
+<relative_path>OH_corp.xlsx</relative_path>
+<file_name>OH_corp.xlsx</file_name>
 <sheet_number>5</sheet_number>
 </source>
 <table_name>Calculate_OH_State_Tax</table_name>
-<xls_file>OH_Corp.xls</xls_file>
+<xls_file>OH_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS></COMMENTS>

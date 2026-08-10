@@ -2,19 +2,18 @@
 <decision_tables>
 
 <!-- TABLE 52000: Determine_AL_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>AL_Corp.xls</relative_path>
-<file_name>AL_Corp.xls</file_name>
+<relative_path>AL_corp.xlsx</relative_path>
+<file_name>AL_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_AL_Filing_Requirement</table_name>
-<xls_file>AL_Corp.xls</xls_file>
+<xls_file>AL_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file Alabama state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
 <TABLE_NUMBER>52000</TABLE_NUMBER>
-<FILE_PATH>states/AL/52000_Determine_AL_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -62,7 +61,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "AL" st
 <action_comment>No nexus - no filing required; // No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -71,19 +70,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "AL" st
 </decision_table>
 
 <!-- TABLE 52020: Calculate_AL_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>AL_Corp.xls</relative_path>
-<file_name>AL_Corp.xls</file_name>
+<relative_path>AL_corp.xlsx</relative_path>
+<file_name>AL_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_AL_Income_Adjustments</table_name>
-<xls_file>AL_Corp.xls</xls_file>
+<xls_file>AL_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Alabama state-specific additions and subtractions to federal taxable income.</COMMENTS>
 <TABLE_NUMBER>52020</TABLE_NUMBER>
-<FILE_PATH>states/AL/52020_Calculate_AL_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -123,19 +121,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 </decision_table>
 
 <!-- TABLE 52080: Calculate_AL_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>AL_Corp.xls</relative_path>
-<file_name>AL_Corp.xls</file_name>
+<relative_path>AL_corp.xlsx</relative_path>
+<file_name>AL_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_AL_State_Tax</table_name>
-<xls_file>AL_Corp.xls</xls_file>
+<xls_file>AL_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Alabama state corporate income tax. Applies 6.5% flat rate to apportioned and adjusted taxable income.</COMMENTS>
 <TABLE_NUMBER>52080</TABLE_NUMBER>
-<FILE_PATH>states/AL/52080_Calculate_AL_State_Tax</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -169,7 +166,7 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_comment>Calculate Alabama tax at 6.5% flat rate; // Alabama uses 6.5% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
 <action_dsl>if apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits &gt; 0.0 then set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = 0.0; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-{ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- cvd /apportionment.state_tax xdef } { 0.0 cvd /apportionment.state_tax xdef } apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 f&gt; ifelse apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
+{ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- cvi /apportionment.state_tax xdef } { 0.0 cvi /apportionment.state_tax xdef } apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 f&gt; ifelse apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -178,7 +175,7 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_comment>No nexus - no tax liability; // No Alabama nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -187,7 +184,7 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_comment>Nexus but no taxable income - no tax liability; // No Alabama taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>

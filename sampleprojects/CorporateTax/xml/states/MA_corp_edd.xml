@@ -1,94 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Massachusetts (MA) Corporate Tax Entity Data Dictionary
-
-  Massachusetts General Laws Chapter 63 § 39
-  - Tax rate: 8% flat rate on net income
-  - Apportionment: Single-sales factor
-  - Economic nexus: $500,000 in gross receipts
-  - Form: MA Form 355 (Corporate Excise Tax Return)
--->
-<entity_dictionary name="CorporateTax_MA_Constants">
-
-  <!--
-    Apportionment Entity: Massachusetts-Specific Configuration
-
-    This entity is used by decision tables 7000-7500 to calculate
-    multi-state tax apportionment.
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='MA'
-           comment='Massachusetts state code'/>
-
-    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='500000.0'
-           comment='MA economic nexus gross receipts threshold - $500,000'/>
-
-    <field name='transaction_threshold' type='integer' default_value='200'
-           comment='MA economic nexus transaction count threshold - 200'/>
-
-    <!-- Apportionment Formula -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='MA uses single-sales factor apportionment'/>
-
-    <!-- State Tax Rate -->
-    <field name='state_tax_rate' type='double' default_value='0.080'
-           comment='MA corporate excise tax rate - 8% flat rate (M.G.L. c. 63 § 39)'/>
-
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='MA-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
-
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='MA-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
-
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='MA tax credits: Economic Development Incentive Program (EDIP), R&amp;D, film, etc.'/>
-
-  </entity>
-
-  <!--
-    Result Entity: Massachusetts-Specific Extensions
-
-    No special state-specific fields are required for Massachusetts.
-    The standard apportionment fields are sufficient for MA's 8% flat rate.
-  -->
-  <entity name="result">
-    <field name="ma_apportioned_income" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <field name="ma_corp_tax_rate" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <field name="ma_economic_nexus_threshold" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <field name="ma_estimated_payments" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <field name="ma_gross_receipts" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <field name="ma_has_nexus" type="boolean" default_value="false"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <field name="ma_municipal_interest" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <field name="ma_qualified_dividend_deduction" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <field name="ma_refund_or_owed" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <field name="ma_state_additions" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <field name="ma_state_credits" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <field name="ma_state_subtractions" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <field name="ma_tax_liability" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <field name="ma_taxable_income" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <field name="ma_us_interest_income" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"/>
-    <!-- No MA-specific fields needed -->
-  </entity>
-
-</entity_dictionary>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>MA_corp_edd</file_path>
+	</file_metadata>
+	<entity name="apportionment" number="100" xls_file="MA_corp.xlsx" access="rw">
+		<source>
+			<relative_path>MA_corp.xlsx</relative_path>
+			<file_name>MA_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="MA uses single-sales factor apportionment"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="500000.0" comment="MA economic nexus gross receipts threshold - $500,000"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="MA-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc."></field>
+		<field name="state_code" type="string" subtype="" access="r" input="" default_value="MA" comment="Massachusetts state code"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="MA tax credits: Economic Development Incentive Program (EDIP), R&amp;D, film, etc."></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="MA-specific subtractions: municipal interest, state taxes, state NOL, etc."></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.080" comment="MA corporate excise tax rate - 8% flat rate (M.G.L. c. 63 § 39)"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="MA economic nexus transaction count threshold - 200"></field>
+	</entity>
+	<entity name="result" number="200" xls_file="MA_corp.xlsx" access="rw">
+		<source>
+			<relative_path>MA_corp.xlsx</relative_path>
+			<file_name>MA_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="ma_apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+		<field name="ma_corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+		<field name="ma_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+		<field name="ma_estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+		<field name="ma_gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+		<field name="ma_has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+		<field name="ma_municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+		<field name="ma_qualified_dividend_deduction" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+		<field name="ma_refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+		<field name="ma_state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+		<field name="ma_state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+		<field name="ma_state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+		<field name="ma_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+		<field name="ma_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+		<field name="ma_us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MA but never declared (campaign #948 Phase 1)"></field>
+	</entity>
+</entity_data_dictionary>
