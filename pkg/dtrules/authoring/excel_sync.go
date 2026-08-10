@@ -106,6 +106,23 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 	exporter := excel.NewExporter(rs)
 	for excelRel, entry := range m.Files {
 		excelPath := filepath.Join(manifestDir, excelRel)
+		// Refresh what exists; do not resurrect what does not.
+		//
+		// The manifest outlives the files it names. TaxReturn's committed
+		// manifest still lists 114 per-table workbooks that the samples
+		// consolidation replaced with a single TaxReturn.xlsx, so every
+		// `dtrules table put` re-created all 114 beside the real one and
+		// turned a one-action edit into a 244-file diff (#1062).
+		//
+		// A missing workbook is not something an export should invent. Excel
+		// is the system of record, and a file that is not there is not a
+		// source of truth; `verify` already reports tables whose declared
+		// workbook is absent, which is where that belongs. Bootstrapping a
+		// project with no Excel at all is a different path — no manifest,
+		// handled above.
+		if _, err := os.Stat(excelPath); err != nil {
+			continue
+		}
 		if err := exporter.ExportDecisionTables(excelPath); err != nil {
 			return fmt.Errorf("excel refresh: export %s: %w", excelPath, err)
 		}
