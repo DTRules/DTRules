@@ -34,9 +34,7 @@ dup patient.active_medications forall pop
 <condition_postfix>
 result.recommended_drug "Levofloxacin" s==i
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="Y" />
+<columns>YYY---</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -45,8 +43,7 @@ result.recommended_drug "Levofloxacin" s==i
 <condition_postfix>
 result.recommended_drug "Amoxicillin" s==i
 </condition_postfix>
-<condition_column column_number="4" column_value="Y" />
-<condition_column column_number="5" column_value="Y" />
+<columns>---YY-</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -55,7 +52,7 @@ result.recommended_drug "Amoxicillin" s==i
 <condition_postfix>
 result.recommended_drug "Cefuroxime" s==i
 </condition_postfix>
-<condition_column column_number="6" column_value="Y" />
+<columns>-----Y</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -64,8 +61,7 @@ result.recommended_drug "Cefuroxime" s==i
 <condition_postfix>
 medication.name "Coumadin" s==i { pop medication.name "Warfarin" s==i } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="4" column_value="Y" />
+<columns>Y--Y--</columns>
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -74,7 +70,7 @@ medication.name "Coumadin" s==i { pop medication.name "Warfarin" s==i } over not
 <condition_postfix>
 medication.name "Theophylline" s==i
 </condition_postfix>
-<condition_column column_number="2" column_value="Y" />
+<columns>-Y----</columns>
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -83,7 +79,7 @@ medication.name "Theophylline" s==i
 <condition_postfix>
 medication.name "NSAID" s==i { pop medication.name "Ibuprofen" s==i } over not if { pop medication.name "Naproxen" s==i } over not if
 </condition_postfix>
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y---</columns>
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -92,7 +88,7 @@ medication.name "NSAID" s==i { pop medication.name "Ibuprofen" s==i } over not i
 <condition_postfix>
 medication.name "Methotrexate" s==i
 </condition_postfix>
-<condition_column column_number="5" column_value="Y" />
+<columns>----Y-</columns>
 </condition_details>
 <condition_details>
 <condition_number>8</condition_number>
@@ -101,7 +97,7 @@ medication.name "Methotrexate" s==i
 <condition_postfix>
 medication.name "Probenecid" s==i
 </condition_postfix>
-<condition_column column_number="6" column_value="Y" />
+<columns>-----Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -112,7 +108,7 @@ medication.name "Probenecid" s==i
 <action_postfix>
 "Levofloxacin may potentiate the anticoagulant effect of warfarin/Coumadin, raising INR and bleeding risk. Monitor coagulation closely." result.warnings swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-----</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -121,7 +117,7 @@ medication.name "Probenecid" s==i
 <action_postfix>
 "Levofloxacin may increase theophylline plasma levels; monitor for theophylline toxicity." result.warnings swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X----</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -130,7 +126,7 @@ medication.name "Probenecid" s==i
 <action_postfix>
 "Concomitant NSAIDs with Levofloxacin may increase the risk of CNS stimulation and seizures." result.warnings swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X---</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -139,7 +135,7 @@ medication.name "Probenecid" s==i
 <action_postfix>
 "Amoxicillin may enhance the anticoagulant effect of warfarin/Coumadin; monitor INR." result.warnings swap addto
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X--</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -148,7 +144,7 @@ medication.name "Probenecid" s==i
 <action_postfix>
 "Amoxicillin may reduce renal clearance of methotrexate, increasing methotrexate toxicity." result.warnings swap addto
 </action_postfix>
-<action_column column_number="5" column_value="X" />
+<columns>----X-</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -157,7 +153,7 @@ medication.name "Probenecid" s==i
 <action_postfix>
 "Probenecid reduces renal excretion of Cefuroxime, raising its plasma concentration." result.warnings swap addto
 </action_postfix>
-<action_column column_number="6" column_value="X" />
+<columns>-----X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

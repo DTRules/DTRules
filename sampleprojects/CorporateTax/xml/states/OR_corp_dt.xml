@@ -25,9 +25,7 @@
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop state_code 'OR' streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -36,9 +34,7 @@ apportionment.has_physical_presence true beq { pop state_code 'OR' streq } over 
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop state_code 'OR' streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>-YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -47,14 +43,14 @@ apportionment.has_economic_nexus true beq { pop state_code 'OR' streq } over if
 <action_comment>Physical nexus - filing required</action_comment>
 <action_dsl>// Physical nexus established - filing required. Apportionment will be calculated by tables 7000-7500</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus - filing required; Economic nexus established per Wayfair - filing required. OR threshold: $750,000 in sales</action_comment>
 <action_dsl>// Economic nexus established per Wayfair - filing required</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -63,7 +59,7 @@ apportionment.has_economic_nexus true beq { pop state_code 'OR' streq } over if
 <action_postfix>
 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -106,8 +102,7 @@ apportionment.has_economic_nexus true beq { pop state_code 'OR' streq } over if
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -118,7 +113,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_postfix>
 0.0 cvi /apportionment.state_additions xdef 0.0 cvi /apportionment.state_subtractions xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -127,7 +122,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_postfix>
 0.0 cvi /apportionment.state_additions xdef 0.0 cvi /apportionment.state_subtractions xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -166,10 +161,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="Y" />
+<columns>YYNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -178,10 +170,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="N" />
+<columns>YY-N</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -190,10 +179,7 @@ apportionment.state_taxable_income 0 &gt;
 <condition_postfix>
 result.or_is_financial_institution true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
+<columns>YN--</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -204,7 +190,7 @@ result.or_is_financial_institution true beq
 <action_postfix>
 apportionment.state_taxable_income result.or_financial_institution_rate fmul cvi /apportionment.state_tax xdef apportionment.state_tax result.or_minimum_tax fmax cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits - result.or_minimum_tax fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -213,7 +199,7 @@ apportionment.state_taxable_income result.or_financial_institution_rate fmul cvi
 <action_postfix>
 apportionment.state_taxable_income apportionment.state_tax_rate * cvi /apportionment.state_tax xdef apportionment.state_tax result.or_minimum_tax fmax cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits - result.or_minimum_tax fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -222,7 +208,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate * cvi /apportion
 <action_postfix>
 0.0 cvi /apportionment.state_tax xdef 0.0 cvd /result.or_minimum_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -231,7 +217,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate * cvi /apportion
 <action_postfix>
 result.or_minimum_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X</columns>
 </action_details>
 </actions>
 <policy_statements>

@@ -25,7 +25,7 @@
 <condition_postfix>
 apportionment.state_code isnull not
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -36,7 +36,7 @@ apportionment.state_code isnull not
 <action_postfix>
 "Determine_" apportionment.state_code strconcat "_Filing_Requirement" strconcat performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -45,7 +45,7 @@ apportionment.state_code isnull not
 <action_postfix>
 "Calculate_" apportionment.state_code strconcat "_Income_Adjustments" strconcat performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -54,7 +54,7 @@ apportionment.state_code isnull not
 <action_postfix>
 "Calculate_" apportionment.state_code strconcat "_State_Tax" strconcat performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

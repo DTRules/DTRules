@@ -25,9 +25,7 @@
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "CA" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -36,9 +34,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "CA"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>-YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -47,14 +43,14 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" st
 <action_comment>Physical nexus established - filing required</action_comment>
 <action_dsl>// Physical nexus established - filing required</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established - filing required</action_comment>
 <action_dsl>// Economic nexus established - filing required</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -63,7 +59,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" st
 <action_postfix>
 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -93,8 +89,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" st
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if { pop apportionment.state_code "CA" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -105,7 +100,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -114,7 +109,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -144,9 +139,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if { pop apportionment.state_code "CA" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>YYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -155,9 +148,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.state_taxable_income 0.0 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
+<columns>YN-</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -168,7 +159,7 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_postfix>
 { apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- cvi /apportionment.state_tax xdef } { result.ca_minimum_franchise_tax cvi /apportionment.state_tax xdef } apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- result.ca_minimum_franchise_tax f&gt; ifelse apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -177,7 +168,7 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_postfix>
 result.ca_minimum_franchise_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -186,7 +177,7 @@ result.ca_minimum_franchise_tax cvi /apportionment.state_tax xdef apportionment.
 <action_postfix>
 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -216,9 +207,7 @@ result.ca_minimum_franchise_tax cvi /apportionment.state_tax xdef apportionment.
 <condition_postfix>
 result.ca_waters_edge_election true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
+<columns>YN-</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -227,9 +216,7 @@ result.ca_waters_edge_election true beq
 <condition_postfix>
 result.ca_unitary_group_count 1 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>YYN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -238,21 +225,21 @@ result.ca_unitary_group_count 1 &gt;
 <action_comment>Water's edge limits combined reporting</action_comment>
 <action_dsl>// Water's edge limits combined reporting to US corporations and certain foreign entities</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Worldwide combined reporting</action_comment>
 <action_dsl>// Worldwide combined reporting includes all unitary group members globally</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Standalone corporation - no combined reporting; // Standalone corporation - no combined reporting required</action_comment>
 <action_dsl />
 <action_postfix></action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

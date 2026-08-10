@@ -41,7 +41,7 @@ policystatements cleararray
 <condition_postfix>
 thing.value 1 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y---</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -50,7 +50,7 @@ thing.value 1 ==
 <condition_postfix>
 thing.value 2 ==
 </condition_postfix>
-<condition_column column_number="2" column_value="Y" />
+<columns>-Y--</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -59,7 +59,7 @@ thing.value 2 ==
 <condition_postfix>
 thing.value 3 ==
 </condition_postfix>
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y-</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -68,7 +68,7 @@ thing.value 3 ==
 <condition_postfix>
 otherwise
 </condition_postfix>
-<condition_column column_number="4" column_value="*" />
+<columns>---*</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -79,10 +79,7 @@ otherwise
 <action_postfix>
 policystatements job.notes true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
-<action_column column_number="4" column_value="X" />
+<columns>XXXX</columns>
 </action_details>
 </actions>
 <policy_statements>

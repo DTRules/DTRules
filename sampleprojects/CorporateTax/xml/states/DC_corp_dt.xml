@@ -25,9 +25,7 @@
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "DC" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -36,9 +34,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "DC"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "DC" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>-YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -47,21 +43,21 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DC" st
 <action_comment>Physical nexus established - filing required</action_comment>
 <action_dsl>// Physical nexus established - filing required</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established per Wayfair - filing required</action_comment>
 <action_dsl>// Economic nexus established per Wayfair - filing required</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
 <action_dsl>// No nexus - no filing required; set apportionment.state_tax = 0.0; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -91,8 +87,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DC" st
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -101,14 +96,14 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_comment>Calculate DC state additions and subtractions</action_comment>
 <action_dsl>// Calculate DC state additions and subtractions; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments</action_comment>
 <action_dsl>// No nexus - no adjustments; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -138,9 +133,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
+<columns>YNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -149,9 +142,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.state_taxable_income 0.0 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="N" />
+<columns>Y-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -160,21 +151,21 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_comment>DC flat rate calculation (8.25%)</action_comment>
 <action_dsl>// DC uses 8.25% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no tax liability</action_comment>
 <action_dsl>// No DC nexus - no tax liability; set apportionment.state_tax = 0.0; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Nexus but no taxable income - minimum tax applies</action_comment>
 <action_dsl>// No income-based tax, but minimum tax still applies; set apportionment.state_tax = 0.0;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -204,9 +195,7 @@ apportionment.state_taxable_income 0.0 f&gt;
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>YYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -215,9 +204,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 result.dc_gross_receipts 1000000.0 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
+<columns>YN-</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -226,7 +213,7 @@ result.dc_gross_receipts 1000000.0 f&gt;
 <action_comment>High gross receipts - $1,000 minimum</action_comment>
 <action_dsl>// Minimum tax: $1,000 for gross receipts &gt; $1M; set result.dc_minimum_tax = 1000.0; set apportionment.state_tax = max(apportionment.state_tax, result.dc_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -235,14 +222,14 @@ result.dc_gross_receipts 1000000.0 f&gt;
 <action_postfix>
 250.0 cvd /result.dc_minimum_tax xdef { apportionment.state_tax cvi /apportionment.state_tax xdef } { result.dc_minimum_tax cvi /apportionment.state_tax xdef } apportionment.state_tax result.dc_minimum_tax f&gt; ifelse apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no minimum tax</action_comment>
 <action_dsl>// No DC nexus - no minimum tax requirement; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

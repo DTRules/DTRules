@@ -200,7 +200,7 @@ null allocate execute deallocate pop
 <condition_postfix>
 perform when called
 </condition_postfix>
-<condition_column column_number="1" column_value="*" />
+<columns>*</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -215,7 +215,7 @@ else
 <action_postfix>
 { false cvb 6 local! } { true cvb 6 local! } 9 local@ currentdate streq ifelse
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -224,7 +224,7 @@ else
 <action_postfix>
 { true cvb /eligible xdef } clients forallr
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -233,7 +233,7 @@ else
 <action_postfix>
 { true cvb /eligible xdef } job.cases forallr
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -242,7 +242,7 @@ else
 <action_postfix>
 { { true cvb /eligible xdef } city 'spokane' streq if } job.cases forallr
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -251,7 +251,7 @@ else
 <action_postfix>
 { { false cvb /eligible xdef } age 18 &lt; if } clients forallr
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -260,7 +260,7 @@ else
 <action_postfix>
 { address entitypush true cvb /applying xdef entitypop pop } job.cases forallr
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>7</action_number>
@@ -269,7 +269,7 @@ else
 <action_postfix>
 { { address entitypush false cvb /eligible xdef entitypop pop } validatedCitizenship false beq if } job.cases forallr
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -958,7 +958,7 @@ effectiveDate endofmonth cvdate /currentDate xdef
 <condition_postfix>
 perform when called
 </condition_postfix>
-<condition_column column_number="1" column_value="*" />
+<columns>*</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -969,7 +969,7 @@ perform when called
 <action_postfix>
 "attribute &lt;name&gt; of &lt;entity&gt; not yet implemented" elstmterror cvs /street xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -978,7 +978,7 @@ perform when called
 <action_postfix>
 "mappingkey not yet implemented" elstmterror cvs /street xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -987,7 +987,7 @@ perform when called
 <action_postfix>
 "attribute &lt;name&gt; of &lt;entity&gt; not yet implemented" elstmterror cvs /street xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -996,7 +996,7 @@ perform when called
 <action_postfix>
 program 0 10 over - substring cvs /programLevel xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -1005,7 +1005,7 @@ program 0 10 over - substring cvs /programLevel xdef
 <action_postfix>
 "hash tables removed — `tableinformation` unsupported" elstmterror "" cvs /street xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -1014,7 +1014,7 @@ program 0 10 over - substring cvs /programLevel xdef
 <action_postfix>
 strBuffer cvs /street xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>7</action_number>
@@ -1023,7 +1023,7 @@ strBuffer cvs /street xdef
 <action_postfix>
 street zip + cvs /parent xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>8</action_number>
@@ -1032,7 +1032,7 @@ street zip + cvs /parent xdef
 <action_postfix>
 300.12 cvs cvs /strBuffer xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>9</action_number>
@@ -1041,6 +1041,7 @@ street zip + cvs /parent xdef
 <action_postfix>
 45 cvs cvs /tips xdef
 </action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>10</action_number>
@@ -1050,6 +1051,7 @@ street zip + cvs /parent xdef
 <action_postfix>
 effectiveDate cvs cvs /importantDates xdef
 </action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>11</action_number>
@@ -1058,7 +1060,7 @@ effectiveDate cvs cvs /importantDates xdef
 <action_postfix>
 pregnant cvs cvs /strBuffer xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>12</action_number>
@@ -1067,7 +1069,7 @@ pregnant cvs cvs /strBuffer xdef
 <action_postfix>
 program cvs /programLevel xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>13</action_number>
@@ -1076,7 +1078,7 @@ program cvs /programLevel xdef
 <action_postfix>
 wages 55 + cvs /wages xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>14</action_number>
@@ -1085,7 +1087,7 @@ wages 55 + cvs /wages xdef
 <action_postfix>
 tips 35.50 f+ cvs /tips xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>15</action_number>
@@ -1094,7 +1096,7 @@ tips 35.50 f+ cvs /tips xdef
 <action_postfix>
 street $Oak cvs concat cvs /street xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>16</action_number>
@@ -1103,7 +1105,7 @@ street $Oak cvs concat cvs /street xdef
 <action_postfix>
 street zip + cvs /parent xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>17</action_number>
@@ -1112,7 +1114,7 @@ street zip + cvs /parent xdef
 <action_postfix>
 street billingAddress + cvs /street xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>18</action_number>
@@ -1121,7 +1123,7 @@ street billingAddress + cvs /street xdef
 <action_postfix>
 importantDates currentDate + cvs /importantDates xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>19</action_number>
@@ -1130,7 +1132,7 @@ importantDates currentDate + cvs /importantDates xdef
 <action_postfix>
 street clients + cvs /street xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>20</action_number>
@@ -1139,6 +1141,7 @@ street clients + cvs /street xdef
 <action_postfix>
 zip trim cvs /street xdef
 </action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>21</action_number>
@@ -1147,6 +1150,7 @@ zip trim cvs /street xdef
 <action_postfix>
 street lowercase cvs /street xdef
 </action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>22</action_number>
@@ -1155,6 +1159,7 @@ street lowercase cvs /street xdef
 <action_postfix>
 today cvdate /effectiveDate xdef
 </action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>23</action_number>
@@ -1163,6 +1168,7 @@ today cvdate /effectiveDate xdef
 <action_postfix>
 gettimestamp cvs /strBuffer xdef
 </action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>24</action_number>
@@ -1171,7 +1177,7 @@ gettimestamp cvs /strBuffer xdef
 <action_postfix>
 client entitypush street entitypop cvs /street xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>25</action_number>
@@ -1180,7 +1186,7 @@ client entitypush street entitypop cvs /street xdef
 <action_postfix>
 550.87 cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>26</action_number>
@@ -1189,7 +1195,7 @@ client entitypush street entitypop cvs /street xdef
 <action_postfix>
 wages cvd cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>27</action_number>
@@ -1198,7 +1204,7 @@ wages cvd cvd /totalIncome xdef
 <action_postfix>
 totalGroupIncome cvd cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>28</action_number>
@@ -1207,7 +1213,7 @@ totalGroupIncome cvd cvd /totalIncome xdef
 <action_postfix>
 totalIncome totalGroupIncome f+ cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>29</action_number>
@@ -1216,7 +1222,7 @@ totalIncome totalGroupIncome f+ cvd /totalIncome xdef
 <action_postfix>
 totalGroupIncome totalIncome f+ cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>30</action_number>
@@ -1225,7 +1231,7 @@ totalGroupIncome totalIncome f+ cvd /totalIncome xdef
 <action_postfix>
 totalIncome totalGroupIncome f- cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>31</action_number>
@@ -1234,7 +1240,7 @@ totalIncome totalGroupIncome f- cvd /totalIncome xdef
 <action_postfix>
 totalIncome additionalIncome f- cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>32</action_number>
@@ -1243,7 +1249,7 @@ totalIncome additionalIncome f- cvd /totalIncome xdef
 <action_postfix>
 totalIncome totalGroupIncome fmul cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>33</action_number>
@@ -1252,7 +1258,7 @@ totalIncome totalGroupIncome fmul cvd /totalIncome xdef
 <action_postfix>
 totalIncome additionalIncome fmul cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>34</action_number>
@@ -1261,7 +1267,7 @@ totalIncome additionalIncome fmul cvd /totalIncome xdef
 <action_postfix>
 totalIncome totalGroupIncome fdiv cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>35</action_number>
@@ -1270,7 +1276,7 @@ totalIncome totalGroupIncome fdiv cvd /totalIncome xdef
 <action_postfix>
 totalIncome additionalIncome fdiv cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>36</action_number>
@@ -1279,7 +1285,7 @@ totalIncome additionalIncome fdiv cvd /totalIncome xdef
 <action_postfix>
 additionalIncome fnegate cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>37</action_number>
@@ -1288,7 +1294,7 @@ additionalIncome fnegate cvd /totalIncome xdef
 <action_postfix>
 additionalIncome cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>38</action_number>
@@ -1297,7 +1303,7 @@ additionalIncome cvd /totalIncome xdef
 <action_postfix>
 clients 0 bytesidx cvd cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>39</action_number>
@@ -1306,7 +1312,7 @@ clients 0 bytesidx cvd cvd /totalIncome xdef
 <action_postfix>
 cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>40</action_number>
@@ -1315,7 +1321,7 @@ cvd /totalIncome xdef
 <action_postfix>
 cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>41</action_number>
@@ -1324,6 +1330,7 @@ cvd /totalIncome xdef
 <action_postfix>
 totalIncome 2 fmul cvd /totalIncome xdef
 </action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>42</action_number>
@@ -1332,6 +1339,7 @@ totalIncome 2 fmul cvd /totalIncome xdef
 <action_postfix>
 totalIncome 2 fdiv cvd /totalIncome xdef
 </action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>43</action_number>
@@ -1340,7 +1348,7 @@ totalIncome 2 fdiv cvd /totalIncome xdef
 <action_postfix>
 totalIncome fabs cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>44</action_number>
@@ -1349,7 +1357,7 @@ totalIncome fabs cvd /totalIncome xdef
 <action_postfix>
 clients entitypush totalIncome entitypop cvd /totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>45</action_number>
@@ -1358,6 +1366,7 @@ clients entitypush totalIncome entitypop cvd /totalIncome xdef
 <action_postfix>
 totalIncome 0 0.5 roundto cvd /totalIncome xdef
 </action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>46</action_number>
@@ -1366,6 +1375,7 @@ totalIncome 0 0.5 roundto cvd /totalIncome xdef
 <action_postfix>
 totalIncome 3 0.5 roundto cvd /totalIncome xdef
 </action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>47</action_number>
@@ -1374,6 +1384,7 @@ totalIncome 3 0.5 roundto cvd /totalIncome xdef
 <action_postfix>
 totalIncome 2 .4 roundto cvd /totalIncome xdef
 </action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>48</action_number>
@@ -1382,6 +1393,7 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 <action_postfix>
 0 { additionalIncome + } clients forall cvd /totalIncome xdef
 </action_postfix>
+<columns>-</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -1411,7 +1423,7 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 <condition_postfix>
 perform when called
 </condition_postfix>
-<condition_column column_number="1" column_value="*" />
+<columns>*</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -1422,7 +1434,7 @@ perform when called
 <action_postfix>
 FPL_Base FPL_PerAdditionalPerson + cvi /FPL_Base xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -1431,7 +1443,7 @@ FPL_Base FPL_PerAdditionalPerson + cvi /FPL_Base xdef
 <action_postfix>
 FPL_Base FPL_PerAdditionalPerson - cvi /FPL_Base xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -1440,7 +1452,7 @@ FPL_Base FPL_PerAdditionalPerson - cvi /FPL_Base xdef
 <action_postfix>
 FPL_Base FPL_PerAdditionalPerson * cvi /FPL_Base xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -1449,7 +1461,7 @@ FPL_Base FPL_PerAdditionalPerson * cvi /FPL_Base xdef
 <action_postfix>
 FPL_Base FPL_PerAdditionalPerson / cvi /FPL_Base xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -1458,7 +1470,7 @@ FPL_Base FPL_PerAdditionalPerson / cvi /FPL_Base xdef
 <action_postfix>
 2 cvi /expectedChildren xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -1467,7 +1479,7 @@ FPL_Base FPL_PerAdditionalPerson / cvi /FPL_Base xdef
 <action_postfix>
 FPL_Base negate cvi /FPL_Base xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>7</action_number>
@@ -1476,7 +1488,7 @@ FPL_Base negate cvi /FPL_Base xdef
 <action_postfix>
 client_fpl cvi /FPL_Base xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>8</action_number>
@@ -1485,13 +1497,14 @@ client_fpl cvi /FPL_Base xdef
 <action_postfix>
 client_fpl cvi /FPL_Base xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>9</action_number>
 <action_comment>Error</action_comment>
 <action_dsl>// set DateNumber = get days in yearof effectiveDate</action_dsl>
 <action_postfix></action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>10</action_number>
@@ -1500,7 +1513,7 @@ client_fpl cvi /FPL_Base xdef
 <action_postfix>
 effectiveDate getdaysinmonth cvi /DateNumber xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>11</action_number>
@@ -1509,7 +1522,7 @@ effectiveDate getdaysinmonth cvi /DateNumber xdef
 <action_postfix>
 effectiveDate getdayofmonth cvi /DateNumber xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>12</action_number>
@@ -1518,7 +1531,7 @@ effectiveDate getdayofmonth cvi /DateNumber xdef
 <action_postfix>
 effectiveDate getdaysinmonth cvi /DateNumber xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>13</action_number>
@@ -1527,7 +1540,7 @@ effectiveDate getdaysinmonth cvi /DateNumber xdef
 <action_postfix>
 clients 1 bytesidx cvi cvi /totalGroupIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>14</action_number>
@@ -1536,7 +1549,7 @@ clients 1 bytesidx cvi cvi /totalGroupIncome xdef
 <action_postfix>
 wages cvi cvi /totalGroupIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>15</action_number>
@@ -1545,7 +1558,7 @@ wages cvi cvi /totalGroupIncome xdef
 <action_postfix>
 450 cvi cvi /totalGroupIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>16</action_number>
@@ -1554,7 +1567,7 @@ wages cvi cvi /totalGroupIncome xdef
 <action_postfix>
 clients length cvi /totalGroupIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>17</action_number>
@@ -1563,7 +1576,7 @@ clients length cvi /totalGroupIncome xdef
 <action_postfix>
 0 { { 1 + } age 18 &gt; if } clients forall cvi /totalGroupIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>18</action_number>
@@ -1572,7 +1585,7 @@ clients length cvi /totalGroupIncome xdef
 <action_postfix>
 effectiveDate getdaysinmonth cvi /DateNumber xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>19</action_number>
@@ -1581,7 +1594,7 @@ effectiveDate getdaysinmonth cvi /DateNumber xdef
 <action_postfix>
 clients length cvi /IncomeGroupCount xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>20</action_number>
@@ -1590,7 +1603,7 @@ clients length cvi /IncomeGroupCount xdef
 <action_postfix>
 parent length cvi /IncomeGroupCount xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>21</action_number>
@@ -1599,7 +1612,7 @@ parent length cvi /IncomeGroupCount xdef
 <action_postfix>
 importantDates birthday indexof cvi /DateNumber xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>22</action_number>
@@ -1608,7 +1621,7 @@ importantDates birthday indexof cvi /DateNumber xdef
 <action_postfix>
 clients entitypush 3 entitypop cvi /FPL_Base xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>23</action_number>
@@ -1617,7 +1630,7 @@ clients entitypush 3 entitypop cvi /FPL_Base xdef
 <action_postfix>
 cvi /totalGroupIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>24</action_number>
@@ -1626,19 +1639,21 @@ cvi /totalGroupIncome xdef
 <action_postfix>
 cvi /totalGroupIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>25</action_number>
 <action_comment>Error</action_comment>
 <action_dsl>// set totalGroupIncome = multiply totalGroupIncome by 3</action_dsl>
 <action_postfix></action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>26</action_number>
 <action_comment>Error</action_comment>
 <action_dsl>// set totalGroupIncome = divide totalGroupIncome by 2</action_dsl>
 <action_postfix></action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>27</action_number>
@@ -1647,7 +1662,7 @@ cvi /totalGroupIncome xdef
 <action_postfix>
 totalGroupIncome abs cvi /totalGroupIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>28</action_number>
@@ -1656,7 +1671,7 @@ totalGroupIncome abs cvi /totalGroupIncome xdef
 <action_postfix>
 client entitypush IncomeGroupCount entitypop cvi /totalGroupIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>29</action_number>
@@ -1665,7 +1680,7 @@ client entitypush IncomeGroupCount entitypop cvi /totalGroupIncome xdef
 <action_postfix>
 currentDate effectiveDate daysbetween cvi /DateNumber xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>30</action_number>
@@ -1674,7 +1689,7 @@ currentDate effectiveDate daysbetween cvi /DateNumber xdef
 <action_postfix>
 currentDate effectiveDate monthsbetween cvi /DateNumber xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>31</action_number>
@@ -1683,19 +1698,21 @@ currentDate effectiveDate monthsbetween cvi /DateNumber xdef
 <action_postfix>
 currentDate effectiveDate yearsbetween cvi /DateNumber xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>32</action_number>
 <action_comment>Error</action_comment>
 <action_dsl>// set DateNumber = get years of effectiveDate</action_dsl>
 <action_postfix></action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>33</action_number>
 <action_comment>Error</action_comment>
 <action_dsl>// set totalGroupIncome = sum of totalGroupIncome in clients</action_dsl>
 <action_postfix></action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>34</action_number>
@@ -1704,7 +1721,7 @@ currentDate effectiveDate yearsbetween cvi /DateNumber xdef
 <action_postfix>
 clients case memberof not cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>35</action_number>
@@ -1713,7 +1730,7 @@ clients case memberof not cvb /eligible xdef
 <action_postfix>
 clients case memberof cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>36</action_number>
@@ -1722,7 +1739,7 @@ clients case memberof cvb /eligible xdef
 <action_postfix>
 clients case memberof cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>37</action_number>
@@ -1731,7 +1748,7 @@ clients case memberof cvb /eligible xdef
 <action_postfix>
 true { false { $applying 1 entityfetch == or } cases forall and } clients forall cvb /applying xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>38</action_number>
@@ -1740,7 +1757,7 @@ true { false { $applying 1 entityfetch == or } cases forall and } clients forall
 <action_postfix>
 FPL_base 867 &lt; cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>39</action_number>
@@ -1749,7 +1766,7 @@ FPL_base 867 &lt; cvb /eligible xdef
 <action_postfix>
 Address entitypush mailingAddress billingAddress req entitypop swap pop cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>40</action_number>
@@ -1758,7 +1775,7 @@ Address entitypush mailingAddress billingAddress req entitypop swap pop cvb /eli
 <action_postfix>
 false { applying false beq or } clients forall not cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>41</action_number>
@@ -1767,7 +1784,7 @@ false { applying false beq or } clients forall not cvb /eligible xdef
 <action_postfix>
 case entitypush applying false beq entitypop swap pop not cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>42</action_number>
@@ -1776,7 +1793,7 @@ case entitypush applying false beq entitypop swap pop not cvb /eligible xdef
 <action_postfix>
 false { client_FPL 1000 &gt; or } clients forall not cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>43</action_number>
@@ -1785,7 +1802,7 @@ false { client_FPL 1000 &gt; or } clients forall not cvb /eligible xdef
 <action_postfix>
 true { disabled and } clients forall true beq cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>44</action_number>
@@ -1794,7 +1811,7 @@ true { disabled and } clients forall true beq cvb /eligible xdef
 <action_postfix>
 false { FPL_Base 867 &gt; or } clients forall cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>45</action_number>
@@ -1803,7 +1820,7 @@ false { FPL_Base 867 &gt; or } clients forall cvb /eligible xdef
 <action_postfix>
 client SocialSecurity hasrelationship not cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>46</action_number>
@@ -1812,7 +1829,7 @@ client SocialSecurity hasrelationship not cvb /eligible xdef
 <action_postfix>
 client Wages hasrelationship cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>47</action_number>
@@ -1821,7 +1838,7 @@ client Wages hasrelationship cvb /eligible xdef
 <action_postfix>
 { FPL_Base 867 &lt; } { false } case FreeCoverage hasrelationship ifelse cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>48</action_number>
@@ -1830,7 +1847,7 @@ client Wages hasrelationship cvb /eligible xdef
 <action_postfix>
 case "programLevel" getrelationship client req cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>49</action_number>
@@ -1839,7 +1856,7 @@ case "programLevel" getrelationship client req cvb /eligible xdef
 <action_postfix>
 additionalIncome totalIncome f- totalIncome fdiv fabs 100.0 f* 20 cvd f&lt;= cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>50</action_number>
@@ -1848,7 +1865,7 @@ additionalIncome totalIncome f- totalIncome fdiv fabs 100.0 f* 20 cvd f&lt;= cvb
 <action_postfix>
 totalIncome additionalIncome f- fabs 300 cvd f&lt;= cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>51</action_number>
@@ -1857,7 +1874,7 @@ totalIncome additionalIncome f- fabs 300 cvd f&lt;= cvb /eligible xdef
 <action_postfix>
 IncomeGroupCount totalGroupIncome == cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>52</action_number>
@@ -1866,7 +1883,7 @@ IncomeGroupCount totalGroupIncome == cvb /eligible xdef
 <action_postfix>
 totalIncome totalGroupIncome streq cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>53</action_number>
@@ -1875,7 +1892,7 @@ totalIncome totalGroupIncome streq cvb /eligible xdef
 <action_postfix>
 IncomeGroupCount totalGroupIncome == not cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>54</action_number>
@@ -1884,7 +1901,7 @@ IncomeGroupCount totalGroupIncome == not cvb /eligible xdef
 <action_postfix>
 totalIncome totalGroupIncome streq not cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>55</action_number>
@@ -1893,7 +1910,7 @@ totalIncome totalGroupIncome streq not cvb /eligible xdef
 <action_postfix>
 IncomeGroupCount totalGroupIncome &gt; cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>56</action_number>
@@ -1902,7 +1919,7 @@ IncomeGroupCount totalGroupIncome &gt; cvb /eligible xdef
 <action_postfix>
 totalIncome totalGroupIncome f&gt; cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>57</action_number>
@@ -1911,7 +1928,7 @@ totalIncome totalGroupIncome f&gt; cvb /eligible xdef
 <action_postfix>
 IncomeGroupCount totalGroupIncome &gt;= cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>58</action_number>
@@ -1920,7 +1937,7 @@ IncomeGroupCount totalGroupIncome &gt;= cvb /eligible xdef
 <action_postfix>
 totalIncome totalGroupIncome f&gt;= cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>59</action_number>
@@ -1929,7 +1946,7 @@ totalIncome totalGroupIncome f&gt;= cvb /eligible xdef
 <action_postfix>
 IncomeGroupCount totalGroupIncome &lt; cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>60</action_number>
@@ -1938,7 +1955,7 @@ IncomeGroupCount totalGroupIncome &lt; cvb /eligible xdef
 <action_postfix>
 totalIncome totalGroupIncome f&lt; cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>61</action_number>
@@ -1947,7 +1964,7 @@ totalIncome totalGroupIncome f&lt; cvb /eligible xdef
 <action_postfix>
 IncomeGroupCount totalGroupIncome &lt;= cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>62</action_number>
@@ -1956,7 +1973,7 @@ IncomeGroupCount totalGroupIncome &lt;= cvb /eligible xdef
 <action_postfix>
 totalIncome totalGroupIncome f&lt;= cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>63</action_number>
@@ -1965,7 +1982,7 @@ totalIncome totalGroupIncome f&lt;= cvb /eligible xdef
 <action_postfix>
 $aName $anotherName streq cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>64</action_number>
@@ -1974,7 +1991,7 @@ $aName $anotherName streq cvb /eligible xdef
 <action_postfix>
 $aName program streq cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>65</action_number>
@@ -1983,7 +2000,7 @@ $aName program streq cvb /eligible xdef
 <action_postfix>
 $aName $anotherName streq not cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>66</action_number>
@@ -1992,7 +2009,7 @@ $aName $anotherName streq not cvb /eligible xdef
 <action_postfix>
 $aName program streq not cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>67</action_number>
@@ -2001,7 +2018,7 @@ $aName program streq not cvb /eligible xdef
 <action_postfix>
 program programLevel streq cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>68</action_number>
@@ -2010,7 +2027,7 @@ program programLevel streq cvb /eligible xdef
 <action_postfix>
 program programLevel streq not cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>69</action_number>
@@ -2019,13 +2036,14 @@ program programLevel streq not cvb /eligible xdef
 <action_postfix>
 $aName $anotherName streq not cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>70</action_number>
 <action_comment>Error</action_comment>
 <action_dsl>// set eligible = client_ID at age starts with gender</action_dsl>
 <action_postfix></action_postfix>
+<columns>-</columns>
 </action_details>
 <action_details>
 <action_number>71</action_number>
@@ -2034,7 +2052,7 @@ $aName $anotherName streq not cvb /eligible xdef
 <action_postfix>
 client_ID programLevel startswith cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>72</action_number>
@@ -2043,7 +2061,7 @@ client_ID programLevel startswith cvb /eligible xdef
 <action_postfix>
 clients client_ID memberof cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>73</action_number>
@@ -2052,7 +2070,7 @@ clients client_ID memberof cvb /eligible xdef
 <action_postfix>
 clients client_ID memberof not cvb /eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -2269,9 +2287,7 @@ endif</initial_action_dsl>
 <condition_postfix>
 6 local@ true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
+<columns>N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -2280,9 +2296,7 @@ endif</initial_action_dsl>
 <condition_postfix>
 eligible true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
+<columns>-N-</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -2291,9 +2305,7 @@ eligible true beq
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -2304,15 +2316,14 @@ true
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
 <action_dsl>//add currentdate to the results</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -2321,7 +2332,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_2 performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -2470,9 +2481,7 @@ billingAddress cve /address xdef
 <condition_postfix>
 totalincome 42 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
+<columns>Y--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -2481,9 +2490,7 @@ totalincome 42 f&gt;
 <condition_postfix>
 pregnant false beq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
+<columns>-N-</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -2492,9 +2499,7 @@ pregnant false beq
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -2505,15 +2510,14 @@ true
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
 <action_dsl>//add currentdate to the results</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -2522,7 +2526,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_3 performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -2683,18 +2687,14 @@ client dup InterestingCases swap addto resolvedCases swap addto
 <condition_postfix>
 totalincome 42 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
+<columns>N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>//does effectiveDate == (1 months) ?</condition_comment>
 <condition_dsl />
 <condition_postfix></condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
+<columns>-N-</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -2703,9 +2703,7 @@ totalincome 42 f&gt;
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -2716,15 +2714,14 @@ true
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
 <action_dsl>//add currentdate to the results</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -2733,7 +2730,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_4 performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -2896,18 +2893,14 @@ clients dup { age 18 &lt; { dup 0 entityfetch remove } if } swap forallr pop
 <condition_postfix>
 totalincome 42 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
+<columns>N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>//does effectiveDate == (1 months) ?</condition_comment>
 <condition_dsl />
 <condition_postfix></condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
+<columns>-N-</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -2916,9 +2909,7 @@ totalincome 42 f&gt;
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -2929,15 +2920,14 @@ true
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
 <action_dsl>//add currentdate to the results</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -2946,7 +2936,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_5 performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -3109,18 +3099,14 @@ errorType location split /errorcodes xdef
 <condition_postfix>
 totalincome 42 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
+<columns>N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>//does effectiveDate == (1 months) ?</condition_comment>
 <condition_dsl />
 <condition_postfix></condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
+<columns>-N-</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -3129,9 +3115,7 @@ totalincome 42 f&gt;
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -3142,15 +3126,14 @@ true
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
 <action_dsl>//add currentdate to the results</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -3159,7 +3142,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_6 performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -3322,18 +3305,14 @@ effectiveDate 3 addyears /effectiveDate xdef
 <condition_postfix>
 totalincome 42 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
+<columns>N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>//does effectiveDate == (1 months) ?</condition_comment>
 <condition_dsl />
 <condition_postfix></condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
+<columns>-N-</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -3342,9 +3321,7 @@ totalincome 42 f&gt;
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -3355,15 +3332,14 @@ true
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
 <action_dsl>//add currentdate to the results</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -3372,7 +3348,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_7 performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -3535,9 +3511,7 @@ currentDate 8 addmonths cvdate /effectiveDate xdef
 <condition_postfix>
 totalincome 42 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
+<columns>N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -3546,9 +3520,7 @@ totalincome 42 f&gt;
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -3559,15 +3531,14 @@ true
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
 <action_dsl>//add currentdate to the results</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -3576,7 +3547,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_8 performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -3715,9 +3686,7 @@ effectiveDate endofmonth cvdate /currentDate xdef
 <condition_postfix>
 totalincome 42 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
+<columns>N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -3726,9 +3695,7 @@ totalincome 42 f&gt;
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -3739,15 +3706,14 @@ true
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
 <action_dsl>//add currentdate to the results</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -3756,7 +3722,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_9 performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -3902,9 +3868,7 @@ street zip + cvs /parent xdef
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -3915,15 +3879,14 @@ true
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
 <action_dsl>//add currentdate to the results</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -3932,7 +3895,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_10 performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -4075,9 +4038,7 @@ totalIncome totalGroupIncome fmul cvd /totalIncome xdef
 <condition_comment>//does test == true ?</condition_comment>
 <condition_dsl />
 <condition_postfix></condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
+<columns>N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4086,9 +4047,7 @@ totalIncome totalGroupIncome fmul cvd /totalIncome xdef
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -4099,15 +4058,14 @@ true
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
 <action_dsl>//add currentdate to the results</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -4116,7 +4074,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_11 performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -4268,9 +4226,7 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 <condition_comment>//does test == true ?</condition_comment>
 <condition_dsl />
 <condition_postfix></condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
+<columns>N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4279,9 +4235,7 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -4292,15 +4246,14 @@ true
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
 <action_dsl>//add currentdate to the results</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -4309,7 +4262,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_12 performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -4459,9 +4412,7 @@ street billingAddress + cvs /street xdef
 <condition_comment>//does test == true ?</condition_comment>
 <condition_dsl />
 <condition_postfix></condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
+<columns>N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4470,9 +4421,7 @@ street billingAddress + cvs /street xdef
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -4483,15 +4432,14 @@ true
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
 <action_dsl>//add currentdate to the results</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -4500,7 +4448,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_13 performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -4643,9 +4591,7 @@ totalIncome additionalIncome fmul cvd /totalIncome xdef
 <condition_comment>//does test == true ?</condition_comment>
 <condition_dsl />
 <condition_postfix></condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
+<columns>N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4654,9 +4600,7 @@ totalIncome additionalIncome fmul cvd /totalIncome xdef
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -4667,15 +4611,14 @@ true
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
 <action_dsl>//add currentdate to the results</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -4684,7 +4627,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_14 performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -4821,9 +4764,7 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 <condition_comment>//does test == true ?</condition_comment>
 <condition_dsl />
 <condition_postfix></condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
+<columns>N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4832,9 +4773,7 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -4845,15 +4784,14 @@ true
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
 <action_dsl>//add currentdate to the results</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -4862,7 +4800,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_15 performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -4947,22 +4885,7 @@ dup clients forall pop
 <condition_postfix>
 1 local@ 0 local@ streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>N---------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4971,22 +4894,7 @@ dup clients forall pop
 <condition_postfix>
 0 local@ 1 local@ streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>-N--------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -4995,22 +4903,7 @@ dup clients forall pop
 <condition_postfix>
 0 local@ 1 local@ streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>--N-------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -5019,22 +4912,7 @@ dup clients forall pop
 <condition_postfix>
 2 local@ 18 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>---N------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -5043,22 +4921,7 @@ dup clients forall pop
 <condition_postfix>
 2 local@ 18 &lt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>----N-----------</columns>
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -5067,22 +4930,7 @@ dup clients forall pop
 <condition_postfix>
 2 local@ 65 &gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>-----N----------</columns>
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -5091,22 +4939,7 @@ dup clients forall pop
 <condition_postfix>
 2 local@ 65 &lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>------N---------</columns>
 </condition_details>
 <condition_details>
 <condition_number>8</condition_number>
@@ -5115,22 +4948,7 @@ dup clients forall pop
 <condition_postfix>
 case_ID '22345' regexmatch
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>-------N--------</columns>
 </condition_details>
 <condition_details>
 <condition_number>9</condition_number>
@@ -5139,22 +4957,7 @@ case_ID '22345' regexmatch
 <condition_postfix>
 pregnant true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>--------N-------</columns>
 </condition_details>
 <condition_details>
 <condition_number>10</condition_number>
@@ -5163,22 +4966,7 @@ pregnant true beq
 <condition_postfix>
 pregnant true beq not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>---------N------</columns>
 </condition_details>
 <condition_details>
 <condition_number>11</condition_number>
@@ -5187,22 +4975,7 @@ pregnant true beq not
 <condition_postfix>
 pregnant true beq { pop 2 local@ 18 &lt; } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>----------N-----</columns>
 </condition_details>
 <condition_details>
 <condition_number>12</condition_number>
@@ -5211,22 +4984,7 @@ pregnant true beq { pop 2 local@ 18 &lt; } over if
 <condition_postfix>
 pregnant true beq { pop 2 local@ 18 &lt; } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>-----------N----</columns>
 </condition_details>
 <condition_details>
 <condition_number>13</condition_number>
@@ -5235,22 +4993,7 @@ pregnant true beq { pop 2 local@ 18 &lt; } over not if
 <condition_postfix>
 pregnant not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>------------N---</columns>
 </condition_details>
 <condition_details>
 <condition_number>14</condition_number>
@@ -5259,22 +5002,7 @@ pregnant not
 <condition_postfix>
 pregnant isnull
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>-------------N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>15</condition_number>
@@ -5283,22 +5011,7 @@ pregnant isnull
 <condition_postfix>
 pregnant isnull not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="16" column_value="-" />
+<columns>--------------N-</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -5309,21 +5022,7 @@ pregnant isnull not
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
-<action_column column_number="4" column_value="X" />
-<action_column column_number="5" column_value="X" />
-<action_column column_number="6" column_value="X" />
-<action_column column_number="7" column_value="X" />
-<action_column column_number="8" column_value="X" />
-<action_column column_number="9" column_value="X" />
-<action_column column_number="10" column_value="X" />
-<action_column column_number="11" column_value="X" />
-<action_column column_number="12" column_value="X" />
-<action_column column_number="13" column_value="X" />
-<action_column column_number="14" column_value="X" />
-<action_column column_number="15" column_value="X" />
+<columns>XXXXXXXXXXXXXXX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -5332,7 +5031,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_16 performtable
 </action_postfix>
-<action_column column_number="16" column_value="X" />
+<columns>---------------X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -5485,22 +5184,7 @@ newarray dup true addto 3 local!
 <condition_postfix>
 expectedChildren isnull
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>N---------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -5509,22 +5193,7 @@ expectedChildren isnull
 <condition_postfix>
 expectedChildren isnull not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>-N--------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -5533,22 +5202,7 @@ expectedChildren isnull not
 <condition_postfix>
 effectiveDate isnull
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>--N-------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -5557,22 +5211,7 @@ effectiveDate isnull
 <condition_postfix>
 errorCodes isnull
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>---N------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -5581,22 +5220,7 @@ errorCodes isnull
 <condition_postfix>
 case_ID isnull
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>----N-----------</columns>
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -5605,22 +5229,7 @@ case_ID isnull
 <condition_postfix>
 2 local@ isnull
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>-----N----------</columns>
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -5629,22 +5238,7 @@ case_ID isnull
 <condition_postfix>
 0 local@ isnull not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>------N---------</columns>
 </condition_details>
 <condition_details>
 <condition_number>8</condition_number>
@@ -5653,22 +5247,7 @@ case_ID isnull
 <condition_postfix>
 errorCodes isnull not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>-------N--------</columns>
 </condition_details>
 <condition_details>
 <condition_number>9</condition_number>
@@ -5677,22 +5256,7 @@ errorCodes isnull not
 <condition_postfix>
 case_ID isnull not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>--------N-------</columns>
 </condition_details>
 <condition_details>
 <condition_number>10</condition_number>
@@ -5701,22 +5265,7 @@ case_ID isnull not
 <condition_postfix>
 2 local@ isnull not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>---------N------</columns>
 </condition_details>
 <condition_details>
 <condition_number>11</condition_number>
@@ -5725,22 +5274,7 @@ case_ID isnull not
 <condition_postfix>
 2 local@ entitypush pregnant entitypop swap pop
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>----------N-----</columns>
 </condition_details>
 <condition_details>
 <condition_number>12</condition_number>
@@ -5749,22 +5283,7 @@ case_ID isnull not
 <condition_postfix>
 pregnant
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>-----------N----</columns>
 </condition_details>
 <condition_details>
 <condition_number>13</condition_number>
@@ -5773,22 +5292,7 @@ pregnant
 <condition_postfix>
 3 local@ 0 bytesidx cvb
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>------------N---</columns>
 </condition_details>
 <condition_details>
 <condition_number>14</condition_number>
@@ -5797,22 +5301,7 @@ pregnant
 <condition_postfix>
 4 local@ cvb
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="15" column_value="-" />
-<condition_column column_number="16" column_value="-" />
+<columns>-------------N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>15</condition_number>
@@ -5821,22 +5310,7 @@ pregnant
 <condition_postfix>
 flags 0 getat
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="N" />
-<condition_column column_number="16" column_value="-" />
+<columns>--------------N-</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -5847,21 +5321,7 @@ flags 0 getat
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
-<action_column column_number="4" column_value="X" />
-<action_column column_number="5" column_value="X" />
-<action_column column_number="6" column_value="X" />
-<action_column column_number="7" column_value="X" />
-<action_column column_number="8" column_value="X" />
-<action_column column_number="9" column_value="X" />
-<action_column column_number="10" column_value="X" />
-<action_column column_number="11" column_value="X" />
-<action_column column_number="12" column_value="X" />
-<action_column column_number="13" column_value="X" />
-<action_column column_number="14" column_value="X" />
-<action_column column_number="15" column_value="X" />
+<columns>XXXXXXXXXXXXXXX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -5870,7 +5330,7 @@ policystatements results true addarray
 <action_postfix>
 /Run_Test_17 performtable
 </action_postfix>
-<action_column column_number="16" column_value="X" />
+<columns>---------------X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -6001,19 +5461,7 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
+<columns>N------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -6022,19 +5470,7 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate &lt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
+<columns>-N-----------</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -6043,19 +5479,7 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate d&lt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
+<columns>--N----------</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -6064,19 +5488,7 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
+<columns>---N---------</columns>
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -6085,19 +5497,7 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate d&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
+<columns>----N--------</columns>
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -6106,19 +5506,7 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate &gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
+<columns>-----N-------</columns>
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -6127,19 +5515,7 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate &lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
+<columns>------N------</columns>
 </condition_details>
 <condition_details>
 <condition_number>8</condition_number>
@@ -6148,19 +5524,7 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate d&gt;= 0 local@ 1 local@ d&lt;= and
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="N" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
+<columns>-------N-----</columns>
 </condition_details>
 <condition_details>
 <condition_number>9</condition_number>
@@ -6169,19 +5533,7 @@ dup clients forall pop
 <condition_postfix>
 2 local@ client req
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
+<columns>--------N----</columns>
 </condition_details>
 <condition_details>
 <condition_number>10</condition_number>
@@ -6190,19 +5542,7 @@ dup clients forall pop
 <condition_postfix>
 2 local@ client req not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="N" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
+<columns>---------N---</columns>
 </condition_details>
 <condition_details>
 <condition_number>11</condition_number>
@@ -6211,19 +5551,7 @@ dup clients forall pop
 <condition_postfix>
 /address incontext not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="N" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
+<columns>----------N--</columns>
 </condition_details>
 <condition_details>
 <condition_number>12</condition_number>
@@ -6232,19 +5560,7 @@ dup clients forall pop
 <condition_postfix>
 /address incontext
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="13" column_value="-" />
+<columns>-----------N-</columns>
 </condition_details>
 <condition_details>
 <condition_number>13</condition_number>
@@ -6253,19 +5569,7 @@ dup clients forall pop
 <condition_postfix>
 "true" touppercase cvb
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="N" />
+<columns>------------N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -6276,19 +5580,7 @@ dup clients forall pop
 <action_postfix>
 policystatements results true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
-<action_column column_number="4" column_value="X" />
-<action_column column_number="5" column_value="X" />
-<action_column column_number="6" column_value="X" />
-<action_column column_number="7" column_value="X" />
-<action_column column_number="8" column_value="X" />
-<action_column column_number="9" column_value="X" />
-<action_column column_number="10" column_value="X" />
-<action_column column_number="11" column_value="X" />
-<action_column column_number="12" column_value="X" />
-<action_column column_number="13" column_value="X" />
+<columns>XXXXXXXXXXXXX</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -6396,7 +5688,7 @@ null allocate execute deallocate pop
 <condition_postfix>
 perform when called
 </condition_postfix>
-<condition_column column_number="1" column_value="*" />
+<columns>*</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -6405,7 +5697,7 @@ perform when called
 <condition_postfix>
 0 local@ currentdate streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -6414,7 +5706,7 @@ perform when called
 <condition_postfix>
 0 local@ currentdate streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -6423,7 +5715,7 @@ perform when called
 <condition_postfix>
 0 local@ currentdate streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -6432,7 +5724,7 @@ perform when called
 <condition_postfix>
 age 18 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -6441,7 +5733,7 @@ age 18 &gt;
 <condition_postfix>
 age 18 &lt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -6450,7 +5742,7 @@ age 18 &lt;
 <condition_postfix>
 age 12 &gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>8</condition_number>
@@ -6459,7 +5751,7 @@ age 12 &gt;=
 <condition_postfix>
 age 60 &lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>9</condition_number>
@@ -6468,7 +5760,7 @@ age 60 &lt;=
 <condition_postfix>
 1 local@ 'This is a string' regexmatch
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>10</condition_number>
@@ -6477,7 +5769,7 @@ age 60 &lt;=
 <condition_postfix>
 pregnant true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>11</condition_number>
@@ -6486,7 +5778,7 @@ pregnant true beq
 <condition_postfix>
 pregnant true beq not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>12</condition_number>
@@ -6495,7 +5787,7 @@ pregnant true beq not
 <condition_postfix>
 pregnant true beq { pop age 18 &lt; } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>13</condition_number>
@@ -6504,7 +5796,7 @@ pregnant true beq { pop age 18 &lt; } over if
 <condition_postfix>
 pregnant true beq { pop age 18 &lt; } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>14</condition_number>
@@ -6513,7 +5805,7 @@ pregnant true beq { pop age 18 &lt; } over not if
 <condition_postfix>
 pregnant not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>15</condition_number>
@@ -6522,7 +5814,7 @@ pregnant not
 <condition_postfix>
 pregnant isnull
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>16</condition_number>
@@ -6531,7 +5823,7 @@ pregnant isnull
 <condition_postfix>
 pregnant isnull not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>17</condition_number>
@@ -6540,7 +5832,7 @@ pregnant isnull not
 <condition_postfix>
 expectedChildren isnull
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>18</condition_number>
@@ -6549,7 +5841,7 @@ expectedChildren isnull
 <condition_postfix>
 expectedChildren isnull not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>19</condition_number>
@@ -6558,7 +5850,7 @@ expectedChildren isnull not
 <condition_postfix>
 effectiveDate isnull
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>20</condition_number>
@@ -6567,7 +5859,7 @@ effectiveDate isnull
 <condition_postfix>
 errorCodes isnull
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>21</condition_number>
@@ -6576,7 +5868,7 @@ errorCodes isnull
 <condition_postfix>
 1 local@ isnull
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>22</condition_number>
@@ -6585,7 +5877,7 @@ errorCodes isnull
 <condition_postfix>
 2 local@ isnull
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>23</condition_number>
@@ -6594,7 +5886,7 @@ errorCodes isnull
 <condition_postfix>
 0 local@ isnull not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>24</condition_number>
@@ -6603,7 +5895,7 @@ errorCodes isnull
 <condition_postfix>
 errorCodes isnull not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>25</condition_number>
@@ -6612,7 +5904,7 @@ errorCodes isnull not
 <condition_postfix>
 1 local@ isnull not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>26</condition_number>
@@ -6621,7 +5913,7 @@ errorCodes isnull not
 <condition_postfix>
 2 local@ isnull not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>27</condition_number>
@@ -6630,7 +5922,7 @@ errorCodes isnull not
 <condition_postfix>
 2 local@ entitypush pregnant entitypop swap pop
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>28</condition_number>
@@ -6639,7 +5931,7 @@ errorCodes isnull not
 <condition_postfix>
 pregnant
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>29</condition_number>
@@ -6648,7 +5940,7 @@ pregnant
 <condition_postfix>
 errorCodes 1 bytesidx cvb
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>30</condition_number>
@@ -6657,7 +5949,7 @@ errorCodes 1 bytesidx cvb
 <condition_postfix>
 1 local@ cvb
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>31</condition_number>
@@ -6666,7 +5958,7 @@ errorCodes 1 bytesidx cvb
 <condition_postfix>
 results 1 getat
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>32</condition_number>
@@ -6675,7 +5967,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>33</condition_number>
@@ -6684,7 +5976,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate &lt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>34</condition_number>
@@ -6693,7 +5985,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate d&lt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>35</condition_number>
@@ -6702,7 +5994,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>36</condition_number>
@@ -6711,7 +6003,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate d&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>37</condition_number>
@@ -6720,7 +6012,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate &gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>38</condition_number>
@@ -6729,7 +6021,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate &lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>39</condition_number>
@@ -6738,7 +6030,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate d&gt;= 0 local@ effectiveDate d&lt;= and
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>40</condition_number>
@@ -6747,7 +6039,7 @@ results 1 getat
 <condition_postfix>
 2 local@ client req
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>41</condition_number>
@@ -6756,7 +6048,7 @@ results 1 getat
 <condition_postfix>
 2 local@ client req not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>42</condition_number>
@@ -6765,7 +6057,7 @@ results 1 getat
 <condition_postfix>
 /address incontext not
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>43</condition_number>
@@ -6774,7 +6066,7 @@ results 1 getat
 <condition_postfix>
 /address incontext
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>44</condition_number>
@@ -6783,7 +6075,7 @@ results 1 getat
 <condition_postfix>
 1 local@ touppercase cvb
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
+<columns>-</columns>
 </condition_details>
 </conditions>
 <actions></actions>
@@ -6823,7 +6115,7 @@ dup job.cases forall pop
 <condition_postfix>
 case_ID isnull not
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -6834,7 +6126,7 @@ case_ID isnull not
 <action_postfix>
 /Syntax_Examples_5 performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -6843,7 +6135,7 @@ case_ID isnull not
 <action_postfix>
 /Run_Test_15 performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -6852,7 +6144,7 @@ case_ID isnull not
 <action_postfix>
 /Error_Handling_Table performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

@@ -25,10 +25,7 @@
 <condition_postfix>
 job.program KidAid streq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
+<columns>Y---</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -37,10 +34,7 @@ job.program KidAid streq
 <condition_postfix>
 job.program MEDICAID streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
+<columns>-Y--</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -49,10 +43,7 @@ job.program MEDICAID streq
 <condition_postfix>
 job.program FOODSTAMPS streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="-" />
+<columns>--Y-</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -61,10 +52,7 @@ job.program FOODSTAMPS streq
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="Y" />
+<columns>---Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -75,9 +63,7 @@ true
 <action_postfix>
 /Calculate_Individual_Income performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
+<columns>XXX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -86,9 +72,7 @@ true
 <action_postfix>
 /Calculate_Group_Size performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
+<columns>XXX-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -97,7 +81,7 @@ true
 <action_postfix>
 /Evaluate_KidAid_Eligibility performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -106,7 +90,7 @@ true
 <action_postfix>
 /Evaluate_MEDICAID_Eligibility performtable
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -115,7 +99,7 @@ true
 <action_postfix>
 /Evaluate_FOODSTAMPS_Eligibility performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -124,10 +108,7 @@ true
 <action_postfix>
 /Evaluate_Results performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
-<action_column column_number="4" column_value="X" />
+<columns>XXXX</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -191,8 +172,7 @@ dup incomes forall pop
 <condition_postfix>
 income.earned true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -201,8 +181,7 @@ income.earned true beq
 <condition_postfix>
 ExcludedIncomeTypes income.type memberof
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="N" />
+<columns>-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -213,8 +192,7 @@ ExcludedIncomeTypes income.type memberof
 <action_postfix>
 income.amount client.totalIncome + /client.totalIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -278,18 +256,7 @@ dup clients forall pop
 <condition_postfix>
 0 local@ client req
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="Y" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
+<columns>YY------Y---</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -298,18 +265,7 @@ dup clients forall pop
 <condition_postfix>
 0 local@ "parent" getrelationship client req
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="Y" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="Y" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
+<columns>--YY-----Y--</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -318,18 +274,7 @@ dup clients forall pop
 <condition_postfix>
 0 local@ "sibling" getrelationship client req
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="Y" />
-<condition_column column_number="6" column_value="Y" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="Y" />
-<condition_column column_number="12" column_value="-" />
+<columns>----YY----Y-</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -338,18 +283,7 @@ dup clients forall pop
 <condition_postfix>
 0 local@ "child" getrelationship client req
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="Y" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="Y" />
+<columns>------Y----Y</columns>
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -358,18 +292,7 @@ dup clients forall pop
 <condition_postfix>
 client.pregnant true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="Y" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="Y" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
+<columns>NYNYNY------</columns>
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -378,18 +301,7 @@ client.pregnant true beq
 <condition_postfix>
 client.age 18 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="Y" />
-<condition_column column_number="10" column_value="Y" />
-<condition_column column_number="11" column_value="Y" />
-<condition_column column_number="12" column_value="Y" />
+<columns>--------YYYY</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -400,13 +312,7 @@ client.age 18 &gt;
 <action_postfix>
 1 0 local@ entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
-<action_column column_number="4" column_value="X" />
-<action_column column_number="5" column_value="X" />
-<action_column column_number="6" column_value="X" />
-<action_column column_number="7" column_value="X" />
+<columns>XXXXXXX-----</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -415,9 +321,7 @@ client.age 18 &gt;
 <action_postfix>
 expectedChildren 0 local@ entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop
 </action_postfix>
-<action_column column_number="2" column_value="X" />
-<action_column column_number="4" column_value="X" />
-<action_column column_number="6" column_value="X" />
+<columns>-X-X-X------</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -426,10 +330,7 @@ expectedChildren 0 local@ entitypush IncomeGroupCount + /IncomeGroupCount xdef e
 <action_postfix>
 client.totalIncome 0 local@ entitypush totalGroupIncome + /totalGroupIncome xdef entitypop
 </action_postfix>
-<action_column column_number="9" column_value="X" />
-<action_column column_number="10" column_value="X" />
-<action_column column_number="11" column_value="X" />
-<action_column column_number="12" column_value="X" />
+<columns>--------XXXX</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -569,21 +470,7 @@ FPL_Base FPL_PerAdditionalPerson client.IncomeGroupCount 1 - * + cvi allocate ex
 <condition_postfix>
 validatedCitizenship
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="Y" />
-<condition_column column_number="6" column_value="Y" />
-<condition_column column_number="7" column_value="Y" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="Y" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="Y" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="13" column_value="N" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
+<columns>YYY-YYY-Y-YNN--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -592,21 +479,7 @@ validatedCitizenship
 <condition_postfix>
 CoveredCounties case.county_Cd memberof
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="Y" />
-<condition_column column_number="6" column_value="Y" />
-<condition_column column_number="7" column_value="Y" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="Y" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="Y" />
-<condition_column column_number="12" column_value="N" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="N" />
-<condition_column column_number="15" column_value="-" />
+<columns>YYY-YYY-Y-YN-N-</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -615,21 +488,7 @@ CoveredCounties case.county_Cd memberof
 <condition_postfix>
 client.age 1 &lt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="n" />
-<condition_column column_number="3" column_value="n" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="Y" />
-<condition_column column_number="6" column_value="n" />
-<condition_column column_number="7" column_value="n" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
+<columns>Ynn-Ynn--------</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -638,21 +497,7 @@ client.age 1 &lt;
 <condition_postfix>
 client.age 6 &lt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="n" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="Y" />
-<condition_column column_number="7" column_value="n" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
+<columns>-Yn--Yn--------</columns>
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -661,21 +506,7 @@ client.age 6 &lt;
 <condition_postfix>
 client.age 18 &lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="Y" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="Y" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="Y" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="N" />
+<columns>--Y---Y-Y-Y---N</columns>
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -684,21 +515,7 @@ client.age 18 &lt;=
 <condition_postfix>
 totalGroupIncome 0 local@ &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
+<columns>--Y------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -707,21 +524,7 @@ totalGroupIncome 0 local@ &gt;
 <condition_postfix>
 totalGroupIncome 1 local@ &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
+<columns>-Y-------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>8</condition_number>
@@ -730,21 +533,7 @@ totalGroupIncome 1 local@ &gt;
 <condition_postfix>
 totalGroupIncome 2 local@ &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
+<columns>Y--------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>9</condition_number>
@@ -753,21 +542,7 @@ totalGroupIncome 2 local@ &gt;
 <condition_postfix>
 totalGroupIncome 3 local@ &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="Y" />
-<condition_column column_number="6" column_value="Y" />
-<condition_column column_number="7" column_value="Y" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
+<columns>----YYY--------</columns>
 </condition_details>
 <condition_details>
 <condition_number>10</condition_number>
@@ -776,21 +551,7 @@ totalGroupIncome 3 local@ &gt;
 <condition_postfix>
 totalGroupIncome 4 local@ &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
+<columns>---------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>11</condition_number>
@@ -799,21 +560,7 @@ totalGroupIncome 4 local@ &gt;
 <condition_postfix>
 totalGroupIncome 5 local@ &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
+<columns>---------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>12</condition_number>
@@ -822,21 +569,7 @@ totalGroupIncome 5 local@ &gt;
 <condition_postfix>
 totalGroupIncome 3 local@ &lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
+<columns>YYY------------</columns>
 </condition_details>
 <condition_details>
 <condition_number>13</condition_number>
@@ -845,21 +578,7 @@ totalGroupIncome 3 local@ &lt;=
 <condition_postfix>
 totalGroupIncome 4 local@ &lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="Y" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="N" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
+<columns>----Y---N------</columns>
 </condition_details>
 <condition_details>
 <condition_number>14</condition_number>
@@ -868,21 +587,7 @@ totalGroupIncome 4 local@ &lt;=
 <condition_postfix>
 totalGroupIncome 5 local@ &lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="Y" />
-<condition_column column_number="7" column_value="-" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
+<columns>-----Y---------</columns>
 </condition_details>
 <condition_details>
 <condition_number>15</condition_number>
@@ -891,21 +596,7 @@ totalGroupIncome 5 local@ &lt;=
 <condition_postfix>
 totalGroupIncome 6 local@ &lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
-<condition_column column_number="5" column_value="-" />
-<condition_column column_number="6" column_value="-" />
-<condition_column column_number="7" column_value="Y" />
-<condition_column column_number="8" column_value="-" />
-<condition_column column_number="9" column_value="-" />
-<condition_column column_number="10" column_value="-" />
-<condition_column column_number="11" column_value="-" />
-<condition_column column_number="12" column_value="-" />
-<condition_column column_number="13" column_value="-" />
-<condition_column column_number="14" column_value="-" />
-<condition_column column_number="15" column_value="-" />
+<columns>------Y--------</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -916,9 +607,7 @@ totalGroupIncome 6 local@ &lt;=
 <action_postfix>
 FreeCoverage cvs /client.programLevel xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
+<columns>XXX------------</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -927,9 +616,7 @@ FreeCoverage cvs /client.programLevel xdef
 <action_postfix>
 LowCostCoverage cvs /client.programLevel xdef
 </action_postfix>
-<action_column column_number="5" column_value="X" />
-<action_column column_number="6" column_value="X" />
-<action_column column_number="7" column_value="X" />
+<columns>----XXX--------</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -938,7 +625,7 @@ LowCostCoverage cvs /client.programLevel xdef
 <action_postfix>
 AtCostCoverage cvs /client.programLevel xdef
 </action_postfix>
-<action_column column_number="9" column_value="X" />
+<columns>--------X------</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -947,10 +634,7 @@ AtCostCoverage cvs /client.programLevel xdef
 <action_postfix>
 false cvb /client.eligible xdef
 </action_postfix>
-<action_column column_number="11" column_value="X" />
-<action_column column_number="12" column_value="X" />
-<action_column column_number="13" column_value="X" />
-<action_column column_number="14" column_value="X" />
+<columns>----------XXXX-</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -959,7 +643,7 @@ false cvb /client.eligible xdef
 <action_postfix>
 "Client is eligible for Medicaid, so cannot enroll in KidAid" client.notes swap addto
 </action_postfix>
-<action_column column_number="11" column_value="X" />
+<columns>----------X----</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -968,8 +652,7 @@ false cvb /client.eligible xdef
 <action_postfix>
 "Must Provide Validation of Citizenship" client.notes swap addto
 </action_postfix>
-<action_column column_number="12" column_value="X" />
-<action_column column_number="13" column_value="X" />
+<columns>-----------XX--</columns>
 </action_details>
 <action_details>
 <action_number>7</action_number>
@@ -978,8 +661,7 @@ false cvb /client.eligible xdef
 <action_postfix>
 "Case must be within a KidAid County" client.notes swap addto
 </action_postfix>
-<action_column column_number="12" column_value="X" />
-<action_column column_number="14" column_value="X" />
+<columns>-----------X-X-</columns>
 </action_details>
 <action_details>
 <action_number>8</action_number>
@@ -988,7 +670,7 @@ false cvb /client.eligible xdef
 <action_postfix>
 "Must be 18 or younger to qualify for KidAid" client.notes swap addto
 </action_postfix>
-<action_column column_number="15" column_value="X" />
+<columns>--------------X</columns>
 </action_details>
 <action_details>
 <action_number>9</action_number>
@@ -997,18 +679,7 @@ false cvb /client.eligible xdef
 <action_postfix>
 100.0 totalGroupIncome fmul 0 local@ fdiv cvi /client_fpl xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
-<action_column column_number="5" column_value="X" />
-<action_column column_number="6" column_value="X" />
-<action_column column_number="7" column_value="X" />
-<action_column column_number="9" column_value="X" />
-<action_column column_number="11" column_value="X" />
-<action_column column_number="12" column_value="X" />
-<action_column column_number="13" column_value="X" />
-<action_column column_number="14" column_value="X" />
-<action_column column_number="15" column_value="X" />
+<columns>XXX-XXX-X-XXXXX</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -1047,7 +718,7 @@ dup clients forall pop
 <condition_postfix>
 client.applying true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -1058,7 +729,7 @@ client.applying true beq
 <action_postfix>
 false cvb /client.eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -1067,7 +738,7 @@ false cvb /client.eligible xdef
 <action_postfix>
 "The System does not yet support Medicaid Applications" client.notes swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -1106,7 +777,7 @@ dup clients forall pop
 <condition_postfix>
 client.applying true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -1117,7 +788,7 @@ client.applying true beq
 <action_postfix>
 false cvb /client.eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -1126,7 +797,7 @@ false cvb /client.eligible xdef
 <action_postfix>
 "The System does not yet support Food Stamp Applications" client.notes swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -1168,7 +839,7 @@ in this table, and update the test code to get the data from the client object.<
 <condition_postfix>
 perform when called
 </condition_postfix>
-<condition_column column_number="1" column_value="*" />
+<columns>*</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -1179,7 +850,7 @@ perform when called
 <action_postfix>
 /Result createentity entitypush
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -1188,7 +859,7 @@ perform when called
 <action_postfix>
 result job.results swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -1197,7 +868,7 @@ result job.results swap addto
 <action_postfix>
 case.notes Result.notes true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -1206,7 +877,7 @@ case.notes Result.notes true addarray
 <action_postfix>
 client.notes Result.notes true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -1215,7 +886,7 @@ client.notes Result.notes true addarray
 <action_postfix>
 client.client_id cvs /Result.client_id xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -1224,7 +895,7 @@ client.client_id cvs /Result.client_id xdef
 <action_postfix>
 client.client cve /Result.client xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>7</action_number>
@@ -1233,7 +904,7 @@ client.client cve /Result.client xdef
 <action_postfix>
 job.program cvs /Result.program xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>8</action_number>
@@ -1242,7 +913,7 @@ job.program cvs /Result.program xdef
 <action_postfix>
 client.programLevel cvs /Result.programLevel xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>9</action_number>
@@ -1251,7 +922,7 @@ client.programLevel cvs /Result.programLevel xdef
 <action_postfix>
 client.eligible cvb /Result.eligible xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>10</action_number>
@@ -1260,7 +931,7 @@ client.eligible cvb /Result.eligible xdef
 <action_postfix>
 client.client_fpl cvi /Result.client_fpl xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>11</action_number>
@@ -1269,7 +940,7 @@ client.client_fpl cvi /Result.client_fpl xdef
 <action_postfix>
 client.totalGroupIncome cvi /Result.totalGroupIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

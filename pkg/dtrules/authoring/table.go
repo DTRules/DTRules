@@ -172,7 +172,7 @@ func (t *Table) syncFromXML() {
 	for _, c := range t.xml.Conditions {
 		num, _ := strconv.Atoi(c.Number)
 		cols := make(map[int]string)
-		for _, cv := range c.Columns {
+		for _, cv := range c.EffectiveColumns() {
 			cols[cv.Number] = cv.Value
 		}
 		t.Conditions = append(t.Conditions, Condition{
@@ -187,7 +187,7 @@ func (t *Table) syncFromXML() {
 	for _, a := range t.xml.Actions {
 		num, _ := strconv.Atoi(a.Number)
 		cols := make(map[int]bool)
-		for _, cv := range a.Columns {
+		for _, cv := range a.EffectiveColumns() {
 			cols[cv.Number] = cv.Value != ""
 		}
 		t.Actions = append(t.Actions, Action{
@@ -291,23 +291,19 @@ func (t *Table) syncToXML() {
 		n, _ := strconv.Atoi(c.Number)
 		origConds[n] = c
 	}
+	width := t.tableWidth()
 	t.xml.Conditions = nil
 	for _, c := range t.Conditions {
-		var cols []excel.ColumnValueXML
-		for n, v := range c.Columns {
-			if v != "" {
-				cols = append(cols, excel.ColumnValueXML{Number: n, Value: v})
-			}
-		}
-		// Go map iteration is randomized, so writing columns in map order
-		// reshuffled them on every save and every authoring write produced a
-		// spurious diff. Emit them in column order.
-		sortColumns(cols)
+		// A row is written dense: one character per column, in order. The
+		// model still keys cells by column number, and Go randomizes map
+		// iteration, so the old sparse emission reshuffled columns on every
+		// save until a sort was added to hold it still. Rendering positionally
+		// removes the ordering question rather than answering it (#1079).
 		entry := excel.ConditionXML{
 			Number:  strconv.Itoa(c.Number),
 			Comment: c.Comment,
 			DSL:     c.DSL,
-			Columns: cols,
+			Cells:   cellsFromMap(c.Columns, width),
 		}
 		entry.Postfix = tc.compile(c.DSL, "condition")
 		t.xml.Conditions = append(t.xml.Conditions, entry)
@@ -316,18 +312,11 @@ func (t *Table) syncToXML() {
 	// Actions.
 	t.xml.Actions = nil
 	for _, a := range t.Actions {
-		var cols []excel.ColumnValueXML
-		for n, ok := range a.Columns {
-			if ok {
-				cols = append(cols, excel.ColumnValueXML{Number: n, Value: "X"})
-			}
-		}
-		sortColumns(cols)
 		entry := excel.ActionXML{
 			Number:  strconv.Itoa(a.Number),
 			Comment: a.Comment,
 			DSL:     a.DSL,
-			Columns: cols,
+			Cells:   cellsFromBoolMap(a.Columns, width),
 		}
 		entry.Postfix = tc.compile(a.DSL, "action")
 		t.xml.Actions = append(t.xml.Actions, entry)
@@ -740,4 +729,59 @@ func (t *Table) applyColumn(col int, conditions map[int]string, actions []int) {
 		}
 		t.Actions[i].Columns[col] = actionSet[a.Number]
 	}
+}
+
+// tableWidth is how many columns this table has: the widest row wins, so a
+// table never narrows because its last column happens to be don't-care.
+func (t *Table) tableWidth() int {
+	width := 0
+	for _, c := range t.Conditions {
+		for n := range c.Columns {
+			if n > width {
+				width = n
+			}
+		}
+	}
+	for _, a := range t.Actions {
+		for n := range a.Columns {
+			if n > width {
+				width = n
+			}
+		}
+	}
+	if width == 0 {
+		width = 1
+	}
+	return width
+}
+
+// cellsFromMap renders a condition row's cells positionally. Unset is
+// don't-care, which is what an absent key always meant.
+func cellsFromMap(cols map[int]string, width int) string {
+	row := make([]byte, width)
+	for i := range row {
+		row[i] = '-'
+	}
+	for n, v := range cols {
+		if n < 1 || n > width || v == "" {
+			continue
+		}
+		row[n-1] = v[0]
+	}
+	return string(row)
+}
+
+// cellsFromBoolMap is cellsFromMap for an action row, where a cell is either
+// taken ("X") or not ("-").
+func cellsFromBoolMap(cols map[int]bool, width int) string {
+	row := make([]byte, width)
+	for i := range row {
+		row[i] = '-'
+	}
+	for n, ok := range cols {
+		if ok && n >= 1 && n <= width {
+			row[n-1] = 'X'
+		}
+	}
+	return string(row)
 }

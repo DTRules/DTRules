@@ -25,9 +25,7 @@
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "NJ" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -36,9 +34,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "NJ"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "NJ" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="*" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>*YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -47,14 +43,14 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NJ" st
 <action_comment>Physical nexus established - filing required</action_comment>
 <action_dsl>// Physical nexus established - apportionment calculated by tables 7000-7500</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus established - filing required</action_comment>
 <action_dsl>// Economic nexus established per Wayfair - filing required</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -63,7 +59,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NJ" st
 <action_postfix>
 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -106,8 +102,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NJ" st
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -118,7 +113,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef apportionment.state_taxable_income cvd /result.nj_entire_net_income xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -127,7 +122,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef 0.0 cvd /result.nj_entire_net_income xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -166,9 +161,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
+<columns>YNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -177,9 +170,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="*" />
-<condition_column column_number="3" column_value="N" />
+<columns>Y*N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -190,7 +181,7 @@ apportionment.state_taxable_income 0 &gt;
 <action_postfix>
 apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -199,7 +190,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_postfix>
 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -208,7 +199,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_postfix>
 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -251,10 +242,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="Y" />
+<columns>YYNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -263,10 +251,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 result.nj_entire_net_income result.nj_surtax_threshold f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="*" />
-<condition_column column_number="4" column_value="Y" />
+<columns>YN*Y</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -275,10 +260,7 @@ result.nj_entire_net_income result.nj_surtax_threshold f&gt;
 <condition_postfix>
 apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="*" />
-<condition_column column_number="3" column_value="*" />
-<condition_column column_number="4" column_value="N" />
+<columns>Y**N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -289,7 +271,7 @@ apportionment.state_taxable_income 0 &gt;
 <action_postfix>
 result.nj_entire_net_income result.nj_surtax_rate fmul cvd /result.nj_surtax xdef apportionment.state_tax result.nj_surtax f+ cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -298,7 +280,7 @@ result.nj_entire_net_income result.nj_surtax_rate fmul cvd /result.nj_surtax xde
 <action_postfix>
 0.0 cvd /result.nj_surtax xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -307,7 +289,7 @@ result.nj_entire_net_income result.nj_surtax_rate fmul cvd /result.nj_surtax xde
 <action_postfix>
 0.0 cvd /result.nj_surtax xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -316,7 +298,7 @@ result.nj_entire_net_income result.nj_surtax_rate fmul cvd /result.nj_surtax xde
 <action_postfix>
 0.0 cvd /result.nj_surtax xdef
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X</columns>
 </action_details>
 </actions>
 <policy_statements>

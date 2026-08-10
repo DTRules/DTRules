@@ -30,10 +30,7 @@
 <condition_postfix>
 result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_commerce_tax_threshold f&lt; } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
+<columns>YNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -42,10 +39,7 @@ result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_commerce
 <condition_postfix>
 result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_commerce_tax_threshold f&gt;= } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
+<columns>NYNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -54,10 +48,7 @@ result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_commerce
 <condition_postfix>
 result.nv_gross_revenue result.nv_economic_nexus_threshold f&gt;= { pop result.nv_gross_revenue result.nv_commerce_tax_threshold f&gt;= } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
+<columns>NNYN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -68,7 +59,7 @@ result.nv_gross_revenue result.nv_economic_nexus_threshold f&gt;= { pop result.n
 <action_postfix>
 true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_commerce_tax xdef 0.0 cvi /result.state_tax xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -77,7 +68,7 @@ true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_commerce_tax
 <action_postfix>
 false cvb /result.nv_qualifies_for_exemption xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -86,7 +77,7 @@ false cvb /result.nv_qualifies_for_exemption xdef
 <action_postfix>
 false cvb /result.nv_qualifies_for_exemption xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -95,7 +86,7 @@ false cvb /result.nv_qualifies_for_exemption xdef
 <action_postfix>
 true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_commerce_tax xdef 0.0 cvi /result.state_tax xdef result.state_payments cvi /result.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -125,8 +116,7 @@ true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_commerce_tax
 <condition_postfix>
 result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_economic_nexus_threshold f&gt;= } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -137,7 +127,7 @@ result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_economic
 <action_postfix>
 0.0 cvi /result.state_tax_rate xdef 0.0 cvi /result.state_additions xdef 0.0 cvi /result.state_subtractions xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -146,7 +136,7 @@ result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_economic
 <action_postfix>
 0.0 cvi /result.state_tax_rate xdef 0.0 cvi /result.state_additions xdef 0.0 cvi /result.state_subtractions xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -181,14 +171,7 @@ result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_economic
 <condition_postfix>
 result.nv_business_classification financial streq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
+<columns>YNNNNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -197,14 +180,7 @@ result.nv_business_classification financial streq
 <condition_postfix>
 result.nv_business_classification mining streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
+<columns>NYNNNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -213,14 +189,7 @@ result.nv_business_classification mining streq
 <condition_postfix>
 result.nv_business_classification utilities streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
+<columns>NNYNNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -229,14 +198,7 @@ result.nv_business_classification utilities streq
 <condition_postfix>
 result.nv_business_classification professional streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="Y" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
+<columns>NNNYNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -245,14 +207,7 @@ result.nv_business_classification professional streq
 <condition_postfix>
 result.nv_business_classification retail streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="Y" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
+<columns>NNNNYNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -261,14 +216,7 @@ result.nv_business_classification retail streq
 <condition_postfix>
 result.nv_business_classification manufacturing streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="Y" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
+<columns>NNNNNYNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -277,14 +225,7 @@ result.nv_business_classification manufacturing streq
 <condition_postfix>
 result.nv_business_classification wholesale streq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="Y" />
-<condition_column column_number="8" column_value="N" />
+<columns>NNNNNNYN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -295,7 +236,7 @@ result.nv_business_classification wholesale streq
 <action_postfix>
 result.nv_financial_services_rate cvd /result.nv_commerce_tax_rate xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-------</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -304,7 +245,7 @@ result.nv_financial_services_rate cvd /result.nv_commerce_tax_rate xdef
 <action_postfix>
 result.nv_mining_rate cvd /result.nv_commerce_tax_rate xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X------</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -313,7 +254,7 @@ result.nv_mining_rate cvd /result.nv_commerce_tax_rate xdef
 <action_postfix>
 result.nv_utilities_rate cvd /result.nv_commerce_tax_rate xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-----</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -322,7 +263,7 @@ result.nv_utilities_rate cvd /result.nv_commerce_tax_rate xdef
 <action_postfix>
 result.nv_professional_services_rate cvd /result.nv_commerce_tax_rate xdef
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X----</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -331,7 +272,7 @@ result.nv_professional_services_rate cvd /result.nv_commerce_tax_rate xdef
 <action_postfix>
 result.nv_retail_trade_rate cvd /result.nv_commerce_tax_rate xdef
 </action_postfix>
-<action_column column_number="5" column_value="X" />
+<columns>----X---</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -340,7 +281,7 @@ result.nv_retail_trade_rate cvd /result.nv_commerce_tax_rate xdef
 <action_postfix>
 result.nv_manufacturing_rate cvd /result.nv_commerce_tax_rate xdef
 </action_postfix>
-<action_column column_number="6" column_value="X" />
+<columns>-----X--</columns>
 </action_details>
 <action_details>
 <action_number>7</action_number>
@@ -349,7 +290,7 @@ result.nv_manufacturing_rate cvd /result.nv_commerce_tax_rate xdef
 <action_postfix>
 result.nv_wholesale_trade_rate cvd /result.nv_commerce_tax_rate xdef
 </action_postfix>
-<action_column column_number="7" column_value="X" />
+<columns>------X-</columns>
 </action_details>
 <action_details>
 <action_number>8</action_number>
@@ -358,7 +299,7 @@ result.nv_wholesale_trade_rate cvd /result.nv_commerce_tax_rate xdef
 <action_postfix>
 result.nv_other_rate cvd /result.nv_commerce_tax_rate xdef
 </action_postfix>
-<action_column column_number="8" column_value="X" />
+<columns>-------X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -393,9 +334,7 @@ result.nv_other_rate cvd /result.nv_commerce_tax_rate xdef
 <condition_postfix>
 has_nexus { pop apportionment_percentage 0 &gt; } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -404,9 +343,7 @@ has_nexus { pop apportionment_percentage 0 &gt; } over if
 <condition_postfix>
 has_nexus { pop apportionment_percentage 0 == } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>NYN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -417,7 +354,7 @@ has_nexus { pop apportionment_percentage 0 == } over if
 <action_postfix>
 result.total_revenue result.apportionment_percentage * cvd /result.nv_sitused_revenue xdef result.nv_sitused_revenue cvd /result.nv_gross_revenue xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -426,7 +363,7 @@ result.total_revenue result.apportionment_percentage * cvd /result.nv_sitused_re
 <action_postfix>
 result.total_revenue cvd /result.nv_sitused_revenue xdef result.total_revenue cvd /result.nv_gross_revenue xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -435,7 +372,7 @@ result.total_revenue cvd /result.nv_sitused_revenue xdef result.total_revenue cv
 <action_postfix>
 0.0 cvd /result.nv_sitused_revenue xdef 0.0 cvd /result.nv_gross_revenue xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -470,9 +407,7 @@ result.total_revenue cvd /result.nv_sitused_revenue xdef result.total_revenue cv
 <condition_postfix>
 result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_economic_nexus_threshold f&gt;= } over not if { pop result.nv_gross_revenue result.nv_commerce_tax_threshold f&gt;= } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -481,9 +416,7 @@ result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_economic
 <condition_postfix>
 result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_economic_nexus_threshold f&gt;= } over not if { pop result.nv_gross_revenue result.nv_commerce_tax_threshold f&lt; } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>NYN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -494,7 +427,7 @@ result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_economic
 <action_postfix>
 result.nv_gross_revenue result.nv_commerce_tax_threshold f- 0.0 fmax cvd /result.nv_taxable_revenue xdef result.nv_taxable_revenue result.nv_commerce_tax_rate fmul cvd /result.nv_commerce_tax xdef result.nv_commerce_tax result.state_credits f- 0.0 fmax cvd /result.nv_commerce_tax xdef result.nv_commerce_tax cvi /result.state_tax xdef result.state_payments result.state_tax - cvi /result.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -503,7 +436,7 @@ result.nv_gross_revenue result.nv_commerce_tax_threshold f- 0.0 fmax cvd /result
 <action_postfix>
 true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_taxable_revenue xdef 0.0 cvd /result.nv_commerce_tax xdef 0.0 cvi /result.state_tax xdef result.state_payments cvi /result.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -512,7 +445,7 @@ true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_taxable_reve
 <action_postfix>
 true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_taxable_revenue xdef 0.0 cvd /result.nv_commerce_tax xdef 0.0 cvi /result.state_tax xdef result.state_payments cvi /result.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

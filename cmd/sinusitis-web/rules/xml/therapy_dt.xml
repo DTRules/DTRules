@@ -25,7 +25,7 @@
 <condition_postfix>
 patient.diagnosis "Acute Sinusitis" s==i
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -36,7 +36,7 @@ patient.diagnosis "Acute Sinusitis" s==i
 <action_postfix>
 /Determine_Creatinine_Clearance performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -45,7 +45,7 @@ patient.diagnosis "Acute Sinusitis" s==i
 <action_postfix>
 /Determine_Medication_And_Dosing performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -54,7 +54,7 @@ patient.diagnosis "Acute Sinusitis" s==i
 <action_postfix>
 /Check_Drug_Interactions performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

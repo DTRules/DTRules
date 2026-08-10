@@ -262,13 +262,17 @@ type DTConditions struct {
 
 // DTConditionDetail represents a single condition
 type DTConditionDetail struct {
-	Number      int              `xml:"condition_number" json:"condition_number"`
-	Comment     string           `xml:"condition_comment" json:"condition_comment,omitempty"`
-	Requirement string           `xml:"condition_requirement" json:"condition_requirement,omitempty"`
-	DSL         string           `xml:"condition_dsl" json:"condition_dsl,omitempty"`
-	Description string           `xml:"condition_description" json:"condition_description"`
-	Postfix     string           `xml:"condition_postfix" json:"condition_postfix"`
-	Columns     []DTConditionCol `xml:"condition_column" json:"condition_columns"`
+	Number      int    `xml:"condition_number" json:"condition_number"`
+	Comment     string `xml:"condition_comment" json:"condition_comment,omitempty"`
+	Requirement string `xml:"condition_requirement" json:"condition_requirement,omitempty"`
+	DSL         string `xml:"condition_dsl" json:"condition_dsl,omitempty"`
+	Description string `xml:"condition_description" json:"condition_description"`
+	Postfix     string `xml:"condition_postfix" json:"condition_postfix"`
+	// Cells is the dense form: one character per column, in order. Columns is
+	// the legacy sparse form, still parsed so older files keep loading. Read
+	// them through Row, never directly (#1079).
+	Cells   string           `xml:"columns" json:"columns,omitempty"`
+	Columns []DTConditionCol `xml:"condition_column" json:"condition_columns"`
 }
 
 // GetDSL returns the DSL expression, preferring DSL over Description for backward compatibility.
@@ -292,13 +296,15 @@ type DTActions struct {
 
 // DTActionDetail represents a single action
 type DTActionDetail struct {
-	Number      int           `xml:"action_number" json:"action_number"`
-	Comment     string        `xml:"action_comment" json:"action_comment,omitempty"`
-	Requirement string        `xml:"initial_action_requirement" json:"action_requirement,omitempty"`
-	DSL         string        `xml:"action_dsl" json:"action_dsl,omitempty"`
-	Description string        `xml:"action_description" json:"action_description"`
-	Postfix     string        `xml:"action_postfix" json:"action_postfix"`
-	Columns     []DTActionCol `xml:"action_column" json:"action_columns"`
+	Number      int    `xml:"action_number" json:"action_number"`
+	Comment     string `xml:"action_comment" json:"action_comment,omitempty"`
+	Requirement string `xml:"initial_action_requirement" json:"action_requirement,omitempty"`
+	DSL         string `xml:"action_dsl" json:"action_dsl,omitempty"`
+	Description string `xml:"action_description" json:"action_description"`
+	Postfix     string `xml:"action_postfix" json:"action_postfix"`
+	// See DTConditionDetail.Cells.
+	Cells   string        `xml:"columns" json:"columns,omitempty"`
+	Columns []DTActionCol `xml:"action_column" json:"action_columns"`
 }
 
 // GetDSL returns the DSL expression, preferring DSL over Description for backward compatibility.
@@ -505,18 +511,7 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		conditionsPostfix[i] = postfix
 		conditionsComment[i] = cond.Comment
 
-		// Initialize row with "-" (don't care)
-		conditionTable[i] = make([]string, maxCol)
-		for j := range conditionTable[i] {
-			conditionTable[i][j] = "-"
-		}
-
-		// Fill in specified column values
-		for _, col := range cond.Columns {
-			if col.ColumnNumber > 0 && col.ColumnNumber <= maxCol {
-				conditionTable[i][col.ColumnNumber-1] = col.ColumnValue
-			}
-		}
+		conditionTable[i] = cond.Row(maxCol)
 	}
 	builder.SetConditions(conditions)
 	builder.SetConditionsComment(conditionsComment)
@@ -543,18 +538,7 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		actionsPostfix[i] = postfix
 		actionsComment[i] = action.Comment
 
-		// Initialize row with empty (no action)
-		actionTable[i] = make([]string, maxCol)
-		for j := range actionTable[i] {
-			actionTable[i][j] = ""
-		}
-
-		// Fill in specified column values
-		for _, col := range action.Columns {
-			if col.ColumnNumber > 0 && col.ColumnNumber <= maxCol {
-				actionTable[i][col.ColumnNumber-1] = col.ColumnValue
-			}
-		}
+		actionTable[i] = action.Row(maxCol)
 	}
 	builder.SetActions(actions)
 	builder.SetActionsComment(actionsComment)
@@ -641,7 +625,13 @@ func (l *DTLoader) processTable(table *DTTable) error {
 func (l *DTLoader) getMaxColumn(table *DTTable) int {
 	maxCol := 0
 
+	// Under the dense form the width is simply the row length -- no inference,
+	// and no way for a trailing don't-care to narrow the table. The sparse
+	// scan below stays for files that predate it (#1079).
 	for _, cond := range table.Conditions.Conditions {
+		if n := len(cond.Cells); n > maxCol {
+			maxCol = n
+		}
 		for _, col := range cond.Columns {
 			if col.ColumnNumber > maxCol {
 				maxCol = col.ColumnNumber
@@ -650,6 +640,9 @@ func (l *DTLoader) getMaxColumn(table *DTTable) int {
 	}
 
 	for _, action := range table.Actions.Actions {
+		if n := len(action.Cells); n > maxCol {
+			maxCol = n
+		}
 		for _, col := range action.Columns {
 			if col.ColumnNumber > maxCol {
 				maxCol = col.ColumnNumber
@@ -1067,4 +1060,55 @@ func isCommentLine(s string) bool {
 		return true
 	}
 	return strings.HasPrefix(trimmed, "//") || strings.HasPrefix(trimmed, "#")
+}
+
+// Row renders a condition row's cells at the given width, whichever form the
+// file used. A grid has one width; a row that is short is padded with
+// don't-care, which is what an absent cell always meant.
+func (c *DTConditionDetail) Row(width int) []string {
+	return denseRow(c.Cells, len(c.Columns), width, func(i int) (int, string) {
+		return c.Columns[i].ColumnNumber, c.Columns[i].ColumnValue
+	})
+}
+
+// Row is DTConditionDetail.Row for an action row, with one difference: an
+// action cell that is not "x" is empty, not don't-care.
+//
+// The XML uses '-' for both, because a fixed-width row needs a character and
+// '-' is the one a reader already understands. Only the runtime's "x" test
+// distinguishes them, so the two are interchangeable to execution -- but the
+// Excel exporter writes action cells through verbatim, and authors expect a
+// blank beside an X, not a grid of dashes. Translating back here keeps the XML
+// dense and the sheet conventional.
+func (a *DTActionDetail) Row(width int) []string {
+	row := denseRow(a.Cells, len(a.Columns), width, func(i int) (int, string) {
+		return a.Columns[i].ColumnNumber, a.Columns[i].ColumnValue
+	})
+	for i, v := range row {
+		if v == "-" {
+			row[i] = ""
+		}
+	}
+	return row
+}
+
+// denseRow builds a fixed-width row from either representation.
+func denseRow(cells string, n, width int, at func(int) (int, string)) []string {
+	row := make([]string, width)
+	for i := range row {
+		row[i] = "-"
+	}
+	if cells != "" {
+		for i := 0; i < len(cells) && i < width; i++ {
+			row[i] = string(cells[i])
+		}
+		return row
+	}
+	for i := 0; i < n; i++ {
+		num, val := at(i)
+		if num > 0 && num <= width {
+			row[num-1] = val
+		}
+	}
+	return row
 }

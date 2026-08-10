@@ -32,7 +32,7 @@
 <condition_postfix>
 player.archetype "TAG" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y---</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -41,7 +41,7 @@ player.archetype "TAG" streq
 <condition_postfix>
 player.archetype "LAG" streq
 </condition_postfix>
-<condition_column column_number="2" column_value="Y" />
+<columns>-Y--</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -50,7 +50,7 @@ player.archetype "LAG" streq
 <condition_postfix>
 player.archetype "Rock" streq
 </condition_postfix>
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y-</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -59,7 +59,7 @@ player.archetype "Rock" streq
 <condition_postfix>
 player.archetype "Calling" streq
 </condition_postfix>
-<condition_column column_number="4" column_value="Y" />
+<columns>---Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -70,7 +70,7 @@ player.archetype "Calling" streq
 <action_postfix>
 /TAG_Decision performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -79,7 +79,7 @@ player.archetype "Calling" streq
 <action_postfix>
 /LAG_Decision performtable
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -88,7 +88,7 @@ player.archetype "Calling" streq
 <action_postfix>
 /Rock_Decision performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -97,7 +97,7 @@ player.archetype "Calling" streq
 <action_postfix>
 /CallingStation_Decision performtable
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -106,10 +106,7 @@ player.archetype "Calling" streq
 <action_postfix>
 decision game.decisions swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
-<action_column column_number="4" column_value="X" />
+<columns>XXXX</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -156,7 +153,7 @@ decision game.decisions swap addto
 <condition_postfix>
 perform when called
 </condition_postfix>
-<condition_column column_number="1" column_value="*" />
+<columns>*</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -187,7 +184,7 @@ endif</action_dsl>
 <action_postfix>
 { "RAISE" cvs /decision.action xdef game.big_blind 3 fmul cvd /decision.raise_amount xdef "TAG: Strong hand, RAISE 3x BB" cvs /decision.reasoning xdef } {} player.hand_strength 0.70 f&gt;= ifelse { "CALL" cvs /decision.action xdef "TAG: Medium hand with good pot odds, CALL" cvs /decision.reasoning xdef } {} decision.action isnull { pop player.hand_strength 0.50 f&gt;= } over if { pop player.pot_odds player.hand_strength 0.8 fmul f&lt; } over if ifelse { "CHECK" cvs /decision.action xdef "TAG: Medium hand, poor odds, CHECK" cvs /decision.reasoning xdef } {} decision.action isnull { pop player.hand_strength 0.50 f&gt;= } over if { pop player.can_check } over if ifelse { "CHECK" cvs /decision.action xdef "TAG: Weak hand, CHECK for free card" cvs /decision.reasoning xdef } {} decision.action isnull { pop player.hand_strength 0.50 f&lt; } over if { pop player.can_check } over if ifelse { "FOLD" cvs /decision.action xdef "TAG: Default FOLD" cvs /decision.reasoning xdef } {} decision.action isnull ifelse
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -222,11 +219,7 @@ endif</action_dsl>
 <condition_postfix>
 player.hand_strength 0.50 f&gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
+<columns>YNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -235,10 +228,7 @@ player.hand_strength 0.50 f&gt;=
 <condition_postfix>
 player.position "late" streq { pop player.position "button" streq } over not if
 </condition_postfix>
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
+<columns>-YYNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -247,10 +237,7 @@ player.position "late" streq { pop player.position "button" streq } over not if
 <condition_postfix>
 player.hand_strength 0.25 f&gt;=
 </condition_postfix>
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="Y" />
-<condition_column column_number="5" column_value="N" />
+<columns>-YNYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -259,7 +246,7 @@ player.hand_strength 0.25 f&gt;=
 <condition_postfix>
 player.can_check true beq
 </condition_postfix>
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y--</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -270,8 +257,7 @@ player.can_check true beq
 <action_postfix>
 "RAISE" cvs /decision.action xdef game.big_blind 2.5 fmul cvd /decision.raise_amount xdef "LAG: Hand &gt;= 50% or good position with &gt;= 25%, RAISE" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -280,7 +266,7 @@ player.can_check true beq
 <action_postfix>
 "CHECK" cvs /decision.action xdef "LAG: Weak hand in position, CHECK for free card" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -289,7 +275,7 @@ player.can_check true beq
 <action_postfix>
 "CALL" cvs /decision.action xdef "LAG: Marginal hand (&gt;= 25%) out of position, CALL" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -298,7 +284,7 @@ player.can_check true beq
 <action_postfix>
 "FOLD" cvs /decision.action xdef "LAG: Weak hand (less than 25%) out of position, FOLD" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="5" column_value="X" />
+<columns>----X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -349,10 +335,7 @@ player.can_check true beq
 <condition_postfix>
 player.hand_strength 0.85 f&gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
+<columns>YNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -361,9 +344,7 @@ player.hand_strength 0.85 f&gt;=
 <condition_postfix>
 player.hand_strength 0.60 f&gt;=
 </condition_postfix>
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
+<columns>-YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -372,8 +353,7 @@ player.hand_strength 0.60 f&gt;=
 <condition_postfix>
 player.can_check true beq
 </condition_postfix>
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
+<columns>--YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -384,7 +364,7 @@ player.can_check true beq
 <action_postfix>
 "RAISE" cvs /decision.action xdef game.big_blind 2 fmul cvd /decision.raise_amount xdef "Rock: Monster hand (&gt;= 85%), RAISE (rare for Rock)" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -393,7 +373,7 @@ player.can_check true beq
 <action_postfix>
 "CALL" cvs /decision.action xdef "Rock: Strong hand (60-85%), CALL to see the showdown" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -402,7 +382,7 @@ player.can_check true beq
 <action_postfix>
 "CHECK" cvs /decision.action xdef "Rock: Weak hand (less than 60%), CHECK for free card" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -411,7 +391,7 @@ player.can_check true beq
 <action_postfix>
 "FOLD" cvs /decision.action xdef "Rock: Weak hand (less than 60%) facing a bet, FOLD" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -458,10 +438,7 @@ player.can_check true beq
 <condition_postfix>
 player.hand_strength 0.20 f&gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
+<columns>YNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -470,9 +447,7 @@ player.hand_strength 0.20 f&gt;=
 <condition_postfix>
 player.is_small_bet true beq
 </condition_postfix>
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
+<columns>-YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -481,8 +456,7 @@ player.is_small_bet true beq
 <condition_postfix>
 player.can_check true beq
 </condition_postfix>
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
+<columns>--YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -493,7 +467,7 @@ player.can_check true beq
 <action_postfix>
 "CALL" cvs /decision.action xdef "Calling Station: Any hand &gt;= 20%, CALL (love to see showdowns)" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -502,7 +476,7 @@ player.can_check true beq
 <action_postfix>
 "CALL" cvs /decision.action xdef "Calling Station: Small bet, CALL (too cheap to fold)" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -511,7 +485,7 @@ player.can_check true beq
 <action_postfix>
 "CHECK" cvs /decision.action xdef "Calling Station: Weak hand but can check, CHECK" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -520,7 +494,7 @@ player.can_check true beq
 <action_postfix>
 "FOLD" cvs /decision.action xdef "Calling Station: Very weak hand (less than 20%) with large bet, FOLD (reluctantly)" cvs /decision.reasoning xdef
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -576,7 +550,7 @@ dup game.players forall pop
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -587,7 +561,7 @@ true
 <action_postfix>
 /Poker_Decision performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements>
