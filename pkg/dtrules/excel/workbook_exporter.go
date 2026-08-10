@@ -98,6 +98,11 @@ func (w *WorkbookExporter) ExportDecisionTable(xmlPath, excelPath string) error 
 	if err := rs.LoadDecisionTablesTolerantFile(xmlPath); err != nil {
 		return fmt.Errorf("failed to load decision table: %w", err)
 	}
+	// Tolerance is for partially-compiled DSL, not for losing tables. See
+	// AssertRuleSetCovers (#1081).
+	if err := AssertRuleSetCovers(rs, xmlPath); err != nil {
+		return err
+	}
 
 	// Ensure parent directory exists
 	if err := os.MkdirAll(filepath.Dir(excelPath), 0755); err != nil {
@@ -198,6 +203,11 @@ func (w *WorkbookExporter) ExportCombined(dtPath, eddPath, excelPath string) err
 		if _, err := os.Stat(dtPath); err == nil {
 			if err := rs.LoadDecisionTablesTolerantFile(dtPath); err != nil {
 				return fmt.Errorf("failed to load decision table: %w", err)
+			}
+			// Tolerance is for partially-compiled DSL, not for losing
+			// tables (#1081).
+			if err := AssertRuleSetCovers(rs, dtPath); err != nil {
+				return err
 			}
 		}
 	}

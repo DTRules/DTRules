@@ -251,6 +251,12 @@ func loadRuleSetForExportInDir(xmlDir string) (*session.RuleSet, error) {
 			return nil, fmt.Errorf("load dt %s: %w", dtPath, err)
 		}
 	}
+	// Tolerance is for partially-compiled DSL, not for losing tables. An
+	// export that quietly omits one writes a workbook that cannot regenerate
+	// the project it came from (#1081).
+	if err := excel.AssertRuleSetCovers(rs, dtPaths...); err != nil {
+		return nil, err
+	}
 	return rs, nil
 }
 
