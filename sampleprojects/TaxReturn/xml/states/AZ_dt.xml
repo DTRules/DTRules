@@ -1,29 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 40301: AZ_Military_Retirement_Exclusion -->
-<decision_table>
-<source>
-<relative_path>AZ.xlsx</relative_path>
-<file_name>AZ.xlsx</file_name>
-<sheet_number>2</sheet_number>
-</source>
-<table_name>AZ_Military_Retirement_Exclusion</table_name>
-<xls_file>AZ.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>Arizona military retirement income exclusion. Skeleton: per ARS § 43-1022 (2025), provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA / SCRA. Not currently wired in — see issue #446.</COMMENTS>
-<TABLE_NUMBER>40301</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions></initial_actions>
-<conditions></conditions>
-<actions></actions>
-<policy_statements></policy_statements>
-</decision_table>
-
 <!-- TABLE 40300: AZ_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>AZ.xlsx</relative_path>
 <file_name>AZ.xlsx</file_name>
@@ -39,7 +18,6 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset AZ tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.az_state_tax = 0; set result.az_taxable_income = 0; add "  Arizona Tax Calculation (Form 140) - flat 2.5%" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
 0 cvd /result.az_state_tax xdef 0 cvd /result.az_taxable_income xdef "  Arizona Tax Calculation (Form 140) - flat 2.5%" job.audit_trail swap addto
@@ -54,9 +32,9 @@
 <condition_postfix>
 job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 </condition_postfix>
-<condition_column column_number="3" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -65,7 +43,6 @@ job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 <condition_postfix>
 job.filing_status "HOH" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -103,7 +80,7 @@ result.agi 15750.0 f- 0.0 fmax cvd /result.az_taxable_income xdef result.az_taxa
 <action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
 <action_dsl>set result.computed_state_taxable_income = result.az_taxable_income; set result.computed_state_tax = result.az_state_tax</action_dsl>
 <action_postfix>
-result.az_taxable_income cvd /result.computed_state_taxable_income xdef result.az_state_tax cvd /result.computed_state_tax xdef
+result.az_taxable_income cvi /result.computed_state_taxable_income xdef result.az_state_tax cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
@@ -113,16 +90,37 @@ result.az_taxable_income cvd /result.computed_state_taxable_income xdef result.a
 <policy_statements>
 <policy_statement column="1">
 <policy_description>AZ tax MFJ: 2.5% × max(AGI − $31,500, 0)</policy_description>
-<policy_statement_postfix>"AZ flat tax MFJ per ARS § 43-1011, 2.5% rate, $31,500 standard deduction"</policy_statement_postfix>
+<policy_statement_postfix>"AZ tax MFJ: 2.5% × max(AGI − $31,500, 0)"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>AZ tax HOH: 2.5% × max(AGI − $15,750, 0)</policy_description>
-<policy_statement_postfix>"AZ flat tax HOH per ARS § 43-1011, 2.5% rate, $15,750 standard deduction"</policy_statement_postfix>
+<policy_statement_postfix>"AZ tax HOH: 2.5% × max(AGI − $15,750, 0)"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>AZ tax Single/MFS: 2.5% × max(AGI − $15,750, 0)</policy_description>
-<policy_statement_postfix>"AZ flat tax Single/MFS per ARS § 43-1011, 2.5% rate, $15,750 standard deduction"</policy_statement_postfix>
+<policy_statement_postfix>"AZ tax Single/MFS: 2.5% × max(AGI − $15,750, 0)"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
+</decision_table>
+
+<!-- TABLE 40301: AZ_Military_Retirement_Exclusion -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>AZ.xlsx</relative_path>
+<file_name>AZ.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
+<table_name>AZ_Military_Retirement_Exclusion</table_name>
+<xls_file>AZ.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>Arizona military retirement income exclusion. Skeleton: per ARS § 43-1022 (2025), provides 100% exclusion for military retirement pay and SBP payments. Honors MSRRA / SCRA. Not currently wired in — see issue #446.</COMMENTS>
+<TABLE_NUMBER>40301</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

@@ -89,6 +89,10 @@ job.filing_status "head_of_household" streq
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>SD progressive tax MFJ with standard deduction</policy_description>
+<policy_statement_postfix>"SD progressive tax MFJ with standard deduction"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>SD progressive tax Single with standard deduction</policy_description>
 <policy_statement_postfix>"SD progressive tax Single with standard deduction"</policy_statement_postfix>

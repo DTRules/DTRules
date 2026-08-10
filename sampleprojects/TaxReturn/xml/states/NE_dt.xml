@@ -2,7 +2,7 @@
 <decision_tables>
 
 <!-- TABLE 52616: NE_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>NE.xlsx</relative_path>
 <file_name>NE.xlsx</file_name>
@@ -18,10 +18,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset and log</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Nebraska Tax Calculation (top marginal 5.84%)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Nebraska Tax Calculation (top marginal 5.84%)" job.audit_trail swap addto
+0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef "  Nebraska Tax Calculation (top marginal 5.84%)" job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -33,9 +32,9 @@
 <condition_postfix>
 job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 </condition_postfix>
-<condition_column column_number="3" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -44,7 +43,6 @@ job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 <condition_postfix>
 job.filing_status "HOH" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -55,7 +53,7 @@ job.filing_status "HOH" streq
 <action_comment>MFJ/QSS: $15,800 std ded, 5.84%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 15800.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0584</action_dsl>
 <action_postfix>
-result.agi 15800.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0584 fmul cvd /result.computed_state_tax xdef
+result.agi 15800.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0584 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -64,7 +62,7 @@ result.agi 15800.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef re
 <action_comment>HOH: $11,650 std ded, 5.84%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 11650.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0584</action_dsl>
 <action_postfix>
-result.agi 11650.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0584 fmul cvd /result.computed_state_tax xdef
+result.agi 11650.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0584 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -73,7 +71,7 @@ result.agi 11650.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef re
 <action_comment>Default (Single/MFS): $7,900 std ded, 5.84%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 7900.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0584</action_dsl>
 <action_postfix>
-result.agi 7900.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0584 fmul cvd /result.computed_state_tax xdef
+result.agi 7900.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0584 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -81,15 +79,15 @@ result.agi 7900.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef res
 <policy_statements>
 <policy_statement column="1">
 <policy_description>NE MFJ: 5.84% x max(AGI - $15,800, 0) per Neb. Rev. Stat. § 77-2715</policy_description>
-<policy_statement_postfix>"Nebraska MFJ top-marginal-rate approximation per Neb. Rev. Stat. § 77-2715"</policy_statement_postfix>
+<policy_statement_postfix>"NE MFJ: 5.84% x max(AGI - $15,800, 0) per Neb. Rev. Stat. § 77-2715"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>NE HOH: 5.84% x max(AGI - $11,650, 0) per Neb. Rev. Stat. § 77-2715</policy_description>
-<policy_statement_postfix>"Nebraska HOH top-marginal-rate approximation per Neb. Rev. Stat. § 77-2715"</policy_statement_postfix>
+<policy_statement_postfix>"NE HOH: 5.84% x max(AGI - $11,650, 0) per Neb. Rev. Stat. § 77-2715"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>NE Single/MFS: 5.84% x max(AGI - $7,900, 0) per Neb. Rev. Stat. § 77-2715</policy_description>
-<policy_statement_postfix>"Nebraska Single/MFS top-marginal-rate approximation per Neb. Rev. Stat. § 77-2715"</policy_statement_postfix>
+<policy_statement_postfix>"NE Single/MFS: 5.84% x max(AGI - $7,900, 0) per Neb. Rev. Stat. § 77-2715"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

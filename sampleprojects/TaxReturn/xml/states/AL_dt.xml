@@ -2,7 +2,7 @@
 <decision_tables>
 
 <!-- TABLE 50044: AL_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>AL.xlsx</relative_path>
 <file_name>AL.xlsx</file_name>
@@ -18,10 +18,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset and log</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Alabama Tax Calculation (top marginal 5%)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Alabama Tax Calculation (top marginal 5%)" job.audit_trail swap addto
+0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef "  Alabama Tax Calculation (top marginal 5%)" job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -33,9 +32,9 @@
 <condition_postfix>
 job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 </condition_postfix>
-<condition_column column_number="3" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -44,9 +43,8 @@ job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 <condition_postfix>
 job.filing_status "HOH" streq
 </condition_postfix>
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
@@ -55,7 +53,7 @@ job.filing_status "HOH" streq
 <action_comment>MFJ/QSS: $7,500 std ded, 5%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 7500.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.05</action_dsl>
 <action_postfix>
-result.agi 7500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.05 fmul cvd /result.computed_state_tax xdef
+result.agi 7500.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.05 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -64,7 +62,7 @@ result.agi 7500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef res
 <action_comment>HOH: $4,700 std ded, 5%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 4700.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.05</action_dsl>
 <action_postfix>
-result.agi 4700.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.05 fmul cvd /result.computed_state_tax xdef
+result.agi 4700.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.05 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -73,7 +71,7 @@ result.agi 4700.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef res
 <action_comment>Default (Single/MFS): $2,500 std ded, 5%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 2500.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.05</action_dsl>
 <action_postfix>
-result.agi 2500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.05 fmul cvd /result.computed_state_tax xdef
+result.agi 2500.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.05 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -81,15 +79,15 @@ result.agi 2500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef res
 <policy_statements>
 <policy_statement column="1">
 <policy_description>AL MFJ: 5% x max(AGI - $7,500, 0) per Code of Ala. § 40-18-5</policy_description>
-<policy_statement_postfix>"Alabama MFJ top-marginal-rate approximation per Code of Ala. § 40-18-5"</policy_statement_postfix>
+<policy_statement_postfix>"AL MFJ: 5% x max(AGI - $7,500, 0) per Code of Ala. § 40-18-5"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>AL HOH: 5% x max(AGI - $4,700, 0) per Code of Ala. § 40-18-5</policy_description>
-<policy_statement_postfix>"Alabama HOH top-marginal-rate approximation per Code of Ala. § 40-18-5"</policy_statement_postfix>
+<policy_statement_postfix>"AL HOH: 5% x max(AGI - $4,700, 0) per Code of Ala. § 40-18-5"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>AL Single/MFS: 5% x max(AGI - $2,500, 0) per Code of Ala. § 40-18-5</policy_description>
-<policy_statement_postfix>"Alabama Single/MFS top-marginal-rate approximation per Code of Ala. § 40-18-5"</policy_statement_postfix>
+<policy_statement_postfix>"AL Single/MFS: 5% x max(AGI - $2,500, 0) per Code of Ala. § 40-18-5"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

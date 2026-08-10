@@ -2,7 +2,7 @@
 <decision_tables>
 
 <!-- TABLE 54200: VA_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>VA.xlsx</relative_path>
 <file_name>VA.xlsx</file_name>
@@ -18,10 +18,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset and log</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Virginia Tax Calculation (top marginal 5.75%)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Virginia Tax Calculation (top marginal 5.75%)" job.audit_trail swap addto
+0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef "  Virginia Tax Calculation (top marginal 5.75%)" job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -33,9 +32,9 @@
 <condition_postfix>
 job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 </condition_postfix>
-<condition_column column_number="3" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -44,9 +43,8 @@ job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 <condition_postfix>
 job.filing_status "HOH" streq
 </condition_postfix>
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
@@ -55,7 +53,7 @@ job.filing_status "HOH" streq
 <action_comment>MFJ/QSS: $17,000 std ded, 5.75%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 17000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
 <action_postfix>
-result.agi 17000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
+result.agi 17000.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -64,7 +62,7 @@ result.agi 17000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef re
 <action_comment>HOH: $8,500 std ded, 5.75%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 8500.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
 <action_postfix>
-result.agi 8500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
+result.agi 8500.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -73,7 +71,7 @@ result.agi 8500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef res
 <action_comment>Default (Single/MFS): $8,500 std ded, 5.75%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 8500.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0575</action_dsl>
 <action_postfix>
-result.agi 8500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvd /result.computed_state_tax xdef
+result.agi 8500.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0575 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -81,15 +79,15 @@ result.agi 8500.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef res
 <policy_statements>
 <policy_statement column="1">
 <policy_description>VA MFJ: 5.75% x max(AGI - $17,000, 0) per Va. Code § 58.1-320</policy_description>
-<policy_statement_postfix>"Virginia MFJ top-marginal-rate approximation per Va. Code § 58.1-320"</policy_statement_postfix>
+<policy_statement_postfix>"VA MFJ: 5.75% x max(AGI - $17,000, 0) per Va. Code § 58.1-320"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>VA HOH: 5.75% x max(AGI - $8,500, 0) per Va. Code § 58.1-320</policy_description>
-<policy_statement_postfix>"Virginia HOH top-marginal-rate approximation per Va. Code § 58.1-320"</policy_statement_postfix>
+<policy_statement_postfix>"VA HOH: 5.75% x max(AGI - $8,500, 0) per Va. Code § 58.1-320"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="3">
 <policy_description>VA Single/MFS: 5.75% x max(AGI - $8,500, 0) per Va. Code § 58.1-320</policy_description>
-<policy_statement_postfix>"Virginia Single/MFS top-marginal-rate approximation per Va. Code § 58.1-320"</policy_statement_postfix>
+<policy_statement_postfix>"VA Single/MFS: 5.75% x max(AGI - $8,500, 0) per Va. Code § 58.1-320"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

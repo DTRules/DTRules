@@ -4,6 +4,12 @@
 		<file_path>NJ_edd</file_path>
 	</file_metadata>
 	<entity name="result" number="100" xls_file="NJ.xlsx" access="rw">
+		<source>
+			<relative_path>NJ.xlsx</relative_path>
+			<file_name>NJ.xlsx</file_name>
+			<sheet_number>5</sheet_number>
+		</source>
+		<field name="nj_agi" type="double" subtype="" access="rw" input="" default_value="0.0" comment="NJ adjusted gross income (federal AGI as a simplification)"></field>
 		<field name="nj_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="20000.0" comment="NJ bracket 1 upper limit joint ($0 - $20,000)"></field>
 		<field name="nj_bracket_1_limit_single" type="double" subtype="" access="r" input="" default_value="20000.0" comment="NJ bracket 1 upper limit single ($0 - $20,000)"></field>
 		<field name="nj_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.014" comment="NJ tax rate bracket 1: 1.4% (2025)"></field>
@@ -32,10 +38,9 @@
 		<field name="nj_bracket_7_rate_joint" type="double" subtype="" access="r" input="" default_value="0.0897" comment="NJ tax rate bracket 7 joint: 8.97% (2025)"></field>
 		<field name="nj_bracket_8_rate_joint" type="double" subtype="" access="r" input="" default_value="0.1075" comment="NJ tax rate bracket 8 joint: 10.75% (2025)"></field>
 		<field name="nj_dependent_exemption" type="double" subtype="" access="r" input="" default_value="1500.0" comment="NJ dependent exemption per dependent (2025)"></field>
+		<field name="nj_exemption_total" type="double" subtype="" access="rw" input="" default_value="0.0" comment="NJ total exemptions ($1,000/taxpayer + $1,500/dependent)"></field>
 		<field name="nj_personal_exemption" type="double" subtype="" access="r" input="" default_value="1000.0" comment="NJ personal exemption (2025)"></field>
 		<field name="nj_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="NJ state income tax (computed)"></field>
-		<field name="nj_agi" type="double" subtype="" access="rw" input="" default_value="0.0" comment="NJ adjusted gross income (federal AGI as a simplification)"></field>
-		<field name="nj_exemption_total" type="double" subtype="" access="rw" input="" default_value="0.0" comment="NJ total exemptions ($1,000/taxpayer + $1,500/dependent)"></field>
 		<field name="nj_taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="NJ taxable income after exemptions"></field>
 	</entity>
 </entity_data_dictionary>

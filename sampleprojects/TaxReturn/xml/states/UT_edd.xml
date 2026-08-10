@@ -4,6 +4,11 @@
 		<file_path>UT_edd</file_path>
 	</file_metadata>
 	<entity name="result" number="100" xls_file="UT.xlsx" access="rw">
+		<source>
+			<relative_path>UT.xlsx</relative_path>
+			<file_name>UT.xlsx</file_name>
+			<sheet_number>3</sheet_number>
+		</source>
 		<field name="ut_base_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT base tax before taxpayer credit (computed)"></field>
 		<field name="ut_credit_phaseout_hoh" type="double" subtype="" access="r" input="" default_value="23844.0" comment="UT taxpayer credit phase-out threshold head of household (2025)"></field>
 		<field name="ut_credit_phaseout_joint" type="double" subtype="" access="r" input="" default_value="31792.0" comment="UT taxpayer credit phase-out threshold married filing jointly (2025)"></field>
@@ -16,8 +21,8 @@
 		<field name="ut_personal_exemption" type="double" subtype="" access="r" input="" default_value="2111.0" comment="UT personal exemption per dependent (2025). Source: Utah State Tax Commission"></field>
 		<field name="ut_social_security_exempt" type="boolean" subtype="" access="r" input="" default_value="true" comment="UT fully exempts Social Security benefits from state income tax (2025). Source: Utah State Tax Commission"></field>
 		<field name="ut_social_security_exemption" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT Social Security exemption amount (computed - full amount of SS benefits)"></field>
-		<field name="ut_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="UT final tax liability after credits (computed)"></field>
 		<field name="ut_state_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="UT state income tax (alias for ut_tax)"></field>
+		<field name="ut_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="UT final tax liability after credits (computed)"></field>
 		<field name="ut_tax_rate" type="double" subtype="" access="r" input="" default_value="0.045" comment="UT flat rate 4.5% (2025). Reduced from 4.55% by HB 106. Source: Utah State Tax Commission"></field>
 		<field name="ut_taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="UT taxable income after adjustments (computed)"></field>
 		<field name="ut_taxpayer_credit" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT taxpayer tax credit amount (computed)"></field>

@@ -1,71 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 4801: CA_Renter_Credit -->
-<decision_table>
-<source>
-<relative_path>CA.xlsx</relative_path>
-<file_name>CA.xlsx</file_name>
-<sheet_number>2</sheet_number>
-</source>
-<table_name>CA_Renter_Credit</table_name>
-<xls_file>CA.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>California Renter's Credit calculation (2025). Non-refundable credit for renters who meet AGI limits. Skeleton — see #446.</COMMENTS>
-<TABLE_NUMBER>4801</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions></initial_actions>
-<conditions></conditions>
-<actions></actions>
-<policy_statements></policy_statements>
-</decision_table>
-
-<!-- TABLE 4802: CA_Military_Retirement_Exemption -->
-<decision_table>
-<source>
-<relative_path>CA.xlsx</relative_path>
-<file_name>CA.xlsx</file_name>
-<sheet_number>3</sheet_number>
-</source>
-<table_name>CA_Military_Retirement_Exemption</table_name>
-<xls_file>CA.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>California military retirement exemption. Skeleton — see #446. CA exempts up to $20k of military retirement pay subject to AGI limits ($125k Single / $250k MFJ).</COMMENTS>
-<TABLE_NUMBER>4802</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions></initial_actions>
-<conditions></conditions>
-<actions></actions>
-<policy_statements></policy_statements>
-</decision_table>
-
-<!-- TABLE 4803: CA_AGI -->
-<decision_table>
-<source>
-<relative_path>CA.xlsx</relative_path>
-<file_name>CA.xlsx</file_name>
-<sheet_number>4</sheet_number>
-</source>
-<table_name>CA_AGI</table_name>
-<xls_file>CA.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS>California AGI adjustments. Skeleton — see #446. CA starts with federal AGI then applies CA-specific additions/subtractions (Schedule CA-540).</COMMENTS>
-<TABLE_NUMBER>4803</TABLE_NUMBER>
-</attribute_fields>
-<contexts></contexts>
-<initial_actions></initial_actions>
-<conditions></conditions>
-<actions></actions>
-<policy_statements></policy_statements>
-</decision_table>
-
 <!-- TABLE 4800: CA_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>CA.xlsx</relative_path>
 <file_name>CA.xlsx</file_name>
@@ -81,7 +18,6 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset CA tax fields and log calculation start</action_comment>
 <initial_action_dsl>set result.ca_state_tax = 0.0; set result.ca_taxable_income = 0.0; set result.ca_mhst = 0.0; set result.ca_total_tax = 0.0; add "  California Tax Calculation (Form 540) — 10-bracket progressive 1.0-13.3% + 1% MHST &gt; $1M" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
 0.0 cvd /result.ca_state_tax xdef 0.0 cvd /result.ca_taxable_income xdef 0.0 cvd /result.ca_mhst xdef 0.0 cvd /result.ca_total_tax xdef "  California Tax Calculation (Form 540) — 10-bracket progressive 1.0-13.3% + 1% MHST &gt; $1M" job.audit_trail swap addto
@@ -96,8 +32,8 @@
 <condition_postfix>
 job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if { pop job.filing_status "HOH" streq } over not if
 </condition_postfix>
-<condition_column column_number="2" column_value="N" />
 <condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
 <actions>
@@ -124,7 +60,7 @@ result.agi ca_standard_deduction_single f- 0.0 fmax cvd /result.ca_taxable_incom
 <action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
 <action_dsl>set result.computed_state_taxable_income = result.ca_taxable_income; set result.computed_state_tax = result.ca_state_tax</action_dsl>
 <action_postfix>
-result.ca_taxable_income cvd /result.computed_state_taxable_income xdef result.ca_state_tax cvd /result.computed_state_tax xdef
+result.ca_taxable_income cvi /result.computed_state_taxable_income xdef result.ca_state_tax cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 <action_column column_number="2" column_value="X" />
@@ -133,12 +69,75 @@ result.ca_taxable_income cvd /result.computed_state_taxable_income xdef result.c
 <policy_statements>
 <policy_statement column="1">
 <policy_description>CA progressive tax MFJ/HOH: 1.0-12.3% across 9 brackets on (AGI - $10,726) + 1% MHST over $1M</policy_description>
-<policy_statement_postfix>"CA progressive tax MFJ/HOH per CA Rev. &amp; Tax. Code § 17041 + § 17043 MHST"</policy_statement_postfix>
+<policy_statement_postfix>"CA progressive tax MFJ/HOH: 1.0-12.3% across 9 brackets on (AGI - $10,726) + 1% MHST over $1M"</policy_statement_postfix>
 </policy_statement>
 <policy_statement column="2">
 <policy_description>CA progressive tax Single/MFS: 1.0-12.3% across 9 brackets on (AGI - $5,363) + 1% MHST over $1M</policy_description>
-<policy_statement_postfix>"CA progressive tax Single/MFS per CA Rev. &amp; Tax. Code § 17041 + § 17043 MHST"</policy_statement_postfix>
+<policy_statement_postfix>"CA progressive tax Single/MFS: 1.0-12.3% across 9 brackets on (AGI - $5,363) + 1% MHST over $1M"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
+</decision_table>
+
+<!-- TABLE 4801: ca_renter_credit -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>CA.xlsx</relative_path>
+<file_name>CA.xlsx</file_name>
+<sheet_number>2</sheet_number>
+</source>
+<table_name>ca_renter_credit</table_name>
+<xls_file>CA.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>California Renter's Credit calculation (2025). Non-refundable credit for renters who meet AGI limits. Skeleton — see #446.</COMMENTS>
+<TABLE_NUMBER>4801</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 4802: ca_military_retirement_exemption -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>CA.xlsx</relative_path>
+<file_name>CA.xlsx</file_name>
+<sheet_number>3</sheet_number>
+</source>
+<table_name>ca_military_retirement_exemption</table_name>
+<xls_file>CA.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>California military retirement exemption. Skeleton — see #446. CA exempts up to $20k of military retirement pay subject to AGI limits ($125k Single / $250k MFJ).</COMMENTS>
+<TABLE_NUMBER>4802</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 4803: CA_AGI -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>CA.xlsx</relative_path>
+<file_name>CA.xlsx</file_name>
+<sheet_number>4</sheet_number>
+</source>
+<table_name>CA_AGI</table_name>
+<xls_file>CA.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS>California AGI adjustments. Skeleton — see #446. CA starts with federal AGI then applies CA-specific additions/subtractions (Schedule CA-540).</COMMENTS>
+<TABLE_NUMBER>4803</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions></conditions>
+<actions></actions>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

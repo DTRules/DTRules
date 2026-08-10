@@ -4,6 +4,11 @@
 		<file_path>CA_edd</file_path>
 	</file_metadata>
 	<entity name="result" number="100" xls_file="CA.xlsx" access="rw">
+		<source>
+			<relative_path>CA.xlsx</relative_path>
+			<file_name>CA.xlsx</file_name>
+			<sheet_number>5</sheet_number>
+		</source>
 		<field name="ca_bracket_10_rate" type="double" subtype="" access="r" input="" default_value="0.133" comment="CA tax rate for bracket 10 (income &gt; $1,000,000) - 13.3% (2025). Highest state marginal rate in the nation."></field>
 		<field name="ca_bracket_1_limit_joint" type="double" subtype="" access="r" input="" default_value="20824.0" comment="CA tax bracket 1 upper limit joint $20,824 (2025). Approximately double single filer brackets."></field>
 		<field name="ca_bracket_1_limit_single" type="double" subtype="" access="r" input="" default_value="10412.0" comment="CA tax bracket 1 upper limit single $10,412 (2025). Source: CA FTB"></field>
@@ -35,6 +40,7 @@
 		<field name="ca_mental_health_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA Mental Health Services Tax (1% surtax on income &gt; $1M, computed)"></field>
 		<field name="ca_mental_health_tax_rate" type="double" subtype="" access="r" input="" default_value="0.01" comment="CA Mental Health Services Tax rate - 1.0% on income &gt; $1M (2025)"></field>
 		<field name="ca_mental_health_tax_threshold" type="double" subtype="" access="r" input="" default_value="1000000.0" comment="CA Mental Health Services Tax threshold $1,000,000 (2025). Additional 1% tax on taxable income &gt; $1M. Source: CA FTB"></field>
+		<field name="ca_mhst" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CA Mental Health Services Tax (1% surtax on taxable income &gt; $1M)"></field>
 		<field name="ca_military_agi_limit_joint" type="double" subtype="" access="r" input="" default_value="250000.0" comment="CA AGI limit for military retirement exemption - joint filers (2025)"></field>
 		<field name="ca_military_agi_limit_single" type="double" subtype="" access="r" input="" default_value="125000.0" comment="CA AGI limit for military retirement exemption - single filers (2025)"></field>
 		<field name="ca_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA military retirement exemption (computed based on AGI and filing status)"></field>
@@ -52,6 +58,5 @@
 		<field name="ca_state_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CA state income tax liability before Mental Health Services Tax (computed)"></field>
 		<field name="ca_taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CA taxable income after deductions (computed)"></field>
 		<field name="ca_total_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CA total tax liability including Mental Health Services Tax (computed)"></field>
-		<field name="ca_mhst" type="double" subtype="" access="rw" input="" default_value="0.0" comment="CA Mental Health Services Tax (1% surtax on taxable income &gt; $1M)"></field>
 	</entity>
 </entity_data_dictionary>

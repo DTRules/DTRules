@@ -4,6 +4,11 @@
 		<file_path>MT_edd</file_path>
 	</file_metadata>
 	<entity name="result" number="100" xls_file="MT.xlsx" access="rw">
+		<source>
+			<relative_path>MT.xlsx</relative_path>
+			<file_name>MT.xlsx</file_name>
+			<sheet_number>2</sheet_number>
+		</source>
 		<field name="mt_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="3600.0" comment="MT tax bracket 1 upper limit (2025)"></field>
 		<field name="mt_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.047" comment="MT tax rate for bracket 1 - 4.7% (2025)"></field>
 		<field name="mt_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="6300.0" comment="MT tax bracket 2 upper limit (2025)"></field>

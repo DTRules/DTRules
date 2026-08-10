@@ -123,7 +123,12 @@ result.co_taxable_income cvi /result.computed_state_taxable_income xdef result.c
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>CO flat tax: 4.40% x AGI per C.R.S. § 39-22-104</policy_description>
+<policy_statement_postfix>"CO flat tax: 4.40% x AGI per C.R.S. § 39-22-104"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 40601: CO_EITC -->

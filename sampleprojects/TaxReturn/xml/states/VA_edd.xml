@@ -4,6 +4,11 @@
 		<file_path>VA_edd</file_path>
 	</file_metadata>
 	<entity name="result" number="100" xls_file="VA.xlsx" access="rw">
+		<source>
+			<relative_path>VA.xlsx</relative_path>
+			<file_name>VA.xlsx</file_name>
+			<sheet_number>2</sheet_number>
+		</source>
 		<field name="va_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="3000.0" comment="VA tax bracket 1 upper limit (2025)"></field>
 		<field name="va_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.02" comment="VA tax rate for bracket 1 - 2% (2025)"></field>
 		<field name="va_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="5000.0" comment="VA tax bracket 2 upper limit (2025)"></field>

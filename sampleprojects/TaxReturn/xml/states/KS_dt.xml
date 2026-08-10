@@ -77,6 +77,10 @@ result.agi 3500.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef res
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>KS MFJ: 5.58% x max(AGI - $8,000, 0) per K.S.A. 79-32,110</policy_description>
+<policy_statement_postfix>"KS MFJ: 5.58% x max(AGI - $8,000, 0) per K.S.A. 79-32,110"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>KS HOH: 5.58% x max(AGI - $6,000, 0) per K.S.A. 79-32,110</policy_description>
 <policy_statement_postfix>"KS HOH: 5.58% x max(AGI - $6,000, 0) per K.S.A. 79-32,110"</policy_statement_postfix>

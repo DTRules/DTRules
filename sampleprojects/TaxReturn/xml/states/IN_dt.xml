@@ -55,7 +55,12 @@ result.in_taxable_income cvi /result.computed_state_taxable_income xdef result.i
 <action_column column_number="1" column_value="X" />
 </action_details>
 </actions>
-<policy_statements></policy_statements>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>IN flat tax: 3.00% × max(AGI − exemptions, 0); exemptions = $1,000/taxpayer + $1,500/dependent</policy_description>
+<policy_statement_postfix>"IN flat tax: 3.00% × max(AGI − exemptions, 0); exemptions = $1,000/taxpayer + $1,500/dependent"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
 </decision_table>
 
 <!-- TABLE 41501: in_military_retirement_exclusion -->

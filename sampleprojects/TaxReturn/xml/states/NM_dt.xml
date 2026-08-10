@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <decision_tables>
 
-<!-- TABLE 43100: NM_Tax -->
-<decision_table>
+<!-- TABLE 43100: nm_tax -->
+<decision_table el_compiled="true">
 <source>
 <relative_path>NM.xlsx</relative_path>
 <file_name>NM.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
-<table_name>NM_Tax</table_name>
+<table_name>nm_tax</table_name>
 <xls_file>NM.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
@@ -35,7 +35,7 @@ job.filing_status "HOH" streq
 </decision_table>
 
 <!-- TABLE 43101: NM_Military_Retirement_Exclusion -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>NM.xlsx</relative_path>
 <file_name>NM.xlsx</file_name>

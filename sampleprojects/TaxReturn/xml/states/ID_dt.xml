@@ -77,6 +77,10 @@ result.agi 15000.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef re
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>ID MFJ: 5.695% x max(AGI - $30,000, 0) per Idaho Code § 63-3024</policy_description>
+<policy_statement_postfix>"ID MFJ: 5.695% x max(AGI - $30,000, 0) per Idaho Code § 63-3024"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>ID HOH: 5.695% x max(AGI - $22,500, 0) per Idaho Code § 63-3024</policy_description>
 <policy_statement_postfix>"ID HOH: 5.695% x max(AGI - $22,500, 0) per Idaho Code § 63-3024"</policy_statement_postfix>

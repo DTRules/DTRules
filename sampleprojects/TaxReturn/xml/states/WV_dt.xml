@@ -2,7 +2,7 @@
 <decision_tables>
 
 <!-- TABLE 54484: WV_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>WV.xlsx</relative_path>
 <file_name>WV.xlsx</file_name>
@@ -18,10 +18,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<action_comment>Reset and log</action_comment>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  West Virginia Tax Calculation (top marginal 4.82%)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  West Virginia Tax Calculation (top marginal 4.82%)" job.audit_trail swap addto
+0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef "  West Virginia Tax Calculation (top marginal 4.82%)" job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -42,7 +41,7 @@ true
 <action_comment>WV tax = max(AGI - $0, 0) x 4.82%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 0.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0482</action_dsl>
 <action_postfix>
-result.agi 0.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0482 fmul cvd /result.computed_state_tax xdef
+result.agi 0.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0482 fmul cvi /result.computed_state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -50,7 +49,7 @@ result.agi 0.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result
 <policy_statements>
 <policy_statement column="1">
 <policy_description>WV: 4.82% x max(AGI - $0, 0) per W. Va. Code § 11-21-4e</policy_description>
-<policy_statement_postfix>"WestVirginia top-marginal-rate approximation per W. Va. Code § 11-21-4e"</policy_statement_postfix>
+<policy_statement_postfix>"WV: 4.82% x max(AGI - $0, 0) per W. Va. Code § 11-21-4e"</policy_statement_postfix>
 </policy_statement>
 </policy_statements>
 </decision_table>

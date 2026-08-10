@@ -77,6 +77,10 @@ result.agi 2300.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef res
 </action_details>
 </actions>
 <policy_statements>
+<policy_statement column="1">
+<policy_description>MS MFJ: 4.4% x max(AGI - $4,600, 0) per Miss. Code § 27-7-5</policy_description>
+<policy_statement_postfix>"MS MFJ: 4.4% x max(AGI - $4,600, 0) per Miss. Code § 27-7-5"</policy_statement_postfix>
+</policy_statement>
 <policy_statement column="2">
 <policy_description>MS HOH: 4.4% x max(AGI - $3,400, 0) per Miss. Code § 27-7-5</policy_description>
 <policy_statement_postfix>"MS HOH: 4.4% x max(AGI - $3,400, 0) per Miss. Code § 27-7-5"</policy_statement_postfix>
