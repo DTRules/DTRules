@@ -42,6 +42,7 @@ type Project struct {
 	dtFiles     []dtFileEntry // one entry per loaded _dt.xml file
 	symbols     map[string]string
 	edd         *EDD         // lazily loaded
+	eddFile     string       // which EDD file to work on; empty means the first candidate
 	execSt      *execState   // lazily-created execution state; nil until first use
 	diagnostics []Diagnostic // authoring-time diagnostics (duplicate renames, etc.)
 

@@ -101,11 +101,14 @@ func (p *Project) EDD() *EDD {
 		return p.edd
 	}
 
-	entries, _ := filepath.Glob(filepath.Join(p.xmlDir, "*_edd.xml"))
+	entries := p.eddCandidates()
 
 	eddPath := ""
 	var eddXML *excel.EDDXML
 
+	if p.eddFile != "" {
+		entries = []string{p.eddFile}
+	}
 	if len(entries) > 0 {
 		eddPath = entries[0]
 		data, err := os.ReadFile(eddPath)
@@ -527,5 +530,52 @@ func validateDefault(typ, def string) error {
 		}
 	}
 	// string, date, array, entity: any value is syntactically acceptable
+	return nil
+}
+
+// eddCandidates lists the project's EDD files, nearest first: the top level,
+// then nested directories. Sorted so the answer does not depend on the
+// filesystem.
+//
+// A project may hold many -- CorporateTax has a core EDD and 51 state EDDs --
+// and the Project model works on one at a time. Which one is the caller's
+// choice, made with UseEDDFile; this is only the list to choose from.
+func (p *Project) eddCandidates() []string {
+	top, _ := filepath.Glob(filepath.Join(p.xmlDir, "*_edd.xml"))
+	sort.Strings(top)
+
+	var nested []string
+	_ = filepath.WalkDir(p.xmlDir, func(path string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() || filepath.Dir(path) == p.xmlDir {
+			return nil
+		}
+		if strings.HasSuffix(d.Name(), "_edd.xml") {
+			nested = append(nested, path)
+		}
+		return nil
+	})
+	sort.Strings(nested)
+	return append(top, nested...)
+}
+
+// EDDFiles is the project's EDD files, for a caller deciding which to work on.
+func (p *Project) EDDFiles() []string { return p.eddCandidates() }
+
+// UseEDDFile points the Project at one of its EDD files.
+//
+// The Project holds one EDD at a time and used to take whichever sorted first,
+// silently -- so 51 of CorporateTax's 52 EDD files could not be read or
+// written through the authoring API at all, and nothing said so. Naming the
+// file is how a caller reaches the others.
+func (p *Project) UseEDDFile(path string) error {
+	abs := path
+	if !filepath.IsAbs(abs) {
+		abs = filepath.Join(p.xmlDir, path)
+	}
+	if _, err := os.Stat(abs); err != nil {
+		return fmt.Errorf("EDD file %s: %w", path, err)
+	}
+	p.eddFile = abs
+	p.edd = nil // drop any EDD already loaded from a different file
 	return nil
 }

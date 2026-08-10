@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -120,6 +121,10 @@ type tableCmdCtx struct {
 	// the `--force-overwrite-excel` CLI flag; the default is false,
 	// which preserves human Excel edits by refusing the XML write.
 	forceOverwriteExcel bool
+	// eddFile names which of the project's EDD files to work on, from
+	// --edd-file. Empty is fine when the project has one; with several the
+	// command refuses rather than pick.
+	eddFile string
 }
 
 // emitErr writes a JSON error record to stderr and returns the exit code.
@@ -143,9 +148,23 @@ func writeJSON(w io.Writer, v interface{}) error {
 // with those flags removed. Defaults: projectPath=".",
 // forceOverwriteExcel=false.
 func parseProjectFlag(args []string) (projectPath string, forceOverwriteExcel bool, rest []string) {
+	projectPath, _, forceOverwriteExcel, rest = parseProjectFlags(args)
+	return projectPath, forceOverwriteExcel, rest
+}
+
+// parseProjectFlags is parseProjectFlag plus --edd-file, which names which of
+// a project's EDD files to work on.
+func parseProjectFlags(args []string) (projectPath, eddFile string, forceOverwriteExcel bool, rest []string) {
 	projectPath = "."
 	out := make([]string, 0, len(args))
 	for i := 0; i < len(args); i++ {
+		if args[i] == "--edd-file" {
+			if i+1 < len(args) {
+				eddFile = args[i+1]
+				i++
+				continue
+			}
+		}
 		if args[i] == "--project" || args[i] == "-p" {
 			if i+1 < len(args) {
 				projectPath = args[i+1]
@@ -159,7 +178,33 @@ func parseProjectFlag(args []string) (projectPath string, forceOverwriteExcel bo
 		}
 		out = append(out, args[i])
 	}
-	return projectPath, forceOverwriteExcel, out
+	return projectPath, eddFile, forceOverwriteExcel, out
+}
+
+// selectEDD points the project at the EDD file the caller named, and refuses
+// to guess when there is more than one and nobody said which.
+//
+// A project may hold many EDD files. The Project model works on one at a time
+// and used to take whichever sorted first, silently, so 51 of CorporateTax's
+// 52 were unreachable through the authoring API. Same rule as mappings: when
+// there is a choice to make, the caller makes it.
+func selectEDD(p *authoring.Project, eddFile string) error {
+	if eddFile != "" {
+		return p.UseEDDFile(eddFile)
+	}
+	files := p.EDDFiles()
+	if len(files) <= 1 {
+		return nil
+	}
+	names := make([]string, 0, len(files))
+	for _, f := range files {
+		names = append(names, filepath.Base(f))
+	}
+	if len(names) > 6 {
+		names = append(names[:6], fmt.Sprintf("... and %d more", len(files)-6))
+	}
+	return fmt.Errorf("this project has %d EDD files (%s); say which with --edd-file <name>",
+		len(files), strings.Join(names, ", "))
 }
 
 // runTable dispatches `dtrules table ...`.
@@ -210,7 +255,7 @@ func (c *CLI) runEDD(args []string) int {
 	}
 	sub := args[0]
 	rest := args[1:]
-	ctx.projectPath, ctx.forceOverwriteExcel, rest = parseProjectFlag(rest)
+	ctx.projectPath, ctx.eddFile, ctx.forceOverwriteExcel, rest = parseProjectFlags(rest)
 
 	switch sub {
 	case "get":
@@ -240,6 +285,13 @@ func (ctx *tableCmdCtx) openProject() (*authoring.Project, int) {
 	// Thread the --force-overwrite-excel flag through so Save / SaveEDD
 	// know whether to bypass the Excel-mtime guard for this command.
 	p.OverwriteExcel = ctx.forceOverwriteExcel
+
+	// A project may hold many EDD files; the Project works on one. Naming it
+	// is the caller's job, and a project with several refuses rather than
+	// silently taking the first (#1099).
+	if err := selectEDD(p, ctx.eddFile); err != nil {
+		return nil, emitErr(ctx.stderr, 1, "ambiguous_edd", "", "pass --edd-file <name>", err.Error())
+	}
 	return p, 0
 }
 
