@@ -20,10 +20,10 @@
 			<sheet_number>1</sheet_number>
 		</source>
 		<field name="count" type="integer" subtype="" access="rw" input="" default_value="" comment="written by subsets/combinations; count, not size — SIZE is an EL keyword"></field>
-		<field name="members" type="array" subtype="card" access="rw" input="" default_value="" comment=""></field>
-		<field name="sum" type="integer" subtype="" access="rw" input="" default_value="" comment="sum of member values"></field>
 		<field name="distinct" type="integer" subtype="" access="rw" input="" default_value="" comment="written by suffixes: distinct stat values in the window"></field>
+		<field name="members" type="array" subtype="card" access="rw" input="" default_value="" comment=""></field>
 		<field name="spread" type="integer" subtype="" access="rw" input="" default_value="" comment="written by suffixes: max minus min stat value in the window"></field>
+		<field name="sum" type="integer" subtype="" access="rw" input="" default_value="" comment="sum of member values"></field>
 	</entity>
 	<entity name="grp" number="300" xls_file="project.xlsx" access="rw">
 		<source>
@@ -56,19 +56,24 @@
 		<field name="suit_groups" type="array" subtype="grp" access="rw" input="" default_value="" comment="work: kept cards grouped by suit"></field>
 		<field name="total" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
 	</entity>
-	<entity name="play" number="600" access="rw">
+	<entity name="play" number="500" xls_file="project.xlsx" access="rw">
+		<source>
+			<relative_path>project.xlsx</relative_path>
+			<file_name>project.xlsx</file_name>
+			<sheet_number>1</sheet_number>
+		</source>
 		<field name="cards" type="array" subtype="card" access="rw" input="true" default_value="" comment="the current sub-round stack in lay order, newest last"></field>
 		<field name="count" type="integer" subtype="" access="rw" input="true" default_value="" comment="running count after the newest card"></field>
+		<field name="count_points" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="go_points" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
 		<field name="is_go" type="boolean" subtype="" access="rw" input="true" default_value="" comment="this event is a go award, not a card"></field>
 		<field name="is_last" type="boolean" subtype="" access="rw" input="true" default_value="" comment="the newest card was the last card of the play"></field>
-		<field name="windows" type="array" subtype="combo" access="rw" input="" default_value="" comment="work: trailing windows of cards, longest first"></field>
-		<field name="count_points" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
 		<field name="pair_points" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
 		<field name="run_points" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
-		<field name="go_points" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
 		<field name="total" type="integer" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="windows" type="array" subtype="combo" access="rw" input="" default_value="" comment="work: trailing windows of cards, longest first"></field>
 	</entity>
-	<entity name="seq" number="500" xls_file="project.xlsx" access="rw">
+	<entity name="seq" number="600" xls_file="project.xlsx" access="rw">
 		<source>
 			<relative_path>project.xlsx</relative_path>
 			<file_name>project.xlsx</file_name>

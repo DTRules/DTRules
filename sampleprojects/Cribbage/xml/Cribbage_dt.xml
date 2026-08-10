@@ -487,7 +487,7 @@ card.suit hand.starter_suit ==
 </decision_table>
 
 <!-- TABLE 3060: Score_Play -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
@@ -577,7 +577,7 @@ play.count_points play.pair_points + play.run_points + play.go_points + cvi /pla
 </decision_table>
 
 <!-- TABLE 3070: Score_Play_Count -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
@@ -620,6 +620,7 @@ play.count 15 ==
 <condition_postfix>
 play.count 31 ==
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 </condition_details>
 </conditions>
@@ -648,7 +649,7 @@ play.count 31 ==
 </decision_table>
 
 <!-- TABLE 3080: Score_Play_Pairs -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
@@ -713,6 +714,7 @@ combo.count 4 ==
 <condition_postfix>
 combo.count 3 ==
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -723,6 +725,8 @@ combo.count 3 ==
 <condition_postfix>
 combo.count 2 ==
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -772,7 +776,7 @@ combo.count 2 ==
 </decision_table>
 
 <!-- TABLE 3090: Score_Play_Runs -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
@@ -854,7 +858,7 @@ combo.count cvi /play.run_points xdef
 </decision_table>
 
 <!-- TABLE 3100: Score_Play_Go -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
@@ -897,6 +901,7 @@ play.is_last
 <condition_postfix>
 play.is_go
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 </condition_details>
 </conditions>
