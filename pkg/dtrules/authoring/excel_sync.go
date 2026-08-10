@@ -123,8 +123,20 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 		if _, err := os.Stat(excelPath); err != nil {
 			continue
 		}
-		if err := exporter.ExportDecisionTables(excelPath); err != nil {
+		// Only this workbook's own tables. ExportDecisionTables writes the
+		// whole rule set, which run across a project's workbooks gives every
+		// one of them every table: a no-op `table put` on SinusitisTherapy
+		// took service1_medication.xlsx from 3 sheets to 6 and therapy.xlsx
+		// from 1 to 6, and turned a verified project red (#1077).
+		//
+		// A workbook no table claims is left alone rather than emptied --
+		// see ExportDecisionTablesOwnedBy.
+		n, err := exporter.ExportDecisionTablesOwnedBy(excelPath)
+		if err != nil {
 			return fmt.Errorf("excel refresh: export %s: %w", excelPath, err)
+		}
+		if n == 0 {
+			continue
 		}
 		if err := m.RecordExport(excelPath, entry.XMLFiles); err != nil {
 			return fmt.Errorf("excel refresh: record manifest for %s: %w", excelPath, err)
