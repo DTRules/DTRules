@@ -1,5 +1,129 @@
 # DTRules Changelog
 
+## v1.23.0 — 2026-08-10
+
+The authoring contract stops being a convention and becomes something the
+build enforces. Two ways to change a rule, no third; a decision table row is
+an array; and the projects that break are no longer the ones CI skips.
+
+### Removed
+
+- **`excel2dt`, `excel2edd`, `edd2excel` and `dt2excel`** (#804). Each wrote a
+  rule file or a workbook directly, outside the two paths the authoring
+  contract allows — no EL compiled, no advisory pass, no sync manifest, no
+  Excel kept in step. Use `dtrules build` or the authoring API. Nothing built
+  or imported them; they were documented only in a package README, now
+  corrected.
+
+### Changed
+
+- **A decision table row is written as an array** (#1079). Cells were keyed by
+  column number, which cost correctness twice: a key can be *missing*, and a
+  missing key is indistinguishable from a don't-care cell, so exporter and
+  importer disagreed about which to write; and a keyed row has no length, so a
+  table's width was inferred by scanning for the highest key — dropping a
+  trailing don't-care silently narrowed the table.
+
+  ```xml
+  <columns>YN--</columns>
+  ```
+
+  No missing state, and the width is the length. Four hand-rolled
+  sparse-to-dense conversions collapse into one method. **The legacy form is
+  still read**, so existing projects keep loading; it is simply never written.
+  Every condition and action row across 64 sample files was compared cell by
+  cell before and after: zero differences.
+
+- **The HTTP surface obeys the Excel contract** (#804). `apiserver` wrote XML
+  with no mtime guard and no Excel refresh, so a `PUT` and a save changed the
+  rules, left the workbook byte-identical, returned `{"success":true}`, and put
+  the project straight into `content differs from build output`. `dtrules edit`
+  embeds this server, so that was the browser editor breaking the contract on
+  every save.
+
+- **`sync import` and `sync export` go the way the command says** (#1069).
+  Both let per-workbook timestamp detection overrule the direction named in the
+  command, so each silently did nothing when the timestamps disagreed —
+  reporting success. `--force` did not help; it waives the pending-edits check,
+  not direction detection.
+
+- **Exports refuse rather than lose tables** (#1081, #1088). A table that fails
+  to load was skipped and the workbook written without it. Bootstrapping
+  Cribbage produced a six-sheet workbook for an eleven-table project and
+  reported success. If Excel cannot hold every table the XML declares, that is
+  a defect, not a partial success.
+
+- **Two workbooks may not produce one XML file** (#1089). Both are named and
+  the build stops.
+
+- **CI verifies every sample.** The exclusion list had gone stale: four
+  projects skipped as "legacy / not maintained" all verify clean, one no longer
+  exists, and TaxReturn was called archived while being the largest sample. The
+  trigger was also missing `authoring/` and `apiserver/` — the two packages
+  that write rules.
+
+### Fixed
+
+- **`build --from-excel` imported nothing** (#1051). It selected the
+  Excel-authored path and then let `SyncAll` re-derive direction from mtimes,
+  which answered NoSync whenever the XML was not older. Content drift was
+  uncorrectable while `verify` stayed red on it forever.
+
+- **Every fresh clone started locked** (#1061). The export guard advised
+  "Import Excel to XML first"; importing never updated the manifest, so the
+  guard blocked again with the same message. Checkout stamps every file with
+  the checkout time, so this was every clone of any project shipping a
+  manifest.
+
+- **A no-op authoring write corrupted multi-workbook projects** (#1077). The
+  Excel refresh called an exporter that writes *every* table, once per
+  workbook, so each ended up with the whole rule set. Feeding back exactly what
+  `table get` returned took SinusitisTherapy from verified to red and
+  `therapy.xlsx` from 1 sheet to 6.
+
+- **`verify` was non-deterministic** (#1089). Five identical runs over an
+  unchanged TaxReturn gave 1, 1, 2, 0 and 2 findings, because the workbook list
+  was built by ranging over a map and two workbooks claimed the same output.
+
+- **`verify` wrote into the project** (#1056). An EDD-only workbook resolved its
+  output directory to `filepath.Dir("")` — `"."` — so the read-only gate left a
+  178 KB file at the project root, and never compared that EDD at all.
+
+- **Contexts compiled after initial actions** (#1074). A local declared in a
+  context was not in scope for the initial action that set it, so the row
+  compiled to an entity definition instead of a local store and failed at run
+  time against the *caller*.
+
+- **The Excel refresh resurrected deleted workbooks** (#1062). It re-exported
+  every manifest entry whether or not the file still existed, so one edit to
+  TaxReturn re-created 114 per-table workbooks the samples consolidation had
+  removed.
+
+- Also: local slot indices reset between tables on import (#1047); unknown
+  operators rejected at compile rather than at execution (#1020); the authoring
+  API honours a declared `xml_dir`/`excel_dir` (#1049); `validate` resolves
+  directories the same way its siblings do (#1031); a recompile that weakens
+  arithmetic says so (#1019); `sync export` creates the directory it is asked
+  to write into.
+
+### Samples
+
+Eight of eleven verify clean, from one. CHIP, ChipApp, KidAid, StateTax,
+Poker, SinusitisTherapy, Cribbage and TestProject. TaxReturn, CorporateTax and
+SyntaxTests carry undefined operators and tables — rule defects rather than
+Excel/XML drift, tracked under #1012, and all three are drift-clean.
+
+TaxReturn's validation checkpoint for total tax ran four actions before the
+value was computed, so it compared against zero every time (#1000). Removing
+it takes the archive lane green.
+
+### Internal
+
+`pkg/dtrules/project` resolves a project's settings once — defaults, then
+`DTRules.xml`, then flags — replacing four independent readers that each knew a
+different subset of the manifest (#1052). A test now fails the build if a
+package outside the authoring funnel writes rule XML.
+
 ## v1.22.6 — 2026-08-08
 
 ### Fixed
