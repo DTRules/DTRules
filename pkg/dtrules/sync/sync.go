@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 )
@@ -1101,13 +1102,64 @@ func (s *Syncer) collectCombinedWorkbooks() ([]CombinedWorkbook, error) {
 		workbookMap[base] = wb
 	}
 
-	// Convert map to slice
-	var workbooks []CombinedWorkbook
-	for _, wb := range workbookMap {
-		workbooks = append(workbooks, *wb)
+	// Convert map to slice, in a fixed order.
+	//
+	// Go randomizes map iteration, so this handed back the workbooks in a
+	// different order every run. That is invisible while each workbook owns
+	// its own output, and decides the result when two of them do not: the
+	// last import wins, so the file's content depended on the run and
+	// `dtrules verify` gave 1, 1, 2, 0 and 2 findings on five passes over an
+	// unchanged TaxReturn (#1089).
+	//
+	// A list of things to process in turn is a list.
+	bases := make([]string, 0, len(workbookMap))
+	for base := range workbookMap {
+		bases = append(bases, base)
+	}
+	sort.Strings(bases)
+
+	workbooks := make([]CombinedWorkbook, 0, len(bases))
+	for _, base := range bases {
+		workbooks = append(workbooks, *workbookMap[base])
 	}
 
+	if err := assertNoOutputCollision(workbooks); err != nil {
+		return nil, err
+	}
 	return workbooks, nil
+}
+
+// assertNoOutputCollision refuses a workbook set in which two workbooks write
+// the same XML file.
+//
+// Sorting above makes the outcome repeatable; it does not make it right. When
+// TaxReturn.xlsx carries an EDD sheet and TaxReturn_edd.xlsx exists beside it,
+// both produce xml/TaxReturn_edd.xml and one of them is silently discarded --
+// so the committed EDD is whichever the ordering happened to favour, which
+// nobody chose.
+//
+// Naming both and stopping is the useful answer. Picking a winner by rule
+// would make the behaviour predictable and leave the project ambiguous.
+func assertNoOutputCollision(workbooks []CombinedWorkbook) error {
+	claimed := map[string]string{} // xml output -> the workbook claiming it
+	for _, wb := range workbooks {
+		for _, out := range []string{wb.DTXMLPath, wb.EDDXMLPath} {
+			if out == "" {
+				continue
+			}
+			if first, taken := claimed[out]; taken {
+				return fmt.Errorf(
+					"two workbooks produce %s: %s and %s\n"+
+						"  One of them would be discarded, and which one depends on "+
+						"ordering. Remove or rename one -- a mixed workbook already "+
+						"carries its own EDD sheet, so a separate *_edd.xlsx beside it "+
+						"is redundant",
+					filepath.Base(out), filepath.Base(first), filepath.Base(wb.ExcelPath))
+			}
+			claimed[out] = wb.ExcelPath
+		}
+	}
+	return nil
 }
 
 // determineWorkbookDirection determines the sync direction for a combined workbook.

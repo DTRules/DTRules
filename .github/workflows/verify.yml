@@ -2,11 +2,21 @@ name: verify
 
 on:
   pull_request:
+    # Anything that can change what a rule is, or how one is written out.
+    #
+    # authoring/ and apiserver/ were missing, and they are the two packages
+    # that write rules. #1077 — the Excel refresh writing every table into
+    # every workbook — shipped through this filter without the gate ever
+    # running. loader/ decides what the XML means, so it belongs here too.
     paths:
       - 'sampleprojects/**'
+      - 'pkg/dtrules/authoring/**'
+      - 'pkg/dtrules/apiserver/**'
       - 'pkg/dtrules/excel/**'
+      - 'pkg/dtrules/loader/**'
       - 'pkg/dtrules/sync/**'
       - 'cmd/dtrules/**'
+      - '.github/workflows/verify.yml'
 
 jobs:
   verify:
@@ -22,32 +32,49 @@ jobs:
       - name: Build dtrules binary
         run: go build -o /tmp/dtrules ./cmd/dtrules/
 
-      # TaxReturn is an archived legacy sample (#872) with known undefined-ref
-      # defects; it is intentionally not verified.
-
-      - name: Verify KidAid (if excel/ present)
+      # Every sample is verified. The exclusions this list replaces had gone
+      # stale: CHIP, ChipApp, KidAid and TestProject were skipped as "legacy /
+      # not maintained" and all four verify clean, DTEligibility no longer
+      # exists, and TaxReturn was called an archived sample when it is the
+      # largest one we have. Skipping the projects that break is how #1064
+      # shipped a TaxReturn whose every workbook held all 205 sheets.
+      #
+      # Three samples still fail, on undefined operators and tables — rule
+      # defects, not Excel/XML drift. They are listed below with the issue
+      # that tracks each, and they are checked for drift rather than skipped,
+      # so the half of verify that this gate exists for still runs on them.
+      - name: Verify samples
         run: |
-          if [ -d sampleprojects/KidAid/excel ]; then
-            /tmp/dtrules verify sampleprojects/KidAid
-          else
-            echo "KidAid has no excel/ dir, skipping"
-          fi
-
-      - name: Verify remaining sample projects
-        run: |
+          set -u
+          # name:issue — fails verify today for reasons unrelated to sync
+          declare -A KNOWN_BAD=(
+            [CorporateTax]=1012   # undefined operators in the NV tables
+            [SyntaxTests]=1012    # performs an undefined Error_handling_table
+            [TaxReturn]=1012      # 42 undefined external references
+          )
+          failed=0
           for dir in sampleprojects/*/; do
             name=$(basename "$dir")
-            case "$name" in
-              TaxReturn) continue ;;  # archived legacy sample (#872)
-              KidAid)    continue ;;  # already verified above
-              # Legacy, out-of-scope samples that reference operators the
-              # registry no longer defines (policystatements, married, …).
-              # The v1.16.0 external-ref gate correctly flags them; they are
-              # not maintained and are excluded rather than verified.
-              CHIP|ChipApp|DTEligibility|TestProject) continue ;;
-            esac
-            if [ -d "${dir}excel" ]; then
-              echo "Verifying $name..."
-              /tmp/dtrules verify "$dir"
+            [ -d "${dir}excel" ] || { echo "· $name has no excel/, skipping"; continue; }
+
+            if [ -n "${KNOWN_BAD[$name]:-}" ]; then
+              # Drift only: a [build] finding means XML and Excel disagree,
+              # which is what this gate is for. Anything else is the known
+              # rule defect and is not this gate's business.
+              echo "· $name (known rule defects, issue #${KNOWN_BAD[$name]}) — checking drift only"
+              if /tmp/dtrules verify "$dir" 2>&1 | grep -q '^\[build\]'; then
+                echo "  ✗ $name has Excel/XML drift"
+                /tmp/dtrules verify "$dir" 2>&1 | grep '^\[build\]' || true
+                failed=1
+              else
+                echo "  ✓ $name has no drift"
+              fi
+              continue
+            fi
+
+            echo "· Verifying $name"
+            if ! /tmp/dtrules verify "$dir"; then
+              failed=1
             fi
           done
+          exit $failed
