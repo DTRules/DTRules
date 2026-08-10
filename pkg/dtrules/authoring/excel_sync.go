@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
 	"github.com/DTRules/DTRules/pkg/dtrules/session"
@@ -219,8 +221,29 @@ func loadRuleSetForExportInDir(xmlDir string) (*session.RuleSet, error) {
 	if rs == nil {
 		return nil, fmt.Errorf("failed to create ruleset")
 	}
-	eddMatches, _ := filepath.Glob(filepath.Join(xmlDir, "*_edd.xml"))
-	for _, eddPath := range eddMatches {
+	// EDD files are loaded recursively, for the same reason the DT files
+	// below are: a nested layout puts them under states/ and the runtime
+	// loader finds them there.
+	//
+	// This globbed the top level only, so CorporateTax's 51 state EDDs were
+	// never loaded while their decision tables were. Two consequences, both
+	// silent. The export wrote every state workbook without its EDD sheet,
+	// because no entity claimed the workbook -- the entities were not in the
+	// rule set at all. And the tables compiled against a symbol table missing
+	// their own fields, so `f<` on two doubles came out as `<`: fixed-point
+	// amounts compared as integers (#1094).
+	var eddPaths []string
+	_ = filepath.WalkDir(xmlDir, func(p string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil
+		}
+		if strings.HasSuffix(d.Name(), "_edd.xml") {
+			eddPaths = append(eddPaths, p)
+		}
+		return nil
+	})
+	sort.Strings(eddPaths)
+	for _, eddPath := range eddPaths {
 		if err := rs.LoadEDDFile(eddPath); err != nil {
 			return nil, fmt.Errorf("load edd %s: %w", eddPath, err)
 		}

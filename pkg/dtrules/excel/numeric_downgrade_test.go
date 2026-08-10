@@ -99,3 +99,33 @@ func TestOperatorRemovedWithoutAWeakerReplacementIsSilent(t *testing.T) {
 		t.Errorf("deleting an operation is an edit, not a downgrade: %v", got)
 	}
 }
+
+// Comparisons were missing from the table. A rebuild of CorporateTax's NV
+// rules turned `f<` into `<` -- two fixed-point amounts compared as integers,
+// so a scaled value and an unscaled one read as the same magnitude. That
+// decides which column fires, which is a wrong answer rather than a rounded
+// one, and nothing said a word.
+func TestWarnsWhenAFixedPointComparisonBecomesInteger(t *testing.T) {
+	got := warningsFor(t,
+		"result.nv_gross_revenue result.nv_commerce_tax_threshold f<",
+		"result.nv_gross_revenue result.nv_commerce_tax_threshold <")
+
+	if len(got) != 1 {
+		t.Fatalf("want one warning for f< becoming <, got %d: %v", len(got), got)
+	}
+	if !strings.Contains(got[0], "comparison became integer") {
+		t.Errorf("the warning should say what was lost, got: %s", got[0])
+	}
+}
+
+func TestEveryFixedPointComparisonIsCovered(t *testing.T) {
+	for _, pair := range [][2]string{
+		{"f<", "<"}, {"f>", ">"}, {"f<=", "<="},
+		{"f>=", ">="}, {"f==", "=="}, {"f!=", "!="},
+	} {
+		got := warningsFor(t, "a b "+pair[0], "a b "+pair[1])
+		if len(got) != 1 {
+			t.Errorf("%s -> %s produced %d warnings, want 1", pair[0], pair[1], len(got))
+		}
+	}
+}

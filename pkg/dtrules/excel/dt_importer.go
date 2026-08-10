@@ -1704,6 +1704,18 @@ var numericDowngrades = map[string]struct{ to, meaning string }{
 	"fp+":       {"+", "fixed-point add became integer"},
 	"fp-":       {"-", "fixed-point subtract became integer"},
 	"cvfp":      {"cvi", "value stored as integer instead of fixed-point"},
+
+	// Comparisons were missing from this table, and a rebuild of
+	// CorporateTax's NV rules quietly turned `f<` into `<`: two fixed-point
+	// amounts compared as integers, so the scaled and unscaled values are
+	// read as the same magnitude. A wrong comparison decides which column
+	// fires, which is a wrong answer rather than a rounded one.
+	"f<":  {"<", "fixed-point comparison became integer"},
+	"f>":  {">", "fixed-point comparison became integer"},
+	"f<=": {"<=", "fixed-point comparison became integer"},
+	"f>=": {">=", "fixed-point comparison became integer"},
+	"f==": {"==", "fixed-point equality became integer"},
+	"f!=": {"!=", "fixed-point inequality became integer"},
 }
 
 // warnNumericDowngrade reports a recompile that silently weakens arithmetic.
