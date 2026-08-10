@@ -59,23 +59,22 @@ The workbook importer automatically detects sheet types:
 
 ## CLI Tools
 
-### excel2dt
+There are no standalone converters. `excel2dt`, `excel2edd` and `edd2excel`
+were removed: each wrote rule files directly, outside the two paths the
+authoring contract allows, so they could produce XML that no `dtrules build`
+would reproduce and Excel that no rule pointed at — neither compiled EL, ran
+the advisory pass, nor updated the sync manifest that `verify` depends on.
 
-Import decision tables from Excel:
-
-```bash
-excel2dt -input excel/ -output xml/TaxReturn_dt.xml
-excel2dt -input tables.xlsx -output xml/Tables_dt.xml -v
-```
-
-### excel2edd
-
-Import EDD from Excel:
+Use the two sanctioned paths instead:
 
 ```bash
-excel2edd -input excel/TaxReturn_edd.xlsx -output xml/TaxReturn_edd.xml
-excel2edd -dir excel/ -output xml/TaxReturn_edd.xml
+dtrules build              # Excel -> XML (+ compile); the human path
+dtrules table put <name>   # programmatic edit; writes XML AND Excel
+dtrules edd put            # the same for the entity data dictionary
 ```
+
+Both are described in [docs/authoring-contract.md](../../../docs/authoring-contract.md).
+The package below is the mechanism they use, not a second way in.
 
 ## Usage Examples
 
