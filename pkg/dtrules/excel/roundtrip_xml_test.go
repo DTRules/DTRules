@@ -207,14 +207,20 @@ account.balance result.total f+ /result.total xdef
 	if strings.TrimSpace(cond2.Postfix) != strings.TrimSpace(cond.Postfix) {
 		t.Errorf("round-trip lost condition postfix\nbefore: %q\nafter:  %q", cond.Postfix, cond2.Postfix)
 	}
+	// Read through EffectiveColumns: rows are written dense now, so .Columns
+	// is empty and the cells live in .Cells. The claim is unchanged -- a "-"
+	// must survive the round trip -- and it is now structural rather than
+	// something the writer has to remember, because a dense row has no way to
+	// omit a cell (#1017, #1079).
 	sawDash = false
-	for _, cv := range cond2.Columns {
+	for _, cv := range cond2.EffectiveColumns() {
 		if cv.Number == 3 && cv.Value == "-" {
 			sawDash = true
 		}
 	}
 	if !sawDash {
-		t.Errorf("round-trip dropped \"-\" condition column: %+v", cond2.Columns)
+		t.Errorf("round-trip dropped \"-\" condition column: cells=%q cols=%+v",
+			cond2.Cells, cond2.Columns)
 	}
 	act := t1.Actions[0]
 	act2 := t2.Actions[0]

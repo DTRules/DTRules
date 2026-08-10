@@ -25,9 +25,7 @@
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "SC" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -36,9 +34,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "SC"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "SC" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>-YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -49,7 +45,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "SC" st
 <action_postfix>
 "SC filing required due to physical presence. Reference: SC Code 12-6-2320" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -58,7 +54,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "SC" st
 <action_postfix>
 "SC filing required due to economic nexus. Threshold: $100K OR 200 transactions. Reference: SC Code 12-36-2691" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -67,7 +63,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "SC" st
 <action_postfix>
 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No SC nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -97,8 +93,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "SC" st
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -109,7 +104,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "SC income adjustments calculated. Reference: SC Code 12-6-1130 (additions), 12-6-1140 (subtractions)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -118,7 +113,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "No SC nexus - no adjustments calculated." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -148,9 +143,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
+<columns>YNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -159,9 +152,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="N" />
+<columns>Y-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -172,7 +163,7 @@ apportionment.state_taxable_income 0 &gt;
 <action_postfix>
 apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.license_fee_minimum f+ cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "SC tax calculated at 5% flat rate plus license fee ($15 minimum). Reference: SC Code 12-6-530, 12-20-50" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -181,7 +172,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apport
 <action_postfix>
 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No SC nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -190,7 +181,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apport
 <action_postfix>
 apportionment.license_fee_minimum cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "No SC taxable income - license fee only ($15 minimum). NOL carryforward 15 years. Reference: SC Code 12-6-1500, 12-20-50" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

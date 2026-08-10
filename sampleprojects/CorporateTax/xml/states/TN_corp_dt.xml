@@ -30,9 +30,7 @@
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "TN" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -41,9 +39,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "TN"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "TN" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>-YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -54,7 +50,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "TN" st
 <action_postfix>
 "TN franchise and excise tax filing required due to physical presence in Tennessee. Both taxes apply: 1. Franchise tax: 0.25% on net worth (greater of book value or property) 2. Excise tax: 6.5% on net earnings (apportioned income). Reference: TN Code § 67-4-2007 (Excise tax), TN Code § 67-4-2104 (Franchise tax), Form FAE 170 (Franchise and Excise Tax Return), TN Revenue Ruling 07-24 (Physical presence nexus)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -63,7 +59,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "TN" st
 <action_postfix>
 "TN franchise and excise tax filing required due to economic nexus. Threshold: $100,000 gross receipts OR 200 transactions in TN. Economic nexus applies to both franchise and excise taxes. Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018), TN Code § 67-4-2007(b) (Economic nexus), TN Notice 20-11 (Marketplace Facilitator Act and Economic Nexus)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -72,7 +68,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "TN" st
 <action_postfix>
 0.0 cvi /apportionment.state_tax xdef 0.0 cvd /result.tn_franchise_tax xdef 0.0 cvd /result.tn_excise_tax xdef 0.0 cvd /result.tn_total_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No TN nexus - no filing requirement for franchise or excise tax. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -107,8 +103,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "TN" st
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -119,7 +114,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef { apportionment.state_additions revenue.federal_bond_interest f+ cvd /apportionment.state_additions xdef } {} revenue.federal_bond_interest null streq not ifelse { apportionment.state_additions result.section_199a_deduction f+ cvd /apportionment.state_additions xdef } {} result.section_199a_deduction null streq not ifelse { apportionment.state_additions result.state_income_taxes_paid f+ cvd /apportionment.state_additions xdef } {} result.state_income_taxes_paid null streq not ifelse 0.0 cvd /apportionment.state_subtractions xdef { apportionment.state_subtractions revenue.tn_municipal_interest f+ cvd /apportionment.state_subtractions xdef } {} revenue.tn_municipal_interest null streq not ifelse { apportionment.state_subtractions revenue.qualified_subsidiary_dividends f+ cvd /apportionment.state_subtractions xdef } {} revenue.qualified_subsidiary_dividends null streq not ifelse { apportionment.state_subtractions result.tn_nol_deduction f+ cvd /apportionment.state_subtractions xdef } {} result.tn_nol_deduction null streq not ifelse "TN state-specific income adjustments to federal taxable income. Additions include: Interest on federal obligations (U.S. Treasury bonds, etc.), IRC § 199A qualified business income deduction addback, State franchise and excise taxes paid (not deductible). Subtractions include: Interest on TN state and local bonds, Dividends from 80%+ owned subsidiaries, TN NOL carryforward deduction. Reference: TN Code § 67-4-2006 (Definitions of net earnings), Form FAE 170 Instructions (Schedule J - Adjustments), TN Revenue Ruling 09-13 (IRC conformity)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -128,7 +123,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "No nexus - no TN state adjustments calculated." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -163,9 +158,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>YYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -174,9 +167,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 result.tn_net_worth 0 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
+<columns>YN-</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -187,7 +178,7 @@ result.tn_net_worth 0 f&gt;
 <action_postfix>
 result.tn_net_worth result.tn_franchise_tax_rate fmul cvd /result.tn_franchise_tax xdef "TN franchise tax calculation: Net worth × 0.25%. Combined minimum tax (franchise + excise): $100. Reference: TN Code 67-4-2104" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -196,7 +187,7 @@ result.tn_net_worth result.tn_franchise_tax_rate fmul cvd /result.tn_franchise_t
 <action_postfix>
 0.0 cvd /result.tn_franchise_tax xdef "No net worth in TN - no franchise tax liability. Excise tax may still apply if there is net earnings." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -205,7 +196,7 @@ result.tn_net_worth result.tn_franchise_tax_rate fmul cvd /result.tn_franchise_t
 <action_postfix>
 0.0 cvd /result.tn_franchise_tax xdef "No TN nexus - no franchise tax liability." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -240,9 +231,7 @@ result.tn_net_worth result.tn_franchise_tax_rate fmul cvd /result.tn_franchise_t
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>YYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -251,9 +240,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
+<columns>YN-</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -264,7 +251,7 @@ apportionment.state_taxable_income 0 &gt;
 <action_postfix>
 apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /result.tn_excise_tax xdef result.tn_excise_tax apportionment.state_credits f- 0.0 fmax cvd /result.tn_excise_tax xdef result.tn_franchise_tax result.tn_excise_tax f+ cvd /result.tn_total_tax xdef result.tn_minimum_tax result.tn_total_tax fmax cvd /result.tn_total_tax xdef result.tn_total_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "TN franchise and excise tax calculated. Excise: 6.5% on net earnings. Franchise: 0.25% on net worth. Minimum $100. Reference: TN Code 67-4-2007, 67-4-2104" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -273,7 +260,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /result
 <action_postfix>
 0.0 cvd /result.tn_excise_tax xdef result.tn_franchise_tax cvd /result.tn_total_tax xdef { result.tn_minimum_tax result.tn_total_tax fmax cvd /result.tn_total_tax xdef } {} result.tn_franchise_tax 0 f&gt; ifelse result.tn_total_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "No TN net earnings - no excise tax. Franchise tax still applies if there is net worth. Minimum $100 if franchise tax owed." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -282,7 +269,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /result
 <action_postfix>
 0.0 cvd /result.tn_excise_tax xdef 0.0 cvd /result.tn_total_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No TN nexus - no excise tax or franchise tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -312,7 +299,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /result
 <condition_postfix>
 apportionment.state_code "TN" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -323,7 +310,7 @@ apportionment.state_code "TN" streq
 <action_postfix>
 /Calculate_TN_Excise_Tax performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -332,7 +319,7 @@ apportionment.state_code "TN" streq
 <action_postfix>
 /Calculate_TN_Franchise_Tax performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

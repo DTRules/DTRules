@@ -56,7 +56,7 @@ hand.cards "rank" 3 "seq" hand.run_list maximalruns
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -67,7 +67,7 @@ true
 <action_postfix>
 /Score_Fifteens performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -76,7 +76,7 @@ true
 <action_postfix>
 /Score_Pairs performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -85,7 +85,7 @@ true
 <action_postfix>
 /Score_Runs performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -94,7 +94,7 @@ true
 <action_postfix>
 /Score_Flush performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -103,7 +103,7 @@ true
 <action_postfix>
 /Score_Nobs performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -112,7 +112,7 @@ true
 <action_postfix>
 hand.fifteen_points hand.pair_points + hand.run_points + hand.flush_points + hand.nobs_points + cvi /hand.total xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -151,7 +151,7 @@ dup hand.run_list forall pop
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -162,7 +162,7 @@ true
 <action_postfix>
 hand.run_points seq.span seq.multiplicity * + cvi /hand.run_points xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -206,7 +206,7 @@ dup hand.combos forall pop
 <condition_postfix>
 combo.sum 15 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -217,7 +217,7 @@ combo.sum 15 ==
 <action_postfix>
 2 hand.fifteen_points + /hand.fifteen_points xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -261,9 +261,7 @@ dup hand.rank_groups forall pop
 <condition_postfix>
 grp.count 2 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -272,9 +270,7 @@ grp.count 2 ==
 <condition_postfix>
 grp.count 3 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>-YN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -283,9 +279,7 @@ grp.count 3 ==
 <condition_postfix>
 grp.count 4 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -296,7 +290,7 @@ grp.count 4 ==
 <action_postfix>
 2 hand.pair_points + /hand.pair_points xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -305,7 +299,7 @@ grp.count 4 ==
 <action_postfix>
 6 hand.pair_points + /hand.pair_points xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -314,7 +308,7 @@ grp.count 4 ==
 <action_postfix>
 12 hand.pair_points + /hand.pair_points xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -366,8 +360,7 @@ dup hand.suit_groups forall pop
 <condition_postfix>
 grp.count 4 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
+<columns>YY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -376,8 +369,7 @@ grp.count 4 ==
 <condition_postfix>
 grp.key hand.starter_suit ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -386,8 +378,7 @@ grp.key hand.starter_suit ==
 <condition_postfix>
 hand.is_crib
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="N" />
+<columns>-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -398,7 +389,7 @@ hand.is_crib
 <action_postfix>
 5 hand.flush_points + /hand.flush_points xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -407,7 +398,7 @@ hand.is_crib
 <action_postfix>
 4 hand.flush_points + /hand.flush_points xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -455,7 +446,7 @@ dup hand.kept forall pop
 <condition_postfix>
 card.rank 11 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -464,7 +455,7 @@ card.rank 11 ==
 <condition_postfix>
 card.suit hand.starter_suit ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -475,7 +466,7 @@ card.suit hand.starter_suit ==
 <action_postfix>
 1 hand.nobs_points + /hand.nobs_points xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -523,7 +514,7 @@ play.cards 2 "rank" "combo" play.windows suffixes
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -534,7 +525,7 @@ true
 <action_postfix>
 /Score_Play_Count performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -543,7 +534,7 @@ true
 <action_postfix>
 /Score_Play_Pairs performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -552,7 +543,7 @@ true
 <action_postfix>
 /Score_Play_Runs performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -561,7 +552,7 @@ true
 <action_postfix>
 /Score_Play_Go performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -570,7 +561,7 @@ true
 <action_postfix>
 play.count_points play.pair_points + play.run_points + play.go_points + cvi /play.total xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -600,8 +591,7 @@ play.count_points play.pair_points + play.run_points + play.go_points + cvi /pla
 <condition_postfix>
 play.is_go
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="N" />
+<columns>NN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -610,8 +600,7 @@ play.is_go
 <condition_postfix>
 play.count 15 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -620,8 +609,7 @@ play.count 15 ==
 <condition_postfix>
 play.count 31 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
+<columns>-Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -632,8 +620,7 @@ play.count 31 ==
 <action_postfix>
 2 play.count_points + /play.count_points xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -681,9 +668,7 @@ dup play.windows forall pop
 <condition_postfix>
 combo.distinct 1 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="Y" />
+<columns>YYY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -692,9 +677,7 @@ combo.distinct 1 ==
 <condition_postfix>
 play.pair_points 0 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="Y" />
+<columns>YYY</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -703,9 +686,7 @@ play.pair_points 0 ==
 <condition_postfix>
 combo.count 4 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -714,9 +695,7 @@ combo.count 4 ==
 <condition_postfix>
 combo.count 3 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>-YN</columns>
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -725,9 +704,7 @@ combo.count 3 ==
 <condition_postfix>
 combo.count 2 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -738,7 +715,7 @@ combo.count 2 ==
 <action_postfix>
 12 play.pair_points + /play.pair_points xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -747,7 +724,7 @@ combo.count 2 ==
 <action_postfix>
 6 play.pair_points + /play.pair_points xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -756,7 +733,7 @@ combo.count 2 ==
 <action_postfix>
 2 play.pair_points + /play.pair_points xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -808,7 +785,7 @@ dup play.windows forall pop
 <condition_postfix>
 play.run_points 0 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -817,7 +794,7 @@ play.run_points 0 ==
 <condition_postfix>
 combo.count 3 &gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -826,7 +803,7 @@ combo.count 3 &gt;=
 <condition_postfix>
 combo.distinct combo.count ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -835,7 +812,7 @@ combo.distinct combo.count ==
 <condition_postfix>
 combo.spread combo.count 1 - ==
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -846,7 +823,7 @@ combo.spread combo.count 1 - ==
 <action_postfix>
 combo.count cvi /play.run_points xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -881,8 +858,7 @@ combo.count cvi /play.run_points xdef
 <condition_postfix>
 play.count 31 ==
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="N" />
+<columns>NN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -891,8 +867,7 @@ play.count 31 ==
 <condition_postfix>
 play.is_last
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -901,8 +876,7 @@ play.is_last
 <condition_postfix>
 play.is_go
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
+<columns>-Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -913,8 +887,7 @@ play.is_go
 <action_postfix>
 1 play.go_points + /play.go_points xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX</columns>
 </action_details>
 </actions>
 <policy_statements>

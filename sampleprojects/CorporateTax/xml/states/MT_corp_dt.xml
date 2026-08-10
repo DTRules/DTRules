@@ -30,9 +30,7 @@
 <condition_postfix>
 result.has_physical_presence_mt true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -41,9 +39,7 @@ result.has_physical_presence_mt true beq
 <condition_postfix>
 result.mt_gross_receipts result.mt_economic_nexus_threshold f&gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>-YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -54,7 +50,7 @@ result.mt_gross_receipts result.mt_economic_nexus_threshold f&gt;=
 <action_postfix>
 true cvb /result.mt_has_nexus xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -63,7 +59,7 @@ true cvb /result.mt_has_nexus xdef
 <action_postfix>
 true cvb /result.mt_has_nexus xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -72,7 +68,7 @@ true cvb /result.mt_has_nexus xdef
 <action_postfix>
 false cvb /result.mt_has_nexus xdef 0.0 cvd /result.mt_tax_liability xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -107,8 +103,7 @@ false cvb /result.mt_has_nexus xdef 0.0 cvd /result.mt_tax_liability xdef
 <condition_postfix>
 result.mt_has_nexus true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -119,7 +114,7 @@ result.mt_has_nexus true beq
 <action_postfix>
 0.0 cvd /result.mt_state_additions xdef { result.mt_state_additions result.mt_us_interest_income f+ cvd /result.mt_state_additions xdef } {} result.mt_us_interest_income 0.0 f== not ifelse 0.0 cvd /result.mt_state_subtractions xdef { result.mt_state_subtractions result.mt_municipal_interest f+ cvd /result.mt_state_subtractions xdef } {} result.mt_municipal_interest 0.0 f== not ifelse "Montana additions: $" result.mt_state_additions cvs strconcat ", subtractions: $" strconcat result.mt_state_subtractions cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -128,7 +123,7 @@ result.mt_has_nexus true beq
 <action_postfix>
 0.0 cvd /result.mt_state_additions xdef 0.0 cvd /result.mt_state_subtractions xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -163,10 +158,7 @@ result.mt_has_nexus true beq
 <condition_postfix>
 result.mt_has_nexus true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
+<columns>YYYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -175,10 +167,7 @@ result.mt_has_nexus true beq
 <condition_postfix>
 result.mt_apportioned_income 0.0 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="-" />
+<columns>YYN-</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -187,10 +176,7 @@ result.mt_apportioned_income 0.0 f&gt;
 <condition_postfix>
 result.mt_waters_edge_election true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
+<columns>NY--</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -201,7 +187,7 @@ result.mt_waters_edge_election true beq
 <action_postfix>
 result.mt_apportioned_income result.mt_state_additions f+ result.mt_state_subtractions f- 0.0 fmax cvd /result.mt_taxable_income xdef result.mt_taxable_income result.mt_corp_tax_rate fmul result.mt_state_credits f- 0.0 fmax cvd /result.mt_tax_liability xdef result.mt_estimated_payments result.mt_tax_liability f- cvd /result.mt_refund_or_owed xdef "Montana taxable income: $" result.mt_taxable_income cvs strconcat job.audit_trail swap addto "Montana tax liability (6.75% standard rate): $" result.mt_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -210,7 +196,7 @@ result.mt_apportioned_income result.mt_state_additions f+ result.mt_state_subtra
 <action_postfix>
 result.mt_apportioned_income result.mt_state_additions f+ result.mt_state_subtractions f- 0.0 fmax cvd /result.mt_taxable_income xdef result.mt_taxable_income result.mt_corp_tax_rate_waters_edge fmul result.mt_state_credits f- 0.0 fmax cvd /result.mt_tax_liability xdef result.mt_estimated_payments result.mt_tax_liability f- cvd /result.mt_refund_or_owed xdef "Montana taxable income: $" result.mt_taxable_income cvs strconcat job.audit_trail swap addto "Montana tax liability (7.0% water's edge rate): $" result.mt_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -219,7 +205,7 @@ result.mt_apportioned_income result.mt_state_additions f+ result.mt_state_subtra
 <action_postfix>
 0.0 cvd /result.mt_taxable_income xdef 0.0 cvd /result.mt_tax_liability xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -228,7 +214,7 @@ result.mt_apportioned_income result.mt_state_additions f+ result.mt_state_subtra
 <action_postfix>
 0.0 cvd /result.mt_taxable_income xdef 0.0 cvd /result.mt_tax_liability xdef
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

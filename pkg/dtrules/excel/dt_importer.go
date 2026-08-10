@@ -105,13 +105,13 @@ type DecisionTablesXML struct {
 
 // DecisionTableXML represents a single decision table in XML format.
 type DecisionTableXML struct {
-	Source           *SourceXML           `xml:"source,omitempty"`
-	TableName        string               `xml:"table_name"`
-	TableDescription string               `xml:"table_description,omitempty"`
-	XLSFile          string               `xml:"xls_file"`
-	AttributeFields  AttributeFieldsXML   `xml:"attribute_fields"`
-	Contexts         ContextsField        `xml:"contexts"`
-	InitialActions   []InitialActionXML   `xml:"initial_actions>initial_action"`
+	Source           *SourceXML         `xml:"source,omitempty"`
+	TableName        string             `xml:"table_name"`
+	TableDescription string             `xml:"table_description,omitempty"`
+	XLSFile          string             `xml:"xls_file"`
+	AttributeFields  AttributeFieldsXML `xml:"attribute_fields"`
+	Contexts         ContextsField      `xml:"contexts"`
+	InitialActions   []InitialActionXML `xml:"initial_actions>initial_action"`
 	// InitialActionsLegacy is the `<initial_action_details>` spelling, which
 	// every other section of the file uses (`<condition_details>`,
 	// `<action_details>`, `<context_details>`) and which SyntaxTests uses
@@ -119,11 +119,11 @@ type DecisionTableXML struct {
 	// invisible: not loaded, not compiled, not executable, and not reachable
 	// from the authoring API — 312 rows of one sample that had never run.
 	// Read both, normalise to the canonical spelling on write-out.
-	InitialActionsLegacy []InitialActionXML `xml:"initial_actions>initial_action_details,omitempty"`
-	Conditions       []ConditionXML       `xml:"conditions>condition_details"`
-	Actions          []ActionXML          `xml:"actions>action_details"`
-	PolicyStatements []PolicyStatementXML `xml:"policy_statements>policy_statement"`
-	ELCompiled       bool                 `xml:"el_compiled,attr"` // True if postfix was generated from EL
+	InitialActionsLegacy []InitialActionXML   `xml:"initial_actions>initial_action_details,omitempty"`
+	Conditions           []ConditionXML       `xml:"conditions>condition_details"`
+	Actions              []ActionXML          `xml:"actions>action_details"`
+	PolicyStatements     []PolicyStatementXML `xml:"policy_statements>policy_statement"`
+	ELCompiled           bool                 `xml:"el_compiled,attr"` // True if postfix was generated from EL
 }
 
 // ContextsField is the in-memory shape of a table's <contexts> element. It
@@ -331,27 +331,78 @@ func (a InitialActionXML) EffectivePostfix() string {
 }
 
 // ConditionXML represents a condition row with its column values.
+//
+// Cells is the dense form and the one that gets written: one character per
+// column, in order, so "YN--" is a four-column row. Columns is the legacy
+// sparse form, still parsed so files written before the change keep loading.
+//
+// A decision table is a grid, and the grid is what every layer holds: the
+// runtime has conditionTable[row][col], the importer builds a fixed-width row.
+// Only the XML was keyed by column number, and that keying is where the
+// round-trip bug came from -- a key can be *missing*, and a missing key is
+// indistinguishable from a don't-care cell, so the exporter and the importer
+// disagreed about which cells to write. It also left a table with no recorded
+// width, so the width had to be inferred by scanning for the highest key,
+// which meant dropping a trailing don't-care silently narrowed the table.
+//
+// A dense string has no missing state and its length is the width. Both
+// problems stop existing rather than being handled (#1079).
 type ConditionXML struct {
 	Number  string           `xml:"condition_number"`
 	Comment string           `xml:"condition_comment"`
 	DSL     string           `xml:"condition_dsl"`
 	Postfix string           `xml:"condition_postfix"`
+	Cells   string           `xml:"columns,omitempty"`
 	Columns []ColumnValueXML `xml:"condition_column"`
 }
 
-// ActionXML represents an action row with its column values.
+// ActionXML represents an action row with its column values. See ConditionXML
+// for why Cells is dense and Columns is legacy.
 type ActionXML struct {
 	Number  string           `xml:"action_number"`
 	Comment string           `xml:"action_comment"`
 	DSL     string           `xml:"action_dsl"`
 	Postfix string           `xml:"action_postfix"`
+	Cells   string           `xml:"columns,omitempty"`
 	Columns []ColumnValueXML `xml:"action_column"`
 }
 
-// ColumnValueXML represents a column value in conditions or actions.
+// ColumnValueXML is a cell in the legacy sparse form: read, never written.
 type ColumnValueXML struct {
 	Number int    `xml:"column_number,attr"`
 	Value  string `xml:"column_value,attr"`
+}
+
+// CellsOf renders a row's cells densely, one character per column, padding
+// with DASH to width. Values longer than one character are truncated to their
+// first character -- the runtime only ever reads '-', 'Y', 'N' and '*', so
+// anything else was never executable in the first place.
+func CellsOf(columns []ColumnValueXML, width int) string {
+	row := make([]byte, width)
+	for i := range row {
+		row[i] = '-'
+	}
+	for _, c := range columns {
+		if c.Number < 1 || c.Number > width {
+			continue
+		}
+		v := strings.TrimSpace(c.Value)
+		if v == "" {
+			continue
+		}
+		row[c.Number-1] = v[0]
+	}
+	return string(row)
+}
+
+// ColumnsOf is CellsOf inverted: the dense string as the sparse pairs the rest
+// of the code still works in. A '-' is a real cell here, not an omission.
+func ColumnsOf(cells string) []ColumnValueXML {
+	out := make([]ColumnValueXML, 0, len(cells))
+	for i := 0; i < len(cells); i++ {
+		out = append(out, ColumnValueXML{Number: i + 1, Value: string(cells[i])})
+	}
+	return out
 }
 
 // PolicyStatementXML represents a policy statement for a column.
@@ -722,6 +773,11 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 	}
 
 	// Conditions
+	// One width for the whole table: a grid has columns, not rows that each
+	// have their own. Taking the widest row means a table never narrows just
+	// because its last column is don't-care everywhere.
+	width := tableWidth(table)
+
 	if len(table.Conditions) == 0 {
 		f.WriteString("<conditions></conditions>\n")
 	} else {
@@ -732,10 +788,8 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 			f.WriteString(fmt.Sprintf("<condition_comment>%s</condition_comment>\n", xmlEscapeText(cond.Comment)))
 			writeDSLOrPostfix(f, "condition_dsl", cond.DSL)
 			writeBlockPostfix(f, "condition_postfix", cond.Postfix)
-			for _, col := range sortedColumns(cond.Columns) {
-				f.WriteString(fmt.Sprintf("<condition_column column_number=\"%d\" column_value=\"%s\" />\n",
-					col.Number, xmlEscapeAttr(col.Value)))
-			}
+			f.WriteString(fmt.Sprintf("<columns>%s</columns>\n",
+				xmlEscapeText(rowCells(cond.Cells, cond.Columns, width))))
 			f.WriteString("</condition_details>\n")
 		}
 		f.WriteString("</conditions>\n")
@@ -752,10 +806,8 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 			f.WriteString(fmt.Sprintf("<action_comment>%s</action_comment>\n", xmlEscapeText(action.Comment)))
 			writeDSLOrPostfix(f, "action_dsl", action.DSL)
 			writeBlockPostfix(f, "action_postfix", action.Postfix)
-			for _, col := range sortedColumns(action.Columns) {
-				f.WriteString(fmt.Sprintf("<action_column column_number=\"%d\" column_value=\"%s\" />\n",
-					col.Number, xmlEscapeAttr(col.Value)))
-			}
+			f.WriteString(fmt.Sprintf("<columns>%s</columns>\n",
+				xmlEscapeText(rowCells(action.Cells, action.Columns, width))))
 			f.WriteString("</action_details>\n")
 		}
 		f.WriteString("</actions>\n")
@@ -1698,4 +1750,122 @@ func countOps(postfix string) map[string]int {
 		n[tok]++
 	}
 	return n
+}
+
+// rowCells prefers a row's dense cells and falls back to rendering the legacy
+// sparse pairs, so a file read in the old form is written out in the new one.
+func rowCells(cells string, columns []ColumnValueXML, width int) string {
+	if cells != "" {
+		if len(cells) >= width {
+			return cells[:width]
+		}
+		return cells + strings.Repeat("-", width-len(cells))
+	}
+	return CellsOf(columns, width)
+}
+
+// tableWidth is how many columns the table has: the length of the widest
+// dense row, or the highest column number in the legacy sparse form.
+//
+// Under the sparse form this was inferred by scanning for the highest key,
+// which is why dropping a trailing don't-care silently narrowed a table. Once
+// every row is written dense the answer is just a string length, and the
+// inference goes away.
+func tableWidth(table *DecisionTableXML) int {
+	width := 0
+	consider := func(cells string, columns []ColumnValueXML) {
+		if n := len(cells); n > width {
+			width = n
+		}
+		for _, c := range columns {
+			if c.Number > width {
+				width = c.Number
+			}
+		}
+	}
+	for _, c := range table.Conditions {
+		consider(c.Cells, c.Columns)
+	}
+	for _, a := range table.Actions {
+		consider(a.Cells, a.Columns)
+	}
+	if width == 0 {
+		width = 1
+	}
+	return width
+}
+
+// EffectiveColumns returns a condition row's cells as the sparse pairs older
+// callers work in, reading whichever form the file used. Callers must not
+// touch .Columns directly: a dense file leaves it empty.
+func (c *ConditionXML) EffectiveColumns() []ColumnValueXML {
+	if c.Cells != "" {
+		return ColumnsOf(c.Cells)
+	}
+	return c.Columns
+}
+
+// EffectiveColumns is ConditionXML.EffectiveColumns for an action row. An
+// unset action cell comes back as "-" from the dense form; callers testing for
+// "is this action taken" should compare against "x", which is all the runtime
+// does.
+func (a *ActionXML) EffectiveColumns() []ColumnValueXML {
+	if a.Cells != "" {
+		cols := ColumnsOf(a.Cells)
+		for i := range cols {
+			if cols[i].Value == "-" {
+				cols[i].Value = ""
+			}
+		}
+		return cols
+	}
+	return a.Columns
+}
+
+// Row renders a condition row at the given width, from whichever form the file
+// used. This is the one place that decision lives: before the dense form there
+// were four separate hand-rolled sparse-to-dense loops -- the loader, the
+// authoring model, the analysis inputs and the editor -- each defaulting cells
+// and bounds-checking column numbers on its own (#1079).
+func (c *ConditionXML) Row(width int) []string {
+	return denseRow(c.Cells, c.Columns, width, "-")
+}
+
+// Row is ConditionXML.Row for an action row, where an unset cell is empty
+// rather than don't-care: the runtime only ever tests for "x".
+func (a *ActionXML) Row(width int) []string {
+	return denseRow(a.Cells, a.Columns, width, "")
+}
+
+// TableWidth is how many columns a table has. Every row is that wide; the
+// widest wins, so a table never narrows because its last column happens to be
+// don't-care everywhere.
+func TableWidth(table *DecisionTableXML) int {
+	return tableWidth(table)
+}
+
+// denseRow is the shared conversion. unset is what a cell holds when nothing
+// says otherwise, which differs between conditions and actions.
+func denseRow(cells string, columns []ColumnValueXML, width int, unset string) []string {
+	row := make([]string, width)
+	for i := range row {
+		row[i] = unset
+	}
+	if cells != "" {
+		for i := 0; i < len(cells) && i < width; i++ {
+			v := string(cells[i])
+			if v == "-" {
+				row[i] = unset
+				continue
+			}
+			row[i] = v
+		}
+		return row
+	}
+	for _, cv := range columns {
+		if cv.Number >= 1 && cv.Number <= width {
+			row[cv.Number-1] = cv.Value
+		}
+	}
+	return row
 }

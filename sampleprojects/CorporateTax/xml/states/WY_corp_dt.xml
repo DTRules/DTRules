@@ -25,9 +25,7 @@
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "WY" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>YYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -36,9 +34,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "WY"
 <condition_postfix>
 corporation.state_of_incorporation "WY" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
+<columns>YN-</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -49,7 +45,7 @@ corporation.state_of_incorporation "WY" streq
 <action_postfix>
 result.wy_annual_report_fee_domestic cvd /result.wy_annual_report_fee xdef 0.0 cvd /result.wy_state_tax xdef 0.0 cvi /apportionment.state_tax xdef "Wyoming has NO corporate income tax. Domestic corp annual report: $60. Reference: Wyoming Statutes 17-16-1630" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -58,7 +54,7 @@ result.wy_annual_report_fee_domestic cvd /result.wy_annual_report_fee xdef 0.0 c
 <action_postfix>
 result.wy_annual_report_fee_foreign cvd /result.wy_annual_report_fee xdef 0.0 cvd /result.wy_state_tax xdef 0.0 cvi /apportionment.state_tax xdef "Wyoming has NO corporate income tax. Foreign corp annual report: $120. Reference: Wyoming Statutes 17-16-1630" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -67,7 +63,7 @@ result.wy_annual_report_fee_foreign cvd /result.wy_annual_report_fee xdef 0.0 cv
 <action_postfix>
 0.0 cvd /result.wy_annual_report_fee xdef 0.0 cvd /result.wy_state_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No Wyoming presence - no filing required. WY has no corporate income tax anyway. Any payments refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -97,8 +93,7 @@ result.wy_annual_report_fee_foreign cvd /result.wy_annual_report_fee xdef 0.0 cv
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "WY" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -109,7 +104,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "WY"
 <action_postfix>
 0.0 cvd /apportionment.state_tax_rate xdef 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef true cvb /result.wy_no_corporate_tax xdef true cvb /result.wy_no_gross_receipts_tax xdef true cvb /result.wy_no_franchise_tax xdef "Wyoming has NO corporate income tax, franchise tax, or gross receipts tax. No adjustments needed." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -118,7 +113,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "WY"
 <action_postfix>
 0.0 cvd /apportionment.state_tax_rate xdef 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef true cvb /result.wy_no_corporate_tax xdef true cvb /result.wy_no_gross_receipts_tax xdef true cvb /result.wy_no_franchise_tax xdef "No Wyoming presence - no tax liability (WY has no corporate income tax anyway)." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -148,8 +143,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "WY"
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "WY" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -160,7 +154,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "WY"
 <action_postfix>
 0.0 cvd /result.wy_state_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "Wyoming State Tax: $0. NO corporate income tax, NO franchise tax, NO gross receipts tax. Any estimated payments refunded. Reference: Wyoming Statutes Title 39" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -169,7 +163,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "WY"
 <action_postfix>
 0.0 cvd /result.wy_state_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No Wyoming presence - $0 tax. Wyoming has no corporate income tax anyway. Any payments refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

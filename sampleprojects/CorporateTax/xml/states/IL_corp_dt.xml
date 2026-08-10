@@ -25,10 +25,7 @@
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "IL" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
+<columns>YNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -37,10 +34,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "IL"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "IL" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
+<columns>-YNN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -51,7 +45,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "IL" st
 <action_postfix>
 "IL filing required due to physical presence (office, employees, or property in state). Reference: IL Income Tax Act, 35 ILCS 5/201; IL Department of Revenue Publication 101; 86 Ill. Admin. Code § 100.9710" result.policy_statements swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -60,7 +54,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "IL" st
 <action_postfix>
 "IL filing required due to economic nexus (post-Wayfair). Threshold: $100,000 in IL gross receipts OR 200 transactions. Reference: South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018); 35 ILCS 5/1501(a)(1); IL Department of Revenue ST 19-0001-GIL" result.policy_statements swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -69,8 +63,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "IL" st
 <action_postfix>
 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
-<action_column column_number="4" column_value="X" />
+<columns>--XX</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -100,8 +93,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "IL" st
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -112,7 +104,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "IL state-specific income adjustments to federal taxable income. Additions may include: Interest on U.S. government obligations (35 ILCS 5/203(a)(2)(G)), IRC Section 199A qualified business income deduction addback, Depreciation adjustments for pre-2012 assets. Subtractions may include: Interest on IL state and local government bonds, IL state income taxes paid. Reference: IL Form IL-1120 Instructions, 35 ILCS 5/203 (Base income defined), 86 Ill. Admin. Code § 100.2110 (Additions and Subtractions)" result.policy_statements swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -121,7 +113,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -151,9 +143,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
+<columns>YNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -162,9 +152,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="N" />
+<columns>Y-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -175,7 +163,7 @@ apportionment.state_taxable_income 0 &gt;
 <action_postfix>
 apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apportionment.state_tax xdef 0.0 apportionment.state_tax apportionment.state_credits f- fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "IL state corporate income tax calculation: 1. Federal taxable income: [Form 1120 line 28], 2. Apportioned to IL: x [Apportionment %], 3. State additions: + [Additions], 4. State subtractions: - [Subtractions], 5. IL taxable income: = [Result], 6. IL tax rate: x 9.5% (highest in the nation), 7. IL income tax: = [Tax before credits], 8. IL credits: - [Credits], 9. IL tax liability (before replacement tax): = [Tax]. Note: Personal Property Replacement Tax (2.5%) calculated separately. Total effective IL corporate tax rate is 12.0% (9.5% + 2.5%). Reference: IL Form IL-1120 Instructions, 35 ILCS 5/201(b) (Tax rate: 9.5%), 35 ILCS 5/201(c) (Replacement tax: 2.5%), 86 Ill. Admin. Code § 100.2250 (Computation of tax)" result.policy_statements swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -184,7 +172,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apport
 <action_postfix>
 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -193,7 +181,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apport
 <action_postfix>
 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -223,9 +211,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apport
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
+<columns>YNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -234,9 +220,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="N" />
+<columns>Y-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -247,7 +231,7 @@ apportionment.state_taxable_income 0 &gt;
 <action_postfix>
 apportionment.state_taxable_income result.il_replacement_tax_rate fmul cvd /result.il_replacement_tax xdef apportionment.state_tax result.il_replacement_tax f+ cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "IL Personal Property Replacement Tax (PPRT) applies to corporations. Replacement Tax Calculation: Net income base: [State taxable income], Replacement tax rate: x 2.5%, Replacement tax: = [Replacement tax amount], Total IL tax: Income tax (9.5%) + Replacement tax (2.5%) = 12.0%. The replacement tax applies to the same income base as the income tax. It was enacted to replace revenue lost when the personal property tax on corporations was abolished by the 1970 Illinois Constitution. The replacement tax revenue is distributed to local governments to replace the lost personal property tax revenue. Reference: 35 ILCS 5/201(c) (Replacement tax rate: 2.5%), 35 ILCS 5/201(d) (Replacement tax base), IL Form IL-1120 Instructions (Schedule of Replacement Tax), 86 Ill. Admin. Code § 100.2260 (Personal Property Replacement Tax)" result.policy_statements swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -256,7 +240,7 @@ apportionment.state_taxable_income result.il_replacement_tax_rate fmul cvd /resu
 <action_postfix>
 0.0 cvd /result.il_replacement_tax xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -265,7 +249,7 @@ apportionment.state_taxable_income result.il_replacement_tax_rate fmul cvd /resu
 <action_postfix>
 0.0 cvd /result.il_replacement_tax xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

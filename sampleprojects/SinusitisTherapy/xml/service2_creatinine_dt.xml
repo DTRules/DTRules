@@ -25,7 +25,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -36,7 +36,7 @@ true
 <action_postfix>
 140 patient.age - patient.lean_body_weight fmul patient.pcr 72 fmul fdiv cvd /result.ccr xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -45,7 +45,7 @@ true
 <action_postfix>
 "CCr estimated via Cockcroft-Gault from age, lean body weight, and plasma creatinine." result.rationale swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

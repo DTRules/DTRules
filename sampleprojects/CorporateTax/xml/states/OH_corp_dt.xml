@@ -25,10 +25,7 @@
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code 'OH' streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
+<columns>YYNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -37,10 +34,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code 'OH'
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code 'OH' streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
+<columns>--YN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -49,10 +43,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code 'OH' st
 <condition_postfix>
 result.oh_taxable_gross_receipts result.oh_cat_exclusion_threshold f&lt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="-" />
+<columns>YNN-</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -63,7 +54,7 @@ result.oh_taxable_gross_receipts result.oh_cat_exclusion_threshold f&lt;
 <action_postfix>
 true cvb /result.oh_qualifies_for_no_cat xdef 0.0 cvd /result.oh_cat_tax xdef 0.0 cvi /apportionment.state_tax xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -72,7 +63,7 @@ true cvb /result.oh_qualifies_for_no_cat xdef 0.0 cvd /result.oh_cat_tax xdef 0.
 <action_postfix>
 false cvb /result.oh_qualifies_for_no_cat xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -81,7 +72,7 @@ false cvb /result.oh_qualifies_for_no_cat xdef
 <action_postfix>
 false cvb /result.oh_qualifies_for_no_cat xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -90,7 +81,7 @@ false cvb /result.oh_qualifies_for_no_cat xdef
 <action_postfix>
 true cvb /result.oh_qualifies_for_no_cat xdef 0.0 cvd /result.oh_cat_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -120,9 +111,7 @@ true cvb /result.oh_qualifies_for_no_cat xdef 0.0 cvd /result.oh_cat_tax xdef 0.
 <condition_postfix>
 result.oh_qualifies_for_no_cat false beq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="Y" />
+<columns>NYY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -131,9 +120,7 @@ result.oh_qualifies_for_no_cat false beq
 <condition_postfix>
 result.oh_cat_excluded_receipts 0 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>-YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -144,7 +131,7 @@ result.oh_cat_excluded_receipts 0 f&gt;
 <action_postfix>
 0.0 cvd /result.oh_taxable_gross_receipts xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -153,14 +140,14 @@ result.oh_cat_excluded_receipts 0 f&gt;
 <action_postfix>
 result.oh_taxable_gross_receipts result.oh_cat_excluded_receipts f- 0.0 fmax cvd /result.oh_taxable_gross_receipts xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Use Ohio-sourced gross receipts (no exclusions); Log CAT basis and situsing</action_comment>
 <action_dsl>// Use Ohio-sourced gross receipts (no exclusions)</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -190,10 +177,7 @@ result.oh_taxable_gross_receipts result.oh_cat_excluded_receipts f- 0.0 fmax cvd
 <condition_postfix>
 result.oh_qualifies_for_no_cat false beq
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="Y" />
+<columns>NYYY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -202,10 +186,7 @@ result.oh_qualifies_for_no_cat false beq
 <condition_postfix>
 result.oh_taxable_gross_receipts 0 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
+<columns>-YYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -214,10 +195,7 @@ result.oh_taxable_gross_receipts 0 f&gt;
 <condition_postfix>
 result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold f&gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="-" />
+<columns>-YN-</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -228,7 +206,7 @@ result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold f&gt;=
 <action_postfix>
 0.0 cvd /result.oh_cat_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -237,7 +215,7 @@ result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold f&gt;=
 <action_postfix>
 result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold f- result.oh_cat_rate fmul result.oh_cat_minimum_tax f+ cvd /result.oh_cat_tax xdef result.oh_cat_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -246,7 +224,7 @@ result.oh_taxable_gross_receipts result.oh_cat_minimum_threshold f- result.oh_ca
 <action_postfix>
 result.oh_cat_minimum_tax cvd /result.oh_cat_tax xdef result.oh_cat_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -255,7 +233,7 @@ result.oh_cat_minimum_tax cvd /result.oh_cat_tax xdef result.oh_cat_tax cvi /app
 <action_postfix>
 0.0 cvd /result.oh_cat_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -285,7 +263,7 @@ result.oh_cat_minimum_tax cvd /result.oh_cat_tax xdef result.oh_cat_tax cvi /app
 <condition_postfix>
 apportionment.state_code "OH" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -296,7 +274,7 @@ apportionment.state_code "OH" streq
 <action_postfix>
 /Calculate_OH_Taxable_Gross_Receipts performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -326,7 +304,7 @@ apportionment.state_code "OH" streq
 <condition_postfix>
 apportionment.state_code "OH" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -337,7 +315,7 @@ apportionment.state_code "OH" streq
 <action_postfix>
 /Calculate_OH_CAT performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

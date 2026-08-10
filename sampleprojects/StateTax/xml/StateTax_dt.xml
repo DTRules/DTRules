@@ -25,10 +25,7 @@
 <condition_postfix>
 state_config.tax_type "none" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
+<columns>Y---</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -37,10 +34,7 @@ state_config.tax_type "none" streq
 <condition_postfix>
 state_config.tax_type "flat" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
+<columns>-Y--</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -49,10 +43,7 @@ state_config.tax_type "flat" streq
 <condition_postfix>
 state_config.tax_type "progressive" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="-" />
+<columns>--Y-</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -61,10 +52,7 @@ state_config.tax_type "progressive" streq
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="Y" />
+<columns>---Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -75,8 +63,7 @@ true
 <action_postfix>
 /Calculate_Gross_Income performtable
 </action_postfix>
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
+<columns>-XX-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -85,8 +72,7 @@ true
 <action_postfix>
 taxpayer.grossIncome cvi /taxpayer.agi xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
+<columns>-XX-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -95,8 +81,7 @@ taxpayer.grossIncome cvi /taxpayer.agi xdef
 <action_postfix>
 /Apply_Adjustments performtable
 </action_postfix>
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
+<columns>-XX-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -105,8 +90,7 @@ taxpayer.grossIncome cvi /taxpayer.agi xdef
 <action_postfix>
 /Determine_Filing_Details performtable
 </action_postfix>
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
+<columns>-XX-</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -115,8 +99,7 @@ taxpayer.grossIncome cvi /taxpayer.agi xdef
 <action_postfix>
 /Calculate_Taxable_Income performtable
 </action_postfix>
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
+<columns>-XX-</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -125,7 +108,7 @@ taxpayer.grossIncome cvi /taxpayer.agi xdef
 <action_postfix>
 /Apply_Flat_Tax performtable
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>7</action_number>
@@ -134,7 +117,7 @@ taxpayer.grossIncome cvi /taxpayer.agi xdef
 <action_postfix>
 /Select_And_Apply_Brackets performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>8</action_number>
@@ -143,10 +126,7 @@ taxpayer.grossIncome cvi /taxpayer.agi xdef
 <action_postfix>
 /Evaluate_Results performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
-<action_column column_number="4" column_value="X" />
+<columns>XXXX</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -202,7 +182,7 @@ dup incomes forall pop
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -213,7 +193,7 @@ true
 <action_postfix>
 income.amount taxpayer.grossIncome + /taxpayer.grossIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -257,7 +237,7 @@ dup adjustments forall pop
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -268,7 +248,7 @@ true
 <action_postfix>
 adjustment.amount taxpayer.agi swap - /taxpayer.agi xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -303,10 +283,7 @@ adjustment.amount taxpayer.agi swap - /taxpayer.agi xdef
 <condition_postfix>
 taxpayer.filing_status "SINGLE" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
+<columns>Y---</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -315,10 +292,7 @@ taxpayer.filing_status "SINGLE" streq
 <condition_postfix>
 taxpayer.filing_status "MFJ" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
+<columns>-Y--</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -327,10 +301,7 @@ taxpayer.filing_status "MFJ" streq
 <condition_postfix>
 taxpayer.filing_status "HOH" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="-" />
+<columns>--Y-</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -339,10 +310,7 @@ taxpayer.filing_status "HOH" streq
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="Y" />
+<columns>---Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -353,8 +321,7 @@ true
 <action_postfix>
 state_config.standard_deduction_single cvi /taxpayer.deduction xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="4" column_value="X" />
+<columns>X--X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -363,7 +330,7 @@ state_config.standard_deduction_single cvi /taxpayer.deduction xdef
 <action_postfix>
 state_config.standard_deduction_mfj cvi /taxpayer.deduction xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -372,7 +339,7 @@ state_config.standard_deduction_mfj cvi /taxpayer.deduction xdef
 <action_postfix>
 state_config.standard_deduction_hoh cvi /taxpayer.deduction xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -381,9 +348,7 @@ state_config.standard_deduction_hoh cvi /taxpayer.deduction xdef
 <action_postfix>
 taxpayer.num_dependents 1 + cvi /taxpayer.exemptions xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="3" column_value="X" />
-<action_column column_number="4" column_value="X" />
+<columns>X-XX</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -392,7 +357,7 @@ taxpayer.num_dependents 1 + cvi /taxpayer.exemptions xdef
 <action_postfix>
 taxpayer.num_dependents 2 + cvi /taxpayer.exemptions xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -439,8 +404,7 @@ taxpayer.num_dependents 2 + cvi /taxpayer.exemptions xdef
 <condition_postfix>
 taxpayer.agi taxpayer.deduction - taxpayer.exemptions state_config.exemption_amount * - 0 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -451,7 +415,7 @@ taxpayer.agi taxpayer.deduction - taxpayer.exemptions state_config.exemption_amo
 <action_postfix>
 taxpayer.agi taxpayer.deduction - taxpayer.exemptions state_config.exemption_amount * - cvi /taxpayer.taxableIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -460,7 +424,7 @@ taxpayer.agi taxpayer.deduction - taxpayer.exemptions state_config.exemption_amo
 <action_postfix>
 0 cvi /taxableIncome xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -499,7 +463,7 @@ taxpayer.agi taxpayer.deduction - taxpayer.exemptions state_config.exemption_amo
 <condition_postfix>
 perform when called
 </condition_postfix>
-<condition_column column_number="1" column_value="*" />
+<columns>*</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -510,7 +474,7 @@ perform when called
 <action_postfix>
 taxpayer.taxableIncome state_config.flat_rate_bps 10000.0 fdiv fmul cvi /taxpayer.taxOwed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -540,10 +504,7 @@ taxpayer.taxableIncome state_config.flat_rate_bps 10000.0 fdiv fmul cvi /taxpaye
 <condition_postfix>
 taxpayer.taxableIncome 0 &lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
+<columns>Y---</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -552,10 +513,7 @@ taxpayer.taxableIncome 0 &lt;=
 <condition_postfix>
 taxpayer.filing_status "SINGLE" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="-" />
+<columns>-Y--</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -564,10 +522,7 @@ taxpayer.filing_status "SINGLE" streq
 <condition_postfix>
 taxpayer.filing_status "MFJ" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="-" />
+<columns>--Y-</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -576,10 +531,7 @@ taxpayer.filing_status "MFJ" streq
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
-<condition_column column_number="4" column_value="Y" />
+<columns>---Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -590,7 +542,7 @@ true
 <action_postfix>
 0 cvi /taxOwed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -599,7 +551,7 @@ true
 <action_postfix>
 state_config.brackets_single /taxpayer.active_brackets xdef false cvb /taxpayer.bracket_applied xdef /Apply_Bracket_Iteration performtable
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -608,7 +560,7 @@ state_config.brackets_single /taxpayer.active_brackets xdef false cvb /taxpayer.
 <action_postfix>
 state_config.brackets_mfj /taxpayer.active_brackets xdef false cvb /taxpayer.bracket_applied xdef /Apply_Bracket_Iteration performtable
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -617,7 +569,7 @@ state_config.brackets_mfj /taxpayer.active_brackets xdef false cvb /taxpayer.bra
 <action_postfix>
 state_config.brackets_hoh /taxpayer.active_brackets xdef false cvb /taxpayer.bracket_applied xdef /Apply_Bracket_Iteration performtable
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -656,7 +608,7 @@ dup active_brackets forall pop
 <condition_postfix>
 taxpayer.bracket_applied false beq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -665,7 +617,7 @@ taxpayer.bracket_applied false beq
 <condition_postfix>
 taxpayer.taxableIncome bracket.ceiling &lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -676,7 +628,7 @@ taxpayer.taxableIncome bracket.ceiling &lt;=
 <action_postfix>
 bracket.base_tax taxpayer.taxableIncome bracket.floor - bracket.rate_bps 10000.0 fdiv fmul f+ cvi /taxpayer.taxOwed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -685,7 +637,7 @@ bracket.base_tax taxpayer.taxableIncome bracket.floor - bracket.rate_bps 10000.0
 <action_postfix>
 true cvb /bracket_applied xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -720,7 +672,7 @@ true cvb /bracket_applied xdef
 <condition_postfix>
 perform when called
 </condition_postfix>
-<condition_column column_number="1" column_value="*" />
+<columns>*</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -731,7 +683,7 @@ perform when called
 <action_postfix>
 /result createentity entitypush
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -740,7 +692,7 @@ perform when called
 <action_postfix>
 result job.results swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -749,7 +701,7 @@ result job.results swap addto
 <action_postfix>
 state_config.state_code cvs /result.state_code xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -758,7 +710,7 @@ state_config.state_code cvs /result.state_code xdef
 <action_postfix>
 taxpayer.taxpayer_ID cvs /result.taxpayer_ID xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -767,7 +719,7 @@ taxpayer.taxpayer_ID cvs /result.taxpayer_ID xdef
 <action_postfix>
 taxpayer cve /result.taxpayer xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -776,7 +728,7 @@ taxpayer cve /result.taxpayer xdef
 <action_postfix>
 taxpayer.filing_status cvs /result.filing_status xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>7</action_number>
@@ -785,7 +737,7 @@ taxpayer.filing_status cvs /result.filing_status xdef
 <action_postfix>
 taxpayer.grossIncome cvi /result.grossIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>8</action_number>
@@ -794,7 +746,7 @@ taxpayer.grossIncome cvi /result.grossIncome xdef
 <action_postfix>
 taxpayer.agi cvi /result.agi xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>9</action_number>
@@ -803,7 +755,7 @@ taxpayer.agi cvi /result.agi xdef
 <action_postfix>
 taxpayer.deduction cvi /result.deduction xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>10</action_number>
@@ -812,7 +764,7 @@ taxpayer.deduction cvi /result.deduction xdef
 <action_postfix>
 taxpayer.exemptions cvi /result.exemptions xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>11</action_number>
@@ -821,7 +773,7 @@ taxpayer.exemptions cvi /result.exemptions xdef
 <action_postfix>
 taxpayer.taxableIncome cvi /result.taxableIncome xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>12</action_number>
@@ -830,7 +782,7 @@ taxpayer.taxableIncome cvi /result.taxableIncome xdef
 <action_postfix>
 taxpayer.taxOwed cvi /result.taxOwed xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>13</action_number>
@@ -839,7 +791,7 @@ taxpayer.taxOwed cvi /result.taxOwed xdef
 <action_postfix>
 taxpayer.notes result.notes true addarray
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

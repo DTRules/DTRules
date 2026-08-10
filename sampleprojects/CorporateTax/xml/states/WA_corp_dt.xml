@@ -25,9 +25,7 @@
 <condition_postfix>
 apportionment.has_physical_presence true beq { pop apportionment.state_code "WA" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="-" />
+<columns>Y--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -36,9 +34,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "WA"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "WA" streq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>-YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -49,7 +45,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "WA" st
 <action_postfix>
 "Washington B&amp;O tax filing required due to physical presence. Physical presence includes: office/business in WA, employees in WA, tangible property in WA, inventory in WA, or regular solicitation in WA. References: RCW 82.04.067 (Nexus), WAC 458-20-193 (Interstate Sales), WAC 458-20-19401 (Economic Nexus)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -58,7 +54,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "WA" st
 <action_postfix>
 "Washington B&amp;O tax filing required due to economic nexus. Economic nexus threshold (either): $100,000 or more in Washington receipts (gross revenue), OR 200 or more separate transactions in Washington. Washington adopted economic nexus following South Dakota v. Wayfair (2018). References: RCW 82.04.067 (Economic Nexus), WAC 458-20-19401 (Economic Nexus Rules), South Dakota v. Wayfair, Inc., 138 S. Ct. 2080 (2018)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -67,7 +63,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "WA" st
 <action_postfix>
 0.0 cvd /result.wa_bo_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No Washington nexus - no B&amp;O tax filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -97,9 +93,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "WA" st
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>YYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -108,9 +102,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 apportionment.apportionment_percentage 0 &gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
+<columns>YN-</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -121,7 +113,7 @@ apportionment.apportionment_percentage 0 &gt;
 <action_postfix>
 revenue.total_revenue apportionment.apportionment_percentage * cvd /result.wa_gross_receipts xdef "Washington gross receipts calculation for B&amp;O tax using market-based sourcing. Reference: RCW 82.04.460" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -130,7 +122,7 @@ revenue.total_revenue apportionment.apportionment_percentage * cvd /result.wa_gr
 <action_postfix>
 revenue.total_revenue cvd /result.wa_gross_receipts xdef "No apportionment percentage - treating all receipts as Washington-sourced." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -139,7 +131,7 @@ revenue.total_revenue cvd /result.wa_gross_receipts xdef "No apportionment perce
 <action_postfix>
 0.0 cvd /result.wa_gross_receipts xdef "No Washington nexus - no gross receipts attributed to Washington." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -169,12 +161,7 @@ revenue.total_revenue cvd /result.wa_gross_receipts xdef "No apportionment perce
 <condition_postfix>
 result.wa_business_classification
 </condition_postfix>
-<condition_column column_number="1" column_value="retailing" />
-<condition_column column_number="2" column_value="wholesaling" />
-<condition_column column_number="3" column_value="manufacturing" />
-<condition_column column_number="4" column_value="financial" />
-<condition_column column_number="5" column_value="professional" />
-<condition_column column_number="6" column_value="service" />
+<columns>rwmfps</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -185,7 +172,7 @@ result.wa_business_classification
 <action_postfix>
 result.wa_retailing_rate cvd /result.wa_bo_tax_rate xdef "Washington B&amp;O tax - Retailing classification: 0.471%. Retailing includes sales of tangible personal property to consumers for consumption or use (not for resale). References: RCW 82.04.250 (Retailing), RCW 82.04.470 (Retailing B&amp;O Tax Rate)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-----</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -194,7 +181,7 @@ result.wa_retailing_rate cvd /result.wa_bo_tax_rate xdef "Washington B&amp;O tax
 <action_postfix>
 result.wa_wholesaling_rate cvd /result.wa_bo_tax_rate xdef "Washington B&amp;O tax - Wholesaling classification: 0.484%. Wholesaling includes sales of tangible personal property to persons for purpose of resale. References: RCW 82.04.060 (Wholesaling), RCW 82.04.270 (Wholesaling B&amp;O Tax)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X----</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -203,7 +190,7 @@ result.wa_wholesaling_rate cvd /result.wa_bo_tax_rate xdef "Washington B&amp;O t
 <action_postfix>
 result.wa_manufacturing_rate cvd /result.wa_bo_tax_rate xdef "Washington B&amp;O tax - Manufacturing classification: 0.484%. Manufacturing includes production of articles for sale from raw materials, including processing, fabricating, assembling, extracting. Note: Certain manufacturers may qualify for preferential rates or exemptions. References: RCW 82.04.240 (Manufacturing), RCW 82.04.440 (Manufacturing B&amp;O Tax)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X---</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -212,7 +199,7 @@ result.wa_manufacturing_rate cvd /result.wa_bo_tax_rate xdef "Washington B&amp;O
 <action_postfix>
 result.wa_financial_rate cvd /result.wa_bo_tax_rate xdef "Washington B&amp;O tax - Financial Business classification: 1.5% (highest rate). Financial business includes banks, savings and loan associations, credit unions, finance companies, insurance companies, and similar institutions. Reference: RCW 82.04.290 (Financial Business)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X--</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -221,7 +208,7 @@ result.wa_financial_rate cvd /result.wa_bo_tax_rate xdef "Washington B&amp;O tax
 <action_postfix>
 result.wa_professional_rate cvd /result.wa_bo_tax_rate xdef "Washington B&amp;O tax - Professional Services classification: 0.484%. Professional services include legal, accounting, engineering, consulting, and other professional activities. Reference: RCW 82.04.290 (Service and Other Activities)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="5" column_value="X" />
+<columns>----X-</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -230,7 +217,7 @@ result.wa_professional_rate cvd /result.wa_bo_tax_rate xdef "Washington B&amp;O 
 <action_postfix>
 result.wa_service_rate cvd /result.wa_bo_tax_rate xdef "Washington B&amp;O tax - Service and Other Activities classification: 0.484%. This is the catch-all classification for business activities not specifically classified elsewhere. Reference: RCW 82.04.290 (Service and Other Activities)" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="6" column_value="X" />
+<columns>-----X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -260,9 +247,7 @@ result.wa_service_rate cvd /result.wa_bo_tax_rate xdef "Washington B&amp;O tax -
 <condition_postfix>
 revenue.total_revenue result.wa_small_business_credit_threshold f&lt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
+<columns>YNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -271,9 +256,7 @@ revenue.total_revenue result.wa_small_business_credit_threshold f&lt;
 <condition_postfix>
 result.wa_gross_receipts 0 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="N" />
+<columns>Y-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -284,7 +267,7 @@ result.wa_gross_receipts 0 f&gt;
 <action_postfix>
 true cvb /result.wa_qualifies_for_small_business_credit xdef 1440.0 1.0 revenue.total_revenue result.wa_small_business_credit_threshold fdiv f- fmul cvd /result.wa_small_business_credit xdef "Washington Small Business B&amp;O Tax Credit applied. Revenue under $250K. Reference: RCW 82.04.4451" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -293,7 +276,7 @@ true cvb /result.wa_qualifies_for_small_business_credit xdef 1440.0 1.0 revenue.
 <action_postfix>
 false cvb /result.wa_qualifies_for_small_business_credit xdef 0.0 cvd /result.wa_small_business_credit xdef "No small business credit - gross revenue exceeds $250,000 threshold." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -302,7 +285,7 @@ false cvb /result.wa_qualifies_for_small_business_credit xdef 0.0 cvd /result.wa
 <action_postfix>
 false cvb /result.wa_qualifies_for_small_business_credit xdef 0.0 cvd /result.wa_small_business_credit xdef "No small business credit - no Washington gross receipts." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -332,9 +315,7 @@ false cvb /result.wa_qualifies_for_small_business_credit xdef 0.0 cvd /result.wa
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.has_physical_presence true beq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="Y" />
+<columns>YNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -343,9 +324,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_postfix>
 result.wa_gross_receipts 0 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="N" />
+<columns>Y-N</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -356,7 +335,7 @@ result.wa_gross_receipts 0 f&gt;
 <action_postfix>
 result.wa_gross_receipts result.wa_bo_tax_rate fmul cvd /result.wa_bo_tax xdef result.wa_bo_tax result.wa_small_business_credit f- 0.0 fmax cvd /result.wa_bo_tax xdef result.wa_bo_tax result.wa_high_tech_credit f- 0.0 fmax cvd /result.wa_bo_tax xdef result.wa_bo_tax result.wa_aerospace_credit f- 0.0 fmax cvd /result.wa_bo_tax xdef result.wa_bo_tax apportionment.state_credits f- 0.0 fmax cvd /result.wa_bo_tax xdef result.wa_bo_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "Washington B&amp;O Tax calculated. Gross receipts tax, NOT income tax. Reference: RCW 82.04" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -365,7 +344,7 @@ result.wa_gross_receipts result.wa_bo_tax_rate fmul cvd /result.wa_bo_tax xdef r
 <action_postfix>
 0.0 cvd /result.wa_bo_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No Washington nexus - no B&amp;O tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -374,7 +353,7 @@ result.wa_gross_receipts result.wa_bo_tax_rate fmul cvd /result.wa_bo_tax xdef r
 <action_postfix>
 0.0 cvd /result.wa_bo_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No Washington gross receipts - no B&amp;O tax liability. Filing may still be required to report no tax due." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -404,7 +383,7 @@ result.wa_gross_receipts result.wa_bo_tax_rate fmul cvd /result.wa_bo_tax xdef r
 <condition_postfix>
 apportionment.state_code "WA" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -415,7 +394,7 @@ apportionment.state_code "WA" streq
 <action_postfix>
 /Determine_WA_Business_Classification performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -424,7 +403,7 @@ apportionment.state_code "WA" streq
 <action_postfix>
 /Calculate_WA_Gross_Receipts performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -454,7 +433,7 @@ apportionment.state_code "WA" streq
 <condition_postfix>
 apportionment.state_code "WA" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -465,7 +444,7 @@ apportionment.state_code "WA" streq
 <action_postfix>
 /Calculate_WA_BO_Tax performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -474,7 +453,7 @@ apportionment.state_code "WA" streq
 <action_postfix>
 /Calculate_WA_Small_Business_Credit performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

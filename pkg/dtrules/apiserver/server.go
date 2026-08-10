@@ -40,12 +40,12 @@ import (
 	"sync"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
-	"github.com/DTRules/DTRules/pkg/dtrules/excel"
 	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
-	"github.com/DTRules/DTRules/pkg/dtrules/project"
 	"github.com/DTRules/DTRules/pkg/dtrules/compiler"
 	"github.com/DTRules/DTRules/pkg/dtrules/entity"
+	"github.com/DTRules/DTRules/pkg/dtrules/excel"
 	"github.com/DTRules/DTRules/pkg/dtrules/interpreter"
+	"github.com/DTRules/DTRules/pkg/dtrules/project"
 	"github.com/DTRules/DTRules/pkg/dtrules/session"
 )
 
@@ -75,16 +75,16 @@ func (c Config) maxBodySize() int64 {
 
 // Server holds the API server state
 type Server struct {
-	cfg           Config
-	mu            sync.RWMutex
-	projectPath   string
+	cfg         Config
+	mu          sync.RWMutex
+	projectPath string
 	// discoverRoot is the non-project directory `dtrules edit` was
 	// launched from; the welcome screen lists projects found beneath it.
 	discoverRoot string
-	ruleSet       *session.RuleSet
-	eddFiles      []string
-	dtFiles       []string
-	mapFiles      []string
+	ruleSet      *session.RuleSet
+	eddFiles     []string
+	dtFiles      []string
+	mapFiles     []string
 	// entities and tables are slices, not maps: they preserve the authored
 	// document order (which the XML and Excel sheets express), and at this
 	// scale linear name lookup beats maintaining a parallel index.
@@ -314,17 +314,17 @@ type FieldData struct {
 
 // DecisionTableData represents a decision table for the API
 type DecisionTableData struct {
-	TableName        string                   `json:"tableName"`
-	XlsFile          string                   `json:"xlsFile"`
-	Type             string                   `json:"type"`
-	Comments         string                   `json:"comments"`
-	TableNumber      string                   `json:"tableNumber"`
-	Contexts         []ContextData            `json:"contexts"`
-	InitialActions   string                   `json:"initialActions"`
-	Conditions       []ConditionData          `json:"conditions"`
-	Actions          []ActionData             `json:"actions"`
-	PolicyStatements []PolicyStatementData    `json:"policyStatements"`
-	ColumnCount      int                      `json:"columnCount"`
+	TableName        string                `json:"tableName"`
+	XlsFile          string                `json:"xlsFile"`
+	Type             string                `json:"type"`
+	Comments         string                `json:"comments"`
+	TableNumber      string                `json:"tableNumber"`
+	Contexts         []ContextData         `json:"contexts"`
+	InitialActions   string                `json:"initialActions"`
+	Conditions       []ConditionData       `json:"conditions"`
+	Actions          []ActionData          `json:"actions"`
+	PolicyStatements []PolicyStatementData `json:"policyStatements"`
+	ColumnCount      int                   `json:"columnCount"`
 	// Source is the relative path of the DT file this table came from.
 	Source string `json:"-"`
 }
@@ -678,14 +678,14 @@ func (s *Server) handleSamples(w http.ResponseWriter, r *http.Request) {
 	// When running from go/cmd/api, we need to go up 3 levels to reach DTRules root
 	cwd, _ := os.Getwd()
 	searchPaths := []string{
-		filepath.Dir(execPath),                              // Same dir as executable
-		filepath.Join(filepath.Dir(execPath), ".."),         // Parent of executable
-		filepath.Join(filepath.Dir(execPath), "../.."),      // Grandparent (go/cmd/api -> go -> DTRules)
-		filepath.Join(filepath.Dir(execPath), "../../.."),   // Great-grandparent
-		cwd,                                                 // Current working directory
-		filepath.Join(cwd, ".."),                            // Parent of cwd
-		filepath.Join(cwd, "../.."),                         // Grandparent of cwd
-		filepath.Join(cwd, "../../.."),                      // Great-grandparent of cwd (go/cmd/api -> go -> DTRules)
+		filepath.Dir(execPath),                            // Same dir as executable
+		filepath.Join(filepath.Dir(execPath), ".."),       // Parent of executable
+		filepath.Join(filepath.Dir(execPath), "../.."),    // Grandparent (go/cmd/api -> go -> DTRules)
+		filepath.Join(filepath.Dir(execPath), "../../.."), // Great-grandparent
+		cwd,                            // Current working directory
+		filepath.Join(cwd, ".."),       // Parent of cwd
+		filepath.Join(cwd, "../.."),    // Grandparent of cwd
+		filepath.Join(cwd, "../../.."), // Great-grandparent of cwd (go/cmd/api -> go -> DTRules)
 	}
 
 	var samplesDir string
@@ -708,8 +708,8 @@ func (s *Server) handleSamples(w http.ResponseWriter, r *http.Request) {
 
 	// Scan for sample projects (directories containing xml subdirectory with *_edd.xml files)
 	type SampleProject struct {
-		Name string `json:"name"`
-		Path string `json:"path"`
+		Name        string `json:"name"`
+		Path        string `json:"path"`
 		Description string `json:"description"`
 	}
 
@@ -752,8 +752,8 @@ func (s *Server) handleSamples(w http.ResponseWriter, r *http.Request) {
 					description = "Expression Language syntax examples"
 				}
 				samples = append(samples, SampleProject{
-					Name: projectName,
-					Path: xmlDir,
+					Name:        projectName,
+					Path:        xmlDir,
 					Description: description,
 				})
 			}
@@ -2023,8 +2023,8 @@ func convertToGoValue(obj dtrules.Object) interface{} {
 
 // EDD XML structures
 type EDDXML struct {
-	XMLName  xml.Name     `xml:"entity_data_dictionary"`
-	Entities []EntityXML  `xml:"entity"`
+	XMLName  xml.Name    `xml:"entity_data_dictionary"`
+	Entities []EntityXML `xml:"entity"`
 }
 
 type EntityXML struct {
@@ -2206,15 +2206,15 @@ func applyEntityEdits(x *excel.EDDXMLEntity, e *EntityData) {
 
 // DT XML structures - matches the actual DTRules XML format
 type DTXML struct {
-	XMLName xml.Name       `xml:"decision_tables"`
-	Tables  []DTTableXML   `xml:"decision_table"`
+	XMLName xml.Name     `xml:"decision_tables"`
+	Tables  []DTTableXML `xml:"decision_table"`
 }
 
 type DTTableXML struct {
 	// NameAttr captures EL format: <decision_table name="...">
-	NameAttr         string               `xml:"name,attr"`
+	NameAttr string `xml:"name,attr"`
 	// NumberAttr captures EL format: <decision_table number="...">
-	NumberAttr       string               `xml:"number,attr"`
+	NumberAttr string `xml:"number,attr"`
 	// Name captures traditional format: <table_name>...</table_name>
 	Name             string               `xml:"table_name"`
 	XlsFile          string               `xml:"xls_file"`
@@ -2240,8 +2240,8 @@ func (t *DTTableXML) AllPolicyStatements() []PolicyStatementXML {
 // InitialActionsXML supports both formats: legacy raw text content, and the
 // structured <initial_action> entries carrying DSL + postfix.
 type InitialActionsXML struct {
-	Raw     string                    `xml:",chardata"`
-	Details []InitialActionDetailXML  `xml:"initial_action"`
+	Raw     string                   `xml:",chardata"`
+	Details []InitialActionDetailXML `xml:"initial_action"`
 }
 
 type InitialActionDetailXML struct {
@@ -2310,13 +2310,16 @@ type ConditionsXML struct {
 }
 
 type ConditionXML struct {
-	Number      int                `xml:"condition_number"`
-	Comment     string             `xml:"condition_comment"`
-	Requirement string             `xml:"condition_requirement"`
-	Description string             `xml:"condition_description"`
-	DSL         string             `xml:"condition_dsl"`
-	Postfix     string             `xml:"condition_postfix"`
-	Columns     []ConditionColXML  `xml:"condition_column"`
+	Number      int    `xml:"condition_number"`
+	Comment     string `xml:"condition_comment"`
+	Requirement string `xml:"condition_requirement"`
+	Description string `xml:"condition_description"`
+	DSL         string `xml:"condition_dsl"`
+	Postfix     string `xml:"condition_postfix"`
+	// Cells is the dense form -- one character per column, in order. Columns
+	// is the legacy sparse form. Read them through EffectiveCells (#1079).
+	Cells   string            `xml:"columns"`
+	Columns []ConditionColXML `xml:"condition_column"`
 }
 
 type ConditionColXML struct {
@@ -2329,13 +2332,15 @@ type ActionsXML struct {
 }
 
 type ActionXML struct {
-	Number      int             `xml:"action_number"`
-	Comment     string          `xml:"action_comment"`
-	Requirement string          `xml:"action_requirement"`
-	Description string          `xml:"action_description"`
-	DSL         string          `xml:"action_dsl"`
-	Postfix     string          `xml:"action_postfix"`
-	Columns     []ActionColXML  `xml:"action_column"`
+	Number      int    `xml:"action_number"`
+	Comment     string `xml:"action_comment"`
+	Requirement string `xml:"action_requirement"`
+	Description string `xml:"action_description"`
+	DSL         string `xml:"action_dsl"`
+	Postfix     string `xml:"action_postfix"`
+	// See ConditionXML.Cells.
+	Cells   string         `xml:"columns"`
+	Columns []ActionColXML `xml:"action_column"`
 }
 
 type ActionColXML struct {
@@ -2415,11 +2420,12 @@ func (s *Server) loadDTFile(path, relPath string) error {
 				Postfix:     strings.TrimSpace(cond.Postfix),
 				Columns:     make(map[string]string),
 			}
-			for _, col := range cond.Columns {
-				condData.Columns[col.Number] = strings.TrimSpace(col.Value)
-				// Track max column
+			for num, val := range effectiveCells(cond.Cells, len(cond.Columns), func(i int) (string, string) {
+				return cond.Columns[i].Number, cond.Columns[i].Value
+			}) {
+				condData.Columns[num] = val
 				var colNum int
-				fmt.Sscanf(col.Number, "%d", &colNum)
+				fmt.Sscanf(num, "%d", &colNum)
 				if colNum > maxCol {
 					maxCol = colNum
 				}
@@ -2437,11 +2443,12 @@ func (s *Server) loadDTFile(path, relPath string) error {
 				Postfix:     strings.TrimSpace(action.Postfix),
 				Columns:     make(map[string]string),
 			}
-			for _, col := range action.Columns {
-				actionData.Columns[col.Number] = strings.TrimSpace(col.Value)
-				// Track max column
+			for num, val := range effectiveCells(action.Cells, len(action.Columns), func(i int) (string, string) {
+				return action.Columns[i].Number, action.Columns[i].Value
+			}) {
+				actionData.Columns[num] = val
 				var colNum int
-				fmt.Sscanf(col.Number, "%d", &colNum)
+				fmt.Sscanf(num, "%d", &colNum)
 				if colNum > maxCol {
 					maxCol = colNum
 				}
@@ -2615,4 +2622,29 @@ func (s *Server) authoringDirs() (xmlDir, excelDir string) {
 		return xmlDir, cfg.ExcelDir
 	}
 	return xmlDir, ""
+}
+
+// effectiveCells reads a row in whichever form the file used and returns it
+// keyed by column number, which is what the editor's model still wants.
+//
+// A dense row is one character per column, in order; the legacy form is a
+// sparse list keyed by number. Reading only the latter would show the editor
+// an empty grid for any file written since the change (#1079).
+func effectiveCells(cells string, n int, at func(int) (string, string)) map[string]string {
+	out := make(map[string]string, n)
+	if cells != "" {
+		for i := 0; i < len(cells); i++ {
+			v := string(cells[i])
+			if v == "-" {
+				continue // don't-care: the editor treats absent as don't-care
+			}
+			out[strconv.Itoa(i+1)] = v
+		}
+		return out
+	}
+	for i := 0; i < n; i++ {
+		num, val := at(i)
+		out[num] = strings.TrimSpace(val)
+	}
+	return out
 }

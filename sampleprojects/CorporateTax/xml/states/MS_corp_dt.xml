@@ -30,9 +30,7 @@
 <condition_postfix>
 result.has_physical_presence_ms true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -41,9 +39,7 @@ result.has_physical_presence_ms true beq
 <condition_postfix>
 result.ms_gross_receipts result.ms_economic_nexus_threshold f&gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>-YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -54,7 +50,7 @@ result.ms_gross_receipts result.ms_economic_nexus_threshold f&gt;=
 <action_postfix>
 true cvb /result.ms_has_nexus xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -63,7 +59,7 @@ true cvb /result.ms_has_nexus xdef
 <action_postfix>
 true cvb /result.ms_has_nexus xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -72,7 +68,7 @@ true cvb /result.ms_has_nexus xdef
 <action_postfix>
 false cvb /result.ms_has_nexus xdef 0.0 cvd /result.ms_tax_liability xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -107,8 +103,7 @@ false cvb /result.ms_has_nexus xdef 0.0 cvd /result.ms_tax_liability xdef
 <condition_postfix>
 result.ms_has_nexus true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -119,7 +114,7 @@ result.ms_has_nexus true beq
 <action_postfix>
 0.0 cvd /result.ms_state_additions xdef { result.ms_state_additions result.ms_us_interest_income f+ cvd /result.ms_state_additions xdef } {} result.ms_us_interest_income 0.0 f== not ifelse 0.0 cvd /result.ms_state_subtractions xdef { result.ms_state_subtractions result.ms_municipal_interest f+ cvd /result.ms_state_subtractions xdef } {} result.ms_municipal_interest 0.0 f== not ifelse "Mississippi additions: $" result.ms_state_additions cvs strconcat ", subtractions: $" strconcat result.ms_state_subtractions cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -128,7 +123,7 @@ result.ms_has_nexus true beq
 <action_postfix>
 0.0 cvd /result.ms_state_additions xdef 0.0 cvd /result.ms_state_subtractions xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -163,9 +158,7 @@ result.ms_has_nexus true beq
 <condition_postfix>
 result.ms_has_nexus true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>YYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -174,9 +167,7 @@ result.ms_has_nexus true beq
 <condition_postfix>
 result.ms_apportioned_income 0.0 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="-" />
+<columns>YN-</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -187,7 +178,7 @@ result.ms_apportioned_income 0.0 f&gt;
 <action_postfix>
 result.ms_apportioned_income result.ms_state_additions f+ result.ms_state_subtractions f- 0.0 fmax cvd /result.ms_taxable_income xdef result.ms_taxable_income 5000.0 fmin result.ms_corp_tax_rate_tier1 fmul cvd /result.ms_tier1_tax xdef 0.0 cvd /result.ms_tier2_tax xdef 0.0 cvd /result.ms_tier3_tax xdef { result.ms_taxable_income 10000.0 fmin 5000.0 f- result.ms_corp_tax_rate_tier2 fmul cvd /result.ms_tier2_tax xdef } {} result.ms_taxable_income 5000.0 f&gt; ifelse { result.ms_taxable_income 10000.0 f- result.ms_corp_tax_rate_tier3 fmul cvd /result.ms_tier3_tax xdef } {} result.ms_taxable_income 10000.0 f&gt; ifelse result.ms_tier1_tax result.ms_tier2_tax result.ms_tier3_tax result.ms_state_credits f- f+ f+ 0.0 fmax cvd /result.ms_tax_liability xdef result.ms_estimated_payments result.ms_tax_liability f- cvd /result.ms_refund_or_owed xdef "Mississippi taxable income: $" result.ms_taxable_income cvs strconcat job.audit_trail swap addto "Mississippi tax liability (graduated rates 3%-5%): $" result.ms_tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -196,7 +187,7 @@ result.ms_apportioned_income result.ms_state_additions f+ result.ms_state_subtra
 <action_postfix>
 0.0 cvd /result.ms_taxable_income xdef 0.0 cvd /result.ms_tax_liability xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -205,7 +196,7 @@ result.ms_apportioned_income result.ms_state_additions f+ result.ms_state_subtra
 <action_postfix>
 0.0 cvd /result.ms_taxable_income xdef 0.0 cvd /result.ms_tax_liability xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

@@ -898,45 +898,25 @@ func formatWarningReason(w decisiontable.Warning) string {
 // advisory pass consumes. Policy comes from <Type> on the table so the
 // FIRST-policy redundancy check (#762) fires when applicable.
 func buildAnalysisInputs(table *excel.DecisionTableXML) decisiontable.Inputs {
-	maxCol := 0
-	for _, c := range table.Conditions {
-		for _, cv := range c.Columns {
-			if cv.Number > maxCol {
-				maxCol = cv.Number
-			}
-		}
-	}
-	for _, a := range table.Actions {
-		for _, cv := range a.Columns {
-			if cv.Number > maxCol {
-				maxCol = cv.Number
-			}
-		}
-	}
+	// One width for the table, and each row rendered at it. The conversion
+	// used to be open-coded here, which meant a fourth copy of the same
+	// defaulting and bounds-checking (#1079).
+	width := excel.TableWidth(table)
 
 	conditions := make([]decisiontable.ConditionRow, len(table.Conditions))
-	for i, c := range table.Conditions {
-		row := decisiontable.ConditionRow{DSL: c.DSL, Columns: make([]string, maxCol)}
-		for j := range row.Columns {
-			row.Columns[j] = "-"
+	for i := range table.Conditions {
+		conditions[i] = decisiontable.ConditionRow{
+			DSL:     table.Conditions[i].DSL,
+			Columns: table.Conditions[i].Row(width),
 		}
-		for _, cv := range c.Columns {
-			if cv.Number >= 1 && cv.Number <= maxCol {
-				row.Columns[cv.Number-1] = cv.Value
-			}
-		}
-		conditions[i] = row
 	}
 
 	actions := make([]decisiontable.ActionRow, len(table.Actions))
-	for i, a := range table.Actions {
-		row := decisiontable.ActionRow{DSL: a.DSL, Columns: make([]string, maxCol)}
-		for _, cv := range a.Columns {
-			if cv.Number >= 1 && cv.Number <= maxCol {
-				row.Columns[cv.Number-1] = cv.Value
-			}
+	for i := range table.Actions {
+		actions[i] = decisiontable.ActionRow{
+			DSL:     table.Actions[i].DSL,
+			Columns: table.Actions[i].Row(width),
 		}
-		actions[i] = row
 	}
 
 	return decisiontable.Inputs{
@@ -944,7 +924,7 @@ func buildAnalysisInputs(table *excel.DecisionTableXML) decisiontable.Inputs {
 		Policy:     table.AttributeFields.Type,
 		Conditions: conditions,
 		Actions:    actions,
-		MaxCol:     maxCol,
+		MaxCol:     width,
 	}
 }
 

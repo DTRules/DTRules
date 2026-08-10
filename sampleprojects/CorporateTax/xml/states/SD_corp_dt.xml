@@ -25,9 +25,7 @@
 <condition_postfix>
 result.sd_is_financial_institution false beq { pop result.sd_is_insurance_company false beq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -36,9 +34,7 @@ result.sd_is_financial_institution false beq { pop result.sd_is_insurance_compan
 <condition_postfix>
 result.sd_is_financial_institution true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>-YN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -47,9 +43,7 @@ result.sd_is_financial_institution true beq
 <condition_postfix>
 result.sd_is_insurance_company true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="-" />
-<condition_column column_number="2" column_value="-" />
-<condition_column column_number="3" column_value="Y" />
+<columns>--Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -60,7 +54,7 @@ result.sd_is_insurance_company true beq
 <action_postfix>
 true cvb /result.sd_no_corporate_tax xdef 0.0 cvi /apportionment.state_tax xdef 0.0 cvd /apportionment.state_tax_rate xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "South Dakota has NO corporate income tax. Any estimated payments are refunded. Reference: SD Constitution Article XI" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -69,7 +63,7 @@ true cvb /result.sd_no_corporate_tax xdef 0.0 cvi /apportionment.state_tax xdef 
 <action_postfix>
 result.sd_bank_franchise_tax cvi /apportionment.state_tax xdef 0.0 cvd /apportionment.state_tax_rate xdef "SD Bank Franchise Tax applies (NOT corporate income tax). Reference: SDCL 10-43" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -78,7 +72,7 @@ result.sd_bank_franchise_tax cvi /apportionment.state_tax xdef 0.0 cvd /apportio
 <action_postfix>
 result.sd_insurance_premium_tax cvi /apportionment.state_tax xdef 0.0 cvd /apportionment.state_tax_rate xdef "SD Insurance Premium Tax applies (NOT corporate income tax). Reference: SDCL 10-44" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -108,8 +102,7 @@ result.sd_insurance_premium_tax cvi /apportionment.state_tax xdef 0.0 cvd /appor
 <condition_postfix>
 result.sd_is_financial_institution false beq { pop result.sd_is_insurance_company false beq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -120,7 +113,7 @@ result.sd_is_financial_institution false beq { pop result.sd_is_insurance_compan
 <action_postfix>
 0.0 cvd /apportionment.state_tax_rate xdef 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef 0.0 cvi /apportionment.state_taxable_income xdef "SD has NO corporate income tax. No adjustments needed." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -129,7 +122,7 @@ result.sd_is_financial_institution false beq { pop result.sd_is_insurance_compan
 <action_postfix>
 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef "Specialized entity (financial/insurance) - no income tax adjustments." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -159,8 +152,7 @@ result.sd_is_financial_institution false beq { pop result.sd_is_insurance_compan
 <condition_postfix>
 result.sd_is_financial_institution false beq { pop result.sd_is_insurance_company false beq } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -171,7 +163,7 @@ result.sd_is_financial_institution false beq { pop result.sd_is_insurance_compan
 <action_postfix>
 0.0 cvi /apportionment.state_tax xdef 0.0 cvd /apportionment.state_tax_rate xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef true cvb /result.sd_no_corporate_tax xdef "South Dakota Corporate Tax: $0. NO corporate income tax, NO franchise tax, NO gross receipts tax. Any estimated payments refunded." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -180,7 +172,7 @@ result.sd_is_financial_institution false beq { pop result.sd_is_insurance_compan
 <action_postfix>
 "Specialized entity tax (Bank Franchise or Insurance Premium) calculated separately." job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
