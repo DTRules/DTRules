@@ -19,6 +19,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -154,6 +155,33 @@ func (p *Project) LoadTestData(path string) error {
 	dataF, err := os.Open(path)
 	if err != nil {
 		return fmt.Errorf("open test data: %w", err)
+	}
+	defer dataF.Close()
+
+	return p.loadTestDataFromReaders(mapF, dataF)
+}
+
+// LoadTestDataWithMap populates entity state from a data file, using the
+// mapping the caller names rather than whatever the project happens to hold.
+//
+// This is the general form. A project with one mapping can use LoadTestData
+// and let it find the file; a project with several -- per-state mappings, say,
+// where the same external tag belongs in a different entity depending on which
+// state is being run -- has to say which, because the mapping decides where
+// the data lands.
+func (p *Project) LoadTestDataWithMap(mapPath, dataPath string) error {
+	if err := p.ensureExecState(); err != nil {
+		return err
+	}
+	mapF, err := os.Open(mapPath)
+	if err != nil {
+		return fmt.Errorf("open map file: %w", err)
+	}
+	defer mapF.Close()
+
+	dataF, err := os.Open(dataPath)
+	if err != nil {
+		return fmt.Errorf("open data file: %w", err)
 	}
 	defer dataF.Close()
 
@@ -550,6 +578,16 @@ func (p *Project) findEntityOnStack(name *dtrules.RName) (dtrules.Entity, error)
 }
 
 // findMapFile looks for a *_map.xml file in the project xml dir.
+//
+// One mapping, or none. It used to return maps[0] and say nothing, which is
+// harmless while every project has exactly one and a silent wrong answer the
+// moment one does not: a project with per-state mappings would have been
+// mapped by whichever file sorted first, for every state.
+//
+// A mapping is an argument to loading data, not a property of the project --
+// loadTestDataFromReaders builds a fresh Mapping per call and keeps none. So
+// when there is a choice to make, the caller makes it: LoadTestDataWithMap,
+// or `dtrules run --map`.
 func (p *Project) findMapFile() (string, error) {
 	maps, err := filepath.Glob(filepath.Join(p.xmlDir, "*_map.xml"))
 	if err != nil {
@@ -557,6 +595,19 @@ func (p *Project) findMapFile() (string, error) {
 	}
 	if len(maps) == 0 {
 		return "", fmt.Errorf("no *_map.xml file found in %s", p.xmlDir)
+	}
+	if len(maps) > 1 {
+		names := make([]string, 0, len(maps))
+		for _, m := range maps {
+			names = append(names, filepath.Base(m))
+		}
+		sort.Strings(names)
+		return "", fmt.Errorf(
+			"%s holds %d mapping files (%s); say which one to use\n"+
+				"  A mapping is an argument to loading data, not a property of the "+
+				"project. Pass it explicitly: dtrules run --map <file>, or "+
+				"Project.LoadTestDataWithMap",
+			p.xmlDir, len(maps), strings.Join(names, ", "))
 	}
 	return maps[0], nil
 }
