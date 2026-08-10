@@ -568,14 +568,26 @@ func (p *Project) EDDFiles() []string { return p.eddCandidates() }
 // written through the authoring API at all, and nothing said so. Naming the
 // file is how a caller reaches the others.
 func (p *Project) UseEDDFile(path string) error {
-	abs := path
-	if !filepath.IsAbs(abs) {
-		abs = filepath.Join(p.xmlDir, path)
+	// Accept the path however the caller naturally has it: absolute, relative
+	// to the rules directory (states/NV_corp_edd.xml), or relative to the
+	// project root (xml/states/NV_corp_edd.xml). Resolving only one of those
+	// and reporting "no such file" sends the caller looking for a missing file
+	// that is right there.
+	tried := []string{}
+	for _, cand := range []string{
+		path,
+		filepath.Join(p.xmlDir, path),
+		filepath.Join(p.projectRoot(), path),
+	} {
+		if cand == "" {
+			continue
+		}
+		tried = append(tried, cand)
+		if info, err := os.Stat(cand); err == nil && !info.IsDir() {
+			p.eddFile = cand
+			p.edd = nil // drop any EDD already loaded from a different file
+			return nil
+		}
 	}
-	if _, err := os.Stat(abs); err != nil {
-		return fmt.Errorf("EDD file %s: %w", path, err)
-	}
-	p.eddFile = abs
-	p.edd = nil // drop any EDD already loaded from a different file
-	return nil
+	return fmt.Errorf("EDD file %q not found; tried %s", path, strings.Join(tried, ", "))
 }
