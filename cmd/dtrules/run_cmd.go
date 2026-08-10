@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -40,7 +41,7 @@ import (
 // value hasn't been provided (#850/#854).
 func (c *CLI) runRun(args []string) int {
 	path, entry, input, resultEntity := ".", "", "", "result"
-	var save, data, review, tracePath string
+	var save, data, review, tracePath, mapPath string
 	interactive, web, noOpen := false, false, false
 	port := "0" // 0 = let the OS pick a free port
 	for i := 0; i < len(args); i++ {
@@ -63,6 +64,11 @@ func (c *CLI) runRun(args []string) int {
 		case "--data":
 			if i+1 < len(args) {
 				data = args[i+1]
+				i++
+			}
+		case "--map":
+			if i+1 < len(args) {
+				mapPath = args[i+1]
 				i++
 			}
 		case "--review":
@@ -177,7 +183,7 @@ func (c *CLI) runRun(args []string) int {
 	}
 
 	// Initialize entities (and optionally load input data) via the mapping.
-	if err := initMapping(sess, xmlDir, input); err != nil {
+	if err := initMapping(sess, xmlDir, input, mapPath); err != nil {
 		fmt.Fprintf(os.Stderr, "Error initializing data: %v\n", err)
 		return 1
 	}
@@ -249,12 +255,28 @@ func (c *CLI) runRun(args []string) int {
 
 // initMapping loads the project's *_map.xml (if any), initializes the entity
 // stack, and loads input data when a file is given.
-func initMapping(sess dtrules.Session, xmlDir, input string) error {
-	maps, _ := filepath.Glob(filepath.Join(xmlDir, "*_map.xml"))
-	if len(maps) == 0 {
-		return nil // no mapping; rely on whatever the session set up
+func initMapping(sess dtrules.Session, xmlDir, input, mapPath string) error {
+	// A named mapping wins. A mapping is an argument to loading data, not a
+	// property of the project: the same external tag can belong in a different
+	// entity depending on what is being run, and only the caller knows which.
+	chosen := mapPath
+	if chosen == "" {
+		maps, _ := filepath.Glob(filepath.Join(xmlDir, "*_map.xml"))
+		if len(maps) == 0 {
+			return nil // no mapping; rely on whatever the session set up
+		}
+		if len(maps) > 1 {
+			names := make([]string, 0, len(maps))
+			for _, m := range maps {
+				names = append(names, filepath.Base(m))
+			}
+			sort.Strings(names)
+			return fmt.Errorf("%s holds %d mapping files (%s); pass --map <file> to say which one",
+				xmlDir, len(maps), strings.Join(names, ", "))
+		}
+		chosen = maps[0]
 	}
-	mapFile, err := os.Open(maps[0])
+	mapFile, err := os.Open(chosen)
 	if err != nil {
 		return err
 	}
@@ -389,6 +411,10 @@ Options:
   --entry <table>        Decision table to run (required)
   --input <file.xml>     Input data to load via the project mapping
   --data <file.xml>      Load canonical (mapping-free) data, authoritative
+  --map <file.xml>       Use this mapping to load the data. A mapping decides
+                         which entity each external tag lands in, so it is an
+                         argument to loading, not a property of the project.
+                         Required when the project holds more than one.
   --review <file.xml>    Load canonical data for re-interview (pre-filled, asked)
   --save <file.xml>      Save the collected data as canonical XML after the run
   --trace <file.xml>     Write a complete execution trace (initial data,
