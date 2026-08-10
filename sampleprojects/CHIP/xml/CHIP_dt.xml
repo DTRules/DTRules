@@ -2,14 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 1000: Compute_Eligibility -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>ChipEligibility_dt.xls</relative_path>
-<file_name>ChipEligibility_dt.xls</file_name>
+<relative_path>CHIP.xlsx</relative_path>
+<file_name>CHIP.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Compute_Eligibility</table_name>
-<xls_file>ChipEligibility_dt.xls</xls_file>
+<xls_file>CHIP.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>The assumption of this structure is that these tables could provide an Integrated Eligibility solution.  Doing so would require us to evaluate what programs we are evaluating, and then process the eligibility rules for those programs.  Integrated Eligibility has the advantage of allowing multiple programs to leverage the same decision tables in their logic.  It also allows us to negotiate the interactions between programs (such as Medicaid and CHIP) which might provide the same sorts of services to the same populations, only under different rules and qualifications.  In evaluating CHIP correctly, we should first evaluate an applicant for Medicaid, since children that are eligible for Medicaid are excluded from CHIP (Medicaid serves the lowest income children, and provides more services than CHIP).</COMMENTS>
@@ -26,6 +26,9 @@
 job.program CHIP streq
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -34,7 +37,10 @@ job.program CHIP streq
 <condition_postfix>
 job.program MEDICAID streq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -43,7 +49,10 @@ job.program MEDICAID streq
 <condition_postfix>
 job.program FOODSTAMPS streq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
+<condition_column column_number="4" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -52,6 +61,9 @@ job.program FOODSTAMPS streq
 <condition_postfix>
 otherwise
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 <condition_column column_number="4" column_value="*" />
 </condition_details>
 </conditions>
@@ -139,14 +151,14 @@ otherwise
 </decision_table>
 
 <!-- TABLE 1010: Calculate_Individual_Income -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>ChipEligibility_dt.xls</relative_path>
-<file_name>ChipEligibility_dt.xls</file_name>
+<relative_path>CHIP.xlsx</relative_path>
+<file_name>CHIP.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_Individual_Income</table_name>
-<xls_file>ChipEligibility_dt.xls</xls_file>
+<xls_file>CHIP.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Here we consider the income sources, and the nature of the income.  Some income is excluded from consideration in means testing.  Usually excluded income is from sources such as Child Support or other assistance programs.</COMMENTS>
@@ -189,6 +201,7 @@ income.earned true beq
 <condition_postfix>
 ExcludedIncomeTypes income.type memberof
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="N" />
 </condition_details>
 </conditions>
@@ -208,14 +221,14 @@ income.amount client.totalIncome + /client.totalIncome xdef
 </decision_table>
 
 <!-- TABLE 1020: Calculate_Group_Size -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>ChipEligibility_dt.xls</relative_path>
-<file_name>ChipEligibility_dt.xls</file_name>
+<relative_path>CHIP.xlsx</relative_path>
+<file_name>CHIP.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_Group_Size</table_name>
-<xls_file>ChipEligibility_dt.xls</xls_file>
+<xls_file>CHIP.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Calculates the Group Size for Each Person by looking at the relationships between people.  This is a critical, real world step, required in processing CHIP cases.  When a program is "means" tested, i.e. people whose income is less than X are qualified, then you have to define how to measure "income".  Obviously most children (even children of millionaires) rarely have income.  So you measure the income of their parents.  But what if they are not living with their parents?  What if their brother is the millionaire? What if the parent makes 100K per year, but has 20 kids to support?  When do we begin to count dependents? In other words, do we count unborn children? (In these tables we do because Louisiana does!)
@@ -262,7 +275,16 @@ dup clients forall pop
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="Y" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
 <condition_column column_number="9" column_value="Y" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -271,9 +293,18 @@ dup clients forall pop
 <condition_postfix>
 false { type "parent" streq { pop source client req } over if { pop target 0 local@ req } over if or } case.relationships forall
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="Y" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
 <condition_column column_number="10" column_value="Y" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -282,9 +313,18 @@ false { type "parent" streq { pop source client req } over if { pop target 0 loc
 <condition_postfix>
 false { type "sibling" streq { pop source client req } over if { pop target 0 local@ req } over if or } case.relationships forall
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
 <condition_column column_number="5" column_value="Y" />
 <condition_column column_number="6" column_value="Y" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
 <condition_column column_number="11" column_value="Y" />
+<condition_column column_number="12" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -293,7 +333,17 @@ false { type "sibling" streq { pop source client req } over if { pop target 0 lo
 <condition_postfix>
 false { type "child" streq { pop source client req } over if { pop target 0 local@ req } over if or } case.relationships forall
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
 <condition_column column_number="7" column_value="Y" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
 <condition_column column_number="12" column_value="Y" />
 </condition_details>
 <condition_details>
@@ -309,6 +359,12 @@ client.pregnant true beq
 <condition_column column_number="4" column_value="Y" />
 <condition_column column_number="5" column_value="N" />
 <condition_column column_number="6" column_value="Y" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -317,6 +373,14 @@ client.pregnant true beq
 <condition_postfix>
 client.age 18 &gt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
 <condition_column column_number="9" column_value="Y" />
 <condition_column column_number="10" column_value="Y" />
 <condition_column column_number="11" column_value="Y" />
@@ -367,14 +431,14 @@ client.totalIncome 0 local@ entitypush totalGroupIncome + /totalGroupIncome xdef
 </decision_table>
 
 <!-- TABLE 1030: Evaluate_CHIP_Eligibility -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>ChipEligibility_dt.xls</relative_path>
-<file_name>ChipEligibility_dt.xls</file_name>
+<relative_path>CHIP.xlsx</relative_path>
+<file_name>CHIP.xlsx</file_name>
 <sheet_number>4</sheet_number>
 </source>
 <table_name>Evaluate_CHIP_Eligibility</table_name>
-<xls_file>ChipEligibility_dt.xls</xls_file>
+<xls_file>CHIP.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS>Once we have computed the size of the income group for an applicant, then we can compute the Federal Poverty Limit (FPL) for that applicant.  The Federal Poverty Limit is the amount of income for a group that defines poverty.  Means tested programs in the United States are generally defined as some percentage or multiple of the FPL.  
@@ -418,6 +482,13 @@ FPL_Base FPL_PerAdditionalPerson client.IncomeGroupCount 1 - * + cvi allocate ex
 ValidatedCitizenship true beq
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -427,6 +498,13 @@ ValidatedCitizenship true beq
 validatedImmigrationStatus true beq
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -435,7 +513,14 @@ validatedImmigrationStatus true beq
 <condition_postfix>
 client.totalGroupIncome 1 local@ &lt;=
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -444,8 +529,14 @@ client.totalGroupIncome 1 local@ &lt;=
 <condition_postfix>
 uninsured
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="Y" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -454,7 +545,14 @@ uninsured
 <condition_postfix>
 lostInsuranceDate isnull
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 <condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -463,7 +561,14 @@ lostInsuranceDate isnull
 <condition_postfix>
 lostInsuranceDate 90 adddays currentdate d&gt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 <condition_column column_number="4" column_value="Y" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -472,7 +577,14 @@ lostInsuranceDate 90 adddays currentdate d&gt;
 <condition_postfix>
 CoveredCounties case.county_Cd memberof
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
 <condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>8</condition_number>
@@ -481,7 +593,14 @@ CoveredCounties case.county_Cd memberof
 <condition_postfix>
 client.age 18 &lt;=
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
 <condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>9</condition_number>
@@ -490,7 +609,14 @@ client.age 18 &lt;=
 <condition_postfix>
 eligibleForMedicaid true beq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
 <condition_column column_number="7" column_value="Y" />
+<condition_column column_number="8" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>10</condition_number>
@@ -499,6 +625,13 @@ eligibleForMedicaid true beq
 <condition_postfix>
 otherwise
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
 <condition_column column_number="8" column_value="*" />
 </condition_details>
 </conditions>
@@ -605,14 +738,14 @@ policystatements client.notes true addarray
 </decision_table>
 
 <!-- TABLE 1040: Evaluate_MEDICAID_Eligibility -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>ChipEligibility_dt.xls</relative_path>
-<file_name>ChipEligibility_dt.xls</file_name>
+<relative_path>CHIP.xlsx</relative_path>
+<file_name>CHIP.xlsx</file_name>
 <sheet_number>5</sheet_number>
 </source>
 <table_name>Evaluate_MEDICAID_Eligibility</table_name>
-<xls_file>ChipEligibility_dt.xls</xls_file>
+<xls_file>CHIP.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>At this time we are not evaluating Medicaid Clients</COMMENTS>
@@ -664,14 +797,14 @@ false cvb /client.eligible xdef
 </decision_table>
 
 <!-- TABLE 1050: Evaluate_FOODSTAMPS_Eligibilty -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>ChipEligibility_dt.xls</relative_path>
-<file_name>ChipEligibility_dt.xls</file_name>
+<relative_path>CHIP.xlsx</relative_path>
+<file_name>CHIP.xlsx</file_name>
 <sheet_number>6</sheet_number>
 </source>
 <table_name>Evaluate_FOODSTAMPS_Eligibilty</table_name>
-<xls_file>ChipEligibility_dt.xls</xls_file>
+<xls_file>CHIP.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>At this time we are not evaluating Food Stamp Clients</COMMENTS>
@@ -723,14 +856,14 @@ false cvb /client.eligible xdef
 </decision_table>
 
 <!-- TABLE 1060: Evaluate_Results -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>ChipEligibility_dt.xls</relative_path>
-<file_name>ChipEligibility_dt.xls</file_name>
+<relative_path>CHIP.xlsx</relative_path>
+<file_name>CHIP.xlsx</file_name>
 <sheet_number>7</sheet_number>
 </source>
 <table_name>Evaluate_Results</table_name>
-<xls_file>ChipEligibility_dt.xls</xls_file>
+<xls_file>CHIP.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>This table builds a Result Object which gets added to a list on the Job Entity.  The code in the driving program can use this result object to update a database, report eligibility in a UI, or send the result back over a web service call, etc.  Technically, the calling program has access to everything in the Rules Engine state, so the calling program could access the clients directly.  However, it is often useful to have a set of Result objects to make the Rules Engine/ Application interface as simple as possible.</COMMENTS>
