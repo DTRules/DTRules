@@ -17,6 +17,7 @@ package authoring
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -90,5 +91,41 @@ func TestEDDCandidateOrderIsStable(t *testing.T) {
 				t.Fatalf("order changed between calls: %v vs %v", first, got)
 			}
 		}
+	}
+}
+
+// A caller naturally has an EDD path in one of two relative forms: relative to
+// the rules directory (states/NV_edd.xml) or to the project root
+// (xml/states/NV_edd.xml). Resolving only the first and reporting "no such
+// file" sends them looking for a file that is right there -- which is exactly
+// what happened running 60 deletions across the state EDDs.
+func TestUseEDDFileAcceptsEitherRelativeForm(t *testing.T) {
+	p := projectWithEDDs(t, "Core_edd.xml", "states/NV_edd.xml")
+
+	for _, form := range []string{
+		"states/NV_edd.xml",     // relative to the rules directory
+		"xml/states/NV_edd.xml", // relative to the project root
+	} {
+		p.eddFile = ""
+		if err := p.UseEDDFile(form); err != nil {
+			t.Errorf("UseEDDFile(%q): %v", form, err)
+			continue
+		}
+		if filepath.Base(p.eddFile) != "NV_edd.xml" {
+			t.Errorf("UseEDDFile(%q) selected %q", form, p.eddFile)
+		}
+	}
+}
+
+// And when it genuinely is not there, say what was looked for.
+func TestUseEDDFileSaysWhereItLooked(t *testing.T) {
+	p := projectWithEDDs(t, "Core_edd.xml")
+
+	err := p.UseEDDFile("states/XX_edd.xml")
+	if err == nil {
+		t.Fatal("expected an error for a file that does not exist")
+	}
+	if !strings.Contains(err.Error(), "tried") {
+		t.Errorf("the error should name the paths tried, got: %v", err)
 	}
 }
