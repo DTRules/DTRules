@@ -32,7 +32,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -43,7 +43,7 @@ true
 <action_postfix>
 job.taxpayers length job.dependents length + mi_exemption_single fmul cvd /result.mi_total_exemption xdef result.agi result.mi_total_exemption f- 0.0 fmax cvd /result.mi_taxable_income xdef result.mi_taxable_income mi_tax_rate fmul cvd /result.mi_state_tax xdef "  MI exemptions ($5,800 per person): $" result.mi_total_exemption strconcat job.audit_trail swap addto "  MI state tax (4.25%): $" result.mi_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -52,7 +52,7 @@ job.taxpayers length job.dependents length + mi_exemption_single fmul cvd /resul
 <action_postfix>
 result.mi_taxable_income cvi /result.computed_state_taxable_income xdef result.mi_state_tax cvi /result.computed_state_tax xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements>

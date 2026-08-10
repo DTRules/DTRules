@@ -23,8 +23,7 @@
 <condition_comment>Qualifies for EDC benefits; Has Economic Development Commission benefits (up to 90% reduction)</condition_comment>
 <condition_dsl />
 <condition_postfix></condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions></actions>

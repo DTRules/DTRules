@@ -25,8 +25,7 @@
 <condition_postfix>
 result.mp_calculated_tax 20000 f&gt; { pop result.mp_calculated_tax 100000 f&lt;= } over if
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="Y" />
+<columns>NY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -35,8 +34,7 @@ result.mp_calculated_tax 20000 f&gt; { pop result.mp_calculated_tax 100000 f&lt;
 <condition_postfix>
 result.mp_calculated_tax 100000 f&gt;
 </condition_postfix>
-<condition_column column_number="1" column_value="N" />
-<condition_column column_number="2" column_value="N" />
+<columns>NN</columns>
 </condition_details>
 </conditions>
 <actions></actions>

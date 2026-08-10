@@ -25,6 +25,7 @@
 <condition_postfix>
 taxpayer.age 55 &gt;= { pop taxpayer.age 64 &lt;= } over if
 </condition_postfix>
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -33,6 +34,7 @@ taxpayer.age 55 &gt;= { pop taxpayer.age 64 &lt;= } over if
 <condition_postfix>
 taxpayer.age 65 &gt;=
 </condition_postfix>
+<columns>-</columns>
 </condition_details>
 </conditions>
 <actions></actions>
@@ -63,6 +65,7 @@ taxpayer.age 65 &gt;=
 <condition_postfix>
 taxpayer.age 65 &gt;=
 </condition_postfix>
+<columns>-</columns>
 </condition_details>
 </conditions>
 <actions></actions>
@@ -100,7 +103,7 @@ taxpayer.age 65 &gt;=
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -111,7 +114,7 @@ true
 <action_postfix>
 result.agi 0.0 fmax cvd /result.co_taxable_income xdef result.co_taxable_income co_tax_rate fmul cvd /result.co_tax xdef "  CO taxable income: $" result.co_taxable_income strconcat job.audit_trail swap addto "  CO state tax (4.40%): $" result.co_tax strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -120,7 +123,7 @@ result.agi 0.0 fmax cvd /result.co_taxable_income xdef result.co_taxable_income 
 <action_postfix>
 result.co_taxable_income cvi /result.computed_state_taxable_income xdef result.co_tax cvi /result.computed_state_tax xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements>

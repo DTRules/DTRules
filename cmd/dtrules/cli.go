@@ -900,8 +900,22 @@ func (c *CLI) warnIncompleteExport() {
 	}
 }
 
-// incompleteExports returns one message per workbook that has fewer sheets
-// than its XML has tables. Separated from the printing so it can be tested.
+// suspiciousSheetCount reports whether a workbook holds so many more sheets
+// than its XML declares tables that it must be carrying other files' work.
+//
+// A flat allowance does not fit: a three-table project with an EDD, a map and
+// a notes sheet is fine at eight, while TaxReturn's one-table AK.xlsx holding
+// 205 is not. The gap that matters is proportional, so this only fires when a
+// workbook has more than double its tables plus the few sheets a project
+// legitimately carries alongside them. It is meant to catch the egregious case
+// without arguing about the ordinary one.
+func suspiciousSheetCount(written, declared int) bool {
+	return written > 2*declared+3
+}
+
+// incompleteExports returns one message per workbook whose sheet count does
+// not match the tables its XML declares, in either direction. Separated from
+// the printing so it can be tested.
 func (c *CLI) incompleteExports() []string {
 	var found []string
 	dtFiles, _ := filepath.Glob(filepath.Join(c.xmlDir, "*_dt.xml"))
@@ -932,12 +946,31 @@ func (c *CLI) incompleteExports() []string {
 		written := len(f.GetSheetList())
 		_ = f.Close()
 
-		if written < declared {
+		switch {
+		case written < declared:
 			found = append(found, fmt.Sprintf(
 				"WARNING: %s has %d sheet(s) for %d table(s) in %s.\n"+
 					"  Tables that fail to load are skipped by the export. Fix the load\n"+
 					"  errors and re-export, or the workbook is missing rules.\n",
 				filepath.Base(excelPath), written, declared, filepath.Base(dtPath)))
+
+		case suspiciousSheetCount(written, declared):
+			// The other direction, which this check first ignored on the
+			// reasoning that a workbook may carry an EDD sheet beside its
+			// tables. True for one or two; nonsense for the state that
+			// reached TaxReturn, where every workbook held all 205 sheets
+			// because a refresh had written the whole rule set into each of
+			// them (#1077, committed in #1064 and only found later).
+			//
+			// A workbook holding tables that belong to other files makes the
+			// reverse direction destructive: build --from-excel writes each
+			// workbook's sheets into its paired XML, so importing spreads
+			// those tables across every file (#1086).
+			found = append(found, fmt.Sprintf(
+				"WARNING: %s has %d sheet(s) but %s declares only %d table(s).\n"+
+					"  The extra sheets belong to other files. Importing would copy them\n"+
+					"  into this one; re-export to rebuild the workbook from its own XML.\n",
+				filepath.Base(excelPath), written, filepath.Base(dtPath), declared))
 		}
 	}
 	return found

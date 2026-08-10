@@ -32,8 +32,7 @@
 <condition_postfix>
 job.filing_status "married_filing_jointly" streq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -44,7 +43,7 @@ job.filing_status "married_filing_jointly" streq
 <action_postfix>
 0 cvi /result.tn_tax xdef "  TN has no state income tax: $0" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -53,7 +52,7 @@ job.filing_status "married_filing_jointly" streq
 <action_postfix>
 0 cvi /result.tn_tax xdef "  TN has no state income tax: $0" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements>

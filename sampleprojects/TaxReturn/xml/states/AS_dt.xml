@@ -25,9 +25,7 @@
 <condition_postfix>
 result.as_self_employment_income 400 f&gt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>YYN</columns>
 </condition_details>
 </conditions>
 <actions></actions>

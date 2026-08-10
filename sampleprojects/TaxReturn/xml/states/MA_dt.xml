@@ -32,9 +32,7 @@
 <condition_postfix>
 job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
+<columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -43,8 +41,7 @@ job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 <condition_postfix>
 job.filing_status "HOH" streq
 </condition_postfix>
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
+<columns>-YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -55,7 +52,7 @@ job.filing_status "HOH" streq
 <action_postfix>
 result.agi 8800.0 f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -64,7 +61,7 @@ result.agi 8800.0 f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxab
 <action_postfix>
 result.agi 6800.0 f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -73,7 +70,7 @@ result.agi 6800.0 f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxab
 <action_postfix>
 result.agi 4400.0 f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -82,9 +79,7 @@ result.agi 4400.0 f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxab
 <action_postfix>
 result.ma_taxable_income cvi /result.computed_state_taxable_income xdef result.ma_state_tax cvi /result.computed_state_tax xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
-<action_column column_number="3" column_value="X" />
+<columns>XXX</columns>
 </action_details>
 </actions>
 <policy_statements>

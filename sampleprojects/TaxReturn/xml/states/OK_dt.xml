@@ -25,6 +25,7 @@
 <condition_postfix>
 job.filing_status "MFJ" streq
 </condition_postfix>
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -33,6 +34,7 @@ job.filing_status "MFJ" streq
 <condition_postfix>
 job.filing_status "HOH" streq
 </condition_postfix>
+<columns>-</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -41,6 +43,7 @@ job.filing_status "HOH" streq
 <condition_postfix>
 job.filing_status "MFS" streq
 </condition_postfix>
+<columns>-</columns>
 </condition_details>
 </conditions>
 <actions></actions>
@@ -72,6 +75,7 @@ job.filing_status "MFS" streq
 <action_postfix>
 0 cvd /result.ok_military_retirement_exemption xdef
 </action_postfix>
+<columns>-</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

@@ -53,8 +53,7 @@
 <condition_postfix>
 job.filing_status "married_filing_jointly" streq { pop job.filing_status "MFJ" streq } over not if
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -65,7 +64,7 @@ job.filing_status "married_filing_jointly" streq { pop job.filing_status "MFJ" s
 <action_postfix>
 /NJ_Tax_MFJ_Brackets performtable
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -74,7 +73,7 @@ job.filing_status "married_filing_jointly" streq { pop job.filing_status "MFJ" s
 <action_postfix>
 /NJ_Tax_Single_Brackets performtable
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -83,8 +82,7 @@ job.filing_status "married_filing_jointly" streq { pop job.filing_status "MFJ" s
 <action_postfix>
 result.nj_taxable_income cvi /result.computed_state_taxable_income xdef result.nj_tax cvi /result.computed_state_tax xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
-<action_column column_number="2" column_value="X" />
+<columns>XX</columns>
 </action_details>
 </actions>
 <policy_statements>
@@ -123,14 +121,7 @@ result.nj_taxable_income cvi /result.computed_state_taxable_income xdef result.n
 <condition_postfix>
 result.nj_taxable_income nj_bracket_1_limit_joint f&lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
+<columns>YNNNNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -139,13 +130,7 @@ result.nj_taxable_income nj_bracket_1_limit_joint f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_2_limit_joint f&lt;=
 </condition_postfix>
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
+<columns>-YNNNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -154,12 +139,7 @@ result.nj_taxable_income nj_bracket_2_limit_joint f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_3_limit_joint f&lt;=
 </condition_postfix>
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
+<columns>--YNNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -168,11 +148,7 @@ result.nj_taxable_income nj_bracket_3_limit_joint f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_4_limit_joint f&lt;=
 </condition_postfix>
-<condition_column column_number="4" column_value="Y" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
+<columns>---YNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -181,10 +157,7 @@ result.nj_taxable_income nj_bracket_4_limit_joint f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_5_limit_joint f&lt;=
 </condition_postfix>
-<condition_column column_number="5" column_value="Y" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
+<columns>----YNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -193,9 +166,7 @@ result.nj_taxable_income nj_bracket_5_limit_joint f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_6_limit_joint f&lt;=
 </condition_postfix>
-<condition_column column_number="6" column_value="Y" />
-<condition_column column_number="7" column_value="N" />
-<condition_column column_number="8" column_value="N" />
+<columns>-----YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -204,8 +175,7 @@ result.nj_taxable_income nj_bracket_6_limit_joint f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_7_limit_joint f&lt;=
 </condition_postfix>
-<condition_column column_number="7" column_value="Y" />
-<condition_column column_number="8" column_value="N" />
+<columns>------YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -216,7 +186,7 @@ result.nj_taxable_income nj_bracket_7_limit_joint f&lt;=
 <action_postfix>
 result.nj_taxable_income nj_bracket_1_rate fmul cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X-------</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -225,7 +195,7 @@ result.nj_taxable_income nj_bracket_1_rate fmul cvd /result.nj_tax xdef
 <action_postfix>
 nj_bracket_1_limit_joint nj_bracket_1_rate fmul result.nj_taxable_income nj_bracket_1_limit_joint f- nj_bracket_2_rate_joint fmul f+ cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X------</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -234,7 +204,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate fmul result.nj_taxable_income nj_brac
 <action_postfix>
 nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_bracket_1_limit_joint f- nj_bracket_2_rate_joint fmul f+ result.nj_taxable_income nj_bracket_2_limit_joint f- nj_bracket_3_rate_joint fmul f+ cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X-----</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -243,7 +213,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_brac
 <action_postfix>
 nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_bracket_1_limit_joint f- nj_bracket_2_rate_joint fmul f+ nj_bracket_3_limit_joint nj_bracket_2_limit_joint f- nj_bracket_3_rate_joint fmul f+ result.nj_taxable_income nj_bracket_3_limit_joint f- nj_bracket_4_rate_joint fmul f+ cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X----</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -252,7 +222,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_brac
 <action_postfix>
 nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_bracket_1_limit_joint f- nj_bracket_2_rate_joint fmul f+ nj_bracket_3_limit_joint nj_bracket_2_limit_joint f- nj_bracket_3_rate_joint fmul f+ nj_bracket_4_limit_joint nj_bracket_3_limit_joint f- nj_bracket_4_rate_joint fmul f+ result.nj_taxable_income nj_bracket_4_limit_joint f- nj_bracket_5_rate_joint fmul f+ cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="5" column_value="X" />
+<columns>----X---</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -261,7 +231,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_brac
 <action_postfix>
 nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_bracket_1_limit_joint f- nj_bracket_2_rate_joint fmul f+ nj_bracket_3_limit_joint nj_bracket_2_limit_joint f- nj_bracket_3_rate_joint fmul f+ nj_bracket_4_limit_joint nj_bracket_3_limit_joint f- nj_bracket_4_rate_joint fmul f+ nj_bracket_5_limit_joint nj_bracket_4_limit_joint f- nj_bracket_5_rate_joint fmul f+ result.nj_taxable_income nj_bracket_5_limit_joint f- nj_bracket_6_rate_joint fmul f+ cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="6" column_value="X" />
+<columns>-----X--</columns>
 </action_details>
 <action_details>
 <action_number>7</action_number>
@@ -270,7 +240,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_brac
 <action_postfix>
 nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_bracket_1_limit_joint f- nj_bracket_2_rate_joint fmul f+ nj_bracket_3_limit_joint nj_bracket_2_limit_joint f- nj_bracket_3_rate_joint fmul f+ nj_bracket_4_limit_joint nj_bracket_3_limit_joint f- nj_bracket_4_rate_joint fmul f+ nj_bracket_5_limit_joint nj_bracket_4_limit_joint f- nj_bracket_5_rate_joint fmul f+ nj_bracket_6_limit_joint nj_bracket_5_limit_joint f- nj_bracket_6_rate_joint fmul f+ result.nj_taxable_income nj_bracket_6_limit_joint f- nj_bracket_7_rate_joint fmul f+ cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="7" column_value="X" />
+<columns>------X-</columns>
 </action_details>
 <action_details>
 <action_number>8</action_number>
@@ -279,7 +249,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_brac
 <action_postfix>
 nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_bracket_1_limit_joint f- nj_bracket_2_rate_joint fmul f+ nj_bracket_3_limit_joint nj_bracket_2_limit_joint f- nj_bracket_3_rate_joint fmul f+ nj_bracket_4_limit_joint nj_bracket_3_limit_joint f- nj_bracket_4_rate_joint fmul f+ nj_bracket_5_limit_joint nj_bracket_4_limit_joint f- nj_bracket_5_rate_joint fmul f+ nj_bracket_6_limit_joint nj_bracket_5_limit_joint f- nj_bracket_6_rate_joint fmul f+ nj_bracket_7_limit_joint nj_bracket_6_limit_joint f- nj_bracket_7_rate_joint fmul f+ result.nj_taxable_income nj_bracket_7_limit_joint f- nj_bracket_8_rate_joint fmul f+ cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="8" column_value="X" />
+<columns>-------X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -309,13 +279,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_brac
 <condition_postfix>
 result.nj_taxable_income nj_bracket_1_limit_single f&lt;=
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
+<columns>YNNNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -324,12 +288,7 @@ result.nj_taxable_income nj_bracket_1_limit_single f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_2_limit_single f&lt;=
 </condition_postfix>
-<condition_column column_number="2" column_value="Y" />
-<condition_column column_number="3" column_value="N" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
+<columns>-YNNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -338,11 +297,7 @@ result.nj_taxable_income nj_bracket_2_limit_single f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_3_limit_single f&lt;=
 </condition_postfix>
-<condition_column column_number="3" column_value="Y" />
-<condition_column column_number="4" column_value="N" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
+<columns>--YNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -351,10 +306,7 @@ result.nj_taxable_income nj_bracket_3_limit_single f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_4_limit_single f&lt;=
 </condition_postfix>
-<condition_column column_number="4" column_value="Y" />
-<condition_column column_number="5" column_value="N" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
+<columns>---YNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -363,9 +315,7 @@ result.nj_taxable_income nj_bracket_4_limit_single f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_5_limit_single f&lt;=
 </condition_postfix>
-<condition_column column_number="5" column_value="Y" />
-<condition_column column_number="6" column_value="N" />
-<condition_column column_number="7" column_value="N" />
+<columns>----YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -374,8 +324,7 @@ result.nj_taxable_income nj_bracket_5_limit_single f&lt;=
 <condition_postfix>
 result.nj_taxable_income nj_bracket_6_limit_single f&lt;=
 </condition_postfix>
-<condition_column column_number="6" column_value="Y" />
-<condition_column column_number="7" column_value="N" />
+<columns>-----YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -386,7 +335,7 @@ result.nj_taxable_income nj_bracket_6_limit_single f&lt;=
 <action_postfix>
 result.nj_taxable_income nj_bracket_1_rate fmul cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X------</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -395,7 +344,7 @@ result.nj_taxable_income nj_bracket_1_rate fmul cvd /result.nj_tax xdef
 <action_postfix>
 nj_bracket_1_limit_single nj_bracket_1_rate fmul result.nj_taxable_income nj_bracket_1_limit_single f- nj_bracket_2_rate_single fmul f+ cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="2" column_value="X" />
+<columns>-X-----</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -404,7 +353,7 @@ nj_bracket_1_limit_single nj_bracket_1_rate fmul result.nj_taxable_income nj_bra
 <action_postfix>
 nj_bracket_1_limit_single nj_bracket_1_rate fmul nj_bracket_2_limit_single nj_bracket_1_limit_single f- nj_bracket_2_rate_single fmul f+ result.nj_taxable_income nj_bracket_2_limit_single f- nj_bracket_3_rate_single fmul f+ cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="3" column_value="X" />
+<columns>--X----</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -413,7 +362,7 @@ nj_bracket_1_limit_single nj_bracket_1_rate fmul nj_bracket_2_limit_single nj_br
 <action_postfix>
 nj_bracket_1_limit_single nj_bracket_1_rate fmul nj_bracket_2_limit_single nj_bracket_1_limit_single f- nj_bracket_2_rate_single fmul f+ nj_bracket_3_limit_single nj_bracket_2_limit_single f- nj_bracket_3_rate_single fmul f+ result.nj_taxable_income nj_bracket_3_limit_single f- nj_bracket_4_rate_single fmul f+ cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="4" column_value="X" />
+<columns>---X---</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
@@ -422,7 +371,7 @@ nj_bracket_1_limit_single nj_bracket_1_rate fmul nj_bracket_2_limit_single nj_br
 <action_postfix>
 nj_bracket_1_limit_single nj_bracket_1_rate fmul nj_bracket_2_limit_single nj_bracket_1_limit_single f- nj_bracket_2_rate_single fmul f+ nj_bracket_3_limit_single nj_bracket_2_limit_single f- nj_bracket_3_rate_single fmul f+ nj_bracket_4_limit_single nj_bracket_3_limit_single f- nj_bracket_4_rate_single fmul f+ result.nj_taxable_income nj_bracket_4_limit_single f- nj_bracket_5_rate_single fmul f+ cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="5" column_value="X" />
+<columns>----X--</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -431,7 +380,7 @@ nj_bracket_1_limit_single nj_bracket_1_rate fmul nj_bracket_2_limit_single nj_br
 <action_postfix>
 nj_bracket_1_limit_single nj_bracket_1_rate fmul nj_bracket_2_limit_single nj_bracket_1_limit_single f- nj_bracket_2_rate_single fmul f+ nj_bracket_3_limit_single nj_bracket_2_limit_single f- nj_bracket_3_rate_single fmul f+ nj_bracket_4_limit_single nj_bracket_3_limit_single f- nj_bracket_4_rate_single fmul f+ nj_bracket_5_limit_single nj_bracket_4_limit_single f- nj_bracket_5_rate_single fmul f+ result.nj_taxable_income nj_bracket_5_limit_single f- nj_bracket_6_rate_single fmul f+ cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="6" column_value="X" />
+<columns>-----X-</columns>
 </action_details>
 <action_details>
 <action_number>7</action_number>
@@ -440,7 +389,7 @@ nj_bracket_1_limit_single nj_bracket_1_rate fmul nj_bracket_2_limit_single nj_br
 <action_postfix>
 nj_bracket_1_limit_single nj_bracket_1_rate fmul nj_bracket_2_limit_single nj_bracket_1_limit_single f- nj_bracket_2_rate_single fmul f+ nj_bracket_3_limit_single nj_bracket_2_limit_single f- nj_bracket_3_rate_single fmul f+ nj_bracket_4_limit_single nj_bracket_3_limit_single f- nj_bracket_4_rate_single fmul f+ nj_bracket_5_limit_single nj_bracket_4_limit_single f- nj_bracket_5_rate_single fmul f+ nj_bracket_6_limit_single nj_bracket_5_limit_single f- nj_bracket_6_rate_single fmul f+ result.nj_taxable_income nj_bracket_6_limit_single f- nj_bracket_7_rate fmul f+ cvd /result.nj_tax xdef
 </action_postfix>
-<action_column column_number="7" column_value="X" />
+<columns>------X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

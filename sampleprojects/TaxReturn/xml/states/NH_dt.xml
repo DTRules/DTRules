@@ -32,7 +32,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -41,7 +41,7 @@ true
 <action_comment>No-op (tax already set to 0 in initial action)</action_comment>
 <action_dsl>/* no-op: tax already zeroed in initial_action */</action_dsl>
 <action_postfix></action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

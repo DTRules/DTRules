@@ -25,8 +25,7 @@
 <condition_postfix>
 result.pr_act60_business true beq
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
-<condition_column column_number="2" column_value="N" />
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions></actions>

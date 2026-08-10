@@ -32,7 +32,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -43,7 +43,7 @@ true
 <action_postfix>
 job.taxpayers length job.dependents length + il_personal_exemption fmul cvd /result.il_total_exemptions xdef result.agi result.il_total_exemptions f- 0.0 fmax cvd /result.il_taxable_income xdef result.il_taxable_income il_tax_rate fmul cvd /result.il_state_tax xdef "  IL exemptions ($2,850 per person): $" result.il_total_exemptions strconcat job.audit_trail swap addto "  IL state tax (4.95%): $" result.il_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -52,7 +52,7 @@ job.taxpayers length job.dependents length + il_personal_exemption fmul cvd /res
 <action_postfix>
 result.il_taxable_income cvi /result.computed_state_taxable_income xdef result.il_state_tax cvi /result.computed_state_tax xdef
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements>
