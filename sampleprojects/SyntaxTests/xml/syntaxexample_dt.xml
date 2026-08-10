@@ -2,14 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 100: Syntax_Examples -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Syntax_Examples</table_name>
-<xls_file>PSSyntaxExampleDTs.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS></COMMENTS>
@@ -276,14 +276,14 @@ else
 </decision_table>
 
 <!-- TABLE 200: Syntax_Examples_2 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Syntax_Examples_2</table_name>
-<xls_file>PSSyntaxExampleDTs.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS></COMMENTS>
@@ -935,14 +935,14 @@ effectiveDate endofmonth cvdate /currentDate xdef
 </decision_table>
 
 <!-- TABLE 300: Syntax_Examples_3 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Syntax_Examples_3</table_name>
-<xls_file>PSSyntaxExampleDTs.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS></COMMENTS>
@@ -1388,14 +1388,14 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 </decision_table>
 
 <!-- TABLE 400: Syntax_Examples_4 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>4</sheet_number>
 </source>
 <table_name>Syntax_Examples_4</table_name>
-<xls_file>PSSyntaxExampleDTs.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS></COMMENTS>
@@ -2059,14 +2059,14 @@ clients client_ID memberof not cvb /eligible xdef
 </decision_table>
 
 <!-- TABLE 500: Error_Handling_Table -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>5</sheet_number>
 </source>
 <table_name>Error_Handling_Table</table_name>
-<xls_file>PSSyntaxExampleDTs.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS></COMMENTS>
@@ -2080,14 +2080,14 @@ clients client_ID memberof not cvb /eligible xdef
 </decision_table>
 
 <!-- TABLE 600: Run_Test -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>6</sheet_number>
 </source>
 <table_name>Run_Test</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -2270,6 +2270,8 @@ endif</initial_action_dsl>
 6 local@ true beq
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -2278,7 +2280,9 @@ endif</initial_action_dsl>
 <condition_postfix>
 eligible true beq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -2287,6 +2291,8 @@ eligible true beq
 <condition_postfix>
 true
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -2331,14 +2337,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 700: Run_Test_2 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>7</sheet_number>
 </source>
 <table_name>Run_Test_2</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -2465,6 +2471,8 @@ billingAddress cve /address xdef
 totalincome 42 f&gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -2473,7 +2481,9 @@ totalincome 42 f&gt;
 <condition_postfix>
 pregnant false beq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -2482,6 +2492,8 @@ pregnant false beq
 <condition_postfix>
 true
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -2526,14 +2538,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 800: Run_Test_3 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>8</sheet_number>
 </source>
 <table_name>Run_Test_3</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -2672,13 +2684,17 @@ client dup InterestingCases swap addto resolvedCases swap addto
 totalincome 42 f&gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>//does effectiveDate == (1 months) ?</condition_comment>
 <condition_dsl />
 <condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -2687,6 +2703,8 @@ totalincome 42 f&gt;
 <condition_postfix>
 true
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -2731,14 +2749,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 900: Run_Test_4 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>9</sheet_number>
 </source>
 <table_name>Run_Test_4</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -2879,13 +2897,17 @@ clients dup { age 18 &lt; { dup 0 entityfetch remove } if } swap forallr pop
 totalincome 42 f&gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>//does effectiveDate == (1 months) ?</condition_comment>
 <condition_dsl />
 <condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -2894,6 +2916,8 @@ totalincome 42 f&gt;
 <condition_postfix>
 true
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -2938,14 +2962,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 1000: Run_Test_5 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>10</sheet_number>
 </source>
 <table_name>Run_Test_5</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -3086,13 +3110,17 @@ errorType location split /errorcodes xdef
 totalincome 42 f&gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>//does effectiveDate == (1 months) ?</condition_comment>
 <condition_dsl />
 <condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -3101,6 +3129,8 @@ totalincome 42 f&gt;
 <condition_postfix>
 true
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -3145,14 +3175,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 1100: Run_Test_6 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>11</sheet_number>
 </source>
 <table_name>Run_Test_6</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -3293,13 +3323,17 @@ effectiveDate 3 addyears /effectiveDate xdef
 totalincome 42 f&gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>//does effectiveDate == (1 months) ?</condition_comment>
 <condition_dsl />
 <condition_postfix></condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -3308,6 +3342,8 @@ totalincome 42 f&gt;
 <condition_postfix>
 true
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -3352,14 +3388,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 1200: Run_Test_7 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>12</sheet_number>
 </source>
 <table_name>Run_Test_7</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -3500,6 +3536,8 @@ currentDate 8 addmonths cvdate /effectiveDate xdef
 totalincome 42 f&gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -3508,6 +3546,8 @@ totalincome 42 f&gt;
 <condition_postfix>
 true
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -3552,14 +3592,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 1300: Run_Test_8 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>13</sheet_number>
 </source>
 <table_name>Run_Test_8</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -3676,6 +3716,8 @@ effectiveDate endofmonth cvdate /currentDate xdef
 totalincome 42 f&gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -3684,6 +3726,8 @@ totalincome 42 f&gt;
 <condition_postfix>
 true
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -3728,14 +3772,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 1400: Run_Test_9 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>14</sheet_number>
 </source>
 <table_name>Run_Test_9</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -3858,6 +3902,8 @@ street zip + cvs /parent xdef
 <condition_postfix>
 true
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -3902,14 +3948,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 1500: Run_Test_10 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>15</sheet_number>
 </source>
 <table_name>Run_Test_10</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -4030,6 +4076,8 @@ totalIncome totalGroupIncome fmul cvd /totalIncome xdef
 <condition_dsl />
 <condition_postfix></condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4038,6 +4086,8 @@ totalIncome totalGroupIncome fmul cvd /totalIncome xdef
 <condition_postfix>
 true
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -4082,14 +4132,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 1600: Run_Test_11 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>16</sheet_number>
 </source>
 <table_name>Run_Test_11</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -4219,6 +4269,8 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 <condition_dsl />
 <condition_postfix></condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4227,6 +4279,8 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 <condition_postfix>
 true
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -4271,14 +4325,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 1700: Run_Test_12 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>17</sheet_number>
 </source>
 <table_name>Run_Test_12</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -4406,6 +4460,8 @@ street billingAddress + cvs /street xdef
 <condition_dsl />
 <condition_postfix></condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4414,6 +4470,8 @@ street billingAddress + cvs /street xdef
 <condition_postfix>
 true
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -4458,14 +4516,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 1800: Run_Test_13 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>18</sheet_number>
 </source>
 <table_name>Run_Test_13</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -4586,6 +4644,8 @@ totalIncome additionalIncome fmul cvd /totalIncome xdef
 <condition_dsl />
 <condition_postfix></condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4594,6 +4654,8 @@ totalIncome additionalIncome fmul cvd /totalIncome xdef
 <condition_postfix>
 true
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -4638,14 +4700,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 1900: Run_Test_14 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>19</sheet_number>
 </source>
 <table_name>Run_Test_14</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -4760,6 +4822,8 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 <condition_dsl />
 <condition_postfix></condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4768,6 +4832,8 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 <condition_postfix>
 true
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 </condition_details>
 </conditions>
@@ -4812,14 +4878,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 2000: Run_Test_15 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>20</sheet_number>
 </source>
 <table_name>Run_Test_15</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -4882,6 +4948,21 @@ dup clients forall pop
 1 local@ 0 local@ streq
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -4890,7 +4971,22 @@ dup clients forall pop
 <condition_postfix>
 0 local@ 1 local@ streq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -4899,7 +4995,22 @@ dup clients forall pop
 <condition_postfix>
 0 local@ 1 local@ streq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -4908,7 +5019,22 @@ dup clients forall pop
 <condition_postfix>
 2 local@ 18 &gt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 <condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -4917,7 +5043,22 @@ dup clients forall pop
 <condition_postfix>
 2 local@ 18 &lt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
 <condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -4926,7 +5067,22 @@ dup clients forall pop
 <condition_postfix>
 2 local@ 65 &gt;=
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
 <condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -4935,7 +5091,22 @@ dup clients forall pop
 <condition_postfix>
 2 local@ 65 &lt;=
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
 <condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>8</condition_number>
@@ -4944,7 +5115,22 @@ dup clients forall pop
 <condition_postfix>
 case_ID '22345' regexmatch
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
 <condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>9</condition_number>
@@ -4953,7 +5139,22 @@ case_ID '22345' regexmatch
 <condition_postfix>
 pregnant true beq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
 <condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>10</condition_number>
@@ -4962,7 +5163,22 @@ pregnant true beq
 <condition_postfix>
 pregnant true beq not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
 <condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>11</condition_number>
@@ -4971,7 +5187,22 @@ pregnant true beq not
 <condition_postfix>
 pregnant true beq { pop 2 local@ 18 &lt; } over if
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
 <condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>12</condition_number>
@@ -4980,7 +5211,22 @@ pregnant true beq { pop 2 local@ 18 &lt; } over if
 <condition_postfix>
 pregnant true beq { pop 2 local@ 18 &lt; } over not if
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
 <condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>13</condition_number>
@@ -4989,7 +5235,22 @@ pregnant true beq { pop 2 local@ 18 &lt; } over not if
 <condition_postfix>
 pregnant not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
 <condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>14</condition_number>
@@ -4998,7 +5259,22 @@ pregnant not
 <condition_postfix>
 pregnant isnull
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
 <condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>15</condition_number>
@@ -5007,7 +5283,22 @@ pregnant isnull
 <condition_postfix>
 pregnant isnull not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
 <condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -5109,14 +5400,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 2100: Run_Test_16 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>21</sheet_number>
 </source>
 <table_name>Run_Test_16</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -5195,6 +5486,21 @@ newarray dup true addto 3 local!
 expectedChildren isnull
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -5203,7 +5509,22 @@ expectedChildren isnull
 <condition_postfix>
 expectedChildren isnull not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -5212,7 +5533,22 @@ expectedChildren isnull not
 <condition_postfix>
 effectiveDate isnull
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -5221,7 +5557,22 @@ effectiveDate isnull
 <condition_postfix>
 errorCodes isnull
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 <condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -5230,7 +5581,22 @@ errorCodes isnull
 <condition_postfix>
 case_ID isnull
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
 <condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -5239,7 +5605,22 @@ case_ID isnull
 <condition_postfix>
 2 local@ isnull
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
 <condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -5248,7 +5629,22 @@ case_ID isnull
 <condition_postfix>
 0 local@ isnull not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
 <condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>8</condition_number>
@@ -5257,7 +5653,22 @@ case_ID isnull
 <condition_postfix>
 errorCodes isnull not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
 <condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>9</condition_number>
@@ -5266,7 +5677,22 @@ errorCodes isnull not
 <condition_postfix>
 case_ID isnull not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
 <condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>10</condition_number>
@@ -5275,7 +5701,22 @@ case_ID isnull not
 <condition_postfix>
 2 local@ isnull not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
 <condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>11</condition_number>
@@ -5284,7 +5725,22 @@ case_ID isnull not
 <condition_postfix>
 2 local@ entitypush pregnant entitypop swap pop
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
 <condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>12</condition_number>
@@ -5293,7 +5749,22 @@ case_ID isnull not
 <condition_postfix>
 pregnant
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
 <condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>13</condition_number>
@@ -5302,7 +5773,22 @@ pregnant
 <condition_postfix>
 3 local@ 0 bytesidx cvb
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
 <condition_column column_number="13" column_value="N" />
+<condition_column column_number="14" column_value="-" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>14</condition_number>
@@ -5311,7 +5797,22 @@ pregnant
 <condition_postfix>
 4 local@ cvb
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
 <condition_column column_number="14" column_value="N" />
+<condition_column column_number="15" column_value="-" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>15</condition_number>
@@ -5320,7 +5821,22 @@ pregnant
 <condition_postfix>
 flags 0 getat
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
+<condition_column column_number="14" column_value="-" />
 <condition_column column_number="15" column_value="N" />
+<condition_column column_number="16" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -5422,14 +5938,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 2200: Run_Test_17 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>22</sheet_number>
 </source>
 <table_name>Run_Test_17</table_name>
-<xls_file>RunTimeTests.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
@@ -5486,6 +6002,18 @@ dup clients forall pop
 0 local@ currentdate streq
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -5494,7 +6022,19 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate &lt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -5503,7 +6043,19 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate d&lt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -5512,7 +6064,19 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate &gt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
 <condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -5521,7 +6085,19 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate d&gt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
 <condition_column column_number="5" column_value="N" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -5530,7 +6106,19 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate &gt;=
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
 <condition_column column_number="6" column_value="N" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -5539,7 +6127,19 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate &lt;=
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
 <condition_column column_number="7" column_value="N" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>8</condition_number>
@@ -5548,7 +6148,19 @@ dup clients forall pop
 <condition_postfix>
 0 local@ currentdate d&gt;= 0 local@ 1 local@ d&lt;= and
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
 <condition_column column_number="8" column_value="N" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>9</condition_number>
@@ -5557,7 +6169,19 @@ dup clients forall pop
 <condition_postfix>
 2 local@ client req
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
 <condition_column column_number="9" column_value="N" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>10</condition_number>
@@ -5566,7 +6190,19 @@ dup clients forall pop
 <condition_postfix>
 2 local@ client req not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
 <condition_column column_number="10" column_value="N" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>11</condition_number>
@@ -5575,7 +6211,19 @@ dup clients forall pop
 <condition_postfix>
 /address incontext not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
 <condition_column column_number="11" column_value="N" />
+<condition_column column_number="12" column_value="-" />
+<condition_column column_number="13" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>12</condition_number>
@@ -5584,7 +6232,19 @@ dup clients forall pop
 <condition_postfix>
 /address incontext
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
 <condition_column column_number="12" column_value="N" />
+<condition_column column_number="13" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>13</condition_number>
@@ -5593,6 +6253,18 @@ dup clients forall pop
 <condition_postfix>
 "true" touppercase cvb
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
+<condition_column column_number="3" column_value="-" />
+<condition_column column_number="4" column_value="-" />
+<condition_column column_number="5" column_value="-" />
+<condition_column column_number="6" column_value="-" />
+<condition_column column_number="7" column_value="-" />
+<condition_column column_number="8" column_value="-" />
+<condition_column column_number="9" column_value="-" />
+<condition_column column_number="10" column_value="-" />
+<condition_column column_number="11" column_value="-" />
+<condition_column column_number="12" column_value="-" />
 <condition_column column_number="13" column_value="N" />
 </condition_details>
 </conditions>
@@ -5676,14 +6348,14 @@ policystatements results true addarray
 </decision_table>
 
 <!-- TABLE 2300: Syntax_Examples_5 -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>23</sheet_number>
 </source>
 <table_name>Syntax_Examples_5</table_name>
-<xls_file>SyntaxExampleDTs.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS></COMMENTS>
@@ -5733,6 +6405,7 @@ perform when called
 <condition_postfix>
 0 local@ currentdate streq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
@@ -5741,6 +6414,7 @@ perform when called
 <condition_postfix>
 0 local@ currentdate streq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -5749,6 +6423,7 @@ perform when called
 <condition_postfix>
 0 local@ currentdate streq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
@@ -5757,6 +6432,7 @@ perform when called
 <condition_postfix>
 age 18 &gt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
@@ -5765,6 +6441,7 @@ age 18 &gt;
 <condition_postfix>
 age 18 &lt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
@@ -5773,6 +6450,7 @@ age 18 &lt;
 <condition_postfix>
 age 12 &gt;=
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>8</condition_number>
@@ -5781,6 +6459,7 @@ age 12 &gt;=
 <condition_postfix>
 age 60 &lt;=
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>9</condition_number>
@@ -5789,6 +6468,7 @@ age 60 &lt;=
 <condition_postfix>
 1 local@ 'This is a string' regexmatch
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>10</condition_number>
@@ -5797,6 +6477,7 @@ age 60 &lt;=
 <condition_postfix>
 pregnant true beq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>11</condition_number>
@@ -5805,6 +6486,7 @@ pregnant true beq
 <condition_postfix>
 pregnant true beq not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>12</condition_number>
@@ -5813,6 +6495,7 @@ pregnant true beq not
 <condition_postfix>
 pregnant true beq { pop age 18 &lt; } over if
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>13</condition_number>
@@ -5821,6 +6504,7 @@ pregnant true beq { pop age 18 &lt; } over if
 <condition_postfix>
 pregnant true beq { pop age 18 &lt; } over not if
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>14</condition_number>
@@ -5829,6 +6513,7 @@ pregnant true beq { pop age 18 &lt; } over not if
 <condition_postfix>
 pregnant not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>15</condition_number>
@@ -5837,6 +6522,7 @@ pregnant not
 <condition_postfix>
 pregnant isnull
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>16</condition_number>
@@ -5845,6 +6531,7 @@ pregnant isnull
 <condition_postfix>
 pregnant isnull not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>17</condition_number>
@@ -5853,6 +6540,7 @@ pregnant isnull not
 <condition_postfix>
 expectedChildren isnull
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>18</condition_number>
@@ -5861,6 +6549,7 @@ expectedChildren isnull
 <condition_postfix>
 expectedChildren isnull not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>19</condition_number>
@@ -5869,6 +6558,7 @@ expectedChildren isnull not
 <condition_postfix>
 effectiveDate isnull
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>20</condition_number>
@@ -5877,6 +6567,7 @@ effectiveDate isnull
 <condition_postfix>
 errorCodes isnull
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>21</condition_number>
@@ -5885,6 +6576,7 @@ errorCodes isnull
 <condition_postfix>
 1 local@ isnull
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>22</condition_number>
@@ -5893,6 +6585,7 @@ errorCodes isnull
 <condition_postfix>
 2 local@ isnull
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>23</condition_number>
@@ -5901,6 +6594,7 @@ errorCodes isnull
 <condition_postfix>
 0 local@ isnull not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>24</condition_number>
@@ -5909,6 +6603,7 @@ errorCodes isnull
 <condition_postfix>
 errorCodes isnull not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>25</condition_number>
@@ -5917,6 +6612,7 @@ errorCodes isnull not
 <condition_postfix>
 1 local@ isnull not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>26</condition_number>
@@ -5925,6 +6621,7 @@ errorCodes isnull not
 <condition_postfix>
 2 local@ isnull not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>27</condition_number>
@@ -5933,6 +6630,7 @@ errorCodes isnull not
 <condition_postfix>
 2 local@ entitypush pregnant entitypop swap pop
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>28</condition_number>
@@ -5941,6 +6639,7 @@ errorCodes isnull not
 <condition_postfix>
 pregnant
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>29</condition_number>
@@ -5949,6 +6648,7 @@ pregnant
 <condition_postfix>
 errorCodes 1 bytesidx cvb
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>30</condition_number>
@@ -5957,6 +6657,7 @@ errorCodes 1 bytesidx cvb
 <condition_postfix>
 1 local@ cvb
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>31</condition_number>
@@ -5965,6 +6666,7 @@ errorCodes 1 bytesidx cvb
 <condition_postfix>
 results 1 getat
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>32</condition_number>
@@ -5973,6 +6675,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate streq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>33</condition_number>
@@ -5981,6 +6684,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate &lt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>34</condition_number>
@@ -5989,6 +6693,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate d&lt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>35</condition_number>
@@ -5997,6 +6702,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate &gt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>36</condition_number>
@@ -6005,6 +6711,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate d&gt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>37</condition_number>
@@ -6013,6 +6720,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate &gt;=
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>38</condition_number>
@@ -6021,6 +6729,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate &lt;=
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>39</condition_number>
@@ -6029,6 +6738,7 @@ results 1 getat
 <condition_postfix>
 0 local@ currentdate d&gt;= 0 local@ effectiveDate d&lt;= and
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>40</condition_number>
@@ -6037,6 +6747,7 @@ results 1 getat
 <condition_postfix>
 2 local@ client req
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>41</condition_number>
@@ -6045,6 +6756,7 @@ results 1 getat
 <condition_postfix>
 2 local@ client req not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>42</condition_number>
@@ -6053,6 +6765,7 @@ results 1 getat
 <condition_postfix>
 /address incontext not
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>43</condition_number>
@@ -6061,6 +6774,7 @@ results 1 getat
 <condition_postfix>
 /address incontext
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>44</condition_number>
@@ -6069,6 +6783,7 @@ results 1 getat
 <condition_postfix>
 1 local@ touppercase cvb
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 </condition_details>
 </conditions>
 <actions></actions>
@@ -6076,14 +6791,14 @@ results 1 getat
 </decision_table>
 
 <!-- TABLE 2310: Run_Syntax_Examples -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>PSSyntaxExampleDTs.xls</relative_path>
-<file_name>PSSyntaxExampleDTs.xls</file_name>
+<relative_path>syntaxexample.xlsx</relative_path>
+<file_name>syntaxexample.xlsx</file_name>
 <sheet_number>24</sheet_number>
 </source>
 <table_name>Run_Syntax_Examples</table_name>
-<xls_file>PSSyntaxExampleDTs.xls</xls_file>
+<xls_file>syntaxexample.xlsx</xls_file>
 <attribute_fields>
 <Type>ALL</Type>
 <COMMENTS></COMMENTS>
