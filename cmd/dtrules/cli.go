@@ -280,8 +280,11 @@ func (c *CLI) runSync(args []string) int {
 		return 1
 	}
 
-	// Initialize syncer
-	if err := c.initSyncer(); err != nil {
+	// Initialize syncer. Export is the one direction that may legitimately
+	// run against a project with no excel/ yet -- that is bootstrapping, and
+	// refusing it is what left Cribbage, CorporateTax and SyntaxTests with no
+	// authoring surface at all (#1026, #1012).
+	if err := c.initSyncerFor(subcmd); err != nil {
 		fmt.Fprintf(os.Stderr, "Error initializing syncer: %v\n", err)
 		return 1
 	}
@@ -328,12 +331,30 @@ Examples:
 }
 
 func (c *CLI) initSyncer() error {
+	return c.initSyncerFor("")
+}
+
+// initSyncerFor is initSyncer knowing which subcommand asked.
+//
+// A missing excel/ is an error for every direction but one. Importing from a
+// directory that is not there, or reporting status on it, means the caller is
+// pointed at the wrong project and should hear so. Exporting into it is
+// bootstrapping -- the authoring contract says a project with no Excel yet
+// gets one built from its XML -- so the directory is created rather than
+// refused.
+func (c *CLI) initSyncerFor(subcmd string) error {
 	// Check directories exist
 	if _, err := os.Stat(c.xmlDir); os.IsNotExist(err) {
 		return fmt.Errorf("XML directory not found: %s", c.xmlDir)
 	}
 	if _, err := os.Stat(c.excelDir); os.IsNotExist(err) {
-		return fmt.Errorf("Excel directory not found: %s", c.excelDir)
+		if subcmd != "export" {
+			return fmt.Errorf("Excel directory not found: %s", c.excelDir)
+		}
+		if err := os.MkdirAll(c.excelDir, 0o755); err != nil {
+			return fmt.Errorf("creating Excel directory %s: %w", c.excelDir, err)
+		}
+		fmt.Printf("Created %s (bootstrapping Excel from XML).\n", c.excelDir)
 	}
 
 	// Create syncer
