@@ -19,6 +19,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -37,8 +38,15 @@ import (
 const (
 	// kidaidTrace records no finalState; syntheticTrace does. Report
 	// generation needs one, so both are here rather than one.
-	kidaidTrace    = "../../../sampleprojects/KidAid/testfiles/output/kidaid.trace.xml"
-	syntheticTrace = "../../../sampleprojects/KidAid/testfiles/output/big-synthetic.trace.xml"
+	//
+	// They live in testdata/ rather than beside the sample that produced
+	// them: .gitignore excludes `output/`, so the copies under
+	// sampleprojects/KidAid/testfiles/output/ are never committed. These
+	// tests passed on the machine that wrote them and failed on every fresh
+	// checkout, which is the whole failure mode `dtrules verify` exists to
+	// prevent for rules and which test fixtures are just as prone to.
+	kidaidTrace    = "testdata/kidaid.trace.xml"
+	syntheticTrace = "testdata/big-synthetic.trace.xml"
 )
 
 // debugServer returns a router with the KidAid trace already loaded.
@@ -47,26 +55,56 @@ func debugServer(t *testing.T, readOnly bool) http.Handler {
 	return debugServerWith(t, kidaidTrace, readOnly)
 }
 
-// debugServerWith is debugServer over a named trace. The project root the
-// trace lives under matters: path validation is relative to it.
+// debugServerWith assembles a throwaway project from KidAid's committed rules
+// and the named trace fixture, and returns a router over it.
+//
+// It builds the project rather than pointing at sampleprojects/KidAid because
+// trace paths are validated against the project root: a fixture in testdata/
+// is outside any sample, and that refusal is correct. Copying both into one
+// temp directory exercises the real validation instead of disabling it.
 func debugServerWith(t *testing.T, tracePath string, readOnly bool) http.Handler {
 	t.Helper()
-	root, err := filepath.Abs("../../../sampleprojects/KidAid")
-	if err != nil {
+	root := t.TempDir()
+
+	xmlDir := filepath.Join(root, "xml")
+	if err := os.MkdirAll(xmlDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
+	srcXML := filepath.Join("..", "..", "..", "sampleprojects", "KidAid", "xml")
+	entries, err := os.ReadDir(srcXML)
+	if err != nil {
+		t.Skipf("KidAid rules not present: %v", err)
+	}
+	for _, e := range entries {
+		if e.IsDir() {
+			continue
+		}
+		data, rerr := os.ReadFile(filepath.Join(srcXML, e.Name()))
+		if rerr != nil {
+			t.Fatal(rerr)
+		}
+		if werr := os.WriteFile(filepath.Join(xmlDir, e.Name()), data, 0o644); werr != nil {
+			t.Fatal(werr)
+		}
+	}
+
+	trace, err := os.ReadFile(tracePath)
+	if err != nil {
+		t.Fatalf("read trace fixture %s: %v", tracePath, err)
+	}
+	tracePathInProject := filepath.Join(root, filepath.Base(tracePath))
+	if err := os.WriteFile(tracePathInProject, trace, 0o644); err != nil {
+		t.Fatal(err)
+	}
+
 	s := New(Config{ProjectRoot: root, ReadOnly: readOnly})
 	// A trace is read in the context of the rules it came from, so the
 	// project has to be open first -- the same order dtrules debug uses.
-	if err := s.LoadProject(filepath.Join(root, "xml")); err != nil {
+	if err := s.LoadProject(xmlDir); err != nil {
 		t.Fatalf("LoadProject: %v", err)
 	}
-	abs, err := filepath.Abs(tracePath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := s.LoadDebugTrace(abs); err != nil {
-		t.Fatalf("LoadDebugTrace(%s): %v", abs, err)
+	if err := s.LoadDebugTrace(tracePathInProject); err != nil {
+		t.Fatalf("LoadDebugTrace(%s): %v", tracePathInProject, err)
 	}
 	return s.Routes()
 }

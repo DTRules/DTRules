@@ -1,0 +1,152 @@
+<DTRulesTrace dtrules_version="dev" rules_fingerprint="sha256:a9790174d1fec8b182f2a1c07204570ab13747fb1e35d22281b3563b6aa86e86">
+<def entity="job" name="mapping*key" id="10018">&quot;v1&quot;</def>
+<entitypush entity="job" id="10018"/>
+<arraybind id="10018" attr="results" arrayId="10019"/>
+<def entity="job" name="currentdate" id="10018">&quot;2008-09-12&quot; cvd</def>
+<def entity="job" name="effectivedate" id="10018">&quot;2008-10-01&quot; cvd</def>
+<def entity="job" name="program" id="10018">&quot;KidAid&quot;</def>
+<def entity="case" name="mapping*key" id="10020">&quot;v2&quot;</def>
+<entitypush entity="case" id="10020"/>
+<arraybind id="10020" attr="notes" arrayId="10022"/>
+<arraybind id="10020" attr="relationships" arrayId="10023"/>
+<arraybind id="10020" attr="clients" arrayId="10021"/>
+<def entity="case" name="county_cd" id="10020">&quot;LO&quot;</def>
+<def entity="client" name="mapping*key" id="10024">&quot;1001&quot;</def>
+<entitypush entity="client" id="10024"/>
+<arraybind id="10024" attr="incomes" arrayId="10025"/>
+<arraybind id="10024" attr="notes" arrayId="10026"/>
+<addto arrayId="10021" entity="client" id="10024"/>
+<def entity="client" name="client_ID" id="10024">&quot;1001&quot;</def>
+<def entity="client" name="age" id="10024">50</def>
+<def entity="client" name="applying" id="10024">true</def>
+<def entity="client" name="validatedCitizenship" id="10024">true</def>
+<def entity="client" name="livesAtResidence" id="10024">true</def>
+<def entity="client" name="pregnant" id="10024">false</def>
+<def entity="client" name="expectedChildren" id="10024">0</def>
+<def entity="client" name="disabled" id="10024">false</def>
+<def entity="income" name="mapping*key" id="10027">&quot;v3&quot;</def>
+<entitypush entity="income" id="10027"/>
+<addto arrayId="10025" entity="income" id="10027"/>
+<def entity="income" name="type" id="10027">&quot;WA&quot;</def>
+<def entity="income" name="amount" id="10027">1200</def>
+<def entity="income" name="earned" id="10027">true</def>
+<entitypop/>
+<def entity="income" name="mapping*key" id="10028">&quot;v4&quot;</def>
+<entitypush entity="income" id="10028"/>
+<addto arrayId="10025" entity="income" id="10028"/>
+<def entity="income" name="type" id="10028">&quot;CS&quot;</def>
+<def entity="income" name="amount" id="10028">800</def>
+<def entity="income" name="earned" id="10028">false</def>
+<entitypop/>
+<entitypop/>
+<def entity="client" name="mapping*key" id="10029">&quot;1002&quot;</def>
+<entitypush entity="client" id="10029"/>
+<arraybind id="10029" attr="incomes" arrayId="10030"/>
+<arraybind id="10029" attr="notes" arrayId="10031"/>
+<addto arrayId="10021" entity="client" id="10029"/>
+<def entity="client" name="client_ID" id="10029">&quot;1002&quot;</def>
+<def entity="client" name="age" id="10029">4</def>
+<def entity="client" name="applying" id="10029">true</def>
+<def entity="client" name="validatedCitizenship" id="10029">true</def>
+<def entity="client" name="livesAtResidence" id="10029">true</def>
+<def entity="client" name="pregnant" id="10029">false</def>
+<def entity="client" name="expectedChildren" id="10029">0</def>
+<def entity="client" name="disabled" id="10029">false</def>
+<entitypop/>
+<def entity="relationship" name="mapping*key" id="10032">&quot;v5&quot;</def>
+<entitypush entity="relationship" id="10032"/>
+<addto arrayId="10023" entity="relationship" id="10032"/>
+<def entity="client" name="mapping*key" id="10024">&quot;1001&quot;</def>
+<entitypush entity="client" id="10024"/>
+<entitypop/>
+<def entity="client" name="mapping*key" id="10029">&quot;1002&quot;</def>
+<entitypush entity="client" id="10029"/>
+<entitypop/>
+<def entity="relationship" name="type" id="10032">&quot;parent&quot;</def>
+<entitypop/>
+<def entity="relationship" name="mapping*key" id="10033">&quot;v6&quot;</def>
+<entitypush entity="relationship" id="10033"/>
+<addto arrayId="10023" entity="relationship" id="10033"/>
+<def entity="client" name="mapping*key" id="10029">&quot;1002&quot;</def>
+<entitypush entity="client" id="10029"/>
+<entitypop/>
+<def entity="client" name="mapping*key" id="10024">&quot;1001&quot;</def>
+<entitypush entity="client" id="10024"/>
+<entitypop/>
+<def entity="relationship" name="type" id="10033">&quot;child&quot;</def>
+<entitypop/>
+<entitypop/>
+<entitypop/>
+<entitypush entity="constants" id="10034"/>
+<arraybind id="10034" attr="diagCodes" arrayId="10037"/>
+<arraybind id="10034" attr="ExcludedIncomeTypes" arrayId="10035"/>
+<arraybind id="10034" attr="coveredCounties" arrayId="10036"/>
+<entitypush entity="job" id="10018"/>
+<entitypush entity="case" id="10020"/>
+<decisiontable name="Compute_Eligibility">
+<execute_table>
+<condition n="1" result="true"/>
+<column n="1">
+<action n="1">
+<decisiontable name="Calculate_Individual_Income">
+<entitypush entity="client" id="10024"/>
+<entitypush entity="income" id="10027"/>
+<execute_table>
+<condition n="1" result="true"/>
+<column n="1">
+<action n="1">
+<def entity="client" name="totalIncome" id="10024">1200</def>
+</action>
+</column>
+</execute_table>
+<entitypop/>
+<entitypush entity="income" id="10028"/>
+<execute_table>
+<condition n="1" result="false"/>
+<condition n="2" result="false"/>
+<column n="2">
+<action n="1">
+<def entity="client" name="totalIncome" id="10024">2000</def>
+</action>
+</column>
+</execute_table>
+<entitypop/>
+<entitypop/>
+<entitypush entity="client" id="10029"/>
+<entitypop/>
+</decisiontable>
+</action>
+<action n="2">
+<decisiontable name="Calculate_Group_Size">
+<entitypush entity="client" id="10024"/>
+<entitypush entity="client" id="10024"/>
+<execute_table>
+<condition n="1" result="true"/>
+<condition n="5" result="false"/>
+<condition n="6" result="true"/>
+<column n="1">
+<action n="1">
+<entitypush entity="client" id="10024"/>
+<def entity="client" name="incomeGroupCount" id="10024">1</def>
+<entitypop/>
+</action>
+<action n="3">
+<entitypush entity="client" id="10024"/>
+<def entity="client" name="totalGroupIncome" id="10024">2000</def>
+<entitypop/>
+</action>
+</column>
+</execute_table>
+<entitypop/>
+<entitypush entity="client" id="10029"/>
+<execute_table>
+<condition n="1" result="false"/>
+</execute_table>
+<entitypop/>
+<entitypop/>
+</decisiontable>
+</action>
+</column>
+</execute_table>
+</decisiontable>
+</DTRulesTrace>
