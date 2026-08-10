@@ -1487,3 +1487,16 @@ func GetRelativeBase(filePath, baseDir string) string {
 
 	return base
 }
+
+// SetForceDirection pins the sync direction, overriding the per-workbook
+// timestamp detection.
+//
+// `dtrules sync import` and `dtrules sync export` name a direction in the
+// command itself, but both called SyncAll and let detection decide, so each
+// silently did nothing whenever the timestamps disagreed with the request --
+// "No files needed export (Excel is up to date)", exit 0. `--force` did not
+// help: it bypasses the pending-user-edits check, not direction detection
+// (#1069). This is the same defect #1051 fixed for `build --from-excel`.
+func (s *Syncer) SetForceDirection(d SyncDirection) {
+	s.options.ForceDirection = d
+}

@@ -461,6 +461,9 @@ func (c *CLI) syncCheck() int {
 func (c *CLI) syncImport() int {
 	fmt.Println("Importing Excel to XML...")
 
+	// The command names the direction; detection must not overrule it (#1069).
+	c.syncer.SetForceDirection(sync.ExcelToXML)
+
 	result, err := c.syncer.SyncAll()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error during import: %v\n", err)
@@ -517,8 +520,10 @@ func (c *CLI) syncExport() int {
 
 	fmt.Println("Exporting XML to Excel...")
 
-	// For export, we need to load rules to create the exporter
-	// This is a simplified version - full implementation would load rules
+	// The command names the direction; detection must not overrule it (#1069).
+	// --force above only waives the pending-edits check.
+	c.syncer.SetForceDirection(sync.XMLToExcel)
+
 	result, err := c.syncer.SyncAll()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error during export: %v\n", err)
