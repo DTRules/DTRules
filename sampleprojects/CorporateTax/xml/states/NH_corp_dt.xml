@@ -2,19 +2,18 @@
 <decision_tables>
 
 <!-- TABLE 53800: Determine_NH_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NH_Corp.xls</relative_path>
-<file_name>NH_Corp.xls</file_name>
+<relative_path>NH_corp.xlsx</relative_path>
+<file_name>NH_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_NH_Filing_Requirement</table_name>
-<xls_file>NH_Corp.xls</xls_file>
+<xls_file>NH_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file New Hampshire Business Profits Tax (BPT) return. Checks for physical presence or economic nexus ($109,000 gross income threshold).</COMMENTS>
 <TABLE_NUMBER>53800</TABLE_NUMBER>
-<FILE_PATH>states/NH/53800_Determine_NH_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -27,6 +26,7 @@
 apportionment.has_physical_presence true beq { pop apportionment.state_code "NH" streq } over if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 <condition_details>
@@ -36,6 +36,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "NH"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "NH" streq } over if
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -60,7 +61,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NH" st
 <action_comment>No nexus - no filing required</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -69,19 +70,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NH" st
 </decision_table>
 
 <!-- TABLE 53820: Calculate_NH_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NH_Corp.xls</relative_path>
-<file_name>NH_Corp.xls</file_name>
+<relative_path>NH_corp.xlsx</relative_path>
+<file_name>NH_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_NH_Income_Adjustments</table_name>
-<xls_file>NH_Corp.xls</xls_file>
+<xls_file>NH_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate NH state-specific additions and subtractions to federal taxable income. NH uses static conformity to IRC as of December 31, 2018, and has decoupled from Section 163(j) interest limitations.</COMMENTS>
 <TABLE_NUMBER>53820</TABLE_NUMBER>
-<FILE_PATH>states/NH/53820_Calculate_NH_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -103,7 +103,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_comment>Calculate NH state additions and subtractions</action_comment>
 <action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
+0.0 cvi /apportionment.state_additions xdef 0.0 cvi /apportionment.state_subtractions xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -112,7 +112,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_comment>No nexus - no adjustments</action_comment>
 <action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
+0.0 cvi /apportionment.state_additions xdef 0.0 cvi /apportionment.state_subtractions xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -121,19 +121,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 </decision_table>
 
 <!-- TABLE 53880: Calculate_NH_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NH_Corp.xls</relative_path>
-<file_name>NH_Corp.xls</file_name>
+<relative_path>NH_corp.xlsx</relative_path>
+<file_name>NH_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_NH_State_Tax</table_name>
-<xls_file>NH_Corp.xls</xls_file>
+<xls_file>NH_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate NH Business Profits Tax (BPT). Applies NH 7.5% flat rate to apportioned and adjusted business profits.</COMMENTS>
 <TABLE_NUMBER>53880</TABLE_NUMBER>
-<FILE_PATH>states/NH/53880_Calculate_NH_State_Tax</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -154,10 +153,11 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 f&gt;
+apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
+<condition_column column_number="3" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -166,7 +166,7 @@ apportionment.state_taxable_income 0 f&gt;
 <action_comment>Calculate NH BPT at 7.5% flat rate</action_comment>
 <action_dsl>set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
+apportionment.state_taxable_income apportionment.state_tax_rate * apportionment.state_credits - 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -175,7 +175,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_comment>Nexus but no taxable income</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -184,7 +184,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_comment>No nexus - no BPT liability</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>

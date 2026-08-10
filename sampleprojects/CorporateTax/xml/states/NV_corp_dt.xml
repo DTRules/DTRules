@@ -2,19 +2,18 @@
 <decision_tables>
 
 <!-- TABLE 54000: Determine_NV_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NV_Corp.xls</relative_path>
-<file_name>NV_Corp.xls</file_name>
+<relative_path>NV_corp.xlsx</relative_path>
+<file_name>NV_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_NV_Filing_Requirement</table_name>
-<xls_file>NV_Corp.xls</xls_file>
+<xls_file>NV_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file Nevada Commerce Tax return. Checks for physical presence, economic nexus, and revenue threshold.</COMMENTS>
 <TABLE_NUMBER>54000</TABLE_NUMBER>
-<FILE_PATH>states/NV/54000_Determine_NV_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
@@ -67,7 +66,7 @@ result.nv_gross_revenue result.nv_economic_nexus_threshold f&gt;= { pop result.n
 <action_comment>Physical presence but below threshold - no Commerce Tax due</action_comment>
 <action_dsl>set result.nv_qualifies_for_exemption = true; set result.nv_commerce_tax = 0.0; set result.state_tax = 0.0;</action_dsl>
 <action_postfix>
-true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_commerce_tax xdef 0.0 cvd /result.state_tax xdef
+true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_commerce_tax xdef 0.0 cvi /result.state_tax xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -94,7 +93,7 @@ false cvb /result.nv_qualifies_for_exemption xdef
 <action_comment>No nexus - no filing required</action_comment>
 <action_dsl>set result.nv_qualifies_for_exemption = true; set result.nv_commerce_tax = 0.0; set result.state_tax = 0.0; set result.state_refund_or_owed = result.state_payments;</action_dsl>
 <action_postfix>
-true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_commerce_tax xdef 0.0 cvd /result.state_tax xdef result.state_payments cvd /result.state_refund_or_owed xdef
+true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_commerce_tax xdef 0.0 cvi /result.state_tax xdef result.state_payments cvi /result.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="4" column_value="X" />
 </action_details>
@@ -103,28 +102,21 @@ true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_commerce_tax
 </decision_table>
 
 <!-- TABLE 54020: Calculate_NV_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NV_Corp.xls</relative_path>
-<file_name>NV_Corp.xls</file_name>
+<relative_path>NV_corp.xlsx</relative_path>
+<file_name>NV_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_NV_Income_Adjustments</table_name>
-<xls_file>NV_Corp.xls</xls_file>
+<xls_file>NV_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Nevada has NO corporate income tax. This table confirms zero income tax liability for consistency with framework.</COMMENTS>
 <TABLE_NUMBER>54020</TABLE_NUMBER>
-<FILE_PATH>states/NV/54020_Calculate_NV_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-<initial_action>
-<action_comment>Initialize Nevada income adjustments (none - no income tax)</action_comment>
-<initial_action_dsl />
-<initial_action_postfix></initial_action_postfix>
-</initial_action>
-</initial_actions>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
@@ -143,7 +135,7 @@ result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_economic
 <action_comment>Nevada has NO corporate income tax</action_comment>
 <action_dsl>set result.state_tax_rate = 0.0; set result.state_additions = 0.0; set result.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.state_tax_rate xdef 0.0 cvd /result.state_additions xdef 0.0 cvd /result.state_subtractions xdef
+0.0 cvi /result.state_tax_rate xdef 0.0 cvi /result.state_additions xdef 0.0 cvi /result.state_subtractions xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -152,7 +144,7 @@ result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_economic
 <action_comment>No nexus - confirm zero tax</action_comment>
 <action_dsl>set result.state_tax_rate = 0.0; set result.state_additions = 0.0; set result.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.state_tax_rate xdef 0.0 cvd /result.state_additions xdef 0.0 cvd /result.state_subtractions xdef
+0.0 cvi /result.state_tax_rate xdef 0.0 cvi /result.state_additions xdef 0.0 cvi /result.state_subtractions xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -161,19 +153,18 @@ result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_economic
 </decision_table>
 
 <!-- TABLE 54040: Determine_NV_Business_Classification -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NV_Corp.xls</relative_path>
-<file_name>NV_Corp.xls</file_name>
+<relative_path>NV_corp.xlsx</relative_path>
+<file_name>NV_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Determine_NV_Business_Classification</table_name>
-<xls_file>NV_Corp.xls</xls_file>
+<xls_file>NV_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine Nevada business classification for Commerce Tax rate. Sets appropriate Commerce Tax rate based on industry (NAICS code).</COMMENTS>
 <TABLE_NUMBER>54040</TABLE_NUMBER>
-<FILE_PATH>states/NV/54040_Determine_NV_Business_Classification</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
@@ -374,19 +365,18 @@ result.nv_other_rate cvd /result.nv_commerce_tax_rate xdef
 </decision_table>
 
 <!-- TABLE 54060: Calculate_NV_Sitused_Revenue -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NV_Corp.xls</relative_path>
-<file_name>NV_Corp.xls</file_name>
+<relative_path>NV_corp.xlsx</relative_path>
+<file_name>NV_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
 </source>
 <table_name>Calculate_NV_Sitused_Revenue</table_name>
-<xls_file>NV_Corp.xls</xls_file>
+<xls_file>NV_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Nevada-sitused gross revenue for Commerce Tax. Uses market-based sourcing to determine revenue attributable to Nevada.</COMMENTS>
 <TABLE_NUMBER>54060</TABLE_NUMBER>
-<FILE_PATH>states/NV/54060_Calculate_NV_Sitused_Revenue</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
@@ -401,7 +391,7 @@ result.nv_other_rate cvd /result.nv_commerce_tax_rate xdef
 <condition_comment>Has nexus and has apportionment percentage</condition_comment>
 <condition_dsl>has_nexus AND apportionment_percentage &gt; 0</condition_dsl>
 <condition_postfix>
-has_nexus { pop apportionment_percentage 0 f&gt; } over if
+has_nexus { pop apportionment_percentage 0 &gt; } over if
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
@@ -412,7 +402,7 @@ has_nexus { pop apportionment_percentage 0 f&gt; } over if
 <condition_comment>Has nexus but no apportionment percentage</condition_comment>
 <condition_dsl>has_nexus AND apportionment_percentage == 0</condition_dsl>
 <condition_postfix>
-has_nexus { pop apportionment_percentage 0 f== } over if
+has_nexus { pop apportionment_percentage 0 == } over if
 </condition_postfix>
 <condition_column column_number="1" column_value="N" />
 <condition_column column_number="2" column_value="Y" />
@@ -425,7 +415,7 @@ has_nexus { pop apportionment_percentage 0 f== } over if
 <action_comment>Calculate Nevada-sitused revenue using market-based sourcing</action_comment>
 <action_dsl>set result.nv_sitused_revenue = result.total_revenue * result.apportionment_percentage; set result.nv_gross_revenue = result.nv_sitused_revenue;</action_dsl>
 <action_postfix>
-result.total_revenue result.apportionment_percentage fmul cvd /result.nv_sitused_revenue xdef result.nv_sitused_revenue cvd /result.nv_gross_revenue xdef
+result.total_revenue result.apportionment_percentage * cvd /result.nv_sitused_revenue xdef result.nv_sitused_revenue cvd /result.nv_gross_revenue xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -452,19 +442,18 @@ result.total_revenue cvd /result.nv_sitused_revenue xdef result.total_revenue cv
 </decision_table>
 
 <!-- TABLE 54080: Calculate_NV_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NV_Corp.xls</relative_path>
-<file_name>NV_Corp.xls</file_name>
+<relative_path>NV_corp.xlsx</relative_path>
+<file_name>NV_corp.xlsx</file_name>
 <sheet_number>5</sheet_number>
 </source>
 <table_name>Calculate_NV_State_Tax</table_name>
-<xls_file>NV_Corp.xls</xls_file>
+<xls_file>NV_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Nevada Commerce Tax liability. Applies Commerce Tax rate to Nevada-sitused gross revenue exceeding $4M. IMPORTANT: This is a gross receipts tax, NOT an income tax.</COMMENTS>
 <TABLE_NUMBER>54080</TABLE_NUMBER>
-<FILE_PATH>states/NV/54080_Calculate_NV_State_Tax</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions>
@@ -503,7 +492,7 @@ result.has_physical_presence_nv { pop result.nv_gross_revenue result.nv_economic
 <action_comment>Calculate Commerce Tax on taxable revenue</action_comment>
 <action_dsl>set result.nv_taxable_revenue = the maximum of (result.nv_gross_revenue - result.nv_commerce_tax_threshold) and (0.0); set result.nv_commerce_tax = result.nv_taxable_revenue * result.nv_commerce_tax_rate; set result.nv_commerce_tax = the maximum of (result.nv_commerce_tax - result.state_credits) and (0.0); set result.state_tax = result.nv_commerce_tax; set result.state_refund_or_owed = result.state_payments - result.state_tax;</action_dsl>
 <action_postfix>
-result.nv_gross_revenue result.nv_commerce_tax_threshold f- 0.0 fmax cvd /result.nv_taxable_revenue xdef result.nv_taxable_revenue result.nv_commerce_tax_rate fmul cvd /result.nv_commerce_tax xdef result.nv_commerce_tax result.state_credits f- 0.0 fmax cvd /result.nv_commerce_tax xdef result.nv_commerce_tax cvd /result.state_tax xdef result.state_payments result.state_tax f- cvd /result.state_refund_or_owed xdef
+result.nv_gross_revenue result.nv_commerce_tax_threshold f- 0.0 fmax cvd /result.nv_taxable_revenue xdef result.nv_taxable_revenue result.nv_commerce_tax_rate fmul cvd /result.nv_commerce_tax xdef result.nv_commerce_tax result.state_credits f- 0.0 fmax cvd /result.nv_commerce_tax xdef result.nv_commerce_tax cvi /result.state_tax xdef result.state_payments result.state_tax - cvi /result.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -512,7 +501,7 @@ result.nv_gross_revenue result.nv_commerce_tax_threshold f- 0.0 fmax cvd /result
 <action_comment>Below threshold - no Commerce Tax</action_comment>
 <action_dsl>set result.nv_qualifies_for_exemption = true; set result.nv_taxable_revenue = 0.0; set result.nv_commerce_tax = 0.0; set result.state_tax = 0.0; set result.state_refund_or_owed = result.state_payments;</action_dsl>
 <action_postfix>
-true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_taxable_revenue xdef 0.0 cvd /result.nv_commerce_tax xdef 0.0 cvd /result.state_tax xdef result.state_payments cvd /result.state_refund_or_owed xdef
+true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_taxable_revenue xdef 0.0 cvd /result.nv_commerce_tax xdef 0.0 cvi /result.state_tax xdef result.state_payments cvi /result.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -521,7 +510,7 @@ true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_taxable_reve
 <action_comment>No nexus - no Commerce Tax</action_comment>
 <action_dsl>set result.nv_qualifies_for_exemption = true; set result.nv_taxable_revenue = 0.0; set result.nv_commerce_tax = 0.0; set result.state_tax = 0.0; set result.state_refund_or_owed = result.state_payments;</action_dsl>
 <action_postfix>
-true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_taxable_revenue xdef 0.0 cvd /result.nv_commerce_tax xdef 0.0 cvd /result.state_tax xdef result.state_payments cvd /result.state_refund_or_owed xdef
+true cvb /result.nv_qualifies_for_exemption xdef 0.0 cvd /result.nv_taxable_revenue xdef 0.0 cvd /result.nv_commerce_tax xdef 0.0 cvi /result.state_tax xdef result.state_payments cvi /result.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>

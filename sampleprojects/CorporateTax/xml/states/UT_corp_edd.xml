@@ -1,76 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Utah Corporate Tax Entity Data Dictionary
-
-  Utah has a low flat corporate income tax rate.
-
-  Key Features:
-  - Flat 4.50% corporate income tax rate (effective January 1, 2025, UT Code § 59-7-104)
-  - Single-sales apportionment formula (100% sales factor)
-  - Economic nexus: $100,000 gross receipts threshold (transaction count removed July 1, 2025)
-  - No alternative minimum tax
-  - No special surcharges
-
-  References:
-  - UT Code § 59-7-104 (Tax rate reduced from 4.55% to 4.50% for 2025)
-  - Utah Form TC-20 (Corporation Franchise or Income Tax Return)
-  - Utah State Tax Commission Corporate Tax Guidance
-  - S.B. 47 (2025) - Economic nexus threshold changes
--->
-<entity_dictionary name="CorporateTax_UT_Constants">
-
-  <!--
-    Apportionment Entity: Utah Configuration
-
-    Used by decision tables 7000-7500 for multi-state tax apportionment
-    and UT-specific tables 54600-54699.
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='UT'
-           comment='Utah state code'/>
-
-    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='UT economic nexus gross receipts threshold: $100,000 (transaction count removed July 1, 2025)'/>
-
-    <field name='transaction_threshold' type='integer' default_value='0'
-           comment='UT transaction threshold removed as of July 1, 2025 per S.B. 47'/>
-
-    <!-- Apportionment Formula -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='UT uses single-sales factor apportionment (100% sales factor)'/>
-
-    <!-- State Tax Rate -->
-    <field name='state_tax_rate' type='double' default_value='0.045'
-           comment='UT corporate income tax rate: 4.50% (reduced from 4.55% effective January 1, 2025) - UT Code § 59-7-104'/>
-
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='UT additions: federal interest income, state income tax refunds, certain expenses, etc.'/>
-
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='UT subtractions: UT municipal bond interest, state income taxes paid, state NOL, etc.'/>
-
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='UT tax credits: renewable energy, research activities, economic development, etc.'/>
-
-  </entity>
-
-  <!--
-    Result Entity: UT does not require special state-specific fields
-
-    Utah uses a straightforward flat-rate system without:
-    - Alternative minimum tax
-    - Special surcharges
-    - Industry-specific tax rates
-    - Complex combined reporting requirements
-  -->
-  <entity name="result">
-    <!-- No UT-specific fields required for basic implementation -->
-  </entity>
-
-</entity_dictionary>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>UT_corp_edd</file_path>
+	</file_metadata>
+	<entity name="apportionment" number="100" xls_file="UT_corp.xlsx" access="rw">
+		<source>
+			<relative_path>UT_corp.xlsx</relative_path>
+			<file_name>UT_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="UT uses single-sales factor apportionment (100% sales factor)"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="UT economic nexus gross receipts threshold: $100,000 (transaction count removed July 1, 2025)"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT additions: federal interest income, state income tax refunds, certain expenses, etc."></field>
+		<field name="state_code" type="string" subtype="" access="r" input="" default_value="UT" comment="Utah state code"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT tax credits: renewable energy, research activities, economic development, etc."></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT subtractions: UT municipal bond interest, state income taxes paid, state NOL, etc."></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.045" comment="UT corporate income tax rate: 4.50% (reduced from 4.55% effective January 1, 2025) - UT Code § 59-7-104"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="UT transaction threshold removed as of July 1, 2025 per S.B. 47"></field>
+	</entity>
+</entity_data_dictionary>

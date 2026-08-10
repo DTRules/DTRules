@@ -1,95 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ============================================================================
-  FILE: sampleprojects/CorporateTax/xml/states/MI_corp_edd.xml
-  ============================================================================
-
-  Michigan (MI) Corporate Tax Entity Data Dictionary
-
-  Michigan Corporate Income Tax:
-  - Flat rate: 6% (MCL 206.623)
-  - Apportionment: Single-sales factor
-  - Economic nexus: $100,000 gross receipts threshold
-  - Form: MI-1120 (Michigan Corporate Income Tax Return)
-
-  Reference: MCL 206.623 (Corporate Income Tax rate)
-  Reference: MI Form 4567 (Corporation Income Tax Return)
--->
-<entity_dictionary name="CorporateTax_MI_Constants">
-
-  <!--
-    Apportionment Entity: Michigan-Specific Configuration
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='MI'
-           comment='Michigan state code'/>
-
-    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='Economic nexus gross receipts threshold - $100,000'/>
-
-    <field name='transaction_threshold' type='integer' default_value='200'
-           comment='Economic nexus transaction count threshold - 200 transactions'/>
-
-    <!-- Apportionment Formula -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='Michigan uses single-sales factor apportionment'/>
-
-    <!-- State Tax Rate -->
-    <field name='state_tax_rate' type='double' default_value='0.060'
-           comment='Michigan corporate income tax rate: 6.0% (MCL 206.623)'/>
-
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc.'/>
-
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='State-specific subtractions: municipal interest, state taxes, state NOL, etc.'/>
-
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='State tax credits: R&amp;D, jobs, film, renewable energy, etc.'/>
-
-  </entity>
-
-  <!--
-    Result Entity: Michigan-Specific Extensions
-
-    No special state-specific fields needed for Michigan's flat-rate system.
-  -->
-  <entity name="result">
-    <field name="mi_apportioned_income" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
-    <field name="mi_corp_tax_rate" type="double" default_value="0.06"
-           comment="Form 4890 (2025): the CIT tax rate is 6 percent"/>
-    <field name="mi_economic_nexus_threshold" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
-    <field name="mi_estimated_payments" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
-    <field name="mi_gross_receipts" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
-    <field name="mi_has_nexus" type="boolean" default_value="false"
-           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
-    <field name="mi_municipal_interest" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
-    <field name="mi_refund_or_owed" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
-    <field name="mi_state_additions" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
-    <field name="mi_state_credits" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
-    <field name="mi_state_subtractions" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
-    <field name="mi_tax_liability" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
-    <field name="mi_taxable_income" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
-    <field name="mi_us_interest_income" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"/>
-    <!-- Michigan uses standard apportionment - no special fields required -->
-  </entity>
-
-</entity_dictionary>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>MI_corp_edd</file_path>
+	</file_metadata>
+	<entity name="apportionment" number="100" xls_file="MI_corp.xlsx" access="rw">
+		<source>
+			<relative_path>MI_corp.xlsx</relative_path>
+			<file_name>MI_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="Michigan uses single-sales factor apportionment"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="Economic nexus gross receipts threshold - $100,000"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc."></field>
+		<field name="state_code" type="string" subtype="" access="r" input="" default_value="MI" comment="Michigan state code"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="State tax credits: R&amp;D, jobs, film, renewable energy, etc."></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="State-specific subtractions: municipal interest, state taxes, state NOL, etc."></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.060" comment="Michigan corporate income tax rate: 6.0% (MCL 206.623)"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="Economic nexus transaction count threshold - 200 transactions"></field>
+	</entity>
+	<entity name="result" number="200" xls_file="MI_corp.xlsx" access="rw">
+		<source>
+			<relative_path>MI_corp.xlsx</relative_path>
+			<file_name>MI_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="mi_apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"></field>
+		<field name="mi_corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.06" comment="Form 4890 (2025): the CIT tax rate is 6 percent"></field>
+		<field name="mi_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"></field>
+		<field name="mi_estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"></field>
+		<field name="mi_gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"></field>
+		<field name="mi_has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"></field>
+		<field name="mi_municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"></field>
+		<field name="mi_refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"></field>
+		<field name="mi_state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"></field>
+		<field name="mi_state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"></field>
+		<field name="mi_state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"></field>
+		<field name="mi_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"></field>
+		<field name="mi_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"></field>
+		<field name="mi_us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MI but never declared (campaign #948 Phase 1)"></field>
+	</entity>
+</entity_data_dictionary>

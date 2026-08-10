@@ -2,19 +2,18 @@
 <decision_tables>
 
 <!-- TABLE 50900: Determine_VA_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>VA_Corp.xls</relative_path>
-<file_name>VA_Corp.xls</file_name>
+<relative_path>VA_corp.xlsx</relative_path>
+<file_name>VA_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_VA_Filing_Requirement</table_name>
-<xls_file>VA_Corp.xls</xls_file>
+<xls_file>VA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file Virginia state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
 <TABLE_NUMBER>50900</TABLE_NUMBER>
-<FILE_PATH>states/VA/50900_Determine_VA_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -37,6 +36,7 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "VA"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "VA" streq } over if
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -65,7 +65,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "VA" st
 <action_comment>No nexus - no filing required; No VA nexus - no filing requirement</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No VA nexus - no filing requirement. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No VA nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No VA nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -74,19 +74,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "VA" st
 </decision_table>
 
 <!-- TABLE 50920: Calculate_VA_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>VA_Corp.xls</relative_path>
-<file_name>VA_Corp.xls</file_name>
+<relative_path>VA_corp.xlsx</relative_path>
+<file_name>VA_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_VA_Income_Adjustments</table_name>
-<xls_file>VA_Corp.xls</xls_file>
+<xls_file>VA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Virginia state-specific additions and subtractions to federal taxable income.</COMMENTS>
 <TABLE_NUMBER>50920</TABLE_NUMBER>
-<FILE_PATH>states/VA/50920_Calculate_VA_Income_Adjustments</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -126,19 +125,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 </decision_table>
 
 <!-- TABLE 50980: Calculate_VA_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>VA_Corp.xls</relative_path>
-<file_name>VA_Corp.xls</file_name>
+<relative_path>VA_corp.xlsx</relative_path>
+<file_name>VA_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_VA_State_Tax</table_name>
-<xls_file>VA_Corp.xls</xls_file>
+<xls_file>VA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Virginia state corporate income tax. Applies 6% flat rate to apportioned and adjusted taxable income.</COMMENTS>
 <TABLE_NUMBER>50980</TABLE_NUMBER>
-<FILE_PATH>states/VA/50980_Calculate_VA_State_Tax</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -159,9 +157,10 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 f&gt;
+apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
 </conditions>
@@ -171,7 +170,7 @@ apportionment.state_taxable_income 0 f&gt;
 <action_comment>Calculate VA tax at 6% flat rate; VA income tax at 6% flat rate</action_comment>
 <action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "VA tax calculated at 6% flat rate. Reference: VA Code 58.1-400" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "VA tax calculated at 6% flat rate. Reference: VA Code 58.1-400" job.audit_trail swap addto
+apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "VA tax calculated at 6% flat rate. Reference: VA Code 58.1-400" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -180,7 +179,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apport
 <action_comment>No VA nexus - no tax liability; No VA nexus - no tax</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No VA nexus - no tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No VA nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No VA nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -189,7 +188,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apport
 <action_comment>Nexus but no taxable income; No VA taxable income - no tax</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No VA taxable income - no tax. VA NOL carryforward 15 years. Reference: VA Code 58.1-402.B.4" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No VA taxable income - no tax. VA NOL carryforward 15 years. Reference: VA Code 58.1-402.B.4" job.audit_trail swap addto
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No VA taxable income - no tax. VA NOL carryforward 15 years. Reference: VA Code 58.1-402.B.4" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>

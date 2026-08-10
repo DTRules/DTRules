@@ -2,14 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 51700: Determine_MD_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>MD_Corp.xls</relative_path>
-<file_name>MD_Corp.xls</file_name>
+<relative_path>MD_corp.xlsx</relative_path>
+<file_name>MD_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_MD_Filing_Requirement</table_name>
-<xls_file>MD_Corp.xls</xls_file>
+<xls_file>MD_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file Maryland corporate tax return. Checks for physical presence or economic nexus (post-Wayfair).</COMMENTS>
@@ -79,14 +79,14 @@ false cvb /result.md_has_nexus xdef 0.0 cvd /result.md_tax_liability xdef
 </decision_table>
 
 <!-- TABLE 51720: Calculate_MD_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>MD_Corp.xls</relative_path>
-<file_name>MD_Corp.xls</file_name>
+<relative_path>MD_corp.xlsx</relative_path>
+<file_name>MD_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_MD_Income_Adjustments</table_name>
-<xls_file>MD_Corp.xls</xls_file>
+<xls_file>MD_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Maryland state-specific additions and subtractions to federal taxable income. MD requires addback of federal interest, IRC 199A, bonus depreciation. MD allows MD municipal bond interest subtraction.</COMMENTS>
@@ -135,14 +135,14 @@ result.md_has_nexus true beq
 </decision_table>
 
 <!-- TABLE 51780: Calculate_MD_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>MD_Corp.xls</relative_path>
-<file_name>MD_Corp.xls</file_name>
+<relative_path>MD_corp.xlsx</relative_path>
+<file_name>MD_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_MD_State_Tax</table_name>
-<xls_file>MD_Corp.xls</xls_file>
+<xls_file>MD_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Maryland corporate income tax. Applies Maryland flat rate (8.25%) to apportioned and adjusted taxable income.</COMMENTS>

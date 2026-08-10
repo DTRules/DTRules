@@ -1,103 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Washington Corporate Tax Entity Data Dictionary
-
-  IMPORTANT: Washington has NO corporate income tax.
-
-  Washington imposes a Business &amp; Occupation (B&amp;O) tax instead of a traditional income tax.
-  The B&amp;O tax is based on gross receipts (not net income) and varies by business classification.
-
-  Tax Rates (2025):
-  - Service and Other Activities: 0.00484 (0.484%)
-  - Retailing: 0.00471 (0.471%)
-  - Wholesaling: 0.00484 (0.484%)
-  - Manufacturing: 0.00484 (0.484%)
-  - Professional Services: 0.00484 (0.484%)
-  - Financial Business: 0.015 (1.5%)
-
-  Economic Nexus: $100,000 in Washington receipts OR 200 transactions
-
-  Note: Small Business B&amp;O Credit available for businesses with gross revenue &lt; $250K
--->
-<entity_data_dictionary version='2' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
-
-  <!-- ================================================================== -->
-  <!-- APPORTIONMENT - Washington-Specific Configuration                  -->
-  <!-- Note: Washington does NOT use traditional apportionment since      -->
-  <!-- it's not an income tax. Fields maintained for framework consistency-->
-  <!-- ================================================================== -->
-  <entity name='apportionment' xls_file='WA_Corp.xls' access='rw' comment='Washington-specific apportionment configuration for B&amp;O tax'>
-
-		<!-- State Identification -->
-		<field name='state_code' type='string' subtype='' access='rw' input='main' default_value='WA' comment='Washington state code'></field>
-
-		<!-- Economic Nexus Thresholds -->
-		<field name='economic_nexus_threshold' type='double' subtype='' access='rw' input='main' default_value='100000.0' comment='Washington economic nexus: $100,000 in Washington receipts (follows Wayfair standard)'></field>
-
-		<field name='transaction_threshold' type='integer' subtype='' access='rw' input='main' default_value='200' comment='Washington economic nexus: 200 or more separate transactions'></field>
-
-		<!-- Apportionment Formula -->
-		<field name='apportionment_formula' type='string' subtype='' access='rw' input='main' default_value='single_sales' comment='Washington uses single-sales factor for sourcing receipts to Washington'></field>
-
-		<!-- State Tax Rate (NOT USED - Washington has no income tax) -->
-		<field name='state_tax_rate' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Washington has NO corporate income tax (B&amp;O tax is calculated separately)'></field>
-
-		<!-- State Additions/Subtractions (NOT USED - no income tax) -->
-		<field name='state_additions' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Not applicable - Washington has no income tax'></field>
-
-		<field name='state_subtractions' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Not applicable - Washington has no income tax'></field>
-
-		<!-- State Tax Credits -->
-		<field name='state_credits' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Washington B&amp;O tax credits (small business credit, high tech, aerospace, etc.)'></field>
-
-  </entity>
-
-  <!-- ================================================================== -->
-  <!-- RESULT - Washington Business &amp; Occupation (B&amp;O) Tax Fields        -->
-  <!-- The B&amp;O tax is NOT an income tax - it's based on gross receipts   -->
-  <!-- ================================================================== -->
-  <entity name='result' xls_file='WA_Corp.xls' access='rw' comment='Washington B&amp;O tax calculation results'>
-
-		<!-- Washington Gross Receipts -->
-		<field name='wa_gross_receipts' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Washington-sourced gross receipts for B&amp;O tax (all revenue from WA activities)'></field>
-
-		<!-- Washington Business Classification -->
-		<field name='wa_business_classification' type='string' subtype='' access='rw' input='main' default_value='service' comment='WA business classification: service, retailing, wholesaling, manufacturing, professional, financial'></field>
-
-		<!-- Washington B&amp;O Tax Rate (varies by classification) -->
-		<field name='wa_bo_tax_rate' type='double' subtype='' access='rw' input='' default_value='0.00484' comment='WA B&amp;O tax rate based on business classification (0.484% default for service/other)'></field>
-
-		<!-- Washington B&amp;O Tax Rate by Classification -->
-		<field name='wa_service_rate' type='double' subtype='' access='r' input='' default_value='0.00484' comment='Service and Other Activities B&amp;O rate: 0.484%'></field>
-
-		<field name='wa_retailing_rate' type='double' subtype='' access='r' input='' default_value='0.00471' comment='Retailing B&amp;O rate: 0.471%'></field>
-
-		<field name='wa_wholesaling_rate' type='double' subtype='' access='r' input='' default_value='0.00484' comment='Wholesaling B&amp;O rate: 0.484%'></field>
-
-		<field name='wa_manufacturing_rate' type='double' subtype='' access='r' input='' default_value='0.00484' comment='Manufacturing B&amp;O rate: 0.484%'></field>
-
-		<field name='wa_professional_rate' type='double' subtype='' access='r' input='' default_value='0.00484' comment='Professional Services B&amp;O rate: 0.484%'></field>
-
-		<field name='wa_financial_rate' type='double' subtype='' access='r' input='' default_value='0.015' comment='Financial Business B&amp;O rate: 1.5%'></field>
-
-		<!-- Washington B&amp;O Tax Calculation -->
-		<field name='wa_bo_tax' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Washington B&amp;O tax liability (NOT an income tax - based on gross receipts)'></field>
-
-		<!-- Washington Small Business B&amp;O Credit -->
-		<field name='wa_small_business_credit_threshold' type='double' subtype='' access='r' input='' default_value='250000.0' comment='Small business B&amp;O credit available for businesses with gross revenue under $250K'></field>
-
-		<field name='wa_qualifies_for_small_business_credit' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Qualifies for Washington small business B&amp;O credit'></field>
-
-		<field name='wa_small_business_credit' type='double' subtype='' access='rw' input='' default_value='0.0' comment='Washington small business B&amp;O credit amount'></field>
-
-		<!-- Washington Manufacturing Tax Incentives -->
-		<field name='wa_qualifies_for_manufacturing_exemption' type='boolean' subtype='' access='rw' input='' default_value='false' comment='Qualifies for B&amp;O manufacturing tax exemptions or preferential rates'></field>
-
-		<!-- Washington High Tech / Aerospace Credits -->
-		<field name='wa_high_tech_credit' type='double' subtype='' access='rw' input='main' default_value='0.0' comment='Washington high-tech B&amp;O tax credit'></field>
-
-		<field name='wa_aerospace_credit' type='double' subtype='' access='rw' input='main' default_value='0.0' comment='Washington aerospace industry B&amp;O tax credit'></field>
-
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>WA_corp_edd</file_path>
+	</file_metadata>
+	<entity name="apportionment" number="100" xls_file="WA_corp.xlsx" access="rw">
+		<source>
+			<relative_path>WA_corp.xlsx</relative_path>
+			<file_name>WA_corp.xlsx</file_name>
+			<sheet_number>8</sheet_number>
+		</source>
+		<field name="apportionment_formula" type="string" subtype="" access="rw" input="main" default_value="single_sales" comment="Washington uses single-sales factor for sourcing receipts to Washington"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="rw" input="main" default_value="100000.0" comment="Washington economic nexus: $100,000 in Washington receipts (follows Wayfair standard)"></field>
+		<field name="state_additions" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Not applicable - Washington has no income tax"></field>
+		<field name="state_code" type="string" subtype="" access="rw" input="main" default_value="WA" comment="Washington state code"></field>
+		<field name="state_credits" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Washington B&amp;O tax credits (small business credit, high tech, aerospace, etc.)"></field>
+		<field name="state_subtractions" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Not applicable - Washington has no income tax"></field>
+		<field name="state_tax_rate" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Washington has NO corporate income tax (B&amp;O tax is calculated separately)"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="rw" input="main" default_value="200" comment="Washington economic nexus: 200 or more separate transactions"></field>
 	</entity>
-
+	<entity name="result" number="200" xls_file="WA_corp.xlsx" access="rw">
+		<source>
+			<relative_path>WA_corp.xlsx</relative_path>
+			<file_name>WA_corp.xlsx</file_name>
+			<sheet_number>8</sheet_number>
+		</source>
+		<field name="wa_aerospace_credit" type="double" subtype="" access="rw" input="main" default_value="0.0" comment="Washington aerospace industry B&amp;O tax credit"></field>
+		<field name="wa_bo_tax" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Washington B&amp;O tax liability (NOT an income tax - based on gross receipts)"></field>
+		<field name="wa_bo_tax_rate" type="double" subtype="" access="rw" input="" default_value="0.00484" comment="WA B&amp;O tax rate based on business classification (0.484% default for service/other)"></field>
+		<field name="wa_business_classification" type="string" subtype="" access="rw" input="main" default_value="service" comment="WA business classification: service, retailing, wholesaling, manufacturing, professional, financial"></field>
+		<field name="wa_financial_rate" type="double" subtype="" access="r" input="" default_value="0.015" comment="Financial Business B&amp;O rate: 1.5%"></field>
+		<field name="wa_gross_receipts" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Washington-sourced gross receipts for B&amp;O tax (all revenue from WA activities)"></field>
+		<field name="wa_high_tech_credit" type="double" subtype="" access="rw" input="main" default_value="0.0" comment="Washington high-tech B&amp;O tax credit"></field>
+		<field name="wa_manufacturing_rate" type="double" subtype="" access="r" input="" default_value="0.00484" comment="Manufacturing B&amp;O rate: 0.484%"></field>
+		<field name="wa_professional_rate" type="double" subtype="" access="r" input="" default_value="0.00484" comment="Professional Services B&amp;O rate: 0.484%"></field>
+		<field name="wa_qualifies_for_manufacturing_exemption" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Qualifies for B&amp;O manufacturing tax exemptions or preferential rates"></field>
+		<field name="wa_qualifies_for_small_business_credit" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Qualifies for Washington small business B&amp;O credit"></field>
+		<field name="wa_retailing_rate" type="double" subtype="" access="r" input="" default_value="0.00471" comment="Retailing B&amp;O rate: 0.471%"></field>
+		<field name="wa_service_rate" type="double" subtype="" access="r" input="" default_value="0.00484" comment="Service and Other Activities B&amp;O rate: 0.484%"></field>
+		<field name="wa_small_business_credit" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Washington small business B&amp;O credit amount"></field>
+		<field name="wa_small_business_credit_threshold" type="double" subtype="" access="r" input="" default_value="250000.0" comment="Small business B&amp;O credit available for businesses with gross revenue under $250K"></field>
+		<field name="wa_wholesaling_rate" type="double" subtype="" access="r" input="" default_value="0.00484" comment="Wholesaling B&amp;O rate: 0.484%"></field>
+	</entity>
 </entity_data_dictionary>

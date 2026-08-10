@@ -1,111 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Mississippi Corporate Tax Constants
-
-  Mississippi Code Title 27, Chapter 7, § 27-7-5 (Corporate income tax)
-  - Top tax rate: 5% on taxable income over $10,000
-  - Graduated rates: 3% on first $5,000; 4% on next $5,000; 5% on excess
-  - Apportionment: Single-sales factor (default for most businesses)
-  - Economic nexus: $250,000 in gross receipts (sales tax standard)
-  - Form: MS Form 83-100 (Corporate Income and Franchise Tax Return)
-
-  This file will be merged into CorporateTax_edd.xml by merge script
--->
-<entity_data_dictionary version="1.0">
-  <file_metadata>
-    <file_path>states/MS/53400_MS_corporate_constants</file_path>
-  </file_metadata>
-
-  <!-- Apportionment Entity: Mississippi Configuration -->
-  <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name="state_code" type="string" default_value="MS"
-           comment="Mississippi state code"/>
-
-    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name="economic_nexus_threshold" type="double" default_value="250000.0"
-           comment="MS economic nexus gross receipts threshold: $250,000"/>
-
-    <field name="transaction_threshold" type="integer" default_value="0"
-           comment="MS does not have a separate transaction count threshold"/>
-
-    <!-- Apportionment Formula -->
-    <field name="apportionment_formula" type="string" default_value="single_sales"
-           comment="MS uses single-sales factor apportionment (100% sales factor) for most businesses"/>
-
-    <!-- State Tax Rates - Graduated Structure -->
-    <field name="state_tax_rate" type="double" default_value="0.05"
-           comment="MS top corporate income tax rate: 5% on income over $10,000 - MS Code § 27-7-5"/>
-
-    <field name="ms_tax_rate_tier1" type="double" default_value="0.03"
-           comment="MS tier 1 tax rate: 3% on first $5,000 of taxable income"/>
-
-    <field name="ms_tax_rate_tier2" type="double" default_value="0.04"
-           comment="MS tier 2 tax rate: 4% on next $5,000 of taxable income ($5,001-$10,000)"/>
-
-    <field name="ms_tax_rate_tier3" type="double" default_value="0.05"
-           comment="MS tier 3 tax rate: 5% on taxable income over $10,000"/>
-
-    <field name="ms_bracket_tier1" type="double" default_value="5000.0"
-           comment="MS tier 1 bracket limit: $5,000"/>
-
-    <field name="ms_bracket_tier2" type="double" default_value="10000.0"
-           comment="MS tier 2 bracket limit: $10,000"/>
-
-    <!-- State Additions to Federal Taxable Income -->
-    <field name="state_additions" type="double" default_value="0.0"
-           comment="MS additions: federal interest income, IRC 199A addback, certain bonus depreciation, etc."/>
-
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name="state_subtractions" type="double" default_value="0.0"
-           comment="MS subtractions: MS municipal bond interest, state income taxes, state NOL (5-year carryforward), etc."/>
-
-    <!-- State Tax Credits -->
-    <field name="state_credits" type="double" default_value="0.0"
-           comment="MS tax credits: jobs creation, investment, research &amp; development, film production, etc."/>
-
-  </entity>
-
-  <entity name="result">
-    <field name="ms_tier1_tax" type="double" default_value="0.0"
-           comment="Per-bracket tax; tax from bracket 1 (first $5,000). The original postfix held this in a fake local, which the EL authoring promoted to a real field (campaign #948)."/>
-    <field name="ms_tier2_tax" type="double" default_value="0.0"
-           comment="Per-bracket tax; tax from bracket 2 ($5,001-$10,000). The original postfix held this in a fake local, which the EL authoring promoted to a real field (campaign #948)."/>
-    <field name="ms_tier3_tax" type="double" default_value="0.0"
-           comment="Per-bracket tax; tax from bracket 3 (over $10,000). The original postfix held this in a fake local, which the EL authoring promoted to a real field (campaign #948)."/>
-    <field name="ms_apportioned_income" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_corp_tax_rate_tier1" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_corp_tax_rate_tier2" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_corp_tax_rate_tier3" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_economic_nexus_threshold" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_estimated_payments" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_gross_receipts" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_has_nexus" type="boolean" default_value="false"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_municipal_interest" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_refund_or_owed" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_state_additions" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_state_credits" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_state_subtractions" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_tax_liability" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_taxable_income" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-    <field name="ms_us_interest_income" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"/>
-  </entity>
-
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>MS_corp_edd</file_path>
+	</file_metadata>
+	<entity name="apportionment" number="100" xls_file="MS_corp.xlsx" access="rw">
+		<source>
+			<relative_path>MS_corp.xlsx</relative_path>
+			<file_name>MS_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="MS uses single-sales factor apportionment (100% sales factor) for most businesses"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="250000.0" comment="MS economic nexus gross receipts threshold: $250,000"></field>
+		<field name="ms_bracket_tier1" type="double" subtype="" access="r" input="" default_value="5000.0" comment="MS tier 1 bracket limit: $5,000"></field>
+		<field name="ms_bracket_tier2" type="double" subtype="" access="r" input="" default_value="10000.0" comment="MS tier 2 bracket limit: $10,000"></field>
+		<field name="ms_tax_rate_tier1" type="double" subtype="" access="r" input="" default_value="0.03" comment="MS tier 1 tax rate: 3% on first $5,000 of taxable income"></field>
+		<field name="ms_tax_rate_tier2" type="double" subtype="" access="r" input="" default_value="0.04" comment="MS tier 2 tax rate: 4% on next $5,000 of taxable income ($5,001-$10,000)"></field>
+		<field name="ms_tax_rate_tier3" type="double" subtype="" access="r" input="" default_value="0.05" comment="MS tier 3 tax rate: 5% on taxable income over $10,000"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="MS additions: federal interest income, IRC 199A addback, certain bonus depreciation, etc."></field>
+		<field name="state_code" type="string" subtype="" access="r" input="" default_value="MS" comment="Mississippi state code"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="MS tax credits: jobs creation, investment, research &amp; development, film production, etc."></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="MS subtractions: MS municipal bond interest, state income taxes, state NOL (5-year carryforward), etc."></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.05" comment="MS top corporate income tax rate: 5% on income over $10,000 - MS Code § 27-7-5"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="MS does not have a separate transaction count threshold"></field>
+	</entity>
+	<entity name="result" number="200" xls_file="MS_corp.xlsx" access="rw">
+		<source>
+			<relative_path>MS_corp.xlsx</relative_path>
+			<file_name>MS_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="ms_apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_corp_tax_rate_tier1" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_corp_tax_rate_tier2" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_corp_tax_rate_tier3" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+		<field name="ms_tier1_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="Per-bracket tax; tax from bracket 1 (first $5,000). The original postfix held this in a fake local, which the EL authoring promoted to a real field (campaign #948)."></field>
+		<field name="ms_tier2_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="Per-bracket tax; tax from bracket 2 ($5,001-$10,000). The original postfix held this in a fake local, which the EL authoring promoted to a real field (campaign #948)."></field>
+		<field name="ms_tier3_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="Per-bracket tax; tax from bracket 3 (over $10,000). The original postfix held this in a fake local, which the EL authoring promoted to a real field (campaign #948)."></field>
+		<field name="ms_us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MS but never declared (campaign #948 Phase 1)"></field>
+	</entity>
 </entity_data_dictionary>

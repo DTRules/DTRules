@@ -1,72 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  State-specific constants for Indiana corporate tax
-
-  Indiana corporate tax structure:
-  - Flat rate: 4.9% (2025)
-  - Apportionment: Single-sales factor (100% sales apportionment)
-  - Economic nexus: $100,000 in gross receipts (transaction threshold eliminated Jan 1, 2024)
-
-  IN Form IT-20: Corporation Income Tax Return
-
-  References:
-  - Indiana Code § 6-3-2-1 (Tax rate: 4.9%)
-  - Indiana Department of Revenue Corporate Tax Guidance
-
-  This file will be merged into CorporateTax_edd.xml by scripts/merge-states.sh
--->
-<entity_data_dictionary version="1.0">
-  <file_metadata>
-    <file_path>states/IN/52800_IN_corporate_constants</file_path>
-  </file_metadata>
-  <entity name="result">
-    <field name="in_apportioned_income" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
-    <field name="in_estimated_payments" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
-    <field name="in_gross_receipts" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
-    <field name="in_municipal_interest" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
-    <field name="in_out_of_state_muni_interest" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
-    <field name="in_refund_or_owed" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
-    <field name="in_state_taxes_paid" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"/>
-    <!-- Indiana Corporate Tax Rate -->
-    <field name="in_corp_tax_rate" type="double" default_value="0.049"
-           comment="IN corporate income tax rate: 4.9% flat rate (2025, Indiana Code § 6-3-2-1)"/>
-
-    <!-- Apportionment Configuration -->
-    <field name="in_apportionment_formula" type="string" default_value="single_sales"
-           comment="IN uses single-sales factor apportionment (100% sales)"/>
-
-    <!-- Economic Nexus Thresholds -->
-    <field name="in_economic_nexus_threshold" type="double" default_value="100000.0"
-           comment="IN economic nexus gross receipts threshold: $100,000 (transaction threshold removed Jan 1, 2024)"/>
-
-    <field name="in_transaction_threshold" type="integer" default_value="0"
-           comment="IN transaction threshold eliminated as of January 1, 2024 (previously 200)"/>
-
-    <!-- State Modifications Working Variables -->
-    <field name="in_state_additions" type="double" default_value="0.0"
-           comment="IN additions to federal taxable income (out-of-state municipal bond interest acquired after 12/31/2011, certain expenses, etc.)"/>
-
-    <field name="in_state_subtractions" type="double" default_value="0.0"
-           comment="IN subtractions from federal taxable income (IN municipal bond interest, state income taxes, state NOL, etc.)"/>
-
-    <field name="in_state_credits" type="double" default_value="0.0"
-           comment="IN tax credits (economic development, R&amp;D, headquarters relocation, neighborhood assistance, etc.)"/>
-
-    <!-- Calculation Results -->
-    <field name="in_taxable_income" type="double" default_value="0.0"
-           comment="IN taxable income after apportionment and modifications"/>
-
-    <field name="in_tax_liability" type="double" default_value="0.0"
-           comment="IN corporate income tax liability"/>
-
-    <field name="in_has_nexus" type="boolean" default_value="false"
-           comment="Whether corporation has nexus with Indiana"/>
-  </entity>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>IN_corp_edd</file_path>
+	</file_metadata>
+	<entity name="result" number="100" xls_file="IN_corp.xlsx" access="rw">
+		<source>
+			<relative_path>IN_corp.xlsx</relative_path>
+			<file_name>IN_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="in_apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"></field>
+		<field name="in_apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="IN uses single-sales factor apportionment (100% sales)"></field>
+		<field name="in_corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.049" comment="IN corporate income tax rate: 4.9% flat rate (2025, Indiana Code § 6-3-2-1)"></field>
+		<field name="in_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="IN economic nexus gross receipts threshold: $100,000 (transaction threshold removed Jan 1, 2024)"></field>
+		<field name="in_estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"></field>
+		<field name="in_gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"></field>
+		<field name="in_has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Whether corporation has nexus with Indiana"></field>
+		<field name="in_municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"></field>
+		<field name="in_out_of_state_muni_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"></field>
+		<field name="in_refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"></field>
+		<field name="in_state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="IN additions to federal taxable income (out-of-state municipal bond interest acquired after 12/31/2011, certain expenses, etc.)"></field>
+		<field name="in_state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="IN tax credits (economic development, R&amp;D, headquarters relocation, neighborhood assistance, etc.)"></field>
+		<field name="in_state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="IN subtractions from federal taxable income (IN municipal bond interest, state income taxes, state NOL, etc.)"></field>
+		<field name="in_state_taxes_paid" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IN but never declared (campaign #948 Phase 1)"></field>
+		<field name="in_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="IN corporate income tax liability"></field>
+		<field name="in_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="IN taxable income after apportionment and modifications"></field>
+		<field name="in_transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="IN transaction threshold eliminated as of January 1, 2024 (previously 200)"></field>
+	</entity>
 </entity_data_dictionary>

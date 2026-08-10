@@ -2,14 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 50500: Determine_IL_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>IL_Corp.xls</relative_path>
-<file_name>IL_Corp.xls</file_name>
+<relative_path>IL_corp.xlsx</relative_path>
+<file_name>IL_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_IL_Filing_Requirement</table_name>
-<xls_file>IL_Corp.xls</xls_file>
+<xls_file>IL_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file IL state corporate tax return. Checks for physical presence or economic nexus. Physical presence: Office, employees, property in state. Economic nexus (post-Wayfair): $100,000 gross receipts threshold.</COMMENTS>
@@ -67,7 +67,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "IL" st
 <action_comment>No nexus - no filing required</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 <action_column column_number="4" column_value="X" />
@@ -77,14 +77,14 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "IL" st
 </decision_table>
 
 <!-- TABLE 50520: Calculate_IL_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>IL_Corp.xls</relative_path>
-<file_name>IL_Corp.xls</file_name>
+<relative_path>IL_corp.xlsx</relative_path>
+<file_name>IL_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_IL_Income_Adjustments</table_name>
-<xls_file>IL_Corp.xls</xls_file>
+<xls_file>IL_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate IL state-specific additions and subtractions to federal taxable income. Additions: Interest on U.S. government obligations, IRC Section 199A qualified business income deduction addback, certain depreciation adjustments for assets placed in service during specific years. Subtractions: Interest on IL and local government bonds, IL state income taxes paid (not deductible for IL purposes).</COMMENTS>
@@ -128,14 +128,14 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 </decision_table>
 
 <!-- TABLE 50580: Calculate_IL_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>IL_Corp.xls</relative_path>
-<file_name>IL_Corp.xls</file_name>
+<relative_path>IL_corp.xlsx</relative_path>
+<file_name>IL_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_IL_State_Tax</table_name>
-<xls_file>IL_Corp.xls</xls_file>
+<xls_file>IL_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate IL state corporate income tax. Applies IL 9.5% tax rate to apportioned and adjusted taxable income. Process: Federal taxable income apportioned to IL (table 7500), add state-specific additions (table 50520), subtract state-specific subtractions (table 50520), calculate IL state taxable income, apply IL tax rate (9.5% flat rate - highest in nation), subtract IL state credits, replacement tax calculated separately in table 50590.</COMMENTS>
@@ -160,7 +160,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive state taxable income; apportionment.state_taxable_income is greater than 0</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 f&gt;
+apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="-" />
@@ -173,7 +173,7 @@ apportionment.state_taxable_income 0 f&gt;
 <action_comment>Calculate IL tax at 9.5% flat rate; Calculate IL state tax, apply credits, and calculate refund/owed</action_comment>
 <action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (0.0) and (apportionment.state_tax - apportionment.state_credits); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "IL state corporate income tax calculation: 1. Federal taxable income: [Form 1120 line 28], 2. Apportioned to IL: x [Apportionment %], 3. State additions: + [Additions], 4. State subtractions: - [Subtractions], 5. IL taxable income: = [Result], 6. IL tax rate: x 9.5% (highest in the nation), 7. IL income tax: = [Tax before credits], 8. IL credits: - [Credits], 9. IL tax liability (before replacement tax): = [Tax]. Note: Personal Property Replacement Tax (2.5%) calculated separately. Total effective IL corporate tax rate is 12.0% (9.5% + 2.5%). Reference: IL Form IL-1120 Instructions, 35 ILCS 5/201(b) (Tax rate: 9.5%), 35 ILCS 5/201(c) (Replacement tax: 2.5%), 86 Ill. Admin. Code § 100.2250 (Computation of tax)" to result.policy_statements;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apportionment.state_tax xdef 0.0 apportionment.state_tax apportionment.state_credits f- fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "IL state corporate income tax calculation: 1. Federal taxable income: [Form 1120 line 28], 2. Apportioned to IL: x [Apportionment %], 3. State additions: + [Additions], 4. State subtractions: - [Subtractions], 5. IL taxable income: = [Result], 6. IL tax rate: x 9.5% (highest in the nation), 7. IL income tax: = [Tax before credits], 8. IL credits: - [Credits], 9. IL tax liability (before replacement tax): = [Tax]. Note: Personal Property Replacement Tax (2.5%) calculated separately. Total effective IL corporate tax rate is 12.0% (9.5% + 2.5%). Reference: IL Form IL-1120 Instructions, 35 ILCS 5/201(b) (Tax rate: 9.5%), 35 ILCS 5/201(c) (Replacement tax: 2.5%), 86 Ill. Admin. Code § 100.2250 (Computation of tax)" result.policy_statements swap addto
+apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apportionment.state_tax xdef 0.0 apportionment.state_tax apportionment.state_credits f- fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "IL state corporate income tax calculation: 1. Federal taxable income: [Form 1120 line 28], 2. Apportioned to IL: x [Apportionment %], 3. State additions: + [Additions], 4. State subtractions: - [Subtractions], 5. IL taxable income: = [Result], 6. IL tax rate: x 9.5% (highest in the nation), 7. IL income tax: = [Tax before credits], 8. IL credits: - [Credits], 9. IL tax liability (before replacement tax): = [Tax]. Note: Personal Property Replacement Tax (2.5%) calculated separately. Total effective IL corporate tax rate is 12.0% (9.5% + 2.5%). Reference: IL Form IL-1120 Instructions, 35 ILCS 5/201(b) (Tax rate: 9.5%), 35 ILCS 5/201(c) (Replacement tax: 2.5%), 86 Ill. Admin. Code § 100.2250 (Computation of tax)" result.policy_statements swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -182,7 +182,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apport
 <action_comment>No IL nexus - no tax liability</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -191,7 +191,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apport
 <action_comment>Nexus but no taxable income - no tax liability</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -200,14 +200,14 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apport
 </decision_table>
 
 <!-- TABLE 50590: Calculate_IL_Replacement_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>IL_Corp.xls</relative_path>
-<file_name>IL_Corp.xls</file_name>
+<relative_path>IL_corp.xlsx</relative_path>
+<file_name>IL_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
 </source>
 <table_name>Calculate_IL_Replacement_Tax</table_name>
-<xls_file>IL_Corp.xls</xls_file>
+<xls_file>IL_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate IL Personal Property Replacement Tax (PPRT). Replacement tax is 2.5% of net income. The replacement tax is 2.5% of net income, making the total effective IL corporate tax rate 12.0% (9.5% income tax + 2.5% replacement tax). This tax replaced the personal property tax on corporations when that tax was abolished by the Illinois Constitution in 1970. The replacement tax applies to the same income base as the income tax.</COMMENTS>
@@ -232,7 +232,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive tax base for replacement tax calculation; apportionment.state_taxable_income is greater than 0</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 f&gt;
+apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="-" />
@@ -245,7 +245,7 @@ apportionment.state_taxable_income 0 f&gt;
 <action_comment>Calculate replacement tax at 2.5%; Calculate replacement tax, add to total state tax, recalculate refund/owed</action_comment>
 <action_dsl>set result.il_replacement_tax = apportionment.state_taxable_income * result.il_replacement_tax_rate; set apportionment.state_tax = apportionment.state_tax + result.il_replacement_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "IL Personal Property Replacement Tax (PPRT) applies to corporations. Replacement Tax Calculation: Net income base: [State taxable income], Replacement tax rate: x 2.5%, Replacement tax: = [Replacement tax amount], Total IL tax: Income tax (9.5%) + Replacement tax (2.5%) = 12.0%. The replacement tax applies to the same income base as the income tax. It was enacted to replace revenue lost when the personal property tax on corporations was abolished by the 1970 Illinois Constitution. The replacement tax revenue is distributed to local governments to replace the lost personal property tax revenue. Reference: 35 ILCS 5/201(c) (Replacement tax rate: 2.5%), 35 ILCS 5/201(d) (Replacement tax base), IL Form IL-1120 Instructions (Schedule of Replacement Tax), 86 Ill. Admin. Code § 100.2260 (Personal Property Replacement Tax)" to result.policy_statements;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income result.il_replacement_tax_rate fmul cvd /result.il_replacement_tax xdef apportionment.state_tax result.il_replacement_tax f+ cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "IL Personal Property Replacement Tax (PPRT) applies to corporations. Replacement Tax Calculation: Net income base: [State taxable income], Replacement tax rate: x 2.5%, Replacement tax: = [Replacement tax amount], Total IL tax: Income tax (9.5%) + Replacement tax (2.5%) = 12.0%. The replacement tax applies to the same income base as the income tax. It was enacted to replace revenue lost when the personal property tax on corporations was abolished by the 1970 Illinois Constitution. The replacement tax revenue is distributed to local governments to replace the lost personal property tax revenue. Reference: 35 ILCS 5/201(c) (Replacement tax rate: 2.5%), 35 ILCS 5/201(d) (Replacement tax base), IL Form IL-1120 Instructions (Schedule of Replacement Tax), 86 Ill. Admin. Code § 100.2260 (Personal Property Replacement Tax)" result.policy_statements swap addto
+apportionment.state_taxable_income result.il_replacement_tax_rate fmul cvd /result.il_replacement_tax xdef apportionment.state_tax result.il_replacement_tax f+ cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "IL Personal Property Replacement Tax (PPRT) applies to corporations. Replacement Tax Calculation: Net income base: [State taxable income], Replacement tax rate: x 2.5%, Replacement tax: = [Replacement tax amount], Total IL tax: Income tax (9.5%) + Replacement tax (2.5%) = 12.0%. The replacement tax applies to the same income base as the income tax. It was enacted to replace revenue lost when the personal property tax on corporations was abolished by the 1970 Illinois Constitution. The replacement tax revenue is distributed to local governments to replace the lost personal property tax revenue. Reference: 35 ILCS 5/201(c) (Replacement tax rate: 2.5%), 35 ILCS 5/201(d) (Replacement tax base), IL Form IL-1120 Instructions (Schedule of Replacement Tax), 86 Ill. Admin. Code § 100.2260 (Personal Property Replacement Tax)" result.policy_statements swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>

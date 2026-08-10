@@ -2,14 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 50400: Determine_NJ_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NJ_Corp.xls</relative_path>
-<file_name>NJ_Corp.xls</file_name>
+<relative_path>NJ_corp.xlsx</relative_path>
+<file_name>NJ_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_NJ_Filing_Requirement</table_name>
-<xls_file>NJ_Corp.xls</xls_file>
+<xls_file>NJ_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file NJ state corporate tax return. Checks for physical presence or economic nexus.</COMMENTS>
@@ -61,7 +61,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NJ" st
 <action_comment>No nexus - no filing required; No nexus - zero tax and refund payments</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -83,14 +83,14 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NJ" st
 </decision_table>
 
 <!-- TABLE 50420: Calculate_NJ_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NJ_Corp.xls</relative_path>
-<file_name>NJ_Corp.xls</file_name>
+<relative_path>NJ_corp.xlsx</relative_path>
+<file_name>NJ_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_NJ_Income_Adjustments</table_name>
-<xls_file>NJ_Corp.xls</xls_file>
+<xls_file>NJ_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate NJ state-specific additions and subtractions to federal taxable income. Result is NJ "entire net income" (NJ's term for taxable income base).</COMMENTS>
@@ -143,14 +143,14 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 </decision_table>
 
 <!-- TABLE 50480: Calculate_NJ_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NJ_Corp.xls</relative_path>
-<file_name>NJ_Corp.xls</file_name>
+<relative_path>NJ_corp.xlsx</relative_path>
+<file_name>NJ_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_NJ_State_Tax</table_name>
-<xls_file>NJ_Corp.xls</xls_file>
+<xls_file>NJ_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate NJ state corporate income tax. Applies NJ 9% base tax rate to apportioned and adjusted taxable income.</COMMENTS>
@@ -175,7 +175,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 f&gt;
+apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="*" />
@@ -188,7 +188,7 @@ apportionment.state_taxable_income 0 f&gt;
 <action_comment>Calculate NJ tax at 9% base rate; Calculate NJ state tax at 9% base rate, subtract credits</action_comment>
 <action_dsl>set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
+apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -197,7 +197,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_comment>No nexus - no tax; No NJ nexus - zero tax and refund payments</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -206,7 +206,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_comment>Nexus but no taxable income; No NJ taxable income - zero tax and refund payments</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -228,14 +228,14 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 </decision_table>
 
 <!-- TABLE 50490: Calculate_NJ_Surtax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>NJ_Corp.xls</relative_path>
-<file_name>NJ_Corp.xls</file_name>
+<relative_path>NJ_corp.xlsx</relative_path>
+<file_name>NJ_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
 </source>
 <table_name>Calculate_NJ_Surtax</table_name>
-<xls_file>NJ_Corp.xls</xls_file>
+<xls_file>NJ_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate NJ Corporation Business Tax surtax for large corporations. Surtax is 2.5% of entire net income for income &gt; $1M.</COMMENTS>
@@ -273,7 +273,7 @@ result.nj_entire_net_income result.nj_surtax_threshold f&gt;
 <condition_comment>Has positive tax base for surtax calculation</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 f&gt;
+apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="*" />
@@ -287,7 +287,7 @@ apportionment.state_taxable_income 0 f&gt;
 <action_comment>Calculate NJ surtax for large corporations; Calculate NJ surtax at 2.5% for income &gt; $1M</action_comment>
 <action_dsl>set result.nj_surtax = result.nj_entire_net_income * result.nj_surtax_rate; set apportionment.state_tax = apportionment.state_tax + result.nj_surtax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-result.nj_entire_net_income result.nj_surtax_rate fmul cvd /result.nj_surtax xdef apportionment.state_tax result.nj_surtax f+ cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
+result.nj_entire_net_income result.nj_surtax_rate fmul cvd /result.nj_surtax xdef apportionment.state_tax result.nj_surtax f+ cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>

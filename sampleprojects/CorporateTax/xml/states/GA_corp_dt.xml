@@ -2,14 +2,14 @@
 <decision_tables>
 
 <!-- TABLE 51100: Determine_GA_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>GA_Corp.xls</relative_path>
-<file_name>GA_Corp.xls</file_name>
+<relative_path>GA_corp.xlsx</relative_path>
+<file_name>GA_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_GA_Filing_Requirement</table_name>
-<xls_file>GA_Corp.xls</xls_file>
+<xls_file>GA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determines if corporation must file Georgia state tax return. Checks for physical presence or economic nexus. Nexus types: Physical presence (office, employees, property) or Economic nexus post-Wayfair ($100,000 gross receipts threshold).</COMMENTS>
@@ -65,7 +65,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "GA" st
 <action_comment>No nexus - no filing required</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -74,14 +74,14 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "GA" st
 </decision_table>
 
 <!-- TABLE 51120: Calculate_GA_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>GA_Corp.xls</relative_path>
-<file_name>GA_Corp.xls</file_name>
+<relative_path>GA_corp.xlsx</relative_path>
+<file_name>GA_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Calculate_GA_Income_Adjustments</table_name>
-<xls_file>GA_Corp.xls</xls_file>
+<xls_file>GA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Georgia state-specific additions and subtractions to federal taxable income. Common GA additions: Interest on U.S. government obligations, IRC Section 199A deduction addback, State income taxes deducted federally. Common GA subtractions: Interest on Georgia state and local bonds, Georgia NOL deduction.</COMMENTS>
@@ -125,14 +125,14 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 </decision_table>
 
 <!-- TABLE 51180: Calculate_GA_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>GA_Corp.xls</relative_path>
-<file_name>GA_Corp.xls</file_name>
+<relative_path>GA_corp.xlsx</relative_path>
+<file_name>GA_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_GA_State_Tax</table_name>
-<xls_file>GA_Corp.xls</xls_file>
+<xls_file>GA_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Georgia state corporate income tax. Applies 5.75% flat rate to apportioned and adjusted taxable income. Process: 1) Federal taxable income apportioned to GA (table 7500), 2) Add GA-specific additions (table 51120), 3) Subtract GA-specific subtractions (table 51120), 4) Apply GA tax rate 5.75%, 5) Subtract GA state credits, 6) Calculate refund or amount owed.</COMMENTS>
@@ -157,7 +157,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive state taxable income; apportionment.state_taxable_income is greater than 0</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 f&gt;
+apportionment.state_taxable_income 0 &gt;
 </condition_postfix>
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="-" />
@@ -170,7 +170,7 @@ apportionment.state_taxable_income 0 f&gt;
 <action_comment>Calculate GA tax at 5.75% flat rate; Georgia state corporate income tax calculation: Apply 5.75% flat rate, subtract credits, calculate refund or amount owed.</action_comment>
 <action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add ((((((("GA tax calculation: Taxable income: $" + string value of (apportionment.state_taxable_income)) + " x 5.75% = $") + string value of (apportionment.state_tax)) + ". Credits: $") + string value of (apportionment.state_credits)) + ". Final tax: $") + string value of (apportionment.state_tax)) + ". Reference: GA Form 600, GA Code § 48-7-21" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "GA tax calculation: Taxable income: $" apportionment.state_taxable_income cvs strconcat " x 5.75% = $" strconcat apportionment.state_tax cvs strconcat ". Credits: $" strconcat apportionment.state_credits cvs strconcat ". Final tax: $" strconcat apportionment.state_tax cvs strconcat ". Reference: GA Form 600, GA Code § 48-7-21" strconcat job.audit_trail swap addto
+apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "GA tax calculation: Taxable income: $" apportionment.state_taxable_income cvs strconcat " x 5.75% = $" strconcat apportionment.state_tax cvs strconcat ". Credits: $" strconcat apportionment.state_credits cvs strconcat ". Final tax: $" strconcat apportionment.state_tax cvs strconcat ". Reference: GA Form 600, GA Code § 48-7-21" strconcat job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -179,7 +179,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apport
 <action_comment>No nexus - no tax liability</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -188,7 +188,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apport
 <action_comment>No taxable income - no tax liability</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
+0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>

@@ -1,98 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Wyoming Corporate Tax Entity Data Dictionary
-
-  IMPORTANT: Wyoming has NO corporate income tax.
-
-  Wyoming does NOT impose:
-  - Corporate income tax
-  - Gross receipts tax (like Nevada Commerce Tax)
-  - Franchise tax
-  - Capital stock tax
-
-  Wyoming only requires:
-  - Annual report filing fee ($60 for domestic corporations, $120 for foreign)
-  - Business license fees (vary by county/municipality)
-
-  Economic Nexus: $100,000 in Wyoming receipts OR 200 transactions
-  (Applies only for sales tax purposes, not corporate taxation)
-
-  Wyoming is one of the most business-friendly states with no corporate-level taxation.
--->
-<entity_dictionary name="CorporateTax_WY_Constants">
-
-  <!--
-    Apportionment Entity: Wyoming-Specific Configuration
-
-    Note: Wyoming does NOT have corporate income tax or gross receipts tax.
-    These fields are maintained for consistency with the framework but are not used.
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='WY'
-           comment='Wyoming state code'/>
-
-    <!-- Economic Nexus Thresholds (for sales tax purposes only) -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='Wyoming economic nexus: $100,000 in Wyoming receipts (Wayfair standard, applies to sales tax only)'/>
-
-    <field name='transaction_threshold' type='integer' default_value='200'
-           comment='Wyoming economic nexus: 200 or more separate transactions (applies to sales tax only)'/>
-
-    <!-- Apportionment Formula (NOT USED - no corporate tax) -->
-    <field name='apportionment_formula' type='string' default_value='none'
-           comment='Not applicable - Wyoming has no corporate income tax or gross receipts tax'/>
-
-    <!-- State Tax Rate (NO TAX) -->
-    <field name='state_tax_rate' type='double' default_value='0.0'
-           comment='Wyoming has NO corporate income tax, NO gross receipts tax, NO franchise tax'/>
-
-    <!-- State Additions/Subtractions (NOT USED - no income tax) -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='Not applicable - Wyoming has no corporate income tax'/>
-
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='Not applicable - Wyoming has no corporate income tax'/>
-
-    <!-- State Tax Credits (NOT USED - no tax to credit against) -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='Not applicable - Wyoming has no corporate income tax to credit'/>
-
-  </entity>
-
-  <!--
-    Result Entity: Wyoming Corporate Tax Fields
-
-    Wyoming has NO corporate income tax and NO gross receipts tax.
-    These fields confirm zero tax liability.
-  -->
-  <entity name="result">
-
-    <!-- Wyoming Tax Status -->
-    <field name='wy_no_corporate_tax' type='boolean' default_value='true'
-           comment='Wyoming has NO corporate income tax (always true)'/>
-
-    <field name='wy_no_gross_receipts_tax' type='boolean' default_value='true'
-           comment='Wyoming has NO gross receipts tax (always true)'/>
-
-    <field name='wy_no_franchise_tax' type='boolean' default_value='true'
-           comment='Wyoming has NO franchise tax (always true)'/>
-
-    <!-- Annual Report Filing Fee -->
-    <field name='wy_annual_report_fee_domestic' type='double' default_value='60.0'
-           comment='Wyoming annual report filing fee for domestic corporations (2025)'/>
-
-    <field name='wy_annual_report_fee_foreign' type='double' default_value='120.0'
-           comment='Wyoming annual report filing fee for foreign corporations (2025)'/>
-
-    <field name='wy_annual_report_fee' type='double' default_value='0.0'
-           comment='Actual annual report fee based on corporation type (domestic or foreign)'/>
-
-    <!-- Wyoming Tax Liability (Always Zero) -->
-    <field name='wy_state_tax' type='double' default_value='0.0'
-           comment='Wyoming state tax liability (always $0 - no corporate income tax)'/>
-
-  </entity>
-
-</entity_dictionary>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>WY_corp_edd</file_path>
+	</file_metadata>
+	<entity name="apportionment" number="100" xls_file="WY_corp.xlsx" access="rw">
+		<source>
+			<relative_path>WY_corp.xlsx</relative_path>
+			<file_name>WY_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="none" comment="Not applicable - Wyoming has no corporate income tax or gross receipts tax"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="Wyoming economic nexus: $100,000 in Wyoming receipts (Wayfair standard, applies to sales tax only)"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Not applicable - Wyoming has no corporate income tax"></field>
+		<field name="state_code" type="string" subtype="" access="r" input="" default_value="WY" comment="Wyoming state code"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="Not applicable - Wyoming has no corporate income tax to credit"></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Not applicable - Wyoming has no corporate income tax"></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="Wyoming has NO corporate income tax, NO gross receipts tax, NO franchise tax"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="Wyoming economic nexus: 200 or more separate transactions (applies to sales tax only)"></field>
+	</entity>
+	<entity name="result" number="200" xls_file="WY_corp.xlsx" access="rw">
+		<source>
+			<relative_path>WY_corp.xlsx</relative_path>
+			<file_name>WY_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="wy_annual_report_fee" type="double" subtype="" access="r" input="" default_value="0.0" comment="Actual annual report fee based on corporation type (domestic or foreign)"></field>
+		<field name="wy_annual_report_fee_domestic" type="double" subtype="" access="r" input="" default_value="60.0" comment="Wyoming annual report filing fee for domestic corporations (2025)"></field>
+		<field name="wy_annual_report_fee_foreign" type="double" subtype="" access="r" input="" default_value="120.0" comment="Wyoming annual report filing fee for foreign corporations (2025)"></field>
+		<field name="wy_no_corporate_tax" type="boolean" subtype="" access="r" input="" default_value="true" comment="Wyoming has NO corporate income tax (always true)"></field>
+		<field name="wy_no_franchise_tax" type="boolean" subtype="" access="r" input="" default_value="true" comment="Wyoming has NO franchise tax (always true)"></field>
+		<field name="wy_no_gross_receipts_tax" type="boolean" subtype="" access="r" input="" default_value="true" comment="Wyoming has NO gross receipts tax (always true)"></field>
+		<field name="wy_state_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="Wyoming state tax liability (always $0 - no corporate income tax)"></field>
+	</entity>
+</entity_data_dictionary>

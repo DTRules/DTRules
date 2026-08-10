@@ -1,68 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Arizona (AZ) State Corporate Tax Entity Data Dictionary
-
-  AZ Corporate Income Tax Details:
-  - Tax rate: 4.9% flat rate (AZ Rev. Stat. § 43-1111)
-  - Apportionment: Single-sales factor (AZ Rev. Stat. § 43-1139)
-  - Economic nexus: $100,000 gross receipts (AZ Rev. Stat. § 43-1102)
-  - Form: Arizona Form 120 (Corporation Income Tax Return)
-
-  Key features:
-  - Flat 4.9% rate (reduced from 4.9% in 2021, scheduled to drop to 2.5% by 2025)
-  - Single-sales factor apportionment (market-based sourcing)
-  - Economic nexus threshold: $100,000 in gross receipts
-  - No special corporate AMT
-  - Credits available: R&amp;D, renewable energy, employment
--->
-<entity_dictionary name="CorporateTax_AZ_Constants">
-
-  <!--
-    Apportionment Entity: Arizona-Specific Configuration
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='AZ'
-           comment='Arizona two-letter state code'/>
-
-    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='AZ economic nexus gross receipts threshold: $100,000 (AZ Rev. Stat. § 43-1102)'/>
-
-    <field name='transaction_threshold' type='integer' default_value='200'
-           comment='AZ economic nexus transaction count threshold: 200 transactions'/>
-
-    <!-- Apportionment Formula -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='AZ uses single-sales factor apportionment (AZ Rev. Stat. § 43-1139)'/>
-
-    <!-- State Tax Rate -->
-    <field name='state_tax_rate' type='double' default_value='0.049'
-           comment='AZ corporate income tax rate: 4.9% flat rate (AZ Rev. Stat. § 43-1111)'/>
-
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='AZ additions: federal interest, IRC 199A addback, bonus depreciation (if decoupled)'/>
-
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='AZ subtractions: AZ municipal interest, state taxes, AZ NOL'/>
-
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='AZ tax credits: R&amp;D, renewable energy, employment, film production'/>
-
-  </entity>
-
-  <!--
-    Result Entity: Arizona-Specific Extensions
-
-    Arizona does not have special requirements beyond standard apportionment.
-    No AMT, no surcharges, no special industry rates.
-  -->
-  <entity name="result">
-    <!-- No AZ-specific fields needed at this time -->
-  </entity>
-
-</entity_dictionary>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>AZ_corp_edd</file_path>
+	</file_metadata>
+	<entity name="apportionment" number="100" xls_file="AZ_corp.xlsx" access="rw">
+		<source>
+			<relative_path>AZ_corp.xlsx</relative_path>
+			<file_name>AZ_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="AZ uses single-sales factor apportionment (AZ Rev. Stat. § 43-1139)"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="AZ economic nexus gross receipts threshold: $100,000 (AZ Rev. Stat. § 43-1102)"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="AZ additions: federal interest, IRC 199A addback, bonus depreciation (if decoupled)"></field>
+		<field name="state_code" type="string" subtype="" access="r" input="" default_value="AZ" comment="Arizona two-letter state code"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="AZ tax credits: R&amp;D, renewable energy, employment, film production"></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="AZ subtractions: AZ municipal interest, state taxes, AZ NOL"></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.049" comment="AZ corporate income tax rate: 4.9% flat rate (AZ Rev. Stat. § 43-1111)"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="AZ economic nexus transaction count threshold: 200 transactions"></field>
+	</entity>
+</entity_data_dictionary>

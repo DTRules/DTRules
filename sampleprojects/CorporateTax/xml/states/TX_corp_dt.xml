@@ -2,19 +2,18 @@
 <decision_tables>
 
 <!-- TABLE 50200: Determine_TX_Filing_Requirement -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>TX_Corp.xls</relative_path>
-<file_name>TX_Corp.xls</file_name>
+<relative_path>TX_corp.xlsx</relative_path>
+<file_name>TX_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
 </source>
 <table_name>Determine_TX_Filing_Requirement</table_name>
-<xls_file>TX_Corp.xls</xls_file>
+<xls_file>TX_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine if corporation must file Texas franchise tax return. Checks for physical presence, economic nexus, or Texas registration. No tax due threshold: $1.23M in total revenue.</COMMENTS>
 <TABLE_NUMBER>50200</TABLE_NUMBER>
-<FILE_PATH>states/TX/50200_Determine_TX_Filing_Requirement</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -38,6 +37,8 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "TX"
 <condition_postfix>
 apportionment.has_economic_nexus true beq { pop apportionment.state_code "TX" streq } over if
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
 </condition_details>
@@ -51,6 +52,7 @@ result.tx_total_revenue result.tx_no_tax_due_threshold f&lt;
 <condition_column column_number="1" column_value="Y" />
 <condition_column column_number="2" column_value="N" />
 <condition_column column_number="3" column_value="N" />
+<condition_column column_number="4" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -59,7 +61,7 @@ result.tx_total_revenue result.tx_no_tax_due_threshold f&lt;
 <action_comment>Physical presence but below threshold - no tax due; No tax due - total revenue below $1.23M threshold</action_comment>
 <action_dsl>set result.tx_qualifies_for_no_tax_due = true; set result.tx_franchise_tax = 0.0; set apportionment.state_tax = 0.0; add "TX franchise tax: No tax due (revenue below $1.23M threshold). Reference: TX Tax Code 171.002(d)(2)" to job.audit_trail;</action_dsl>
 <action_postfix>
-true cvb /result.tx_qualifies_for_no_tax_due xdef 0.0 cvd /result.tx_franchise_tax xdef 0.0 cvd /apportionment.state_tax xdef "TX franchise tax: No tax due (revenue below $1.23M threshold). Reference: TX Tax Code 171.002(d)(2)" job.audit_trail swap addto
+true cvb /result.tx_qualifies_for_no_tax_due xdef 0.0 cvd /result.tx_franchise_tax xdef 0.0 cvi /apportionment.state_tax xdef "TX franchise tax: No tax due (revenue below $1.23M threshold). Reference: TX Tax Code 171.002(d)(2)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -86,7 +88,7 @@ false cvb /result.tx_qualifies_for_no_tax_due xdef "TX franchise tax filing requ
 <action_comment>No nexus - no filing required; No Texas nexus - no filing requirement</action_comment>
 <action_dsl>set result.tx_qualifies_for_no_tax_due = true; set result.tx_franchise_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No TX nexus - no filing required. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-true cvb /result.tx_qualifies_for_no_tax_due xdef 0.0 cvd /result.tx_franchise_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No TX nexus - no filing required. Any estimated payments would be refunded." job.audit_trail swap addto
+true cvb /result.tx_qualifies_for_no_tax_due xdef 0.0 cvd /result.tx_franchise_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No TX nexus - no filing required. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="4" column_value="X" />
 </action_details>
@@ -95,19 +97,18 @@ true cvb /result.tx_qualifies_for_no_tax_due xdef 0.0 cvd /result.tx_franchise_t
 </decision_table>
 
 <!-- TABLE 50210: Determine_TX_Deduction_Method -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>TX_Corp.xls</relative_path>
-<file_name>TX_Corp.xls</file_name>
+<relative_path>TX_corp.xlsx</relative_path>
+<file_name>TX_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
 </source>
 <table_name>Determine_TX_Deduction_Method</table_name>
-<xls_file>TX_Corp.xls</xls_file>
+<xls_file>TX_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Determine which deduction method produces the lowest franchise tax liability. Taxpayer can choose COGS, compensation, or 70% of revenue.</COMMENTS>
 <TABLE_NUMBER>50210</TABLE_NUMBER>
-<FILE_PATH>states/TX/50210_Determine_TX_Deduction_Method</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -131,6 +132,8 @@ result.tx_qualifies_for_no_tax_due false beq
 <condition_postfix>
 result.tx_cogs result.tx_compensation f&gt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
 </condition_details>
@@ -177,19 +180,18 @@ result.tx_cogs result.tx_compensation f&gt;
 </decision_table>
 
 <!-- TABLE 50220: Calculate_TX_Margin -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>TX_Corp.xls</relative_path>
-<file_name>TX_Corp.xls</file_name>
+<relative_path>TX_corp.xlsx</relative_path>
+<file_name>TX_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
 </source>
 <table_name>Calculate_TX_Margin</table_name>
-<xls_file>TX_Corp.xls</xls_file>
+<xls_file>TX_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Texas taxable margin for franchise tax. Margin = Revenue - (COGS or Compensation or 70% of Revenue)</COMMENTS>
 <TABLE_NUMBER>50220</TABLE_NUMBER>
-<FILE_PATH>states/TX/50220_Calculate_TX_Margin</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -212,6 +214,7 @@ result.tx_qualifies_for_no_tax_due false beq
 <condition_postfix>
 result.tx_total_revenue 20000000.0 f&lt;=
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 </condition_details>
@@ -249,19 +252,18 @@ false cvb /result.tx_qualifies_for_ez_computation xdef result.tx_total_revenue r
 </decision_table>
 
 <!-- TABLE 50280: Calculate_TX_Franchise_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>TX_Corp.xls</relative_path>
-<file_name>TX_Corp.xls</file_name>
+<relative_path>TX_corp.xlsx</relative_path>
+<file_name>TX_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
 </source>
 <table_name>Calculate_TX_Franchise_Tax</table_name>
-<xls_file>TX_Corp.xls</xls_file>
+<xls_file>TX_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS>Calculate Texas franchise tax liability. Applies 0.75% or 0.375% rate to apportioned margin. IMPORTANT: This is NOT an income tax.</COMMENTS>
 <TABLE_NUMBER>50280</TABLE_NUMBER>
-<FILE_PATH>states/TX/50280_Calculate_TX_Franchise_Tax</FILE_PATH>
 </attribute_fields>
 <contexts></contexts>
 <initial_actions></initial_actions>
@@ -286,6 +288,8 @@ result.tx_qualifies_for_no_tax_due false beq
 <condition_postfix>
 result.tx_apportioned_margin 0 f&gt;
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="Y" />
 <condition_column column_number="5" column_value="N" />
@@ -297,9 +301,11 @@ result.tx_apportioned_margin 0 f&gt;
 <condition_postfix>
 result.tx_qualifies_for_ez_computation true beq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
 <condition_column column_number="2" column_value="Y" />
 <condition_column column_number="3" column_value="N" />
 <condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="-" />
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
@@ -308,8 +314,11 @@ result.tx_qualifies_for_ez_computation true beq
 <condition_postfix>
 result.tx_is_retail_wholesale true beq
 </condition_postfix>
+<condition_column column_number="1" column_value="-" />
+<condition_column column_number="2" column_value="-" />
 <condition_column column_number="3" column_value="Y" />
 <condition_column column_number="4" column_value="N" />
+<condition_column column_number="5" column_value="-" />
 </condition_details>
 </conditions>
 <actions>
@@ -318,7 +327,7 @@ result.tx_is_retail_wholesale true beq
 <action_comment>No nexus or below threshold - no franchise tax; No Texas franchise tax due</action_comment>
 <action_dsl>set result.tx_franchise_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No TX franchise tax due. Any estimated payments will be refunded. Reference: TX Tax Code 171.002(d)(2)" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.tx_franchise_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No TX franchise tax due. Any estimated payments will be refunded. Reference: TX Tax Code 171.002(d)(2)" job.audit_trail swap addto
+0.0 cvd /result.tx_franchise_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No TX franchise tax due. Any estimated payments will be refunded. Reference: TX Tax Code 171.002(d)(2)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="1" column_value="X" />
 </action_details>
@@ -327,7 +336,7 @@ result.tx_is_retail_wholesale true beq
 <action_comment>E-Z Computation (simplified method); TX franchise tax using E-Z computation (0.575%)</action_comment>
 <action_dsl>set result.tx_franchise_tax = (the maximum of (result.tx_total_revenue - result.tx_no_tax_due_threshold) and (0.0)) * result.tx_ez_computation_rate * apportionment.apportionment_factor; set result.tx_franchise_tax = the maximum of (result.tx_franchise_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = result.tx_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "TX franchise tax: E-Z computation. (Revenue - $1.23M) × 0.575%. NOT an income tax. Reference: TX Tax Code 171.1016" to job.audit_trail;</action_dsl>
 <action_postfix>
-result.tx_total_revenue result.tx_no_tax_due_threshold f- 0.0 fmax result.tx_ez_computation_rate apportionment.apportionment_factor fmul fmul cvd /result.tx_franchise_tax xdef result.tx_franchise_tax apportionment.state_credits f- 0.0 fmax cvd /result.tx_franchise_tax xdef result.tx_franchise_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "TX franchise tax: E-Z computation. (Revenue - $1.23M) × 0.575%. NOT an income tax. Reference: TX Tax Code 171.1016" job.audit_trail swap addto
+result.tx_total_revenue result.tx_no_tax_due_threshold f- 0.0 fmax result.tx_ez_computation_rate apportionment.apportionment_factor fmul fmul cvd /result.tx_franchise_tax xdef result.tx_franchise_tax apportionment.state_credits f- 0.0 fmax cvd /result.tx_franchise_tax xdef result.tx_franchise_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "TX franchise tax: E-Z computation. (Revenue - $1.23M) × 0.575%. NOT an income tax. Reference: TX Tax Code 171.1016" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="2" column_value="X" />
 </action_details>
@@ -336,7 +345,7 @@ result.tx_total_revenue result.tx_no_tax_due_threshold f- 0.0 fmax result.tx_ez_
 <action_comment>Retail/wholesale reduced rate (0.375%); TX franchise tax at reduced retail/wholesale rate</action_comment>
 <action_dsl>set result.tx_margin_tax_rate = 0.00375; set result.tx_franchise_tax = result.tx_apportioned_margin * result.tx_margin_tax_rate; set result.tx_franchise_tax = the maximum of (result.tx_franchise_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = result.tx_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "TX franchise tax: Retail/wholesale rate 0.375%. NOT an income tax. Reference: TX Tax Code 171.002(b)" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.00375 cvd /result.tx_margin_tax_rate xdef result.tx_apportioned_margin result.tx_margin_tax_rate fmul cvd /result.tx_franchise_tax xdef result.tx_franchise_tax apportionment.state_credits f- 0.0 fmax cvd /result.tx_franchise_tax xdef result.tx_franchise_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "TX franchise tax: Retail/wholesale rate 0.375%. NOT an income tax. Reference: TX Tax Code 171.002(b)" job.audit_trail swap addto
+0.00375 cvd /result.tx_margin_tax_rate xdef result.tx_apportioned_margin result.tx_margin_tax_rate fmul cvd /result.tx_franchise_tax xdef result.tx_franchise_tax apportionment.state_credits f- 0.0 fmax cvd /result.tx_franchise_tax xdef result.tx_franchise_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "TX franchise tax: Retail/wholesale rate 0.375%. NOT an income tax. Reference: TX Tax Code 171.002(b)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="3" column_value="X" />
 </action_details>
@@ -345,7 +354,7 @@ result.tx_total_revenue result.tx_no_tax_due_threshold f- 0.0 fmax result.tx_ez_
 <action_comment>Standard rate (0.75%); TX franchise tax at standard rate</action_comment>
 <action_dsl>set result.tx_margin_tax_rate = 0.0075; set result.tx_franchise_tax = result.tx_apportioned_margin * result.tx_margin_tax_rate; set result.tx_franchise_tax = the maximum of (result.tx_franchise_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = result.tx_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "TX franchise tax: Standard rate 0.75%. NOT an income tax. Reference: TX Tax Code 171.002(a)" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0075 cvd /result.tx_margin_tax_rate xdef result.tx_apportioned_margin result.tx_margin_tax_rate fmul cvd /result.tx_franchise_tax xdef result.tx_franchise_tax apportionment.state_credits f- 0.0 fmax cvd /result.tx_franchise_tax xdef result.tx_franchise_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "TX franchise tax: Standard rate 0.75%. NOT an income tax. Reference: TX Tax Code 171.002(a)" job.audit_trail swap addto
+0.0075 cvd /result.tx_margin_tax_rate xdef result.tx_apportioned_margin result.tx_margin_tax_rate fmul cvd /result.tx_franchise_tax xdef result.tx_franchise_tax apportionment.state_credits f- 0.0 fmax cvd /result.tx_franchise_tax xdef result.tx_franchise_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "TX franchise tax: Standard rate 0.75%. NOT an income tax. Reference: TX Tax Code 171.002(a)" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="4" column_value="X" />
 </action_details>
@@ -354,7 +363,7 @@ result.tx_total_revenue result.tx_no_tax_due_threshold f- 0.0 fmax result.tx_ez_
 <action_comment>No apportioned margin - no franchise tax; No TX franchise tax due - zero or negative margin</action_comment>
 <action_dsl>set result.tx_franchise_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No TX franchise tax due - zero or negative margin. No loss carryforward. Reference: TX Tax Code 171.101" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.tx_franchise_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No TX franchise tax due - zero or negative margin. No loss carryforward. Reference: TX Tax Code 171.101" job.audit_trail swap addto
+0.0 cvd /result.tx_franchise_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No TX franchise tax due - zero or negative margin. No loss carryforward. Reference: TX Tax Code 171.101" job.audit_trail swap addto
 </action_postfix>
 <action_column column_number="5" column_value="X" />
 </action_details>
@@ -363,14 +372,14 @@ result.tx_total_revenue result.tx_no_tax_due_threshold f- 0.0 fmax result.tx_ez_
 </decision_table>
 
 <!-- TABLE 55130: Calculate_TX_Income_Adjustments -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>TX_Corp.xls</relative_path>
-<file_name>TX_Corp.xls</file_name>
+<relative_path>TX_corp.xlsx</relative_path>
+<file_name>TX_corp.xlsx</file_name>
 <sheet_number>5</sheet_number>
 </source>
 <table_name>Calculate_TX_Income_Adjustments</table_name>
-<xls_file>TX_Corp.xls</xls_file>
+<xls_file>TX_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS></COMMENTS>
@@ -413,14 +422,14 @@ apportionment.state_code "TX" streq
 </decision_table>
 
 <!-- TABLE 55140: Calculate_TX_State_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
-<relative_path>TX_Corp.xls</relative_path>
-<file_name>TX_Corp.xls</file_name>
+<relative_path>TX_corp.xlsx</relative_path>
+<file_name>TX_corp.xlsx</file_name>
 <sheet_number>6</sheet_number>
 </source>
 <table_name>Calculate_TX_State_Tax</table_name>
-<xls_file>TX_Corp.xls</xls_file>
+<xls_file>TX_corp.xlsx</xls_file>
 <attribute_fields>
 <Type>FIRST</Type>
 <COMMENTS></COMMENTS>

@@ -1,77 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  West Virginia Corporate Tax Entity Data Dictionary
-
-  WV has a 6.5% flat corporate income tax rate (as of 2025).
-
-  Key Features:
-  - Flat 6.5% corporate income tax rate (WV Code § 11-24-4)
-  - Single-sales apportionment formula (effective 2022+)
-  - Economic nexus: $100,000 gross receipts or 200 transactions
-  - Market-based sourcing for service revenue
-  - No alternative minimum tax
-
-  References:
-  - WV Code § 11-24-4 (Tax rate)
-  - WV Code § 11-24-6 (Adjustments to federal taxable income)
-  - WV Code § 11-24-7 (Apportionment)
-  - WV Form CIT-120 (Corporation Net Income Tax Return)
-  - WV Tax Division Corporate Income Tax Guidance
--->
-<entity_dictionary name="CorporateTax_WV_Constants">
-
-  <!--
-    Apportionment Entity: West Virginia Configuration
-
-    Used by decision tables 7000-7500 for multi-state tax apportionment
-    and WV-specific tables 54800-54899.
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification -->
-    <field name='state_code' type='string' default_value='WV'
-           comment='West Virginia state code'/>
-
-    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='WV economic nexus gross receipts threshold: $100,000'/>
-
-    <field name='transaction_threshold' type='integer' default_value='200'
-           comment='WV economic nexus transaction count threshold: 200 transactions'/>
-
-    <!-- Apportionment Formula -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='WV uses single-sales factor apportionment (100% sales factor) effective 2022+'/>
-
-    <!-- State Tax Rate -->
-    <field name='state_tax_rate' type='double' default_value='0.065'
-           comment='WV corporate income tax rate: 6.5% flat rate (WV Code § 11-24-4)'/>
-
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='WV additions: federal NOL, foreign taxes deducted, state income taxes, etc.'/>
-
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='WV subtractions: qualified opportunity zone income, foreign source income, etc.'/>
-
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='WV tax credits: economic development, jobs creation, research &amp; development, etc.'/>
-
-  </entity>
-
-  <!--
-    Result Entity: WV does not require special state-specific fields
-
-    West Virginia uses a straightforward flat-rate system without:
-    - Alternative minimum tax
-    - Special surcharges
-    - Industry-specific tax rates
-    - Complex combined reporting (though unitary rules apply)
-  -->
-  <entity name="result">
-    <!-- No WV-specific fields required -->
-  </entity>
-
-</entity_dictionary>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>WV_corp_edd</file_path>
+	</file_metadata>
+	<entity name="apportionment" number="100" xls_file="WV_corp.xlsx" access="rw">
+		<source>
+			<relative_path>WV_corp.xlsx</relative_path>
+			<file_name>WV_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="WV uses single-sales factor apportionment (100% sales factor) effective 2022+"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="WV economic nexus gross receipts threshold: $100,000"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="WV additions: federal NOL, foreign taxes deducted, state income taxes, etc."></field>
+		<field name="state_code" type="string" subtype="" access="r" input="" default_value="WV" comment="West Virginia state code"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="WV tax credits: economic development, jobs creation, research &amp; development, etc."></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="WV subtractions: qualified opportunity zone income, foreign source income, etc."></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.065" comment="WV corporate income tax rate: 6.5% flat rate (WV Code § 11-24-4)"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="WV economic nexus transaction count threshold: 200 transactions"></field>
+	</entity>
+</entity_data_dictionary>

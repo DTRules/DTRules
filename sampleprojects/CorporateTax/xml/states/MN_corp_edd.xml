@@ -1,107 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Minnesota Corporate Tax Entity Data Dictionary
-
-  Minnesota uses:
-  - Flat rate: 9.5% (as of 2024 tax year, MN Stat. § 290.06)
-  - Previously had progressive brackets, simplified to single rate in 2024
-  - Apportionment: Single-sales factor
-  - Economic Nexus: $100,000 in gross receipts
-  - Form: Form M4 (Corporation Franchise Tax Return)
-
-  References:
-  - MN Stat. § 290.06 (Tax rate: 9.5% flat)
-  - MN Stat. § 290.191 (Apportionment)
-  - MN Form M4 Instructions
--->
-<entity_dictionary name="CorporateTax_MN_Constants">
-  <file_metadata>
-    <file_path>states/MN/51500_MN_constants</file_path>
-  </file_metadata>
-
-  <!--
-    Apportionment Entity: Minnesota State Configuration
-
-    This entity is used by decision tables 7000-7500 to calculate
-    multi-state tax apportionment.
-  -->
-  <entity name="apportionment">
-
-    <!-- State Identification (REQUIRED) -->
-    <field name='state_code' type='string' default_value='MN'
-           comment='Minnesota two-letter state code'/>
-
-    <!-- Economic Nexus Thresholds (Post-Wayfair) -->
-    <field name='economic_nexus_threshold' type='double' default_value='100000.0'
-           comment='Economic nexus gross receipts threshold - $100K per MN DOR guidance'/>
-
-    <field name='transaction_threshold' type='integer' default_value='200'
-           comment='Economic nexus transaction count threshold - 200 transactions'/>
-
-    <!-- Apportionment Formula (REQUIRED) -->
-    <field name='apportionment_formula' type='string' default_value='single_sales'
-           comment='Minnesota uses single-sales factor apportionment (100% sales)'/>
-
-    <!-- State Tax Rate (REQUIRED) -->
-    <field name='state_tax_rate' type='double' default_value='0.095'
-           comment='Minnesota flat corporate income tax rate: 9.5% (MN Stat. § 290.06)'/>
-
-    <!-- State Additions to Federal Taxable Income -->
-    <field name='state_additions' type='double' default_value='0.0'
-           comment='State-specific additions: federal interest, IRC 199A addback, foreign dividend deduction, etc.'/>
-
-    <!-- State Subtractions from Federal Taxable Income -->
-    <field name='state_subtractions' type='double' default_value='0.0'
-           comment='State-specific subtractions: municipal interest, state taxes, state NOL, small business deduction, etc.'/>
-
-    <!-- State Tax Credits -->
-    <field name='state_credits' type='double' default_value='0.0'
-           comment='State tax credits: R&amp;D, jobs, Angel investment, renewable energy, etc.'/>
-
-  </entity>
-
-  <!--
-    Result Entity: State-Specific Extensions (OPTIONAL)
-
-    Minnesota-specific fields can be added here if needed for detailed tracking.
-    The standard apportionment entity fields are sufficient for basic implementation.
-  -->
-  <entity name="result">
-    <field name="mn_apportioned_income" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
-    <field name="mn_corp_tax_rate" type="double" default_value="0.098"
-           comment="Form M4 line 10: regular tax = line 9 multiplied by 0.098"/>
-    <field name="mn_economic_nexus_threshold" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
-    <field name="mn_estimated_payments" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
-    <field name="mn_gross_receipts" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
-    <field name="mn_has_nexus" type="boolean" default_value="false"
-           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
-    <field name="mn_municipal_interest" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
-    <field name="mn_refund_or_owed" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
-    <field name="mn_state_additions" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
-    <field name="mn_state_credits" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
-    <field name="mn_state_subtractions" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
-    <field name="mn_tax_liability" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
-    <field name="mn_taxable_income" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
-    <field name="mn_us_interest_income" type="double" default_value="0.0"
-           comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"/>
-    <!-- Optional: MN-specific tracking fields -->
-    <!-- Example:
-    <field name='mn_small_business_deduction' type='double' default_value='0.0'
-           comment='MN small business income deduction (if applicable)'/>
-    <field name='mn_nol_carryforward' type='double' default_value='0.0'
-           comment='MN NOL carryforward (80% of income limitation)'/>
-    -->
-  </entity>
-
-</entity_dictionary>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>MN_corp_edd</file_path>
+	</file_metadata>
+	<entity name="apportionment" number="100" xls_file="MN_corp.xlsx" access="rw">
+		<source>
+			<relative_path>MN_corp.xlsx</relative_path>
+			<file_name>MN_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="Minnesota uses single-sales factor apportionment (100% sales)"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="Economic nexus gross receipts threshold - $100K per MN DOR guidance"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="State-specific additions: federal interest, IRC 199A addback, foreign dividend deduction, etc."></field>
+		<field name="state_code" type="string" subtype="" access="r" input="" default_value="MN" comment="Minnesota two-letter state code"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="State tax credits: R&amp;D, jobs, Angel investment, renewable energy, etc."></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="State-specific subtractions: municipal interest, state taxes, state NOL, small business deduction, etc."></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.095" comment="Minnesota flat corporate income tax rate: 9.5% (MN Stat. § 290.06)"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="Economic nexus transaction count threshold - 200 transactions"></field>
+	</entity>
+	<entity name="result" number="200" xls_file="MN_corp.xlsx" access="rw">
+		<source>
+			<relative_path>MN_corp.xlsx</relative_path>
+			<file_name>MN_corp.xlsx</file_name>
+			<sheet_number>4</sheet_number>
+		</source>
+		<field name="mn_apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"></field>
+		<field name="mn_corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.098" comment="Form M4 line 10: regular tax = line 9 multiplied by 0.098"></field>
+		<field name="mn_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"></field>
+		<field name="mn_estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"></field>
+		<field name="mn_gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"></field>
+		<field name="mn_has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"></field>
+		<field name="mn_municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"></field>
+		<field name="mn_refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"></field>
+		<field name="mn_state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"></field>
+		<field name="mn_state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"></field>
+		<field name="mn_state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"></field>
+		<field name="mn_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"></field>
+		<field name="mn_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"></field>
+		<field name="mn_us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MN but never declared (campaign #948 Phase 1)"></field>
+	</entity>
+</entity_data_dictionary>
