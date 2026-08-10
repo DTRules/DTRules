@@ -18,6 +18,7 @@ package excel
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -31,7 +32,7 @@ import (
 
 const (
 	maxCol         = 16
-	narrowColWidth = 5.0  // Decision columns (Y/N/X values)
+	narrowColWidth = 5.0 // Decision columns (Y/N/X values)
 	wideColWidth   = 40.0
 
 	colorEDDEntityHeader = "D0D8E8"
@@ -75,6 +76,65 @@ func (e *Exporter) ExportDecisionTables(filename string) error {
 	}
 
 	return f.SaveAs(filename)
+}
+
+// ExportDecisionTablesOwnedBy writes only the tables that belong in filename,
+// judged by each table's xls_file, and reports how many it wrote.
+//
+// ExportDecisionTables writes every table in the rule set, which is right for
+// a caller producing one workbook from a whole project and destructive for one
+// refreshing a project's existing workbooks in place: run over N workbooks it
+// writes the rule set N times and every workbook ends up holding every table.
+// A no-op `dtrules table put` on SinusitisTherapy took service1_medication.xlsx
+// from 3 sheets to 6 and therapy.xlsx from 1 to 6, turning a verified project
+// red without any rule being edited (#1077).
+//
+// Matching is on base name with the extension dropped, because the recorded
+// xls_file is historically inconsistent about it -- the same table may be
+// recorded as Foo.xls, Foo.xlsx or a path -- and case-insensitively, because
+// nothing about a name in DTRules is case-sensitive.
+//
+// Returns 0 when no table claims the workbook. Callers should treat that as
+// "leave the file alone": overwriting it with nothing would empty a workbook
+// whose tables merely record a different spelling.
+func (e *Exporter) ExportDecisionTablesOwnedBy(filename string) (int, error) {
+	want := workbookKey(filename)
+
+	var owned []*decisiontable.RDecisionTable
+	for _, dt := range e.getAllDecisionTables() {
+		if workbookKey(dt.GetFilePath()) == want {
+			owned = append(owned, dt)
+		}
+	}
+	if len(owned) == 0 {
+		return 0, nil
+	}
+	sortTablesByTableNumber(owned)
+
+	f := excelize.NewFile()
+	defer f.Close()
+	defaultSheet := f.GetSheetName(0)
+
+	styler, err := NewStyler(f)
+	if err != nil {
+		return 0, fmt.Errorf("failed to create styles: %w", err)
+	}
+	for _, dt := range owned {
+		if err := e.writeDecisionTable(f, dt, styler); err != nil {
+			return 0, fmt.Errorf("failed to write table %s: %w", dt.GetName(), err)
+		}
+	}
+	if len(f.GetSheetList()) > 1 {
+		f.DeleteSheet(defaultSheet)
+	}
+	return len(owned), f.SaveAs(filename)
+}
+
+// workbookKey reduces a workbook reference to something comparable: base name,
+// no extension, lowercased.
+func workbookKey(ref string) string {
+	base := filepath.Base(strings.TrimSpace(ref))
+	return strings.ToLower(strings.TrimSuffix(base, filepath.Ext(base)))
 }
 
 // getAllDecisionTables returns all decision tables from the ruleset.
