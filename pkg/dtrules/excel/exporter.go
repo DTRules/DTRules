@@ -124,6 +124,19 @@ func (e *Exporter) ExportDecisionTablesOwnedBy(filename string) (int, error) {
 			return 0, fmt.Errorf("failed to write table %s: %w", dt.GetName(), err)
 		}
 	}
+
+	// The workbook's own entities go back with its tables. Writing decision
+	// tables alone deleted the EDD sheet from every workbook that carried one,
+	// on every authoring write -- and Excel is the system of record, so that
+	// deleted the dictionary from the record. The next build then imported a
+	// workbook with no types and compiled the DSL untyped, turning `f<` into
+	// `<`: two fixed-point amounts compared as integers (#1094).
+	if ents := e.entitiesOwnedBy(filename); len(ents) > 0 {
+		if err := e.writeEDDSheet(f, styler, "EDD", ents); err != nil {
+			return 0, fmt.Errorf("failed to write EDD sheet: %w", err)
+		}
+	}
+
 	if len(f.GetSheetList()) > 1 {
 		f.DeleteSheet(defaultSheet)
 	}
@@ -362,9 +375,8 @@ func (e *Exporter) ExportCombinedWorkbook(filename string) error {
 		}
 	}
 
-	entities := e.ruleSet.GetEntityFactory().GetRefEntities()
-	if len(entities) > 0 {
-		if err := e.writeEDDSheet(f, styler, "EDD"); err != nil {
+	if entities := e.allEntities(); len(entities) > 0 {
+		if err := e.writeEDDSheet(f, styler, "EDD", entities); err != nil {
 			return fmt.Errorf("failed to write EDD sheet: %w", err)
 		}
 	}
@@ -380,7 +392,9 @@ func (e *Exporter) ExportCombinedWorkbook(filename string) error {
 // writeEDDSheet writes the EDD data to a sheet in an existing workbook.
 // Row 1 carries the "EDD: EDD" type marker so mixed-workbook importers can
 // detect sheet type from A1 without relying on the sheet name.
-func (e *Exporter) writeEDDSheet(f *excelize.File, styler *Styler, sheetName string) error {
+// writeEDDSheet adds an EDD sheet holding the given entities. Callers that
+// want the whole dictionary pass e.allEntities().
+func (e *Exporter) writeEDDSheet(f *excelize.File, styler *Styler, sheetName string, entities []*entity.REntity) error {
 	_, err := f.NewSheet(sheetName)
 	if err != nil {
 		return err
@@ -400,14 +414,37 @@ func (e *Exporter) writeEDDSheet(f *excelize.File, styler *Styler, sheetName str
 	e.writeEDDHeaders(f, sheetName, styler, 2)
 	FreezePaneAtRow3(f, sheetName)
 
+	e.writeEDDEntities(f, sheetName, entities, styler, eddStyles, 3)
+
+	return nil
+}
+
+// allEntities is every entity in the rule set, in name order.
+func (e *Exporter) allEntities() []*entity.REntity {
 	entities := e.ruleSet.GetEntityFactory().GetRefEntities()
 	sort.Slice(entities, func(i, j int) bool {
 		return entities[i].GetName().StringValue() < entities[j].GetName().StringValue()
 	})
+	return entities
+}
 
-	e.writeEDDEntities(f, sheetName, entities, styler, eddStyles, 3)
-
-	return nil
+// entitiesOwnedBy is the entities whose workbook is filename, in name order.
+//
+// Deliberately GetXlsFile and not GetFilePath: the latter prefers the EDD's
+// own file identity ("CHIP_edd", from <file_metadata><file_path>) and falls
+// back to the workbook only when that is absent. That is the right answer for
+// ExportEDDToDir, which names output files after the EDD, and the wrong one
+// here, where the question is which workbook an entity belongs in. Matching on
+// it silently found nothing and the EDD sheet went on being dropped.
+func (e *Exporter) entitiesOwnedBy(filename string) []*entity.REntity {
+	want := workbookKey(filename)
+	var owned []*entity.REntity
+	for _, ent := range e.allEntities() {
+		if workbookKey(ent.GetXlsFile()) == want {
+			owned = append(owned, ent)
+		}
+	}
+	return owned
 }
 
 // ExportEDDToDir exports entities grouped by xls_file to a directory.
