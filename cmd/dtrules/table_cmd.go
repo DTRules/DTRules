@@ -286,11 +286,31 @@ func (ctx *tableCmdCtx) openProject() (*authoring.Project, int) {
 	// know whether to bypass the Excel-mtime guard for this command.
 	p.OverwriteExcel = ctx.forceOverwriteExcel
 
-	// A project may hold many EDD files; the Project works on one. Naming it
-	// is the caller's job, and a project with several refuses rather than
-	// silently taking the first (#1099).
-	if err := selectEDD(p, ctx.eddFile); err != nil {
-		return nil, emitErr(ctx.stderr, 1, "ambiguous_edd", "", "pass --edd-file <name>", err.Error())
+	// Honour --edd-file when given. Requiring a choice is the EDD commands'
+	// business, not every command's: `table get` works on decision tables and
+	// does not care which EDD is loaded, and demanding --edd-file from it
+	// broke `dtrules table` outright on the one project with several.
+	if ctx.eddFile != "" {
+		if err := p.UseEDDFile(ctx.eddFile); err != nil {
+			return nil, emitErr(ctx.stderr, 1, "io_error", "", "check the path", err.Error())
+		}
+	}
+	return p, 0
+}
+
+// openProjectForEDD is openProject for the commands that read or write the
+// EDD, where which file is being operated on is the whole question. A project
+// with several and no --edd-file is refused rather than silently served the
+// first (#1099).
+func (ctx *tableCmdCtx) openProjectForEDD() (*authoring.Project, int) {
+	p, code := ctx.openProject()
+	if code != 0 {
+		return nil, code
+	}
+	if ctx.eddFile == "" {
+		if err := selectEDD(p, ""); err != nil {
+			return nil, emitErr(ctx.stderr, 1, "ambiguous_edd", "", "pass --edd-file <name>", err.Error())
+		}
 	}
 	return p, 0
 }
@@ -528,7 +548,7 @@ func (ctx *tableCmdCtx) tableSchema(rest []string) int {
 // --- EDD handlers ---
 
 func (ctx *tableCmdCtx) eddGet() int {
-	p, code := ctx.openProject()
+	p, code := ctx.openProjectForEDD()
 	if code != 0 {
 		return code
 	}
@@ -539,7 +559,7 @@ func (ctx *tableCmdCtx) eddGet() int {
 }
 
 func (ctx *tableCmdCtx) eddPut() int {
-	p, code := ctx.openProject()
+	p, code := ctx.openProjectForEDD()
 	if code != 0 {
 		return code
 	}
@@ -557,7 +577,7 @@ func (ctx *tableCmdCtx) eddPut() int {
 }
 
 func (ctx *tableCmdCtx) eddPatch() int {
-	p, code := ctx.openProject()
+	p, code := ctx.openProjectForEDD()
 	if code != 0 {
 		return code
 	}
