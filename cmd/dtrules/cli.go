@@ -117,6 +117,8 @@ func (c *CLI) Run(args []string) int {
 		return c.runDocs(cmdArgs)
 	case "table":
 		return c.runTable(cmdArgs)
+	case "map":
+		return c.runMap(cmdArgs)
 	case "edd":
 		return c.runEDD(cmdArgs)
 	case "mcp":
