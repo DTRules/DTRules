@@ -29,14 +29,14 @@ import (
 
 // EDDXML represents the root EDD structure for XML output
 type EDDXML struct {
-	XMLName  xml.Name       `xml:"entity_data_dictionary"`
-	Version  string         `xml:"version,attr"`
+	XMLName xml.Name `xml:"entity_data_dictionary"`
+	Version string   `xml:"version,attr"`
 	// FileMetadata carries the <file_path> marker the directory loader
 	// uses to distinguish a real multi-entity EDD from a legacy merged
 	// artifact (which it skips). Losing it on an Excel round-trip made
 	// the loader silently skip the regenerated EDD.
 	FileMetadata *EDDFileMetadata `xml:"file_metadata,omitempty"`
-	Entities []*EDDXMLEntity `xml:"entity"`
+	Entities     []*EDDXMLEntity  `xml:"entity"`
 }
 
 // EDDFileMetadata mirrors the loader's <file_metadata> block.
@@ -46,16 +46,16 @@ type EDDFileMetadata struct {
 
 // EDDXMLEntity represents an entity in the EDD XML
 type EDDXMLEntity struct {
-	Name    string          `xml:"name,attr"`
+	Name string `xml:"name,attr"`
 	// Number orders entities like TABLE_NUMBER orders decision tables.
 	// Optional in authored XML; WriteXML backfills missing numbers in
 	// increments of 100 so every emitted EDD is fully numbered.
-	Number  string          `xml:"number,attr,omitempty"`
-	XlsFile string          `xml:"xls_file,attr,omitempty"`
-	Access  string          `xml:"access,attr"`
-	Comment string          `xml:"comment,attr,omitempty"`
-	Source  *SourceXML      `xml:"source,omitempty"`
-	Fields  []*EDDXMLField  `xml:"field"`
+	Number  string         `xml:"number,attr,omitempty"`
+	XlsFile string         `xml:"xls_file,attr,omitempty"`
+	Access  string         `xml:"access,attr"`
+	Comment string         `xml:"comment,attr,omitempty"`
+	Source  *SourceXML     `xml:"source,omitempty"`
+	Fields  []*EDDXMLField `xml:"field"`
 }
 
 // EDDXMLField represents a field in the EDD XML
@@ -359,6 +359,15 @@ func (i *EDDImporter) WriteXML(edd *EDDXML, filename string) error {
 		base := strings.TrimSuffix(filepath.Base(filename), filepath.Ext(filename))
 		edd.FileMetadata = &EDDFileMetadata{FilePath: base}
 	}
+	// An entity declared in X_edd.xml belongs in X.xlsx unless it says
+	// otherwise. That pairing is not a guess -- it is the one the sync layer
+	// already uses to match an EDD file to its workbook.
+	//
+	// Without it, an entity created through the authoring API has no xls_file,
+	// so nothing claims its workbook and the refresh writes no EDD sheet for
+	// it. The definitions then live only in XML, which is the wrong way round:
+	// Excel is the system of record (#1094).
+	backfillEntityWorkbook(edd, filename)
 	normalizeEntityNumbers(edd)
 
 	output, err := xml.MarshalIndent(edd, "", "\t")
@@ -649,4 +658,23 @@ func MergeEDD(edds ...*EDDXML) *EDDXML {
 	}
 
 	return result
+}
+
+// backfillEntityWorkbook gives every entity without an xls_file the workbook
+// paired with the EDD file it is being written to: X_edd.xml -> X.xlsx.
+//
+// Entities that already name a workbook keep it, so a project that
+// deliberately groups entities elsewhere is untouched.
+func backfillEntityWorkbook(edd *EDDXML, filename string) {
+	base := strings.TrimSuffix(filepath.Base(filename), filepath.Ext(filename))
+	base = strings.TrimSuffix(base, "_edd")
+	if base == "" {
+		return
+	}
+	workbook := base + ".xlsx"
+	for _, ent := range edd.Entities {
+		if ent != nil && strings.TrimSpace(ent.XlsFile) == "" {
+			ent.XlsFile = workbook
+		}
+	}
 }
