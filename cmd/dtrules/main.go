@@ -85,6 +85,7 @@ var subcommands = map[string]bool{
 	"docs":     true,
 	"table":    true,
 	"edd":      true,
+	"map":      true,
 	"mcp":      true,
 	"project":  true,
 	"edit":     true,
