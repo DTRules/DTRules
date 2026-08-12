@@ -44,6 +44,17 @@ type xmlFileInfo struct {
 	SuspectMerged bool
 }
 
+// SkipRuleFile reports whether a path is one the loader must not treat as
+// rules: a template, a mapping file, test data, or a schema.
+//
+// Exported because more than one place walks a project's XML. The Excel export
+// loader had its own walk with no filter, so TaxReturn's TEMPLATE_edd.xml was
+// loaded as a real dictionary and its six `xx_*` placeholders -- comments
+// reading "[STATE] tax bracket 1 upper limit" -- became fields on the shared
+// `result` entity, then landed in whichever workbook won the entity merge
+// (#1109). One rule about what counts as a rule file, in one place.
+func SkipRuleFile(path string) bool { return shouldSkipFile(path) }
+
 // shouldSkipFile determines if a file should be skipped during collection.
 func shouldSkipFile(path string) bool {
 	filename := filepath.Base(path)

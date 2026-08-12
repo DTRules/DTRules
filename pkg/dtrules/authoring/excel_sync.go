@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
+	"github.com/DTRules/DTRules/pkg/dtrules/loader"
 	"github.com/DTRules/DTRules/pkg/dtrules/session"
 	"github.com/DTRules/DTRules/pkg/dtrules/sync"
 )
@@ -237,7 +238,7 @@ func loadRuleSetForExportInDir(xmlDir string) (*session.RuleSet, error) {
 		if err != nil || d.IsDir() {
 			return nil
 		}
-		if strings.HasSuffix(d.Name(), "_edd.xml") {
+		if strings.HasSuffix(d.Name(), "_edd.xml") && !loader.SkipRuleFile(p) {
 			eddPaths = append(eddPaths, p)
 		}
 		return nil
@@ -264,7 +265,7 @@ func loadRuleSetForExportInDir(xmlDir string) (*session.RuleSet, error) {
 			return nil
 		}
 		// _dt.xml only; skip _edd.xml (already loaded) and _map.xml.
-		if len(name) >= 7 && name[len(name)-7:] == "_dt.xml" {
+		if len(name) >= 7 && name[len(name)-7:] == "_dt.xml" && !loader.SkipRuleFile(p) {
 			dtPaths = append(dtPaths, p)
 		}
 		return nil

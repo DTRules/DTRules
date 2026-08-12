@@ -11,5 +11,11 @@
 		</source>
 		<field name="wy_has_income_tax" type="boolean" subtype="" access="r" input="" default_value="false" comment="WY has no state income tax (2025)"></field>
 		<field name="wy_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="WY state income tax rate - 0.0 (no income tax)"></field>
+		<field name="xx_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="0.0" comment="[STATE] tax bracket 1 upper limit (2025)"></field>
+		<field name="xx_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="[STATE] tax rate for bracket 1 (2025)"></field>
+		<field name="xx_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="0.0" comment="[STATE] standard deduction head of household (2025)"></field>
+		<field name="xx_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="0.0" comment="[STATE] standard deduction married filing jointly (2025)"></field>
+		<field name="xx_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="0.0" comment="[STATE] standard deduction single (2025)"></field>
+		<field name="xx_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="[STATE] tax rate (2025)"></field>
 	</entity>
 </entity_data_dictionary>

@@ -1043,7 +1043,6 @@
 		<field name="il_agi" type="double" subtype="" access="rw" input="" default_value="0" comment="Illinois AGI (federal AGI + adjustments)"></field>
 		<field name="il_exemption_total" type="double" subtype="" access="rw" input="" default_value="0" comment="Total IL personal exemptions"></field>
 		<field name="il_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Illinois state income tax"></field>
-		<field name="il_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Illinois taxable income"></field>
 		<field name="ira_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Traditional IRA deduction (Schedule 1 Line 20)"></field>
 		<field name="is_disaster_loss" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Loss from federally declared disaster"></field>
 		<field name="lihtc_recapture_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="LIHTC recapture tax (Form 8611)"></field>
@@ -1104,7 +1103,6 @@
 		<field name="savers_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Saver Credit (Form 8880)"></field>
 		<field name="savers_credit_rate" type="double" subtype="" access="rw" input="" default_value="0" comment="Saver Credit rate (0.50, 0.20, 0.10, or 0)"></field>
 		<field name="sc_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="South Carolina state income tax"></field>
-		<field name="sc_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="South Carolina taxable income"></field>
 		<field name="schedule_h_futa_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="FUTA tax on household employees (Schedule H)"></field>
 		<field name="schedule_h_medicare_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Medicare tax on household employees (Schedule H)"></field>
 		<field name="schedule_h_social_security_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Social Security tax on household employees (Schedule H)"></field>
@@ -1119,6 +1117,7 @@
 		<field name="small_employer_pension_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Small Employer Pension Plan Startup Credit (Form 8881)"></field>
 		<field name="ss_taxable_percentage" type="double" subtype="" access="rw" input="" default_value="0" comment="0, 0.50, or 0.85 SS taxable rate"></field>
 		<field name="standard_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Standard deduction amount"></field>
+		<field name="state_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="State income tax liability, read by the federal summary. Was declared by IL and MI separately, so whichever EDD won the merge decided its comment and the other file lost the field on rebuild (#1109). The core reads it, so the core declares it."></field>
 		<field name="state_tax_refund" type="double" subtype="" access="rw" input="main" default_value="0" comment="State tax refund (Form 1040 Line 1). Source: IRC 111"></field>
 		<field name="student_loan_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Student loan interest deduction (Schedule 1 Line 21)"></field>
 		<field name="suspended_passive_loss" type="double" subtype="" access="rw" input="" default_value="0" comment="Suspended passive loss carryforward"></field>

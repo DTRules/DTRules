@@ -17,6 +17,6 @@
 		<field name="sc_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="23625" comment="SC standard deduction head of household (2025)"></field>
 		<field name="sc_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="31500" comment="SC standard deduction married filing jointly (2025)"></field>
 		<field name="sc_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="15750" comment="SC standard deduction single (2025)"></field>
-		<field name="sc_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="SC taxable income after standard deduction"></field>
+		<field name="sc_taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="SC taxable income after standard deduction. Declared access=r while SC_dt.xml writes it; the core EDD declared the same field rw and won the merge, which is what made it work (#1109)."></field>
 	</entity>
 </entity_data_dictionary>

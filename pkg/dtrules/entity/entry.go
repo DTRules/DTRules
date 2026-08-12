@@ -55,6 +55,24 @@ type EntityEntry struct {
 	Input        string         // Mapping sources that populate this attribute
 	Output       string         // Entries to auto-update in source objects
 
+	// SourceXlsFile is the workbook whose EDD declared this field.
+	//
+	// An entity is one thing at run time but may be declared in many files:
+	// TaxReturn has 50 state EDDs that each add fields to the shared `result`,
+	// and each names its own workbook. Those merge into one REntity, which can
+	// hold only one xls_file — so 49 of the 50 workbooks were claimed by no
+	// entity, and an Excel refresh wrote them with their decision tables and no
+	// EDD sheet at all, deleting the dictionary from the system of record
+	// (#1109).
+	//
+	// Recording the declaring workbook per field is what lets an export give
+	// each workbook back exactly the fields its own EDD declared, so the round
+	// trip through Excel reproduces the file it came from.
+	//
+	// Empty for fields created by paths that record no source — synthesized
+	// entries, and any EDD whose entity declares no xls_file.
+	SourceXlsFile string
+
 	// Collect marks a field whose value is asked of the user rather than
 	// taken from its default (#850). This is static metadata shared across
 	// all instances of the entity (correct: the question is the same for
