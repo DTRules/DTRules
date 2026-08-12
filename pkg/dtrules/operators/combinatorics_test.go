@@ -382,6 +382,72 @@ func TestSuffixesEmitsTrailingWindowsLongestFirst(t *testing.T) {
 	}
 }
 
+// TestSuffixesMembersPreserveSourceOrder: members must arrive in lay order,
+// not sorted — the emission-order contract covers the windows, this covers
+// the cards inside one. A table (or a later op) reading members[i] must see
+// the sequence as it happened.
+func TestSuffixesMembersPreserveSourceOrder(t *testing.T) {
+	h := newCombHarness(t)
+	src := h.cards(t, 9, 4, 6, 5)
+	dest := h.emptyArray(t)
+	if err := h.exec(t, "suffixes", src, dtrules.GetRIntegerValue(2), str("rank"), str("combo"), dest); err != nil {
+		t.Fatalf("suffixes: %v", err)
+	}
+	elems, _ := dest.ArrayValue()
+	longest, _ := elems[0].REntityValue()
+	membersObj, _ := longest.Get(dtrules.GetRName("members"))
+	members, _ := membersObj.ArrayValue()
+	wantRanks := []int{9, 4, 6, 5}
+	for i, m := range members {
+		if got := intAttr(t, m, "rank"); got != wantRanks[i] {
+			t.Errorf("members[%d].rank = %d, want %d (source order)", i, got, wantRanks[i])
+		}
+	}
+}
+
+// TestSuffixesMinlenOneAndPerWindowSums: minlen 1 includes the singleton
+// window, and every window's sum is over exactly its own members.
+func TestSuffixesMinlenOneAndPerWindowSums(t *testing.T) {
+	h := newCombHarness(t)
+	src := h.cards(t, 3, 7, 10)
+	dest := h.emptyArray(t)
+	if err := h.exec(t, "suffixes", src, dtrules.GetRIntegerValue(1), str("value"), str("combo"), dest); err != nil {
+		t.Fatalf("suffixes: %v", err)
+	}
+	elems, _ := dest.ArrayValue()
+	if len(elems) != 3 {
+		t.Fatalf("minlen 1 over 3 cards: got %d windows, want 3", len(elems))
+	}
+	wantSums := []int{20, 17, 10} // [3,7,10], [7,10], [10]
+	for i, want := range wantSums {
+		if got := intAttr(t, elems[i], "sum"); got != want {
+			t.Errorf("window %d sum = %d, want %d", i, got, want)
+		}
+	}
+}
+
+// TestSuffixesCap: the family contract (#980) — a clear error, never an OOM.
+func TestSuffixesCap(t *testing.T) {
+	h := newCombHarness(t)
+	big := make([]int, 65)
+	for i := range big {
+		big[i] = i%13 + 1
+	}
+	err := h.exec(t, "suffixes", h.cards(t, big...), dtrules.GetRIntegerValue(2), str("rank"), str("combo"), h.emptyArray(t))
+	if err == nil || !strings.Contains(err.Error(), "cap") {
+		t.Errorf("expected cap error for 65 elements, got %v", err)
+	}
+
+	// 64 exactly is allowed: 63 windows at minlen 2.
+	dest := h.emptyArray(t)
+	if err := h.exec(t, "suffixes", h.cards(t, big[:64]...), dtrules.GetRIntegerValue(2), str("rank"), str("combo"), dest); err != nil {
+		t.Fatalf("suffixes at the cap: %v", err)
+	}
+	if dest.Size() != 63 {
+		t.Errorf("64 elements at minlen 2: got %d windows, want 63", dest.Size())
+	}
+}
+
 func TestSuffixesPairAndBrokenPairShapes(t *testing.T) {
 	h := newCombHarness(t)
 

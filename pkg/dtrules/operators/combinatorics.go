@@ -49,6 +49,12 @@ const subsetsCap = 12
 // combinationsCap bounds opCombinations' source size.
 const combinationsCap = 20
 
+// suffixesCap bounds opSuffixes' source size. Windows are linear in count
+// but quadratic in total members (n windows share O(n²) member slots), and
+// the family contract (#980) is a clear error, never an OOM. Pegging stacks
+// peak at 13 cards; 64 leaves room for temporal streams like month series.
+const suffixesCap = 64
+
 // popEntityArray pops an object and unwraps it to a data-form RArray whose
 // elements are all entities, returned alongside the raw array.
 func popEntityArray(state dtrules.State, op string) (*dtrules.RArray, []dtrules.Entity, error) {
@@ -461,6 +467,9 @@ func opSuffixes(state dtrules.State) error {
 	_, ents, err := popEntityArray(state, op)
 	if err != nil {
 		return err
+	}
+	if len(ents) > suffixesCap {
+		return fmt.Errorf("%s: source has %d elements; the cap is %d", op, len(ents), suffixesCap)
 	}
 
 	fieldName := dtrules.GetRName(statField)

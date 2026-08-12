@@ -1847,6 +1847,7 @@ the table. All four are statement-form operator calls (#980).
         and a trailing pair block iff distinct == 1. The longest-first
         order is part of the contract — "longest run only" policies
         read as "the first qualifying window" behind a zero-guard.
+        Source cap: 64.
 
 Example — cribbage fifteens, pairs, and runs from decision tables:
 
