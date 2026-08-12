@@ -59,7 +59,7 @@ result.agi ca_standard_deduction_single f- 0.0 fmax cvd /result.ca_taxable_incom
 <action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
 <action_dsl>set result.computed_state_taxable_income = result.ca_taxable_income; set result.computed_state_tax = result.ca_state_tax</action_dsl>
 <action_postfix>
-result.ca_taxable_income cvi /result.computed_state_taxable_income xdef result.ca_state_tax cvi /result.computed_state_tax xdef
+result.ca_taxable_income cvd /result.computed_state_taxable_income xdef result.ca_state_tax cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>XX</columns>
 </action_details>

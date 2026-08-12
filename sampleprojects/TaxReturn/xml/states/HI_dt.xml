@@ -20,7 +20,7 @@
 <initial_action>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  Hawaii Tax Calculation (top marginal 11.0%)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef "  Hawaii Tax Calculation (top marginal 11.0%)" job.audit_trail swap addto
+0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  Hawaii Tax Calculation (top marginal 11.0%)" job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -50,7 +50,7 @@ job.filing_status "HOH" streq
 <action_comment>MFJ/QSS: $4,400 std ded, 11%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 4400.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.11</action_dsl>
 <action_postfix>
-result.agi 4400.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.11 fmul cvi /result.computed_state_tax xdef
+result.agi 4400.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.11 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
@@ -59,7 +59,7 @@ result.agi 4400.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef res
 <action_comment>HOH: $3,212 std ded, 11%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 3212.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.11</action_dsl>
 <action_postfix>
-result.agi 3212.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.11 fmul cvi /result.computed_state_tax xdef
+result.agi 3212.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.11 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
@@ -68,7 +68,7 @@ result.agi 3212.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef res
 <action_comment>Default (Single/MFS): $2,200 std ded, 11%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 2200.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.11</action_dsl>
 <action_postfix>
-result.agi 2200.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.11 fmul cvi /result.computed_state_tax xdef
+result.agi 2200.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.11 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>

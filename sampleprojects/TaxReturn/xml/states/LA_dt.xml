@@ -34,7 +34,7 @@ job.filing_status "married_filing_jointly" streq { pop job.filing_status "head_o
 <action_comment>Calculate LA tax with joint/HOH standard deduction</action_comment>
 <action_dsl>set result.la_standard_deduction = la_standard_deduction_joint; set result.la_taxable_income = the maximum of (result.agi - result.la_standard_deduction) and 0.0; set result.la_tax = result.la_taxable_income * la_tax_rate; add "  LA flat tax (3%, MFJ/HOH std deduction): $" + result.la_tax to job.audit_trail</action_dsl>
 <action_postfix>
-la_standard_deduction_joint cvi /result.la_standard_deduction xdef result.agi result.la_standard_deduction - 0.0 fmax cvi /result.la_taxable_income xdef result.la_taxable_income la_tax_rate fmul cvi /result.la_tax xdef "  LA flat tax (3%, MFJ/HOH std deduction): $" result.la_tax strconcat job.audit_trail swap addto
+la_standard_deduction_joint cvi /result.la_standard_deduction xdef result.agi result.la_standard_deduction f- 0.0 fmax cvi /result.la_taxable_income xdef result.la_taxable_income la_tax_rate fmul cvi /result.la_tax xdef "  LA flat tax (3%, MFJ/HOH std deduction): $" result.la_tax strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>--</columns>
 </action_details>

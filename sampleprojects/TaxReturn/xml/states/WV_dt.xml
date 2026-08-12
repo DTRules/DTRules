@@ -20,7 +20,7 @@
 <initial_action>
 <initial_action_dsl>set result.computed_state_tax = 0; set result.computed_state_taxable_income = 0; add "  West Virginia Tax Calculation (top marginal 4.82%)" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvi /result.computed_state_tax xdef 0 cvi /result.computed_state_taxable_income xdef "  West Virginia Tax Calculation (top marginal 4.82%)" job.audit_trail swap addto
+0 cvd /result.computed_state_tax xdef 0 cvd /result.computed_state_taxable_income xdef "  West Virginia Tax Calculation (top marginal 4.82%)" job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -41,7 +41,7 @@ true
 <action_comment>WV tax = max(AGI - $0, 0) x 4.82%</action_comment>
 <action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 0.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0482</action_dsl>
 <action_postfix>
-result.agi 0.0 f- 0.0 fmax cvi /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0482 fmul cvi /result.computed_state_tax xdef
+result.agi 0.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0482 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
