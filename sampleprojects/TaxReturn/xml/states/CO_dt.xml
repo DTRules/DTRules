@@ -121,7 +121,7 @@ result.agi 0.0 fmax cvd /result.co_taxable_income xdef result.co_taxable_income 
 <action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
 <action_dsl>set result.computed_state_taxable_income = result.co_taxable_income; set result.computed_state_tax = result.co_tax</action_dsl>
 <action_postfix>
-result.co_taxable_income cvi /result.computed_state_taxable_income xdef result.co_tax cvi /result.computed_state_tax xdef
+result.co_taxable_income cvd /result.computed_state_taxable_income xdef result.co_tax cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>

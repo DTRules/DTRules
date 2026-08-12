@@ -1716,6 +1716,20 @@ var numericDowngrades = map[string]struct{ to, meaning string }{
 	"f>=": {">=", "fixed-point comparison became integer"},
 	"f==": {"==", "fixed-point equality became integer"},
 	"f!=": {"!=", "fixed-point inequality became integer"},
+
+	// Doubles, the other numeric family. The fixed-point rows above were added
+	// when `f<` turned into `<`; the arithmetic on the same values was left
+	// out, so a rebuild that turned `apportionment.state_credits f-` into `-`
+	// and `cvd` into `cvi` -- money subtracted and stored as whole units --
+	// reported nothing at all and exited 0. CorporateTax has five state files
+	// carrying that form today and 26 carrying the correct one, which is what
+	// a silent downgrade looks like after a few rebuilds (#1094).
+	"f+":   {"+", "double add became integer"},
+	"f-":   {"-", "double subtract became integer"},
+	"fmul": {"*", "double multiply became integer"},
+	"f/":   {"/", "double division became integer"},
+	"fdiv": {"/", "double division became integer"},
+	"cvd":  {"cvi", "value stored as integer instead of double"},
 }
 
 // warnNumericDowngrade reports a recompile that silently weakens arithmetic.

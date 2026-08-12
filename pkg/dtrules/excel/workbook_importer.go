@@ -37,6 +37,10 @@ type WorkbookImporter struct {
 	eddImporter *EDDImporter
 	verbose     bool
 	stats       *ImportStats // accumulated stats across all ImportWorkbookToDir calls
+	// projectSymbols is every EDD in the project, field→type. Held so each
+	// workbook's own EDD can be layered over a clean copy of it rather than
+	// replacing it for the rest of the run.
+	projectSymbols map[string]string
 }
 
 // NewWorkbookImporter creates a new workbook importer.
@@ -77,10 +81,42 @@ func (w *WorkbookImporter) SetELCompiler(c ELCompiler) {
 // SetSymbols seeds the inner DT importer with a project-wide EDD field→type
 // map so the EL compiler types operands correctly even when a decision table
 // lives in a different workbook than its EDD (multi-file projects). A workbook
-// that carries its own EDD still overrides these per-workbook during import;
-// DT-only workbooks fall back to this project-wide map.
+// that carries its own EDD layers its entities over these during import;
+// DT-only workbooks use this project-wide map as-is.
+//
+// The map is kept here as well as handed down, because the per-workbook layer
+// is rebuilt from it for each workbook rather than written over it.
 func (w *WorkbookImporter) SetSymbols(symbols map[string]string) {
+	w.projectSymbols = symbols
 	w.dtImporter.SetSymbols(symbols)
+}
+
+// symbolsFor layers one workbook's own EDD over the project-wide map.
+//
+// This used to replace the project map outright, which broke multi-file
+// projects in both directions. A workbook's tables could only see the entities
+// declared in that same workbook, so a state table reading the shared
+// `apportionment` entity -- declared in the core workbook -- found no type for
+// it and compiled money as integers: `f-` became `-` and `cvd` became `cvi`,
+// silently. And because one importer is reused for every workbook in the
+// build loop with no save/restore, the replacement leaked forward: a DT-only
+// workbook inherited whichever EDD happened to be imported before it.
+//
+// The workbook's own declarations still win, which is what "overrides" was
+// reaching for -- an entity is defined by the EDD it ships with.
+func (w *WorkbookImporter) symbolsFor(edd *EDDXML) map[string]string {
+	own := EDDSymbols(edd)
+	if len(own) == 0 {
+		return w.projectSymbols
+	}
+	merged := make(map[string]string, len(w.projectSymbols)+len(own))
+	for k, v := range w.projectSymbols {
+		merged[k] = v
+	}
+	for k, v := range own {
+		merged[k] = v
+	}
+	return merged
 }
 
 // ImportWorkbook reads a single Excel file and extracts both DT and EDD sheets.
@@ -192,8 +228,9 @@ func (w *WorkbookImporter) importWorkbookWithSource(excelPath, xlsFile, relPath 
 	// Without this, double/fixed fields compile as integers — e.g. a Cockcroft
 	// -Gault "(140 - age) * weight / (pcr * 72)" emits integer ops and cvi,
 	// silently truncating the result to 0. Combined workbooks carry their EDD
-	// in the same file (parsed above), so the symbols are available here.
-	if symbols := EDDSymbols(result.EDD); len(symbols) > 0 {
+	// in the same file (parsed above), so the symbols are available here; the
+	// rest of the project's entities come from the project-wide map.
+	if symbols := w.symbolsFor(result.EDD); len(symbols) > 0 {
 		w.dtImporter.SetSymbols(symbols)
 	}
 

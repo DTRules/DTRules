@@ -72,7 +72,7 @@ job.state "SC" streq
 <action_comment>No SC tax for non-residents</action_comment>
 <action_dsl>set result.sc_state_tax = 0</action_dsl>
 <action_postfix>
-0 cvi /result.sc_state_tax xdef
+0 cvd /result.sc_state_tax xdef
 </action_postfix>
 <columns>-X</columns>
 </action_details>
@@ -81,7 +81,7 @@ job.state "SC" streq
 <action_comment>Publish state result to the generic computed_state_tax fields</action_comment>
 <action_dsl>set result.computed_state_taxable_income = result.sc_taxable_income; set result.computed_state_tax = result.sc_state_tax</action_dsl>
 <action_postfix>
-result.sc_taxable_income cvi /result.computed_state_taxable_income xdef result.sc_state_tax cvi /result.computed_state_tax xdef
+result.sc_taxable_income cvd /result.computed_state_taxable_income xdef result.sc_state_tax cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>XX</columns>
 </action_details>
@@ -211,7 +211,7 @@ result.sc_taxable_income 0 f&lt;=
 <action_comment>Bracket 1 tax (0%); set result.sc_state_tax = 0 (below $3,560)</action_comment>
 <action_dsl>set result.sc_state_tax = 0</action_dsl>
 <action_postfix>
-0 cvi /result.sc_state_tax xdef
+0 cvd /result.sc_state_tax xdef
 </action_postfix>
 <columns>X---</columns>
 </action_details>
@@ -220,7 +220,7 @@ result.sc_taxable_income 0 f&lt;=
 <action_comment>Bracket 2 tax (3%); set result.sc_state_tax = (income - $3,560) * 3%</action_comment>
 <action_dsl>set result.sc_state_tax = (result.sc_taxable_income - sc_bracket_1_limit) * sc_bracket_2_rate</action_dsl>
 <action_postfix>
-result.sc_taxable_income sc_bracket_1_limit f- sc_bracket_2_rate fmul cvi /result.sc_state_tax xdef
+result.sc_taxable_income sc_bracket_1_limit f- sc_bracket_2_rate fmul cvd /result.sc_state_tax xdef
 </action_postfix>
 <columns>-X--</columns>
 </action_details>
@@ -229,7 +229,7 @@ result.sc_taxable_income sc_bracket_1_limit f- sc_bracket_2_rate fmul cvi /resul
 <action_comment>Bracket 3 tax (6%); set result.sc_state_tax = $428.10 + (income - $17,830) * 6%</action_comment>
 <action_dsl>set result.sc_state_tax = (sc_bracket_2_limit - sc_bracket_1_limit) * sc_bracket_2_rate + (result.sc_taxable_income - sc_bracket_2_limit) * sc_bracket_3_rate</action_dsl>
 <action_postfix>
-sc_bracket_2_limit sc_bracket_1_limit f- sc_bracket_2_rate fmul result.sc_taxable_income sc_bracket_2_limit f- sc_bracket_3_rate fmul f+ cvi /result.sc_state_tax xdef
+sc_bracket_2_limit sc_bracket_1_limit f- sc_bracket_2_rate fmul result.sc_taxable_income sc_bracket_2_limit f- sc_bracket_3_rate fmul f+ cvd /result.sc_state_tax xdef
 </action_postfix>
 <columns>--X-</columns>
 </action_details>
@@ -238,7 +238,7 @@ sc_bracket_2_limit sc_bracket_1_limit f- sc_bracket_2_rate fmul result.sc_taxabl
 <action_comment>No tax (zero income)</action_comment>
 <action_dsl>set result.sc_state_tax = 0</action_dsl>
 <action_postfix>
-0 cvi /result.sc_state_tax xdef
+0 cvd /result.sc_state_tax xdef
 </action_postfix>
 <columns>---X</columns>
 </action_details>
