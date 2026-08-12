@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>FL_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="FL_corp.xlsx" access="rw">
+	<entity name="fl_apportionment" number="100" xls_file="FL_corp.xlsx" access="rw">
 		<source>
 			<relative_path>FL_corp.xlsx</relative_path>
 			<file_name>FL_corp.xlsx</file_name>
@@ -11,10 +11,6 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="FL uses single-sales factor apportionment (FL Statute § 220.15)"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="50000.0" comment="FL economic nexus gross receipts threshold - $50K (lower than typical $100K threshold)"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="FL additions: federal interest, state tax refunds included in federal income, etc."></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="FL" comment="Florida two-letter state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="FL tax credits: enterprise zone, R&amp;D, community contribution, capital investment, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="FL subtractions: municipal interest from other states, state income taxes paid, etc."></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.055" comment="FL corporate income tax rate: 5.5% flat rate (FL Statute § 220.11)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="FL economic nexus transaction count threshold - 200 transactions"></field>
 	</entity>

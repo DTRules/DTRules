@@ -39,9 +39,9 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "TX" st
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Total revenue below $1.23M no-tax-due threshold; result.tx_total_revenue &lt; result.tx_no_tax_due_threshold</condition_comment>
-<condition_dsl>result.tx_total_revenue &lt; result.tx_no_tax_due_threshold</condition_dsl>
+<condition_dsl>tx_result.total_revenue &lt; tx_result.no_tax_due_threshold</condition_dsl>
 <condition_postfix>
-result.tx_total_revenue result.tx_no_tax_due_threshold f&lt;
+tx_result.total_revenue tx_result.no_tax_due_threshold f&lt;
 </condition_postfix>
 <columns>YNN-</columns>
 </condition_details>
@@ -50,36 +50,36 @@ result.tx_total_revenue result.tx_no_tax_due_threshold f&lt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical presence but below threshold - no tax due; No tax due - total revenue below $1.23M threshold</action_comment>
-<action_dsl>set result.tx_qualifies_for_no_tax_due = true; set result.tx_franchise_tax = 0.0; set apportionment.state_tax = 0.0; add "TX franchise tax: No tax due (revenue below $1.23M threshold). Reference: TX Tax Code 171.002(d)(2)" to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.qualifies_for_no_tax_due = true; set tx_result.franchise_tax = 0.0; set apportionment.state_tax = 0.0; add "TX franchise tax: No tax due (revenue below $1.23M threshold). Reference: TX Tax Code 171.002(d)(2)" to job.audit_trail;</action_dsl>
 <action_postfix>
-true cvb /result.tx_qualifies_for_no_tax_due xdef 0.0 cvd /result.tx_franchise_tax xdef 0.0 cvi /apportionment.state_tax xdef "TX franchise tax: No tax due (revenue below $1.23M threshold). Reference: TX Tax Code 171.002(d)(2)" job.audit_trail swap addto
+true cvb /tx_result.qualifies_for_no_tax_due xdef 0.0 cvd /tx_result.franchise_tax xdef 0.0 cvd /apportionment.state_tax xdef "TX franchise tax: No tax due (revenue below $1.23M threshold). Reference: TX Tax Code 171.002(d)(2)" job.audit_trail swap addto
 </action_postfix>
 <columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Physical nexus established - franchise tax calculation required</action_comment>
-<action_dsl>set result.tx_qualifies_for_no_tax_due = false; add "TX franchise tax filing required due to physical presence. Reference: TX Tax Code 171.001" to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.qualifies_for_no_tax_due = false; add "TX franchise tax filing required due to physical presence. Reference: TX Tax Code 171.001" to job.audit_trail;</action_dsl>
 <action_postfix>
-false cvb /result.tx_qualifies_for_no_tax_due xdef "TX franchise tax filing required due to physical presence. Reference: TX Tax Code 171.001" job.audit_trail swap addto
+false cvb /tx_result.qualifies_for_no_tax_due xdef "TX franchise tax filing required due to physical presence. Reference: TX Tax Code 171.001" job.audit_trail swap addto
 </action_postfix>
 <columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Economic nexus established - franchise tax calculation required; TX franchise tax filing required due to economic nexus ($500K threshold)</action_comment>
-<action_dsl>set result.tx_qualifies_for_no_tax_due = false; add "TX franchise tax filing required due to economic nexus ($500K TX receipts). Reference: TX Tax Code 171.0001(a)(1)" to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.qualifies_for_no_tax_due = false; add "TX franchise tax filing required due to economic nexus ($500K TX receipts). Reference: TX Tax Code 171.0001(a)(1)" to job.audit_trail;</action_dsl>
 <action_postfix>
-false cvb /result.tx_qualifies_for_no_tax_due xdef "TX franchise tax filing required due to economic nexus ($500K TX receipts). Reference: TX Tax Code 171.0001(a)(1)" job.audit_trail swap addto
+false cvb /tx_result.qualifies_for_no_tax_due xdef "TX franchise tax filing required due to economic nexus ($500K TX receipts). Reference: TX Tax Code 171.0001(a)(1)" job.audit_trail swap addto
 </action_postfix>
 <columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>No nexus - no filing required; No Texas nexus - no filing requirement</action_comment>
-<action_dsl>set result.tx_qualifies_for_no_tax_due = true; set result.tx_franchise_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No TX nexus - no filing required. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.qualifies_for_no_tax_due = true; set tx_result.franchise_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No TX nexus - no filing required. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-true cvb /result.tx_qualifies_for_no_tax_due xdef 0.0 cvd /result.tx_franchise_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No TX nexus - no filing required. Any estimated payments would be refunded." job.audit_trail swap addto
+true cvb /tx_result.qualifies_for_no_tax_due xdef 0.0 cvd /tx_result.franchise_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No TX nexus - no filing required. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <columns>---X</columns>
 </action_details>
@@ -107,18 +107,18 @@ true cvb /result.tx_qualifies_for_no_tax_due xdef 0.0 cvd /result.tx_franchise_t
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus and above no-tax-due threshold; result.tx_qualifies_for_no_tax_due == false</condition_comment>
-<condition_dsl>result.tx_qualifies_for_no_tax_due == false</condition_dsl>
+<condition_dsl>tx_result.qualifies_for_no_tax_due == false</condition_dsl>
 <condition_postfix>
-result.tx_qualifies_for_no_tax_due false beq
+tx_result.qualifies_for_no_tax_due false beq
 </condition_postfix>
 <columns>NYYY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>COGS is greater than compensation</condition_comment>
-<condition_dsl>result.tx_cogs &gt; result.tx_compensation</condition_dsl>
+<condition_dsl>tx_result.cogs &gt; tx_result.compensation</condition_dsl>
 <condition_postfix>
-result.tx_cogs result.tx_compensation f&gt;
+tx_result.cogs tx_result.compensation f&gt;
 </condition_postfix>
 <columns>--YN</columns>
 </condition_details>
@@ -127,36 +127,36 @@ result.tx_cogs result.tx_compensation f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>No nexus or below threshold - deduction method not applicable; No franchise tax due - deduction method not applicable</action_comment>
-<action_dsl>set result.tx_deduction_method = "none"; set result.tx_margin_deduction = 0.0; add "No TX franchise tax due - deduction method not applicable." to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.deduction_method = "none"; set tx_result.margin_deduction = 0.0; add "No TX franchise tax due - deduction method not applicable." to job.audit_trail;</action_dsl>
 <action_postfix>
-"none" cvs /result.tx_deduction_method xdef 0.0 cvd /result.tx_margin_deduction xdef "No TX franchise tax due - deduction method not applicable." job.audit_trail swap addto
+"none" cvs /tx_result.deduction_method xdef 0.0 cvd /tx_result.margin_deduction xdef "No TX franchise tax due - deduction method not applicable." job.audit_trail swap addto
 </action_postfix>
 <columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Use 70% of revenue deduction; 70% of revenue provides largest deduction (simplified method)</action_comment>
-<action_dsl>set result.tx_deduction_method = "70_percent"; set result.tx_margin_deduction = result.tx_total_revenue * 0.70; add "TX franchise tax: Using 70% of revenue deduction method. Reference: TX Tax Code 171.1012(f)" to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.deduction_method = "70_percent"; set tx_result.margin_deduction = tx_result.total_revenue * 0.70; add "TX franchise tax: Using 70% of revenue deduction method. Reference: TX Tax Code 171.1012(f)" to job.audit_trail;</action_dsl>
 <action_postfix>
-"70_percent" cvs /result.tx_deduction_method xdef result.tx_total_revenue 0.70 fmul cvd /result.tx_margin_deduction xdef "TX franchise tax: Using 70% of revenue deduction method. Reference: TX Tax Code 171.1012(f)" job.audit_trail swap addto
+"70_percent" cvs /tx_result.deduction_method xdef tx_result.total_revenue 0.70 fmul cvd /tx_result.margin_deduction xdef "TX franchise tax: Using 70% of revenue deduction method. Reference: TX Tax Code 171.1012(f)" job.audit_trail swap addto
 </action_postfix>
 <columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Use COGS deduction</action_comment>
-<action_dsl>set result.tx_deduction_method = "cogs"; set result.tx_margin_deduction = result.tx_cogs; add "TX franchise tax: Using COGS deduction method. Reference: TX Tax Code 171.1012(i)" to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.deduction_method = "cogs"; set tx_result.margin_deduction = tx_result.cogs; add "TX franchise tax: Using COGS deduction method. Reference: TX Tax Code 171.1012(i)" to job.audit_trail;</action_dsl>
 <action_postfix>
-"cogs" cvs /result.tx_deduction_method xdef result.tx_cogs cvd /result.tx_margin_deduction xdef "TX franchise tax: Using COGS deduction method. Reference: TX Tax Code 171.1012(i)" job.audit_trail swap addto
+"cogs" cvs /tx_result.deduction_method xdef tx_result.cogs cvd /tx_result.margin_deduction xdef "TX franchise tax: Using COGS deduction method. Reference: TX Tax Code 171.1012(i)" job.audit_trail swap addto
 </action_postfix>
 <columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>Use compensation deduction</action_comment>
-<action_dsl>set result.tx_deduction_method = "compensation"; set result.tx_margin_deduction = result.tx_compensation; add "TX franchise tax: Using compensation deduction method. Reference: TX Tax Code 171.1012(f)" to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.deduction_method = "compensation"; set tx_result.margin_deduction = tx_result.compensation; add "TX franchise tax: Using compensation deduction method. Reference: TX Tax Code 171.1012(f)" to job.audit_trail;</action_dsl>
 <action_postfix>
-"compensation" cvs /result.tx_deduction_method xdef result.tx_compensation cvd /result.tx_margin_deduction xdef "TX franchise tax: Using compensation deduction method. Reference: TX Tax Code 171.1012(f)" job.audit_trail swap addto
+"compensation" cvs /tx_result.deduction_method xdef tx_result.compensation cvd /tx_result.margin_deduction xdef "TX franchise tax: Using compensation deduction method. Reference: TX Tax Code 171.1012(f)" job.audit_trail swap addto
 </action_postfix>
 <columns>---X</columns>
 </action_details>
@@ -184,18 +184,18 @@ result.tx_cogs result.tx_compensation f&gt;
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus and above no-tax-due threshold; result.tx_qualifies_for_no_tax_due == false</condition_comment>
-<condition_dsl>result.tx_qualifies_for_no_tax_due == false</condition_dsl>
+<condition_dsl>tx_result.qualifies_for_no_tax_due == false</condition_dsl>
 <condition_postfix>
-result.tx_qualifies_for_no_tax_due false beq
+tx_result.qualifies_for_no_tax_due false beq
 </condition_postfix>
 <columns>NYY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Qualifies for E-Z computation ($20M or less in revenue)</condition_comment>
-<condition_dsl>result.tx_total_revenue &lt;= 20000000.0</condition_dsl>
+<condition_dsl>tx_result.total_revenue &lt;= 20000000.0</condition_dsl>
 <condition_postfix>
-result.tx_total_revenue 20000000.0 f&lt;=
+tx_result.total_revenue 20000000.0 f&lt;=
 </condition_postfix>
 <columns>-YN</columns>
 </condition_details>
@@ -204,27 +204,27 @@ result.tx_total_revenue 20000000.0 f&lt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>No nexus or below threshold - no margin calculation; No franchise tax due - margin calculation not applicable</action_comment>
-<action_dsl>set result.tx_taxable_margin = 0.0; set result.tx_apportioned_margin = 0.0; add "No TX franchise tax due - margin calculation not applicable." to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.taxable_margin = 0.0; set tx_result.apportioned_margin = 0.0; add "No TX franchise tax due - margin calculation not applicable." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.tx_taxable_margin xdef 0.0 cvd /result.tx_apportioned_margin xdef "No TX franchise tax due - margin calculation not applicable." job.audit_trail swap addto
+0.0 cvd /tx_result.taxable_margin xdef 0.0 cvd /tx_result.apportioned_margin xdef "No TX franchise tax due - margin calculation not applicable." job.audit_trail swap addto
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>E-Z Computation option available; Calculate margin - E-Z computation available ($20M or less)</action_comment>
-<action_dsl>set result.tx_qualifies_for_ez_computation = true; set result.tx_taxable_margin = the maximum of (result.tx_total_revenue - result.tx_margin_deduction) and (0.0); set result.tx_apportioned_margin = result.tx_taxable_margin * apportionment.apportionment_factor; add "TX margin calculated. E-Z computation available. Reference: TX Tax Code 171.1016" to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.qualifies_for_ez_computation = true; set tx_result.taxable_margin = the maximum of (tx_result.total_revenue - tx_result.margin_deduction) and (0.0); set tx_result.apportioned_margin = tx_result.taxable_margin * apportionment.apportionment_factor; add "TX margin calculated. E-Z computation available. Reference: TX Tax Code 171.1016" to job.audit_trail;</action_dsl>
 <action_postfix>
-true cvb /result.tx_qualifies_for_ez_computation xdef result.tx_total_revenue result.tx_margin_deduction f- 0.0 fmax cvd /result.tx_taxable_margin xdef result.tx_taxable_margin apportionment.apportionment_factor fmul cvd /result.tx_apportioned_margin xdef "TX margin calculated. E-Z computation available. Reference: TX Tax Code 171.1016" job.audit_trail swap addto
+true cvb /tx_result.qualifies_for_ez_computation xdef tx_result.total_revenue tx_result.margin_deduction f- 0.0 fmax cvd /tx_result.taxable_margin xdef tx_result.taxable_margin apportionment.apportionment_factor fmul cvd /tx_result.apportioned_margin xdef "TX margin calculated. E-Z computation available. Reference: TX Tax Code 171.1016" job.audit_trail swap addto
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Standard margin calculation (no E-Z); Calculate margin - standard method (revenue exceeds $20M)</action_comment>
-<action_dsl>set result.tx_qualifies_for_ez_computation = false; set result.tx_taxable_margin = the maximum of (result.tx_total_revenue - result.tx_margin_deduction) and (0.0); set result.tx_apportioned_margin = result.tx_taxable_margin * apportionment.apportionment_factor; add "TX margin calculated using standard method. Reference: TX Tax Code 171.101" to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.qualifies_for_ez_computation = false; set tx_result.taxable_margin = the maximum of (tx_result.total_revenue - tx_result.margin_deduction) and (0.0); set tx_result.apportioned_margin = tx_result.taxable_margin * apportionment.apportionment_factor; add "TX margin calculated using standard method. Reference: TX Tax Code 171.101" to job.audit_trail;</action_dsl>
 <action_postfix>
-false cvb /result.tx_qualifies_for_ez_computation xdef result.tx_total_revenue result.tx_margin_deduction f- 0.0 fmax cvd /result.tx_taxable_margin xdef result.tx_taxable_margin apportionment.apportionment_factor fmul cvd /result.tx_apportioned_margin xdef "TX margin calculated using standard method. Reference: TX Tax Code 171.101" job.audit_trail swap addto
+false cvb /tx_result.qualifies_for_ez_computation xdef tx_result.total_revenue tx_result.margin_deduction f- 0.0 fmax cvd /tx_result.taxable_margin xdef tx_result.taxable_margin apportionment.apportionment_factor fmul cvd /tx_result.apportioned_margin xdef "TX margin calculated using standard method. Reference: TX Tax Code 171.101" job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -252,36 +252,36 @@ false cvb /result.tx_qualifies_for_ez_computation xdef result.tx_total_revenue r
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has nexus and above no-tax-due threshold; result.tx_qualifies_for_no_tax_due == false</condition_comment>
-<condition_dsl>result.tx_qualifies_for_no_tax_due == false</condition_dsl>
+<condition_dsl>tx_result.qualifies_for_no_tax_due == false</condition_dsl>
 <condition_postfix>
-result.tx_qualifies_for_no_tax_due false beq
+tx_result.qualifies_for_no_tax_due false beq
 </condition_postfix>
 <columns>NYYYY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive apportioned margin</condition_comment>
-<condition_dsl>result.tx_apportioned_margin &gt; 0</condition_dsl>
+<condition_dsl>tx_result.apportioned_margin &gt; 0</condition_dsl>
 <condition_postfix>
-result.tx_apportioned_margin 0 f&gt;
+tx_result.apportioned_margin 0 f&gt;
 </condition_postfix>
 <columns>--YYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Elects to use E-Z computation method; result.tx_qualifies_for_ez_computation == true</condition_comment>
-<condition_dsl>result.tx_qualifies_for_ez_computation == true</condition_dsl>
+<condition_dsl>tx_result.qualifies_for_ez_computation == true</condition_dsl>
 <condition_postfix>
-result.tx_qualifies_for_ez_computation true beq
+tx_result.qualifies_for_ez_computation true beq
 </condition_postfix>
 <columns>-YNN-</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Primarily engaged in retail or wholesale trade</condition_comment>
-<condition_dsl>result.tx_is_retail_wholesale == true</condition_dsl>
+<condition_dsl>tx_result.is_retail_wholesale == true</condition_dsl>
 <condition_postfix>
-result.tx_is_retail_wholesale true beq
+tx_result.is_retail_wholesale true beq
 </condition_postfix>
 <columns>--YN-</columns>
 </condition_details>
@@ -290,45 +290,45 @@ result.tx_is_retail_wholesale true beq
 <action_details>
 <action_number>1</action_number>
 <action_comment>No nexus or below threshold - no franchise tax; No Texas franchise tax due</action_comment>
-<action_dsl>set result.tx_franchise_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No TX franchise tax due. Any estimated payments will be refunded. Reference: TX Tax Code 171.002(d)(2)" to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.franchise_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No TX franchise tax due. Any estimated payments will be refunded. Reference: TX Tax Code 171.002(d)(2)" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.tx_franchise_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No TX franchise tax due. Any estimated payments will be refunded. Reference: TX Tax Code 171.002(d)(2)" job.audit_trail swap addto
+0.0 cvd /tx_result.franchise_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No TX franchise tax due. Any estimated payments will be refunded. Reference: TX Tax Code 171.002(d)(2)" job.audit_trail swap addto
 </action_postfix>
 <columns>X----</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>E-Z Computation (simplified method); TX franchise tax using E-Z computation (0.575%)</action_comment>
-<action_dsl>set result.tx_franchise_tax = (the maximum of (result.tx_total_revenue - result.tx_no_tax_due_threshold) and (0.0)) * result.tx_ez_computation_rate * apportionment.apportionment_factor; set result.tx_franchise_tax = the maximum of (result.tx_franchise_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = result.tx_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "TX franchise tax: E-Z computation. (Revenue - $1.23M) × 0.575%. NOT an income tax. Reference: TX Tax Code 171.1016" to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.franchise_tax = (the maximum of (tx_result.total_revenue - tx_result.no_tax_due_threshold) and (0.0)) * tx_result.ez_computation_rate * apportionment.apportionment_factor; set tx_result.franchise_tax = the maximum of (tx_result.franchise_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = tx_result.franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "TX franchise tax: E-Z computation. (Revenue - $1.23M) × 0.575%. NOT an income tax. Reference: TX Tax Code 171.1016" to job.audit_trail;</action_dsl>
 <action_postfix>
-result.tx_total_revenue result.tx_no_tax_due_threshold f- 0.0 fmax result.tx_ez_computation_rate apportionment.apportionment_factor fmul fmul cvd /result.tx_franchise_tax xdef result.tx_franchise_tax apportionment.state_credits f- 0.0 fmax cvd /result.tx_franchise_tax xdef result.tx_franchise_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "TX franchise tax: E-Z computation. (Revenue - $1.23M) × 0.575%. NOT an income tax. Reference: TX Tax Code 171.1016" job.audit_trail swap addto
+tx_result.total_revenue tx_result.no_tax_due_threshold f- 0.0 fmax tx_result.ez_computation_rate apportionment.apportionment_factor fmul fmul cvd /tx_result.franchise_tax xdef tx_result.franchise_tax apportionment.state_credits f- 0.0 fmax cvd /tx_result.franchise_tax xdef tx_result.franchise_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "TX franchise tax: E-Z computation. (Revenue - $1.23M) × 0.575%. NOT an income tax. Reference: TX Tax Code 171.1016" job.audit_trail swap addto
 </action_postfix>
 <columns>-X---</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Retail/wholesale reduced rate (0.375%); TX franchise tax at reduced retail/wholesale rate</action_comment>
-<action_dsl>set result.tx_margin_tax_rate = 0.00375; set result.tx_franchise_tax = result.tx_apportioned_margin * result.tx_margin_tax_rate; set result.tx_franchise_tax = the maximum of (result.tx_franchise_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = result.tx_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "TX franchise tax: Retail/wholesale rate 0.375%. NOT an income tax. Reference: TX Tax Code 171.002(b)" to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.margin_tax_rate = 0.00375; set tx_result.franchise_tax = tx_result.apportioned_margin * tx_result.margin_tax_rate; set tx_result.franchise_tax = the maximum of (tx_result.franchise_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = tx_result.franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "TX franchise tax: Retail/wholesale rate 0.375%. NOT an income tax. Reference: TX Tax Code 171.002(b)" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.00375 cvd /result.tx_margin_tax_rate xdef result.tx_apportioned_margin result.tx_margin_tax_rate fmul cvd /result.tx_franchise_tax xdef result.tx_franchise_tax apportionment.state_credits f- 0.0 fmax cvd /result.tx_franchise_tax xdef result.tx_franchise_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "TX franchise tax: Retail/wholesale rate 0.375%. NOT an income tax. Reference: TX Tax Code 171.002(b)" job.audit_trail swap addto
+0.00375 cvd /tx_result.margin_tax_rate xdef tx_result.apportioned_margin tx_result.margin_tax_rate fmul cvd /tx_result.franchise_tax xdef tx_result.franchise_tax apportionment.state_credits f- 0.0 fmax cvd /tx_result.franchise_tax xdef tx_result.franchise_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "TX franchise tax: Retail/wholesale rate 0.375%. NOT an income tax. Reference: TX Tax Code 171.002(b)" job.audit_trail swap addto
 </action_postfix>
 <columns>--X--</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>Standard rate (0.75%); TX franchise tax at standard rate</action_comment>
-<action_dsl>set result.tx_margin_tax_rate = 0.0075; set result.tx_franchise_tax = result.tx_apportioned_margin * result.tx_margin_tax_rate; set result.tx_franchise_tax = the maximum of (result.tx_franchise_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = result.tx_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "TX franchise tax: Standard rate 0.75%. NOT an income tax. Reference: TX Tax Code 171.002(a)" to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.margin_tax_rate = 0.0075; set tx_result.franchise_tax = tx_result.apportioned_margin * tx_result.margin_tax_rate; set tx_result.franchise_tax = the maximum of (tx_result.franchise_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = tx_result.franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "TX franchise tax: Standard rate 0.75%. NOT an income tax. Reference: TX Tax Code 171.002(a)" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0075 cvd /result.tx_margin_tax_rate xdef result.tx_apportioned_margin result.tx_margin_tax_rate fmul cvd /result.tx_franchise_tax xdef result.tx_franchise_tax apportionment.state_credits f- 0.0 fmax cvd /result.tx_franchise_tax xdef result.tx_franchise_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "TX franchise tax: Standard rate 0.75%. NOT an income tax. Reference: TX Tax Code 171.002(a)" job.audit_trail swap addto
+0.0075 cvd /tx_result.margin_tax_rate xdef tx_result.apportioned_margin tx_result.margin_tax_rate fmul cvd /tx_result.franchise_tax xdef tx_result.franchise_tax apportionment.state_credits f- 0.0 fmax cvd /tx_result.franchise_tax xdef tx_result.franchise_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "TX franchise tax: Standard rate 0.75%. NOT an income tax. Reference: TX Tax Code 171.002(a)" job.audit_trail swap addto
 </action_postfix>
 <columns>---X-</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
 <action_comment>No apportioned margin - no franchise tax; No TX franchise tax due - zero or negative margin</action_comment>
-<action_dsl>set result.tx_franchise_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No TX franchise tax due - zero or negative margin. No loss carryforward. Reference: TX Tax Code 171.101" to job.audit_trail;</action_dsl>
+<action_dsl>set tx_result.franchise_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No TX franchise tax due - zero or negative margin. No loss carryforward. Reference: TX Tax Code 171.101" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.tx_franchise_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No TX franchise tax due - zero or negative margin. No loss carryforward. Reference: TX Tax Code 171.101" job.audit_trail swap addto
+0.0 cvd /tx_result.franchise_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No TX franchise tax due - zero or negative margin. No loss carryforward. Reference: TX Tax Code 171.101" job.audit_trail swap addto
 </action_postfix>
 <columns>----X</columns>
 </action_details>

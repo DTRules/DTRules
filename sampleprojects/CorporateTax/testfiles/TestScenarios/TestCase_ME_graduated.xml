@@ -16,9 +16,6 @@
          Per the 1120ME instructions the gross tax is
            $271,845 plus 8.93% of the excess over $3,500,000
          = 271,845 + 0.0893 x 500,000 = 271,845 + 44,650 = 316,495. -->
-    <me_apportioned_income>4000000.0</me_apportioned_income>
-    <me_estimated_payments>300000.0</me_estimated_payments>
-    <me_state_credits>0.0</me_state_credits>
     <has_physical_presence_me>true</has_physical_presence_me>
   </result>
 </job>

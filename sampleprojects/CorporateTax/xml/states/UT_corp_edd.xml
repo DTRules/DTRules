@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>UT_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="UT_corp.xlsx" access="rw">
+	<entity name="ut_apportionment" number="100" xls_file="UT_corp.xlsx" access="rw">
 		<source>
 			<relative_path>UT_corp.xlsx</relative_path>
 			<file_name>UT_corp.xlsx</file_name>
@@ -11,10 +11,6 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="UT uses single-sales factor apportionment (100% sales factor)"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="UT economic nexus gross receipts threshold: $100,000 (transaction count removed July 1, 2025)"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT additions: federal interest income, state income tax refunds, certain expenses, etc."></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="UT" comment="Utah state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT tax credits: renewable energy, research activities, economic development, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="UT subtractions: UT municipal bond interest, state income taxes paid, state NOL, etc."></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.045" comment="UT corporate income tax rate: 4.50% (reduced from 4.55% effective January 1, 2025) - UT Code § 59-7-104"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="UT transaction threshold removed as of July 1, 2025 per S.B. 47"></field>
 	</entity>

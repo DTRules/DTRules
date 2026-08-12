@@ -3,27 +3,27 @@
 	<file_metadata>
 		<file_path>CO_corp_edd</file_path>
 	</file_metadata>
-	<entity name="result" number="100" xls_file="CO_corp.xlsx" access="rw">
+	<entity name="co_result" number="100" xls_file="CO_corp.xlsx" access="rw">
 		<source>
 			<relative_path>CO_corp.xlsx</relative_path>
 			<file_name>CO_corp.xlsx</file_name>
 			<sheet_number>4</sheet_number>
 		</source>
-		<field name="co_apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"></field>
-		<field name="co_apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="CO uses single-sales factor apportionment (100% sales)"></field>
-		<field name="co_corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0455" comment="CO corporate income tax rate: 4.55% (CO Rev. Stat. § 39-22-104, 2025)"></field>
-		<field name="co_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="CO economic nexus gross receipts threshold: $100,000"></field>
-		<field name="co_estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"></field>
-		<field name="co_gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"></field>
-		<field name="co_has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Whether corporation has nexus with Colorado"></field>
-		<field name="co_refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"></field>
-		<field name="co_state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="CO additions to federal taxable income (U.S. interest, IRC 199A addback, etc.)"></field>
-		<field name="co_state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="CO state tax credits (R&amp;D, jobs, film, renewable energy, etc.)"></field>
-		<field name="co_state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="CO subtractions from federal taxable income (state taxes, CO NOL, etc.)"></field>
-		<field name="co_state_tax_deduction" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"></field>
-		<field name="co_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="CO corporate income tax liability"></field>
-		<field name="co_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="CO taxable income after apportionment and modifications"></field>
-		<field name="co_transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="CO economic nexus transaction count threshold: 200 transactions"></field>
-		<field name="co_us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"></field>
+		<field name="apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"></field>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="CO uses single-sales factor apportionment (100% sales)"></field>
+		<field name="corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0455" comment="CO corporate income tax rate: 4.55% (CO Rev. Stat. § 39-22-104, 2025)"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="CO economic nexus gross receipts threshold: $100,000"></field>
+		<field name="estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"></field>
+		<field name="gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"></field>
+		<field name="has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Whether corporation has nexus with Colorado"></field>
+		<field name="refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="CO additions to federal taxable income (U.S. interest, IRC 199A addback, etc.)"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="CO state tax credits (R&amp;D, jobs, film, renewable energy, etc.)"></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="CO subtractions from federal taxable income (state taxes, CO NOL, etc.)"></field>
+		<field name="state_tax_deduction" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"></field>
+		<field name="tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="CO corporate income tax liability"></field>
+		<field name="taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="CO taxable income after apportionment and modifications"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="CO economic nexus transaction count threshold: 200 transactions"></field>
+		<field name="us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by CO but never declared (campaign #948 Phase 1)"></field>
 	</entity>
 </entity_data_dictionary>

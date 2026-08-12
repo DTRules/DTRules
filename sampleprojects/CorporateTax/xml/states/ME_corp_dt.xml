@@ -35,9 +35,9 @@ result.has_physical_presence_me true beq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets economic nexus threshold (factor presence standards); result.me_gross_receipts is greater than or equal to result.me_economic_nexus_threshold</condition_comment>
-<condition_dsl>result.me_gross_receipts &gt;= result.me_economic_nexus_threshold</condition_dsl>
+<condition_dsl>me_result.gross_receipts &gt;= me_result.economic_nexus_threshold</condition_dsl>
 <condition_postfix>
-result.me_gross_receipts result.me_economic_nexus_threshold f&gt;=
+me_result.gross_receipts me_result.economic_nexus_threshold f&gt;=
 </condition_postfix>
 <columns>-YN</columns>
 </condition_details>
@@ -46,27 +46,27 @@ result.me_gross_receipts result.me_economic_nexus_threshold f&gt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus - filing required</action_comment>
-<action_dsl>set result.me_has_nexus = true;</action_dsl>
+<action_dsl>set me_result.has_nexus = true;</action_dsl>
 <action_postfix>
-true cvb /result.me_has_nexus xdef
+true cvb /me_result.has_nexus xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus - filing required</action_comment>
-<action_dsl>set result.me_has_nexus = true;</action_dsl>
+<action_dsl>set me_result.has_nexus = true;</action_dsl>
 <action_postfix>
-true cvb /result.me_has_nexus xdef
+true cvb /me_result.has_nexus xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
-<action_dsl>set result.me_has_nexus = false; set result.me_tax_liability = 0.0;</action_dsl>
+<action_dsl>set me_result.has_nexus = false; set me_result.tax_liability = 0.0;</action_dsl>
 <action_postfix>
-false cvb /result.me_has_nexus xdef 0.0 cvd /result.me_tax_liability xdef
+false cvb /me_result.has_nexus xdef 0.0 cvd /me_result.tax_liability xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -99,9 +99,9 @@ false cvb /result.me_has_nexus xdef 0.0 cvd /result.me_tax_liability xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has Maine nexus</condition_comment>
-<condition_dsl>result.me_has_nexus is equal to true</condition_dsl>
+<condition_dsl>me_result.has_nexus is equal to true</condition_dsl>
 <condition_postfix>
-result.me_has_nexus true beq
+me_result.has_nexus true beq
 </condition_postfix>
 <columns>YN</columns>
 </condition_details>
@@ -110,18 +110,18 @@ result.me_has_nexus true beq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Maine state additions and subtractions; Calculate state-specific income adjustments</action_comment>
-<action_dsl>set result.me_state_additions = 0.0; if result.me_section_199a_addback != 0.0 then set result.me_state_additions = result.me_state_additions + result.me_section_199a_addback; endif set result.me_state_subtractions = 0.0; if result.me_us_interest_income != 0.0 then set result.me_state_subtractions = result.me_state_subtractions + result.me_us_interest_income; endif if result.me_municipal_interest != 0.0 then set result.me_state_subtractions = result.me_state_subtractions + result.me_municipal_interest; endif add (("Maine additions: $" + string value of (result.me_state_additions)) + ", subtractions: $") + string value of (result.me_state_subtractions) to job.audit_trail;</action_dsl>
+<action_dsl>set me_result.state_additions = 0.0; if me_result.section_199a_addback != 0.0 then set me_result.state_additions = me_result.state_additions + me_result.section_199a_addback; endif set me_result.state_subtractions = 0.0; if me_result.us_interest_income != 0.0 then set me_result.state_subtractions = me_result.state_subtractions + me_result.us_interest_income; endif if me_result.municipal_interest != 0.0 then set me_result.state_subtractions = me_result.state_subtractions + me_result.municipal_interest; endif add (("Maine additions: $" + string value of (me_result.state_additions)) + ", subtractions: $") + string value of (me_result.state_subtractions) to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.me_state_additions xdef { result.me_state_additions result.me_section_199a_addback f+ cvd /result.me_state_additions xdef } {} result.me_section_199a_addback 0.0 f== not ifelse 0.0 cvd /result.me_state_subtractions xdef { result.me_state_subtractions result.me_us_interest_income f+ cvd /result.me_state_subtractions xdef } {} result.me_us_interest_income 0.0 f== not ifelse { result.me_state_subtractions result.me_municipal_interest f+ cvd /result.me_state_subtractions xdef } {} result.me_municipal_interest 0.0 f== not ifelse "Maine additions: $" result.me_state_additions cvs strconcat ", subtractions: $" strconcat result.me_state_subtractions cvs strconcat job.audit_trail swap addto
+0.0 cvd /me_result.state_additions xdef { me_result.state_additions me_result.section_199a_addback f+ cvd /me_result.state_additions xdef } {} me_result.section_199a_addback 0.0 f== not ifelse 0.0 cvd /me_result.state_subtractions xdef { me_result.state_subtractions me_result.us_interest_income f+ cvd /me_result.state_subtractions xdef } {} me_result.us_interest_income 0.0 f== not ifelse { me_result.state_subtractions me_result.municipal_interest f+ cvd /me_result.state_subtractions xdef } {} me_result.municipal_interest 0.0 f== not ifelse "Maine additions: $" me_result.state_additions cvs strconcat ", subtractions: $" strconcat me_result.state_subtractions cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments</action_comment>
-<action_dsl>set result.me_state_additions = 0.0; set result.me_state_subtractions = 0.0;</action_dsl>
+<action_dsl>set me_result.state_additions = 0.0; set me_result.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.me_state_additions xdef 0.0 cvd /result.me_state_subtractions xdef
+0.0 cvd /me_result.state_additions xdef 0.0 cvd /me_result.state_subtractions xdef
 </action_postfix>
 <columns>-X</columns>
 </action_details>
@@ -154,18 +154,18 @@ result.me_has_nexus true beq
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has Maine nexus</condition_comment>
-<condition_dsl>result.me_has_nexus is equal to true</condition_dsl>
+<condition_dsl>me_result.has_nexus is equal to true</condition_dsl>
 <condition_postfix>
-result.me_has_nexus true beq
+me_result.has_nexus true beq
 </condition_postfix>
 <columns>YYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive taxable income; result.me_apportioned_income is greater than 0</condition_comment>
-<condition_dsl>result.me_apportioned_income &gt; 0.0</condition_dsl>
+<condition_dsl>me_result.apportioned_income &gt; 0.0</condition_dsl>
 <condition_postfix>
-result.me_apportioned_income 0.0 f&gt;
+me_result.apportioned_income 0.0 f&gt;
 </condition_postfix>
 <columns>YN-</columns>
 </condition_details>
@@ -174,27 +174,27 @@ result.me_apportioned_income 0.0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Maine corporate tax (graduated rates); Apply Maine graduated rates (3.5%, 7.5%, 8.3%, 8.93%)</action_comment>
-<action_dsl>set result.me_taxable_income = the maximum of (result.me_apportioned_income + result.me_state_additions - result.me_state_subtractions) and (0.0); set result.me_tier1_tax = (the minimum of (result.me_taxable_income) and (350000.0)) * result.me_corp_tax_rate_tier1; set result.me_tier2_tax = 0.0; set result.me_tier3_tax = 0.0; set result.me_tier4_tax = 0.0; if result.me_taxable_income &gt; 350000.0 then set result.me_tier2_tax = ((the minimum of (result.me_taxable_income) and (1050000.0)) - 350000.0) * result.me_corp_tax_rate_tier2; endif if result.me_taxable_income &gt; 1050000.0 then set result.me_tier3_tax = ((the minimum of (result.me_taxable_income) and (3500000.0)) - 1050000.0) * result.me_corp_tax_rate_tier3; endif if result.me_taxable_income &gt; 3500000.0 then set result.me_tier4_tax = (result.me_taxable_income - 3500000.0) * result.me_corp_tax_rate_tier4; endif set result.me_tax_liability = the maximum of (result.me_tier1_tax + result.me_tier2_tax + result.me_tier3_tax + result.me_tier4_tax - result.me_state_credits) and (0.0); set result.me_refund_or_owed = result.me_estimated_payments - result.me_tax_liability; add "Maine taxable income: $" + string value of (result.me_taxable_income) to job.audit_trail; add "Maine tax liability (graduated rates 3.5%-8.93%): $" + string value of (result.me_tax_liability) to job.audit_trail;</action_dsl>
+<action_dsl>set me_result.taxable_income = the maximum of (me_result.apportioned_income + me_result.state_additions - me_result.state_subtractions) and (0.0); set me_result.tier1_tax = (the minimum of (me_result.taxable_income) and (350000.0)) * me_result.corp_tax_rate_tier1; set me_result.tier2_tax = 0.0; set me_result.tier3_tax = 0.0; set me_result.tier4_tax = 0.0; if me_result.taxable_income &gt; 350000.0 then set me_result.tier2_tax = ((the minimum of (me_result.taxable_income) and (1050000.0)) - 350000.0) * me_result.corp_tax_rate_tier2; endif if me_result.taxable_income &gt; 1050000.0 then set me_result.tier3_tax = ((the minimum of (me_result.taxable_income) and (3500000.0)) - 1050000.0) * me_result.corp_tax_rate_tier3; endif if me_result.taxable_income &gt; 3500000.0 then set me_result.tier4_tax = (me_result.taxable_income - 3500000.0) * me_result.corp_tax_rate_tier4; endif set me_result.tax_liability = the maximum of (me_result.tier1_tax + me_result.tier2_tax + me_result.tier3_tax + me_result.tier4_tax - me_result.state_credits) and (0.0); set me_result.refund_or_owed = me_result.estimated_payments - me_result.tax_liability; add "Maine taxable income: $" + string value of (me_result.taxable_income) to job.audit_trail; add "Maine tax liability (graduated rates 3.5%-8.93%): $" + string value of (me_result.tax_liability) to job.audit_trail;</action_dsl>
 <action_postfix>
-result.me_apportioned_income result.me_state_additions f+ result.me_state_subtractions f- 0.0 fmax cvd /result.me_taxable_income xdef result.me_taxable_income 350000.0 fmin result.me_corp_tax_rate_tier1 fmul cvd /result.me_tier1_tax xdef 0.0 cvd /result.me_tier2_tax xdef 0.0 cvd /result.me_tier3_tax xdef 0.0 cvd /result.me_tier4_tax xdef { result.me_taxable_income 1050000.0 fmin 350000.0 f- result.me_corp_tax_rate_tier2 fmul cvd /result.me_tier2_tax xdef } {} result.me_taxable_income 350000.0 f&gt; ifelse { result.me_taxable_income 3500000.0 fmin 1050000.0 f- result.me_corp_tax_rate_tier3 fmul cvd /result.me_tier3_tax xdef } {} result.me_taxable_income 1050000.0 f&gt; ifelse { result.me_taxable_income 3500000.0 f- result.me_corp_tax_rate_tier4 fmul cvd /result.me_tier4_tax xdef } {} result.me_taxable_income 3500000.0 f&gt; ifelse result.me_tier1_tax result.me_tier2_tax result.me_tier3_tax result.me_tier4_tax f+ result.me_state_credits f- f+ f+ 0.0 fmax cvd /result.me_tax_liability xdef result.me_estimated_payments result.me_tax_liability f- cvd /result.me_refund_or_owed xdef "Maine taxable income: $" result.me_taxable_income cvs strconcat job.audit_trail swap addto "Maine tax liability (graduated rates 3.5%-8.93%): $" result.me_tax_liability cvs strconcat job.audit_trail swap addto
+me_result.apportioned_income me_result.state_additions f+ me_result.state_subtractions f- 0.0 fmax cvd /me_result.taxable_income xdef me_result.taxable_income 350000.0 fmin me_result.corp_tax_rate_tier1 fmul cvd /me_result.tier1_tax xdef 0.0 cvd /me_result.tier2_tax xdef 0.0 cvd /me_result.tier3_tax xdef 0.0 cvd /me_result.tier4_tax xdef { me_result.taxable_income 1050000.0 fmin 350000.0 f- me_result.corp_tax_rate_tier2 fmul cvd /me_result.tier2_tax xdef } {} me_result.taxable_income 350000.0 f&gt; ifelse { me_result.taxable_income 3500000.0 fmin 1050000.0 f- me_result.corp_tax_rate_tier3 fmul cvd /me_result.tier3_tax xdef } {} me_result.taxable_income 1050000.0 f&gt; ifelse { me_result.taxable_income 3500000.0 f- me_result.corp_tax_rate_tier4 fmul cvd /me_result.tier4_tax xdef } {} me_result.taxable_income 3500000.0 f&gt; ifelse me_result.tier1_tax me_result.tier2_tax me_result.tier3_tax me_result.tier4_tax f+ me_result.state_credits f- f+ f+ 0.0 fmax cvd /me_result.tax_liability xdef me_result.estimated_payments me_result.tax_liability f- cvd /me_result.refund_or_owed xdef "Maine taxable income: $" me_result.taxable_income cvs strconcat job.audit_trail swap addto "Maine tax liability (graduated rates 3.5%-8.93%): $" me_result.tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No taxable income - no tax liability</action_comment>
-<action_dsl>set result.me_taxable_income = 0.0; set result.me_tax_liability = 0.0;</action_dsl>
+<action_dsl>set me_result.taxable_income = 0.0; set me_result.tax_liability = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.me_taxable_income xdef 0.0 cvd /result.me_tax_liability xdef
+0.0 cvd /me_result.taxable_income xdef 0.0 cvd /me_result.tax_liability xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no tax liability</action_comment>
-<action_dsl>set result.me_taxable_income = 0.0; set result.me_tax_liability = 0.0;</action_dsl>
+<action_dsl>set me_result.taxable_income = 0.0; set me_result.tax_liability = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.me_taxable_income xdef 0.0 cvd /result.me_tax_liability xdef
+0.0 cvd /me_result.taxable_income xdef 0.0 cvd /me_result.tax_liability xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>

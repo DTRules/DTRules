@@ -35,9 +35,9 @@ result.has_physical_presence_ia true beq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets economic nexus threshold ($100K gross receipts); result.ia_gross_receipts is greater than or equal to result.ia_economic_nexus_threshold</condition_comment>
-<condition_dsl>result.ia_gross_receipts &gt;= result.ia_economic_nexus_threshold</condition_dsl>
+<condition_dsl>ia_result.gross_receipts &gt;= ia_result.economic_nexus_threshold</condition_dsl>
 <condition_postfix>
-result.ia_gross_receipts result.ia_economic_nexus_threshold f&gt;=
+ia_result.gross_receipts ia_result.economic_nexus_threshold f&gt;=
 </condition_postfix>
 <columns>-YN</columns>
 </condition_details>
@@ -46,27 +46,27 @@ result.ia_gross_receipts result.ia_economic_nexus_threshold f&gt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus - filing required</action_comment>
-<action_dsl>set result.ia_has_nexus = true;</action_dsl>
+<action_dsl>set ia_result.has_nexus = true;</action_dsl>
 <action_postfix>
-true cvb /result.ia_has_nexus xdef
+true cvb /ia_result.has_nexus xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus - filing required (no transaction count as of 7/1/2023)</action_comment>
-<action_dsl>set result.ia_has_nexus = true;</action_dsl>
+<action_dsl>set ia_result.has_nexus = true;</action_dsl>
 <action_postfix>
-true cvb /result.ia_has_nexus xdef
+true cvb /ia_result.has_nexus xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
-<action_dsl>set result.ia_has_nexus = false; set result.ia_tax_liability = 0.0;</action_dsl>
+<action_dsl>set ia_result.has_nexus = false; set ia_result.tax_liability = 0.0;</action_dsl>
 <action_postfix>
-false cvb /result.ia_has_nexus xdef 0.0 cvd /result.ia_tax_liability xdef
+false cvb /ia_result.has_nexus xdef 0.0 cvd /ia_result.tax_liability xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -99,9 +99,9 @@ false cvb /result.ia_has_nexus xdef 0.0 cvd /result.ia_tax_liability xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has Iowa nexus</condition_comment>
-<condition_dsl>result.ia_has_nexus is equal to true</condition_dsl>
+<condition_dsl>ia_result.has_nexus is equal to true</condition_dsl>
 <condition_postfix>
-result.ia_has_nexus true beq
+ia_result.has_nexus true beq
 </condition_postfix>
 <columns>YN</columns>
 </condition_details>
@@ -110,18 +110,18 @@ result.ia_has_nexus true beq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Iowa state additions and subtractions; Calculate state-specific income adjustments</action_comment>
-<action_dsl>set result.ia_state_additions = 0.0; if result.ia_state_taxes_deducted != 0.0 then set result.ia_state_additions = result.ia_state_additions + result.ia_state_taxes_deducted; endif set result.ia_state_subtractions = 0.0; if result.ia_us_interest_income != 0.0 then set result.ia_state_subtractions = result.ia_state_subtractions + result.ia_us_interest_income; endif if result.ia_municipal_interest != 0.0 then set result.ia_state_subtractions = result.ia_state_subtractions + result.ia_municipal_interest; endif add (("Iowa additions: $" + string value of (result.ia_state_additions)) + ", subtractions: $") + string value of (result.ia_state_subtractions) to job.audit_trail;</action_dsl>
+<action_dsl>set ia_result.state_additions = 0.0; if ia_result.state_taxes_deducted != 0.0 then set ia_result.state_additions = ia_result.state_additions + ia_result.state_taxes_deducted; endif set ia_result.state_subtractions = 0.0; if ia_result.us_interest_income != 0.0 then set ia_result.state_subtractions = ia_result.state_subtractions + ia_result.us_interest_income; endif if ia_result.municipal_interest != 0.0 then set ia_result.state_subtractions = ia_result.state_subtractions + ia_result.municipal_interest; endif add (("Iowa additions: $" + string value of (ia_result.state_additions)) + ", subtractions: $") + string value of (ia_result.state_subtractions) to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.ia_state_additions xdef { result.ia_state_additions result.ia_state_taxes_deducted f+ cvd /result.ia_state_additions xdef } {} result.ia_state_taxes_deducted 0.0 f== not ifelse 0.0 cvd /result.ia_state_subtractions xdef { result.ia_state_subtractions result.ia_us_interest_income f+ cvd /result.ia_state_subtractions xdef } {} result.ia_us_interest_income 0.0 f== not ifelse { result.ia_state_subtractions result.ia_municipal_interest f+ cvd /result.ia_state_subtractions xdef } {} result.ia_municipal_interest 0.0 f== not ifelse "Iowa additions: $" result.ia_state_additions cvs strconcat ", subtractions: $" strconcat result.ia_state_subtractions cvs strconcat job.audit_trail swap addto
+0.0 cvd /ia_result.state_additions xdef { ia_result.state_additions ia_result.state_taxes_deducted f+ cvd /ia_result.state_additions xdef } {} ia_result.state_taxes_deducted 0.0 f== not ifelse 0.0 cvd /ia_result.state_subtractions xdef { ia_result.state_subtractions ia_result.us_interest_income f+ cvd /ia_result.state_subtractions xdef } {} ia_result.us_interest_income 0.0 f== not ifelse { ia_result.state_subtractions ia_result.municipal_interest f+ cvd /ia_result.state_subtractions xdef } {} ia_result.municipal_interest 0.0 f== not ifelse "Iowa additions: $" ia_result.state_additions cvs strconcat ", subtractions: $" strconcat ia_result.state_subtractions cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments</action_comment>
-<action_dsl>set result.ia_state_additions = 0.0; set result.ia_state_subtractions = 0.0;</action_dsl>
+<action_dsl>set ia_result.state_additions = 0.0; set ia_result.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.ia_state_additions xdef 0.0 cvd /result.ia_state_subtractions xdef
+0.0 cvd /ia_result.state_additions xdef 0.0 cvd /ia_result.state_subtractions xdef
 </action_postfix>
 <columns>-X</columns>
 </action_details>
@@ -154,27 +154,27 @@ result.ia_has_nexus true beq
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has Iowa nexus</condition_comment>
-<condition_dsl>result.ia_has_nexus is equal to true</condition_dsl>
+<condition_dsl>ia_result.has_nexus is equal to true</condition_dsl>
 <condition_postfix>
-result.ia_has_nexus true beq
+ia_result.has_nexus true beq
 </condition_postfix>
 <columns>YYYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive taxable income; result.ia_apportioned_income is greater than 0</condition_comment>
-<condition_dsl>result.ia_apportioned_income &gt; 0.0</condition_dsl>
+<condition_dsl>ia_result.apportioned_income &gt; 0.0</condition_dsl>
 <condition_postfix>
-result.ia_apportioned_income 0.0 f&gt;
+ia_result.apportioned_income 0.0 f&gt;
 </condition_postfix>
 <columns>YYN-</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Income exceeds $100,000 bracket threshold; result.ia_taxable_income is greater than result.ia_tax_bracket_threshold</condition_comment>
-<condition_dsl>result.ia_taxable_income &gt; result.ia_tax_bracket_threshold</condition_dsl>
+<condition_dsl>ia_result.taxable_income &gt; ia_result.tax_bracket_threshold</condition_dsl>
 <condition_postfix>
-result.ia_taxable_income result.ia_tax_bracket_threshold f&gt;
+ia_result.taxable_income ia_result.tax_bracket_threshold f&gt;
 </condition_postfix>
 <columns>YN--</columns>
 </condition_details>
@@ -183,36 +183,36 @@ result.ia_taxable_income result.ia_tax_bracket_threshold f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Iowa tax with graduated rates - income over $100K; Apply graduated rates: 5.5% on first $100K, 7.1% on excess</action_comment>
-<action_dsl>set result.ia_taxable_income = the maximum of (result.ia_apportioned_income + result.ia_state_additions - result.ia_state_subtractions) and (0.0); set result.ia_tax_bracket_1 = result.ia_tax_bracket_threshold * result.ia_corp_tax_rate_bracket_1; set result.ia_tax_bracket_2 = (result.ia_taxable_income - result.ia_tax_bracket_threshold) * result.ia_corp_tax_rate_bracket_2; set result.ia_tax_liability = the maximum of (result.ia_tax_bracket_1 + result.ia_tax_bracket_2 - result.ia_state_credits) and (0.0); set result.ia_refund_or_owed = result.ia_estimated_payments - result.ia_tax_liability; add "Iowa taxable income: $" + string value of (result.ia_taxable_income) to job.audit_trail; add "Iowa tax bracket 1 (5.5% on $100K): $" + string value of (result.ia_tax_bracket_1) to job.audit_trail; add "Iowa tax bracket 2 (7.1% on excess): $" + string value of (result.ia_tax_bracket_2) to job.audit_trail; add "Iowa tax liability: $" + string value of (result.ia_tax_liability) to job.audit_trail;</action_dsl>
+<action_dsl>set ia_result.taxable_income = the maximum of (ia_result.apportioned_income + ia_result.state_additions - ia_result.state_subtractions) and (0.0); set ia_result.tax_bracket_1 = ia_result.tax_bracket_threshold * ia_result.corp_tax_rate_bracket_1; set ia_result.tax_bracket_2 = (ia_result.taxable_income - ia_result.tax_bracket_threshold) * ia_result.corp_tax_rate_bracket_2; set ia_result.tax_liability = the maximum of (ia_result.tax_bracket_1 + ia_result.tax_bracket_2 - ia_result.state_credits) and (0.0); set ia_result.refund_or_owed = ia_result.estimated_payments - ia_result.tax_liability; add "Iowa taxable income: $" + string value of (ia_result.taxable_income) to job.audit_trail; add "Iowa tax bracket 1 (5.5% on $100K): $" + string value of (ia_result.tax_bracket_1) to job.audit_trail; add "Iowa tax bracket 2 (7.1% on excess): $" + string value of (ia_result.tax_bracket_2) to job.audit_trail; add "Iowa tax liability: $" + string value of (ia_result.tax_liability) to job.audit_trail;</action_dsl>
 <action_postfix>
-result.ia_apportioned_income result.ia_state_additions f+ result.ia_state_subtractions f- 0.0 fmax cvd /result.ia_taxable_income xdef result.ia_tax_bracket_threshold result.ia_corp_tax_rate_bracket_1 fmul cvd /result.ia_tax_bracket_1 xdef result.ia_taxable_income result.ia_tax_bracket_threshold f- result.ia_corp_tax_rate_bracket_2 fmul cvd /result.ia_tax_bracket_2 xdef result.ia_tax_bracket_1 result.ia_tax_bracket_2 f+ result.ia_state_credits f- 0.0 fmax cvd /result.ia_tax_liability xdef result.ia_estimated_payments result.ia_tax_liability f- cvd /result.ia_refund_or_owed xdef "Iowa taxable income: $" result.ia_taxable_income cvs strconcat job.audit_trail swap addto "Iowa tax bracket 1 (5.5% on $100K): $" result.ia_tax_bracket_1 cvs strconcat job.audit_trail swap addto "Iowa tax bracket 2 (7.1% on excess): $" result.ia_tax_bracket_2 cvs strconcat job.audit_trail swap addto "Iowa tax liability: $" result.ia_tax_liability cvs strconcat job.audit_trail swap addto
+ia_result.apportioned_income ia_result.state_additions f+ ia_result.state_subtractions f- 0.0 fmax cvd /ia_result.taxable_income xdef ia_result.tax_bracket_threshold ia_result.corp_tax_rate_bracket_1 fmul cvd /ia_result.tax_bracket_1 xdef ia_result.taxable_income ia_result.tax_bracket_threshold f- ia_result.corp_tax_rate_bracket_2 fmul cvd /ia_result.tax_bracket_2 xdef ia_result.tax_bracket_1 ia_result.tax_bracket_2 f+ ia_result.state_credits f- 0.0 fmax cvd /ia_result.tax_liability xdef ia_result.estimated_payments ia_result.tax_liability f- cvd /ia_result.refund_or_owed xdef "Iowa taxable income: $" ia_result.taxable_income cvs strconcat job.audit_trail swap addto "Iowa tax bracket 1 (5.5% on $100K): $" ia_result.tax_bracket_1 cvs strconcat job.audit_trail swap addto "Iowa tax bracket 2 (7.1% on excess): $" ia_result.tax_bracket_2 cvs strconcat job.audit_trail swap addto "Iowa tax liability: $" ia_result.tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate Iowa tax - income $100K or less (only 5.5% rate); Apply only 5.5% rate for income under $100K</action_comment>
-<action_dsl>set result.ia_taxable_income = the maximum of (result.ia_apportioned_income + result.ia_state_additions - result.ia_state_subtractions) and (0.0); set result.ia_tax_bracket_1 = result.ia_taxable_income * result.ia_corp_tax_rate_bracket_1; set result.ia_tax_bracket_2 = 0.0; set result.ia_tax_liability = the maximum of (result.ia_tax_bracket_1 - result.ia_state_credits) and (0.0); set result.ia_refund_or_owed = result.ia_estimated_payments - result.ia_tax_liability; add "Iowa taxable income: $" + string value of (result.ia_taxable_income) to job.audit_trail; add "Iowa tax liability (5.5%): $" + string value of (result.ia_tax_liability) to job.audit_trail;</action_dsl>
+<action_dsl>set ia_result.taxable_income = the maximum of (ia_result.apportioned_income + ia_result.state_additions - ia_result.state_subtractions) and (0.0); set ia_result.tax_bracket_1 = ia_result.taxable_income * ia_result.corp_tax_rate_bracket_1; set ia_result.tax_bracket_2 = 0.0; set ia_result.tax_liability = the maximum of (ia_result.tax_bracket_1 - ia_result.state_credits) and (0.0); set ia_result.refund_or_owed = ia_result.estimated_payments - ia_result.tax_liability; add "Iowa taxable income: $" + string value of (ia_result.taxable_income) to job.audit_trail; add "Iowa tax liability (5.5%): $" + string value of (ia_result.tax_liability) to job.audit_trail;</action_dsl>
 <action_postfix>
-result.ia_apportioned_income result.ia_state_additions f+ result.ia_state_subtractions f- 0.0 fmax cvd /result.ia_taxable_income xdef result.ia_taxable_income result.ia_corp_tax_rate_bracket_1 fmul cvd /result.ia_tax_bracket_1 xdef 0.0 cvd /result.ia_tax_bracket_2 xdef result.ia_tax_bracket_1 result.ia_state_credits f- 0.0 fmax cvd /result.ia_tax_liability xdef result.ia_estimated_payments result.ia_tax_liability f- cvd /result.ia_refund_or_owed xdef "Iowa taxable income: $" result.ia_taxable_income cvs strconcat job.audit_trail swap addto "Iowa tax liability (5.5%): $" result.ia_tax_liability cvs strconcat job.audit_trail swap addto
+ia_result.apportioned_income ia_result.state_additions f+ ia_result.state_subtractions f- 0.0 fmax cvd /ia_result.taxable_income xdef ia_result.taxable_income ia_result.corp_tax_rate_bracket_1 fmul cvd /ia_result.tax_bracket_1 xdef 0.0 cvd /ia_result.tax_bracket_2 xdef ia_result.tax_bracket_1 ia_result.state_credits f- 0.0 fmax cvd /ia_result.tax_liability xdef ia_result.estimated_payments ia_result.tax_liability f- cvd /ia_result.refund_or_owed xdef "Iowa taxable income: $" ia_result.taxable_income cvs strconcat job.audit_trail swap addto "Iowa tax liability (5.5%): $" ia_result.tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No taxable income - no tax liability</action_comment>
-<action_dsl>set result.ia_taxable_income = 0.0; set result.ia_tax_liability = 0.0;</action_dsl>
+<action_dsl>set ia_result.taxable_income = 0.0; set ia_result.tax_liability = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.ia_taxable_income xdef 0.0 cvd /result.ia_tax_liability xdef
+0.0 cvd /ia_result.taxable_income xdef 0.0 cvd /ia_result.tax_liability xdef
 </action_postfix>
 <columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>No nexus - no tax liability</action_comment>
-<action_dsl>set result.ia_taxable_income = 0.0; set result.ia_tax_liability = 0.0;</action_dsl>
+<action_dsl>set ia_result.taxable_income = 0.0; set ia_result.tax_liability = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.ia_taxable_income xdef 0.0 cvd /result.ia_tax_liability xdef
+0.0 cvd /ia_result.taxable_income xdef 0.0 cvd /ia_result.tax_liability xdef
 </action_postfix>
 <columns>---X</columns>
 </action_details>

@@ -57,7 +57,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NJ" st
 <action_comment>No nexus - no filing required; No nexus - zero tax and refund payments</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -109,18 +109,18 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate NJ state additions and subtractions; Calculate NJ state-specific income adjustments</action_comment>
-<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; set result.nj_entire_net_income = apportionment.state_taxable_income;</action_dsl>
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; set nj_result.entire_net_income = apportionment.state_taxable_income;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef apportionment.state_taxable_income cvd /result.nj_entire_net_income xdef
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef apportionment.state_taxable_income cvd /nj_result.entire_net_income xdef
 </action_postfix>
 <columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - zero adjustments; No nexus - no state adjustments calculated</action_comment>
-<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; set result.nj_entire_net_income = 0.0;</action_dsl>
+<action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; set nj_result.entire_net_income = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef 0.0 cvd /result.nj_entire_net_income xdef
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef 0.0 cvd /nj_result.entire_net_income xdef
 </action_postfix>
 <columns>-X</columns>
 </action_details>
@@ -168,7 +168,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 &gt;
+apportionment.state_taxable_income 0 f&gt;
 </condition_postfix>
 <columns>Y*N</columns>
 </condition_details>
@@ -177,9 +177,9 @@ apportionment.state_taxable_income 0 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate NJ tax at 9% base rate; Calculate NJ state tax at 9% base rate, subtract credits</action_comment>
-<action_dsl>set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * nj_apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
+apportionment.state_taxable_income nj_apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
@@ -188,7 +188,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_comment>No nexus - no tax; No NJ nexus - zero tax and refund payments</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
@@ -197,7 +197,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_comment>Nexus but no taxable income; No NJ taxable income - zero tax and refund payments</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -247,9 +247,9 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Entire net income exceeds $1,000,000 surtax threshold; result.nj_entire_net_income &gt; result.nj_surtax_threshold</condition_comment>
-<condition_dsl>result.nj_entire_net_income &gt; result.nj_surtax_threshold</condition_dsl>
+<condition_dsl>nj_result.entire_net_income &gt; nj_result.surtax_threshold</condition_dsl>
 <condition_postfix>
-result.nj_entire_net_income result.nj_surtax_threshold f&gt;
+nj_result.entire_net_income nj_result.surtax_threshold f&gt;
 </condition_postfix>
 <columns>YN*Y</columns>
 </condition_details>
@@ -258,7 +258,7 @@ result.nj_entire_net_income result.nj_surtax_threshold f&gt;
 <condition_comment>Has positive tax base for surtax calculation</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 &gt;
+apportionment.state_taxable_income 0 f&gt;
 </condition_postfix>
 <columns>Y**N</columns>
 </condition_details>
@@ -267,36 +267,36 @@ apportionment.state_taxable_income 0 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate NJ surtax for large corporations; Calculate NJ surtax at 2.5% for income &gt; $1M</action_comment>
-<action_dsl>set result.nj_surtax = result.nj_entire_net_income * result.nj_surtax_rate; set apportionment.state_tax = apportionment.state_tax + result.nj_surtax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>set nj_result.surtax = nj_result.entire_net_income * nj_result.surtax_rate; set apportionment.state_tax = apportionment.state_tax + nj_result.surtax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-result.nj_entire_net_income result.nj_surtax_rate fmul cvd /result.nj_surtax xdef apportionment.state_tax result.nj_surtax f+ cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
+nj_result.entire_net_income nj_result.surtax_rate fmul cvd /nj_result.surtax xdef apportionment.state_tax nj_result.surtax f+ cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No surtax - below threshold; No NJ surtax - income below threshold</action_comment>
-<action_dsl>set result.nj_surtax = 0.0;</action_dsl>
+<action_dsl>set nj_result.surtax = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.nj_surtax xdef
+0.0 cvd /nj_result.surtax xdef
 </action_postfix>
 <columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No surtax - no nexus; No NJ surtax - no NJ nexus</action_comment>
-<action_dsl>set result.nj_surtax = 0.0;</action_dsl>
+<action_dsl>set nj_result.surtax = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.nj_surtax xdef
+0.0 cvd /nj_result.surtax xdef
 </action_postfix>
 <columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>No surtax - no positive tax base; No NJ surtax - no positive tax base</action_comment>
-<action_dsl>set result.nj_surtax = 0.0;</action_dsl>
+<action_dsl>set nj_result.surtax = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.nj_surtax xdef
+0.0 cvd /nj_result.surtax xdef
 </action_postfix>
 <columns>---X</columns>
 </action_details>

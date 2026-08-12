@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>VA_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="VA_corp.xlsx" access="rw">
+	<entity name="va_apportionment" number="100" xls_file="VA_corp.xlsx" access="rw">
 		<source>
 			<relative_path>VA_corp.xlsx</relative_path>
 			<file_name>VA_corp.xlsx</file_name>
@@ -11,10 +11,6 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="Virginia uses single-sales factor apportionment (100% sales)"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="VA economic nexus gross receipts threshold: $100,000"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="State-specific additions: federal interest, IRC 199A addback, state income tax, etc."></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="VA" comment="Virginia two-letter state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="State tax credits: R&amp;D, jobs, historic rehabilitation, renewable energy, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="State-specific subtractions: municipal interest, affiliated dividends, state NOL, etc."></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.060" comment="Virginia flat corporate income tax rate: 6% (VA Code § 58.1-400)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="VA economic nexus transaction count threshold: 200 transactions"></field>
 	</entity>

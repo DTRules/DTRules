@@ -61,7 +61,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "VT" st
 <action_comment>No nexus - no filing required; No VT nexus - no filing requirement</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No VT nexus - no filing requirement. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No VT nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No VT nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -150,7 +150,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 &gt;
+apportionment.state_taxable_income 0 f&gt;
 </condition_postfix>
 <columns>Y-N</columns>
 </condition_details>
@@ -159,27 +159,27 @@ apportionment.state_taxable_income 0 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate VT tax using graduated brackets (6%, 7%, 8.5%); VT income tax using graduated rates: 6% up to $10K, 7% $10K-$25K, 8.5% over $25K</action_comment>
-<action_dsl>set apportionment.vt_calculated_tax = (the minimum of (apportionment.state_taxable_income) and (apportionment.vt_bracket_threshold_1)) * apportionment.vt_tax_rate_tier1; if apportionment.state_taxable_income &gt; apportionment.vt_bracket_threshold_1 then set apportionment.vt_calculated_tax = apportionment.vt_calculated_tax + ((the minimum of (apportionment.state_taxable_income) and (apportionment.vt_bracket_threshold_2)) - apportionment.vt_bracket_threshold_1) * apportionment.vt_tax_rate_tier2; endif if apportionment.state_taxable_income &gt; apportionment.vt_bracket_threshold_2 then set apportionment.vt_calculated_tax = apportionment.vt_calculated_tax + (apportionment.state_taxable_income - apportionment.vt_bracket_threshold_2) * apportionment.vt_tax_rate_tier3; endif set apportionment.state_tax = the maximum of (apportionment.vt_calculated_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "VT tax calculated using graduated brackets: 6% on first $10K, 7% on $10K-$25K, 8.5% over $25K (one of highest state rates). Reference: 32 V.S.A. 5832" to job.audit_trail;</action_dsl>
+<action_dsl>set vt_apportionment.calculated_tax = (the minimum of (apportionment.state_taxable_income) and (vt_apportionment.bracket_threshold_1)) * vt_apportionment.tax_rate_tier1; if apportionment.state_taxable_income &gt; vt_apportionment.bracket_threshold_1 then set vt_apportionment.calculated_tax = vt_apportionment.calculated_tax + ((the minimum of (apportionment.state_taxable_income) and (vt_apportionment.bracket_threshold_2)) - vt_apportionment.bracket_threshold_1) * vt_apportionment.tax_rate_tier2; endif if apportionment.state_taxable_income &gt; vt_apportionment.bracket_threshold_2 then set vt_apportionment.calculated_tax = vt_apportionment.calculated_tax + (apportionment.state_taxable_income - vt_apportionment.bracket_threshold_2) * vt_apportionment.tax_rate_tier3; endif set apportionment.state_tax = the maximum of (vt_apportionment.calculated_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "VT tax calculated using graduated brackets: 6% on first $10K, 7% on $10K-$25K, 8.5% over $25K (one of highest state rates). Reference: 32 V.S.A. 5832" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.vt_bracket_threshold_1 fmin apportionment.vt_tax_rate_tier1 fmul cvd /apportionment.vt_calculated_tax xdef { apportionment.vt_calculated_tax apportionment.state_taxable_income apportionment.vt_bracket_threshold_2 fmin apportionment.vt_bracket_threshold_1 f- apportionment.vt_tax_rate_tier2 fmul f+ cvd /apportionment.vt_calculated_tax xdef } {} apportionment.state_taxable_income apportionment.vt_bracket_threshold_1 f&gt; ifelse { apportionment.vt_calculated_tax apportionment.state_taxable_income apportionment.vt_bracket_threshold_2 f- apportionment.vt_tax_rate_tier3 fmul f+ cvd /apportionment.vt_calculated_tax xdef } {} apportionment.state_taxable_income apportionment.vt_bracket_threshold_2 f&gt; ifelse apportionment.vt_calculated_tax apportionment.state_credits f- 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "VT tax calculated using graduated brackets: 6% on first $10K, 7% on $10K-$25K, 8.5% over $25K (one of highest state rates). Reference: 32 V.S.A. 5832" job.audit_trail swap addto
+apportionment.state_taxable_income vt_apportionment.bracket_threshold_1 fmin vt_apportionment.tax_rate_tier1 fmul cvd /vt_apportionment.calculated_tax xdef { vt_apportionment.calculated_tax apportionment.state_taxable_income vt_apportionment.bracket_threshold_2 fmin vt_apportionment.bracket_threshold_1 f- vt_apportionment.tax_rate_tier2 fmul f+ cvd /vt_apportionment.calculated_tax xdef } {} apportionment.state_taxable_income vt_apportionment.bracket_threshold_1 f&gt; ifelse { vt_apportionment.calculated_tax apportionment.state_taxable_income vt_apportionment.bracket_threshold_2 f- vt_apportionment.tax_rate_tier3 fmul f+ cvd /vt_apportionment.calculated_tax xdef } {} apportionment.state_taxable_income vt_apportionment.bracket_threshold_2 f&gt; ifelse vt_apportionment.calculated_tax apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "VT tax calculated using graduated brackets: 6% on first $10K, 7% on $10K-$25K, 8.5% over $25K (one of highest state rates). Reference: 32 V.S.A. 5832" job.audit_trail swap addto
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No VT nexus - no tax liability; No VT nexus - no tax</action_comment>
-<action_dsl>set apportionment.state_tax = 0.0; set apportionment.vt_calculated_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No VT nexus - no tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
+<action_dsl>set apportionment.state_tax = 0.0; set vt_apportionment.calculated_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No VT nexus - no tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef 0.0 cvd /apportionment.vt_calculated_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No VT nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef 0.0 cvd /vt_apportionment.calculated_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No VT nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Nexus but no taxable income; No VT taxable income - no tax</action_comment>
-<action_dsl>set apportionment.state_tax = 0.0; set apportionment.vt_calculated_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No VT taxable income - no tax. VT NOL rules may apply. Reference: 32 V.S.A. 5832" to job.audit_trail;</action_dsl>
+<action_dsl>set apportionment.state_tax = 0.0; set vt_apportionment.calculated_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No VT taxable income - no tax. VT NOL rules may apply. Reference: 32 V.S.A. 5832" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef 0.0 cvd /apportionment.vt_calculated_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No VT taxable income - no tax. VT NOL rules may apply. Reference: 32 V.S.A. 5832" job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef 0.0 cvd /vt_apportionment.calculated_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No VT taxable income - no tax. VT NOL rules may apply. Reference: 32 V.S.A. 5832" job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>

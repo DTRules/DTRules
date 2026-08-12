@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>TN_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="TN_corp.xlsx" access="rw">
+	<entity name="tn_apportionment" number="100" xls_file="TN_corp.xlsx" access="rw">
 		<source>
 			<relative_path>TN_corp.xlsx</relative_path>
 			<file_name>TN_corp.xlsx</file_name>
@@ -11,34 +11,30 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="TN uses single-sales factor apportionment"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="TN economic nexus threshold: $100,000 gross receipts"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="TN-specific additions to federal taxable income"></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="TN" comment="Tennessee - Two-letter state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="TN tax credits: jobs, investment, research, headquarters, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="TN-specific subtractions from federal taxable income"></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0650" comment="TN excise tax rate: 6.5% on net earnings (TN Code § 67-4-2007)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="TN economic nexus transaction threshold: 200 transactions"></field>
 	</entity>
-	<entity name="result" number="200" xls_file="TN_corp.xlsx" access="rw">
+	<entity name="tn_result" number="200" xls_file="TN_corp.xlsx" access="rw">
 		<source>
 			<relative_path>TN_corp.xlsx</relative_path>
 			<file_name>TN_corp.xlsx</file_name>
 			<sheet_number>6</sheet_number>
 		</source>
-		<field name="tn_excise_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="TN excise tax calculated: apportioned_income × 0.065"></field>
-		<field name="tn_franchise_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="TN franchise tax calculated: net_worth × 0.0025"></field>
-		<field name="tn_franchise_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0025" comment="TN franchise tax rate: 0.25% (TN Code § 67-4-2104)"></field>
-		<field name="tn_minimum_tax" type="double" subtype="" access="r" input="" default_value="100.0" comment="TN minimum combined tax: $100 (applies to both franchise + excise)"></field>
-		<field name="tn_net_worth" type="double" subtype="" access="r" input="" default_value="0.0" comment="TN net worth: greater of (1) capital stock + surplus + undivided profits or (2) property owned/used in TN"></field>
-		<field name="tn_net_worth_method" type="string" subtype="" access="r" input="" default_value="greater_of_book_or_property" comment="TN net worth calculation method: greater_of_book_or_property"></field>
-		<field name="tn_nol_deduction" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"></field>
-		<field name="tn_total_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="TN total tax: franchise_tax + excise_tax"></field>
+		<field name="excise_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="TN excise tax calculated: apportioned_income × 0.065"></field>
+		<field name="franchise_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="TN franchise tax calculated: net_worth × 0.0025"></field>
+		<field name="franchise_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0025" comment="TN franchise tax rate: 0.25% (TN Code § 67-4-2104)"></field>
+		<field name="minimum_tax" type="double" subtype="" access="r" input="" default_value="100.0" comment="TN minimum combined tax: $100 (applies to both franchise + excise)"></field>
+		<field name="net_worth" type="double" subtype="" access="r" input="" default_value="0.0" comment="TN net worth: greater of (1) capital stock + surplus + undivided profits or (2) property owned/used in TN"></field>
+		<field name="net_worth_method" type="string" subtype="" access="r" input="" default_value="greater_of_book_or_property" comment="TN net worth calculation method: greater_of_book_or_property"></field>
+		<field name="nol_deduction" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"></field>
+		<field name="total_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="TN total tax: franchise_tax + excise_tax"></field>
 	</entity>
-	<entity name="revenue" number="300" xls_file="TN_corp.xlsx" access="rw">
+	<entity name="tn_revenue" number="300" xls_file="TN_corp.xlsx" access="rw">
 		<source>
 			<relative_path>TN_corp.xlsx</relative_path>
 			<file_name>TN_corp.xlsx</file_name>
 			<sheet_number>6</sheet_number>
 		</source>
-		<field name="tn_municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"></field>
+		<field name="municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by TN but never declared (campaign #948 Phase 1)"></field>
 	</entity>
 </entity_data_dictionary>

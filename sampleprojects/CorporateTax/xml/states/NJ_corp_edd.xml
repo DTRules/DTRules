@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>NJ_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="NJ_corp.xlsx" access="rw">
+	<entity name="nj_apportionment" number="100" xls_file="NJ_corp.xlsx" access="rw">
 		<source>
 			<relative_path>NJ_corp.xlsx</relative_path>
 			<file_name>NJ_corp.xlsx</file_name>
@@ -11,22 +11,18 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="NJ uses single-sales factor apportionment"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="Economic nexus gross receipts threshold - NJ uses standard $100K threshold"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc."></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="NJ" comment="Two-letter state code - New Jersey"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="State tax credits: R&amp;D, jobs, film, renewable energy, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="State-specific subtractions: municipal interest, state taxes, state NOL, etc."></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0900" comment="NJ base corporate income tax rate - 9% (11.5% for income &gt; $1M with surtax)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="Economic nexus transaction count threshold - Default 200"></field>
 	</entity>
-	<entity name="result" number="200" xls_file="NJ_corp.xlsx" access="rw">
+	<entity name="nj_result" number="200" xls_file="NJ_corp.xlsx" access="rw">
 		<source>
 			<relative_path>NJ_corp.xlsx</relative_path>
 			<file_name>NJ_corp.xlsx</file_name>
 			<sheet_number>5</sheet_number>
 		</source>
-		<field name="nj_entire_net_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="NJ entire net income (NJ term for taxable income base)"></field>
-		<field name="nj_surtax" type="double" subtype="" access="r" input="" default_value="0.0" comment="NJ surtax amount calculated (2.5% of entire net income &gt; $1M)"></field>
-		<field name="nj_surtax_rate" type="double" subtype="" access="r" input="" default_value="0.025" comment="NJ surtax rate (2.5% for corporations with income &gt; $1M)"></field>
-		<field name="nj_surtax_threshold" type="double" subtype="" access="r" input="" default_value="1000000.0" comment="NJ surtax threshold ($1,000,000 entire net income)"></field>
+		<field name="entire_net_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="NJ entire net income (NJ term for taxable income base)"></field>
+		<field name="surtax" type="double" subtype="" access="r" input="" default_value="0.0" comment="NJ surtax amount calculated (2.5% of entire net income &gt; $1M)"></field>
+		<field name="surtax_rate" type="double" subtype="" access="r" input="" default_value="0.025" comment="NJ surtax rate (2.5% for corporations with income &gt; $1M)"></field>
+		<field name="surtax_threshold" type="double" subtype="" access="r" input="" default_value="1000000.0" comment="NJ surtax threshold ($1,000,000 entire net income)"></field>
 	</entity>
 </entity_data_dictionary>

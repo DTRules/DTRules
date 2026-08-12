@@ -64,9 +64,9 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "TN" st
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
-<action_dsl>set apportionment.state_tax = 0.0; set result.tn_franchise_tax = 0.0; set result.tn_excise_tax = 0.0; set result.tn_total_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No TN nexus - no filing requirement for franchise or excise tax. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
+<action_dsl>set apportionment.state_tax = 0.0; set tn_result.franchise_tax = 0.0; set tn_result.excise_tax = 0.0; set tn_result.total_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No TN nexus - no filing requirement for franchise or excise tax. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef 0.0 cvd /result.tn_franchise_tax xdef 0.0 cvd /result.tn_excise_tax xdef 0.0 cvd /result.tn_total_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No TN nexus - no filing requirement for franchise or excise tax. Any estimated payments would be refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef 0.0 cvd /tn_result.franchise_tax xdef 0.0 cvd /tn_result.excise_tax xdef 0.0 cvd /tn_result.total_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No TN nexus - no filing requirement for franchise or excise tax. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -110,9 +110,9 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate TN state additions and subtractions</action_comment>
-<action_dsl>set apportionment.state_additions = 0.0; if revenue.federal_bond_interest != null then set apportionment.state_additions = apportionment.state_additions + revenue.federal_bond_interest; endif if result.section_199a_deduction != null then set apportionment.state_additions = apportionment.state_additions + result.section_199a_deduction; endif if result.state_income_taxes_paid != null then set apportionment.state_additions = apportionment.state_additions + result.state_income_taxes_paid; endif set apportionment.state_subtractions = 0.0; if revenue.tn_municipal_interest != null then set apportionment.state_subtractions = apportionment.state_subtractions + revenue.tn_municipal_interest; endif if revenue.qualified_subsidiary_dividends != null then set apportionment.state_subtractions = apportionment.state_subtractions + revenue.qualified_subsidiary_dividends; endif if result.tn_nol_deduction != null then set apportionment.state_subtractions = apportionment.state_subtractions + result.tn_nol_deduction; endif add "TN state-specific income adjustments to federal taxable income. Additions include: Interest on federal obligations (U.S. Treasury bonds, etc.), IRC § 199A qualified business income deduction addback, State franchise and excise taxes paid (not deductible). Subtractions include: Interest on TN state and local bonds, Dividends from 80%+ owned subsidiaries, TN NOL carryforward deduction. Reference: TN Code § 67-4-2006 (Definitions of net earnings), Form FAE 170 Instructions (Schedule J - Adjustments), TN Revenue Ruling 09-13 (IRC conformity)" to job.audit_trail;</action_dsl>
+<action_dsl>set apportionment.state_additions = 0.0; if revenue.federal_bond_interest != null then set apportionment.state_additions = apportionment.state_additions + revenue.federal_bond_interest; endif if result.section_199a_deduction != null then set apportionment.state_additions = apportionment.state_additions + result.section_199a_deduction; endif if result.state_income_taxes_paid != null then set apportionment.state_additions = apportionment.state_additions + result.state_income_taxes_paid; endif set apportionment.state_subtractions = 0.0; if revenue.tn_municipal_interest != null then set apportionment.state_subtractions = apportionment.state_subtractions + revenue.tn_municipal_interest; endif if revenue.qualified_subsidiary_dividends != null then set apportionment.state_subtractions = apportionment.state_subtractions + revenue.qualified_subsidiary_dividends; endif if tn_result.nol_deduction != null then set apportionment.state_subtractions = apportionment.state_subtractions + tn_result.nol_deduction; endif add "TN state-specific income adjustments to federal taxable income. Additions include: Interest on federal obligations (U.S. Treasury bonds, etc.), IRC § 199A qualified business income deduction addback, State franchise and excise taxes paid (not deductible). Subtractions include: Interest on TN state and local bonds, Dividends from 80%+ owned subsidiaries, TN NOL carryforward deduction. Reference: TN Code § 67-4-2006 (Definitions of net earnings), Form FAE 170 Instructions (Schedule J - Adjustments), TN Revenue Ruling 09-13 (IRC conformity)" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_additions xdef { apportionment.state_additions revenue.federal_bond_interest f+ cvd /apportionment.state_additions xdef } {} revenue.federal_bond_interest null streq not ifelse { apportionment.state_additions result.section_199a_deduction f+ cvd /apportionment.state_additions xdef } {} result.section_199a_deduction null streq not ifelse { apportionment.state_additions result.state_income_taxes_paid f+ cvd /apportionment.state_additions xdef } {} result.state_income_taxes_paid null streq not ifelse 0.0 cvd /apportionment.state_subtractions xdef { apportionment.state_subtractions revenue.tn_municipal_interest f+ cvd /apportionment.state_subtractions xdef } {} revenue.tn_municipal_interest null streq not ifelse { apportionment.state_subtractions revenue.qualified_subsidiary_dividends f+ cvd /apportionment.state_subtractions xdef } {} revenue.qualified_subsidiary_dividends null streq not ifelse { apportionment.state_subtractions result.tn_nol_deduction f+ cvd /apportionment.state_subtractions xdef } {} result.tn_nol_deduction null streq not ifelse "TN state-specific income adjustments to federal taxable income. Additions include: Interest on federal obligations (U.S. Treasury bonds, etc.), IRC § 199A qualified business income deduction addback, State franchise and excise taxes paid (not deductible). Subtractions include: Interest on TN state and local bonds, Dividends from 80%+ owned subsidiaries, TN NOL carryforward deduction. Reference: TN Code § 67-4-2006 (Definitions of net earnings), Form FAE 170 Instructions (Schedule J - Adjustments), TN Revenue Ruling 09-13 (IRC conformity)" job.audit_trail swap addto
+0.0 cvd /apportionment.state_additions xdef { apportionment.state_additions revenue.federal_bond_interest f+ cvd /apportionment.state_additions xdef } {} revenue.federal_bond_interest null streq not ifelse { apportionment.state_additions result.section_199a_deduction f+ cvd /apportionment.state_additions xdef } {} result.section_199a_deduction null streq not ifelse { apportionment.state_additions result.state_income_taxes_paid f+ cvd /apportionment.state_additions xdef } {} result.state_income_taxes_paid null streq not ifelse 0.0 cvd /apportionment.state_subtractions xdef { apportionment.state_subtractions revenue.tn_municipal_interest f+ cvd /apportionment.state_subtractions xdef } {} revenue.tn_municipal_interest null streq not ifelse { apportionment.state_subtractions revenue.qualified_subsidiary_dividends f+ cvd /apportionment.state_subtractions xdef } {} revenue.qualified_subsidiary_dividends null streq not ifelse { apportionment.state_subtractions tn_result.nol_deduction f+ cvd /apportionment.state_subtractions xdef } {} tn_result.nol_deduction null streq not ifelse "TN state-specific income adjustments to federal taxable income. Additions include: Interest on federal obligations (U.S. Treasury bonds, etc.), IRC § 199A qualified business income deduction addback, State franchise and excise taxes paid (not deductible). Subtractions include: Interest on TN state and local bonds, Dividends from 80%+ owned subsidiaries, TN NOL carryforward deduction. Reference: TN Code § 67-4-2006 (Definitions of net earnings), Form FAE 170 Instructions (Schedule J - Adjustments), TN Revenue Ruling 09-13 (IRC conformity)" job.audit_trail swap addto
 </action_postfix>
 <columns>X-</columns>
 </action_details>
@@ -163,9 +163,9 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive net worth in TN</condition_comment>
-<condition_dsl>result.tn_net_worth &gt; 0</condition_dsl>
+<condition_dsl>tn_result.net_worth &gt; 0</condition_dsl>
 <condition_postfix>
-result.tn_net_worth 0 f&gt;
+tn_result.net_worth 0 f&gt;
 </condition_postfix>
 <columns>YN-</columns>
 </condition_details>
@@ -174,27 +174,27 @@ result.tn_net_worth 0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate franchise tax: 0.25% on net worth</action_comment>
-<action_dsl>set result.tn_franchise_tax = result.tn_net_worth * result.tn_franchise_tax_rate; add "TN franchise tax calculation: Net worth × 0.25%. Combined minimum tax (franchise + excise): $100. Reference: TN Code 67-4-2104" to job.audit_trail;</action_dsl>
+<action_dsl>set tn_result.franchise_tax = tn_result.net_worth * tn_result.franchise_tax_rate; add "TN franchise tax calculation: Net worth × 0.25%. Combined minimum tax (franchise + excise): $100. Reference: TN Code 67-4-2104" to job.audit_trail;</action_dsl>
 <action_postfix>
-result.tn_net_worth result.tn_franchise_tax_rate fmul cvd /result.tn_franchise_tax xdef "TN franchise tax calculation: Net worth × 0.25%. Combined minimum tax (franchise + excise): $100. Reference: TN Code 67-4-2104" job.audit_trail swap addto
+tn_result.net_worth tn_result.franchise_tax_rate fmul cvd /tn_result.franchise_tax xdef "TN franchise tax calculation: Net worth × 0.25%. Combined minimum tax (franchise + excise): $100. Reference: TN Code 67-4-2104" job.audit_trail swap addto
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No net worth - franchise tax is zero</action_comment>
-<action_dsl>set result.tn_franchise_tax = 0.0; add "No net worth in TN - no franchise tax liability. Excise tax may still apply if there is net earnings." to job.audit_trail;</action_dsl>
+<action_dsl>set tn_result.franchise_tax = 0.0; add "No net worth in TN - no franchise tax liability. Excise tax may still apply if there is net earnings." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.tn_franchise_tax xdef "No net worth in TN - no franchise tax liability. Excise tax may still apply if there is net earnings." job.audit_trail swap addto
+0.0 cvd /tn_result.franchise_tax xdef "No net worth in TN - no franchise tax liability. Excise tax may still apply if there is net earnings." job.audit_trail swap addto
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No TN nexus - no franchise tax liability</action_comment>
-<action_dsl>set result.tn_franchise_tax = 0.0; add "No TN nexus - no franchise tax liability." to job.audit_trail;</action_dsl>
+<action_dsl>set tn_result.franchise_tax = 0.0; add "No TN nexus - no franchise tax liability." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.tn_franchise_tax xdef "No TN nexus - no franchise tax liability." job.audit_trail swap addto
+0.0 cvd /tn_result.franchise_tax xdef "No TN nexus - no franchise tax liability." job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -238,7 +238,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive apportioned taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 &gt;
+apportionment.state_taxable_income 0 f&gt;
 </condition_postfix>
 <columns>YN-</columns>
 </condition_details>
@@ -247,27 +247,27 @@ apportionment.state_taxable_income 0 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate excise tax: 6.5% on apportioned income</action_comment>
-<action_dsl>set result.tn_excise_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set result.tn_excise_tax = the maximum of (result.tn_excise_tax - apportionment.state_credits) and (0.0); set result.tn_total_tax = result.tn_franchise_tax + result.tn_excise_tax; set result.tn_total_tax = the maximum of (result.tn_minimum_tax) and (result.tn_total_tax); set apportionment.state_tax = result.tn_total_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "TN franchise and excise tax calculated. Excise: 6.5% on net earnings. Franchise: 0.25% on net worth. Minimum $100. Reference: TN Code 67-4-2007, 67-4-2104" to job.audit_trail;</action_dsl>
+<action_dsl>set tn_result.excise_tax = apportionment.state_taxable_income * tn_apportionment.state_tax_rate; set tn_result.excise_tax = the maximum of (tn_result.excise_tax - apportionment.state_credits) and (0.0); set tn_result.total_tax = tn_result.franchise_tax + tn_result.excise_tax; set tn_result.total_tax = the maximum of (tn_result.minimum_tax) and (tn_result.total_tax); set apportionment.state_tax = tn_result.total_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "TN franchise and excise tax calculated. Excise: 6.5% on net earnings. Franchise: 0.25% on net worth. Minimum $100. Reference: TN Code 67-4-2007, 67-4-2104" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /result.tn_excise_tax xdef result.tn_excise_tax apportionment.state_credits f- 0.0 fmax cvd /result.tn_excise_tax xdef result.tn_franchise_tax result.tn_excise_tax f+ cvd /result.tn_total_tax xdef result.tn_minimum_tax result.tn_total_tax fmax cvd /result.tn_total_tax xdef result.tn_total_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "TN franchise and excise tax calculated. Excise: 6.5% on net earnings. Franchise: 0.25% on net worth. Minimum $100. Reference: TN Code 67-4-2007, 67-4-2104" job.audit_trail swap addto
+apportionment.state_taxable_income tn_apportionment.state_tax_rate fmul cvd /tn_result.excise_tax xdef tn_result.excise_tax apportionment.state_credits f- 0.0 fmax cvd /tn_result.excise_tax xdef tn_result.franchise_tax tn_result.excise_tax f+ cvd /tn_result.total_tax xdef tn_result.minimum_tax tn_result.total_tax fmax cvd /tn_result.total_tax xdef tn_result.total_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "TN franchise and excise tax calculated. Excise: 6.5% on net earnings. Franchise: 0.25% on net worth. Minimum $100. Reference: TN Code 67-4-2007, 67-4-2104" job.audit_trail swap addto
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No net earnings - excise tax is zero</action_comment>
-<action_dsl>set result.tn_excise_tax = 0.0; set result.tn_total_tax = result.tn_franchise_tax; if result.tn_franchise_tax &gt; 0 then set result.tn_total_tax = the maximum of (result.tn_minimum_tax) and (result.tn_total_tax); endif set apportionment.state_tax = result.tn_total_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "No TN net earnings - no excise tax. Franchise tax still applies if there is net worth. Minimum $100 if franchise tax owed." to job.audit_trail;</action_dsl>
+<action_dsl>set tn_result.excise_tax = 0.0; set tn_result.total_tax = tn_result.franchise_tax; if tn_result.franchise_tax &gt; 0 then set tn_result.total_tax = the maximum of (tn_result.minimum_tax) and (tn_result.total_tax); endif set apportionment.state_tax = tn_result.total_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "No TN net earnings - no excise tax. Franchise tax still applies if there is net worth. Minimum $100 if franchise tax owed." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.tn_excise_tax xdef result.tn_franchise_tax cvd /result.tn_total_tax xdef { result.tn_minimum_tax result.tn_total_tax fmax cvd /result.tn_total_tax xdef } {} result.tn_franchise_tax 0 f&gt; ifelse result.tn_total_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "No TN net earnings - no excise tax. Franchise tax still applies if there is net worth. Minimum $100 if franchise tax owed." job.audit_trail swap addto
+0.0 cvd /tn_result.excise_tax xdef tn_result.franchise_tax cvd /tn_result.total_tax xdef { tn_result.minimum_tax tn_result.total_tax fmax cvd /tn_result.total_tax xdef } {} tn_result.franchise_tax 0 f&gt; ifelse tn_result.total_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "No TN net earnings - no excise tax. Franchise tax still applies if there is net worth. Minimum $100 if franchise tax owed." job.audit_trail swap addto
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no excise tax or franchise tax liability</action_comment>
-<action_dsl>set result.tn_excise_tax = 0.0; set result.tn_total_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No TN nexus - no excise tax or franchise tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
+<action_dsl>set tn_result.excise_tax = 0.0; set tn_result.total_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No TN nexus - no excise tax or franchise tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.tn_excise_tax xdef 0.0 cvd /result.tn_total_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No TN nexus - no excise tax or franchise tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+0.0 cvd /tn_result.excise_tax xdef 0.0 cvd /tn_result.total_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No TN nexus - no excise tax or franchise tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>

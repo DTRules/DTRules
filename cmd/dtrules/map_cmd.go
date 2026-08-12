@@ -208,11 +208,19 @@ func (ctx *tableCmdCtx) mapPatch(mapFile string) int {
 
 // applyMapOp is the whole edit vocabulary.
 //
-// add-entity does two things, because "this entity exists" is two declarations
-// in a mapping: a cardinality entry, and a push onto the initialization stack.
+// add-entity does three things, because "this entity exists" is three
+// declarations in a mapping: a cardinality entry, a push onto the
+// initialization stack, and a tag the data loader will recognise.
+//
 // An entity with only the first is declared and never created, which is a rule
 // that fails at run time with "not defined by any Entity on the Entity Stack".
-// Making a caller remember both would be an invitation to that bug.
+// Without the third, the entity works but no document can be *rooted* at it:
+// an unmapped element is unknown markup, so the loader skips it and every
+// child tag inside it, silently. That is how CorporateTax's per-state data
+// documents loaded to all zeroes while the rules ran perfectly (#1094) -- the
+// child tags were mapped, and never seen, because their wrapper was not.
+//
+// Making a caller remember all three would be an invitation to both bugs.
 func applyMapOp(m *excel.MapXML, op mapPatchOp) error {
 	switch op.Op {
 	case "add-entity":
@@ -232,6 +240,26 @@ func applyMapOp(m *excel.MapXML, op mapPatchOp) error {
 		if number == "1" {
 			m.InitialEntities = append(m.InitialEntities,
 				excel.MapInitialEntity{Entity: op.Entity, EPush: true})
+		}
+		// The tag defaults to the entity's own name, so <nv_result> in a data
+		// document means the nv_result entity. For a singleton this binds to
+		// the instance the initialization stack already pushed rather than
+		// building a second one, which is what makes loading data in several
+		// documents work: federal first, then a document per state.
+		tag := op.Tag
+		if tag == "" {
+			tag = op.Entity
+		}
+		hasTag := false
+		for _, c := range m.CreateEntities {
+			if strings.EqualFold(c.Tag, tag) {
+				hasTag = true
+				break
+			}
+		}
+		if !hasTag {
+			m.CreateEntities = append(m.CreateEntities,
+				excel.MapCreateEntity{Entity: op.Entity, Tag: tag, ID: "id"})
 		}
 		return nil
 
@@ -256,6 +284,15 @@ func applyMapOp(m *excel.MapXML, op mapPatchOp) error {
 			}
 		}
 		m.InitialEntities = inits
+		// Symmetric with add-entity: leaving the tag behind would leave a
+		// mapping that creates an entity nothing declares.
+		creates := m.CreateEntities[:0]
+		for _, c := range m.CreateEntities {
+			if !strings.EqualFold(c.Entity, op.Entity) {
+				creates = append(creates, c)
+			}
+		}
+		m.CreateEntities = creates
 		return nil
 
 	case "add-attribute":

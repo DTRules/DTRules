@@ -3,36 +3,36 @@
 	<file_metadata>
 		<file_path>KS_corp_edd</file_path>
 	</file_metadata>
-	<entity name="result" number="100" xls_file="KS_corp.xlsx" access="rw">
+	<entity name="ks_result" number="100" xls_file="KS_corp.xlsx" access="rw">
 		<source>
 			<relative_path>KS_corp.xlsx</relative_path>
 			<file_name>KS_corp.xlsx</file_name>
 			<sheet_number>4</sheet_number>
 		</source>
-		<field name="ks_apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
-		<field name="ks_apportionment_formula" type="string" subtype="" access="r" input="" default_value="three_factor" comment="KS uses three-factor apportionment (property, payroll, sales) with optional two-factor; single-sales for 2027+"></field>
-		<field name="ks_base_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS base tax at 4.0% on all income"></field>
-		<field name="ks_corp_tax_base_rate" type="double" subtype="" access="r" input="" default_value="0.04" comment="KS corporate income tax base rate: 4.0% (includes 0.5% temporary increase, K.S.A. 79-32,110)"></field>
-		<field name="ks_corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.07" comment="KS effective combined rate: 7.0% (4.0% base + 3.0% surtax) on income over $50,000"></field>
-		<field name="ks_corp_tax_surtax_rate" type="double" subtype="" access="r" input="" default_value="0.03" comment="KS corporate income tax surtax: 3.0% on income over $50,000 (K.S.A. 79-32,110)"></field>
-		<field name="ks_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="KS economic nexus gross receipts threshold: $100,000"></field>
-		<field name="ks_estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
-		<field name="ks_gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
-		<field name="ks_has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Whether corporation has nexus with Kansas"></field>
-		<field name="ks_income_above_threshold" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS taxable income above $50,000 surtax threshold (subject to surtax)"></field>
-		<field name="ks_income_below_threshold" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS taxable income below $50,000 surtax threshold"></field>
-		<field name="ks_municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
-		<field name="ks_refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
-		<field name="ks_state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS additions to federal taxable income (federal interest income, state income tax refunds, IRC 163(j) adjustments, etc.)"></field>
-		<field name="ks_state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS tax credits (job creation, film production, historic preservation, community service contribution, etc.)"></field>
-		<field name="ks_state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS subtractions from federal taxable income (Kansas municipal bond interest, state income taxes paid, Kansas NOL, etc.)"></field>
-		<field name="ks_state_tax_refunds" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
-		<field name="ks_state_taxes_paid" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
-		<field name="ks_surtax" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS surtax at 3.0% on income above $50,000"></field>
-		<field name="ks_surtax_threshold" type="double" subtype="" access="r" input="" default_value="50000.0" comment="KS surtax threshold: $50,000 - surtax applies to income above this amount"></field>
-		<field name="ks_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS corporate income tax liability"></field>
-		<field name="ks_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS taxable income after apportionment and modifications"></field>
-		<field name="ks_transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="KS economic nexus transaction count threshold: 200 transactions"></field>
-		<field name="ks_us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
+		<field name="apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="three_factor" comment="KS uses three-factor apportionment (property, payroll, sales) with optional two-factor; single-sales for 2027+"></field>
+		<field name="base_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS base tax at 4.0% on all income"></field>
+		<field name="corp_tax_base_rate" type="double" subtype="" access="r" input="" default_value="0.04" comment="KS corporate income tax base rate: 4.0% (includes 0.5% temporary increase, K.S.A. 79-32,110)"></field>
+		<field name="corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.07" comment="KS effective combined rate: 7.0% (4.0% base + 3.0% surtax) on income over $50,000"></field>
+		<field name="corp_tax_surtax_rate" type="double" subtype="" access="r" input="" default_value="0.03" comment="KS corporate income tax surtax: 3.0% on income over $50,000 (K.S.A. 79-32,110)"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="KS economic nexus gross receipts threshold: $100,000"></field>
+		<field name="estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
+		<field name="gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
+		<field name="has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Whether corporation has nexus with Kansas"></field>
+		<field name="income_above_threshold" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS taxable income above $50,000 surtax threshold (subject to surtax)"></field>
+		<field name="income_below_threshold" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS taxable income below $50,000 surtax threshold"></field>
+		<field name="municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
+		<field name="refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS additions to federal taxable income (federal interest income, state income tax refunds, IRC 163(j) adjustments, etc.)"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS tax credits (job creation, film production, historic preservation, community service contribution, etc.)"></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS subtractions from federal taxable income (Kansas municipal bond interest, state income taxes paid, Kansas NOL, etc.)"></field>
+		<field name="state_tax_refunds" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
+		<field name="state_taxes_paid" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
+		<field name="surtax" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS surtax at 3.0% on income above $50,000"></field>
+		<field name="surtax_threshold" type="double" subtype="" access="r" input="" default_value="50000.0" comment="KS surtax threshold: $50,000 - surtax applies to income above this amount"></field>
+		<field name="tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS corporate income tax liability"></field>
+		<field name="taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="KS taxable income after apportionment and modifications"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="KS economic nexus transaction count threshold: 200 transactions"></field>
+		<field name="us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KS but never declared (campaign #948 Phase 1)"></field>
 	</entity>
 </entity_data_dictionary>

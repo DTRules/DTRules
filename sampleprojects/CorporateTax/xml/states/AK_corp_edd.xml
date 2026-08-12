@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>AK_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="AK_corp.xlsx" access="rw">
+	<entity name="ak_apportionment" number="100" xls_file="AK_corp.xlsx" access="rw">
 		<source>
 			<relative_path>AK_corp.xlsx</relative_path>
 			<file_name>AK_corp.xlsx</file_name>
@@ -11,10 +11,6 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="three_factor" comment="Alaska uses traditional three-factor UDITPA apportionment (property, payroll, sales)"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="Alaska economic nexus gross receipts threshold - $100,000"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Alaska additions to federal taxable income"></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="AK" comment="Alaska state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="Alaska tax credits"></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Alaska subtractions from federal taxable income"></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.093" comment="Alaska corporate income tax rate: 9.3% flat rate (AK Stat. § 43.20.011)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="Alaska economic nexus transaction count threshold - 200"></field>
 	</entity>

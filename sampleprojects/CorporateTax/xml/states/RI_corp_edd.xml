@@ -3,14 +3,14 @@
 	<file_metadata>
 		<file_path>RI_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="RI_corp.xlsx" access="rw">
+	<entity name="ri_apportionment" number="100" xls_file="RI_corp.xlsx" access="rw">
 		<source>
 			<relative_path>RI_corp.xlsx</relative_path>
 			<file_name>RI_corp.xlsx</file_name>
 			<sheet_number>4</sheet_number>
 		</source>
-		<field name="ri_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="RI economic nexus gross receipts threshold - $100,000"></field>
-		<field name="ri_state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.070" comment="RI corporate income tax rate - 7% flat rate (R.I. Gen. Laws § 44-11-2)"></field>
-		<field name="ri_transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="RI economic nexus transaction count threshold - 200"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="RI economic nexus gross receipts threshold - $100,000"></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.070" comment="RI corporate income tax rate - 7% flat rate (R.I. Gen. Laws § 44-11-2)"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="RI economic nexus transaction count threshold - 200"></field>
 	</entity>
 </entity_data_dictionary>

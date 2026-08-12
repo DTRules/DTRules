@@ -3,25 +3,21 @@
 	<file_metadata>
 		<file_path>VT_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="VT_corp.xlsx" access="rw">
+	<entity name="vt_apportionment" number="100" xls_file="VT_corp.xlsx" access="rw">
 		<source>
 			<relative_path>VT_corp.xlsx</relative_path>
 			<file_name>VT_corp.xlsx</file_name>
 			<sheet_number>4</sheet_number>
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="VT uses single-sales factor apportionment (100% sales factor)"></field>
+		<field name="bracket_threshold_1" type="double" subtype="" access="r" input="" default_value="10000.0" comment="VT first bracket threshold: $10,000"></field>
+		<field name="bracket_threshold_2" type="double" subtype="" access="r" input="" default_value="25000.0" comment="VT second bracket threshold: $25,000"></field>
+		<field name="calculated_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="VT corporate tax calculated using graduated brackets (before credits)"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="VT economic nexus threshold: $100,000 (sales tax standard; income tax uses &#34;doing business&#34; test)"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="VT additions: federal interest income, certain expenses, state tax modifications, etc."></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="VT" comment="Vermont state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="VT tax credits: R&amp;D, affordable housing, renewable energy, historic preservation, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="VT subtractions: VT municipal bond interest, state NOL, dividend deductions, etc."></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.085" comment="VT top corporate income tax rate: 8.5% (one of highest state rates) - 32 V.S.A. § 5832"></field>
+		<field name="tax_rate_tier1" type="double" subtype="" access="r" input="" default_value="0.060" comment="VT corporate tax rate tier 1: 6.0% on income $0-$10,000 - 32 V.S.A. § 5832"></field>
+		<field name="tax_rate_tier2" type="double" subtype="" access="r" input="" default_value="0.070" comment="VT corporate tax rate tier 2: 7.0% on income $10,001-$25,000 - 32 V.S.A. § 5832"></field>
+		<field name="tax_rate_tier3" type="double" subtype="" access="r" input="" default_value="0.085" comment="VT corporate tax rate tier 3: 8.5% on income over $25,000 - 32 V.S.A. § 5832"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="VT no longer uses transaction threshold (repealed July 1, 2022)"></field>
-		<field name="vt_bracket_threshold_1" type="double" subtype="" access="r" input="" default_value="10000.0" comment="VT first bracket threshold: $10,000"></field>
-		<field name="vt_bracket_threshold_2" type="double" subtype="" access="r" input="" default_value="25000.0" comment="VT second bracket threshold: $25,000"></field>
-		<field name="vt_calculated_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="VT corporate tax calculated using graduated brackets (before credits)"></field>
-		<field name="vt_tax_rate_tier1" type="double" subtype="" access="r" input="" default_value="0.060" comment="VT corporate tax rate tier 1: 6.0% on income $0-$10,000 - 32 V.S.A. § 5832"></field>
-		<field name="vt_tax_rate_tier2" type="double" subtype="" access="r" input="" default_value="0.070" comment="VT corporate tax rate tier 2: 7.0% on income $10,001-$25,000 - 32 V.S.A. § 5832"></field>
-		<field name="vt_tax_rate_tier3" type="double" subtype="" access="r" input="" default_value="0.085" comment="VT corporate tax rate tier 3: 8.5% on income over $25,000 - 32 V.S.A. § 5832"></field>
 	</entity>
 </entity_data_dictionary>

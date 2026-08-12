@@ -3,25 +3,25 @@
 	<file_metadata>
 		<file_path>OR_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="OR_corp.xlsx" access="rw">
+	<entity name="or_apportionment" number="100" xls_file="OR_corp.xlsx" access="rw">
 		<source>
 			<relative_path>OR_corp.xlsx</relative_path>
 			<file_name>OR_corp.xlsx</file_name>
 			<sheet_number>4</sheet_number>
 		</source>
-		<field name="or_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="750000.0" comment="OR economic nexus threshold: $750,000 in Oregon sales (higher than typical)"></field>
-		<field name="or_state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.066" comment="OR corporate excise tax rate: 6.6% flat rate (7.6% for financial institutions) - ORS 317.061"></field>
-		<field name="or_transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="OR economic nexus transaction count threshold: 200 transactions"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="750000.0" comment="OR economic nexus threshold: $750,000 in Oregon sales (higher than typical)"></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.066" comment="OR corporate excise tax rate: 6.6% flat rate (7.6% for financial institutions) - ORS 317.061"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="OR economic nexus transaction count threshold: 200 transactions"></field>
 	</entity>
-	<entity name="result" number="200" xls_file="OR_corp.xlsx" access="rw">
+	<entity name="or_result" number="200" xls_file="OR_corp.xlsx" access="rw">
 		<source>
 			<relative_path>OR_corp.xlsx</relative_path>
 			<file_name>OR_corp.xlsx</file_name>
 			<sheet_number>4</sheet_number>
 		</source>
-		<field name="or_financial_institution_rate" type="double" subtype="" access="r" input="" default_value="0.076" comment="OR tax rate for financial institutions: 7.6% - ORS 317.061(2)"></field>
-		<field name="or_is_financial_institution" type="boolean" subtype="" access="r" input="" default_value="false" comment="Is financial institution subject to 7.6% rate instead of 6.6%"></field>
-		<field name="or_minimum_tax" type="double" subtype="" access="r" input="" default_value="150.0" comment="OR minimum excise tax based on Oregon sales - ORS 317.090"></field>
-		<field name="or_sales_in_oregon" type="double" subtype="" access="r" input="" default_value="0.0" comment="Sales attributed to Oregon for minimum tax calculation"></field>
+		<field name="financial_institution_rate" type="double" subtype="" access="r" input="" default_value="0.076" comment="OR tax rate for financial institutions: 7.6% - ORS 317.061(2)"></field>
+		<field name="is_financial_institution" type="boolean" subtype="" access="r" input="" default_value="false" comment="Is financial institution subject to 7.6% rate instead of 6.6%"></field>
+		<field name="minimum_tax" type="double" subtype="" access="r" input="" default_value="150.0" comment="OR minimum excise tax based on Oregon sales - ORS 317.090"></field>
+		<field name="sales_in_oregon" type="double" subtype="" access="r" input="" default_value="0.0" comment="Sales attributed to Oregon for minimum tax calculation"></field>
 	</entity>
 </entity_data_dictionary>

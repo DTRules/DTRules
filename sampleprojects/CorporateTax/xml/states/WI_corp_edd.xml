@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>WI_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="WI_corp.xlsx" access="rw">
+	<entity name="wi_apportionment" number="100" xls_file="WI_corp.xlsx" access="rw">
 		<source>
 			<relative_path>WI_corp.xlsx</relative_path>
 			<file_name>WI_corp.xlsx</file_name>
@@ -11,10 +11,6 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="Wisconsin uses single-sales apportionment formula"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="Wisconsin economic nexus gross receipts threshold - $100,000"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Wisconsin-specific additions to federal taxable income"></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="WI" comment="Wisconsin state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="Wisconsin tax credits: business development, jobs, R&amp;D, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Wisconsin-specific subtractions from federal taxable income"></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.079" comment="Wisconsin corporate income tax rate - 7.9% flat rate (WI Stat. § 71.27)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="Wisconsin economic nexus transaction count threshold - 200"></field>
 	</entity>

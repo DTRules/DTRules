@@ -55,7 +55,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DC" st
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
-<action_dsl>// No nexus - no filing required; set apportionment.state_tax = 0.0; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
+<action_dsl>// No nexus - no filing required; set apportionment.state_tax = 0.0; set dc_result.minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix></action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -149,14 +149,14 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>DC flat rate calculation (8.25%)</action_comment>
-<action_dsl>// DC uses 8.25% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits;</action_dsl>
+<action_dsl>// DC uses 8.25% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * dc_apportionment.state_tax_rate - apportionment.state_credits;</action_dsl>
 <action_postfix></action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no tax liability</action_comment>
-<action_dsl>// No DC nexus - no tax liability; set apportionment.state_tax = 0.0; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
+<action_dsl>// No DC nexus - no tax liability; set apportionment.state_tax = 0.0; set dc_result.minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix></action_postfix>
 <columns>-X-</columns>
 </action_details>
@@ -200,9 +200,9 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>DC gross receipts exceed $1 million</condition_comment>
-<condition_dsl>result.dc_gross_receipts &gt; 1000000.0</condition_dsl>
+<condition_dsl>dc_result.gross_receipts &gt; 1000000.0</condition_dsl>
 <condition_postfix>
-result.dc_gross_receipts 1000000.0 f&gt;
+dc_result.gross_receipts 1000000.0 f&gt;
 </condition_postfix>
 <columns>YN-</columns>
 </condition_details>
@@ -211,23 +211,23 @@ result.dc_gross_receipts 1000000.0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>High gross receipts - $1,000 minimum</action_comment>
-<action_dsl>// Minimum tax: $1,000 for gross receipts &gt; $1M; set result.dc_minimum_tax = 1000.0; set apportionment.state_tax = max(apportionment.state_tax, result.dc_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>// Minimum tax: $1,000 for gross receipts &gt; $1M; set dc_result.minimum_tax = 1000.0; set apportionment.state_tax = max(apportionment.state_tax, dc_result.minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix></action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Low gross receipts - $250 minimum</action_comment>
-<action_dsl>set result.dc_minimum_tax = 250.0; if apportionment.state_tax &gt; result.dc_minimum_tax then set apportionment.state_tax = apportionment.state_tax; else set apportionment.state_tax = result.dc_minimum_tax; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>set dc_result.minimum_tax = 250.0; if apportionment.state_tax &gt; dc_result.minimum_tax then set apportionment.state_tax = apportionment.state_tax; else set apportionment.state_tax = dc_result.minimum_tax; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-250.0 cvd /result.dc_minimum_tax xdef { apportionment.state_tax cvi /apportionment.state_tax xdef } { result.dc_minimum_tax cvi /apportionment.state_tax xdef } apportionment.state_tax result.dc_minimum_tax f&gt; ifelse apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
+250.0 cvd /dc_result.minimum_tax xdef { apportionment.state_tax cvd /apportionment.state_tax xdef } { dc_result.minimum_tax cvd /apportionment.state_tax xdef } apportionment.state_tax dc_result.minimum_tax f&gt; ifelse apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no minimum tax</action_comment>
-<action_dsl>// No DC nexus - no minimum tax requirement; set result.dc_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
+<action_dsl>// No DC nexus - no minimum tax requirement; set dc_result.minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix></action_postfix>
 <columns>--X</columns>
 </action_details>

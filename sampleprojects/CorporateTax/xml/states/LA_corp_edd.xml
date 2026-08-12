@@ -3,28 +3,28 @@
 	<file_metadata>
 		<file_path>LA_corp_edd</file_path>
 	</file_metadata>
-	<entity name="result" number="100" xls_file="LA_corp.xlsx" access="rw">
+	<entity name="la_result" number="100" xls_file="LA_corp.xlsx" access="rw">
 		<source>
 			<relative_path>LA_corp.xlsx</relative_path>
 			<file_name>LA_corp.xlsx</file_name>
 			<sheet_number>4</sheet_number>
 		</source>
-		<field name="la_apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"></field>
-		<field name="la_apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="LA uses single-sales factor apportionment (100% sales)"></field>
-		<field name="la_corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.055" comment="LA corporate income tax rate: 5.5% flat rate (effective 2025, replaced graduated rates up to 7.5%, LA R.S. 47:287)"></field>
-		<field name="la_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="LA economic nexus gross receipts threshold: $100,000"></field>
-		<field name="la_estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"></field>
-		<field name="la_gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"></field>
-		<field name="la_has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Whether corporation has nexus with Louisiana"></field>
-		<field name="la_municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"></field>
-		<field name="la_refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"></field>
-		<field name="la_standard_deduction" type="double" subtype="" access="r" input="" default_value="20000.0" comment="LA corporate standard deduction: $20,000 (new for 2025 tax reform)"></field>
-		<field name="la_state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="LA additions to federal taxable income (federal bond interest, certain state tax refunds, etc.)"></field>
-		<field name="la_state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="LA tax credits (reduced significantly in 2025 reform - many credits eliminated)"></field>
-		<field name="la_state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="LA subtractions from federal taxable income (standard deduction, LA municipal interest, qualified property expensing, etc.)"></field>
-		<field name="la_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="LA corporate income tax liability"></field>
-		<field name="la_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="LA taxable income after apportionment and modifications"></field>
-		<field name="la_transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="LA eliminated transaction count threshold in 2023"></field>
-		<field name="la_us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"></field>
+		<field name="apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"></field>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="LA uses single-sales factor apportionment (100% sales)"></field>
+		<field name="corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.055" comment="LA corporate income tax rate: 5.5% flat rate (effective 2025, replaced graduated rates up to 7.5%, LA R.S. 47:287)"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="LA economic nexus gross receipts threshold: $100,000"></field>
+		<field name="estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"></field>
+		<field name="gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"></field>
+		<field name="has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Whether corporation has nexus with Louisiana"></field>
+		<field name="municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"></field>
+		<field name="refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"></field>
+		<field name="standard_deduction" type="double" subtype="" access="r" input="" default_value="20000.0" comment="LA corporate standard deduction: $20,000 (new for 2025 tax reform)"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="LA additions to federal taxable income (federal bond interest, certain state tax refunds, etc.)"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="LA tax credits (reduced significantly in 2025 reform - many credits eliminated)"></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="LA subtractions from federal taxable income (standard deduction, LA municipal interest, qualified property expensing, etc.)"></field>
+		<field name="tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="LA corporate income tax liability"></field>
+		<field name="taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="LA taxable income after apportionment and modifications"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="LA eliminated transaction count threshold in 2023"></field>
+		<field name="us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by LA but never declared (campaign #948 Phase 1)"></field>
 	</entity>
 </entity_data_dictionary>

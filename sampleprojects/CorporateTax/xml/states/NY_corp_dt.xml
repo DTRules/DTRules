@@ -57,7 +57,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NY" st
 <action_comment>No nexus - no filing required; No NY nexus - any estimated payments would be refunded</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -146,7 +146,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 &gt;
+apportionment.state_taxable_income 0 f&gt;
 </condition_postfix>
 <columns>Y*N</columns>
 </condition_details>
@@ -155,9 +155,9 @@ apportionment.state_taxable_income 0 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate NY tax at 6.5% flat rate; NY uses flat 6.5% rate (Tax Law § 209), subtract credits, calculate refund/owed</action_comment>
-<action_dsl>set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>set apportionment.state_tax = the maximum of (apportionment.state_taxable_income * ny_apportionment.state_tax_rate - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
+apportionment.state_taxable_income ny_apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
@@ -166,7 +166,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_comment>No nexus - no tax liability; No NY nexus - any estimated payments are refunded</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
@@ -175,7 +175,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionme
 <action_comment>Nexus but no taxable income - no tax liability; No NY taxable income - NY NOL rules may apply (not implemented)</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -212,9 +212,9 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Business operates in MTA region</condition_comment>
-<condition_dsl>result.ny_in_mta_region == true</condition_dsl>
+<condition_dsl>ny_result.in_mta_region == true</condition_dsl>
 <condition_postfix>
-result.ny_in_mta_region true beq
+ny_result.in_mta_region true beq
 </condition_postfix>
 <columns>YN*Y</columns>
 </condition_details>
@@ -223,7 +223,7 @@ result.ny_in_mta_region true beq
 <condition_comment>Has positive tax base for surcharge calculation</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 &gt;
+apportionment.state_taxable_income 0 f&gt;
 </condition_postfix>
 <columns>Y**N</columns>
 </condition_details>
@@ -232,36 +232,36 @@ apportionment.state_taxable_income 0 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate MTA surcharge at 0.34%; MTA surcharge is 0.34% of business income base, add to total state tax, recalculate refund/owed</action_comment>
-<action_dsl>set result.ny_mta_surcharge = apportionment.state_taxable_income * result.ny_mta_surcharge_rate; set apportionment.state_tax = apportionment.state_tax + result.ny_mta_surcharge; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>set ny_result.mta_surcharge = apportionment.state_taxable_income * ny_result.mta_surcharge_rate; set apportionment.state_tax = apportionment.state_tax + ny_result.mta_surcharge; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income result.ny_mta_surcharge_rate fmul cvd /result.ny_mta_surcharge xdef apportionment.state_tax result.ny_mta_surcharge f+ cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
+apportionment.state_taxable_income ny_result.mta_surcharge_rate fmul cvd /ny_result.mta_surcharge xdef apportionment.state_tax ny_result.mta_surcharge f+ cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No MTA surcharge - not in MTA region</action_comment>
-<action_dsl>set result.ny_mta_surcharge = 0.0;</action_dsl>
+<action_dsl>set ny_result.mta_surcharge = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.ny_mta_surcharge xdef
+0.0 cvd /ny_result.mta_surcharge xdef
 </action_postfix>
 <columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No MTA surcharge - no nexus; No MTA surcharge - no NY nexus or no taxable income</action_comment>
-<action_dsl>set result.ny_mta_surcharge = 0.0;</action_dsl>
+<action_dsl>set ny_result.mta_surcharge = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.ny_mta_surcharge xdef
+0.0 cvd /ny_result.mta_surcharge xdef
 </action_postfix>
 <columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>No MTA surcharge - no positive tax base; No positive tax base for surcharge calculation</action_comment>
-<action_dsl>set result.ny_mta_surcharge = 0.0;</action_dsl>
+<action_dsl>set ny_result.mta_surcharge = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.ny_mta_surcharge xdef
+0.0 cvd /ny_result.mta_surcharge xdef
 </action_postfix>
 <columns>---X</columns>
 </action_details>
