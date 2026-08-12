@@ -42,6 +42,11 @@ const (
 // Exporter exports decision tables and EDD to Excel format.
 type Exporter struct {
 	ruleSet *session.RuleSet
+	// scopedTo is the workbook key an export is currently confined to, or ""
+	// for a whole-project export. Set for the duration of one workbook's
+	// export so the EDD sheet carries that workbook's own declarations and
+	// nobody else's (#1109).
+	scopedTo string
 }
 
 // NewExporter creates a new Excel exporter.
@@ -119,6 +124,9 @@ func (e *Exporter) ExportDecisionTablesOwnedBy(filename string) (int, error) {
 	if len(owned) == 0 && len(ents) == 0 {
 		return 0, nil
 	}
+	// Confine the EDD sheet to this workbook's own field declarations.
+	e.scopedTo = want
+	defer func() { e.scopedTo = "" }()
 	sortTablesByTableNumber(owned)
 
 	f := excelize.NewFile()
@@ -145,10 +153,8 @@ func (e *Exporter) ExportDecisionTablesOwnedBy(filename string) (int, error) {
 		if err := e.writeEDDSheet(f, styler, "EDD", ents); err != nil {
 			return 0, fmt.Errorf("failed to write EDD sheet: %w", err)
 		}
-	} else if len(e.allEntities()) == 0 {
-		if err := refuseToDropEDDSheet(filename); err != nil {
-			return 0, err
-		}
+	} else if err := refuseToDropEDDSheet(filename); err != nil {
+		return 0, err
 	}
 
 	if len(f.GetSheetList()) > 1 {
@@ -167,19 +173,17 @@ func (e *Exporter) ExportDecisionTablesOwnedBy(filename string) (int, error) {
 // imports a workbook with no types and compiles the DSL untyped -- `f<` becomes
 // `<`, two fixed-point amounts compared as integers (#1094).
 //
-// The condition is deliberately narrow, and the caller narrows it further to
-// "the rule set has no entities at all". `dtrules table delete` legitimately
-// removes a sheet, so a blanket "sheet count must not decrease" rule would
-// refuse real work. A rule set with no entities whatsoever is not an editorial
-// decision -- it is an export running before the EDD files were loaded, which
-// is the shape #1094 describes.
+// The condition is still narrower than "a refresh must not reduce a workbook's
+// sheet count": `dtrules table delete` legitimately removes a sheet, so that
+// rule would refuse real work. What has no legitimate form is a workbook that
+// keeps its tables and loses its dictionary.
 //
-// It stops short of "no entity claims *this* workbook", which is a real
-// condition but not always this bug: TaxReturn's 50 state EDDs each declare
-// the shared `result` entity naming their own workbook, and only one survives
-// the merge, so 49 workbooks are unclaimed by an entity that genuinely
-// describes them. Ownership needs to follow the declaration rather than the
-// merged winner before that case can be refused.
+// This fires when no entity claims the workbook. That was too broad while
+// ownership followed the merged entity -- TaxReturn's 50 state EDDs each
+// declare the shared `result` naming their own workbook, and only one survived
+// the merge, so 49 workbooks would have been refused for a bug in the
+// ownership test rather than in the project. Ownership now follows the field
+// declaration (#1109), so an unclaimed workbook means what it says.
 func refuseToDropEDDSheet(filename string) error {
 	existing, err := excelize.OpenFile(filename)
 	if err != nil {
@@ -496,11 +500,54 @@ func (e *Exporter) entitiesOwnedBy(filename string) []*entity.REntity {
 	want := workbookKey(filename)
 	var owned []*entity.REntity
 	for _, ent := range e.allEntities() {
-		if workbookKey(ent.GetXlsFile()) == want {
+		if workbookKey(ent.GetXlsFile()) == want || e.declaresFieldsIn(ent, want) {
 			owned = append(owned, ent)
 		}
 	}
 	return owned
+}
+
+// declaresFieldsIn reports whether any of the entity's fields were declared by
+// the named workbook's EDD.
+//
+// An entity is one thing at run time and may be declared in many files. The
+// merged REntity keeps one xls_file, so matching on that alone claimed only
+// the workbook that happened to win: TaxReturn's 50 state EDDs each add fields
+// to the shared `result` naming their own workbook, and 49 of them were
+// claimed by nothing and lost their EDD sheet on every refresh (#1109).
+func (e *Exporter) declaresFieldsIn(ent *entity.REntity, want string) bool {
+	for _, entry := range ent.GetEntries() {
+		if entry != nil && entry.SourceXlsFile != "" && workbookKey(entry.SourceXlsFile) == want {
+			return true
+		}
+	}
+	return false
+}
+
+// includes decides whether one field belongs in the EDD sheet being written.
+//
+// When an export is scoped to a workbook, a field goes in only if that
+// workbook's EDD declared it -- otherwise every state workbook would receive
+// the whole merged entity, all 50 states' fields, and the next build would
+// write each of those back into every state's EDD file. Fields with no
+// recorded source (synthesized entries, EDDs that declare no xls_file) stay
+// with the entity's own workbook, which is where they were before.
+func (e *Exporter) includes(entry *entity.EntityEntry) bool {
+	if e.scopedTo == "" {
+		return true
+	}
+	if entry.SourceXlsFile == "" {
+		return workbookKey(e.ownerOf(entry)) == e.scopedTo
+	}
+	return workbookKey(entry.SourceXlsFile) == e.scopedTo
+}
+
+// ownerOf is the workbook an unsourced field falls back to: its entity's.
+func (e *Exporter) ownerOf(entry *entity.EntityEntry) string {
+	if entry.Entity == nil {
+		return ""
+	}
+	return entry.Entity.GetXlsFile()
 }
 
 // ExportEDDToDir exports entities grouped by xls_file to a directory.
@@ -778,7 +825,7 @@ func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*
 		attrCount := 0
 		for _, attrName := range attrNames {
 			if attrName.StringValue() != entityName && attrName.StringValue() != "mapping*key" {
-				if ent.GetEntry(attrName) != nil {
+				if entry := ent.GetEntry(attrName); entry != nil && e.includes(entry) {
 					attrCount++
 				}
 			}
@@ -802,7 +849,7 @@ func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*
 			}
 
 			entry := ent.GetEntry(attrName)
-			if entry == nil {
+			if entry == nil || !e.includes(entry) {
 				continue
 			}
 

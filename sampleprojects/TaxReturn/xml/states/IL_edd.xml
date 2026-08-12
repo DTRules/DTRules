@@ -21,6 +21,5 @@
 		<field name="il_total_exemptions" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Illinois total exemptions (computed). $2,850 per filer + per dependent"></field>
 		<field name="il_total_military_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="Total Illinois military income exclusion (computed). Sum of military retirement and SBP exclusions. Illinois is one of 28 states that don&#39;t tax military retirement benefits."></field>
 		<field name="il_uses_federal_taxable" type="boolean" subtype="" access="r" input="" default_value="true" comment="Illinois uses federal adjusted gross income as starting point, with specific additions and subtractions per 35 ILCS 5/203(b)(1). Illinois does not have a state standard deduction."></field>
-		<field name="state_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="Illinois state tax liability (computed). IL taxable income × 4.95% flat rate per 35 ILCS 5/201(b)"></field>
 	</entity>
 </entity_data_dictionary>

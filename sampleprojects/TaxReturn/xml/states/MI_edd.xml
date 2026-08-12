@@ -24,6 +24,5 @@
 		<field name="mi_taxable_income" type="double" subtype="" access="rw" input="" default_value="0.0" comment="MI taxable income (AGI minus exemptions)"></field>
 		<field name="mi_total_exemption" type="double" subtype="" access="rw" input="" default_value="0.0" comment="MI total personal exemptions based on filing status and dependents"></field>
 		<field name="mi_total_military_exclusion" type="double" subtype="" access="r" input="" default_value="0.0" comment="Total MI military income exclusion (computed). Sum of military retirement and SBP exclusions"></field>
-		<field name="state_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="MI state income tax liability"></field>
 	</entity>
 </entity_data_dictionary>

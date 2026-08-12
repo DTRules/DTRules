@@ -277,7 +277,7 @@ func (l *EDDLoader) processEntity(ent *EDDEntity, fileLevelPath string) error {
 
 	// Process each field
 	for _, field := range ent.Fields {
-		if err := l.processField(refEntity, &field); err != nil {
+		if err := l.processField(refEntity, &field, ent.XlsFile); err != nil {
 			l.errors = append(l.errors, fmt.Errorf("entity %s: %w", ent.Name, err))
 		}
 	}
@@ -286,7 +286,7 @@ func (l *EDDLoader) processEntity(ent *EDDEntity, fileLevelPath string) error {
 }
 
 // processField processes a single field definition.
-func (l *EDDLoader) processField(refEntity *entity.REntity, field *EDDField) error {
+func (l *EDDLoader) processField(refEntity *entity.REntity, field *EDDField, xlsFile string) error {
 	// Parse access flags
 	access := strings.ToLower(field.Access)
 	writable := strings.Contains(access, "w")
@@ -334,6 +334,13 @@ func (l *EDDLoader) processField(refEntity *entity.REntity, field *EDDField) err
 	// restyle it to whatever spelling was interned first (#1040).
 	if entry := refEntity.GetEntry(attributeName); entry != nil {
 		entry.AuthoredName = strings.TrimSpace(field.Name)
+		// And the workbook that declared it. The entity keeps one xls_file,
+		// so when many EDDs contribute fields to one entity only the last
+		// declaration survives on the entity itself -- per-field is the only
+		// place this can be recorded without loss (#1109).
+		if xlsFile != "" {
+			entry.SourceXlsFile = xlsFile
+		}
 	}
 
 	// Carry collect/question metadata onto the entity entry (#850) so the

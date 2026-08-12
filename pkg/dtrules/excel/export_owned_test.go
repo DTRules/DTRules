@@ -19,6 +19,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/DTRules/DTRules/pkg/dtrules/entity"
 	"github.com/DTRules/DTRules/pkg/dtrules/session"
 	"github.com/xuri/excelize/v2"
 )
@@ -135,4 +136,42 @@ func TestExportOwnedByRefusesToDropTheEDDSheet(t *testing.T) {
 		}
 	}
 	t.Error("the EDD sheet was deleted from the system of record")
+}
+
+// An entity is one thing at run time and may be declared in many files. The
+// merged REntity keeps one xls_file, so ownership judged by that alone claimed
+// only the workbook that won the merge: TaxReturn's 50 state EDDs each add
+// fields to the shared `result` naming their own workbook, and 49 of them were
+// claimed by nothing and lost their EDD sheet on every refresh (#1109).
+func TestEntityOwnershipFollowsTheFieldDeclaration(t *testing.T) {
+	shared := &entity.REntity{}
+	// Stand in for the merged entity: one xls_file, fields from two workbooks.
+	shared.SetXlsFile("TaxReturn.xlsx")
+
+	e := NewExporter(session.NewRuleSet("ownership"))
+	fromFL := &entity.EntityEntry{Entity: shared, SourceXlsFile: "FL.xlsx"}
+	fromCore := &entity.EntityEntry{Entity: shared, SourceXlsFile: "TaxReturn.xlsx"}
+	unsourced := &entity.EntityEntry{Entity: shared}
+
+	// Scoped to FL: only what FL declared. Writing the whole merged entity here
+	// would put all 50 states' fields in every state's workbook, and the next
+	// build would write them back into every state's EDD file.
+	e.scopedTo = workbookKey("FL.xlsx")
+	if !e.includes(fromFL) {
+		t.Error("FL's own field was left out of FL's workbook")
+	}
+	if e.includes(fromCore) {
+		t.Error("a field the core EDD declared was written into FL's workbook")
+	}
+	if e.includes(unsourced) {
+		t.Error("a field with no recorded source went to a workbook that does not own the entity")
+	}
+
+	// Unscoped exports are unchanged: everything goes.
+	e.scopedTo = ""
+	for _, entry := range []*entity.EntityEntry{fromFL, fromCore, unsourced} {
+		if !e.includes(entry) {
+			t.Error("a whole-project export dropped a field")
+		}
+	}
 }
