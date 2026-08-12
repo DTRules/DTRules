@@ -145,6 +145,10 @@ func (e *Exporter) ExportDecisionTablesOwnedBy(filename string) (int, error) {
 		if err := e.writeEDDSheet(f, styler, "EDD", ents); err != nil {
 			return 0, fmt.Errorf("failed to write EDD sheet: %w", err)
 		}
+	} else if len(e.allEntities()) == 0 {
+		if err := refuseToDropEDDSheet(filename); err != nil {
+			return 0, err
+		}
 	}
 
 	if len(f.GetSheetList()) > 1 {
@@ -153,6 +157,46 @@ func (e *Exporter) ExportDecisionTablesOwnedBy(filename string) (int, error) {
 	// Count both: the caller uses this to decide whether anything was
 	// written, and an EDD-only workbook writes no tables.
 	return len(owned) + len(ents), f.SaveAs(filename)
+}
+
+// refuseToDropEDDSheet blocks an export that would replace a workbook holding
+// an EDD sheet with one holding none.
+//
+// Losing a sheet is losing rules. Excel is the system of record, so a refresh
+// that drops the dictionary deletes it from the record, and the next build
+// imports a workbook with no types and compiles the DSL untyped -- `f<` becomes
+// `<`, two fixed-point amounts compared as integers (#1094).
+//
+// The condition is deliberately narrow, and the caller narrows it further to
+// "the rule set has no entities at all". `dtrules table delete` legitimately
+// removes a sheet, so a blanket "sheet count must not decrease" rule would
+// refuse real work. A rule set with no entities whatsoever is not an editorial
+// decision -- it is an export running before the EDD files were loaded, which
+// is the shape #1094 describes.
+//
+// It stops short of "no entity claims *this* workbook", which is a real
+// condition but not always this bug: TaxReturn's 50 state EDDs each declare
+// the shared `result` entity naming their own workbook, and only one survives
+// the merge, so 49 workbooks are unclaimed by an entity that genuinely
+// describes them. Ownership needs to follow the declaration rather than the
+// merged winner before that case can be refused.
+func refuseToDropEDDSheet(filename string) error {
+	existing, err := excelize.OpenFile(filename)
+	if err != nil {
+		// No file yet, or unreadable: nothing is being dropped.
+		return nil
+	}
+	defer existing.Close()
+	for _, sheet := range existing.GetSheetList() {
+		if !strings.EqualFold(strings.TrimSpace(sheet), "EDD") {
+			continue
+		}
+		return fmt.Errorf("refusing to export %s: it has an EDD sheet and no entity "+
+			"claims this workbook, so the export would delete the dictionary. "+
+			"The entities come from the loaded rule set — load the project's EDD "+
+			"files before exporting", filepath.Base(filename))
+	}
+	return nil
 }
 
 // workbookKey reduces a workbook reference to something comparable: base name,
