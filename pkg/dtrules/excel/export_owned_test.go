@@ -15,9 +15,12 @@
 package excel
 
 import (
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/session"
+	"github.com/xuri/excelize/v2"
 )
 
 // Refreshing a project's workbooks used to call ExportDecisionTables once per
@@ -69,4 +72,67 @@ func TestExportOwnedByLeavesAnUnclaimedWorkbookAlone(t *testing.T) {
 	}
 	// The path does not exist; reaching SaveAs would have errored above. That
 	// it did not is the assertion.
+}
+
+// A workbook that keeps its tables and loses its dictionary has no legitimate
+// form. The entities come from the loaded rule set, so an empty set means the
+// EDD did not load -- and exporting anyway deletes the dictionary from the
+// system of record, after which the next build compiles every field as an
+// integer (#1094).
+func TestExportOwnedByRefusesToDropTheEDDSheet(t *testing.T) {
+	// Decision tables but no EDD: the shape a project takes when its EDD files
+	// were never loaded. The tables claim a workbook, so the export runs.
+	rs := session.NewRuleSet("no-edd")
+	if rs == nil {
+		t.Skip("could not create rule set")
+	}
+	if err := rs.LoadDecisionTablesFile(kidAidDT); err != nil {
+		t.Skipf("skip DT load: %v", err)
+	}
+	names := rs.GetDecisionTableNames()
+	if len(names) == 0 {
+		t.Skip("no decision tables loaded")
+	}
+	e := NewExporter(rs)
+	claimed := ""
+	for _, dt := range e.getAllDecisionTables() {
+		if p := dt.GetFilePath(); p != "" {
+			claimed = filepath.Base(p)
+			break
+		}
+	}
+	if claimed == "" {
+		t.Skip("no table names a workbook")
+	}
+
+	// The workbook on disk has a dictionary.
+	path := filepath.Join(t.TempDir(), claimed)
+	f := excelize.NewFile()
+	if _, err := f.NewSheet("EDD"); err != nil {
+		t.Fatal(err)
+	}
+	f.DeleteSheet(f.GetSheetName(0))
+	if err := f.SaveAs(path); err != nil {
+		t.Fatal(err)
+	}
+	f.Close()
+
+	if _, err := e.ExportDecisionTablesOwnedBy(path); err == nil {
+		t.Fatal("exported a workbook with no entities over one that had an EDD sheet; " +
+			"that deletes the dictionary from the system of record")
+	} else if !strings.Contains(err.Error(), "EDD") {
+		t.Errorf("error does not say what was at stake: %v", err)
+	}
+
+	back, err := excelize.OpenFile(path)
+	if err != nil {
+		t.Fatalf("the workbook is gone: %v", err)
+	}
+	defer back.Close()
+	for _, s := range back.GetSheetList() {
+		if strings.EqualFold(s, "EDD") {
+			return
+		}
+	}
+	t.Error("the EDD sheet was deleted from the system of record")
 }
