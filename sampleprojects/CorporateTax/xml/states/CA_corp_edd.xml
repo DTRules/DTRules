@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>CA_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="CA_corp.xlsx" access="rw">
+	<entity name="ca_apportionment" number="100" xls_file="CA_corp.xlsx" access="rw">
 		<source>
 			<relative_path>CA_corp.xlsx</relative_path>
 			<file_name>CA_corp.xlsx</file_name>
@@ -11,22 +11,18 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="CA uses single-sales factor apportionment (100% sales)"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="610395.0" comment="CA economic nexus threshold (2025: $610,395, indexed annually)"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA additions: federal interest, IRC 199A addback, etc."></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="CA" comment="California state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA credits: R&amp;D, hiring, film, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA subtractions: CA municipal interest, CA NOL, etc."></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0884" comment="CA corporate tax rate: 8.84% (flat rate)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="CA has no transaction count threshold (sales threshold only)"></field>
 	</entity>
-	<entity name="result" number="200" xls_file="CA_corp.xlsx" access="rw">
+	<entity name="ca_result" number="200" xls_file="CA_corp.xlsx" access="rw">
 		<source>
 			<relative_path>CA_corp.xlsx</relative_path>
 			<file_name>CA_corp.xlsx</file_name>
 			<sheet_number>5</sheet_number>
 		</source>
-		<field name="ca_enterprise_zone_credit" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA enterprise zone hiring credit (legacy, being phased out)"></field>
-		<field name="ca_minimum_franchise_tax" type="double" subtype="" access="r" input="" default_value="800.0" comment="CA minimum franchise tax ($800 for most corporations)"></field>
-		<field name="ca_unitary_group_count" type="integer" subtype="" access="r" input="" default_value="1" comment="Number of corporations in CA unitary group (1 = standalone)"></field>
-		<field name="ca_waters_edge_election" type="boolean" subtype="" access="r" input="" default_value="true" comment="Water s edge election for worldwide combined reporting (most taxpayers elect)"></field>
+		<field name="enterprise_zone_credit" type="double" subtype="" access="r" input="" default_value="0.0" comment="CA enterprise zone hiring credit (legacy, being phased out)"></field>
+		<field name="minimum_franchise_tax" type="double" subtype="" access="r" input="" default_value="800.0" comment="CA minimum franchise tax ($800 for most corporations)"></field>
+		<field name="unitary_group_count" type="integer" subtype="" access="r" input="" default_value="1" comment="Number of corporations in CA unitary group (1 = standalone)"></field>
+		<field name="waters_edge_election" type="boolean" subtype="" access="r" input="" default_value="true" comment="Water s edge election for worldwide combined reporting (most taxpayers elect)"></field>
 	</entity>
 </entity_data_dictionary>

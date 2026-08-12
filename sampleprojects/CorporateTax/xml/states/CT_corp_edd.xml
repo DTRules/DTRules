@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>CT_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="CT_corp.xlsx" access="rw">
+	<entity name="ct_apportionment" number="100" xls_file="CT_corp.xlsx" access="rw">
 		<source>
 			<relative_path>CT_corp.xlsx</relative_path>
 			<file_name>CT_corp.xlsx</file_name>
@@ -11,10 +11,6 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="CT uses single-sales factor apportionment"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="500000.0" comment="CT economic nexus threshold: $500,000 gross receipts (higher than typical)"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="CT additions: federal interest, bonus depreciation addback, etc."></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="CT" comment="Connecticut state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="CT tax credits: R&amp;D, jobs, film, manufacturing credits, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="CT subtractions: municipal interest, CT NOL, etc."></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.075" comment="CT corporate tax rate: 7.5% flat rate (CT Gen. Stat. § 12-214)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="CT has no transaction count threshold (only receipts-based)"></field>
 	</entity>

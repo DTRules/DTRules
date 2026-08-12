@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>PA_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="PA_corp.xlsx" access="rw">
+	<entity name="pa_apportionment" number="100" xls_file="PA_corp.xlsx" access="rw">
 		<source>
 			<relative_path>PA_corp.xlsx</relative_path>
 			<file_name>PA_corp.xlsx</file_name>
@@ -11,10 +11,6 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="PA uses 100% single-sales factor apportionment (PA Code § 7401(3)2.(a)(17))"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="500000.0" comment="PA economic nexus threshold: $500,000 gross receipts (higher than typical $100K)"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="PA additions: federal interest income, IRC 199A deduction addback, state/local taxes deducted"></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="PA" comment="Pennsylvania state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="PA tax credits: R&amp;D, Film, Manufacturing, Job Creation, Keystone Opportunity Zone"></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="PA subtractions: state/municipal bond interest, dividends (qualified), PA NOL"></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0899" comment="PA Corporate Net Income Tax rate: 8.99% (PA Code § 7401(3)1.(a), 2025)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="PA has no transaction count threshold (receipts only)"></field>
 	</entity>

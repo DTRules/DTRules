@@ -14,9 +14,6 @@
   <result>
     <!-- Form CIT instructions: "a tax of 6.75 percent on their total Montana
          net income". 800,000 x 6.75% = 54,000; payments 50,000 leaves 4,000 owed. -->
-    <mt_apportioned_income>800000.0</mt_apportioned_income>
-    <mt_estimated_payments>50000.0</mt_estimated_payments>
-    <mt_state_credits>0.0</mt_state_credits>
     <has_physical_presence_mt>true</has_physical_presence_mt>
   </result>
 </job>

@@ -61,7 +61,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "SC" st
 <action_comment>No nexus - no filing required; No SC nexus - no filing requirement</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No SC nexus - no filing requirement. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No SC nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No SC nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -150,7 +150,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 &gt;
+apportionment.state_taxable_income 0 f&gt;
 </condition_postfix>
 <columns>Y-N</columns>
 </condition_details>
@@ -159,9 +159,9 @@ apportionment.state_taxable_income 0 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate SC tax at 5% flat rate; SC income tax at 5% plus license fee</action_comment>
-<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = apportionment.state_tax + apportionment.license_fee_minimum; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "SC tax calculated at 5% flat rate plus license fee ($15 minimum). Reference: SC Code 12-6-530, 12-20-50" to job.audit_trail;</action_dsl>
+<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * sc_apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_tax = apportionment.state_tax + sc_apportionment.license_fee_minimum; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "SC tax calculated at 5% flat rate plus license fee ($15 minimum). Reference: SC Code 12-6-530, 12-20-50" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.license_fee_minimum f+ cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "SC tax calculated at 5% flat rate plus license fee ($15 minimum). Reference: SC Code 12-6-530, 12-20-50" job.audit_trail swap addto
+apportionment.state_taxable_income sc_apportionment.state_tax_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_tax sc_apportionment.license_fee_minimum f+ cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "SC tax calculated at 5% flat rate plus license fee ($15 minimum). Reference: SC Code 12-6-530, 12-20-50" job.audit_trail swap addto
 </action_postfix>
 <columns>X--</columns>
 </action_details>
@@ -170,16 +170,16 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apport
 <action_comment>No SC nexus - no tax liability; No SC nexus - no tax</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No SC nexus - no tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No SC nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No SC nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Nexus but no taxable income - license fee only; No SC taxable income but license fee applies</action_comment>
-<action_dsl>set apportionment.state_tax = apportionment.license_fee_minimum; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "No SC taxable income - license fee only ($15 minimum). NOL carryforward 15 years. Reference: SC Code 12-6-1500, 12-20-50" to job.audit_trail;</action_dsl>
+<action_dsl>set apportionment.state_tax = sc_apportionment.license_fee_minimum; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "No SC taxable income - license fee only ($15 minimum). NOL carryforward 15 years. Reference: SC Code 12-6-1500, 12-20-50" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.license_fee_minimum cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "No SC taxable income - license fee only ($15 minimum). NOL carryforward 15 years. Reference: SC Code 12-6-1500, 12-20-50" job.audit_trail swap addto
+sc_apportionment.license_fee_minimum cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "No SC taxable income - license fee only ($15 minimum). NOL carryforward 15 years. Reference: SC Code 12-6-1500, 12-20-50" job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>

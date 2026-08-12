@@ -57,7 +57,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "AL" st
 <action_comment>No nexus - no filing required; // No nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -155,9 +155,9 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Alabama tax at 6.5% flat rate; // Alabama uses 6.5% flat rate; set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
-<action_dsl>if apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits &gt; 0.0 then set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = 0.0; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>if apportionment.state_taxable_income * al_apportionment.state_tax_rate - apportionment.state_credits &gt; 0.0 then set apportionment.state_tax = apportionment.state_taxable_income * al_apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = 0.0; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-{ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- cvi /apportionment.state_tax xdef } { 0.0 cvi /apportionment.state_tax xdef } apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 f&gt; ifelse apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
+{ apportionment.state_taxable_income al_apportionment.state_tax_rate fmul apportionment.state_credits f- cvd /apportionment.state_tax xdef } { 0.0 cvd /apportionment.state_tax xdef } apportionment.state_taxable_income al_apportionment.state_tax_rate fmul apportionment.state_credits f- 0.0 f&gt; ifelse apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
@@ -166,7 +166,7 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_comment>No nexus - no tax liability; // No Alabama nexus - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
@@ -175,7 +175,7 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_comment>Nexus but no taxable income - no tax liability; // No Alabama taxable income - no tax liability; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>

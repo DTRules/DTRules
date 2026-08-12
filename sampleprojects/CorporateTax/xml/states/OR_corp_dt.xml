@@ -57,7 +57,7 @@ apportionment.has_economic_nexus true beq { pop state_code 'OR' streq } over if
 <action_comment>No nexus - no filing required; No nexus - no filing required</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -111,7 +111,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_comment>Calculate OR state additions and subtractions; Calculate OR state additions and subtractions to federal taxable income</action_comment>
 <action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_additions xdef 0.0 cvi /apportionment.state_subtractions xdef
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
 <columns>X-</columns>
 </action_details>
@@ -120,7 +120,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <action_comment>No nexus - no adjustments; No nexus - no state adjustments calculated</action_comment>
 <action_dsl>set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_additions xdef 0.0 cvi /apportionment.state_subtractions xdef
+0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef
 </action_postfix>
 <columns>-X</columns>
 </action_details>
@@ -168,16 +168,16 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 &gt;
+apportionment.state_taxable_income 0 f&gt;
 </condition_postfix>
 <columns>YY-N</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Is financial institution; Is financial institution subject to 7.6% rate</condition_comment>
-<condition_dsl>result.or_is_financial_institution == true</condition_dsl>
+<condition_dsl>or_result.is_financial_institution == true</condition_dsl>
 <condition_postfix>
-result.or_is_financial_institution true beq
+or_result.is_financial_institution true beq
 </condition_postfix>
 <columns>YN--</columns>
 </condition_details>
@@ -186,36 +186,36 @@ result.or_is_financial_institution true beq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate OR tax for financial institutions (7.6% rate); Financial institutions use 7.6% rate instead of 6.6%</action_comment>
-<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * result.or_financial_institution_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax) and (result.or_minimum_tax); set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (result.or_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * or_result.financial_institution_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax) and (or_result.minimum_tax); set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (or_result.minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income result.or_financial_institution_rate fmul cvi /apportionment.state_tax xdef apportionment.state_tax result.or_minimum_tax fmax cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits - result.or_minimum_tax fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
+apportionment.state_taxable_income or_result.financial_institution_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax or_result.minimum_tax fmax cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- or_result.minimum_tax fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Calculate OR tax for regular corporations (6.6% rate); Regular corporations use 6.6% flat rate</action_comment>
-<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax) and (result.or_minimum_tax); set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (result.or_minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax) and (or_result.minimum_tax); set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (or_result.minimum_tax); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate * cvi /apportionment.state_tax xdef apportionment.state_tax result.or_minimum_tax fmax cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits - result.or_minimum_tax fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
+apportionment.state_taxable_income apportionment.state_tax_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax or_result.minimum_tax fmax cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- or_result.minimum_tax fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no tax liability; No nexus - no tax liability</action_comment>
-<action_dsl>set apportionment.state_tax = 0.0; set result.or_minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
+<action_dsl>set apportionment.state_tax = 0.0; set or_result.minimum_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef 0.0 cvd /result.or_minimum_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef 0.0 cvd /or_result.minimum_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>--X-</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
 <action_comment>Nexus but no taxable income (still owe minimum tax!); No excise tax, but MINIMUM TAX STILL APPLIES</action_comment>
-<action_dsl>set apportionment.state_tax = result.or_minimum_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>set apportionment.state_tax = or_result.minimum_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-result.or_minimum_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
+or_result.minimum_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>---X</columns>
 </action_details>

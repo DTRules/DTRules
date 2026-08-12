@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>AL_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="AL_corp.xlsx" access="rw">
+	<entity name="al_apportionment" number="100" xls_file="AL_corp.xlsx" access="rw">
 		<source>
 			<relative_path>AL_corp.xlsx</relative_path>
 			<file_name>AL_corp.xlsx</file_name>
@@ -11,10 +11,6 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="Alabama uses single-sales factor apportionment"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="250000.0" comment="Alabama economic nexus gross receipts threshold - $250,000"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Alabama additions: interest on federal bonds, IRC 199A addback, etc."></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="AL" comment="Alabama state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="Alabama tax credits: jobs credit, R&amp;D credit, historic preservation, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Alabama subtractions: municipal interest, state taxes, Alabama NOL, etc."></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.065" comment="Alabama corporate income tax rate - 6.5% flat rate (AL Code § 40-18-31)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="Economic nexus transaction count threshold - 200 transactions"></field>
 	</entity>

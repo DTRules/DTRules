@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>NE_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="NE_corp.xlsx" access="rw">
+	<entity name="ne_apportionment" number="100" xls_file="NE_corp.xlsx" access="rw">
 		<source>
 			<relative_path>NE_corp.xlsx</relative_path>
 			<file_name>NE_corp.xlsx</file_name>
@@ -11,10 +11,6 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="NE uses single-sales factor apportionment (100% sales factor)"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="NE economic nexus threshold: $100,000 (for sales tax); income tax subject to PL 86-272"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="NE additions: interest on non-NE state/local bonds, federal interest income, etc. (Neb. Rev. Stat. § 77-2716)"></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="NE" comment="Nebraska state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="NE tax credits: jobs creation, R&amp;D, renewable energy, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="NE subtractions: federal interest (U.S. obligations), NE Build America Bond interest, etc. (Neb. Rev. Stat. § 77-2716)"></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.052" comment="NE corporate income tax rate: 5.20% for 2025 (Neb. Rev. Stat. § 77-2734.02). Future: 4.55% (2026), 3.99% (2027)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="NE transaction threshold: 200 transactions (sales tax threshold)"></field>
 	</entity>

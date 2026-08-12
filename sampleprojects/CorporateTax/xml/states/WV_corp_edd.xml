@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>WV_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="WV_corp.xlsx" access="rw">
+	<entity name="wv_apportionment" number="100" xls_file="WV_corp.xlsx" access="rw">
 		<source>
 			<relative_path>WV_corp.xlsx</relative_path>
 			<file_name>WV_corp.xlsx</file_name>
@@ -11,10 +11,6 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="WV uses single-sales factor apportionment (100% sales factor) effective 2022+"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="WV economic nexus gross receipts threshold: $100,000"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="WV additions: federal NOL, foreign taxes deducted, state income taxes, etc."></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="WV" comment="West Virginia state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="WV tax credits: economic development, jobs creation, research &amp; development, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="WV subtractions: qualified opportunity zone income, foreign source income, etc."></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.065" comment="WV corporate income tax rate: 6.5% flat rate (WV Code § 11-24-4)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="WV economic nexus transaction count threshold: 200 transactions"></field>
 	</entity>

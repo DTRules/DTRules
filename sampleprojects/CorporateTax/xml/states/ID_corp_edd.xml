@@ -3,28 +3,28 @@
 	<file_metadata>
 		<file_path>ID_corp_edd</file_path>
 	</file_metadata>
-	<entity name="result" number="100" xls_file="ID_corp.xlsx" access="rw">
+	<entity name="id_result" number="100" xls_file="ID_corp.xlsx" access="rw">
 		<source>
 			<relative_path>ID_corp.xlsx</relative_path>
 			<file_name>ID_corp.xlsx</file_name>
 			<sheet_number>4</sheet_number>
 		</source>
-		<field name="id_apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"></field>
-		<field name="id_apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="ID uses single-sales factor apportionment (100% sales)"></field>
-		<field name="id_corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.053" comment="ID corporate income tax rate: 5.3% flat rate (effective 2025, Idaho Code § 63-3025)"></field>
-		<field name="id_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="ID economic nexus gross receipts threshold: $100,000 (primarily for sales tax)"></field>
-		<field name="id_estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"></field>
-		<field name="id_gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"></field>
-		<field name="id_has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Whether corporation has nexus with Idaho"></field>
-		<field name="id_municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"></field>
-		<field name="id_refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"></field>
-		<field name="id_state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="ID additions to federal taxable income (state income taxes deducted federally, certain expenses, etc.)"></field>
-		<field name="id_state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="ID tax credits (investment tax credit, R&amp;D credit, broadband equipment credit, etc.)"></field>
-		<field name="id_state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="ID subtractions from federal taxable income (U.S. government interest, Idaho municipal bond interest, state NOL, etc.)"></field>
-		<field name="id_state_taxes_deducted" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"></field>
-		<field name="id_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="ID corporate income tax liability"></field>
-		<field name="id_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="ID taxable income after apportionment and modifications"></field>
-		<field name="id_transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="ID does not use transaction count for corporate income tax nexus"></field>
-		<field name="id_us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"></field>
+		<field name="apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"></field>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="ID uses single-sales factor apportionment (100% sales)"></field>
+		<field name="corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.053" comment="ID corporate income tax rate: 5.3% flat rate (effective 2025, Idaho Code § 63-3025)"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="ID economic nexus gross receipts threshold: $100,000 (primarily for sales tax)"></field>
+		<field name="estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"></field>
+		<field name="gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"></field>
+		<field name="has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Whether corporation has nexus with Idaho"></field>
+		<field name="municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"></field>
+		<field name="refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="ID additions to federal taxable income (state income taxes deducted federally, certain expenses, etc.)"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="ID tax credits (investment tax credit, R&amp;D credit, broadband equipment credit, etc.)"></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="ID subtractions from federal taxable income (U.S. government interest, Idaho municipal bond interest, state NOL, etc.)"></field>
+		<field name="state_taxes_deducted" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"></field>
+		<field name="tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="ID corporate income tax liability"></field>
+		<field name="taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="ID taxable income after apportionment and modifications"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="ID does not use transaction count for corporate income tax nexus"></field>
+		<field name="us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by ID but never declared (campaign #948 Phase 1)"></field>
 	</entity>
 </entity_data_dictionary>

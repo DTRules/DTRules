@@ -57,7 +57,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" st
 <action_comment>No nexus - no filing required; // No CA nexus - no filing required; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -155,18 +155,18 @@ apportionment.state_taxable_income 0.0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate CA income tax at 8.84% with $800 minimum; // Calculate CA income tax at 8.84%, enforce $800 minimum; set apportionment.state_tax = max(result.ca_minimum_franchise_tax, apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
-<action_dsl>if apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits &gt; result.ca_minimum_franchise_tax then set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = result.ca_minimum_franchise_tax; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>if apportionment.state_taxable_income * ca_apportionment.state_tax_rate - apportionment.state_credits &gt; ca_result.minimum_franchise_tax then set apportionment.state_tax = apportionment.state_taxable_income * ca_apportionment.state_tax_rate - apportionment.state_credits; else set apportionment.state_tax = ca_result.minimum_franchise_tax; endif set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-{ apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- cvi /apportionment.state_tax xdef } { result.ca_minimum_franchise_tax cvi /apportionment.state_tax xdef } apportionment.state_taxable_income apportionment.state_tax_rate fmul apportionment.state_credits f- result.ca_minimum_franchise_tax f&gt; ifelse apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
+{ apportionment.state_taxable_income ca_apportionment.state_tax_rate fmul apportionment.state_credits f- cvd /apportionment.state_tax xdef } { ca_result.minimum_franchise_tax cvd /apportionment.state_tax xdef } apportionment.state_taxable_income ca_apportionment.state_tax_rate fmul apportionment.state_credits f- ca_result.minimum_franchise_tax f&gt; ifelse apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No income but still owe minimum franchise tax; // No CA taxable income, but $800 minimum franchise tax still applies; set apportionment.state_tax = result.ca_minimum_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_comment>
-<action_dsl>set apportionment.state_tax = result.ca_minimum_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
+<action_dsl>set apportionment.state_tax = ca_result.minimum_franchise_tax; set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax;</action_dsl>
 <action_postfix>
-result.ca_minimum_franchise_tax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef
+ca_result.minimum_franchise_tax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
@@ -175,7 +175,7 @@ result.ca_minimum_franchise_tax cvi /apportionment.state_tax xdef apportionment.
 <action_comment>No CA nexus - no tax or minimum franchise tax; // No CA nexus - no tax or minimum franchise tax; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -203,18 +203,18 @@ result.ca_minimum_franchise_tax cvi /apportionment.state_tax xdef apportionment.
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has elected water's edge treatment</condition_comment>
-<condition_dsl>result.ca_waters_edge_election is true</condition_dsl>
+<condition_dsl>ca_result.waters_edge_election is true</condition_dsl>
 <condition_postfix>
-result.ca_waters_edge_election true beq
+ca_result.waters_edge_election true beq
 </condition_postfix>
 <columns>YN-</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has unitary group members</condition_comment>
-<condition_dsl>result.ca_unitary_group_count &gt; 1</condition_dsl>
+<condition_dsl>ca_result.unitary_group_count &gt; 1</condition_dsl>
 <condition_postfix>
-result.ca_unitary_group_count 1 &gt;
+ca_result.unitary_group_count 1 &gt;
 </condition_postfix>
 <columns>YYN</columns>
 </condition_details>

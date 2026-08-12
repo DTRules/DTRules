@@ -61,7 +61,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "PA" st
 <action_comment>No nexus - no PA filing required; No PA nexus - no filing requirement</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No PA nexus - no filing required. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No PA nexus - no filing required. Any estimated payments would be refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No PA nexus - no filing required. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -150,7 +150,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive PA taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 &gt;
+apportionment.state_taxable_income 0 f&gt;
 </condition_postfix>
 <columns>Y-N</columns>
 </condition_details>
@@ -159,9 +159,9 @@ apportionment.state_taxable_income 0 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate PA tax (8.99% flat rate); PA CNIT at 8.99% flat rate (one of highest state corporate rates)</action_comment>
-<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "PA CNIT calculated at 8.99% flat rate (one of highest state corporate rates). Reference: PA Code 7401(3)1.(a)" to job.audit_trail;</action_dsl>
+<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * pa_apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "PA CNIT calculated at 8.99% flat rate (one of highest state corporate rates). Reference: PA Code 7401(3)1.(a)" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "PA CNIT calculated at 8.99% flat rate (one of highest state corporate rates). Reference: PA Code 7401(3)1.(a)" job.audit_trail swap addto
+apportionment.state_taxable_income pa_apportionment.state_tax_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "PA CNIT calculated at 8.99% flat rate (one of highest state corporate rates). Reference: PA Code 7401(3)1.(a)" job.audit_trail swap addto
 </action_postfix>
 <columns>X--</columns>
 </action_details>
@@ -170,7 +170,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apport
 <action_comment>No PA nexus - no tax liability; No PA nexus - no tax</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No PA nexus - no tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No PA nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No PA nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
@@ -179,7 +179,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apport
 <action_comment>No PA taxable income (loss year); No PA taxable income - no tax</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No PA taxable income - no tax. PA NOL may be carried forward indefinitely (80% limitation). Reference: PA Code 7401(3)1.(b)(2)(B)(III)" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No PA taxable income - no tax. PA NOL may be carried forward indefinitely (80% limitation). Reference: PA Code 7401(3)1.(b)(2)(B)(III)" job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No PA taxable income - no tax. PA NOL may be carried forward indefinitely (80% limitation). Reference: PA Code 7401(3)1.(b)(2)(B)(III)" job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>

@@ -65,6 +65,41 @@ func TestAddEntityAlsoPushesIt(t *testing.T) {
 	if !pushed {
 		t.Error("entity was declared but never pushed, so no rule could read it")
 	}
+
+	// And the third declaration: a tag, so a document can name the entity.
+	// Without it the entity works but no data can be addressed to it -- an
+	// element no mapping knows is unknown markup, so the loader skips it and
+	// every child tag inside it, saying nothing.
+	//
+	// CorporateTax's per-state documents landed exactly there: <me_result>
+	// wrapping three mapped tags loaded as all zeroes, the rules ran, and the
+	// Maine tax came out 0 on $4,000,000 of income (#1094).
+	var tagged bool
+	for _, c := range m.CreateEntities {
+		if c.Entity == "nv_result" {
+			tagged = true
+			if c.Tag != "nv_result" {
+				t.Errorf("tag defaulted to %q, want the entity's own name", c.Tag)
+			}
+		}
+	}
+	if !tagged {
+		t.Error("entity has no tag, so no document could load data into it")
+	}
+}
+
+// A caller who wants the tag to differ from the entity name says so.
+func TestAddEntityHonoursAnExplicitTag(t *testing.T) {
+	m := newMap()
+
+	if err := applyMapOp(m, mapPatchOp{Op: "add-entity", Entity: "nv_result", Tag: "nevada"}); err != nil {
+		t.Fatalf("add-entity: %v", err)
+	}
+	for _, c := range m.CreateEntities {
+		if c.Entity == "nv_result" && c.Tag != "nevada" {
+			t.Errorf("tag = %q, want nevada", c.Tag)
+		}
+	}
 }
 
 // A "*" entity is created per input element, not pushed as a singleton, so it
@@ -104,6 +139,11 @@ func TestDeleteEntityRemovesBothDeclarations(t *testing.T) {
 	for _, e := range m.InitialEntities {
 		if e.Entity == "nv_result" {
 			t.Error("initialization push left behind, so the stack still builds it")
+		}
+	}
+	for _, c := range m.CreateEntities {
+		if c.Entity == "nv_result" {
+			t.Error("tag left behind, so the mapping creates an entity nothing declares")
 		}
 	}
 }

@@ -121,11 +121,13 @@ func TestCorporateTaxLoadsStrict(t *testing.T) {
 // reference/forms/<STATE>/ — that is what those were downloaded for.
 func TestCorporateTaxScenarios(t *testing.T) {
 	cases := []struct {
-		name     string
-		file     string
-		entity   string
-		expected map[string]float64
-		why      string
+		name string
+		file string
+		// stateFile is that state's own data, loaded as a second document.
+		stateFile string
+		entity    string
+		expected  map[string]float64
+		why       string
 	}{
 		{
 			name:   "CA flat rate",
@@ -142,29 +144,34 @@ func TestCorporateTaxScenarios(t *testing.T) {
 			// rows were verified by compilation only — they were hand-authored
 			// from postfix that used operators which never existed, so nothing
 			// had ever executed them.
-			name:   "ME graduated brackets",
-			file:   "TestCase_ME_graduated.xml",
-			entity: "result",
+			name:      "ME graduated brackets",
+			file:      "TestCase_ME_graduated.xml",
+			stateFile: "TestCase_ME_graduated.me.xml",
+			// Maine's fields live on its own entity now: result.me_tier1_tax
+			// became me_result.tier1_tax, the prefix moving off the field and
+			// onto the entity.
+			entity: "me_result",
 			expected: map[string]float64{
-				"me_tier1_tax":      12250,  // 350,000 x 3.5%
-				"me_tier2_tax":      55510,  // 700,000 x 7.93%
-				"me_tier3_tax":      204085, // 2,450,000 x 8.33%
-				"me_tier4_tax":      44650,  // 500,000 x 8.93%
-				"me_tax_liability":  316495, // = 271,845 + 8.93% over 3.5M
-				"me_refund_or_owed": -16495,
+				"tier1_tax":      12250,  // 350,000 x 3.5%
+				"tier2_tax":      55510,  // 700,000 x 7.93%
+				"tier3_tax":      204085, // 2,450,000 x 8.33%
+				"tier4_tax":      44650,  // 500,000 x 8.93%
+				"tax_liability":  316495, // = 271,845 + 8.93% over 3.5M
+				"refund_or_owed": -16495,
 			},
 			why: "1120ME instructions: $271,845 plus 8.93% of the excess over $3,500,000",
 		},
 		{
-			// A renamed _Corporate_ state, driven through its result.mt_*
+			// A renamed _Corporate_ state, driven through its mt_result.*
 			// inputs — the map tags those states needed.
-			name:   "MT flat rate",
-			file:   "TestCase_MT_flat_rate.xml",
-			entity: "result",
+			name:      "MT flat rate",
+			file:      "TestCase_MT_flat_rate.xml",
+			stateFile: "TestCase_MT_flat_rate.mt.xml",
+			entity:    "mt_result",
 			expected: map[string]float64{
-				"mt_taxable_income": 800000,
-				"mt_tax_liability":  54000,
-				"mt_refund_or_owed": -4000,
+				"taxable_income": 800000,
+				"tax_liability":  54000,
+				"refund_or_owed": -4000,
 			},
 			why: "Form CIT instructions: a tax of 6.75 percent on total Montana net income",
 		},
@@ -193,8 +200,30 @@ func TestCorporateTaxScenarios(t *testing.T) {
 				t.Fatal(err)
 			}
 			defer df.Close()
-			if err := m.LoadDataAndPushSingletons(df); err != nil {
+			// Initialize first, then load each document. Initialize creates
+			// and pushes the singletons and records them, and newDataLoader
+			// seeds from that record -- so a second document binds to the
+			// instances already on the stack instead of building its own.
+			//
+			// LoadDataAndPushSingletons is the single-document shortcut: it
+			// pushes whatever *its* load built, so calling it twice puts a
+			// second set of instances on the stack and the federal values are
+			// left on the pair nobody is reading (#1094).
+			if err := m.Initialize(); err != nil {
+				t.Fatalf("initialize: %v", err)
+			}
+			if err := m.LoadData(df); err != nil {
 				t.Fatalf("data: %v", err)
+			}
+			if tc.stateFile != "" {
+				sf, err := os.Open(filepath.Join(dir, "testfiles", "TestScenarios", tc.stateFile))
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer sf.Close()
+				if err := m.LoadData(sf); err != nil {
+					t.Fatalf("state data: %v", err)
+				}
 			}
 
 			state := sess.GetState()

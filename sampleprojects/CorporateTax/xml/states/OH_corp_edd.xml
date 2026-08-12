@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>OH_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="OH_corp.xlsx" access="rw">
+	<entity name="oh_apportionment" number="100" xls_file="OH_corp.xlsx" access="rw">
 		<source>
 			<relative_path>OH_corp.xlsx</relative_path>
 			<file_name>OH_corp.xlsx</file_name>
@@ -11,28 +11,24 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="Ohio uses single-sales sourcing for gross receipts (situsing rules)"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="500000.0" comment="Ohio CAT economic nexus: $500,000 in Ohio-sourced gross receipts"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Not applicable - Ohio has no income tax"></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="OH" comment="Ohio state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="Ohio CAT has no credits (tax is based on gross receipts only)"></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Not applicable - Ohio has no income tax"></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="Ohio has NO corporate income tax (CAT is calculated separately)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="Ohio does not use transaction count threshold"></field>
 	</entity>
-	<entity name="result" number="200" xls_file="OH_corp.xlsx" access="rw">
+	<entity name="oh_result" number="200" xls_file="OH_corp.xlsx" access="rw">
 		<source>
 			<relative_path>OH_corp.xlsx</relative_path>
 			<file_name>OH_corp.xlsx</file_name>
 			<sheet_number>6</sheet_number>
 		</source>
-		<field name="oh_annual_filing_threshold" type="double" subtype="" access="r" input="" default_value="150000.0" comment="Ohio CAT annual filing threshold ($150K - no filing required below this)"></field>
-		<field name="oh_cat_excluded_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Receipts excluded from CAT (certain sales, dividends, interest, etc.)"></field>
-		<field name="oh_cat_exclusion_threshold" type="double" subtype="" access="r" input="" default_value="150000.0" comment="Ohio CAT exclusion threshold ($150K - no tax due below this amount)"></field>
-		<field name="oh_cat_minimum_tax" type="double" subtype="" access="r" input="" default_value="150.0" comment="Ohio CAT minimum tax ($150 for receipts between $150K and $1M)"></field>
-		<field name="oh_cat_minimum_threshold" type="double" subtype="" access="r" input="" default_value="1000000.0" comment="Ohio CAT minimum tax threshold ($1M - minimum tax applies $150K-$1M)"></field>
-		<field name="oh_cat_rate" type="double" subtype="" access="r" input="" default_value="0.0026" comment="Ohio CAT rate (0.26% = 0.0026) on receipts over $1M"></field>
-		<field name="oh_cat_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="Ohio Commercial Activity Tax liability (NOT an income tax)"></field>
-		<field name="oh_qualifies_for_no_cat" type="boolean" subtype="" access="r" input="" default_value="false" comment="Ohio-sourced receipts below $150K exclusion threshold - no CAT due"></field>
-		<field name="oh_quarterly_filing_threshold" type="double" subtype="" access="r" input="" default_value="1000000.0" comment="Ohio CAT quarterly filing threshold ($1M - quarterly filing required above this)"></field>
-		<field name="oh_taxable_gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Ohio-sourced taxable gross receipts for CAT calculation"></field>
+		<field name="annual_filing_threshold" type="double" subtype="" access="r" input="" default_value="150000.0" comment="Ohio CAT annual filing threshold ($150K - no filing required below this)"></field>
+		<field name="cat_excluded_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Receipts excluded from CAT (certain sales, dividends, interest, etc.)"></field>
+		<field name="cat_exclusion_threshold" type="double" subtype="" access="r" input="" default_value="150000.0" comment="Ohio CAT exclusion threshold ($150K - no tax due below this amount)"></field>
+		<field name="cat_minimum_tax" type="double" subtype="" access="r" input="" default_value="150.0" comment="Ohio CAT minimum tax ($150 for receipts between $150K and $1M)"></field>
+		<field name="cat_minimum_threshold" type="double" subtype="" access="r" input="" default_value="1000000.0" comment="Ohio CAT minimum tax threshold ($1M - minimum tax applies $150K-$1M)"></field>
+		<field name="cat_rate" type="double" subtype="" access="r" input="" default_value="0.0026" comment="Ohio CAT rate (0.26% = 0.0026) on receipts over $1M"></field>
+		<field name="cat_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="Ohio Commercial Activity Tax liability (NOT an income tax)"></field>
+		<field name="qualifies_for_no_cat" type="boolean" subtype="" access="r" input="" default_value="false" comment="Ohio-sourced receipts below $150K exclusion threshold - no CAT due"></field>
+		<field name="quarterly_filing_threshold" type="double" subtype="" access="r" input="" default_value="1000000.0" comment="Ohio CAT quarterly filing threshold ($1M - quarterly filing required above this)"></field>
+		<field name="taxable_gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Ohio-sourced taxable gross receipts for CAT calculation"></field>
 	</entity>
 </entity_data_dictionary>

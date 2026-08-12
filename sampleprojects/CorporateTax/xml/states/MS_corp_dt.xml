@@ -35,9 +35,9 @@ result.has_physical_presence_ms true beq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Meets economic nexus threshold ($250K gross receipts); result.ms_gross_receipts is greater than or equal to result.ms_economic_nexus_threshold</condition_comment>
-<condition_dsl>result.ms_gross_receipts &gt;= result.ms_economic_nexus_threshold</condition_dsl>
+<condition_dsl>ms_result.gross_receipts &gt;= ms_result.economic_nexus_threshold</condition_dsl>
 <condition_postfix>
-result.ms_gross_receipts result.ms_economic_nexus_threshold f&gt;=
+ms_result.gross_receipts ms_result.economic_nexus_threshold f&gt;=
 </condition_postfix>
 <columns>-YN</columns>
 </condition_details>
@@ -46,27 +46,27 @@ result.ms_gross_receipts result.ms_economic_nexus_threshold f&gt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>Physical nexus - filing required</action_comment>
-<action_dsl>set result.ms_has_nexus = true;</action_dsl>
+<action_dsl>set ms_result.has_nexus = true;</action_dsl>
 <action_postfix>
-true cvb /result.ms_has_nexus xdef
+true cvb /ms_result.has_nexus xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Economic nexus - filing required</action_comment>
-<action_dsl>set result.ms_has_nexus = true;</action_dsl>
+<action_dsl>set ms_result.has_nexus = true;</action_dsl>
 <action_postfix>
-true cvb /result.ms_has_nexus xdef
+true cvb /ms_result.has_nexus xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no filing required</action_comment>
-<action_dsl>set result.ms_has_nexus = false; set result.ms_tax_liability = 0.0;</action_dsl>
+<action_dsl>set ms_result.has_nexus = false; set ms_result.tax_liability = 0.0;</action_dsl>
 <action_postfix>
-false cvb /result.ms_has_nexus xdef 0.0 cvd /result.ms_tax_liability xdef
+false cvb /ms_result.has_nexus xdef 0.0 cvd /ms_result.tax_liability xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -99,9 +99,9 @@ false cvb /result.ms_has_nexus xdef 0.0 cvd /result.ms_tax_liability xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has Mississippi nexus</condition_comment>
-<condition_dsl>result.ms_has_nexus is equal to true</condition_dsl>
+<condition_dsl>ms_result.has_nexus is equal to true</condition_dsl>
 <condition_postfix>
-result.ms_has_nexus true beq
+ms_result.has_nexus true beq
 </condition_postfix>
 <columns>YN</columns>
 </condition_details>
@@ -110,18 +110,18 @@ result.ms_has_nexus true beq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Mississippi state additions and subtractions; Calculate state-specific income adjustments</action_comment>
-<action_dsl>set result.ms_state_additions = 0.0; if result.ms_us_interest_income != 0.0 then set result.ms_state_additions = result.ms_state_additions + result.ms_us_interest_income; endif set result.ms_state_subtractions = 0.0; if result.ms_municipal_interest != 0.0 then set result.ms_state_subtractions = result.ms_state_subtractions + result.ms_municipal_interest; endif add (("Mississippi additions: $" + string value of (result.ms_state_additions)) + ", subtractions: $") + string value of (result.ms_state_subtractions) to job.audit_trail;</action_dsl>
+<action_dsl>set ms_result.state_additions = 0.0; if ms_result.us_interest_income != 0.0 then set ms_result.state_additions = ms_result.state_additions + ms_result.us_interest_income; endif set ms_result.state_subtractions = 0.0; if ms_result.municipal_interest != 0.0 then set ms_result.state_subtractions = ms_result.state_subtractions + ms_result.municipal_interest; endif add (("Mississippi additions: $" + string value of (ms_result.state_additions)) + ", subtractions: $") + string value of (ms_result.state_subtractions) to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.ms_state_additions xdef { result.ms_state_additions result.ms_us_interest_income f+ cvd /result.ms_state_additions xdef } {} result.ms_us_interest_income 0.0 f== not ifelse 0.0 cvd /result.ms_state_subtractions xdef { result.ms_state_subtractions result.ms_municipal_interest f+ cvd /result.ms_state_subtractions xdef } {} result.ms_municipal_interest 0.0 f== not ifelse "Mississippi additions: $" result.ms_state_additions cvs strconcat ", subtractions: $" strconcat result.ms_state_subtractions cvs strconcat job.audit_trail swap addto
+0.0 cvd /ms_result.state_additions xdef { ms_result.state_additions ms_result.us_interest_income f+ cvd /ms_result.state_additions xdef } {} ms_result.us_interest_income 0.0 f== not ifelse 0.0 cvd /ms_result.state_subtractions xdef { ms_result.state_subtractions ms_result.municipal_interest f+ cvd /ms_result.state_subtractions xdef } {} ms_result.municipal_interest 0.0 f== not ifelse "Mississippi additions: $" ms_result.state_additions cvs strconcat ", subtractions: $" strconcat ms_result.state_subtractions cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No nexus - no adjustments</action_comment>
-<action_dsl>set result.ms_state_additions = 0.0; set result.ms_state_subtractions = 0.0;</action_dsl>
+<action_dsl>set ms_result.state_additions = 0.0; set ms_result.state_subtractions = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.ms_state_additions xdef 0.0 cvd /result.ms_state_subtractions xdef
+0.0 cvd /ms_result.state_additions xdef 0.0 cvd /ms_result.state_subtractions xdef
 </action_postfix>
 <columns>-X</columns>
 </action_details>
@@ -154,18 +154,18 @@ result.ms_has_nexus true beq
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has Mississippi nexus</condition_comment>
-<condition_dsl>result.ms_has_nexus is equal to true</condition_dsl>
+<condition_dsl>ms_result.has_nexus is equal to true</condition_dsl>
 <condition_postfix>
-result.ms_has_nexus true beq
+ms_result.has_nexus true beq
 </condition_postfix>
 <columns>YYN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Has positive taxable income; result.ms_apportioned_income is greater than 0</condition_comment>
-<condition_dsl>result.ms_apportioned_income &gt; 0.0</condition_dsl>
+<condition_dsl>ms_result.apportioned_income &gt; 0.0</condition_dsl>
 <condition_postfix>
-result.ms_apportioned_income 0.0 f&gt;
+ms_result.apportioned_income 0.0 f&gt;
 </condition_postfix>
 <columns>YN-</columns>
 </condition_details>
@@ -174,27 +174,27 @@ result.ms_apportioned_income 0.0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate Mississippi corporate tax (graduated rates 3%, 4%, 5%); Apply Mississippi graduated rates</action_comment>
-<action_dsl>set result.ms_taxable_income = the maximum of (result.ms_apportioned_income + result.ms_state_additions - result.ms_state_subtractions) and (0.0); set result.ms_tier1_tax = (the minimum of (result.ms_taxable_income) and (5000.0)) * result.ms_corp_tax_rate_tier1; set result.ms_tier2_tax = 0.0; set result.ms_tier3_tax = 0.0; if result.ms_taxable_income &gt; 5000.0 then set result.ms_tier2_tax = ((the minimum of (result.ms_taxable_income) and (10000.0)) - 5000.0) * result.ms_corp_tax_rate_tier2; endif if result.ms_taxable_income &gt; 10000.0 then set result.ms_tier3_tax = (result.ms_taxable_income - 10000.0) * result.ms_corp_tax_rate_tier3; endif set result.ms_tax_liability = the maximum of (result.ms_tier1_tax + result.ms_tier2_tax + result.ms_tier3_tax - result.ms_state_credits) and (0.0); set result.ms_refund_or_owed = result.ms_estimated_payments - result.ms_tax_liability; add "Mississippi taxable income: $" + string value of (result.ms_taxable_income) to job.audit_trail; add "Mississippi tax liability (graduated rates 3%-5%): $" + string value of (result.ms_tax_liability) to job.audit_trail;</action_dsl>
+<action_dsl>set ms_result.taxable_income = the maximum of (ms_result.apportioned_income + ms_result.state_additions - ms_result.state_subtractions) and (0.0); set ms_result.tier1_tax = (the minimum of (ms_result.taxable_income) and (5000.0)) * ms_result.corp_tax_rate_tier1; set ms_result.tier2_tax = 0.0; set ms_result.tier3_tax = 0.0; if ms_result.taxable_income &gt; 5000.0 then set ms_result.tier2_tax = ((the minimum of (ms_result.taxable_income) and (10000.0)) - 5000.0) * ms_result.corp_tax_rate_tier2; endif if ms_result.taxable_income &gt; 10000.0 then set ms_result.tier3_tax = (ms_result.taxable_income - 10000.0) * ms_result.corp_tax_rate_tier3; endif set ms_result.tax_liability = the maximum of (ms_result.tier1_tax + ms_result.tier2_tax + ms_result.tier3_tax - ms_result.state_credits) and (0.0); set ms_result.refund_or_owed = ms_result.estimated_payments - ms_result.tax_liability; add "Mississippi taxable income: $" + string value of (ms_result.taxable_income) to job.audit_trail; add "Mississippi tax liability (graduated rates 3%-5%): $" + string value of (ms_result.tax_liability) to job.audit_trail;</action_dsl>
 <action_postfix>
-result.ms_apportioned_income result.ms_state_additions f+ result.ms_state_subtractions f- 0.0 fmax cvd /result.ms_taxable_income xdef result.ms_taxable_income 5000.0 fmin result.ms_corp_tax_rate_tier1 fmul cvd /result.ms_tier1_tax xdef 0.0 cvd /result.ms_tier2_tax xdef 0.0 cvd /result.ms_tier3_tax xdef { result.ms_taxable_income 10000.0 fmin 5000.0 f- result.ms_corp_tax_rate_tier2 fmul cvd /result.ms_tier2_tax xdef } {} result.ms_taxable_income 5000.0 f&gt; ifelse { result.ms_taxable_income 10000.0 f- result.ms_corp_tax_rate_tier3 fmul cvd /result.ms_tier3_tax xdef } {} result.ms_taxable_income 10000.0 f&gt; ifelse result.ms_tier1_tax result.ms_tier2_tax result.ms_tier3_tax result.ms_state_credits f- f+ f+ 0.0 fmax cvd /result.ms_tax_liability xdef result.ms_estimated_payments result.ms_tax_liability f- cvd /result.ms_refund_or_owed xdef "Mississippi taxable income: $" result.ms_taxable_income cvs strconcat job.audit_trail swap addto "Mississippi tax liability (graduated rates 3%-5%): $" result.ms_tax_liability cvs strconcat job.audit_trail swap addto
+ms_result.apportioned_income ms_result.state_additions f+ ms_result.state_subtractions f- 0.0 fmax cvd /ms_result.taxable_income xdef ms_result.taxable_income 5000.0 fmin ms_result.corp_tax_rate_tier1 fmul cvd /ms_result.tier1_tax xdef 0.0 cvd /ms_result.tier2_tax xdef 0.0 cvd /ms_result.tier3_tax xdef { ms_result.taxable_income 10000.0 fmin 5000.0 f- ms_result.corp_tax_rate_tier2 fmul cvd /ms_result.tier2_tax xdef } {} ms_result.taxable_income 5000.0 f&gt; ifelse { ms_result.taxable_income 10000.0 f- ms_result.corp_tax_rate_tier3 fmul cvd /ms_result.tier3_tax xdef } {} ms_result.taxable_income 10000.0 f&gt; ifelse ms_result.tier1_tax ms_result.tier2_tax ms_result.tier3_tax ms_result.state_credits f- f+ f+ 0.0 fmax cvd /ms_result.tax_liability xdef ms_result.estimated_payments ms_result.tax_liability f- cvd /ms_result.refund_or_owed xdef "Mississippi taxable income: $" ms_result.taxable_income cvs strconcat job.audit_trail swap addto "Mississippi tax liability (graduated rates 3%-5%): $" ms_result.tax_liability cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No taxable income - no tax liability</action_comment>
-<action_dsl>set result.ms_taxable_income = 0.0; set result.ms_tax_liability = 0.0;</action_dsl>
+<action_dsl>set ms_result.taxable_income = 0.0; set ms_result.tax_liability = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.ms_taxable_income xdef 0.0 cvd /result.ms_tax_liability xdef
+0.0 cvd /ms_result.taxable_income xdef 0.0 cvd /ms_result.tax_liability xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No nexus - no tax liability</action_comment>
-<action_dsl>set result.ms_taxable_income = 0.0; set result.ms_tax_liability = 0.0;</action_dsl>
+<action_dsl>set ms_result.taxable_income = 0.0; set ms_result.tax_liability = 0.0;</action_dsl>
 <action_postfix>
-0.0 cvd /result.ms_taxable_income xdef 0.0 cvd /result.ms_tax_liability xdef
+0.0 cvd /ms_result.taxable_income xdef 0.0 cvd /ms_result.tax_liability xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>

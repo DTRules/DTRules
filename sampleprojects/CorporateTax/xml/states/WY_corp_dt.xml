@@ -41,27 +41,27 @@ corporation.state_of_incorporation "WY" streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>Wyoming domestic corporation - annual report required ($60); Wyoming has NO corporate income tax - only annual report ($60)</action_comment>
-<action_dsl>set result.wy_annual_report_fee = result.wy_annual_report_fee_domestic; set result.wy_state_tax = 0.0; set apportionment.state_tax = 0.0; add "Wyoming has NO corporate income tax. Domestic corp annual report: $60. Reference: Wyoming Statutes 17-16-1630" to job.audit_trail;</action_dsl>
+<action_dsl>set wy_result.annual_report_fee = wy_result.annual_report_fee_domestic; set wy_result.state_tax = 0.0; set apportionment.state_tax = 0.0; add "Wyoming has NO corporate income tax. Domestic corp annual report: $60. Reference: Wyoming Statutes 17-16-1630" to job.audit_trail;</action_dsl>
 <action_postfix>
-result.wy_annual_report_fee_domestic cvd /result.wy_annual_report_fee xdef 0.0 cvd /result.wy_state_tax xdef 0.0 cvi /apportionment.state_tax xdef "Wyoming has NO corporate income tax. Domestic corp annual report: $60. Reference: Wyoming Statutes 17-16-1630" job.audit_trail swap addto
+wy_result.annual_report_fee_domestic cvd /wy_result.annual_report_fee xdef 0.0 cvd /wy_result.state_tax xdef 0.0 cvd /apportionment.state_tax xdef "Wyoming has NO corporate income tax. Domestic corp annual report: $60. Reference: Wyoming Statutes 17-16-1630" job.audit_trail swap addto
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>Wyoming foreign corporation - annual report required ($120); Wyoming has NO corporate income tax - only annual report ($120 foreign)</action_comment>
-<action_dsl>set result.wy_annual_report_fee = result.wy_annual_report_fee_foreign; set result.wy_state_tax = 0.0; set apportionment.state_tax = 0.0; add "Wyoming has NO corporate income tax. Foreign corp annual report: $120. Reference: Wyoming Statutes 17-16-1630" to job.audit_trail;</action_dsl>
+<action_dsl>set wy_result.annual_report_fee = wy_result.annual_report_fee_foreign; set wy_result.state_tax = 0.0; set apportionment.state_tax = 0.0; add "Wyoming has NO corporate income tax. Foreign corp annual report: $120. Reference: Wyoming Statutes 17-16-1630" to job.audit_trail;</action_dsl>
 <action_postfix>
-result.wy_annual_report_fee_foreign cvd /result.wy_annual_report_fee xdef 0.0 cvd /result.wy_state_tax xdef 0.0 cvi /apportionment.state_tax xdef "Wyoming has NO corporate income tax. Foreign corp annual report: $120. Reference: Wyoming Statutes 17-16-1630" job.audit_trail swap addto
+wy_result.annual_report_fee_foreign cvd /wy_result.annual_report_fee xdef 0.0 cvd /wy_result.state_tax xdef 0.0 cvd /apportionment.state_tax xdef "Wyoming has NO corporate income tax. Foreign corp annual report: $120. Reference: Wyoming Statutes 17-16-1630" job.audit_trail swap addto
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>No Wyoming presence - no filing requirement; No Wyoming presence - no filing requirement</action_comment>
-<action_dsl>set result.wy_annual_report_fee = 0.0; set result.wy_state_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No Wyoming presence - no filing required. WY has no corporate income tax anyway. Any payments refunded." to job.audit_trail;</action_dsl>
+<action_dsl>set wy_result.annual_report_fee = 0.0; set wy_result.state_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No Wyoming presence - no filing required. WY has no corporate income tax anyway. Any payments refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.wy_annual_report_fee xdef 0.0 cvd /result.wy_state_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No Wyoming presence - no filing required. WY has no corporate income tax anyway. Any payments refunded." job.audit_trail swap addto
+0.0 cvd /wy_result.annual_report_fee xdef 0.0 cvd /wy_result.state_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No Wyoming presence - no filing required. WY has no corporate income tax anyway. Any payments refunded." job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -100,18 +100,18 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "WY"
 <action_details>
 <action_number>1</action_number>
 <action_comment>Wyoming - no income tax adjustments; Wyoming has NO corporate income tax - no adjustments</action_comment>
-<action_dsl>set apportionment.state_tax_rate = 0.0; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; set result.wy_no_corporate_tax = true; set result.wy_no_gross_receipts_tax = true; set result.wy_no_franchise_tax = true; add "Wyoming has NO corporate income tax, franchise tax, or gross receipts tax. No adjustments needed." to job.audit_trail;</action_dsl>
+<action_dsl>set wy_apportionment.state_tax_rate = 0.0; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; set wy_result.no_corporate_tax = true; set wy_result.no_gross_receipts_tax = true; set wy_result.no_franchise_tax = true; add "Wyoming has NO corporate income tax, franchise tax, or gross receipts tax. No adjustments needed." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax_rate xdef 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef true cvb /result.wy_no_corporate_tax xdef true cvb /result.wy_no_gross_receipts_tax xdef true cvb /result.wy_no_franchise_tax xdef "Wyoming has NO corporate income tax, franchise tax, or gross receipts tax. No adjustments needed." job.audit_trail swap addto
+0.0 cvd /wy_apportionment.state_tax_rate xdef 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef true cvb /wy_result.no_corporate_tax xdef true cvb /wy_result.no_gross_receipts_tax xdef true cvb /wy_result.no_franchise_tax xdef "Wyoming has NO corporate income tax, franchise tax, or gross receipts tax. No adjustments needed." job.audit_trail swap addto
 </action_postfix>
 <columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No Wyoming presence - no adjustments; No Wyoming presence - no adjustments</action_comment>
-<action_dsl>set apportionment.state_tax_rate = 0.0; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; set result.wy_no_corporate_tax = true; set result.wy_no_gross_receipts_tax = true; set result.wy_no_franchise_tax = true; add "No Wyoming presence - no tax liability (WY has no corporate income tax anyway)." to job.audit_trail;</action_dsl>
+<action_dsl>set wy_apportionment.state_tax_rate = 0.0; set apportionment.state_additions = 0.0; set apportionment.state_subtractions = 0.0; set wy_result.no_corporate_tax = true; set wy_result.no_gross_receipts_tax = true; set wy_result.no_franchise_tax = true; add "No Wyoming presence - no tax liability (WY has no corporate income tax anyway)." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /apportionment.state_tax_rate xdef 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef true cvb /result.wy_no_corporate_tax xdef true cvb /result.wy_no_gross_receipts_tax xdef true cvb /result.wy_no_franchise_tax xdef "No Wyoming presence - no tax liability (WY has no corporate income tax anyway)." job.audit_trail swap addto
+0.0 cvd /wy_apportionment.state_tax_rate xdef 0.0 cvd /apportionment.state_additions xdef 0.0 cvd /apportionment.state_subtractions xdef true cvb /wy_result.no_corporate_tax xdef true cvb /wy_result.no_gross_receipts_tax xdef true cvb /wy_result.no_franchise_tax xdef "No Wyoming presence - no tax liability (WY has no corporate income tax anyway)." job.audit_trail swap addto
 </action_postfix>
 <columns>-X</columns>
 </action_details>
@@ -150,18 +150,18 @@ apportionment.has_physical_presence true beq { pop apportionment.state_code "WY"
 <action_details>
 <action_number>1</action_number>
 <action_comment>Wyoming - $0 corporate tax; Wyoming has NO corporate income tax</action_comment>
-<action_dsl>set result.wy_state_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "Wyoming State Tax: $0. NO corporate income tax, NO franchise tax, NO gross receipts tax. Any estimated payments refunded. Reference: Wyoming Statutes Title 39" to job.audit_trail;</action_dsl>
+<action_dsl>set wy_result.state_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "Wyoming State Tax: $0. NO corporate income tax, NO franchise tax, NO gross receipts tax. Any estimated payments refunded. Reference: Wyoming Statutes Title 39" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.wy_state_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "Wyoming State Tax: $0. NO corporate income tax, NO franchise tax, NO gross receipts tax. Any estimated payments refunded. Reference: Wyoming Statutes Title 39" job.audit_trail swap addto
+0.0 cvd /wy_result.state_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "Wyoming State Tax: $0. NO corporate income tax, NO franchise tax, NO gross receipts tax. Any estimated payments refunded. Reference: Wyoming Statutes Title 39" job.audit_trail swap addto
 </action_postfix>
 <columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>No Wyoming presence - $0 tax; No Wyoming presence - $0 tax</action_comment>
-<action_dsl>set result.wy_state_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No Wyoming presence - $0 tax. Wyoming has no corporate income tax anyway. Any payments refunded." to job.audit_trail;</action_dsl>
+<action_dsl>set wy_result.state_tax = 0.0; set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No Wyoming presence - $0 tax. Wyoming has no corporate income tax anyway. Any payments refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvd /result.wy_state_tax xdef 0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No Wyoming presence - $0 tax. Wyoming has no corporate income tax anyway. Any payments refunded." job.audit_trail swap addto
+0.0 cvd /wy_result.state_tax xdef 0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No Wyoming presence - $0 tax. Wyoming has no corporate income tax anyway. Any payments refunded." job.audit_trail swap addto
 </action_postfix>
 <columns>-X</columns>
 </action_details>

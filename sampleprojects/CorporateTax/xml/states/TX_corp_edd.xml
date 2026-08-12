@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>TX_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="TX_corp.xlsx" access="rw">
+	<entity name="tx_apportionment" number="100" xls_file="TX_corp.xlsx" access="rw">
 		<source>
 			<relative_path>TX_corp.xlsx</relative_path>
 			<file_name>TX_corp.xlsx</file_name>
@@ -11,32 +11,28 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="Texas uses single-sales factor for apportionment (sourcing receipts to Texas)"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="500000.0" comment="Texas economic nexus: $500,000 in Texas receipts (NOT the federal $100K standard)"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Not applicable - Texas has no income tax"></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="TX" comment="Texas state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="Texas franchise tax credits (film, enterprise zone, R&amp;D, etc.)"></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Not applicable - Texas has no income tax"></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="Texas has NO corporate income tax (franchise tax is calculated separately)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="Texas does not use transaction count threshold"></field>
 	</entity>
-	<entity name="result" number="200" xls_file="TX_corp.xlsx" access="rw">
+	<entity name="tx_result" number="200" xls_file="TX_corp.xlsx" access="rw">
 		<source>
 			<relative_path>TX_corp.xlsx</relative_path>
 			<file_name>TX_corp.xlsx</file_name>
 			<sheet_number>7</sheet_number>
 		</source>
-		<field name="tx_apportioned_margin" type="double" subtype="" access="r" input="" default_value="0.0" comment="Margin apportioned to Texas based on receipts"></field>
-		<field name="tx_cogs" type="double" subtype="" access="r" input="" default_value="0.0" comment="Texas COGS for margin tax calculation (optional deduction method)"></field>
-		<field name="tx_compensation" type="double" subtype="" access="r" input="" default_value="0.0" comment="Texas compensation (wages and benefits) for margin tax calculation (optional deduction method)"></field>
-		<field name="tx_deduction_method" type="string" subtype="" access="r" input="" default_value="cogs" comment="Method used to calculate margin: cogs, compensation, or 70_percent (taxpayer selects most beneficial)"></field>
-		<field name="tx_ez_computation_rate" type="double" subtype="" access="r" input="" default_value="0.00575" comment="E-Z computation rate (0.575% of revenue over $1.23M threshold)"></field>
-		<field name="tx_franchise_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="Texas franchise tax liability (NOT an income tax)"></field>
-		<field name="tx_is_retail_wholesale" type="boolean" subtype="" access="r" input="" default_value="false" comment="Business primarily engaged in retail or wholesale (qualifies for 0.375% rate)"></field>
-		<field name="tx_margin_deduction" type="double" subtype="" access="r" input="" default_value="0.0" comment="Amount deducted from revenue based on selected method"></field>
-		<field name="tx_margin_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0075" comment="TX franchise tax rate on taxable margin (0.75% for most businesses, 0.375% for retail/wholesale)"></field>
-		<field name="tx_no_tax_due_threshold" type="double" subtype="" access="r" input="" default_value="1230000.0" comment="Texas no tax due threshold ($1.23M in revenue for 2025)"></field>
-		<field name="tx_qualifies_for_ez_computation" type="boolean" subtype="" access="r" input="" default_value="false" comment="Qualifies for Texas E-Z computation ($20M revenue or less)"></field>
-		<field name="tx_qualifies_for_no_tax_due" type="boolean" subtype="" access="r" input="" default_value="false" comment="Total revenue below $1.23M threshold - no franchise tax due"></field>
-		<field name="tx_taxable_margin" type="double" subtype="" access="r" input="" default_value="0.0" comment="Taxable margin after deduction (revenue minus COGS or compensation)"></field>
-		<field name="tx_total_revenue" type="double" subtype="" access="r" input="" default_value="0.0" comment="Total revenue for Texas franchise tax (gross receipts from all sources)"></field>
+		<field name="apportioned_margin" type="double" subtype="" access="r" input="" default_value="0.0" comment="Margin apportioned to Texas based on receipts"></field>
+		<field name="cogs" type="double" subtype="" access="r" input="" default_value="0.0" comment="Texas COGS for margin tax calculation (optional deduction method)"></field>
+		<field name="compensation" type="double" subtype="" access="r" input="" default_value="0.0" comment="Texas compensation (wages and benefits) for margin tax calculation (optional deduction method)"></field>
+		<field name="deduction_method" type="string" subtype="" access="r" input="" default_value="cogs" comment="Method used to calculate margin: cogs, compensation, or 70_percent (taxpayer selects most beneficial)"></field>
+		<field name="ez_computation_rate" type="double" subtype="" access="r" input="" default_value="0.00575" comment="E-Z computation rate (0.575% of revenue over $1.23M threshold)"></field>
+		<field name="franchise_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="Texas franchise tax liability (NOT an income tax)"></field>
+		<field name="is_retail_wholesale" type="boolean" subtype="" access="r" input="" default_value="false" comment="Business primarily engaged in retail or wholesale (qualifies for 0.375% rate)"></field>
+		<field name="margin_deduction" type="double" subtype="" access="r" input="" default_value="0.0" comment="Amount deducted from revenue based on selected method"></field>
+		<field name="margin_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0075" comment="TX franchise tax rate on taxable margin (0.75% for most businesses, 0.375% for retail/wholesale)"></field>
+		<field name="no_tax_due_threshold" type="double" subtype="" access="r" input="" default_value="1230000.0" comment="Texas no tax due threshold ($1.23M in revenue for 2025)"></field>
+		<field name="qualifies_for_ez_computation" type="boolean" subtype="" access="r" input="" default_value="false" comment="Qualifies for Texas E-Z computation ($20M revenue or less)"></field>
+		<field name="qualifies_for_no_tax_due" type="boolean" subtype="" access="r" input="" default_value="false" comment="Total revenue below $1.23M threshold - no franchise tax due"></field>
+		<field name="taxable_margin" type="double" subtype="" access="r" input="" default_value="0.0" comment="Taxable margin after deduction (revenue minus COGS or compensation)"></field>
+		<field name="total_revenue" type="double" subtype="" access="r" input="" default_value="0.0" comment="Total revenue for Texas franchise tax (gross receipts from all sources)"></field>
 	</entity>
 </entity_data_dictionary>

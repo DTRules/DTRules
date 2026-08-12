@@ -3,32 +3,32 @@
 	<file_metadata>
 		<file_path>IA_corp_edd</file_path>
 	</file_metadata>
-	<entity name="result" number="100" xls_file="IA_corp.xlsx" access="rw">
+	<entity name="ia_result" number="100" xls_file="IA_corp.xlsx" access="rw">
 		<source>
 			<relative_path>IA_corp.xlsx</relative_path>
 			<file_name>IA_corp.xlsx</file_name>
 			<sheet_number>4</sheet_number>
 		</source>
-		<field name="ia_apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"></field>
-		<field name="ia_apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="IA uses single-sales factor apportionment (100% sales)"></field>
-		<field name="ia_corp_tax_rate_bracket_1" type="double" subtype="" access="r" input="" default_value="0.055" comment="IA corporate income tax rate bracket 1: 5.5% on income up to $100,000 (Iowa Code § 422.33)"></field>
-		<field name="ia_corp_tax_rate_bracket_2" type="double" subtype="" access="r" input="" default_value="0.071" comment="IA corporate income tax rate bracket 2: 7.1% on income over $100,000 (Iowa Code § 422.33)"></field>
-		<field name="ia_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="IA economic nexus gross receipts threshold: $100,000"></field>
-		<field name="ia_estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"></field>
-		<field name="ia_gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"></field>
-		<field name="ia_has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Whether corporation has nexus with Iowa"></field>
-		<field name="ia_municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"></field>
-		<field name="ia_refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"></field>
-		<field name="ia_state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="IA additions to federal taxable income (state income taxes deducted federally, certain expenses, etc.)"></field>
-		<field name="ia_state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="IA tax credits (research activities, high quality jobs, renewable energy, historic preservation, etc.)"></field>
-		<field name="ia_state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="IA subtractions from federal taxable income (federal interest income, IA municipal bond interest, state NOL, etc.)"></field>
-		<field name="ia_state_taxes_deducted" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"></field>
-		<field name="ia_tax_bracket_1" type="double" subtype="" access="r" input="" default_value="0.0" comment="IA tax on first $100,000 at 5.5%"></field>
-		<field name="ia_tax_bracket_2" type="double" subtype="" access="r" input="" default_value="0.0" comment="IA tax on income over $100,000 at 7.1%"></field>
-		<field name="ia_tax_bracket_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="IA tax bracket threshold: $100,000"></field>
-		<field name="ia_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="IA corporate income tax liability"></field>
-		<field name="ia_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="IA taxable income after apportionment and modifications"></field>
-		<field name="ia_transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="IA eliminated transaction count threshold as of 7/1/2023"></field>
-		<field name="ia_us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"></field>
+		<field name="apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"></field>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="IA uses single-sales factor apportionment (100% sales)"></field>
+		<field name="corp_tax_rate_bracket_1" type="double" subtype="" access="r" input="" default_value="0.055" comment="IA corporate income tax rate bracket 1: 5.5% on income up to $100,000 (Iowa Code § 422.33)"></field>
+		<field name="corp_tax_rate_bracket_2" type="double" subtype="" access="r" input="" default_value="0.071" comment="IA corporate income tax rate bracket 2: 7.1% on income over $100,000 (Iowa Code § 422.33)"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="IA economic nexus gross receipts threshold: $100,000"></field>
+		<field name="estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"></field>
+		<field name="gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"></field>
+		<field name="has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Whether corporation has nexus with Iowa"></field>
+		<field name="municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"></field>
+		<field name="refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="IA additions to federal taxable income (state income taxes deducted federally, certain expenses, etc.)"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="IA tax credits (research activities, high quality jobs, renewable energy, historic preservation, etc.)"></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="IA subtractions from federal taxable income (federal interest income, IA municipal bond interest, state NOL, etc.)"></field>
+		<field name="state_taxes_deducted" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"></field>
+		<field name="tax_bracket_1" type="double" subtype="" access="r" input="" default_value="0.0" comment="IA tax on first $100,000 at 5.5%"></field>
+		<field name="tax_bracket_2" type="double" subtype="" access="r" input="" default_value="0.0" comment="IA tax on income over $100,000 at 7.1%"></field>
+		<field name="tax_bracket_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="IA tax bracket threshold: $100,000"></field>
+		<field name="tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="IA corporate income tax liability"></field>
+		<field name="taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="IA taxable income after apportionment and modifications"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="IA eliminated transaction count threshold as of 7/1/2023"></field>
+		<field name="us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by IA but never declared (campaign #948 Phase 1)"></field>
 	</entity>
 </entity_data_dictionary>

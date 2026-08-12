@@ -61,7 +61,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "WV" st
 <action_comment>No nexus - no filing required; No WV nexus - no filing requirement</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No WV nexus - no filing requirement. Any estimated payments would be refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No WV nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No WV nexus - no filing requirement. Any estimated payments would be refunded." job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -150,7 +150,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <condition_comment>Has positive state taxable income</condition_comment>
 <condition_dsl>apportionment.state_taxable_income &gt; 0</condition_dsl>
 <condition_postfix>
-apportionment.state_taxable_income 0 &gt;
+apportionment.state_taxable_income 0 f&gt;
 </condition_postfix>
 <columns>Y-N</columns>
 </condition_details>
@@ -159,9 +159,9 @@ apportionment.state_taxable_income 0 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>Calculate WV tax at 6.5% flat rate; WV income tax at 6.5% flat rate</action_comment>
-<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "WV tax calculated at 6.5% flat rate. Single-sales factor effective 2022+. Reference: WV Code 11-24-4, 11-24-7" to job.audit_trail;</action_dsl>
+<action_dsl>set apportionment.state_tax = apportionment.state_taxable_income * wv_apportionment.state_tax_rate; set apportionment.state_tax = the maximum of (apportionment.state_tax - apportionment.state_credits) and (0.0); set apportionment.state_refund_or_owed = apportionment.state_payments - apportionment.state_tax; add "WV tax calculated at 6.5% flat rate. Single-sales factor effective 2022+. Reference: WV Code 11-24-4, 11-24-7" to job.audit_trail;</action_dsl>
 <action_postfix>
-apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvi /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax - cvi /apportionment.state_refund_or_owed xdef "WV tax calculated at 6.5% flat rate. Single-sales factor effective 2022+. Reference: WV Code 11-24-4, 11-24-7" job.audit_trail swap addto
+apportionment.state_taxable_income wv_apportionment.state_tax_rate fmul cvd /apportionment.state_tax xdef apportionment.state_tax apportionment.state_credits f- 0.0 fmax cvd /apportionment.state_tax xdef apportionment.state_payments apportionment.state_tax f- cvd /apportionment.state_refund_or_owed xdef "WV tax calculated at 6.5% flat rate. Single-sales factor effective 2022+. Reference: WV Code 11-24-4, 11-24-7" job.audit_trail swap addto
 </action_postfix>
 <columns>X--</columns>
 </action_details>
@@ -170,7 +170,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apport
 <action_comment>No WV nexus - no tax liability; No WV nexus - no tax</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No WV nexus - no tax liability. Any estimated payments are refunded." to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No WV nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No WV nexus - no tax liability. Any estimated payments are refunded." job.audit_trail swap addto
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
@@ -179,7 +179,7 @@ apportionment.state_taxable_income apportionment.state_tax_rate fmul cvi /apport
 <action_comment>Nexus but no taxable income; No WV taxable income - no tax</action_comment>
 <action_dsl>set apportionment.state_tax = 0.0; set apportionment.state_refund_or_owed = apportionment.state_payments; add "No WV taxable income - no tax. WV NOL rules apply (separate from federal). Reference: WV Code 11-24-6" to job.audit_trail;</action_dsl>
 <action_postfix>
-0.0 cvi /apportionment.state_tax xdef apportionment.state_payments cvi /apportionment.state_refund_or_owed xdef "No WV taxable income - no tax. WV NOL rules apply (separate from federal). Reference: WV Code 11-24-6" job.audit_trail swap addto
+0.0 cvd /apportionment.state_tax xdef apportionment.state_payments cvd /apportionment.state_refund_or_owed xdef "No WV taxable income - no tax. WV NOL rules apply (separate from federal). Reference: WV Code 11-24-6" job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>

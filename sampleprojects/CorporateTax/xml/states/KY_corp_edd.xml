@@ -3,28 +3,28 @@
 	<file_metadata>
 		<file_path>KY_corp_edd</file_path>
 	</file_metadata>
-	<entity name="result" number="100" xls_file="KY_corp.xlsx" access="rw">
+	<entity name="ky_result" number="100" xls_file="KY_corp.xlsx" access="rw">
 		<source>
 			<relative_path>KY_corp.xlsx</relative_path>
 			<file_name>KY_corp.xlsx</file_name>
 			<sheet_number>4</sheet_number>
 		</source>
-		<field name="ky_apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"></field>
-		<field name="ky_apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="KY uses single-sales factor apportionment (100% sales)"></field>
-		<field name="ky_corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.045" comment="KY corporate income tax rate: 4.5% flat rate (KRS 141.040, effective 2025)"></field>
-		<field name="ky_dividends_from_ky_corps" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"></field>
-		<field name="ky_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="KY economic nexus gross receipts threshold: $100,000"></field>
-		<field name="ky_estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"></field>
-		<field name="ky_gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"></field>
-		<field name="ky_has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Whether corporation has nexus with Kentucky"></field>
-		<field name="ky_municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"></field>
-		<field name="ky_refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"></field>
-		<field name="ky_state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY additions to federal taxable income (federal interest income, IRC 199A addback, state tax refunds, etc.)"></field>
-		<field name="ky_state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY tax credits (industrial development, film industry, coal incentive, recycling, etc.)"></field>
-		<field name="ky_state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY subtractions from federal taxable income (KY municipal bond interest, dividends from KY corporations, etc.)"></field>
-		<field name="ky_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY corporate income tax liability"></field>
-		<field name="ky_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY taxable income after apportionment and modifications"></field>
-		<field name="ky_transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="KY economic nexus transaction count threshold: 200 transactions"></field>
-		<field name="ky_us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"></field>
+		<field name="apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"></field>
+		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="KY uses single-sales factor apportionment (100% sales)"></field>
+		<field name="corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.045" comment="KY corporate income tax rate: 4.5% flat rate (KRS 141.040, effective 2025)"></field>
+		<field name="dividends_from_ky_corps" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="KY economic nexus gross receipts threshold: $100,000"></field>
+		<field name="estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"></field>
+		<field name="gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"></field>
+		<field name="has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Whether corporation has nexus with Kentucky"></field>
+		<field name="municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"></field>
+		<field name="refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY additions to federal taxable income (federal interest income, IRC 199A addback, state tax refunds, etc.)"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY tax credits (industrial development, film industry, coal incentive, recycling, etc.)"></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY subtractions from federal taxable income (KY municipal bond interest, dividends from KY corporations, etc.)"></field>
+		<field name="tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY corporate income tax liability"></field>
+		<field name="taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="KY taxable income after apportionment and modifications"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="KY economic nexus transaction count threshold: 200 transactions"></field>
+		<field name="us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by KY but never declared (campaign #948 Phase 1)"></field>
 	</entity>
 </entity_data_dictionary>

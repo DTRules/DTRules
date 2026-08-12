@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>AR_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="AR_corp.xlsx" access="rw">
+	<entity name="ar_apportionment" number="100" xls_file="AR_corp.xlsx" access="rw">
 		<source>
 			<relative_path>AR_corp.xlsx</relative_path>
 			<file_name>AR_corp.xlsx</file_name>
@@ -11,10 +11,6 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="Arkansas uses single-sales factor apportionment"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="Economic nexus gross receipts threshold - $100K"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="State-specific additions: federal interest, IRC 199A addback, bonus depreciation, etc."></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="AR" comment="Arkansas state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="State tax credits: R&amp;D, jobs, film, renewable energy, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="State-specific subtractions: municipal interest, state taxes, state NOL, etc."></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.055" comment="Arkansas corporate income tax rate: 5.5% flat rate (AR Code § 26-51-205)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="Economic nexus transaction count threshold - 200 transactions"></field>
 	</entity>

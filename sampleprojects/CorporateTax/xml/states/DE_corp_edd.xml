@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>DE_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="DE_corp.xlsx" access="rw">
+	<entity name="de_apportionment" number="100" xls_file="DE_corp.xlsx" access="rw">
 		<source>
 			<relative_path>DE_corp.xlsx</relative_path>
 			<file_name>DE_corp.xlsx</file_name>
@@ -11,10 +11,6 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="DE uses single-sales factor apportionment"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="DE economic nexus gross receipts threshold - $100,000"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="DE additions: federal interest, state tax refunds included in federal income, etc."></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="DE" comment="Delaware two-letter state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="DE tax credits: research and development, brownfield development, historic preservation, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="DE subtractions: municipal interest from other states, state income taxes paid, etc."></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.088" comment="DE corporate income tax rate: 8.8% flat rate (DE Code Title 30 § 1902)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="DE economic nexus transaction count threshold - 200 transactions"></field>
 	</entity>

@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>ND_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="ND_corp.xlsx" access="rw">
+	<entity name="nd_apportionment" number="100" xls_file="ND_corp.xlsx" access="rw">
 		<source>
 			<relative_path>ND_corp.xlsx</relative_path>
 			<file_name>ND_corp.xlsx</file_name>
@@ -11,10 +11,6 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="ND uses single-sales factor apportionment (100% sales factor)"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="ND economic nexus gross receipts threshold: $100,000"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="ND additions: federal interest income, state income taxes, IRC 199A addback, etc."></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="ND" comment="North Dakota state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="ND tax credits: Renaissance Zone, seed capital, biodiesel, geothermal, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="ND subtractions: ND municipal bond interest, state NOL, dividend income, etc."></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.035" comment="ND corporate income tax rate: 3.5% (reduced from 4.31%) - ND Century Code § 57-38-30.3"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="ND economic nexus transaction count threshold: 200 transactions"></field>
 	</entity>

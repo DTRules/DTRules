@@ -3,7 +3,7 @@
 	<file_metadata>
 		<file_path>MT_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="MT_corp.xlsx" access="rw">
+	<entity name="mt_apportionment" number="100" xls_file="MT_corp.xlsx" access="rw">
 		<source>
 			<relative_path>MT_corp.xlsx</relative_path>
 			<file_name>MT_corp.xlsx</file_name>
@@ -11,35 +11,31 @@
 		</source>
 		<field name="apportionment_formula" type="string" subtype="" access="r" input="" default_value="single_sales" comment="MT uses single-sales factor apportionment (100% sales factor)"></field>
 		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="100000.0" comment="MT economic nexus gross receipts threshold: $100,000"></field>
-		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="MT additions: federal interest income, state tax refunds, certain expenses, etc."></field>
-		<field name="state_code" type="string" subtype="" access="r" input="" default_value="MT" comment="Montana state code"></field>
-		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="MT tax credits: jobs creation, research, energy production, infrastructure, etc."></field>
-		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="MT subtractions: MT municipal bond interest, state income taxes, MT NOL, etc."></field>
 		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0675" comment="MT corporate income tax rate: 6.75% (7.0% for waters edge election)"></field>
 		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="200" comment="MT economic nexus transaction count threshold: 200 transactions"></field>
 	</entity>
-	<entity name="result" number="200" xls_file="MT_corp.xlsx" access="rw">
+	<entity name="mt_result" number="200" xls_file="MT_corp.xlsx" access="rw">
 		<source>
 			<relative_path>MT_corp.xlsx</relative_path>
 			<file_name>MT_corp.xlsx</file_name>
 			<sheet_number>4</sheet_number>
 		</source>
-		<field name="mt_apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
-		<field name="mt_corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0675" comment="Form CIT instructions: a tax of 6.75 percent on total Montana net income"></field>
-		<field name="mt_corp_tax_rate_waters_edge" type="double" subtype="" access="r" input="" default_value="0.07" comment="Form CIT instructions: a valid water-s-edge election pays 7 percent"></field>
-		<field name="mt_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
-		<field name="mt_effective_rate" type="double" subtype="" access="r" input="" default_value="0.0675" comment="MT effective tax rate (6.75% standard, 7.0% with waters edge election)"></field>
-		<field name="mt_estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
-		<field name="mt_gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
-		<field name="mt_has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
-		<field name="mt_municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
-		<field name="mt_refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
-		<field name="mt_state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
-		<field name="mt_state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
-		<field name="mt_state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
-		<field name="mt_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
-		<field name="mt_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
-		<field name="mt_us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
-		<field name="mt_waters_edge_election" type="boolean" subtype="" access="r" input="" default_value="false" comment="MT waters edge election - if true, rate is 7.0% instead of 6.75%"></field>
+		<field name="apportioned_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
+		<field name="corp_tax_rate" type="double" subtype="" access="r" input="" default_value="0.0675" comment="Form CIT instructions: a tax of 6.75 percent on total Montana net income"></field>
+		<field name="corp_tax_rate_waters_edge" type="double" subtype="" access="r" input="" default_value="0.07" comment="Form CIT instructions: a valid water-s-edge election pays 7 percent"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
+		<field name="effective_rate" type="double" subtype="" access="r" input="" default_value="0.0675" comment="MT effective tax rate (6.75% standard, 7.0% with waters edge election)"></field>
+		<field name="estimated_payments" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
+		<field name="gross_receipts" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
+		<field name="has_nexus" type="boolean" subtype="" access="r" input="" default_value="false" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
+		<field name="municipal_interest" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
+		<field name="refund_or_owed" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
+		<field name="state_additions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
+		<field name="state_credits" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
+		<field name="state_subtractions" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
+		<field name="tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
+		<field name="taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
+		<field name="us_interest_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="Declared from decision-table usage; referenced by MT but never declared (campaign #948 Phase 1)"></field>
+		<field name="waters_edge_election" type="boolean" subtype="" access="r" input="" default_value="false" comment="MT waters edge election - if true, rate is 7.0% instead of 6.75%"></field>
 	</entity>
 </entity_data_dictionary>

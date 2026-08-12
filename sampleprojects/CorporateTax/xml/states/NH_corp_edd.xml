@@ -3,22 +3,22 @@
 	<file_metadata>
 		<file_path>NH_corp_edd</file_path>
 	</file_metadata>
-	<entity name="apportionment" number="100" xls_file="NH_corp.xlsx" access="rw">
+	<entity name="nh_apportionment" number="100" xls_file="NH_corp.xlsx" access="rw">
 		<source>
 			<relative_path>NH_corp.xlsx</relative_path>
 			<file_name>NH_corp.xlsx</file_name>
 			<sheet_number>4</sheet_number>
 		</source>
-		<field name="nh_economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="109000.0" comment="NH economic nexus gross receipts threshold: $109,000 (2025)"></field>
-		<field name="nh_state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.075" comment="NH Business Profits Tax rate: 7.5% flat rate (RSA 77-A:2)"></field>
-		<field name="nh_transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="NH has no transaction count threshold - only gross receipts"></field>
+		<field name="economic_nexus_threshold" type="double" subtype="" access="r" input="" default_value="109000.0" comment="NH economic nexus gross receipts threshold: $109,000 (2025)"></field>
+		<field name="state_tax_rate" type="double" subtype="" access="r" input="" default_value="0.075" comment="NH Business Profits Tax rate: 7.5% flat rate (RSA 77-A:2)"></field>
+		<field name="transaction_threshold" type="integer" subtype="" access="r" input="" default_value="0" comment="NH has no transaction count threshold - only gross receipts"></field>
 	</entity>
-	<entity name="result" number="200" xls_file="NH_corp.xlsx" access="rw">
+	<entity name="nh_result" number="200" xls_file="NH_corp.xlsx" access="rw">
 		<source>
 			<relative_path>NH_corp.xlsx</relative_path>
 			<file_name>NH_corp.xlsx</file_name>
 			<sheet_number>4</sheet_number>
 		</source>
-		<field name="nh_irc_conformity_date" type="string" subtype="" access="r" input="" default_value="2018-12-31" comment="NH uses static conformity to IRC as of December 31, 2018"></field>
+		<field name="irc_conformity_date" type="string" subtype="" access="r" input="" default_value="2018-12-31" comment="NH uses static conformity to IRC as of December 31, 2018"></field>
 	</entity>
 </entity_data_dictionary>

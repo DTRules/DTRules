@@ -121,15 +121,6 @@
 			     something a filer reports; the jurisdiction's own constants (rates,
 			     bracket thresholds, minimum taxes, statutory fees) are deliberately
 			     absent — they belong to the state's law and stay as EDD defaults. -->
-			<setattribute tag='ca_unitary_group_count' RAttribute='ca_unitary_group_count' enclosure='result' type='integer'></setattribute>
-			<setattribute tag='ca_waters_edge_election' RAttribute='ca_waters_edge_election' enclosure='result' type='boolean'></setattribute>
-			<setattribute tag='co_apportioned_income' RAttribute='co_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='co_estimated_payments' RAttribute='co_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='co_gross_receipts' RAttribute='co_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='co_state_credits' RAttribute='co_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='co_state_tax_deduction' RAttribute='co_state_tax_deduction' enclosure='result' type='double'></setattribute>
-			<setattribute tag='co_us_interest_income' RAttribute='co_us_interest_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='dc_gross_receipts' RAttribute='dc_gross_receipts' enclosure='result' type='double'></setattribute>
 			<setattribute tag='federal_tax_liability' RAttribute='federal_tax_liability' enclosure='result' type='double'></setattribute>
 			<setattribute tag='has_physical_presence_co' RAttribute='has_physical_presence_co' enclosure='result' type='boolean'></setattribute>
 			<setattribute tag='has_physical_presence_ia' RAttribute='has_physical_presence_ia' enclosure='result' type='boolean'></setattribute>
@@ -147,114 +138,9 @@
 			<setattribute tag='has_physical_presence_ms' RAttribute='has_physical_presence_ms' enclosure='result' type='boolean'></setattribute>
 			<setattribute tag='has_physical_presence_mt' RAttribute='has_physical_presence_mt' enclosure='result' type='boolean'></setattribute>
 			<setattribute tag='has_physical_presence_nv' RAttribute='has_physical_presence_nv' enclosure='result' type='boolean'></setattribute>
-			<setattribute tag='ia_apportioned_income' RAttribute='ia_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ia_estimated_payments' RAttribute='ia_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ia_gross_receipts' RAttribute='ia_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ia_municipal_interest' RAttribute='ia_municipal_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ia_state_credits' RAttribute='ia_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ia_state_taxes_deducted' RAttribute='ia_state_taxes_deducted' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ia_us_interest_income' RAttribute='ia_us_interest_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='id_apportioned_income' RAttribute='id_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='id_estimated_payments' RAttribute='id_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='id_gross_receipts' RAttribute='id_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='id_municipal_interest' RAttribute='id_municipal_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='id_state_credits' RAttribute='id_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='id_state_taxes_deducted' RAttribute='id_state_taxes_deducted' enclosure='result' type='double'></setattribute>
-			<setattribute tag='id_us_interest_income' RAttribute='id_us_interest_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='in_apportioned_income' RAttribute='in_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='in_estimated_payments' RAttribute='in_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='in_gross_receipts' RAttribute='in_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='in_municipal_interest' RAttribute='in_municipal_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='in_out_of_state_muni_interest' RAttribute='in_out_of_state_muni_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='in_state_credits' RAttribute='in_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='in_state_taxes_paid' RAttribute='in_state_taxes_paid' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ks_apportioned_income' RAttribute='ks_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ks_estimated_payments' RAttribute='ks_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ks_gross_receipts' RAttribute='ks_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ks_municipal_interest' RAttribute='ks_municipal_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ks_state_credits' RAttribute='ks_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ks_state_tax_refunds' RAttribute='ks_state_tax_refunds' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ks_state_taxes_paid' RAttribute='ks_state_taxes_paid' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ks_us_interest_income' RAttribute='ks_us_interest_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ky_apportioned_income' RAttribute='ky_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ky_dividends_from_ky_corps' RAttribute='ky_dividends_from_ky_corps' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ky_estimated_payments' RAttribute='ky_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ky_gross_receipts' RAttribute='ky_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ky_municipal_interest' RAttribute='ky_municipal_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ky_state_credits' RAttribute='ky_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ky_us_interest_income' RAttribute='ky_us_interest_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='la_apportioned_income' RAttribute='la_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='la_estimated_payments' RAttribute='la_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='la_gross_receipts' RAttribute='la_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='la_municipal_interest' RAttribute='la_municipal_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='la_state_credits' RAttribute='la_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='la_us_interest_income' RAttribute='la_us_interest_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ma_apportioned_income' RAttribute='ma_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ma_estimated_payments' RAttribute='ma_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ma_gross_receipts' RAttribute='ma_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ma_municipal_interest' RAttribute='ma_municipal_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ma_qualified_dividend_deduction' RAttribute='ma_qualified_dividend_deduction' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ma_state_credits' RAttribute='ma_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ma_us_interest_income' RAttribute='ma_us_interest_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='md_apportioned_income' RAttribute='md_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='md_estimated_payments' RAttribute='md_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='md_gross_receipts' RAttribute='md_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='md_municipal_interest' RAttribute='md_municipal_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='md_state_credits' RAttribute='md_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='md_us_interest_income' RAttribute='md_us_interest_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='me_apportioned_income' RAttribute='me_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='me_estimated_payments' RAttribute='me_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='me_gross_receipts' RAttribute='me_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='me_municipal_interest' RAttribute='me_municipal_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='me_section_199a_addback' RAttribute='me_section_199a_addback' enclosure='result' type='double'></setattribute>
-			<setattribute tag='me_state_credits' RAttribute='me_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='me_us_interest_income' RAttribute='me_us_interest_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mi_apportioned_income' RAttribute='mi_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mi_estimated_payments' RAttribute='mi_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mi_gross_receipts' RAttribute='mi_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mi_municipal_interest' RAttribute='mi_municipal_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mi_state_credits' RAttribute='mi_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mi_us_interest_income' RAttribute='mi_us_interest_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mn_apportioned_income' RAttribute='mn_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mn_estimated_payments' RAttribute='mn_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mn_gross_receipts' RAttribute='mn_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mn_municipal_interest' RAttribute='mn_municipal_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mn_state_credits' RAttribute='mn_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mn_us_interest_income' RAttribute='mn_us_interest_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mo_apportioned_income' RAttribute='mo_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mo_estimated_payments' RAttribute='mo_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mo_gross_receipts' RAttribute='mo_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mo_municipal_interest' RAttribute='mo_municipal_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mo_state_credits' RAttribute='mo_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mo_us_interest_income' RAttribute='mo_us_interest_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ms_apportioned_income' RAttribute='ms_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ms_estimated_payments' RAttribute='ms_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ms_gross_receipts' RAttribute='ms_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ms_municipal_interest' RAttribute='ms_municipal_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ms_state_credits' RAttribute='ms_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='ms_us_interest_income' RAttribute='ms_us_interest_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mt_apportioned_income' RAttribute='mt_apportioned_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mt_estimated_payments' RAttribute='mt_estimated_payments' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mt_gross_receipts' RAttribute='mt_gross_receipts' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mt_municipal_interest' RAttribute='mt_municipal_interest' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mt_state_credits' RAttribute='mt_state_credits' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mt_us_interest_income' RAttribute='mt_us_interest_income' enclosure='result' type='double'></setattribute>
-			<setattribute tag='mt_waters_edge_election' RAttribute='mt_waters_edge_election' enclosure='result' type='boolean'></setattribute>
-			<setattribute tag='nv_business_classification' RAttribute='nv_business_classification' enclosure='result' type='string'></setattribute>
-			<setattribute tag='ny_in_mta_region' RAttribute='ny_in_mta_region' enclosure='result' type='boolean'></setattribute>
-			<setattribute tag='or_is_financial_institution' RAttribute='or_is_financial_institution' enclosure='result' type='boolean'></setattribute>
-			<setattribute tag='sd_is_financial_institution' RAttribute='sd_is_financial_institution' enclosure='result' type='boolean'></setattribute>
-			<setattribute tag='sd_is_insurance_company' RAttribute='sd_is_insurance_company' enclosure='result' type='boolean'></setattribute>
 			<setattribute tag='section_199a_deduction' RAttribute='section_199a_deduction' enclosure='result' type='double'></setattribute>
 			<setattribute tag='state_income_taxes_paid' RAttribute='state_income_taxes_paid' enclosure='result' type='double'></setattribute>
-			<setattribute tag='tn_net_worth' RAttribute='tn_net_worth' enclosure='result' type='double'></setattribute>
-			<setattribute tag='tn_nol_deduction' RAttribute='tn_nol_deduction' enclosure='result' type='double'></setattribute>
 			<setattribute tag='total_revenue' RAttribute='total_revenue' enclosure='result' type='double'></setattribute>
-			<setattribute tag='tx_cogs' RAttribute='tx_cogs' enclosure='result' type='double'></setattribute>
-			<setattribute tag='tx_compensation' RAttribute='tx_compensation' enclosure='result' type='double'></setattribute>
-			<setattribute tag='tx_is_retail_wholesale' RAttribute='tx_is_retail_wholesale' enclosure='result' type='boolean'></setattribute>
-			<setattribute tag='tx_total_revenue' RAttribute='tx_total_revenue' enclosure='result' type='double'></setattribute>
-			<setattribute tag='wa_business_classification' RAttribute='wa_business_classification' enclosure='result' type='string'></setattribute>
 			<!-- Job entity -->
 			<setattribute tag='id' RAttribute='id' enclosure='job' type='integer'></setattribute>
 			<setattribute tag='test_case_name' RAttribute='test_case_name' enclosure='job' type='string'></setattribute>
@@ -341,12 +227,199 @@
 			<setattribute tag='total_payments' RAttribute='total_payments' enclosure='result' type='double'></setattribute>
 			<setattribute tag='refund_or_owed' RAttribute='refund_or_owed' enclosure='result' type='double'></setattribute>
 			<setattribute tag='audit_trail' RAttribute='audit_trail' enclosure='result' type='string'></setattribute>
+			<setattribute tag='me_apportioned_income' RAttribute='apportioned_income' enclosure='me_result' type='double'></setattribute>
+			<setattribute tag='me_estimated_payments' RAttribute='estimated_payments' enclosure='me_result' type='double'></setattribute>
+			<setattribute tag='me_gross_receipts' RAttribute='gross_receipts' enclosure='me_result' type='double'></setattribute>
+			<setattribute tag='me_municipal_interest' RAttribute='municipal_interest' enclosure='me_result' type='double'></setattribute>
+			<setattribute tag='me_section_199a_addback' RAttribute='section_199a_addback' enclosure='me_result' type='double'></setattribute>
+			<setattribute tag='me_state_credits' RAttribute='state_credits' enclosure='me_result' type='double'></setattribute>
+			<setattribute tag='me_us_interest_income' RAttribute='us_interest_income' enclosure='me_result' type='double'></setattribute>
+			<setattribute tag='ca_unitary_group_count' RAttribute='unitary_group_count' enclosure='ca_result' type='integer'></setattribute>
+			<setattribute tag='ca_waters_edge_election' RAttribute='waters_edge_election' enclosure='ca_result' type='boolean'></setattribute>
+			<setattribute tag='co_apportioned_income' RAttribute='apportioned_income' enclosure='co_result' type='double'></setattribute>
+			<setattribute tag='co_estimated_payments' RAttribute='estimated_payments' enclosure='co_result' type='double'></setattribute>
+			<setattribute tag='co_gross_receipts' RAttribute='gross_receipts' enclosure='co_result' type='double'></setattribute>
+			<setattribute tag='co_state_credits' RAttribute='state_credits' enclosure='co_result' type='double'></setattribute>
+			<setattribute tag='co_state_tax_deduction' RAttribute='state_tax_deduction' enclosure='co_result' type='double'></setattribute>
+			<setattribute tag='co_us_interest_income' RAttribute='us_interest_income' enclosure='co_result' type='double'></setattribute>
+			<setattribute tag='dc_gross_receipts' RAttribute='gross_receipts' enclosure='dc_result' type='double'></setattribute>
+			<setattribute tag='ia_apportioned_income' RAttribute='apportioned_income' enclosure='ia_result' type='double'></setattribute>
+			<setattribute tag='ia_estimated_payments' RAttribute='estimated_payments' enclosure='ia_result' type='double'></setattribute>
+			<setattribute tag='ia_gross_receipts' RAttribute='gross_receipts' enclosure='ia_result' type='double'></setattribute>
+			<setattribute tag='ia_municipal_interest' RAttribute='municipal_interest' enclosure='ia_result' type='double'></setattribute>
+			<setattribute tag='ia_state_credits' RAttribute='state_credits' enclosure='ia_result' type='double'></setattribute>
+			<setattribute tag='ia_state_taxes_deducted' RAttribute='state_taxes_deducted' enclosure='ia_result' type='double'></setattribute>
+			<setattribute tag='ia_us_interest_income' RAttribute='us_interest_income' enclosure='ia_result' type='double'></setattribute>
+			<setattribute tag='id_apportioned_income' RAttribute='apportioned_income' enclosure='id_result' type='double'></setattribute>
+			<setattribute tag='id_estimated_payments' RAttribute='estimated_payments' enclosure='id_result' type='double'></setattribute>
+			<setattribute tag='id_gross_receipts' RAttribute='gross_receipts' enclosure='id_result' type='double'></setattribute>
+			<setattribute tag='id_municipal_interest' RAttribute='municipal_interest' enclosure='id_result' type='double'></setattribute>
+			<setattribute tag='id_state_credits' RAttribute='state_credits' enclosure='id_result' type='double'></setattribute>
+			<setattribute tag='id_state_taxes_deducted' RAttribute='state_taxes_deducted' enclosure='id_result' type='double'></setattribute>
+			<setattribute tag='id_us_interest_income' RAttribute='us_interest_income' enclosure='id_result' type='double'></setattribute>
+			<setattribute tag='in_apportioned_income' RAttribute='apportioned_income' enclosure='in_result' type='double'></setattribute>
+			<setattribute tag='in_estimated_payments' RAttribute='estimated_payments' enclosure='in_result' type='double'></setattribute>
+			<setattribute tag='in_gross_receipts' RAttribute='gross_receipts' enclosure='in_result' type='double'></setattribute>
+			<setattribute tag='in_municipal_interest' RAttribute='municipal_interest' enclosure='in_result' type='double'></setattribute>
+			<setattribute tag='in_out_of_state_muni_interest' RAttribute='out_of_state_muni_interest' enclosure='in_result' type='double'></setattribute>
+			<setattribute tag='in_state_credits' RAttribute='state_credits' enclosure='in_result' type='double'></setattribute>
+			<setattribute tag='in_state_taxes_paid' RAttribute='state_taxes_paid' enclosure='in_result' type='double'></setattribute>
+			<setattribute tag='ks_apportioned_income' RAttribute='apportioned_income' enclosure='ks_result' type='double'></setattribute>
+			<setattribute tag='ks_estimated_payments' RAttribute='estimated_payments' enclosure='ks_result' type='double'></setattribute>
+			<setattribute tag='ks_gross_receipts' RAttribute='gross_receipts' enclosure='ks_result' type='double'></setattribute>
+			<setattribute tag='ks_municipal_interest' RAttribute='municipal_interest' enclosure='ks_result' type='double'></setattribute>
+			<setattribute tag='ks_state_credits' RAttribute='state_credits' enclosure='ks_result' type='double'></setattribute>
+			<setattribute tag='ks_state_tax_refunds' RAttribute='state_tax_refunds' enclosure='ks_result' type='double'></setattribute>
+			<setattribute tag='ks_state_taxes_paid' RAttribute='state_taxes_paid' enclosure='ks_result' type='double'></setattribute>
+			<setattribute tag='ks_us_interest_income' RAttribute='us_interest_income' enclosure='ks_result' type='double'></setattribute>
+			<setattribute tag='ky_apportioned_income' RAttribute='apportioned_income' enclosure='ky_result' type='double'></setattribute>
+			<setattribute tag='ky_dividends_from_ky_corps' RAttribute='dividends_from_ky_corps' enclosure='ky_result' type='double'></setattribute>
+			<setattribute tag='ky_estimated_payments' RAttribute='estimated_payments' enclosure='ky_result' type='double'></setattribute>
+			<setattribute tag='ky_gross_receipts' RAttribute='gross_receipts' enclosure='ky_result' type='double'></setattribute>
+			<setattribute tag='ky_municipal_interest' RAttribute='municipal_interest' enclosure='ky_result' type='double'></setattribute>
+			<setattribute tag='ky_state_credits' RAttribute='state_credits' enclosure='ky_result' type='double'></setattribute>
+			<setattribute tag='ky_us_interest_income' RAttribute='us_interest_income' enclosure='ky_result' type='double'></setattribute>
+			<setattribute tag='la_apportioned_income' RAttribute='apportioned_income' enclosure='la_result' type='double'></setattribute>
+			<setattribute tag='la_estimated_payments' RAttribute='estimated_payments' enclosure='la_result' type='double'></setattribute>
+			<setattribute tag='la_gross_receipts' RAttribute='gross_receipts' enclosure='la_result' type='double'></setattribute>
+			<setattribute tag='la_municipal_interest' RAttribute='municipal_interest' enclosure='la_result' type='double'></setattribute>
+			<setattribute tag='la_state_credits' RAttribute='state_credits' enclosure='la_result' type='double'></setattribute>
+			<setattribute tag='la_us_interest_income' RAttribute='us_interest_income' enclosure='la_result' type='double'></setattribute>
+			<setattribute tag='ma_apportioned_income' RAttribute='apportioned_income' enclosure='ma_result' type='double'></setattribute>
+			<setattribute tag='ma_estimated_payments' RAttribute='estimated_payments' enclosure='ma_result' type='double'></setattribute>
+			<setattribute tag='ma_gross_receipts' RAttribute='gross_receipts' enclosure='ma_result' type='double'></setattribute>
+			<setattribute tag='ma_municipal_interest' RAttribute='municipal_interest' enclosure='ma_result' type='double'></setattribute>
+			<setattribute tag='ma_qualified_dividend_deduction' RAttribute='qualified_dividend_deduction' enclosure='ma_result' type='double'></setattribute>
+			<setattribute tag='ma_state_credits' RAttribute='state_credits' enclosure='ma_result' type='double'></setattribute>
+			<setattribute tag='ma_us_interest_income' RAttribute='us_interest_income' enclosure='ma_result' type='double'></setattribute>
+			<setattribute tag='md_apportioned_income' RAttribute='apportioned_income' enclosure='md_result' type='double'></setattribute>
+			<setattribute tag='md_estimated_payments' RAttribute='estimated_payments' enclosure='md_result' type='double'></setattribute>
+			<setattribute tag='md_gross_receipts' RAttribute='gross_receipts' enclosure='md_result' type='double'></setattribute>
+			<setattribute tag='md_municipal_interest' RAttribute='municipal_interest' enclosure='md_result' type='double'></setattribute>
+			<setattribute tag='md_state_credits' RAttribute='state_credits' enclosure='md_result' type='double'></setattribute>
+			<setattribute tag='md_us_interest_income' RAttribute='us_interest_income' enclosure='md_result' type='double'></setattribute>
+			<setattribute tag='mi_apportioned_income' RAttribute='apportioned_income' enclosure='mi_result' type='double'></setattribute>
+			<setattribute tag='mi_estimated_payments' RAttribute='estimated_payments' enclosure='mi_result' type='double'></setattribute>
+			<setattribute tag='mi_gross_receipts' RAttribute='gross_receipts' enclosure='mi_result' type='double'></setattribute>
+			<setattribute tag='mi_municipal_interest' RAttribute='municipal_interest' enclosure='mi_result' type='double'></setattribute>
+			<setattribute tag='mi_state_credits' RAttribute='state_credits' enclosure='mi_result' type='double'></setattribute>
+			<setattribute tag='mi_us_interest_income' RAttribute='us_interest_income' enclosure='mi_result' type='double'></setattribute>
+			<setattribute tag='mn_apportioned_income' RAttribute='apportioned_income' enclosure='mn_result' type='double'></setattribute>
+			<setattribute tag='mn_estimated_payments' RAttribute='estimated_payments' enclosure='mn_result' type='double'></setattribute>
+			<setattribute tag='mn_gross_receipts' RAttribute='gross_receipts' enclosure='mn_result' type='double'></setattribute>
+			<setattribute tag='mn_municipal_interest' RAttribute='municipal_interest' enclosure='mn_result' type='double'></setattribute>
+			<setattribute tag='mn_state_credits' RAttribute='state_credits' enclosure='mn_result' type='double'></setattribute>
+			<setattribute tag='mn_us_interest_income' RAttribute='us_interest_income' enclosure='mn_result' type='double'></setattribute>
+			<setattribute tag='mo_apportioned_income' RAttribute='apportioned_income' enclosure='mo_result' type='double'></setattribute>
+			<setattribute tag='mo_estimated_payments' RAttribute='estimated_payments' enclosure='mo_result' type='double'></setattribute>
+			<setattribute tag='mo_gross_receipts' RAttribute='gross_receipts' enclosure='mo_result' type='double'></setattribute>
+			<setattribute tag='mo_municipal_interest' RAttribute='municipal_interest' enclosure='mo_result' type='double'></setattribute>
+			<setattribute tag='mo_state_credits' RAttribute='state_credits' enclosure='mo_result' type='double'></setattribute>
+			<setattribute tag='mo_us_interest_income' RAttribute='us_interest_income' enclosure='mo_result' type='double'></setattribute>
+			<setattribute tag='ms_apportioned_income' RAttribute='apportioned_income' enclosure='ms_result' type='double'></setattribute>
+			<setattribute tag='ms_estimated_payments' RAttribute='estimated_payments' enclosure='ms_result' type='double'></setattribute>
+			<setattribute tag='ms_gross_receipts' RAttribute='gross_receipts' enclosure='ms_result' type='double'></setattribute>
+			<setattribute tag='ms_municipal_interest' RAttribute='municipal_interest' enclosure='ms_result' type='double'></setattribute>
+			<setattribute tag='ms_state_credits' RAttribute='state_credits' enclosure='ms_result' type='double'></setattribute>
+			<setattribute tag='ms_us_interest_income' RAttribute='us_interest_income' enclosure='ms_result' type='double'></setattribute>
+			<setattribute tag='mt_apportioned_income' RAttribute='apportioned_income' enclosure='mt_result' type='double'></setattribute>
+			<setattribute tag='mt_estimated_payments' RAttribute='estimated_payments' enclosure='mt_result' type='double'></setattribute>
+			<setattribute tag='mt_gross_receipts' RAttribute='gross_receipts' enclosure='mt_result' type='double'></setattribute>
+			<setattribute tag='mt_municipal_interest' RAttribute='municipal_interest' enclosure='mt_result' type='double'></setattribute>
+			<setattribute tag='mt_state_credits' RAttribute='state_credits' enclosure='mt_result' type='double'></setattribute>
+			<setattribute tag='mt_us_interest_income' RAttribute='us_interest_income' enclosure='mt_result' type='double'></setattribute>
+			<setattribute tag='mt_waters_edge_election' RAttribute='waters_edge_election' enclosure='mt_result' type='boolean'></setattribute>
+			<setattribute tag='nv_business_classification' RAttribute='business_classification' enclosure='nv_result' type='string'></setattribute>
+			<setattribute tag='ny_in_mta_region' RAttribute='in_mta_region' enclosure='ny_result' type='boolean'></setattribute>
+			<setattribute tag='or_is_financial_institution' RAttribute='is_financial_institution' enclosure='or_result' type='boolean'></setattribute>
+			<setattribute tag='sd_is_financial_institution' RAttribute='is_financial_institution' enclosure='sd_result' type='boolean'></setattribute>
+			<setattribute tag='sd_is_insurance_company' RAttribute='is_insurance_company' enclosure='sd_result' type='boolean'></setattribute>
+			<setattribute tag='tn_net_worth' RAttribute='net_worth' enclosure='tn_result' type='double'></setattribute>
+			<setattribute tag='tn_nol_deduction' RAttribute='nol_deduction' enclosure='tn_result' type='double'></setattribute>
+			<setattribute tag='tx_cogs' RAttribute='cogs' enclosure='tx_result' type='double'></setattribute>
+			<setattribute tag='tx_compensation' RAttribute='compensation' enclosure='tx_result' type='double'></setattribute>
+			<setattribute tag='tx_is_retail_wholesale' RAttribute='is_retail_wholesale' enclosure='tx_result' type='boolean'></setattribute>
+			<setattribute tag='tx_total_revenue' RAttribute='total_revenue' enclosure='tx_result' type='double'></setattribute>
+			<setattribute tag='wa_business_classification' RAttribute='business_classification' enclosure='wa_result' type='string'></setattribute>
 			<createentity entity='job' tag='job' id='id'></createentity>
 			<createentity entity='corporation' tag='corporation' id='id'></createentity>
 			<createentity entity='apportionment' tag='apportionment' id='id'></createentity>
 			<createentity entity='result' tag='result' id='id'></createentity>
 			<createentity entity='revenue' tag='revenue' id='id'></createentity>
 			<createentity entity='expense' tag='expense' id='id'></createentity>
+			<createentity entity='ak_apportionment' tag='ak_apportionment' id='id'></createentity>
+			<createentity entity='al_apportionment' tag='al_apportionment' id='id'></createentity>
+			<createentity entity='ar_apportionment' tag='ar_apportionment' id='id'></createentity>
+			<createentity entity='az_apportionment' tag='az_apportionment' id='id'></createentity>
+			<createentity entity='ca_apportionment' tag='ca_apportionment' id='id'></createentity>
+			<createentity entity='ca_result' tag='ca_result' id='id'></createentity>
+			<createentity entity='co_result' tag='co_result' id='id'></createentity>
+			<createentity entity='ct_apportionment' tag='ct_apportionment' id='id'></createentity>
+			<createentity entity='dc_apportionment' tag='dc_apportionment' id='id'></createentity>
+			<createentity entity='dc_result' tag='dc_result' id='id'></createentity>
+			<createentity entity='de_apportionment' tag='de_apportionment' id='id'></createentity>
+			<createentity entity='fl_apportionment' tag='fl_apportionment' id='id'></createentity>
+			<createentity entity='ga_apportionment' tag='ga_apportionment' id='id'></createentity>
+			<createentity entity='hi_apportionment' tag='hi_apportionment' id='id'></createentity>
+			<createentity entity='ia_result' tag='ia_result' id='id'></createentity>
+			<createentity entity='id_result' tag='id_result' id='id'></createentity>
+			<createentity entity='il_apportionment' tag='il_apportionment' id='id'></createentity>
+			<createentity entity='il_result' tag='il_result' id='id'></createentity>
+			<createentity entity='in_result' tag='in_result' id='id'></createentity>
+			<createentity entity='ks_result' tag='ks_result' id='id'></createentity>
+			<createentity entity='ky_result' tag='ky_result' id='id'></createentity>
+			<createentity entity='la_result' tag='la_result' id='id'></createentity>
+			<createentity entity='ma_apportionment' tag='ma_apportionment' id='id'></createentity>
+			<createentity entity='ma_result' tag='ma_result' id='id'></createentity>
+			<createentity entity='md_result' tag='md_result' id='id'></createentity>
+			<createentity entity='me_apportionment' tag='me_apportionment' id='id'></createentity>
+			<createentity entity='me_result' tag='me_result' id='id'></createentity>
+			<createentity entity='mi_apportionment' tag='mi_apportionment' id='id'></createentity>
+			<createentity entity='mi_result' tag='mi_result' id='id'></createentity>
+			<createentity entity='mn_apportionment' tag='mn_apportionment' id='id'></createentity>
+			<createentity entity='mn_result' tag='mn_result' id='id'></createentity>
+			<createentity entity='mo_apportionment' tag='mo_apportionment' id='id'></createentity>
+			<createentity entity='mo_result' tag='mo_result' id='id'></createentity>
+			<createentity entity='ms_apportionment' tag='ms_apportionment' id='id'></createentity>
+			<createentity entity='ms_result' tag='ms_result' id='id'></createentity>
+			<createentity entity='mt_apportionment' tag='mt_apportionment' id='id'></createentity>
+			<createentity entity='mt_result' tag='mt_result' id='id'></createentity>
+			<createentity entity='nc_apportionment' tag='nc_apportionment' id='id'></createentity>
+			<createentity entity='nd_apportionment' tag='nd_apportionment' id='id'></createentity>
+			<createentity entity='ne_apportionment' tag='ne_apportionment' id='id'></createentity>
+			<createentity entity='nh_apportionment' tag='nh_apportionment' id='id'></createentity>
+			<createentity entity='nh_result' tag='nh_result' id='id'></createentity>
+			<createentity entity='nj_apportionment' tag='nj_apportionment' id='id'></createentity>
+			<createentity entity='nj_result' tag='nj_result' id='id'></createentity>
+			<createentity entity='nm_apportionment' tag='nm_apportionment' id='id'></createentity>
+			<createentity entity='nv_apportionment' tag='nv_apportionment' id='id'></createentity>
+			<createentity entity='nv_result' tag='nv_result' id='id'></createentity>
+			<createentity entity='ny_apportionment' tag='ny_apportionment' id='id'></createentity>
+			<createentity entity='ny_result' tag='ny_result' id='id'></createentity>
+			<createentity entity='oh_apportionment' tag='oh_apportionment' id='id'></createentity>
+			<createentity entity='oh_result' tag='oh_result' id='id'></createentity>
+			<createentity entity='ok_apportionment' tag='ok_apportionment' id='id'></createentity>
+			<createentity entity='or_apportionment' tag='or_apportionment' id='id'></createentity>
+			<createentity entity='or_result' tag='or_result' id='id'></createentity>
+			<createentity entity='pa_apportionment' tag='pa_apportionment' id='id'></createentity>
+			<createentity entity='ri_apportionment' tag='ri_apportionment' id='id'></createentity>
+			<createentity entity='sc_apportionment' tag='sc_apportionment' id='id'></createentity>
+			<createentity entity='sd_apportionment' tag='sd_apportionment' id='id'></createentity>
+			<createentity entity='sd_result' tag='sd_result' id='id'></createentity>
+			<createentity entity='tn_apportionment' tag='tn_apportionment' id='id'></createentity>
+			<createentity entity='tn_result' tag='tn_result' id='id'></createentity>
+			<createentity entity='tn_revenue' tag='tn_revenue' id='id'></createentity>
+			<createentity entity='tx_apportionment' tag='tx_apportionment' id='id'></createentity>
+			<createentity entity='tx_result' tag='tx_result' id='id'></createentity>
+			<createentity entity='ut_apportionment' tag='ut_apportionment' id='id'></createentity>
+			<createentity entity='va_apportionment' tag='va_apportionment' id='id'></createentity>
+			<createentity entity='vt_apportionment' tag='vt_apportionment' id='id'></createentity>
+			<createentity entity='wa_apportionment' tag='wa_apportionment' id='id'></createentity>
+			<createentity entity='wa_result' tag='wa_result' id='id'></createentity>
+			<createentity entity='wi_apportionment' tag='wi_apportionment' id='id'></createentity>
+			<createentity entity='wv_apportionment' tag='wv_apportionment' id='id'></createentity>
+			<createentity entity='wy_apportionment' tag='wy_apportionment' id='id'></createentity>
+			<createentity entity='wy_result' tag='wy_result' id='id'></createentity>
 		</map>
 		<entities>
 			<entity name='job' number='1'></entity>
@@ -355,6 +428,79 @@
 			<entity name='result' number='1'></entity>
 			<entity name='revenue' number='1'></entity>
 			<entity name='expense' number='1'></entity>
+			<entity name='ak_apportionment' number='1'></entity>
+			<entity name='al_apportionment' number='1'></entity>
+			<entity name='ar_apportionment' number='1'></entity>
+			<entity name='az_apportionment' number='1'></entity>
+			<entity name='ca_apportionment' number='1'></entity>
+			<entity name='ca_result' number='1'></entity>
+			<entity name='co_result' number='1'></entity>
+			<entity name='ct_apportionment' number='1'></entity>
+			<entity name='dc_apportionment' number='1'></entity>
+			<entity name='dc_result' number='1'></entity>
+			<entity name='de_apportionment' number='1'></entity>
+			<entity name='fl_apportionment' number='1'></entity>
+			<entity name='ga_apportionment' number='1'></entity>
+			<entity name='hi_apportionment' number='1'></entity>
+			<entity name='ia_result' number='1'></entity>
+			<entity name='id_result' number='1'></entity>
+			<entity name='il_apportionment' number='1'></entity>
+			<entity name='il_result' number='1'></entity>
+			<entity name='in_result' number='1'></entity>
+			<entity name='ks_result' number='1'></entity>
+			<entity name='ky_result' number='1'></entity>
+			<entity name='la_result' number='1'></entity>
+			<entity name='ma_apportionment' number='1'></entity>
+			<entity name='ma_result' number='1'></entity>
+			<entity name='md_result' number='1'></entity>
+			<entity name='me_apportionment' number='1'></entity>
+			<entity name='me_result' number='1'></entity>
+			<entity name='mi_apportionment' number='1'></entity>
+			<entity name='mi_result' number='1'></entity>
+			<entity name='mn_apportionment' number='1'></entity>
+			<entity name='mn_result' number='1'></entity>
+			<entity name='mo_apportionment' number='1'></entity>
+			<entity name='mo_result' number='1'></entity>
+			<entity name='ms_apportionment' number='1'></entity>
+			<entity name='ms_result' number='1'></entity>
+			<entity name='mt_apportionment' number='1'></entity>
+			<entity name='mt_result' number='1'></entity>
+			<entity name='nc_apportionment' number='1'></entity>
+			<entity name='nd_apportionment' number='1'></entity>
+			<entity name='ne_apportionment' number='1'></entity>
+			<entity name='nh_apportionment' number='1'></entity>
+			<entity name='nh_result' number='1'></entity>
+			<entity name='nj_apportionment' number='1'></entity>
+			<entity name='nj_result' number='1'></entity>
+			<entity name='nm_apportionment' number='1'></entity>
+			<entity name='nv_apportionment' number='1'></entity>
+			<entity name='nv_result' number='1'></entity>
+			<entity name='ny_apportionment' number='1'></entity>
+			<entity name='ny_result' number='1'></entity>
+			<entity name='oh_apportionment' number='1'></entity>
+			<entity name='oh_result' number='1'></entity>
+			<entity name='ok_apportionment' number='1'></entity>
+			<entity name='or_apportionment' number='1'></entity>
+			<entity name='or_result' number='1'></entity>
+			<entity name='pa_apportionment' number='1'></entity>
+			<entity name='ri_apportionment' number='1'></entity>
+			<entity name='sc_apportionment' number='1'></entity>
+			<entity name='sd_apportionment' number='1'></entity>
+			<entity name='sd_result' number='1'></entity>
+			<entity name='tn_apportionment' number='1'></entity>
+			<entity name='tn_result' number='1'></entity>
+			<entity name='tn_revenue' number='1'></entity>
+			<entity name='tx_apportionment' number='1'></entity>
+			<entity name='tx_result' number='1'></entity>
+			<entity name='ut_apportionment' number='1'></entity>
+			<entity name='va_apportionment' number='1'></entity>
+			<entity name='vt_apportionment' number='1'></entity>
+			<entity name='wa_apportionment' number='1'></entity>
+			<entity name='wa_result' number='1'></entity>
+			<entity name='wi_apportionment' number='1'></entity>
+			<entity name='wv_apportionment' number='1'></entity>
+			<entity name='wy_apportionment' number='1'></entity>
+			<entity name='wy_result' number='1'></entity>
 		</entities>
 		<initialization>
 			<initialentity entity='job' epush='true'></initialentity>
@@ -363,6 +509,79 @@
 			<initialentity entity='expense' epush='true'></initialentity>
 			<initialentity entity='result' epush='true'></initialentity>
 			<initialentity entity='apportionment' epush='true'></initialentity>
+			<initialentity entity='ak_apportionment' epush='true'></initialentity>
+			<initialentity entity='al_apportionment' epush='true'></initialentity>
+			<initialentity entity='ar_apportionment' epush='true'></initialentity>
+			<initialentity entity='az_apportionment' epush='true'></initialentity>
+			<initialentity entity='ca_apportionment' epush='true'></initialentity>
+			<initialentity entity='ca_result' epush='true'></initialentity>
+			<initialentity entity='co_result' epush='true'></initialentity>
+			<initialentity entity='ct_apportionment' epush='true'></initialentity>
+			<initialentity entity='dc_apportionment' epush='true'></initialentity>
+			<initialentity entity='dc_result' epush='true'></initialentity>
+			<initialentity entity='de_apportionment' epush='true'></initialentity>
+			<initialentity entity='fl_apportionment' epush='true'></initialentity>
+			<initialentity entity='ga_apportionment' epush='true'></initialentity>
+			<initialentity entity='hi_apportionment' epush='true'></initialentity>
+			<initialentity entity='ia_result' epush='true'></initialentity>
+			<initialentity entity='id_result' epush='true'></initialentity>
+			<initialentity entity='il_apportionment' epush='true'></initialentity>
+			<initialentity entity='il_result' epush='true'></initialentity>
+			<initialentity entity='in_result' epush='true'></initialentity>
+			<initialentity entity='ks_result' epush='true'></initialentity>
+			<initialentity entity='ky_result' epush='true'></initialentity>
+			<initialentity entity='la_result' epush='true'></initialentity>
+			<initialentity entity='ma_apportionment' epush='true'></initialentity>
+			<initialentity entity='ma_result' epush='true'></initialentity>
+			<initialentity entity='md_result' epush='true'></initialentity>
+			<initialentity entity='me_apportionment' epush='true'></initialentity>
+			<initialentity entity='me_result' epush='true'></initialentity>
+			<initialentity entity='mi_apportionment' epush='true'></initialentity>
+			<initialentity entity='mi_result' epush='true'></initialentity>
+			<initialentity entity='mn_apportionment' epush='true'></initialentity>
+			<initialentity entity='mn_result' epush='true'></initialentity>
+			<initialentity entity='mo_apportionment' epush='true'></initialentity>
+			<initialentity entity='mo_result' epush='true'></initialentity>
+			<initialentity entity='ms_apportionment' epush='true'></initialentity>
+			<initialentity entity='ms_result' epush='true'></initialentity>
+			<initialentity entity='mt_apportionment' epush='true'></initialentity>
+			<initialentity entity='mt_result' epush='true'></initialentity>
+			<initialentity entity='nc_apportionment' epush='true'></initialentity>
+			<initialentity entity='nd_apportionment' epush='true'></initialentity>
+			<initialentity entity='ne_apportionment' epush='true'></initialentity>
+			<initialentity entity='nh_apportionment' epush='true'></initialentity>
+			<initialentity entity='nh_result' epush='true'></initialentity>
+			<initialentity entity='nj_apportionment' epush='true'></initialentity>
+			<initialentity entity='nj_result' epush='true'></initialentity>
+			<initialentity entity='nm_apportionment' epush='true'></initialentity>
+			<initialentity entity='nv_apportionment' epush='true'></initialentity>
+			<initialentity entity='nv_result' epush='true'></initialentity>
+			<initialentity entity='ny_apportionment' epush='true'></initialentity>
+			<initialentity entity='ny_result' epush='true'></initialentity>
+			<initialentity entity='oh_apportionment' epush='true'></initialentity>
+			<initialentity entity='oh_result' epush='true'></initialentity>
+			<initialentity entity='ok_apportionment' epush='true'></initialentity>
+			<initialentity entity='or_apportionment' epush='true'></initialentity>
+			<initialentity entity='or_result' epush='true'></initialentity>
+			<initialentity entity='pa_apportionment' epush='true'></initialentity>
+			<initialentity entity='ri_apportionment' epush='true'></initialentity>
+			<initialentity entity='sc_apportionment' epush='true'></initialentity>
+			<initialentity entity='sd_apportionment' epush='true'></initialentity>
+			<initialentity entity='sd_result' epush='true'></initialentity>
+			<initialentity entity='tn_apportionment' epush='true'></initialentity>
+			<initialentity entity='tn_result' epush='true'></initialentity>
+			<initialentity entity='tn_revenue' epush='true'></initialentity>
+			<initialentity entity='tx_apportionment' epush='true'></initialentity>
+			<initialentity entity='tx_result' epush='true'></initialentity>
+			<initialentity entity='ut_apportionment' epush='true'></initialentity>
+			<initialentity entity='va_apportionment' epush='true'></initialentity>
+			<initialentity entity='vt_apportionment' epush='true'></initialentity>
+			<initialentity entity='wa_apportionment' epush='true'></initialentity>
+			<initialentity entity='wa_result' epush='true'></initialentity>
+			<initialentity entity='wi_apportionment' epush='true'></initialentity>
+			<initialentity entity='wv_apportionment' epush='true'></initialentity>
+			<initialentity entity='wy_apportionment' epush='true'></initialentity>
+			<initialentity entity='wy_result' epush='true'></initialentity>
 		</initialization>
 	</XMLtoEDD>
 </mapping>
