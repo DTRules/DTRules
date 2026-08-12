@@ -77,6 +77,21 @@ func (c *Compiler) SetOperatorChecker(exists func(string) bool) {
 	c.emitter.operatorExists = exists
 }
 
+// SetOperatorArity supplies the lookup used to reject statement-form calls
+// with the wrong number of arguments.
+//
+// Separate from SetOperatorChecker rather than folded into it: the name check
+// applies to every operator, while arity is declared only for those reachable
+// as `name(a, b, …)`, and a caller that wants one may not have the other. The
+// lookup returns ok == false for an operator with no declared arity, which is
+// not an error — it means unchecked (#1105).
+//
+// Injected for the same reason as the name check; pass a closure over
+// operators.ArityOf.
+func (c *Compiler) SetOperatorArity(arity func(name string) (min, max int, ok bool)) {
+	c.emitter.operatorArity = arity
+}
+
 // ResetLocals clears per-table local variable state (names + slot indices).
 // Callers that reuse a Compiler across multiple tables must call this between
 // tables so slot indices don't bleed across independent compilation scopes.

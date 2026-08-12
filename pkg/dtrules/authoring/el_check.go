@@ -136,5 +136,12 @@ func newCheckedCompiler() *el.Compiler {
 		_, ok := operators.GetByString(name)
 		return ok
 	})
+	// And with the right number of arguments — a short call is worse than a
+	// misspelled one, because it silently consumes whatever is beneath it on
+	// the stack rather than failing (#1105).
+	c.SetOperatorArity(func(name string) (int, int, bool) {
+		a, ok := operators.ArityOf(name)
+		return a.Min, a.Max, ok
+	})
 	return c
 }

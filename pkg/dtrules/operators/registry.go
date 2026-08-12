@@ -94,6 +94,42 @@ func RegisterWithPriority(name string, fn OperatorFunc, priority int) *Operator 
 	return op
 }
 
+// Arity is how many arguments a statement-form call `name(a, b, …)` takes.
+// Max < 0 means variadic — at least Min, no upper bound.
+type Arity struct{ Min, Max int }
+
+// operatorArity records the declared arity of statement-form operators.
+//
+// Deliberately sparse. Most operators are reached through EL syntax the
+// grammar already shapes (`sum of x in y`), where a wrong argument count
+// cannot be written; only the `name(a, b, …)` call form can be miscounted,
+// so only those operators need an entry. An operator with no entry is not
+// arity-checked, which keeps this from becoming a table that must be kept
+// exhaustive to be correct.
+//
+// Written during init() alongside Register, read after. Same happens-before
+// argument as `operators` — see Get.
+var operatorArity = make(map[string]Arity)
+
+// RegisterArity declares the argument count of a statement-form operator, so
+// a miscounted call is refused when the rule is written rather than popping
+// whatever happens to be under it at execution (#1105).
+//
+// Call from init(), next to Register. min == max for a fixed count; pass
+// max < 0 for variadic.
+func RegisterArity(name string, min, max int) {
+	operatorsMu.Lock()
+	defer operatorsMu.Unlock()
+	operatorArity[name] = Arity{Min: min, Max: max}
+}
+
+// ArityOf returns the declared arity of an operator, and whether one was
+// declared at all. Undeclared operators are not checked.
+func ArityOf(name string) (Arity, bool) {
+	a, ok := operatorArity[name]
+	return a, ok
+}
+
 // Alias creates an alias for an existing operator.
 // Panics if the names are invalid or if there's a conflicting alias.
 // This is intended for use in init() functions with known-good names.

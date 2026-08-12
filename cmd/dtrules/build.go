@@ -48,6 +48,11 @@ func newWorkbookImporter(xmlDir string) *excel.WorkbookImporter {
 		_, ok := operators.GetByString(name)
 		return ok
 	})
+	// And with the declared number of arguments (#1105).
+	c.SetOperatorArity(func(name string) (int, int, bool) {
+		a, ok := operators.ArityOf(name)
+		return a.Min, a.Max, ok
+	})
 	imp.SetELCompiler(c)
 	if syms := authoring.LoadEDDSymbols(xmlDir); len(syms) > 0 {
 		imp.SetSymbols(syms)

@@ -41,6 +41,18 @@ func init() {
 	Register("groupby", opGroupBy)
 	Register("maximalruns", opMaximalRuns)
 	Register("suffixes", opSuffixes)
+
+	// Arity, so a miscounted call is refused at authoring time (#1105). These
+	// are the operators most exposed to it: every one is called in the
+	// `name(a, b, …)` form with four or five positional arguments, three of
+	// them bare strings naming EDD types and fields. A short call does not
+	// fail cleanly — it pops whatever is beneath it on the stack and treats
+	// that as the missing arguments.
+	RegisterArity("combinations", 5, 5) // src k typename sumfield dest
+	RegisterArity("subsets", 4, 4)      // src typename sumfield dest
+	RegisterArity("groupby", 4, 4)      // src keyfield typename dest
+	RegisterArity("maximalruns", 5, 5)  // src rankfield minlen typename dest
+	RegisterArity("suffixes", 5, 5)     // src minlen statfield typename dest
 }
 
 // subsetsCap bounds opSubsets: 2^12-1 = 4095 entities is the design ceiling.

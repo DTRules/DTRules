@@ -49,7 +49,12 @@ type PostfixEmitter struct {
 	// and pkg/dtrules's own tests import this package — importing it here
 	// closes that loop. nil means no check, which is what el's isolated unit
 	// tests want when they exercise emission with a stand-in operator name.
-	operatorExists    func(string) bool
+	operatorExists func(string) bool
+	// operatorArity reports the declared argument count of a statement-form
+	// operator, and whether one was declared. Injected for the same reason as
+	// operatorExists. nil, or ok == false, means the call is not arity-checked
+	// (#1105).
+	operatorArity     func(string) (min, max int, ok bool)
 	locals            map[string]LocalVar // local variable stack frame indices
 	localCnt          int                 // next available local variable index
 	resolveCollection func(entityType string) (ownerEntity, fieldName string, err error)
@@ -5790,9 +5795,67 @@ func (e *PostfixEmitter) VisitOperatorstatements(ctx *OperatorstatementsContext)
 		return nil
 	}
 
+	// Reject a call with the wrong number of arguments, for the operators that
+	// declare one.
+	//
+	// The name check above catches typos, which is the loud failure. This is
+	// the quiet one: the runtime pops arguments off the stack by position, so
+	// `subsets(hand.cards)` does not fail for want of three arguments — it
+	// takes whatever three values happen to be beneath it and treats them as
+	// the typename, sum field and destination. That is a wrong answer or a
+	// write into the wrong array, not an error (#1105).
+	if e.operatorArity != nil {
+		if min, max, ok := e.operatorArity(name); ok {
+			got := countOperatorArgs(ctx.Operatorlist())
+			if got < min || (max >= 0 && got > max) {
+				e.emitError("operator %q takes %s, got %d",
+					name, describeArity(min, max), got)
+				return nil
+			}
+		}
+	}
+
 	e.Visit(ctx.Operatorlist())
 	e.emit(name)
 	return nil
+}
+
+// countOperatorArgs counts the arguments in an operator call's argument list.
+//
+// `operatorlist` is right-recursive — each `x, rest` alternative holds one
+// expression and a nested operatorlist, and the four `…Single` alternatives
+// terminate it — so the count is the length of that chain. Walking children
+// for the nested context avoids type-switching over all eight labelled
+// alternatives, which would have to be revisited every time the grammar grows
+// an argument type.
+func countOperatorArgs(ctx IOperatorlistContext) int {
+	n := 0
+	for cur := ctx; cur != nil; {
+		n++
+		var next IOperatorlistContext
+		for _, child := range cur.GetChildren() {
+			if sub, ok := child.(IOperatorlistContext); ok {
+				next = sub
+				break
+			}
+		}
+		cur = next
+	}
+	return n
+}
+
+// describeArity renders an expected argument count for an error message.
+func describeArity(min, max int) string {
+	switch {
+	case max < 0:
+		return fmt.Sprintf("at least %d arguments", min)
+	case min == max && min == 1:
+		return "1 argument"
+	case min == max:
+		return fmt.Sprintf("%d arguments", min)
+	default:
+		return fmt.Sprintf("%d to %d arguments", min, max)
+	}
 }
 
 // VisitRemoveEachWhere: `remove each <eexpr> from <arrayExpr> where <bexpr>`
