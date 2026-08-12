@@ -6493,18 +6493,18 @@ perform when called
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Ordinary income fills 0% bracket; ordinary_income_for_cg at or below 0% ceiling</condition_comment>
-<condition_dsl>result.net_capital_gain &lt;= cg_bracket_1_mfj</condition_dsl>
+<condition_dsl>result.net_capital_gain &lt;= result.cg_0_percent_mfj</condition_dsl>
 <condition_postfix>
-result.net_capital_gain cg_bracket_1_mfj &lt;=
+result.net_capital_gain result.cg_0_percent_mfj f&lt;=
 </condition_postfix>
 <columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Taxable income in 15% bracket; taxable_income at or below 15% ceiling</condition_comment>
-<condition_dsl>result.net_capital_gain &lt;= cg_bracket_2_mfj</condition_dsl>
+<condition_dsl>result.net_capital_gain &lt;= result.cg_15_percent_mfj</condition_dsl>
 <condition_postfix>
-result.net_capital_gain cg_bracket_2_mfj &lt;=
+result.net_capital_gain result.cg_15_percent_mfj f&lt;=
 </condition_postfix>
 <columns>-YN</columns>
 </condition_details>
@@ -6513,27 +6513,27 @@ result.net_capital_gain cg_bracket_2_mfj &lt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>0% rate applies to all preferential income</action_comment>
-<action_dsl>set result.capital_gains_tax = result.net_capital_gain * cg_bracket_1_rate</action_dsl>
+<action_dsl>set result.capital_gains_tax = result.net_capital_gain * result.cg_rate_0_percent</action_dsl>
 <action_postfix>
-result.net_capital_gain cg_bracket_1_rate * cvd /result.capital_gains_tax xdef
+result.net_capital_gain result.cg_rate_0_percent fmul cvd /result.capital_gains_tax xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>15% rate applies; LTCG/QD at 15%</action_comment>
-<action_dsl>set result.capital_gains_tax = cg_bracket_1_mfj * cg_bracket_1_rate + (result.net_capital_gain - cg_bracket_1_mfj) * cg_bracket_2_rate</action_dsl>
+<action_dsl>set result.capital_gains_tax = result.cg_0_percent_mfj * result.cg_rate_0_percent + (result.net_capital_gain - result.cg_0_percent_mfj) * result.cg_rate_15_percent</action_dsl>
 <action_postfix>
-cg_bracket_1_mfj cg_bracket_1_rate * result.net_capital_gain cg_bracket_1_mfj - cg_bracket_2_rate * + cvd /result.capital_gains_tax xdef
+result.cg_0_percent_mfj result.cg_rate_0_percent fmul result.net_capital_gain result.cg_0_percent_mfj f- result.cg_rate_15_percent fmul f+ cvd /result.capital_gains_tax xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>20% rate applies; LTCG/QD at 20%</action_comment>
-<action_dsl>set result.capital_gains_tax = cg_bracket_1_mfj * cg_bracket_1_rate + (cg_bracket_2_mfj - cg_bracket_1_mfj) * cg_bracket_2_rate + (result.net_capital_gain - cg_bracket_2_mfj) * cg_bracket_3_rate</action_dsl>
+<action_dsl>set result.capital_gains_tax = result.cg_0_percent_mfj * result.cg_rate_0_percent + (result.cg_15_percent_mfj - result.cg_0_percent_mfj) * result.cg_rate_15_percent + (result.net_capital_gain - result.cg_15_percent_mfj) * result.cg_rate_20_percent</action_dsl>
 <action_postfix>
-cg_bracket_1_mfj cg_bracket_1_rate * cg_bracket_2_mfj cg_bracket_1_mfj - cg_bracket_2_rate * + result.net_capital_gain cg_bracket_2_mfj - cg_bracket_3_rate * + cvd /result.capital_gains_tax xdef
+result.cg_0_percent_mfj result.cg_rate_0_percent fmul result.cg_15_percent_mfj result.cg_0_percent_mfj f- result.cg_rate_15_percent fmul f+ result.net_capital_gain result.cg_15_percent_mfj f- result.cg_rate_20_percent fmul f+ cvd /result.capital_gains_tax xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -6561,18 +6561,18 @@ cg_bracket_1_mfj cg_bracket_1_rate * cg_bracket_2_mfj cg_bracket_1_mfj - cg_brac
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Ordinary income fills 0% bracket; ordinary_income_for_cg at or below 0% ceiling</condition_comment>
-<condition_dsl>result.net_capital_gain &lt;= cg_bracket_1_hoh</condition_dsl>
+<condition_dsl>result.net_capital_gain &lt;= result.cg_0_percent_hoh</condition_dsl>
 <condition_postfix>
-result.net_capital_gain cg_bracket_1_hoh &lt;=
+result.net_capital_gain result.cg_0_percent_hoh f&lt;=
 </condition_postfix>
 <columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Taxable income in 15% bracket; taxable_income at or below 15% ceiling</condition_comment>
-<condition_dsl>result.net_capital_gain &lt;= cg_bracket_2_hoh</condition_dsl>
+<condition_dsl>result.net_capital_gain &lt;= result.cg_15_percent_hoh</condition_dsl>
 <condition_postfix>
-result.net_capital_gain cg_bracket_2_hoh &lt;=
+result.net_capital_gain result.cg_15_percent_hoh f&lt;=
 </condition_postfix>
 <columns>-YN</columns>
 </condition_details>
@@ -6581,27 +6581,27 @@ result.net_capital_gain cg_bracket_2_hoh &lt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>0% rate applies to all preferential income</action_comment>
-<action_dsl>set result.capital_gains_tax = result.net_capital_gain * cg_bracket_1_rate</action_dsl>
+<action_dsl>set result.capital_gains_tax = result.net_capital_gain * result.cg_rate_0_percent</action_dsl>
 <action_postfix>
-result.net_capital_gain cg_bracket_1_rate * cvd /result.capital_gains_tax xdef
+result.net_capital_gain result.cg_rate_0_percent fmul cvd /result.capital_gains_tax xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>15% rate applies; LTCG/QD at 15%</action_comment>
-<action_dsl>set result.capital_gains_tax = cg_bracket_1_hoh * cg_bracket_1_rate + (result.net_capital_gain - cg_bracket_1_hoh) * cg_bracket_2_rate</action_dsl>
+<action_dsl>set result.capital_gains_tax = result.cg_0_percent_hoh * result.cg_rate_0_percent + (result.net_capital_gain - result.cg_0_percent_hoh) * result.cg_rate_15_percent</action_dsl>
 <action_postfix>
-cg_bracket_1_hoh cg_bracket_1_rate * result.net_capital_gain cg_bracket_1_hoh - cg_bracket_2_rate * + cvd /result.capital_gains_tax xdef
+result.cg_0_percent_hoh result.cg_rate_0_percent fmul result.net_capital_gain result.cg_0_percent_hoh f- result.cg_rate_15_percent fmul f+ cvd /result.capital_gains_tax xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>20% rate applies; LTCG/QD at 20%</action_comment>
-<action_dsl>set result.capital_gains_tax = cg_bracket_1_hoh * cg_bracket_1_rate + (cg_bracket_2_hoh - cg_bracket_1_hoh) * cg_bracket_2_rate + (result.net_capital_gain - cg_bracket_2_hoh) * cg_bracket_3_rate</action_dsl>
+<action_dsl>set result.capital_gains_tax = result.cg_0_percent_hoh * result.cg_rate_0_percent + (result.cg_15_percent_hoh - result.cg_0_percent_hoh) * result.cg_rate_15_percent + (result.net_capital_gain - result.cg_15_percent_hoh) * result.cg_rate_20_percent</action_dsl>
 <action_postfix>
-cg_bracket_1_hoh cg_bracket_1_rate * cg_bracket_2_hoh cg_bracket_1_hoh - cg_bracket_2_rate * + result.net_capital_gain cg_bracket_2_hoh - cg_bracket_3_rate * + cvd /result.capital_gains_tax xdef
+result.cg_0_percent_hoh result.cg_rate_0_percent fmul result.cg_15_percent_hoh result.cg_0_percent_hoh f- result.cg_rate_15_percent fmul f+ result.net_capital_gain result.cg_15_percent_hoh f- result.cg_rate_20_percent fmul f+ cvd /result.capital_gains_tax xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -6629,18 +6629,18 @@ cg_bracket_1_hoh cg_bracket_1_rate * cg_bracket_2_hoh cg_bracket_1_hoh - cg_brac
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Ordinary income fills 0% bracket; ordinary_income_for_cg at or below 0% ceiling</condition_comment>
-<condition_dsl>result.net_capital_gain &lt;= cg_bracket_1_single</condition_dsl>
+<condition_dsl>result.net_capital_gain &lt;= result.cg_0_percent_single</condition_dsl>
 <condition_postfix>
-result.net_capital_gain cg_bracket_1_single &lt;=
+result.net_capital_gain result.cg_0_percent_single f&lt;=
 </condition_postfix>
 <columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Taxable income in 15% bracket; taxable_income at or below 15% ceiling</condition_comment>
-<condition_dsl>result.net_capital_gain &lt;= cg_bracket_2_single</condition_dsl>
+<condition_dsl>result.net_capital_gain &lt;= result.cg_15_percent_single</condition_dsl>
 <condition_postfix>
-result.net_capital_gain cg_bracket_2_single &lt;=
+result.net_capital_gain result.cg_15_percent_single f&lt;=
 </condition_postfix>
 <columns>-YN</columns>
 </condition_details>
@@ -6649,27 +6649,27 @@ result.net_capital_gain cg_bracket_2_single &lt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>0% rate applies to all preferential income</action_comment>
-<action_dsl>set result.capital_gains_tax = result.net_capital_gain * cg_bracket_1_rate</action_dsl>
+<action_dsl>set result.capital_gains_tax = result.net_capital_gain * result.cg_rate_0_percent</action_dsl>
 <action_postfix>
-result.net_capital_gain cg_bracket_1_rate * cvd /result.capital_gains_tax xdef
+result.net_capital_gain result.cg_rate_0_percent fmul cvd /result.capital_gains_tax xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>15% rate applies; LTCG/QD at 15%</action_comment>
-<action_dsl>set result.capital_gains_tax = cg_bracket_1_single * cg_bracket_1_rate + (result.net_capital_gain - cg_bracket_1_single) * cg_bracket_2_rate</action_dsl>
+<action_dsl>set result.capital_gains_tax = result.cg_0_percent_single * result.cg_rate_0_percent + (result.net_capital_gain - result.cg_0_percent_single) * result.cg_rate_15_percent</action_dsl>
 <action_postfix>
-cg_bracket_1_single cg_bracket_1_rate * result.net_capital_gain cg_bracket_1_single - cg_bracket_2_rate * + cvd /result.capital_gains_tax xdef
+result.cg_0_percent_single result.cg_rate_0_percent fmul result.net_capital_gain result.cg_0_percent_single f- result.cg_rate_15_percent fmul f+ cvd /result.capital_gains_tax xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>20% rate applies; LTCG/QD at 20%</action_comment>
-<action_dsl>set result.capital_gains_tax = cg_bracket_1_single * cg_bracket_1_rate + (cg_bracket_2_single - cg_bracket_1_single) * cg_bracket_2_rate + (result.net_capital_gain - cg_bracket_2_single) * cg_bracket_3_rate</action_dsl>
+<action_dsl>set result.capital_gains_tax = result.cg_0_percent_single * result.cg_rate_0_percent + (result.cg_15_percent_single - result.cg_0_percent_single) * result.cg_rate_15_percent + (result.net_capital_gain - result.cg_15_percent_single) * result.cg_rate_20_percent</action_dsl>
 <action_postfix>
-cg_bracket_1_single cg_bracket_1_rate * cg_bracket_2_single cg_bracket_1_single - cg_bracket_2_rate * + result.net_capital_gain cg_bracket_2_single - cg_bracket_3_rate * + cvd /result.capital_gains_tax xdef
+result.cg_0_percent_single result.cg_rate_0_percent fmul result.cg_15_percent_single result.cg_0_percent_single f- result.cg_rate_15_percent fmul f+ result.net_capital_gain result.cg_15_percent_single f- result.cg_rate_20_percent fmul f+ cvd /result.capital_gains_tax xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>

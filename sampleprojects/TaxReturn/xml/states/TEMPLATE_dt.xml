@@ -33,7 +33,7 @@
 <condition_postfix>
 true
 </condition_postfix>
-<condition_column column_number="1" column_value="Y" />
+<columns>Y</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -44,7 +44,7 @@ true
 <action_postfix>
 "  State tax dispatch — XX_Tax not yet authored" job.audit_trail swap addto
 </action_postfix>
-<action_column column_number="1" column_value="X" />
+<columns>X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

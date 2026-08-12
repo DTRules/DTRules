@@ -167,63 +167,63 @@ result.has_physical_presence_nv { pop nv_result.gross_revenue result.nv_economic
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Financial Services (NAICS 52)</condition_comment>
-<condition_dsl>nv_result.business_classification == financial</condition_dsl>
+<condition_dsl>nv_result.business_classification == "financial"</condition_dsl>
 <condition_postfix>
-nv_result.business_classification financial streq
+nv_result.business_classification "financial" streq
 </condition_postfix>
 <columns>YNNNNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Mining (NAICS 21)</condition_comment>
-<condition_dsl>nv_result.business_classification == mining</condition_dsl>
+<condition_dsl>nv_result.business_classification == "mining"</condition_dsl>
 <condition_postfix>
-nv_result.business_classification mining streq
+nv_result.business_classification "mining" streq
 </condition_postfix>
 <columns>NYNNNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Utilities (NAICS 22)</condition_comment>
-<condition_dsl>nv_result.business_classification == utilities</condition_dsl>
+<condition_dsl>nv_result.business_classification == "utilities"</condition_dsl>
 <condition_postfix>
-nv_result.business_classification utilities streq
+nv_result.business_classification "utilities" streq
 </condition_postfix>
 <columns>NNYNNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>4</condition_number>
 <condition_comment>Professional Services (NAICS 54)</condition_comment>
-<condition_dsl>nv_result.business_classification == professional</condition_dsl>
+<condition_dsl>nv_result.business_classification == "professional"</condition_dsl>
 <condition_postfix>
-nv_result.business_classification professional streq
+nv_result.business_classification "professional" streq
 </condition_postfix>
 <columns>NNNYNNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>5</condition_number>
 <condition_comment>Retail Trade (NAICS 44-45)</condition_comment>
-<condition_dsl>nv_result.business_classification == retail</condition_dsl>
+<condition_dsl>nv_result.business_classification == "retail"</condition_dsl>
 <condition_postfix>
-nv_result.business_classification retail streq
+nv_result.business_classification "retail" streq
 </condition_postfix>
 <columns>NNNNYNNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>6</condition_number>
 <condition_comment>Manufacturing (NAICS 31-33)</condition_comment>
-<condition_dsl>nv_result.business_classification == manufacturing</condition_dsl>
+<condition_dsl>nv_result.business_classification == "manufacturing"</condition_dsl>
 <condition_postfix>
-nv_result.business_classification manufacturing streq
+nv_result.business_classification "manufacturing" streq
 </condition_postfix>
 <columns>NNNNNYNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>7</condition_number>
 <condition_comment>Wholesale Trade (NAICS 42)</condition_comment>
-<condition_dsl>nv_result.business_classification == wholesale</condition_dsl>
+<condition_dsl>nv_result.business_classification == "wholesale"</condition_dsl>
 <condition_postfix>
-nv_result.business_classification wholesale streq
+nv_result.business_classification "wholesale" streq
 </condition_postfix>
 <columns>NNNNNNYN</columns>
 </condition_details>
