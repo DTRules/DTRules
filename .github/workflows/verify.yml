@@ -39,18 +39,27 @@ jobs:
       # largest one we have. Skipping the projects that break is how #1064
       # shipped a TaxReturn whose every workbook held all 205 sheets.
       #
-      # Three samples still fail, on undefined operators and tables — rule
-      # defects, not Excel/XML drift. They are listed below with the issue
-      # that tracks each, and they are checked for drift rather than skipped,
-      # so the half of verify that this gate exists for still runs on them.
+      # One sample still fails, on rule defects rather than Excel/XML drift.
+      # It is listed below with the issue that tracks it, and is checked for
+      # drift rather than skipped, so the half of verify that this gate exists
+      # for still runs on it.
+      #
+      # CorporateTax and SyntaxTests came off this list once their findings
+      # were fixed: NV compared a string field against bare words the compiler
+      # read as operator names, and SyntaxTests was reported for performing an
+      # undefined `Error_handling_table` while defining `Error_Handling_Table`
+      # in the same file -- one name in a case-insensitive language, which the
+      # call-graph pass was comparing case-sensitively.
       - name: Verify samples
         run: |
           set -u
           # name:issue — fails verify today for reasons unrelated to sync
           declare -A KNOWN_BAD=(
-            [CorporateTax]=1012   # undefined operators in the NV tables
-            [SyntaxTests]=1012    # performs an undefined Error_handling_table
-            [TaxReturn]=1012      # 42 undefined external references
+            # TaxReturn's remaining references are half-written rules: names
+            # like `ftc_limitation` and `taxable_ratio` stand in for
+            # intermediates nobody declared, so finishing them means authoring
+            # the tax logic rather than repairing a file (#1012).
+            [TaxReturn]=1012      # 23 undefined external references
           )
           failed=0
           for dir in sampleprojects/*/; do

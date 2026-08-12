@@ -996,6 +996,9 @@
 		<field name="cdcc_rate" type="double" subtype="" access="rw" input="" default_value="0" comment="CDCC credit rate based on AGI"></field>
 		<field name="cdcc_rate_reductions" type="double" subtype="" access="rw" input="" default_value="0" comment="Number of rate reduction steps for CDCC"></field>
 		<field name="cg_ordinary_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Taxable income excluding preferential-rate income (Schedule D worksheet stacking base)"></field>
+		<field name="cg_rate_0_percent" type="double" subtype="" access="r" input="" default_value="0.0" comment="Long-term capital gains rate in the lowest bracket: 0%. The bracket thresholds are already data (cg_0_percent_*); the rates were bare words in the DSL, which the compiler read as operator names (#1012)."></field>
+		<field name="cg_rate_15_percent" type="double" subtype="" access="r" input="" default_value="0.15" comment="Long-term capital gains rate in the middle bracket: 15%, applying above cg_0_percent_* and up to cg_15_percent_*."></field>
+		<field name="cg_rate_20_percent" type="double" subtype="" access="r" input="" default_value="0.20" comment="Long-term capital gains rate in the top bracket: 20%, applying above cg_15_percent_*."></field>
 		<field name="cg_taxed_at_0" type="double" subtype="" access="rw" input="" default_value="0" comment="Preferential income falling in the 0 percent bracket"></field>
 		<field name="cg_taxed_at_15" type="double" subtype="" access="rw" input="" default_value="0" comment="Preferential income falling in the 15 percent bracket"></field>
 		<field name="cg_taxed_at_20" type="double" subtype="" access="rw" input="" default_value="0" comment="Preferential income falling in the 20 percent bracket"></field>

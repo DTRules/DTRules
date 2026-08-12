@@ -29,6 +29,7 @@ import (
 
 	"github.com/DTRules/DTRules/pkg/dtrules/analysis"
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
+	"github.com/DTRules/DTRules/pkg/dtrules/loader"
 	"github.com/DTRules/DTRules/pkg/dtrules/operators"
 	"github.com/DTRules/DTRules/pkg/dtrules/sync"
 	"github.com/xuri/excelize/v2"
@@ -423,6 +424,14 @@ func checkSourceHeaders(xmlDir, excelDir string, strict bool) []verifyFailure {
 			return nil
 		}
 		if !strings.HasSuffix(path, "_dt.xml") {
+			return nil
+		}
+		// Templates are scaffolding to copy, not rules. The loader has always
+		// skipped them; verify did not, so TaxReturn's TEMPLATE_dt.xml was
+		// reported for naming a workbook that does not exist -- which is the
+		// whole point of a template, and not something anyone can act on
+		// (#1012).
+		if loader.SkipRuleFile(path) {
 			return nil
 		}
 
