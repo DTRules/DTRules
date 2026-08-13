@@ -49,7 +49,10 @@ type PostfixEmitter struct {
 	// and pkg/dtrules's own tests import this package — importing it here
 	// closes that loop. nil means no check, which is what el's isolated unit
 	// tests want when they exercise emission with a stand-in operator name.
-	operatorExists    func(string) bool
+	operatorExists func(string) bool
+	// operatorArity reports how many arguments a statement-form call to this
+	// operator must supply, or <= 0 when unrecorded.
+	operatorArity     func(string) int
 	locals            map[string]LocalVar // local variable stack frame indices
 	localCnt          int                 // next available local variable index
 	resolveCollection func(entityType string) (ownerEntity, fieldName string, err error)
@@ -5790,9 +5793,56 @@ func (e *PostfixEmitter) VisitOperatorstatements(ctx *OperatorstatementsContext)
 		return nil
 	}
 
+	// And the count. The name check catches typos; a short call is the quiet
+	// failure. Every argument after the source is a bare string or an array,
+	// so `subsets(hand.cards)` with one of four compiles clean, then pops
+	// whatever three values sit beneath it and reads them as typename,
+	// sumfield and destination -- a runtime error, a write into the wrong
+	// array, or a plausible-looking wrong answer, depending on what the row
+	// did before (#1105).
+	if e.operatorArity != nil {
+		if want := e.operatorArity(name); want > 0 {
+			if got := countOperatorArgs(ctx.Operatorlist()); got != want {
+				e.emitError("operator %q takes %d arguments, got %d — "+
+					"see `dtrules docs operators` for the argument order", name, want, got)
+				return nil
+			}
+		}
+	}
+
 	e.Visit(ctx.Operatorlist())
 	e.emit(name)
 	return nil
+}
+
+// countOperatorArgs counts the arguments in a statement-form call.
+//
+// The list is right-recursive: each element node carries one expression and
+// the tail, and the `...Single` variants are the last element. Counting the
+// chain rather than visiting it means no postfix is emitted for a call that is
+// about to be rejected.
+func countOperatorArgs(ctx IOperatorlistContext) int {
+	n := 0
+	for ctx != nil {
+		switch c := ctx.(type) {
+		case *OpListFloatSingleContext, *OpListIntSingleContext, *OpListStrSingleContext:
+			return n + 1
+		case *OpListFloatContext:
+			n++
+			ctx = c.Operatorlist()
+		case *OpListIntContext:
+			n++
+			ctx = c.Operatorlist()
+		case *OpListStrContext:
+			n++
+			ctx = c.Operatorlist()
+		default:
+			// An alternative this does not know: count it as one argument and
+			// stop, so an unrecognised shape cannot manufacture a mismatch.
+			return n + 1
+		}
+	}
+	return n
 }
 
 // VisitRemoveEachWhere: `remove each <eexpr> from <arrayExpr> where <bexpr>`

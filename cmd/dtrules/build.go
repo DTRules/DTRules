@@ -48,6 +48,14 @@ func newWorkbookImporter(xmlDir string) *excel.WorkbookImporter {
 		_, ok := operators.GetByString(name)
 		return ok
 	})
+	// And the argument count, where the registry records one (#1105).
+	c.SetOperatorArity(func(name string) int {
+		op, ok := operators.GetByString(name)
+		if !ok {
+			return 0
+		}
+		return op.Arity()
+	})
 	imp.SetELCompiler(c)
 	if syms := authoring.LoadEDDSymbols(xmlDir); len(syms) > 0 {
 		imp.SetSymbols(syms)

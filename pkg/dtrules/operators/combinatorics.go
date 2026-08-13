@@ -36,11 +36,15 @@ import (
 // which compiles to `hand.cards "combo" "value" hand.combos subsets`.
 
 func init() {
-	Register("combinations", opCombinations)
-	Register("subsets", opSubsets)
-	Register("groupby", opGroupBy)
-	Register("maximalruns", opMaximalRuns)
-	Register("suffixes", opSuffixes)
+	// Arity is recorded because these are the operators a short call misreads
+	// silently: every argument after the source is a bare string or an array,
+	// so `subsets(hand.cards)` pops whatever three values sit beneath it and
+	// treats them as typename, sumfield and destination (#1105).
+	RegisterWithArity("combinations", opCombinations, 5) // source, k, typename, sumfield, dest
+	RegisterWithArity("subsets", opSubsets, 4)           // source, typename, sumfield, dest
+	RegisterWithArity("groupby", opGroupBy, 4)           // source, keyfield, typename, dest
+	RegisterWithArity("maximalruns", opMaximalRuns, 5)   // source, rankfield, minlen, typename, dest
+	RegisterWithArity("suffixes", opSuffixes, 5)         // source, minlen, statfield, typename, dest
 }
 
 // subsetsCap bounds opSubsets: 2^12-1 = 4095 entities is the design ceiling.
