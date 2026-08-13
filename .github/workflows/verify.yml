@@ -39,48 +39,31 @@ jobs:
       # largest one we have. Skipping the projects that break is how #1064
       # shipped a TaxReturn whose every workbook held all 205 sheets.
       #
-      # One sample still fails, on rule defects rather than Excel/XML drift.
-      # It is listed below with the issue that tracks it, and is checked for
-      # drift rather than skipped, so the half of verify that this gate exists
-      # for still runs on it.
+      # Every sample is verified, and every sample passes. The exclusion list
+      # this replaces had three entries; they are gone rather than waived:
       #
-      # CorporateTax and SyntaxTests came off this list once their findings
-      # were fixed: NV compared a string field against bare words the compiler
-      # read as operator names, and SyntaxTests was reported for performing an
-      # undefined `Error_handling_table` while defining `Error_Handling_Table`
-      # in the same file -- one name in a case-insensitive language, which the
-      # call-graph pass was comparing case-sensitively.
+      #   CorporateTax  NV compared a string field against bare words the
+      #                 compiler read as operator names.
+      #   SyntaxTests   reported for performing an undefined
+      #                 `Error_handling_table` while defining
+      #                 `Error_Handling_Table` in the same file -- one name in
+      #                 a case-insensitive language, compared case-sensitively
+      #                 by the call-graph pass.
+      #   TaxReturn     23 references to things nobody declared, from field
+      #                 near-misses (`property_sale.gain` for
+      #                 `total_gain_loss`) to whole calculations left as
+      #                 placeholders. Authored from the IRS forms (#1012).
+      #
+      # Skipping the projects that break is how #1064 shipped a TaxReturn whose
+      # every workbook held all 205 sheets. There is nothing to skip now; if a
+      # sample fails here, that is a regression, not a known defect.
       - name: Verify samples
         run: |
           set -u
-          # name:issue — fails verify today for reasons unrelated to sync
-          declare -A KNOWN_BAD=(
-            # TaxReturn's remaining references are half-written rules: names
-            # like `ftc_limitation` and `taxable_ratio` stand in for
-            # intermediates nobody declared, so finishing them means authoring
-            # the tax logic rather than repairing a file (#1012).
-            [TaxReturn]=1012      # 23 undefined external references
-          )
           failed=0
           for dir in sampleprojects/*/; do
             name=$(basename "$dir")
             [ -d "${dir}excel" ] || { echo "· $name has no excel/, skipping"; continue; }
-
-            if [ -n "${KNOWN_BAD[$name]:-}" ]; then
-              # Drift only: a [build] finding means XML and Excel disagree,
-              # which is what this gate is for. Anything else is the known
-              # rule defect and is not this gate's business.
-              echo "· $name (known rule defects, issue #${KNOWN_BAD[$name]}) — checking drift only"
-              if /tmp/dtrules verify "$dir" 2>&1 | grep -q '^\[build\]'; then
-                echo "  ✗ $name has Excel/XML drift"
-                /tmp/dtrules verify "$dir" 2>&1 | grep '^\[build\]' || true
-                failed=1
-              else
-                echo "  ✓ $name has no drift"
-              fi
-              continue
-            fi
-
             echo "· Verifying $name"
             if ! /tmp/dtrules verify "$dir"; then
               failed=1
