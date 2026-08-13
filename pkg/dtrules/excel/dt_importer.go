@@ -700,11 +700,55 @@ func (i *DTImporter) WriteXML(tables *DecisionTablesXML, filename string) error 
 // Empty optional elements (DSL, postfix, comment) are emitted as
 // self-closing tags when empty, matching what the loader expects and what
 // hand-authored XML in the project looks like.
+
+// elCompiled reports whether this table's postfix was generated from EL.
+//
+// The attribute used to be written straight from the in-memory flag, which
+// records how *this run* obtained the table rather than what the file
+// contains. The two answers differ depending on which way a build went, and
+// nothing could reconcile them: verify imports into an empty directory, so
+// every table is freshly compiled and the flag is true, while a build running
+// in place reads the flag back from XML that predates the attribute and writes
+// false again. A project maintained with `build` was then permanently red on
+// `content differs from build output`, differing by exactly this attribute and
+// nothing else -- and the authoring contract forbids the only fix available,
+// which was to hand-edit it in (#1051).
+//
+// Derived from the rows instead: a row carrying both DSL and postfix says the
+// postfix came from the DSL, which is what the attribute means. Tables with
+// hand-written postfix and no DSL stay unmarked, which is also what it means.
+func elCompiled(table *DecisionTableXML) bool {
+	if table.ELCompiled {
+		return true
+	}
+	compiled := func(dsl, postfix string) bool {
+		return strings.TrimSpace(dsl) != "" && strings.TrimSpace(postfix) != ""
+	}
+	for _, c := range table.Conditions {
+		if compiled(c.DSL, c.Postfix) {
+			return true
+		}
+	}
+	for _, a := range table.Actions {
+		if compiled(a.DSL, a.Postfix) {
+			return true
+		}
+	}
+	for _, a := range table.EffectiveInitialActions() {
+		// Through the accessors: initial actions carry two element spellings
+		// and reading the field directly sees only one of them.
+		if compiled(a.EffectiveDSL(), a.EffectivePostfix()) {
+			return true
+		}
+	}
+	return false
+}
+
 func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 	tableNum := table.AttributeFields.TableNumber
 	f.WriteString(fmt.Sprintf("\n<!-- TABLE %s: %s -->\n", tableNum, table.TableName))
 
-	if table.ELCompiled {
+	if elCompiled(table) {
 		f.WriteString("<decision_table el_compiled=\"true\">\n")
 	} else {
 		f.WriteString("<decision_table>\n")
