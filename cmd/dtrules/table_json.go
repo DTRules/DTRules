@@ -27,13 +27,17 @@ import (
 	"strconv"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
+	"strings"
 )
 
 // TableJSON is the JSON projection of a decision table.
 type TableJSON struct {
-	Name           string              `json:"name"`
-	Number         int                 `json:"number,omitempty"`
-	File           string              `json:"file,omitempty"`
+	Name   string `json:"name"`
+	Number int    `json:"number,omitempty"`
+	File   string `json:"file,omitempty"`
+	// Workbook is the Excel file the table belongs in (`xls_file`). Set it to
+	// move a table to a different workbook; omit it to leave it where it is.
+	Workbook       string              `json:"workbook,omitempty"`
 	Policy         string              `json:"policy,omitempty"`
 	Contexts       []ContextJSON       `json:"contexts,omitempty"`
 	InitialActions []InitialActionJSON `json:"initial_actions,omitempty"`
@@ -117,9 +121,10 @@ type OptionJSON struct {
 // tableToJSON converts an authoring.Table into its JSON-safe projection.
 func tableToJSON(t *authoring.Table) TableJSON {
 	out := TableJSON{
-		Name:   t.Name,
-		Number: t.Number,
-		Policy: t.Policy,
+		Name:     t.Name,
+		Number:   t.Number,
+		Policy:   t.Policy,
+		Workbook: t.Workbook,
 	}
 	for _, c := range t.Contexts {
 		out.Contexts = append(out.Contexts, ContextJSON{DSL: c.DSL})
@@ -190,6 +195,12 @@ func eddToJSON(e *authoring.EDD) EDDJSON {
 func (tj *TableJSON) ApplyTo(t *authoring.Table) error {
 	t.Name = tj.Name
 	t.Policy = tj.Policy
+	// Omitting `workbook` leaves the table in the workbook it already names;
+	// setting it repoints the table, which is the only sanctioned way to fix
+	// one naming a workbook that does not exist (#1068).
+	if strings.TrimSpace(tj.Workbook) != "" {
+		t.Workbook = tj.Workbook
+	}
 	// An explicit number overrides AddTable's auto-assignment; omitting it
 	// (0) keeps whatever the table already has. SetNumber validates it against
 	// the file's range and uniqueness. (`file` is handled by the CLI/MCP layer,
