@@ -2946,9 +2946,9 @@ result.agi constants.savers_10_percent_single f&lt;=
 <action_details>
 <action_number>5</action_number>
 <action_comment></action_comment>
-<action_dsl>set result.savers_credit = eligible_contributions * result.savers_credit_rate</action_dsl>
+<action_dsl>set result.savers_credit = (the minimum of (result.total_savers_contribution) and (constants.savers_max_contribution_single)) * result.savers_credit_rate</action_dsl>
 <action_postfix>
-eligible_contributions result.savers_credit_rate fmul cvd /result.savers_credit xdef
+result.total_savers_contribution constants.savers_max_contribution_single fmin result.savers_credit_rate fmul cvd /result.savers_credit xdef
 </action_postfix>
 <columns>XXXXXXXXXXXX-</columns>
 </action_details>
@@ -3155,9 +3155,9 @@ result.total_credits 0 f&gt;
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Clean energy improvement (25D)</condition_comment>
-<condition_dsl>category is clean_energy</condition_dsl>
+<condition_dsl>category is "clean_energy"</condition_dsl>
 <condition_postfix>
-category clean_energy streq
+category "clean_energy" streq
 </condition_postfix>
 <columns>YN</columns>
 </condition_details>
@@ -5089,18 +5089,18 @@ household_employee.cash_wages constants.household_futa_threshold f&gt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment>FICA applies: add Social Security (6.2%) and Medicare (1.45%) employer-share tax</action_comment>
-<action_dsl>add household_employee.wages * constants.fica_rate to result.schedule_h_tax</action_dsl>
+<action_dsl>add household_employee.cash_wages * constants.fica_combined_rate to result.schedule_h_tax</action_dsl>
 <action_postfix>
-household_employee.wages constants.fica_rate fmul result.schedule_h_tax swap addto
+household_employee.cash_wages constants.fica_combined_rate fmul result.schedule_h_tax swap addto
 </action_postfix>
 <columns>XX--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>FUTA applies: effective 0.6% rate (6% statutory * 10% after full state credit) on the first $7,000 per employee. Conservative cap simplification: use min(wages, futa_wage_base) inline via constants comparison.</action_comment>
-<action_dsl>add household_employee.wages * constants.futa_rate to result.schedule_h_tax</action_dsl>
+<action_dsl>add household_employee.cash_wages * constants.futa_rate to result.schedule_h_tax</action_dsl>
 <action_postfix>
-household_employee.wages constants.futa_rate fmul result.schedule_h_tax swap addto
+household_employee.cash_wages constants.futa_rate fmul result.schedule_h_tax swap addto
 </action_postfix>
 <columns>X-X-</columns>
 </action_details>
@@ -7472,9 +7472,9 @@ result.total_k1_se_earnings se_threshold f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>set taxpayer.k1_se_tax = k1_se_earnings * se_tax_rate</action_dsl>
+<action_dsl>set taxpayer.k1_se_tax = result.total_k1_se_earnings * se_tax_rate</action_dsl>
 <action_postfix>
-k1_se_earnings se_tax_rate fmul cvi /taxpayer.k1_se_tax xdef
+result.total_k1_se_earnings se_tax_rate fmul cvi /taxpayer.k1_se_tax xdef
 </action_postfix>
 <columns>X-</columns>
 </action_details>
@@ -7527,18 +7527,18 @@ dup ira_accounts forall pop
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has IRA account to process; IRA account exists in context</condition_comment>
-<condition_dsl>ira_account.type is equal to "traditional"</condition_dsl>
+<condition_dsl>ira_account.account_type is equal to "traditional"</condition_dsl>
 <condition_postfix>
-ira_account.type "traditional" streq
+ira_account.account_type "traditional" streq
 </condition_postfix>
 <columns>Y</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Is traditional IRA</condition_comment>
-<condition_dsl>ira.account_type is equal to "traditional"</condition_dsl>
+<condition_dsl>ira_account.account_type is equal to "traditional"</condition_dsl>
 <condition_postfix>
-ira.account_type "traditional" streq
+ira_account.account_type "traditional" streq
 </condition_postfix>
 <columns>Y</columns>
 </condition_details>
@@ -7547,9 +7547,9 @@ ira.account_type "traditional" streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>for all IRA accounts perform Process_IRA_Basis</action_comment>
-<action_dsl>add ira_account.contributions to result.total_ira_contributions</action_dsl>
+<action_dsl>add ira_account.contribution_amount to result.total_ira_contributions</action_dsl>
 <action_postfix>
-ira_account.contributions result.total_ira_contributions swap addto
+ira_account.contribution_amount result.total_ira_contributions swap addto
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -7604,9 +7604,9 @@ result.total_ira_basis 0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>set conversion.taxable_amount = conversion_amount * taxable_ratio</action_dsl>
+<action_dsl>set result.roth_taxable_ratio = 1.0 - (result.total_ira_basis / (result.total_ira_year_end_value + result.total_roth_conversions)); set conversion.taxable_amount = result.total_roth_conversions * result.roth_taxable_ratio</action_dsl>
 <action_postfix>
-conversion_amount taxable_ratio * cvd /conversion.taxable_amount xdef
+1.0 result.total_ira_basis result.total_ira_year_end_value result.total_roth_conversions f+ fdiv f- cvd /result.roth_taxable_ratio xdef result.total_roth_conversions result.roth_taxable_ratio fmul cvd /conversion.taxable_amount xdef
 </action_postfix>
 <columns>X-</columns>
 </action_details>
@@ -7718,9 +7718,9 @@ result.net_farm_profit se_threshold f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>set taxpayer.farm_se_tax = farm_net_income * se_tax_rate</action_dsl>
+<action_dsl>set taxpayer.farm_se_tax = result.net_farm_profit * se_tax_rate</action_dsl>
 <action_postfix>
-farm_net_income se_tax_rate fmul cvd /taxpayer.farm_se_tax xdef
+result.net_farm_profit se_tax_rate fmul cvd /taxpayer.farm_se_tax xdef
 </action_postfix>
 <columns>X-</columns>
 </action_details>
@@ -7782,18 +7782,18 @@ property_sale.holding_period "short_term" streq
 <condition_details>
 <condition_number>2</condition_number>
 <condition_comment>Is Section 1245 property (personal property)</condition_comment>
-<condition_dsl>sale.property_type is equal to "1245"</condition_dsl>
+<condition_dsl>property_sale.property_type is equal to "1245"</condition_dsl>
 <condition_postfix>
-sale.property_type "1245" streq
+property_sale.property_type "1245" streq
 </condition_postfix>
 <columns>YNN</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
 <condition_comment>Is Section 1250 property (real property); Property type is 1250 or is real property</condition_comment>
-<condition_dsl>property_sale.section_1250_gain &gt; 0</condition_dsl>
+<condition_dsl>property_sale.unrecaptured_1250_gain &gt; 0</condition_dsl>
 <condition_postfix>
-property_sale.section_1250_gain 0 &gt;
+property_sale.unrecaptured_1250_gain 0 f&gt;
 </condition_postfix>
 <columns>-YN</columns>
 </condition_details>
@@ -7802,27 +7802,27 @@ property_sale.section_1250_gain 0 &gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>add property_sale.gain to result.total_short_term_gains</action_dsl>
+<action_dsl>add property_sale.total_gain_loss to result.total_short_term_gains</action_dsl>
 <action_postfix>
-property_sale.gain cvd result.total_short_term_gains f+ /result.total_short_term_gains xdef
+property_sale.total_gain_loss cvd result.total_short_term_gains f+ /result.total_short_term_gains xdef
 </action_postfix>
 <columns>XXX</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>add sale.depreciation to result.ordinary_income (Section 1245)</action_comment>
-<action_dsl>add property_sale.gain to result.total_long_term_gains</action_dsl>
+<action_dsl>add property_sale.total_gain_loss to result.total_long_term_gains</action_dsl>
 <action_postfix>
-property_sale.gain cvd result.total_long_term_gains f+ /result.total_long_term_gains xdef
+property_sale.total_gain_loss cvd result.total_long_term_gains f+ /result.total_long_term_gains xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>add sale.depreciation to result.section_1250_gain (25% max rate)</action_comment>
-<action_dsl>add property_sale.section_1250_gain to result.total_section_1250_gain</action_dsl>
+<action_dsl>add property_sale.unrecaptured_1250_gain to result.total_section_1250_gain</action_dsl>
 <action_postfix>
-property_sale.section_1250_gain result.total_section_1250_gain swap addto
+property_sale.unrecaptured_1250_gain result.total_section_1250_gain swap addto
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
@@ -7838,9 +7838,9 @@ property_sale.section_1231_gain result.total_section_1231_gain swap addto
 <action_details>
 <action_number>5</action_number>
 <action_comment></action_comment>
-<action_dsl>add property_sale.gain to result.total_collectibles_gain</action_dsl>
+<action_dsl>add property_sale.total_gain_loss to result.total_collectibles_gain</action_dsl>
 <action_postfix>
-property_sale.gain result.total_collectibles_gain swap addto
+property_sale.total_gain_loss result.total_collectibles_gain swap addto
 </action_postfix>
 <columns>XXX</columns>
 </action_details>
@@ -8027,9 +8027,9 @@ result.taxable_income 0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>set result.foreign_tax_credit = the minimum of taxes_paid and ftc_limitation</action_comment>
-<action_dsl>set result.foreign_tax_credit = the minimum of taxes_paid and ftc_limitation</action_dsl>
+<action_dsl>set result.ftc_limitation = result.regular_tax * (result.foreign_source_taxable / result.taxable_income); set result.foreign_tax_credit = the minimum of (result.total_foreign_taxes_paid) and (result.ftc_limitation)</action_dsl>
 <action_postfix>
-taxes_paid ftc_limitation min cvd /result.foreign_tax_credit xdef
+result.regular_tax result.foreign_source_taxable result.taxable_income fdiv fmul cvd /result.ftc_limitation xdef result.total_foreign_taxes_paid result.ftc_limitation fmin cvd /result.foreign_tax_credit xdef
 </action_postfix>
 <columns>X-</columns>
 </action_details>
@@ -8184,9 +8184,9 @@ dup like_kind_exchanges forall pop
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Has exchange to process; Exchange entity exists</condition_comment>
-<condition_dsl>like_kind_exchange.gain &gt; 0</condition_dsl>
+<condition_dsl>like_kind_exchange.realized_gain &gt; 0</condition_dsl>
 <condition_postfix>
-like_kind_exchange.gain 0 &gt;
+like_kind_exchange.realized_gain 0 f&gt;
 </condition_postfix>
 <columns>Y</columns>
 </condition_details>
@@ -8234,9 +8234,9 @@ dup early_distributions forall pop
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Subject to penalty; Early distribution with no exception</condition_comment>
-<condition_dsl>early_distribution.amount &gt; 0</condition_dsl>
+<condition_dsl>early_distribution.distribution_amount &gt; 0</condition_dsl>
 <condition_postfix>
-early_distribution.amount 0 f&gt;
+early_distribution.distribution_amount 0 f&gt;
 </condition_postfix>
 <columns>YN</columns>
 </condition_details>
@@ -8363,9 +8363,9 @@ result.has_elderly_disabled_taxpayer true beq
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>set result.elderly_disabled_credit = credit_calculation</action_dsl>
+<action_dsl>set result.elderly_base_amount = constants.elderly_credit_single; set result.elderly_agi_base = constants.elderly_agi_base_single; if job.filing_status is equal to "MFJ" then set result.elderly_base_amount = constants.elderly_credit_mfj_one; set result.elderly_agi_base = constants.elderly_agi_base_mfj; endif if job.filing_status is equal to "MFS" then set result.elderly_base_amount = constants.elderly_credit_mfs; set result.elderly_agi_base = constants.elderly_agi_base_mfs; endif set result.elderly_excess_agi = the maximum of ((result.agi - result.elderly_agi_base) / 2.0) and (0.0); set result.elderly_disabled_credit = the maximum of ((result.elderly_base_amount - result.total_nontaxable_pension - result.elderly_excess_agi) * constants.elderly_credit_rate) and (0.0)</action_dsl>
 <action_postfix>
-credit_calculation cvd /result.elderly_disabled_credit xdef
+constants.elderly_credit_single cvd /result.elderly_base_amount xdef constants.elderly_agi_base_single cvd /result.elderly_agi_base xdef { constants.elderly_credit_mfj_one cvd /result.elderly_base_amount xdef constants.elderly_agi_base_mfj cvd /result.elderly_agi_base xdef } {} job.filing_status "MFJ" streq ifelse { constants.elderly_credit_mfs cvd /result.elderly_base_amount xdef constants.elderly_agi_base_mfs cvd /result.elderly_agi_base xdef } {} job.filing_status "MFS" streq ifelse result.agi result.elderly_agi_base f- 2.0 fdiv 0.0 fmax cvd /result.elderly_excess_agi xdef result.elderly_base_amount result.total_nontaxable_pension f- result.elderly_excess_agi f- constants.elderly_credit_rate fmul 0.0 fmax cvd /result.elderly_disabled_credit xdef
 </action_postfix>
 <columns>X-</columns>
 </action_details>
@@ -8422,9 +8422,9 @@ result.payment_amount 0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>add estimated_payment.amount to result.total_estimated_payments</action_dsl>
+<action_dsl>add estimated_payment.payment_amount to result.total_estimated_payments</action_dsl>
 <action_postfix>
-estimated_payment.amount cvd result.total_estimated_payments f+ /result.total_estimated_payments xdef
+estimated_payment.payment_amount cvd result.total_estimated_payments f+ /result.total_estimated_payments xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -8807,9 +8807,9 @@ household_employee.cash_wages household_ss_threshold f&gt;=
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>set result.household_employment_tax = wages * combined_rate</action_dsl>
+<action_dsl>set result.household_employment_tax = household_employee.cash_wages * constants.fica_combined_rate</action_dsl>
 <action_postfix>
-wages combined_rate fmul cvi /result.household_employment_tax xdef
+household_employee.cash_wages constants.fica_combined_rate fmul cvi /result.household_employment_tax xdef
 </action_postfix>
 <columns>X-</columns>
 </action_details>
@@ -8991,9 +8991,9 @@ credit 2000 min cvd /result.credit_amount xdef
 <action_details>
 <action_number>2</action_number>
 <action_comment></action_comment>
-<action_dsl>set result.credit_amount = full_credit_amount</action_dsl>
+<action_dsl>set result.credit_amount = credit</action_dsl>
 <action_postfix>
-full_credit_amount cvd /result.credit_amount xdef
+credit cvd /result.credit_amount xdef
 </action_postfix>
 <columns>-X</columns>
 </action_details>
@@ -9041,9 +9041,9 @@ prior_year_amt.credit_available 0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment>set result.amt_credit_used = the minimum of available_credit and (regular_tax - tentative_minimum_tax)</action_comment>
-<action_dsl>set result.amt_credit_used = the minimum of available_credit and (regular_tax - tentative_minimum_tax)</action_dsl>
+<action_dsl>set result.amt_credit_used = the minimum of prior_year_amt.credit_available and (regular_tax - tentative_minimum_tax)</action_dsl>
 <action_postfix>
-available_credit regular_tax tentative_minimum_tax f- fmin cvi /result.amt_credit_used xdef
+prior_year_amt.credit_available regular_tax tentative_minimum_tax f- fmin cvi /result.amt_credit_used xdef
 </action_postfix>
 <columns>X-</columns>
 </action_details>
@@ -9150,9 +9150,9 @@ unreported_tips.unreported_tips_amount 0 f&gt;
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>set result.unreported_tips_tax = unreported_tips * fica_rate</action_dsl>
+<action_dsl>set result.unreported_tips_tax = unreported_tips.unreported_tips_amount * constants.fica_employee_rate</action_dsl>
 <action_postfix>
-unreported_tips fica_rate * cvd /result.unreported_tips_tax xdef
+unreported_tips.unreported_tips_amount constants.fica_employee_rate fmul cvd /result.unreported_tips_tax xdef
 </action_postfix>
 <columns>X-</columns>
 </action_details>
@@ -9253,9 +9253,9 @@ recapture_amount interest f+ cvi /result.recapture_tax xdef
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Part-year resident</condition_comment>
-<condition_dsl>residency_status is "part_year_resident"</condition_dsl>
+<condition_dsl>state_tax_result.residency_status is "part_year_resident"</condition_dsl>
 <condition_postfix>
-residency_status "part_year_resident" streq
+state_tax_result.residency_status "part_year_resident" streq
 </condition_postfix>
 <columns>YN</columns>
 </condition_details>
