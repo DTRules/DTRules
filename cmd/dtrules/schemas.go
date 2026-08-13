@@ -28,6 +28,7 @@ const tableSchemaJSON = `{
     "name":   {"type": "string"},
     "number": {"type": "integer", "minimum": 1, "description": "TABLE_NUMBER for load/sheet ordering; omit to auto-assign within the file's range"},
     "file":   {"type": "string", "description": "DT file (relative to xml/, _dt.xml auto-suffixed) the table lives in; required when creating a table"},
+    "workbook": {"type": "string", "description": "Excel file (xls_file) the table belongs in, deciding which workbook an export writes it to; omit to leave it where it is"},
     "policy": {"type": "string", "enum": ["FIRST", "ALL", "NONE", ""]},
     "contexts": {
       "type": "array",
