@@ -671,6 +671,10 @@ fexpr
     | fexpr ROUNDED TO iexpr DECIMAL_PLACES WITH_BOUNDRY fexpr # floatRoundedBoundry
     | SUM_OF typedDouble IN arrayExpr                       # floatSumOf
     | SUM_OF typedDouble IN arrayExpr WHERE bexpr           # floatSumOfWhere
+    | MAX_OF typedDouble IN arrayExpr                       # floatMaxOfArray
+    | MAX_OF typedDouble IN arrayExpr WHERE bexpr           # floatMaxOfArrayWhere
+    | MIN_OF typedDouble IN arrayExpr                       # floatMinOfArray
+    | MIN_OF typedDouble IN arrayExpr WHERE bexpr           # floatMinOfArrayWhere
     | MINIMUM fexpr AND fexpr                               # floatMinOfFloat
     | MINIMUM fexpr AND iexpr                               # floatMinOfInt
     | MINIMUM iexpr AND fexpr                               # floatMinIntOf
@@ -746,6 +750,10 @@ iexpr
     | LONG VALUE OF operatorstatements                      # intValueOfOp
     | SUM_OF iexpr IN arrayExpr                             # intSumOf
     | SUM_OF iexpr IN arrayExpr WHERE bexpr                 # intSumOfWhere
+    | MAX_OF iexpr IN arrayExpr                             # intMaxOfArray
+    | MAX_OF iexpr IN arrayExpr WHERE bexpr                 # intMaxOfArrayWhere
+    | MIN_OF iexpr IN arrayExpr                             # intMinOfArray
+    | MIN_OF iexpr IN arrayExpr WHERE bexpr                 # intMinOfArrayWhere
     | MINIMUM iexpr AND iexpr                               # intMinOf
     | MINIMUM iexpr COMMA iexpr                             # intMinOfComma
     | MAXIMUM iexpr AND iexpr                               # intMaxOf
@@ -1130,6 +1138,11 @@ SET                 : 'set' ;
 END                 : 'end' ;
 ADD                 : 'add' ;
 SUM_OF              : 'sum' WS+ 'of' ;
+// Folds over a collection, as against MAXIMUM/MINIMUM which take two scalars.
+// `maximum of` still lexes as MAXIMUM: 'max' requires whitespace after it, so
+// the longer keyword cannot be split.
+MAX_OF              : 'max' WS+ 'of' ;
+MIN_OF              : 'min' WS+ 'of' ;
 INCREMENT           : 'increment' ;
 DECREMENT           : 'decrement' ;
 SUBTRACT            : 'subtract' ;

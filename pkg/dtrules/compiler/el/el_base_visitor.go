@@ -1515,11 +1515,19 @@ func (v *BaseELVisitor) VisitFloatMulFloat(ctx *FloatMulFloatContext) interface{
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitFloatMinOfArray(ctx *FloatMinOfArrayContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitFloatDivFloat(ctx *FloatDivFloatContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
 func (v *BaseELVisitor) VisitFloatAddInt(ctx *FloatAddIntContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatMaxOfArray(ctx *FloatMaxOfArrayContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1591,6 +1599,10 @@ func (v *BaseELVisitor) VisitFloatMinOfFloat(ctx *FloatMinOfFloatContext) interf
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitFloatMaxOfArrayWhere(ctx *FloatMaxOfArrayWhereContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitFloatAddFloat(ctx *FloatAddFloatContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1652,6 +1664,10 @@ func (v *BaseELVisitor) VisitIntDivFloat(ctx *IntDivFloatContext) interface{} {
 }
 
 func (v *BaseELVisitor) VisitIntAddFloat(ctx *IntAddFloatContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatMinOfArrayWhere(ctx *FloatMinOfArrayWhereContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1755,6 +1771,10 @@ func (v *BaseELVisitor) VisitIntMulBy(ctx *IntMulByContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitIntMaxOfArray(ctx *IntMaxOfArrayContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitIntMul(ctx *IntMulContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1800,6 +1820,10 @@ func (v *BaseELVisitor) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface{
 }
 
 func (v *BaseELVisitor) VisitIntMonthsBetween(ctx *IntMonthsBetweenContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitIntMaxOfArrayWhere(ctx *IntMaxOfArrayWhereContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1860,6 +1884,10 @@ func (v *BaseELVisitor) VisitIntDiv(ctx *IntDivContext) interface{} {
 }
 
 func (v *BaseELVisitor) VisitIntDayOfMonthInZone(ctx *IntDayOfMonthInZoneContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitIntMinOfArray(ctx *IntMinOfArrayContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1940,6 +1968,10 @@ func (v *BaseELVisitor) VisitIntLengthBytes(ctx *IntLengthBytesContext) interfac
 }
 
 func (v *BaseELVisitor) VisitIntHourOf(ctx *IntHourOfContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitIntMinOfArrayWhere(ctx *IntMinOfArrayWhereContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

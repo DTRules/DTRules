@@ -7664,3 +7664,108 @@ func flattenMulChain(t antlr.ParseTree) []antlr.ParseTree {
 	}
 	return []antlr.ParseTree{t}
 }
+
+// max of / min of over a collection — the fold family stopped at `sum of`, so
+// "the best of a set of options" had to be a host-side loop even when the
+// criterion was pure policy: the table could score the options but not say
+// which one won (#1024).
+//
+// Lowered exactly like `sum of`, swapping the accumulating operator. The
+// accumulator starts at zero, which is the documented behaviour for an empty
+// array or a `where` that matches nothing — the same answer `sum of` gives,
+// and chosen for consistency within the family rather than mathematical
+// purity. The consequence is explicit: over values that are all negative,
+// `max of` returns 0 rather than the largest negative. Rules over money and
+// counts do not meet that case; rules that might should guard the array.
+//
+// This is the value, not the element attaining it. `the <entity> in <array>
+// with the max <field>` is the part that keeps a choice rule inside the
+// tables, and is still open on #1024.
+
+func (e *PostfixEmitter) VisitIntMaxOfArray(ctx *IntMaxOfArrayContext) interface{} {
+	return e.emitIntFold(ctx.Iexpr(), ctx.ArrayExpr(), "max")
+}
+
+func (e *PostfixEmitter) VisitIntMinOfArray(ctx *IntMinOfArrayContext) interface{} {
+	return e.emitIntFold(ctx.Iexpr(), ctx.ArrayExpr(), "min")
+}
+
+func (e *PostfixEmitter) VisitIntMaxOfArrayWhere(ctx *IntMaxOfArrayWhereContext) interface{} {
+	return e.emitIntFoldWhere(ctx.Iexpr(), ctx.ArrayExpr(), ctx.Bexpr(), "max")
+}
+
+func (e *PostfixEmitter) VisitIntMinOfArrayWhere(ctx *IntMinOfArrayWhereContext) interface{} {
+	return e.emitIntFoldWhere(ctx.Iexpr(), ctx.ArrayExpr(), ctx.Bexpr(), "min")
+}
+
+func (e *PostfixEmitter) VisitFloatMaxOfArray(ctx *FloatMaxOfArrayContext) interface{} {
+	return e.emitFloatFold(ctx.TypedDouble(), ctx.ArrayExpr(), "fmax")
+}
+
+func (e *PostfixEmitter) VisitFloatMinOfArray(ctx *FloatMinOfArrayContext) interface{} {
+	return e.emitFloatFold(ctx.TypedDouble(), ctx.ArrayExpr(), "fmin")
+}
+
+func (e *PostfixEmitter) VisitFloatMaxOfArrayWhere(ctx *FloatMaxOfArrayWhereContext) interface{} {
+	return e.emitFloatFoldWhere(ctx.TypedDouble(), ctx.ArrayExpr(), ctx.Bexpr(), "fmax")
+}
+
+func (e *PostfixEmitter) VisitFloatMinOfArrayWhere(ctx *FloatMinOfArrayWhereContext) interface{} {
+	return e.emitFloatFoldWhere(ctx.TypedDouble(), ctx.ArrayExpr(), ctx.Bexpr(), "fmin")
+}
+
+// emitIntFold emits `0 { <expr> <op> } <array> forall`. Body before array,
+// because opForall pops the array off the top (#867).
+func (e *PostfixEmitter) emitIntFold(expr, array antlr.ParserRuleContext, op string) interface{} {
+	e.emit("0")
+	e.emit("{")
+	e.Visit(expr)
+	e.emit(op)
+	e.emit("}")
+	e.Visit(array)
+	e.emit("forall")
+	return nil
+}
+
+// emitIntFoldWhere emits `0 { { <expr> <op> } <pred> if } <array> forall`.
+// Inner block before the predicate, because `if` pops the boolean off the top.
+func (e *PostfixEmitter) emitIntFoldWhere(expr, array, pred antlr.ParserRuleContext, op string) interface{} {
+	e.emit("0")
+	e.emit("{")
+	e.emit("{")
+	e.Visit(expr)
+	e.emit(op)
+	e.emit("}")
+	e.Visit(pred)
+	e.emit("if")
+	e.emit("}")
+	e.Visit(array)
+	e.emit("forall")
+	return nil
+}
+
+func (e *PostfixEmitter) emitFloatFold(expr, array antlr.ParserRuleContext, op string) interface{} {
+	e.emit("0.0")
+	e.emit("{")
+	e.Visit(expr)
+	e.emit(op)
+	e.emit("}")
+	e.Visit(array)
+	e.emit("forall")
+	return nil
+}
+
+func (e *PostfixEmitter) emitFloatFoldWhere(expr, array, pred antlr.ParserRuleContext, op string) interface{} {
+	e.emit("0.0")
+	e.emit("{")
+	e.emit("{")
+	e.Visit(expr)
+	e.emit(op)
+	e.emit("}")
+	e.Visit(pred)
+	e.emit("if")
+	e.emit("}")
+	e.Visit(array)
+	e.emit("forall")
+	return nil
+}
