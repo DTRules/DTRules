@@ -812,6 +812,17 @@ thereis
     | IS THERE
     ;
 
+// whereBody re-enters bexpr from OUTSIDE the left-recursive rule, so a
+// fold's predicate takes the full boolean expression. Written as a trailing
+// `bexpr` inside bexpr's own alternatives, the reference is precedence-
+// constrained by ANTLR's left-recursion rewrite: the folds sit above AND/OR,
+// so `where A and B` parsed as `(fold where A) and B`, evaluating B after
+// the loop with the iteration variable out of scope — silently, when another
+// binding of the same name was in scope (#1121).
+whereBody
+    : bexpr
+    ;
+
 blist
     : strexpr COMMA blist                                   # blistMulti
     | OR strexpr                                            # blistOr
@@ -830,19 +841,19 @@ bexpr
 
     // Complex tests
     | thereis MATCH FORALL arrayExpr TO nexpr IN arrayExpr  # boolMatchForall
-    | thereis eexpr WHERE bexpr                             # boolThereIsWhere
-    | thereis eexpr inthe eexpr WHERE bexpr                 # boolThereIsInEntityWhere
-    | thereis eexpr inthe arrayExpr WHERE bexpr             # boolThereIsInArrayWhere
-    | THERE IS NO eexpr WHERE bexpr                         # boolThereIsNoWhere
-    | THERE IS NO eexpr inthe eexpr WHERE bexpr             # boolThereIsNoInEntityWhere
-    | THERE IS NO eexpr inthe arrayExpr WHERE bexpr         # boolThereIsNoInArrayWhere
-    | ALL arrayExpr HAVE bexpr                              # boolAllHave
-    | ONE OF arrayExpr HASA bexpr                           # boolOneOfHasa
+    | thereis eexpr WHERE whereBody                         # boolThereIsWhere
+    | thereis eexpr inthe eexpr WHERE whereBody             # boolThereIsInEntityWhere
+    | thereis eexpr inthe arrayExpr WHERE whereBody         # boolThereIsInArrayWhere
+    | THERE IS NO eexpr WHERE whereBody                     # boolThereIsNoWhere
+    | THERE IS NO eexpr inthe eexpr WHERE whereBody         # boolThereIsNoInEntityWhere
+    | THERE IS NO eexpr inthe arrayExpr WHERE whereBody     # boolThereIsNoInArrayWhere
+    | ALL arrayExpr HAVE whereBody                          # boolAllHave
+    | ONE OF arrayExpr HASA whereBody                       # boolOneOfHasa
 
     // Relationship tests
     | eexpr DOES NOT HAVE strexpr                           # boolEntityNotHas
     | eexpr HASA strexpr                                    # boolEntityHasa
-    | eexpr HASA strexpr WHERE bexpr                        # boolEntityHasaWhere
+    | eexpr HASA strexpr WHERE whereBody                    # boolEntityHasaWhere
     | eexpr IS strexpr OF eexpr                             # boolEntityIsOf
 
     // Numeric within/percent tests

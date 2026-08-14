@@ -1585,6 +1585,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#thereis.
 	VisitThereis(ctx *ThereisContext) interface{}
 
+	// Visit a parse tree produced by ELParser#whereBody.
+	VisitWhereBody(ctx *WhereBodyContext) interface{}
+
 	// Visit a parse tree produced by ELParser#blistMulti.
 	VisitBlistMulti(ctx *BlistMultiContext) interface{}
 

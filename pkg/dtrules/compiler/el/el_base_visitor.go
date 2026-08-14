@@ -2111,6 +2111,10 @@ func (v *BaseELVisitor) VisitThereis(ctx *ThereisContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitWhereBody(ctx *WhereBodyContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBlistMulti(ctx *BlistMultiContext) interface{} {
 	return v.VisitChildren(ctx)
 }

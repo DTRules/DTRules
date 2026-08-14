@@ -2284,6 +2284,12 @@ func (s *BaseELListener) EnterFloatMulFloat(ctx *FloatMulFloatContext) {}
 // ExitFloatMulFloat is called when production floatMulFloat is exited.
 func (s *BaseELListener) ExitFloatMulFloat(ctx *FloatMulFloatContext) {}
 
+// EnterFloatMinOfArray is called when production floatMinOfArray is entered.
+func (s *BaseELListener) EnterFloatMinOfArray(ctx *FloatMinOfArrayContext) {}
+
+// ExitFloatMinOfArray is called when production floatMinOfArray is exited.
+func (s *BaseELListener) ExitFloatMinOfArray(ctx *FloatMinOfArrayContext) {}
+
 // EnterFloatDivFloat is called when production floatDivFloat is entered.
 func (s *BaseELListener) EnterFloatDivFloat(ctx *FloatDivFloatContext) {}
 
@@ -2295,6 +2301,12 @@ func (s *BaseELListener) EnterFloatAddInt(ctx *FloatAddIntContext) {}
 
 // ExitFloatAddInt is called when production floatAddInt is exited.
 func (s *BaseELListener) ExitFloatAddInt(ctx *FloatAddIntContext) {}
+
+// EnterFloatMaxOfArray is called when production floatMaxOfArray is entered.
+func (s *BaseELListener) EnterFloatMaxOfArray(ctx *FloatMaxOfArrayContext) {}
+
+// ExitFloatMaxOfArray is called when production floatMaxOfArray is exited.
+func (s *BaseELListener) ExitFloatMaxOfArray(ctx *FloatMaxOfArrayContext) {}
 
 // EnterFloatMinOfIntComma is called when production floatMinOfIntComma is entered.
 func (s *BaseELListener) EnterFloatMinOfIntComma(ctx *FloatMinOfIntCommaContext) {}
@@ -2398,6 +2410,12 @@ func (s *BaseELListener) EnterFloatMinOfFloat(ctx *FloatMinOfFloatContext) {}
 // ExitFloatMinOfFloat is called when production floatMinOfFloat is exited.
 func (s *BaseELListener) ExitFloatMinOfFloat(ctx *FloatMinOfFloatContext) {}
 
+// EnterFloatMaxOfArrayWhere is called when production floatMaxOfArrayWhere is entered.
+func (s *BaseELListener) EnterFloatMaxOfArrayWhere(ctx *FloatMaxOfArrayWhereContext) {}
+
+// ExitFloatMaxOfArrayWhere is called when production floatMaxOfArrayWhere is exited.
+func (s *BaseELListener) ExitFloatMaxOfArrayWhere(ctx *FloatMaxOfArrayWhereContext) {}
+
 // EnterFloatAddFloat is called when production floatAddFloat is entered.
 func (s *BaseELListener) EnterFloatAddFloat(ctx *FloatAddFloatContext) {}
 
@@ -2493,6 +2511,12 @@ func (s *BaseELListener) EnterIntAddFloat(ctx *IntAddFloatContext) {}
 
 // ExitIntAddFloat is called when production intAddFloat is exited.
 func (s *BaseELListener) ExitIntAddFloat(ctx *IntAddFloatContext) {}
+
+// EnterFloatMinOfArrayWhere is called when production floatMinOfArrayWhere is entered.
+func (s *BaseELListener) EnterFloatMinOfArrayWhere(ctx *FloatMinOfArrayWhereContext) {}
+
+// ExitFloatMinOfArrayWhere is called when production floatMinOfArrayWhere is exited.
+func (s *BaseELListener) ExitFloatMinOfArrayWhere(ctx *FloatMinOfArrayWhereContext) {}
 
 // EnterFloatDivInt is called when production floatDivInt is entered.
 func (s *BaseELListener) EnterFloatDivInt(ctx *FloatDivIntContext) {}
@@ -2644,6 +2668,12 @@ func (s *BaseELListener) EnterIntMulBy(ctx *IntMulByContext) {}
 // ExitIntMulBy is called when production intMulBy is exited.
 func (s *BaseELListener) ExitIntMulBy(ctx *IntMulByContext) {}
 
+// EnterIntMaxOfArray is called when production intMaxOfArray is entered.
+func (s *BaseELListener) EnterIntMaxOfArray(ctx *IntMaxOfArrayContext) {}
+
+// ExitIntMaxOfArray is called when production intMaxOfArray is exited.
+func (s *BaseELListener) ExitIntMaxOfArray(ctx *IntMaxOfArrayContext) {}
+
 // EnterIntMul is called when production intMul is entered.
 func (s *BaseELListener) EnterIntMul(ctx *IntMulContext) {}
 
@@ -2715,6 +2745,12 @@ func (s *BaseELListener) EnterIntMonthsBetween(ctx *IntMonthsBetweenContext) {}
 
 // ExitIntMonthsBetween is called when production intMonthsBetween is exited.
 func (s *BaseELListener) ExitIntMonthsBetween(ctx *IntMonthsBetweenContext) {}
+
+// EnterIntMaxOfArrayWhere is called when production intMaxOfArrayWhere is entered.
+func (s *BaseELListener) EnterIntMaxOfArrayWhere(ctx *IntMaxOfArrayWhereContext) {}
+
+// ExitIntMaxOfArrayWhere is called when production intMaxOfArrayWhere is exited.
+func (s *BaseELListener) ExitIntMaxOfArrayWhere(ctx *IntMaxOfArrayWhereContext) {}
 
 // EnterIntDaysInYear is called when production intDaysInYear is entered.
 func (s *BaseELListener) EnterIntDaysInYear(ctx *IntDaysInYearContext) {}
@@ -2805,6 +2841,12 @@ func (s *BaseELListener) EnterIntDayOfMonthInZone(ctx *IntDayOfMonthInZoneContex
 
 // ExitIntDayOfMonthInZone is called when production intDayOfMonthInZone is exited.
 func (s *BaseELListener) ExitIntDayOfMonthInZone(ctx *IntDayOfMonthInZoneContext) {}
+
+// EnterIntMinOfArray is called when production intMinOfArray is entered.
+func (s *BaseELListener) EnterIntMinOfArray(ctx *IntMinOfArrayContext) {}
+
+// ExitIntMinOfArray is called when production intMinOfArray is exited.
+func (s *BaseELListener) ExitIntMinOfArray(ctx *IntMinOfArrayContext) {}
 
 // EnterFixedFromIndex is called when production fixedFromIndex is entered.
 func (s *BaseELListener) EnterFixedFromIndex(ctx *FixedFromIndexContext) {}
@@ -2925,6 +2967,12 @@ func (s *BaseELListener) EnterIntHourOf(ctx *IntHourOfContext) {}
 
 // ExitIntHourOf is called when production intHourOf is exited.
 func (s *BaseELListener) ExitIntHourOf(ctx *IntHourOfContext) {}
+
+// EnterIntMinOfArrayWhere is called when production intMinOfArrayWhere is entered.
+func (s *BaseELListener) EnterIntMinOfArrayWhere(ctx *IntMinOfArrayWhereContext) {}
+
+// ExitIntMinOfArrayWhere is called when production intMinOfArrayWhere is exited.
+func (s *BaseELListener) ExitIntMinOfArrayWhere(ctx *IntMinOfArrayWhereContext) {}
 
 // EnterBigAbs is called when production bigAbs is entered.
 func (s *BaseELListener) EnterBigAbs(ctx *BigAbsContext) {}
@@ -3129,6 +3177,12 @@ func (s *BaseELListener) EnterThereis(ctx *ThereisContext) {}
 
 // ExitThereis is called when production thereis is exited.
 func (s *BaseELListener) ExitThereis(ctx *ThereisContext) {}
+
+// EnterWhereBody is called when production whereBody is entered.
+func (s *BaseELListener) EnterWhereBody(ctx *WhereBodyContext) {}
+
+// ExitWhereBody is called when production whereBody is exited.
+func (s *BaseELListener) ExitWhereBody(ctx *WhereBodyContext) {}
 
 // EnterBlistMulti is called when production blistMulti is entered.
 func (s *BaseELListener) EnterBlistMulti(ctx *BlistMultiContext) {}

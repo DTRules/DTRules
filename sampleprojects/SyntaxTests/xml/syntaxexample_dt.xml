@@ -1804,7 +1804,7 @@ false { client_FPL 1000 &gt; or } clients forall not cvb /eligible xdef
 <action_comment></action_comment>
 <action_dsl>set eligible = all clients have disabled == true</action_dsl>
 <action_postfix>
-true { disabled and } clients forall true beq cvb /eligible xdef
+true { disabled true beq and } clients forall cvb /eligible xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
