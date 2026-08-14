@@ -7,6 +7,7 @@
 <relative_path>MT_corp.xlsx</relative_path>
 <file_name>MT_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:b33bb78f3d5ab02acd5a7e9a57fb3c60ee64e583352f02edcaac236150242eb3</source_hash>
 </source>
 <table_name>Determine_MT_Filing_Requirement</table_name>
 <xls_file>MT_corp.xlsx</xls_file>
@@ -80,6 +81,7 @@ false cvb /mt_result.has_nexus xdef 0.0 cvd /mt_result.tax_liability xdef
 <relative_path>MT_corp.xlsx</relative_path>
 <file_name>MT_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:b33bb78f3d5ab02acd5a7e9a57fb3c60ee64e583352f02edcaac236150242eb3</source_hash>
 </source>
 <table_name>Calculate_MT_Income_Adjustments</table_name>
 <xls_file>MT_corp.xlsx</xls_file>
@@ -135,6 +137,7 @@ mt_result.has_nexus true beq
 <relative_path>MT_corp.xlsx</relative_path>
 <file_name>MT_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:b33bb78f3d5ab02acd5a7e9a57fb3c60ee64e583352f02edcaac236150242eb3</source_hash>
 </source>
 <table_name>Calculate_MT_State_Tax</table_name>
 <xls_file>MT_corp.xlsx</xls_file>

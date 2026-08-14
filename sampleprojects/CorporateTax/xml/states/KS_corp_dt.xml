@@ -7,6 +7,7 @@
 <relative_path>KS_corp.xlsx</relative_path>
 <file_name>KS_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:f2b3ddae94810d9b654926dc09da143ce48f5457ec36ace337e77cdadf481ce8</source_hash>
 </source>
 <table_name>Determine_KS_Filing_Requirement</table_name>
 <xls_file>KS_corp.xlsx</xls_file>
@@ -80,6 +81,7 @@ false cvb /ks_result.has_nexus xdef 0.0 cvd /ks_result.tax_liability xdef
 <relative_path>KS_corp.xlsx</relative_path>
 <file_name>KS_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:f2b3ddae94810d9b654926dc09da143ce48f5457ec36ace337e77cdadf481ce8</source_hash>
 </source>
 <table_name>Calculate_KS_Income_Adjustments</table_name>
 <xls_file>KS_corp.xlsx</xls_file>
@@ -135,6 +137,7 @@ ks_result.has_nexus true beq
 <relative_path>KS_corp.xlsx</relative_path>
 <file_name>KS_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:f2b3ddae94810d9b654926dc09da143ce48f5457ec36ace337e77cdadf481ce8</source_hash>
 </source>
 <table_name>Calculate_KS_State_Tax</table_name>
 <xls_file>KS_corp.xlsx</xls_file>

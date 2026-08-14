@@ -7,6 +7,7 @@
 <relative_path>NH_corp.xlsx</relative_path>
 <file_name>NH_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:448f3cdcd0031580366993848a979d5613c13c31495b9e1053c764a388bcda18</source_hash>
 </source>
 <table_name>Determine_NH_Filing_Requirement</table_name>
 <xls_file>NH_corp.xlsx</xls_file>
@@ -71,6 +72,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NH" st
 <relative_path>NH_corp.xlsx</relative_path>
 <file_name>NH_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:448f3cdcd0031580366993848a979d5613c13c31495b9e1053c764a388bcda18</source_hash>
 </source>
 <table_name>Calculate_NH_Income_Adjustments</table_name>
 <xls_file>NH_corp.xlsx</xls_file>
@@ -121,6 +123,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>NH_corp.xlsx</relative_path>
 <file_name>NH_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:448f3cdcd0031580366993848a979d5613c13c31495b9e1053c764a388bcda18</source_hash>
 </source>
 <table_name>Calculate_NH_State_Tax</table_name>
 <xls_file>NH_corp.xlsx</xls_file>

@@ -7,6 +7,7 @@
 <relative_path>TX_corp.xlsx</relative_path>
 <file_name>TX_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:cb8624ebb7634ccf819b6ebb7f864c437722835f11141c71a1ef28df9a1186e2</source_hash>
 </source>
 <table_name>Determine_TX_Filing_Requirement</table_name>
 <xls_file>TX_corp.xlsx</xls_file>
@@ -93,6 +94,7 @@ true cvb /tx_result.qualifies_for_no_tax_due xdef 0.0 cvd /tx_result.franchise_t
 <relative_path>TX_corp.xlsx</relative_path>
 <file_name>TX_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:cb8624ebb7634ccf819b6ebb7f864c437722835f11141c71a1ef28df9a1186e2</source_hash>
 </source>
 <table_name>Determine_TX_Deduction_Method</table_name>
 <xls_file>TX_corp.xlsx</xls_file>
@@ -170,6 +172,7 @@ tx_result.cogs tx_result.compensation f&gt;
 <relative_path>TX_corp.xlsx</relative_path>
 <file_name>TX_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:cb8624ebb7634ccf819b6ebb7f864c437722835f11141c71a1ef28df9a1186e2</source_hash>
 </source>
 <table_name>Calculate_TX_Margin</table_name>
 <xls_file>TX_corp.xlsx</xls_file>
@@ -238,6 +241,7 @@ false cvb /tx_result.qualifies_for_ez_computation xdef tx_result.total_revenue t
 <relative_path>TX_corp.xlsx</relative_path>
 <file_name>TX_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:cb8624ebb7634ccf819b6ebb7f864c437722835f11141c71a1ef28df9a1186e2</source_hash>
 </source>
 <table_name>Calculate_TX_Franchise_Tax</table_name>
 <xls_file>TX_corp.xlsx</xls_file>
@@ -342,6 +346,7 @@ tx_result.total_revenue tx_result.no_tax_due_threshold f- 0.0 fmax tx_result.ez_
 <relative_path>TX_corp.xlsx</relative_path>
 <file_name>TX_corp.xlsx</file_name>
 <sheet_number>5</sheet_number>
+<source_hash>sha256:cb8624ebb7634ccf819b6ebb7f864c437722835f11141c71a1ef28df9a1186e2</source_hash>
 </source>
 <table_name>Calculate_TX_Income_Adjustments</table_name>
 <xls_file>TX_corp.xlsx</xls_file>
@@ -392,6 +397,7 @@ apportionment.state_code "TX" streq
 <relative_path>TX_corp.xlsx</relative_path>
 <file_name>TX_corp.xlsx</file_name>
 <sheet_number>6</sheet_number>
+<source_hash>sha256:cb8624ebb7634ccf819b6ebb7f864c437722835f11141c71a1ef28df9a1186e2</source_hash>
 </source>
 <table_name>Calculate_TX_State_Tax</table_name>
 <xls_file>TX_corp.xlsx</xls_file>

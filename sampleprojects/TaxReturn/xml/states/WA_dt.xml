@@ -7,6 +7,7 @@
 <relative_path>WA.xlsx</relative_path>
 <file_name>WA.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:9a3ac1f8f5a48d3685b44be388aded6db212b6ffbb07f7ac63eb633f22ea5a53</source_hash>
 </source>
 <table_name>WA_Tax</table_name>
 <xls_file>WA.xlsx</xls_file>

@@ -7,6 +7,7 @@
 <relative_path>ME_corp.xlsx</relative_path>
 <file_name>ME_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:280afa06928694a8167aadc72883e392ddc09c29cf3026e321e3074f1186661a</source_hash>
 </source>
 <table_name>Determine_ME_Filing_Requirement</table_name>
 <xls_file>ME_corp.xlsx</xls_file>
@@ -80,6 +81,7 @@ false cvb /me_result.has_nexus xdef 0.0 cvd /me_result.tax_liability xdef
 <relative_path>ME_corp.xlsx</relative_path>
 <file_name>ME_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:280afa06928694a8167aadc72883e392ddc09c29cf3026e321e3074f1186661a</source_hash>
 </source>
 <table_name>Calculate_ME_Income_Adjustments</table_name>
 <xls_file>ME_corp.xlsx</xls_file>
@@ -135,6 +137,7 @@ me_result.has_nexus true beq
 <relative_path>ME_corp.xlsx</relative_path>
 <file_name>ME_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:280afa06928694a8167aadc72883e392ddc09c29cf3026e321e3074f1186661a</source_hash>
 </source>
 <table_name>Calculate_ME_State_Tax</table_name>
 <xls_file>ME_corp.xlsx</xls_file>

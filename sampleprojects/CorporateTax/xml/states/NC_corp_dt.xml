@@ -7,6 +7,7 @@
 <relative_path>NC_corp.xlsx</relative_path>
 <file_name>NC_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:c71fa6d4c13a8a5bceb4fcc7ba633aa5024247a4ccbd7203fd98e15a49c596d1</source_hash>
 </source>
 <table_name>Determine_NC_Filing_Requirement</table_name>
 <xls_file>NC_corp.xlsx</xls_file>
@@ -71,6 +72,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NC" st
 <relative_path>NC_corp.xlsx</relative_path>
 <file_name>NC_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:c71fa6d4c13a8a5bceb4fcc7ba633aa5024247a4ccbd7203fd98e15a49c596d1</source_hash>
 </source>
 <table_name>Calculate_NC_Income_Adjustments</table_name>
 <xls_file>NC_corp.xlsx</xls_file>
@@ -121,6 +123,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>NC_corp.xlsx</relative_path>
 <file_name>NC_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:c71fa6d4c13a8a5bceb4fcc7ba633aa5024247a4ccbd7203fd98e15a49c596d1</source_hash>
 </source>
 <table_name>Calculate_NC_State_Tax</table_name>
 <xls_file>NC_corp.xlsx</xls_file>

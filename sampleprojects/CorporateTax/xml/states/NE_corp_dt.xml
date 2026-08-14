@@ -7,6 +7,7 @@
 <relative_path>NE_corp.xlsx</relative_path>
 <file_name>NE_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:b7f8e6e67adb8509176452cc2c909eb50ab40745b447d99da00b2748f93b46a0</source_hash>
 </source>
 <table_name>Determine_NE_Filing_Requirement</table_name>
 <xls_file>NE_corp.xlsx</xls_file>
@@ -71,6 +72,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NE" st
 <relative_path>NE_corp.xlsx</relative_path>
 <file_name>NE_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:b7f8e6e67adb8509176452cc2c909eb50ab40745b447d99da00b2748f93b46a0</source_hash>
 </source>
 <table_name>Calculate_NE_Income_Adjustments</table_name>
 <xls_file>NE_corp.xlsx</xls_file>
@@ -121,6 +123,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>NE_corp.xlsx</relative_path>
 <file_name>NE_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:b7f8e6e67adb8509176452cc2c909eb50ab40745b447d99da00b2748f93b46a0</source_hash>
 </source>
 <table_name>Calculate_NE_State_Tax</table_name>
 <xls_file>NE_corp.xlsx</xls_file>

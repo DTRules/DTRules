@@ -7,6 +7,7 @@
 <relative_path>SC_corp.xlsx</relative_path>
 <file_name>SC_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:51c5de1ec4bdd9a73c2008faa71abd9b55a204b90edfbd0f79d2adf245dee755</source_hash>
 </source>
 <table_name>Determine_SC_Filing_Requirement</table_name>
 <xls_file>SC_corp.xlsx</xls_file>
@@ -75,6 +76,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "SC" st
 <relative_path>SC_corp.xlsx</relative_path>
 <file_name>SC_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:51c5de1ec4bdd9a73c2008faa71abd9b55a204b90edfbd0f79d2adf245dee755</source_hash>
 </source>
 <table_name>Calculate_SC_Income_Adjustments</table_name>
 <xls_file>SC_corp.xlsx</xls_file>
@@ -125,6 +127,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>SC_corp.xlsx</relative_path>
 <file_name>SC_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:51c5de1ec4bdd9a73c2008faa71abd9b55a204b90edfbd0f79d2adf245dee755</source_hash>
 </source>
 <table_name>Calculate_SC_State_Tax</table_name>
 <xls_file>SC_corp.xlsx</xls_file>

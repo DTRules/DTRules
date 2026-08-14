@@ -184,6 +184,10 @@ func (w *WorkbookImporter) importWorkbookWithSource(excelPath, xlsFile, relPath 
 		return nil, fmt.Errorf("no sheets found in Excel file")
 	}
 
+	// Hashed before anything is written, so the stamp describes the workbook
+	// this import actually read.
+	workbookHash := WorkbookHash(excelPath)
+
 	// Build sheet index map (1-based) for source tracking
 	sheetIndexMap := make(map[string]int, len(sheets))
 	for idx, name := range sheets {
@@ -259,11 +263,14 @@ func (w *WorkbookImporter) importWorkbookWithSource(excelPath, xlsFile, relPath 
 				w.stats.Actions += len(table.Actions)
 				w.stats.Conditions += len(table.Conditions)
 			}
-			// Attach source metadata
+			// Attach source metadata, including the provenance stamp: this
+			// XML was compiled from these workbook bytes, and a later build
+			// can tell whether that is still the workbook on disk (#1091).
 			table.Source = &SourceXML{
 				RelativePath: srcRelPath,
 				FileName:     filepath.Base(excelPath),
 				SheetNumber:  sheetIndexMap[sheet],
+				SourceHash:   workbookHash,
 			}
 			result.DTables.Tables = append(result.DTables.Tables, *table)
 		}

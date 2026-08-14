@@ -139,9 +139,9 @@ func TestExtractExcel_FromFixture(t *testing.T) {
 	}
 
 	src := fstest.MapFS{
-		"states/AK_edd.xml":   &fstest.MapFile{Data: akEDD},
-		"states/AK_dt.xml":    &fstest.MapFile{Data: akDT},
-		"TaxReturn_map.xml":   &fstest.MapFile{Data: mapXML},
+		"states/AK_edd.xml": &fstest.MapFile{Data: akEDD},
+		"states/AK_dt.xml":  &fstest.MapFile{Data: akDT},
+		"TaxReturn_map.xml": &fstest.MapFile{Data: mapXML},
 	}
 
 	dst := t.TempDir()
@@ -213,7 +213,7 @@ func TestExtractExcel_NoLoaderWarnings(t *testing.T) {
 </decision_tables>`
 
 	src := fstest.MapFS{
-		"CO_dt.xml": &fstest.MapFile{Data: []byte(crossRefDT)},
+		"CO_dt.xml":         &fstest.MapFile{Data: []byte(crossRefDT)},
 		"TaxReturn_edd.xml": &fstest.MapFile{Data: []byte(minimalEDD)},
 	}
 
@@ -303,4 +303,3 @@ func TestExtractExcel_RoundTrip(t *testing.T) {
 		f.Close()
 	}
 }
-

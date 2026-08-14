@@ -7,6 +7,7 @@
 <relative_path>HI_corp.xlsx</relative_path>
 <file_name>HI_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:7be08fa37e38c54b1377bff57820ddb24f22b72dc493bbe653157d40055ba19b</source_hash>
 </source>
 <table_name>Determine_HI_Filing_Requirement</table_name>
 <xls_file>HI_corp.xlsx</xls_file>
@@ -84,6 +85,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "HI" st
 <relative_path>HI_corp.xlsx</relative_path>
 <file_name>HI_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:7be08fa37e38c54b1377bff57820ddb24f22b72dc493bbe653157d40055ba19b</source_hash>
 </source>
 <table_name>Calculate_HI_Income_Adjustments</table_name>
 <xls_file>HI_corp.xlsx</xls_file>
@@ -143,6 +145,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>HI_corp.xlsx</relative_path>
 <file_name>HI_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:7be08fa37e38c54b1377bff57820ddb24f22b72dc493bbe653157d40055ba19b</source_hash>
 </source>
 <table_name>Calculate_HI_State_Tax</table_name>
 <xls_file>HI_corp.xlsx</xls_file>

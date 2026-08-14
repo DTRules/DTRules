@@ -7,6 +7,7 @@
 <relative_path>DC_corp.xlsx</relative_path>
 <file_name>DC_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:d13056035fa5028ee26f0fae2c7d73fd3bca3b941c1fe56bfe6afbd17b57801a</source_hash>
 </source>
 <table_name>Determine_DC_Filing_Requirement</table_name>
 <xls_file>DC_corp.xlsx</xls_file>
@@ -69,6 +70,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "DC" st
 <relative_path>DC_corp.xlsx</relative_path>
 <file_name>DC_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:d13056035fa5028ee26f0fae2c7d73fd3bca3b941c1fe56bfe6afbd17b57801a</source_hash>
 </source>
 <table_name>Calculate_DC_Income_Adjustments</table_name>
 <xls_file>DC_corp.xlsx</xls_file>
@@ -115,6 +117,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>DC_corp.xlsx</relative_path>
 <file_name>DC_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:d13056035fa5028ee26f0fae2c7d73fd3bca3b941c1fe56bfe6afbd17b57801a</source_hash>
 </source>
 <table_name>Calculate_DC_State_Tax</table_name>
 <xls_file>DC_corp.xlsx</xls_file>
@@ -177,6 +180,7 @@ apportionment.state_taxable_income 0.0 f&gt;
 <relative_path>DC_corp.xlsx</relative_path>
 <file_name>DC_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:d13056035fa5028ee26f0fae2c7d73fd3bca3b941c1fe56bfe6afbd17b57801a</source_hash>
 </source>
 <table_name>Calculate_DC_Minimum_Tax</table_name>
 <xls_file>DC_corp.xlsx</xls_file>

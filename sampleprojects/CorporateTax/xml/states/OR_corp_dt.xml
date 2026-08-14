@@ -7,6 +7,7 @@
 <relative_path>OR_corp.xlsx</relative_path>
 <file_name>OR_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:64fcc6c15f8d53efe10407c6210f6d708a3120da94436d891de586cb1bc423b9</source_hash>
 </source>
 <table_name>Determine_OR_Filing_Requirement</table_name>
 <xls_file>OR_corp.xlsx</xls_file>
@@ -84,6 +85,7 @@ apportionment.has_economic_nexus true beq { pop state_code 'OR' streq } over if
 <relative_path>OR_corp.xlsx</relative_path>
 <file_name>OR_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:64fcc6c15f8d53efe10407c6210f6d708a3120da94436d891de586cb1bc423b9</source_hash>
 </source>
 <table_name>Calculate_OR_Income_Adjustments</table_name>
 <xls_file>OR_corp.xlsx</xls_file>
@@ -143,6 +145,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>OR_corp.xlsx</relative_path>
 <file_name>OR_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:64fcc6c15f8d53efe10407c6210f6d708a3120da94436d891de586cb1bc423b9</source_hash>
 </source>
 <table_name>Calculate_OR_State_Tax</table_name>
 <xls_file>OR_corp.xlsx</xls_file>

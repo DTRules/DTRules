@@ -104,8 +104,8 @@ func (e *MapExporter) writeMapSheet(f *excelize.File, styler *Styler, sheet stri
 
 	// Rows 3+: data
 	sectionStyle, err := f.NewStyle(&excelize.Style{
-		Font:  &excelize.Font{Italic: true, Family: fontSansSerif, Size: 10, Color: "666666"},
-		Fill:  excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"F8F8F8"}},
+		Font:   &excelize.Font{Italic: true, Family: fontSansSerif, Size: 10, Color: "666666"},
+		Fill:   excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"F8F8F8"}},
 		Border: thinBorder(),
 	})
 	if err != nil {

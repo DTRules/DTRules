@@ -7,6 +7,7 @@
 <relative_path>CO_corp.xlsx</relative_path>
 <file_name>CO_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:64a83bc42c91212a3931b9ddd37a0d29f05e4e60456a014dc72e3f1b5f06ae32</source_hash>
 </source>
 <table_name>Determine_CO_Filing_Requirement</table_name>
 <xls_file>CO_corp.xlsx</xls_file>
@@ -76,6 +77,7 @@ false cvb /co_result.has_nexus xdef 0.0 cvd /co_result.tax_liability xdef
 <relative_path>CO_corp.xlsx</relative_path>
 <file_name>CO_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:64a83bc42c91212a3931b9ddd37a0d29f05e4e60456a014dc72e3f1b5f06ae32</source_hash>
 </source>
 <table_name>Calculate_CO_Income_Adjustments</table_name>
 <xls_file>CO_corp.xlsx</xls_file>
@@ -131,6 +133,7 @@ co_result.us_interest_income cvd /co_result.state_additions xdef co_result.state
 <relative_path>CO_corp.xlsx</relative_path>
 <file_name>CO_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:64a83bc42c91212a3931b9ddd37a0d29f05e4e60456a014dc72e3f1b5f06ae32</source_hash>
 </source>
 <table_name>Calculate_CO_State_Tax</table_name>
 <xls_file>CO_corp.xlsx</xls_file>

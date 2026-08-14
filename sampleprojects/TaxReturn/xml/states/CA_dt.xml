@@ -7,6 +7,7 @@
 <relative_path>CA.xlsx</relative_path>
 <file_name>CA.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:61705958848bdd8f3ccef5f9b82d5938e197e86db1fcb9cb7822266b402369f2</source_hash>
 </source>
 <table_name>CA_Tax</table_name>
 <xls_file>CA.xlsx</xls_file>
@@ -82,6 +83,7 @@ result.ca_taxable_income cvd /result.computed_state_taxable_income xdef result.c
 <relative_path>CA.xlsx</relative_path>
 <file_name>CA.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:61705958848bdd8f3ccef5f9b82d5938e197e86db1fcb9cb7822266b402369f2</source_hash>
 </source>
 <table_name>ca_renter_credit</table_name>
 <xls_file>CA.xlsx</xls_file>
@@ -103,6 +105,7 @@ result.ca_taxable_income cvd /result.computed_state_taxable_income xdef result.c
 <relative_path>CA.xlsx</relative_path>
 <file_name>CA.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:61705958848bdd8f3ccef5f9b82d5938e197e86db1fcb9cb7822266b402369f2</source_hash>
 </source>
 <table_name>ca_military_retirement_exemption</table_name>
 <xls_file>CA.xlsx</xls_file>
@@ -124,6 +127,7 @@ result.ca_taxable_income cvd /result.computed_state_taxable_income xdef result.c
 <relative_path>CA.xlsx</relative_path>
 <file_name>CA.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:61705958848bdd8f3ccef5f9b82d5938e197e86db1fcb9cb7822266b402369f2</source_hash>
 </source>
 <table_name>CA_AGI</table_name>
 <xls_file>CA.xlsx</xls_file>

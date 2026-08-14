@@ -7,6 +7,7 @@
 <relative_path>RI_corp.xlsx</relative_path>
 <file_name>RI_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:cca035220e585d842185ee6574be17443369aad755791a4cfa864362d6359342</source_hash>
 </source>
 <table_name>Determine_RI_Filing_Requirement</table_name>
 <xls_file>RI_corp.xlsx</xls_file>
@@ -80,6 +81,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "RI" st
 <relative_path>RI_corp.xlsx</relative_path>
 <file_name>RI_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:cca035220e585d842185ee6574be17443369aad755791a4cfa864362d6359342</source_hash>
 </source>
 <table_name>Calculate_RI_Income_Adjustments</table_name>
 <xls_file>RI_corp.xlsx</xls_file>
@@ -135,6 +137,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>RI_corp.xlsx</relative_path>
 <file_name>RI_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:cca035220e585d842185ee6574be17443369aad755791a4cfa864362d6359342</source_hash>
 </source>
 <table_name>Calculate_RI_State_Tax</table_name>
 <xls_file>RI_corp.xlsx</xls_file>

@@ -7,6 +7,7 @@
 <relative_path>NC.xlsx</relative_path>
 <file_name>NC.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:b50362b17fb91915281d99ef21d4948a110baed762dd97b29e0b7096af98b8a1</source_hash>
 </source>
 <table_name>NC_Tax</table_name>
 <xls_file>NC.xlsx</xls_file>
@@ -104,6 +105,7 @@ result.nc_taxable_income cvd /result.computed_state_taxable_income xdef result.n
 <relative_path>NC.xlsx</relative_path>
 <file_name>NC.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:b50362b17fb91915281d99ef21d4948a110baed762dd97b29e0b7096af98b8a1</source_hash>
 </source>
 <table_name>nc_military_retirement_exclusion</table_name>
 <xls_file>NC.xlsx</xls_file>

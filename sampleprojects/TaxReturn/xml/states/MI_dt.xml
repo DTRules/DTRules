@@ -7,6 +7,7 @@
 <relative_path>MI.xlsx</relative_path>
 <file_name>MI.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:8bde37678436ea709fad3397439c5c4dbeaa7e982e288526ebe3b5a9ac8ecd39</source_hash>
 </source>
 <table_name>MI_Tax</table_name>
 <xls_file>MI.xlsx</xls_file>
@@ -69,6 +70,7 @@ result.mi_taxable_income cvd /result.computed_state_taxable_income xdef result.m
 <relative_path>MI.xlsx</relative_path>
 <file_name>MI.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:8bde37678436ea709fad3397439c5c4dbeaa7e982e288526ebe3b5a9ac8ecd39</source_hash>
 </source>
 <table_name>mi_military_retirement_exclusion</table_name>
 <xls_file>MI.xlsx</xls_file>

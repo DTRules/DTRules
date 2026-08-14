@@ -7,6 +7,7 @@
 <relative_path>NH.xlsx</relative_path>
 <file_name>NH.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:07011e487a1047f1b67214592b889614c26886d5310f7fed63b57c2f4aadcc67</source_hash>
 </source>
 <table_name>NH_Tax</table_name>
 <xls_file>NH.xlsx</xls_file>

@@ -7,6 +7,7 @@
 <relative_path>kidaid.xlsx</relative_path>
 <file_name>kidaid.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:74edf8476e29cbb5cbdea2c895d724ce970e5768a03e6ce0e41bd996dc6d21c2</source_hash>
 </source>
 <table_name>Compute_Eligibility</table_name>
 <xls_file>kidaid.xlsx</xls_file>
@@ -137,6 +138,7 @@ true
 <relative_path>kidaid.xlsx</relative_path>
 <file_name>kidaid.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:74edf8476e29cbb5cbdea2c895d724ce970e5768a03e6ce0e41bd996dc6d21c2</source_hash>
 </source>
 <table_name>Calculate_Individual_Income</table_name>
 <xls_file>kidaid.xlsx</xls_file>
@@ -213,6 +215,7 @@ income.amount client.totalIncome + /client.totalIncome xdef
 <relative_path>kidaid.xlsx</relative_path>
 <file_name>kidaid.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:74edf8476e29cbb5cbdea2c895d724ce970e5768a03e6ce0e41bd996dc6d21c2</source_hash>
 </source>
 <table_name>Calculate_Group_Size</table_name>
 <xls_file>kidaid.xlsx</xls_file>
@@ -387,6 +390,7 @@ client.totalIncome 0 local@ entitypush totalGroupIncome + /totalGroupIncome xdef
 <relative_path>kidaid.xlsx</relative_path>
 <file_name>kidaid.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:74edf8476e29cbb5cbdea2c895d724ce970e5768a03e6ce0e41bd996dc6d21c2</source_hash>
 </source>
 <table_name>Evaluate_KidAid_Eligibility</table_name>
 <xls_file>kidaid.xlsx</xls_file>
@@ -691,6 +695,7 @@ false cvb /client.eligible xdef
 <relative_path>kidaid.xlsx</relative_path>
 <file_name>kidaid.xlsx</file_name>
 <sheet_number>5</sheet_number>
+<source_hash>sha256:74edf8476e29cbb5cbdea2c895d724ce970e5768a03e6ce0e41bd996dc6d21c2</source_hash>
 </source>
 <table_name>Evaluate_MEDICAID_Eligibility</table_name>
 <xls_file>kidaid.xlsx</xls_file>
@@ -750,6 +755,7 @@ false cvb /client.eligible xdef
 <relative_path>kidaid.xlsx</relative_path>
 <file_name>kidaid.xlsx</file_name>
 <sheet_number>6</sheet_number>
+<source_hash>sha256:74edf8476e29cbb5cbdea2c895d724ce970e5768a03e6ce0e41bd996dc6d21c2</source_hash>
 </source>
 <table_name>Evaluate_FOODSTAMPS_Eligibility</table_name>
 <xls_file>kidaid.xlsx</xls_file>
@@ -809,6 +815,7 @@ false cvb /client.eligible xdef
 <relative_path>kidaid.xlsx</relative_path>
 <file_name>kidaid.xlsx</file_name>
 <sheet_number>7</sheet_number>
+<source_hash>sha256:74edf8476e29cbb5cbdea2c895d724ce970e5768a03e6ce0e41bd996dc6d21c2</source_hash>
 </source>
 <table_name>Evaluate_Results</table_name>
 <xls_file>kidaid.xlsx</xls_file>

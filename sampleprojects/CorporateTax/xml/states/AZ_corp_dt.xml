@@ -7,6 +7,7 @@
 <relative_path>AZ_corp.xlsx</relative_path>
 <file_name>AZ_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:f381a4e3adacf41b4578ee351e03a840c63188905e003d93ceae3330aecd09ce</source_hash>
 </source>
 <table_name>Determine_AZ_Filing_Requirement</table_name>
 <xls_file>AZ_corp.xlsx</xls_file>
@@ -71,6 +72,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "AZ" st
 <relative_path>AZ_corp.xlsx</relative_path>
 <file_name>AZ_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:f381a4e3adacf41b4578ee351e03a840c63188905e003d93ceae3330aecd09ce</source_hash>
 </source>
 <table_name>Calculate_AZ_Income_Adjustments</table_name>
 <xls_file>AZ_corp.xlsx</xls_file>
@@ -121,6 +123,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>AZ_corp.xlsx</relative_path>
 <file_name>AZ_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:f381a4e3adacf41b4578ee351e03a840c63188905e003d93ceae3330aecd09ce</source_hash>
 </source>
 <table_name>Calculate_AZ_State_Tax</table_name>
 <xls_file>AZ_corp.xlsx</xls_file>
