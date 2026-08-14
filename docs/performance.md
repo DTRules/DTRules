@@ -4,6 +4,10 @@
 
 This document describes the performance testing and optimization work for state tax calculations in DTRules, focusing on benchmarking single-state, multi-state, and combined federal+state tax computations.
 
+For the unit underneath these — what a single small decision table costs to
+execute, and what that ceiling means for running rules inside an enumeration —
+see [table-execution-cost.md](table-execution-cost.md).
+
 ## Performance Targets
 
 The following performance targets have been established based on typical tax calculation workloads:
