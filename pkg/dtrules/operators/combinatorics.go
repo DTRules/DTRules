@@ -16,6 +16,7 @@ package operators
 
 import (
 	"fmt"
+	"math/bits"
 	"sort"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -121,21 +122,31 @@ func intField(op string, ent dtrules.Entity, field *dtrules.RName) (int, error) 
 	return v, nil
 }
 
+// structField is one stamped attribute of a materialized-structure entity.
+type structField struct {
+	name  string
+	value dtrules.Object
+}
+
 // makeStructEntity creates one materialized-structure entity of the named
-// EDD type and stamps the given fields, verifying each is declared.
-func makeStructEntity(state dtrules.State, op string, typeName *dtrules.RName, fields map[string]dtrules.Object) (dtrules.Entity, error) {
+// EDD type and stamps the given fields, verifying each is declared. Fields
+// arrive as an ordered slice, not a map: the generators run once per
+// discovered structure — 31 times for a five-card subsets call — so the
+// per-call map allocation was measurable (#1025), and ordered stamping keeps
+// traces deterministic.
+func makeStructEntity(state dtrules.State, op string, typeName *dtrules.RName, fields ...structField) (dtrules.Entity, error) {
 	sess := state.GetSession()
 	ent, err := sess.GetEntityFactory().CreateEntity(sess, typeName)
 	if err != nil {
 		return nil, fmt.Errorf("%s: cannot create entity of EDD type %q: %w", op, typeName.String(), err)
 	}
-	for name, value := range fields {
-		rn := dtrules.GetRName(name)
+	for _, f := range fields {
+		rn := dtrules.GetRName(f.name)
 		if !ent.ContainsAttribute(rn) {
-			return nil, fmt.Errorf("%s: EDD type %q must declare attribute %q", op, typeName.String(), name)
+			return nil, fmt.Errorf("%s: EDD type %q must declare attribute %q", op, typeName.String(), f.name)
 		}
-		if err := ent.Put(rn, value); err != nil {
-			return nil, fmt.Errorf("%s: setting %s.%s: %w", op, typeName.String(), name, err)
+		if err := ent.Put(rn, f.value); err != nil {
+			return nil, fmt.Errorf("%s: setting %s.%s: %w", op, typeName.String(), f.name, err)
 		}
 	}
 	return ent, nil
@@ -159,11 +170,10 @@ func emitCombo(state dtrules.State, op string, members []dtrules.Object, typeNam
 	if err != nil {
 		return err
 	}
-	ent, err := makeStructEntity(state, op, typeName, map[string]dtrules.Object{
-		"members": membersArr,
-		"count":   dtrules.GetRIntegerValue(int64(len(members))),
-		"sum":     dtrules.GetRIntegerValue(int64(sum)),
-	})
+	ent, err := makeStructEntity(state, op, typeName,
+		structField{"members", membersArr},
+		structField{"count", dtrules.GetRIntegerValue(int64(len(members)))},
+		structField{"sum", dtrules.GetRIntegerValue(int64(sum))})
 	if err != nil {
 		return err
 	}
@@ -272,7 +282,7 @@ func opSubsets(state dtrules.State) error {
 		return fmt.Errorf("%s: source has %d elements; the cap is %d (2^%d−1 subsets)", op, n, subsetsCap, subsetsCap)
 	}
 	for mask := 1; mask < 1<<n; mask++ {
-		var members []dtrules.Object
+		members := make([]dtrules.Object, 0, bits.OnesCount(uint(mask)))
 		for i := 0; i < n; i++ {
 			if mask&(1<<i) != 0 {
 				members = append(members, ents[i].(dtrules.Object))
@@ -333,11 +343,10 @@ func opGroupBy(state dtrules.State) error {
 		if err != nil {
 			return err
 		}
-		ent, err := makeStructEntity(state, op, typeName, map[string]dtrules.Object{
-			"key":     dtrules.GetRIntegerValue(int64(key)),
-			"count":   dtrules.GetRIntegerValue(int64(len(members))),
-			"members": membersArr,
-		})
+		ent, err := makeStructEntity(state, op, typeName,
+			structField{"key", dtrules.GetRIntegerValue(int64(key))},
+			structField{"count", dtrules.GetRIntegerValue(int64(len(members)))},
+			structField{"members", membersArr})
 		if err != nil {
 			return err
 		}
@@ -406,11 +415,10 @@ func opMaximalRuns(state dtrules.State) error {
 		}
 		length := j - i + 1
 		if length >= minLen {
-			ent, err := makeStructEntity(state, op, typeName, map[string]dtrules.Object{
-				"start":        dtrules.GetRIntegerValue(int64(ranks[i])),
-				"span":         dtrules.GetRIntegerValue(int64(length)),
-				"multiplicity": dtrules.GetRIntegerValue(int64(mult)),
-			})
+			ent, err := makeStructEntity(state, op, typeName,
+				structField{"start", dtrules.GetRIntegerValue(int64(ranks[i]))},
+				structField{"span", dtrules.GetRIntegerValue(int64(length))},
+				structField{"multiplicity", dtrules.GetRIntegerValue(int64(mult))})
 			if err != nil {
 				return err
 			}
@@ -486,15 +494,26 @@ func opSuffixes(state dtrules.State) error {
 		vals[i] = v
 	}
 
+	var distinctBuf [suffixesCap]int
 	for l := len(ents); l >= minLen; l-- {
 		start := len(ents) - l
 		sum, mn, mx := 0, vals[start], vals[start]
-		seen := make(map[int]bool, l)
+		distinct := 0
 		members := make([]dtrules.Object, 0, l)
 		for i := start; i < len(ents); i++ {
 			members = append(members, ents[i].(dtrules.Object))
 			sum += vals[i]
-			seen[vals[i]] = true
+			fresh := true
+			for _, v := range distinctBuf[:distinct] {
+				if v == vals[i] {
+					fresh = false
+					break
+				}
+			}
+			if fresh {
+				distinctBuf[distinct] = vals[i]
+				distinct++
+			}
 			if vals[i] < mn {
 				mn = vals[i]
 			}
@@ -506,13 +525,12 @@ func opSuffixes(state dtrules.State) error {
 		if err != nil {
 			return err
 		}
-		ent, err := makeStructEntity(state, op, typeName, map[string]dtrules.Object{
-			"members":  membersArr,
-			"count":    dtrules.GetRIntegerValue(int64(l)),
-			"sum":      dtrules.GetRIntegerValue(int64(sum)),
-			"distinct": dtrules.GetRIntegerValue(int64(len(seen))),
-			"spread":   dtrules.GetRIntegerValue(int64(mx - mn)),
-		})
+		ent, err := makeStructEntity(state, op, typeName,
+			structField{"members", membersArr},
+			structField{"count", dtrules.GetRIntegerValue(int64(l))},
+			structField{"sum", dtrules.GetRIntegerValue(int64(sum))},
+			structField{"distinct", dtrules.GetRIntegerValue(int64(distinct))},
+			structField{"spread", dtrules.GetRIntegerValue(int64(mx - mn))})
 		if err != nil {
 			return err
 		}
