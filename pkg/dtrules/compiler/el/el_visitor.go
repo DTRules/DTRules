@@ -793,6 +793,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#entityTableLookup.
 	VisitEntityTableLookup(ctx *EntityTableLookupContext) interface{}
 
+	// Visit a parse tree produced by ELParser#entityFirstOf.
+	VisitEntityFirstOf(ctx *EntityFirstOfContext) interface{}
+
 	// Visit a parse tree produced by ELParser#entityFirstIn.
 	VisitEntityFirstIn(ctx *EntityFirstInContext) interface{}
 

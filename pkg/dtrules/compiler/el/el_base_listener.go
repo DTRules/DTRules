@@ -1592,6 +1592,12 @@ func (s *BaseELListener) EnterEntityTableLookup(ctx *EntityTableLookupContext) {
 // ExitEntityTableLookup is called when production entityTableLookup is exited.
 func (s *BaseELListener) ExitEntityTableLookup(ctx *EntityTableLookupContext) {}
 
+// EnterEntityFirstOf is called when production entityFirstOf is entered.
+func (s *BaseELListener) EnterEntityFirstOf(ctx *EntityFirstOfContext) {}
+
+// ExitEntityFirstOf is called when production entityFirstOf is exited.
+func (s *BaseELListener) ExitEntityFirstOf(ctx *EntityFirstOfContext) {}
+
 // EnterEntityFirstIn is called when production entityFirstIn is entered.
 func (s *BaseELListener) EnterEntityFirstIn(ctx *EntityFirstInContext) {}
 

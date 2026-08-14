@@ -482,6 +482,7 @@ eexpr
     | CLONE OF eexpr                                        # entityClone
     | colonRef typedEntity                                  # entityColonRef
     | LPAREN ENTITY RPAREN typedTable LPAREN tablelist RPAREN # entityTableLookup
+    | FIRST OF arrayExpr                                    # entityFirstOf
     | FIRST eexpr IN arrayExpr WHERE bexpr                  # entityFirstIn
     | FIRST eexpr WHERE bexpr                               # entityFirst
     | strexpr OF eexpr                                      # entityRelationship

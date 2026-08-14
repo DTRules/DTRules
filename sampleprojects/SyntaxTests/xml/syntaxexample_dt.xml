@@ -699,7 +699,7 @@ newarray dup 1.5 addto dup 2.75 addto dup 3.99 addto /errorCodes xdef
 <initial_action>
 <initial_action_dsl>set theClient = clients [ 0 ]</initial_action_dsl>
 <initial_action_postfix>
-clients 0 bytesidx cve 0 local!
+clients 0 getat cve 0 local!
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -1304,7 +1304,7 @@ additionalIncome cvd /totalIncome xdef
 <action_comment></action_comment>
 <action_dsl>set totalIncome = (double) clients [0]</action_dsl>
 <action_postfix>
-clients 0 bytesidx cvd cvd /totalIncome xdef
+clients 0 getat cvd cvd /totalIncome xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -3232,7 +3232,7 @@ newarray dup 1.5 addto dup 2.75 addto dup 3.99 addto /errorCodes xdef
 <initial_action>
 <initial_action_dsl>set theClient = clients [ 0 ]</initial_action_dsl>
 <initial_action_postfix>
-clients 0 bytesidx cve 0 local!
+clients 0 getat cve 0 local!
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -4172,7 +4172,7 @@ additionalIncome cvd /totalIncome xdef
 <initial_action>
 <initial_action_dsl>set totalIncome = (double) clients [0]</initial_action_dsl>
 <initial_action_postfix>
-clients 0 bytesidx cvd cvd /totalIncome xdef
+clients 0 getat cvd cvd /totalIncome xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -4713,7 +4713,7 @@ additionalIncome cvd /totalIncome xdef
 <initial_action>
 <initial_action_dsl>set totalIncome = (double) clients [0]</initial_action_dsl>
 <initial_action_postfix>
-clients 0 bytesidx cvd cvd /totalIncome xdef
+clients 0 getat cvd cvd /totalIncome xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -5187,7 +5187,7 @@ dup clients forall pop
 <initial_action>
 <initial_action_dsl>set firstClient = clients [ 0 ]</initial_action_dsl>
 <initial_action_postfix>
-clients 0 bytesidx cve 2 local!
+clients 0 getat cve 2 local!
 </initial_action_postfix>
 </initial_action>
 <initial_action>

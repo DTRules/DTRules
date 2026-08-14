@@ -1055,6 +1055,10 @@ func (v *BaseELVisitor) VisitEntityTableLookup(ctx *EntityTableLookupContext) in
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitEntityFirstOf(ctx *EntityFirstOfContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitEntityFirstIn(ctx *EntityFirstInContext) interface{} {
 	return v.VisitChildren(ctx)
 }
