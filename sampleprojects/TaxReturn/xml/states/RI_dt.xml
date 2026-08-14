@@ -7,6 +7,7 @@
 <relative_path>RI.xlsx</relative_path>
 <file_name>RI.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:9a75f43f6517b1ecbf5e80395567a4274463ca5d8b93e02646c229b133ab3500</source_hash>
 </source>
 <table_name>RI_Tax</table_name>
 <xls_file>RI.xlsx</xls_file>

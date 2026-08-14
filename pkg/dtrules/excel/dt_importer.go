@@ -95,6 +95,28 @@ type SourceXML struct {
 	RelativePath string `xml:"relative_path"`
 	FileName     string `xml:"file_name"`
 	SheetNumber  int    `xml:"sheet_number"`
+	// SourceHash is the hash of the workbook this XML was compiled from.
+	//
+	// Excel is the system of record, so the relationship is one-directional
+	// and one hash is enough: only the derived artifact records where it came
+	// from. Two files cannot hold each other's hashes, and the workbook
+	// records nothing.
+	//
+	// It replaces asking the filesystem which file was touched last.
+	// Timestamps answer "which was touched", a proxy for "which changed", and
+	// the proxy is wrong constantly -- checkout, `cp`, containers, CI, mtime
+	// granularity. `build --from-excel` once asked mtimes, got "no sync",
+	// imported nothing and exited 0 (#1057); the export guard compared mtime
+	// to a recorded export time, and since checkout stamps every file, every
+	// fresh clone started locked (#1061).
+	//
+	// Provenance travels with the artifact through git, `cp` and CI, which is
+	// what `.sync-manifest.json` could never do -- it is gitignored, so the
+	// baseline never left the machine that made it (#1091).
+	//
+	// Empty on XML written before this existed, and on XML that was never
+	// compiled from a workbook; callers fall back to timestamps.
+	SourceHash string `xml:"source_hash,omitempty"`
 }
 
 // DecisionTablesXML represents the root XML element for decision tables.
@@ -700,11 +722,55 @@ func (i *DTImporter) WriteXML(tables *DecisionTablesXML, filename string) error 
 // Empty optional elements (DSL, postfix, comment) are emitted as
 // self-closing tags when empty, matching what the loader expects and what
 // hand-authored XML in the project looks like.
+
+// elCompiled reports whether this table's postfix was generated from EL.
+//
+// The attribute used to be written straight from the in-memory flag, which
+// records how *this run* obtained the table rather than what the file
+// contains. The two answers differ depending on which way a build went, and
+// nothing could reconcile them: verify imports into an empty directory, so
+// every table is freshly compiled and the flag is true, while a build running
+// in place reads the flag back from XML that predates the attribute and writes
+// false again. A project maintained with `build` was then permanently red on
+// `content differs from build output`, differing by exactly this attribute and
+// nothing else -- and the authoring contract forbids the only fix available,
+// which was to hand-edit it in (#1051).
+//
+// Derived from the rows instead: a row carrying both DSL and postfix says the
+// postfix came from the DSL, which is what the attribute means. Tables with
+// hand-written postfix and no DSL stay unmarked, which is also what it means.
+func elCompiled(table *DecisionTableXML) bool {
+	if table.ELCompiled {
+		return true
+	}
+	compiled := func(dsl, postfix string) bool {
+		return strings.TrimSpace(dsl) != "" && strings.TrimSpace(postfix) != ""
+	}
+	for _, c := range table.Conditions {
+		if compiled(c.DSL, c.Postfix) {
+			return true
+		}
+	}
+	for _, a := range table.Actions {
+		if compiled(a.DSL, a.Postfix) {
+			return true
+		}
+	}
+	for _, a := range table.EffectiveInitialActions() {
+		// Through the accessors: initial actions carry two element spellings
+		// and reading the field directly sees only one of them.
+		if compiled(a.EffectiveDSL(), a.EffectivePostfix()) {
+			return true
+		}
+	}
+	return false
+}
+
 func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 	tableNum := table.AttributeFields.TableNumber
 	f.WriteString(fmt.Sprintf("\n<!-- TABLE %s: %s -->\n", tableNum, table.TableName))
 
-	if table.ELCompiled {
+	if elCompiled(table) {
 		f.WriteString("<decision_table el_compiled=\"true\">\n")
 	} else {
 		f.WriteString("<decision_table>\n")
@@ -715,6 +781,9 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 		f.WriteString(fmt.Sprintf("<relative_path>%s</relative_path>\n", xmlEscapeText(table.Source.RelativePath)))
 		f.WriteString(fmt.Sprintf("<file_name>%s</file_name>\n", xmlEscapeText(table.Source.FileName)))
 		f.WriteString(fmt.Sprintf("<sheet_number>%d</sheet_number>\n", table.Source.SheetNumber))
+		if table.Source.SourceHash != "" {
+			f.WriteString(fmt.Sprintf("<source_hash>%s</source_hash>\n", xmlEscapeText(table.Source.SourceHash)))
+		}
 		f.WriteString("</source>\n")
 	}
 

@@ -293,6 +293,20 @@ Natural language forms (`is greater than`, `at or above`, etc.) compile identica
 **Tax example (natural language)**: `taxpayer.age is greater than or equal to 65` → `taxpayer.age 65 >=`
 **Eligibility example (real postfix)**: `person.age constants.adult_age ge`
 
+#### Max of / Min of
+
+**Syntax**: `max of iexpr IN arrayExpr` or `min of fexpr IN arrayExpr`, with an optional `WHERE bexpr` filter.
+**Semantics**: Folds an array to the largest or smallest value of a numeric expression, evaluated with each element on the entity stack. With `where`, only matching elements are considered. Lowered as a `forall` fold in the same style as `sum of`, using the `max`/`min` postfix operators for integers and `fmax`/`fmin` for doubles.
+
+**Empty arrays**: the accumulator starts at zero, so an empty array — or a `where` that matches nothing — yields `0`, the same answer `sum of` gives. The consequence is worth stating plainly: over values that are all negative, `max of` returns `0` rather than the largest negative. Guard the array if that case is reachable.
+
+This is the value, not the element attaining it. `the <entity> in <array> with the max <field>` — the form that keeps a choice rule inside the tables — is not implemented (#1024).
+
+**Example (EL)**: `max of card.rank in stack.cards == 5`
+**Compiled postfix**: `0 { card.rank max } stack.cards forall 5 ==`
+**Filtered example (EL)**: `max of card.rank in stack.cards where card.suit == 1 == 5`
+**Compiled postfix**: `0 { { card.rank max } card.suit 1 == if } stack.cards forall 5 ==`
+
 #### String "is one of"
 
 **Syntax**: `strexpr IS ONE OF arrayExpr`

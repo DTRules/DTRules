@@ -190,9 +190,9 @@ func TestWorkbookImporter_RecursiveDirectory(t *testing.T) {
 
 	// Check file paths are relative
 	expectedPaths := map[string]bool{
-		"main.xlsx":        false,
-		"states/CA.xlsx":   false,
-		"states/CO.xlsx":   false,
+		"main.xlsx":      false,
+		"states/CA.xlsx": false,
+		"states/CO.xlsx": false,
 	}
 
 	for _, result := range results {

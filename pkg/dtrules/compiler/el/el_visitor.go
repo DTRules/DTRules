@@ -1138,11 +1138,17 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatMulFloat.
 	VisitFloatMulFloat(ctx *FloatMulFloatContext) interface{}
 
+	// Visit a parse tree produced by ELParser#floatMinOfArray.
+	VisitFloatMinOfArray(ctx *FloatMinOfArrayContext) interface{}
+
 	// Visit a parse tree produced by ELParser#floatDivFloat.
 	VisitFloatDivFloat(ctx *FloatDivFloatContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatAddInt.
 	VisitFloatAddInt(ctx *FloatAddIntContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatMaxOfArray.
+	VisitFloatMaxOfArray(ctx *FloatMaxOfArrayContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatMinOfIntComma.
 	VisitFloatMinOfIntComma(ctx *FloatMinOfIntCommaContext) interface{}
@@ -1195,6 +1201,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatMinOfFloat.
 	VisitFloatMinOfFloat(ctx *FloatMinOfFloatContext) interface{}
 
+	// Visit a parse tree produced by ELParser#floatMaxOfArrayWhere.
+	VisitFloatMaxOfArrayWhere(ctx *FloatMaxOfArrayWhereContext) interface{}
+
 	// Visit a parse tree produced by ELParser#floatAddFloat.
 	VisitFloatAddFloat(ctx *FloatAddFloatContext) interface{}
 
@@ -1242,6 +1251,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#intAddFloat.
 	VisitIntAddFloat(ctx *IntAddFloatContext) interface{}
+
+	// Visit a parse tree produced by ELParser#floatMinOfArrayWhere.
+	VisitFloatMinOfArrayWhere(ctx *FloatMinOfArrayWhereContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatDivInt.
 	VisitFloatDivInt(ctx *FloatDivIntContext) interface{}
@@ -1318,6 +1330,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#intMulBy.
 	VisitIntMulBy(ctx *IntMulByContext) interface{}
 
+	// Visit a parse tree produced by ELParser#intMaxOfArray.
+	VisitIntMaxOfArray(ctx *IntMaxOfArrayContext) interface{}
+
 	// Visit a parse tree produced by ELParser#intMul.
 	VisitIntMul(ctx *IntMulContext) interface{}
 
@@ -1353,6 +1368,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#intMonthsBetween.
 	VisitIntMonthsBetween(ctx *IntMonthsBetweenContext) interface{}
+
+	// Visit a parse tree produced by ELParser#intMaxOfArrayWhere.
+	VisitIntMaxOfArrayWhere(ctx *IntMaxOfArrayWhereContext) interface{}
 
 	// Visit a parse tree produced by ELParser#intDaysInYear.
 	VisitIntDaysInYear(ctx *IntDaysInYearContext) interface{}
@@ -1398,6 +1416,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#intDayOfMonthInZone.
 	VisitIntDayOfMonthInZone(ctx *IntDayOfMonthInZoneContext) interface{}
+
+	// Visit a parse tree produced by ELParser#intMinOfArray.
+	VisitIntMinOfArray(ctx *IntMinOfArrayContext) interface{}
 
 	// Visit a parse tree produced by ELParser#fixedFromIndex.
 	VisitFixedFromIndex(ctx *FixedFromIndexContext) interface{}
@@ -1458,6 +1479,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#intHourOf.
 	VisitIntHourOf(ctx *IntHourOfContext) interface{}
+
+	// Visit a parse tree produced by ELParser#intMinOfArrayWhere.
+	VisitIntMinOfArrayWhere(ctx *IntMinOfArrayWhereContext) interface{}
 
 	// Visit a parse tree produced by ELParser#bigAbs.
 	VisitBigAbs(ctx *BigAbsContext) interface{}

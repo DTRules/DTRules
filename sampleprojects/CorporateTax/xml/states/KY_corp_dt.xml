@@ -7,6 +7,7 @@
 <relative_path>KY_corp.xlsx</relative_path>
 <file_name>KY_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:f7804eef69b2b4f98e7bb0866435ebd1ec7c9b21f4d19d823769804860b97d3b</source_hash>
 </source>
 <table_name>Determine_KY_Filing_Requirement</table_name>
 <xls_file>KY_corp.xlsx</xls_file>
@@ -80,6 +81,7 @@ false cvb /ky_result.has_nexus xdef 0.0 cvd /ky_result.tax_liability xdef
 <relative_path>KY_corp.xlsx</relative_path>
 <file_name>KY_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:f7804eef69b2b4f98e7bb0866435ebd1ec7c9b21f4d19d823769804860b97d3b</source_hash>
 </source>
 <table_name>Calculate_KY_Income_Adjustments</table_name>
 <xls_file>KY_corp.xlsx</xls_file>
@@ -135,6 +137,7 @@ ky_result.has_nexus true beq
 <relative_path>KY_corp.xlsx</relative_path>
 <file_name>KY_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:f7804eef69b2b4f98e7bb0866435ebd1ec7c9b21f4d19d823769804860b97d3b</source_hash>
 </source>
 <table_name>Calculate_KY_State_Tax</table_name>
 <xls_file>KY_corp.xlsx</xls_file>

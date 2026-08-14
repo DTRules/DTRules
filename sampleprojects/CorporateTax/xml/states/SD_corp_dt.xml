@@ -7,6 +7,7 @@
 <relative_path>SD_corp.xlsx</relative_path>
 <file_name>SD_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:68aa92d712a1ae25d7c4a517272e05d89dc5967721df1d1e4c3139031aff8956</source_hash>
 </source>
 <table_name>Determine_SD_Filing_Requirement</table_name>
 <xls_file>SD_corp.xlsx</xls_file>
@@ -84,6 +85,7 @@ sd_result.insurance_premium_tax cvd /apportionment.state_tax xdef 0.0 cvd /sd_ap
 <relative_path>SD_corp.xlsx</relative_path>
 <file_name>SD_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:68aa92d712a1ae25d7c4a517272e05d89dc5967721df1d1e4c3139031aff8956</source_hash>
 </source>
 <table_name>Calculate_SD_Income_Adjustments</table_name>
 <xls_file>SD_corp.xlsx</xls_file>
@@ -134,6 +136,7 @@ sd_result.is_financial_institution false beq { pop sd_result.is_insurance_compan
 <relative_path>SD_corp.xlsx</relative_path>
 <file_name>SD_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:68aa92d712a1ae25d7c4a517272e05d89dc5967721df1d1e4c3139031aff8956</source_hash>
 </source>
 <table_name>Calculate_SD_State_Tax</table_name>
 <xls_file>SD_corp.xlsx</xls_file>

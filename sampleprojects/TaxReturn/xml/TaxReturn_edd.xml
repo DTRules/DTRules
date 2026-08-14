@@ -184,10 +184,15 @@
 		<field name="eitc_threshold_mfj_1" type="double" subtype="" access="r" input="" default_value="28120" comment="EITC phase-out threshold MFJ 1 child"></field>
 		<field name="eitc_threshold_mfj_2" type="double" subtype="" access="r" input="" default_value="28120" comment="EITC phase-out threshold MFJ 2 children"></field>
 		<field name="eitc_threshold_mfj_3" type="double" subtype="" access="r" input="" default_value="28120" comment="EITC phase-out threshold MFJ 3+ children"></field>
+		<field name="elderly_agi_base_mfj" type="double" subtype="" access="r" input="" default_value="10000" comment="Schedule R line 15, boxes 3-7: AGI figure subtracted before halving, married filing jointly."></field>
+		<field name="elderly_agi_base_mfs" type="double" subtype="" access="r" input="" default_value="5000" comment="Schedule R line 15, boxes 8-9: AGI figure subtracted before halving, married filing separately. Not 6250 -- that figure appears in secondary summaries; the form says 5000."></field>
+		<field name="elderly_agi_base_single" type="double" subtype="" access="r" input="" default_value="7500" comment="Schedule R (Form 1040) line 15, boxes 1-2: AGI figure subtracted before halving, single/HOH/QSS."></field>
 		<field name="elderly_agi_limit_mfj" type="double" subtype="" access="r" input="" default_value="25000" comment="AGI limit MFJ (Schedule R)"></field>
+		<field name="elderly_agi_limit_mfs" type="double" subtype="" access="r" input="" default_value="12500" comment="Schedule R Table 1: AGI limit, married filing separately."></field>
 		<field name="elderly_agi_limit_single" type="double" subtype="" access="r" input="" default_value="17500" comment="AGI limit Single (Schedule R)"></field>
 		<field name="elderly_credit_mfj_both" type="double" subtype="" access="r" input="" default_value="7500" comment="Initial amount MFJ both qualify"></field>
 		<field name="elderly_credit_mfj_one" type="double" subtype="" access="r" input="" default_value="5000" comment="Initial amount MFJ one qualifies"></field>
+		<field name="elderly_credit_mfs" type="double" subtype="" access="r" input="" default_value="3750" comment="Schedule R line 10, boxes 8-9: initial amount, married filing separately living apart all year."></field>
 		<field name="elderly_credit_rate" type="double" subtype="" access="r" input="" default_value="0.15" comment="Credit rate (15%)"></field>
 		<field name="elderly_credit_single" type="double" subtype="" access="r" input="" default_value="5000" comment="Initial amount Single (Schedule R)"></field>
 		<field name="energy_efficiency_annual_limit" type="double" subtype="" access="r" input="" default_value="1200" comment="Annual limit for efficiency improvements"></field>
@@ -200,6 +205,8 @@
 		<field name="feie_housing_base" type="double" subtype="" access="r" input="" default_value="20216" comment="Housing base amount (16% of FEIE max)"></field>
 		<field name="feie_housing_max" type="double" subtype="" access="r" input="" default_value="37950" comment="Max housing exclusion (30% of FEIE max)"></field>
 		<field name="feie_max_exclusion" type="double" subtype="" access="r" input="" default_value="126500" comment="Max foreign earned income exclusion (2024)"></field>
+		<field name="fica_combined_rate" type="double" subtype="" access="r" input="" default_value="0.153" comment="Household employment: 12.4% social security plus 2.9% Medicare, both halves owed by the employer. Schedule H / Pub 926."></field>
+		<field name="fica_employee_rate" type="double" subtype="" access="r" input="" default_value="0.0765" comment="Employee share alone: 6.2% social security plus 1.45% Medicare. Form 4137, unreported tips."></field>
 		<field name="fpl_1_person" type="double" subtype="" access="r" input="" default_value="15060" comment="2025 FPL for 1 person (48 states)"></field>
 		<field name="fpl_2_person" type="double" subtype="" access="r" input="" default_value="20440" comment="2025 FPL for 2 persons"></field>
 		<field name="fpl_3_person" type="double" subtype="" access="r" input="" default_value="25820" comment="2025 FPL for 3 persons"></field>
@@ -218,7 +225,7 @@
 		<field name="household_futa_rate" type="double" subtype="" access="r" input="" default_value="0.006" comment="FUTA rate after state credit (0.6%)"></field>
 		<field name="household_futa_threshold" type="double" subtype="" access="r" input="" default_value="1000" comment="Cash wages threshold for FUTA"></field>
 		<field name="household_futa_wage_base" type="double" subtype="" access="r" input="" default_value="7000" comment="FUTA wage base"></field>
-		<field name="household_ss_threshold" type="double" subtype="" access="r" input="" default_value="2700" comment="Cash wages threshold for SS/Medicare (2024)"></field>
+		<field name="household_ss_threshold" type="double" subtype="" access="r" input="" default_value="2800" comment="Cash wages at or above which household employment taxes apply. 2025: $2,800 (Pub 926). Was 2700, the 2024 figure, while the rest of the project carries 2025 amounts."></field>
 		<field name="household_wage_threshold" type="double" subtype="" access="r" input="" default_value="2800" comment="Household employee wage threshold for FICA (2025)"></field>
 		<field name="hsa_catchup" type="double" subtype="" access="r" input="" default_value="1000" comment="HSA catchup for age 55+"></field>
 		<field name="hsa_limit_family" type="double" subtype="" access="r" input="" default_value="8550" comment="HSA limit family coverage (2025)"></field>
@@ -312,6 +319,8 @@
 		<field name="savers_50_percent_mfj" type="double" subtype="" access="r" input="" default_value="46000" comment="50% rate AGI limit MFJ (2025)"></field>
 		<field name="savers_50_percent_single" type="double" subtype="" access="r" input="" default_value="23000" comment="50% rate AGI limit Single (2025)"></field>
 		<field name="savers_credit_max_contribution" type="double" subtype="" access="r" input="" default_value="2000" comment="Max eligible contribution per person"></field>
+		<field name="savers_max_contribution_mfj" type="double" subtype="" access="r" input="" default_value="4000" comment="Form 8880: $4,000 married filing jointly."></field>
+		<field name="savers_max_contribution_single" type="double" subtype="" access="r" input="" default_value="2000" comment="Form 8880: only the first $2,000 of contributions counts toward the credit."></field>
 		<field name="sc_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="3560" comment="SC tax bracket 1 upper limit (2025)"></field>
 		<field name="sc_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.00" comment="SC tax rate for bracket 1: 0% (2025)"></field>
 		<field name="sc_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="17830" comment="SC tax bracket 2 upper limit (2025)"></field>
@@ -956,6 +965,7 @@
 		<field name="date_sold" type="date" subtype="" access="r" input="main" default_value="" comment="Date sold"></field>
 		<field name="depreciation_allowed" type="double" subtype="" access="r" input="main" default_value="0" comment="Total depreciation taken"></field>
 		<field name="description" type="string" subtype="" access="r" input="main" default_value="" comment="Property description"></field>
+		<field name="holding_period" type="string" subtype="" access="r" input="" default_value="long_term" comment="short_term | long_term. Long-term is more than one year between date_acquired and date_sold (Pub 544). Carried as data because the sale is an input."></field>
 		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Sale ID"></field>
 		<field name="improvements" type="double" subtype="" access="r" input="main" default_value="0" comment="Cost of improvements"></field>
 		<field name="is_real_property" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Is real property (building, land)"></field>
@@ -996,6 +1006,9 @@
 		<field name="cdcc_rate" type="double" subtype="" access="rw" input="" default_value="0" comment="CDCC credit rate based on AGI"></field>
 		<field name="cdcc_rate_reductions" type="double" subtype="" access="rw" input="" default_value="0" comment="Number of rate reduction steps for CDCC"></field>
 		<field name="cg_ordinary_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Taxable income excluding preferential-rate income (Schedule D worksheet stacking base)"></field>
+		<field name="cg_rate_0_percent" type="double" subtype="" access="r" input="" default_value="0.0" comment="Long-term capital gains rate in the lowest bracket: 0%. The bracket thresholds are already data (cg_0_percent_*); the rates were bare words in the DSL, which the compiler read as operator names (#1012)."></field>
+		<field name="cg_rate_15_percent" type="double" subtype="" access="r" input="" default_value="0.15" comment="Long-term capital gains rate in the middle bracket: 15%, applying above cg_0_percent_* and up to cg_15_percent_*."></field>
+		<field name="cg_rate_20_percent" type="double" subtype="" access="r" input="" default_value="0.20" comment="Long-term capital gains rate in the top bracket: 20%, applying above cg_15_percent_*."></field>
 		<field name="cg_taxed_at_0" type="double" subtype="" access="rw" input="" default_value="0" comment="Preferential income falling in the 0 percent bracket"></field>
 		<field name="cg_taxed_at_15" type="double" subtype="" access="rw" input="" default_value="0" comment="Preferential income falling in the 15 percent bracket"></field>
 		<field name="cg_taxed_at_20" type="double" subtype="" access="rw" input="" default_value="0" comment="Preferential income falling in the 20 percent bracket"></field>
@@ -1017,7 +1030,10 @@
 		<field name="effective_salt_cap" type="double" subtype="" access="rw" input="" default_value="0" comment="SALT cap after MAGI-based phaseout (intermediate result)"></field>
 		<field name="eitc" type="double" subtype="" access="rw" input="" default_value="0" comment="Earned Income Tax Credit"></field>
 		<field name="eitc_qualifying_children" type="integer" subtype="" access="rw" input="" default_value="0" comment="Number of qualifying children for EITC"></field>
+		<field name="elderly_agi_base" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Schedule R line 15 AGI figure for this filing status."></field>
+		<field name="elderly_base_amount" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Schedule R line 10 initial amount, selected by filing status. Held as a field because the table computes it in steps."></field>
 		<field name="elderly_disabled_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit for elderly or disabled (Schedule R)"></field>
+		<field name="elderly_excess_agi" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Schedule R line 17: one-half of AGI over the line 15 figure."></field>
 		<field name="employer_credit_paid_family_leave" type="double" subtype="" access="rw" input="main" default_value="0" comment="Employer Credit for Paid Family Leave (Form 8994)"></field>
 		<field name="energy_appliance_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Energy Efficient Appliance Credit (Form 8909 - manufacturers only)"></field>
 		<field name="energy_efficiency_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Energy Efficient Home Improvement Credit (Form 5695 Part II)"></field>
@@ -1030,6 +1046,7 @@
 		<field name="form_references" type="array" subtype="" access="rw" input="" default_value="" comment="IRS forms used in calculation"></field>
 		<field name="fpl_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Federal Poverty Level for household"></field>
 		<field name="fpl_percentage" type="double" subtype="" access="rw" input="" default_value="0" comment="Household income as % of FPL"></field>
+		<field name="ftc_limitation" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Form 1116 Part III: the IRC 904 limit, being tax before credits times foreign-source taxable income over worldwide taxable income. The credit is the lesser of this and foreign taxes paid."></field>
 		<field name="gambling_winnings" type="double" subtype="" access="rw" input="main" default_value="0" comment="Gambling winnings (Form 1040 Line 8b). Source: IRC 61"></field>
 		<field name="gbc_available_limit" type="double" subtype="" access="rw" input="" default_value="0" comment="GBC: §38(c)(1) limitation = tax - 75% * excess (Form 3800 Part II, intermediate)"></field>
 		<field name="gbc_excess_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="GBC: amount of tax_before_credits over gbc_threshold (Form 3800 Part II, intermediate)"></field>
@@ -1098,6 +1115,7 @@
 		<field name="regular_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Regular tax (Form 1040 Line 16)"></field>
 		<field name="rental_loss_allowed" type="double" subtype="" access="rw" input="" default_value="0" comment="Rental loss allowed after PAL rules (Form 8582)"></field>
 		<field name="research_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Research Credit (Form 6765)"></field>
+		<field name="roth_taxable_ratio" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Form 8606 line 10 complement: the taxable fraction of a conversion, being 1 minus basis over the aggregated year-end value plus conversions."></field>
 		<field name="safe_harbor_met" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Safe harbor exception met"></field>
 		<field name="salt_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="SALT deduction amount (for AMT add-back)"></field>
 		<field name="savers_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Saver Credit (Form 8880)"></field>
@@ -1156,6 +1174,7 @@
 		<field name="total_ira_balance" type="double" subtype="" access="rw" input="" default_value="0" comment="Total traditional IRA balance for pro-rata"></field>
 		<field name="total_ira_basis" type="double" subtype="" access="rw" input="" default_value="0" comment="Total non-deductible IRA basis"></field>
 		<field name="total_ira_distributions" type="double" subtype="" access="rw" input="" default_value="0" comment="Total IRA distributions"></field>
+		<field name="total_ira_year_end_value" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Form 8606 line 6: value of all traditional, SEP and SIMPLE IRAs at 31 December, aggregated. The pro-rata rule applies across all of them together, not per account."></field>
 		<field name="total_itemized" type="double" subtype="" access="rw" input="" default_value="0" comment="Total itemized deductions"></field>
 		<field name="total_k1_1231_gain" type="double" subtype="" access="rw" input="" default_value="0" comment="Total K-1 Section 1231 gain"></field>
 		<field name="total_k1_dividends" type="double" subtype="" access="rw" input="" default_value="0" comment="Total K-1 ordinary dividends"></field>
@@ -1175,6 +1194,7 @@
 		<field name="total_medical_expenses" type="double" subtype="" access="rw" input="" default_value="0" comment="Total unreimbursed medical expenses"></field>
 		<field name="total_noncash_charitable" type="double" subtype="" access="rw" input="" default_value="0" comment="Total noncash charitable contributions (Form 8283)"></field>
 		<field name="total_nonrefundable_credits" type="double" subtype="" access="rw" input="" default_value="0" comment="Total non-refundable credits applied"></field>
+		<field name="total_nontaxable_pension" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Schedule R line 13c: nontaxable social security and other nontaxable pensions, annuities or disability income, totalled across the elderly_disabled array. Reduces the initial amount before the credit rate applies."></field>
 		<field name="total_obbba_deductions" type="double" subtype="" access="rw" input="" default_value="0" comment="Total OBBBA deductions (tips + overtime + senior)"></field>
 		<field name="total_odc" type="double" subtype="" access="rw" input="" default_value="0" comment="Total Other Dependent Credit"></field>
 		<field name="total_other_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Other income"></field>
@@ -1225,6 +1245,7 @@
 			<file_name>TaxReturn.xlsx</file_name>
 			<sheet_number>126</sheet_number>
 		</source>
+		<field name="residency_status" type="string" subtype="" access="r" input="" default_value="resident" comment="resident | part_year_resident | nonresident. Drives the part-year allocation; was read as a bare name that resolved to nothing."></field>
 		<field name="state_agi" type="double" subtype="" access="rw" input="" default_value="0" comment="State adjusted gross income"></field>
 		<field name="state_code" type="string" subtype="" access="rw" input="main" default_value="" comment="Two-letter state code (e.g., CA, NY, TX)"></field>
 		<field name="state_credits" type="double" subtype="" access="rw" input="" default_value="0" comment="Total state tax credits"></field>

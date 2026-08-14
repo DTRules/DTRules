@@ -7,6 +7,7 @@
 <relative_path>WI_corp.xlsx</relative_path>
 <file_name>WI_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:bff98460500dbe2de899cc2eff303962aa61c9a659b4bb5bd28864ef49afa886</source_hash>
 </source>
 <table_name>Determine_WI_Filing_Requirement</table_name>
 <xls_file>WI_corp.xlsx</xls_file>
@@ -80,6 +81,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "WI" st
 <relative_path>WI_corp.xlsx</relative_path>
 <file_name>WI_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:bff98460500dbe2de899cc2eff303962aa61c9a659b4bb5bd28864ef49afa886</source_hash>
 </source>
 <table_name>Calculate_WI_Income_Adjustments</table_name>
 <xls_file>WI_corp.xlsx</xls_file>
@@ -135,6 +137,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>WI_corp.xlsx</relative_path>
 <file_name>WI_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:bff98460500dbe2de899cc2eff303962aa61c9a659b4bb5bd28864ef49afa886</source_hash>
 </source>
 <table_name>Calculate_WI_State_Tax</table_name>
 <xls_file>WI_corp.xlsx</xls_file>

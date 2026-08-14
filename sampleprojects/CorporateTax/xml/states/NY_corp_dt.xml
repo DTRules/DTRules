@@ -7,6 +7,7 @@
 <relative_path>NY_corp.xlsx</relative_path>
 <file_name>NY_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:ee0db94156e3ec838b6e9f8ad00f695f4614edae1658ae93011b6be14cf7d7eb</source_hash>
 </source>
 <table_name>Determine_NY_Filing_Requirement</table_name>
 <xls_file>NY_corp.xlsx</xls_file>
@@ -71,6 +72,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NY" st
 <relative_path>NY_corp.xlsx</relative_path>
 <file_name>NY_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:ee0db94156e3ec838b6e9f8ad00f695f4614edae1658ae93011b6be14cf7d7eb</source_hash>
 </source>
 <table_name>Calculate_NY_Income_Adjustments</table_name>
 <xls_file>NY_corp.xlsx</xls_file>
@@ -121,6 +123,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>NY_corp.xlsx</relative_path>
 <file_name>NY_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:ee0db94156e3ec838b6e9f8ad00f695f4614edae1658ae93011b6be14cf7d7eb</source_hash>
 </source>
 <table_name>Calculate_NY_State_Tax</table_name>
 <xls_file>NY_corp.xlsx</xls_file>
@@ -189,6 +192,7 @@ apportionment.state_taxable_income ny_apportionment.state_tax_rate fmul apportio
 <relative_path>NY_corp.xlsx</relative_path>
 <file_name>NY_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:ee0db94156e3ec838b6e9f8ad00f695f4614edae1658ae93011b6be14cf7d7eb</source_hash>
 </source>
 <table_name>Calculate_NY_MTA_Surcharge</table_name>
 <xls_file>NY_corp.xlsx</xls_file>

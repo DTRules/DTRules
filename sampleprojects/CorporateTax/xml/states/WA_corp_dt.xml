@@ -7,6 +7,7 @@
 <relative_path>WA_corp.xlsx</relative_path>
 <file_name>WA_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:1b2c3af42d92cc6aed998d69ac10bac424f739913061167cb68dff0e6020c86e</source_hash>
 </source>
 <table_name>Determine_WA_Filing_Requirement</table_name>
 <xls_file>WA_corp.xlsx</xls_file>
@@ -75,6 +76,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "WA" st
 <relative_path>WA_corp.xlsx</relative_path>
 <file_name>WA_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:1b2c3af42d92cc6aed998d69ac10bac424f739913061167cb68dff0e6020c86e</source_hash>
 </source>
 <table_name>Calculate_WA_Gross_Receipts</table_name>
 <xls_file>WA_corp.xlsx</xls_file>
@@ -143,6 +145,7 @@ revenue.total_revenue cvd /wa_result.gross_receipts xdef "No apportionment perce
 <relative_path>WA_corp.xlsx</relative_path>
 <file_name>WA_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:1b2c3af42d92cc6aed998d69ac10bac424f739913061167cb68dff0e6020c86e</source_hash>
 </source>
 <table_name>Determine_WA_Business_Classification</table_name>
 <xls_file>WA_corp.xlsx</xls_file>
@@ -229,6 +232,7 @@ wa_result.service_rate cvd /wa_result.bo_tax_rate xdef "Washington B&amp;O tax -
 <relative_path>WA_corp.xlsx</relative_path>
 <file_name>WA_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:1b2c3af42d92cc6aed998d69ac10bac424f739913061167cb68dff0e6020c86e</source_hash>
 </source>
 <table_name>Calculate_WA_Small_Business_Credit</table_name>
 <xls_file>WA_corp.xlsx</xls_file>
@@ -297,6 +301,7 @@ false cvb /wa_result.qualifies_for_small_business_credit xdef 0.0 cvd /wa_result
 <relative_path>WA_corp.xlsx</relative_path>
 <file_name>WA_corp.xlsx</file_name>
 <sheet_number>5</sheet_number>
+<source_hash>sha256:1b2c3af42d92cc6aed998d69ac10bac424f739913061167cb68dff0e6020c86e</source_hash>
 </source>
 <table_name>Calculate_WA_BO_Tax</table_name>
 <xls_file>WA_corp.xlsx</xls_file>
@@ -365,6 +370,7 @@ wa_result.gross_receipts wa_result.bo_tax_rate fmul cvd /wa_result.bo_tax xdef w
 <relative_path>WA_corp.xlsx</relative_path>
 <file_name>WA_corp.xlsx</file_name>
 <sheet_number>6</sheet_number>
+<source_hash>sha256:1b2c3af42d92cc6aed998d69ac10bac424f739913061167cb68dff0e6020c86e</source_hash>
 </source>
 <table_name>Calculate_WA_Income_Adjustments</table_name>
 <xls_file>WA_corp.xlsx</xls_file>
@@ -415,6 +421,7 @@ apportionment.state_code "WA" streq
 <relative_path>WA_corp.xlsx</relative_path>
 <file_name>WA_corp.xlsx</file_name>
 <sheet_number>7</sheet_number>
+<source_hash>sha256:1b2c3af42d92cc6aed998d69ac10bac424f739913061167cb68dff0e6020c86e</source_hash>
 </source>
 <table_name>Calculate_WA_State_Tax</table_name>
 <xls_file>WA_corp.xlsx</xls_file>

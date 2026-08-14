@@ -53,6 +53,8 @@ func TestAllOperatorsRegistered(t *testing.T) {
 	">",
 	">=",
 	"abort",
+	"argmax",
+	"argmin",
 	"abs",
 	"addarray",
 	"addat",

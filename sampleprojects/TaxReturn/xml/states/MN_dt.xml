@@ -7,6 +7,7 @@
 <relative_path>MN.xlsx</relative_path>
 <file_name>MN.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:f606dbfab73593cd0765f35e7d8a05892e6d17d5fb89eef3a8440aa574de26ed</source_hash>
 </source>
 <table_name>MN_Tax</table_name>
 <xls_file>MN.xlsx</xls_file>

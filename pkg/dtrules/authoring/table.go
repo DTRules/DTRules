@@ -26,9 +26,19 @@ import (
 // Table is a typed view of a single decision table. All mutations validate EL
 // before committing, so invalid expressions are rejected at the API boundary.
 type Table struct {
-	Name             string
-	Number           int // TABLE_NUMBER — load/sheet ordering; 0 means unset
-	Policy           string
+	Name   string
+	Number int // TABLE_NUMBER — load/sheet ordering; 0 means unset
+	Policy string
+	// Workbook is the Excel file this table belongs in (`xls_file`), which
+	// decides which workbook an export writes it to.
+	//
+	// It had no authoring surface at all, so a table naming a workbook that
+	// does not exist could not be repointed at one that does by any sanctioned
+	// route: `table get` did not return it, `table put` could not set it, and
+	// hand-editing the XML is what the contract forbids. CHIP's seven tables
+	// named ChipEligibility_dt.xls for as long as the consolidation that
+	// replaced it with CHIP.xlsx (#1068).
+	Workbook         string
 	Contexts         []Context
 	InitialActions   []InitialAction
 	Conditions       []Condition
@@ -128,10 +138,11 @@ func (t *Table) HandCodedRows() []string {
 // newTable builds a Table view from an underlying XML struct.
 func newTable(x *excel.DecisionTableXML, symbols map[string]string) *Table {
 	t := &Table{
-		Name:    x.TableName,
-		Policy:  x.AttributeFields.EffectiveType(),
-		xml:     x,
-		symbols: symbols,
+		Name:     x.TableName,
+		Policy:   x.AttributeFields.EffectiveType(),
+		Workbook: x.XLSFile,
+		xml:      x,
+		symbols:  symbols,
 	}
 	t.syncFromXML()
 	return t
@@ -236,6 +247,11 @@ func (t *Table) syncToXML() {
 	tc := newTableCompiler(t.symbols)
 
 	t.xml.TableName = t.Name
+	// An empty Workbook leaves the recorded one alone: callers that never set
+	// the field are not asking to unset it.
+	if strings.TrimSpace(t.Workbook) != "" {
+		t.xml.XLSFile = t.Workbook
+	}
 	// Write the canonical spelling and clear the legacy ones, so a table
 	// cannot end up carrying two different types.
 	t.xml.AttributeFields.Type = t.Policy

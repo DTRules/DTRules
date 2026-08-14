@@ -7,6 +7,7 @@
 <relative_path>StateTax.xlsx</relative_path>
 <file_name>StateTax.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:c5ebd677971d8c5c3855b3796ca1c45ddcc85ce2fdc8409ce64a5e707527a8bb</source_hash>
 </source>
 <table_name>Compute_Tax</table_name>
 <xls_file>StateTax.xlsx</xls_file>
@@ -155,6 +156,7 @@ taxpayer.grossIncome cvi /taxpayer.agi xdef
 <relative_path>StateTax.xlsx</relative_path>
 <file_name>StateTax.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:c5ebd677971d8c5c3855b3796ca1c45ddcc85ce2fdc8409ce64a5e707527a8bb</source_hash>
 </source>
 <table_name>Calculate_Gross_Income</table_name>
 <xls_file>StateTax.xlsx</xls_file>
@@ -210,6 +212,7 @@ income.amount taxpayer.grossIncome + /taxpayer.grossIncome xdef
 <relative_path>StateTax.xlsx</relative_path>
 <file_name>StateTax.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:c5ebd677971d8c5c3855b3796ca1c45ddcc85ce2fdc8409ce64a5e707527a8bb</source_hash>
 </source>
 <table_name>Apply_Adjustments</table_name>
 <xls_file>StateTax.xlsx</xls_file>
@@ -265,6 +268,7 @@ adjustment.amount taxpayer.agi swap - /taxpayer.agi xdef
 <relative_path>StateTax.xlsx</relative_path>
 <file_name>StateTax.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:c5ebd677971d8c5c3855b3796ca1c45ddcc85ce2fdc8409ce64a5e707527a8bb</source_hash>
 </source>
 <table_name>Determine_Filing_Details</table_name>
 <xls_file>StateTax.xlsx</xls_file>
@@ -386,6 +390,7 @@ taxpayer.num_dependents 2 + cvi /taxpayer.exemptions xdef
 <relative_path>StateTax.xlsx</relative_path>
 <file_name>StateTax.xlsx</file_name>
 <sheet_number>5</sheet_number>
+<source_hash>sha256:c5ebd677971d8c5c3855b3796ca1c45ddcc85ce2fdc8409ce64a5e707527a8bb</source_hash>
 </source>
 <table_name>Calculate_Taxable_Income</table_name>
 <xls_file>StateTax.xlsx</xls_file>
@@ -445,6 +450,7 @@ taxpayer.agi taxpayer.deduction - taxpayer.exemptions state_config.exemption_amo
 <relative_path>StateTax.xlsx</relative_path>
 <file_name>StateTax.xlsx</file_name>
 <sheet_number>6</sheet_number>
+<source_hash>sha256:c5ebd677971d8c5c3855b3796ca1c45ddcc85ce2fdc8409ce64a5e707527a8bb</source_hash>
 </source>
 <table_name>Apply_Flat_Tax</table_name>
 <xls_file>StateTax.xlsx</xls_file>
@@ -486,6 +492,7 @@ taxpayer.taxableIncome state_config.flat_rate_bps 10000.0 fdiv fmul cvi /taxpaye
 <relative_path>StateTax.xlsx</relative_path>
 <file_name>StateTax.xlsx</file_name>
 <sheet_number>7</sheet_number>
+<source_hash>sha256:c5ebd677971d8c5c3855b3796ca1c45ddcc85ce2fdc8409ce64a5e707527a8bb</source_hash>
 </source>
 <table_name>Select_And_Apply_Brackets</table_name>
 <xls_file>StateTax.xlsx</xls_file>
@@ -581,6 +588,7 @@ state_config.brackets_hoh /taxpayer.active_brackets xdef false cvb /taxpayer.bra
 <relative_path>StateTax.xlsx</relative_path>
 <file_name>StateTax.xlsx</file_name>
 <sheet_number>8</sheet_number>
+<source_hash>sha256:c5ebd677971d8c5c3855b3796ca1c45ddcc85ce2fdc8409ce64a5e707527a8bb</source_hash>
 </source>
 <table_name>Apply_Bracket_Iteration</table_name>
 <xls_file>StateTax.xlsx</xls_file>
@@ -654,6 +662,7 @@ true cvb /bracket_applied xdef
 <relative_path>StateTax.xlsx</relative_path>
 <file_name>StateTax.xlsx</file_name>
 <sheet_number>9</sheet_number>
+<source_hash>sha256:c5ebd677971d8c5c3855b3796ca1c45ddcc85ce2fdc8409ce64a5e707527a8bb</source_hash>
 </source>
 <table_name>Evaluate_Results</table_name>
 <xls_file>StateTax.xlsx</xls_file>

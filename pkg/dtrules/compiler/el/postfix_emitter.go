@@ -49,7 +49,10 @@ type PostfixEmitter struct {
 	// and pkg/dtrules's own tests import this package — importing it here
 	// closes that loop. nil means no check, which is what el's isolated unit
 	// tests want when they exercise emission with a stand-in operator name.
-	operatorExists    func(string) bool
+	operatorExists func(string) bool
+	// operatorArity reports how many arguments a statement-form call to this
+	// operator must supply, or <= 0 when unrecorded.
+	operatorArity     func(string) int
 	locals            map[string]LocalVar // local variable stack frame indices
 	localCnt          int                 // next available local variable index
 	resolveCollection func(entityType string) (ownerEntity, fieldName string, err error)
@@ -5790,9 +5793,56 @@ func (e *PostfixEmitter) VisitOperatorstatements(ctx *OperatorstatementsContext)
 		return nil
 	}
 
+	// And the count. The name check catches typos; a short call is the quiet
+	// failure. Every argument after the source is a bare string or an array,
+	// so `subsets(hand.cards)` with one of four compiles clean, then pops
+	// whatever three values sit beneath it and reads them as typename,
+	// sumfield and destination -- a runtime error, a write into the wrong
+	// array, or a plausible-looking wrong answer, depending on what the row
+	// did before (#1105).
+	if e.operatorArity != nil {
+		if want := e.operatorArity(name); want > 0 {
+			if got := countOperatorArgs(ctx.Operatorlist()); got != want {
+				e.emitError("operator %q takes %d arguments, got %d — "+
+					"see `dtrules docs operators` for the argument order", name, want, got)
+				return nil
+			}
+		}
+	}
+
 	e.Visit(ctx.Operatorlist())
 	e.emit(name)
 	return nil
+}
+
+// countOperatorArgs counts the arguments in a statement-form call.
+//
+// The list is right-recursive: each element node carries one expression and
+// the tail, and the `...Single` variants are the last element. Counting the
+// chain rather than visiting it means no postfix is emitted for a call that is
+// about to be rejected.
+func countOperatorArgs(ctx IOperatorlistContext) int {
+	n := 0
+	for ctx != nil {
+		switch c := ctx.(type) {
+		case *OpListFloatSingleContext, *OpListIntSingleContext, *OpListStrSingleContext:
+			return n + 1
+		case *OpListFloatContext:
+			n++
+			ctx = c.Operatorlist()
+		case *OpListIntContext:
+			n++
+			ctx = c.Operatorlist()
+		case *OpListStrContext:
+			n++
+			ctx = c.Operatorlist()
+		default:
+			// An alternative this does not know: count it as one argument and
+			// stop, so an unrecognised shape cannot manufacture a mismatch.
+			return n + 1
+		}
+	}
+	return n
 }
 
 // VisitRemoveEachWhere: `remove each <eexpr> from <arrayExpr> where <bexpr>`
@@ -7613,4 +7663,109 @@ func flattenMulChain(t antlr.ParseTree) []antlr.ParseTree {
 		return append([]antlr.ParseTree{c.Iexpr()}, flattenMulChain(c.Fexpr())...)
 	}
 	return []antlr.ParseTree{t}
+}
+
+// max of / min of over a collection — the fold family stopped at `sum of`, so
+// "the best of a set of options" had to be a host-side loop even when the
+// criterion was pure policy: the table could score the options but not say
+// which one won (#1024).
+//
+// Lowered exactly like `sum of`, swapping the accumulating operator. The
+// accumulator starts at zero, which is the documented behaviour for an empty
+// array or a `where` that matches nothing — the same answer `sum of` gives,
+// and chosen for consistency within the family rather than mathematical
+// purity. The consequence is explicit: over values that are all negative,
+// `max of` returns 0 rather than the largest negative. Rules over money and
+// counts do not meet that case; rules that might should guard the array.
+//
+// This is the value, not the element attaining it. `the <entity> in <array>
+// with the max <field>` is the part that keeps a choice rule inside the
+// tables, and is still open on #1024.
+
+func (e *PostfixEmitter) VisitIntMaxOfArray(ctx *IntMaxOfArrayContext) interface{} {
+	return e.emitIntFold(ctx.Iexpr(), ctx.ArrayExpr(), "max")
+}
+
+func (e *PostfixEmitter) VisitIntMinOfArray(ctx *IntMinOfArrayContext) interface{} {
+	return e.emitIntFold(ctx.Iexpr(), ctx.ArrayExpr(), "min")
+}
+
+func (e *PostfixEmitter) VisitIntMaxOfArrayWhere(ctx *IntMaxOfArrayWhereContext) interface{} {
+	return e.emitIntFoldWhere(ctx.Iexpr(), ctx.ArrayExpr(), ctx.Bexpr(), "max")
+}
+
+func (e *PostfixEmitter) VisitIntMinOfArrayWhere(ctx *IntMinOfArrayWhereContext) interface{} {
+	return e.emitIntFoldWhere(ctx.Iexpr(), ctx.ArrayExpr(), ctx.Bexpr(), "min")
+}
+
+func (e *PostfixEmitter) VisitFloatMaxOfArray(ctx *FloatMaxOfArrayContext) interface{} {
+	return e.emitFloatFold(ctx.TypedDouble(), ctx.ArrayExpr(), "fmax")
+}
+
+func (e *PostfixEmitter) VisitFloatMinOfArray(ctx *FloatMinOfArrayContext) interface{} {
+	return e.emitFloatFold(ctx.TypedDouble(), ctx.ArrayExpr(), "fmin")
+}
+
+func (e *PostfixEmitter) VisitFloatMaxOfArrayWhere(ctx *FloatMaxOfArrayWhereContext) interface{} {
+	return e.emitFloatFoldWhere(ctx.TypedDouble(), ctx.ArrayExpr(), ctx.Bexpr(), "fmax")
+}
+
+func (e *PostfixEmitter) VisitFloatMinOfArrayWhere(ctx *FloatMinOfArrayWhereContext) interface{} {
+	return e.emitFloatFoldWhere(ctx.TypedDouble(), ctx.ArrayExpr(), ctx.Bexpr(), "fmin")
+}
+
+// emitIntFold emits `0 { <expr> <op> } <array> forall`. Body before array,
+// because opForall pops the array off the top (#867).
+func (e *PostfixEmitter) emitIntFold(expr, array antlr.ParserRuleContext, op string) interface{} {
+	e.emit("0")
+	e.emit("{")
+	e.Visit(expr)
+	e.emit(op)
+	e.emit("}")
+	e.Visit(array)
+	e.emit("forall")
+	return nil
+}
+
+// emitIntFoldWhere emits `0 { { <expr> <op> } <pred> if } <array> forall`.
+// Inner block before the predicate, because `if` pops the boolean off the top.
+func (e *PostfixEmitter) emitIntFoldWhere(expr, array, pred antlr.ParserRuleContext, op string) interface{} {
+	e.emit("0")
+	e.emit("{")
+	e.emit("{")
+	e.Visit(expr)
+	e.emit(op)
+	e.emit("}")
+	e.Visit(pred)
+	e.emit("if")
+	e.emit("}")
+	e.Visit(array)
+	e.emit("forall")
+	return nil
+}
+
+func (e *PostfixEmitter) emitFloatFold(expr, array antlr.ParserRuleContext, op string) interface{} {
+	e.emit("0.0")
+	e.emit("{")
+	e.Visit(expr)
+	e.emit(op)
+	e.emit("}")
+	e.Visit(array)
+	e.emit("forall")
+	return nil
+}
+
+func (e *PostfixEmitter) emitFloatFoldWhere(expr, array, pred antlr.ParserRuleContext, op string) interface{} {
+	e.emit("0.0")
+	e.emit("{")
+	e.emit("{")
+	e.Visit(expr)
+	e.emit(op)
+	e.emit("}")
+	e.Visit(pred)
+	e.emit("if")
+	e.emit("}")
+	e.Visit(array)
+	e.emit("forall")
+	return nil
 }

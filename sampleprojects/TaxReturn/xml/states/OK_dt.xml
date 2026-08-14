@@ -7,6 +7,7 @@
 <relative_path>OK.xlsx</relative_path>
 <file_name>OK.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:b9e8d77c4dfccfc6ad8924c628098539a9fa9d5fbb765ff9aec085b605550206</source_hash>
 </source>
 <table_name>ok_tax</table_name>
 <xls_file>OK.xlsx</xls_file>
@@ -56,6 +57,7 @@ job.filing_status "MFS" streq
 <relative_path>OK.xlsx</relative_path>
 <file_name>OK.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:b9e8d77c4dfccfc6ad8924c628098539a9fa9d5fbb765ff9aec085b605550206</source_hash>
 </source>
 <table_name>OK_Military_Retirement_Exclusion</table_name>
 <xls_file>OK.xlsx</xls_file>

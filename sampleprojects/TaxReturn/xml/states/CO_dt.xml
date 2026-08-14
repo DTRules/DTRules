@@ -7,6 +7,7 @@
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:cd1c660e15ce792cd841ab1970f11b963991a16864f8b73de4eb31865f3502b3</source_hash>
 </source>
 <table_name>co_military_retirement_exemption</table_name>
 <xls_file>CO.xlsx</xls_file>
@@ -47,6 +48,7 @@ taxpayer.age 65 &gt;=
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:cd1c660e15ce792cd841ab1970f11b963991a16864f8b73de4eb31865f3502b3</source_hash>
 </source>
 <table_name>co_pension_subtraction</table_name>
 <xls_file>CO.xlsx</xls_file>
@@ -78,6 +80,7 @@ taxpayer.age 65 &gt;=
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:cd1c660e15ce792cd841ab1970f11b963991a16864f8b73de4eb31865f3502b3</source_hash>
 </source>
 <table_name>CO_Tax</table_name>
 <xls_file>CO.xlsx</xls_file>
@@ -140,6 +143,7 @@ result.co_taxable_income cvd /result.computed_state_taxable_income xdef result.c
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:cd1c660e15ce792cd841ab1970f11b963991a16864f8b73de4eb31865f3502b3</source_hash>
 </source>
 <table_name>CO_EITC</table_name>
 <xls_file>CO.xlsx</xls_file>

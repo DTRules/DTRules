@@ -15,6 +15,7 @@
 package authoring
 
 import (
+	"encoding/xml"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -64,7 +65,7 @@ func GuardExcelIn(xmlDir, excelDir string, overwrite bool) error {
 	if m == nil {
 		return nil
 	}
-	for excelRel := range m.Files {
+	for excelRel, entry := range m.Files {
 		excelPath := filepath.Join(manifestDir, excelRel)
 		if err := excelLockError(excelPath); err != nil {
 			return err
@@ -72,11 +73,57 @@ func GuardExcelIn(xmlDir, excelDir string, overwrite bool) error {
 		if overwrite {
 			continue
 		}
+		// Provenance first, where the XML records it.
+		//
+		// The guard's question is "has this workbook changed since the XML was
+		// generated, so that writing XML over it would discard someone's
+		// edit". The recorded hash answers exactly that; the mtime comparison
+		// only approximated it, and the approximation failed constantly --
+		// checkout stamps every file, so a fresh clone started locked (#1061),
+		// and any rebuild of the workbooks locked every project on the machine
+		// until the manifest caught up.
+		//
+		// The manifest is still the workbook-to-XML index here. What it is no
+		// longer asked for is the time (#1091).
+		if recorded := recordedHashFor(manifestDir, entry.XMLFiles); recorded != "" {
+			if recorded != excel.WorkbookHash(excelPath) {
+				return &sync.ExcelModifiedError{
+					ExcelPath: excelPath,
+					Message: fmt.Sprintf("Excel file %q has changed since the XML was compiled "+
+						"from it; user changes would be lost. Import Excel to XML first, then "+
+						"re-apply your changes.", excelPath),
+				}
+			}
+			continue
+		}
 		if err := m.ExportGuard(excelPath); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// recordedHashFor reads the provenance stamp out of the XML files a manifest
+// entry pairs with a workbook. Returns "" when none of them carry one, or when
+// they disagree -- both cases leave the caller on its previous behaviour.
+func recordedHashFor(manifestDir string, xmlFiles []string) string {
+	for _, rel := range xmlFiles {
+		if !strings.HasSuffix(rel, "_dt.xml") {
+			continue
+		}
+		data, err := os.ReadFile(filepath.Join(manifestDir, rel))
+		if err != nil {
+			continue
+		}
+		var doc excel.DecisionTablesXML
+		if err := xml.Unmarshal(data, &doc); err != nil {
+			continue
+		}
+		if h := excel.RecordedWorkbookHash(doc.Tables); h != "" {
+			return h
+		}
+	}
+	return ""
 }
 
 // RefreshExcelInDir re-exports every Excel file the project's sync
@@ -107,6 +154,7 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 		return fmt.Errorf("excel refresh: load ruleset: %w", err)
 	}
 	exporter := excel.NewExporter(rs)
+	var changed []string
 	for excelRel, entry := range m.Files {
 		excelPath := filepath.Join(manifestDir, excelRel)
 		// Refresh what exists; do not resurrect what does not.
@@ -134,6 +182,7 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 		//
 		// A workbook no table claims is left alone rather than emptied --
 		// see ExportDecisionTablesOwnedBy.
+		before := excel.WorkbookHash(excelPath)
 		n, err := exporter.ExportDecisionTablesOwnedBy(excelPath)
 		if err != nil {
 			return fmt.Errorf("excel refresh: export %s: %w", excelPath, err)
@@ -141,8 +190,46 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 		if n == 0 {
 			continue
 		}
+		if excel.WorkbookHash(excelPath) != before {
+			changed = append(changed, excelPath)
+		}
 		if err := m.RecordExport(excelPath, entry.XMLFiles); err != nil {
 			return fmt.Errorf("excel refresh: record manifest for %s: %w", excelPath, err)
+		}
+	}
+
+	// Excel first, then compile it — the order the contract states.
+	//
+	// The XML was written from the in-memory model a moment ago and the Excel
+	// was exported from that XML, which left two artifacts that agree because
+	// two code paths agreed, and `verify`'s [build] check existed to keep
+	// discovering when they did not. Recompiling the workbook makes the XML
+	// literally the output of compiling the Excel, so agreement is a property
+	// of how the file was produced rather than something to test for. It also
+	// stamps the provenance hash of the workbook that was just written, which
+	// nothing else is in a position to know (#1091).
+	//
+	// Only workbooks whose bytes actually changed: an edit to one table in a
+	// 58-workbook project recompiles one workbook, not 58. The hash makes that
+	// cheap to know.
+	return recompileWorkbooks(xmlDir, changed)
+}
+
+// recompileWorkbooks regenerates XML from the named workbooks.
+func recompileWorkbooks(xmlDir string, workbooks []string) error {
+	if len(workbooks) == 0 {
+		return nil
+	}
+	imp := excel.NewWorkbookImporter()
+	imp.SetELCompiler(newCheckedCompiler())
+	// The whole project's types, so a table reading an entity declared in
+	// another workbook is not compiled as an integer (#1106).
+	if syms := LoadEDDSymbols(xmlDir); len(syms) > 0 {
+		imp.SetSymbols(syms)
+	}
+	for _, wb := range workbooks {
+		if _, _, err := imp.ImportWorkbookToDir(wb, xmlDir); err != nil {
+			return fmt.Errorf("excel refresh: recompile %s: %w", wb, err)
 		}
 	}
 	return nil

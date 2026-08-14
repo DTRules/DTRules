@@ -36,11 +36,15 @@ import (
 // which compiles to `hand.cards "combo" "value" hand.combos subsets`.
 
 func init() {
-	Register("combinations", opCombinations)
-	Register("subsets", opSubsets)
-	Register("groupby", opGroupBy)
-	Register("maximalruns", opMaximalRuns)
-	Register("suffixes", opSuffixes)
+	// Arity is recorded because these are the operators a short call misreads
+	// silently: every argument after the source is a bare string or an array,
+	// so `subsets(hand.cards)` pops whatever three values sit beneath it and
+	// treats them as typename, sumfield and destination (#1105).
+	RegisterWithArity("combinations", opCombinations, 5) // source, k, typename, sumfield, dest
+	RegisterWithArity("subsets", opSubsets, 4)           // source, typename, sumfield, dest
+	RegisterWithArity("groupby", opGroupBy, 4)           // source, keyfield, typename, dest
+	RegisterWithArity("maximalruns", opMaximalRuns, 5)   // source, rankfield, minlen, typename, dest
+	RegisterWithArity("suffixes", opSuffixes, 5)         // source, minlen, statfield, typename, dest
 }
 
 // subsetsCap bounds opSubsets: 2^12-1 = 4095 entities is the design ceiling.
@@ -48,6 +52,12 @@ const subsetsCap = 12
 
 // combinationsCap bounds opCombinations' source size.
 const combinationsCap = 20
+
+// suffixesCap bounds opSuffixes' source size. Windows are linear in count
+// but quadratic in total members (n windows share O(n²) member slots), and
+// the family contract (#980) is a clear error, never an OOM. Pegging stacks
+// peak at 13 cards; 64 leaves room for temporal streams like month series.
+const suffixesCap = 64
 
 // popEntityArray pops an object and unwraps it to a data-form RArray whose
 // elements are all entities, returned alongside the raw array.
@@ -461,6 +471,9 @@ func opSuffixes(state dtrules.State) error {
 	_, ents, err := popEntityArray(state, op)
 	if err != nil {
 		return err
+	}
+	if len(ents) > suffixesCap {
+		return fmt.Errorf("%s: source has %d elements; the cap is %d", op, len(ents), suffixesCap)
 	}
 
 	fieldName := dtrules.GetRName(statField)

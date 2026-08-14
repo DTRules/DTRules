@@ -7,6 +7,7 @@
 <relative_path>MN_corp.xlsx</relative_path>
 <file_name>MN_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:732bcde6f03703242c0fcc1ab46213b1f26cd7ff62f266b25a0d7294ebc343cd</source_hash>
 </source>
 <table_name>Determine_MN_Filing_Requirement</table_name>
 <xls_file>MN_corp.xlsx</xls_file>
@@ -80,6 +81,7 @@ false cvb /mn_result.has_nexus xdef 0.0 cvd /mn_result.tax_liability xdef
 <relative_path>MN_corp.xlsx</relative_path>
 <file_name>MN_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:732bcde6f03703242c0fcc1ab46213b1f26cd7ff62f266b25a0d7294ebc343cd</source_hash>
 </source>
 <table_name>Calculate_MN_Income_Adjustments</table_name>
 <xls_file>MN_corp.xlsx</xls_file>
@@ -135,6 +137,7 @@ mn_result.has_nexus true beq
 <relative_path>MN_corp.xlsx</relative_path>
 <file_name>MN_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:732bcde6f03703242c0fcc1ab46213b1f26cd7ff62f266b25a0d7294ebc343cd</source_hash>
 </source>
 <table_name>Calculate_MN_State_Tax</table_name>
 <xls_file>MN_corp.xlsx</xls_file>

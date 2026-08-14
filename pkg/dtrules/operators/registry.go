@@ -34,7 +34,22 @@ type Operator struct {
 	fn       OperatorFunc
 	priority int
 	index    int // Index in operatorTable for fast lookup
+	// arity is how many arguments a statement-form call must supply, or -1
+	// when unrecorded. Operators reached through infix syntax take their
+	// operands from the stack and have nothing to count, so most are -1.
+	//
+	// The name check added in #1046 catches typos; a short call is the quiet
+	// failure. `subsets(hand.cards)` with one of four arguments compiled
+	// clean, then popped whatever three values happened to be beneath it and
+	// read them as typename, sumfield and destination -- a runtime error, a
+	// write into the wrong array, or a plausible-looking wrong answer,
+	// depending on what the row did before (#1105).
+	arity int
 }
+
+// Arity is how many arguments a statement-form call must supply, or -1 when
+// unrecorded. Callers must treat -1 as "do not check" rather than "zero".
+func (o *Operator) Arity() int { return o.arity }
 
 var (
 	operatorsMu sync.RWMutex
@@ -44,6 +59,17 @@ var (
 	operatorTableMu  sync.RWMutex
 	operatorIndexMap = make(map[*dtrules.RName]int)
 )
+
+// RegisterWithArity registers a statement-form operator and records how many
+// arguments a call must supply, so a short call is refused at authoring time
+// rather than misread at run time (#1105).
+func RegisterWithArity(name string, fn OperatorFunc, arity int) *Operator {
+	op := RegisterWithPriority(name, fn, 0)
+	if op != nil {
+		op.arity = arity
+	}
+	return op
+}
 
 // Register registers an operator with the given name.
 func Register(name string, fn OperatorFunc) *Operator {
@@ -83,6 +109,7 @@ func RegisterWithPriority(name string, fn OperatorFunc, priority int) *Operator 
 		fn:       fn,
 		priority: priority,
 		index:    idx,
+		arity:    -1, // unrecorded until a caller says otherwise
 	}
 	operators[rname] = op
 

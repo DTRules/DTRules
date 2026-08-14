@@ -7,6 +7,7 @@
 <relative_path>PA_corp.xlsx</relative_path>
 <file_name>PA_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:ea460d94e2334dd0f9dffffd1968be1a518da5a68ad4fb30675e53605c6a2d81</source_hash>
 </source>
 <table_name>Determine_PA_Filing_Requirement</table_name>
 <xls_file>PA_corp.xlsx</xls_file>
@@ -75,6 +76,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "PA" st
 <relative_path>PA_corp.xlsx</relative_path>
 <file_name>PA_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:ea460d94e2334dd0f9dffffd1968be1a518da5a68ad4fb30675e53605c6a2d81</source_hash>
 </source>
 <table_name>Calculate_PA_Income_Adjustments</table_name>
 <xls_file>PA_corp.xlsx</xls_file>
@@ -125,6 +127,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>PA_corp.xlsx</relative_path>
 <file_name>PA_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:ea460d94e2334dd0f9dffffd1968be1a518da5a68ad4fb30675e53605c6a2d81</source_hash>
 </source>
 <table_name>Calculate_PA_State_Tax</table_name>
 <xls_file>PA_corp.xlsx</xls_file>

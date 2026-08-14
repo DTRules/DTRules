@@ -7,6 +7,7 @@
 <relative_path>NM_corp.xlsx</relative_path>
 <file_name>NM_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:144c73a9efb4ce6c51b8f2aa0fdf0fce12ff9a30209c0c86340a85943430e80a</source_hash>
 </source>
 <table_name>Determine_NM_Filing_Requirement</table_name>
 <xls_file>NM_corp.xlsx</xls_file>
@@ -71,6 +72,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NM" st
 <relative_path>NM_corp.xlsx</relative_path>
 <file_name>NM_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:144c73a9efb4ce6c51b8f2aa0fdf0fce12ff9a30209c0c86340a85943430e80a</source_hash>
 </source>
 <table_name>Calculate_NM_Income_Adjustments</table_name>
 <xls_file>NM_corp.xlsx</xls_file>
@@ -121,6 +123,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>NM_corp.xlsx</relative_path>
 <file_name>NM_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:144c73a9efb4ce6c51b8f2aa0fdf0fce12ff9a30209c0c86340a85943430e80a</source_hash>
 </source>
 <table_name>Calculate_NM_State_Tax</table_name>
 <xls_file>NM_corp.xlsx</xls_file>

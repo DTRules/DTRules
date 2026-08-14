@@ -7,6 +7,7 @@
 <relative_path>NE.xlsx</relative_path>
 <file_name>NE.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:5eaf9d7782f9b8cee1c3124c425b7432a2bb89a224c8da4c8c8883d00b0728ee</source_hash>
 </source>
 <table_name>NE_Tax</table_name>
 <xls_file>NE.xlsx</xls_file>

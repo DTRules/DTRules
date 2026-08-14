@@ -7,6 +7,7 @@
 <relative_path>WI.xlsx</relative_path>
 <file_name>WI.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:f5e90840811341f97d6ba5315696dbcf9cb77b7c283926a3c2c5ba858d1d5365</source_hash>
 </source>
 <table_name>WI_Tax</table_name>
 <xls_file>WI.xlsx</xls_file>

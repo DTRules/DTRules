@@ -7,6 +7,7 @@
 <relative_path>Simple.xlsx</relative_path>
 <file_name>Simple.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:eee655ca5e399dfcdef20ae084a3dd2d6dd8febdc8e227e3c723afa37519e2e8</source_hash>
 </source>
 <table_name>SimpleRule</table_name>
 <xls_file>Simple.xlsx</xls_file>

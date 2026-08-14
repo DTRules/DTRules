@@ -77,6 +77,17 @@ func (c *Compiler) SetOperatorChecker(exists func(string) bool) {
 	c.emitter.operatorExists = exists
 }
 
+// SetOperatorArity supplies the lookup used to reject statement-form calls with
+// the wrong number of arguments. Return <= 0 for operators whose arity is not
+// recorded; those are not checked.
+//
+// Separate from SetOperatorChecker so a caller that only knows which names
+// exist keeps working unchanged -- the name check and the count check are
+// independently useful, and the name check shipped first (#1046, #1105).
+func (c *Compiler) SetOperatorArity(arity func(string) int) {
+	c.emitter.operatorArity = arity
+}
+
 // ResetLocals clears per-table local variable state (names + slot indices).
 // Callers that reuse a Compiler across multiple tables must call this between
 // tables so slot indices don't bleed across independent compilation scopes.

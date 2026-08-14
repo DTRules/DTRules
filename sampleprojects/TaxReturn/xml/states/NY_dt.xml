@@ -7,6 +7,7 @@
 <relative_path>NY.xlsx</relative_path>
 <file_name>NY.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:39512cca152b36b6425500c5614d2b7a51ed01ee86b70e1c795bc1bab646e30d</source_hash>
 </source>
 <table_name>NY_Tax</table_name>
 <xls_file>NY.xlsx</xls_file>

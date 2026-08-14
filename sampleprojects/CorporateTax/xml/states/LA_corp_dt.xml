@@ -7,6 +7,7 @@
 <relative_path>LA_corp.xlsx</relative_path>
 <file_name>LA_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:15f90dcf3e2437b551fc409215cd1e8a5647b7a116824613def51bab1570a887</source_hash>
 </source>
 <table_name>Determine_LA_Filing_Requirement</table_name>
 <xls_file>LA_corp.xlsx</xls_file>
@@ -80,6 +81,7 @@ false cvb /la_result.has_nexus xdef 0.0 cvd /la_result.tax_liability xdef
 <relative_path>LA_corp.xlsx</relative_path>
 <file_name>LA_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:15f90dcf3e2437b551fc409215cd1e8a5647b7a116824613def51bab1570a887</source_hash>
 </source>
 <table_name>Calculate_LA_Income_Adjustments</table_name>
 <xls_file>LA_corp.xlsx</xls_file>
@@ -135,6 +137,7 @@ la_result.has_nexus true beq
 <relative_path>LA_corp.xlsx</relative_path>
 <file_name>LA_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:15f90dcf3e2437b551fc409215cd1e8a5647b7a116824613def51bab1570a887</source_hash>
 </source>
 <table_name>Calculate_LA_State_Tax</table_name>
 <xls_file>LA_corp.xlsx</xls_file>

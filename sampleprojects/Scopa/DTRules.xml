@@ -1,0 +1,9 @@
+<DTRules>
+  <!--
+    Project marker for the Scopa sample (#1118): the second-game validation
+    of the combinatorial primitives (#980). Capture resolution and primiera
+    scoring live entirely in decision tables; the entry table resolves one
+    played card against the table cards.
+  -->
+  <entry>Resolve_Capture</entry>
+</DTRules>

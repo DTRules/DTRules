@@ -7,6 +7,7 @@
 <relative_path>Poker.xlsx</relative_path>
 <file_name>Poker.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:b9a1c347f42f53c0a822b970d82dd86b4e068aaae16f2c9b3c25558d0a14cbf9</source_hash>
 </source>
 <table_name>Poker_Decision</table_name>
 <xls_file>Poker.xlsx</xls_file>
@@ -135,6 +136,7 @@ decision game.decisions swap addto
 <relative_path>Poker.xlsx</relative_path>
 <file_name>Poker.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:b9a1c347f42f53c0a822b970d82dd86b4e068aaae16f2c9b3c25558d0a14cbf9</source_hash>
 </source>
 <table_name>TAG_Decision</table_name>
 <xls_file>Poker.xlsx</xls_file>
@@ -201,6 +203,7 @@ endif</action_dsl>
 <relative_path>Poker.xlsx</relative_path>
 <file_name>Poker.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:b9a1c347f42f53c0a822b970d82dd86b4e068aaae16f2c9b3c25558d0a14cbf9</source_hash>
 </source>
 <table_name>LAG_Decision</table_name>
 <xls_file>Poker.xlsx</xls_file>
@@ -317,6 +320,7 @@ player.can_check true beq
 <relative_path>Poker.xlsx</relative_path>
 <file_name>Poker.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:b9a1c347f42f53c0a822b970d82dd86b4e068aaae16f2c9b3c25558d0a14cbf9</source_hash>
 </source>
 <table_name>Rock_Decision</table_name>
 <xls_file>Poker.xlsx</xls_file>
@@ -420,6 +424,7 @@ player.can_check true beq
 <relative_path>Poker.xlsx</relative_path>
 <file_name>Poker.xlsx</file_name>
 <sheet_number>5</sheet_number>
+<source_hash>sha256:b9a1c347f42f53c0a822b970d82dd86b4e068aaae16f2c9b3c25558d0a14cbf9</source_hash>
 </source>
 <table_name>CallingStation_Decision</table_name>
 <xls_file>Poker.xlsx</xls_file>
@@ -523,6 +528,7 @@ player.can_check true beq
 <relative_path>Poker.xlsx</relative_path>
 <file_name>Poker.xlsx</file_name>
 <sheet_number>6</sheet_number>
+<source_hash>sha256:b9a1c347f42f53c0a822b970d82dd86b4e068aaae16f2c9b3c25558d0a14cbf9</source_hash>
 </source>
 <table_name>Evaluate_All_Players</table_name>
 <xls_file>Poker.xlsx</xls_file>

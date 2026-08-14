@@ -7,6 +7,7 @@
 <relative_path>NJ_corp.xlsx</relative_path>
 <file_name>NJ_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:b2378eb33d11c01028ca3b50258070cb0150bc6ac76e1f9ddc3792cc62e77525</source_hash>
 </source>
 <table_name>Determine_NJ_Filing_Requirement</table_name>
 <xls_file>NJ_corp.xlsx</xls_file>
@@ -84,6 +85,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "NJ" st
 <relative_path>NJ_corp.xlsx</relative_path>
 <file_name>NJ_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:b2378eb33d11c01028ca3b50258070cb0150bc6ac76e1f9ddc3792cc62e77525</source_hash>
 </source>
 <table_name>Calculate_NJ_Income_Adjustments</table_name>
 <xls_file>NJ_corp.xlsx</xls_file>
@@ -143,6 +145,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>NJ_corp.xlsx</relative_path>
 <file_name>NJ_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:b2378eb33d11c01028ca3b50258070cb0150bc6ac76e1f9ddc3792cc62e77525</source_hash>
 </source>
 <table_name>Calculate_NJ_State_Tax</table_name>
 <xls_file>NJ_corp.xlsx</xls_file>
@@ -224,6 +227,7 @@ apportionment.state_taxable_income nj_apportionment.state_tax_rate fmul apportio
 <relative_path>NJ_corp.xlsx</relative_path>
 <file_name>NJ_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:b2378eb33d11c01028ca3b50258070cb0150bc6ac76e1f9ddc3792cc62e77525</source_hash>
 </source>
 <table_name>Calculate_NJ_Surtax</table_name>
 <xls_file>NJ_corp.xlsx</xls_file>

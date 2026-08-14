@@ -73,4 +73,3 @@ func artifactTypeMismatch(suffix string, hasdt, hasedd, hasmap bool) string {
 	}
 	return ""
 }
-

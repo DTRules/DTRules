@@ -7,6 +7,7 @@
 <relative_path>OK_corp.xlsx</relative_path>
 <file_name>OK_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:1513afeaa7b2b1577e386ef6f5f17402334cf7aeacd3cf9ed085d330784fa6df</source_hash>
 </source>
 <table_name>Determine_OK_Filing_Requirement</table_name>
 <xls_file>OK_corp.xlsx</xls_file>
@@ -71,6 +72,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code 'OK' st
 <relative_path>OK_corp.xlsx</relative_path>
 <file_name>OK_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:1513afeaa7b2b1577e386ef6f5f17402334cf7aeacd3cf9ed085d330784fa6df</source_hash>
 </source>
 <table_name>Calculate_OK_Income_Adjustments</table_name>
 <xls_file>OK_corp.xlsx</xls_file>
@@ -121,6 +123,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>OK_corp.xlsx</relative_path>
 <file_name>OK_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:1513afeaa7b2b1577e386ef6f5f17402334cf7aeacd3cf9ed085d330784fa6df</source_hash>
 </source>
 <table_name>Calculate_OK_State_Tax</table_name>
 <xls_file>OK_corp.xlsx</xls_file>

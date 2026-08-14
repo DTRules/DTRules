@@ -1815,7 +1815,9 @@ groups, consecutive runs — and materialize each structure as an entity of
 a caller-named EDD type appended to a destination array. Tables then
 iterate the results with ordinary 'for all' contexts and score them with
 ordinary conditions: the loop stays in the operator, the policy stays in
-the table. All four are statement-form operator calls (#980).
+the table. All are statement-form operator calls (#980), as are argmax
+and argmin below, which pick a winner rather than generate candidates
+(#1024).
 
     combinations(src, k, "combo", "value", dest)
         Every k-card combination of src as a "combo" entity with fields
@@ -1847,6 +1849,25 @@ the table. All four are statement-form operator calls (#980).
         and a trailing pair block iff distinct == 1. The longest-first
         order is part of the contract — "longest run only" policies
         read as "the first qualifying window" behind a zero-guard.
+        Source cap: 64.
+
+    argmax(src, "rank", dest)
+    argmin(src, "rank", dest)
+        The element of src with the largest (or smallest) value of the
+        named integer field, placed in dest. Not the value — 'max of
+        <field> in <array>' gives that — but the element attaining it,
+        so the rule can then read its other fields: the highest-EV
+        discard, the most favourable filing status, the cheapest
+        qualifying plan.
+
+        dest receives the element itself, not a copy, so reading a field
+        off the result reads the original entity. It is cleared first, so
+        a table that runs twice selects rather than accumulates.
+
+        Ties go to the first element in array order, which keeps the
+        result stable across runs on the same data. An empty source
+        leaves dest empty rather than failing — "no options to choose
+        between" is a state a rule can test with 'number of'.
 
 Example — cribbage fifteens, pairs, and runs from decision tables:
 

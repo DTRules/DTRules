@@ -36,9 +36,21 @@ import (
 // consume this map.
 type TableCallGraph struct {
 	// Tables is the set of table names defined across the project's
-	// `*_dt.xml` files. Names are case-preserved; comparison is
-	// case-sensitive (matching the runtime's table-name lookup).
+	// `*_dt.xml` files, in the spelling their author used.
+	//
+	// Look names up through byFold, never by indexing this directly with a
+	// name read out of DSL. EL is case-insensitive -- `Error_handling_table`
+	// and `Error_Handling_Table` are one name, and RName interns whichever
+	// spelling it sees first -- so a case-sensitive comparison here invents a
+	// disagreement the language does not have. SyntaxTests was reported as
+	// performing an undefined `Error_handling_table` while defining
+	// `Error_Handling_Table` in the same file (#1012).
 	Tables map[string]bool
+
+	// byFold maps a folded table name to the spelling its author used, so a
+	// reference can be resolved to the table it names and recorded against
+	// the authored spelling rather than the caller's.
+	byFold map[string]string
 
 	// Calls maps caller table name → set of callee table names. A
 	// table with no calls is absent from the map (callers with only
@@ -115,9 +127,10 @@ var reservedAfterPerform = map[string]bool{
 // piece; for now they're simply ignored.
 func AnalyzeTableCallGraph(xmlDir string) (*TableCallGraph, error) {
 	graph := &TableCallGraph{
-		Tables:  make(map[string]bool),
-		Calls:   make(map[string]map[string]bool),
-		DTFile:  make(map[string]string),
+		Tables: make(map[string]bool),
+		byFold: make(map[string]string),
+		Calls:  make(map[string]map[string]bool),
+		DTFile: make(map[string]string),
 	}
 
 	// Pass 1: collect the set of defined tables. We need the full
@@ -164,6 +177,7 @@ func AnalyzeTableCallGraph(xmlDir string) (*TableCallGraph, error) {
 				continue
 			}
 			graph.Tables[t.Name] = true
+			graph.byFold[strings.ToLower(t.Name)] = t.Name
 			graph.DTFile[t.Name] = name
 			rt := rawTable{Name: t.Name, File: name}
 			for _, ia := range t.InitialActions {
@@ -218,6 +232,12 @@ func recordCalls(graph *TableCallGraph, rt struct {
 		callee := match[1]
 		if reservedAfterPerform[callee] {
 			continue
+		}
+		// Resolve to the authored spelling. Without this the edge is recorded
+		// against the caller's spelling, which is a second node for the same
+		// table and an orphan call that is not one.
+		if authored, ok := graph.byFold[strings.ToLower(callee)]; ok {
+			callee = authored
 		}
 		// Self-edges are real (a table can call itself recursively)
 		// but rare. Keep them — they're informative.

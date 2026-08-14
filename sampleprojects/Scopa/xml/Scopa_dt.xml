@@ -1,0 +1,670 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+
+<!-- TABLE 4000: Resolve_Capture -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Scopa.xlsx</relative_path>
+<file_name>Scopa.xlsx</file_name>
+<sheet_number>1</sheet_number>
+<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+</source>
+<table_name>Resolve_Capture</table_name>
+<xls_file>Scopa.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>4000</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>set move.capture_found = 0; set move.capture_size = 0; set move.is_scopa = false;</initial_action_dsl>
+<initial_action_postfix>
+0 cvi /move.capture_found xdef 0 cvi /move.capture_size xdef false cvb /move.is_scopa xdef
+</initial_action_postfix>
+</initial_action>
+<initial_action>
+<initial_action_dsl>subsets(move.table_cards, "combo", "value", move.options)</initial_action_dsl>
+<initial_action_postfix>
+move.table_cards "combo" "value" move.options subsets
+</initial_action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>always</condition_comment>
+<condition_dsl>true</condition_dsl>
+<condition_postfix>
+true
+</condition_postfix>
+<columns>Y</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>mandatory single-card capture first</action_comment>
+<action_dsl>perform Capture_Single</action_dsl>
+<action_postfix>
+/Capture_Single performtable
+</action_postfix>
+<columns>X</columns>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>multi-card sums only if no single matched</action_comment>
+<action_dsl>perform Capture_Sum</action_dsl>
+<action_postfix>
+/Capture_Sum performtable
+</action_postfix>
+<columns>X</columns>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment></action_comment>
+<action_dsl>perform Score_Scopa</action_dsl>
+<action_postfix>
+/Score_Scopa performtable
+</action_postfix>
+<columns>X</columns>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 4010: Capture_Single -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Scopa.xlsx</relative_path>
+<file_name>Scopa.xlsx</file_name>
+<sheet_number>2</sheet_number>
+<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+</source>
+<table_name>Capture_Single</table_name>
+<xls_file>Scopa.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>4010</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all move.options</context_dsl>
+<context_postfix>
+dup move.options forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>a lone table card</condition_comment>
+<condition_dsl>combo.count == 1</condition_dsl>
+<condition_postfix>
+combo.count 1 ==
+</condition_postfix>
+<columns>Y</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>matching the played rank</condition_comment>
+<condition_dsl>combo.sum == move.played_rank</condition_dsl>
+<condition_postfix>
+combo.sum move.played_rank ==
+</condition_postfix>
+<columns>Y</columns>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>first match wins</condition_comment>
+<condition_dsl>move.capture_found == 0</condition_dsl>
+<condition_postfix>
+move.capture_found 0 ==
+</condition_postfix>
+<columns>Y</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>set move.capture_found = 1; set move.capture_size = 1;</action_dsl>
+<action_postfix>
+1 cvi /move.capture_found xdef 1 cvi /move.capture_size xdef
+</action_postfix>
+<columns>X</columns>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Single-card capture</policy_description>
+<policy_statement_postfix>"Single-card capture"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 4020: Capture_Sum -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Scopa.xlsx</relative_path>
+<file_name>Scopa.xlsx</file_name>
+<sheet_number>3</sheet_number>
+<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+</source>
+<table_name>Capture_Sum</table_name>
+<xls_file>Scopa.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>4020</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all move.options</context_dsl>
+<context_postfix>
+dup move.options forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>no single-card capture exists</condition_comment>
+<condition_dsl>move.capture_found == 0</condition_dsl>
+<condition_postfix>
+move.capture_found 0 ==
+</condition_postfix>
+<columns>Y</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>the set sums to the played rank</condition_comment>
+<condition_dsl>combo.sum == move.played_rank</condition_dsl>
+<condition_postfix>
+combo.sum move.played_rank ==
+</condition_postfix>
+<columns>Y</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>set move.capture_found = 1; set move.capture_size = combo.count;</action_dsl>
+<action_postfix>
+1 cvi /move.capture_found xdef combo.count cvi /move.capture_size xdef
+</action_postfix>
+<columns>X</columns>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Capture of {combo.count} cards by sum</policy_description>
+<policy_statement_postfix>"Capture of " combo.count cvs strconcat " cards by sum" strconcat</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 4030: Score_Scopa -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Scopa.xlsx</relative_path>
+<file_name>Scopa.xlsx</file_name>
+<sheet_number>4</sheet_number>
+<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+</source>
+<table_name>Score_Scopa</table_name>
+<xls_file>Scopa.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>4030</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>something was captured</condition_comment>
+<condition_dsl>move.capture_found == 1</condition_dsl>
+<condition_postfix>
+move.capture_found 1 ==
+</condition_postfix>
+<columns>Y</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>and it took everything</condition_comment>
+<condition_dsl>move.capture_size == number of move.table_cards</condition_dsl>
+<condition_postfix>
+move.capture_size move.table_cards length ==
+</condition_postfix>
+<columns>Y</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>set move.is_scopa = true;</action_dsl>
+<action_postfix>
+true cvb /move.is_scopa xdef
+</action_postfix>
+<columns>X</columns>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Scopa!</policy_description>
+<policy_statement_postfix>"Scopa!"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+
+<!-- TABLE 4040: Primiera_Value -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Scopa.xlsx</relative_path>
+<file_name>Scopa.xlsx</file_name>
+<sheet_number>5</sheet_number>
+<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+</source>
+<table_name>Primiera_Value</table_name>
+<xls_file>Scopa.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>4040</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all player.pile</context_dsl>
+<context_postfix>
+dup player.pile forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment></condition_comment>
+<condition_dsl>card.rank == 7</condition_dsl>
+<condition_postfix>
+card.rank 7 ==
+</condition_postfix>
+<columns>YNNNNNNN</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment></condition_comment>
+<condition_dsl>card.rank == 6</condition_dsl>
+<condition_postfix>
+card.rank 6 ==
+</condition_postfix>
+<columns>-YNNNNNN</columns>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment></condition_comment>
+<condition_dsl>card.rank == 1</condition_dsl>
+<condition_postfix>
+card.rank 1 ==
+</condition_postfix>
+<columns>--YNNNNN</columns>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment></condition_comment>
+<condition_dsl>card.rank == 5</condition_dsl>
+<condition_postfix>
+card.rank 5 ==
+</condition_postfix>
+<columns>---YNNNN</columns>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment></condition_comment>
+<condition_dsl>card.rank == 4</condition_dsl>
+<condition_postfix>
+card.rank 4 ==
+</condition_postfix>
+<columns>----YNNN</columns>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment></condition_comment>
+<condition_dsl>card.rank == 3</condition_dsl>
+<condition_postfix>
+card.rank 3 ==
+</condition_postfix>
+<columns>-----YNN</columns>
+</condition_details>
+<condition_details>
+<condition_number>7</condition_number>
+<condition_comment></condition_comment>
+<condition_dsl>card.rank == 2</condition_dsl>
+<condition_postfix>
+card.rank 2 ==
+</condition_postfix>
+<columns>------YN</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>set card.primiera = 21;</action_dsl>
+<action_postfix>
+21 cvi /card.primiera xdef
+</action_postfix>
+<columns>X-------</columns>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment></action_comment>
+<action_dsl>set card.primiera = 18;</action_dsl>
+<action_postfix>
+18 cvi /card.primiera xdef
+</action_postfix>
+<columns>-X------</columns>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment></action_comment>
+<action_dsl>set card.primiera = 16;</action_dsl>
+<action_postfix>
+16 cvi /card.primiera xdef
+</action_postfix>
+<columns>--X-----</columns>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment></action_comment>
+<action_dsl>set card.primiera = 15;</action_dsl>
+<action_postfix>
+15 cvi /card.primiera xdef
+</action_postfix>
+<columns>---X----</columns>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment></action_comment>
+<action_dsl>set card.primiera = 14;</action_dsl>
+<action_postfix>
+14 cvi /card.primiera xdef
+</action_postfix>
+<columns>----X---</columns>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment></action_comment>
+<action_dsl>set card.primiera = 13;</action_dsl>
+<action_postfix>
+13 cvi /card.primiera xdef
+</action_postfix>
+<columns>-----X--</columns>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment></action_comment>
+<action_dsl>set card.primiera = 12;</action_dsl>
+<action_postfix>
+12 cvi /card.primiera xdef
+</action_postfix>
+<columns>------X-</columns>
+</action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>8, 9, 10: the face cards</action_comment>
+<action_dsl>set card.primiera = 10;</action_dsl>
+<action_postfix>
+10 cvi /card.primiera xdef
+</action_postfix>
+<columns>-------X</columns>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 4050: Suit_Best -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Scopa.xlsx</relative_path>
+<file_name>Scopa.xlsx</file_name>
+<sheet_number>6</sheet_number>
+<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+</source>
+<table_name>Suit_Best</table_name>
+<xls_file>Scopa.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>4050</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all player.suit_groups</context_dsl>
+<context_postfix>
+dup player.suit_groups forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment></condition_comment>
+<condition_dsl>true</condition_dsl>
+<condition_postfix>
+true
+</condition_postfix>
+<columns>Y</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>perform Suit_Best_Inner</action_dsl>
+<action_postfix>
+/Suit_Best_Inner performtable
+</action_postfix>
+<columns>X</columns>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 4060: Suit_Best_Inner -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Scopa.xlsx</relative_path>
+<file_name>Scopa.xlsx</file_name>
+<sheet_number>7</sheet_number>
+<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+</source>
+<table_name>Suit_Best_Inner</table_name>
+<xls_file>Scopa.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>4060</TABLE_NUMBER>
+</attribute_fields>
+<contexts>
+<context_details>
+<context_number>1</context_number>
+<context_comment></context_comment>
+<context_dsl>for all grp.members</context_dsl>
+<context_postfix>
+dup grp.members forall pop
+</context_postfix>
+</context_details>
+</contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>a better card for this suit</condition_comment>
+<condition_dsl>card.primiera &gt; grp.best</condition_dsl>
+<condition_postfix>
+card.primiera grp.best &gt;
+</condition_postfix>
+<columns>Y</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>set grp.best = card.primiera;</action_dsl>
+<action_postfix>
+card.primiera cvi /grp.best xdef
+</action_postfix>
+<columns>X</columns>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 4070: Score_Primiera -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Scopa.xlsx</relative_path>
+<file_name>Scopa.xlsx</file_name>
+<sheet_number>8</sheet_number>
+<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+</source>
+<table_name>Score_Primiera</table_name>
+<xls_file>Scopa.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>4070</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>set player.primiera_total = 0; set player.has_settebello = false;</initial_action_dsl>
+<initial_action_postfix>
+0 cvi /player.primiera_total xdef false cvb /player.has_settebello xdef
+</initial_action_postfix>
+</initial_action>
+<initial_action>
+<initial_action_dsl>groupby(player.pile, "suit", "grp", player.suit_groups)</initial_action_dsl>
+<initial_action_postfix>
+player.pile "suit" "grp" player.suit_groups groupby
+</initial_action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment></condition_comment>
+<condition_dsl>true</condition_dsl>
+<condition_postfix>
+true
+</condition_postfix>
+<columns>Y</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>perform Primiera_Value</action_dsl>
+<action_postfix>
+/Primiera_Value performtable
+</action_postfix>
+<columns>X</columns>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment></action_comment>
+<action_dsl>perform Suit_Best</action_dsl>
+<action_postfix>
+/Suit_Best performtable
+</action_postfix>
+<columns>X</columns>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment></action_comment>
+<action_dsl>set player.primiera_total = sum of best in player.suit_groups;</action_dsl>
+<action_postfix>
+0 { best + } player.suit_groups forall cvi /player.primiera_total xdef
+</action_postfix>
+<columns>X</columns>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment></action_comment>
+<action_dsl>perform Score_Settebello</action_dsl>
+<action_postfix>
+/Score_Settebello performtable
+</action_postfix>
+<columns>X</columns>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 4080: Score_Settebello -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>Scopa.xlsx</relative_path>
+<file_name>Scopa.xlsx</file_name>
+<sheet_number>9</sheet_number>
+<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+</source>
+<table_name>Score_Settebello</table_name>
+<xls_file>Scopa.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>4080</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment></condition_comment>
+<condition_dsl>there is card in player.pile where (card.rank == 7 and card.suit == 0)</condition_dsl>
+<condition_postfix>
+false { card.rank 7 == { pop card.suit 0 == } over if or } player.pile forall
+</condition_postfix>
+<columns>Y</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>set player.has_settebello = true;</action_dsl>
+<action_postfix>
+true cvb /player.has_settebello xdef
+</action_postfix>
+<columns>X</columns>
+</action_details>
+</actions>
+<policy_statements>
+<policy_statement column="1">
+<policy_description>Settebello</policy_description>
+<policy_statement_postfix>"Settebello"</policy_statement_postfix>
+</policy_statement>
+</policy_statements>
+</decision_table>
+</decision_tables>
