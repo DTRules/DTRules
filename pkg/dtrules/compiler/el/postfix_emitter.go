@@ -5404,12 +5404,20 @@ func (e *PostfixEmitter) VisitEntityColonRef(ctx *EntityColonRefContext) interfa
 //
 //   eexpr HASA str WHERE bexpr      # boolEntityHasaWhere       →  ifelse on hasrelationship
 
+// VisitWhereBody is the full-precedence predicate of a bexpr-hosted fold.
+// The sub-rule exists so the where-clause takes the whole boolean expression
+// instead of being cut at AND by the left-recursion rewrite (#1121); emission
+// is a pass-through and the postfix is unchanged.
+func (e *PostfixEmitter) VisitWhereBody(ctx *WhereBodyContext) interface{} {
+	return e.Visit(ctx.Bexpr())
+}
+
 func (e *PostfixEmitter) VisitBoolAllHave(ctx *BoolAllHaveContext) interface{} {
 	// opForall is ( body array -- ): the block must be emitted BEFORE the
 	// array, else forall iterates the block as the array (#867 / #877).
 	e.emit("true")
 	e.emit("{")
-	e.Visit(ctx.Bexpr())
+	e.Visit(ctx.WhereBody())
 	e.emit("and")
 	e.emit("}")
 	e.Visit(ctx.ArrayExpr())
@@ -5421,7 +5429,7 @@ func (e *PostfixEmitter) VisitBoolOneOfHasa(ctx *BoolOneOfHasaContext) interface
 	// Block before array — opForall is ( body array -- ). See #877.
 	e.emit("false")
 	e.emit("{")
-	e.Visit(ctx.Bexpr())
+	e.Visit(ctx.WhereBody())
 	e.emit("or")
 	e.emit("}")
 	e.Visit(ctx.ArrayExpr())
@@ -5430,11 +5438,11 @@ func (e *PostfixEmitter) VisitBoolOneOfHasa(ctx *BoolOneOfHasaContext) interface
 }
 
 func (e *PostfixEmitter) VisitBoolThereIsWhere(ctx *BoolThereIsWhereContext) interface{} {
-	return e.Visit(ctx.Bexpr())
+	return e.Visit(ctx.WhereBody())
 }
 
 func (e *PostfixEmitter) VisitBoolThereIsNoWhere(ctx *BoolThereIsNoWhereContext) interface{} {
-	e.Visit(ctx.Bexpr())
+	e.Visit(ctx.WhereBody())
 	e.emit("not")
 	return nil
 }
@@ -5480,12 +5488,12 @@ func (e *PostfixEmitter) emitThereIsInArrayFold(arr, pred antlr.ParseTree) {
 
 func (e *PostfixEmitter) VisitBoolThereIsInEntityWhere(ctx *BoolThereIsInEntityWhereContext) interface{} {
 	if e.eexprIsArray(ctx.Eexpr(1)) {
-		e.emitThereIsInArrayFold(ctx.Eexpr(1), ctx.Bexpr())
+		e.emitThereIsInArrayFold(ctx.Eexpr(1), ctx.WhereBody())
 		return nil
 	}
 	e.Visit(ctx.Eexpr(1))
 	e.emit("entitypush")
-	e.Visit(ctx.Bexpr())
+	e.Visit(ctx.WhereBody())
 	e.emit("entitypop")
 	e.emit("swap")
 	e.emit("pop")
@@ -5494,13 +5502,13 @@ func (e *PostfixEmitter) VisitBoolThereIsInEntityWhere(ctx *BoolThereIsInEntityW
 
 func (e *PostfixEmitter) VisitBoolThereIsNoInEntityWhere(ctx *BoolThereIsNoInEntityWhereContext) interface{} {
 	if e.eexprIsArray(ctx.Eexpr(1)) {
-		e.emitThereIsInArrayFold(ctx.Eexpr(1), ctx.Bexpr())
+		e.emitThereIsInArrayFold(ctx.Eexpr(1), ctx.WhereBody())
 		e.emit("not")
 		return nil
 	}
 	e.Visit(ctx.Eexpr(1))
 	e.emit("entitypush")
-	e.Visit(ctx.Bexpr())
+	e.Visit(ctx.WhereBody())
 	e.emit("entitypop")
 	e.emit("swap")
 	e.emit("pop")
@@ -5512,7 +5520,7 @@ func (e *PostfixEmitter) VisitBoolThereIsInArrayWhere(ctx *BoolThereIsInArrayWhe
 	// Block before array — opForall is ( body array -- ). See #877.
 	e.emit("false")
 	e.emit("{")
-	e.Visit(ctx.Bexpr())
+	e.Visit(ctx.WhereBody())
 	e.emit("or")
 	e.emit("}")
 	e.Visit(ctx.ArrayExpr())
@@ -5524,7 +5532,7 @@ func (e *PostfixEmitter) VisitBoolThereIsNoInArrayWhere(ctx *BoolThereIsNoInArra
 	// Block before array — opForall is ( body array -- ). See #877.
 	e.emit("false")
 	e.emit("{")
-	e.Visit(ctx.Bexpr())
+	e.Visit(ctx.WhereBody())
 	e.emit("or")
 	e.emit("}")
 	e.Visit(ctx.ArrayExpr())
@@ -5553,7 +5561,7 @@ func (e *PostfixEmitter) VisitBoolStartsWithAt(ctx *BoolStartsWithAtContext) int
 
 func (e *PostfixEmitter) VisitBoolEntityHasaWhere(ctx *BoolEntityHasaWhereContext) interface{} {
 	e.emit("{")
-	e.Visit(ctx.Bexpr())
+	e.Visit(ctx.WhereBody())
 	e.emit("}")
 	e.emit("{")
 	e.emit("false")

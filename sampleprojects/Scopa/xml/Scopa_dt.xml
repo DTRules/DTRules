@@ -7,7 +7,7 @@
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
 </source>
 <table_name>Resolve_Capture</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -80,7 +80,7 @@ true
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
 </source>
 <table_name>Capture_Single</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -154,7 +154,7 @@ move.capture_found 0 ==
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>3</sheet_number>
-<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
 </source>
 <table_name>Capture_Sum</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -219,7 +219,7 @@ combo.sum move.played_rank ==
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>4</sheet_number>
-<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
 </source>
 <table_name>Score_Scopa</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -275,7 +275,7 @@ true cvb /move.is_scopa xdef
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>5</sheet_number>
-<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
 </source>
 <table_name>Primiera_Value</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -443,7 +443,7 @@ card.rank 2 ==
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>6</sheet_number>
-<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
 </source>
 <table_name>Suit_Best</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -494,7 +494,7 @@ true
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>7</sheet_number>
-<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
 </source>
 <table_name>Suit_Best_Inner</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -545,7 +545,7 @@ card.primiera cvi /grp.best xdef
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>8</sheet_number>
-<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
 </source>
 <table_name>Score_Primiera</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -627,7 +627,7 @@ true
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>9</sheet_number>
-<source_hash>sha256:0566150b073ffa2dce2359aa5259fc6b96c5933c48e1ebb9659cdade0e3f1dd1</source_hash>
+<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
 </source>
 <table_name>Score_Settebello</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -642,7 +642,7 @@ true
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment></condition_comment>
-<condition_dsl>there is card in player.pile where (card.rank == 7 and card.suit == 0)</condition_dsl>
+<condition_dsl>there is card in player.pile where card.rank == 7 and card.suit == 0</condition_dsl>
 <condition_postfix>
 false { card.rank 7 == { pop card.suit 0 == } over if or } player.pile forall
 </condition_postfix>

@@ -1138,11 +1138,17 @@ type ELListener interface {
 	// EnterFloatMulFloat is called when entering the floatMulFloat production.
 	EnterFloatMulFloat(c *FloatMulFloatContext)
 
+	// EnterFloatMinOfArray is called when entering the floatMinOfArray production.
+	EnterFloatMinOfArray(c *FloatMinOfArrayContext)
+
 	// EnterFloatDivFloat is called when entering the floatDivFloat production.
 	EnterFloatDivFloat(c *FloatDivFloatContext)
 
 	// EnterFloatAddInt is called when entering the floatAddInt production.
 	EnterFloatAddInt(c *FloatAddIntContext)
+
+	// EnterFloatMaxOfArray is called when entering the floatMaxOfArray production.
+	EnterFloatMaxOfArray(c *FloatMaxOfArrayContext)
 
 	// EnterFloatMinOfIntComma is called when entering the floatMinOfIntComma production.
 	EnterFloatMinOfIntComma(c *FloatMinOfIntCommaContext)
@@ -1195,6 +1201,9 @@ type ELListener interface {
 	// EnterFloatMinOfFloat is called when entering the floatMinOfFloat production.
 	EnterFloatMinOfFloat(c *FloatMinOfFloatContext)
 
+	// EnterFloatMaxOfArrayWhere is called when entering the floatMaxOfArrayWhere production.
+	EnterFloatMaxOfArrayWhere(c *FloatMaxOfArrayWhereContext)
+
 	// EnterFloatAddFloat is called when entering the floatAddFloat production.
 	EnterFloatAddFloat(c *FloatAddFloatContext)
 
@@ -1242,6 +1251,9 @@ type ELListener interface {
 
 	// EnterIntAddFloat is called when entering the intAddFloat production.
 	EnterIntAddFloat(c *IntAddFloatContext)
+
+	// EnterFloatMinOfArrayWhere is called when entering the floatMinOfArrayWhere production.
+	EnterFloatMinOfArrayWhere(c *FloatMinOfArrayWhereContext)
 
 	// EnterFloatDivInt is called when entering the floatDivInt production.
 	EnterFloatDivInt(c *FloatDivIntContext)
@@ -1318,6 +1330,9 @@ type ELListener interface {
 	// EnterIntMulBy is called when entering the intMulBy production.
 	EnterIntMulBy(c *IntMulByContext)
 
+	// EnterIntMaxOfArray is called when entering the intMaxOfArray production.
+	EnterIntMaxOfArray(c *IntMaxOfArrayContext)
+
 	// EnterIntMul is called when entering the intMul production.
 	EnterIntMul(c *IntMulContext)
 
@@ -1353,6 +1368,9 @@ type ELListener interface {
 
 	// EnterIntMonthsBetween is called when entering the intMonthsBetween production.
 	EnterIntMonthsBetween(c *IntMonthsBetweenContext)
+
+	// EnterIntMaxOfArrayWhere is called when entering the intMaxOfArrayWhere production.
+	EnterIntMaxOfArrayWhere(c *IntMaxOfArrayWhereContext)
 
 	// EnterIntDaysInYear is called when entering the intDaysInYear production.
 	EnterIntDaysInYear(c *IntDaysInYearContext)
@@ -1398,6 +1416,9 @@ type ELListener interface {
 
 	// EnterIntDayOfMonthInZone is called when entering the intDayOfMonthInZone production.
 	EnterIntDayOfMonthInZone(c *IntDayOfMonthInZoneContext)
+
+	// EnterIntMinOfArray is called when entering the intMinOfArray production.
+	EnterIntMinOfArray(c *IntMinOfArrayContext)
 
 	// EnterFixedFromIndex is called when entering the fixedFromIndex production.
 	EnterFixedFromIndex(c *FixedFromIndexContext)
@@ -1458,6 +1479,9 @@ type ELListener interface {
 
 	// EnterIntHourOf is called when entering the intHourOf production.
 	EnterIntHourOf(c *IntHourOfContext)
+
+	// EnterIntMinOfArrayWhere is called when entering the intMinOfArrayWhere production.
+	EnterIntMinOfArrayWhere(c *IntMinOfArrayWhereContext)
 
 	// EnterBigAbs is called when entering the bigAbs production.
 	EnterBigAbs(c *BigAbsContext)
@@ -1560,6 +1584,9 @@ type ELListener interface {
 
 	// EnterThereis is called when entering the thereis production.
 	EnterThereis(c *ThereisContext)
+
+	// EnterWhereBody is called when entering the whereBody production.
+	EnterWhereBody(c *WhereBodyContext)
 
 	// EnterBlistMulti is called when entering the blistMulti production.
 	EnterBlistMulti(c *BlistMultiContext)
@@ -3139,11 +3166,17 @@ type ELListener interface {
 	// ExitFloatMulFloat is called when exiting the floatMulFloat production.
 	ExitFloatMulFloat(c *FloatMulFloatContext)
 
+	// ExitFloatMinOfArray is called when exiting the floatMinOfArray production.
+	ExitFloatMinOfArray(c *FloatMinOfArrayContext)
+
 	// ExitFloatDivFloat is called when exiting the floatDivFloat production.
 	ExitFloatDivFloat(c *FloatDivFloatContext)
 
 	// ExitFloatAddInt is called when exiting the floatAddInt production.
 	ExitFloatAddInt(c *FloatAddIntContext)
+
+	// ExitFloatMaxOfArray is called when exiting the floatMaxOfArray production.
+	ExitFloatMaxOfArray(c *FloatMaxOfArrayContext)
 
 	// ExitFloatMinOfIntComma is called when exiting the floatMinOfIntComma production.
 	ExitFloatMinOfIntComma(c *FloatMinOfIntCommaContext)
@@ -3196,6 +3229,9 @@ type ELListener interface {
 	// ExitFloatMinOfFloat is called when exiting the floatMinOfFloat production.
 	ExitFloatMinOfFloat(c *FloatMinOfFloatContext)
 
+	// ExitFloatMaxOfArrayWhere is called when exiting the floatMaxOfArrayWhere production.
+	ExitFloatMaxOfArrayWhere(c *FloatMaxOfArrayWhereContext)
+
 	// ExitFloatAddFloat is called when exiting the floatAddFloat production.
 	ExitFloatAddFloat(c *FloatAddFloatContext)
 
@@ -3243,6 +3279,9 @@ type ELListener interface {
 
 	// ExitIntAddFloat is called when exiting the intAddFloat production.
 	ExitIntAddFloat(c *IntAddFloatContext)
+
+	// ExitFloatMinOfArrayWhere is called when exiting the floatMinOfArrayWhere production.
+	ExitFloatMinOfArrayWhere(c *FloatMinOfArrayWhereContext)
 
 	// ExitFloatDivInt is called when exiting the floatDivInt production.
 	ExitFloatDivInt(c *FloatDivIntContext)
@@ -3319,6 +3358,9 @@ type ELListener interface {
 	// ExitIntMulBy is called when exiting the intMulBy production.
 	ExitIntMulBy(c *IntMulByContext)
 
+	// ExitIntMaxOfArray is called when exiting the intMaxOfArray production.
+	ExitIntMaxOfArray(c *IntMaxOfArrayContext)
+
 	// ExitIntMul is called when exiting the intMul production.
 	ExitIntMul(c *IntMulContext)
 
@@ -3354,6 +3396,9 @@ type ELListener interface {
 
 	// ExitIntMonthsBetween is called when exiting the intMonthsBetween production.
 	ExitIntMonthsBetween(c *IntMonthsBetweenContext)
+
+	// ExitIntMaxOfArrayWhere is called when exiting the intMaxOfArrayWhere production.
+	ExitIntMaxOfArrayWhere(c *IntMaxOfArrayWhereContext)
 
 	// ExitIntDaysInYear is called when exiting the intDaysInYear production.
 	ExitIntDaysInYear(c *IntDaysInYearContext)
@@ -3399,6 +3444,9 @@ type ELListener interface {
 
 	// ExitIntDayOfMonthInZone is called when exiting the intDayOfMonthInZone production.
 	ExitIntDayOfMonthInZone(c *IntDayOfMonthInZoneContext)
+
+	// ExitIntMinOfArray is called when exiting the intMinOfArray production.
+	ExitIntMinOfArray(c *IntMinOfArrayContext)
 
 	// ExitFixedFromIndex is called when exiting the fixedFromIndex production.
 	ExitFixedFromIndex(c *FixedFromIndexContext)
@@ -3459,6 +3507,9 @@ type ELListener interface {
 
 	// ExitIntHourOf is called when exiting the intHourOf production.
 	ExitIntHourOf(c *IntHourOfContext)
+
+	// ExitIntMinOfArrayWhere is called when exiting the intMinOfArrayWhere production.
+	ExitIntMinOfArrayWhere(c *IntMinOfArrayWhereContext)
 
 	// ExitBigAbs is called when exiting the bigAbs production.
 	ExitBigAbs(c *BigAbsContext)
@@ -3561,6 +3612,9 @@ type ELListener interface {
 
 	// ExitThereis is called when exiting the thereis production.
 	ExitThereis(c *ThereisContext)
+
+	// ExitWhereBody is called when exiting the whereBody production.
+	ExitWhereBody(c *WhereBodyContext)
 
 	// ExitBlistMulti is called when exiting the blistMulti production.
 	ExitBlistMulti(c *BlistMultiContext)
