@@ -7,6 +7,7 @@
 <relative_path>NV_corp.xlsx</relative_path>
 <file_name>NV_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:65be8e333bc1a9910dcd72d32035fa0f93a9bee470a924e5ab6b7d07e395d630</source_hash>
 </source>
 <table_name>Determine_NV_Filing_Requirement</table_name>
 <xls_file>NV_corp.xlsx</xls_file>
@@ -98,6 +99,7 @@ true cvb /nv_result.qualifies_for_exemption xdef 0.0 cvd /nv_result.commerce_tax
 <relative_path>NV_corp.xlsx</relative_path>
 <file_name>NV_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:65be8e333bc1a9910dcd72d32035fa0f93a9bee470a924e5ab6b7d07e395d630</source_hash>
 </source>
 <table_name>Calculate_NV_Income_Adjustments</table_name>
 <xls_file>NV_corp.xlsx</xls_file>
@@ -148,6 +150,7 @@ result.has_physical_presence_nv { pop nv_result.gross_revenue result.nv_economic
 <relative_path>NV_corp.xlsx</relative_path>
 <file_name>NV_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:65be8e333bc1a9910dcd72d32035fa0f93a9bee470a924e5ab6b7d07e395d630</source_hash>
 </source>
 <table_name>Determine_NV_Business_Classification</table_name>
 <xls_file>NV_corp.xlsx</xls_file>
@@ -311,6 +314,7 @@ nv_result.other_rate cvd /nv_result.commerce_tax_rate xdef
 <relative_path>NV_corp.xlsx</relative_path>
 <file_name>NV_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:65be8e333bc1a9910dcd72d32035fa0f93a9bee470a924e5ab6b7d07e395d630</source_hash>
 </source>
 <table_name>Calculate_NV_Sitused_Revenue</table_name>
 <xls_file>NV_corp.xlsx</xls_file>
@@ -384,6 +388,7 @@ result.total_revenue cvd /nv_result.sitused_revenue xdef result.total_revenue cv
 <relative_path>NV_corp.xlsx</relative_path>
 <file_name>NV_corp.xlsx</file_name>
 <sheet_number>5</sheet_number>
+<source_hash>sha256:65be8e333bc1a9910dcd72d32035fa0f93a9bee470a924e5ab6b7d07e395d630</source_hash>
 </source>
 <table_name>Calculate_NV_State_Tax</table_name>
 <xls_file>NV_corp.xlsx</xls_file>

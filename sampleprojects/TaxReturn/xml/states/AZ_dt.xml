@@ -7,6 +7,7 @@
 <relative_path>AZ.xlsx</relative_path>
 <file_name>AZ.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:ae2ebaa52c97bf651015a77c71fa26a7ad80382a9f7bcdf475bff6aed852fbc6</source_hash>
 </source>
 <table_name>AZ_Tax</table_name>
 <xls_file>AZ.xlsx</xls_file>
@@ -104,6 +105,7 @@ result.az_taxable_income cvd /result.computed_state_taxable_income xdef result.a
 <relative_path>AZ.xlsx</relative_path>
 <file_name>AZ.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:ae2ebaa52c97bf651015a77c71fa26a7ad80382a9f7bcdf475bff6aed852fbc6</source_hash>
 </source>
 <table_name>AZ_Military_Retirement_Exclusion</table_name>
 <xls_file>AZ.xlsx</xls_file>

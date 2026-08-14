@@ -7,6 +7,7 @@
 <relative_path>UT.xlsx</relative_path>
 <file_name>UT.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:2c04c36119822ce8a295b5dc0bf524f1ddf6ab41e3747f58f6e0eea80f5df999</source_hash>
 </source>
 <table_name>ut_tax</table_name>
 <xls_file>UT.xlsx</xls_file>
@@ -60,6 +61,7 @@ result.agi job.dependents length ut_personal_exemption fmul f- 0.0 fmax cvd /res
 <relative_path>UT.xlsx</relative_path>
 <file_name>UT.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:2c04c36119822ce8a295b5dc0bf524f1ddf6ab41e3747f58f6e0eea80f5df999</source_hash>
 </source>
 <table_name>UT_Military_Retirement_Exclusion</table_name>
 <xls_file>UT.xlsx</xls_file>

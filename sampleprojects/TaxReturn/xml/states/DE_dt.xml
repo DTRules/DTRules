@@ -7,6 +7,7 @@
 <relative_path>DE.xlsx</relative_path>
 <file_name>DE.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:c5d574d5f547eb6c3e8f4cd5f22a4f5fb62df8c72441a18e1e2fa4b8dc012838</source_hash>
 </source>
 <table_name>DE_Tax</table_name>
 <xls_file>DE.xlsx</xls_file>

@@ -15,6 +15,7 @@
 package authoring
 
 import (
+	"encoding/xml"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -64,7 +65,7 @@ func GuardExcelIn(xmlDir, excelDir string, overwrite bool) error {
 	if m == nil {
 		return nil
 	}
-	for excelRel := range m.Files {
+	for excelRel, entry := range m.Files {
 		excelPath := filepath.Join(manifestDir, excelRel)
 		if err := excelLockError(excelPath); err != nil {
 			return err
@@ -72,11 +73,57 @@ func GuardExcelIn(xmlDir, excelDir string, overwrite bool) error {
 		if overwrite {
 			continue
 		}
+		// Provenance first, where the XML records it.
+		//
+		// The guard's question is "has this workbook changed since the XML was
+		// generated, so that writing XML over it would discard someone's
+		// edit". The recorded hash answers exactly that; the mtime comparison
+		// only approximated it, and the approximation failed constantly --
+		// checkout stamps every file, so a fresh clone started locked (#1061),
+		// and any rebuild of the workbooks locked every project on the machine
+		// until the manifest caught up.
+		//
+		// The manifest is still the workbook-to-XML index here. What it is no
+		// longer asked for is the time (#1091).
+		if recorded := recordedHashFor(manifestDir, entry.XMLFiles); recorded != "" {
+			if recorded != excel.WorkbookHash(excelPath) {
+				return &sync.ExcelModifiedError{
+					ExcelPath: excelPath,
+					Message: fmt.Sprintf("Excel file %q has changed since the XML was compiled "+
+						"from it; user changes would be lost. Import Excel to XML first, then "+
+						"re-apply your changes.", excelPath),
+				}
+			}
+			continue
+		}
 		if err := m.ExportGuard(excelPath); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// recordedHashFor reads the provenance stamp out of the XML files a manifest
+// entry pairs with a workbook. Returns "" when none of them carry one, or when
+// they disagree -- both cases leave the caller on its previous behaviour.
+func recordedHashFor(manifestDir string, xmlFiles []string) string {
+	for _, rel := range xmlFiles {
+		if !strings.HasSuffix(rel, "_dt.xml") {
+			continue
+		}
+		data, err := os.ReadFile(filepath.Join(manifestDir, rel))
+		if err != nil {
+			continue
+		}
+		var doc excel.DecisionTablesXML
+		if err := xml.Unmarshal(data, &doc); err != nil {
+			continue
+		}
+		if h := excel.RecordedWorkbookHash(doc.Tables); h != "" {
+			return h
+		}
+	}
+	return ""
 }
 
 // RefreshExcelInDir re-exports every Excel file the project's sync

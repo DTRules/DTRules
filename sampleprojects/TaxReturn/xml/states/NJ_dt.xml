@@ -7,6 +7,7 @@
 <relative_path>NJ.xlsx</relative_path>
 <file_name>NJ.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:bb5bff100732752dc680e8204606c1851f5049c09ce13a7f7174cef73c8318f6</source_hash>
 </source>
 <table_name>NJ_Military_Retirement_Exclusion</table_name>
 <xls_file>NJ.xlsx</xls_file>
@@ -28,6 +29,7 @@
 <relative_path>NJ.xlsx</relative_path>
 <file_name>NJ.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:bb5bff100732752dc680e8204606c1851f5049c09ce13a7f7174cef73c8318f6</source_hash>
 </source>
 <table_name>nj_tax</table_name>
 <xls_file>NJ.xlsx</xls_file>
@@ -103,6 +105,7 @@ result.nj_taxable_income cvd /result.computed_state_taxable_income xdef result.n
 <relative_path>NJ.xlsx</relative_path>
 <file_name>NJ.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:bb5bff100732752dc680e8204606c1851f5049c09ce13a7f7174cef73c8318f6</source_hash>
 </source>
 <table_name>NJ_Tax_MFJ_Brackets</table_name>
 <xls_file>NJ.xlsx</xls_file>
@@ -261,6 +264,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_brac
 <relative_path>NJ.xlsx</relative_path>
 <file_name>NJ.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:bb5bff100732752dc680e8204606c1851f5049c09ce13a7f7174cef73c8318f6</source_hash>
 </source>
 <table_name>NJ_Tax_Single_Brackets</table_name>
 <xls_file>NJ.xlsx</xls_file>

@@ -7,6 +7,7 @@
 <relative_path>MS.xlsx</relative_path>
 <file_name>MS.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:d84bc87c13fe6fecdab4f2d78cf383adda162826b9085facd915700f7e5f89be</source_hash>
 </source>
 <table_name>MS_Tax</table_name>
 <xls_file>MS.xlsx</xls_file>

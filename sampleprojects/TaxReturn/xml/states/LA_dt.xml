@@ -7,6 +7,7 @@
 <relative_path>LA.xlsx</relative_path>
 <file_name>LA.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:b111f8fc33436015c537e9eba81189df7479219319232695a79498d1b8692ab3</source_hash>
 </source>
 <table_name>LA_Tax</table_name>
 <xls_file>LA.xlsx</xls_file>
@@ -48,6 +49,7 @@ la_standard_deduction_joint cvi /result.la_standard_deduction xdef result.agi re
 <relative_path>LA.xlsx</relative_path>
 <file_name>LA.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:b111f8fc33436015c537e9eba81189df7479219319232695a79498d1b8692ab3</source_hash>
 </source>
 <table_name>LA_Military_Retirement_Exclusion</table_name>
 <xls_file>LA.xlsx</xls_file>

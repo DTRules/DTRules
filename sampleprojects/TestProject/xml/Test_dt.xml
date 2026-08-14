@@ -7,6 +7,7 @@
 <relative_path>Test.xlsx</relative_path>
 <file_name>Test.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:89d4fd4f4cf5ab3047faef8f4eabe315f49fda1dfc5fb3abf33df7c3b492f597</source_hash>
 </source>
 <table_name>Test_Entry_Point</table_name>
 <xls_file>Test.xlsx</xls_file>

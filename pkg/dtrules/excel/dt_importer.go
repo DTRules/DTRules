@@ -95,6 +95,28 @@ type SourceXML struct {
 	RelativePath string `xml:"relative_path"`
 	FileName     string `xml:"file_name"`
 	SheetNumber  int    `xml:"sheet_number"`
+	// SourceHash is the hash of the workbook this XML was compiled from.
+	//
+	// Excel is the system of record, so the relationship is one-directional
+	// and one hash is enough: only the derived artifact records where it came
+	// from. Two files cannot hold each other's hashes, and the workbook
+	// records nothing.
+	//
+	// It replaces asking the filesystem which file was touched last.
+	// Timestamps answer "which was touched", a proxy for "which changed", and
+	// the proxy is wrong constantly -- checkout, `cp`, containers, CI, mtime
+	// granularity. `build --from-excel` once asked mtimes, got "no sync",
+	// imported nothing and exited 0 (#1057); the export guard compared mtime
+	// to a recorded export time, and since checkout stamps every file, every
+	// fresh clone started locked (#1061).
+	//
+	// Provenance travels with the artifact through git, `cp` and CI, which is
+	// what `.sync-manifest.json` could never do -- it is gitignored, so the
+	// baseline never left the machine that made it (#1091).
+	//
+	// Empty on XML written before this existed, and on XML that was never
+	// compiled from a workbook; callers fall back to timestamps.
+	SourceHash string `xml:"source_hash,omitempty"`
 }
 
 // DecisionTablesXML represents the root XML element for decision tables.
@@ -759,6 +781,9 @@ func (i *DTImporter) writeTable(f *os.File, table *DecisionTableXML) error {
 		f.WriteString(fmt.Sprintf("<relative_path>%s</relative_path>\n", xmlEscapeText(table.Source.RelativePath)))
 		f.WriteString(fmt.Sprintf("<file_name>%s</file_name>\n", xmlEscapeText(table.Source.FileName)))
 		f.WriteString(fmt.Sprintf("<sheet_number>%d</sheet_number>\n", table.Source.SheetNumber))
+		if table.Source.SourceHash != "" {
+			f.WriteString(fmt.Sprintf("<source_hash>%s</source_hash>\n", xmlEscapeText(table.Source.SourceHash)))
+		}
 		f.WriteString("</source>\n")
 	}
 

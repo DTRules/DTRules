@@ -7,6 +7,7 @@
 <relative_path>IL_corp.xlsx</relative_path>
 <file_name>IL_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:e23f71c64dfadc2db229f854ce32723175a0a3c70314b4dd3d923378d161956c</source_hash>
 </source>
 <table_name>Determine_IL_Filing_Requirement</table_name>
 <xls_file>IL_corp.xlsx</xls_file>
@@ -75,6 +76,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "IL" st
 <relative_path>IL_corp.xlsx</relative_path>
 <file_name>IL_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:e23f71c64dfadc2db229f854ce32723175a0a3c70314b4dd3d923378d161956c</source_hash>
 </source>
 <table_name>Calculate_IL_Income_Adjustments</table_name>
 <xls_file>IL_corp.xlsx</xls_file>
@@ -125,6 +127,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>IL_corp.xlsx</relative_path>
 <file_name>IL_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:e23f71c64dfadc2db229f854ce32723175a0a3c70314b4dd3d923378d161956c</source_hash>
 </source>
 <table_name>Calculate_IL_State_Tax</table_name>
 <xls_file>IL_corp.xlsx</xls_file>
@@ -193,6 +196,7 @@ apportionment.state_taxable_income il_apportionment.state_tax_rate fmul cvd /app
 <relative_path>IL_corp.xlsx</relative_path>
 <file_name>IL_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:e23f71c64dfadc2db229f854ce32723175a0a3c70314b4dd3d923378d161956c</source_hash>
 </source>
 <table_name>Calculate_IL_Replacement_Tax</table_name>
 <xls_file>IL_corp.xlsx</xls_file>

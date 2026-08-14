@@ -7,6 +7,7 @@
 <relative_path>KY.xlsx</relative_path>
 <file_name>KY.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:767ff959d19891d8e08915bc321d2396c0c7310f0e15ca6b3151cf4bdfcc5b33</source_hash>
 </source>
 <table_name>ky_military_retirement_exemption</table_name>
 <xls_file>KY.xlsx</xls_file>
@@ -36,6 +37,7 @@
 <relative_path>KY.xlsx</relative_path>
 <file_name>KY.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:767ff959d19891d8e08915bc321d2396c0c7310f0e15ca6b3151cf4bdfcc5b33</source_hash>
 </source>
 <table_name>KY_Tax</table_name>
 <xls_file>KY.xlsx</xls_file>

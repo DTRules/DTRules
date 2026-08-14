@@ -7,6 +7,7 @@
 <relative_path>NM.xlsx</relative_path>
 <file_name>NM.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:6c85f1704f2a8d5eff928c5221fd58a91f1882765f5f2c1334595e76b7130459</source_hash>
 </source>
 <table_name>nm_tax</table_name>
 <xls_file>NM.xlsx</xls_file>
@@ -38,6 +39,7 @@ job.filing_status "HOH" streq
 <relative_path>NM.xlsx</relative_path>
 <file_name>NM.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:6c85f1704f2a8d5eff928c5221fd58a91f1882765f5f2c1334595e76b7130459</source_hash>
 </source>
 <table_name>NM_Military_Retirement_Exclusion</table_name>
 <xls_file>NM.xlsx</xls_file>

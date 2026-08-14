@@ -7,6 +7,7 @@
 <relative_path>MS_corp.xlsx</relative_path>
 <file_name>MS_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:4eed4e1c1106f20f5a8a360221ad8a1f2c1c98e7a35fd5c86a63b43471bb38a9</source_hash>
 </source>
 <table_name>Determine_MS_Filing_Requirement</table_name>
 <xls_file>MS_corp.xlsx</xls_file>
@@ -80,6 +81,7 @@ false cvb /ms_result.has_nexus xdef 0.0 cvd /ms_result.tax_liability xdef
 <relative_path>MS_corp.xlsx</relative_path>
 <file_name>MS_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:4eed4e1c1106f20f5a8a360221ad8a1f2c1c98e7a35fd5c86a63b43471bb38a9</source_hash>
 </source>
 <table_name>Calculate_MS_Income_Adjustments</table_name>
 <xls_file>MS_corp.xlsx</xls_file>
@@ -135,6 +137,7 @@ ms_result.has_nexus true beq
 <relative_path>MS_corp.xlsx</relative_path>
 <file_name>MS_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:4eed4e1c1106f20f5a8a360221ad8a1f2c1c98e7a35fd5c86a63b43471bb38a9</source_hash>
 </source>
 <table_name>Calculate_MS_State_Tax</table_name>
 <xls_file>MS_corp.xlsx</xls_file>

@@ -7,6 +7,7 @@
 <relative_path>AR_corp.xlsx</relative_path>
 <file_name>AR_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:6d78878156c57737bd4006ffa616a38521bff8f938eed45966ac4a32e0492128</source_hash>
 </source>
 <table_name>Determine_AR_Filing_Requirement</table_name>
 <xls_file>AR_corp.xlsx</xls_file>
@@ -71,6 +72,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "AR" st
 <relative_path>AR_corp.xlsx</relative_path>
 <file_name>AR_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:6d78878156c57737bd4006ffa616a38521bff8f938eed45966ac4a32e0492128</source_hash>
 </source>
 <table_name>Calculate_AR_Income_Adjustments</table_name>
 <xls_file>AR_corp.xlsx</xls_file>
@@ -121,6 +123,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>AR_corp.xlsx</relative_path>
 <file_name>AR_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:6d78878156c57737bd4006ffa616a38521bff8f938eed45966ac4a32e0492128</source_hash>
 </source>
 <table_name>Calculate_AR_State_Tax</table_name>
 <xls_file>AR_corp.xlsx</xls_file>

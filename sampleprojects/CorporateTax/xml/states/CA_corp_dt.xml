@@ -7,6 +7,7 @@
 <relative_path>CA_corp.xlsx</relative_path>
 <file_name>CA_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:fdeb6437a18b0126fb47f88dc84357da4a236b1c9bcb728415721ff7dace12ce</source_hash>
 </source>
 <table_name>Determine_CA_Filing_Requirement</table_name>
 <xls_file>CA_corp.xlsx</xls_file>
@@ -71,6 +72,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "CA" st
 <relative_path>CA_corp.xlsx</relative_path>
 <file_name>CA_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:fdeb6437a18b0126fb47f88dc84357da4a236b1c9bcb728415721ff7dace12ce</source_hash>
 </source>
 <table_name>Calculate_CA_Income_Adjustments</table_name>
 <xls_file>CA_corp.xlsx</xls_file>
@@ -121,6 +123,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>CA_corp.xlsx</relative_path>
 <file_name>CA_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:fdeb6437a18b0126fb47f88dc84357da4a236b1c9bcb728415721ff7dace12ce</source_hash>
 </source>
 <table_name>Calculate_CA_State_Tax</table_name>
 <xls_file>CA_corp.xlsx</xls_file>
@@ -189,6 +192,7 @@ ca_result.minimum_franchise_tax cvd /apportionment.state_tax xdef apportionment.
 <relative_path>CA_corp.xlsx</relative_path>
 <file_name>CA_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:fdeb6437a18b0126fb47f88dc84357da4a236b1c9bcb728415721ff7dace12ce</source_hash>
 </source>
 <table_name>Apply_CA_Waters_Edge_Election</table_name>
 <xls_file>CA_corp.xlsx</xls_file>

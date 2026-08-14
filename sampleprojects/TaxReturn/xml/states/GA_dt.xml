@@ -7,6 +7,7 @@
 <relative_path>GA.xlsx</relative_path>
 <file_name>GA.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:1ce3cf5ae90a1975def3117d40e3ab9fd6c92f47a4a29276901150737bb98317</source_hash>
 </source>
 <table_name>GA_Tax</table_name>
 <xls_file>GA.xlsx</xls_file>

@@ -7,6 +7,7 @@
 <relative_path>AK_corp.xlsx</relative_path>
 <file_name>AK_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:73c22f4bba06ec1a1c4b8374c4930bc82619938f6f6acfd01381436b13492976</source_hash>
 </source>
 <table_name>Determine_AK_Filing_Requirement</table_name>
 <xls_file>AK_corp.xlsx</xls_file>
@@ -71,6 +72,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "AK" st
 <relative_path>AK_corp.xlsx</relative_path>
 <file_name>AK_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:73c22f4bba06ec1a1c4b8374c4930bc82619938f6f6acfd01381436b13492976</source_hash>
 </source>
 <table_name>Calculate_AK_Income_Adjustments</table_name>
 <xls_file>AK_corp.xlsx</xls_file>
@@ -121,6 +123,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>AK_corp.xlsx</relative_path>
 <file_name>AK_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:73c22f4bba06ec1a1c4b8374c4930bc82619938f6f6acfd01381436b13492976</source_hash>
 </source>
 <table_name>Calculate_AK_State_Tax</table_name>
 <xls_file>AK_corp.xlsx</xls_file>

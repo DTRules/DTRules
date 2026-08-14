@@ -26,7 +26,8 @@ import (
 
 // buildExporterFormatSheet writes an xlsx sheet in the exporter.go format with
 // one condition and one action. The layout mirrors what exporter.go produces:
-//   col A=number, col B=comment, col C=DSL, col D+=decision column values
+//
+//	col A=number, col B=comment, col C=DSL, col D+=decision column values
 //
 // The header section uses "Name: <table>" as the first row so detectFormat
 // identifies it as "exporter" format.

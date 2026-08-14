@@ -18,12 +18,15 @@
 package sync
 
 import (
+	"encoding/xml"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/DTRules/DTRules/pkg/dtrules/excel"
 )
 
 // SyncDirection indicates which way to sync files.
@@ -1163,6 +1166,27 @@ func assertNoOutputCollision(workbooks []CombinedWorkbook) error {
 }
 
 // determineWorkbookDirection determines the sync direction for a combined workbook.
+
+// recordedSourceHash reads the provenance stamp out of the workbook's DT XML.
+//
+// Returns "" when the file is absent, unreadable, carries no stamp, or carries
+// more than one -- a file assembled from several workbooks has no single
+// provenance, and the timestamp fallback is the right answer for it.
+func (s *Syncer) recordedSourceHash(wb *CombinedWorkbook) string {
+	if !wb.DTExists {
+		return ""
+	}
+	data, err := os.ReadFile(wb.DTXMLPath)
+	if err != nil {
+		return ""
+	}
+	var doc excel.DecisionTablesXML
+	if err := xml.Unmarshal(data, &doc); err != nil {
+		return ""
+	}
+	return excel.RecordedWorkbookHash(doc.Tables)
+}
+
 func (s *Syncer) determineWorkbookDirection(wb *CombinedWorkbook) SyncDirection {
 	// If Excel doesn't exist but XML does, export to Excel
 	if !wb.ExcelExists && (wb.DTExists || wb.EDDExists) {
@@ -1179,6 +1203,31 @@ func (s *Syncer) determineWorkbookDirection(wb *CombinedWorkbook) SyncDirection 
 		return NoSync
 	}
 
+	// Provenance first: the XML records the workbook it was compiled from, so
+	// "did the workbook change" is two file reads and no guessing.
+	//
+	// Timestamps answer "which was touched last", a proxy for "which changed",
+	// and the proxy is wrong constantly -- checkout, `cp`, containers, CI,
+	// mtime granularity. `build --from-excel` once asked mtimes, got NoSync,
+	// imported nothing and exited 0 (#1057); every fresh clone started locked
+	// because checkout stamps every file (#1061). Provenance travels with the
+	// artifact through all of those (#1091).
+	//
+	// Only two answers are possible here, and that is the model rather than an
+	// omission: the XML is derived. Either the workbook is the one it was
+	// compiled from, or it is not and the XML is stale. Hand-edited XML is
+	// overwritten by the next build, which is what "Excel is the system of
+	// record" means.
+	if recorded := s.recordedSourceHash(wb); recorded != "" {
+		if recorded == excel.WorkbookHash(wb.ExcelPath) {
+			return NoSync
+		}
+		return ExcelToXML
+	}
+
+	// No provenance recorded -- XML written before the stamp existed, or never
+	// compiled from a workbook. Fall back to timestamps.
+	//
 	// Both exist - compare timestamps
 	// Use the newest XML file for comparison
 	var newestXMLMod time.Time

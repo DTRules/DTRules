@@ -7,6 +7,7 @@
 <relative_path>UT_corp.xlsx</relative_path>
 <file_name>UT_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:dc62bc77874e76c32fc7fd2eb5aa6522b3d299dbe2277355dd3372ba32d5e4b7</source_hash>
 </source>
 <table_name>Determine_UT_Filing_Requirement</table_name>
 <xls_file>UT_corp.xlsx</xls_file>
@@ -75,6 +76,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "UT" st
 <relative_path>UT_corp.xlsx</relative_path>
 <file_name>UT_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:dc62bc77874e76c32fc7fd2eb5aa6522b3d299dbe2277355dd3372ba32d5e4b7</source_hash>
 </source>
 <table_name>Calculate_UT_Income_Adjustments</table_name>
 <xls_file>UT_corp.xlsx</xls_file>
@@ -125,6 +127,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>UT_corp.xlsx</relative_path>
 <file_name>UT_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:dc62bc77874e76c32fc7fd2eb5aa6522b3d299dbe2277355dd3372ba32d5e4b7</source_hash>
 </source>
 <table_name>Calculate_UT_State_Tax</table_name>
 <xls_file>UT_corp.xlsx</xls_file>

@@ -7,6 +7,7 @@
 <relative_path>TN_corp.xlsx</relative_path>
 <file_name>TN_corp.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:31c5c00a0bceb63cff1bd754760650b0e2a0095e96a6cf7b235d6c5ad365752b</source_hash>
 </source>
 <table_name>Determine_TN_Filing_Requirement</table_name>
 <xls_file>TN_corp.xlsx</xls_file>
@@ -80,6 +81,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.state_code "TN" st
 <relative_path>TN_corp.xlsx</relative_path>
 <file_name>TN_corp.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:31c5c00a0bceb63cff1bd754760650b0e2a0095e96a6cf7b235d6c5ad365752b</source_hash>
 </source>
 <table_name>Calculate_TN_Income_Adjustments</table_name>
 <xls_file>TN_corp.xlsx</xls_file>
@@ -135,6 +137,7 @@ apportionment.has_economic_nexus true beq { pop apportionment.has_physical_prese
 <relative_path>TN_corp.xlsx</relative_path>
 <file_name>TN_corp.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:31c5c00a0bceb63cff1bd754760650b0e2a0095e96a6cf7b235d6c5ad365752b</source_hash>
 </source>
 <table_name>Calculate_TN_Franchise_Tax</table_name>
 <xls_file>TN_corp.xlsx</xls_file>
@@ -208,6 +211,7 @@ tn_result.net_worth tn_result.franchise_tax_rate fmul cvd /tn_result.franchise_t
 <relative_path>TN_corp.xlsx</relative_path>
 <file_name>TN_corp.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:31c5c00a0bceb63cff1bd754760650b0e2a0095e96a6cf7b235d6c5ad365752b</source_hash>
 </source>
 <table_name>Calculate_TN_Excise_Tax</table_name>
 <xls_file>TN_corp.xlsx</xls_file>
@@ -281,6 +285,7 @@ apportionment.state_taxable_income tn_apportionment.state_tax_rate fmul cvd /tn_
 <relative_path>TN_corp.xlsx</relative_path>
 <file_name>TN_corp.xlsx</file_name>
 <sheet_number>5</sheet_number>
+<source_hash>sha256:31c5c00a0bceb63cff1bd754760650b0e2a0095e96a6cf7b235d6c5ad365752b</source_hash>
 </source>
 <table_name>Calculate_TN_State_Tax</table_name>
 <xls_file>TN_corp.xlsx</xls_file>

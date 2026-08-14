@@ -7,6 +7,7 @@
 <relative_path>SC.xlsx</relative_path>
 <file_name>SC.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:c2d092a0b61f5c2c08fad87e818355abec20a2ed13e50cc35971872150a58b45</source_hash>
 </source>
 <table_name>SC_Military_Retirement_Exclusion</table_name>
 <xls_file>SC.xlsx</xls_file>
@@ -36,6 +37,7 @@
 <relative_path>SC.xlsx</relative_path>
 <file_name>SC.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:c2d092a0b61f5c2c08fad87e818355abec20a2ed13e50cc35971872150a58b45</source_hash>
 </source>
 <table_name>SC_Tax</table_name>
 <xls_file>SC.xlsx</xls_file>
@@ -100,6 +102,7 @@ result.sc_taxable_income cvd /result.computed_state_taxable_income xdef result.s
 <relative_path>SC.xlsx</relative_path>
 <file_name>SC.xlsx</file_name>
 <sheet_number>3</sheet_number>
+<source_hash>sha256:c2d092a0b61f5c2c08fad87e818355abec20a2ed13e50cc35971872150a58b45</source_hash>
 </source>
 <table_name>SC_Compute_Taxable_Income</table_name>
 <xls_file>SC.xlsx</xls_file>
@@ -150,6 +153,7 @@ result.agi sc_standard_deduction_single f- 0 fmax cvd /result.sc_taxable_income 
 <relative_path>SC.xlsx</relative_path>
 <file_name>SC.xlsx</file_name>
 <sheet_number>4</sheet_number>
+<source_hash>sha256:c2d092a0b61f5c2c08fad87e818355abec20a2ed13e50cc35971872150a58b45</source_hash>
 </source>
 <table_name>SC_Tax_Brackets</table_name>
 <xls_file>SC.xlsx</xls_file>

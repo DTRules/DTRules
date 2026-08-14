@@ -7,6 +7,7 @@
 <relative_path>AR.xlsx</relative_path>
 <file_name>AR.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:2d15c919c355524262923241251447201595d9eb1f02b5ab85ea732fe06b4a29</source_hash>
 </source>
 <table_name>AR_Tax</table_name>
 <xls_file>AR.xlsx</xls_file>
@@ -84,6 +85,7 @@ result.agi ar_standard_deduction_mfs f- 0.0 fmax cvi /result.ar_taxable_income x
 <relative_path>AR.xlsx</relative_path>
 <file_name>AR.xlsx</file_name>
 <sheet_number>2</sheet_number>
+<source_hash>sha256:2d15c919c355524262923241251447201595d9eb1f02b5ab85ea732fe06b4a29</source_hash>
 </source>
 <table_name>AR_Military_Retirement_Exclusion</table_name>
 <xls_file>AR.xlsx</xls_file>

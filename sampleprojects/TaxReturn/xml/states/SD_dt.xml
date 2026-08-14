@@ -7,6 +7,7 @@
 <relative_path>SD.xlsx</relative_path>
 <file_name>SD.xlsx</file_name>
 <sheet_number>1</sheet_number>
+<source_hash>sha256:44ab69bd50208d8a3e154ef43717bfa8290f07e67b22cebd3e41cfd967210dac</source_hash>
 </source>
 <table_name>SD_Tax</table_name>
 <xls_file>SD.xlsx</xls_file>
