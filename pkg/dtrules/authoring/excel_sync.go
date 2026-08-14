@@ -154,6 +154,7 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 		return fmt.Errorf("excel refresh: load ruleset: %w", err)
 	}
 	exporter := excel.NewExporter(rs)
+	var changed []string
 	for excelRel, entry := range m.Files {
 		excelPath := filepath.Join(manifestDir, excelRel)
 		// Refresh what exists; do not resurrect what does not.
@@ -181,6 +182,7 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 		//
 		// A workbook no table claims is left alone rather than emptied --
 		// see ExportDecisionTablesOwnedBy.
+		before := excel.WorkbookHash(excelPath)
 		n, err := exporter.ExportDecisionTablesOwnedBy(excelPath)
 		if err != nil {
 			return fmt.Errorf("excel refresh: export %s: %w", excelPath, err)
@@ -188,8 +190,46 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 		if n == 0 {
 			continue
 		}
+		if excel.WorkbookHash(excelPath) != before {
+			changed = append(changed, excelPath)
+		}
 		if err := m.RecordExport(excelPath, entry.XMLFiles); err != nil {
 			return fmt.Errorf("excel refresh: record manifest for %s: %w", excelPath, err)
+		}
+	}
+
+	// Excel first, then compile it — the order the contract states.
+	//
+	// The XML was written from the in-memory model a moment ago and the Excel
+	// was exported from that XML, which left two artifacts that agree because
+	// two code paths agreed, and `verify`'s [build] check existed to keep
+	// discovering when they did not. Recompiling the workbook makes the XML
+	// literally the output of compiling the Excel, so agreement is a property
+	// of how the file was produced rather than something to test for. It also
+	// stamps the provenance hash of the workbook that was just written, which
+	// nothing else is in a position to know (#1091).
+	//
+	// Only workbooks whose bytes actually changed: an edit to one table in a
+	// 58-workbook project recompiles one workbook, not 58. The hash makes that
+	// cheap to know.
+	return recompileWorkbooks(xmlDir, changed)
+}
+
+// recompileWorkbooks regenerates XML from the named workbooks.
+func recompileWorkbooks(xmlDir string, workbooks []string) error {
+	if len(workbooks) == 0 {
+		return nil
+	}
+	imp := excel.NewWorkbookImporter()
+	imp.SetELCompiler(newCheckedCompiler())
+	// The whole project's types, so a table reading an entity declared in
+	// another workbook is not compiled as an integer (#1106).
+	if syms := LoadEDDSymbols(xmlDir); len(syms) > 0 {
+		imp.SetSymbols(syms)
+	}
+	for _, wb := range workbooks {
+		if _, _, err := imp.ImportWorkbookToDir(wb, xmlDir); err != nil {
+			return fmt.Errorf("excel refresh: recompile %s: %w", wb, err)
 		}
 	}
 	return nil
