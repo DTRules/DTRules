@@ -61,6 +61,42 @@ func GuardExcelInDir(xmlDir string, overwrite bool) error {
 // exactly that shape: excel/ is declared and used by build and verify, while a
 // stale pkg/dtrules/excel/ sits next to the rules and won the search (#1049).
 func GuardExcelIn(xmlDir, excelDir string, overwrite bool) error {
+	// The artifacts know their own pairing, so a clone works. The manifest is
+	// gitignored: it never left the machine that built it, and both this and
+	// the refresh were documented as no-ops without one -- which described
+	// every clone anyone had ever made (#1091).
+	if pairing := discoverWorkbookPairing(xmlDir, resolveExcelDir(xmlDir, excelDir)); len(pairing) > 0 {
+		for excelPath, xmlFiles := range pairing {
+			if err := excelLockError(excelPath); err != nil {
+				return err
+			}
+			if overwrite {
+				continue
+			}
+			recorded := recordedHashForPaths(xmlFiles)
+			if recorded == "" {
+				continue // unstamped: nothing to compare, and no clock to ask
+			}
+			// A workbook that is not there cannot have changed, and there are
+			// no user edits in it to lose. `verify` reports tables whose
+			// declared workbook is absent, which is where that belongs; the
+			// guard's only job is to refuse to overwrite something.
+			current := excel.WorkbookHash(excelPath)
+			if current == "" {
+				continue
+			}
+			if recorded != current {
+				return &sync.ExcelModifiedError{
+					ExcelPath: excelPath,
+					Message: fmt.Sprintf("Excel file %q has changed since the XML was compiled "+
+						"from it; user changes would be lost. Import Excel to XML first, then "+
+						"re-apply your changes.", excelPath),
+				}
+			}
+		}
+		return nil
+	}
+
 	m, manifestDir := loadSyncManifest(xmlDir, excelDir)
 	if m == nil {
 		return nil
@@ -145,8 +181,9 @@ func RefreshExcelInDir(xmlDir string) error {
 // RefreshExcelIn is RefreshExcelInDir with the project's declared Excel
 // directory. Pass "" to search the conventional layouts (#1049).
 func RefreshExcelIn(xmlDir, excelDir string) error {
+	pairing := discoverWorkbookPairing(xmlDir, resolveExcelDir(xmlDir, excelDir))
 	m, manifestDir := loadSyncManifest(xmlDir, excelDir)
-	if m == nil {
+	if m == nil && len(pairing) == 0 {
 		return nil
 	}
 	rs, err := loadRuleSetForExportInDir(xmlDir)
@@ -155,8 +192,24 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 	}
 	exporter := excel.NewExporter(rs)
 	var changed []string
-	for excelRel, entry := range m.Files {
-		excelPath := filepath.Join(manifestDir, excelRel)
+
+	// The workbooks to refresh, and the XML each is paired with. Discovery
+	// reads that out of the artifacts' own `<source>` blocks; the manifest is
+	// the fallback for projects whose XML records no source at all.
+	targets := pairing
+	if len(targets) == 0 {
+		targets = make(map[string][]string, len(m.Files))
+		for excelRel, entry := range m.Files {
+			abs := filepath.Join(manifestDir, excelRel)
+			paired := make([]string, 0, len(entry.XMLFiles))
+			for _, rel := range entry.XMLFiles {
+				paired = append(paired, filepath.Join(manifestDir, rel))
+			}
+			targets[abs] = paired
+		}
+	}
+
+	for excelPath, xmlFiles := range targets {
 		// Refresh what exists; do not resurrect what does not.
 		//
 		// The manifest outlives the files it names. TaxReturn's committed
@@ -193,8 +246,19 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 		if excel.WorkbookHash(excelPath) != before {
 			changed = append(changed, excelPath)
 		}
-		if err := m.RecordExport(excelPath, entry.XMLFiles); err != nil {
-			return fmt.Errorf("excel refresh: record manifest for %s: %w", excelPath, err)
+		// Keep the manifest current where one exists, so a project that still
+		// has it does not start disagreeing with itself. Nothing reads its
+		// timestamps any more (#1091).
+		if m != nil {
+			rel := make([]string, 0, len(xmlFiles))
+			for _, x := range xmlFiles {
+				if r, rerr := filepath.Rel(manifestDir, x); rerr == nil {
+					rel = append(rel, r)
+				}
+			}
+			if err := m.RecordExport(excelPath, rel); err != nil {
+				return fmt.Errorf("excel refresh: record manifest for %s: %w", excelPath, err)
+			}
 		}
 	}
 
@@ -233,6 +297,37 @@ func recompileWorkbooks(xmlDir string, workbooks []string) error {
 		}
 	}
 	return nil
+}
+
+// recordedHashForPaths reads the provenance stamp out of already-resolved XML
+// paths. Returns "" when none carry one.
+func recordedHashForPaths(xmlPaths []string) string {
+	for _, p := range xmlPaths {
+		if !strings.HasSuffix(p, "_dt.xml") {
+			continue
+		}
+		data, err := os.ReadFile(p)
+		if err != nil {
+			continue
+		}
+		var doc excel.DecisionTablesXML
+		if err := xml.Unmarshal(data, &doc); err != nil {
+			continue
+		}
+		if h := excel.RecordedWorkbookHash(doc.Tables); h != "" {
+			return h
+		}
+	}
+	return ""
+}
+
+// resolveExcelDir falls back to the conventional sibling layout when a project
+// declares no Excel directory.
+func resolveExcelDir(xmlDir, excelDir string) string {
+	if excelDir != "" {
+		return excelDir
+	}
+	return filepath.Join(filepath.Dir(xmlDir), "excel")
 }
 
 // LoadSyncManifestForXMLDir searches the conventional layouts for the
