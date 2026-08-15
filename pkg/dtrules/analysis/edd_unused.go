@@ -225,6 +225,9 @@ var createEntityPattern = regexp.MustCompile(`(?i)new\s+([a-z_][a-z0-9_]*)\s+ent
 // field of the iterated entity are recorded as `entitytype.field`
 // references. This is the entity-stack-aware pass from #776 phase 1.
 func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]bool, writeRefs map[string]bool, err error) {
+	// What the mapping puts on the entity stack before any table runs. Every
+	// table's own context extends this rather than starting empty (#776).
+	baseStack := initialEntities(xmlDir)
 	readRefs = make(map[string]bool)
 	writeRefs = make(map[string]bool)
 
@@ -244,7 +247,7 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 
 		var tables struct {
 			Tables []struct {
-				Contexts []contextEntry `xml:"contexts>context_details"`
+				Contexts       []contextEntry `xml:"contexts>context_details"`
 				InitialActions []struct {
 					DSL     string `xml:"initial_action_dsl"`
 					Postfix string `xml:"action_postfix"`
@@ -272,7 +275,10 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 			// iteration clause is present — the analyzer then
 			// falls back to the dotted-only regex pass, identical
 			// to the pre-#776 behaviour.
-			entityStack := stackFromContexts(schema, table.Contexts)
+			// Seeded with what the mapping pushes before any table runs, so
+			// a bare name in a table with no context of its own still
+			// resolves (#776).
+			entityStack := append(append([]string{}, baseStack...), stackFromContexts(schema, table.Contexts)...)
 
 			// The iterated field itself is being read by every
 			// iteration clause (context or inline). Record it so
@@ -301,6 +307,7 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 				if schema != nil {
 					local := append(append([]string{}, entityStack...), inlinePushes(c.DSL, schema)...)
 					extractBareReads(c.DSL, local, schema, readRefs)
+					extractBarePostfixReads(c.Postfix, local, schema, readRefs)
 				}
 			}
 			// Actions: extract writes explicitly, then reads for non-write positions.
@@ -310,6 +317,7 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 				if schema != nil {
 					local := append(append([]string{}, entityStack...), inlinePushes(a.DSL, schema)...)
 					extractBareWritesAndReads(a.DSL, local, schema, writeRefs, readRefs)
+					extractBarePostfixReads(a.Postfix, local, schema, readRefs)
 				}
 			}
 			for _, a := range table.Actions {
@@ -318,6 +326,7 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 				if schema != nil {
 					local := append(append([]string{}, entityStack...), inlinePushes(a.DSL, schema)...)
 					extractBareWritesAndReads(a.DSL, local, schema, writeRefs, readRefs)
+					extractBarePostfixReads(a.Postfix, local, schema, readRefs)
 				}
 			}
 		}
@@ -356,6 +365,18 @@ var iterationPattern = regexp.MustCompile(
 		`|for\s+first\s+(?:of|in)` + // forfirstOf, forfirstIn
 		`|for\s+each\s+[a-z_][a-z0-9_]*\s+in` + // foreach <var> in
 		`)\s+([a-z_][a-z0-9_]*(?:\.[a-z_][a-z0-9_]*)?)`)
+
+// existentialPattern matches `there is <entity> in <array> where <pred>` and
+// its `is there` / `there is no` spellings.
+//
+// It captures the element name rather than the array, because that name is the
+// entity: `there is person in household.members where person.is_adult`. The
+// array cannot be relied on to say — CHIP declares `relationships` as
+// `type="array" subtype=""`, so nothing recovers the element type from it, and
+// relationship.type, .source and .target were reported as unused while three
+// tables read them through exactly this construct (#776).
+var existentialPattern = regexp.MustCompile(
+	`(?i)\b(?:there\s+is|is\s+there)(?:\s+no)?\s+([a-z_][a-z0-9_]*)\s+in\b`)
 
 // usingPattern matches the statement-level `using <Entity> { ... }` form
 // that pushes one or more named typedEntities onto the entity stack
@@ -443,6 +464,14 @@ func inlinePushes(dsl string, schema *eddSchema) []string {
 	for _, m := range iterationPattern.FindAllStringSubmatch(dsl, -1) {
 		if entity := resolveIteratedEntity(strings.ToLower(m[1]), schema); entity != "" {
 			pushed = append(pushed, entity)
+		}
+	}
+
+	// Existential quantifiers, which name their element directly.
+	for _, m := range existentialPattern.FindAllStringSubmatch(dsl, -1) {
+		name := strings.ToLower(m[1])
+		if _, ok := schema.FieldsByEntity[name]; ok {
+			pushed = append(pushed, name)
 		}
 	}
 
@@ -602,6 +631,44 @@ func stripStringsAndDotted(text string) string {
 // stringLiteralPattern matches "..." with no escape handling — adequate
 // for the DSL the analyzer sees, where strings are simple display text.
 var stringLiteralPattern = regexp.MustCompile(`"[^"]*"`)
+
+// extractBarePostfixReads resolves bare tokens in compiled postfix against the
+// entity stack.
+//
+// The DSL pass has to skip EL keywords, because a word like `type` is
+// syntax there as often as it is a field. Postfix has no syntax left: the
+// compiler has already decided what every word meant, so a bare token is an
+// operator, a literal, a block delimiter, or a reference resolved against the
+// entity stack at run time. A token naming a declared field of an in-scope
+// entity is therefore a read, keyword or not.
+//
+// CHIP is the case. `is there relationship in case.relationships where (type
+// == "parent" ...)` compiles to `false { type "parent" streq ... } forall`,
+// and relationship.type was reported as unused across 22 references because
+// `type` is on the keyword list the DSL pass must honour (#776).
+func extractBarePostfixReads(postfix string, entityStack []string, schema *eddSchema, into map[string]bool) {
+	if len(entityStack) == 0 || schema == nil || postfix == "" {
+		return
+	}
+	for _, tok := range strings.Fields(strings.ToLower(postfix)) {
+		// Literals, block delimiters and slash-quoted names are not reads.
+		if tok == "" || strings.ContainsAny(tok[:1], `"/{}[]0123456789`) {
+			continue
+		}
+		if strings.Contains(tok, ".") {
+			continue // dotted: the regex pass already has it
+		}
+		if !barePostfixToken.MatchString(tok) {
+			continue
+		}
+		if key := attribute(tok, entityStack, schema); key != "" {
+			into[key] = true
+		}
+	}
+}
+
+// barePostfixToken is a plain identifier: no punctuation, no operator symbols.
+var barePostfixToken = regexp.MustCompile(`^[a-z_][a-z0-9_]*$`)
 
 // extractBareReads attributes every bare identifier in `text` that
 // matches a field of the topmost entity on the stack as a read of
