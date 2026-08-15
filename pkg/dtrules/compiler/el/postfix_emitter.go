@@ -1706,10 +1706,22 @@ func (e *PostfixEmitter) VisitIntLengthBytes(ctx *IntLengthBytesContext) interfa
 	return nil
 }
 
+// VisitIntBytesIndex: `<base>[<i>]` in an integer context. The grammar
+// cannot tell a bytes value from an array here — typedBytes and typedArray
+// are both IDENT — so an ARRAY indexed in this position used to lower to
+// `bytesidx`, whose operator is strictly a bytes accessor (RBytesValue) and
+// misreads or errors on arrays; with the set-statement's appended converter
+// that was `stack.cards[0]` silently becoming an integer (#1022). Route by
+// declared type, exactly like eexprIsArray does for the entity folds (#869):
+// arrays get the generic element accessor, bytes keep bytesidx.
 func (e *PostfixEmitter) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface{} {
 	e.Visit(ctx.Bytesexpr())
 	e.Visit(ctx.Iexpr())
-	e.emit("bytesidx")
+	if e.eexprIsArray(ctx.Bytesexpr()) {
+		e.emit("getat")
+	} else {
+		e.emit("bytesidx")
+	}
 	return nil
 }
 
@@ -5367,9 +5379,33 @@ func (e *PostfixEmitter) VisitIndxExpr(ctx *IndxExprContext) interface{} {
 	return nil
 }
 
-// VisitEntityIndex: eexpr as an indxExpr (array/index form). Just delegate.
+// VisitEntityIndex: eexpr as an indxExpr (array/index form) —
+// `stack.cards[0]` where an entity is expected. Delegating to VisitIndxExpr
+// lowered this to `bytesidx`, which is strictly a bytes accessor
+// (opBytesIndex calls RBytesValue) and either errors or misreads on an
+// entity array; with a cvi appended by an assignment path it silently
+// produced an integer where an entity was meant (#1022). Emit the generic
+// element accessor instead, then convert: getat is ( array index --
+// element ), cve makes the element an entity (null if it is not one).
 func (e *PostfixEmitter) VisitEntityIndex(ctx *EntityIndexContext) interface{} {
-	return e.Visit(ctx.IndxExpr())
+	idx := ctx.IndxExpr().(*IndxExprContext)
+	e.Visit(idx.ArrayExpr())
+	e.Visit(idx.Iexpr())
+	e.emit("getat")
+	e.emit("cve")
+	return nil
+}
+
+// VisitEntityFirstOf: `first of <arrayExpr>` — parity with `last of`, which
+// only ever worked by accident: `last` is a plain identifier so `last of x`
+// parses through relationship access, while `first` is a keyword and the
+// phrase refused to parse at all (#1022). opFirst is ( array -- element );
+// cve makes the element an entity.
+func (e *PostfixEmitter) VisitEntityFirstOf(ctx *EntityFirstOfContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.emit("first")
+	e.emit("cve")
+	return nil
 }
 
 // VisitEntityColonRef: `<colonRef> <typedEntity>`. Emit colonRef postfix

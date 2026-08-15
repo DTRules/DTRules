@@ -793,6 +793,9 @@ type ELListener interface {
 	// EnterEntityTableLookup is called when entering the entityTableLookup production.
 	EnterEntityTableLookup(c *EntityTableLookupContext)
 
+	// EnterEntityFirstOf is called when entering the entityFirstOf production.
+	EnterEntityFirstOf(c *EntityFirstOfContext)
+
 	// EnterEntityFirstIn is called when entering the entityFirstIn production.
 	EnterEntityFirstIn(c *EntityFirstInContext)
 
@@ -2820,6 +2823,9 @@ type ELListener interface {
 
 	// ExitEntityTableLookup is called when exiting the entityTableLookup production.
 	ExitEntityTableLookup(c *EntityTableLookupContext)
+
+	// ExitEntityFirstOf is called when exiting the entityFirstOf production.
+	ExitEntityFirstOf(c *EntityFirstOfContext)
 
 	// ExitEntityFirstIn is called when exiting the entityFirstIn production.
 	ExitEntityFirstIn(c *EntityFirstInContext)
