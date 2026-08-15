@@ -58,6 +58,11 @@ func (t TableType) String() string {
 type RDecisionTable struct {
 	dtrules.BaseObject
 
+	// SkipDecisionTree suppresses construction of the executable decision
+	// tree. Set by loads that never execute anything -- the Excel export
+	// needs a table's rows, not a way to run it (#1132).
+	SkipDecisionTree bool
+
 	name *dtrules.RName // The decision table's name
 	// authoredName is the name exactly as written in the source.
 	//
@@ -467,14 +472,28 @@ func (dt *RDecisionTable) Build(state dtrules.State) error {
 		return err
 	}
 
-	// Build the decision tree based on type
-	switch dt.tableType {
-	case BALANCED:
-		dt.buildBalanced()
-	case FIRST:
-		dt.buildUnbalanced(state, false)
-	case ALL:
-		dt.buildUnbalanced(state, true)
+	// Build the decision tree based on type.
+	//
+	// SkipDecisionTree is for loads that never execute anything. The tree is
+	// a runtime artifact and it is not small: it grows with the columns a
+	// table can take, and `TestSave_TaxReturnIdempotent` -- which loads
+	// TaxReturn and saves it twice, executing nothing -- allocated 46GB, all
+	// of it NewCNode and NewANodeForColumn under the export's rule-set load.
+	// TaxReturn's Dispatch_State_Tax alone declares 43 conditions (#1132).
+	//
+	// Only the tree is skipped. Validation and expression compilation still
+	// run, so an export still refuses a table it cannot compile, and the
+	// unreachable-column analysis below is skipped with it because it reads
+	// the tree.
+	if !dt.SkipDecisionTree {
+		switch dt.tableType {
+		case BALANCED:
+			dt.buildBalanced()
+		case FIRST:
+			dt.buildUnbalanced(state, false)
+		case ALL:
+			dt.buildUnbalanced(state, true)
+		}
 	}
 
 	// Check for errors
@@ -484,7 +503,9 @@ func (dt *RDecisionTable) Build(state dtrules.State) error {
 
 	// Mark what's used
 	dt.whatsUsed()
-	dt.setUnreachable()
+	if !dt.SkipDecisionTree {
+		dt.setUnreachable()
+	}
 
 	dt.compiled = true
 	return nil

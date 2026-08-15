@@ -404,6 +404,12 @@ func loadRuleSetForExportInDir(xmlDir string) (*session.RuleSet, error) {
 	if rs == nil {
 		return nil, fmt.Errorf("failed to create ruleset")
 	}
+	// This rule set is written out, never run. Building each table's
+	// executable decision tree is the single largest allocation in an
+	// authoring save -- 46GB across two saves of TaxReturn, all of it
+	// NewCNode and NewANodeForColumn, for trees nothing here executes
+	// (#1132).
+	rs.SkipDecisionTrees(true)
 	// EDD files are loaded recursively, for the same reason the DT files
 	// below are: a nested layout puts them under states/ and the runtime
 	// loader finds them there.
