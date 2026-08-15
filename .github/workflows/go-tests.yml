@@ -5,10 +5,25 @@ on:
     branches: [5.0-SNAPSHOT, main]
   pull_request:
 
+# The hosted runner kills the go-test job when the whole-module run
+# stretches past its tolerance — exit 143, no test failure (#870, #1133).
+# Two changes keep the gate green and honest:
+#
+#   - The suite runs in TWO parallel jobs, split by the Makefile's
+#     ci-test-a / ci-test-b partition (A: the two heaviest trees; B: the
+#     rest by exclusion, so a new package always lands in a job).
+#   - Both jobs pass GOTESTFLAGS=-short — the #870 mechanism, which a
+#     later Makefile rewrite had silently dropped, putting the 50s
+#     heavyweight load test back into every CI run.
+#
+# The root pkg/dtrules/ package has pre-existing failures driven by DSL
+# idioms the EL compiler doesn't yet fully handle; the scoped vet list in
+# the Makefile excludes those known failures, and CI follows that scope.
 jobs:
-  test:
-    name: Build and Test
+  test-a:
+    name: Tests A — root + compiler
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       matrix:
         go-version: ['1.24']
@@ -22,14 +37,34 @@ jobs:
       with:
         go-version: ${{ matrix.go-version }}
 
-    - name: Run scoped build + tests (matches `make check`)
-      # The root pkg/dtrules/ package has pre-existing failures driven by
-      # DSL idioms the EL compiler doesn't yet fully handle (e.g.
-      # "for all <entityName> entities" as a context). `make check`
-      # excludes those known failures. CI follows the same scope so
-      # a green CI means "the scoped local check passed" rather than
-      # a false negative on work already tracked as known-failing.
-      run: make check
+    - name: Full module build
+      run: go build ./...
+
+    - name: Vet (scoped)
+      run: make vet
+
+    - name: Tests A (root pkg/dtrules + compiler)
+      run: make ci-test-a GOTESTFLAGS=-short
+
+  test-b:
+    name: Tests B — everything else
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        go-version: ['1.24']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go ${{ matrix.go-version }}
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Tests B (all remaining packages)
+      run: make ci-test-b GOTESTFLAGS=-short
 
     - name: Build CLI
       run: go build -o build/dtrules ./cmd/dtrules/

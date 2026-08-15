@@ -80,13 +80,15 @@ test:
 #   - pkg/dtrules/interpreter/: asm_stubs.go declares extern symbols vet can't
 #     see implementations for. Build still passes (amd64-only //go:build amd64).
 #   - pkg/dtrules/cmd: pre-existing test reference; vet flags it but tests pass.
-check:
-	@echo "Checking full module build..."
-	go build ./...
+vet:
 	@echo "Running go vet..."
 	go vet ./pkg/dtrules/analysis/... ./pkg/dtrules/benchmark/... ./pkg/dtrules/collect/... ./pkg/dtrules/compiler/ ./pkg/dtrules/datafile/... ./pkg/dtrules/decisiontable/... ./pkg/dtrules/encoding/... ./pkg/dtrules/entity/... ./pkg/dtrules/excel/... ./pkg/dtrules/interview/... ./pkg/dtrules/loader/... ./pkg/dtrules/mapping/... ./pkg/dtrules/operators/... ./pkg/dtrules/repository/... ./pkg/dtrules/ruleset/... ./pkg/dtrules/runtime/... ./pkg/dtrules/session/... ./pkg/dtrules/sync/... ./pkg/dtrules/testsupport/... ./pkg/dtrules/trace/... ./pkg/dtrules/version/... ./pkg/dtrules/web/...
+
+check: vet
+	@echo "Checking full module build..."
+	go build ./...
 	@echo "Running tests (whole module; legacy failures archived behind -tags archive)..."
-	go test -count=1 ./...
+	go test -count=1 $(GOTESTFLAGS) ./...
 	@if [ -d ui/node_modules/vitest ]; then \
 		echo "Running UI unit tests (vitest)..."; \
 		cd ui && npm test --silent; \
@@ -95,7 +97,17 @@ check:
 	fi
 	@echo "check passed."
 
-# ui-test: run the UI unit tests on their own.
+# # CI partition (#1133): the go-tests job gets killed when the whole-module
+# run stretches past the hosted runner's tolerance (#870's window). Two
+# jobs, each well under it. A carries the two heaviest trees; B is defined
+# by exclusion so a new package can never silently fall out of CI.
+ci-test-a:
+	go test -count=1 $(GOTESTFLAGS) ./pkg/dtrules/ ./pkg/dtrules/compiler/...
+
+ci-test-b:
+	go test -count=1 $(GOTESTFLAGS) $$(go list ./... | grep -v -E '^github.com/DTRules/DTRules/pkg/dtrules$$|^github.com/DTRules/DTRules/pkg/dtrules/compiler')
+
+ui-test: run the UI unit tests on their own.
 ui-test:
 	cd ui && npm test
 
