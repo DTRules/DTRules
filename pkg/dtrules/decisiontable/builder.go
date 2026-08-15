@@ -26,6 +26,13 @@ type Builder struct {
 	dt *RDecisionTable
 }
 
+// SetSkipDecisionTree suppresses construction of the executable decision tree
+// for loads that never execute anything (#1132).
+func (b *Builder) SetSkipDecisionTree(skip bool) *Builder {
+	b.dt.SkipDecisionTree = skip
+	return b
+}
+
 // NewBuilder creates a new decision table builder.
 // Returns nil if name has invalid syntax.
 func NewBuilder(name string, session dtrules.Session) *Builder {

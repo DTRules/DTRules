@@ -31,6 +31,10 @@ import (
 // This includes the EDD (Entity Data Dictionary), decision tables,
 // and mappings.
 type RuleSet struct {
+	// skipDecisionTrees suppresses the executable decision tree on tables
+	// loaded into this rule set (#1132).
+	skipDecisionTrees bool
+
 	name          *dtrules.RName
 	entityFactory *entity.Factory
 	eddNames      []string
@@ -113,6 +117,14 @@ func (rs *RuleSet) LoadDecisionTablesTolerant(r io.Reader) error {
 	return rs.loadDecisionTables(r, true)
 }
 
+// SkipDecisionTrees suppresses the executable decision tree on tables loaded
+// after it is set. For rule sets built to be written out rather than run: the
+// Excel export needs a table's rows, not a way to execute it, and the tree is
+// where the memory goes (#1132).
+func (rs *RuleSet) SkipDecisionTrees(skip bool) {
+	rs.skipDecisionTrees = skip
+}
+
 func (rs *RuleSet) loadDecisionTables(r io.Reader, tolerant bool) error {
 	tempSession := &loadSession{
 		factory:    rs.entityFactory,
@@ -121,6 +133,7 @@ func (rs *RuleSet) loadDecisionTables(r io.Reader, tolerant bool) error {
 
 	dtLoader := loader.NewDTLoader(tempSession, rs.entityFactory)
 	dtLoader.Tolerant = tolerant
+	dtLoader.SkipDecisionTree = rs.skipDecisionTrees
 	return dtLoader.Load(r)
 }
 
@@ -190,14 +203,15 @@ func (rs *RuleSet) LoadDecisionTablesTolerantFile(filePath string) error {
 // If eddPath and dtPath are both provided, they are loaded as individual files.
 //
 // Examples:
-//   // Load from directory
-//   rs.LoadFromPath("./sampleprojects/TaxReturn/xml", "", "")
 //
-//   // Load from individual files
-//   rs.LoadFromPath("", "./xml/TaxReturn_edd.xml", "./xml/TaxReturn_dt.xml")
+//	// Load from directory
+//	rs.LoadFromPath("./sampleprojects/TaxReturn/xml", "", "")
 //
-//   // Auto-detect from directory
-//   rs.LoadFromPath("./xml", "", "")
+//	// Load from individual files
+//	rs.LoadFromPath("", "./xml/TaxReturn_edd.xml", "./xml/TaxReturn_dt.xml")
+//
+//	// Auto-detect from directory
+//	rs.LoadFromPath("./xml", "", "")
 func (rs *RuleSet) LoadFromPath(path, eddPath, dtPath string) error {
 	// If individual files are specified, load them
 	if eddPath != "" && dtPath != "" {
@@ -268,9 +282,10 @@ func LoadRulesFromDirectory(name, dirPath string) (*RuleSet, error) {
 // rules from EDD and DT files into a new RuleSet.
 //
 // Example:
-//   rs, err := session.LoadRulesFromFiles("TaxReturn",
-//       "./xml/TaxReturn_edd.xml",
-//       "./xml/TaxReturn_dt.xml")
+//
+//	rs, err := session.LoadRulesFromFiles("TaxReturn",
+//	    "./xml/TaxReturn_edd.xml",
+//	    "./xml/TaxReturn_dt.xml")
 func LoadRulesFromFiles(name, eddPath, dtPath string) (*RuleSet, error) {
 	rs := NewRuleSet(name)
 	if rs == nil {

@@ -59,6 +59,11 @@ type DTLoader struct {
 	// → re-import pipeline). Default false; runtime consumers stay
 	// strict.
 	Tolerant bool
+
+	// SkipDecisionTree suppresses the executable decision tree on every table
+	// this loader builds. For loads that never execute anything -- the Excel
+	// export wants a table's rows, not a way to run it (#1132).
+	SkipDecisionTree bool
 }
 
 // NewDTLoader creates a new Decision Table loader in the default strict mode.
@@ -598,8 +603,10 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		builder.SetRInitialActions(rinitialActions)
 	}
 
-	// Build the decision table (constructs the decision tree)
+	// Build the decision table. SkipDecisionTree suppresses the executable
+	// tree for loads that never run anything (#1132).
 	state := l.session.GetState()
+	builder.SetSkipDecisionTree(l.SkipDecisionTree)
 	dt, err := builder.Build(state)
 	if err != nil {
 		return fmt.Errorf("failed to build decision table %s: %w", name.StringValue(), err)
