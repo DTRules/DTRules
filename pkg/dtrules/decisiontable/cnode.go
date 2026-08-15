@@ -101,10 +101,13 @@ func (c *CNode) Execute(state dtrules.State) error {
 	}
 
 	// Trace: record which condition ran and how it evaluated, so a loaded
-	// trace can annotate the grid with actual results.
-	state.TraceInfo("condition", "",
-		"n", fmt.Sprintf("%d", c.conditionNumber+1),
-		"result", fmt.Sprintf("%t", result))
+	// trace can annotate the grid with actual results. Guarded: the Sprintf
+	// arguments were ~8% of a table execution's CPU with tracing off (#1025).
+	if state.Tracing() {
+		state.TraceInfo("condition", "",
+			"n", fmt.Sprintf("%d", c.conditionNumber+1),
+			"result", fmt.Sprintf("%t", result))
+	}
 
 	// Follow the appropriate branch
 	if result {

@@ -71,6 +71,37 @@ no analyst will ever edit "average over 46 starters", and it belongs in Go at
 190 ns per scoring. The point of measuring is to know where that boundary
 actually falls, and to notice if it moves.
 
+## The arena, and what it actually recovered (#1025 follow-up)
+
+The scratch arena landed with these revisions to the numbers above. Same
+machine, `-benchtime 5000x`:
+
+| Benchmark | ns/op | B/op | allocs/op |
+|---|---:|---:|---:|
+| `BenchmarkCribbageScoreHand` (no arena) | ~45,500 | 36,372 | 592 |
+| `BenchmarkCribbageScoreHandArena` | ~38,300 | 17,694 | 428 |
+
+Two things moved everything since the first table:
+
+1. **Trace formatting was ~8% of execution with tracing off.** The
+   condition/action nodes formatted `fmt.Sprintf` trace attributes on every
+   evaluation; the Trace* methods no-op internally, but Go evaluates
+   arguments regardless. Guarded behind `State.Tracing()` — this one helps
+   every execution, arena or not.
+2. **The arena recycles what the generators materialize.** Opt in with
+   `sess.EnableScratch()`, call `sess.ResetScratch()` between executions;
+   combo/group/run entities and their members arrays are recycled with
+   fresh IDs, and any reference held across a reset fails loudly at next
+   use instead of reading recycled storage.
+
+And one correction to the earlier analysis: materialization is **about a
+third** of execution, not ~95% — the profile puts `emitCombo` at ~33%
+cumulative, with the rest in bytecode dispatch, entity-stack machinery, and
+perform frames. Bytes halve under the arena because the allocation story
+really was materialization-shaped; time improves ~16% because CPU mostly
+was not. The next order of magnitude, if it is ever needed, lives in the
+interpreter loop, not in allocation.
+
 ## Keeping it honest
 
 Re-run the benchmark rather than quoting this table. Absolute numbers move with

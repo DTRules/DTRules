@@ -136,7 +136,16 @@ type structField struct {
 // traces deterministic.
 func makeStructEntity(state dtrules.State, op string, typeName *dtrules.RName, fields ...structField) (dtrules.Entity, error) {
 	sess := state.GetSession()
-	ent, err := sess.GetEntityFactory().CreateEntity(sess, typeName)
+	var ent dtrules.Entity
+	var err error
+	// Materialized structures live exactly as long as one table execution,
+	// so when the session offers the scratch arena (#1025), allocate from
+	// it — the host recycles the lot with ResetScratch between executions.
+	if sa, ok := sess.(dtrules.ScratchAllocator); ok && sa.ScratchEnabled() {
+		ent, err = sa.CreateScratchEntity(typeName)
+	} else {
+		ent, err = sess.GetEntityFactory().CreateEntity(sess, typeName)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("%s: cannot create entity of EDD type %q: %w", op, typeName.String(), err)
 	}
@@ -150,6 +159,23 @@ func makeStructEntity(state dtrules.State, op string, typeName *dtrules.RName, f
 		}
 	}
 	return ent, nil
+}
+
+// newMembersArray builds a members array for a materialized structure,
+// from the scratch arena when the session offers one (#1025).
+func newMembersArray(state dtrules.State, members []dtrules.Object) (*dtrules.RArray, error) {
+	sess := state.GetSession()
+	if sa, ok := sess.(dtrules.ScratchAllocator); ok && sa.ScratchEnabled() {
+		arr, err := sa.CreateScratchArray()
+		if err != nil {
+			return nil, err
+		}
+		for _, m := range members {
+			arr.Add(m)
+		}
+		return arr, nil
+	}
+	return dtrules.NewArrayWithElements(sess, true, members, false)
 }
 
 // emitCombo materializes one subset as a combo entity and appends it to dest.
@@ -166,7 +192,7 @@ func emitCombo(state dtrules.State, op string, members []dtrules.Object, typeNam
 			sum += v
 		}
 	}
-	membersArr, err := dtrules.NewArrayWithElements(state.GetSession(), true, members, false)
+	membersArr, err := newMembersArray(state, members)
 	if err != nil {
 		return err
 	}
@@ -339,7 +365,7 @@ func opGroupBy(state dtrules.State) error {
 	}
 	for _, key := range order {
 		members := groups[key]
-		membersArr, err := dtrules.NewArrayWithElements(state.GetSession(), true, members, false)
+		membersArr, err := newMembersArray(state, members)
 		if err != nil {
 			return err
 		}
@@ -521,7 +547,7 @@ func opSuffixes(state dtrules.State) error {
 				mx = vals[i]
 			}
 		}
-		membersArr, err := dtrules.NewArrayWithElements(state.GetSession(), true, members, false)
+		membersArr, err := newMembersArray(state, members)
 		if err != nil {
 			return err
 		}
