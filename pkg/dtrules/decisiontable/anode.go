@@ -117,12 +117,15 @@ func (a *ANode) Execute(state dtrules.State) error {
 	}
 
 	// Trace: the fired column wraps its actions; each action is an open
-	// element so a performed table's trace nests inside it.
-	col := ""
-	if len(a.columns) > 0 {
-		col = fmt.Sprintf("%d", a.columns[0])
+	// element so a performed table's trace nests inside it. Formatting is
+	// guarded — TraceClose no-ops on its own when tracing is off (#1025).
+	if state.Tracing() {
+		col := ""
+		if len(a.columns) > 0 {
+			col = fmt.Sprintf("%d", a.columns[0])
+		}
+		state.TraceOpen("column", "n", col)
 	}
-	state.TraceOpen("column", "n", col)
 	defer state.TraceClose("column")
 
 	// Publish the table and node so operators that need to know which column
@@ -156,7 +159,9 @@ func (a *ANode) Execute(state dtrules.State) error {
 		state.SetCurrentTableSection("Action", num)
 
 		// Execute the action
-		state.TraceOpen("action", "n", fmt.Sprintf("%d", num+1))
+		if state.Tracing() {
+			state.TraceOpen("action", "n", fmt.Sprintf("%d", num+1))
+		}
 		if err := state.Evaluate(action); err != nil {
 			// Restore section and return error with context
 			state.TraceClose("action")

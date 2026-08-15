@@ -773,6 +773,12 @@ func traceEscape(v string) string {
 	return traceEscaper.Replace(v)
 }
 
+// Tracing reports whether trace output is being collected — the guard hot
+// paths use before formatting trace attributes (#1025).
+func (s *DTState) Tracing() bool {
+	return s.TestState(TRACE) && s.traceOut != nil
+}
+
 // TraceInfo emits a leaf trace element: <tag attrs...>body</tag>.
 func (s *DTState) TraceInfo(tag, body string, attrs ...string) {
 	if s.TestState(TRACE) && s.traceOut != nil {

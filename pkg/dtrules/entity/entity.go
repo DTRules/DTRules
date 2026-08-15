@@ -39,6 +39,15 @@ type REntity struct {
 	xlsFile    string // Export grouping for EDD spreadsheets (legacy)
 	filePath   string // Canonical file path for Excel generation
 
+	// scratchArena is non-nil for entities allocated from a session's
+	// scratch arena (#1025). scratchGen is the arena generation the entity
+	// was handed out under; when it trails the arena's, the entity was
+	// recycled by ResetScratch and any use is refused — loudly, instead of
+	// reading recycled storage. Both fields are zero for ordinary entities,
+	// costing one nil check on access.
+	scratchArena *Arena
+	scratchGen   uint64
+
 	// collected tracks, per attribute index, whether a `collect` field's
 	// value is authoritative (true) vs still defaulted (false) — the
 	// per-instance state for interactive collection (#852). nil means
@@ -108,8 +117,27 @@ func CloneEntity(readonly bool, source *REntity, session dtrules.Session) (*REnt
 		id:         session.GetUniqueID(),
 		readonly:   readonly,
 		attributes: source.attributes, // Share attribute definitions
-		values:     make([]dtrules.Object, len(source.values)),
 		comment:    source.comment,
+	}
+	if err := e.reinitFrom(source, session); err != nil {
+		return nil, err
+	}
+
+	return e, nil
+}
+
+// reinitFrom (re)initializes this instance's per-instance state from a
+// reference entity: default values, self-reference, mapping key, and
+// collection tracking. It is the shared tail of CloneEntity and the arena's
+// recycle path (#1025) — a recycled instance must be indistinguishable from
+// a fresh clone. Callers on the recycle path must stamp id, readonly, and
+// scratchGen first: this method goes through Put, and Put refuses stale
+// scratch entities.
+func (e *REntity) reinitFrom(source *REntity, session dtrules.Session) error {
+	if cap(e.values) >= len(source.values) {
+		e.values = e.values[:len(source.values)]
+	} else {
+		e.values = make([]dtrules.Object, len(source.values))
 	}
 	copy(e.values, source.values)
 
@@ -131,7 +159,7 @@ func CloneEntity(readonly bool, source *REntity, session dtrules.Session) (*REnt
 			}
 			cloned, err := value.Clone(session)
 			if err != nil {
-				return nil, err
+				return err
 			}
 			e.values[i] = cloned
 		}
@@ -142,9 +170,17 @@ func CloneEntity(readonly bool, source *REntity, session dtrules.Session) (*REnt
 	// fresh all-false slice rather than copying the template's state (#852).
 	if source.collected != nil {
 		e.collected = make([]bool, len(e.values))
+	} else {
+		e.collected = nil
 	}
 
-	return e, nil
+	return nil
+}
+
+// staleScratch reports whether this entity was recycled out from under the
+// holder by a ResetScratch (#1025).
+func (e *REntity) staleScratch() bool {
+	return e.scratchArena != nil && e.scratchGen != e.scratchArena.Generation()
 }
 
 // Type returns the type for this object.
@@ -319,6 +355,10 @@ func (e *REntity) GetAttributeNames() []*dtrules.RName {
 
 // Get retrieves an attribute value by name.
 func (e *REntity) Get(name *dtrules.RName) (dtrules.Object, error) {
+	if e.staleScratch() {
+		return nil, dtrules.UndefinedError("REntity.Get",
+			"scratch entity "+e.name.StringValue()+" used after ResetScratch — scratch objects do not survive the execution that made them (#1025)")
+	}
 	entry := e.attributes[name]
 	if entry == nil {
 		return nil, nil
@@ -336,6 +376,10 @@ func (e *REntity) GetByIndex(i int) dtrules.Object {
 
 // Put sets an attribute value.
 func (e *REntity) Put(name *dtrules.RName, value dtrules.Object) error {
+	if e.staleScratch() {
+		return dtrules.UndefinedError("REntity.Put",
+			"scratch entity "+e.name.StringValue()+" used after ResetScratch — scratch objects do not survive the execution that made them (#1025)")
+	}
 	entry := e.attributes[name]
 	if entry == nil {
 		return dtrules.UndefinedError("REntity.Put", "Undefined Attribute "+name.StringValue()+" in Entity: "+e.name.StringValue())

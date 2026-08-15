@@ -229,3 +229,50 @@ func BenchmarkCribbageScorePlay(b *testing.B) {
 		}
 	}
 }
+
+// BenchmarkCribbageScoreHandArena is the steady-state loop the scratch
+// arena (#1025) exists for: durable state — the hand, its cards, the work
+// arrays — is built once; each iteration clears the work arrays, executes
+// Score_Hand, and recycles every materialized structure with ResetScratch.
+// Compare against BenchmarkCribbageScoreHand to see what the arena recovers.
+func BenchmarkCribbageScoreHandArena(b *testing.B) {
+	sess, ef, state := newCribbageBench(b)
+	sa, ok := sess.(dtrules.ScratchAllocator)
+	if !ok {
+		b.Fatal("session must implement dtrules.ScratchAllocator")
+	}
+	sa.EnableScratch()
+
+	dt, err := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Score_Hand"))
+	if err != nil {
+		b.Fatalf("GetDecisionTable(Score_Hand): %v", err)
+	}
+	hand := buildBenchHand(b, sess, ef, benchKept, benchStarter, false)
+	work := make([]*dtrules.RArray, 0, 4)
+	for _, name := range []string{"combos", "rank_groups", "suit_groups", "run_list"} {
+		v, err := hand.Get(dtrules.GetRName(name))
+		if err != nil || v == nil {
+			b.Fatalf("get %s: %v", name, err)
+		}
+		arr, err := v.RArrayValue()
+		if err != nil {
+			b.Fatal(err)
+		}
+		work = append(work, arr)
+	}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for _, arr := range work {
+			arr.Clear()
+		}
+		state.EntityPush(hand)
+		err := dt.Execute(state)
+		state.EntityPop()
+		if err != nil {
+			b.Fatalf("Score_Hand: %v", err)
+		}
+		sa.ResetScratch()
+	}
+}

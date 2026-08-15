@@ -220,6 +220,13 @@ type State interface {
 	// PStack prints all stacks for debugging
 	PStack()
 
+	// Tracing reports whether trace output is being collected. Callers on
+	// hot paths must check it before formatting trace attributes: the
+	// Trace* methods no-op internally when tracing is off, but Go evaluates
+	// their arguments regardless, and per-node fmt.Sprintf calls were ~8%
+	// of a table execution's CPU with tracing off (#1025).
+	Tracing() bool
+
 	// TraceInfo emits a leaf trace element: <tag attrs...>body</tag>.
 	// attrs are alternating name, value pairs.
 	TraceInfo(tag, body string, attrs ...string)

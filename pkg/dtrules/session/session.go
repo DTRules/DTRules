@@ -36,6 +36,7 @@ type RSession struct {
 	entityInstances map[int]dtrules.Entity
 	dateParser      dtrules.DateParser
 	attributes      map[string]interface{}
+	arena           *entity.Arena // scratch arena (#1025); nil until EnableScratch
 }
 
 // NewSession creates a new session for the given rule set.
@@ -115,6 +116,47 @@ func (s *RSession) CreateEntity(name *dtrules.RName) (dtrules.Entity, error) {
 	}
 	s.entityInstances[entity.GetID()] = entity
 	return entity, nil
+}
+
+// ScratchEnabled reports whether the scratch arena (#1025) is active.
+func (s *RSession) ScratchEnabled() bool { return s.arena != nil }
+
+// EnableScratch activates the scratch arena for this session. Idempotent.
+// Until this is called the CreateScratch* methods fall back to ordinary
+// allocation and ResetScratch is a no-op, so nothing changes for hosts that
+// never opt in — and no arena pins memory waiting for a reset that never
+// comes.
+func (s *RSession) EnableScratch() {
+	if s.arena == nil {
+		s.arena = entity.NewArena(s, s.entityFactory)
+	}
+}
+
+// CreateScratchEntity allocates from the arena when enabled, ordinarily
+// otherwise. Scratch entities are not registered in entityInstances: they
+// do not survive the execution, so an ID lookup table would only pin them.
+func (s *RSession) CreateScratchEntity(name *dtrules.RName) (dtrules.Entity, error) {
+	if s.arena != nil {
+		return s.arena.CreateEntity(name)
+	}
+	return s.entityFactory.CreateEntity(s, name)
+}
+
+// CreateScratchArray allocates from the arena when enabled, ordinarily
+// otherwise.
+func (s *RSession) CreateScratchArray() (*dtrules.RArray, error) {
+	if s.arena != nil {
+		return s.arena.CreateArray()
+	}
+	return dtrules.NewArray(s, true, false)
+}
+
+// ResetScratch recycles everything the arena handed out since the last
+// reset. No-op when the arena is not enabled.
+func (s *RSession) ResetScratch() {
+	if s.arena != nil {
+		s.arena.Reset()
+	}
 }
 
 // GetEntityByID returns an entity by its ID.

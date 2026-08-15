@@ -171,7 +171,12 @@ func TestCribbagePeggingConformance(t *testing.T) {
 		}
 	}
 
-	const iterations = 1500
+	// The full sweep belongs to a full `make check`; the CI fast gate runs
+	// -short and the #870 runner window is unforgiving of long jobs.
+	iterations := 1500
+	if testing.Short() {
+		iterations = 300
+	}
 	mismatches := 0
 	for i := 0; i < iterations; i++ {
 		rng.Shuffle(len(deck), func(a, b int) { deck[a], deck[b] = deck[b], deck[a] })
