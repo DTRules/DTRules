@@ -102,10 +102,10 @@ check: vet
 # jobs, each well under it. A carries the two heaviest trees; B is defined
 # by exclusion so a new package can never silently fall out of CI.
 ci-test-a:
-	go test -count=1 $(GOTESTFLAGS) ./pkg/dtrules/ ./pkg/dtrules/compiler/...
+	go test -count=1 $(GOTESTFLAGS) ./pkg/dtrules/
 
 ci-test-b:
-	go test -count=1 $(GOTESTFLAGS) $$(go list ./... | grep -v -E '^github.com/DTRules/DTRules/pkg/dtrules$$|^github.com/DTRules/DTRules/pkg/dtrules/compiler')
+	go test -count=1 $(GOTESTFLAGS) $$(go list ./... | grep -v -E '^github.com/DTRules/DTRules/pkg/dtrules$$')
 
 ui-test: run the UI unit tests on their own.
 ui-test:

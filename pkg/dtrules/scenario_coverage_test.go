@@ -44,6 +44,14 @@ const (
 )
 
 func TestTaxReturnScenarioCoverage(t *testing.T) {
+	// 35s at GOMAXPROCS=2 — the entire root package's -short cost, and alone
+	// enough to push CI's test step into the runner-kill window (#1133,
+	// #870). Full coverage belongs to the full local/release `make check`;
+	// the CI fast gate skips it, same precedent as
+	// TestBackwardCompatibilityFallback.
+	if testing.Short() {
+		t.Skip("TaxReturn scenario corpus is the root package's heaviest test; skipped in the CI fast gate")
+	}
 	cwd, _ := os.Getwd()
 	sampleDir := filepath.Join(cwd, "..", "..", "sampleprojects", "TaxReturn")
 	xmlDir := filepath.Join(sampleDir, "xml")

@@ -7,7 +7,7 @@
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
+<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
 </source>
 <table_name>Resolve_Capture</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -80,7 +80,7 @@ true
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
+<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
 </source>
 <table_name>Capture_Single</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -154,7 +154,7 @@ move.capture_found 0 ==
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>3</sheet_number>
-<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
+<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
 </source>
 <table_name>Capture_Sum</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -219,7 +219,7 @@ combo.sum move.played_rank ==
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>4</sheet_number>
-<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
+<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
 </source>
 <table_name>Score_Scopa</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -275,7 +275,7 @@ true cvb /move.is_scopa xdef
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>5</sheet_number>
-<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
+<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
 </source>
 <table_name>Primiera_Value</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -443,7 +443,7 @@ card.rank 2 ==
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>6</sheet_number>
-<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
+<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
 </source>
 <table_name>Suit_Best</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -478,60 +478,9 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment></action_comment>
-<action_dsl>perform Suit_Best_Inner</action_dsl>
+<action_dsl>set grp.best = max of primiera in grp.members;</action_dsl>
 <action_postfix>
-/Suit_Best_Inner performtable
-</action_postfix>
-<columns>X</columns>
-</action_details>
-</actions>
-<policy_statements></policy_statements>
-</decision_table>
-
-<!-- TABLE 4060: Suit_Best_Inner -->
-<decision_table el_compiled="true">
-<source>
-<relative_path>Scopa.xlsx</relative_path>
-<file_name>Scopa.xlsx</file_name>
-<sheet_number>7</sheet_number>
-<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
-</source>
-<table_name>Suit_Best_Inner</table_name>
-<xls_file>Scopa.xlsx</xls_file>
-<attribute_fields>
-<Type>FIRST</Type>
-<COMMENTS></COMMENTS>
-<TABLE_NUMBER>4060</TABLE_NUMBER>
-</attribute_fields>
-<contexts>
-<context_details>
-<context_number>1</context_number>
-<context_comment></context_comment>
-<context_dsl>for all grp.members</context_dsl>
-<context_postfix>
-dup grp.members forall pop
-</context_postfix>
-</context_details>
-</contexts>
-<initial_actions></initial_actions>
-<conditions>
-<condition_details>
-<condition_number>1</condition_number>
-<condition_comment>a better card for this suit</condition_comment>
-<condition_dsl>card.primiera &gt; grp.best</condition_dsl>
-<condition_postfix>
-card.primiera grp.best &gt;
-</condition_postfix>
-<columns>Y</columns>
-</condition_details>
-</conditions>
-<actions>
-<action_details>
-<action_number>1</action_number>
-<action_comment></action_comment>
-<action_dsl>set grp.best = card.primiera;</action_dsl>
-<action_postfix>
-card.primiera cvi /grp.best xdef
+0 { primiera max } grp.members forall cvi /grp.best xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -544,8 +493,8 @@ card.primiera cvi /grp.best xdef
 <source>
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
-<sheet_number>8</sheet_number>
-<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
+<sheet_number>7</sheet_number>
+<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
 </source>
 <table_name>Score_Primiera</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -626,8 +575,8 @@ true
 <source>
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
-<sheet_number>9</sheet_number>
-<source_hash>sha256:ab60bb440fde5297f48d0df6a67e364f150dd05d5d881c04cdedfd0954d96320</source_hash>
+<sheet_number>8</sheet_number>
+<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
 </source>
 <table_name>Score_Settebello</table_name>
 <xls_file>Scopa.xlsx</xls_file>
