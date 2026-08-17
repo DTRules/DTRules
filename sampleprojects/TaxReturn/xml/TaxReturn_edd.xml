@@ -346,7 +346,7 @@
 		<field name="ss_wage_base" type="double" subtype="" access="r" input="" default_value="176100" comment="Social Security wage base (2025 est.)"></field>
 		<field name="standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="23625" comment="Standard deduction for HOH (2025)"></field>
 		<field name="standard_deduction_mfj" type="double" subtype="" access="r" input="" default_value="31500" comment="Standard deduction for MFJ/QSS (2025 Rev. Proc. 2024-40)"></field>
-		<field name="standard_deduction_mfs" type="double" subtype="" access="r" input="" default_value="15000" comment="Standard deduction for MFS (2025)"></field>
+		<field name="standard_deduction_mfs" type="double" subtype="" access="r" input="" default_value="15750" comment="2025 standard deduction, married filing separately — the same amount as single (Pub. 501). Was 15000, the pre-OBBBA figure, while single and MFJ already carried the OBBBA amounts; every MFS return computed taxable income $750 too high."></field>
 		<field name="standard_deduction_single" type="double" subtype="" access="r" input="" default_value="15750" comment="Standard deduction for Single (2025)"></field>
 		<field name="student_loan_max_deduction" type="double" subtype="" access="r" input="" default_value="2500" comment="Max student loan interest deduction (IRC 221)"></field>
 		<field name="student_loan_phaseout_end_mfj" type="double" subtype="" access="r" input="" default_value="200000" comment="Student loan phaseout end MFJ (2025)"></field>
