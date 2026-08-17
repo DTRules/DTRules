@@ -10,7 +10,7 @@ on:
 # Two changes keep the gate green and honest:
 #
 #   - The suite runs in TWO parallel jobs, split by the Makefile's
-#     ci-test-a / ci-test-b partition (A: the two heaviest trees; B: the
+#     ci-test-a / ci-test-b partition (A: the root package, the heaviest tree; B: the
 #     rest by exclusion, so a new package always lands in a job).
 #   - Both jobs pass GOTESTFLAGS=-short — the #870 mechanism, which a
 #     later Makefile rewrite had silently dropped, putting the 50s
@@ -21,7 +21,7 @@ on:
 # the Makefile excludes those known failures, and CI follows that scope.
 jobs:
   test-a:
-    name: Tests A — root + compiler
+    name: Tests A — root package
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -43,7 +43,7 @@ jobs:
     - name: Vet (scoped)
       run: make vet
 
-    - name: Tests A (root pkg/dtrules + compiler)
+    - name: Tests A (root pkg/dtrules)
       run: make ci-test-a GOTESTFLAGS=-short
 
   test-b:
