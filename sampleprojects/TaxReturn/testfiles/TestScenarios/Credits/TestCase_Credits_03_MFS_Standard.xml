@@ -19,8 +19,8 @@
    <!-- Tax (2025 MFS brackets - same as Single): $5,407 -->
    <!-- Note: MFS has limited credits and higher phaseouts -->
    <expected_agi>60000</expected_agi>
-   <expected_standard_deduction>15000</expected_standard_deduction>
-   <expected_taxable_income>45000</expected_taxable_income>
+   <expected_standard_deduction>15750</expected_standard_deduction>
+   <expected_taxable_income>44250</expected_taxable_income>
 
    <taxpayers>
       <taxpayer id="1">
