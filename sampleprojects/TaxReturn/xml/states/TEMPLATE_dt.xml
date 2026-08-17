@@ -2,7 +2,7 @@
 <decision_tables>
 
 <!-- TABLE 100: Calculate_XX_Tax -->
-<decision_table>
+<decision_table el_compiled="true">
 <source>
 <relative_path>TaxReturn_dt.xls</relative_path>
 <file_name>TaxReturn_dt.xls</file_name>

@@ -23,6 +23,7 @@
 		<field name="phaseout_reduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Reduction from MAGI phase-out"></field>
 		<field name="prior_year_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Expenses claimed in prior years"></field>
 		<field name="qualified_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Qualified adoption expenses"></field>
+		<field name="refundable_credit" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Form 8839: the refundable part of this child&#39;s credit, capped at constants.adoption_credit_refundable_max."></field>
 	</entity>
 	<entity name="casualty_loss" number="200" xls_file="TaxReturn.xlsx" access="rw">
 		<source>
@@ -103,9 +104,10 @@
 		<field name="additional_medicare_threshold_single" type="double" subtype="" access="r" input="" default_value="200000" comment="Add Medicare threshold Single"></field>
 		<field name="additional_std_deduction_married" type="double" subtype="" access="r" input="" default_value="1600" comment="Additional std deduction per senior/blind for MFJ/MFS (2025 est.)"></field>
 		<field name="additional_std_deduction_single" type="double" subtype="" access="r" input="" default_value="2000" comment="Additional std deduction per senior/blind for Single/HOH (2025 est.)"></field>
-		<field name="adoption_credit_max" type="double" subtype="" access="r" input="" default_value="17280" comment="Max adoption credit per child (2025)"></field>
-		<field name="adoption_phaseout_end" type="double" subtype="" access="r" input="" default_value="292150" comment="MAGI phase-out end (2024)"></field>
-		<field name="adoption_phaseout_start" type="double" subtype="" access="r" input="" default_value="252150" comment="MAGI phase-out start (2024)"></field>
+		<field name="adoption_credit_max" type="double" subtype="" access="r" input="" default_value="17280" comment="Form 8839: maximum adoption credit per eligible child, 2025. Was 16810, the 2024 figure."></field>
+		<field name="adoption_credit_refundable_max" type="double" subtype="" access="r" input="" default_value="5000" comment="Form 8839: the refundable part of the adoption credit, up to $5,000 per qualifying child, new for tax years 2025 and after. The rest stays nonrefundable and carries forward."></field>
+		<field name="adoption_phaseout_end" type="double" subtype="" access="r" input="" default_value="299190" comment="Form 8839: MAGI at which the adoption credit is fully phased out, 2025. Was 292150, the 2024 figure."></field>
+		<field name="adoption_phaseout_start" type="double" subtype="" access="r" input="" default_value="259190" comment="Form 8839: MAGI at which the adoption credit begins to phase out, 2025. Was 252150, the 2024 figure."></field>
 		<field name="amt_28_percent_threshold" type="double" subtype="" access="r" input="" default_value="239100" comment="AMTI threshold for 28% rate (2025) - deprecated, use amt_rate_threshold"></field>
 		<field name="amt_exemption_mfj" type="double" subtype="" access="r" input="" default_value="137000" comment="AMT exemption MFJ (2025)"></field>
 		<field name="amt_exemption_mfs" type="double" subtype="" access="r" input="" default_value="68500" comment="AMT exemption MFS (2025)"></field>
@@ -1092,6 +1094,7 @@
 		<field name="nh_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="New Hampshire taxable income"></field>
 		<field name="niit_excess" type="double" subtype="" access="rw" input="" default_value="0" comment="MAGI in excess of the NIIT threshold (Form 8960 line 15)"></field>
 		<field name="niit_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Net Investment Income Tax (Form 8960)"></field>
+		<field name="nol_amount_available" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Net operating loss carried into this year and available to deduct. The table already tested this field; nothing declared it (Pub. 536)."></field>
 		<field name="nol_carryforward_remaining" type="double" subtype="" access="rw" input="" default_value="0" comment="NOL carryforward to future years"></field>
 		<field name="nol_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="NOL deduction used this year"></field>
 		<field name="notes" type="array" subtype="" access="rw" input="" default_value="" comment="Detailed calculation notes"></field>
@@ -1144,6 +1147,7 @@
 		<field name="taxable_conversions" type="double" subtype="" access="rw" input="" default_value="0" comment="Taxable portion of Roth conversions"></field>
 		<field name="taxable_distributions" type="double" subtype="" access="rw" input="" default_value="0" comment="Taxable portion of IRA distributions"></field>
 		<field name="taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Taxable income (Form 1040 Line 15)"></field>
+		<field name="taxable_income_before_nol" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Taxable income figured without the NOL deduction. Pub. 536 caps the deduction at 80% of THIS, not of income after it."></field>
 		<field name="taxable_social_security" type="double" subtype="" access="rw" input="" default_value="0" comment="Taxable portion of Social Security"></field>
 		<field name="tips_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="No Tax on Tips deduction (OBBBA 2025, max $25k)"></field>
 		<field name="total_1231_gains" type="double" subtype="" access="rw" input="" default_value="0" comment="Total Section 1231 gains"></field>
