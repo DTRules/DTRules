@@ -290,7 +290,12 @@ forctl
 
 performstatement
     : PERFORM typedDecisionTable AND ONERROR ADD eexpr TO CONTEXT AND PERFORM typedDecisionTable  # performCatchError
-    | PERFORM TABLE NAMED LPAREN strexpr RPAREN             # performDynamicTable
+    // The default clause is an optional suffix of ONE alternative, not a
+    // second alternative. As two alternatives sharing the whole prefix, the
+    // parser had to look ahead past an arbitrarily long strexpr to choose
+    // between them, and ALL(*) prediction built state until the process was
+    // killed — an OOM, not a parse error.
+    | PERFORM TABLE NAMED LPAREN strexpr RPAREN (WITH_DEFAULT typedDecisionTable)? # performDynamicTable
     | typedDecisionTable                                    # performDT
     | PERFORM typedDecisionTable                            # performDTExplicit
     | PERFORM NAME                                          # performName
@@ -1071,6 +1076,9 @@ ENTITIES            : 'entities' ;
 ARRAY               : 'array' ;
 TABLE               : 'table' ;
 NAMED               : 'named' ;
+// One token, because 'default' is a word of RBOOLEAN: as two tokens the lexer
+// would hand back a boolean. Longest-match prefers this over 'with'.
+WITH_DEFAULT        : 'with' WS+ 'default' ;
 CREATE              : 'create' ;
 BIGINT              : 'bigint' | 'biginteger' ;
 FIXED               : 'fixed' ;

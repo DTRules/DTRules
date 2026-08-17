@@ -58,6 +58,7 @@ func init() {
 	Register("performaliased", opPerformAliased)
 	Register("executetable", opExecuteTable)
 	Register("performtable", opPerformTable)
+	Register("performtableordefault", opPerformTableOrDefault)
 	Register("performcatcherror", opPerformCatchError)
 	Register("firstpass", opFirstPass)
 }
@@ -562,7 +563,6 @@ func opForFirstElse(state dtrules.State) error {
 	return body2.Execute(state)
 }
 
-
 // opAllocate: ( value -- ) pushes value to control stack
 func opAllocate(state dtrules.State) error {
 	v, err := state.DataPop()
@@ -668,6 +668,57 @@ func opPerformTable(state dtrules.State) error {
 	}
 	// Call Execute which runs the context first (if any), then the decision tree
 	return dtObj.Execute(state)
+}
+
+// opPerformTableOrDefault: ( name default -- ) execute the named table, or a
+// named fallback when it does not exist.
+//
+// Dynamic dispatch forces a table into existence for every value the selector
+// can take. CorporateTax dispatches on `apportionment.state_code` across 51
+// states, and the states with no corporate income tax still need all three
+// tables so the name resolves: SD's and WY's are seven action rows each,
+// every one of them writing an audit line and zeroing a field.
+//
+// The fallback is opt-in by existence. If the author never defines the default
+// table, a missing target is the error it always was; defining it is what
+// declares "the states I did not write behave like this". Nothing changes for
+// dispatches whose targets all exist.
+//
+// The compiler supplies the default name, because only it knows which part of
+// the concatenation was the variable -- the runtime sees a finished string.
+func opPerformTableOrDefault(state dtrules.State) error {
+	defaultObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	defaultName, err := defaultObj.RNameValue()
+	if err != nil {
+		return err
+	}
+	nameObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	name, err := nameObj.RNameValue()
+	if err != nil {
+		return err
+	}
+
+	factory := state.GetSession().GetEntityFactory()
+	dtObj, err := factory.GetDecisionTable(name)
+	if err == nil && dtObj != nil {
+		return dtObj.Execute(state)
+	}
+
+	fallback, ferr := factory.GetDecisionTable(defaultName)
+	if ferr != nil || fallback == nil {
+		// Name both, so the message says what was looked for and what would
+		// have satisfied it.
+		return dtrules.UndefinedError("PerformTable",
+			"Decision table not found: "+name.StringValue()+
+				" (and no default "+defaultName.StringValue()+")")
+	}
+	return fallback.Execute(state)
 }
 
 // opPerformAliased: ( name -- ) executes a decision table using the current entity context

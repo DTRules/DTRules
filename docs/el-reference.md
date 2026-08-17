@@ -293,6 +293,20 @@ Natural language forms (`is greater than`, `at or above`, etc.) compile identica
 **Tax example (natural language)**: `taxpayer.age is greater than or equal to 65` → `taxpayer.age 65 >=`
 **Eligibility example (real postfix)**: `person.age constants.adult_age ge`
 
+#### Perform table named … with default
+
+**Syntax**: `perform table named (<string expression>) with default <TableName>`
+**Semantics**: Dispatch to the table the expression names; when no such table exists, run the named default instead. Without the clause a missing target is an error, which is unchanged.
+
+Dynamic dispatch otherwise forces a table into existence for every value the selector can take. CorporateTax dispatches on `apportionment.state_code` across 51 states, and the states with no corporate income tax still need all three tables so the name resolves — SD's and WY's are seven action rows each, every one writing an audit line and zeroing a field.
+
+The default is **named by the author**, not derived. Deriving it — substituting the variable part of the concatenation with `Default` — would only work for names built as a concatenation with literal ends, and would make the target depend on how the string happened to be assembled.
+
+If neither the computed table nor the default exists, the error names both.
+
+**Example (EL)**: `perform table named ("Determine_" + apportionment.state_code + "_Filing_Requirement") with default Determine_No_Filing_Requirement`
+**Compiled postfix**: `"Determine_" apportionment.state_code strconcat "_Filing_Requirement" strconcat /Determine_No_Filing_Requirement performtableordefault`
+
 #### Max of / Min of
 
 **Syntax**: `max of iexpr IN arrayExpr` or `min of fexpr IN arrayExpr`, with an optional `WHERE bexpr` filter.

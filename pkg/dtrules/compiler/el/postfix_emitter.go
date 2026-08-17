@@ -3997,6 +3997,27 @@ func (e *PostfixEmitter) VisitCreateEntityAs(ctx *CreateEntityAsContext) interfa
 // since `performtable` takes the name directly off the data stack.
 func (e *PostfixEmitter) VisitPerformDynamicTable(ctx *PerformDynamicTableContext) interface{} {
 	e.Visit(ctx.Strexpr())
+
+	// `with default <Table>` — dispatch to the computed name, falling back to
+	// a table the author names when it does not exist.
+	//
+	// Dynamic dispatch otherwise forces a table into existence for every value
+	// the selector can take. CorporateTax dispatches on
+	// `apportionment.state_code` across 51 states, and the states with no
+	// corporate income tax still need all three tables so the name resolves:
+	// SD's and WY's are seven action rows each, every one writing an audit
+	// line and zeroing a field.
+	//
+	// The default is named rather than derived. Substituting the variable part
+	// of the concatenation with "Default" would work only for names built as a
+	// concatenation with literal ends, and would make the target depend on how
+	// the string happened to be assembled (#776).
+	if dflt := ctx.TypedDecisionTable(); dflt != nil {
+		e.emit("/" + dflt.GetText())
+		e.emit("performtableordefault")
+		return nil
+	}
+
 	e.emit("performtable")
 	return nil
 }
