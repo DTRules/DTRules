@@ -94,7 +94,7 @@ func tableFromFile(t *testing.T, path string) excel.DecisionTableXML {
 
 // TestSaveRecompilesDSL pins #928.
 //
-// saveDTFile merged edited DSL into the XML and wrote it without recompiling,
+// The old saveDTFile merged edited DSL into the XML and wrote it without recompiling,
 // so a saved table carried the new DSL against the postfix from before the
 // edit. That is worse than writing none: the file stays well-formed and loads,
 // so the rule goes on executing the old logic while displaying the new. The
@@ -110,8 +110,10 @@ func TestSaveRecompilesDSL(t *testing.T) {
 		Actions:    []ActionData{{Number: 1, Description: "set client.eligible = true", Columns: map[string]string{"1": "X"}}},
 	}}
 
-	if err := s.saveDTFile(dtPath, "xml/p_dt.xml"); err != nil {
-		t.Fatalf("saveDTFile: %v", err)
+	s.dtFiles = []string{"xml/p_dt.xml"}
+	s.modified = map[string]bool{"xml/p_dt.xml": true}
+	if _, err := s.saveViaProject(); err != nil {
+		t.Fatalf("saveViaProject: %v", err)
 	}
 
 	got := tableFromFile(t, dtPath)
@@ -149,7 +151,9 @@ func TestSaveRejectsUncompilableDSL(t *testing.T) {
 		Conditions: []ConditionData{{Number: 1, Description: "client.age >= >= and and", Columns: map[string]string{"1": "Y"}}},
 	}}
 
-	err = s.saveDTFile(dtPath, "xml/p_dt.xml")
+	s.dtFiles = []string{"xml/p_dt.xml"}
+	s.modified = map[string]bool{"xml/p_dt.xml": true}
+	_, err = s.saveViaProject()
 	if err == nil {
 		t.Fatal("save accepted DSL that does not compile")
 	}

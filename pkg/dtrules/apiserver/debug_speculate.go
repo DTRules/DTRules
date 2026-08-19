@@ -20,6 +20,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sort"
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
@@ -363,3 +364,72 @@ type compileError struct {
 
 func (e *compileError) Error() string { return e.Table + ": " + e.Err.Error() }
 func (e *compileError) Unwrap() error { return e.Err }
+
+// The merge helpers below serve ONLY speculation: they overlay the editor's
+// unsaved rows onto a copy of the canonical table so "Run speculation" sees
+// what the author sees. The save path stopped using them when it collapsed
+// onto authoring.Project (#1084) — a real save reconciles through the
+// authoring mutations instead.
+
+// applyTableEdits overwrites the fields the editor can edit — type, comments,
+// table number, and the condition/action rows — on a speculation copy.
+func applyTableEdits(x *excel.DecisionTableXML, t *DecisionTableData) {
+	if t == nil {
+		return
+	}
+	x.AttributeFields.Type = t.Type
+	x.AttributeFields.Comments = t.Comments
+	x.AttributeFields.TableNumber = t.TableNumber
+
+	x.Conditions = mergeConditionRows(x.Conditions, t.Conditions)
+	x.Actions = mergeActionRows(x.Actions, t.Actions)
+}
+
+func mergeConditionRows(existing []excel.ConditionXML, rows []ConditionData) []excel.ConditionXML {
+	out := make([]excel.ConditionXML, len(rows))
+	for i, r := range rows {
+		if i < len(existing) {
+			out[i] = existing[i] // preserve postfix and any legacy fields
+		}
+		out[i].Number = strconv.Itoa(r.Number)
+		out[i].Comment = r.Comment
+		out[i].DSL = r.Description
+		out[i].Columns = columnValues(r.Columns)
+	}
+	return out
+}
+
+func mergeActionRows(existing []excel.ActionXML, rows []ActionData) []excel.ActionXML {
+	out := make([]excel.ActionXML, len(rows))
+	for i, r := range rows {
+		if i < len(existing) {
+			out[i] = existing[i] // preserve postfix and any legacy fields
+		}
+		out[i].Number = strconv.Itoa(r.Number)
+		out[i].Comment = r.Comment
+		out[i].DSL = r.Description
+		out[i].Columns = columnValues(r.Columns)
+	}
+	return out
+}
+
+// columnValues converts the editor's cell map to the XML column list, sorted
+// by column number so output is deterministic.
+func columnValues(cols map[string]string) []excel.ColumnValueXML {
+	nums := make([]int, 0, len(cols))
+	for k := range cols {
+		if n, err := strconv.Atoi(strings.TrimSpace(k)); err == nil {
+			nums = append(nums, n)
+		}
+	}
+	sort.Ints(nums)
+	out := make([]excel.ColumnValueXML, 0, len(nums))
+	for _, n := range nums {
+		v := strings.TrimSpace(cols[strconv.Itoa(n)])
+		if v == "" {
+			continue
+		}
+		out = append(out, excel.ColumnValueXML{Number: n, Value: v})
+	}
+	return out
+}
