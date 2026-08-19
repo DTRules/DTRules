@@ -644,19 +644,19 @@ fexpr
     | LPAREN DOUBLE RPAREN iexpr                            # floatFromInt
     | LPAREN DOUBLE RPAREN typedTable LPAREN tablelist RPAREN # floatTableLookup
     // Multiplication/division have higher precedence (listed first)
-    | fexpr TIMES iexpr                                     # floatMulInt
-    | iexpr TIMES fexpr                                     # intMulFloat
-    | fexpr TIMES fexpr                                     # floatMulFloat
-    | fexpr DIVIDE iexpr                                    # floatDivInt
-    | iexpr DIVIDE fexpr                                    # intDivFloat
-    | fexpr DIVIDE fexpr                                    # floatDivFloat
+    // Each ANTLR alternative is its own precedence level, so an operator that
+    // gets its own line gets its own level. Listing TIMES and DIVIDE
+    // separately made `*` bind tighter than `/`, and `a / b * c` parsed as
+    // `a / (b * c)`; PLUS above MINUS made `a - b + c` mean `a - (b + c)`.
+    // Sharing one alternative gives them one level and left association,
+    // which is what C, C++, Go and every reader expect (#1146).
+    | fexpr (TIMES|DIVIDE) iexpr                            # floatMulDivInt
+    | iexpr (TIMES|DIVIDE) fexpr                            # intMulDivFloat
+    | fexpr (TIMES|DIVIDE) fexpr                            # floatMulDivFloat
     // Addition/subtraction have lower precedence (listed after)
-    | fexpr PLUS iexpr                                      # floatAddInt
-    | fexpr PLUS fexpr                                      # floatAddFloat
-    | iexpr PLUS fexpr                                      # intAddFloat
-    | fexpr MINUS iexpr                                     # floatSubInt
-    | iexpr MINUS fexpr                                     # intSubFloat
-    | fexpr MINUS fexpr                                     # floatSubFloat
+    | fexpr (PLUS|MINUS) iexpr                              # floatAddSubInt
+    | iexpr (PLUS|MINUS) fexpr                              # intAddSubFloat
+    | fexpr (PLUS|MINUS) fexpr                              # floatAddSubFloat
     | MINUS fexpr                                           # floatNegate
     | LPAREN fexpr RPAREN                                   # floatParen
     | LPAREN DOUBLE RPAREN indxExpr                         # floatFromIndex
@@ -697,11 +697,9 @@ fexpr
 
 iexpr
     // Multiplication/division have higher precedence (listed first in ANTLR 4)
-    : iexpr TIMES iexpr                                     # intMul
-    | iexpr DIVIDE iexpr                                    # intDiv
+    : iexpr (TIMES|DIVIDE) iexpr                            # intMulDiv
     // Addition/subtraction have lower precedence (listed after)
-    | iexpr PLUS iexpr                                      # intAdd
-    | iexpr MINUS iexpr                                     # intSub
+    | iexpr (PLUS|MINUS) iexpr                              # intAddSub
     | FP_LITERAL                                            # fixedLiteral
     | INT_LITERAL                                           # intLiteral
     | MINUS iexpr                                           # intNegate
