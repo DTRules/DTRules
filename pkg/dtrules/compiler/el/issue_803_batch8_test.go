@@ -35,8 +35,8 @@ func issue803Batch8Symbols() map[string]string {
 		// Bare IDENTs for typedDouble/typedLong resolution inside fold
 		// bodies — the floatSumOf alt requires a typedDouble (IDENT),
 		// not a possessive/colon attr ref.
-		"income":         "double",
-		"tax":            "integer",
+		"income": "double",
+		"tax":    "integer",
 	}
 }
 

@@ -38,10 +38,10 @@ import (
 
 func issue803Batch3Symbols() map[string]string {
 	return map[string]string{
-		"a.intlist":  "array of integer",
-		"a.strlist":  "array of string",
-		"a.flist":    "array of double",
-		"a.blist":    "array of boolean",
+		"a.intlist": "array of integer",
+		"a.strlist": "array of string",
+		"a.flist":   "array of double",
+		"a.blist":   "array of boolean",
 	}
 }
 

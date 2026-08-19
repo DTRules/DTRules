@@ -24,10 +24,10 @@ import (
 // surface is intended to be used with.
 func stakingDivideRoundingSymbols() map[string]string {
 	return map[string]string{
-		"wp.weighted_balance":  "fixed",
-		"wp.staker_budget":     "fixed",
-		"wp.total_weighted":    "fixed",
-		"wp.reward":            "fixed",
+		"wp.weighted_balance": "fixed",
+		"wp.staker_budget":    "fixed",
+		"wp.total_weighted":   "fixed",
+		"wp.reward":           "fixed",
 	}
 }
 

@@ -119,7 +119,7 @@ func TestIssue812_LocalPrimitivesParseInActionBody(t *testing.T) {
 func TestIssue812_ReadFromActionLocalUsesSlot(t *testing.T) {
 	c := NewCompiler()
 	c.SetSymbols(map[string]string{
-		"token_recipient":               "entity",
+		"token_recipient":                "entity",
 		"calculation_context.recipients": "array of entity",
 	})
 

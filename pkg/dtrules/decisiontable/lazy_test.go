@@ -45,16 +45,16 @@ type boolCondition struct {
 	value bool
 }
 
-func (b *boolCondition) Type() *dtrules.RType { return dtrules.TypeBoolean }
-func (b *boolCondition) IsExecutable() bool   { return true }
-func (b *boolCondition) GetExecutable() dtrules.Object { return b }
-func (b *boolCondition) GetNonExecutable() dtrules.Object { return b }
-func (b *boolCondition) RClone() dtrules.Object { return b }
+func (b *boolCondition) Type() *dtrules.RType                            { return dtrules.TypeBoolean }
+func (b *boolCondition) IsExecutable() bool                              { return true }
+func (b *boolCondition) GetExecutable() dtrules.Object                   { return b }
+func (b *boolCondition) GetNonExecutable() dtrules.Object                { return b }
+func (b *boolCondition) RClone() dtrules.Object                          { return b }
 func (b *boolCondition) Clone(_ dtrules.Session) (dtrules.Object, error) { return b, nil }
-func (b *boolCondition) StringValue() string { return fmt.Sprintf("%v", b.value) }
-func (b *boolCondition) PostFix() string     { return b.StringValue() }
-func (b *boolCondition) RStringValue() *dtrules.RString { return dtrules.NewRString(b.StringValue()) }
-func (b *boolCondition) BooleanValue() (bool, error)  { return b.value, nil }
+func (b *boolCondition) StringValue() string                             { return fmt.Sprintf("%v", b.value) }
+func (b *boolCondition) PostFix() string                                 { return b.StringValue() }
+func (b *boolCondition) RStringValue() *dtrules.RString                  { return dtrules.NewRString(b.StringValue()) }
+func (b *boolCondition) BooleanValue() (bool, error)                     { return b.value, nil }
 
 func (b *boolCondition) Execute(state dtrules.State) error {
 	return state.DataPush(dtrules.GetRBoolean(b.value))
@@ -86,15 +86,15 @@ type testAction struct {
 	executed *[]int
 }
 
-func (a *testAction) Type() *dtrules.RType { return dtrules.TypeArray }
-func (a *testAction) IsExecutable() bool   { return true }
-func (a *testAction) GetExecutable() dtrules.Object { return a }
-func (a *testAction) GetNonExecutable() dtrules.Object { return a }
-func (a *testAction) RClone() dtrules.Object { return a }
+func (a *testAction) Type() *dtrules.RType                            { return dtrules.TypeArray }
+func (a *testAction) IsExecutable() bool                              { return true }
+func (a *testAction) GetExecutable() dtrules.Object                   { return a }
+func (a *testAction) GetNonExecutable() dtrules.Object                { return a }
+func (a *testAction) RClone() dtrules.Object                          { return a }
 func (a *testAction) Clone(_ dtrules.Session) (dtrules.Object, error) { return a, nil }
-func (a *testAction) StringValue() string { return fmt.Sprintf("action%d", a.num) }
-func (a *testAction) PostFix() string     { return a.StringValue() }
-func (a *testAction) RStringValue() *dtrules.RString { return dtrules.NewRString(a.StringValue()) }
+func (a *testAction) StringValue() string                             { return fmt.Sprintf("action%d", a.num) }
+func (a *testAction) PostFix() string                                 { return a.StringValue() }
+func (a *testAction) RStringValue() *dtrules.RString                  { return dtrules.NewRString(a.StringValue()) }
 
 func (a *testAction) Execute(_ dtrules.State) error {
 	*a.executed = append(*a.executed, a.num)
@@ -356,7 +356,8 @@ func TestLazyTable_UnreferencedConditionsNotEvaluated(t *testing.T) {
 }
 
 // TestLazyTable_ThresholdExactly64 verifies:
-//   63 columns → tree, 64 columns → tree, 65 columns → LazyTable.
+//
+//	63 columns → tree, 64 columns → tree, 65 columns → LazyTable.
 //
 // We use 1 condition with Y/N alternating across columns so the tree stays
 // shallow and builds in O(N) time.
@@ -405,6 +406,11 @@ func TestLazyTable_ThresholdExactly64(t *testing.T) {
 				t.Fatalf("build failed: %v", err)
 			}
 
+			// Trees build on first execution now (#1148); force it so the
+			// representation choice is observable.
+			if err := dt.ensureTree(newTestState()); err != nil {
+				t.Fatalf("ensureTree: %v", err)
+			}
 			_, isLazy := dt.decisionTree.(*LazyTable)
 			if isLazy != tc.wantLazy {
 				t.Errorf("%d cols: wantLazy=%v got=%v", tc.cols, tc.wantLazy, isLazy)

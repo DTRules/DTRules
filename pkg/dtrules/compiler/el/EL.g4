@@ -337,8 +337,41 @@ ifcontinue
     ;
 
 number
-    : iexpr
-    | fexpr
+    : numexpr
+    ;
+
+// numexpr is THE numeric expression rule: all binary arithmetic lives here
+// and nowhere else, so precedence belongs to operators rather than to
+// operand-type pairs (#1148).
+//
+// Each ANTLR alternative is its own precedence level. Spelling arithmetic as
+// type-pairs (fexpr op fexpr, fexpr op iexpr, iexpr op fexpr) gave one
+// operator class three levels, and the parser -- which never sees the symbol
+// table -- picked between them by predicting types it cannot know. Grouping
+// became unstable: `a + 2 - b` associated left while `a + 2.0 - b` nested
+// right, and `the maximum of (a + b - c)` mis-grouped while the same chain
+// bare did not. The mixed alternatives were also not left-recursive at all
+// (iexpr in the left corner makes a primary with RIGHT recursion), which is
+// where the nesting came from.
+//
+// The leaves are ordered so identical-span ambiguities resolve to the same
+// alternative every time: identifiers through fexpr, bare literals directly,
+// and iexpr last for the integer-only constructs (number of, days from ...)
+// that fexpr does not carry. iexpr keeps its own internal arithmetic for the
+// positions that genuinely require an integer expression -- those are
+// unchanged, and an iexpr chain has always grouped correctly because it has
+// no mixed alternatives.
+//
+// The emitter owns all typing: promote() widens operands and arithOp() picks
+// the opcode family, exactly as before.
+numexpr
+    : MINUS numexpr                                         # numNegate
+    | numexpr (TIMES|DIVIDE) numexpr                        # numMulDiv
+    | numexpr (PLUS|MINUS) numexpr                          # numAddSub
+    | fexpr                                                 # numFexpr
+    | INT_LITERAL                                           # numIntLiteral
+    | FP_LITERAL                                            # numFpLiteral
+    | iexpr                                                 # numIexpr
     ;
 
 addtodest2
@@ -644,27 +677,14 @@ fexpr
     | LPAREN DOUBLE RPAREN iexpr                            # floatFromInt
     | LPAREN DOUBLE RPAREN typedTable LPAREN tablelist RPAREN # floatTableLookup
     // Multiplication/division have higher precedence (listed first)
-    // Each ANTLR alternative is its own precedence level, so an operator that
-    // gets its own line gets its own level. Listing TIMES and DIVIDE
-    // separately made `*` bind tighter than `/`, and `a / b * c` parsed as
-    // `a / (b * c)`; PLUS above MINUS made `a - b + c` mean `a - (b + c)`.
-    // Sharing one alternative gives them one level and left association,
-    // which is what C, C++, Go and every reader expect (#1146).
-    | fexpr (TIMES|DIVIDE) iexpr                            # floatMulDivInt
-    | iexpr (TIMES|DIVIDE) fexpr                            # intMulDivFloat
-    | fexpr (TIMES|DIVIDE) fexpr                            # floatMulDivFloat
-    // Addition/subtraction have lower precedence (listed after)
-    | fexpr (PLUS|MINUS) iexpr                              # floatAddSubInt
-    | iexpr (PLUS|MINUS) fexpr                              # intAddSubFloat
-    | fexpr (PLUS|MINUS) fexpr                              # floatAddSubFloat
     | MINUS fexpr                                           # floatNegate
-    | LPAREN fexpr RPAREN                                   # floatParen
+    | LPAREN numexpr RPAREN                                 # floatParen
     | LPAREN DOUBLE RPAREN indxExpr                         # floatFromIndex
     | ADD TO typedDouble number                             # floatAddTo
     | SUBTRACT FROM typedDouble number                      # floatSubFrom
     | MULTIPLY typedDouble BY number                        # floatMulBy
     | DIVIDE typedDouble BY number                          # floatDivBy
-    | DIVIDE fexpr BY fexpr ROUNDING BY FP_LITERAL          # divideRoundingBy
+    | DIVIDE numexpr BY numexpr ROUNDING BY FP_LITERAL      # divideRoundingBy
     | ABSOLUTEVALUE OF fexpr                                # floatAbs
     | CEILINGOF fexpr                                       # floatCeilingOf
     | CEILINGOF iexpr                                       # floatCeilingOfInt
@@ -681,18 +701,10 @@ fexpr
     | MAX_OF typedDouble IN arrayExpr WHERE bexpr           # floatMaxOfArrayWhere
     | MIN_OF typedDouble IN arrayExpr                       # floatMinOfArray
     | MIN_OF typedDouble IN arrayExpr WHERE bexpr           # floatMinOfArrayWhere
-    | MINIMUM fexpr AND fexpr                               # floatMinOfFloat
-    | MINIMUM fexpr AND iexpr                               # floatMinOfInt
-    | MINIMUM iexpr AND fexpr                               # floatMinIntOf
-    | MINIMUM fexpr COMMA fexpr                             # floatMinOfFloatComma
-    | MINIMUM fexpr COMMA iexpr                             # floatMinOfIntComma
-    | MINIMUM iexpr COMMA fexpr                             # floatMinIntOfComma
-    | MAXIMUM fexpr AND fexpr                               # floatMaxOfFloat
-    | MAXIMUM fexpr AND iexpr                               # floatMaxOfInt
-    | MAXIMUM iexpr AND fexpr                               # floatMaxIntOf
-    | MAXIMUM fexpr COMMA fexpr                             # floatMaxOfFloatComma
-    | MAXIMUM fexpr COMMA iexpr                             # floatMaxOfIntComma
-    | MAXIMUM iexpr COMMA fexpr                             # floatMaxIntOfComma
+    | MINIMUM numexpr AND numexpr                           # numMinOf
+    | MINIMUM numexpr COMMA numexpr                         # numMinOfComma
+    | MAXIMUM numexpr AND numexpr                           # numMaxOf
+    | MAXIMUM numexpr COMMA numexpr                         # numMaxOfComma
     ;
 
 iexpr
@@ -873,30 +885,12 @@ bexpr
 
     // Integer comparisons (IDENT vs INT_LITERAL still works since INT_LITERAL
     // cannot be parsed as nexpr)
-    | iexpr EQ iexpr                                        # boolIntEq
-    | fexpr EQ iexpr                                        # boolFloatEqInt
-    | iexpr EQ fexpr                                        # boolIntEqFloat
-    | fexpr EQ fexpr                                        # boolFloatEq
-    | iexpr NEQ iexpr                                       # boolIntNeq
-    | fexpr NEQ iexpr                                       # boolFloatNeqInt
-    | iexpr NEQ fexpr                                       # boolIntNeqFloat
-    | fexpr NEQ fexpr                                       # boolFloatNeq
-    | iexpr GT iexpr                                        # boolIntGt
-    | fexpr GT iexpr                                        # boolFloatGtInt
-    | iexpr GT fexpr                                        # boolIntGtFloat
-    | fexpr GT fexpr                                        # boolFloatGt
-    | iexpr GTE iexpr                                       # boolIntGte
-    | fexpr GTE iexpr                                       # boolFloatGteInt
-    | iexpr GTE fexpr                                       # boolIntGteFloat
-    | fexpr GTE fexpr                                       # boolFloatGte
-    | iexpr LT iexpr                                        # boolIntLt
-    | fexpr LT iexpr                                        # boolFloatLtInt
-    | iexpr LT fexpr                                        # boolIntLtFloat
-    | fexpr LT fexpr                                        # boolFloatLt
-    | iexpr LTE iexpr                                       # boolIntLte
-    | fexpr LTE iexpr                                       # boolFloatLteInt
-    | iexpr LTE fexpr                                       # boolIntLteFloat
-    | fexpr LTE fexpr                                       # boolFloatLte
+    | numexpr EQ numexpr                                    # boolNumEq
+    | numexpr NEQ numexpr                                   # boolNumNeq
+    | numexpr GT numexpr                                    # boolNumGt
+    | numexpr GTE numexpr                                   # boolNumGte
+    | numexpr LT numexpr                                    # boolNumLt
+    | numexpr LTE numexpr                                   # boolNumLte
 
     // BigInt comparisons
     | bigexpr EQ bigexpr                                    # boolBigEq

@@ -136,9 +136,9 @@ func TestEncodingRoundTripViaCondition(t *testing.T) {
 			contains: []string{"hex"},
 		},
 		{
-			name:    "bigint of bytes in condition",
-			symbols: map[string]string{"rawBytes": TypeBytes},
-			el:      `bigint of bytes rawBytes == (bigint) 0`,
+			name:     "bigint of bytes in condition",
+			symbols:  map[string]string{"rawBytes": TypeBytes},
+			el:       `bigint of bytes rawBytes == (bigint) 0`,
 			contains: []string{"bytesbigint"},
 		},
 	}

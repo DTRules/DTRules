@@ -2220,7 +2220,7 @@ perform when called
 <action_comment>Add SE tax from all taxpayers</action_comment>
 <action_dsl>set result.se_tax = sum of se_tax in job.taxpayers; add "  SE Tax (Schedule SE): $" + result.se_tax to job.audit_trail</action_dsl>
 <action_postfix>
-0 { se_tax + } job.taxpayers forall cvd /result.se_tax xdef "  SE Tax (Schedule SE): $" result.se_tax strconcat job.audit_trail swap addto
+0.0 { se_tax f+ } job.taxpayers forall cvd /result.se_tax xdef "  SE Tax (Schedule SE): $" result.se_tax strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -5935,7 +5935,7 @@ result.senior_count constants.senior_deduction_amount fmul cvd /result.senior_de
 <initial_action>
 <initial_action_dsl>set result.total_social_security = sum of social_security_income in job.taxpayers; add result.total_social_security to result.gross_income; add result.total_social_security to result.agi; set result.provisional_income = result.agi + (result.total_social_security * 0.5)</initial_action_dsl>
 <initial_action_postfix>
-0 { social_security_income + } job.taxpayers forall cvd /result.total_social_security xdef result.total_social_security cvd result.gross_income f+ /result.gross_income xdef result.total_social_security cvd result.agi f+ /result.agi xdef result.agi result.total_social_security 0.5 fmul f+ cvd /result.provisional_income xdef
+0.0 { social_security_income f+ } job.taxpayers forall cvd /result.total_social_security xdef result.total_social_security cvd result.gross_income f+ /result.gross_income xdef result.total_social_security cvd result.agi f+ /result.agi xdef result.agi result.total_social_security 0.5 fmul f+ cvd /result.provisional_income xdef
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -6305,7 +6305,7 @@ result.preferential_rate_income constants.cg_0_percent_mfj result.cg_ordinary_in
 <initial_action>
 <initial_action_dsl>set result.cg_taxed_at_15 = the minimum of (result.preferential_rate_income - result.cg_taxed_at_0) and (the maximum of (constants.cg_15_percent_mfj - result.cg_ordinary_income - result.cg_taxed_at_0) and 0.0)</initial_action_dsl>
 <initial_action_postfix>
-result.preferential_rate_income result.cg_taxed_at_0 f- constants.cg_15_percent_mfj result.cg_ordinary_income result.cg_taxed_at_0 f- f- 0.0 fmax fmin cvd /result.cg_taxed_at_15 xdef
+result.preferential_rate_income result.cg_taxed_at_0 f- constants.cg_15_percent_mfj result.cg_ordinary_income f- result.cg_taxed_at_0 f- 0.0 fmax fmin cvd /result.cg_taxed_at_15 xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -6396,7 +6396,7 @@ result.preferential_rate_income constants.cg_0_percent_hoh result.cg_ordinary_in
 <initial_action>
 <initial_action_dsl>set result.cg_taxed_at_15 = the minimum of (result.preferential_rate_income - result.cg_taxed_at_0) and (the maximum of (constants.cg_15_percent_hoh - result.cg_ordinary_income - result.cg_taxed_at_0) and 0.0)</initial_action_dsl>
 <initial_action_postfix>
-result.preferential_rate_income result.cg_taxed_at_0 f- constants.cg_15_percent_hoh result.cg_ordinary_income result.cg_taxed_at_0 f- f- 0.0 fmax fmin cvd /result.cg_taxed_at_15 xdef
+result.preferential_rate_income result.cg_taxed_at_0 f- constants.cg_15_percent_hoh result.cg_ordinary_income f- result.cg_taxed_at_0 f- 0.0 fmax fmin cvd /result.cg_taxed_at_15 xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -6487,7 +6487,7 @@ result.preferential_rate_income constants.cg_0_percent_single result.cg_ordinary
 <initial_action>
 <initial_action_dsl>set result.cg_taxed_at_15 = the minimum of (result.preferential_rate_income - result.cg_taxed_at_0) and (the maximum of (constants.cg_15_percent_single - result.cg_ordinary_income - result.cg_taxed_at_0) and 0.0)</initial_action_dsl>
 <initial_action_postfix>
-result.preferential_rate_income result.cg_taxed_at_0 f- constants.cg_15_percent_single result.cg_ordinary_income result.cg_taxed_at_0 f- f- 0.0 fmax fmin cvd /result.cg_taxed_at_15 xdef
+result.preferential_rate_income result.cg_taxed_at_0 f- constants.cg_15_percent_single result.cg_ordinary_income f- result.cg_taxed_at_0 f- 0.0 fmax fmin cvd /result.cg_taxed_at_15 xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -7411,7 +7411,7 @@ taxpayer.student_loan_interest_paid constants.student_loan_max_deduction fmin cv
 <action_comment>Student loan deduction with MFJ phase-out; set result.student_loan_deduction = phased out deduction (MFJ)</action_comment>
 <action_dsl>set result.student_loan_deduction = the maximum of (constants.student_loan_max_deduction * (constants.student_loan_phaseout_end_mfj - result.agi) / (constants.student_loan_phaseout_end_mfj - constants.student_loan_phaseout_start_mfj)) and 0.0</action_dsl>
 <action_postfix>
-constants.student_loan_max_deduction constants.student_loan_phaseout_end_mfj result.agi f- constants.student_loan_phaseout_end_mfj constants.student_loan_phaseout_start_mfj f- fdiv fmul 0.0 fmax cvd /result.student_loan_deduction xdef
+constants.student_loan_max_deduction constants.student_loan_phaseout_end_mfj result.agi f- fmul constants.student_loan_phaseout_end_mfj constants.student_loan_phaseout_start_mfj f- fdiv 0.0 fmax cvd /result.student_loan_deduction xdef
 </action_postfix>
 <columns>-X---</columns>
 </action_details>
@@ -8291,7 +8291,7 @@ like_kind_exchange.relinquished_basis 0 f&gt;
 <action_comment>Form 8824 lines 15, 19, 23, 24 and 25.</action_comment>
 <action_dsl>set like_kind_exchange.boot_received = the maximum of (like_kind_exchange.cash_received + like_kind_exchange.other_property_fmv + like_kind_exchange.mortgage_relieved - like_kind_exchange.mortgage_assumed - like_kind_exchange.cash_paid) and (0.0); set like_kind_exchange.realized_gain = the maximum of (like_kind_exchange.replacement_fmv + like_kind_exchange.boot_received - like_kind_exchange.relinquished_basis) and (0.0); set like_kind_exchange.recognized_gain = the maximum of (the minimum of (like_kind_exchange.boot_received) and (like_kind_exchange.realized_gain)) and (0.0); set like_kind_exchange.deferred_gain = like_kind_exchange.realized_gain - like_kind_exchange.recognized_gain; set like_kind_exchange.new_basis = like_kind_exchange.relinquished_basis + like_kind_exchange.recognized_gain - like_kind_exchange.boot_received; add "Form 8824: realized $" + string value of (like_kind_exchange.realized_gain) + ", recognized $" + string value of (like_kind_exchange.recognized_gain) + ", deferred $" + string value of (like_kind_exchange.deferred_gain) + ", basis in replacement $" + string value of (like_kind_exchange.new_basis) to job.audit_trail</action_dsl>
 <action_postfix>
-like_kind_exchange.cash_received like_kind_exchange.other_property_fmv like_kind_exchange.mortgage_relieved like_kind_exchange.mortgage_assumed f- like_kind_exchange.cash_paid f- f+ f+ 0.0 fmax cvd /like_kind_exchange.boot_received xdef like_kind_exchange.replacement_fmv like_kind_exchange.boot_received like_kind_exchange.relinquished_basis f- f+ 0.0 fmax cvd /like_kind_exchange.realized_gain xdef like_kind_exchange.boot_received like_kind_exchange.realized_gain fmin 0.0 fmax cvd /like_kind_exchange.recognized_gain xdef like_kind_exchange.realized_gain like_kind_exchange.recognized_gain f- cvd /like_kind_exchange.deferred_gain xdef like_kind_exchange.relinquished_basis like_kind_exchange.recognized_gain f+ like_kind_exchange.boot_received f- cvd /like_kind_exchange.new_basis xdef "Form 8824: realized $" like_kind_exchange.realized_gain cvs strconcat ", recognized $" strconcat like_kind_exchange.recognized_gain cvs strconcat ", deferred $" strconcat like_kind_exchange.deferred_gain cvs strconcat ", basis in replacement $" strconcat like_kind_exchange.new_basis cvs strconcat job.audit_trail swap addto
+like_kind_exchange.cash_received like_kind_exchange.other_property_fmv f+ like_kind_exchange.mortgage_relieved f+ like_kind_exchange.mortgage_assumed f- like_kind_exchange.cash_paid f- 0.0 fmax cvd /like_kind_exchange.boot_received xdef like_kind_exchange.replacement_fmv like_kind_exchange.boot_received f+ like_kind_exchange.relinquished_basis f- 0.0 fmax cvd /like_kind_exchange.realized_gain xdef like_kind_exchange.boot_received like_kind_exchange.realized_gain fmin 0.0 fmax cvd /like_kind_exchange.recognized_gain xdef like_kind_exchange.realized_gain like_kind_exchange.recognized_gain f- cvd /like_kind_exchange.deferred_gain xdef like_kind_exchange.relinquished_basis like_kind_exchange.recognized_gain f+ like_kind_exchange.boot_received f- cvd /like_kind_exchange.new_basis xdef "Form 8824: realized $" like_kind_exchange.realized_gain cvs strconcat ", recognized $" strconcat like_kind_exchange.recognized_gain cvs strconcat ", deferred $" strconcat like_kind_exchange.deferred_gain cvs strconcat ", basis in replacement $" strconcat like_kind_exchange.new_basis cvs strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X</columns>
 </action_details>

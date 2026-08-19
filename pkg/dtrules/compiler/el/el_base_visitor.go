@@ -683,6 +683,34 @@ func (v *BaseELVisitor) VisitNumber(ctx *NumberContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitNumFexpr(ctx *NumFexprContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitNumIntLiteral(ctx *NumIntLiteralContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitNumMulDiv(ctx *NumMulDivContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitNumAddSub(ctx *NumAddSubContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitNumIexpr(ctx *NumIexprContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitNumNegate(ctx *NumNegateContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitNumFpLiteral(ctx *NumFpLiteralContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitAddDestArray2(ctx *AddDestArray2Context) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1507,19 +1535,7 @@ func (v *BaseELVisitor) VisitStrConcatName(ctx *StrConcatNameContext) interface{
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatMinOfFloat(ctx *FloatMinOfFloatContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitFloatMaxOfArrayWhere(ctx *FloatMaxOfArrayWhereContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatMaxIntOf(ctx *FloatMaxIntOfContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatMulDivInt(ctx *FloatMulDivIntContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1535,7 +1551,7 @@ func (v *BaseELVisitor) VisitFloatSumOfWhere(ctx *FloatSumOfWhereContext) interf
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatMaxOfFloat(ctx *FloatMaxOfFloatContext) interface{} {
+func (v *BaseELVisitor) VisitNumMinOf(ctx *NumMinOfContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1547,19 +1563,11 @@ func (v *BaseELVisitor) VisitFloatRoundedTo(ctx *FloatRoundedToContext) interfac
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatMinIntOf(ctx *FloatMinIntOfContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitIntAddSubFloat(ctx *IntAddSubFloatContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitFloatMaxOfArray(ctx *FloatMaxOfArrayContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatMinOfIntComma(ctx *FloatMinOfIntCommaContext) interface{} {
+func (v *BaseELVisitor) VisitNumMaxOfComma(ctx *NumMaxOfCommaContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1571,7 +1579,7 @@ func (v *BaseELVisitor) VisitFloatFloorOfInt(ctx *FloatFloorOfIntContext) interf
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatMinIntOfComma(ctx *FloatMinIntOfCommaContext) interface{} {
+func (v *BaseELVisitor) VisitNumMaxOf(ctx *NumMaxOfContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1587,19 +1595,11 @@ func (v *BaseELVisitor) VisitFloatMulBy(ctx *FloatMulByContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatMaxOfIntComma(ctx *FloatMaxOfIntCommaContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitDivideRoundingBy(ctx *DivideRoundingByContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
 func (v *BaseELVisitor) VisitFloatUsing(ctx *FloatUsingContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitIntMulDivFloat(ctx *IntMulDivFloatContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1619,23 +1619,11 @@ func (v *BaseELVisitor) VisitFloatSubFrom(ctx *FloatSubFromContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatMulDivFloat(ctx *FloatMulDivFloatContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitFloatDivBy(ctx *FloatDivByContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatMinOfInt(ctx *FloatMinOfIntContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitFloatFromIndex(ctx *FloatFromIndexContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatMaxIntOfComma(ctx *FloatMaxIntOfCommaContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1655,7 +1643,7 @@ func (v *BaseELVisitor) VisitFloatFromInt(ctx *FloatFromIntContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatAddSubInt(ctx *FloatAddSubIntContext) interface{} {
+func (v *BaseELVisitor) VisitNumMinOfComma(ctx *NumMinOfCommaContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1671,27 +1659,11 @@ func (v *BaseELVisitor) VisitFloatCeilingOf(ctx *FloatCeilingOfContext) interfac
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatMinOfFloatComma(ctx *FloatMinOfFloatCommaContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitFloatAbs(ctx *FloatAbsContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatMaxOfFloatComma(ctx *FloatMaxOfFloatCommaContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitFloatNegate(ctx *FloatNegateContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatMaxOfInt(ctx *FloatMaxOfIntContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatAddSubFloat(ctx *FloatAddSubFloatContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2107,14 +2079,6 @@ func (v *BaseELVisitor) VisitBoolSameCalendarQuarter(ctx *BoolSameCalendarQuarte
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBoolIntLteFloat(ctx *BoolIntLteFloatContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitBoolFloatLteInt(ctx *BoolFloatLteIntContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitBoolFromStr(ctx *BoolFromStrContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -2155,10 +2119,6 @@ func (v *BaseELVisitor) VisitBoolArrayIsNull(ctx *BoolArrayIsNullContext) interf
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBoolIntEq(ctx *BoolIntEqContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitBoolEntityHasaWhere(ctx *BoolEntityHasaWhereContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -2171,23 +2131,7 @@ func (v *BaseELVisitor) VisitBoolBigNeq(ctx *BoolBigNeqContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBoolIntLt(ctx *BoolIntLtContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitBoolIntEqFloat(ctx *BoolIntEqFloatContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitBoolFromIndex(ctx *BoolFromIndexContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitBoolFloatNeq(ctx *BoolFloatNeqContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitBoolFloatLt(ctx *BoolFloatLtContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2227,10 +2171,6 @@ func (v *BaseELVisitor) VisitBoolWasQuestion(ctx *BoolWasQuestionContext) interf
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBoolIntGteFloat(ctx *BoolIntGteFloatContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitBoolNameNeqStr(ctx *BoolNameNeqStrContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -2244,6 +2184,10 @@ func (v *BaseELVisitor) VisitBoolSameCalendarYear(ctx *BoolSameCalendarYearConte
 }
 
 func (v *BaseELVisitor) VisitBoolEntityInContext(ctx *BoolEntityInContextContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBoolNumGt(ctx *BoolNumGtContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2263,15 +2207,11 @@ func (v *BaseELVisitor) VisitBoolStrEntityInContext(ctx *BoolStrEntityInContextC
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBoolFloatEq(ctx *BoolFloatEqContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitBoolDateLte(ctx *BoolDateLteContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBoolFloatGtInt(ctx *BoolFloatGtIntContext) interface{} {
+func (v *BaseELVisitor) VisitBoolNumLte(ctx *BoolNumLteContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2288,10 +2228,6 @@ func (v *BaseELVisitor) VisitBoolStrEq(ctx *BoolStrEqContext) interface{} {
 }
 
 func (v *BaseELVisitor) VisitBoolEntityNeq(ctx *BoolEntityNeqContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitBoolIntGte(ctx *BoolIntGteContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2319,15 +2255,7 @@ func (v *BaseELVisitor) VisitBoolStrIsNot(ctx *BoolStrIsNotContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBoolIntGt(ctx *BoolIntGtContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitBoolSameCalendarMonth(ctx *BoolSameCalendarMonthContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitBoolFloatLte(ctx *BoolFloatLteContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2359,6 +2287,10 @@ func (v *BaseELVisitor) VisitBoolStrLt(ctx *BoolStrLtContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitBoolNumGte(ctx *BoolNumGteContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitBoolStrGte(ctx *BoolStrGteContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -2371,7 +2303,7 @@ func (v *BaseELVisitor) VisitBoolArrayDoesInclude(ctx *BoolArrayDoesIncludeConte
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBoolIntGtFloat(ctx *BoolIntGtFloatContext) interface{} {
+func (v *BaseELVisitor) VisitBoolNumEq(ctx *BoolNumEqContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2384,10 +2316,6 @@ func (v *BaseELVisitor) VisitBoolColonRef(ctx *BoolColonRefContext) interface{} 
 }
 
 func (v *BaseELVisitor) VisitBoolBigGt(ctx *BoolBigGtContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitBoolFloatGt(ctx *BoolFloatGtContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2419,7 +2347,7 @@ func (v *BaseELVisitor) VisitBoolMatches(ctx *BoolMatchesContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBoolFloatGteInt(ctx *BoolFloatGteIntContext) interface{} {
+func (v *BaseELVisitor) VisitBoolNumLt(ctx *BoolNumLtContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2436,14 +2364,6 @@ func (v *BaseELVisitor) VisitBoolDateBetween(ctx *BoolDateBetweenContext) interf
 }
 
 func (v *BaseELVisitor) VisitBoolBexprIsNotNull(ctx *BoolBexprIsNotNullContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitBoolIntLte(ctx *BoolIntLteContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitBoolIntNeqFloat(ctx *BoolIntNeqFloatContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2467,10 +2387,6 @@ func (v *BaseELVisitor) VisitBoolDateEq(ctx *BoolDateEqContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBoolFloatGte(ctx *BoolFloatGteContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitBoolStrLte(ctx *BoolStrLteContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -2491,15 +2407,7 @@ func (v *BaseELVisitor) VisitBoolThereIsInEntityWhere(ctx *BoolThereIsInEntityWh
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBoolFloatLtInt(ctx *BoolFloatLtIntContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitBoolArrayNotInclude(ctx *BoolArrayNotIncludeContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitBoolFloatNeqInt(ctx *BoolFloatNeqIntContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2508,10 +2416,6 @@ func (v *BaseELVisitor) VisitBoolBexprIsNull(ctx *BoolBexprIsNullContext) interf
 }
 
 func (v *BaseELVisitor) VisitBoolAllHave(ctx *BoolAllHaveContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitBoolIntLtFloat(ctx *BoolIntLtFloatContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2539,15 +2443,7 @@ func (v *BaseELVisitor) VisitBoolThereIsNoWhere(ctx *BoolThereIsNoWhereContext) 
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBoolFloatEqInt(ctx *BoolFloatEqIntContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitBoolSameCalendarDay(ctx *BoolSameCalendarDayContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2584,6 +2480,10 @@ func (v *BaseELVisitor) VisitBoolTypedIsNotLiteral(ctx *BoolTypedIsNotLiteralCon
 }
 
 func (v *BaseELVisitor) VisitBoolEntityIsNotNull(ctx *BoolEntityIsNotNullContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitBoolNumNeq(ctx *BoolNumNeqContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

@@ -18,6 +18,7 @@ package decisiontable
 import (
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
 )
@@ -62,6 +63,11 @@ type RDecisionTable struct {
 	// tree. Set by loads that never execute anything -- the Excel export
 	// needs a table's rows, not a way to run it (#1132).
 	SkipDecisionTree bool
+	// treeOnce guards the lazy decision-tree build (#1148): the tree costs
+	// gigabytes on wide tables and is built on first execution, once, however
+	// many sessions share the rule set.
+	treeOnce sync.Once
+	treeErr  error
 
 	name *dtrules.RName // The decision table's name
 	// authoredName is the name exactly as written in the source.
@@ -389,6 +395,9 @@ func (dt *RDecisionTable) Execute(state dtrules.State) error {
 	if err := dt.refuseIfHandCodedPostfix("Execute"); err != nil {
 		return err
 	}
+	if err := dt.ensureTree(state); err != nil {
+		return err
+	}
 
 	// Trace: one <decisiontable> element wraps everything this table does,
 	// including its context evaluation — so performed tables nest and each
@@ -413,6 +422,9 @@ func (dt *RDecisionTable) ExecuteTable(state dtrules.State) error {
 			"Decision table "+dt.name.StringValue()+" has not been compiled")
 	}
 	if err := dt.refuseIfHandCodedPostfix("ExecuteTable"); err != nil {
+		return err
+	}
+	if err := dt.ensureTree(state); err != nil {
 		return err
 	}
 
@@ -472,29 +484,20 @@ func (dt *RDecisionTable) Build(state dtrules.State) error {
 		return err
 	}
 
-	// Build the decision tree based on type.
+	// The decision tree is built on first execution, not here.
 	//
-	// SkipDecisionTree is for loads that never execute anything. The tree is
-	// a runtime artifact and it is not small: it grows with the columns a
-	// table can take, and `TestSave_TaxReturnIdempotent` -- which loads
-	// TaxReturn and saves it twice, executing nothing -- allocated 46GB, all
-	// of it NewCNode and NewANodeForColumn under the export's rule-set load.
-	// TaxReturn's Dispatch_State_Tax alone declares 43 conditions (#1132).
+	// It is a runtime artifact and it is not small: one load of TaxReturn
+	// with eager trees peaks at 24.5GB and takes 30 seconds, all of it
+	// NewCNode and NewANodeForColumn -- and every test, verify, review or
+	// analysis pass that loads a rule set paid that whether or not it ever
+	// executed a table. `go test ./...` runs several such loads concurrently,
+	// which is how the suite OOM-killed a 62GB machine (#1132, #1148).
 	//
-	// Only the tree is skipped. Validation and expression compilation still
-	// run, so an export still refuses a table it cannot compile, and the
-	// unreachable-column analysis below is skipped with it because it reads
-	// the tree.
-	if !dt.SkipDecisionTree {
-		switch dt.tableType {
-		case BALANCED:
-			dt.buildBalanced()
-		case FIRST:
-			dt.buildUnbalanced(state, false)
-		case ALL:
-			dt.buildUnbalanced(state, true)
-		}
-	}
+	// Deferring changes nothing an executing consumer can see: ensureTree
+	// runs before the first execution, and setUnreachable -- which reads the
+	// tree and has no consumer outside execution -- moves with it. Validation
+	// and expression compilation still happen here, so a load still refuses a
+	// table it cannot compile.
 
 	// Check for errors
 	if len(dt.errors) > 0 {
@@ -503,12 +506,38 @@ func (dt *RDecisionTable) Build(state dtrules.State) error {
 
 	// Mark what's used
 	dt.whatsUsed()
-	if !dt.SkipDecisionTree {
-		dt.setUnreachable()
-	}
 
 	dt.compiled = true
 	return nil
+}
+
+// ensureTree builds the executable decision tree on first use.
+//
+// SkipDecisionTree loads (Excel export) never reach here -- they refuse to
+// execute earlier. Guarded by treeOnce because a rule set is shared across
+// sessions.
+func (dt *RDecisionTable) ensureTree(state dtrules.State) error {
+	dt.treeOnce.Do(func() {
+		// A tree may already exist: buildLazyTable and tests install one
+		// directly. First execution must not rebuild over it.
+		if dt.decisionTree != nil {
+			return
+		}
+		switch dt.tableType {
+		case BALANCED:
+			dt.buildBalanced()
+		case FIRST:
+			dt.buildUnbalanced(state, false)
+		case ALL:
+			dt.buildUnbalanced(state, true)
+		}
+		if len(dt.errors) > 0 {
+			dt.treeErr = dt.errors[0]
+			return
+		}
+		dt.setUnreachable()
+	})
+	return dt.treeErr
 }
 
 // validateConfig validates the table configuration before building

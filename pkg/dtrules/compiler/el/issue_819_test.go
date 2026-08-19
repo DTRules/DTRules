@@ -44,13 +44,13 @@ import (
 // dispatches we need to verify).
 func issue819Symbols() map[string]string {
 	return map[string]string{
-		"token_recipient":         "entity",
-		"token_recipient.url":     "string",
-		"token_recipient.amount":  "fixed",
-		"token_recipient.count":   "integer",
-		"token_recipient.active":  "boolean",
-		"payout_url":              "string",
-		"net_reward":              "fixed",
+		"token_recipient":        "entity",
+		"token_recipient.url":    "string",
+		"token_recipient.amount": "fixed",
+		"token_recipient.count":  "integer",
+		"token_recipient.active": "boolean",
+		"payout_url":             "string",
+		"net_reward":             "fixed",
 	}
 }
 

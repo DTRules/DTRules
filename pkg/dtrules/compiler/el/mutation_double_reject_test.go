@@ -64,16 +64,16 @@ func TestMutationAndMulDivDoubleRejected(t *testing.T) {
 // contaminate a later statement).
 func TestMutationAndMulDivAllowed(t *testing.T) {
 	ok := []string{
-		"add it to fx",                 // integer into fixed (cvfp)
-		"add fx2 to fx",                // fixed into fixed
-		"add 5 to fx",                  // integer literal
-		"add db to db2",                // double into double
-		"subtract it from fx",          // integer from fixed
-		"increment fx",                 // +1
-		"set fx = multiply fx by 2",    // fixed by integer
-		"set db = multiply db by 2.0",  // double by float
-		"set db = multiply db by it",   // double by integer
-		"add it to fx; add 1 to fx2",   // multi-statement, both fine
+		"add it to fx",                // integer into fixed (cvfp)
+		"add fx2 to fx",               // fixed into fixed
+		"add 5 to fx",                 // integer literal
+		"add db to db2",               // double into double
+		"subtract it from fx",         // integer from fixed
+		"increment fx",                // +1
+		"set fx = multiply fx by 2",   // fixed by integer
+		"set db = multiply db by 2.0", // double by float
+		"set db = multiply db by it",  // double by integer
+		"add it to fx; add 1 to fx2",  // multi-statement, both fine
 	}
 	for _, src := range ok {
 		c := NewCompiler()

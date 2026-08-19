@@ -48,15 +48,15 @@ import (
 var inheritedAllowlist = map[string]string{
 	// Structural / no-semantics rules (correct as no-op):
 	"VisitCommonerror":          "antlr error-recovery context; not part of normal parse",
-	"VisitOptSemi":               "optional semicolon terminal; nothing to emit",
-	"VisitSeparator":             "literal separator token; nothing to emit",
-	"VisitEmptyContext":          "empty context rule",
-	"VisitEmptyPolicyStatement":  "empty policy statement",
+	"VisitOptSemi":              "optional semicolon terminal; nothing to emit",
+	"VisitSeparator":            "literal separator token; nothing to emit",
+	"VisitEmptyContext":         "empty context rule",
+	"VisitEmptyPolicyStatement": "empty policy statement",
 
 	// Container rules whose VisitChildren-equivalent walking is done
 	// elsewhere (or which never appear in compiled output because a
 	// sibling alt wins parser-side):
-	"VisitInthe":  "`in the` keyword sequence inside a larger rule; consumed by parent visitors",
+	"VisitInthe": "`in the` keyword sequence inside a larger rule; consumed by parent visitors",
 
 	// =========================================================
 	// TODO(#803): UNVERIFIED — needs reproducer + triage. Each
@@ -68,92 +68,90 @@ var inheritedAllowlist = map[string]string{
 	// addtodest2 alts are reached only from addDestColon/subDestColon,
 	// which type-switch and extract `GetText()` directly without calling
 	// Visit. Verified by inspection (#803 batch 7).
-	"VisitAddDestArray2":              "dead grammar; addDest/subDestColon extract via GetText, never Visit",
-	"VisitAddDestDouble2":             "dead grammar; addDest/subDestColon extract via GetText, never Visit",
-	"VisitAddDestLong2":               "dead grammar; addDest/subDestColon extract via GetText, never Visit",
+	"VisitAddDestArray2":  "dead grammar; addDest/subDestColon extract via GetText, never Visit",
+	"VisitAddDestDouble2": "dead grammar; addDest/subDestColon extract via GetText, never Visit",
+	"VisitAddDestLong2":   "dead grammar; addDest/subDestColon extract via GetText, never Visit",
 	// blist / blistIc alts are traversed directly by the parent
 	// visitors (VisitBoolStrEqList / VisitBoolStrEqIcList via
 	// collectBlistStrexprs), not via the antlr Visit dispatch — so
 	// these Visit* methods are never reached (#803 batch 10).
-	"VisitBlistIcMulti":               "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
-	"VisitBlistIcOr":                  "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
-	"VisitBlistMulti":                 "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
-	"VisitBlistOr":                    "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
+	"VisitBlistIcMulti": "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
+	"VisitBlistIcOr":    "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
+	"VisitBlistMulti":   "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
+	"VisitBlistOr":      "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
 	// AddTo/SubFrom — these alts live inside fexpr/iexpr but the
 	// action-statement form `add X to Y` / `subtract X from Y` parses
 	// as addtostatement (rule `addtostatement`), not via the fexpr
 	// path. Confirmed by tree-dump probe; `add 2 to a.x` matches
 	// addNumToDest and emits the correct postfix through that path
 	// (#803 batch 4).
-	"VisitFloatAddTo":                 "dead grammar; addtostatement handles `add X to Y` as a statement",
-	"VisitFloatSubFrom":               "dead grammar; addtostatement handles `subtract X from Y`",
+	"VisitFloatAddTo":   "dead grammar; addtostatement handles `add X to Y` as a statement",
+	"VisitFloatSubFrom": "dead grammar; addtostatement handles `subtract X from Y`",
 	// Float/Int/Str Using are unreachable: ANTLR adaptive prediction
 	// picks intUsingArray (in iexpr) first for the `using <ident>(<expr>)`
 	// shape because both IDENT-typed sides match more broadly. The
 	// actually-reached intUsingArray now has an override (#803 batch 6).
-	"VisitFloatUsing":                 "dead grammar; intUsingArray wins parser-side for IDENT inputs",
-	"VisitIntAddTo":                   "dead grammar; addtostatement handles `add X to Y` (see VisitFloatAddTo)",
-	"VisitIntSubFrom":                 "dead grammar; addtostatement handles `subtract X from Y`",
-	"VisitIntUsing":                   "dead grammar; intUsingArray wins parser-side (see VisitFloatUsing)",
+	"VisitIntAddTo":   "dead grammar; addtostatement handles `add X to Y` (see VisitFloatAddTo)",
+	"VisitIntSubFrom": "dead grammar; addtostatement handles `subtract X from Y`",
 	// leftTexpr alts are unreachable because the only SET form that
 	// targets a typedTable (setTable) now emits an elstmterror
 	// placeholder without visiting the leftTexpr (hash tables removed,
 	// #803 batch 6).
-	"VisitLeftTexprColon":             "dead grammar; setTable emits elstmterror without visiting leftTexpr",
-	"VisitLeftTexprSimple":            "dead grammar; setTable emits elstmterror without visiting leftTexpr",
-	"VisitPerformName":                "dead grammar; ANTLR matches performDT/performDTExplicit first for any IDENT after PERFORM (verified by tree dump)",
+	"VisitLeftTexprColon":  "dead grammar; setTable emits elstmterror without visiting leftTexpr",
+	"VisitLeftTexprSimple": "dead grammar; setTable emits elstmterror without visiting leftTexpr",
+	"VisitPerformName":     "dead grammar; ANTLR matches performDT/performDTExplicit first for any IDENT after PERFORM (verified by tree dump)",
 	// setArray<Type> are unreachable for non-array RHS: ANTLR picks
 	// setInt/setFloat/setString/setEntity/setDate first when the RHS
 	// could be either a single typed value or an arrayExpr. The only
 	// reachable setArray alt is setArrayArray (which now has an
 	// override). Verified by tree-dump probe (#803 batch 3).
-	"VisitSetArrayDate":               "dead grammar; setDate wins for IDENT/dexpr RHS",
-	"VisitSetArrayEntity":             "dead grammar; setEntity wins for IDENT/eexpr RHS",
-	"VisitSetArrayFloat":              "dead grammar; setFloat wins for IDENT/fexpr RHS",
-	"VisitSetArrayInt":                "dead grammar; setInt wins for IDENT/iexpr RHS",
-	"VisitSetArrayString":             "dead grammar; setString wins for IDENT/strexpr RHS",
+	"VisitSetArrayDate":   "dead grammar; setDate wins for IDENT/dexpr RHS",
+	"VisitSetArrayEntity": "dead grammar; setEntity wins for IDENT/eexpr RHS",
+	"VisitSetArrayFloat":  "dead grammar; setFloat wins for IDENT/fexpr RHS",
+	"VisitSetArrayInt":    "dead grammar; setInt wins for IDENT/iexpr RHS",
+	"VisitSetArrayString": "dead grammar; setString wins for IDENT/strexpr RHS",
 	// setStringFromNumber/Name/Table are unreachable: ANTLR adaptive
 	// prediction picks setInt/setFloat/setName/setTable first for
 	// IDENT-prefixed RHS. Confirmed by parse-tree inspection (#803 batch 2).
-	"VisitSetStringFromNumber":        "dead grammar; ANTLR picks setInt/setFloat for IDENT/number RHS",
-	"VisitSetStringFromTable":         "dead grammar; ANTLR picks setTable for texpr RHS",
+	"VisitSetStringFromNumber": "dead grammar; ANTLR picks setInt/setFloat for IDENT/number RHS",
+	"VisitSetStringFromTable":  "dead grammar; ANTLR picks setTable for texpr RHS",
 	// strConcat<Type> are all unreachable: ANTLR always picks the base
 	// `strexpr PLUS strexpr` # strConcat first because the RHS IDENT
 	// matches typedXmlValue inside strexpr. Confirmed by parse-tree
 	// inspection across int/float/date/name/entity/array/null/invalid
 	// RHS shapes (#803 batch 2).
-	"VisitStrConcatArray":             "dead grammar; base strConcat wins parser-side",
-	"VisitStrConcatDate":              "dead grammar; base strConcat wins parser-side",
-	"VisitStrConcatEntity":            "dead grammar; base strConcat wins parser-side",
-	"VisitStrConcatFloat":             "dead grammar; base strConcat wins parser-side",
-	"VisitStrConcatInt":               "dead grammar; base strConcat wins parser-side",
-	"VisitStrConcatInvalid":           "dead grammar; base strConcat wins parser-side",
-	"VisitStrConcatNull":              "dead grammar; base strConcat wins parser-side",
-	"VisitStrUsing":                   "dead grammar; intUsingArray wins parser-side (see VisitFloatUsing)",
+	"VisitStrConcatArray":   "dead grammar; base strConcat wins parser-side",
+	"VisitStrConcatDate":    "dead grammar; base strConcat wins parser-side",
+	"VisitStrConcatEntity":  "dead grammar; base strConcat wins parser-side",
+	"VisitStrConcatFloat":   "dead grammar; base strConcat wins parser-side",
+	"VisitStrConcatInt":     "dead grammar; base strConcat wins parser-side",
+	"VisitStrConcatInvalid": "dead grammar; base strConcat wins parser-side",
+	"VisitStrConcatNull":    "dead grammar; base strConcat wins parser-side",
+	"VisitStrUsing":         "dead grammar; intUsingArray wins parser-side (see VisitFloatUsing)",
 	// tablelist / tableTyped are helper rules referenced from the
 	// table-lookup alts; with the table-lookup parent emitting
 	// elstmterror placeholders (#803 batch 6), the helpers are never
 	// reached as visitors.
-	"VisitTableListMulti":             "dead grammar; helper rule under table-lookup which emits elstmterror",
-	"VisitTableListSingle":            "dead grammar; helper rule under table-lookup which emits elstmterror",
-	"VisitTableTyped":                 "dead grammar; helper rule under table-lookup which emits elstmterror",
+	"VisitTableListMulti":  "dead grammar; helper rule under table-lookup which emits elstmterror",
+	"VisitTableListSingle": "dead grammar; helper rule under table-lookup which emits elstmterror",
+	"VisitTableTyped":      "dead grammar; helper rule under table-lookup which emits elstmterror",
 	// `thereis` is a purely structural rule (`THERE IS | IS THERE`) — just
 	// keyword matching. Every parent (boolThereIsWhere, boolMatchForall,
 	// etc.) emits its own postfix without visiting the thereis ctx (#803
 	// batch 12).
-	"VisitThereis":                    "dead grammar; parents emit logic without visiting the keyword-only rule",
+	"VisitThereis": "dead grammar; parents emit logic without visiting the keyword-only rule",
 	// typedXxx and undefinedIdent are IDENT-classification rules. Every
 	// parent visitor that consumes them extracts the text via GetText()
 	// directly (e.g. VisitOperatorstatements at line 4906 reads
 	// `ctx.TypedOperator().GetText()`; VisitLocalEntityInit reads
 	// `ctx.UndefinedIdent().GetText()`). The Visit() entry points are
 	// never invoked. Verified by source inspection (#803 batch 7).
-	"VisitTypedBoolFunction":          "dead grammar; consumers use TypedBoolFunction().GetText() directly",
-	"VisitTypedInvalid":               "dead grammar; only used by dead-grammar strConcatInvalid",
-	"VisitTypedNull":                  "dead grammar; only used by dead-grammar strConcatNull",
-	"VisitTypedOperator":              "dead grammar; VisitOperatorstatements extracts via GetText",
-	"VisitUndefinedIdent":             "dead grammar; CREATE/LOCAL parents extract via UndefinedIdent().GetText",
-	"VisitUsingstatement":             "dead grammar; the rule's only alt wraps usingblock which is visited via children elsewhere",
+	"VisitTypedBoolFunction": "dead grammar; consumers use TypedBoolFunction().GetText() directly",
+	"VisitTypedInvalid":      "dead grammar; only used by dead-grammar strConcatInvalid",
+	"VisitTypedNull":         "dead grammar; only used by dead-grammar strConcatNull",
+	"VisitTypedOperator":     "dead grammar; VisitOperatorstatements extracts via GetText",
+	"VisitUndefinedIdent":    "dead grammar; CREATE/LOCAL parents extract via UndefinedIdent().GetText",
+	"VisitUsingstatement":    "dead grammar; the rule's only alt wraps usingblock which is visited via children elsewhere",
 }
 
 // TestPostfixEmitterVisitorCoverage asserts that the inherited

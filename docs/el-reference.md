@@ -244,7 +244,7 @@ EL supports standard arithmetic on integers, doubles, and bigints. The emitter m
 **Syntax**: `fexpr rounded` or `fexpr rounded to N decimal places`
 **Semantics**: Round float to nearest integer or to N decimal places. Postfix operator: `round`.
 **Example (EL)**: `result.agi rounded == 50000`
-**Compiled postfix**: `result.agi 0 0.5 roundto 50000 f==`
+**Compiled postfix**: `result.agi 0 0.5 roundto 50000 ==`
 
 #### Sum of
 
@@ -252,7 +252,7 @@ EL supports standard arithmetic on integers, doubles, and bigints. The emitter m
 **Semantics**: Sums a numeric field across all elements of an array. With `where`, only elements matching the predicate contribute. The unfiltered form uses the `sumof` postfix operator; the filtered form lowers to a `forall` fold that gates each addition on the predicate (`0 arr { bexpr { iexpr + } if } forall`).
 **Example (EL)**: `sum of income.amount in person.incomes >= 10000.0`
 **Filtered example (EL)**: `sum of payout.amount in payouts where payout.amount > 0` (#864, Accumulate staking)
-**Compiled postfix**: `0 { income.amount + } person.incomes forall 10000.0 f>=`
+**Compiled postfix**: `0.0 { income.amount f+ } person.incomes forall 10000.0 f>=`
 
 **Tax example**: `sum of w2.wages in w2s >= 0.0`
 **Eligibility example** (legacy postfix — see note below):
@@ -317,9 +317,9 @@ If neither the computed table nor the default exists, the error names both.
 This is the value, not the element attaining it. `the <entity> in <array> with the max <field>` — the form that keeps a choice rule inside the tables — is not implemented (#1024).
 
 **Example (EL)**: `max of card.rank in stack.cards == 5`
-**Compiled postfix**: `0 { card.rank max } stack.cards forall 5 ==`
+**Compiled postfix**: `0.0 { card.rank fmax } stack.cards forall 5 ==`
 **Filtered example (EL)**: `max of card.rank in stack.cards where card.suit == 1 == 5`
-**Compiled postfix**: `0 { { card.rank max } card.suit 1 == if } stack.cards forall 5 ==`
+**Compiled postfix**: `0.0 { { card.rank fmax } card.suit 1 == if } stack.cards forall 5 ==`
 
 #### String "is one of"
 

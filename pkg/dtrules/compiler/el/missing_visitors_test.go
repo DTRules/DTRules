@@ -161,9 +161,9 @@ func TestRounded_UsesRegisteredOp(t *testing.T) {
 	c := NewCompiler()
 	c.SetSymbols(map[string]string{"dp.rate": TypeDouble})
 	cases := []struct {
-		dsl      string
-		mustHit  []string
-		mustNot  []string
+		dsl     string
+		mustHit []string
+		mustNot []string
 	}{
 		{
 			// Unqualified `rounded` — fills in defaults.

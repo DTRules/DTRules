@@ -324,18 +324,28 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 	// result (fp-family op), not a double (#903). Without this, a nested
 	// `a * b` dividend types as double and downstream dispatch degrades.
 	switch c := ctx.(type) {
-	case *FloatAddSubFloatContext:
-		return promoteArithType(e.getExprType(c.Fexpr(0)), e.getExprType(c.Fexpr(1)))
-	case *FloatMulDivFloatContext:
-		return promoteArithType(e.getExprType(c.Fexpr(0)), e.getExprType(c.Fexpr(1)))
-	case *FloatAddSubIntContext:
-		return promoteArithType(e.getExprType(c.Fexpr()), e.getExprType(c.Iexpr()))
-	case *FloatMulDivIntContext:
-		return promoteArithType(e.getExprType(c.Fexpr()), e.getExprType(c.Iexpr()))
-	case *IntAddSubFloatContext:
-		return promoteArithType(e.getExprType(c.Iexpr()), e.getExprType(c.Fexpr()))
-	case *IntMulDivFloatContext:
-		return promoteArithType(e.getExprType(c.Iexpr()), e.getExprType(c.Fexpr()))
+	case *NumAddSubContext:
+		return promoteArithType(e.getExprType(c.Numexpr(0)), e.getExprType(c.Numexpr(1)))
+	case *NumMulDivContext:
+		return promoteArithType(e.getExprType(c.Numexpr(0)), e.getExprType(c.Numexpr(1)))
+	case *NumNegateContext:
+		return e.getExprType(c.Numexpr())
+	case *NumFexprContext:
+		return e.getExprType(c.Fexpr())
+	case *NumIexprContext:
+		return e.getExprType(c.Iexpr())
+	case *NumIntLiteralContext:
+		return TypeInteger
+	case *NumFpLiteralContext:
+		return TypeFixed
+	case *NumMinOfContext:
+		return promoteArithType(e.getExprType(c.Numexpr(0)), e.getExprType(c.Numexpr(1)))
+	case *NumMinOfCommaContext:
+		return promoteArithType(e.getExprType(c.Numexpr(0)), e.getExprType(c.Numexpr(1)))
+	case *NumMaxOfContext:
+		return promoteArithType(e.getExprType(c.Numexpr(0)), e.getExprType(c.Numexpr(1)))
+	case *NumMaxOfCommaContext:
+		return promoteArithType(e.getExprType(c.Numexpr(0)), e.getExprType(c.Numexpr(1)))
 	}
 
 	// Float-VALUED expressions (literals, explicit (double) casts, float
@@ -351,7 +361,7 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 		// a fixed result.
 		return TypeFixed
 	case *FloatParenContext:
-		return e.getExprType(c.Fexpr())
+		return e.getExprType(c.Numexpr())
 	}
 
 	// Fallback: a bare-identifier expression in any wrapper context (Number,
@@ -724,131 +734,6 @@ func (e *PostfixEmitter) VisitErrorNode(node antlr.ErrorNode) interface{} {
 // ============================================================================
 // Boolean Expression Visitors
 // ============================================================================
-
-func (e *PostfixEmitter) VisitBoolIntEq(ctx *BoolIntEqContext) interface{} {
-	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-
-	// If both sides are bytes-typed, use constant-time equality.
-	if e.iexprIsBytes(left) && e.iexprIsBytes(right) {
-		e.Visit(left)
-		e.Visit(right)
-		e.emit("bytes==")
-		return nil
-	}
-
-	target := e.promote(e.getExprType(left), e.getExprType(right))
-	e.emitWithTypeConversion(left, target)
-	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, "==", "b==", "f==", "fp=="))
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{} {
-	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-
-	// If both sides are bytes-typed, use constant-time inequality.
-	if e.iexprIsBytes(left) && e.iexprIsBytes(right) {
-		e.Visit(left)
-		e.Visit(right)
-		e.emit("bytes!=")
-		return nil
-	}
-
-	target := e.promote(e.getExprType(left), e.getExprType(right))
-	e.emitWithTypeConversion(left, target)
-	e.emitWithTypeConversion(right, target)
-	switch target {
-	case TypeFixed:
-		e.emit("fp!=")
-	case TypeBigInt:
-		e.emit("b!=")
-	case TypeDouble:
-		e.emit("f!=")
-	default:
-		e.emit("==")
-		e.emit("not")
-	}
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolIntGt(ctx *BoolIntGtContext) interface{} {
-	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := e.promote(e.getExprType(left), e.getExprType(right))
-	e.emitWithTypeConversion(left, target)
-	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, ">", "b>", "f>", "fp>"))
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolIntGte(ctx *BoolIntGteContext) interface{} {
-	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := e.promote(e.getExprType(left), e.getExprType(right))
-	e.emitWithTypeConversion(left, target)
-	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, ">=", "b>=", "f>=", "fp>="))
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolIntLt(ctx *BoolIntLtContext) interface{} {
-	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := e.promote(e.getExprType(left), e.getExprType(right))
-	e.emitWithTypeConversion(left, target)
-	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, "<", "b<", "f<", "fp<"))
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolIntLte(ctx *BoolIntLteContext) interface{} {
-	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := e.promote(e.getExprType(left), e.getExprType(right))
-	e.emitWithTypeConversion(left, target)
-	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, "<=", "b<=", "f<=", "fp<="))
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolFloatEq(ctx *BoolFloatEqContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("f==")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolFloatNeq(ctx *BoolFloatNeqContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("f==")
-	e.emit("not")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolFloatGt(ctx *BoolFloatGtContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("f>")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolFloatLt(ctx *BoolFloatLtContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("f<")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolFloatGte(ctx *BoolFloatGteContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("f>=")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolFloatLte(ctx *BoolFloatLteContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("f<=")
-	return nil
-}
 
 // arrayExprIsBytes returns true if an arrayExpr resolves to a bytes-typed identifier.
 func (e *PostfixEmitter) arrayExprIsBytes(ctx IArrayExprContext) bool {
@@ -1777,7 +1662,7 @@ func (e *PostfixEmitter) VisitDivideRoundingBy(ctx *DivideRoundingByContext) int
 	// staking mantissas exceed a double's exact-integer range) — authors opt
 	// in with an explicit `(fixed)` cast. (#903)
 	for i := 0; i < 2; i++ {
-		if t := e.getExprType(ctx.Fexpr(i)); t == TypeDouble {
+		if t := e.getExprType(ctx.Numexpr(i)); t == TypeDouble {
 			e.emitError("divide … rounding by requires fixed operands; " +
 				"cast the double operand explicitly (e.g. \"(fixed) x\")")
 			return nil
@@ -1797,8 +1682,8 @@ func (e *PostfixEmitter) VisitDivideRoundingBy(ctx *DivideRoundingByContext) int
 	//
 	// Only unparenthesised chains are re-associated — a parenthesised
 	// subexpression is its own node and is emitted as the author grouped it.
-	e.emitFixedProductLeftAssoc(ctx.Fexpr(0))
-	e.emitFixedProductLeftAssoc(ctx.Fexpr(1))
+	e.emitFixedProductLeftAssoc(ctx.Numexpr(0))
+	e.emitFixedProductLeftAssoc(ctx.Numexpr(1))
 
 	rText := ctx.FP_LITERAL().GetText()
 	rMantissa, err := parseFpLiteralToMantissa(rText)
@@ -2117,7 +2002,7 @@ func (e *PostfixEmitter) VisitFloatNegate(ctx *FloatNegateContext) interface{} {
 }
 
 func (e *PostfixEmitter) VisitFloatParen(ctx *FloatParenContext) interface{} {
-	e.Visit(ctx.Fexpr())
+	e.Visit(ctx.Numexpr())
 	return nil
 }
 
@@ -2150,16 +2035,23 @@ func (e *PostfixEmitter) VisitIntAbs(ctx *IntAbsContext) interface{} {
 func (e *PostfixEmitter) VisitFloatAbs(ctx *FloatAbsContext) interface{} {
 	inner := ctx.Fexpr()
 	e.Visit(inner)
-	// fp operands reach FloatAbs when a fp-declared field is referenced
-	// inside a fexpr context (grammar picks typedDouble over typedLong
-	// depending on surrounding rules). Emit fpabs so the value stays on
-	// the 10⁻⁸ grid; otherwise the fabs op coerces to float64 first and
-	// silently loses fractional precision.
+	// Full type dispatch. Identifiers of every numeric type arrive here now
+	// that numexpr prefers the fexpr leaf -- under the old `number : iexpr |
+	// fexpr` ordering, int and bigint operands reached the int-side abs
+	// alternatives instead (#1148). fpabs keeps fixed values on the 10⁻⁸
+	// grid; fabs would coerce through float64 and lose precision (#894).
 	if fexprIsFixed(e, inner) {
 		e.emit("fpabs")
 		return nil
 	}
-	e.emit("fabs")
+	switch e.getExprType(inner) {
+	case TypeBigInt:
+		e.emit("babs")
+	case TypeInteger, TypeLong:
+		e.emit("abs")
+	default:
+		e.emit("fabs")
+	}
 	return nil
 }
 
@@ -2349,90 +2241,6 @@ func (e *PostfixEmitter) VisitFloatSumOfWhere(ctx *FloatSumOfWhereContext) inter
 	e.emit("}")
 	e.Visit(ctx.ArrayExpr())
 	e.emit("forall")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatMinOfFloat(ctx *FloatMinOfFloatContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("fmin")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatMinOfInt(ctx *FloatMinOfIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("fmin")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatMinIntOf(ctx *FloatMinIntOfContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("fmin")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatMinOfFloatComma(ctx *FloatMinOfFloatCommaContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("fmin")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatMinOfIntComma(ctx *FloatMinOfIntCommaContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("fmin")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatMinIntOfComma(ctx *FloatMinIntOfCommaContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("fmin")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatMaxOfFloat(ctx *FloatMaxOfFloatContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("fmax")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatMaxOfInt(ctx *FloatMaxOfIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("fmax")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatMaxIntOf(ctx *FloatMaxIntOfContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("fmax")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatMaxOfFloatComma(ctx *FloatMaxOfFloatCommaContext) interface{} {
-	e.Visit(ctx.Fexpr(0))
-	e.Visit(ctx.Fexpr(1))
-	e.emit("fmax")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatMaxOfIntComma(ctx *FloatMaxOfIntCommaContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("fmax")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatMaxIntOfComma(ctx *FloatMaxIntOfCommaContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("fmax")
 	return nil
 }
 
@@ -3807,11 +3615,7 @@ func (e *PostfixEmitter) VisitLocalStringDefined(ctx *LocalStringDefinedContext)
 // ============================================================================
 
 func (e *PostfixEmitter) VisitNumber(ctx *NumberContext) interface{} {
-	if ctx.Iexpr() != nil {
-		e.Visit(ctx.Iexpr())
-	} else if ctx.Fexpr() != nil {
-		e.Visit(ctx.Fexpr())
-	}
+	e.Visit(ctx.Numexpr())
 	return nil
 }
 
@@ -6662,92 +6466,6 @@ func (e *PostfixEmitter) VisitAddToContextFor(ctx *AddToContextForContext) inter
 // Mixed Type Comparison Visitors
 // ============================================================================
 
-func (e *PostfixEmitter) VisitBoolFloatEqInt(ctx *BoolFloatEqIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("f==")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolIntEqFloat(ctx *BoolIntEqFloatContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("f==")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolFloatNeqInt(ctx *BoolFloatNeqIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("f==")
-	e.emit("not")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolIntNeqFloat(ctx *BoolIntNeqFloatContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("f==")
-	e.emit("not")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolFloatGtInt(ctx *BoolFloatGtIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("f>")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolIntGtFloat(ctx *BoolIntGtFloatContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("f>")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolFloatLtInt(ctx *BoolFloatLtIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("f<")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolIntLtFloat(ctx *BoolIntLtFloatContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("f<")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolFloatGteInt(ctx *BoolFloatGteIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("f>=")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolIntGteFloat(ctx *BoolIntGteFloatContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("f>=")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolFloatLteInt(ctx *BoolFloatLteIntContext) interface{} {
-	e.Visit(ctx.Fexpr())
-	e.Visit(ctx.Iexpr())
-	e.emit("f<=")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitBoolIntLteFloat(ctx *BoolIntLteFloatContext) interface{} {
-	e.Visit(ctx.Iexpr())
-	e.Visit(ctx.Fexpr())
-	e.emit("f<=")
-	return nil
-}
-
 // ============================================================================
 // Possessive Reference Visitors
 // ============================================================================
@@ -7602,12 +7320,19 @@ func (e *PostfixEmitter) emitFixedProductLeftAssoc(ctx antlr.ParseTree) {
 // `divide n by x * (y * z) rounding by 0.5fp` still mean what it says.
 func flattenMulChain(t antlr.ParseTree) []antlr.ParseTree {
 	switch c := t.(type) {
-	case *FloatMulDivFloatContext:
-		return append(flattenMulChain(c.Fexpr(0)), flattenMulChain(c.Fexpr(1))...)
-	case *FloatMulDivIntContext:
-		return append(flattenMulChain(c.Fexpr()), c.Iexpr())
-	case *IntMulDivFloatContext:
-		return append([]antlr.ParseTree{c.Iexpr()}, flattenMulChain(c.Fexpr())...)
+	case *NumMulDivContext:
+		// Multiplication only. Since #1147 merged the operators into one
+		// alternative, the context alone no longer says which matched -- and
+		// descending a division would rewrite `x / y` as the operands of a
+		// product. (#1147's port of this function did exactly that; the
+		// operator check belongs here and was missing.)
+		if c.DIVIDE() == nil {
+			return append(flattenMulChain(c.Numexpr(0)), flattenMulChain(c.Numexpr(1))...)
+		}
+	case *NumFexprContext:
+		return flattenMulChain(c.Fexpr())
+	case *NumIexprContext:
+		return flattenMulChain(c.Iexpr())
 	}
 	return []antlr.ParseTree{t}
 }
@@ -7769,38 +7494,170 @@ func (e *PostfixEmitter) VisitIntAddSub(ctx *IntAddSubContext) interface{} {
 	return nil
 }
 
-func (e *PostfixEmitter) VisitFloatMulDivInt(ctx *FloatMulDivIntContext) interface{} {
+// ============================================================================
+// numexpr visitors -- all binary numeric arithmetic, min/max and comparisons
+// come through here now, so one precedence climb serves every operand type
+// and the emitter's promote()/arithOp() do all the typing (#1148).
+// ============================================================================
+
+func (e *PostfixEmitter) VisitNumFexpr(ctx *NumFexprContext) interface{} { return e.Visit(ctx.Fexpr()) }
+
+func (e *PostfixEmitter) VisitNumIexpr(ctx *NumIexprContext) interface{} { return e.Visit(ctx.Iexpr()) }
+
+func (e *PostfixEmitter) VisitNumIntLiteral(ctx *NumIntLiteralContext) interface{} {
+	e.emit(ctx.GetText())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitNumFpLiteral(ctx *NumFpLiteralContext) interface{} {
+	e.emit(ctx.GetText())
+	return nil
+}
+
+// VisitNumNegate: unary minus binds tighter than every binary operator, so
+// `-a + b` is (-a) + b. Its former fexpr spelling was a primary whose operand
+// swallowed the whole chain: `-a + b - c` negated (a+b-c) (#1148).
+func (e *PostfixEmitter) VisitNumNegate(ctx *NumNegateContext) interface{} {
+	expr := ctx.Numexpr()
+	exprType := e.getExprType(expr)
+	e.Visit(expr)
+	switch exprType {
+	case TypeFixed:
+		e.emit("fpnegate")
+	case TypeBigInt:
+		e.emit("bnegate")
+	case TypeDouble:
+		e.emit("fnegate") // negate would truncate the double via IntValue (#894)
+	default:
+		e.emit("negate")
+	}
+	return nil
+}
+
+func (e *PostfixEmitter) VisitNumMulDiv(ctx *NumMulDivContext) interface{} {
+	l, r := ctx.Numexpr(0), ctx.Numexpr(1)
 	i, b, d, f := mulDivOps(ctx.DIVIDE() != nil)
-	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), i, b, d, f)
+	e.emitMixedFloatArith(l, r, e.getExprType(l), e.getExprType(r), i, b, d, f)
 	return nil
 }
 
-func (e *PostfixEmitter) VisitIntMulDivFloat(ctx *IntMulDivFloatContext) interface{} {
-	i, b, d, f := mulDivOps(ctx.DIVIDE() != nil)
-	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), i, b, d, f)
+func (e *PostfixEmitter) VisitNumAddSub(ctx *NumAddSubContext) interface{} {
+	l, r := ctx.Numexpr(0), ctx.Numexpr(1)
+	isMinus := ctx.MINUS() != nil
+	// Bytes concat: only addition concatenates.
+	if !isMinus && e.numexprIsBytes(l) && e.numexprIsBytes(r) {
+		e.Visit(l)
+		e.Visit(r)
+		e.emit("bytes+")
+		return nil
+	}
+	i, b, d, f := addSubOps(isMinus)
+	e.emitMixedFloatArith(l, r, e.getExprType(l), e.getExprType(r), i, b, d, f)
 	return nil
 }
 
-func (e *PostfixEmitter) VisitFloatMulDivFloat(ctx *FloatMulDivFloatContext) interface{} {
-	i, b, d, f := mulDivOps(ctx.DIVIDE() != nil)
-	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), i, b, d, f)
+// numexprIsBytes unwraps a numexpr leaf far enough to ask the existing
+// bytes-identifier checks. Only leaves can be bytes; a chain is arithmetic.
+func (e *PostfixEmitter) numexprIsBytes(ctx INumexprContext) bool {
+	switch c := ctx.(type) {
+	case *NumIexprContext:
+		return e.iexprIsBytes(c.Iexpr())
+	case *NumFexprContext:
+		return e.identIsBytes(strings.TrimSpace(c.GetText()))
+	}
+	return false
+}
+
+func (e *PostfixEmitter) visitNumMinMax(l, r INumexprContext, intOp, bigOp, dblOp, fpOp string) {
+	target := e.promote(e.getExprType(l), e.getExprType(r))
+	e.emitWithTypeConversion(l, target)
+	e.emitWithTypeConversion(r, target)
+	e.emit(minMaxOp(target, intOp, bigOp, dblOp, fpOp))
+}
+
+func (e *PostfixEmitter) VisitNumMinOf(ctx *NumMinOfContext) interface{} {
+	e.visitNumMinMax(ctx.Numexpr(0), ctx.Numexpr(1), "min", "bmin", "fmin", "fpmin")
 	return nil
 }
 
-func (e *PostfixEmitter) VisitFloatAddSubInt(ctx *FloatAddSubIntContext) interface{} {
-	i, b, d, f := addSubOps(ctx.MINUS() != nil)
-	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), i, b, d, f)
+func (e *PostfixEmitter) VisitNumMinOfComma(ctx *NumMinOfCommaContext) interface{} {
+	e.visitNumMinMax(ctx.Numexpr(0), ctx.Numexpr(1), "min", "bmin", "fmin", "fpmin")
 	return nil
 }
 
-func (e *PostfixEmitter) VisitIntAddSubFloat(ctx *IntAddSubFloatContext) interface{} {
-	i, b, d, f := addSubOps(ctx.MINUS() != nil)
-	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), i, b, d, f)
+func (e *PostfixEmitter) VisitNumMaxOf(ctx *NumMaxOfContext) interface{} {
+	e.visitNumMinMax(ctx.Numexpr(0), ctx.Numexpr(1), "max", "bmax", "fmax", "fpmax")
 	return nil
 }
 
-func (e *PostfixEmitter) VisitFloatAddSubFloat(ctx *FloatAddSubFloatContext) interface{} {
-	i, b, d, f := addSubOps(ctx.MINUS() != nil)
-	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), i, b, d, f)
+func (e *PostfixEmitter) VisitNumMaxOfComma(ctx *NumMaxOfCommaContext) interface{} {
+	e.visitNumMinMax(ctx.Numexpr(0), ctx.Numexpr(1), "max", "bmax", "fmax", "fpmax")
+	return nil
+}
+
+// visitNumCompare: numeric comparison over any operand types; bytes equality
+// keeps its constant-time operators.
+func (e *PostfixEmitter) visitNumCompare(l, r INumexprContext, bytesOp, intOp, bigOp, dblOp, fpOp string) {
+	if bytesOp != "" && e.numexprIsBytes(l) && e.numexprIsBytes(r) {
+		e.Visit(l)
+		e.Visit(r)
+		e.emit(bytesOp)
+		return
+	}
+	target := e.promote(e.getExprType(l), e.getExprType(r))
+	e.emitWithTypeConversion(l, target)
+	e.emitWithTypeConversion(r, target)
+	e.emit(arithOp(target, intOp, bigOp, dblOp, fpOp))
+}
+
+func (e *PostfixEmitter) VisitBoolNumEq(ctx *BoolNumEqContext) interface{} {
+	e.visitNumCompare(ctx.Numexpr(0), ctx.Numexpr(1), "bytes==", "==", "b==", "f==", "fp==")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolNumNeq(ctx *BoolNumNeqContext) interface{} {
+	e.visitNumCompare(ctx.Numexpr(0), ctx.Numexpr(1), "bytes!=", "!=", "b!=", "f!=", "fp!=")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolNumGt(ctx *BoolNumGtContext) interface{} {
+	e.visitNumCompare(ctx.Numexpr(0), ctx.Numexpr(1), "", ">", "b>", "f>", "fp>")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolNumGte(ctx *BoolNumGteContext) interface{} {
+	e.visitNumCompare(ctx.Numexpr(0), ctx.Numexpr(1), "", ">=", "b>=", "f>=", "fp>=")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolNumLt(ctx *BoolNumLtContext) interface{} {
+	e.visitNumCompare(ctx.Numexpr(0), ctx.Numexpr(1), "", "<", "b<", "f<", "fp<")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitBoolNumLte(ctx *BoolNumLteContext) interface{} {
+	e.visitNumCompare(ctx.Numexpr(0), ctx.Numexpr(1), "", "<=", "b<=", "f<=", "fp<=")
+	return nil
+}
+
+// VisitFloatUsing / VisitIntUsing: `using <entity> (<expr>)` -- push the
+// entity, evaluate the inner expression in its scope, pop. These alternatives
+// previously lost IDENT inputs to intUsingArray (number tried iexpr first),
+// so no visitor existed; numexpr prefers the fexpr leaf and routes here, and
+// an unimplemented visitor emits nothing at all -- the whole RHS vanished
+// from the postfix (#1148, the #803 batch-6 shape).
+func (e *PostfixEmitter) VisitFloatUsing(ctx *FloatUsingContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("entitypush")
+	e.Visit(ctx.Fexpr())
+	e.emit("entitypop")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntUsing(ctx *IntUsingContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("entitypush")
+	e.Visit(ctx.Iexpr())
+	e.emit("entitypop")
 	return nil
 }

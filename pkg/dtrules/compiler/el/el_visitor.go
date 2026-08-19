@@ -514,6 +514,27 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#number.
 	VisitNumber(ctx *NumberContext) interface{}
 
+	// Visit a parse tree produced by ELParser#numFexpr.
+	VisitNumFexpr(ctx *NumFexprContext) interface{}
+
+	// Visit a parse tree produced by ELParser#numIntLiteral.
+	VisitNumIntLiteral(ctx *NumIntLiteralContext) interface{}
+
+	// Visit a parse tree produced by ELParser#numMulDiv.
+	VisitNumMulDiv(ctx *NumMulDivContext) interface{}
+
+	// Visit a parse tree produced by ELParser#numAddSub.
+	VisitNumAddSub(ctx *NumAddSubContext) interface{}
+
+	// Visit a parse tree produced by ELParser#numIexpr.
+	VisitNumIexpr(ctx *NumIexprContext) interface{}
+
+	// Visit a parse tree produced by ELParser#numNegate.
+	VisitNumNegate(ctx *NumNegateContext) interface{}
+
+	// Visit a parse tree produced by ELParser#numFpLiteral.
+	VisitNumFpLiteral(ctx *NumFpLiteralContext) interface{}
+
 	// Visit a parse tree produced by ELParser#addDestArray2.
 	VisitAddDestArray2(ctx *AddDestArray2Context) interface{}
 
@@ -1132,17 +1153,8 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#strConcatName.
 	VisitStrConcatName(ctx *StrConcatNameContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatMinOfFloat.
-	VisitFloatMinOfFloat(ctx *FloatMinOfFloatContext) interface{}
-
 	// Visit a parse tree produced by ELParser#floatMaxOfArrayWhere.
 	VisitFloatMaxOfArrayWhere(ctx *FloatMaxOfArrayWhereContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatMaxIntOf.
-	VisitFloatMaxIntOf(ctx *FloatMaxIntOfContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatMulDivInt.
-	VisitFloatMulDivInt(ctx *FloatMulDivIntContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatParen.
 	VisitFloatParen(ctx *FloatParenContext) interface{}
@@ -1153,8 +1165,8 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatSumOfWhere.
 	VisitFloatSumOfWhere(ctx *FloatSumOfWhereContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatMaxOfFloat.
-	VisitFloatMaxOfFloat(ctx *FloatMaxOfFloatContext) interface{}
+	// Visit a parse tree produced by ELParser#numMinOf.
+	VisitNumMinOf(ctx *NumMinOfContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatValueOfOp.
 	VisitFloatValueOfOp(ctx *FloatValueOfOpContext) interface{}
@@ -1162,17 +1174,11 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatRoundedTo.
 	VisitFloatRoundedTo(ctx *FloatRoundedToContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatMinIntOf.
-	VisitFloatMinIntOf(ctx *FloatMinIntOfContext) interface{}
-
-	// Visit a parse tree produced by ELParser#intAddSubFloat.
-	VisitIntAddSubFloat(ctx *IntAddSubFloatContext) interface{}
-
 	// Visit a parse tree produced by ELParser#floatMaxOfArray.
 	VisitFloatMaxOfArray(ctx *FloatMaxOfArrayContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatMinOfIntComma.
-	VisitFloatMinOfIntComma(ctx *FloatMinOfIntCommaContext) interface{}
+	// Visit a parse tree produced by ELParser#numMaxOfComma.
+	VisitNumMaxOfComma(ctx *NumMaxOfCommaContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatTableLookup.
 	VisitFloatTableLookup(ctx *FloatTableLookupContext) interface{}
@@ -1180,8 +1186,8 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatFloorOfInt.
 	VisitFloatFloorOfInt(ctx *FloatFloorOfIntContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatMinIntOfComma.
-	VisitFloatMinIntOfComma(ctx *FloatMinIntOfCommaContext) interface{}
+	// Visit a parse tree produced by ELParser#numMaxOf.
+	VisitNumMaxOf(ctx *NumMaxOfContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatCeilingOfInt.
 	VisitFloatCeilingOfInt(ctx *FloatCeilingOfIntContext) interface{}
@@ -1192,17 +1198,11 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatMulBy.
 	VisitFloatMulBy(ctx *FloatMulByContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatMaxOfIntComma.
-	VisitFloatMaxOfIntComma(ctx *FloatMaxOfIntCommaContext) interface{}
-
 	// Visit a parse tree produced by ELParser#divideRoundingBy.
 	VisitDivideRoundingBy(ctx *DivideRoundingByContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatUsing.
 	VisitFloatUsing(ctx *FloatUsingContext) interface{}
-
-	// Visit a parse tree produced by ELParser#intMulDivFloat.
-	VisitIntMulDivFloat(ctx *IntMulDivFloatContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatTyped.
 	VisitFloatTyped(ctx *FloatTypedContext) interface{}
@@ -1216,20 +1216,11 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatSubFrom.
 	VisitFloatSubFrom(ctx *FloatSubFromContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatMulDivFloat.
-	VisitFloatMulDivFloat(ctx *FloatMulDivFloatContext) interface{}
-
 	// Visit a parse tree produced by ELParser#floatDivBy.
 	VisitFloatDivBy(ctx *FloatDivByContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatMinOfInt.
-	VisitFloatMinOfInt(ctx *FloatMinOfIntContext) interface{}
-
 	// Visit a parse tree produced by ELParser#floatFromIndex.
 	VisitFloatFromIndex(ctx *FloatFromIndexContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatMaxIntOfComma.
-	VisitFloatMaxIntOfComma(ctx *FloatMaxIntOfCommaContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatRounded.
 	VisitFloatRounded(ctx *FloatRoundedContext) interface{}
@@ -1243,8 +1234,8 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatFromInt.
 	VisitFloatFromInt(ctx *FloatFromIntContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatAddSubInt.
-	VisitFloatAddSubInt(ctx *FloatAddSubIntContext) interface{}
+	// Visit a parse tree produced by ELParser#numMinOfComma.
+	VisitNumMinOfComma(ctx *NumMinOfCommaContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatAddTo.
 	VisitFloatAddTo(ctx *FloatAddToContext) interface{}
@@ -1255,23 +1246,11 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#floatCeilingOf.
 	VisitFloatCeilingOf(ctx *FloatCeilingOfContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatMinOfFloatComma.
-	VisitFloatMinOfFloatComma(ctx *FloatMinOfFloatCommaContext) interface{}
-
 	// Visit a parse tree produced by ELParser#floatAbs.
 	VisitFloatAbs(ctx *FloatAbsContext) interface{}
 
-	// Visit a parse tree produced by ELParser#floatMaxOfFloatComma.
-	VisitFloatMaxOfFloatComma(ctx *FloatMaxOfFloatCommaContext) interface{}
-
 	// Visit a parse tree produced by ELParser#floatNegate.
 	VisitFloatNegate(ctx *FloatNegateContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatMaxOfInt.
-	VisitFloatMaxOfInt(ctx *FloatMaxOfIntContext) interface{}
-
-	// Visit a parse tree produced by ELParser#floatAddSubFloat.
-	VisitFloatAddSubFloat(ctx *FloatAddSubFloatContext) interface{}
 
 	// Visit a parse tree produced by ELParser#floatSumOf.
 	VisitFloatSumOf(ctx *FloatSumOfContext) interface{}
@@ -1582,12 +1561,6 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolSameCalendarQuarter.
 	VisitBoolSameCalendarQuarter(ctx *BoolSameCalendarQuarterContext) interface{}
 
-	// Visit a parse tree produced by ELParser#boolIntLteFloat.
-	VisitBoolIntLteFloat(ctx *BoolIntLteFloatContext) interface{}
-
-	// Visit a parse tree produced by ELParser#boolFloatLteInt.
-	VisitBoolFloatLteInt(ctx *BoolFloatLteIntContext) interface{}
-
 	// Visit a parse tree produced by ELParser#boolFromStr.
 	VisitBoolFromStr(ctx *BoolFromStrContext) interface{}
 
@@ -1618,9 +1591,6 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolArrayIsNull.
 	VisitBoolArrayIsNull(ctx *BoolArrayIsNullContext) interface{}
 
-	// Visit a parse tree produced by ELParser#boolIntEq.
-	VisitBoolIntEq(ctx *BoolIntEqContext) interface{}
-
 	// Visit a parse tree produced by ELParser#boolEntityHasaWhere.
 	VisitBoolEntityHasaWhere(ctx *BoolEntityHasaWhereContext) interface{}
 
@@ -1630,20 +1600,8 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolBigNeq.
 	VisitBoolBigNeq(ctx *BoolBigNeqContext) interface{}
 
-	// Visit a parse tree produced by ELParser#boolIntLt.
-	VisitBoolIntLt(ctx *BoolIntLtContext) interface{}
-
-	// Visit a parse tree produced by ELParser#boolIntEqFloat.
-	VisitBoolIntEqFloat(ctx *BoolIntEqFloatContext) interface{}
-
 	// Visit a parse tree produced by ELParser#boolFromIndex.
 	VisitBoolFromIndex(ctx *BoolFromIndexContext) interface{}
-
-	// Visit a parse tree produced by ELParser#boolFloatNeq.
-	VisitBoolFloatNeq(ctx *BoolFloatNeqContext) interface{}
-
-	// Visit a parse tree produced by ELParser#boolFloatLt.
-	VisitBoolFloatLt(ctx *BoolFloatLtContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolThereIsWhere.
 	VisitBoolThereIsWhere(ctx *BoolThereIsWhereContext) interface{}
@@ -1672,9 +1630,6 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolWasQuestion.
 	VisitBoolWasQuestion(ctx *BoolWasQuestionContext) interface{}
 
-	// Visit a parse tree produced by ELParser#boolIntGteFloat.
-	VisitBoolIntGteFloat(ctx *BoolIntGteFloatContext) interface{}
-
 	// Visit a parse tree produced by ELParser#boolNameNeqStr.
 	VisitBoolNameNeqStr(ctx *BoolNameNeqStrContext) interface{}
 
@@ -1686,6 +1641,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#boolEntityInContext.
 	VisitBoolEntityInContext(ctx *BoolEntityInContextContext) interface{}
+
+	// Visit a parse tree produced by ELParser#boolNumGt.
+	VisitBoolNumGt(ctx *BoolNumGtContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolDateAfter.
 	VisitBoolDateAfter(ctx *BoolDateAfterContext) interface{}
@@ -1699,14 +1657,11 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolStrEntityInContext.
 	VisitBoolStrEntityInContext(ctx *BoolStrEntityInContextContext) interface{}
 
-	// Visit a parse tree produced by ELParser#boolFloatEq.
-	VisitBoolFloatEq(ctx *BoolFloatEqContext) interface{}
-
 	// Visit a parse tree produced by ELParser#boolDateLte.
 	VisitBoolDateLte(ctx *BoolDateLteContext) interface{}
 
-	// Visit a parse tree produced by ELParser#boolFloatGtInt.
-	VisitBoolFloatGtInt(ctx *BoolFloatGtIntContext) interface{}
+	// Visit a parse tree produced by ELParser#boolNumLte.
+	VisitBoolNumLte(ctx *BoolNumLteContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolLiteral.
 	VisitBoolLiteral(ctx *BoolLiteralContext) interface{}
@@ -1719,9 +1674,6 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#boolEntityNeq.
 	VisitBoolEntityNeq(ctx *BoolEntityNeqContext) interface{}
-
-	// Visit a parse tree produced by ELParser#boolIntGte.
-	VisitBoolIntGte(ctx *BoolIntGteContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolDoesQuestion.
 	VisitBoolDoesQuestion(ctx *BoolDoesQuestionContext) interface{}
@@ -1741,14 +1693,8 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolStrIsNot.
 	VisitBoolStrIsNot(ctx *BoolStrIsNotContext) interface{}
 
-	// Visit a parse tree produced by ELParser#boolIntGt.
-	VisitBoolIntGt(ctx *BoolIntGtContext) interface{}
-
 	// Visit a parse tree produced by ELParser#boolSameCalendarMonth.
 	VisitBoolSameCalendarMonth(ctx *BoolSameCalendarMonthContext) interface{}
-
-	// Visit a parse tree produced by ELParser#boolFloatLte.
-	VisitBoolFloatLte(ctx *BoolFloatLteContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolSameCalendarWeekStarting.
 	VisitBoolSameCalendarWeekStarting(ctx *BoolSameCalendarWeekStartingContext) interface{}
@@ -1771,6 +1717,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolStrLt.
 	VisitBoolStrLt(ctx *BoolStrLtContext) interface{}
 
+	// Visit a parse tree produced by ELParser#boolNumGte.
+	VisitBoolNumGte(ctx *BoolNumGteContext) interface{}
+
 	// Visit a parse tree produced by ELParser#boolStrGte.
 	VisitBoolStrGte(ctx *BoolStrGteContext) interface{}
 
@@ -1780,8 +1729,8 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolArrayDoesInclude.
 	VisitBoolArrayDoesInclude(ctx *BoolArrayDoesIncludeContext) interface{}
 
-	// Visit a parse tree produced by ELParser#boolIntGtFloat.
-	VisitBoolIntGtFloat(ctx *BoolIntGtFloatContext) interface{}
+	// Visit a parse tree produced by ELParser#boolNumEq.
+	VisitBoolNumEq(ctx *BoolNumEqContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolValueOfOp.
 	VisitBoolValueOfOp(ctx *BoolValueOfOpContext) interface{}
@@ -1791,9 +1740,6 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#boolBigGt.
 	VisitBoolBigGt(ctx *BoolBigGtContext) interface{}
-
-	// Visit a parse tree produced by ELParser#boolFloatGt.
-	VisitBoolFloatGt(ctx *BoolFloatGtContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolStrIsNull.
 	VisitBoolStrIsNull(ctx *BoolStrIsNullContext) interface{}
@@ -1816,8 +1762,8 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolMatches.
 	VisitBoolMatches(ctx *BoolMatchesContext) interface{}
 
-	// Visit a parse tree produced by ELParser#boolFloatGteInt.
-	VisitBoolFloatGteInt(ctx *BoolFloatGteIntContext) interface{}
+	// Visit a parse tree produced by ELParser#boolNumLt.
+	VisitBoolNumLt(ctx *BoolNumLtContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolStrNeqIc.
 	VisitBoolStrNeqIc(ctx *BoolStrNeqIcContext) interface{}
@@ -1830,12 +1776,6 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#boolBexprIsNotNull.
 	VisitBoolBexprIsNotNull(ctx *BoolBexprIsNotNullContext) interface{}
-
-	// Visit a parse tree produced by ELParser#boolIntLte.
-	VisitBoolIntLte(ctx *BoolIntLteContext) interface{}
-
-	// Visit a parse tree produced by ELParser#boolIntNeqFloat.
-	VisitBoolIntNeqFloat(ctx *BoolIntNeqFloatContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolArrayAt.
 	VisitBoolArrayAt(ctx *BoolArrayAtContext) interface{}
@@ -1852,9 +1792,6 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolDateEq.
 	VisitBoolDateEq(ctx *BoolDateEqContext) interface{}
 
-	// Visit a parse tree produced by ELParser#boolFloatGte.
-	VisitBoolFloatGte(ctx *BoolFloatGteContext) interface{}
-
 	// Visit a parse tree produced by ELParser#boolStrLte.
 	VisitBoolStrLte(ctx *BoolStrLteContext) interface{}
 
@@ -1870,23 +1807,14 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolThereIsInEntityWhere.
 	VisitBoolThereIsInEntityWhere(ctx *BoolThereIsInEntityWhereContext) interface{}
 
-	// Visit a parse tree produced by ELParser#boolFloatLtInt.
-	VisitBoolFloatLtInt(ctx *BoolFloatLtIntContext) interface{}
-
 	// Visit a parse tree produced by ELParser#boolArrayNotInclude.
 	VisitBoolArrayNotInclude(ctx *BoolArrayNotIncludeContext) interface{}
-
-	// Visit a parse tree produced by ELParser#boolFloatNeqInt.
-	VisitBoolFloatNeqInt(ctx *BoolFloatNeqIntContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolBexprIsNull.
 	VisitBoolBexprIsNull(ctx *BoolBexprIsNullContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolAllHave.
 	VisitBoolAllHave(ctx *BoolAllHaveContext) interface{}
-
-	// Visit a parse tree produced by ELParser#boolIntLtFloat.
-	VisitBoolIntLtFloat(ctx *BoolIntLtFloatContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolBoolEq.
 	VisitBoolBoolEq(ctx *BoolBoolEqContext) interface{}
@@ -1906,14 +1834,8 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolThereIsNoWhere.
 	VisitBoolThereIsNoWhere(ctx *BoolThereIsNoWhereContext) interface{}
 
-	// Visit a parse tree produced by ELParser#boolFloatEqInt.
-	VisitBoolFloatEqInt(ctx *BoolFloatEqIntContext) interface{}
-
 	// Visit a parse tree produced by ELParser#boolSameCalendarDay.
 	VisitBoolSameCalendarDay(ctx *BoolSameCalendarDayContext) interface{}
-
-	// Visit a parse tree produced by ELParser#boolIntNeq.
-	VisitBoolIntNeq(ctx *BoolIntNeqContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolArrayIncludes.
 	VisitBoolArrayIncludes(ctx *BoolArrayIncludesContext) interface{}
@@ -1941,6 +1863,9 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#boolEntityIsNotNull.
 	VisitBoolEntityIsNotNull(ctx *BoolEntityIsNotNullContext) interface{}
+
+	// Visit a parse tree produced by ELParser#boolNumNeq.
+	VisitBoolNumNeq(ctx *BoolNumNeqContext) interface{}
 
 	// Visit a parse tree produced by ELParser#boolStrNeq.
 	VisitBoolStrNeq(ctx *BoolStrNeqContext) interface{}
