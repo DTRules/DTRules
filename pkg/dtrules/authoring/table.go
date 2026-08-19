@@ -29,6 +29,10 @@ type Table struct {
 	Name   string
 	Number int // TABLE_NUMBER — load/sheet ordering; 0 means unset
 	Policy string
+	// Comments is the table-level COMMENTS attribute field. A plain field
+	// like Policy: loaded by syncFromXML, written back by syncToXML, so a
+	// caller that never touches it round-trips the stored value (#1084).
+	Comments string
 	// Workbook is the Excel file this table belongs in (`xls_file`), which
 	// decides which workbook an export writes it to.
 	//
@@ -164,6 +168,7 @@ func newTableWithProject(x *excel.DecisionTableXML, symbols map[string]string, p
 func (t *Table) syncFromXML() {
 	t.Name = t.xml.TableName
 	t.Policy = t.xml.AttributeFields.EffectiveType()
+	t.Comments = t.xml.AttributeFields.Comments
 	t.Number, _ = strconv.Atoi(strings.TrimSpace(t.xml.AttributeFields.TableNumber))
 
 	t.Contexts = nil
@@ -255,6 +260,7 @@ func (t *Table) syncToXML() {
 	// Write the canonical spelling and clear the legacy ones, so a table
 	// cannot end up carrying two different types.
 	t.xml.AttributeFields.Type = t.Policy
+	t.xml.AttributeFields.Comments = t.Comments
 	t.xml.AttributeFields.TypeUppercase = ""
 	t.xml.AttributeFields.TypeLowercase = ""
 	// Only write a number when one is set, so an unspecified number keeps the

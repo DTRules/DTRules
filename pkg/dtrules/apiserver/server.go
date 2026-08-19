@@ -43,7 +43,6 @@ import (
 	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
 	"github.com/DTRules/DTRules/pkg/dtrules/compiler"
 	"github.com/DTRules/DTRules/pkg/dtrules/entity"
-	"github.com/DTRules/DTRules/pkg/dtrules/excel"
 	"github.com/DTRules/DTRules/pkg/dtrules/interpreter"
 	"github.com/DTRules/DTRules/pkg/dtrules/project"
 	"github.com/DTRules/DTRules/pkg/dtrules/session"
@@ -916,71 +915,43 @@ func (s *Server) handleProjectSave(w http.ResponseWriter, r *http.Request) {
 	defer s.mu.Unlock()
 
 	// Excel is the system of record, so the HTTP surface obeys the same
-	// contract as `dtrules table put` and the MCP write tools: refuse to write
-	// over a workbook someone has edited, and refresh Excel from the XML in
-	// the same operation.
-	//
-	// It did neither. A PUT followed by a save changed the XML and left the
-	// workbook byte-identical, reported success, and put the project straight
-	// into `content differs from build output` at the next verify. That is not
-	// a side-door API — `dtrules edit` embeds this server, so it was the
-	// browser editor breaking the contract on every save (#804).
+	// contract as `dtrules table put` and the MCP write tools: refuse to
+	// write over a workbook someone has edited (#804). The guard runs here
+	// as well as inside Project.Save so the refusal maps to 409 before any
+	// reconciliation work happens.
 	xmlDir, excelDir := s.authoringDirs()
 	if err := authoring.GuardExcelIn(xmlDir, excelDir, false); err != nil {
 		jsonError(w, fmt.Sprintf("Refusing to save: %v", err), http.StatusConflict)
 		return
 	}
 
-	savedFiles := []string{}
-
-	// Save modified EDD files
-	for _, eddFile := range s.eddFiles {
-		if s.modified[eddFile] {
-			path := filepath.Join(s.projectPath, eddFile)
-			if err := s.saveEDDFile(path, eddFile); err != nil {
-				jsonError(w, fmt.Sprintf("Failed to save %s: %v", eddFile, err), http.StatusInternalServerError)
-				return
-			}
-			savedFiles = append(savedFiles, eddFile)
-			s.modified[eddFile] = false
+	// The save itself is authoring.Project's — the same funnel as
+	// `dtrules table put`: DSL recompile, guarded XML write, Excel refresh,
+	// and the authoring-notes journal, in one code path (#1084). The old
+	// per-file serializers this replaces are gone; what the editor learns
+	// about writing rules safely is now learned once.
+	saved, err := s.saveViaProject()
+	if err != nil {
+		// A compile error is the author's DSL, not a server fault, so it
+		// comes back 400. The editor can tell "fix your rule" from "the
+		// server broke" only if we make that distinction here.
+		status := http.StatusInternalServerError
+		var ce *compileError
+		if errors.As(err, &ce) {
+			status = http.StatusBadRequest
 		}
+		jsonError(w, fmt.Sprintf("Failed to save: %v", err), status)
+		return
 	}
 
-	// Save modified DT files
-	for _, dtFile := range s.dtFiles {
-		if s.modified[dtFile] {
-			path := filepath.Join(s.projectPath, dtFile)
-			if err := s.saveDTFile(path, dtFile); err != nil {
-				// A compile error is the author's DSL, not a server fault, so
-				// it comes back 400. The editor can tell "fix your rule" from
-				// "the server broke" only if we make that distinction here.
-				status := http.StatusInternalServerError
-				var ce *compileError
-				if errors.As(err, &ce) {
-					status = http.StatusBadRequest
-				}
-				jsonError(w, fmt.Sprintf("Failed to save %s: %v", dtFile, err), status)
-				return
-			}
-			savedFiles = append(savedFiles, dtFile)
-			s.modified[dtFile] = false
-		}
-	}
-
-	// Excel catches up in the same operation. Reported rather than fatal: the
-	// XML is already on disk, so failing the request would tell the caller the
-	// save did not happen when half of it did.
-	var excelErr string
-	if len(savedFiles) > 0 {
-		if err := authoring.RefreshExcelIn(xmlDir, excelDir); err != nil {
-			excelErr = err.Error()
-		}
+	for _, f := range saved {
+		s.modified[f] = false
 	}
 
 	jsonResponse(w, map[string]interface{}{
 		"success":    true,
-		"savedFiles": savedFiles,
-		"excelError": excelErr,
+		"savedFiles": saved,
+		"excelError": "",
 	})
 }
 
@@ -2125,84 +2096,7 @@ func (s *Server) loadEDDAlternative(data []byte, relPath string) error {
 	return nil
 }
 
-// saveEDDFile persists the entities belonging to relPath by merging the
-// API's editable fields into the canonical on-disk model and emitting through
-// the excel package's WriteXML — which backfills missing entity numbers.
-// Elements the API model doesn't carry (sources, collect/question metadata)
-// survive the round-trip.
-func (s *Server) saveEDDFile(path, relPath string) error {
-	doc := &excel.EDDXML{}
-	if data, err := os.ReadFile(path); err == nil {
-		if perr := xml.Unmarshal(data, doc); perr != nil {
-			return fmt.Errorf("parse %s: %w", path, perr)
-		}
-	}
 
-	// Entities that should be in this file now, by name.
-	keep := make(map[string]*EntityData)
-	for _, e := range s.entities {
-		if e.Source == relPath {
-			keep[e.Name] = e
-		}
-	}
-
-	// Drop entities deleted through the API, keep everything else.
-	filtered := doc.Entities[:0]
-	for _, x := range doc.Entities {
-		if keep[x.Name] != nil {
-			filtered = append(filtered, x)
-		}
-	}
-	doc.Entities = filtered
-
-	// Append entities created through the API, in document order.
-	inFile := make(map[string]bool, len(doc.Entities))
-	for _, x := range doc.Entities {
-		inFile[x.Name] = true
-	}
-	for _, e := range s.entities {
-		if e.Source == relPath && !inFile[e.Name] {
-			doc.Entities = append(doc.Entities, &excel.EDDXMLEntity{Name: e.Name})
-		}
-	}
-
-	// Apply the API-editable fields onto the canonical model.
-	for _, x := range doc.Entities {
-		applyEntityEdits(x, keep[x.Name])
-	}
-
-	importer := excel.NewEDDImporter()
-	return importer.WriteXML(doc, path)
-}
-
-// applyEntityEdits overwrites the fields the API can edit — number, access,
-// comment, and the field rows — while preserving per-field metadata the API
-// model doesn't carry (collect flags, question definitions) by index.
-func applyEntityEdits(x *excel.EDDXMLEntity, e *EntityData) {
-	if e == nil {
-		return
-	}
-	x.Number = e.Number
-	x.Access = e.Access
-	x.Comment = e.Comment
-
-	fields := make([]*excel.EDDXMLField, len(e.Fields))
-	for i, f := range e.Fields {
-		var xf excel.EDDXMLField
-		if i < len(x.Fields) && x.Fields[i] != nil {
-			xf = *x.Fields[i] // preserve collect/question metadata
-		}
-		xf.Name = f.Name
-		xf.Type = f.Type
-		xf.SubType = f.Subtype
-		xf.Access = f.Access
-		xf.Input = f.Input
-		xf.DefaultValue = f.DefaultValue
-		xf.Comment = f.Comment
-		fields[i] = &xf
-	}
-	x.Fields = fields
-}
 
 // DT XML structures - matches the actual DTRules XML format
 type DTXML struct {
@@ -2474,140 +2368,10 @@ func (s *Server) loadDTFile(path, relPath string) error {
 	return nil
 }
 
-// saveDTFile persists the tables belonging to relPath. It merges the API's
-// editable fields into the canonical on-disk model and emits through the
-// excel package's WriteXML — the single DT-XML emission funnel — so workbook
-// provenance (<xls_file>/<source>) is normalized and every element the API
-// model doesn't carry (DSL/postfix pairs it didn't touch, structured initial
-// actions, legacy tag forms, table descriptions) survives the round-trip.
-func (s *Server) saveDTFile(path, relPath string) error {
-	doc := &excel.DecisionTablesXML{}
-	if data, err := os.ReadFile(path); err == nil {
-		parsed, perr := excel.UnmarshalDecisionTablesXML(data)
-		if perr != nil {
-			return fmt.Errorf("parse %s: %w", path, perr)
-		}
-		doc = parsed
-	}
 
-	// Tables that should be in this file now, by name.
-	keep := make(map[string]*DecisionTableData)
-	for _, t := range s.tables {
-		if t.Source == relPath {
-			keep[t.TableName] = t
-		}
-	}
 
-	// Drop tables deleted through the API, keep everything else.
-	filtered := doc.Tables[:0]
-	for _, x := range doc.Tables {
-		if _, ok := keep[x.TableName]; ok {
-			filtered = append(filtered, x)
-		}
-	}
-	doc.Tables = filtered
 
-	// Append tables created through the API that aren't in the file yet.
-	inFile := make(map[string]bool, len(doc.Tables))
-	for i := range doc.Tables {
-		inFile[doc.Tables[i].TableName] = true
-	}
-	for _, t := range keep {
-		if !inFile[t.TableName] {
-			doc.Tables = append(doc.Tables, excel.DecisionTableXML{TableName: t.TableName})
-		}
-	}
 
-	// Apply the API-editable fields onto the canonical model, then recompile
-	// each table's DSL to postfix.
-	//
-	// Without the recompile a save wrote the edited DSL against the postfix
-	// from before the edit (#928). That is worse than writing none: the file
-	// stays well-formed and loads, so the table goes on executing the old
-	// logic while displaying the new — and the editor's own "Run speculation"
-	// disagreed with it, because that path has always compiled.
-	//
-	// A compile error fails the save rather than being written past. Refusing
-	// to save is a visible problem the author can fix; a save that silently
-	// keeps stale postfix is not.
-	xmlDir := projectXMLDir(s.projectPath)
-	for i := range doc.Tables {
-		applyTableEdits(&doc.Tables[i], keep[doc.Tables[i].TableName])
-		if err := compileTableDSL(xmlDir, &doc.Tables[i]); err != nil {
-			return &compileError{Table: doc.Tables[i].TableName, Err: err}
-		}
-		doc.Tables[i].ELCompiled = true
-	}
-
-	importer := excel.NewDTImporter()
-	return importer.WriteXML(doc, path)
-}
-
-// applyTableEdits overwrites the fields the API can edit — type, comments,
-// table number, and the condition/action rows (comment, DSL, rule cells) —
-// while preserving everything else the file carries. Contexts, initial
-// actions, and policy statements are read-only in the API and left untouched
-// when present.
-func applyTableEdits(x *excel.DecisionTableXML, t *DecisionTableData) {
-	if t == nil {
-		return
-	}
-	x.AttributeFields.Type = t.Type
-	x.AttributeFields.Comments = t.Comments
-	x.AttributeFields.TableNumber = t.TableNumber
-
-	x.Conditions = mergeConditionRows(x.Conditions, t.Conditions)
-	x.Actions = mergeActionRows(x.Actions, t.Actions)
-}
-
-func mergeConditionRows(existing []excel.ConditionXML, rows []ConditionData) []excel.ConditionXML {
-	out := make([]excel.ConditionXML, len(rows))
-	for i, r := range rows {
-		if i < len(existing) {
-			out[i] = existing[i] // preserve postfix and any legacy fields
-		}
-		out[i].Number = strconv.Itoa(r.Number)
-		out[i].Comment = r.Comment
-		out[i].DSL = r.Description
-		out[i].Columns = columnValues(r.Columns)
-	}
-	return out
-}
-
-func mergeActionRows(existing []excel.ActionXML, rows []ActionData) []excel.ActionXML {
-	out := make([]excel.ActionXML, len(rows))
-	for i, r := range rows {
-		if i < len(existing) {
-			out[i] = existing[i] // preserve postfix and any legacy fields
-		}
-		out[i].Number = strconv.Itoa(r.Number)
-		out[i].Comment = r.Comment
-		out[i].DSL = r.Description
-		out[i].Columns = columnValues(r.Columns)
-	}
-	return out
-}
-
-// columnValues converts the API's cell map to the XML column list, sorted by
-// column number so output is deterministic.
-func columnValues(cols map[string]string) []excel.ColumnValueXML {
-	nums := make([]int, 0, len(cols))
-	for k := range cols {
-		if n, err := strconv.Atoi(strings.TrimSpace(k)); err == nil {
-			nums = append(nums, n)
-		}
-	}
-	sort.Ints(nums)
-	out := make([]excel.ColumnValueXML, 0, len(nums))
-	for _, n := range nums {
-		v := strings.TrimSpace(cols[strconv.Itoa(n)])
-		if v == "" {
-			continue
-		}
-		out = append(out, excel.ColumnValueXML{Number: n, Value: v})
-	}
-	return out
-}
 
 // A caller may open a project by its root or by its rules directory -- the UI
 // does the latter -- so a declared excel_dir resolved against projectPath can

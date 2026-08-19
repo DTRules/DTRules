@@ -271,6 +271,25 @@ func attributeFromXML(f *excel.EDDXMLField) Attribute {
 	return a
 }
 
+// SetNumber, SetAccess and SetComment write the entity-level scalars the
+// browser editor can change (#1084). They write through to the canonical
+// XML immediately, the same discipline as the attribute mutations below.
+
+// SetNumber sets the entity's number attribute (a string in the EDD schema).
+func (e *Entity) SetNumber(n string) {
+	e.xmlEntity.Number = n
+}
+
+// SetAccess sets the entity's access mode.
+func (e *Entity) SetAccess(a string) {
+	e.xmlEntity.Access = a
+}
+
+// SetComment sets the entity-level comment.
+func (e *Entity) SetComment(c string) {
+	e.xmlEntity.Comment = c
+}
+
 // AddAttribute appends an attribute to this entity after validation.
 func (e *Entity) AddAttribute(a Attribute) error {
 	if err := validateAttribute(a); err != nil {
