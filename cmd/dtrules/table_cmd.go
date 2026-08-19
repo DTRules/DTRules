@@ -20,6 +20,7 @@ package main
 // error record to stderr with the shape defined by jsonError.
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -508,8 +509,15 @@ func (ctx *tableCmdCtx) tablePatch(rest []string) int {
 		return emitErr(ctx.stderr, 1, "io_error", "", "", err.Error())
 	}
 	var patch tablePatch
-	if err := json.Unmarshal(data, &patch); err != nil {
-		return emitErr(ctx.stderr, 1, "parse_error", "", "patch input must be a JSON object", err.Error())
+	// Unknown fields are rejected, not ignored. A payload with its fields
+	// nested one level deep decoded to all-zero values and half-applied an
+	// empty row while reporting `patched` (#1144). The error names the field,
+	// which is what points at the mis-shape.
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&patch); err != nil {
+		return emitErr(ctx.stderr, 1, "parse_error", "",
+			"patch input must be a flat JSON object matching `table schema --patch`", err.Error())
 	}
 	if err := patch.apply(p, t); err != nil {
 		return emitErr(ctx.stderr, 1, "invalid_patch", "", patch.hint(), err.Error())
