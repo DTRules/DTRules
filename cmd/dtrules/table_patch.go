@@ -40,12 +40,18 @@ type tablePatch struct {
 	Name            string `json:"name,omitempty"`
 	Number          int    `json:"number,omitempty"`
 	Policy          string `json:"policy,omitempty"`
-	DSL             string `json:"dsl,omitempty"`
-	Comment         string `json:"comment,omitempty"`
-	Description     string `json:"description,omitempty"`
-	File            string `json:"file,omitempty"`
-	Range           string `json:"range,omitempty"`
-	Reason          string `json:"reason,omitempty"`
+	// DSL and Comment are pointers so a patch can tell "omitted" from
+	// "explicitly empty". update-* ops keep the existing value when the field
+	// is omitted -- that is what patch means -- and blank it only when the
+	// caller writes "dsl": "" in so many words. A mis-shaped payload used to
+	// decode every top-level field as its zero value and half-apply an empty
+	// row while reporting `patched` (#1144).
+	DSL         *string `json:"dsl,omitempty"`
+	Comment     *string `json:"comment,omitempty"`
+	Description string  `json:"description,omitempty"`
+	File        string  `json:"file,omitempty"`
+	Range       string  `json:"range,omitempty"`
+	Reason      string  `json:"reason,omitempty"`
 
 	// column ops
 	Conditions map[string]string `json:"conditions,omitempty"`
@@ -55,6 +61,22 @@ type tablePatch struct {
 	Columns map[string]string `json:"columns,omitempty"` // for condition
 	// add/update-action whole-row
 	ActionColumns map[string]bool `json:"action_columns,omitempty"`
+}
+
+// strOr returns the patch field when present, otherwise the existing value.
+func strOr(p *string, existing string) string {
+	if p != nil {
+		return *p
+	}
+	return existing
+}
+
+// reqStr returns the field or an error naming the op that requires it.
+func reqStr(p *string, op string) (string, error) {
+	if p == nil {
+		return "", fmt.Errorf("%s requires \"dsl\"", op)
+	}
+	return *p, nil
 }
 
 func (p *tablePatch) hint() string {
@@ -145,10 +167,14 @@ func (p *tablePatch) apply(proj *authoring.Project, t *authoring.Table) error {
 		if err != nil {
 			return err
 		}
+		dsl, err := reqStr(p.DSL, "add-condition")
+		if err != nil {
+			return err
+		}
 		return t.AddCondition(authoring.Condition{
 			Number:  p.ConditionNumber,
-			Comment: p.Comment,
-			DSL:     p.DSL,
+			Comment: strOr(p.Comment, ""),
+			DSL:     dsl,
 			Columns: cols,
 		})
 
@@ -156,13 +182,21 @@ func (p *tablePatch) apply(proj *authoring.Project, t *authoring.Table) error {
 		if p.ConditionNumber == 0 {
 			return fmt.Errorf("update-condition requires condition_number")
 		}
-		cols, err := stringMapToIntString(p.Columns)
+		existing, err := findCondition(t, p.ConditionNumber)
 		if err != nil {
 			return err
 		}
+		// Patch semantics: omitted fields keep their values. A mis-shaped
+		// payload used to zero every field and report `patched` (#1144).
+		cols := existing.Columns
+		if p.Columns != nil {
+			if cols, err = stringMapToIntString(p.Columns); err != nil {
+				return err
+			}
+		}
 		return t.UpdateCondition(p.ConditionNumber, authoring.Condition{
-			Comment: p.Comment,
-			DSL:     p.DSL,
+			Comment: strOr(p.Comment, existing.Comment),
+			DSL:     strOr(p.DSL, existing.DSL),
 			Columns: cols,
 		})
 
@@ -174,9 +208,13 @@ func (p *tablePatch) apply(proj *authoring.Project, t *authoring.Table) error {
 		if err != nil {
 			return err
 		}
+		dsl, err := reqStr(p.DSL, "update-condition-dsl")
+		if err != nil {
+			return err
+		}
 		return t.UpdateCondition(p.ConditionNumber, authoring.Condition{
 			Comment: existing.Comment,
-			DSL:     p.DSL,
+			DSL:     dsl,
 			Columns: existing.Columns,
 		})
 
@@ -191,10 +229,14 @@ func (p *tablePatch) apply(proj *authoring.Project, t *authoring.Table) error {
 		if err != nil {
 			return err
 		}
+		dsl, err := reqStr(p.DSL, "add-action")
+		if err != nil {
+			return err
+		}
 		return t.AddAction(authoring.Action{
 			Number:  p.ActionNumber,
-			Comment: p.Comment,
-			DSL:     p.DSL,
+			Comment: strOr(p.Comment, ""),
+			DSL:     dsl,
 			Columns: cols,
 		})
 
@@ -202,13 +244,20 @@ func (p *tablePatch) apply(proj *authoring.Project, t *authoring.Table) error {
 		if p.ActionNumber == 0 {
 			return fmt.Errorf("update-action requires action_number")
 		}
-		cols, err := stringMapToIntBool(p.ActionColumns)
+		existing, err := findAction(t, p.ActionNumber)
 		if err != nil {
 			return err
 		}
+		// Patch semantics: omitted fields keep their values (#1144).
+		cols := existing.Columns
+		if p.ActionColumns != nil {
+			if cols, err = stringMapToIntBool(p.ActionColumns); err != nil {
+				return err
+			}
+		}
 		return t.UpdateAction(p.ActionNumber, authoring.Action{
-			Comment: p.Comment,
-			DSL:     p.DSL,
+			Comment: strOr(p.Comment, existing.Comment),
+			DSL:     strOr(p.DSL, existing.DSL),
 			Columns: cols,
 		})
 
@@ -220,9 +269,13 @@ func (p *tablePatch) apply(proj *authoring.Project, t *authoring.Table) error {
 		if err != nil {
 			return err
 		}
+		dsl, err := reqStr(p.DSL, "update-action-dsl")
+		if err != nil {
+			return err
+		}
 		return t.UpdateAction(p.ActionNumber, authoring.Action{
 			Comment: existing.Comment,
-			DSL:     p.DSL,
+			DSL:     dsl,
 			Columns: existing.Columns,
 		})
 
@@ -233,19 +286,35 @@ func (p *tablePatch) apply(proj *authoring.Project, t *authoring.Table) error {
 		return t.DeleteAction(p.ActionNumber)
 
 	case "add-initial-action":
-		return t.AddInitialAction(authoring.InitialAction{DSL: p.DSL})
+		dsl, err := reqStr(p.DSL, "add-initial-action")
+		if err != nil {
+			return err
+		}
+		return t.AddInitialAction(authoring.InitialAction{DSL: dsl})
 
 	case "update-initial-action":
-		return t.UpdateInitialAction(p.Index, authoring.InitialAction{DSL: p.DSL})
+		dsl, err := reqStr(p.DSL, "update-initial-action")
+		if err != nil {
+			return err
+		}
+		return t.UpdateInitialAction(p.Index, authoring.InitialAction{DSL: dsl})
 
 	case "delete-initial-action":
 		return t.DeleteInitialAction(p.Index)
 
 	case "add-context":
-		return t.AddContext(authoring.Context{DSL: p.DSL})
+		dsl, err := reqStr(p.DSL, "add-context")
+		if err != nil {
+			return err
+		}
+		return t.AddContext(authoring.Context{DSL: dsl})
 
 	case "update-context":
-		return t.UpdateContext(p.Index, authoring.Context{DSL: p.DSL})
+		dsl, err := reqStr(p.DSL, "update-context")
+		if err != nil {
+			return err
+		}
+		return t.UpdateContext(p.Index, authoring.Context{DSL: dsl})
 
 	case "delete-context":
 		return t.DeleteContext(p.Index)
