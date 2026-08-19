@@ -79,7 +79,7 @@ func TestMixedDoubleExactRejected(t *testing.T) {
 // explicit cast and the legitimate widening cases still compile.
 func TestMixedDoubleExactAllowedForms(t *testing.T) {
 	ok := []string{
-		"set fx = fx2 + (fixed) db", // explicit opt-in
+		"set fx = fx2 + (fixed) db",  // explicit opt-in
 		"set db = db2 + (double) fx", // explicit opt-in the other way
 		"set fx = fx2 + it",          // fixed + integer (auto cvfp)
 		"set fx = fx2 + bi",          // fixed + bigint (both exact)

@@ -26,9 +26,9 @@ import (
 
 func issue803Batch5Symbols() map[string]string {
 	return map[string]string{
-		"a.d":      "date",
-		"a.dlist":  "array of date",
-		"Client":   "entity",
+		"a.d":     "date",
+		"a.dlist": "array of date",
+		"Client":  "entity",
 	}
 }
 

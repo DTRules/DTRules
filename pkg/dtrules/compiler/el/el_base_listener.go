@@ -1034,6 +1034,48 @@ func (s *BaseELListener) EnterNumber(ctx *NumberContext) {}
 // ExitNumber is called when production number is exited.
 func (s *BaseELListener) ExitNumber(ctx *NumberContext) {}
 
+// EnterNumFexpr is called when production numFexpr is entered.
+func (s *BaseELListener) EnterNumFexpr(ctx *NumFexprContext) {}
+
+// ExitNumFexpr is called when production numFexpr is exited.
+func (s *BaseELListener) ExitNumFexpr(ctx *NumFexprContext) {}
+
+// EnterNumIntLiteral is called when production numIntLiteral is entered.
+func (s *BaseELListener) EnterNumIntLiteral(ctx *NumIntLiteralContext) {}
+
+// ExitNumIntLiteral is called when production numIntLiteral is exited.
+func (s *BaseELListener) ExitNumIntLiteral(ctx *NumIntLiteralContext) {}
+
+// EnterNumMulDiv is called when production numMulDiv is entered.
+func (s *BaseELListener) EnterNumMulDiv(ctx *NumMulDivContext) {}
+
+// ExitNumMulDiv is called when production numMulDiv is exited.
+func (s *BaseELListener) ExitNumMulDiv(ctx *NumMulDivContext) {}
+
+// EnterNumAddSub is called when production numAddSub is entered.
+func (s *BaseELListener) EnterNumAddSub(ctx *NumAddSubContext) {}
+
+// ExitNumAddSub is called when production numAddSub is exited.
+func (s *BaseELListener) ExitNumAddSub(ctx *NumAddSubContext) {}
+
+// EnterNumIexpr is called when production numIexpr is entered.
+func (s *BaseELListener) EnterNumIexpr(ctx *NumIexprContext) {}
+
+// ExitNumIexpr is called when production numIexpr is exited.
+func (s *BaseELListener) ExitNumIexpr(ctx *NumIexprContext) {}
+
+// EnterNumNegate is called when production numNegate is entered.
+func (s *BaseELListener) EnterNumNegate(ctx *NumNegateContext) {}
+
+// ExitNumNegate is called when production numNegate is exited.
+func (s *BaseELListener) ExitNumNegate(ctx *NumNegateContext) {}
+
+// EnterNumFpLiteral is called when production numFpLiteral is entered.
+func (s *BaseELListener) EnterNumFpLiteral(ctx *NumFpLiteralContext) {}
+
+// ExitNumFpLiteral is called when production numFpLiteral is exited.
+func (s *BaseELListener) ExitNumFpLiteral(ctx *NumFpLiteralContext) {}
+
 // EnterAddDestArray2 is called when production addDestArray2 is entered.
 func (s *BaseELListener) EnterAddDestArray2(ctx *AddDestArray2Context) {}
 
@@ -2272,29 +2314,11 @@ func (s *BaseELListener) EnterStrConcatName(ctx *StrConcatNameContext) {}
 // ExitStrConcatName is called when production strConcatName is exited.
 func (s *BaseELListener) ExitStrConcatName(ctx *StrConcatNameContext) {}
 
-// EnterFloatMinOfFloat is called when production floatMinOfFloat is entered.
-func (s *BaseELListener) EnterFloatMinOfFloat(ctx *FloatMinOfFloatContext) {}
-
-// ExitFloatMinOfFloat is called when production floatMinOfFloat is exited.
-func (s *BaseELListener) ExitFloatMinOfFloat(ctx *FloatMinOfFloatContext) {}
-
 // EnterFloatMaxOfArrayWhere is called when production floatMaxOfArrayWhere is entered.
 func (s *BaseELListener) EnterFloatMaxOfArrayWhere(ctx *FloatMaxOfArrayWhereContext) {}
 
 // ExitFloatMaxOfArrayWhere is called when production floatMaxOfArrayWhere is exited.
 func (s *BaseELListener) ExitFloatMaxOfArrayWhere(ctx *FloatMaxOfArrayWhereContext) {}
-
-// EnterFloatMaxIntOf is called when production floatMaxIntOf is entered.
-func (s *BaseELListener) EnterFloatMaxIntOf(ctx *FloatMaxIntOfContext) {}
-
-// ExitFloatMaxIntOf is called when production floatMaxIntOf is exited.
-func (s *BaseELListener) ExitFloatMaxIntOf(ctx *FloatMaxIntOfContext) {}
-
-// EnterFloatMulDivInt is called when production floatMulDivInt is entered.
-func (s *BaseELListener) EnterFloatMulDivInt(ctx *FloatMulDivIntContext) {}
-
-// ExitFloatMulDivInt is called when production floatMulDivInt is exited.
-func (s *BaseELListener) ExitFloatMulDivInt(ctx *FloatMulDivIntContext) {}
 
 // EnterFloatParen is called when production floatParen is entered.
 func (s *BaseELListener) EnterFloatParen(ctx *FloatParenContext) {}
@@ -2314,11 +2338,11 @@ func (s *BaseELListener) EnterFloatSumOfWhere(ctx *FloatSumOfWhereContext) {}
 // ExitFloatSumOfWhere is called when production floatSumOfWhere is exited.
 func (s *BaseELListener) ExitFloatSumOfWhere(ctx *FloatSumOfWhereContext) {}
 
-// EnterFloatMaxOfFloat is called when production floatMaxOfFloat is entered.
-func (s *BaseELListener) EnterFloatMaxOfFloat(ctx *FloatMaxOfFloatContext) {}
+// EnterNumMinOf is called when production numMinOf is entered.
+func (s *BaseELListener) EnterNumMinOf(ctx *NumMinOfContext) {}
 
-// ExitFloatMaxOfFloat is called when production floatMaxOfFloat is exited.
-func (s *BaseELListener) ExitFloatMaxOfFloat(ctx *FloatMaxOfFloatContext) {}
+// ExitNumMinOf is called when production numMinOf is exited.
+func (s *BaseELListener) ExitNumMinOf(ctx *NumMinOfContext) {}
 
 // EnterFloatValueOfOp is called when production floatValueOfOp is entered.
 func (s *BaseELListener) EnterFloatValueOfOp(ctx *FloatValueOfOpContext) {}
@@ -2332,29 +2356,17 @@ func (s *BaseELListener) EnterFloatRoundedTo(ctx *FloatRoundedToContext) {}
 // ExitFloatRoundedTo is called when production floatRoundedTo is exited.
 func (s *BaseELListener) ExitFloatRoundedTo(ctx *FloatRoundedToContext) {}
 
-// EnterFloatMinIntOf is called when production floatMinIntOf is entered.
-func (s *BaseELListener) EnterFloatMinIntOf(ctx *FloatMinIntOfContext) {}
-
-// ExitFloatMinIntOf is called when production floatMinIntOf is exited.
-func (s *BaseELListener) ExitFloatMinIntOf(ctx *FloatMinIntOfContext) {}
-
-// EnterIntAddSubFloat is called when production intAddSubFloat is entered.
-func (s *BaseELListener) EnterIntAddSubFloat(ctx *IntAddSubFloatContext) {}
-
-// ExitIntAddSubFloat is called when production intAddSubFloat is exited.
-func (s *BaseELListener) ExitIntAddSubFloat(ctx *IntAddSubFloatContext) {}
-
 // EnterFloatMaxOfArray is called when production floatMaxOfArray is entered.
 func (s *BaseELListener) EnterFloatMaxOfArray(ctx *FloatMaxOfArrayContext) {}
 
 // ExitFloatMaxOfArray is called when production floatMaxOfArray is exited.
 func (s *BaseELListener) ExitFloatMaxOfArray(ctx *FloatMaxOfArrayContext) {}
 
-// EnterFloatMinOfIntComma is called when production floatMinOfIntComma is entered.
-func (s *BaseELListener) EnterFloatMinOfIntComma(ctx *FloatMinOfIntCommaContext) {}
+// EnterNumMaxOfComma is called when production numMaxOfComma is entered.
+func (s *BaseELListener) EnterNumMaxOfComma(ctx *NumMaxOfCommaContext) {}
 
-// ExitFloatMinOfIntComma is called when production floatMinOfIntComma is exited.
-func (s *BaseELListener) ExitFloatMinOfIntComma(ctx *FloatMinOfIntCommaContext) {}
+// ExitNumMaxOfComma is called when production numMaxOfComma is exited.
+func (s *BaseELListener) ExitNumMaxOfComma(ctx *NumMaxOfCommaContext) {}
 
 // EnterFloatTableLookup is called when production floatTableLookup is entered.
 func (s *BaseELListener) EnterFloatTableLookup(ctx *FloatTableLookupContext) {}
@@ -2368,11 +2380,11 @@ func (s *BaseELListener) EnterFloatFloorOfInt(ctx *FloatFloorOfIntContext) {}
 // ExitFloatFloorOfInt is called when production floatFloorOfInt is exited.
 func (s *BaseELListener) ExitFloatFloorOfInt(ctx *FloatFloorOfIntContext) {}
 
-// EnterFloatMinIntOfComma is called when production floatMinIntOfComma is entered.
-func (s *BaseELListener) EnterFloatMinIntOfComma(ctx *FloatMinIntOfCommaContext) {}
+// EnterNumMaxOf is called when production numMaxOf is entered.
+func (s *BaseELListener) EnterNumMaxOf(ctx *NumMaxOfContext) {}
 
-// ExitFloatMinIntOfComma is called when production floatMinIntOfComma is exited.
-func (s *BaseELListener) ExitFloatMinIntOfComma(ctx *FloatMinIntOfCommaContext) {}
+// ExitNumMaxOf is called when production numMaxOf is exited.
+func (s *BaseELListener) ExitNumMaxOf(ctx *NumMaxOfContext) {}
 
 // EnterFloatCeilingOfInt is called when production floatCeilingOfInt is entered.
 func (s *BaseELListener) EnterFloatCeilingOfInt(ctx *FloatCeilingOfIntContext) {}
@@ -2392,12 +2404,6 @@ func (s *BaseELListener) EnterFloatMulBy(ctx *FloatMulByContext) {}
 // ExitFloatMulBy is called when production floatMulBy is exited.
 func (s *BaseELListener) ExitFloatMulBy(ctx *FloatMulByContext) {}
 
-// EnterFloatMaxOfIntComma is called when production floatMaxOfIntComma is entered.
-func (s *BaseELListener) EnterFloatMaxOfIntComma(ctx *FloatMaxOfIntCommaContext) {}
-
-// ExitFloatMaxOfIntComma is called when production floatMaxOfIntComma is exited.
-func (s *BaseELListener) ExitFloatMaxOfIntComma(ctx *FloatMaxOfIntCommaContext) {}
-
 // EnterDivideRoundingBy is called when production divideRoundingBy is entered.
 func (s *BaseELListener) EnterDivideRoundingBy(ctx *DivideRoundingByContext) {}
 
@@ -2409,12 +2415,6 @@ func (s *BaseELListener) EnterFloatUsing(ctx *FloatUsingContext) {}
 
 // ExitFloatUsing is called when production floatUsing is exited.
 func (s *BaseELListener) ExitFloatUsing(ctx *FloatUsingContext) {}
-
-// EnterIntMulDivFloat is called when production intMulDivFloat is entered.
-func (s *BaseELListener) EnterIntMulDivFloat(ctx *IntMulDivFloatContext) {}
-
-// ExitIntMulDivFloat is called when production intMulDivFloat is exited.
-func (s *BaseELListener) ExitIntMulDivFloat(ctx *IntMulDivFloatContext) {}
 
 // EnterFloatTyped is called when production floatTyped is entered.
 func (s *BaseELListener) EnterFloatTyped(ctx *FloatTypedContext) {}
@@ -2440,35 +2440,17 @@ func (s *BaseELListener) EnterFloatSubFrom(ctx *FloatSubFromContext) {}
 // ExitFloatSubFrom is called when production floatSubFrom is exited.
 func (s *BaseELListener) ExitFloatSubFrom(ctx *FloatSubFromContext) {}
 
-// EnterFloatMulDivFloat is called when production floatMulDivFloat is entered.
-func (s *BaseELListener) EnterFloatMulDivFloat(ctx *FloatMulDivFloatContext) {}
-
-// ExitFloatMulDivFloat is called when production floatMulDivFloat is exited.
-func (s *BaseELListener) ExitFloatMulDivFloat(ctx *FloatMulDivFloatContext) {}
-
 // EnterFloatDivBy is called when production floatDivBy is entered.
 func (s *BaseELListener) EnterFloatDivBy(ctx *FloatDivByContext) {}
 
 // ExitFloatDivBy is called when production floatDivBy is exited.
 func (s *BaseELListener) ExitFloatDivBy(ctx *FloatDivByContext) {}
 
-// EnterFloatMinOfInt is called when production floatMinOfInt is entered.
-func (s *BaseELListener) EnterFloatMinOfInt(ctx *FloatMinOfIntContext) {}
-
-// ExitFloatMinOfInt is called when production floatMinOfInt is exited.
-func (s *BaseELListener) ExitFloatMinOfInt(ctx *FloatMinOfIntContext) {}
-
 // EnterFloatFromIndex is called when production floatFromIndex is entered.
 func (s *BaseELListener) EnterFloatFromIndex(ctx *FloatFromIndexContext) {}
 
 // ExitFloatFromIndex is called when production floatFromIndex is exited.
 func (s *BaseELListener) ExitFloatFromIndex(ctx *FloatFromIndexContext) {}
-
-// EnterFloatMaxIntOfComma is called when production floatMaxIntOfComma is entered.
-func (s *BaseELListener) EnterFloatMaxIntOfComma(ctx *FloatMaxIntOfCommaContext) {}
-
-// ExitFloatMaxIntOfComma is called when production floatMaxIntOfComma is exited.
-func (s *BaseELListener) ExitFloatMaxIntOfComma(ctx *FloatMaxIntOfCommaContext) {}
 
 // EnterFloatRounded is called when production floatRounded is entered.
 func (s *BaseELListener) EnterFloatRounded(ctx *FloatRoundedContext) {}
@@ -2494,11 +2476,11 @@ func (s *BaseELListener) EnterFloatFromInt(ctx *FloatFromIntContext) {}
 // ExitFloatFromInt is called when production floatFromInt is exited.
 func (s *BaseELListener) ExitFloatFromInt(ctx *FloatFromIntContext) {}
 
-// EnterFloatAddSubInt is called when production floatAddSubInt is entered.
-func (s *BaseELListener) EnterFloatAddSubInt(ctx *FloatAddSubIntContext) {}
+// EnterNumMinOfComma is called when production numMinOfComma is entered.
+func (s *BaseELListener) EnterNumMinOfComma(ctx *NumMinOfCommaContext) {}
 
-// ExitFloatAddSubInt is called when production floatAddSubInt is exited.
-func (s *BaseELListener) ExitFloatAddSubInt(ctx *FloatAddSubIntContext) {}
+// ExitNumMinOfComma is called when production numMinOfComma is exited.
+func (s *BaseELListener) ExitNumMinOfComma(ctx *NumMinOfCommaContext) {}
 
 // EnterFloatAddTo is called when production floatAddTo is entered.
 func (s *BaseELListener) EnterFloatAddTo(ctx *FloatAddToContext) {}
@@ -2518,41 +2500,17 @@ func (s *BaseELListener) EnterFloatCeilingOf(ctx *FloatCeilingOfContext) {}
 // ExitFloatCeilingOf is called when production floatCeilingOf is exited.
 func (s *BaseELListener) ExitFloatCeilingOf(ctx *FloatCeilingOfContext) {}
 
-// EnterFloatMinOfFloatComma is called when production floatMinOfFloatComma is entered.
-func (s *BaseELListener) EnterFloatMinOfFloatComma(ctx *FloatMinOfFloatCommaContext) {}
-
-// ExitFloatMinOfFloatComma is called when production floatMinOfFloatComma is exited.
-func (s *BaseELListener) ExitFloatMinOfFloatComma(ctx *FloatMinOfFloatCommaContext) {}
-
 // EnterFloatAbs is called when production floatAbs is entered.
 func (s *BaseELListener) EnterFloatAbs(ctx *FloatAbsContext) {}
 
 // ExitFloatAbs is called when production floatAbs is exited.
 func (s *BaseELListener) ExitFloatAbs(ctx *FloatAbsContext) {}
 
-// EnterFloatMaxOfFloatComma is called when production floatMaxOfFloatComma is entered.
-func (s *BaseELListener) EnterFloatMaxOfFloatComma(ctx *FloatMaxOfFloatCommaContext) {}
-
-// ExitFloatMaxOfFloatComma is called when production floatMaxOfFloatComma is exited.
-func (s *BaseELListener) ExitFloatMaxOfFloatComma(ctx *FloatMaxOfFloatCommaContext) {}
-
 // EnterFloatNegate is called when production floatNegate is entered.
 func (s *BaseELListener) EnterFloatNegate(ctx *FloatNegateContext) {}
 
 // ExitFloatNegate is called when production floatNegate is exited.
 func (s *BaseELListener) ExitFloatNegate(ctx *FloatNegateContext) {}
-
-// EnterFloatMaxOfInt is called when production floatMaxOfInt is entered.
-func (s *BaseELListener) EnterFloatMaxOfInt(ctx *FloatMaxOfIntContext) {}
-
-// ExitFloatMaxOfInt is called when production floatMaxOfInt is exited.
-func (s *BaseELListener) ExitFloatMaxOfInt(ctx *FloatMaxOfIntContext) {}
-
-// EnterFloatAddSubFloat is called when production floatAddSubFloat is entered.
-func (s *BaseELListener) EnterFloatAddSubFloat(ctx *FloatAddSubFloatContext) {}
-
-// ExitFloatAddSubFloat is called when production floatAddSubFloat is exited.
-func (s *BaseELListener) ExitFloatAddSubFloat(ctx *FloatAddSubFloatContext) {}
 
 // EnterFloatSumOf is called when production floatSumOf is entered.
 func (s *BaseELListener) EnterFloatSumOf(ctx *FloatSumOfContext) {}
@@ -3172,18 +3130,6 @@ func (s *BaseELListener) EnterBoolSameCalendarQuarter(ctx *BoolSameCalendarQuart
 // ExitBoolSameCalendarQuarter is called when production boolSameCalendarQuarter is exited.
 func (s *BaseELListener) ExitBoolSameCalendarQuarter(ctx *BoolSameCalendarQuarterContext) {}
 
-// EnterBoolIntLteFloat is called when production boolIntLteFloat is entered.
-func (s *BaseELListener) EnterBoolIntLteFloat(ctx *BoolIntLteFloatContext) {}
-
-// ExitBoolIntLteFloat is called when production boolIntLteFloat is exited.
-func (s *BaseELListener) ExitBoolIntLteFloat(ctx *BoolIntLteFloatContext) {}
-
-// EnterBoolFloatLteInt is called when production boolFloatLteInt is entered.
-func (s *BaseELListener) EnterBoolFloatLteInt(ctx *BoolFloatLteIntContext) {}
-
-// ExitBoolFloatLteInt is called when production boolFloatLteInt is exited.
-func (s *BaseELListener) ExitBoolFloatLteInt(ctx *BoolFloatLteIntContext) {}
-
 // EnterBoolFromStr is called when production boolFromStr is entered.
 func (s *BaseELListener) EnterBoolFromStr(ctx *BoolFromStrContext) {}
 
@@ -3244,12 +3190,6 @@ func (s *BaseELListener) EnterBoolArrayIsNull(ctx *BoolArrayIsNullContext) {}
 // ExitBoolArrayIsNull is called when production boolArrayIsNull is exited.
 func (s *BaseELListener) ExitBoolArrayIsNull(ctx *BoolArrayIsNullContext) {}
 
-// EnterBoolIntEq is called when production boolIntEq is entered.
-func (s *BaseELListener) EnterBoolIntEq(ctx *BoolIntEqContext) {}
-
-// ExitBoolIntEq is called when production boolIntEq is exited.
-func (s *BaseELListener) ExitBoolIntEq(ctx *BoolIntEqContext) {}
-
 // EnterBoolEntityHasaWhere is called when production boolEntityHasaWhere is entered.
 func (s *BaseELListener) EnterBoolEntityHasaWhere(ctx *BoolEntityHasaWhereContext) {}
 
@@ -3268,35 +3208,11 @@ func (s *BaseELListener) EnterBoolBigNeq(ctx *BoolBigNeqContext) {}
 // ExitBoolBigNeq is called when production boolBigNeq is exited.
 func (s *BaseELListener) ExitBoolBigNeq(ctx *BoolBigNeqContext) {}
 
-// EnterBoolIntLt is called when production boolIntLt is entered.
-func (s *BaseELListener) EnterBoolIntLt(ctx *BoolIntLtContext) {}
-
-// ExitBoolIntLt is called when production boolIntLt is exited.
-func (s *BaseELListener) ExitBoolIntLt(ctx *BoolIntLtContext) {}
-
-// EnterBoolIntEqFloat is called when production boolIntEqFloat is entered.
-func (s *BaseELListener) EnterBoolIntEqFloat(ctx *BoolIntEqFloatContext) {}
-
-// ExitBoolIntEqFloat is called when production boolIntEqFloat is exited.
-func (s *BaseELListener) ExitBoolIntEqFloat(ctx *BoolIntEqFloatContext) {}
-
 // EnterBoolFromIndex is called when production boolFromIndex is entered.
 func (s *BaseELListener) EnterBoolFromIndex(ctx *BoolFromIndexContext) {}
 
 // ExitBoolFromIndex is called when production boolFromIndex is exited.
 func (s *BaseELListener) ExitBoolFromIndex(ctx *BoolFromIndexContext) {}
-
-// EnterBoolFloatNeq is called when production boolFloatNeq is entered.
-func (s *BaseELListener) EnterBoolFloatNeq(ctx *BoolFloatNeqContext) {}
-
-// ExitBoolFloatNeq is called when production boolFloatNeq is exited.
-func (s *BaseELListener) ExitBoolFloatNeq(ctx *BoolFloatNeqContext) {}
-
-// EnterBoolFloatLt is called when production boolFloatLt is entered.
-func (s *BaseELListener) EnterBoolFloatLt(ctx *BoolFloatLtContext) {}
-
-// ExitBoolFloatLt is called when production boolFloatLt is exited.
-func (s *BaseELListener) ExitBoolFloatLt(ctx *BoolFloatLtContext) {}
 
 // EnterBoolThereIsWhere is called when production boolThereIsWhere is entered.
 func (s *BaseELListener) EnterBoolThereIsWhere(ctx *BoolThereIsWhereContext) {}
@@ -3352,12 +3268,6 @@ func (s *BaseELListener) EnterBoolWasQuestion(ctx *BoolWasQuestionContext) {}
 // ExitBoolWasQuestion is called when production boolWasQuestion is exited.
 func (s *BaseELListener) ExitBoolWasQuestion(ctx *BoolWasQuestionContext) {}
 
-// EnterBoolIntGteFloat is called when production boolIntGteFloat is entered.
-func (s *BaseELListener) EnterBoolIntGteFloat(ctx *BoolIntGteFloatContext) {}
-
-// ExitBoolIntGteFloat is called when production boolIntGteFloat is exited.
-func (s *BaseELListener) ExitBoolIntGteFloat(ctx *BoolIntGteFloatContext) {}
-
 // EnterBoolNameNeqStr is called when production boolNameNeqStr is entered.
 func (s *BaseELListener) EnterBoolNameNeqStr(ctx *BoolNameNeqStrContext) {}
 
@@ -3381,6 +3291,12 @@ func (s *BaseELListener) EnterBoolEntityInContext(ctx *BoolEntityInContextContex
 
 // ExitBoolEntityInContext is called when production boolEntityInContext is exited.
 func (s *BaseELListener) ExitBoolEntityInContext(ctx *BoolEntityInContextContext) {}
+
+// EnterBoolNumGt is called when production boolNumGt is entered.
+func (s *BaseELListener) EnterBoolNumGt(ctx *BoolNumGtContext) {}
+
+// ExitBoolNumGt is called when production boolNumGt is exited.
+func (s *BaseELListener) ExitBoolNumGt(ctx *BoolNumGtContext) {}
 
 // EnterBoolDateAfter is called when production boolDateAfter is entered.
 func (s *BaseELListener) EnterBoolDateAfter(ctx *BoolDateAfterContext) {}
@@ -3406,23 +3322,17 @@ func (s *BaseELListener) EnterBoolStrEntityInContext(ctx *BoolStrEntityInContext
 // ExitBoolStrEntityInContext is called when production boolStrEntityInContext is exited.
 func (s *BaseELListener) ExitBoolStrEntityInContext(ctx *BoolStrEntityInContextContext) {}
 
-// EnterBoolFloatEq is called when production boolFloatEq is entered.
-func (s *BaseELListener) EnterBoolFloatEq(ctx *BoolFloatEqContext) {}
-
-// ExitBoolFloatEq is called when production boolFloatEq is exited.
-func (s *BaseELListener) ExitBoolFloatEq(ctx *BoolFloatEqContext) {}
-
 // EnterBoolDateLte is called when production boolDateLte is entered.
 func (s *BaseELListener) EnterBoolDateLte(ctx *BoolDateLteContext) {}
 
 // ExitBoolDateLte is called when production boolDateLte is exited.
 func (s *BaseELListener) ExitBoolDateLte(ctx *BoolDateLteContext) {}
 
-// EnterBoolFloatGtInt is called when production boolFloatGtInt is entered.
-func (s *BaseELListener) EnterBoolFloatGtInt(ctx *BoolFloatGtIntContext) {}
+// EnterBoolNumLte is called when production boolNumLte is entered.
+func (s *BaseELListener) EnterBoolNumLte(ctx *BoolNumLteContext) {}
 
-// ExitBoolFloatGtInt is called when production boolFloatGtInt is exited.
-func (s *BaseELListener) ExitBoolFloatGtInt(ctx *BoolFloatGtIntContext) {}
+// ExitBoolNumLte is called when production boolNumLte is exited.
+func (s *BaseELListener) ExitBoolNumLte(ctx *BoolNumLteContext) {}
 
 // EnterBoolLiteral is called when production boolLiteral is entered.
 func (s *BaseELListener) EnterBoolLiteral(ctx *BoolLiteralContext) {}
@@ -3447,12 +3357,6 @@ func (s *BaseELListener) EnterBoolEntityNeq(ctx *BoolEntityNeqContext) {}
 
 // ExitBoolEntityNeq is called when production boolEntityNeq is exited.
 func (s *BaseELListener) ExitBoolEntityNeq(ctx *BoolEntityNeqContext) {}
-
-// EnterBoolIntGte is called when production boolIntGte is entered.
-func (s *BaseELListener) EnterBoolIntGte(ctx *BoolIntGteContext) {}
-
-// ExitBoolIntGte is called when production boolIntGte is exited.
-func (s *BaseELListener) ExitBoolIntGte(ctx *BoolIntGteContext) {}
 
 // EnterBoolDoesQuestion is called when production boolDoesQuestion is entered.
 func (s *BaseELListener) EnterBoolDoesQuestion(ctx *BoolDoesQuestionContext) {}
@@ -3490,23 +3394,11 @@ func (s *BaseELListener) EnterBoolStrIsNot(ctx *BoolStrIsNotContext) {}
 // ExitBoolStrIsNot is called when production boolStrIsNot is exited.
 func (s *BaseELListener) ExitBoolStrIsNot(ctx *BoolStrIsNotContext) {}
 
-// EnterBoolIntGt is called when production boolIntGt is entered.
-func (s *BaseELListener) EnterBoolIntGt(ctx *BoolIntGtContext) {}
-
-// ExitBoolIntGt is called when production boolIntGt is exited.
-func (s *BaseELListener) ExitBoolIntGt(ctx *BoolIntGtContext) {}
-
 // EnterBoolSameCalendarMonth is called when production boolSameCalendarMonth is entered.
 func (s *BaseELListener) EnterBoolSameCalendarMonth(ctx *BoolSameCalendarMonthContext) {}
 
 // ExitBoolSameCalendarMonth is called when production boolSameCalendarMonth is exited.
 func (s *BaseELListener) ExitBoolSameCalendarMonth(ctx *BoolSameCalendarMonthContext) {}
-
-// EnterBoolFloatLte is called when production boolFloatLte is entered.
-func (s *BaseELListener) EnterBoolFloatLte(ctx *BoolFloatLteContext) {}
-
-// ExitBoolFloatLte is called when production boolFloatLte is exited.
-func (s *BaseELListener) ExitBoolFloatLte(ctx *BoolFloatLteContext) {}
 
 // EnterBoolSameCalendarWeekStarting is called when production boolSameCalendarWeekStarting is entered.
 func (s *BaseELListener) EnterBoolSameCalendarWeekStarting(ctx *BoolSameCalendarWeekStartingContext) {
@@ -3551,6 +3443,12 @@ func (s *BaseELListener) EnterBoolStrLt(ctx *BoolStrLtContext) {}
 // ExitBoolStrLt is called when production boolStrLt is exited.
 func (s *BaseELListener) ExitBoolStrLt(ctx *BoolStrLtContext) {}
 
+// EnterBoolNumGte is called when production boolNumGte is entered.
+func (s *BaseELListener) EnterBoolNumGte(ctx *BoolNumGteContext) {}
+
+// ExitBoolNumGte is called when production boolNumGte is exited.
+func (s *BaseELListener) ExitBoolNumGte(ctx *BoolNumGteContext) {}
+
 // EnterBoolStrGte is called when production boolStrGte is entered.
 func (s *BaseELListener) EnterBoolStrGte(ctx *BoolStrGteContext) {}
 
@@ -3569,11 +3467,11 @@ func (s *BaseELListener) EnterBoolArrayDoesInclude(ctx *BoolArrayDoesIncludeCont
 // ExitBoolArrayDoesInclude is called when production boolArrayDoesInclude is exited.
 func (s *BaseELListener) ExitBoolArrayDoesInclude(ctx *BoolArrayDoesIncludeContext) {}
 
-// EnterBoolIntGtFloat is called when production boolIntGtFloat is entered.
-func (s *BaseELListener) EnterBoolIntGtFloat(ctx *BoolIntGtFloatContext) {}
+// EnterBoolNumEq is called when production boolNumEq is entered.
+func (s *BaseELListener) EnterBoolNumEq(ctx *BoolNumEqContext) {}
 
-// ExitBoolIntGtFloat is called when production boolIntGtFloat is exited.
-func (s *BaseELListener) ExitBoolIntGtFloat(ctx *BoolIntGtFloatContext) {}
+// ExitBoolNumEq is called when production boolNumEq is exited.
+func (s *BaseELListener) ExitBoolNumEq(ctx *BoolNumEqContext) {}
 
 // EnterBoolValueOfOp is called when production boolValueOfOp is entered.
 func (s *BaseELListener) EnterBoolValueOfOp(ctx *BoolValueOfOpContext) {}
@@ -3592,12 +3490,6 @@ func (s *BaseELListener) EnterBoolBigGt(ctx *BoolBigGtContext) {}
 
 // ExitBoolBigGt is called when production boolBigGt is exited.
 func (s *BaseELListener) ExitBoolBigGt(ctx *BoolBigGtContext) {}
-
-// EnterBoolFloatGt is called when production boolFloatGt is entered.
-func (s *BaseELListener) EnterBoolFloatGt(ctx *BoolFloatGtContext) {}
-
-// ExitBoolFloatGt is called when production boolFloatGt is exited.
-func (s *BaseELListener) ExitBoolFloatGt(ctx *BoolFloatGtContext) {}
 
 // EnterBoolStrIsNull is called when production boolStrIsNull is entered.
 func (s *BaseELListener) EnterBoolStrIsNull(ctx *BoolStrIsNullContext) {}
@@ -3641,11 +3533,11 @@ func (s *BaseELListener) EnterBoolMatches(ctx *BoolMatchesContext) {}
 // ExitBoolMatches is called when production boolMatches is exited.
 func (s *BaseELListener) ExitBoolMatches(ctx *BoolMatchesContext) {}
 
-// EnterBoolFloatGteInt is called when production boolFloatGteInt is entered.
-func (s *BaseELListener) EnterBoolFloatGteInt(ctx *BoolFloatGteIntContext) {}
+// EnterBoolNumLt is called when production boolNumLt is entered.
+func (s *BaseELListener) EnterBoolNumLt(ctx *BoolNumLtContext) {}
 
-// ExitBoolFloatGteInt is called when production boolFloatGteInt is exited.
-func (s *BaseELListener) ExitBoolFloatGteInt(ctx *BoolFloatGteIntContext) {}
+// ExitBoolNumLt is called when production boolNumLt is exited.
+func (s *BaseELListener) ExitBoolNumLt(ctx *BoolNumLtContext) {}
 
 // EnterBoolStrNeqIc is called when production boolStrNeqIc is entered.
 func (s *BaseELListener) EnterBoolStrNeqIc(ctx *BoolStrNeqIcContext) {}
@@ -3670,18 +3562,6 @@ func (s *BaseELListener) EnterBoolBexprIsNotNull(ctx *BoolBexprIsNotNullContext)
 
 // ExitBoolBexprIsNotNull is called when production boolBexprIsNotNull is exited.
 func (s *BaseELListener) ExitBoolBexprIsNotNull(ctx *BoolBexprIsNotNullContext) {}
-
-// EnterBoolIntLte is called when production boolIntLte is entered.
-func (s *BaseELListener) EnterBoolIntLte(ctx *BoolIntLteContext) {}
-
-// ExitBoolIntLte is called when production boolIntLte is exited.
-func (s *BaseELListener) ExitBoolIntLte(ctx *BoolIntLteContext) {}
-
-// EnterBoolIntNeqFloat is called when production boolIntNeqFloat is entered.
-func (s *BaseELListener) EnterBoolIntNeqFloat(ctx *BoolIntNeqFloatContext) {}
-
-// ExitBoolIntNeqFloat is called when production boolIntNeqFloat is exited.
-func (s *BaseELListener) ExitBoolIntNeqFloat(ctx *BoolIntNeqFloatContext) {}
 
 // EnterBoolArrayAt is called when production boolArrayAt is entered.
 func (s *BaseELListener) EnterBoolArrayAt(ctx *BoolArrayAtContext) {}
@@ -3713,12 +3593,6 @@ func (s *BaseELListener) EnterBoolDateEq(ctx *BoolDateEqContext) {}
 // ExitBoolDateEq is called when production boolDateEq is exited.
 func (s *BaseELListener) ExitBoolDateEq(ctx *BoolDateEqContext) {}
 
-// EnterBoolFloatGte is called when production boolFloatGte is entered.
-func (s *BaseELListener) EnterBoolFloatGte(ctx *BoolFloatGteContext) {}
-
-// ExitBoolFloatGte is called when production boolFloatGte is exited.
-func (s *BaseELListener) ExitBoolFloatGte(ctx *BoolFloatGteContext) {}
-
 // EnterBoolStrLte is called when production boolStrLte is entered.
 func (s *BaseELListener) EnterBoolStrLte(ctx *BoolStrLteContext) {}
 
@@ -3749,23 +3623,11 @@ func (s *BaseELListener) EnterBoolThereIsInEntityWhere(ctx *BoolThereIsInEntityW
 // ExitBoolThereIsInEntityWhere is called when production boolThereIsInEntityWhere is exited.
 func (s *BaseELListener) ExitBoolThereIsInEntityWhere(ctx *BoolThereIsInEntityWhereContext) {}
 
-// EnterBoolFloatLtInt is called when production boolFloatLtInt is entered.
-func (s *BaseELListener) EnterBoolFloatLtInt(ctx *BoolFloatLtIntContext) {}
-
-// ExitBoolFloatLtInt is called when production boolFloatLtInt is exited.
-func (s *BaseELListener) ExitBoolFloatLtInt(ctx *BoolFloatLtIntContext) {}
-
 // EnterBoolArrayNotInclude is called when production boolArrayNotInclude is entered.
 func (s *BaseELListener) EnterBoolArrayNotInclude(ctx *BoolArrayNotIncludeContext) {}
 
 // ExitBoolArrayNotInclude is called when production boolArrayNotInclude is exited.
 func (s *BaseELListener) ExitBoolArrayNotInclude(ctx *BoolArrayNotIncludeContext) {}
-
-// EnterBoolFloatNeqInt is called when production boolFloatNeqInt is entered.
-func (s *BaseELListener) EnterBoolFloatNeqInt(ctx *BoolFloatNeqIntContext) {}
-
-// ExitBoolFloatNeqInt is called when production boolFloatNeqInt is exited.
-func (s *BaseELListener) ExitBoolFloatNeqInt(ctx *BoolFloatNeqIntContext) {}
 
 // EnterBoolBexprIsNull is called when production boolBexprIsNull is entered.
 func (s *BaseELListener) EnterBoolBexprIsNull(ctx *BoolBexprIsNullContext) {}
@@ -3778,12 +3640,6 @@ func (s *BaseELListener) EnterBoolAllHave(ctx *BoolAllHaveContext) {}
 
 // ExitBoolAllHave is called when production boolAllHave is exited.
 func (s *BaseELListener) ExitBoolAllHave(ctx *BoolAllHaveContext) {}
-
-// EnterBoolIntLtFloat is called when production boolIntLtFloat is entered.
-func (s *BaseELListener) EnterBoolIntLtFloat(ctx *BoolIntLtFloatContext) {}
-
-// ExitBoolIntLtFloat is called when production boolIntLtFloat is exited.
-func (s *BaseELListener) ExitBoolIntLtFloat(ctx *BoolIntLtFloatContext) {}
 
 // EnterBoolBoolEq is called when production boolBoolEq is entered.
 func (s *BaseELListener) EnterBoolBoolEq(ctx *BoolBoolEqContext) {}
@@ -3821,23 +3677,11 @@ func (s *BaseELListener) EnterBoolThereIsNoWhere(ctx *BoolThereIsNoWhereContext)
 // ExitBoolThereIsNoWhere is called when production boolThereIsNoWhere is exited.
 func (s *BaseELListener) ExitBoolThereIsNoWhere(ctx *BoolThereIsNoWhereContext) {}
 
-// EnterBoolFloatEqInt is called when production boolFloatEqInt is entered.
-func (s *BaseELListener) EnterBoolFloatEqInt(ctx *BoolFloatEqIntContext) {}
-
-// ExitBoolFloatEqInt is called when production boolFloatEqInt is exited.
-func (s *BaseELListener) ExitBoolFloatEqInt(ctx *BoolFloatEqIntContext) {}
-
 // EnterBoolSameCalendarDay is called when production boolSameCalendarDay is entered.
 func (s *BaseELListener) EnterBoolSameCalendarDay(ctx *BoolSameCalendarDayContext) {}
 
 // ExitBoolSameCalendarDay is called when production boolSameCalendarDay is exited.
 func (s *BaseELListener) ExitBoolSameCalendarDay(ctx *BoolSameCalendarDayContext) {}
-
-// EnterBoolIntNeq is called when production boolIntNeq is entered.
-func (s *BaseELListener) EnterBoolIntNeq(ctx *BoolIntNeqContext) {}
-
-// ExitBoolIntNeq is called when production boolIntNeq is exited.
-func (s *BaseELListener) ExitBoolIntNeq(ctx *BoolIntNeqContext) {}
 
 // EnterBoolArrayIncludes is called when production boolArrayIncludes is entered.
 func (s *BaseELListener) EnterBoolArrayIncludes(ctx *BoolArrayIncludesContext) {}
@@ -3892,6 +3736,12 @@ func (s *BaseELListener) EnterBoolEntityIsNotNull(ctx *BoolEntityIsNotNullContex
 
 // ExitBoolEntityIsNotNull is called when production boolEntityIsNotNull is exited.
 func (s *BaseELListener) ExitBoolEntityIsNotNull(ctx *BoolEntityIsNotNullContext) {}
+
+// EnterBoolNumNeq is called when production boolNumNeq is entered.
+func (s *BaseELListener) EnterBoolNumNeq(ctx *BoolNumNeqContext) {}
+
+// ExitBoolNumNeq is called when production boolNumNeq is exited.
+func (s *BaseELListener) ExitBoolNumNeq(ctx *BoolNumNeqContext) {}
 
 // EnterBoolStrNeq is called when production boolStrNeq is entered.
 func (s *BaseELListener) EnterBoolStrNeq(ctx *BoolStrNeqContext) {}

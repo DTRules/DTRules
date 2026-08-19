@@ -514,6 +514,27 @@ type ELListener interface {
 	// EnterNumber is called when entering the number production.
 	EnterNumber(c *NumberContext)
 
+	// EnterNumFexpr is called when entering the numFexpr production.
+	EnterNumFexpr(c *NumFexprContext)
+
+	// EnterNumIntLiteral is called when entering the numIntLiteral production.
+	EnterNumIntLiteral(c *NumIntLiteralContext)
+
+	// EnterNumMulDiv is called when entering the numMulDiv production.
+	EnterNumMulDiv(c *NumMulDivContext)
+
+	// EnterNumAddSub is called when entering the numAddSub production.
+	EnterNumAddSub(c *NumAddSubContext)
+
+	// EnterNumIexpr is called when entering the numIexpr production.
+	EnterNumIexpr(c *NumIexprContext)
+
+	// EnterNumNegate is called when entering the numNegate production.
+	EnterNumNegate(c *NumNegateContext)
+
+	// EnterNumFpLiteral is called when entering the numFpLiteral production.
+	EnterNumFpLiteral(c *NumFpLiteralContext)
+
 	// EnterAddDestArray2 is called when entering the addDestArray2 production.
 	EnterAddDestArray2(c *AddDestArray2Context)
 
@@ -1132,17 +1153,8 @@ type ELListener interface {
 	// EnterStrConcatName is called when entering the strConcatName production.
 	EnterStrConcatName(c *StrConcatNameContext)
 
-	// EnterFloatMinOfFloat is called when entering the floatMinOfFloat production.
-	EnterFloatMinOfFloat(c *FloatMinOfFloatContext)
-
 	// EnterFloatMaxOfArrayWhere is called when entering the floatMaxOfArrayWhere production.
 	EnterFloatMaxOfArrayWhere(c *FloatMaxOfArrayWhereContext)
-
-	// EnterFloatMaxIntOf is called when entering the floatMaxIntOf production.
-	EnterFloatMaxIntOf(c *FloatMaxIntOfContext)
-
-	// EnterFloatMulDivInt is called when entering the floatMulDivInt production.
-	EnterFloatMulDivInt(c *FloatMulDivIntContext)
 
 	// EnterFloatParen is called when entering the floatParen production.
 	EnterFloatParen(c *FloatParenContext)
@@ -1153,8 +1165,8 @@ type ELListener interface {
 	// EnterFloatSumOfWhere is called when entering the floatSumOfWhere production.
 	EnterFloatSumOfWhere(c *FloatSumOfWhereContext)
 
-	// EnterFloatMaxOfFloat is called when entering the floatMaxOfFloat production.
-	EnterFloatMaxOfFloat(c *FloatMaxOfFloatContext)
+	// EnterNumMinOf is called when entering the numMinOf production.
+	EnterNumMinOf(c *NumMinOfContext)
 
 	// EnterFloatValueOfOp is called when entering the floatValueOfOp production.
 	EnterFloatValueOfOp(c *FloatValueOfOpContext)
@@ -1162,17 +1174,11 @@ type ELListener interface {
 	// EnterFloatRoundedTo is called when entering the floatRoundedTo production.
 	EnterFloatRoundedTo(c *FloatRoundedToContext)
 
-	// EnterFloatMinIntOf is called when entering the floatMinIntOf production.
-	EnterFloatMinIntOf(c *FloatMinIntOfContext)
-
-	// EnterIntAddSubFloat is called when entering the intAddSubFloat production.
-	EnterIntAddSubFloat(c *IntAddSubFloatContext)
-
 	// EnterFloatMaxOfArray is called when entering the floatMaxOfArray production.
 	EnterFloatMaxOfArray(c *FloatMaxOfArrayContext)
 
-	// EnterFloatMinOfIntComma is called when entering the floatMinOfIntComma production.
-	EnterFloatMinOfIntComma(c *FloatMinOfIntCommaContext)
+	// EnterNumMaxOfComma is called when entering the numMaxOfComma production.
+	EnterNumMaxOfComma(c *NumMaxOfCommaContext)
 
 	// EnterFloatTableLookup is called when entering the floatTableLookup production.
 	EnterFloatTableLookup(c *FloatTableLookupContext)
@@ -1180,8 +1186,8 @@ type ELListener interface {
 	// EnterFloatFloorOfInt is called when entering the floatFloorOfInt production.
 	EnterFloatFloorOfInt(c *FloatFloorOfIntContext)
 
-	// EnterFloatMinIntOfComma is called when entering the floatMinIntOfComma production.
-	EnterFloatMinIntOfComma(c *FloatMinIntOfCommaContext)
+	// EnterNumMaxOf is called when entering the numMaxOf production.
+	EnterNumMaxOf(c *NumMaxOfContext)
 
 	// EnterFloatCeilingOfInt is called when entering the floatCeilingOfInt production.
 	EnterFloatCeilingOfInt(c *FloatCeilingOfIntContext)
@@ -1192,17 +1198,11 @@ type ELListener interface {
 	// EnterFloatMulBy is called when entering the floatMulBy production.
 	EnterFloatMulBy(c *FloatMulByContext)
 
-	// EnterFloatMaxOfIntComma is called when entering the floatMaxOfIntComma production.
-	EnterFloatMaxOfIntComma(c *FloatMaxOfIntCommaContext)
-
 	// EnterDivideRoundingBy is called when entering the divideRoundingBy production.
 	EnterDivideRoundingBy(c *DivideRoundingByContext)
 
 	// EnterFloatUsing is called when entering the floatUsing production.
 	EnterFloatUsing(c *FloatUsingContext)
-
-	// EnterIntMulDivFloat is called when entering the intMulDivFloat production.
-	EnterIntMulDivFloat(c *IntMulDivFloatContext)
 
 	// EnterFloatTyped is called when entering the floatTyped production.
 	EnterFloatTyped(c *FloatTypedContext)
@@ -1216,20 +1216,11 @@ type ELListener interface {
 	// EnterFloatSubFrom is called when entering the floatSubFrom production.
 	EnterFloatSubFrom(c *FloatSubFromContext)
 
-	// EnterFloatMulDivFloat is called when entering the floatMulDivFloat production.
-	EnterFloatMulDivFloat(c *FloatMulDivFloatContext)
-
 	// EnterFloatDivBy is called when entering the floatDivBy production.
 	EnterFloatDivBy(c *FloatDivByContext)
 
-	// EnterFloatMinOfInt is called when entering the floatMinOfInt production.
-	EnterFloatMinOfInt(c *FloatMinOfIntContext)
-
 	// EnterFloatFromIndex is called when entering the floatFromIndex production.
 	EnterFloatFromIndex(c *FloatFromIndexContext)
-
-	// EnterFloatMaxIntOfComma is called when entering the floatMaxIntOfComma production.
-	EnterFloatMaxIntOfComma(c *FloatMaxIntOfCommaContext)
 
 	// EnterFloatRounded is called when entering the floatRounded production.
 	EnterFloatRounded(c *FloatRoundedContext)
@@ -1243,8 +1234,8 @@ type ELListener interface {
 	// EnterFloatFromInt is called when entering the floatFromInt production.
 	EnterFloatFromInt(c *FloatFromIntContext)
 
-	// EnterFloatAddSubInt is called when entering the floatAddSubInt production.
-	EnterFloatAddSubInt(c *FloatAddSubIntContext)
+	// EnterNumMinOfComma is called when entering the numMinOfComma production.
+	EnterNumMinOfComma(c *NumMinOfCommaContext)
 
 	// EnterFloatAddTo is called when entering the floatAddTo production.
 	EnterFloatAddTo(c *FloatAddToContext)
@@ -1255,23 +1246,11 @@ type ELListener interface {
 	// EnterFloatCeilingOf is called when entering the floatCeilingOf production.
 	EnterFloatCeilingOf(c *FloatCeilingOfContext)
 
-	// EnterFloatMinOfFloatComma is called when entering the floatMinOfFloatComma production.
-	EnterFloatMinOfFloatComma(c *FloatMinOfFloatCommaContext)
-
 	// EnterFloatAbs is called when entering the floatAbs production.
 	EnterFloatAbs(c *FloatAbsContext)
 
-	// EnterFloatMaxOfFloatComma is called when entering the floatMaxOfFloatComma production.
-	EnterFloatMaxOfFloatComma(c *FloatMaxOfFloatCommaContext)
-
 	// EnterFloatNegate is called when entering the floatNegate production.
 	EnterFloatNegate(c *FloatNegateContext)
-
-	// EnterFloatMaxOfInt is called when entering the floatMaxOfInt production.
-	EnterFloatMaxOfInt(c *FloatMaxOfIntContext)
-
-	// EnterFloatAddSubFloat is called when entering the floatAddSubFloat production.
-	EnterFloatAddSubFloat(c *FloatAddSubFloatContext)
 
 	// EnterFloatSumOf is called when entering the floatSumOf production.
 	EnterFloatSumOf(c *FloatSumOfContext)
@@ -1582,12 +1561,6 @@ type ELListener interface {
 	// EnterBoolSameCalendarQuarter is called when entering the boolSameCalendarQuarter production.
 	EnterBoolSameCalendarQuarter(c *BoolSameCalendarQuarterContext)
 
-	// EnterBoolIntLteFloat is called when entering the boolIntLteFloat production.
-	EnterBoolIntLteFloat(c *BoolIntLteFloatContext)
-
-	// EnterBoolFloatLteInt is called when entering the boolFloatLteInt production.
-	EnterBoolFloatLteInt(c *BoolFloatLteIntContext)
-
 	// EnterBoolFromStr is called when entering the boolFromStr production.
 	EnterBoolFromStr(c *BoolFromStrContext)
 
@@ -1618,9 +1591,6 @@ type ELListener interface {
 	// EnterBoolArrayIsNull is called when entering the boolArrayIsNull production.
 	EnterBoolArrayIsNull(c *BoolArrayIsNullContext)
 
-	// EnterBoolIntEq is called when entering the boolIntEq production.
-	EnterBoolIntEq(c *BoolIntEqContext)
-
 	// EnterBoolEntityHasaWhere is called when entering the boolEntityHasaWhere production.
 	EnterBoolEntityHasaWhere(c *BoolEntityHasaWhereContext)
 
@@ -1630,20 +1600,8 @@ type ELListener interface {
 	// EnterBoolBigNeq is called when entering the boolBigNeq production.
 	EnterBoolBigNeq(c *BoolBigNeqContext)
 
-	// EnterBoolIntLt is called when entering the boolIntLt production.
-	EnterBoolIntLt(c *BoolIntLtContext)
-
-	// EnterBoolIntEqFloat is called when entering the boolIntEqFloat production.
-	EnterBoolIntEqFloat(c *BoolIntEqFloatContext)
-
 	// EnterBoolFromIndex is called when entering the boolFromIndex production.
 	EnterBoolFromIndex(c *BoolFromIndexContext)
-
-	// EnterBoolFloatNeq is called when entering the boolFloatNeq production.
-	EnterBoolFloatNeq(c *BoolFloatNeqContext)
-
-	// EnterBoolFloatLt is called when entering the boolFloatLt production.
-	EnterBoolFloatLt(c *BoolFloatLtContext)
 
 	// EnterBoolThereIsWhere is called when entering the boolThereIsWhere production.
 	EnterBoolThereIsWhere(c *BoolThereIsWhereContext)
@@ -1672,9 +1630,6 @@ type ELListener interface {
 	// EnterBoolWasQuestion is called when entering the boolWasQuestion production.
 	EnterBoolWasQuestion(c *BoolWasQuestionContext)
 
-	// EnterBoolIntGteFloat is called when entering the boolIntGteFloat production.
-	EnterBoolIntGteFloat(c *BoolIntGteFloatContext)
-
 	// EnterBoolNameNeqStr is called when entering the boolNameNeqStr production.
 	EnterBoolNameNeqStr(c *BoolNameNeqStrContext)
 
@@ -1686,6 +1641,9 @@ type ELListener interface {
 
 	// EnterBoolEntityInContext is called when entering the boolEntityInContext production.
 	EnterBoolEntityInContext(c *BoolEntityInContextContext)
+
+	// EnterBoolNumGt is called when entering the boolNumGt production.
+	EnterBoolNumGt(c *BoolNumGtContext)
 
 	// EnterBoolDateAfter is called when entering the boolDateAfter production.
 	EnterBoolDateAfter(c *BoolDateAfterContext)
@@ -1699,14 +1657,11 @@ type ELListener interface {
 	// EnterBoolStrEntityInContext is called when entering the boolStrEntityInContext production.
 	EnterBoolStrEntityInContext(c *BoolStrEntityInContextContext)
 
-	// EnterBoolFloatEq is called when entering the boolFloatEq production.
-	EnterBoolFloatEq(c *BoolFloatEqContext)
-
 	// EnterBoolDateLte is called when entering the boolDateLte production.
 	EnterBoolDateLte(c *BoolDateLteContext)
 
-	// EnterBoolFloatGtInt is called when entering the boolFloatGtInt production.
-	EnterBoolFloatGtInt(c *BoolFloatGtIntContext)
+	// EnterBoolNumLte is called when entering the boolNumLte production.
+	EnterBoolNumLte(c *BoolNumLteContext)
 
 	// EnterBoolLiteral is called when entering the boolLiteral production.
 	EnterBoolLiteral(c *BoolLiteralContext)
@@ -1719,9 +1674,6 @@ type ELListener interface {
 
 	// EnterBoolEntityNeq is called when entering the boolEntityNeq production.
 	EnterBoolEntityNeq(c *BoolEntityNeqContext)
-
-	// EnterBoolIntGte is called when entering the boolIntGte production.
-	EnterBoolIntGte(c *BoolIntGteContext)
 
 	// EnterBoolDoesQuestion is called when entering the boolDoesQuestion production.
 	EnterBoolDoesQuestion(c *BoolDoesQuestionContext)
@@ -1741,14 +1693,8 @@ type ELListener interface {
 	// EnterBoolStrIsNot is called when entering the boolStrIsNot production.
 	EnterBoolStrIsNot(c *BoolStrIsNotContext)
 
-	// EnterBoolIntGt is called when entering the boolIntGt production.
-	EnterBoolIntGt(c *BoolIntGtContext)
-
 	// EnterBoolSameCalendarMonth is called when entering the boolSameCalendarMonth production.
 	EnterBoolSameCalendarMonth(c *BoolSameCalendarMonthContext)
-
-	// EnterBoolFloatLte is called when entering the boolFloatLte production.
-	EnterBoolFloatLte(c *BoolFloatLteContext)
 
 	// EnterBoolSameCalendarWeekStarting is called when entering the boolSameCalendarWeekStarting production.
 	EnterBoolSameCalendarWeekStarting(c *BoolSameCalendarWeekStartingContext)
@@ -1771,6 +1717,9 @@ type ELListener interface {
 	// EnterBoolStrLt is called when entering the boolStrLt production.
 	EnterBoolStrLt(c *BoolStrLtContext)
 
+	// EnterBoolNumGte is called when entering the boolNumGte production.
+	EnterBoolNumGte(c *BoolNumGteContext)
+
 	// EnterBoolStrGte is called when entering the boolStrGte production.
 	EnterBoolStrGte(c *BoolStrGteContext)
 
@@ -1780,8 +1729,8 @@ type ELListener interface {
 	// EnterBoolArrayDoesInclude is called when entering the boolArrayDoesInclude production.
 	EnterBoolArrayDoesInclude(c *BoolArrayDoesIncludeContext)
 
-	// EnterBoolIntGtFloat is called when entering the boolIntGtFloat production.
-	EnterBoolIntGtFloat(c *BoolIntGtFloatContext)
+	// EnterBoolNumEq is called when entering the boolNumEq production.
+	EnterBoolNumEq(c *BoolNumEqContext)
 
 	// EnterBoolValueOfOp is called when entering the boolValueOfOp production.
 	EnterBoolValueOfOp(c *BoolValueOfOpContext)
@@ -1791,9 +1740,6 @@ type ELListener interface {
 
 	// EnterBoolBigGt is called when entering the boolBigGt production.
 	EnterBoolBigGt(c *BoolBigGtContext)
-
-	// EnterBoolFloatGt is called when entering the boolFloatGt production.
-	EnterBoolFloatGt(c *BoolFloatGtContext)
 
 	// EnterBoolStrIsNull is called when entering the boolStrIsNull production.
 	EnterBoolStrIsNull(c *BoolStrIsNullContext)
@@ -1816,8 +1762,8 @@ type ELListener interface {
 	// EnterBoolMatches is called when entering the boolMatches production.
 	EnterBoolMatches(c *BoolMatchesContext)
 
-	// EnterBoolFloatGteInt is called when entering the boolFloatGteInt production.
-	EnterBoolFloatGteInt(c *BoolFloatGteIntContext)
+	// EnterBoolNumLt is called when entering the boolNumLt production.
+	EnterBoolNumLt(c *BoolNumLtContext)
 
 	// EnterBoolStrNeqIc is called when entering the boolStrNeqIc production.
 	EnterBoolStrNeqIc(c *BoolStrNeqIcContext)
@@ -1830,12 +1776,6 @@ type ELListener interface {
 
 	// EnterBoolBexprIsNotNull is called when entering the boolBexprIsNotNull production.
 	EnterBoolBexprIsNotNull(c *BoolBexprIsNotNullContext)
-
-	// EnterBoolIntLte is called when entering the boolIntLte production.
-	EnterBoolIntLte(c *BoolIntLteContext)
-
-	// EnterBoolIntNeqFloat is called when entering the boolIntNeqFloat production.
-	EnterBoolIntNeqFloat(c *BoolIntNeqFloatContext)
 
 	// EnterBoolArrayAt is called when entering the boolArrayAt production.
 	EnterBoolArrayAt(c *BoolArrayAtContext)
@@ -1852,9 +1792,6 @@ type ELListener interface {
 	// EnterBoolDateEq is called when entering the boolDateEq production.
 	EnterBoolDateEq(c *BoolDateEqContext)
 
-	// EnterBoolFloatGte is called when entering the boolFloatGte production.
-	EnterBoolFloatGte(c *BoolFloatGteContext)
-
 	// EnterBoolStrLte is called when entering the boolStrLte production.
 	EnterBoolStrLte(c *BoolStrLteContext)
 
@@ -1870,23 +1807,14 @@ type ELListener interface {
 	// EnterBoolThereIsInEntityWhere is called when entering the boolThereIsInEntityWhere production.
 	EnterBoolThereIsInEntityWhere(c *BoolThereIsInEntityWhereContext)
 
-	// EnterBoolFloatLtInt is called when entering the boolFloatLtInt production.
-	EnterBoolFloatLtInt(c *BoolFloatLtIntContext)
-
 	// EnterBoolArrayNotInclude is called when entering the boolArrayNotInclude production.
 	EnterBoolArrayNotInclude(c *BoolArrayNotIncludeContext)
-
-	// EnterBoolFloatNeqInt is called when entering the boolFloatNeqInt production.
-	EnterBoolFloatNeqInt(c *BoolFloatNeqIntContext)
 
 	// EnterBoolBexprIsNull is called when entering the boolBexprIsNull production.
 	EnterBoolBexprIsNull(c *BoolBexprIsNullContext)
 
 	// EnterBoolAllHave is called when entering the boolAllHave production.
 	EnterBoolAllHave(c *BoolAllHaveContext)
-
-	// EnterBoolIntLtFloat is called when entering the boolIntLtFloat production.
-	EnterBoolIntLtFloat(c *BoolIntLtFloatContext)
 
 	// EnterBoolBoolEq is called when entering the boolBoolEq production.
 	EnterBoolBoolEq(c *BoolBoolEqContext)
@@ -1906,14 +1834,8 @@ type ELListener interface {
 	// EnterBoolThereIsNoWhere is called when entering the boolThereIsNoWhere production.
 	EnterBoolThereIsNoWhere(c *BoolThereIsNoWhereContext)
 
-	// EnterBoolFloatEqInt is called when entering the boolFloatEqInt production.
-	EnterBoolFloatEqInt(c *BoolFloatEqIntContext)
-
 	// EnterBoolSameCalendarDay is called when entering the boolSameCalendarDay production.
 	EnterBoolSameCalendarDay(c *BoolSameCalendarDayContext)
-
-	// EnterBoolIntNeq is called when entering the boolIntNeq production.
-	EnterBoolIntNeq(c *BoolIntNeqContext)
 
 	// EnterBoolArrayIncludes is called when entering the boolArrayIncludes production.
 	EnterBoolArrayIncludes(c *BoolArrayIncludesContext)
@@ -1941,6 +1863,9 @@ type ELListener interface {
 
 	// EnterBoolEntityIsNotNull is called when entering the boolEntityIsNotNull production.
 	EnterBoolEntityIsNotNull(c *BoolEntityIsNotNullContext)
+
+	// EnterBoolNumNeq is called when entering the boolNumNeq production.
+	EnterBoolNumNeq(c *BoolNumNeqContext)
 
 	// EnterBoolStrNeq is called when entering the boolStrNeq production.
 	EnterBoolStrNeq(c *BoolStrNeqContext)
@@ -2520,6 +2445,27 @@ type ELListener interface {
 
 	// ExitNumber is called when exiting the number production.
 	ExitNumber(c *NumberContext)
+
+	// ExitNumFexpr is called when exiting the numFexpr production.
+	ExitNumFexpr(c *NumFexprContext)
+
+	// ExitNumIntLiteral is called when exiting the numIntLiteral production.
+	ExitNumIntLiteral(c *NumIntLiteralContext)
+
+	// ExitNumMulDiv is called when exiting the numMulDiv production.
+	ExitNumMulDiv(c *NumMulDivContext)
+
+	// ExitNumAddSub is called when exiting the numAddSub production.
+	ExitNumAddSub(c *NumAddSubContext)
+
+	// ExitNumIexpr is called when exiting the numIexpr production.
+	ExitNumIexpr(c *NumIexprContext)
+
+	// ExitNumNegate is called when exiting the numNegate production.
+	ExitNumNegate(c *NumNegateContext)
+
+	// ExitNumFpLiteral is called when exiting the numFpLiteral production.
+	ExitNumFpLiteral(c *NumFpLiteralContext)
 
 	// ExitAddDestArray2 is called when exiting the addDestArray2 production.
 	ExitAddDestArray2(c *AddDestArray2Context)
@@ -3139,17 +3085,8 @@ type ELListener interface {
 	// ExitStrConcatName is called when exiting the strConcatName production.
 	ExitStrConcatName(c *StrConcatNameContext)
 
-	// ExitFloatMinOfFloat is called when exiting the floatMinOfFloat production.
-	ExitFloatMinOfFloat(c *FloatMinOfFloatContext)
-
 	// ExitFloatMaxOfArrayWhere is called when exiting the floatMaxOfArrayWhere production.
 	ExitFloatMaxOfArrayWhere(c *FloatMaxOfArrayWhereContext)
-
-	// ExitFloatMaxIntOf is called when exiting the floatMaxIntOf production.
-	ExitFloatMaxIntOf(c *FloatMaxIntOfContext)
-
-	// ExitFloatMulDivInt is called when exiting the floatMulDivInt production.
-	ExitFloatMulDivInt(c *FloatMulDivIntContext)
 
 	// ExitFloatParen is called when exiting the floatParen production.
 	ExitFloatParen(c *FloatParenContext)
@@ -3160,8 +3097,8 @@ type ELListener interface {
 	// ExitFloatSumOfWhere is called when exiting the floatSumOfWhere production.
 	ExitFloatSumOfWhere(c *FloatSumOfWhereContext)
 
-	// ExitFloatMaxOfFloat is called when exiting the floatMaxOfFloat production.
-	ExitFloatMaxOfFloat(c *FloatMaxOfFloatContext)
+	// ExitNumMinOf is called when exiting the numMinOf production.
+	ExitNumMinOf(c *NumMinOfContext)
 
 	// ExitFloatValueOfOp is called when exiting the floatValueOfOp production.
 	ExitFloatValueOfOp(c *FloatValueOfOpContext)
@@ -3169,17 +3106,11 @@ type ELListener interface {
 	// ExitFloatRoundedTo is called when exiting the floatRoundedTo production.
 	ExitFloatRoundedTo(c *FloatRoundedToContext)
 
-	// ExitFloatMinIntOf is called when exiting the floatMinIntOf production.
-	ExitFloatMinIntOf(c *FloatMinIntOfContext)
-
-	// ExitIntAddSubFloat is called when exiting the intAddSubFloat production.
-	ExitIntAddSubFloat(c *IntAddSubFloatContext)
-
 	// ExitFloatMaxOfArray is called when exiting the floatMaxOfArray production.
 	ExitFloatMaxOfArray(c *FloatMaxOfArrayContext)
 
-	// ExitFloatMinOfIntComma is called when exiting the floatMinOfIntComma production.
-	ExitFloatMinOfIntComma(c *FloatMinOfIntCommaContext)
+	// ExitNumMaxOfComma is called when exiting the numMaxOfComma production.
+	ExitNumMaxOfComma(c *NumMaxOfCommaContext)
 
 	// ExitFloatTableLookup is called when exiting the floatTableLookup production.
 	ExitFloatTableLookup(c *FloatTableLookupContext)
@@ -3187,8 +3118,8 @@ type ELListener interface {
 	// ExitFloatFloorOfInt is called when exiting the floatFloorOfInt production.
 	ExitFloatFloorOfInt(c *FloatFloorOfIntContext)
 
-	// ExitFloatMinIntOfComma is called when exiting the floatMinIntOfComma production.
-	ExitFloatMinIntOfComma(c *FloatMinIntOfCommaContext)
+	// ExitNumMaxOf is called when exiting the numMaxOf production.
+	ExitNumMaxOf(c *NumMaxOfContext)
 
 	// ExitFloatCeilingOfInt is called when exiting the floatCeilingOfInt production.
 	ExitFloatCeilingOfInt(c *FloatCeilingOfIntContext)
@@ -3199,17 +3130,11 @@ type ELListener interface {
 	// ExitFloatMulBy is called when exiting the floatMulBy production.
 	ExitFloatMulBy(c *FloatMulByContext)
 
-	// ExitFloatMaxOfIntComma is called when exiting the floatMaxOfIntComma production.
-	ExitFloatMaxOfIntComma(c *FloatMaxOfIntCommaContext)
-
 	// ExitDivideRoundingBy is called when exiting the divideRoundingBy production.
 	ExitDivideRoundingBy(c *DivideRoundingByContext)
 
 	// ExitFloatUsing is called when exiting the floatUsing production.
 	ExitFloatUsing(c *FloatUsingContext)
-
-	// ExitIntMulDivFloat is called when exiting the intMulDivFloat production.
-	ExitIntMulDivFloat(c *IntMulDivFloatContext)
 
 	// ExitFloatTyped is called when exiting the floatTyped production.
 	ExitFloatTyped(c *FloatTypedContext)
@@ -3223,20 +3148,11 @@ type ELListener interface {
 	// ExitFloatSubFrom is called when exiting the floatSubFrom production.
 	ExitFloatSubFrom(c *FloatSubFromContext)
 
-	// ExitFloatMulDivFloat is called when exiting the floatMulDivFloat production.
-	ExitFloatMulDivFloat(c *FloatMulDivFloatContext)
-
 	// ExitFloatDivBy is called when exiting the floatDivBy production.
 	ExitFloatDivBy(c *FloatDivByContext)
 
-	// ExitFloatMinOfInt is called when exiting the floatMinOfInt production.
-	ExitFloatMinOfInt(c *FloatMinOfIntContext)
-
 	// ExitFloatFromIndex is called when exiting the floatFromIndex production.
 	ExitFloatFromIndex(c *FloatFromIndexContext)
-
-	// ExitFloatMaxIntOfComma is called when exiting the floatMaxIntOfComma production.
-	ExitFloatMaxIntOfComma(c *FloatMaxIntOfCommaContext)
 
 	// ExitFloatRounded is called when exiting the floatRounded production.
 	ExitFloatRounded(c *FloatRoundedContext)
@@ -3250,8 +3166,8 @@ type ELListener interface {
 	// ExitFloatFromInt is called when exiting the floatFromInt production.
 	ExitFloatFromInt(c *FloatFromIntContext)
 
-	// ExitFloatAddSubInt is called when exiting the floatAddSubInt production.
-	ExitFloatAddSubInt(c *FloatAddSubIntContext)
+	// ExitNumMinOfComma is called when exiting the numMinOfComma production.
+	ExitNumMinOfComma(c *NumMinOfCommaContext)
 
 	// ExitFloatAddTo is called when exiting the floatAddTo production.
 	ExitFloatAddTo(c *FloatAddToContext)
@@ -3262,23 +3178,11 @@ type ELListener interface {
 	// ExitFloatCeilingOf is called when exiting the floatCeilingOf production.
 	ExitFloatCeilingOf(c *FloatCeilingOfContext)
 
-	// ExitFloatMinOfFloatComma is called when exiting the floatMinOfFloatComma production.
-	ExitFloatMinOfFloatComma(c *FloatMinOfFloatCommaContext)
-
 	// ExitFloatAbs is called when exiting the floatAbs production.
 	ExitFloatAbs(c *FloatAbsContext)
 
-	// ExitFloatMaxOfFloatComma is called when exiting the floatMaxOfFloatComma production.
-	ExitFloatMaxOfFloatComma(c *FloatMaxOfFloatCommaContext)
-
 	// ExitFloatNegate is called when exiting the floatNegate production.
 	ExitFloatNegate(c *FloatNegateContext)
-
-	// ExitFloatMaxOfInt is called when exiting the floatMaxOfInt production.
-	ExitFloatMaxOfInt(c *FloatMaxOfIntContext)
-
-	// ExitFloatAddSubFloat is called when exiting the floatAddSubFloat production.
-	ExitFloatAddSubFloat(c *FloatAddSubFloatContext)
 
 	// ExitFloatSumOf is called when exiting the floatSumOf production.
 	ExitFloatSumOf(c *FloatSumOfContext)
@@ -3589,12 +3493,6 @@ type ELListener interface {
 	// ExitBoolSameCalendarQuarter is called when exiting the boolSameCalendarQuarter production.
 	ExitBoolSameCalendarQuarter(c *BoolSameCalendarQuarterContext)
 
-	// ExitBoolIntLteFloat is called when exiting the boolIntLteFloat production.
-	ExitBoolIntLteFloat(c *BoolIntLteFloatContext)
-
-	// ExitBoolFloatLteInt is called when exiting the boolFloatLteInt production.
-	ExitBoolFloatLteInt(c *BoolFloatLteIntContext)
-
 	// ExitBoolFromStr is called when exiting the boolFromStr production.
 	ExitBoolFromStr(c *BoolFromStrContext)
 
@@ -3625,9 +3523,6 @@ type ELListener interface {
 	// ExitBoolArrayIsNull is called when exiting the boolArrayIsNull production.
 	ExitBoolArrayIsNull(c *BoolArrayIsNullContext)
 
-	// ExitBoolIntEq is called when exiting the boolIntEq production.
-	ExitBoolIntEq(c *BoolIntEqContext)
-
 	// ExitBoolEntityHasaWhere is called when exiting the boolEntityHasaWhere production.
 	ExitBoolEntityHasaWhere(c *BoolEntityHasaWhereContext)
 
@@ -3637,20 +3532,8 @@ type ELListener interface {
 	// ExitBoolBigNeq is called when exiting the boolBigNeq production.
 	ExitBoolBigNeq(c *BoolBigNeqContext)
 
-	// ExitBoolIntLt is called when exiting the boolIntLt production.
-	ExitBoolIntLt(c *BoolIntLtContext)
-
-	// ExitBoolIntEqFloat is called when exiting the boolIntEqFloat production.
-	ExitBoolIntEqFloat(c *BoolIntEqFloatContext)
-
 	// ExitBoolFromIndex is called when exiting the boolFromIndex production.
 	ExitBoolFromIndex(c *BoolFromIndexContext)
-
-	// ExitBoolFloatNeq is called when exiting the boolFloatNeq production.
-	ExitBoolFloatNeq(c *BoolFloatNeqContext)
-
-	// ExitBoolFloatLt is called when exiting the boolFloatLt production.
-	ExitBoolFloatLt(c *BoolFloatLtContext)
 
 	// ExitBoolThereIsWhere is called when exiting the boolThereIsWhere production.
 	ExitBoolThereIsWhere(c *BoolThereIsWhereContext)
@@ -3679,9 +3562,6 @@ type ELListener interface {
 	// ExitBoolWasQuestion is called when exiting the boolWasQuestion production.
 	ExitBoolWasQuestion(c *BoolWasQuestionContext)
 
-	// ExitBoolIntGteFloat is called when exiting the boolIntGteFloat production.
-	ExitBoolIntGteFloat(c *BoolIntGteFloatContext)
-
 	// ExitBoolNameNeqStr is called when exiting the boolNameNeqStr production.
 	ExitBoolNameNeqStr(c *BoolNameNeqStrContext)
 
@@ -3693,6 +3573,9 @@ type ELListener interface {
 
 	// ExitBoolEntityInContext is called when exiting the boolEntityInContext production.
 	ExitBoolEntityInContext(c *BoolEntityInContextContext)
+
+	// ExitBoolNumGt is called when exiting the boolNumGt production.
+	ExitBoolNumGt(c *BoolNumGtContext)
 
 	// ExitBoolDateAfter is called when exiting the boolDateAfter production.
 	ExitBoolDateAfter(c *BoolDateAfterContext)
@@ -3706,14 +3589,11 @@ type ELListener interface {
 	// ExitBoolStrEntityInContext is called when exiting the boolStrEntityInContext production.
 	ExitBoolStrEntityInContext(c *BoolStrEntityInContextContext)
 
-	// ExitBoolFloatEq is called when exiting the boolFloatEq production.
-	ExitBoolFloatEq(c *BoolFloatEqContext)
-
 	// ExitBoolDateLte is called when exiting the boolDateLte production.
 	ExitBoolDateLte(c *BoolDateLteContext)
 
-	// ExitBoolFloatGtInt is called when exiting the boolFloatGtInt production.
-	ExitBoolFloatGtInt(c *BoolFloatGtIntContext)
+	// ExitBoolNumLte is called when exiting the boolNumLte production.
+	ExitBoolNumLte(c *BoolNumLteContext)
 
 	// ExitBoolLiteral is called when exiting the boolLiteral production.
 	ExitBoolLiteral(c *BoolLiteralContext)
@@ -3726,9 +3606,6 @@ type ELListener interface {
 
 	// ExitBoolEntityNeq is called when exiting the boolEntityNeq production.
 	ExitBoolEntityNeq(c *BoolEntityNeqContext)
-
-	// ExitBoolIntGte is called when exiting the boolIntGte production.
-	ExitBoolIntGte(c *BoolIntGteContext)
 
 	// ExitBoolDoesQuestion is called when exiting the boolDoesQuestion production.
 	ExitBoolDoesQuestion(c *BoolDoesQuestionContext)
@@ -3748,14 +3625,8 @@ type ELListener interface {
 	// ExitBoolStrIsNot is called when exiting the boolStrIsNot production.
 	ExitBoolStrIsNot(c *BoolStrIsNotContext)
 
-	// ExitBoolIntGt is called when exiting the boolIntGt production.
-	ExitBoolIntGt(c *BoolIntGtContext)
-
 	// ExitBoolSameCalendarMonth is called when exiting the boolSameCalendarMonth production.
 	ExitBoolSameCalendarMonth(c *BoolSameCalendarMonthContext)
-
-	// ExitBoolFloatLte is called when exiting the boolFloatLte production.
-	ExitBoolFloatLte(c *BoolFloatLteContext)
 
 	// ExitBoolSameCalendarWeekStarting is called when exiting the boolSameCalendarWeekStarting production.
 	ExitBoolSameCalendarWeekStarting(c *BoolSameCalendarWeekStartingContext)
@@ -3778,6 +3649,9 @@ type ELListener interface {
 	// ExitBoolStrLt is called when exiting the boolStrLt production.
 	ExitBoolStrLt(c *BoolStrLtContext)
 
+	// ExitBoolNumGte is called when exiting the boolNumGte production.
+	ExitBoolNumGte(c *BoolNumGteContext)
+
 	// ExitBoolStrGte is called when exiting the boolStrGte production.
 	ExitBoolStrGte(c *BoolStrGteContext)
 
@@ -3787,8 +3661,8 @@ type ELListener interface {
 	// ExitBoolArrayDoesInclude is called when exiting the boolArrayDoesInclude production.
 	ExitBoolArrayDoesInclude(c *BoolArrayDoesIncludeContext)
 
-	// ExitBoolIntGtFloat is called when exiting the boolIntGtFloat production.
-	ExitBoolIntGtFloat(c *BoolIntGtFloatContext)
+	// ExitBoolNumEq is called when exiting the boolNumEq production.
+	ExitBoolNumEq(c *BoolNumEqContext)
 
 	// ExitBoolValueOfOp is called when exiting the boolValueOfOp production.
 	ExitBoolValueOfOp(c *BoolValueOfOpContext)
@@ -3798,9 +3672,6 @@ type ELListener interface {
 
 	// ExitBoolBigGt is called when exiting the boolBigGt production.
 	ExitBoolBigGt(c *BoolBigGtContext)
-
-	// ExitBoolFloatGt is called when exiting the boolFloatGt production.
-	ExitBoolFloatGt(c *BoolFloatGtContext)
 
 	// ExitBoolStrIsNull is called when exiting the boolStrIsNull production.
 	ExitBoolStrIsNull(c *BoolStrIsNullContext)
@@ -3823,8 +3694,8 @@ type ELListener interface {
 	// ExitBoolMatches is called when exiting the boolMatches production.
 	ExitBoolMatches(c *BoolMatchesContext)
 
-	// ExitBoolFloatGteInt is called when exiting the boolFloatGteInt production.
-	ExitBoolFloatGteInt(c *BoolFloatGteIntContext)
+	// ExitBoolNumLt is called when exiting the boolNumLt production.
+	ExitBoolNumLt(c *BoolNumLtContext)
 
 	// ExitBoolStrNeqIc is called when exiting the boolStrNeqIc production.
 	ExitBoolStrNeqIc(c *BoolStrNeqIcContext)
@@ -3837,12 +3708,6 @@ type ELListener interface {
 
 	// ExitBoolBexprIsNotNull is called when exiting the boolBexprIsNotNull production.
 	ExitBoolBexprIsNotNull(c *BoolBexprIsNotNullContext)
-
-	// ExitBoolIntLte is called when exiting the boolIntLte production.
-	ExitBoolIntLte(c *BoolIntLteContext)
-
-	// ExitBoolIntNeqFloat is called when exiting the boolIntNeqFloat production.
-	ExitBoolIntNeqFloat(c *BoolIntNeqFloatContext)
 
 	// ExitBoolArrayAt is called when exiting the boolArrayAt production.
 	ExitBoolArrayAt(c *BoolArrayAtContext)
@@ -3859,9 +3724,6 @@ type ELListener interface {
 	// ExitBoolDateEq is called when exiting the boolDateEq production.
 	ExitBoolDateEq(c *BoolDateEqContext)
 
-	// ExitBoolFloatGte is called when exiting the boolFloatGte production.
-	ExitBoolFloatGte(c *BoolFloatGteContext)
-
 	// ExitBoolStrLte is called when exiting the boolStrLte production.
 	ExitBoolStrLte(c *BoolStrLteContext)
 
@@ -3877,23 +3739,14 @@ type ELListener interface {
 	// ExitBoolThereIsInEntityWhere is called when exiting the boolThereIsInEntityWhere production.
 	ExitBoolThereIsInEntityWhere(c *BoolThereIsInEntityWhereContext)
 
-	// ExitBoolFloatLtInt is called when exiting the boolFloatLtInt production.
-	ExitBoolFloatLtInt(c *BoolFloatLtIntContext)
-
 	// ExitBoolArrayNotInclude is called when exiting the boolArrayNotInclude production.
 	ExitBoolArrayNotInclude(c *BoolArrayNotIncludeContext)
-
-	// ExitBoolFloatNeqInt is called when exiting the boolFloatNeqInt production.
-	ExitBoolFloatNeqInt(c *BoolFloatNeqIntContext)
 
 	// ExitBoolBexprIsNull is called when exiting the boolBexprIsNull production.
 	ExitBoolBexprIsNull(c *BoolBexprIsNullContext)
 
 	// ExitBoolAllHave is called when exiting the boolAllHave production.
 	ExitBoolAllHave(c *BoolAllHaveContext)
-
-	// ExitBoolIntLtFloat is called when exiting the boolIntLtFloat production.
-	ExitBoolIntLtFloat(c *BoolIntLtFloatContext)
 
 	// ExitBoolBoolEq is called when exiting the boolBoolEq production.
 	ExitBoolBoolEq(c *BoolBoolEqContext)
@@ -3913,14 +3766,8 @@ type ELListener interface {
 	// ExitBoolThereIsNoWhere is called when exiting the boolThereIsNoWhere production.
 	ExitBoolThereIsNoWhere(c *BoolThereIsNoWhereContext)
 
-	// ExitBoolFloatEqInt is called when exiting the boolFloatEqInt production.
-	ExitBoolFloatEqInt(c *BoolFloatEqIntContext)
-
 	// ExitBoolSameCalendarDay is called when exiting the boolSameCalendarDay production.
 	ExitBoolSameCalendarDay(c *BoolSameCalendarDayContext)
-
-	// ExitBoolIntNeq is called when exiting the boolIntNeq production.
-	ExitBoolIntNeq(c *BoolIntNeqContext)
 
 	// ExitBoolArrayIncludes is called when exiting the boolArrayIncludes production.
 	ExitBoolArrayIncludes(c *BoolArrayIncludesContext)
@@ -3948,6 +3795,9 @@ type ELListener interface {
 
 	// ExitBoolEntityIsNotNull is called when exiting the boolEntityIsNotNull production.
 	ExitBoolEntityIsNotNull(c *BoolEntityIsNotNullContext)
+
+	// ExitBoolNumNeq is called when exiting the boolNumNeq production.
+	ExitBoolNumNeq(c *BoolNumNeqContext)
 
 	// ExitBoolStrNeq is called when exiting the boolStrNeq production.
 	ExitBoolStrNeq(c *BoolStrNeqContext)

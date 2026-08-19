@@ -1394,7 +1394,7 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 <action_comment>Error</action_comment>
 <action_dsl>set totalIncome = sum of additionalIncome in clients</action_dsl>
 <action_postfix>
-0 { additionalIncome + } clients forall cvd /totalIncome xdef
+0.0 { additionalIncome f+ } clients forall cvd /totalIncome xdef
 </action_postfix>
 <columns>-</columns>
 </action_details>
@@ -4232,7 +4232,7 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 <initial_action>
 <initial_action_dsl>set totalIncome = sum of additionalIncome in clients</initial_action_dsl>
 <initial_action_postfix>
-0 { additionalIncome + } clients forall cvd /totalIncome xdef
+0.0 { additionalIncome f+ } clients forall cvd /totalIncome xdef
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -4773,7 +4773,7 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 <initial_action>
 <initial_action_dsl>set totalIncome = sum of additionalIncome in clients</initial_action_dsl>
 <initial_action_postfix>
-0 { additionalIncome + } clients forall cvd /totalIncome xdef
+0.0 { additionalIncome f+ } clients forall cvd /totalIncome xdef
 </initial_action_postfix>
 </initial_action>
 </initial_actions>

@@ -480,7 +480,7 @@ true
 <action_comment></action_comment>
 <action_dsl>set grp.best = max of primiera in grp.members;</action_dsl>
 <action_postfix>
-0 { primiera max } grp.members forall cvi /grp.best xdef
+0.0 { primiera fmax } grp.members forall cvi /grp.best xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -553,7 +553,7 @@ true
 <action_comment></action_comment>
 <action_dsl>set player.primiera_total = sum of best in player.suit_groups;</action_dsl>
 <action_postfix>
-0 { best + } player.suit_groups forall cvi /player.primiera_total xdef
+0.0 { best f+ } player.suit_groups forall cvi /player.primiera_total xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>

@@ -48,25 +48,28 @@ func TestIssue864_IntSumOfWhere(t *testing.T) {
 	}
 }
 
-// TestIssue864_FloatSumOfWhere_Unreachable pins that the float `where`
-// alternative is a grammar zombie, for the same LL(*) reason as floatSumOf
-// (number : iexpr | fexpr lists iexpr first; both numeric types lex as a bare
-// IDENT). The IDENT form routes through intSumOfWhere (`+`), never the float
-// visitor (`f+`). If a future token-classification pass makes the float path
-// reachable, this breaks loudly so VisitFloatSumOfWhere gets exercised.
-func TestIssue864_FloatSumOfWhere_Unreachable(t *testing.T) {
+// TestIssue864_FloatSumOfWhere_Reachable: the float `where` alternative used
+// to be a grammar zombie -- `number : iexpr | fexpr` listed iexpr first and
+// both numeric types lex as bare IDENT, so the IDENT form always routed
+// through intSumOfWhere. numexpr (#1148) routes through the fexpr leaf, so
+// the float path is exercised now and the fold accumulates with f+.
+//
+// The probe is a `set`, deliberately. In print/condition contexts a trailing
+// comparison competes with the where-predicate for the final `> 0.0` (a
+// pre-existing ambiguity); assignment has no comparison alternative, so the
+// predicate is unambiguous here.
+func TestIssue864_FloatSumOfWhere_Reachable(t *testing.T) {
 	c := NewCompiler()
 	c.SetSymbols(issue803Batch8Symbols())
 
-	got, err := c.CompileAction(`print sum of income in family.kids where income > 0.0`)
+	got, err := c.CompileAction(`set income = sum of income in family.kids where income > 0.0`)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
-	if strings.Contains(got, "f+") {
-		t.Errorf("floatSumOfWhere is now reachable; replace this pin with positive float assertions. got: %s", got)
-	}
-	if !strings.Contains(got, "+") || !strings.Contains(got, "forall") || !strings.Contains(got, "if") {
-		t.Errorf("expected intSumOfWhere fallback (+ forall if), got: %s", got)
+	for _, tok := range []string{"0.0 f>", "f+", "forall", "if"} {
+		if !strings.Contains(got, tok) {
+			t.Errorf("expected %q in the filtered float fold, got: %s", tok, got)
+		}
 	}
 }
 
