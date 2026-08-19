@@ -21,7 +21,7 @@
    <!-- CTC: $4,000 -->
    <!-- Net Tax: $11,739 -->
    <expected_agi>150000</expected_agi>
-   <expected_taxable_income>120000</expected_taxable_income>
+   <expected_taxable_income>118500</expected_taxable_income>
    <expected_ctc>4000</expected_ctc>
 
    <taxpayers>

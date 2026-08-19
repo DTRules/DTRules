@@ -23,7 +23,7 @@
    <!-- CTC: $4,000 -->
    <!-- Substantial refund expected -->
    <expected_agi>32000</expected_agi>
-   <expected_taxable_income>2000</expected_taxable_income>
+   <expected_taxable_income>500</expected_taxable_income>
    <expected_eitc>7152</expected_eitc>
    <expected_ctc>4000</expected_ctc>
 

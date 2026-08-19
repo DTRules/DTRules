@@ -19,7 +19,7 @@
    <!-- Tax (2025 MFJ brackets): $5,975 -->
    <expected_agi>85000</expected_agi>
    <expected_standard_deduction>30000</expected_standard_deduction>
-   <expected_taxable_income>55000</expected_taxable_income>
+   <expected_taxable_income>53500</expected_taxable_income>
 
    <taxpayers>
       <taxpayer id="1">

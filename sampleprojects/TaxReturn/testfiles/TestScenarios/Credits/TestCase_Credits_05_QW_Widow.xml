@@ -22,7 +22,7 @@
    <!-- Also qualifies for Child Tax Credit: $2,000 -->
    <expected_agi>70000</expected_agi>
    <expected_standard_deduction>30000</expected_standard_deduction>
-   <expected_taxable_income>40000</expected_taxable_income>
+   <expected_taxable_income>54250</expected_taxable_income>
    <expected_ctc>2000</expected_ctc>
 
    <taxpayers>
