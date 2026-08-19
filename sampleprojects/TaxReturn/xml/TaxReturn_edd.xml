@@ -1121,6 +1121,7 @@
 		<field name="roth_taxable_ratio" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Form 8606 line 10 complement: the taxable fraction of a conversion, being 1 minus basis over the aggregated year-end value plus conversions."></field>
 		<field name="safe_harbor_met" type="boolean" subtype="" access="rw" input="" default_value="false" comment="Safe harbor exception met"></field>
 		<field name="salt_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="SALT deduction amount (for AMT add-back)"></field>
+		<field name="savers_contribution_cap" type="double" subtype="" access="rw" input="" default_value="0.0" comment="Form 8880: the contribution cap that applies to this return — $2,000, or $4,000 filing jointly. Held as a field because the table selects it by filing status before applying it."></field>
 		<field name="savers_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Saver Credit (Form 8880)"></field>
 		<field name="savers_credit_rate" type="double" subtype="" access="rw" input="" default_value="0" comment="Saver Credit rate (0.50, 0.20, 0.10, or 0)"></field>
 		<field name="sc_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="South Carolina state income tax"></field>

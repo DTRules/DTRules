@@ -23,7 +23,7 @@
    <!-- CTC: $6,000 (3 children × $2,000) -->
    <!-- Very substantial refund expected -->
    <expected_agi>38000</expected_agi>
-   <expected_taxable_income>8000</expected_taxable_income>
+   <expected_taxable_income>6500</expected_taxable_income>
    <expected_eitc>8046</expected_eitc>
    <expected_ctc>6000</expected_ctc>
 

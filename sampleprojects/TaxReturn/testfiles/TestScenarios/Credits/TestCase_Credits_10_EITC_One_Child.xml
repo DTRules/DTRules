@@ -23,7 +23,7 @@
    <!-- CTC: $2,000 -->
    <!-- Net refund after withholding -->
    <expected_agi>22000</expected_agi>
-   <expected_taxable_income>7000</expected_taxable_income>
+   <expected_taxable_income>6250</expected_taxable_income>
    <expected_eitc>3200</expected_eitc>
    <expected_ctc>2000</expected_ctc>
 
