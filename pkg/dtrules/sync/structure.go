@@ -224,14 +224,11 @@ func CreateProjectStructure(projectRoot string) error {
 		}
 	}
 
-	// Create .gitignore in excel directory to exclude sync manifest
-	gitignore := filepath.Join(projectRoot, "excel", ".gitignore")
-	if !fileExists(gitignore) {
-		content := "# DTRules sync manifest (local state, don't commit)\n.sync-manifest.json\n"
-		if err := os.WriteFile(gitignore, []byte(content), 0644); err != nil {
-			return fmt.Errorf("failed to create .gitignore: %w", err)
-		}
-	}
+	// No .gitignore is written any more. Its only content was the sync
+	// manifest exclusion, and new projects never grow a manifest: provenance
+	// travels in the XML (#1124) and the workbook pairing comes from the
+	// artifacts (#1130). Gitignoring the manifest is also the exact reason a
+	// fresh clone used to arrive with no sync state at all (#1091).
 
 	return nil
 }

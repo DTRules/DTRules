@@ -197,8 +197,16 @@ func (m *Manifest) CheckExcelModified(excelPath string) (modified bool, entry *F
 }
 
 // RecordExport records that XML was exported to an Excel file.
+//
+// Since #1124/#1130 the artifacts carry their own provenance and pairing, so
+// nothing reads this state any more. A project that already has a manifest
+// keeps it current so it never disagrees with itself; a project without one
+// never grows one -- the file is retired by attrition (#1091).
 // Call this AFTER a successful export to update the manifest.
 func (m *Manifest) RecordExport(excelPath string, xmlFiles []string) error {
+	if _, err := os.Stat(m.path); err != nil {
+		return nil // no manifest on disk: do not create one (#1091)
+	}
 	relPath := m.normalizePath(excelPath)
 
 	// Get Excel file's current modTime (after export)

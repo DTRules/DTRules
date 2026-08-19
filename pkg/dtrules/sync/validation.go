@@ -350,13 +350,13 @@ type dtTablesXML struct {
 }
 
 type dtTableXML struct {
-	NameAttr        string             `xml:"name,attr"`
-	TableName       string             `xml:"table_name"`
-	ELCompiled      bool               `xml:"el_compiled,attr"`
-	Contexts        dtContextsXML      `xml:"contexts"`
-	InitialActions  dtInitialActionsXML `xml:"initial_actions"`
-	Conditions      dtConditionsXML    `xml:"conditions"`
-	Actions         dtActionsXML       `xml:"actions"`
+	NameAttr       string              `xml:"name,attr"`
+	TableName      string              `xml:"table_name"`
+	ELCompiled     bool                `xml:"el_compiled,attr"`
+	Contexts       dtContextsXML       `xml:"contexts"`
+	InitialActions dtInitialActionsXML `xml:"initial_actions"`
+	Conditions     dtConditionsXML     `xml:"conditions"`
+	Actions        dtActionsXML        `xml:"actions"`
 }
 
 func (t *dtTableXML) getTableName() string {
@@ -395,12 +395,12 @@ type dtInitialActionsXML struct {
 }
 
 type dtInitialActionXML struct {
-	Description    string `xml:"initial_action_description"`
-	DSL            string `xml:"initial_action_dsl"`
-	Postfix        string `xml:"initial_action_postfix"`
-	ActionDSL      string `xml:"action_dsl"`
-	ActionPostfix  string `xml:"action_postfix"`
-	ActionComment  string `xml:"action_comment"`
+	Description   string `xml:"initial_action_description"`
+	DSL           string `xml:"initial_action_dsl"`
+	Postfix       string `xml:"initial_action_postfix"`
+	ActionDSL     string `xml:"action_dsl"`
+	ActionPostfix string `xml:"action_postfix"`
+	ActionComment string `xml:"action_comment"`
 }
 
 // GetDSL returns the DSL expression with precedence:
