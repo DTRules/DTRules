@@ -23,6 +23,14 @@ import (
 // lazyLeafThreshold is the number of leaves above which ALL tables switch to lazy encoding.
 const lazyLeafThreshold = 64
 
+// lazyCondThreshold is the condition count above which FIRST and ALL tables
+// switch to lazy encoding. The unbalanced tree grows with conditions as well
+// as columns: TaxReturn's Dispatch_State_Tax -- FIRST policy, 43 conditions,
+// ~51 columns, under the column threshold -- built a tree that peaked at
+// 24.5GB and took 30 seconds, on every load until #1149 and on every first
+// execution after it (#1148).
+const lazyCondThreshold = 24
+
 // condReq encodes the requirement a column has for a condition.
 // 1 = requires Y, 0 = requires N, -1 = don't care.
 type condReq int8
@@ -48,6 +56,9 @@ type LazyTable struct {
 	numCols      int
 	numConds     int
 	star         bool
+	// first: execute only the first surviving column (FIRST policy). The
+	// elimination loop is unchanged; only the final sweep differs.
+	first bool
 }
 
 // buildLazyTable constructs a LazyTable from the decision table's raw data.
@@ -154,11 +165,15 @@ func (lt *LazyTable) Execute(state dtrules.State) error {
 		}
 	}
 
-	// Execute actions for every surviving column, in authored order.
+	// Execute actions for the surviving columns in authored order -- all of
+	// them, or only the first for a FIRST-policy table.
 	for col := 0; col < lt.numCols; col++ {
 		if alive[col] {
 			if err := lt.columnNodes[col].Execute(state); err != nil {
 				return err
+			}
+			if lt.first {
+				break
 			}
 		}
 	}

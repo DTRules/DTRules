@@ -494,8 +494,8 @@ func TestAnalyze_AssignmentOnlyTable_MixedActions(t *testing.T) {
 	)
 	actions := makeActions(
 		[]string{
-			`set rate = 0.075`,                            // assignment
-			`add "CA processed" to job.audit_trail`,       // not assignment
+			`set rate = 0.075`,                      // assignment
+			`add "CA processed" to job.audit_trail`, // not assignment
 		},
 		[][]string{
 			{"X", ""},
@@ -599,9 +599,9 @@ func TestIsDSLNegation(t *testing.T) {
 		{`job.amount >= 50`, `job.amount < 50`, true},
 		{`not job.active`, `job.active`, true},
 		{`job.active`, `not job.active`, true},
-		{`job.a > 5`, `job.b <= 5`, false},  // different identifiers
-		{`job.a > 5`, `job.a > 5`, false},    // same, not negation
-		{`job.a > 5`, `job.a < 5`, false},    // not a pair in our table
+		{`job.a > 5`, `job.b <= 5`, false}, // different identifiers
+		{`job.a > 5`, `job.a > 5`, false},  // same, not negation
+		{`job.a > 5`, `job.a < 5`, false},  // not a pair in our table
 	}
 	for _, tt := range tests {
 		got := isNegationOf(tt.a, tt.b)
