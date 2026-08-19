@@ -675,10 +675,14 @@ func (dt *RDecisionTable) buildUnbalanced(state dtrules.State, executeAll bool) 
 		return
 	}
 
-	// ALL tables with more columns than the threshold use lazy encoding without
-	// building the binary tree at all.
-	if executeAll && dt.maxCol > lazyLeafThreshold {
-		dt.decisionTree = buildLazyTable(dt)
+	// Wide tables use lazy encoding without building the binary tree at all.
+	// Two triggers: ALL tables past the column threshold (the original case),
+	// and any table past the condition threshold -- the tree grows with
+	// conditions too, and a FIRST dispatch with 43 of them cost 24.5GB (#1148).
+	if (executeAll && dt.maxCol > lazyLeafThreshold) || len(dt.conditions) > lazyCondThreshold {
+		lt := buildLazyTable(dt)
+		lt.first = !executeAll
+		dt.decisionTree = lt
 		return
 	}
 

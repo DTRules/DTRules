@@ -616,3 +616,75 @@ func TestBalancedTableUnaffected(t *testing.T) {
 		t.Error("BALANCED table should not use LazyTable encoding")
 	}
 }
+
+// A FIRST-policy table past the condition threshold takes the lazy encoding,
+// and must execute only the first surviving column. The case is TaxReturn's
+// Dispatch_State_Tax: FIRST, 43 conditions, ~51 columns — under the column
+// threshold, so it built the binary tree, at 24.5GB (#1148).
+func TestLazyTable_FirstPolicyStopsAtFirstMatch(t *testing.T) {
+	numConds := lazyCondThreshold + 2 // past the threshold, so lazy is chosen
+	numCols := 4
+	executed := make([]int, 0)
+
+	conditions := make([]dtrules.Object, numConds)
+	for i := range conditions {
+		conditions[i] = &boolCondition{value: true}
+	}
+	actions := make([]dtrules.Object, numCols)
+	for i := range actions {
+		actions[i] = &testAction{num: i, executed: &executed}
+	}
+
+	// Every column requires condition 0 = Y; all conditions are true, so all
+	// columns survive. FIRST must run only column 0.
+	condTable := make([][]string, numConds)
+	for row := range condTable {
+		condTable[row] = make([]string, numCols)
+		for col := range condTable[row] {
+			condTable[row][col] = "-"
+		}
+	}
+	for col := 0; col < numCols; col++ {
+		condTable[0][col] = "Y"
+	}
+	actTable := make([][]string, numCols)
+	for row := range actTable {
+		actTable[row] = make([]string, numCols)
+		actTable[row][row] = "x"
+	}
+
+	dt, err := buildTestTable("FirstLazy", FIRST, conditions, actions, condTable, actTable, numCols)
+	if err != nil {
+		t.Fatalf("build: %v", err)
+	}
+	if err := dt.ensureTree(newTestState()); err != nil {
+		t.Fatalf("ensureTree: %v", err)
+	}
+	lt, ok := dt.decisionTree.(*LazyTable)
+	if !ok {
+		t.Fatal("a FIRST table past the condition threshold should take the lazy encoding")
+	}
+	if !lt.first {
+		t.Fatal("the lazy table must know it is FIRST-policy")
+	}
+
+	if err := dt.ExecuteTable(newTestState()); err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+	if len(executed) != 1 || executed[0] != 0 {
+		t.Errorf("FIRST must run exactly the first surviving column; ran %v", executed)
+	}
+
+	// ALL behaviour unchanged for comparison: same shape, ALL policy.
+	executed = executed[:0]
+	dtAll, err := buildTestTable("AllLazy", ALL, conditions, actions, condTable, actTable, numCols)
+	if err != nil {
+		t.Fatalf("build ALL: %v", err)
+	}
+	if err := dtAll.ExecuteTable(newTestState()); err != nil {
+		t.Fatalf("execute ALL: %v", err)
+	}
+	if len(executed) != numCols {
+		t.Errorf("ALL must run every surviving column; ran %v", executed)
+	}
+}
