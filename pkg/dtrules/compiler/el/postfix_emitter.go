@@ -308,13 +308,9 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 	// For compound expressions, propagate the widest operand type via
 	// promoteArithType (Fixed > BigInt > Double > Integer).
 	switch c := ctx.(type) {
-	case *IntAddContext:
+	case *IntAddSubContext:
 		return promoteArithType(e.getExprType(c.Iexpr(0)), e.getExprType(c.Iexpr(1)))
-	case *IntSubContext:
-		return promoteArithType(e.getExprType(c.Iexpr(0)), e.getExprType(c.Iexpr(1)))
-	case *IntMulContext:
-		return promoteArithType(e.getExprType(c.Iexpr(0)), e.getExprType(c.Iexpr(1)))
-	case *IntDivContext:
+	case *IntMulDivContext:
 		return promoteArithType(e.getExprType(c.Iexpr(0)), e.getExprType(c.Iexpr(1)))
 	case *IntNegateContext:
 		return e.getExprType(c.Iexpr())
@@ -328,29 +324,17 @@ func (e *PostfixEmitter) getExprType(ctx antlr.ParseTree) string {
 	// result (fp-family op), not a double (#903). Without this, a nested
 	// `a * b` dividend types as double and downstream dispatch degrades.
 	switch c := ctx.(type) {
-	case *FloatAddFloatContext:
+	case *FloatAddSubFloatContext:
 		return promoteArithType(e.getExprType(c.Fexpr(0)), e.getExprType(c.Fexpr(1)))
-	case *FloatSubFloatContext:
+	case *FloatMulDivFloatContext:
 		return promoteArithType(e.getExprType(c.Fexpr(0)), e.getExprType(c.Fexpr(1)))
-	case *FloatMulFloatContext:
-		return promoteArithType(e.getExprType(c.Fexpr(0)), e.getExprType(c.Fexpr(1)))
-	case *FloatDivFloatContext:
-		return promoteArithType(e.getExprType(c.Fexpr(0)), e.getExprType(c.Fexpr(1)))
-	case *FloatAddIntContext:
+	case *FloatAddSubIntContext:
 		return promoteArithType(e.getExprType(c.Fexpr()), e.getExprType(c.Iexpr()))
-	case *FloatSubIntContext:
+	case *FloatMulDivIntContext:
 		return promoteArithType(e.getExprType(c.Fexpr()), e.getExprType(c.Iexpr()))
-	case *FloatMulIntContext:
-		return promoteArithType(e.getExprType(c.Fexpr()), e.getExprType(c.Iexpr()))
-	case *FloatDivIntContext:
-		return promoteArithType(e.getExprType(c.Fexpr()), e.getExprType(c.Iexpr()))
-	case *IntAddFloatContext:
+	case *IntAddSubFloatContext:
 		return promoteArithType(e.getExprType(c.Iexpr()), e.getExprType(c.Fexpr()))
-	case *IntSubFloatContext:
-		return promoteArithType(e.getExprType(c.Iexpr()), e.getExprType(c.Fexpr()))
-	case *IntMulFloatContext:
-		return promoteArithType(e.getExprType(c.Iexpr()), e.getExprType(c.Fexpr()))
-	case *IntDivFloatContext:
+	case *IntMulDivFloatContext:
 		return promoteArithType(e.getExprType(c.Iexpr()), e.getExprType(c.Fexpr()))
 	}
 
@@ -897,9 +881,11 @@ func (e *PostfixEmitter) iexprIsBytes(ctx IIexprContext) bool {
 		return e.identIsBytes(c.TypedLong().GetText())
 	case *IntParenContext:
 		return e.iexprIsBytes(c.Iexpr())
-	case *IntAddContext:
-		// Bytes concat masquerading as int add
-		return e.iexprIsBytes(c.Iexpr(0)) && e.iexprIsBytes(c.Iexpr(1))
+	case *IntAddSubContext:
+		// Bytes concat masquerading as int add. Only `+` concatenates, so a
+		// subtraction of two bytes operands is not bytes.
+		return c.MINUS() == nil &&
+			e.iexprIsBytes(c.Iexpr(0)) && e.iexprIsBytes(c.Iexpr(1))
 	}
 	return false
 }
@@ -1511,51 +1497,6 @@ func (e *PostfixEmitter) VisitIntTyped(ctx *IntTypedContext) interface{} {
 	return nil
 }
 
-func (e *PostfixEmitter) VisitIntAdd(ctx *IntAddContext) interface{} {
-	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-
-	// Bytes concat: when both sides resolve to bytes, emit bytes+
-	if e.iexprIsBytes(left) && e.iexprIsBytes(right) {
-		e.Visit(left)
-		e.Visit(right)
-		e.emit("bytes+")
-		return nil
-	}
-
-	target := e.promote(e.getExprType(left), e.getExprType(right))
-	e.emitWithTypeConversion(left, target)
-	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, "+", "b+", "f+", "fp+"))
-	return nil
-}
-
-func (e *PostfixEmitter) VisitIntSub(ctx *IntSubContext) interface{} {
-	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := e.promote(e.getExprType(left), e.getExprType(right))
-	e.emitWithTypeConversion(left, target)
-	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, "-", "b-", "f-", "fp-"))
-	return nil
-}
-
-func (e *PostfixEmitter) VisitIntMul(ctx *IntMulContext) interface{} {
-	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := e.promote(e.getExprType(left), e.getExprType(right))
-	e.emitWithTypeConversion(left, target)
-	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, "*", "b*", "fmul", "fp*"))
-	return nil
-}
-
-func (e *PostfixEmitter) VisitIntDiv(ctx *IntDivContext) interface{} {
-	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
-	target := e.promote(e.getExprType(left), e.getExprType(right))
-	e.emitWithTypeConversion(left, target)
-	e.emitWithTypeConversion(right, target)
-	e.emit(arithOp(target, "/", "b/", "fdiv", "fp/"))
-	return nil
-}
-
 func (e *PostfixEmitter) VisitIntNegate(ctx *IntNegateContext) interface{} {
 	expr := ctx.Iexpr()
 	exprType := e.getExprType(expr)
@@ -1811,50 +1752,11 @@ func (e *PostfixEmitter) emitMixedFloatArith(left, right antlr.ParseTree, leftTy
 	e.emit(arithOp(target, intOp, bigOp, dblOp, fpOp))
 }
 
-func (e *PostfixEmitter) VisitFloatAddFloat(ctx *FloatAddFloatContext) interface{} {
-	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), "+", "b+", "f+", "fp+")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatSubFloat(ctx *FloatSubFloatContext) interface{} {
-	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), "-", "b-", "f-", "fp-")
-	return nil
-}
-
 // Mul/div route through emitMixedFloatArith exactly like the fexpr add/sub
 // visitors: a fixed field that matched the grammar's fexpr alternative (e.g.
 // the dividend of `divide … rounding by`) must dispatch to fp*/fp/, not the
 // double ops — staking mantissas exceed a double's exact-integer range, so an
 // unconditional fmul silently loses precision (#903, same class as #874/#884).
-func (e *PostfixEmitter) VisitFloatMulFloat(ctx *FloatMulFloatContext) interface{} {
-	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), "*", "b*", "fmul", "fp*")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatDivFloat(ctx *FloatDivFloatContext) interface{} {
-	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), "/", "b/", "fdiv", "fp/")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatAddInt(ctx *FloatAddIntContext) interface{} {
-	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), "+", "b+", "f+", "fp+")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatSubInt(ctx *FloatSubIntContext) interface{} {
-	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), "-", "b-", "f-", "fp-")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatMulInt(ctx *FloatMulIntContext) interface{} {
-	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), "*", "b*", "fmul", "fp*")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitFloatDivInt(ctx *FloatDivIntContext) interface{} {
-	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), "/", "b/", "fdiv", "fp/")
-	return nil
-}
 
 // VisitDivideRoundingBy: `divide <a> by <b> rounding by <fpLit>` (#801).
 // The rounding fraction must be a literal `FP_LITERAL` token in [0, 1).
@@ -2201,26 +2103,6 @@ func (e *PostfixEmitter) VisitDateFirstOfYear(ctx *DateFirstOfYearContext) inter
 func (e *PostfixEmitter) VisitDateEndOfMonth(ctx *DateEndOfMonthContext) interface{} {
 	e.Visit(ctx.Dexpr())
 	e.emit("endofmonth")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitIntAddFloat(ctx *IntAddFloatContext) interface{} {
-	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), "+", "b+", "f+", "fp+")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitIntSubFloat(ctx *IntSubFloatContext) interface{} {
-	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), "-", "b-", "f-", "fp-")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitIntMulFloat(ctx *IntMulFloatContext) interface{} {
-	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), "*", "b*", "fmul", "fp*")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitIntDivFloat(ctx *IntDivFloatContext) interface{} {
-	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), "/", "b/", "fdiv", "fp/")
 	return nil
 }
 
@@ -7720,11 +7602,11 @@ func (e *PostfixEmitter) emitFixedProductLeftAssoc(ctx antlr.ParseTree) {
 // `divide n by x * (y * z) rounding by 0.5fp` still mean what it says.
 func flattenMulChain(t antlr.ParseTree) []antlr.ParseTree {
 	switch c := t.(type) {
-	case *FloatMulFloatContext:
+	case *FloatMulDivFloatContext:
 		return append(flattenMulChain(c.Fexpr(0)), flattenMulChain(c.Fexpr(1))...)
-	case *FloatMulIntContext:
+	case *FloatMulDivIntContext:
 		return append(flattenMulChain(c.Fexpr()), c.Iexpr())
-	case *IntMulFloatContext:
+	case *IntMulDivFloatContext:
 		return append([]antlr.ParseTree{c.Iexpr()}, flattenMulChain(c.Fexpr())...)
 	}
 	return []antlr.ParseTree{t}
@@ -7832,5 +7714,93 @@ func (e *PostfixEmitter) emitFloatFoldWhere(expr, array, pred antlr.ParserRuleCo
 	e.emit("}")
 	e.Visit(array)
 	e.emit("forall")
+	return nil
+}
+
+// Arithmetic visitors. Same-precedence operators share one grammar
+// alternative, so each visitor sees which token matched and picks the opcode
+// tuple from it. Splitting them made `*` outrank `/` and `+` outrank `-`, and
+// `a - b + c` meant `a - (b + c)` (#1146).
+
+// mulDivOps returns the opcode tuple for TIMES or DIVIDE.
+func mulDivOps(isDivide bool) (string, string, string, string) {
+	if isDivide {
+		return "/", "b/", "fdiv", "fp/"
+	}
+	return "*", "b*", "fmul", "fp*"
+}
+
+// addSubOps returns the opcode tuple for PLUS or MINUS.
+func addSubOps(isMinus bool) (string, string, string, string) {
+	if isMinus {
+		return "-", "b-", "f-", "fp-"
+	}
+	return "+", "b+", "f+", "fp+"
+}
+
+func (e *PostfixEmitter) VisitIntMulDiv(ctx *IntMulDivContext) interface{} {
+	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
+	target := e.promote(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	i, b, d, f := mulDivOps(ctx.DIVIDE() != nil)
+	e.emit(arithOp(target, i, b, d, f))
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntAddSub(ctx *IntAddSubContext) interface{} {
+	left, right := ctx.Iexpr(0), ctx.Iexpr(1)
+	isMinus := ctx.MINUS() != nil
+
+	// Bytes concat: when both sides resolve to bytes, emit bytes+. Only
+	// addition concatenates; there is no bytes subtraction.
+	if !isMinus && e.iexprIsBytes(left) && e.iexprIsBytes(right) {
+		e.Visit(left)
+		e.Visit(right)
+		e.emit("bytes+")
+		return nil
+	}
+
+	target := e.promote(e.getExprType(left), e.getExprType(right))
+	e.emitWithTypeConversion(left, target)
+	e.emitWithTypeConversion(right, target)
+	i, b, d, f := addSubOps(isMinus)
+	e.emit(arithOp(target, i, b, d, f))
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatMulDivInt(ctx *FloatMulDivIntContext) interface{} {
+	i, b, d, f := mulDivOps(ctx.DIVIDE() != nil)
+	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), i, b, d, f)
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntMulDivFloat(ctx *IntMulDivFloatContext) interface{} {
+	i, b, d, f := mulDivOps(ctx.DIVIDE() != nil)
+	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), i, b, d, f)
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatMulDivFloat(ctx *FloatMulDivFloatContext) interface{} {
+	i, b, d, f := mulDivOps(ctx.DIVIDE() != nil)
+	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), i, b, d, f)
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatAddSubInt(ctx *FloatAddSubIntContext) interface{} {
+	i, b, d, f := addSubOps(ctx.MINUS() != nil)
+	e.emitMixedFloatArith(ctx.Fexpr(), ctx.Iexpr(), e.getExprType(ctx.Fexpr()), e.getExprType(ctx.Iexpr()), i, b, d, f)
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntAddSubFloat(ctx *IntAddSubFloatContext) interface{} {
+	i, b, d, f := addSubOps(ctx.MINUS() != nil)
+	e.emitMixedFloatArith(ctx.Iexpr(), ctx.Fexpr(), e.getExprType(ctx.Iexpr()), e.getExprType(ctx.Fexpr()), i, b, d, f)
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatAddSubFloat(ctx *FloatAddSubFloatContext) interface{} {
+	i, b, d, f := addSubOps(ctx.MINUS() != nil)
+	e.emitMixedFloatArith(ctx.Fexpr(0), ctx.Fexpr(1), e.getExprType(ctx.Fexpr(0)), e.getExprType(ctx.Fexpr(1)), i, b, d, f)
 	return nil
 }

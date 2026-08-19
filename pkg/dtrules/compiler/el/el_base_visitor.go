@@ -1507,98 +1507,6 @@ func (v *BaseELVisitor) VisitStrConcatName(ctx *StrConcatNameContext) interface{
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatMaxIntOf(ctx *FloatMaxIntOfContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatParen(ctx *FloatParenContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatMulFloat(ctx *FloatMulFloatContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatMinOfArray(ctx *FloatMinOfArrayContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatDivFloat(ctx *FloatDivFloatContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatAddInt(ctx *FloatAddIntContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatMaxOfArray(ctx *FloatMaxOfArrayContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatMinOfIntComma(ctx *FloatMinOfIntCommaContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatTableLookup(ctx *FloatTableLookupContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatLiteral(ctx *FloatLiteralContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatTyped(ctx *FloatTypedContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatFloorOf(ctx *FloatFloorOfContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatSubInt(ctx *FloatSubIntContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitIntMulFloat(ctx *IntMulFloatContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatDivBy(ctx *FloatDivByContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatMaxIntOfComma(ctx *FloatMaxIntOfCommaContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatColonRef(ctx *FloatColonRefContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatFromInt(ctx *FloatFromIntContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatAddTo(ctx *FloatAddToContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatAbs(ctx *FloatAbsContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatMaxOfFloatComma(ctx *FloatMaxOfFloatCommaContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatNegate(ctx *FloatNegateContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitFloatSumOf(ctx *FloatSumOfContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitFloatMinOfFloat(ctx *FloatMinOfFloatContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1607,7 +1515,19 @@ func (v *BaseELVisitor) VisitFloatMaxOfArrayWhere(ctx *FloatMaxOfArrayWhereConte
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatAddFloat(ctx *FloatAddFloatContext) interface{} {
+func (v *BaseELVisitor) VisitFloatMaxIntOf(ctx *FloatMaxIntOfContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatMulDivInt(ctx *FloatMulDivIntContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatParen(ctx *FloatParenContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatMinOfArray(ctx *FloatMinOfArrayContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1631,11 +1551,23 @@ func (v *BaseELVisitor) VisitFloatMinIntOf(ctx *FloatMinIntOfContext) interface{
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatFloorOfInt(ctx *FloatFloorOfIntContext) interface{} {
+func (v *BaseELVisitor) VisitIntAddSubFloat(ctx *IntAddSubFloatContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatSubFloat(ctx *FloatSubFloatContext) interface{} {
+func (v *BaseELVisitor) VisitFloatMaxOfArray(ctx *FloatMaxOfArrayContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatMinOfIntComma(ctx *FloatMinOfIntCommaContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatTableLookup(ctx *FloatTableLookupContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatFloorOfInt(ctx *FloatFloorOfIntContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1644,6 +1576,10 @@ func (v *BaseELVisitor) VisitFloatMinIntOfComma(ctx *FloatMinIntOfCommaContext) 
 }
 
 func (v *BaseELVisitor) VisitFloatCeilingOfInt(ctx *FloatCeilingOfIntContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatLiteral(ctx *FloatLiteralContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1663,11 +1599,11 @@ func (v *BaseELVisitor) VisitFloatUsing(ctx *FloatUsingContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitIntDivFloat(ctx *IntDivFloatContext) interface{} {
+func (v *BaseELVisitor) VisitIntMulDivFloat(ctx *IntMulDivFloatContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitIntAddFloat(ctx *IntAddFloatContext) interface{} {
+func (v *BaseELVisitor) VisitFloatTyped(ctx *FloatTypedContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1675,7 +1611,7 @@ func (v *BaseELVisitor) VisitFloatMinOfArrayWhere(ctx *FloatMinOfArrayWhereConte
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatDivInt(ctx *FloatDivIntContext) interface{} {
+func (v *BaseELVisitor) VisitFloatFloorOf(ctx *FloatFloorOfContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1683,7 +1619,11 @@ func (v *BaseELVisitor) VisitFloatSubFrom(ctx *FloatSubFromContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitIntSubFloat(ctx *IntSubFloatContext) interface{} {
+func (v *BaseELVisitor) VisitFloatMulDivFloat(ctx *FloatMulDivFloatContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatDivBy(ctx *FloatDivByContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1695,6 +1635,10 @@ func (v *BaseELVisitor) VisitFloatFromIndex(ctx *FloatFromIndexContext) interfac
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitFloatMaxIntOfComma(ctx *FloatMaxIntOfCommaContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitFloatRounded(ctx *FloatRoundedContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1703,7 +1647,19 @@ func (v *BaseELVisitor) VisitFloatRoundedBoundry(ctx *FloatRoundedBoundryContext
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitFloatMulInt(ctx *FloatMulIntContext) interface{} {
+func (v *BaseELVisitor) VisitFloatColonRef(ctx *FloatColonRefContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatFromInt(ctx *FloatFromIntContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatAddSubInt(ctx *FloatAddSubIntContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatAddTo(ctx *FloatAddToContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1719,7 +1675,27 @@ func (v *BaseELVisitor) VisitFloatMinOfFloatComma(ctx *FloatMinOfFloatCommaConte
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitFloatAbs(ctx *FloatAbsContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatMaxOfFloatComma(ctx *FloatMaxOfFloatCommaContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatNegate(ctx *FloatNegateContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitFloatMaxOfInt(ctx *FloatMaxOfIntContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatAddSubFloat(ctx *FloatAddSubFloatContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitFloatSumOf(ctx *FloatSumOfContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1767,19 +1743,11 @@ func (v *BaseELVisitor) VisitFixedFromFloat(ctx *FixedFromFloatContext) interfac
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitIntSub(ctx *IntSubContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitIntMulBy(ctx *IntMulByContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
 func (v *BaseELVisitor) VisitIntMaxOfArray(ctx *IntMaxOfArrayContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitIntMul(ctx *IntMulContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1835,10 +1803,6 @@ func (v *BaseELVisitor) VisitIntDaysInYear(ctx *IntDaysInYearContext) interface{
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitIntAdd(ctx *IntAddContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitIntIndexOf(ctx *IntIndexOfContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1883,7 +1847,7 @@ func (v *BaseELVisitor) VisitIntSumOf(ctx *IntSumOfContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitIntDiv(ctx *IntDivContext) interface{} {
+func (v *BaseELVisitor) VisitIntMulDiv(ctx *IntMulDivContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1944,6 +1908,10 @@ func (v *BaseELVisitor) VisitIntSumOfWhere(ctx *IntSumOfWhereContext) interface{
 }
 
 func (v *BaseELVisitor) VisitIntHourOfInZone(ctx *IntHourOfInZoneContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseELVisitor) VisitIntAddSub(ctx *IntAddSubContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
