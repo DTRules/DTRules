@@ -72,13 +72,15 @@ func TestWorkflow_InitialExport(t *testing.T) {
 		t.Errorf("Expected 1 export, got %d", len(exporter.dtExports))
 	}
 
-	// Verify manifest was created
+	// The new contract (#1091): a project without a manifest never grows
+	// one. Provenance in the XML carries the sync state; the export succeeds
+	// and the directory stays clean.
 	manifestPath := filepath.Join(excelDir, DefaultManifestName)
-	if _, err := os.Stat(manifestPath); os.IsNotExist(err) {
-		t.Error("Manifest should be created after first export")
+	if _, err := os.Stat(manifestPath); err == nil {
+		t.Error("a fresh project must not grow a manifest on export (#1091)")
 	}
 
-	t.Log("SUCCESS: Initial export creates manifest")
+	t.Log("SUCCESS: initial export creates no manifest")
 }
 
 // TestWorkflow_ConsecutiveExportsWithoutUserEdit tests multiple AI exports
@@ -101,6 +103,13 @@ func TestWorkflow_ConsecutiveExportsWithoutUserEdit(t *testing.T) {
 	syncer := NewSyncer(xmlDir, excelDir)
 	exporter := &trackingExporter{}
 	syncer.SetExporter(exporter)
+	// The guards under test protect a project that HAS a manifest; seeded
+	// explicitly, since a project without one never grows one (#1091).
+	if m0, err := LoadManifestFromDir(excelDir); err != nil {
+		t.Fatal(err)
+	} else if err := m0.Save(); err != nil {
+		t.Fatalf("seed manifest: %v", err)
+	}
 
 	pair := &FilePair{
 		XMLPath:   xmlFile,
@@ -163,6 +172,13 @@ func TestWorkflow_UserEditBlocksExport(t *testing.T) {
 	syncer := NewSyncer(xmlDir, excelDir)
 	exporter := &trackingExporter{}
 	syncer.SetExporter(exporter)
+	// The guards under test protect a project that HAS a manifest; seeded
+	// explicitly, since a project without one never grows one (#1091).
+	if m0, err := LoadManifestFromDir(excelDir); err != nil {
+		t.Fatal(err)
+	} else if err := m0.Save(); err != nil {
+		t.Fatalf("seed manifest: %v", err)
+	}
 
 	pair := &FilePair{
 		XMLPath:   xmlFile,
@@ -170,7 +186,16 @@ func TestWorkflow_UserEditBlocksExport(t *testing.T) {
 		XMLExists: true,
 	}
 
-	// Step 1: AI does initial export
+	// Step 1: AI does initial export. The project carries a manifest --
+	// seeded explicitly, because a project without one never grows one now
+	// (#1091), and this test is about the guard on a project that HAS one.
+	m, err := LoadManifestFromDir(excelDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := m.Save(); err != nil {
+		t.Fatalf("seed manifest: %v", err)
+	}
 	if err := os.WriteFile(xmlFile, []byte("<rules>AI v1</rules>"), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -197,7 +222,7 @@ func TestWorkflow_UserEditBlocksExport(t *testing.T) {
 	syncer.manifest = nil
 
 	// Step 4: Export should be REJECTED
-	err := syncer.exportXMLToExcel(pair)
+	err = syncer.exportXMLToExcel(pair)
 	if err == nil {
 		t.Fatal("CRITICAL FAILURE: Export should be REJECTED when user modified Excel")
 	}
@@ -235,6 +260,13 @@ func TestWorkflow_RecoveryAfterUserEdit(t *testing.T) {
 	exporter := &trackingExporter{}
 	importer := &trackingImporter{}
 	syncer.SetExporter(exporter)
+	// The guards under test protect a project that HAS a manifest; seeded
+	// explicitly, since a project without one never grows one (#1091).
+	if m0, err := LoadManifestFromDir(excelDir); err != nil {
+		t.Fatal(err)
+	} else if err := m0.Save(); err != nil {
+		t.Fatalf("seed manifest: %v", err)
+	}
 	syncer.SetImporter(importer)
 
 	pair := &FilePair{
@@ -342,6 +374,13 @@ func TestWorkflow_RequireNoUserEditsCheck(t *testing.T) {
 	syncer := NewSyncer(xmlDir, excelDir)
 	exporter := &trackingExporter{}
 	syncer.SetExporter(exporter)
+	// The guards under test protect a project that HAS a manifest; seeded
+	// explicitly, since a project without one never grows one (#1091).
+	if m0, err := LoadManifestFromDir(excelDir); err != nil {
+		t.Fatal(err)
+	} else if err := m0.Save(); err != nil {
+		t.Fatalf("seed manifest: %v", err)
+	}
 
 	// Initial state: no manifest, so no user edits tracked
 	err := syncer.RequireNoUserEdits()
@@ -416,6 +455,13 @@ func TestWorkflow_MultipleFilesPartialUserEdit(t *testing.T) {
 	syncer := NewSyncer(xmlDir, excelDir)
 	exporter := &trackingExporter{}
 	syncer.SetExporter(exporter)
+	// The guards under test protect a project that HAS a manifest; seeded
+	// explicitly, since a project without one never grows one (#1091).
+	if m0, err := LoadManifestFromDir(excelDir); err != nil {
+		t.Fatal(err)
+	} else if err := m0.Save(); err != nil {
+		t.Fatalf("seed manifest: %v", err)
+	}
 
 	pair1 := &FilePair{XMLPath: xmlFile1, ExcelPath: excelFile1, XMLExists: true}
 	pair2 := &FilePair{XMLPath: xmlFile2, ExcelPath: excelFile2, XMLExists: true}
@@ -491,6 +537,13 @@ func TestWorkflow_CombinedWorkbookUserEdit(t *testing.T) {
 	syncer.SetUseCombinedWorkbooks(true)
 	exporter := &trackingExporter{}
 	syncer.SetExporter(exporter)
+	// The guards under test protect a project that HAS a manifest; seeded
+	// explicitly, since a project without one never grows one (#1091).
+	if m0, err := LoadManifestFromDir(excelDir); err != nil {
+		t.Fatal(err)
+	} else if err := m0.Save(); err != nil {
+		t.Fatalf("seed manifest: %v", err)
+	}
 
 	wb := &CombinedWorkbook{
 		ExcelPath:  excelWB,
@@ -554,6 +607,12 @@ func TestWorkflow_ManifestPersistence(t *testing.T) {
 	syncer1 := NewSyncer(xmlDir, excelDir)
 	exporter1 := &trackingExporter{}
 	syncer1.SetExporter(exporter1)
+	// Persistence needs a manifest to persist; seeded explicitly (#1091).
+	if m0, err := LoadManifestFromDir(excelDir); err != nil {
+		t.Fatal(err)
+	} else if err := m0.Save(); err != nil {
+		t.Fatalf("seed manifest: %v", err)
+	}
 
 	pair := &FilePair{XMLPath: xmlFile, ExcelPath: excelFile, XMLExists: true}
 	if err := syncer1.exportXMLToExcel(pair); err != nil {
@@ -611,6 +670,13 @@ func TestWorkflow_ErrorMessageClarity(t *testing.T) {
 	syncer := NewSyncer(xmlDir, excelDir)
 	exporter := &trackingExporter{}
 	syncer.SetExporter(exporter)
+	// The guards under test protect a project that HAS a manifest; seeded
+	// explicitly, since a project without one never grows one (#1091).
+	if m0, err := LoadManifestFromDir(excelDir); err != nil {
+		t.Fatal(err)
+	} else if err := m0.Save(); err != nil {
+		t.Fatalf("seed manifest: %v", err)
+	}
 
 	pair := &FilePair{XMLPath: xmlFile, ExcelPath: excelFile, XMLExists: true}
 	if err := syncer.exportXMLToExcel(pair); err != nil {
@@ -680,6 +746,13 @@ func TestWorkflow_FullCycle(t *testing.T) {
 	exporter := &trackingExporter{}
 	importer := &trackingImporter{}
 	syncer.SetExporter(exporter)
+	// The guards under test protect a project that HAS a manifest; seeded
+	// explicitly, since a project without one never grows one (#1091).
+	if m0, err := LoadManifestFromDir(excelDir); err != nil {
+		t.Fatal(err)
+	} else if err := m0.Save(); err != nil {
+		t.Fatalf("seed manifest: %v", err)
+	}
 	syncer.SetImporter(importer)
 
 	pair := &FilePair{
@@ -795,6 +868,13 @@ func TestWorkflow_TimestampPrecision(t *testing.T) {
 	syncer := NewSyncer(xmlDir, excelDir)
 	exporter := &trackingExporter{}
 	syncer.SetExporter(exporter)
+	// The guards under test protect a project that HAS a manifest; seeded
+	// explicitly, since a project without one never grows one (#1091).
+	if m0, err := LoadManifestFromDir(excelDir); err != nil {
+		t.Fatal(err)
+	} else if err := m0.Save(); err != nil {
+		t.Fatalf("seed manifest: %v", err)
+	}
 
 	pair := &FilePair{XMLPath: xmlFile, ExcelPath: excelFile, XMLExists: true}
 

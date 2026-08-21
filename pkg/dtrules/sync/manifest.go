@@ -44,6 +44,13 @@ type Manifest struct {
 
 	// path is the filesystem path to this manifest (not serialized).
 	path string
+	// materialized: the file was read from disk, or an explicit Save created
+	// it. RecordExport persists only then -- a sync flow on a project with no
+	// manifest records in memory (same-run guards keep working) and writes
+	// nothing, so new projects never grow the file. Provenance in the XML
+	// (#1124) and artifact-derived pairing (#1130) replaced every reader;
+	// this retires the writer by attrition (#1091).
+	materialized bool
 }
 
 // FileEntry tracks the sync state for a single Excel file.
@@ -88,6 +95,7 @@ func LoadManifest(path string) (*Manifest, error) {
 	if err := json.Unmarshal(data, m); err != nil {
 		return nil, fmt.Errorf("failed to parse manifest: %w", err)
 	}
+	m.materialized = true
 
 	// Ensure Files map is initialized even if JSON was empty
 	if m.Files == nil {
@@ -126,6 +134,9 @@ func (m *Manifest) Save() error {
 		return fmt.Errorf("failed to write manifest: %w", err)
 	}
 
+	// An explicit Save is a stated request to create; from here on
+	// RecordExport maintains the file (#1091).
+	m.materialized = true
 	return nil
 }
 
@@ -224,6 +235,12 @@ func (m *Manifest) RecordExport(excelPath string, xmlFiles []string) error {
 		XMLFiles:             relXML,
 	}
 
+	// The in-memory record always lands, so same-run guards and direct API
+	// callers see it. The disk write happens only for a manifest that already
+	// exists -- a project without one never grows one (#1091).
+	if !m.materialized {
+		return nil
+	}
 	return m.Save()
 }
 

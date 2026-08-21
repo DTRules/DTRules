@@ -19,8 +19,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/authoring"

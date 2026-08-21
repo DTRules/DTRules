@@ -49,6 +49,11 @@ func contractProject(t *testing.T) (*Server, string) {
 
 	m := sync.NewManifest()
 	m.SetPath(filepath.Join(excelDir, ".sync-manifest.json"))
+	// Explicit Save states the intent to create; RecordExport alone no longer
+	// materializes a manifest that never existed (#1091).
+	if err := m.Save(); err != nil {
+		t.Fatal(err)
+	}
 	if err := m.RecordExport(excelPath, []string{filepath.Join(xmlDir, "P_dt.xml")}); err != nil {
 		t.Fatal(err)
 	}
