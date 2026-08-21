@@ -247,8 +247,8 @@ func TestExtractBareReads_SkipsStringsAndKeywords(t *testing.T) {
 func TestInlinePushes(t *testing.T) {
 	schema := &eddSchema{
 		ArraySubtype: map[string]string{
-			"job.accounts":    "account",
-			"job.taxpayers":   "taxpayer",
+			"job.accounts":      "account",
+			"job.taxpayers":     "taxpayer",
 			"job.state_periods": "state_period",
 		},
 		FieldsByEntity: map[string]map[string]bool{
