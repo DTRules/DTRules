@@ -880,10 +880,17 @@ func TestManifestEnforcementBlocksOverwrite(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Create syncer and exporter
+	// Create syncer and exporter. The guard under test protects a project
+	// that HAS a manifest; one is seeded explicitly, because a project
+	// without one never grows one now (#1091).
 	syncer := NewSyncer(xmlDir, excelDir)
 	exporter := &trackingExporter{}
 	syncer.SetExporter(exporter)
+	if m0, err := LoadManifestFromDir(excelDir); err != nil {
+		t.Fatal(err)
+	} else if err := m0.Save(); err != nil {
+		t.Fatalf("seed manifest: %v", err)
+	}
 
 	// First export should succeed
 	pair := &FilePair{

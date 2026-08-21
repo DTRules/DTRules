@@ -170,10 +170,11 @@ func TestCreateProjectStructure(t *testing.T) {
 		}
 	}
 
-	// Check .gitignore was created
+	// No .gitignore any more: its only content was hiding the sync manifest,
+	// and new projects never grow one (#1091).
 	gitignore := filepath.Join(projectDir, "excel", ".gitignore")
-	if _, err := os.Stat(gitignore); err != nil {
-		t.Errorf(".gitignore not created: %v", err)
+	if _, err := os.Stat(gitignore); err == nil {
+		t.Errorf(".gitignore should no longer be created (#1091)")
 	}
 }
 

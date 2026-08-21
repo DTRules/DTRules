@@ -2096,8 +2096,6 @@ func (s *Server) loadEDDAlternative(data []byte, relPath string) error {
 	return nil
 }
 
-
-
 // DT XML structures - matches the actual DTRules XML format
 type DTXML struct {
 	XMLName xml.Name     `xml:"decision_tables"`
@@ -2367,11 +2365,6 @@ func (s *Server) loadDTFile(path, relPath string) error {
 
 	return nil
 }
-
-
-
-
-
 
 // A caller may open a project by its root or by its rules directory -- the UI
 // does the latter -- so a declared excel_dir resolved against projectPath can

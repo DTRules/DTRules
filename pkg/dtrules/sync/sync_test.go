@@ -175,9 +175,9 @@ func TestDetermineDirection(t *testing.T) {
 	now := time.Now()
 
 	tests := []struct {
-		name      string
-		pair      FilePair
-		wantDir   SyncDirection
+		name    string
+		pair    FilePair
+		wantDir SyncDirection
 	}{
 		{
 			name: "XML only",
@@ -910,9 +910,9 @@ func TestExcelToXMLPaths(t *testing.T) {
 	syncer.SetUseCombinedWorkbooks(true)
 
 	tests := []struct {
-		name       string
-		excelPath  string
-		wantPaths  []string
+		name      string
+		excelPath string
+		wantPaths []string
 	}{
 		{
 			name:      "Root workbook",
