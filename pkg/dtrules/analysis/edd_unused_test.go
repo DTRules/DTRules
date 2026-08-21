@@ -179,4 +179,3 @@ func TestAnalyzeEDDUsage_EmptyDir(t *testing.T) {
 		t.Errorf("expected no warnings for empty dir, got %v", warns)
 	}
 }
-

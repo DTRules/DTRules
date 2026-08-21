@@ -35,6 +35,11 @@ const (
 	// ExternalRefTable — a `perform <Name>` whose callee table isn't
 	// defined anywhere in the project's *_dt.xml set.
 	ExternalRefTable ExternalRefKind = "undefined_table"
+	// ExternalRefUnboundedDispatch — a `perform table named (<expr>)` whose
+	// expression has no literal segments, so no bound can be derived and no
+	// target enumerated. The analyzer cannot reason about the rule set past
+	// this point and says so (#776).
+	ExternalRefUnboundedDispatch ExternalRefKind = "unbounded_dispatch"
 
 	// ExternalRefField — a dotted `entity.attr` reference where `entity`
 	// is a declared EDD entity but `attr` is not one of its declared
@@ -61,6 +66,9 @@ func (f ExternalRefFinding) String() string {
 	switch f.Kind {
 	case ExternalRefTable:
 		return fmt.Sprintf("%s performs undefined table %s (%s)", f.Table, f.Symbol, f.DTFile)
+	case ExternalRefUnboundedDispatch:
+		return fmt.Sprintf("%s dispatches on an expression with no literal parts (%s) — no bound can be derived; "+
+			"anchor the name with a literal prefix or suffix (%s)", f.Table, f.Symbol, f.DTFile)
 	case ExternalRefField:
 		return fmt.Sprintf("%s references undefined field %s (%s)", f.Table, f.Symbol, f.DTFile)
 	case ExternalRefOperator:
@@ -99,6 +107,14 @@ func AnalyzeExternalRefs(xmlDir string, isOperator OperatorChecker) ([]ExternalR
 			Table:  o.Caller,
 			Symbol: o.Callee,
 			DTFile: o.DTFile,
+		})
+	}
+	for _, d := range graph.UnboundedDispatch {
+		findings = append(findings, ExternalRefFinding{
+			Kind:   ExternalRefUnboundedDispatch,
+			Table:  d.Caller,
+			Symbol: d.Expr,
+			DTFile: d.DTFile,
 		})
 	}
 
@@ -252,8 +268,8 @@ func collectUndefinedSymbols(xmlDir string, symbols *projectSymbols) ([]External
 
 		var doc struct {
 			Tables []struct {
-				Name     string         `xml:"table_name"`
-				Contexts []contextEntry `xml:"contexts>context_details"`
+				Name           string         `xml:"table_name"`
+				Contexts       []contextEntry `xml:"contexts>context_details"`
 				InitialActions []struct {
 					DSL     string `xml:"initial_action_dsl"`
 					Postfix string `xml:"action_postfix"`

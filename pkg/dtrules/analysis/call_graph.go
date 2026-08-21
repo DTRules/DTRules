@@ -67,6 +67,19 @@ type TableCallGraph struct {
 	// DTFile maps each defined table name → the *_dt.xml file it was
 	// loaded from. Useful for advisory output.
 	DTFile map[string]string
+
+	// UnboundedDispatch lists dynamic-dispatch sites whose expression has no
+	// literal segments, so no bound can be derived and no target enumerated
+	// (#776). Caller and file identify the site; Expr is the text.
+	UnboundedDispatch []DynamicDispatchSite
+}
+
+// DynamicDispatchSite is one `perform table named (<expr>)` the analyzer
+// could not bound.
+type DynamicDispatchSite struct {
+	Caller string
+	Expr   string
+	DTFile string
 }
 
 // OrphanCall records a `perform <name>` reference whose callee isn't
@@ -120,11 +133,17 @@ var reservedAfterPerform = map[string]bool{
 // the table-call relationships, and returns the graph plus any
 // orphan-call findings.
 //
-// Dynamic-dispatch sites (`perform table named (<expr>)`) are NOT
-// recorded as edges — static analysis can't enumerate their possible
-// targets without an enumeration-bounded declaration (#776 phase B).
-// They're reported separately via DynamicDispatchSites in a follow-up
-// piece; for now they're simply ignored.
+// Dynamic-dispatch sites (`perform table named (<expr>)`) resolve through
+// the literal segments of their expression (#776). The literals ARE the
+// bound: `"Determine_" + apportionment.state_code + "_Filing_Requirement"`
+// derives the pattern ^determine_.*_filing_requirement$, which matches
+// exactly the 51 state tables and nothing else -- no author declaration,
+// nothing to keep in sync. Every match becomes a call edge, so the
+// dispatch's targets are reachable and their fields referenced. A `with
+// default X` fallback is an edge outright. An expression with no literal
+// parts derives no bound at all; those sites are collected in
+// UnboundedDispatch for the analysis passes to report -- the analyzer
+// cannot reason about a rule set it cannot bound.
 func AnalyzeTableCallGraph(xmlDir string) (*TableCallGraph, error) {
 	graph := &TableCallGraph{
 		Tables: make(map[string]bool),
@@ -199,9 +218,11 @@ func AnalyzeTableCallGraph(xmlDir string) (*TableCallGraph, error) {
 	for _, rt := range rawTables {
 		for _, dsl := range rt.InitialActions {
 			recordCalls(graph, rt, dsl)
+			recordDynamicCalls(graph, rt.Name, rt.File, dsl)
 		}
 		for _, dsl := range rt.Actions {
 			recordCalls(graph, rt, dsl)
+			recordDynamicCalls(graph, rt.Name, rt.File, dsl)
 		}
 	}
 
@@ -219,6 +240,73 @@ func AnalyzeTableCallGraph(xmlDir string) (*TableCallGraph, error) {
 // recordCalls extracts every `perform <Name>` reference from dsl and
 // records caller→callee edges in the graph. Self-edges and duplicate
 // calls are deduplicated by the underlying set.
+
+// dynamicPerformPattern matches `perform table named ( <expr> )`, capturing
+// the expression, and optionally `with default <Table>`.
+var dynamicPerformPattern = regexp.MustCompile(
+	`(?is)\bperform\s+table\s+named\s*\(([^()]*)\)(?:\s*with\s+default\s+([A-Za-z_][A-Za-z0-9_]*))?`)
+
+// literalSegPattern pulls the quoted literals out of a dispatch expression.
+var literalSegPattern = regexp.MustCompile(`"([^"]*)"`)
+
+// recordDynamicCalls resolves a DSL fragment's dynamic dispatches against the
+// defined-table set via their literal segments (#776).
+var lineCommentPattern = regexp.MustCompile(`//[^\n]*`)
+
+func recordDynamicCalls(graph *TableCallGraph, caller, file, dsl string) {
+	// Commented-out DSL is prose, not a dispatch site. SyntaxTests documents
+	// the syntax inside `//` comments, which is exactly what this would
+	// otherwise report as an unbounded dispatch.
+	dsl = lineCommentPattern.ReplaceAllString(dsl, "")
+	for _, m := range dynamicPerformPattern.FindAllStringSubmatch(dsl, -1) {
+		expr, deflt := m[1], m[2]
+		if deflt != "" {
+			addCall(graph, caller, deflt)
+		}
+		lits := literalSegPattern.FindAllStringSubmatch(expr, -1)
+		if len(lits) == 0 {
+			graph.UnboundedDispatch = append(graph.UnboundedDispatch,
+				DynamicDispatchSite{Caller: caller, Expr: strings.TrimSpace(expr), DTFile: file})
+			continue
+		}
+		// The literals in order, with .* where the computed parts sit. EL
+		// names are case-insensitive, so the pattern folds like everything
+		// else (#1040 -- one name, never a clash).
+		parts := make([]string, 0, len(lits))
+		for _, l := range lits {
+			parts = append(parts, regexp.QuoteMeta(strings.ToLower(l[1])))
+		}
+		bound, err := regexp.Compile("^" + strings.Join(parts, ".*") + "$")
+		if err != nil {
+			continue
+		}
+		matched := false
+		for folded, authored := range graph.byFold {
+			if bound.MatchString(folded) {
+				addCall(graph, caller, authored)
+				matched = true
+			}
+		}
+		if !matched {
+			// A bound that matches nothing is as unreachable as no bound.
+			graph.UnboundedDispatch = append(graph.UnboundedDispatch,
+				DynamicDispatchSite{Caller: caller, Expr: strings.TrimSpace(expr), DTFile: file})
+		}
+	}
+}
+
+// addCall records one edge without orphan bookkeeping -- dynamic targets are
+// resolved against the defined set by construction.
+func addCall(graph *TableCallGraph, caller, callee string) {
+	if authored, ok := graph.byFold[strings.ToLower(callee)]; ok {
+		callee = authored
+	}
+	if _, ok := graph.Calls[caller]; !ok {
+		graph.Calls[caller] = make(map[string]bool)
+	}
+	graph.Calls[caller][callee] = true
+}
+
 func recordCalls(graph *TableCallGraph, rt struct {
 	Name           string
 	File           string
