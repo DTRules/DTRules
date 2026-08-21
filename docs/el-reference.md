@@ -304,6 +304,11 @@ The default is **named by the author**, not derived. Deriving it — substitutin
 
 If neither the computed table nor the default exists, the error names both.
 
+**Bounded form**: `perform table named (<expr>) among <Table, Table, ...> [with default <Table>]` — the author's complete set of legitimate targets, stated at the call site. A computed name outside the list is a **runtime error naming the allowed set**; with a default, it runs the default instead. The analyzer takes the list as exact call edges, so nothing about reachability is inferred.
+
+**Example (EL)**: `perform table named ("Handle_" + job.kind) among Handle_AA, Handle_BB with default Handle_Other`
+**Compiled postfix**: `"Handle_" job.kind strconcat /Handle_AA /Handle_BB 2 /Handle_Other performtableamongdefault`
+
 **Example (EL)**: `perform table named ("Determine_" + apportionment.state_code + "_Filing_Requirement") with default Determine_No_Filing_Requirement`
 **Compiled postfix**: `"Determine_" apportionment.state_code strconcat "_Filing_Requirement" strconcat /Determine_No_Filing_Requirement performtableordefault`
 

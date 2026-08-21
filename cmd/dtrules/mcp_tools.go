@@ -262,10 +262,10 @@ func (s *mcpServer) toolProjectValidate(project string) (map[string]interface{},
 	elRes, err := sync.ValidateELCompliance(xmlDir)
 	if err == nil && elRes != nil {
 		report["el_compliance"] = map[string]interface{}{
-			"compliant":           elRes.IsCompliant(),
-			"legacy_files":        elRes.LegacyFiles,
-			"compliant_files":     elRes.CompliantFiles,
-			"needs_compilation":   elRes.NeedsCompilationFiles,
+			"compliant":         elRes.IsCompliant(),
+			"legacy_files":      elRes.LegacyFiles,
+			"compliant_files":   elRes.CompliantFiles,
+			"needs_compilation": elRes.NeedsCompilationFiles,
 		}
 	}
 	return mcpJSONResult(report)

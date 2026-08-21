@@ -178,7 +178,7 @@ func TestIntegerOverflow(t *testing.T) {
 		op   string
 		a, b int64
 	}{
-		{"+", 1<<62 + 1, 1 << 62},      // positive overflow
+		{"+", 1<<62 + 1, 1 << 62},    // positive overflow
 		{"-", -(1 << 62), 1<<62 + 1}, // negative overflow
 	}
 	for _, c := range cases {

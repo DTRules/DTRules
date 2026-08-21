@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
+	"strings"
 )
 
 // DefaultMaxIterations is the maximum iterations for loop operators.
@@ -59,6 +60,8 @@ func init() {
 	Register("executetable", opExecuteTable)
 	Register("performtable", opPerformTable)
 	Register("performtableordefault", opPerformTableOrDefault)
+	Register("performtableamong", opPerformTableAmong)
+	Register("performtableamongdefault", opPerformTableAmongDefault)
 	Register("performcatcherror", opPerformCatchError)
 	Register("firstpass", opFirstPass)
 }
@@ -717,6 +720,121 @@ func opPerformTableOrDefault(state dtrules.State) error {
 		return dtrules.UndefinedError("PerformTable",
 			"Decision table not found: "+name.StringValue()+
 				" (and no default "+defaultName.StringValue()+")")
+	}
+	return fallback.Execute(state)
+}
+
+// popAmongList pops ( /t1 ... /tn n -- ) and returns the allowed names.
+func popAmongList(state dtrules.State) ([]*dtrules.RName, error) {
+	nObj, err := state.DataPop()
+	if err != nil {
+		return nil, err
+	}
+	n, err := nObj.IntValue()
+	if err != nil {
+		return nil, err
+	}
+	names := make([]*dtrules.RName, n)
+	for i := n - 1; i >= 0; i-- {
+		obj, err := state.DataPop()
+		if err != nil {
+			return nil, err
+		}
+		name, err := obj.RNameValue()
+		if err != nil {
+			return nil, err
+		}
+		names[i] = name
+	}
+	return names, nil
+}
+
+func amongContains(names []*dtrules.RName, want *dtrules.RName) bool {
+	// RNames intern case-insensitively, so pointer equality is name equality.
+	for _, n := range names {
+		if n == want {
+			return true
+		}
+	}
+	return false
+}
+
+func amongList(names []*dtrules.RName) string {
+	parts := make([]string, len(names))
+	for i, n := range names {
+		parts[i] = n.StringValue()
+	}
+	return strings.Join(parts, ", ")
+}
+
+// opPerformTableAmong: ( name /t1 ... /tn n -- ) execute the named table,
+// which must be one of the listed targets.
+//
+// `among` declares the complete set of tables a dispatch may reach, and this
+// is its enforcement: a computed name outside the list is an error naming the
+// allowed set, so dispatch cannot silently reach a table the author did not
+// sanction. A derived bound describes what could match; the list declares
+// what may (#776).
+func opPerformTableAmong(state dtrules.State) error {
+	names, err := popAmongList(state)
+	if err != nil {
+		return err
+	}
+	nameObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	name, err := nameObj.RNameValue()
+	if err != nil {
+		return err
+	}
+	if !amongContains(names, name) {
+		return dtrules.UndefinedError("PerformTable",
+			"Computed table "+name.StringValue()+" is not among the declared targets ["+
+				amongList(names)+"]")
+	}
+	dtObj, err := state.GetSession().GetEntityFactory().GetDecisionTable(name)
+	if err != nil || dtObj == nil {
+		return dtrules.UndefinedError("PerformTable", "Decision table not found: "+name.StringValue())
+	}
+	return dtObj.Execute(state)
+}
+
+// opPerformTableAmongDefault: ( name /t1 ... /tn n /default -- ) as above,
+// with a fallback: a name outside the list, or inside it but with no such
+// table, runs the default instead of erroring.
+func opPerformTableAmongDefault(state dtrules.State) error {
+	defaultObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	defaultName, err := defaultObj.RNameValue()
+	if err != nil {
+		return err
+	}
+	names, err := popAmongList(state)
+	if err != nil {
+		return err
+	}
+	nameObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	name, err := nameObj.RNameValue()
+	if err != nil {
+		return err
+	}
+	factory := state.GetSession().GetEntityFactory()
+	if amongContains(names, name) {
+		if dtObj, derr := factory.GetDecisionTable(name); derr == nil && dtObj != nil {
+			return dtObj.Execute(state)
+		}
+	}
+	fallback, err := factory.GetDecisionTable(defaultName)
+	if err != nil || fallback == nil {
+		return dtrules.UndefinedError("PerformTable",
+			"Computed table "+name.StringValue()+" is not among the declared targets, "+
+				"and the default "+defaultName.StringValue()+" was not found")
 	}
 	return fallback.Execute(state)
 }

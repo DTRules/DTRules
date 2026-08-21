@@ -244,7 +244,9 @@ func AnalyzeTableCallGraph(xmlDir string) (*TableCallGraph, error) {
 // dynamicPerformPattern matches `perform table named ( <expr> )`, capturing
 // the expression, and optionally `with default <Table>`.
 var dynamicPerformPattern = regexp.MustCompile(
-	`(?is)\bperform\s+table\s+named\s*\(([^()]*)\)(?:\s*with\s+default\s+([A-Za-z_][A-Za-z0-9_]*))?`)
+	`(?is)\bperform\s+table\s+named\s*\(([^()]*)\)` +
+		`(?:\s*among\s+([A-Za-z_][A-Za-z0-9_]*(?:\s*,\s*[A-Za-z_][A-Za-z0-9_]*)*))?` +
+		`(?:\s*with\s+default\s+([A-Za-z_][A-Za-z0-9_]*))?`)
 
 // literalSegPattern pulls the quoted literals out of a dispatch expression.
 var literalSegPattern = regexp.MustCompile(`"([^"]*)"`)
@@ -259,9 +261,17 @@ func recordDynamicCalls(graph *TableCallGraph, caller, file, dsl string) {
 	// otherwise report as an unbounded dispatch.
 	dsl = lineCommentPattern.ReplaceAllString(dsl, "")
 	for _, m := range dynamicPerformPattern.FindAllStringSubmatch(dsl, -1) {
-		expr, deflt := m[1], m[2]
+		expr, amongClause, deflt := m[1], m[2], m[3]
 		if deflt != "" {
 			addCall(graph, caller, deflt)
+		}
+		// An explicit `among` list is the author's declared bound: exact
+		// edges, and it wins outright over literal derivation (#776).
+		if amongClause != "" {
+			for _, name := range strings.Split(amongClause, ",") {
+				addCall(graph, caller, strings.TrimSpace(name))
+			}
+			continue
 		}
 		lits := literalSegPattern.FindAllStringSubmatch(expr, -1)
 		if len(lits) == 0 {

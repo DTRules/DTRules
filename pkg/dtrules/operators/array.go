@@ -597,7 +597,6 @@ func opDeepCopy(state dtrules.State) error {
 	return state.DataPush(newArr)
 }
 
-
 // opClearArray: ( array -- ) removes all elements from array
 func opClearArray(state dtrules.State) error {
 	arrayObj, err := state.DataPop()
@@ -611,4 +610,3 @@ func opClearArray(state dtrules.State) error {
 	arr.Clear()
 	return nil
 }
-
