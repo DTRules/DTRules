@@ -116,9 +116,9 @@ func TestEntityReq(t *testing.T) {
 	c := newTestEntity("E", 2, nil) // different ID
 
 	cases := []struct {
-		name  string
-		x, y  dtrules.Object
-		want  bool
+		name string
+		x, y dtrules.Object
+		want bool
 	}{
 		{"same_instance", a, a, true},
 		{"same_id", a, b, true},

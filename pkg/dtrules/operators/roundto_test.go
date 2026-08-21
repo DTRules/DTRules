@@ -100,10 +100,10 @@ func TestRoundToScale(t *testing.T) {
 // rather than silently returning wrong numbers.
 func TestRoundToRejectsGarbage(t *testing.T) {
 	cases := []struct {
-		name                     string
-		number, boundary         float64
-		places                   int64
-		expectErrContains        string
+		name              string
+		number, boundary  float64
+		places            int64
+		expectErrContains string
 	}{
 		{"NaN number", math.NaN(), 0.5, 2, "NaN or Inf"},
 		{"+Inf number", math.Inf(1), 0.5, 2, "NaN or Inf"},

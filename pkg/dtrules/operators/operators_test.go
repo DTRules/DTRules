@@ -1073,7 +1073,6 @@ func TestIntersectsOperator(t *testing.T) {
 	}
 }
 
-
 // =============================================================================
 // XOR Operator Tests
 // =============================================================================
@@ -3102,12 +3101,12 @@ func (e *mockEntity) Put(name *dtrules.RName, value dtrules.Object) error {
 	e.values[name.StringValue()] = value
 	return nil
 }
-func (e *mockEntity) IntValue() (int, error)                          { return 0, nil }
-func (e *mockEntity) LongValue() (int64, error)                       { return 0, nil }
-func (e *mockEntity) DoubleValue() (float64, error)                   { return 0, nil }
-func (e *mockEntity) BooleanValue() (bool, error)                     { return false, nil }
-func (e *mockEntity) TimeValue() (time.Time, error)                   { return time.Time{}, nil }
-func (e *mockEntity) ArrayValue() ([]dtrules.Object, error)           { return nil, nil }
+func (e *mockEntity) IntValue() (int, error)                { return 0, nil }
+func (e *mockEntity) LongValue() (int64, error)             { return 0, nil }
+func (e *mockEntity) DoubleValue() (float64, error)         { return 0, nil }
+func (e *mockEntity) BooleanValue() (bool, error)           { return false, nil }
+func (e *mockEntity) TimeValue() (time.Time, error)         { return time.Time{}, nil }
+func (e *mockEntity) ArrayValue() ([]dtrules.Object, error) { return nil, nil }
 func (e *mockEntity) TableValue() (map[dtrules.Object]dtrules.Object, error) {
 	return nil, nil
 }
@@ -3117,15 +3116,6 @@ func (e *mockEntity) RBooleanValue() (*dtrules.RBoolean, error) { return nil, ni
 func (e *mockEntity) RNameValue() (*dtrules.RName, error)       { return nil, nil }
 func (e *mockEntity) RArrayValue() (*dtrules.RArray, error)     { return nil, nil }
 func (e *mockEntity) RTimeValue() (*dtrules.RDate, error)       { return nil, nil }
-
-
-
-
-
-
-
-
-
 
 // TestAbortOperator tests that ABORT stops execution and returns an error
 func TestAbortOperator(t *testing.T) {

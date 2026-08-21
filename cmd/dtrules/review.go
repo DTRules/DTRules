@@ -40,16 +40,16 @@ import (
 // Errors gate deployment; warnings never do. The split is the whole
 // reason this report exists separately from project_validate.
 type reviewReport struct {
-	ProjectHash  string                  `json:"project_hash"`
-	Timestamp    string                  `json:"timestamp"` // RFC3339
-	Errors       []reviewError           `json:"errors"`
-	Warnings     []decisiontable.Warning `json:"warnings"`
-	EDDWarnings  []analysis.EDDWarning   `json:"edd_warnings"`
+	ProjectHash  string                       `json:"project_hash"`
+	Timestamp    string                       `json:"timestamp"` // RFC3339
+	Errors       []reviewError                `json:"errors"`
+	Warnings     []decisiontable.Warning      `json:"warnings"`
+	EDDWarnings  []analysis.EDDWarning        `json:"edd_warnings"`
 	ContextHints []analysis.ContextSuggestion `json:"context_hints"`
-	Diagnostics  []authoring.Diagnostic  `json:"diagnostics"`
-	Structure    interface{}             `json:"structure"`
-	ELCompliance interface{}             `json:"el_compliance"`
-	Passed       bool                    `json:"passed"`
+	Diagnostics  []authoring.Diagnostic       `json:"diagnostics"`
+	Structure    interface{}                  `json:"structure"`
+	ELCompliance interface{}                  `json:"el_compliance"`
+	Passed       bool                         `json:"passed"`
 }
 
 // reviewError tags every hard error with its source so consumers can
@@ -94,9 +94,9 @@ const (
 // MCP response; both go through this function.
 func runFullReview(projectPath string) (*reviewReport, error) {
 	rep := &reviewReport{
-		Timestamp:   time.Now().UTC().Format(time.RFC3339),
-		Errors:      []reviewError{},
-		Warnings:    []decisiontable.Warning{},
+		Timestamp:    time.Now().UTC().Format(time.RFC3339),
+		Errors:       []reviewError{},
+		Warnings:     []decisiontable.Warning{},
 		EDDWarnings:  []analysis.EDDWarning{},
 		ContextHints: []analysis.ContextSuggestion{},
 		Diagnostics:  []authoring.Diagnostic{},

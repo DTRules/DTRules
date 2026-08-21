@@ -142,18 +142,24 @@ func TestBuildSummaryNilSafe(t *testing.T) {
 // mockELCompiler is a minimal ELCompiler that always fails with a known error.
 type mockFailCompiler struct{}
 
-func (m *mockFailCompiler) SetSymbols(_ map[string]string)            {}
-func (m *mockFailCompiler) CompileCondition(_ string) (string, error) { return "", fmt.Errorf("mock: bad EL") }
-func (m *mockFailCompiler) CompileAction(_ string) (string, error)    { return "", fmt.Errorf("mock: bad EL") }
-func (m *mockFailCompiler) CompileContext(_ string) (string, error)   { return "", fmt.Errorf("mock: bad EL") }
+func (m *mockFailCompiler) SetSymbols(_ map[string]string) {}
+func (m *mockFailCompiler) CompileCondition(_ string) (string, error) {
+	return "", fmt.Errorf("mock: bad EL")
+}
+func (m *mockFailCompiler) CompileAction(_ string) (string, error) {
+	return "", fmt.Errorf("mock: bad EL")
+}
+func (m *mockFailCompiler) CompileContext(_ string) (string, error) {
+	return "", fmt.Errorf("mock: bad EL")
+}
 
 // mockOKCompiler always succeeds.
 type mockOKCompiler struct{}
 
-func (m *mockOKCompiler) SetSymbols(_ map[string]string)                      {}
-func (m *mockOKCompiler) CompileCondition(_ string) (string, error)           { return "ok_postfix", nil }
-func (m *mockOKCompiler) CompileAction(_ string) (string, error)              { return "ok_postfix", nil }
-func (m *mockOKCompiler) CompileContext(_ string) (string, error)             { return "ok_postfix", nil }
+func (m *mockOKCompiler) SetSymbols(_ map[string]string)            {}
+func (m *mockOKCompiler) CompileCondition(_ string) (string, error) { return "ok_postfix", nil }
+func (m *mockOKCompiler) CompileAction(_ string) (string, error)    { return "ok_postfix", nil }
+func (m *mockOKCompiler) CompileContext(_ string) (string, error)   { return "ok_postfix", nil }
 
 // TestImportStatsCompileDropRecorded verifies that EL compile failures are
 // recorded as drops in the ImportStats collector.

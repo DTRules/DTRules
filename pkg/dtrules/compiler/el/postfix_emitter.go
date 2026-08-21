@@ -3684,22 +3684,38 @@ func (e *PostfixEmitter) VisitCreateEntityAs(ctx *CreateEntityAsContext) interfa
 func (e *PostfixEmitter) VisitPerformDynamicTable(ctx *PerformDynamicTableContext) interface{} {
 	e.Visit(ctx.Strexpr())
 
-	// `with default <Table>` — dispatch to the computed name, falling back to
-	// a table the author names when it does not exist.
-	//
-	// Dynamic dispatch otherwise forces a table into existence for every value
-	// the selector can take. CorporateTax dispatches on
-	// `apportionment.state_code` across 51 states, and the states with no
-	// corporate income tax still need all three tables so the name resolves:
-	// SD's and WY's are seven action rows each, every one writing an audit
-	// line and zeroing a field.
-	//
-	// The default is named rather than derived. Substituting the variable part
-	// of the concatenation with "Default" would work only for names built as a
-	// concatenation with literal ends, and would make the target depend on how
-	// the string happened to be assembled (#776).
-	if dflt := ctx.TypedDecisionTable(); dflt != nil {
-		e.emit("/" + dflt.GetText())
+	names := ctx.AllTypedDecisionTable()
+	hasDefault := ctx.WITH_DEFAULT() != nil
+	var deflt string
+	among := names
+	if hasDefault {
+		deflt = names[len(names)-1].GetText()
+		among = names[:len(names)-1]
+	}
+
+	// `among <list>` -- the author's complete set of legitimate targets,
+	// enforced at runtime: a computed name outside the list is an error
+	// naming the allowed set, or runs the default when one is given. The
+	// list is static, so the analyzer takes it as exact call edges and the
+	// listed names are checkable like any other perform target (#776).
+	if len(among) > 0 {
+		for _, n := range among {
+			e.emit("/" + n.GetText())
+		}
+		e.emit(fmt.Sprintf("%d", len(among)))
+		if hasDefault {
+			e.emit("/" + deflt)
+			e.emit("performtableamongdefault")
+			return nil
+		}
+		e.emit("performtableamong")
+		return nil
+	}
+
+	// `with default <Table>` alone -- dispatch to the computed name, falling
+	// back to a table the author names when it does not exist (#1137).
+	if hasDefault {
+		e.emit("/" + deflt)
 		e.emit("performtableordefault")
 		return nil
 	}

@@ -295,7 +295,13 @@ performstatement
     // parser had to look ahead past an arbitrarily long strexpr to choose
     // between them, and ALL(*) prediction built state until the process was
     // killed — an OOM, not a parse error.
-    | PERFORM TABLE NAMED LPAREN strexpr RPAREN (WITH_DEFAULT typedDecisionTable)? # performDynamicTable
+    // Both clauses are optional suffixes of ONE alternative -- as separate
+    // alternatives sharing the prefix, ALL(*) prediction has to look ahead
+    // past an arbitrarily long strexpr and builds state until the process is
+    // killed (#1149). `among <list>` declares the complete set of legitimate
+    // targets; a computed name outside it is a runtime error, or runs the
+    // default when one is given (#776).
+    | PERFORM TABLE NAMED LPAREN strexpr RPAREN (AMONG typedDecisionTable (COMMA typedDecisionTable)*)? (WITH_DEFAULT typedDecisionTable)? # performDynamicTable
     | typedDecisionTable                                    # performDT
     | PERFORM typedDecisionTable                            # performDTExplicit
     | PERFORM NAME                                          # performName
@@ -1071,6 +1077,7 @@ NAMED               : 'named' ;
 // One token, because 'default' is a word of RBOOLEAN: as two tokens the lexer
 // would hand back a boolean. Longest-match prefers this over 'with'.
 WITH_DEFAULT        : 'with' WS+ 'default' ;
+AMONG               : 'among' ;
 CREATE              : 'create' ;
 BIGINT              : 'bigint' | 'biginteger' ;
 FIXED               : 'fixed' ;

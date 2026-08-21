@@ -100,3 +100,22 @@ func TestBoundMatchingNothingIsReported(t *testing.T) {
 		t.Errorf("a bound matching no table must be reported: %v", g.UnboundedDispatch)
 	}
 }
+
+// An explicit `among` list is the author's declared bound: exact edges, and it
+// wins outright over literal derivation (#776).
+func TestAmongListIsExactEdges(t *testing.T) {
+	g := dispatchGraph()
+	recordDynamicCalls(g, "Orchestrator", "orch_dt.xml",
+		`perform table named ("Determine_" + r.code + "_Filing_Requirement") among Determine_CA_Filing_Requirement, Handle_Default`)
+
+	calls := g.Calls["Orchestrator"]
+	if !calls["Determine_CA_Filing_Requirement"] || !calls["Handle_Default"] {
+		t.Errorf("among must yield exactly the listed edges; calls=%v", calls)
+	}
+	if calls["Determine_NV_Filing_Requirement"] {
+		t.Error("the literal-derived bound must not fire when among is present")
+	}
+	if len(g.UnboundedDispatch) != 0 {
+		t.Errorf("an among-bounded site reported unbounded: %v", g.UnboundedDispatch)
+	}
+}

@@ -95,9 +95,9 @@ func TestDateAccessors(t *testing.T) {
 // TestDateArithmetic — adddays / addmonths / addyears with pos / neg offsets.
 func TestDateArithmetic(t *testing.T) {
 	cases := []struct {
-		op            string
-		y, m, d       int
-		offset        int64
+		op                  string
+		y, m, d             int
+		offset              int64
 		wantY, wantM, wantD int
 	}{
 		{"adddays", 2024, 1, 1, 10, 2024, 1, 11},
@@ -132,9 +132,9 @@ func TestDateArithmetic(t *testing.T) {
 // Pins the operand order: "from a to b" conventionally produces b−a.
 func TestDateBetween(t *testing.T) {
 	cases := []struct {
-		op                          string
-		y1, m1, d1, y2, m2, d2      int
-		want                        int64
+		op                     string
+		y1, m1, d1, y2, m2, d2 int
+		want                   int64
 	}{
 		{"daysbetween", 2024, 1, 1, 2024, 1, 11, 10},
 		{"daysbetween", 2024, 1, 11, 2024, 1, 1, 10}, // absolute
@@ -164,8 +164,8 @@ func TestDateBetween(t *testing.T) {
 // TestDateBoundaries — firstofmonth / firstofyear / endofmonth.
 func TestDateBoundaries(t *testing.T) {
 	cases := []struct {
-		op          string
-		y, m, d     int
+		op                  string
+		y, m, d             int
 		wantY, wantM, wantD int
 	}{
 		{"firstofmonth", 2024, 7, 15, 2024, 7, 1},
@@ -230,9 +230,9 @@ func TestDateDaysInfo(t *testing.T) {
 // crashed at runtime until they were registered.
 func TestDateComparison(t *testing.T) {
 	cases := []struct {
-		op   string
+		op                     string
 		y1, m1, d1, y2, m2, d2 int
-		want bool
+		want                   bool
 	}{
 		{"d<", 2024, 1, 1, 2024, 1, 2, true},
 		{"d<", 2024, 1, 2, 2024, 1, 1, false},

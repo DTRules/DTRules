@@ -242,8 +242,8 @@ func TestCvs_TargetType(t *testing.T) {
 // This is the test that #694 was missing.
 func TestCvTargetTypeMatrix(t *testing.T) {
 	cases := []struct {
-		op       string
-		wantType *dtrules.RType
+		op        string
+		wantType  *dtrules.RType
 		allowNull bool // true if the op returns null for an integer input
 	}{
 		{"cvi", dtrules.TypeInteger, false},
@@ -253,8 +253,8 @@ func TestCvTargetTypeMatrix(t *testing.T) {
 		{"cvfp", dtrules.TypeFixed, false},
 		{"cvs", dtrules.TypeString, false},
 		{"cvb", dtrules.TypeBoolean, false},
-		{"cve", dtrules.TypeNull, true},  // entity conversion of int fails → null
-		{"cvn", dtrules.TypeNull, true},  // name conversion of int fails → null
+		{"cve", dtrules.TypeNull, true}, // entity conversion of int fails → null
+		{"cvn", dtrules.TypeNull, true}, // name conversion of int fails → null
 		// cvdate and cvbytes require specific inputs (date strings,
 		// hex strings); an integer input doesn't have a reasonable
 		// success path, so exclude from this uniform matrix. They're

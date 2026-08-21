@@ -49,9 +49,9 @@ func TestStringConcat(t *testing.T) {
 // ordering. Pins the operand order: bottom < top → true for s<.
 func TestStringOrdering(t *testing.T) {
 	cases := []struct {
-		op      string
-		a, b    string
-		want    bool
+		op   string
+		a, b string
+		want bool
 	}{
 		{"s<", "apple", "banana", true},
 		{"s<", "banana", "apple", false},

@@ -138,3 +138,89 @@ func TestDispatchErrorNamesBothWhenNeitherExists(t *testing.T) {
 		}
 	}
 }
+
+// `among` enforcement: the list declares what a dispatch MAY reach, and a
+// computed name outside it is an error naming the allowed set — dispatch
+// cannot silently reach a table the author did not sanction (#776).
+func runAmong(t *testing.T, opName, computed string, listNames []string, deflt string) (int, error) {
+	t.Helper()
+	dir := t.TempDir()
+	edd := filepath.Join(dir, "dispatch_edd.xml")
+	dt := filepath.Join(dir, "dispatch_dt.xml")
+	if err := os.WriteFile(edd, []byte(dispatchEDD), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(dt, []byte(dispatchDT), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rs := session.NewRuleSet("among")
+	if err := rs.LoadEDDFile(edd); err != nil {
+		t.Fatal(err)
+	}
+	if err := rs.LoadDecisionTablesTolerantFile(dt); err != nil {
+		t.Fatal(err)
+	}
+	sess, err := rs.NewSession()
+	if err != nil {
+		t.Fatal(err)
+	}
+	state := sess.GetState()
+	result, err := sess.CreateEntity(dtrules.GetRName("result"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	state.EntityPush(result)
+
+	state.DataPush(dtrules.GetRString(computed))
+	for _, n := range listNames {
+		state.DataPush(dtrules.GetRString(n))
+	}
+	state.DataPush(dtrules.GetRIntegerValue(int64(len(listNames))))
+	if deflt != "" {
+		state.DataPush(dtrules.GetRString(deflt))
+	}
+	op, ok := operators.GetByString(opName)
+	if !ok {
+		t.Fatalf("%s not registered", opName)
+	}
+	if err := op.Execute(state); err != nil {
+		return 0, err
+	}
+	v, err := result.Get(dtrules.GetRName("hit"))
+	if err != nil {
+		return 0, err
+	}
+	return v.IntValue()
+}
+
+func TestAmongAllowsListedTargets(t *testing.T) {
+	got, err := runAmong(t, "performtableamong", "Handle_AA", []string{"Handle_AA", "Handle_Default"}, "")
+	if err != nil {
+		t.Fatalf("a listed target must run: %v", err)
+	}
+	if got != 1 {
+		t.Errorf("marker %d, want Handle_AA (1)", got)
+	}
+}
+
+func TestAmongRefusesUnlistedTargets(t *testing.T) {
+	_, err := runAmong(t, "performtableamong", "Handle_Default", []string{"Handle_AA"}, "")
+	if err == nil {
+		t.Fatal("a computed name outside the list must be refused — the table exists, and that is the point")
+	}
+	for _, want := range []string{"Handle_Default", "Handle_AA", "among"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("refusal should name the computed table and the allowed set: %v", err)
+		}
+	}
+}
+
+func TestAmongDefaultCatchesUnlisted(t *testing.T) {
+	got, err := runAmong(t, "performtableamongdefault", "Handle_ZZ", []string{"Handle_AA"}, "Handle_Default")
+	if err != nil {
+		t.Fatalf("outside the list with a default must run the default: %v", err)
+	}
+	if got != 2 {
+		t.Errorf("marker %d, want Handle_Default (2)", got)
+	}
+}

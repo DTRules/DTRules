@@ -41,8 +41,8 @@ func init() {
 	Register("bytes!=", opBytesNotEqual)
 
 	// Encoding: hex
-	Register("hex", opHex)          // ( bytes -- string )  lowercase hex, no 0x prefix
-	Register("cvhex", opCvHex)      // ( string -- bytes )  accepts optional 0x prefix
+	Register("hex", opHex)     // ( bytes -- string )  lowercase hex, no 0x prefix
+	Register("cvhex", opCvHex) // ( string -- bytes )  accepts optional 0x prefix
 
 	// Encoding: base58check
 	Register("b58check", opB58Check)     // ( bytes version -- string )

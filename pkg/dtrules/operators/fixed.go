@@ -399,4 +399,3 @@ func fixedFromDouble(d float64) (*dtrules.RFixed, error) {
 	mantissa, _ := f.Int(nil) // big.Float.Int truncates toward zero
 	return dtrules.GetRFixedFromMantissa(mantissa)
 }
-

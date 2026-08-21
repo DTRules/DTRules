@@ -36,12 +36,12 @@ var numericLiteral = regexp.MustCompile(`^-?\d+(\.\d+)?$`)
 // decision-table control keywords consumed by the table interpreter rather than
 // the operator table.
 var nonOpEmits = map[string]bool{
-	"{":  true, // block open
-	"}":  true, // block close
-	"{}": true, // empty block
-	"true":  true, // boolean literals (values, not ops)
-	"false": true,
-	"null":  true,
+	"{":         true, // block open
+	"}":         true, // block close
+	"{}":        true, // empty block
+	"true":      true, // boolean literals (values, not ops)
+	"false":     true,
+	"null":      true,
 	"otherwise": true, // decision-table control marker, not a registry op
 }
 
