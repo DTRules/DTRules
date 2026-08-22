@@ -30,7 +30,7 @@
    <!-- Taxable Income: $20,000 -->
    <!-- Saver's Credit: $200 (10% of $2,000) -->
    <expected_agi>35000</expected_agi>
-   <expected_taxable_income>20000</expected_taxable_income>
+   <expected_taxable_income>19250</expected_taxable_income>
    <expected_savers_credit>200</expected_savers_credit>
 
    <taxpayers>

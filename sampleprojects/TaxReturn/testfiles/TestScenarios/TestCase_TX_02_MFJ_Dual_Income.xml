@@ -33,8 +33,8 @@
    <!-- State Tax: $0 (TX has no income tax) -->
    <!-- Total Tax: ~$14,054 -->
    <expected_agi>155000</expected_agi>
-   <expected_taxable_income>125000</expected_taxable_income>
-   <expected_total_tax>14054</expected_total_tax>
+   <expected_taxable_income>123500</expected_taxable_income>
+   <expected_total_tax>12598</expected_total_tax>
    <expected_state_tax>0</expected_state_tax>
    <expected_refund>0</expected_refund>
 

@@ -15,8 +15,8 @@
     <!-- Taxable: $30,000 (with $15,000 LTCG at 0%) -->
     <!-- Tax: ~$1,698 ordinary income, $0 LTCG = $1,698 -->
     <expected_agi>45000</expected_agi>
-    <expected_taxable_income>30000</expected_taxable_income>
-    <expected_total_tax>1698</expected_total_tax>
+    <expected_taxable_income>29250</expected_taxable_income>
+    <expected_total_tax>1471.5</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

@@ -34,7 +34,7 @@
    <!-- MN Taxable: $25,050 -->
    <!-- MN Tax: $1,340.18 (5.35% of $25,050 - all in bracket 1) -->
    <expected_agi>40000</expected_agi>
-   <expected_taxable_income>25000</expected_taxable_income>
+   <expected_taxable_income>24250</expected_taxable_income>
    <expected_state_tax>1340</expected_state_tax>
 
    <!-- Single Taxpayer -->

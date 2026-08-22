@@ -22,7 +22,7 @@
    <!-- CTC before phaseout: $4,000 (2 children) -->
    <!-- CTC after phaseout: $1,000 (reduced) -->
    <expected_agi>430000</expected_agi>
-   <expected_taxable_income>400000</expected_taxable_income>
+   <expected_taxable_income>398500</expected_taxable_income>
    <expected_ctc>1000</expected_ctc>
 
    <taxpayers>

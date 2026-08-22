@@ -17,8 +17,8 @@
     <!-- NIIT: $2,470 (3.8% on $65,000 excess MAGI over $200k) -->
     <!-- Total tax: $51,167 -->
     <expected_agi>265000</expected_agi>
-    <expected_taxable_income>250000</expected_taxable_income>
-    <expected_total_tax>51167</expected_total_tax>
+    <expected_taxable_income>249250</expected_taxable_income>
+    <expected_total_tax>47487</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

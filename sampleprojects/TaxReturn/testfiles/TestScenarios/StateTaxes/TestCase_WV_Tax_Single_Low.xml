@@ -36,7 +36,7 @@
         Total WV Tax: $222.00 + $444.00 + $266.40 = $932.40
    -->
    <expected_agi>35000</expected_agi>
-   <expected_taxable_income>20000</expected_taxable_income>
+   <expected_taxable_income>19250</expected_taxable_income>
 
    <taxpayers>
       <taxpayer id="1">

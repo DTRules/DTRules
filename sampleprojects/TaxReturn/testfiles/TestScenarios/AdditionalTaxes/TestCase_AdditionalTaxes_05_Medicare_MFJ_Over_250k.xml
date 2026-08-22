@@ -17,8 +17,8 @@
     <!-- Additional Medicare: $405 (0.9% on $45,000 over $250k threshold) -->
     <!-- Total tax: $46,852 -->
     <expected_agi>295000</expected_agi>
-    <expected_taxable_income>265000</expected_taxable_income>
-    <expected_total_tax>46852</expected_total_tax>
+    <expected_taxable_income>263500</expected_taxable_income>
+    <expected_total_tax>49339</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

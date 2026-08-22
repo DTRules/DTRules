@@ -37,7 +37,7 @@
    <!--   Bracket 2: ($70,050 - $32,570) * 6.80% = $2,548.64 -->
    <!--   Total: $4,291.14 -->
    <expected_agi>85000</expected_agi>
-   <expected_taxable_income>70000</expected_taxable_income>
+   <expected_taxable_income>69250</expected_taxable_income>
    <expected_state_tax>4291</expected_state_tax>
 
    <!-- Single Taxpayer -->

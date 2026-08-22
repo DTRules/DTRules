@@ -38,10 +38,10 @@
    <!-- WI Tax Total: $2,319.45 -->
    <!-- Withholding: $12,000 federal + $2,500 state -->
    <expected_agi>80000</expected_agi>
-   <expected_taxable_income>50000</expected_taxable_income>
+   <expected_taxable_income>48500</expected_taxable_income>
    <expected_federal_tax>5150</expected_federal_tax>
    <expected_state_tax>2319</expected_state_tax>
-   <expected_total_tax>7469</expected_total_tax>
+   <expected_total_tax>5343</expected_total_tax>
 
    <!-- Married Filing Jointly -->
    <taxpayers>

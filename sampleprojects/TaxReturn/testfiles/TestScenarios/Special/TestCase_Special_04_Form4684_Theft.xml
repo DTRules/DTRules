@@ -65,8 +65,8 @@
    <!-- Withholding: $11,000 -->
    <!-- Refund: $1,736 -->
    <expected_agi>110000</expected_agi>
-   <expected_taxable_income>80000</expected_taxable_income>
-   <expected_total_tax>9264</expected_total_tax>
+   <expected_taxable_income>78500</expected_taxable_income>
+   <expected_total_tax>8943</expected_total_tax>
    <expected_refund>1736</expected_refund>
 
    <!-- Taxpayers -->

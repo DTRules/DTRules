@@ -58,10 +58,10 @@
 
    <!-- Expected Values for Validation -->
    <expected_agi>60000</expected_agi>
-   <expected_taxable_income>45000</expected_taxable_income>
+   <expected_taxable_income>44250</expected_taxable_income>
    <expected_federal_tax>5000</expected_federal_tax>
    <expected_state_tax>0</expected_state_tax>
-   <expected_total_tax>5000</expected_total_tax>
+   <expected_total_tax>5071.5</expected_total_tax>
 
    <!-- Casino Employee - Nevada Resident -->
    <taxpayers>

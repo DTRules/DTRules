@@ -40,10 +40,10 @@
    <!--   Bracket 4 (5.75% on $17,001-$92,500): $4,341.25 -->
    <!--   Total VA Tax: $5,061.25 -->
    <expected_agi>110000</expected_agi>
-   <expected_taxable_income>80000</expected_taxable_income>
+   <expected_taxable_income>78500</expected_taxable_income>
    <expected_federal_tax>9168</expected_federal_tax>
    <expected_state_tax>5061.25</expected_state_tax>
-   <expected_total_tax>14229.25</expected_total_tax>
+   <expected_total_tax>8943</expected_total_tax>
 
    <!-- Married Filing Jointly -->
    <taxpayers>

@@ -26,7 +26,7 @@
    <!-- Taxable Income: $135,000 -->
    <!-- Form 8606 Basis: $7,000 (nondeductible contribution) -->
    <expected_agi>150000</expected_agi>
-   <expected_taxable_income>135000</expected_taxable_income>
+   <expected_taxable_income>134250</expected_taxable_income>
    <expected_ira_basis>7000</expected_ira_basis>
 
    <taxpayers>

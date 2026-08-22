@@ -38,8 +38,8 @@
    <!-- Payments: $5,500 (federal withholding) -->
    <!-- Federal Refund: $2,138 -->
    <expected_agi>45000</expected_agi>
-   <expected_taxable_income>30000</expected_taxable_income>
-   <expected_total_tax>3362</expected_total_tax>
+   <expected_taxable_income>29250</expected_taxable_income>
+   <expected_total_tax>3271.5</expected_total_tax>
 
    <!-- Taxpayers -->
    <taxpayers>

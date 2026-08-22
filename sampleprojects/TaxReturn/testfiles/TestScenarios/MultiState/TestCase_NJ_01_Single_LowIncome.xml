@@ -33,10 +33,10 @@
    <!-- NJ uses AGI minus personal exemption: $30,000 - $1,000 = $29,000 -->
    <!-- NJ Tax: $280 (1.4% on $20,000) + $157.50 (1.75% on $9,000) = $437.50 -->
    <expected_agi>30000</expected_agi>
-   <expected_taxable_income>15000</expected_taxable_income>
+   <expected_taxable_income>14250</expected_taxable_income>
    <expected_federal_tax>1502</expected_federal_tax>
    <expected_state_tax>437</expected_state_tax>
-   <expected_total_tax>1939</expected_total_tax>
+   <expected_total_tax>1471.5</expected_total_tax>
 
    <!-- Single Taxpayer -->
    <taxpayers>

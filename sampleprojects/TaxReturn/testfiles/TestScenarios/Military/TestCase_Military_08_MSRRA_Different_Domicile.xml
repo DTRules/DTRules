@@ -34,7 +34,7 @@
    <!-- Standard deduction: $30,000 (MFJ) -->
    <!-- Taxable: $95,000 -->
    <expected_agi>125000</expected_agi>
-   <expected_taxable_income>95000</expected_taxable_income>
+   <expected_taxable_income>93500</expected_taxable_income>
 
    <!-- Taxpayers -->
    <taxpayers>

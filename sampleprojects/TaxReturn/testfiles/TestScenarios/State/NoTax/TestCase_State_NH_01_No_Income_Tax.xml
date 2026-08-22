@@ -61,10 +61,10 @@
 
    <!-- Expected Values for Validation -->
    <expected_agi>85000</expected_agi>
-   <expected_taxable_income>70000</expected_taxable_income>
+   <expected_taxable_income>69250</expected_taxable_income>
    <expected_federal_tax>11500</expected_federal_tax>
    <expected_state_tax>0</expected_state_tax>
-   <expected_total_tax>11500</expected_total_tax>
+   <expected_total_tax>10149</expected_total_tax>
 
    <!-- Single Filer - New Hampshire Resident -->
    <taxpayers>

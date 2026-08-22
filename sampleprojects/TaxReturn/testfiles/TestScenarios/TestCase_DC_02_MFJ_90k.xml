@@ -33,7 +33,7 @@
    <!--   $18,500 @ 6.5% = $1,202.50 -->
    <!--   Total DC Tax: $3,402.50 -->
    <expected_agi>90000</expected_agi>
-   <expected_taxable_income>60000</expected_taxable_income>
+   <expected_taxable_income>58500</expected_taxable_income>
 
    <!-- Taxpayers -->
    <taxpayers>

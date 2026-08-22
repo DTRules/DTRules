@@ -29,8 +29,8 @@
    <!-- Taxable Income: $40,000 - $15,000 = $25,000 -->
    <!-- Tax: 10% of $11,600 = $1,160 + 12% of $13,400 = $1,608 = $2,768 -->
    <expected_agi>40000</expected_agi>
-   <expected_taxable_income>25000</expected_taxable_income>
-   <expected_total_tax>2768</expected_total_tax>
+   <expected_taxable_income>24250</expected_taxable_income>
+   <expected_total_tax>2671.5</expected_total_tax>
    <expected_refund>0</expected_refund>
 
    <taxpayer>

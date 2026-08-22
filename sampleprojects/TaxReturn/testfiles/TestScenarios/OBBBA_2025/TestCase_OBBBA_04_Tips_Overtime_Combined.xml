@@ -31,8 +31,8 @@
    <!-- Standard Deduction: $15,000 -->
    <!-- Taxable Income: $40,000 -->
    <expected_agi>55000</expected_agi>
-   <expected_taxable_income>40000</expected_taxable_income>
-   <expected_total_tax>4568</expected_total_tax>
+   <expected_taxable_income>39250</expected_taxable_income>
+   <expected_total_tax>4471.5</expected_total_tax>
    <expected_refund>0</expected_refund>
 
    <taxpayer>

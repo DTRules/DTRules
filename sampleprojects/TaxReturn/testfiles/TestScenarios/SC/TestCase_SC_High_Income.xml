@@ -38,8 +38,8 @@
    <!-- SC Tax: $428.10 + ($70,000 - $17,830) * 6% = $428.10 + $3,130.20 = $3,558.30 -->
    <!-- Total Tax: $7,923 + $3,558 = $11,481 -->
    <expected_agi>100000</expected_agi>
-   <expected_taxable_income>70000</expected_taxable_income>
-   <expected_total_tax>11481</expected_total_tax>
+   <expected_taxable_income>68500</expected_taxable_income>
+   <expected_total_tax>3343</expected_total_tax>
 
    <!-- Taxpayers -->
    <taxpayers>

@@ -33,7 +33,7 @@
    <!-- NJ Resident Tax: On full $225,000 -->
    <!-- NJ Credit: For NY taxes paid on $140,000 -->
    <expected_agi>225000</expected_agi>
-   <expected_taxable_income>195000</expected_taxable_income>
+   <expected_taxable_income>193500</expected_taxable_income>
    <expected_ny_nonresident_income>140000</expected_ny_nonresident_income>
    <expected_nj_resident_income>225000</expected_nj_resident_income>
    <expected_nj_credit_for_ny_tax>true</expected_nj_credit_for_ny_tax>

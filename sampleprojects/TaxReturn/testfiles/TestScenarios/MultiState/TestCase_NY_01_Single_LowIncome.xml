@@ -37,7 +37,7 @@
    <!--   Bracket 3: $2,200 * 5.25% = $115.50 -->
    <!--   Bracket 4: $28,100 * 5.5% = $1,545.50 -->
    <expected_agi>50000</expected_agi>
-   <expected_taxable_income>35000</expected_taxable_income>
+   <expected_taxable_income>34250</expected_taxable_income>
    <expected_state_tax>2145</expected_state_tax>
 
    <!-- Single Taxpayer -->

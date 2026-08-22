@@ -15,8 +15,8 @@
     <!-- Taxable: $620,000 (includes $100,000 LTCG at 20%) -->
     <!-- Tax: ~$134,180 ordinary + $20,000 LTCG + $3,800 NIIT = ~$157,980 -->
     <expected_agi>650000</expected_agi>
-    <expected_taxable_income>620000</expected_taxable_income>
-    <expected_total_tax>157980</expected_total_tax>
+    <expected_taxable_income>618500</expected_taxable_income>
+    <expected_total_tax>146792</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

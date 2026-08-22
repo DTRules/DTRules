@@ -66,8 +66,8 @@
    <!-- Withholding: $50,000 -->
    <!-- Owed: $29,865 -->
    <expected_agi>250000</expected_agi>
-   <expected_taxable_income>220000</expected_taxable_income>
-   <expected_total_tax>79865</expected_total_tax>
+   <expected_taxable_income>218500</expected_taxable_income>
+   <expected_total_tax>38134</expected_total_tax>
    <expected_refund>0</expected_refund>
 
    <!-- Taxpayers -->

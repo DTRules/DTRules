@@ -28,7 +28,7 @@
    <!-- Taxable Income: $70,000 -->
    <!-- No Schedule H tax (below threshold) -->
    <expected_agi>85000</expected_agi>
-   <expected_taxable_income>70000</expected_taxable_income>
+   <expected_taxable_income>69250</expected_taxable_income>
    <expected_schedule_h_social_security_tax>0</expected_schedule_h_social_security_tax>
    <expected_schedule_h_medicare_tax>0</expected_schedule_h_medicare_tax>
    <expected_schedule_h_futa_tax>0</expected_schedule_h_futa_tax>

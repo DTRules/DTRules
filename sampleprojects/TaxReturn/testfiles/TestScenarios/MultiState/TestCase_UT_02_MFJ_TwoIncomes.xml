@@ -35,7 +35,7 @@
    <!-- UT Final Tax: $3,285 ($5,175 - $1,890) -->
    <!-- Withholding: $22,000 federal + $4,000 state -->
    <expected_agi>145000</expected_agi>
-   <expected_taxable_income>115000</expected_taxable_income>
+   <expected_taxable_income>113500</expected_taxable_income>
    <expected_state_tax>3285</expected_state_tax>
 
    <!-- Married Taxpayers -->

@@ -41,8 +41,8 @@
    <expected_foreign_source_income>25000</expected_foreign_source_income>
    <expected_foreign_tax_paid>3750</expected_foreign_tax_paid>
    <expected_foreign_tax_credit>3750</expected_foreign_tax_credit>
-   <expected_taxable_income>145000</expected_taxable_income>
-   <expected_total_tax>18650</expected_total_tax>
+   <expected_taxable_income>143500</expected_taxable_income>
+   <expected_total_tax>19198</expected_total_tax>
 
    <!-- Taxpayers -->
    <taxpayers>

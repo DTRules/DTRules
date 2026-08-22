@@ -40,10 +40,10 @@
    <!--   + $8,880.30 (8.97% on $99,000) -->
    <!--   = $38,604.05 -->
    <expected_agi>600000</expected_agi>
-   <expected_taxable_income>585000</expected_taxable_income>
+   <expected_taxable_income>584250</expected_taxable_income>
    <expected_federal_tax>175815</expected_federal_tax>
    <expected_state_tax>38604</expected_state_tax>
-   <expected_total_tax>214419</expected_total_tax>
+   <expected_total_tax>177634.75</expected_total_tax>
 
    <!-- Single Taxpayer -->
    <taxpayers>

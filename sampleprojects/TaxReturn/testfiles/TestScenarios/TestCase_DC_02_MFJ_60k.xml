@@ -37,7 +37,7 @@
    <!--   Next $18,500 at 6% = $1,110 -->
    <!--   Total DC Tax = $1,510 -->
    <expected_agi>60000</expected_agi>
-   <expected_taxable_income>30000</expected_taxable_income>
+   <expected_taxable_income>28500</expected_taxable_income>
 
    <!-- Taxpayers -->
    <taxpayers>

@@ -34,10 +34,10 @@
    <!-- MI Taxable Income: $116,800 ($140,000 AGI - $23,200 exemptions) -->
    <!-- MI Tax: $4,964 (4.25% of $116,800) -->
    <expected_agi>140000</expected_agi>
-   <expected_taxable_income>110000</expected_taxable_income>
+   <expected_taxable_income>108500</expected_taxable_income>
    <expected_federal_tax>15043</expected_federal_tax>
    <expected_state_tax>4964</expected_state_tax>
-   <expected_total_tax>20007</expected_total_tax>
+   <expected_total_tax>12698</expected_total_tax>
 
    <!-- Married Filing Jointly -->
    <taxpayers>
