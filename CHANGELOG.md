@@ -1,5 +1,96 @@
 # DTRules Changelog
 
+## v1.24.0 — 2026-08-21
+
+Arithmetic groups the way every reader assumes, the test suite stops being
+able to hurt the machine it runs on, and sync state lives in the artifacts
+instead of beside them. All twelve sample projects verify clean, for the
+first time, and CI's exclusion list is deleted rather than waived.
+
+### The EL compiler
+
+- **Arithmetic groups like C, C++ and Go** (#1146, #1148). Each ANTLR
+  alternative is its own precedence level, and spelling arithmetic as
+  operand-type pairs gave one operator class three levels: `a - b + c` meant
+  `a - (b + c)`, `a / b * c` meant `a / (b * c)`, and the grouping flipped
+  with the parser's type prediction — `a + 2 - b` was right while
+  `a + 2.0 - b` was wrong. All binary numeric arithmetic now lives in one
+  rule (`numexpr`), so one precedence climb serves every operand type, unary
+  minus binds tighter than binary operators, and a 27-vector suite pins every
+  case. The committed samples were regrouped where the old parse mis-nested;
+  every change is algebraically identical.
+- **`max of` / `min of … in <array> [where …]`** (#1024) — the fold family
+  past `sum of`, and **`argmax` / `argmin`** for the element that wins rather
+  than the winning value. Ties go to the first element, empty sources yield
+  an empty destination, and the destination is cleared, not appended to.
+- **Dynamic dispatch grew a contract** (#776, #1137). `with default <Table>`
+  names the fallback when the computed table does not exist. `among <list>`
+  declares the complete set of legitimate targets, enforced at runtime — a
+  computed name outside the list errors naming the allowed set. Where neither
+  is written, the analyzer derives a bound from the expression's own literals
+  (`"Determine_" + code + "_Filing"` matches exactly the tables of that
+  shape), and an expression with no literals at all is reported: the
+  analyzer refuses to pretend it can reason about what it cannot bound.
+- **Operator arity is checked** (#1105): `subsets(hand.cards)` with one of
+  four arguments is refused at authoring time naming the counts, instead of
+  misreading three stack values at runtime.
+
+### Memory
+
+- **Decision trees build on first execution, not at load** (#1135). One load
+  of TaxReturn with eager trees peaked at 24.5GB and took 30 seconds — paid
+  by every test, verify, review and analysis pass, several concurrently under
+  `go test ./...`, which is what kept OOM-killing 62GB machines. After:
+  13MB and 0.06s per load.
+- **Wide FIRST tables use the lazy row encoding** (#1148). The 43-condition
+  dispatch table cost 24.9GB to execute; now 272MB. The archive lane —
+  thirteen 30-second tree builds wearing a test suite — went from ~400s and
+  OOM-prone to 3.8 seconds.
+
+### Sync without timestamps
+
+- **Provenance travels in the XML** (#1091, #1124). Every table's `<source>`
+  block records the hash of the workbook it was compiled from, so "did the
+  workbook change" is two file reads. Timestamps answered "which file was
+  touched last", and that proxy is what locked every fresh clone (#1061) and
+  silently skipped imports (#1057).
+- **The workbook pairing comes from the artifacts** (#1130), the export guard
+  asks the hash, `Project.Save` exports Excel and then compiles it — the
+  order the contract states — and **a project without a `.sync-manifest.json`
+  never grows one** (#1154). The file is retired by attrition.
+- **Workbook ownership follows the field declaration** (#1109), so an entity
+  declared across 50 files no longer loses 49 workbooks' EDD sheets on
+  refresh, and an export that would drop a dictionary sheet is refused.
+
+### Authoring
+
+- **A patch that does not match the schema is refused, not half-applied**
+  (#1144). Unknown fields are named; update ops keep omitted fields — patch
+  semantics — and an explicit `"dsl": ""` still blanks.
+- **`workbook` is part of the table document** (#1068), so a table can be
+  repointed at a workbook that exists. **`dtrules map` gained add/delete for
+  entities and attributes** (#1103), writing the tag request alongside the
+  declaration and the push. **`el_compiled` is derived from the rows**
+  (#1051), ending the permanent verify-drift for projects maintained with
+  `build`.
+
+### The samples
+
+- **All twelve verify clean.** NV compared a string field against unquoted
+  bare words; SyntaxTests was reported for a case difference that is one name
+  in a case-insensitive language; TaxReturn's last 23 findings were authored
+  from the IRS forms — Form 8824, Form 8839 with the 2025 refundable split,
+  Pub. 536's 80% limit, Form 1116, Form 8880, Schedule R.
+- **Four stale-year constants found, none by a failing test** (#1140):
+  household SS threshold, three adoption figures, and the MFS standard
+  deduction still at its pre-OBBBA amount — every MFS return computed
+  taxable income $750 high. A 505-scenario ratchet now executes everything
+  and holds the clean floor at 185.
+- **CorporateTax: every state owns its entities** (#1094). All 51 states
+  shared one `apportionment`, so whichever EDD won the merge decided the tax
+  rate — California computed $800 on $1,000,000. State data loads as its own
+  document against the initialized singletons.
+
 ## v1.23.0 — 2026-08-10
 
 The authoring contract stops being a convention and becomes something the
