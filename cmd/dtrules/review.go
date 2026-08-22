@@ -40,16 +40,19 @@ import (
 // Errors gate deployment; warnings never do. The split is the whole
 // reason this report exists separately from project_validate.
 type reviewReport struct {
-	ProjectHash  string                       `json:"project_hash"`
-	Timestamp    string                       `json:"timestamp"` // RFC3339
-	Errors       []reviewError                `json:"errors"`
-	Warnings     []decisiontable.Warning      `json:"warnings"`
-	EDDWarnings  []analysis.EDDWarning        `json:"edd_warnings"`
-	ContextHints []analysis.ContextSuggestion `json:"context_hints"`
-	Diagnostics  []authoring.Diagnostic       `json:"diagnostics"`
-	Structure    interface{}                  `json:"structure"`
-	ELCompliance interface{}                  `json:"el_compliance"`
-	Passed       bool                         `json:"passed"`
+	ProjectHash string                  `json:"project_hash"`
+	Timestamp   string                  `json:"timestamp"` // RFC3339
+	Errors      []reviewError           `json:"errors"`
+	Warnings    []decisiontable.Warning `json:"warnings"`
+	EDDWarnings []analysis.EDDWarning   `json:"edd_warnings"`
+	// DatedConstants: fields whose comment cites a year other than the
+	// project's declared tax year (#1140).
+	DatedConstants []analysis.DatedConstantWarning `json:"dated_constants"`
+	ContextHints   []analysis.ContextSuggestion    `json:"context_hints"`
+	Diagnostics    []authoring.Diagnostic          `json:"diagnostics"`
+	Structure      interface{}                     `json:"structure"`
+	ELCompliance   interface{}                     `json:"el_compliance"`
+	Passed         bool                            `json:"passed"`
 }
 
 // reviewError tags every hard error with its source so consumers can
@@ -94,12 +97,13 @@ const (
 // MCP response; both go through this function.
 func runFullReview(projectPath string) (*reviewReport, error) {
 	rep := &reviewReport{
-		Timestamp:    time.Now().UTC().Format(time.RFC3339),
-		Errors:       []reviewError{},
-		Warnings:     []decisiontable.Warning{},
-		EDDWarnings:  []analysis.EDDWarning{},
-		ContextHints: []analysis.ContextSuggestion{},
-		Diagnostics:  []authoring.Diagnostic{},
+		Timestamp:      time.Now().UTC().Format(time.RFC3339),
+		Errors:         []reviewError{},
+		Warnings:       []decisiontable.Warning{},
+		EDDWarnings:    []analysis.EDDWarning{},
+		DatedConstants: []analysis.DatedConstantWarning{},
+		ContextHints:   []analysis.ContextSuggestion{},
+		Diagnostics:    []authoring.Diagnostic{},
 	}
 
 	// 1. Structure validation.
@@ -209,6 +213,12 @@ func runFullReview(projectPath string) (*reviewReport, error) {
 	eddWarns, eddErr := analysis.AnalyzeEDDUsage(xmlDir)
 	if eddErr == nil {
 		rep.EDDWarnings = append(rep.EDDWarnings, eddWarns...)
+	}
+
+	// 5a. Dated constants (advisory): a comment citing a year other than
+	// the project's tax year. Never an error -- law years are real (#1140).
+	if dated, datedErr := analysis.AnalyzeDatedConstants(xmlDir); datedErr == nil {
+		rep.DatedConstants = append(rep.DatedConstants, dated...)
 	}
 
 	// 5b. Context-push hints (advisory): entities referenced with a

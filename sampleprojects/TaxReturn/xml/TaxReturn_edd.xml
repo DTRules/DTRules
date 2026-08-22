@@ -19,7 +19,7 @@
 		<field name="employer_assistance" type="double" subtype="" access="r" input="main" default_value="0" comment="Employer-provided adoption assistance"></field>
 		<field name="finalization_year" type="integer" subtype="" access="r" input="main" default_value="0" comment="Year adoption finalized"></field>
 		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Adoption ID"></field>
-		<field name="max_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Maximum credit per child ($16,810 for 2024)"></field>
+		<field name="max_credit" type="double" subtype="" access="rw" input="" default_value="0" comment="Maximum credit per child ($17,280 for 2025, Form 8839)."></field>
 		<field name="phaseout_reduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Reduction from MAGI phase-out"></field>
 		<field name="prior_year_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Expenses claimed in prior years"></field>
 		<field name="qualified_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Qualified adoption expenses"></field>
@@ -203,10 +203,10 @@
 		<field name="energy_efficiency_door_total_limit" type="double" subtype="" access="r" input="" default_value="500" comment="Total door limit ($500)"></field>
 		<field name="energy_efficiency_rate" type="double" subtype="" access="r" input="" default_value="0.30" comment="Energy Efficient Home Improvement Credit rate (30%)"></field>
 		<field name="energy_efficiency_windows_limit" type="double" subtype="" access="r" input="" default_value="600" comment="Windows/skylights limit ($600)"></field>
-		<field name="estimated_tax_penalty_rate" type="double" subtype="" access="r" input="" default_value="0.08" comment="Underpayment interest rate (2024)"></field>
+		<field name="estimated_tax_penalty_rate" type="double" subtype="" access="r" input="" default_value="0.07" comment="Underpayment interest rate, 2025: 7% per year compounded daily (IRC 6621, quarterly IRS announcements). Was 0.08, the 2024 rate (#1140)."></field>
 		<field name="feie_housing_base" type="double" subtype="" access="r" input="" default_value="20216" comment="Housing base amount (16% of FEIE max)"></field>
 		<field name="feie_housing_max" type="double" subtype="" access="r" input="" default_value="37950" comment="Max housing exclusion (30% of FEIE max)"></field>
-		<field name="feie_max_exclusion" type="double" subtype="" access="r" input="" default_value="126500" comment="Max foreign earned income exclusion (2024)"></field>
+		<field name="feie_max_exclusion" type="double" subtype="" access="r" input="" default_value="130000" comment="Max foreign earned income exclusion, 2025: $130,000 (Form 2555). Was 126,500, the 2024 figure — found by the dated-constants check the day it was written (#1140)."></field>
 		<field name="fica_combined_rate" type="double" subtype="" access="r" input="" default_value="0.153" comment="Household employment: 12.4% social security plus 2.9% Medicare, both halves owed by the employer. Schedule H / Pub 926."></field>
 		<field name="fica_employee_rate" type="double" subtype="" access="r" input="" default_value="0.0765" comment="Employee share alone: 6.2% social security plus 1.45% Medicare. Form 4137, unreported tips."></field>
 		<field name="fpl_1_person" type="double" subtype="" access="r" input="" default_value="15060" comment="2025 FPL for 1 person (48 states)"></field>
@@ -550,7 +550,7 @@
 		</source>
 		<field name="bona_fide_resident" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Bona fide residence test (full tax year)"></field>
 		<field name="country" type="string" subtype="" access="r" input="main" default_value="" comment="Foreign country of residence"></field>
-		<field name="exclusion_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Foreign earned income exclusion (max $126,500 for 2024)"></field>
+		<field name="exclusion_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Foreign earned income exclusion claimed (max $130,000 for 2025, Form 2555)."></field>
 		<field name="foreign_se_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign self-employment income"></field>
 		<field name="foreign_wages" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign earned wages"></field>
 		<field name="housing_exclusion" type="double" subtype="" access="rw" input="" default_value="0" comment="Housing exclusion/deduction amount"></field>
