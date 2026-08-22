@@ -890,6 +890,21 @@ func runStaticAnalysis(xmlDir string, step *dtrsync.StepSummary) {
 	for _, w := range eddWarns {
 		step.AddWarning("", 0, w.Field, w.Reason)
 	}
+
+	// Dated constants: a comment citing a year other than the project's tax
+	// year. Six stale figures were found by hand before this existed and not
+	// one by a failing test -- a stale constant produces a plausible answer,
+	// and the scenarios agree with the constant they were derived from (#1140).
+	dated, err := analysis.AnalyzeDatedConstants(xmlDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: dated-constant analysis error: %v\n", err)
+		return
+	}
+	for _, w := range dated {
+		step.AddWarning("", 0, w.Field,
+			fmt.Sprintf("cites %s but the project's tax year is %s — verify against the source",
+				strings.Join(w.Years, ", "), w.TaxYear))
+	}
 }
 
 // formatWarningReason renders a decisiontable.Warning's reason text for the
