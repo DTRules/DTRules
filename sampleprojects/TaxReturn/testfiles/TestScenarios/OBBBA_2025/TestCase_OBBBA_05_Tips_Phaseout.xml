@@ -29,8 +29,8 @@
    <!-- Taxable Income: $170,000 - $15,000 = $155,000 -->
    <!-- Tax: 10%(11,600)+12%(35,550)+22%(53,375)+24%(54,475) = $30,243 -->
    <expected_agi>170000</expected_agi>
-   <expected_taxable_income>155000</expected_taxable_income>
-   <expected_total_tax>30243</expected_total_tax>
+   <expected_taxable_income>154250</expected_taxable_income>
+   <expected_total_tax>29867</expected_total_tax>
    <expected_refund>0</expected_refund>
 
    <taxpayer>

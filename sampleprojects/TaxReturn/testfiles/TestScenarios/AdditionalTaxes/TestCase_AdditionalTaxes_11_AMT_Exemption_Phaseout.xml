@@ -24,8 +24,8 @@
     <!-- Regular tax higher, so no AMT liability -->
     <!-- Total tax: $226,400 -->
     <expected_agi>750000</expected_agi>
-    <expected_taxable_income>735000</expected_taxable_income>
-    <expected_total_tax>226400</expected_total_tax>
+    <expected_taxable_income>734250</expected_taxable_income>
+    <expected_total_tax>226642.75</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

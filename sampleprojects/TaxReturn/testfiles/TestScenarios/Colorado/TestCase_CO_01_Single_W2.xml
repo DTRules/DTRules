@@ -30,7 +30,7 @@
    <!-- Federal Tax (approximate): $8,990 -->
    <!-- Colorado: Starts with federal taxable $60,000, 4.40% = $2,640 -->
    <expected_agi>75000</expected_agi>
-   <expected_taxable_income>60000</expected_taxable_income>
+   <expected_taxable_income>59250</expected_taxable_income>
 
    <!-- Taxpayer -->
    <taxpayers>

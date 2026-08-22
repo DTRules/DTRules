@@ -16,7 +16,7 @@
     <!-- Standard deduction: $30,000 -->
     <!-- Taxable: $56,450 -->
     <expected_agi>86450</expected_agi>
-    <expected_taxable_income>56450</expected_taxable_income>
+    <expected_taxable_income>54950</expected_taxable_income>
 
     <taxpayers>
         <taxpayer>

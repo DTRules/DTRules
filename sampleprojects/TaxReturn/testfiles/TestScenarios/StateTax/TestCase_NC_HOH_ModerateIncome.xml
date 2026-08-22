@@ -36,7 +36,7 @@
    <!-- NC State Tax: $3,189 ($70,875 × 4.50%) -->
    <!-- Total Payments: $10,000 (federal withholding) -->
    <expected_agi>75000</expected_agi>
-   <expected_taxable_income>52500</expected_taxable_income>
+   <expected_taxable_income>51375</expected_taxable_income>
 
    <!-- Taxpayers -->
    <taxpayers>

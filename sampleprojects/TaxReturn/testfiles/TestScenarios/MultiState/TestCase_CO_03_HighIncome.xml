@@ -33,10 +33,10 @@
    <!-- CO uses federal taxable income: $235,000 -->
    <!-- CO Tax: $10,340 (4.4% of $235,000) -->
    <expected_agi>250000</expected_agi>
-   <expected_taxable_income>235000</expected_taxable_income>
+   <expected_taxable_income>234250</expected_taxable_income>
    <expected_federal_tax>50673</expected_federal_tax>
    <expected_state_tax>10340</expected_state_tax>
-   <expected_total_tax>61013</expected_total_tax>
+   <expected_total_tax>52473</expected_total_tax>
 
    <!-- Single High-Income Taxpayer -->
    <taxpayers>

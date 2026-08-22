@@ -40,7 +40,7 @@
    <!--   Bracket 6: $862,150 * 6.85% = $59,057.28 -->
    <!--   Bracket 7: $914,450 * 9.65% = $88,244.43 -->
    <expected_agi>2000000</expected_agi>
-   <expected_taxable_income>1985000</expected_taxable_income>
+   <expected_taxable_income>1984250</expected_taxable_income>
    <expected_state_tax>159657</expected_state_tax>
 
    <!-- Single Taxpayer -->

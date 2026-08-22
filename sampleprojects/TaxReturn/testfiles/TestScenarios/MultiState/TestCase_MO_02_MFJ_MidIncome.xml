@@ -44,10 +44,10 @@
    <!--   Total MO Tax: $4,525.38 -->
    <!-- Withholding: $15,000 federal + $4,500 state -->
    <expected_agi>130000</expected_agi>
-   <expected_taxable_income>100000</expected_taxable_income>
+   <expected_taxable_income>98500</expected_taxable_income>
    <expected_federal_tax>12151</expected_federal_tax>
    <expected_state_tax>4525</expected_state_tax>
-   <expected_total_tax>16676</expected_total_tax>
+   <expected_total_tax>10498</expected_total_tax>
 
    <!-- Married Couple -->
    <taxpayers>

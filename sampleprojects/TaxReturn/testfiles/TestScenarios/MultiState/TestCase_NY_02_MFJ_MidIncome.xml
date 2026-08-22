@@ -38,7 +38,7 @@
    <!--   Bracket 4: $133,650 * 5.5% = $7,350.75 -->
    <!--   Bracket 5: $72,400 * 6% = $4,344 -->
    <expected_agi>250000</expected_agi>
-   <expected_taxable_income>220000</expected_taxable_income>
+   <expected_taxable_income>218500</expected_taxable_income>
    <expected_state_tax>12897</expected_state_tax>
 
    <!-- Married Filing Jointly Taxpayers -->

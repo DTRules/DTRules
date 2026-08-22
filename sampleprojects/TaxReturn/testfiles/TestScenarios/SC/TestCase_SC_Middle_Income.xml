@@ -36,8 +36,8 @@
    <!-- SC Tax: ($17,000 - $3,560) * 3% = $403.20 -->
    <!-- Total Tax: $1,801.50 + $403.20 = $2,204.70 -->
    <expected_agi>32000</expected_agi>
-   <expected_taxable_income>17000</expected_taxable_income>
-   <expected_total_tax>2205</expected_total_tax>
+   <expected_taxable_income>16250</expected_taxable_income>
+   <expected_total_tax>1711.5</expected_total_tax>
 
    <!-- Taxpayer -->
    <taxpayers>

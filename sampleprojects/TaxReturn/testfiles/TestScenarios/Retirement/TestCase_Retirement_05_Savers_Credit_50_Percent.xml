@@ -27,7 +27,7 @@
    <!-- Tax before credits: ~$600 -->
    <!-- Saver's Credit: $2,000 (50% rate, but limited to tax liability) -->
    <expected_agi>36000</expected_agi>
-   <expected_taxable_income>6000</expected_taxable_income>
+   <expected_taxable_income>4500</expected_taxable_income>
    <expected_savers_credit>2000</expected_savers_credit>
 
    <taxpayers>

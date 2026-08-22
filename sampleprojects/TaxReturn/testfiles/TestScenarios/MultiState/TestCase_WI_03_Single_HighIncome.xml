@@ -39,10 +39,10 @@
    <!-- WI Tax Total: $21,325.40 -->
    <!-- Withholding: $120,000 federal + $22,000 state -->
    <expected_agi>400000</expected_agi>
-   <expected_taxable_income>385000</expected_taxable_income>
+   <expected_taxable_income>384250</expected_taxable_income>
    <expected_federal_tax>110851</expected_federal_tax>
    <expected_state_tax>21325</expected_state_tax>
-   <expected_total_tax>132176</expected_total_tax>
+   <expected_total_tax>105834.75</expected_total_tax>
 
    <!-- Single High-Income Taxpayer -->
    <taxpayers>

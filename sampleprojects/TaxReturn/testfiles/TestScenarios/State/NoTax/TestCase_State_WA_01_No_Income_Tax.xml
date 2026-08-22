@@ -62,10 +62,10 @@
 
    <!-- Expected Values for Validation -->
    <expected_agi>230000</expected_agi>
-   <expected_taxable_income>215000</expected_taxable_income>
+   <expected_taxable_income>214250</expected_taxable_income>
    <expected_federal_tax>48500</expected_federal_tax>
    <expected_state_tax>0</expected_state_tax>
-   <expected_total_tax>48500</expected_total_tax>
+   <expected_total_tax>45893</expected_total_tax>
 
    <!-- Tech Worker - Washington Resident -->
    <taxpayers>

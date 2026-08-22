@@ -37,10 +37,10 @@
    <!-- Federal Refund: ~$4,173 -->
    <!-- State Refund: $480.62 -->
    <expected_agi>85000</expected_agi>
-   <expected_taxable_income>55000</expected_taxable_income>
+   <expected_taxable_income>53500</expected_taxable_income>
    <expected_federal_tax>5827</expected_federal_tax>
    <expected_state_tax>1519</expected_state_tax>
-   <expected_total_tax>7346</expected_total_tax>
+   <expected_total_tax>5943</expected_total_tax>
 
    <!-- Married Filing Jointly -->
    <taxpayers>

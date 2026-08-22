@@ -31,8 +31,8 @@
    <!-- CTC: $2,000 (Tommy age 10) -->
    <!-- Total Tax: $7,576 - $2,000 = $5,576 -->
    <expected_agi>97000</expected_agi>
-   <expected_taxable_income>67000</expected_taxable_income>
-   <expected_total_tax>5576</expected_total_tax>
+   <expected_taxable_income>65500</expected_taxable_income>
+   <expected_total_tax>5183</expected_total_tax>
    <expected_refund>0</expected_refund>
 
    <taxpayer>

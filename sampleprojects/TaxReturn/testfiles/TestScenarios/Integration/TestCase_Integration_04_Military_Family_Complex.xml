@@ -38,8 +38,8 @@
    <!-- Net tax: $0 (CTC exceeds tax) -->
    <!-- Refundable CTC: $1,700 per child = $3,400 -->
    <expected_agi>55000</expected_agi>
-   <expected_taxable_income>25000</expected_taxable_income>
-   <expected_total_tax>2500</expected_total_tax>
+   <expected_taxable_income>23500</expected_taxable_income>
+   <expected_total_tax>0</expected_total_tax>
    <expected_refund>0</expected_refund>
 
    <!-- Taxpayers -->

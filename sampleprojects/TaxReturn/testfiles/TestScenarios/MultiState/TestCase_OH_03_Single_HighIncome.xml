@@ -39,10 +39,10 @@
    <!-- Federal Refund: ~$2,384 -->
    <!-- State Refund: $461.68 -->
    <expected_agi>150000</expected_agi>
-   <expected_taxable_income>135000</expected_taxable_income>
+   <expected_taxable_income>134250</expected_taxable_income>
    <expected_federal_tax>27616</expected_federal_tax>
    <expected_state_tax>3538</expected_state_tax>
-   <expected_total_tax>31154</expected_total_tax>
+   <expected_total_tax>25067</expected_total_tax>
 
    <!-- Single Taxpayer -->
    <taxpayers>

@@ -8,7 +8,7 @@
    
    <!-- Scenario 2: MFJ, $155k combined income, 2 children -->
    <expected_agi>155000</expected_agi>
-   <expected_taxable_income>125000</expected_taxable_income>
+   <expected_taxable_income>123500</expected_taxable_income>
    
    <taxpayers>
       <taxpayer id="1">

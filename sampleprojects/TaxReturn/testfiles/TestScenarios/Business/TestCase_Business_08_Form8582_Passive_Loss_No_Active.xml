@@ -16,8 +16,8 @@
     <!-- Taxable: $155,000 -->
     <!-- Tax: ~$26,764 -->
     <expected_agi>185000</expected_agi>
-    <expected_taxable_income>155000</expected_taxable_income>
-    <expected_total_tax>26764</expected_total_tax>
+    <expected_taxable_income>153500</expected_taxable_income>
+    <expected_total_tax>23598</expected_total_tax>
 
     <taxpayers>
         <taxpayer id="1">

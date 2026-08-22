@@ -30,8 +30,8 @@
    <!-- Taxable Income: $48,000 - $33,200 = $14,800 -->
    <!-- Tax: 10% of $14,800 = $1,480 -->
    <expected_agi>48000</expected_agi>
-   <expected_taxable_income>14800</expected_taxable_income>
-   <expected_total_tax>1480</expected_total_tax>
+   <expected_taxable_income>13300</expected_taxable_income>
+   <expected_total_tax>1330</expected_total_tax>
    <expected_refund>0</expected_refund>
 
    <taxpayer>

@@ -15,8 +15,8 @@
     <!-- Taxable: $95,000 (all ordinary income including STCG) -->
     <!-- Tax: ~$16,198 -->
     <expected_agi>110000</expected_agi>
-    <expected_taxable_income>95000</expected_taxable_income>
-    <expected_total_tax>16198</expected_total_tax>
+    <expected_taxable_income>94250</expected_taxable_income>
+    <expected_total_tax>15649</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

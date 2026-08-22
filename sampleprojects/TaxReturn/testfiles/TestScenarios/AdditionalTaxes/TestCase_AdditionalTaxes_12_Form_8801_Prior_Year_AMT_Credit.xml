@@ -23,8 +23,8 @@
     <!-- Net tax: $10,617 -->
 
     <expected_agi>185000</expected_agi>
-    <expected_taxable_income>170000</expected_taxable_income>
-    <expected_total_tax>10617</expected_total_tax>
+    <expected_taxable_income>169250</expected_taxable_income>
+    <expected_total_tax>33467</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

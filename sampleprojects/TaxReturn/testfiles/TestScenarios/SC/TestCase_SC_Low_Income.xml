@@ -36,8 +36,8 @@
    <!-- SC Tax: $0 (under $3,560 threshold) -->
    <!-- Total Tax: $300 (federal) + $0 (SC) = $300 -->
    <expected_agi>18000</expected_agi>
-   <expected_taxable_income>3000</expected_taxable_income>
-   <expected_total_tax>300</expected_total_tax>
+   <expected_taxable_income>2250</expected_taxable_income>
+   <expected_total_tax>225</expected_total_tax>
 
    <!-- Taxpayer -->
    <taxpayers>

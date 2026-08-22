@@ -34,10 +34,10 @@
    <!-- MI Taxable Income: $61,800 ($85,000 AGI - $23,200 exemptions) -->
    <!-- MI Tax: $2,627 (4.25% of $61,800) -->
    <expected_agi>85000</expected_agi>
-   <expected_taxable_income>62500</expected_taxable_income>
+   <expected_taxable_income>61375</expected_taxable_income>
    <expected_federal_tax>8734</expected_federal_tax>
    <expected_state_tax>2627</expected_state_tax>
-   <expected_total_tax>11361</expected_total_tax>
+   <expected_total_tax>6916.5</expected_total_tax>
 
    <!-- Head of Household Taxpayer -->
    <taxpayers>

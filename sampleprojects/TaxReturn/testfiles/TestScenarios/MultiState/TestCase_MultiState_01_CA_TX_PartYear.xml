@@ -32,7 +32,7 @@
    <!-- TX has no state income tax -->
    <!-- CA Tax (part-year resident): Based on $89,280 CA-source income -->
    <expected_agi>180000</expected_agi>
-   <expected_taxable_income>150000</expected_taxable_income>
+   <expected_taxable_income>148500</expected_taxable_income>
    <expected_ca_allocated_income>89280</expected_ca_allocated_income>
    <expected_tx_allocated_income>90720</expected_tx_allocated_income>
 

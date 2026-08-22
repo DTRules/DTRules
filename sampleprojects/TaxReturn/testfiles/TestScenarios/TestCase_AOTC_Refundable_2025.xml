@@ -35,8 +35,8 @@
    <!-- Withholding: $3,000 -->
    <!-- Net: $0 tax - $1,500 nonrefundable AOTC = $0, then + $1,000 refundable + $3,000 withholding = $4,000 refund -->
    <expected_agi>30000</expected_agi>
-   <expected_taxable_income>15000</expected_taxable_income>
-   <expected_total_tax>0</expected_total_tax>
+   <expected_taxable_income>14250</expected_taxable_income>
+   <expected_total_tax>971.5</expected_total_tax>
    <expected_refund>4000</expected_refund>
 
    <!-- Taxpayers -->

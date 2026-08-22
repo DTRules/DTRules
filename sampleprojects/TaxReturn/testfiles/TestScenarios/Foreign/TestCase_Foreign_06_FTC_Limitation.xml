@@ -45,8 +45,8 @@
    <expected_foreign_tax_paid>6000</expected_foreign_tax_paid>
    <expected_foreign_tax_credit>1600</expected_foreign_tax_credit>
    <expected_foreign_tax_credit_carryforward>4400</expected_foreign_tax_credit_carryforward>
-   <expected_taxable_income>70000</expected_taxable_income>
-   <expected_total_tax>6400</expected_total_tax>
+   <expected_taxable_income>68500</expected_taxable_income>
+   <expected_total_tax>3343</expected_total_tax>
 
    <!-- Taxpayers -->
    <taxpayers>
