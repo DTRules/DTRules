@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The perfect cribbage hand: three fives and the jack of the cut suit,
+     with the fourth five cut. 29 is the highest score possible in the show.
+     Suits: 0=spades 1=hearts 2=diamonds 3=clubs. -->
+<hand>
+  <id>perfect29</id>
+  <is_crib>false</is_crib>
+  <card><rank>5</rank><suit>1</suit><is_starter>false</is_starter></card>
+  <card><rank>5</rank><suit>2</suit><is_starter>false</is_starter></card>
+  <card><rank>5</rank><suit>3</suit><is_starter>false</is_starter></card>
+  <card><rank>11</rank><suit>0</suit><is_starter>false</is_starter></card>
+  <card><rank>5</rank><suit>0</suit><is_starter>true</is_starter></card>
+</hand>

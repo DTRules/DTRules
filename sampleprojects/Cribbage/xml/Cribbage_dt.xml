@@ -7,7 +7,7 @@
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:3ed38101473acbfc31151c55c9555188406e62dbe6b9c3c1f89f0ce17e8de4f6</source_hash>
+<source_hash>sha256:84933aa07892e96dc07ddd7b33321048d66fa5ebe06adcbad3662b31901c1667</source_hash>
 </source>
 <table_name>Score_Hand</table_name>
 <xls_file>Cribbage.xlsx</xls_file>
@@ -19,9 +19,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set hand.fifteen_points = 0; set hand.pair_points = 0; set hand.run_points = 0; set hand.flush_points = 0; set hand.nobs_points = 0; set hand.total = 0;</initial_action_dsl>
+<initial_action_dsl>set hand.fifteen_points = 0; set hand.pair_points = 0; set hand.run_points = 0; set hand.flush_points = 0; set hand.nobs_points = 0; set hand.total = 0; for all hand.cards where card.rank &gt; 10 set card.value = 10; for all hand.cards where card.rank &lt;= 10 set card.value = card.rank; if number of hand.kept == 0 then for all hand.cards where card.is_starter == false add card to hand.kept; for all hand.cards where card.is_starter set hand.starter_suit = card.suit; endif;</initial_action_dsl>
 <initial_action_postfix>
-0 cvi /hand.fifteen_points xdef 0 cvi /hand.pair_points xdef 0 cvi /hand.run_points xdef 0 cvi /hand.flush_points xdef 0 cvi /hand.nobs_points xdef 0 cvi /hand.total xdef
+0 cvi /hand.fifteen_points xdef 0 cvi /hand.pair_points xdef 0 cvi /hand.run_points xdef 0 cvi /hand.flush_points xdef 0 cvi /hand.nobs_points xdef 0 cvi /hand.total xdef { { 10 cvi /card.value xdef } card.rank 10 &gt; if } hand.cards forall { { card.rank cvi /card.value xdef } card.rank 10 &lt;= if } hand.cards forall { { { card hand.kept swap addto } card.is_starter false beq if } hand.cards forall { { card.suit cvi /hand.starter_suit xdef } card.is_starter if } hand.cards forall } {} hand.kept length 0 == ifelse
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -125,7 +125,7 @@ hand.fifteen_points hand.pair_points + hand.run_points + hand.flush_points + han
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:3ed38101473acbfc31151c55c9555188406e62dbe6b9c3c1f89f0ce17e8de4f6</source_hash>
+<source_hash>sha256:84933aa07892e96dc07ddd7b33321048d66fa5ebe06adcbad3662b31901c1667</source_hash>
 </source>
 <table_name>Score_Runs</table_name>
 <xls_file>Cribbage.xlsx</xls_file>
@@ -181,7 +181,7 @@ hand.run_points seq.span seq.multiplicity * + cvi /hand.run_points xdef
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
 <sheet_number>3</sheet_number>
-<source_hash>sha256:3ed38101473acbfc31151c55c9555188406e62dbe6b9c3c1f89f0ce17e8de4f6</source_hash>
+<source_hash>sha256:84933aa07892e96dc07ddd7b33321048d66fa5ebe06adcbad3662b31901c1667</source_hash>
 </source>
 <table_name>Score_Fifteens</table_name>
 <xls_file>Cribbage.xlsx</xls_file>
@@ -237,7 +237,7 @@ combo.sum 15 ==
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
 <sheet_number>4</sheet_number>
-<source_hash>sha256:3ed38101473acbfc31151c55c9555188406e62dbe6b9c3c1f89f0ce17e8de4f6</source_hash>
+<source_hash>sha256:84933aa07892e96dc07ddd7b33321048d66fa5ebe06adcbad3662b31901c1667</source_hash>
 </source>
 <table_name>Score_Pairs</table_name>
 <xls_file>Cribbage.xlsx</xls_file>
@@ -337,7 +337,7 @@ grp.count 4 ==
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
 <sheet_number>5</sheet_number>
-<source_hash>sha256:3ed38101473acbfc31151c55c9555188406e62dbe6b9c3c1f89f0ce17e8de4f6</source_hash>
+<source_hash>sha256:84933aa07892e96dc07ddd7b33321048d66fa5ebe06adcbad3662b31901c1667</source_hash>
 </source>
 <table_name>Score_Flush</table_name>
 <xls_file>Cribbage.xlsx</xls_file>
@@ -424,7 +424,7 @@ hand.is_crib
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
 <sheet_number>6</sheet_number>
-<source_hash>sha256:3ed38101473acbfc31151c55c9555188406e62dbe6b9c3c1f89f0ce17e8de4f6</source_hash>
+<source_hash>sha256:84933aa07892e96dc07ddd7b33321048d66fa5ebe06adcbad3662b31901c1667</source_hash>
 </source>
 <table_name>Score_Nobs</table_name>
 <xls_file>Cribbage.xlsx</xls_file>
@@ -489,7 +489,7 @@ card.suit hand.starter_suit ==
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
 <sheet_number>7</sheet_number>
-<source_hash>sha256:3ed38101473acbfc31151c55c9555188406e62dbe6b9c3c1f89f0ce17e8de4f6</source_hash>
+<source_hash>sha256:84933aa07892e96dc07ddd7b33321048d66fa5ebe06adcbad3662b31901c1667</source_hash>
 </source>
 <table_name>Score_Play</table_name>
 <xls_file>Cribbage.xlsx</xls_file>
@@ -580,7 +580,7 @@ play.count_points play.pair_points + play.run_points + play.go_points + cvi /pla
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
 <sheet_number>8</sheet_number>
-<source_hash>sha256:3ed38101473acbfc31151c55c9555188406e62dbe6b9c3c1f89f0ce17e8de4f6</source_hash>
+<source_hash>sha256:84933aa07892e96dc07ddd7b33321048d66fa5ebe06adcbad3662b31901c1667</source_hash>
 </source>
 <table_name>Score_Play_Count</table_name>
 <xls_file>Cribbage.xlsx</xls_file>
@@ -649,7 +649,7 @@ play.count 31 ==
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
 <sheet_number>9</sheet_number>
-<source_hash>sha256:3ed38101473acbfc31151c55c9555188406e62dbe6b9c3c1f89f0ce17e8de4f6</source_hash>
+<source_hash>sha256:84933aa07892e96dc07ddd7b33321048d66fa5ebe06adcbad3662b31901c1667</source_hash>
 </source>
 <table_name>Score_Play_Pairs</table_name>
 <xls_file>Cribbage.xlsx</xls_file>
@@ -767,7 +767,7 @@ combo.count 2 ==
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
 <sheet_number>10</sheet_number>
-<source_hash>sha256:3ed38101473acbfc31151c55c9555188406e62dbe6b9c3c1f89f0ce17e8de4f6</source_hash>
+<source_hash>sha256:84933aa07892e96dc07ddd7b33321048d66fa5ebe06adcbad3662b31901c1667</source_hash>
 </source>
 <table_name>Score_Play_Runs</table_name>
 <xls_file>Cribbage.xlsx</xls_file>
@@ -850,7 +850,7 @@ combo.count cvi /play.run_points xdef
 <relative_path>Cribbage.xlsx</relative_path>
 <file_name>Cribbage.xlsx</file_name>
 <sheet_number>11</sheet_number>
-<source_hash>sha256:3ed38101473acbfc31151c55c9555188406e62dbe6b9c3c1f89f0ce17e8de4f6</source_hash>
+<source_hash>sha256:84933aa07892e96dc07ddd7b33321048d66fa5ebe06adcbad3662b31901c1667</source_hash>
 </source>
 <table_name>Score_Play_Go</table_name>
 <xls_file>Cribbage.xlsx</xls_file>

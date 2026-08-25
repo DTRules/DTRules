@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- His nobs: the kept jack matches the cut suit (hearts), worth 1, plus
+     two fifteens (J+2+3 and K+2+3). Expect 5. -->
+<hand>
+  <id>nobs</id>
+  <is_crib>false</is_crib>
+  <card><rank>11</rank><suit>1</suit><is_starter>false</is_starter></card>
+  <card><rank>2</rank><suit>3</suit><is_starter>false</is_starter></card>
+  <card><rank>3</rank><suit>2</suit><is_starter>false</is_starter></card>
+  <card><rank>13</rank><suit>0</suit><is_starter>false</is_starter></card>
+  <card><rank>9</rank><suit>1</suit><is_starter>true</is_starter></card>
+</hand>

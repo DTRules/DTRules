@@ -9,6 +9,7 @@
 			<file_name>project.xlsx</file_name>
 			<sheet_number>1</sheet_number>
 		</source>
+		<field name="is_starter" type="boolean" subtype="" access="rw" input="true" default_value="false" comment="the cut card; false for the four kept cards. Lets one card stream in the mapping serve both hand.cards and hand.kept (#1118-style packaging)"></field>
 		<field name="rank" type="integer" subtype="" access="rw" input="true" default_value="" comment="1=Ace .. 13=King"></field>
 		<field name="suit" type="integer" subtype="" access="rw" input="true" default_value="" comment="0-3"></field>
 		<field name="value" type="integer" subtype="" access="rw" input="true" default_value="" comment="counting value: face cards are 10"></field>
