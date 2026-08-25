@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<!-- The hand is the root singleton; is_crib decides the flush rule. -->
+			<setattribute tag='is_crib' RAttribute='is_crib' enclosure='hand' type='boolean'></setattribute>
+			<!-- One card stream. A scenario states rank, suit, and which card
+			     was cut; Score_Hand's initial actions derive the rest —
+			     counting value from rank, the kept four by excluding the
+			     starter, and starter_suit from the starter itself. Stating
+			     only what a player can see keeps a scenario impossible to
+			     make internally inconsistent. -->
+			<setattribute tag='rank' RAttribute='rank' enclosure='card' type='integer'></setattribute>
+			<setattribute tag='suit' RAttribute='suit' enclosure='card' type='integer'></setattribute>
+			<setattribute tag='is_starter' RAttribute='is_starter' enclosure='card' type='boolean'></setattribute>
+			<!-- The <hand> root element becomes the hand singleton, and each
+			     <card> element becomes a card entity on hand.cards. -->
+			<createentity entity='hand' tag='hand' id='id'></createentity>
+			<createentity entity='card' tag='card' id='rank' list='cards'></createentity>
+		</map>
+		<entities>
+			<entity name='hand' number='1'></entity>
+			<entity name='card' number='*'></entity>
+			<!-- The generators materialize these during execution (#980); they
+			     are never mapped from input, but must be declared to exist. -->
+			<entity name='combo' number='*'></entity>
+			<entity name='grp' number='*'></entity>
+			<entity name='seq' number='*'></entity>
+		</entities>
+		<initialization>
+			<initialentity entity='hand' epush='true'></initialentity>
+		</initialization>
+	</XMLtoEDD>
+</mapping>

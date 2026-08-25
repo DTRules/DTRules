@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Four hearts kept, but the cut is a spade, and this is the CRIB: a crib
+     flush needs all five cards in suit, so it scores nothing. The same five
+     cards in a hand would score 4. Expect 0. -->
+<hand>
+  <id>crib_flush_denied</id>
+  <is_crib>true</is_crib>
+  <card><rank>2</rank><suit>1</suit><is_starter>false</is_starter></card>
+  <card><rank>4</rank><suit>1</suit><is_starter>false</is_starter></card>
+  <card><rank>6</rank><suit>1</suit><is_starter>false</is_starter></card>
+  <card><rank>8</rank><suit>1</suit><is_starter>false</is_starter></card>
+  <card><rank>13</rank><suit>0</suit><is_starter>true</is_starter></card>
+</hand>
