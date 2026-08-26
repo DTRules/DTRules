@@ -7,7 +7,7 @@
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
+<source_hash>sha256:d1db6dd67faf61274709c3110a08a6a0fa5c7eb3b93c7c257b7364529d9267f6</source_hash>
 </source>
 <table_name>Resolve_Capture</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -19,9 +19,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set move.capture_found = 0; set move.capture_size = 0; set move.is_scopa = false;</initial_action_dsl>
+<initial_action_dsl>set move.capture_found = 0; set move.capture_size = 0; set move.is_scopa = false; for all move.table_cards set card.value = card.rank;</initial_action_dsl>
 <initial_action_postfix>
-0 cvi /move.capture_found xdef 0 cvi /move.capture_size xdef false cvb /move.is_scopa xdef
+0 cvi /move.capture_found xdef 0 cvi /move.capture_size xdef false cvb /move.is_scopa xdef { card.rank cvi /card.value xdef } move.table_cards forall
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -80,7 +80,7 @@ true
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
+<source_hash>sha256:d1db6dd67faf61274709c3110a08a6a0fa5c7eb3b93c7c257b7364529d9267f6</source_hash>
 </source>
 <table_name>Capture_Single</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -154,7 +154,7 @@ move.capture_found 0 ==
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>3</sheet_number>
-<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
+<source_hash>sha256:d1db6dd67faf61274709c3110a08a6a0fa5c7eb3b93c7c257b7364529d9267f6</source_hash>
 </source>
 <table_name>Capture_Sum</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -219,7 +219,7 @@ combo.sum move.played_rank ==
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>4</sheet_number>
-<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
+<source_hash>sha256:d1db6dd67faf61274709c3110a08a6a0fa5c7eb3b93c7c257b7364529d9267f6</source_hash>
 </source>
 <table_name>Score_Scopa</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -275,7 +275,7 @@ true cvb /move.is_scopa xdef
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>5</sheet_number>
-<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
+<source_hash>sha256:d1db6dd67faf61274709c3110a08a6a0fa5c7eb3b93c7c257b7364529d9267f6</source_hash>
 </source>
 <table_name>Primiera_Value</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -443,7 +443,7 @@ card.rank 2 ==
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>6</sheet_number>
-<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
+<source_hash>sha256:d1db6dd67faf61274709c3110a08a6a0fa5c7eb3b93c7c257b7364529d9267f6</source_hash>
 </source>
 <table_name>Suit_Best</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -494,7 +494,7 @@ true
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>7</sheet_number>
-<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
+<source_hash>sha256:d1db6dd67faf61274709c3110a08a6a0fa5c7eb3b93c7c257b7364529d9267f6</source_hash>
 </source>
 <table_name>Score_Primiera</table_name>
 <xls_file>Scopa.xlsx</xls_file>
@@ -576,7 +576,7 @@ true
 <relative_path>Scopa.xlsx</relative_path>
 <file_name>Scopa.xlsx</file_name>
 <sheet_number>8</sheet_number>
-<source_hash>sha256:026775198672ced372de4fe9a532bb5daed8a3398ecaabaad826b1ad5e737fd8</source_hash>
+<source_hash>sha256:d1db6dd67faf61274709c3110a08a6a0fa5c7eb3b93c7c257b7364529d9267f6</source_hash>
 </source>
 <table_name>Score_Settebello</table_name>
 <xls_file>Scopa.xlsx</xls_file>
