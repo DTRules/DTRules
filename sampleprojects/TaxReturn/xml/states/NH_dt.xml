@@ -39,7 +39,7 @@ true
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>New Hampshire taxes no earned income, and the 3% Interest &amp; Dividends tax was repealed by HB 2 (2023 session) effective for taxable periods beginning after 2024-12-31 — a 2025 return owes nothing. Source: NH DRA, Repeal of NH Interest and Dividends Tax Now in Effect. Verified 2026-08-26 (#443).</action_comment>
+<action_comment>No-op (tax already set to 0 in initial action)</action_comment>
 <action_dsl>/* no-op: tax already zeroed in initial_action */</action_dsl>
 <action_postfix></action_postfix>
 <columns>X</columns>
