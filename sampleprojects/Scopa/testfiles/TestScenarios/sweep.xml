@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- No single 7 on the table, so the sum is allowed: 3+4 takes both cards
+     and clears the table — a scopa.
+     Expect capture_found 1, capture_size 2, is_scopa true. -->
+<move>
+  <played_rank>7</played_rank>
+  <table_card><rank>3</rank><suit>1</suit></table_card>
+  <table_card><rank>4</rank><suit>1</suit></table_card>
+</move>

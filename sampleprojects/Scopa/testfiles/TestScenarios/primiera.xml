@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Primiera counts the best card per suit under scopa's own scoring map
+     (7 is worth most at 21, then 6 at 18, the ace at 16, faces least at 10).
+     Denari 7 (21) + denari 6 loses to it; suit-1 seven (21); suit-2 ace (16);
+     suit-3 ten (10). Expect primiera_total 68, and the settebello — the
+     seven of denari, suit 0 — present. -->
+<player>
+  <id>north</id>
+  <pile_card><rank>7</rank><suit>0</suit></pile_card>
+  <pile_card><rank>6</rank><suit>0</suit></pile_card>
+  <pile_card><rank>7</rank><suit>1</suit></pile_card>
+  <pile_card><rank>1</rank><suit>2</suit></pile_card>
+  <pile_card><rank>10</rank><suit>3</suit></pile_card>
+</player>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	<XMLtoEDD>
+		<map>
+			<!-- The played card's rank is the whole of a capture question:
+			     what can it take from the table? -->
+			<setattribute tag='played_rank' RAttribute='played_rank' enclosure='move' type='integer'></setattribute>
+			<!-- Cards carry rank and suit. Capture value equals rank in scopa,
+			     so Resolve_Capture derives it; primiera value is a scoring map
+			     the Primiera_Value table applies. A scenario states neither,
+			     and so cannot state either one wrongly. -->
+			<setattribute tag='rank' RAttribute='rank' enclosure='card' type='integer'></setattribute>
+			<setattribute tag='suit' RAttribute='suit' enclosure='card' type='integer'></setattribute>
+			<!-- Two singletons, because the sample has two entry points: a
+			     capture is asked of a move, primiera is asked of a player.
+			     Both are pushed, so either entry table finds its root. -->
+			<createentity entity='move' tag='move' id='played_rank'></createentity>
+			<createentity entity='player' tag='player' id='id'></createentity>
+			<!-- Same card entity, two streams, told apart by their tag: cards
+			     lying on the table versus cards already captured into a pile. -->
+			<createentity entity='card' tag='table_card' id='rank' list='table_cards'></createentity>
+			<createentity entity='card' tag='pile_card' id='rank' list='pile'></createentity>
+		</map>
+		<entities>
+			<entity name='move' number='1'></entity>
+			<entity name='player' number='1'></entity>
+			<entity name='card' number='*'></entity>
+			<!-- Materialized during execution by subsets and groupby (#980). -->
+			<entity name='combo' number='*'></entity>
+			<entity name='grp' number='*'></entity>
+		</entities>
+		<initialization>
+			<initialentity entity='move' epush='true'></initialentity>
+			<initialentity entity='player' epush='true'></initialentity>
+		</initialization>
+	</XMLtoEDD>
+</mapping>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Scopa's precedence rule. A 7 is played; the table holds 3, 4 and a 7.
+     3+4 sums to 7, but a single card of equal rank is a MANDATORY capture,
+     so the sums are barred: one card taken, three left, no sweep.
+     Expect capture_found 1, capture_size 1, is_scopa false. -->
+<move>
+  <played_rank>7</played_rank>
+  <table_card><rank>3</rank><suit>1</suit></table_card>
+  <table_card><rank>4</rank><suit>1</suit></table_card>
+  <table_card><rank>7</rank><suit>2</suit></table_card>
+</move>
