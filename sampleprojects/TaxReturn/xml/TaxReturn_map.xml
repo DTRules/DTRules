@@ -224,6 +224,15 @@
 			<!-- Note: job is an initialentity, not created from XML -->
 			<!-- Singleton entities -->
 			<!-- Multiple instance entities -->
+			<setattribute tag='id' RAttribute='id' enclosure='state_period' type='integer'></setattribute>
+			<setattribute tag='state_code' RAttribute='state_code' enclosure='state_period' type='string'></setattribute>
+			<setattribute tag='start_date' RAttribute='start_date' enclosure='state_period' type='date'></setattribute>
+			<setattribute tag='end_date' RAttribute='end_date' enclosure='state_period' type='date'></setattribute>
+			<setattribute tag='resident_status' RAttribute='resident_status' enclosure='state_period' type='string'></setattribute>
+			<setattribute tag='days_in_state' RAttribute='days_in_state' enclosure='state_period' type='integer'></setattribute>
+			<setattribute tag='state_code' RAttribute='state_code' enclosure='income' type='string'></setattribute>
+			<setattribute tag='expected_reciprocity_state' RAttribute='expected_reciprocity_state' enclosure='job' type='string'></setattribute>
+			<setattribute tag='expected_nonresident_source_income' RAttribute='expected_nonresident_source_income' enclosure='job' type='double'></setattribute>
 			<createentity entity='taxpayer' tag='taxpayer' id='id' list='taxpayers'></createentity>
 			<createentity entity='dependent' tag='dependent' id='id' list='dependents'></createentity>
 			<createentity entity='income' tag='income' id='id' list='incomes'></createentity>
@@ -241,6 +250,7 @@
 			<createentity entity='constants' tag='constants' id='id'></createentity>
 			<createentity entity='result' tag='result' id='id'></createentity>
 			<createentity entity='state_tax_result' tag='state_tax_result' id='state_code' list='state_tax_results'></createentity>
+			<createentity entity='state_period' tag='state_period' id='id' list='state_periods'></createentity>
 		</map>
 		<entities>
 			<entity name='constants' number='1'></entity>
@@ -261,6 +271,7 @@
 			<entity name='lihtc_recapture' number='*'></entity>
 			<entity name='credit' number='*'></entity>
 			<entity name='state_tax_result' number='*'></entity>
+			<entity name='state_period' number='*'></entity>
 		</entities>
 		<initialization>
 			<initialentity entity='result' epush='true'></initialentity>

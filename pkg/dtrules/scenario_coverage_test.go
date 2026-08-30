@@ -39,8 +39,8 @@ import (
 // Validate_Summary writes no FAIL line — the rule set validates itself, and
 // this listens to it.
 const (
-	scenariosCleanFloor = 280
-	scenariosRunFloor   = 500
+	scenariosCleanFloor = 284
+	scenariosRunFloor   = 504
 )
 
 func TestTaxReturnScenarioCoverage(t *testing.T) {
