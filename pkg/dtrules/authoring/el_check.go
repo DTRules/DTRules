@@ -85,6 +85,10 @@ func CheckContext(elStr string, symbols map[string]string) (postfix string, err 
 // declared before they are referenced. syncToXML already writes them that way.
 type tableCompiler struct {
 	c *el.Compiler
+	// scoped records that the post-context baseline has been marked. Rows
+	// arrive in table order, so the first condition or action is the point
+	// where the contexts are known to be done.
+	scoped bool
 }
 
 // newTableCompiler starts a fresh local scope for one table.
@@ -109,6 +113,20 @@ func (tc *tableCompiler) compile(dsl, kind string) string {
 		postfix string
 		err     error
 	)
+	// Contexts accumulate locals for the whole table; conditions and actions
+	// each compile against that same baseline and no more. A local declared in
+	// one action must not shift the slot the next action allocates, or the
+	// second one indexes past its own frame and dies at execute with
+	// "[OutOfBounds] GetFrameValue" -- #1047 one scope down. See
+	// el.Compiler.MarkLocalScope.
+	if kind != "context" {
+		if !tc.scoped {
+			tc.c.MarkLocalScope()
+			tc.scoped = true
+		}
+		tc.c.ResetToLocalScope()
+	}
+
 	switch kind {
 	case "context":
 		postfix, err = tc.c.CompileContext(strings.TrimSpace(dsl))

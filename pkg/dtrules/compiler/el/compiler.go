@@ -43,6 +43,11 @@ type Compiler struct {
 	symbols map[string]string // symbol table for type resolution
 	emitter *PostfixEmitter   // persistent emitter to track local variables
 	errors  []error
+
+	// localScope is the post-context local state each condition and action of
+	// the current table compiles against; see MarkLocalScope.
+	localScope    LocalsMark
+	hasLocalScope bool
 }
 
 // NewCompiler creates a new EL compiler.
@@ -95,6 +100,33 @@ func (c *Compiler) SetOperatorArity(arity func(string) int) {
 // so a condition can see the slot declared by the context.
 func (c *Compiler) ResetLocals() {
 	c.emitter.ResetLocals()
+	// A new table has no context baseline yet; carrying the previous table's
+	// would rewind to slots that table's contexts declared and this one's did not.
+	c.localScope = LocalsMark{}
+	c.hasLocalScope = false
+}
+
+// MarkLocalScope records the local state a table's contexts established, as
+// the baseline every condition and action compiles against. Call it once,
+// after the contexts compile.
+//
+// Context locals must stay visible — a condition referring to
+// `<alias>.<field>` needs the slot the context declared. Locals declared
+// inside a condition or action must not: each emits its own `allocate`, so
+// every sibling starts from the same frame offset and their indices have to
+// restart. See PostfixEmitter.RestoreLocals.
+func (c *Compiler) MarkLocalScope() {
+	c.localScope = c.emitter.MarkLocals()
+	c.hasLocalScope = true
+}
+
+// ResetToLocalScope rewinds locals to the baseline set by MarkLocalScope.
+// Call it before compiling each condition and each action. It is a no-op if no
+// baseline has been marked, so callers that don't scope keep their behaviour.
+func (c *Compiler) ResetToLocalScope() {
+	if c.hasLocalScope {
+		c.emitter.RestoreLocals(c.localScope)
+	}
 }
 
 // CollectionResolver maps an entity-type name (the element type of an array

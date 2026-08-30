@@ -690,6 +690,50 @@ func (e *PostfixEmitter) ResetLocals() {
 	e.localCnt = 0
 }
 
+// LocalsMark captures the local state established by a table's contexts, so
+// each condition and action can be compiled against it and nothing else.
+type LocalsMark struct {
+	locals map[string]LocalVar
+	count  int
+}
+
+// MarkLocals snapshots the current local state. Take the mark after compiling
+// a table's contexts.
+func (e *PostfixEmitter) MarkLocals() LocalsMark {
+	cp := make(map[string]LocalVar, len(e.locals))
+	for k, v := range e.locals {
+		cp[k] = v
+	}
+	return LocalsMark{locals: cp, count: e.localCnt}
+}
+
+// RestoreLocals rewinds to a mark. Call it before compiling each condition and
+// each action.
+//
+// Context locals are frame-relative and outlive the whole table: the context's
+// `allocate` wraps the body, so a condition referring to `<alias>.<field>` must
+// see the same slot the context declared. Locals declared *inside* a condition
+// or action are not like that. Each emits its own `allocate`, which reserves a
+// slot at the same offset every sibling starts from — so their indices have to
+// restart from the context's count, not keep climbing.
+//
+// Without the rewind the second action that declares a local emits `1 local@`
+// against a frame holding one slot, and execution fails with "[OutOfBounds]
+// GetFrameValue". That is #1047 exactly, one scope down: #1047 stopped the
+// counter bleeding between tables, and this stops it bleeding between the
+// actions of one table. It stayed hidden because it takes two actions in the
+// same table that each declare a local, and TaxReturn's
+// Build_State_Tax_Result_For_Period -- the first such table to be executed --
+// was orphaned for as long as it had the defect (#234).
+func (e *PostfixEmitter) RestoreLocals(m LocalsMark) {
+	cp := make(map[string]LocalVar, len(m.locals))
+	for k, v := range m.locals {
+		cp[k] = v
+	}
+	e.locals = cp
+	e.localCnt = m.count
+}
+
 // emit adds a token to the output.
 func (e *PostfixEmitter) emit(token string) {
 	if e.output.Len() > 0 {
