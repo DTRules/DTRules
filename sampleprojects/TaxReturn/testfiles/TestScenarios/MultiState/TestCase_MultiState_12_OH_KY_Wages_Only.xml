@@ -1,0 +1,83 @@
+<job>
+   <copyright>
+      Copyright 2026 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- OH resident working in KY with BOTH wages and rental income sourced to KY.
+        Reciprocity reaches employee compensation only. Wisconsin Pub 121 states it
+        "does not apply to other types of income, such as gains on the sale of
+        property, rental income, lottery winnings, self-employment income", and every
+        other state says the same. So KY exempts the $72,000 of wages and keeps taxing
+        the $18,000 of rent. -->
+   <id>MS-12-OH-KY-MIXED</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>OH</state>
+
+   <expected_agi>90000</expected_agi>
+   <expected_reciprocity_state>KY</expected_reciprocity_state>
+   <expected_nonresident_source_income>18000</expected_nonresident_source_income>
+
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>OH</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>resident</resident_status>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>KY</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>nonresident</resident_status>
+      </state_period>
+   </state_periods>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Test Taxpayer</name>
+         <date_of_birth>3/14/1985</date_of_birth>
+         <is_primary>true</is_primary>
+         <w2_wages>72000</w2_wages>
+      </taxpayer>
+   </taxpayers>
+
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Employer in KY</source>
+         <gross_amount>72000</gross_amount>
+         <state_code>KY</state_code>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>rental</type>
+         <source>Rental property in KY</source>
+         <gross_amount>18000</gross_amount>
+         <state_code>KY</state_code>
+      </income>
+   </incomes>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>
