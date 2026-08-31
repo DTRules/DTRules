@@ -15,6 +15,7 @@
 package analysis
 
 import (
+	"bytes"
 	"encoding/xml"
 	"os"
 	"path/filepath"
@@ -43,13 +44,6 @@ import (
 // This is precise rather than an over-approximation: these entities really are
 // on the stack for every table, so a bare name really can resolve to them.
 func initialEntities(xmlDir string) []string {
-	var doc struct {
-		Initial []struct {
-			Entity string `xml:"entity,attr"`
-			EPush  string `xml:"epush,attr"`
-		} `xml:"initialization>initialentity"`
-	}
-
 	seen := make(map[string]bool)
 	_ = filepath.WalkDir(xmlDir, func(p string, d os.DirEntry, err error) error {
 		if err != nil || d.IsDir() || !strings.HasSuffix(d.Name(), "_map.xml") {
@@ -59,17 +53,44 @@ func initialEntities(xmlDir string) []string {
 		if rerr != nil {
 			return nil
 		}
-		doc.Initial = nil
-		if xml.Unmarshal(data, &doc) != nil {
-			return nil
-		}
-		for _, e := range doc.Initial {
-			// epush='false' declares the entity without putting it on the
-			// stack, so a bare name cannot resolve to it.
-			if !strings.EqualFold(strings.TrimSpace(e.EPush), "true") {
+		// Scanned as tokens rather than unmarshalled into a path, because the
+		// path is what broke it. The struct tag read
+		// `initialization>initialentity`, which anchors at the document
+		// element -- and every mapping in the corpus nests the block one
+		// level deeper, under <XMLtoEDD>. So the decode matched nothing, for
+		// every project, and this function had always returned an empty
+		// stack. The bare-name resolution it exists to feed was therefore
+		// inert since it shipped: the very example in the comment above,
+		// CHIP's job.currentdate, was still being reported as unused.
+		//
+		// Depth is not information here -- an <initialentity> means the same
+		// thing wherever the file puts it -- so nothing is gained by pinning
+		// the path and a whole class of silent breakage is avoided.
+		dec := xml.NewDecoder(bytes.NewReader(data))
+		for {
+			tok, terr := dec.Token()
+			if terr != nil {
+				break
+			}
+			se, ok := tok.(xml.StartElement)
+			if !ok || !strings.EqualFold(se.Name.Local, "initialentity") {
 				continue
 			}
-			if name := strings.ToLower(strings.TrimSpace(e.Entity)); name != "" {
+			var entity, epush string
+			for _, a := range se.Attr {
+				switch strings.ToLower(a.Name.Local) {
+				case "entity":
+					entity = a.Value
+				case "epush":
+					epush = a.Value
+				}
+			}
+			// epush='false' declares the entity without putting it on the
+			// stack, so a bare name cannot resolve to it.
+			if !strings.EqualFold(strings.TrimSpace(epush), "true") {
+				continue
+			}
+			if name := strings.ToLower(strings.TrimSpace(entity)); name != "" {
 				seen[name] = true
 			}
 		}
