@@ -222,6 +222,10 @@ func debugSessionPayload(ds *debugSession) map[string]interface{} {
 		"fingerprintMatch": ds.fingerprintMatch,
 		"verifyMismatches": ds.verifyMismatches,
 		"speculative":      ds.speculative,
+		// Where the replay currently sits. A client that steps, runs to a
+		// node, or runs until a predicate fires needs to be able to ask; it
+		// was the one piece of session state the payload did not carry.
+		"position": ds.position,
 	}
 }
 
@@ -589,4 +593,180 @@ func (s *Server) consoleSymbols() map[string]string {
 		return nil
 	}
 	return authoring.LoadEDDSymbols(projectXMLDir(s.projectPath))
+}
+
+// watchDefaultLimit bounds how many nodes a single watch request will replay.
+//
+// Each step re-establishes the entity stack for that node, so the cost is
+// linear in nodes examined and the traces are large -- 398k nodes in the
+// synthetic fixture. An unbounded "run until" would be a request that never
+// returns, so the search is bounded and reports where it stopped; the caller
+// resumes from there. That keeps a long hunt interruptible instead of opaque.
+const watchDefaultLimit = 2000
+
+// handleDebugWatch runs forward from the current position until a predicate
+// becomes true, and stops there.
+// POST /api/debug/watch {"expression":"...", "language":"el"|"postfix",
+//
+//	"from":<node>, "limit":<n>}
+//
+// Edge-triggered: it stops where the predicate first becomes true having been
+// false at the node before. "Run until drift_anomaly is true" means the moment
+// it *became* true, not every node it stays true for -- otherwise the first
+// step of the next search stops immediately on the same condition and the
+// debugger cannot be walked forward through a run of them (#930).
+func (s *Server) handleDebugWatch(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		jsonError(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var req struct {
+		Expression string `json:"expression"`
+		Language   string `json:"language"`
+		From       int    `json:"from"`
+		Limit      int    `json:"limit"`
+	}
+	if err := s.limitedDecode(w, r, &req); err != nil {
+		jsonError(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	if strings.TrimSpace(req.Expression) == "" {
+		jsonError(w, "expression is required", http.StatusBadRequest)
+		return
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.debug == nil || s.debug.trace == nil {
+		jsonError(w, "No trace loaded", http.StatusBadRequest)
+		return
+	}
+
+	source, language, err := s.consoleCompileSource(req.Expression, req.Language)
+	if err != nil {
+		jsonError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	blocked := consoleBlocked
+	if language == "el" {
+		blocked = consoleBlockedAfterEL
+	}
+	for _, tok := range strings.Fields(source) {
+		if blocked[strings.ToLower(tok)] {
+			jsonError(w, fmt.Sprintf("%s is a mutating operator — a watch expression is read-only", tok),
+				http.StatusBadRequest)
+			return
+		}
+	}
+
+	from := req.From
+	if from <= 0 {
+		from = s.debug.position
+	}
+	limit := req.Limit
+	if limit <= 0 || limit > watchDefaultLimit {
+		limit = watchDefaultLimit
+	}
+
+	// The value at the starting node is the baseline the edge is measured
+	// against. Without it, a predicate already true where the search begins
+	// would report a transition that did not happen.
+	prev, _ := s.evalAt(from, source)
+
+	examined := 0
+	for node := from + 1; node <= s.debug.nodeCount && examined < limit; node++ {
+		examined++
+		cur, evalErr := s.evalAt(node, source)
+		if evalErr != nil {
+			// A node where the expression cannot be evaluated -- a name not on
+			// that entity stack, say -- is not a match and not a failure. The
+			// stack changes shape as the run descends, and refusing to
+			// continue would make a watch unusable on anything but the
+			// shallowest expression.
+			prev = false
+			continue
+		}
+		if cur && !prev {
+			target := s.debug.trace.Find(node)
+			if target == nil {
+				break
+			}
+			sess, serr := s.debug.trace.SetState(s.ruleSet, target)
+			if serr != nil {
+				jsonError(w, fmt.Sprintf("Replay failed: %v", serr), http.StatusInternalServerError)
+				return
+			}
+			s.debug.replaySess = sess
+			s.debug.position = node
+			jsonResponse(w, map[string]interface{}{
+				"success":  true,
+				"hit":      true,
+				"position": node,
+				"examined": examined,
+				"nodes":    s.debug.nodeCount,
+				"language": language,
+				"postfix":  source,
+				"context":  debugContext(target),
+				"node": map[string]interface{}{
+					"name": target.Name, "attrs": target.Attributes, "body": target.Body},
+				"stack": debugStack(sess.GetState()),
+			})
+			return
+		}
+		prev = cur
+	}
+
+	// No transition inside the bound. Reported as a result, not an error: the
+	// caller needs to know where the search reached so it can resume, and
+	// "not yet" is a legitimate answer to "run until".
+	jsonResponse(w, map[string]interface{}{
+		"success":  true,
+		"hit":      false,
+		"position": s.debug.position,
+		"examined": examined,
+		"searched_to": func() int {
+			end := from + examined
+			if end > s.debug.nodeCount {
+				return s.debug.nodeCount
+			}
+			return end
+		}(),
+		"nodes":    s.debug.nodeCount,
+		"language": language,
+		"postfix":  source,
+	})
+}
+
+// evalAt replays to one node and evaluates a read-only postfix there,
+// reporting its truth. The replay session is left where it was: a search that
+// examined two thousand nodes should not move the debugger to the last one it
+// looked at.
+func (s *Server) evalAt(node int, postfix string) (bool, error) {
+	target := s.debug.trace.Find(node)
+	if target == nil {
+		return false, fmt.Errorf("node %d not found", node)
+	}
+	sess, err := s.debug.trace.SetState(s.ruleSet, target)
+	if err != nil {
+		return false, err
+	}
+	compiled, err := sess.Compile(postfix)
+	if err != nil {
+		return false, err
+	}
+	state := sess.GetState()
+	if err := compiled.Execute(state); err != nil {
+		return false, err
+	}
+	if state.DataStackDepth() == 0 {
+		return false, fmt.Errorf("expression left nothing on the stack")
+	}
+	v, err := state.DataPop()
+	if err != nil {
+		return false, err
+	}
+	if b, berr := v.BooleanValue(); berr == nil {
+		return b, nil
+	}
+	return strings.EqualFold(strings.TrimSpace(v.StringValue()), "true"), nil
 }
