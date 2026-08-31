@@ -23,9 +23,13 @@
     <!--   AMT: 26% on $232,600 + 28% on $460,213 = $60,476 + $128,860 = $189,336 -->
     <!-- Regular tax higher, so no AMT liability -->
     <!-- Total tax: $226,400 -->
+    <!-- $50,000 of charitable giving beats the $15,750 single standard deduction,
+         so this return itemizes. The figures above assumed the standard
+         deduction because Calculate_Itemized_Deductions was reached by nothing
+         (#1161); 750,000 - 50,000 = 700,000. -->
     <expected_agi>750000</expected_agi>
-    <expected_taxable_income>734250</expected_taxable_income>
-    <expected_total_tax>226642.75</expected_total_tax>
+    <expected_taxable_income>700000</expected_taxable_income>
+    <expected_total_tax>213997.25</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

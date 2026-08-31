@@ -61,11 +61,16 @@
    <city>Seattle</city>
 
    <!-- Expected Values for Validation -->
+   <!-- Itemizing beats the $15,750 single standard deduction: $23,000 charitable
+         + $28,000 mortgage interest (balance $600,000, under the $750,000
+         acquisition-debt limit) + $9,500 SALT, which is property tax alone
+         because Washington levies no income tax. 230,000 - 60,500 = 169,500.
+         Previously assumed the standard deduction (#1161). -->
    <expected_agi>230000</expected_agi>
-   <expected_taxable_income>214250</expected_taxable_income>
+   <expected_taxable_income>169500</expected_taxable_income>
    <expected_federal_tax>48500</expected_federal_tax>
    <expected_state_tax>0</expected_state_tax>
-   <expected_total_tax>45893</expected_total_tax>
+   <expected_total_tax>33797</expected_total_tax>
 
    <!-- Tech Worker - Washington Resident -->
    <taxpayers>
