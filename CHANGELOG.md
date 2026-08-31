@@ -1,5 +1,136 @@
 # DTRules Changelog
 
+## v1.25.0 — 2026-08-31
+
+Reciprocal state agreements ship, and the work of building them turned up a
+pattern worth naming: a decision table can exist, compile, pass every gate,
+and be reached by nothing at all. Four were found this cycle. The orphan-call
+analysis looks for calls to tables that do not exist, not for tables that
+exist and nobody calls, so each one produced a plausible wrong answer for as
+long as it sat there.
+
+### Reciprocal state agreements
+
+- **A resident of one state working in another pays only their home state**
+  (#234). Thirty bilateral agreements across sixteen jurisdictions, each
+  verified against the work state's own revenue department publication.
+  `Determine_State_Reciprocity` holds the matrix — one row per work state,
+  carrying its exemption certificate — and removes the exempt wages.
+- **Wages only.** Reciprocity reaches employee compensation and nothing else,
+  so `allocated_wage_income` accumulates from `income.type` beside
+  `allocated_income`, and self-employment, rent and gains sourced to the work
+  state stay taxable there.
+- **The non-resident return survives.** The relief zeroes the work state's
+  taxable wages but keeps the `state_tax_result`: the certificate governs
+  withholding, not liability, so an employee who never filed one still files a
+  non-resident return showing zero wages to recover what was withheld.
+- **Two absences are deliberate**, and asserted as negatives, because getting
+  them wrong exempts tax that is owed. Minnesota–Wisconsin ended 2010-01-01
+  and the 2024 joint study produced no reinstatement. Arizona is not a
+  reciprocity state despite being widely listed as one: A.R.S. § 43-1096 is a
+  withholding exception backed by a credit, the wages stay Arizona-taxable,
+  and a Form 140NR is still required.
+- All thirty pairs are exercised from both directions, alongside the
+  negatives and the wage-only limit. Reference:
+  [docs/state-reciprocal-agreements.md](docs/state-reciprocal-agreements.md),
+  including the per-pair conditions not yet modelled — daily-commuter,
+  monthly-return-home, the 183-day statutory-residence tests, local income
+  taxes, and the Ohio–Kentucky 20% S-corp carve-out.
+
+Building it required wiring up the multi-state path underneath, which was
+inert: `state_period` had no mapping, so `job.state_periods` was 0 on every
+scenario, `Calculate_State_Source_Income` had no caller, and `is_resident` and
+`state_source_income` — written by its child table — were declared nowhere.
+
+### Rules that were reached by nothing
+
+- **Itemized deductions apply** (#1161). `Calculate_Itemized_Deductions` was
+  performed by zero tables, so `result.total_itemized` stayed 0 and the
+  chooser always took the standard deduction. Every itemizing taxpayer in the
+  corpus was over-taxed.
+- **SALT sees state income tax again.** Wiring that in exposed a second bug
+  behind it: `Sum_SALT_Deduction` matched `deduction.category` against
+  `"state_income_tax"` and `"local_tax"`, spellings no scenario uses, while
+  the corpus writes `"state_tax"` — so SALT summed property taxes alone and
+  dropped the state income tax beside it. The EDD's own comment states the
+  intent: *"property taxes + state/local tax deductions"*.
+- **A fencepost in the multi-state allocator.** `Allocate_Income_By_State`
+  counted 1 January to 31 December as 364 days and allocated 99.7% of a full
+  year's income. Latent because the table had never executed.
+
+Three scenarios carried standard-deduction expectations despite itemizable
+inputs and were reconciled; each gap is exactly *itemized − standard*, and the
+recomputed tax was checked against the 2025 brackets rather than taken on
+trust.
+
+### The EL compiler
+
+- **Local slots restart per table row** (#1047, #234). Slot indices are
+  frame-relative, and a condition or action declaring a local emits its own
+  `allocate`, reserving one slot at the offset every sibling starts from. The
+  counter ran for the whole table instead, so the second row to declare a
+  local emitted `1 local@` against a frame holding one slot and died at
+  execute with `[OutOfBounds] GetFrameValue`. This is #1047 one scope down —
+  that fix stopped the bleed between tables and left it between the rows of
+  one table. Context locals must survive (#965), so the fix is a baseline, not
+  a reset: mark once the contexts are compiled, rewind before each row. Both
+  compile paths take it.
+
+### Authoring
+
+- **Mappings can declare where instances go** (#1164). `map patch` could
+  declare an entity but not say which array its instances land in. `list` is
+  only needed where the array is not the entity name plus `"s"` — `property` →
+  `properties`, `medication` → `active_medications` — and is unavoidable where
+  one entity feeds several arrays, as StateTax's `bracket` fills
+  `brackets_single`, `brackets_mfj` and `brackets_hoh`, a shape that could not
+  be authored through this surface at all. `add-create-entity` /
+  `delete-create-entity` write the rule on its own, and `add-entity` now
+  refuses a tag another entity already roots rather than skipping the
+  createentity and reporting success.
+- **Nested workbooks are paired and recompiled in place** (#1169). A state
+  artifact records `<file_name>CO.xlsx</file_name>`, which resolves to
+  `excel/CO.xlsx` while the workbook lives at `excel/states/CO.xlsx`. The
+  pairing came back empty, the export was skipped without erroring, and an
+  authoring write landed in XML with the workbook untouched — leaving the
+  project failing `verify` on drift the author never made. Fixing it exposed
+  the same flattening on the XML side, where the recompile regenerated
+  `xml/CO_dt.xml` beside the `xml/states/CO_dt.xml` it meant to replace. Both
+  sides now mirror the layout. A base name matching two workbooks is left
+  unresolved on purpose: exporting rules into the wrong workbook is worse than
+  not exporting them.
+
+### Samples
+
+- **Cribbage and Scopa have mappings** (#984, #1118), so both run from the CLI
+  without writing Go.
+- **Dated constants are checked against the project's tax year** (#1140). A
+  comment citing any year must cite the declared tax year; the first scan
+  found the FEIE cap still at 2024's $126,500 (2025: $130,000, Form 2555) and
+  the underpayment rate still at 8% (2025: 7%, IRC 6621). A stale constant
+  produces a plausible answer, and the scenarios agree with the constant they
+  were derived from.
+- **Scenario burn-down** (#1140): 185 clean becomes 280, from one rule bug —
+  `Process_Capital_Gains` read `gain.amount`, an entity never on the stack —
+  and two proven staleness patterns applied only where the arithmetic is
+  exact. The corpus now stands at 284 clean of 504 executed.
+- **Competitive landscape** (#849) and a deck-clearing plan for the open board
+  are in `docs/`.
+
+### Known and filed, not fixed
+
+The same silent-failure shape runs through all of these:
+
+- `dtrules run --input` discards data landing on a singleton entity, so the
+  CLI cannot correctly run a TaxReturn scenario (#1168).
+- `map patch` validates nothing against the EDD, while the mapping SDK that
+  does validate has no caller (#1173).
+- `deduction.category` has no enforced vocabulary: the EDD documents six
+  values, the rules test four others, the corpus writes twenty-seven (#1175).
+- The other-state tax credit is orphaned and computes a hardcoded zero, and
+  part-year allocation branches on a field nothing writes — #233 and #235 are
+  closed but inert (#1177).
+
 ## v1.24.0 — 2026-08-21
 
 Arithmetic groups the way every reader assumes, the test suite stops being
