@@ -156,7 +156,7 @@
       <!-- State and local taxes - capped at $10,000 -->
       <deduction id="1">
          <id>1</id>
-         <category>state_income_tax</category>
+         <category>state_tax</category>
          <description>CA state income tax paid</description>
          <amount>85000</amount>
       </deduction>
