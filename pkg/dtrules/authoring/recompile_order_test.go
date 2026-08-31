@@ -28,7 +28,7 @@ import "testing"
 func TestRecompileIsSkippedWhenNothingChanged(t *testing.T) {
 	// No workbooks changed means no recompile: an edit to one table in a
 	// 58-workbook project must not regenerate 58 XML files.
-	if err := recompileWorkbooks(t.TempDir(), nil); err != nil {
+	if err := recompileWorkbooks(t.TempDir(), t.TempDir(), nil); err != nil {
 		t.Errorf("recompiling an empty set should be a no-op, got %v", err)
 	}
 }
@@ -36,7 +36,7 @@ func TestRecompileIsSkippedWhenNothingChanged(t *testing.T) {
 // A workbook that cannot be read is reported against its own name rather than
 // failing anonymously somewhere inside the importer.
 func TestRecompileNamesTheWorkbookItFailedOn(t *testing.T) {
-	err := recompileWorkbooks(t.TempDir(), []string{"/nonexistent/Missing.xlsx"})
+	err := recompileWorkbooks(t.TempDir(), t.TempDir(), []string{"/nonexistent/Missing.xlsx"})
 	if err == nil {
 		t.Fatal("recompiling a workbook that does not exist should fail")
 	}

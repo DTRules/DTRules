@@ -41,6 +41,7 @@ import (
 // not always flat.
 func discoverWorkbookPairing(xmlDir, excelDir string) map[string][]string {
 	pairing := make(map[string][]string)
+	byBase := indexWorkbooksByBase(excelDir)
 
 	add := func(workbook, xmlPath string) {
 		name := strings.TrimSpace(workbook)
@@ -49,11 +50,26 @@ func discoverWorkbookPairing(xmlDir, excelDir string) map[string][]string {
 		}
 		abs := filepath.Join(excelDir, name)
 		if _, err := os.Stat(abs); err != nil {
-			// Recorded as a path rather than a base name, or nested.
+			// Recorded as a path rather than a base name: try it flat.
 			if alt := filepath.Join(excelDir, filepath.Base(name)); alt != abs {
 				if _, err2 := os.Stat(alt); err2 == nil {
 					abs = alt
 				}
+			}
+		}
+		if _, err := os.Stat(abs); err != nil {
+			// The mirror case, and the one that bit: recorded flat but
+			// stored nested. A state table records
+			// <file_name>CO.xlsx</file_name>, which resolves to
+			// excel/CO.xlsx, while the workbook lives at
+			// excel/states/CO.xlsx. Neither branch above moves, because
+			// filepath.Base of a name that is already a base name is
+			// itself -- so the pairing came back empty, RefreshExcelIn
+			// skipped the export, and the authoring write landed in XML
+			// with the workbook untouched. `verify` then failed on drift
+			// the author never made (#1169).
+			if matches := byBase[strings.ToLower(filepath.Base(name))]; len(matches) == 1 {
+				abs = matches[0]
 			}
 		}
 		for _, seen := range pairing[abs] {
@@ -119,4 +135,40 @@ func sourceWorkbook(src *excel.SourceXML) string {
 		return n
 	}
 	return strings.TrimSpace(src.RelativePath)
+}
+
+// indexWorkbooksByBase maps a lower-cased workbook base name to every path
+// under excelDir carrying it.
+//
+// Projects that split their rules across subdirectories -- one file per state,
+// say -- still record the workbook as a bare base name in each artifact's
+// <source>. Resolving that against excelDir alone misses them. The index is
+// built once per pairing pass rather than walking for each artifact.
+//
+// A base name matching more than one workbook is deliberately left
+// unresolved: guessing which of two same-named workbooks an artifact meant
+// would export rules into the wrong file, which is worse than the export not
+// happening. Callers surface the unresolved pairing instead.
+func indexWorkbooksByBase(excelDir string) map[string][]string {
+	byBase := make(map[string][]string)
+	_ = filepath.WalkDir(excelDir, func(p string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil
+		}
+		switch strings.ToLower(filepath.Ext(p)) {
+		case ".xlsx", ".xls":
+		default:
+			return nil
+		}
+		if strings.HasPrefix(filepath.Base(p), "~$") {
+			return nil // Excel lock file
+		}
+		key := strings.ToLower(filepath.Base(p))
+		byBase[key] = append(byBase[key], p)
+		return nil
+	})
+	for k := range byBase {
+		sort.Strings(byBase[k])
+	}
+	return byBase
 }
