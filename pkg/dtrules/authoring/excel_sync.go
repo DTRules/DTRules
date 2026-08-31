@@ -181,7 +181,8 @@ func RefreshExcelInDir(xmlDir string) error {
 // RefreshExcelIn is RefreshExcelInDir with the project's declared Excel
 // directory. Pass "" to search the conventional layouts (#1049).
 func RefreshExcelIn(xmlDir, excelDir string) error {
-	pairing := discoverWorkbookPairing(xmlDir, resolveExcelDir(xmlDir, excelDir))
+	resolvedExcelDir := resolveExcelDir(xmlDir, excelDir)
+	pairing := discoverWorkbookPairing(xmlDir, resolvedExcelDir)
 	m, manifestDir := loadSyncManifest(xmlDir, excelDir)
 	if m == nil && len(pairing) == 0 {
 		return nil
@@ -276,11 +277,20 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 	// Only workbooks whose bytes actually changed: an edit to one table in a
 	// 58-workbook project recompiles one workbook, not 58. The hash makes that
 	// cheap to know.
-	return recompileWorkbooks(xmlDir, changed)
+	return recompileWorkbooks(xmlDir, resolvedExcelDir, changed)
 }
 
-// recompileWorkbooks regenerates XML from the named workbooks.
-func recompileWorkbooks(xmlDir string, workbooks []string) error {
+// recompileWorkbooks regenerates XML from the named workbooks, mirroring each
+// workbook's place under excelDir into xmlDir.
+//
+// ImportWorkbookToDir names its output from the workbook's base name alone, so
+// pointing it at xmlDir flattens the layout: excel/states/CO.xlsx recompiled to
+// xml/CO_dt.xml, beside the xml/states/CO_dt.xml it was meant to replace. Every
+// table then existed in two files and `verify` failed the project for duplicate
+// table names (#1169). WriteAll already documents the intended mapping --
+// excel/states/CO.xlsx -> xml/states/CO_dt.xml -- and this keeps the
+// single-workbook path to it.
+func recompileWorkbooks(xmlDir, excelDir string, workbooks []string) error {
 	if len(workbooks) == 0 {
 		return nil
 	}
@@ -292,11 +302,25 @@ func recompileWorkbooks(xmlDir string, workbooks []string) error {
 		imp.SetSymbols(syms)
 	}
 	for _, wb := range workbooks {
-		if _, _, err := imp.ImportWorkbookToDir(wb, xmlDir); err != nil {
+		if _, _, err := imp.ImportWorkbookToDir(wb, mirroredXMLDir(xmlDir, excelDir, wb)); err != nil {
 			return fmt.Errorf("excel refresh: recompile %s: %w", wb, err)
 		}
 	}
 	return nil
+}
+
+// mirroredXMLDir maps a workbook's directory under excelDir to the matching
+// directory under xmlDir. Falls back to xmlDir when the workbook sits outside
+// excelDir, which is where a flat project lands anyway.
+func mirroredXMLDir(xmlDir, excelDir, workbook string) string {
+	if excelDir == "" {
+		return xmlDir
+	}
+	rel, err := filepath.Rel(excelDir, filepath.Dir(workbook))
+	if err != nil || rel == "." || rel == "" || strings.HasPrefix(rel, "..") {
+		return xmlDir
+	}
+	return filepath.Join(xmlDir, rel)
 }
 
 // recordedHashForPaths reads the provenance stamp out of already-resolved XML
