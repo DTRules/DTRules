@@ -286,28 +286,36 @@ func (m *Mapping) SingletonEntityNames() []string {
 //  2. Remaining cardinality-1 entities found in the data that were not already
 //     pushed via entitystack are also pushed.
 func (m *Mapping) LoadDataAndPushSingletons(r io.Reader) error {
+	// The initialization stack is pushed BEFORE the document is read, not
+	// after.
+	//
+	// A setattribute resolves its enclosure against the entity stack while the
+	// document is being read (see dataLoader.handleStartElement). An entity
+	// that is only an <initialentity> -- nothing names it in a createentity --
+	// is not on that stack yet if the push happens afterwards, so the lookup
+	// for (tag, enclosure) misses and every attribute it encloses is dropped
+	// without error. Then a freshly created, default-valued instance was
+	// pushed on top, and that is what executed: TaxReturn's job.state came
+	// back as the EDD default "TX" on a scenario that says "OH", filing status
+	// empty, and the whole return computed to zero (#1168).
+	//
+	// Pushing first no longer costs what this order was written to avoid.
+	// newDataLoader adopts whatever Initialize created, so a cardinality-1
+	// entity that also has a createentity binds to the instance already on the
+	// stack rather than building a second one nobody holds.
+	if len(m.initialized) == 0 {
+		if err := m.Initialize(); err != nil {
+			return err
+		}
+	}
+
 	loader := newDataLoader(m)
 	if err := loader.Load(r); err != nil {
 		return err
 	}
 
-	pushed := make(map[string]bool)
-
-	// Push entities from the initialization stack in declared order.
+	pushed := make(map[string]bool, len(m.entitystack))
 	for _, name := range m.entitystack {
-		if entity, ok := loader.entities[name]; ok {
-			m.state.EntityPush(entity)
-		} else {
-			rname := dtrules.GetRName(name)
-			if rname == nil {
-				return fmt.Errorf("invalid entity name in initialization: %s", name)
-			}
-			entity, err := m.session.CreateEntity(rname)
-			if err != nil {
-				return fmt.Errorf("create initialization entity %s: %w", name, err)
-			}
-			m.state.EntityPush(entity)
-		}
 		pushed[name] = true
 	}
 
