@@ -103,13 +103,15 @@ func (c *CLI) runMap(args []string) int {
 	switch sub {
 	case "get":
 		return ctx.mapGet(mapFile)
+	case "put":
+		return ctx.mapPut(mapFile)
 	case "patch":
 		return ctx.mapPatch(mapFile)
 	case "help", "-h", "--help":
 		c.printMapUsage()
 		return 0
 	default:
-		return emitErr(ctx.stderr, 1, "invalid_command", "", "known: get|patch",
+		return emitErr(ctx.stderr, 1, "invalid_command", "", "known: get|put|patch",
 			fmt.Sprintf("unknown map subcommand %q", sub))
 	}
 }
@@ -189,6 +191,130 @@ func (ctx *tableCmdCtx) mapGet(mapFile string) int {
 		return emitErr(ctx.stderr, 1, "io_error", "", "", err.Error())
 	}
 	return writeJSONOr(ctx, mapToJSON(m))
+}
+
+// mapPut writes a whole mapping from the JSON `map get` emits, creating the
+// file when the project has none.
+//
+// This is the half of the authoring story `patch` could not reach: every patch
+// op needs a file that already exists, so the first mapping in a project was
+// always hand-written -- which is what the authoring contract tells everyone
+// not to do. Cribbage's was hand-written for exactly this reason (#1164).
+//
+// Round-trip symmetry with `get` is the point: what comes out goes back in.
+func (ctx *tableCmdCtx) mapPut(mapFile string) int {
+	var doc mapJSON
+	if err := json.NewDecoder(ctx.stdin).Decode(&doc); err != nil {
+		return emitErr(ctx.stderr, 1, "parse_error", "",
+			"put takes the JSON `map get` emits", err.Error())
+	}
+
+	path, err := ctx.resolveMapFile(mapFile)
+	if err != nil {
+		// No mapping yet: name one after the project and create it. Absent
+		// Excel bootstraps rather than erroring, and a mapping is no
+		// different -- the artifact that does not exist yet is exactly the
+		// one an author cannot create by hand without breaking the contract.
+		path, err = ctx.newMapFilePath(mapFile)
+		if err != nil {
+			return emitErr(ctx.stderr, 1, "ambiguous_map", "", "pass --map-file <name>", err.Error())
+		}
+	}
+
+	m, err := mapFromJSON(doc)
+	if err != nil {
+		return emitErr(ctx.stderr, 1, "invalid_mapping", "", "", err.Error())
+	}
+
+	xmlDir := projectXMLDirFor(ctx.projectPath)
+	edd := loadEDDModel(xmlDir)
+	if err := validateWholeMap(m, edd); err != nil {
+		return emitErr(ctx.stderr, 1, "undeclared_reference", "",
+			"the mapping must name entities and fields the EDD declares", err.Error())
+	}
+
+	if err := excel.WriteMapXML(m, path); err != nil {
+		return emitErr(ctx.stderr, 1, "io_error", "", "save failed", err.Error())
+	}
+	if err := refreshMapWorkbook(xmlDir, path); err != nil {
+		return emitErr(ctx.stderr, 1, "io_error", "",
+			"the XML was written but its workbook was not", err.Error())
+	}
+	return writeJSONOr(ctx, map[string]string{"op": "put", "status": "written",
+		"file": filepath.Base(path)})
+}
+
+// newMapFilePath names the mapping a project does not have yet. Derived from
+// the project directory so it sits beside <Project>_dt.xml and <Project>_edd.xml
+// rather than being called something the loader would not associate with them.
+func (ctx *tableCmdCtx) newMapFilePath(mapFile string) (string, error) {
+	xmlDir := projectXMLDirFor(ctx.projectPath)
+	if info, err := os.Stat(xmlDir); err != nil || !info.IsDir() {
+		return "", fmt.Errorf("no rules directory at %s to write a mapping into", xmlDir)
+	}
+	name := strings.TrimSpace(mapFile)
+	if name == "" {
+		abs, err := filepath.Abs(ctx.projectPath)
+		if err != nil {
+			return "", err
+		}
+		name = filepath.Base(abs) + "_map.xml"
+	}
+	if !strings.HasSuffix(name, ".xml") {
+		name += ".xml"
+	}
+	if !strings.HasSuffix(name, "_map.xml") {
+		name = strings.TrimSuffix(name, ".xml") + "_map.xml"
+	}
+	return filepath.Join(xmlDir, filepath.Base(name)), nil
+}
+
+// mapFromJSON is the inverse of mapToJSON.
+func mapFromJSON(doc mapJSON) (*excel.MapXML, error) {
+	m := &excel.MapXML{MapName: doc.Name}
+	for _, e := range doc.Entities {
+		if strings.TrimSpace(e.Name) == "" {
+			return nil, fmt.Errorf("an entity declaration needs a name")
+		}
+		number := e.Number
+		if number == "" {
+			number = "1"
+		}
+		if number != "1" && number != "*" {
+			return nil, fmt.Errorf("entity %q has cardinality %q; it is \"1\" or \"*\"", e.Name, number)
+		}
+		m.EntityDecls = append(m.EntityDecls, excel.MapEntityDecl{Name: e.Name, Number: number})
+	}
+	for _, name := range doc.Initialization {
+		if strings.TrimSpace(name) == "" {
+			continue
+		}
+		m.InitialEntities = append(m.InitialEntities,
+			excel.MapInitialEntity{Entity: name, EPush: true})
+	}
+	for _, c := range doc.CreateEntities {
+		if strings.TrimSpace(c.Entity) == "" {
+			return nil, fmt.Errorf("a createentity needs an entity")
+		}
+		m.CreateEntities = append(m.CreateEntities, excel.MapCreateEntity{
+			Entity: c.Entity,
+			Tag:    defaultString(c.Tag, c.Entity),
+			ID:     defaultString(c.ID, "id"),
+			List:   c.List,
+		})
+	}
+	for _, a := range doc.Attributes {
+		if strings.TrimSpace(a.Tag) == "" || strings.TrimSpace(a.Enclosure) == "" {
+			return nil, fmt.Errorf("an attribute needs a tag and an enclosure")
+		}
+		m.Entries = append(m.Entries, excel.MapEntry{
+			Tag:        a.Tag,
+			RAttribute: defaultString(a.RAttribute, a.Tag),
+			Enclosure:  a.Enclosure,
+			Type:       a.Type,
+		})
+	}
+	return m, nil
 }
 
 func (ctx *tableCmdCtx) mapPatch(mapFile string) int {
@@ -470,6 +596,8 @@ func (c *CLI) printMapUsage() {
 
 Commands:
   get     Print the mapping as JSON.
+  put     Write a whole mapping from JSON on stdin, creating the file if the
+          project has none. Takes exactly what get emits.
   patch   Apply one change from JSON on stdin.
 
 Ops:
@@ -501,6 +629,14 @@ are the same instance.
 delete-create-entity takes the tag, with "entity" as an optional filter. It can
 leave an entity declared but rooted by no tag; delete-entity is what removes an
 entity and all of its tags together.
+
+put is how a project gets its first mapping: every patch op needs a file that
+already exists, so before it the first one was always hand-written. The file is
+named after the project unless --map-file says otherwise.
+
+Both put and patch are checked against the EDD first. A mapping entry that
+resolves against nothing does not fail at load -- the value is dropped and the
+run carries on -- so it is refused at authoring time instead.
 
 Writes the XML and refreshes the paired _map.xlsx, like every authoring write.`)
 }

@@ -177,7 +177,7 @@ func TestUnknownOpIsNamed(t *testing.T) {
 }
 
 // A number='*' entity is appended to an array field on its enclosing entity,
-// and list='' names that array. Without it the created instances belong to
+// and list=” names that array. Without it the created instances belong to
 // nothing: the array stays empty and every `for all` over it iterates zero
 // times, silently computing nothing. TaxReturn's state_period is unmapped for
 // exactly this reason, so its multi-state rules run against an empty list
@@ -511,5 +511,101 @@ func TestNoEDDMeansNoCheck(t *testing.T) {
 	if err := validateMapOp(newMap(), mapPatchOp{Op: "add-attribute",
 		Attribute: &mapAttributeJSON{Tag: "x", Enclosure: "anything"}}, nil); err != nil {
 		t.Errorf("with no EDD declared the check must stand down: %v", err)
+	}
+}
+
+// put takes exactly what get emits. Round-trip symmetry is the contract that
+// makes the pair usable: read a mapping, change one thing, write it back.
+func TestMapJSONRoundTripsThroughTheModel(t *testing.T) {
+	original := &excel.MapXML{
+		MapName:         "Sample",
+		EntityDecls:     []excel.MapEntityDecl{{Name: "job", Number: "1"}, {Name: "applicant", Number: "*"}},
+		InitialEntities: []excel.MapInitialEntity{{Entity: "job", EPush: true}},
+		CreateEntities: []excel.MapCreateEntity{
+			{Entity: "applicant", Tag: "applicant", ID: "id", List: "applicants"}},
+		Entries: []excel.MapEntry{
+			{Tag: "program", RAttribute: "program", Enclosure: "job", Type: "string"}},
+	}
+
+	back, err := mapFromJSON(mapToJSON(original))
+	if err != nil {
+		t.Fatalf("round trip: %v", err)
+	}
+	if back.MapName != original.MapName {
+		t.Errorf("name = %q, want %q", back.MapName, original.MapName)
+	}
+	if len(back.EntityDecls) != 2 || back.EntityDecls[1].Number != "*" {
+		t.Errorf("entity declarations did not survive: %+v", back.EntityDecls)
+	}
+	if len(back.InitialEntities) != 1 || !back.InitialEntities[0].EPush {
+		t.Errorf("initialization stack did not survive: %+v", back.InitialEntities)
+	}
+	if len(back.CreateEntities) != 1 || back.CreateEntities[0].List != "applicants" {
+		t.Errorf("createentity did not survive: %+v", back.CreateEntities)
+	}
+	if len(back.Entries) != 1 || back.Entries[0].Enclosure != "job" {
+		t.Errorf("attributes did not survive: %+v", back.Entries)
+	}
+}
+
+func TestMapFromJSONDefaultsTagAndID(t *testing.T) {
+	m, err := mapFromJSON(mapJSON{
+		Entities:       []mapEntityJSON{{Name: "applicant", Number: "*"}},
+		CreateEntities: []mapCreateJSON{{Entity: "applicant", List: "applicants"}},
+		Attributes:     []mapAttributeJSON{{Tag: "age", Enclosure: "applicant"}},
+	})
+	if err != nil {
+		t.Fatalf("mapFromJSON: %v", err)
+	}
+	if got := m.CreateEntities[0].Tag; got != "applicant" {
+		t.Errorf("tag = %q, want the entity name", got)
+	}
+	if got := m.CreateEntities[0].ID; got != "id" {
+		t.Errorf("id = %q, want the default", got)
+	}
+	if got := m.Entries[0].RAttribute; got != "age" {
+		t.Errorf("rattribute = %q, want the tag", got)
+	}
+}
+
+func TestMapFromJSONRefusesABadCardinality(t *testing.T) {
+	_, err := mapFromJSON(mapJSON{Entities: []mapEntityJSON{{Name: "job", Number: "many"}}})
+	if err == nil || !strings.Contains(err.Error(), "many") {
+		t.Errorf("want the bad cardinality named, got: %v", err)
+	}
+}
+
+// A whole-document write reports every problem at once. An author fixing a
+// mapping wants the list, not to rediscover it one run at a time.
+func TestWholeMapReportsEveryProblemTogether(t *testing.T) {
+	m := &excel.MapXML{
+		EntityDecls:     []excel.MapEntityDecl{{Name: "job", Number: "1"}, {Name: "ghost", Number: "*"}},
+		InitialEntities: []excel.MapInitialEntity{{Entity: "never_declared", EPush: true}},
+		Entries: []excel.MapEntry{
+			{Tag: "nonesuch", RAttribute: "nonesuch", Enclosure: "job", Type: "string"}},
+	}
+
+	err := validateWholeMap(m, testEDD(t))
+	if err == nil {
+		t.Fatal("expected the undeclared references to be refused")
+	}
+	for _, want := range []string{"ghost", "never_declared", "nonesuch"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("the report should name %q: %v", want, err)
+		}
+	}
+}
+
+// A tag roots one entity, in a whole document as much as in a patch.
+func TestWholeMapCatchesADuplicateTag(t *testing.T) {
+	m := &excel.MapXML{
+		EntityDecls: []excel.MapEntityDecl{{Name: "job", Number: "1"}, {Name: "state_period", Number: "*"}},
+		CreateEntities: []excel.MapCreateEntity{
+			{Entity: "job", Tag: "thing", ID: "id"},
+			{Entity: "state_period", Tag: "thing", ID: "id", List: "periods"}},
+	}
+	err := validateWholeMap(m, testEDD(t))
+	if err == nil || !strings.Contains(err.Error(), "roots one entity") {
+		t.Errorf("want the duplicate tag refused, got: %v", err)
 	}
 }

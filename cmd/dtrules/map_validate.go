@@ -240,3 +240,69 @@ func validateList(m *excel.MapXML, op mapPatchOp, edd *eddModel) error {
 	}
 	return nil
 }
+
+// validateWholeMap checks a mapping written in one piece, the way
+// validateMapOp checks one written a patch at a time. Reported together
+// rather than one at a time: an author fixing a whole document wants the
+// whole list, not to rediscover it a run at a time.
+func validateWholeMap(m *excel.MapXML, edd *eddModel) error {
+	if edd == nil {
+		return nil
+	}
+	declared := make(map[string]string, len(m.EntityDecls))
+	for _, d := range m.EntityDecls {
+		declared[strings.ToLower(d.Name)] = d.Number
+	}
+
+	var problems []string
+	for _, d := range m.EntityDecls {
+		if !edd.hasEntity(d.Name) {
+			problems = append(problems,
+				fmt.Sprintf("entity %q is not declared in the EDD", d.Name))
+		}
+	}
+	for _, e := range m.InitialEntities {
+		if _, ok := declared[strings.ToLower(e.Entity)]; !ok {
+			problems = append(problems,
+				fmt.Sprintf("initialentity %q is pushed but never declared in <entities>", e.Entity))
+		}
+	}
+	seenTag := make(map[string]string, len(m.CreateEntities))
+	for _, c := range m.CreateEntities {
+		key := strings.ToLower(c.Tag)
+		if prior, ok := seenTag[key]; ok {
+			problems = append(problems,
+				fmt.Sprintf("tag %q creates both %q and %q; a tag roots one entity", c.Tag, prior, c.Entity))
+		}
+		seenTag[key] = c.Entity
+		if _, ok := declared[strings.ToLower(c.Entity)]; !ok {
+			problems = append(problems,
+				fmt.Sprintf("createentity %q is not declared in <entities>", c.Entity))
+			continue
+		}
+		op := mapPatchOp{Op: "add-create-entity", Entity: c.Entity, Tag: c.Tag, ID: c.ID, List: c.List}
+		if err := validateList(m, op, edd); err != nil {
+			problems = append(problems, err.Error())
+		}
+	}
+	for _, e := range m.Entries {
+		if e.IsSection {
+			continue
+		}
+		op := mapPatchOp{Op: "add-attribute", Attribute: &mapAttributeJSON{
+			Tag: e.Tag, RAttribute: e.RAttribute, Enclosure: e.Enclosure, Type: e.Type}}
+		if err := validateMapOp(m, op, edd); err != nil {
+			problems = append(problems, err.Error())
+		}
+	}
+
+	if len(problems) == 0 {
+		return nil
+	}
+	if len(problems) > 12 {
+		extra := len(problems) - 12
+		problems = problems[:12]
+		problems = append(problems, fmt.Sprintf("... and %d more", extra))
+	}
+	return fmt.Errorf("%d problem(s):\n  - %s", len(problems), strings.Join(problems, "\n  - "))
+}
