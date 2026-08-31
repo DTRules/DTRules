@@ -100,6 +100,29 @@ trust.
   unresolved on purpose: exporting rules into the wrong workbook is worse than
   not exporting them.
 
+- **A mapping write is checked against the EDD before it lands** (#1173).
+  `map patch` wrote whatever it was given: an enclosure naming no entity, an
+  attribute the entity does not declare, a `list` naming an array that does not
+  exist. None of those fail at load — the loader misses the lookup, drops the
+  value, and the run continues — which is how CorporateTax's per-state
+  documents loaded to all zeroes (#1094). Replaying all 814 mapping entries in
+  the twelve samples through the new check accepted 791 and rejected 23, every
+  one of them a real defect: `taxpayer.estimated_tax_payments` where the
+  declared field is `estimated_payments`, `result.audit_trail` still pointing
+  at where campaign #948 moved it from, and `unreported_tips`, whose array is
+  `unreported_tips_records` — the entity name is already plural, so the
+  loader's `name+"s"` fallback hunts for `unreported_tipss`. Those are pinned
+  by a ceiling that can only come down rather than fixed blind, since changing
+  what loads changes what the scenarios must expect.
+- **The initialization stack is pushed before the document is read** (#1168).
+  A setattribute resolves its enclosure against the entity stack *while* the
+  document is being read, so an entity that is only an `<initialentity>` was
+  not there yet: every attribute it enclosed was dropped, and a default-valued
+  instance was pushed on top and executed. `dtrules run --input` reported
+  TaxReturn's `job.state` as the declared default `TX` for a scenario that says
+  `OH`, and computed a return of zero — looking like an answer the whole way
+  down. The CLI and the library now agree on the same file.
+
 ### Samples
 
 - **Cribbage and Scopa have mappings** (#984, #1118), so both run from the CLI
@@ -119,12 +142,9 @@ trust.
 
 ### Known and filed, not fixed
 
-The same silent-failure shape runs through all of these:
+The same silent-failure shape runs through both of these, and through the two
+above that were fixed in time for this release:
 
-- `dtrules run --input` discards data landing on a singleton entity, so the
-  CLI cannot correctly run a TaxReturn scenario (#1168).
-- `map patch` validates nothing against the EDD, while the mapping SDK that
-  does validate has no caller (#1173).
 - `deduction.category` has no enforced vocabulary: the EDD documents six
   values, the rules test four others, the corpus writes twenty-seven (#1175).
 - The other-state tax credit is orphaned and computes a hardcoded zero, and
