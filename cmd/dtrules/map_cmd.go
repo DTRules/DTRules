@@ -204,6 +204,14 @@ func (ctx *tableCmdCtx) mapPatch(mapFile string) int {
 	if err != nil {
 		return emitErr(ctx.stderr, 1, "io_error", "", "", err.Error())
 	}
+	xmlDir := projectXMLDirFor(ctx.projectPath)
+	// Checked against the EDD before it lands. A mapping entry that resolves
+	// against nothing is silent at load: the value is simply dropped, or the
+	// instances are appended to an array nobody reads (#1173).
+	if err := validateMapOp(m, op, loadEDDModel(xmlDir)); err != nil {
+		return emitErr(ctx.stderr, 1, "undeclared_reference", "",
+			"the mapping must name entities and fields the EDD declares", err.Error())
+	}
 	if err := applyMapOp(m, op); err != nil {
 		return emitErr(ctx.stderr, 1, "invalid_patch", "",
 			"known ops: add-entity|delete-entity|add-create-entity|delete-create-entity|"+
@@ -214,7 +222,6 @@ func (ctx *tableCmdCtx) mapPatch(mapFile string) int {
 	}
 	// Excel is the system of record, so the paired workbook catches up in the
 	// same operation -- the same contract every other authoring write obeys.
-	xmlDir := projectXMLDirFor(ctx.projectPath)
 	if err := refreshMapWorkbook(xmlDir, path); err != nil {
 		return emitErr(ctx.stderr, 1, "io_error", "", "the XML was written but its workbook was not", err.Error())
 	}
