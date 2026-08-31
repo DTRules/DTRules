@@ -1,5 +1,21 @@
 # Non-Resident State Tax Implementation
 
+> **Status note (2026-08, #234).** Much of what follows describes an intended
+> design rather than the shipped rules, and is kept for its reasoning only.
+> Measured against the XML: the income-source fields it names
+> (`taxpayer.w2_state_source`, `taxpayer.se_state_source`, `income.state_source`,
+> `property.state_location`) **do not exist** — the real discriminators are
+> `income.state_code` and `income.type`. `Dispatch_State_Tax` does **not**
+> iterate `state_tax_result` entities; it branches on the scalar `job.state`,
+> so only the resident state's tax is computed. The test cases named below
+> (`TestCase_NonResident_*.xml`) are not in the repository.
+>
+> What *is* wired up, as of #234: `state_period` is mapped and loads,
+> `Calculate_State_Source_Income` builds one `state_tax_result` per period with
+> `is_resident` and a wage/non-wage income split, and reciprocal agreements are
+> applied. See [state-reciprocal-agreements.md](state-reciprocal-agreements.md).
+> Per-state non-resident *rate* computation remains unimplemented.
+
 ## Overview
 
 This feature implements non-resident state income tax calculations for the DTRules tax return system. When taxpayers earn income in states where they are not residents, they must file non-resident tax returns in those states and only pay tax on the income earned ("sourced") in that state.
@@ -133,7 +149,8 @@ The system automatically:
 - Only IL, NH, and MT are currently implemented
 - State credits not yet implemented
 - Part-year resident scenarios not yet supported
-- Reciprocal agreements between states not modeled
+- ~~Reciprocal agreements between states not modeled~~ — implemented in #234;
+  see [state-reciprocal-agreements.md](state-reciprocal-agreements.md)
 
 ## Future Enhancements
 

@@ -58,6 +58,18 @@ type LocalResetter interface {
 	ResetLocals()
 }
 
+// LocalScoper is implemented by compilers that can rewind local state to the
+// point the table's contexts established. Context locals must stay visible to
+// every condition and action; locals declared inside one condition or action
+// must not leak into the next, because each emits its own `allocate` and so
+// starts from the same frame offset — see compileTableEL.
+type LocalScoper interface {
+	// MarkLocalScope records the current local state as the table's baseline.
+	MarkLocalScope()
+	// ResetToLocalScope rewinds to the baseline recorded by MarkLocalScope.
+	ResetToLocalScope()
+}
+
 // NewDTImporter creates a new decision table importer.
 func NewDTImporter() *DTImporter {
 	return &DTImporter{}
@@ -1631,11 +1643,25 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 		}
 	}
 
+	// The contexts have declared whatever locals wrap the whole table. Every
+	// condition and action below compiles against exactly that state — see
+	// LocalScoper.
+	scoper, canScope := i.elCompiler.(LocalScoper)
+	if canScope {
+		scoper.MarkLocalScope()
+	}
+	rewindLocals := func() {
+		if canScope {
+			scoper.ResetToLocalScope()
+		}
+	}
+
 	// Compile initial actions. Initial actions don't carry a comment field
 	// so the legacy-prose warning path doesn't apply — they're always drops.
 	for idx := range table.InitialActions {
 		action := &table.InitialActions[idx]
 		if action.DSL != "" {
+			rewindLocals()
 			postfix, err := i.elCompiler.CompileAction(action.DSL)
 			if err != nil {
 				errors = append(errors, fmt.Sprintf("initial action %d: %v", idx+1, err))
@@ -1658,6 +1684,7 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 	for idx := range table.Conditions {
 		cond := &table.Conditions[idx]
 		if cond.DSL != "" {
+			rewindLocals()
 			postfix, err := i.elCompiler.CompileCondition(cond.DSL)
 			if err != nil {
 				errors = append(errors, fmt.Sprintf("condition %s: %v", cond.Number, err))
@@ -1679,6 +1706,7 @@ func (i *DTImporter) compileTableEL(table *DecisionTableXML) error {
 	for idx := range table.Actions {
 		action := &table.Actions[idx]
 		if action.DSL != "" {
+			rewindLocals()
 			postfix, err := i.elCompiler.CompileAction(action.DSL)
 			if err != nil {
 				errors = append(errors, fmt.Sprintf("action %s: %v", action.Number, err))

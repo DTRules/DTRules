@@ -1,0 +1,70 @@
+<job>
+   <copyright>
+      Copyright 2026 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- NEGATIVE: WI resident working in MN. Minnesota ended the Wisconsin agreement on 2010-01-01 and the 2024 joint study produced no reinstatement, so MN still taxes these wages. The scenario claims no reciprocity; Validate_Reciprocity stays silent and MN keeps the wages. -->
+   <id>MS-11-WI-MN</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>WI</state>
+
+   <expected_agi>65000</expected_agi>
+   <expected_reciprocity_state></expected_reciprocity_state>
+   <expected_nonresident_source_income>0</expected_nonresident_source_income>
+
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>WI</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>resident</resident_status>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>MN</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>nonresident</resident_status>
+      </state_period>
+   </state_periods>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Test Taxpayer</name>
+         <date_of_birth>3/14/1985</date_of_birth>
+         <is_primary>true</is_primary>
+         <w2_wages>65000</w2_wages>
+      </taxpayer>
+   </taxpayers>
+
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Employer in MN</source>
+         <gross_amount>65000</gross_amount>
+         <state_code>MN</state_code>
+      </income>
+   </incomes>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>
