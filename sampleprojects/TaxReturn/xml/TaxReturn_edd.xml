@@ -382,7 +382,7 @@
 		</source>
 		<field name="allowed_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Allowed amount after limitations (computed)"></field>
 		<field name="amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Claimed amount"></field>
-		<field name="category" type="string" subtype="" access="r" input="main" default_value="" comment="Category: medical, taxes, interest, charity, casualty, other"></field>
+		<field name="category" type="string" subtype="" access="r" input="main" default_value="" comment="Category. One of: medical, state_tax, property_tax, mortgage_interest, charity, charity_noncash, student_loan_interest, alimony_paid, educator_expense, other. A category outside this set is read by no rule, so the deduction is silently ignored -- TestDeductionCategoriesAreCanonical holds the set."></field>
 		<field name="description" type="string" subtype="" access="r" input="main" default_value="" comment="Description of deduction"></field>
 		<field name="id" type="integer" subtype="" access="r" input="main" default_value="" comment="Deduction ID"></field>
 		<field name="irs_form" type="string" subtype="" access="rw" input="" default_value="Schedule A" comment="IRS form reference"></field>

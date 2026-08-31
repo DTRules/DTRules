@@ -156,7 +156,7 @@
       <!-- SALT cap applies -->
       <deduction id="1">
          <id>1</id>
-         <category>state_income_tax</category>
+         <category>state_tax</category>
          <description>NY state income tax paid (via withholding and estimated)</description>
          <amount>17500</amount>
       </deduction>
