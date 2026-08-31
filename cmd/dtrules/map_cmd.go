@@ -73,6 +73,20 @@ type mapPatchOp struct {
 	Number    string            `json:"number,omitempty"`
 	Attribute *mapAttributeJSON `json:"attribute,omitempty"`
 	Tag       string            `json:"tag,omitempty"`
+	// ID names the XML *attribute* on the creating element that identifies the
+	// instance -- `<state_period id="2">`, not a child <id> tag. The loader
+	// reads it with attrs[info.ID] (mapping/data_loader.go), and two elements
+	// carrying the same value are the same instance. Defaults to "id".
+	ID string `json:"id,omitempty"`
+	// List is the createentity list='' attribute: the array field on the
+	// enclosing entity that each created instance is appended to. When it is
+	// empty the loader falls back to entityName+"s", so it only has to be
+	// given when the array is not that naive plural -- `property` ->
+	// `properties`, `medication` -> `active_medications`, or one entity
+	// feeding several arrays, as StateTax's `bracket` feeds brackets_single,
+	// brackets_mfj and brackets_hoh. In those cases the fallback silently
+	// appends to an array nothing reads.
+	List string `json:"list,omitempty"`
 }
 
 func (c *CLI) runMap(args []string) int {
@@ -191,7 +205,9 @@ func (ctx *tableCmdCtx) mapPatch(mapFile string) int {
 		return emitErr(ctx.stderr, 1, "io_error", "", "", err.Error())
 	}
 	if err := applyMapOp(m, op); err != nil {
-		return emitErr(ctx.stderr, 1, "invalid_patch", "", "known ops: add-entity|delete-entity|add-attribute|delete-attribute", err.Error())
+		return emitErr(ctx.stderr, 1, "invalid_patch", "",
+			"known ops: add-entity|delete-entity|add-create-entity|delete-create-entity|"+
+				"add-attribute|delete-attribute", err.Error())
 	}
 	if err := excel.WriteMapXML(m, path); err != nil {
 		return emitErr(ctx.stderr, 1, "io_error", "", "save failed", err.Error())
@@ -236,31 +252,116 @@ func applyMapOp(m *excel.MapXML, op mapPatchOp) error {
 				return fmt.Errorf("entity %q is already declared", op.Entity)
 			}
 		}
-		m.EntityDecls = append(m.EntityDecls, excel.MapEntityDecl{Name: op.Entity, Number: number})
-		if number == "1" {
-			m.InitialEntities = append(m.InitialEntities,
-				excel.MapInitialEntity{Entity: op.Entity, EPush: true})
-		}
 		// The tag defaults to the entity's own name, so <nv_result> in a data
 		// document means the nv_result entity. For a singleton this binds to
 		// the instance the initialization stack already pushed rather than
 		// building a second one, which is what makes loading data in several
 		// documents work: federal first, then a document per state.
-		tag := op.Tag
-		if tag == "" {
-			tag = op.Entity
-		}
-		hasTag := false
-		for _, c := range m.CreateEntities {
+		tag := defaultString(op.Tag, op.Entity)
+
+		// A tag roots exactly one entity, so an existing createentity on this
+		// tag is either this entity's -- the declaration was missing and we
+		// are repairing it -- or a conflict. Checked before anything is
+		// appended, so a refusal leaves the mapping untouched.
+		existing := -1
+		for idx, c := range m.CreateEntities {
 			if strings.EqualFold(c.Tag, tag) {
-				hasTag = true
+				existing = idx
 				break
 			}
 		}
-		if !hasTag {
-			m.CreateEntities = append(m.CreateEntities,
-				excel.MapCreateEntity{Entity: op.Entity, Tag: tag, ID: "id"})
+		if existing >= 0 && !strings.EqualFold(m.CreateEntities[existing].Entity, op.Entity) {
+			return fmt.Errorf("tag %q already creates entity %q, so it cannot also root %q",
+				tag, m.CreateEntities[existing].Entity, op.Entity)
 		}
+
+		m.EntityDecls = append(m.EntityDecls, excel.MapEntityDecl{Name: op.Entity, Number: number})
+		if number == "1" {
+			m.InitialEntities = append(m.InitialEntities,
+				excel.MapInitialEntity{Entity: op.Entity, EPush: true})
+		}
+		if existing < 0 {
+			m.CreateEntities = append(m.CreateEntities,
+				excel.MapCreateEntity{
+					Entity: op.Entity,
+					Tag:    tag,
+					ID:     defaultString(op.ID, "id"),
+					List:   op.List,
+				})
+			return nil
+		}
+		// Same entity: the createentity was already there and only the
+		// declaration was missing. Honour any id/list the caller gave rather
+		// than reporting success having written neither.
+		if op.ID != "" {
+			m.CreateEntities[existing].ID = op.ID
+		}
+		if op.List != "" {
+			m.CreateEntities[existing].List = op.List
+		}
+		return nil
+
+	// add-create-entity writes the createentity rule on its own, for the cases
+	// add-entity cannot express: a second tag that roots the same entity, or a
+	// createentity for an entity another op already declared.
+	case "add-create-entity":
+		if op.Entity == "" {
+			return fmt.Errorf("add-create-entity needs an entity name")
+		}
+		declared := false
+		for _, e := range m.EntityDecls {
+			if strings.EqualFold(e.Name, op.Entity) {
+				declared = true
+				break
+			}
+		}
+		if !declared {
+			return fmt.Errorf("entity %q is not declared; add-entity declares it and writes "+
+				"its createentity in one op", op.Entity)
+		}
+		tag := defaultString(op.Tag, op.Entity)
+		for _, c := range m.CreateEntities {
+			if strings.EqualFold(c.Tag, tag) {
+				return fmt.Errorf("tag %q already creates entity %q", tag, c.Entity)
+			}
+		}
+		m.CreateEntities = append(m.CreateEntities,
+			excel.MapCreateEntity{
+				Entity: op.Entity,
+				Tag:    tag,
+				ID:     defaultString(op.ID, "id"),
+				List:   op.List,
+			})
+		return nil
+
+	// Deleting the last tag that roots an entity leaves it declared, pushed,
+	// and creatable by no document -- the mirror of the state delete-entity
+	// takes care to avoid. It is allowed, because renaming a tag is delete
+	// then add, but delete-entity is what removes an entity outright.
+	case "delete-create-entity":
+		// `tag` identifies the row and `entity` narrows it, the same way
+		// delete-attribute reads them. Treating `entity` as a fallback tag
+		// would report "no createentity with tag X" naming a tag the caller
+		// never gave, and would miss any tag not named after its entity.
+		tag := op.Tag
+		if tag == "" {
+			return fmt.Errorf("delete-create-entity needs a tag; " +
+				"delete-entity removes an entity and every tag that roots it")
+		}
+		found := false
+		creates := m.CreateEntities[:0]
+		for _, c := range m.CreateEntities {
+			if strings.EqualFold(c.Tag, tag) &&
+				(op.Entity == "" || strings.EqualFold(c.Entity, op.Entity)) {
+				found = true
+				continue
+			}
+			creates = append(creates, c)
+		}
+		if !found {
+			return fmt.Errorf("no createentity with tag %q", tag)
+		}
+		m.CreateEntities = creates
 		return nil
 
 	case "delete-entity":
@@ -366,7 +467,10 @@ Commands:
 
 Ops:
   {"op":"add-entity","entity":"nv_result","number":"1"}
+  {"op":"add-entity","entity":"state_period","number":"*","list":"state_periods"}
   {"op":"delete-entity","entity":"nv_result"}
+  {"op":"add-create-entity","entity":"state_period","tag":"period","list":"state_periods"}
+  {"op":"delete-create-entity","tag":"period"}
   {"op":"add-attribute","attribute":{"tag":"gross_revenue","enclosure":"nv_result","type":"double"}}
   {"op":"delete-attribute","tag":"gross_revenue","entity":"nv_result"}
 
@@ -375,7 +479,31 @@ exist on the stack at all. add-entity with number "1" also pushes the entity in
 the initialization stack, because an entity that is declared and never pushed
 fails at run time.
 
+"list" is the array field on the enclosing entity that each created instance is
+appended to. Left out, it falls back to the entity name plus "s", so it is only
+needed when the array is not that plural -- property -> properties, medication
+-> active_medications -- or when one entity feeds several arrays, as StateTax's
+bracket feeds brackets_single, brackets_mfj and brackets_hoh (one
+add-create-entity per tag). Get it wrong and instances append to an array
+nothing reads, silently.
+
+"id" names the XML attribute that identifies an instance -- <state_period
+id="2">, not a child <id> tag -- and defaults to "id". Elements sharing a value
+are the same instance.
+
+delete-create-entity takes the tag, with "entity" as an optional filter. It can
+leave an entity declared but rooted by no tag; delete-entity is what removes an
+entity and all of its tags together.
+
 Writes the XML and refreshes the paired _map.xlsx, like every authoring write.`)
+}
+
+// defaultString returns v, or def when v is empty.
+func defaultString(v, def string) string {
+	if v == "" {
+		return def
+	}
+	return v
 }
 
 // projectXMLDirFor resolves a project's rules directory the same way every
