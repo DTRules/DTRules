@@ -15,6 +15,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -413,5 +415,101 @@ func TestAddEntityConflictLeavesNothingBehind(t *testing.T) {
 		if e.Entity == "state_period" {
 			t.Error("the refused op still pushed the entity onto the initialization stack")
 		}
+	}
+}
+
+// A mapping entry that resolves against nothing is silent at load: the loader
+// looks up the enclosure, misses, and drops the value. So a map write is
+// checked against the EDD before it lands (#1173).
+func testEDD(t *testing.T) *eddModel {
+	t.Helper()
+	dir := t.TempDir()
+	edd := `<entity_data_dictionary>
+  <entity name="job"><field name="state" type="string"/><field name="periods" type="array" subtype="state_period"/></entity>
+  <entity name="state_period"><field name="id" type="integer"/><field name="state_code" type="string"/></entity>
+</entity_data_dictionary>`
+	if err := os.WriteFile(filepath.Join(dir, "x_edd.xml"), []byte(edd), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	m := loadEDDModel(dir)
+	if m == nil {
+		t.Fatal("fixture EDD did not load")
+	}
+	return m
+}
+
+func TestAddAttributeRefusesAnUndeclaredEnclosure(t *testing.T) {
+	err := validateMapOp(newMap(), mapPatchOp{Op: "add-attribute",
+		Attribute: &mapAttributeJSON{Tag: "x", Enclosure: "nowhere", Type: "double"}}, testEDD(t))
+	if err == nil || !strings.Contains(err.Error(), "nowhere") {
+		t.Errorf("want a refusal naming the enclosure, got: %v", err)
+	}
+}
+
+func TestAddAttributeRefusesAnUndeclaredField(t *testing.T) {
+	err := validateMapOp(newMap(), mapPatchOp{Op: "add-attribute",
+		Attribute: &mapAttributeJSON{Tag: "nonesuch", Enclosure: "job", Type: "string"}}, testEDD(t))
+	if err == nil || !strings.Contains(err.Error(), "nonesuch") {
+		t.Errorf("want a refusal naming the field, got: %v", err)
+	}
+}
+
+func TestAddAttributeRefusesATypeMismatch(t *testing.T) {
+	err := validateMapOp(newMap(), mapPatchOp{Op: "add-attribute",
+		Attribute: &mapAttributeJSON{Tag: "state", Enclosure: "job", Type: "double"}}, testEDD(t))
+	if err == nil || !strings.Contains(err.Error(), "type mismatch") {
+		t.Errorf("want a type mismatch, got: %v", err)
+	}
+}
+
+func TestAddAttributeAcceptsADeclaredField(t *testing.T) {
+	if err := validateMapOp(newMap(), mapPatchOp{Op: "add-attribute",
+		Attribute: &mapAttributeJSON{Tag: "state", Enclosure: "job", Type: "string"}}, testEDD(t)); err != nil {
+		t.Errorf("a declared field must be accepted: %v", err)
+	}
+}
+
+// The list has to be an array that actually holds this entity, or the
+// instances are appended nowhere and every `for all` over it iterates zero
+// times.
+func TestListMustBeAnArrayOfTheEntity(t *testing.T) {
+	err := validateMapOp(newMap(), mapPatchOp{Op: "add-entity",
+		Entity: "state_period", Number: "*", List: "not_an_array"}, testEDD(t))
+	if err == nil || !strings.Contains(err.Error(), "not_an_array") {
+		t.Errorf("want a refusal naming the list, got: %v", err)
+	}
+
+	if err := validateMapOp(newMap(), mapPatchOp{Op: "add-entity",
+		Entity: "state_period", Number: "*", List: "periods"}, testEDD(t)); err != nil {
+		t.Errorf("an array declared with this entity's subtype must be accepted: %v", err)
+	}
+}
+
+// With no list the loader falls back to the entity name plus "s". An entity
+// whose plural is not the array name -- unreported_tips, address -- has to say
+// where its instances go, and is told so at authoring time rather than
+// discovering it as an empty array at run time.
+func TestOmittedListIsRefusedWhenThePluralDoesNotExist(t *testing.T) {
+	err := validateMapOp(newMap(), mapPatchOp{Op: "add-entity",
+		Entity: "state_period", Number: "*"}, testEDD(t))
+	if err == nil || !strings.Contains(err.Error(), "state_periods") {
+		t.Errorf("want the attempted fallback named, got: %v", err)
+	}
+}
+
+// A singleton is bound by the initialization stack and belongs to no array.
+func TestASingletonNeedsNoList(t *testing.T) {
+	if err := validateMapOp(newMap(), mapPatchOp{Op: "add-entity",
+		Entity: "job", Number: "1"}, testEDD(t)); err != nil {
+		t.Errorf("a singleton must not be asked for a list: %v", err)
+	}
+}
+
+// A project with no EDD yet cannot be checked, and refusing to write its
+// mapping would make the order the two files are authored in load-bearing.
+func TestNoEDDMeansNoCheck(t *testing.T) {
+	if err := validateMapOp(newMap(), mapPatchOp{Op: "add-attribute",
+		Attribute: &mapAttributeJSON{Tag: "x", Enclosure: "anything"}}, nil); err != nil {
+		t.Errorf("with no EDD declared the check must stand down: %v", err)
 	}
 }
