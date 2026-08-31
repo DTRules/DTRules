@@ -43,9 +43,14 @@
         data it was given, and it is not automatically the truth. Reconciling
         the rest, in particular the SE-tax and QBI treatment behind the tax
         delta, needs a tax reference and is open work, not a code change. -->
+   <!-- Itemized $33,000 ($6,500 charitable + $18,000 mortgage interest + $8,500
+         property tax) edges out the $31,500 MFJ standard deduction by $1,500.
+         The rental property's interest and taxes are Schedule E expenses and
+         are correctly left out of Schedule A. Previously assumed the standard
+         deduction (#1161). -->
    <expected_agi>251942.958450</expected_agi>
-   <expected_taxable_income>194802.958450</expected_taxable_income>
-   <expected_total_tax>43801.283280</expected_total_tax>
+   <expected_taxable_income>193302.958450</expected_taxable_income>
+   <expected_total_tax>43471.366380</expected_total_tax>
    <expected_refund>0</expected_refund>
 
    <!-- The external reference figures, kept so the target is not lost.
