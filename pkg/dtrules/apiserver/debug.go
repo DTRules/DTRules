@@ -23,6 +23,9 @@ import (
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
+	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
+	"github.com/DTRules/DTRules/pkg/dtrules/compiler/el"
+	"github.com/DTRules/DTRules/pkg/dtrules/operators"
 	"github.com/DTRules/DTRules/pkg/dtrules/trace"
 )
 
@@ -126,6 +129,22 @@ var consoleBlocked = map[string]bool{
 	"newentity": true, "findcreateentity": true, "performtable": true,
 	"executetable": true, "clear": true,
 }
+
+// consoleBlockedAfterEL is consoleBlocked without the two scope operators.
+//
+// EL cannot express mutation in a condition, so this is a backstop rather than
+// the guard -- but it must not refuse what the compiler legitimately emits.
+// entitypush/entitypop come out in balanced pairs for `there is <x> in <array>
+// where ...`, which is a read.
+var consoleBlockedAfterEL = func() map[string]bool {
+	m := make(map[string]bool, len(consoleBlocked))
+	for k, v := range consoleBlocked {
+		m[k] = v
+	}
+	delete(m, "entitypush")
+	delete(m, "entitypop")
+	return m
+}()
 
 // handleDebugLoad loads a trace file and prepares a replay session.
 // POST /api/debug/load {"path": "..."} — path is validated against the
@@ -417,6 +436,10 @@ func (s *Server) handleDebugConsole(w http.ResponseWriter, r *http.Request) {
 	}
 	var req struct {
 		Postfix string `json:"postfix"`
+		// Language pins the input: "el", "postfix", or "" to try EL first
+		// and fall back. Pinning is for callers that already know, and for
+		// asking why something did not compile as EL.
+		Language string `json:"language"`
 	}
 	if err := s.limitedDecode(w, r, &req); err != nil {
 		jsonError(w, "Invalid request body", http.StatusBadRequest)
@@ -430,15 +453,43 @@ func (s *Server) handleDebugConsole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Read-only enforcement: refuse mutating operators by name.
-	for _, tok := range strings.Fields(req.Postfix) {
-		if consoleBlocked[strings.ToLower(tok)] {
+	// Type EL at the console, not postfix. `taxpayer.age > 65` is what an
+	// author has in front of them; `taxpayer.age 65 i>` is a transcription
+	// they have to do in their head, at the moment they are trying to think
+	// about something else (#930).
+	//
+	// EL first, raw postfix if that does not parse. The fallback is what makes
+	// it safe to try: the console has always been postfix and stays so for
+	// anything EL cannot express, including bare stack manipulation.
+	source, language, elErr := s.consoleCompileSource(req.Postfix, req.Language)
+	if elErr != nil {
+		jsonError(w, elErr.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Read-only enforcement, against the right list for how the input was
+	// read. The blocklist exists because "raw postfix has no parse-time notion
+	// of mutation" -- EL does: a condition is an expression, and the grammar
+	// has no spelling for assignment.
+	//
+	// So compiled EL is checked against a shorter list. entitypush/entitypop
+	// are blocked in raw postfix because a hand-typed push can be left
+	// unbalanced; EL emits them in balanced pairs for scoping, and
+	// `there is person in household.members where person.age > 18` -- a pure
+	// read -- compiles to exactly that. Checking compiled EL against the raw
+	// list would refuse it.
+	blocked := consoleBlocked
+	if language == "el" {
+		blocked = consoleBlockedAfterEL
+	}
+	for _, tok := range strings.Fields(source) {
+		if blocked[strings.ToLower(tok)] {
 			jsonError(w, fmt.Sprintf("%s is a mutating operator — console is read-only", tok), http.StatusBadRequest)
 			return
 		}
 	}
 
-	compiled, err := s.debug.replaySess.Compile(req.Postfix)
+	compiled, err := s.debug.replaySess.Compile(source)
 	if err != nil {
 		jsonError(w, fmt.Sprintf("Compile error: %v", err), http.StatusBadRequest)
 		return
@@ -468,5 +519,74 @@ func (s *Server) handleDebugConsole(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, map[string]interface{}{
 		"success": true,
 		"results": results,
+		// Which way the input was read, and what actually ran. An EL
+		// expression that compiles to surprising postfix is exactly the thing
+		// a debugger user wants to see.
+		"language": language,
+		"postfix":  source,
 	})
+}
+
+// consoleCompileSource resolves console input to the postfix that will run,
+// and says which language it was read as.
+//
+// With no language pinned it tries EL and falls back to treating the input as
+// postfix, because that is what the console accepted before and still must:
+// EL has no spelling for bare stack manipulation, and a debugger is exactly
+// where someone reaches for it.
+//
+// A pinned language does not fall back — asking "why does this not compile as
+// EL" deserves the EL error, not a postfix error about the same text.
+func (s *Server) consoleCompileSource(input, language string) (source, used string, err error) {
+	trimmed := strings.TrimSpace(input)
+	if trimmed == "" {
+		return "", "postfix", nil
+	}
+
+	switch strings.ToLower(strings.TrimSpace(language)) {
+	case "postfix":
+		return trimmed, "postfix", nil
+	case "el":
+		compiled, cerr := s.compileConsoleEL(trimmed)
+		if cerr != nil {
+			return "", "", fmt.Errorf("EL compile error: %v", cerr)
+		}
+		return compiled, "el", nil
+	}
+
+	if compiled, cerr := s.compileConsoleEL(trimmed); cerr == nil && strings.TrimSpace(compiled) != "" {
+		return compiled, "el", nil
+	}
+	return trimmed, "postfix", nil
+}
+
+// compileConsoleEL compiles one EL expression, typed against the project's own
+// EDD so `taxpayer.age` is an integer rather than defaulting to one.
+func (s *Server) compileConsoleEL(expr string) (string, error) {
+	c := el.NewCompiler()
+	c.SetOperatorChecker(func(name string) bool {
+		_, ok := operators.GetByString(name)
+		return ok
+	})
+	if syms := s.consoleSymbols(); len(syms) > 0 {
+		c.SetSymbols(syms)
+	}
+	// A console line is an expression to evaluate, which is the condition
+	// form: it leaves its value on the data stack, which is what the console
+	// then prints.
+	return c.CompileCondition(expr)
+}
+
+// consoleSymbols is the project's EDD, so a console expression is typed the
+// way the rules are. Without it every field defaults to integer and
+// `taxpayer.agi > 1000.5` compiles to an integer comparison.
+//
+// Loaded per call rather than cached: a console line is typed by a human, so
+// the read is free at this rate, and the debugger should not go stale against
+// an EDD edited in another tab.
+func (s *Server) consoleSymbols() map[string]string {
+	if s.projectPath == "" {
+		return nil
+	}
+	return authoring.LoadEDDSymbols(projectXMLDir(s.projectPath))
 }
