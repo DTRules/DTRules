@@ -3,11 +3,24 @@
 ## v1.25.0 — 2026-08-31
 
 Reciprocal state agreements ship, and the work of building them turned up a
-pattern worth naming: a decision table can exist, compile, pass every gate,
-and be reached by nothing at all. Four were found this cycle. The orphan-call
-analysis looks for calls to tables that do not exist, not for tables that
-exist and nobody calls, so each one produced a plausible wrong answer for as
-long as it sat there.
+pattern worth naming: something can exist, compile, pass every gate, and be
+reached by nothing at all.
+
+Six instances this cycle. `Calculate_Itemized_Deductions`, so every itemizing
+taxpayer took the standard deduction. `Calculate_State_Source_Income`, so no
+multi-state return had a roster. `Calculate_Part_Year_Allocation`, branching
+on a field nothing writes — and then, once that was fixed, still running
+before the roster it iterates was built. The function that reads the pushed
+entity stack, decoding a path that matched nothing in any project since it
+shipped. And `Calculate_Other_State_Tax_Credit`, which is still there, at the
+end of this file, because the thing it needs does not exist yet.
+
+None of them errored. Each produced a plausible wrong answer for as long as it
+sat there, because the gates look for references to things that do not exist,
+not for things that exist and nothing references. The mapping and EDD checks
+added here (#1173, #1175) close two doors on that; a reachability advisory —
+"defined, and reachable from no entry table" — would close the widest one and
+is the single highest-leverage thing left on the board.
 
 ### Reciprocal state agreements
 
@@ -63,6 +76,30 @@ inputs and were reconciled; each gap is exactly *itemized − standard*, and the
 recomputed tax was checked against the 2025 brackets rather than taken on
 trust.
 
+- **One residency vocabulary, and non-residents stop being taxed on
+  everything** (#1177). `state_period.resident_status` carried
+  full_year|part_year|nonresident; `state_tax_result.residency_status` carried
+  resident|part_year_resident|nonresident and was written by nothing at all —
+  declared read-only with a default, it could never be anything else. So the
+  part-year branch was unreachable and every state took the full-year one,
+  which set `state_agi = result.agi`: a *non-resident* state was handed the
+  taxpayer's entire federal AGI rather than the income sourced there. On a
+  two-state return that is the whole income taxed twice. The second field is
+  deleted, the status is carried from the period, and the corpus is normalised
+  with it — ten scenarios said `resident` where the EDD said `full_year`, a
+  third spelling of one idea inside one field.
+- **The state roster is built before anything allocates across it** (#1177).
+  The dispatcher performed the allocation pass before the pass that builds the
+  roster it iterates, so it ran over an empty list and the residency branches
+  never executed on a real result. An Ohio resident whose wages were all
+  sourced to California came out with Ohio `state_agi` 0 — Ohio taxes every
+  dollar wherever earned, and was taxing none of them.
+- **The deduction vocabulary is closed** (#1175). `deduction.category` had no
+  enforced set: the EDD documented six values, the rules tested four others.
+  The corpus's 27 spellings turned out to span six element types, only one of
+  which the rules read — and five of those six are neither declared nor
+  mapped, so 62 of 110 occurrences are dropped at load and assert nothing.
+
 ### The EL compiler
 
 - **Local slots restart per table row** (#1047, #234). Slot indices are
@@ -114,6 +151,11 @@ trust.
   loader's `name+"s"` fallback hunts for `unreported_tipss`. Those are pinned
   by a ceiling that can only come down rather than fixed blind, since changing
   what loads changes what the scenarios must expect.
+- **A project can be given its first mapping** (#1164). `map put` takes the
+  JSON `map get` emits and writes the whole document, creating the file when
+  the project has none — every patch op needed a file that already existed, so
+  the first mapping was always hand-written, which is what the authoring
+  contract tells everyone not to do.
 - **The initialization stack is pushed before the document is read** (#1168).
   A setattribute resolves its enclosure against the entity stack *while* the
   document is being read, so an entity that is only an `<initialentity>` was
@@ -122,6 +164,33 @@ trust.
   TaxReturn's `job.state` as the declared default `TX` for a scenario that says
   `OH`, and computed a return of zero — looking like an answer the whole way
   down. The CLI and the library now agree on the same file.
+
+### Analysis
+
+- **The pushed entity stack is read at last** (#776). Bare names in a table
+  with no `for all` context of its own resolve against whatever the mapping
+  pushed at initialization — and the function that reads that stack decoded
+  with a path anchored at the document element, while every mapping in the
+  corpus nests the block one level deeper. It matched nothing, in every
+  project, since it shipped, so the resolution it feeds never ran. The example
+  its own comment cited as fixed — CHIP's `job.currentdate`, read on every run
+  — was still being reported unused. Unused warnings across the samples fall
+  2687 → 2581, TaxReturn's 1217 → 1123; the remainder is largely genuine, with
+  1038 of TaxReturn's appearing in no DSL fragment anywhere.
+
+### Debugger
+
+- **The console takes EL** (#930). Asking whether a taxpayer is over 65 meant
+  writing `taxpayer.age 65 >` — a transcription done in the head at the moment
+  one is trying to think about something else. The line is compiled as EL and
+  falls back to raw postfix when that does not parse, because EL has no
+  spelling for bare stack manipulation and a debugger is where someone reaches
+  for it. The response says which way it was read and what postfix ran.
+  Expressions are typed against the project's EDD. The read-only guard now
+  knows which language it is checking: compiled EL is checked against a
+  shorter list, because `there is client in case.clients where ...` is a pure
+  read that compiles to `entitypush … entitypop`, and both are blocked in raw
+  postfix for good reason.
 
 ### Samples
 
@@ -142,14 +211,21 @@ trust.
 
 ### Known and filed, not fixed
 
-The same silent-failure shape runs through both of these, and through the two
-above that were fixed in time for this release:
+The same silent-failure shape runs through both of these, and through the
+several above that were fixed in time for this release:
 
-- `deduction.category` has no enforced vocabulary: the EDD documents six
-  values, the rules test four others, the corpus writes twenty-seven (#1175).
-- The other-state tax credit is orphaned and computes a hardcoded zero, and
-  part-year allocation branches on a field nothing writes — #233 and #235 are
-  closed but inert (#1177).
+- The other-state tax credit is still orphaned and still computes a hardcoded
+  zero (#1177). The residency half is fixed, but the credit cannot be wired
+  honestly: `state_tax_liability` is 0 on every roster entry because nothing
+  computes per-state tax into it — the 43 state tables read `result.agi` and
+  write `result.XX_state_tax`, and none touches a `state_tax_result`. A credit
+  keyed off liability would be the same zero with more machinery in front of
+  it; keyed off withholding it would hand out credits that are not due. The
+  blocker is per-state non-resident computation, not the credit table.
+- `<category>` on the five element types the EDD does not declare —
+  `expense`, `business_expense`, `medical_expense`, `itemized_deduction`,
+  `adjustment` — is dropped at load, so 62 of the corpus's 110 occurrences
+  assert nothing (#1175's neighbour).
 
 ## v1.24.0 — 2026-08-21
 
