@@ -31,7 +31,7 @@
          <state_code>NJ</state_code>
          <start_date>1/1/2025</start_date>
          <end_date>12/31/2025</end_date>
-         <resident_status>resident</resident_status>
+         <resident_status>full_year</resident_status>
       </state_period>
       <state_period id="2">
          <id>2</id>

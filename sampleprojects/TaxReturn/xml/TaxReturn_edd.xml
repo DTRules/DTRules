@@ -1257,7 +1257,7 @@
 		<field name="is_resident" type="boolean" subtype="" access="rw" input="" default_value="false" comment="True for the taxpayer resident state, false for a state taxed on sourced income only."></field>
 		<field name="reciprocity_applies" type="boolean" subtype="" access="rw" input="" default_value="false" comment="A reciprocal agreement between this work state and the resident state exempts this state wages."></field>
 		<field name="reciprocity_partner" type="string" subtype="" access="rw" input="" default_value="" comment="The resident state whose agreement with this work state applies."></field>
-		<field name="residency_status" type="string" subtype="" access="r" input="" default_value="resident" comment="resident | part_year_resident | nonresident. Drives the part-year allocation; was read as a bare name that resolved to nothing."></field>
+		<field name="resident_status" type="string" subtype="" access="rw" input="" default_value="full_year" comment="full_year, part_year or nonresident -- carried from the state_period this result was built from. One vocabulary with state_period.resident_status (#1177)."></field>
 		<field name="state_agi" type="double" subtype="" access="rw" input="" default_value="0" comment="State adjusted gross income"></field>
 		<field name="state_code" type="string" subtype="" access="rw" input="main" default_value="" comment="Two-letter state code (e.g., CA, NY, TX)"></field>
 		<field name="state_credits" type="double" subtype="" access="rw" input="" default_value="0" comment="Total state tax credits"></field>

@@ -46,7 +46,7 @@
          <state_code>TX</state_code>
          <start_date>1/1/2025</start_date>
          <end_date>12/31/2025</end_date>
-         <resident_status>resident</resident_status>
+         <resident_status>full_year</resident_status>
          <domicile_state>true</domicile_state>
          <days_in_state>30</days_in_state>
       </state_period>
