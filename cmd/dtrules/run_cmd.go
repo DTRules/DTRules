@@ -287,9 +287,17 @@ func initMapping(sess dtrules.Session, xmlDir, input, mapPath string) error {
 		return err
 	}
 	if input != "" {
-		// Load the data first, then push singletons so the stack holds the
-		// LOADED instances — Initialize+LoadData would push default-valued
-		// entities disconnected from the input.
+		// Pushes the initialization stack, reads the document, then pushes any
+		// further cardinality-1 entities the document itself created — so the
+		// stack holds the LOADED instances.
+		//
+		// The comment here used to say the data had to be read first, or
+		// Initialize would push default-valued entities disconnected from the
+		// input. That stopped being true once newDataLoader learned to adopt
+		// the entities Initialize created, and reading first had by then
+		// become the bug: an entity that is only an <initialentity> was not on
+		// the stack while the document was read, so every attribute enclosed
+		// by it was dropped (#1168).
 		f, err := os.Open(input)
 		if err != nil {
 			return err
