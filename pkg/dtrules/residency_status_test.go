@@ -42,6 +42,14 @@ import (
 // taxing.
 func residencyOf(t *testing.T, rs *session.RuleSet, xmlDir,
 	residentState, workState, workStatus string, wages float64) (status string, stateAGI float64) {
+	return residencyOfState(t, rs, xmlDir, residentState, workState, workStatus, wages, workState)
+}
+
+// residencyOfState is residencyOf with the roster entry to read named
+// explicitly -- the resident state's entry is the interesting one when the
+// income is sourced somewhere else.
+func residencyOfState(t *testing.T, rs *session.RuleSet, xmlDir,
+	residentState, workState, workStatus string, wages float64, readState string) (status string, stateAGI float64) {
 	t.Helper()
 
 	doc := fmt.Sprintf(`<job>
@@ -111,7 +119,7 @@ func residencyOf(t *testing.T, rs *session.RuleSet, xmlDir,
 				continue
 			}
 			code, _ := ent.Get(dtrules.GetRName("state_code"))
-			if code == nil || code.StringValue() != workState {
+			if code == nil || code.StringValue() != readState {
 				continue
 			}
 			if o, _ := ent.Get(dtrules.GetRName("resident_status")); o != nil {
@@ -163,5 +171,32 @@ func TestNonResidentKeepsItsSourcedIncome(t *testing.T) {
 	if coAGI != 0 {
 		t.Errorf("a non-resident state with nothing sourced to it has state_agi = %.2f, want 0 — "+
 			"the full-year branch is still overwriting it with the federal AGI", coAGI)
+	}
+}
+
+// The order the dispatcher performs its steps in is load-bearing, and it was
+// wrong. Apply_Part_Year_Allocations ran before Calculate_State_Source_Income
+// built the roster, so it iterated an empty list and the residency branches
+// never executed on a real result -- the same "reached by nothing" shape as
+// the field they branch on, one level up (#1177).
+//
+// The visible symptom: a full-year resident state came out with state_agi 0
+// whenever the income was sourced elsewhere, because the branch that gives a
+// resident state the federal AGI never ran.
+func TestResidentStateGetsTheFederalAGI(t *testing.T) {
+	rs, xmlDir := loadTaxReturn(t)
+
+	// An Ohio resident whose wages are all sourced to California. Ohio taxes
+	// every dollar wherever earned; California taxes what is sourced there.
+	// CA deliberately: Ohio's reciprocal partners are IN, KY, MI, PA and WV,
+	// and in those the wages would be exempted to zero on purpose (#234).
+	status, ohAGI := residencyOfState(t, rs, xmlDir, "OH", "CA", "nonresident", 90000, "OH")
+	if status != "full_year" {
+		t.Fatalf("resident status = %q, want full_year", status)
+	}
+	if ohAGI != 90000 {
+		t.Errorf("the resident state's state_agi = %.2f, want the federal AGI 90000 — "+
+			"the full-year branch did not run, which happens when the roster is built "+
+			"after the allocation pass rather than before it", ohAGI)
 	}
 }
