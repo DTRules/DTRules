@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -50,6 +51,16 @@ func residencyOf(t *testing.T, rs *session.RuleSet, xmlDir,
 // income is sourced somewhere else.
 func residencyOfState(t *testing.T, rs *session.RuleSet, xmlDir,
 	residentState, workState, workStatus string, wages float64, readState string) (status string, stateAGI float64) {
+	entry := rosterEntry(t, rs, xmlDir, residentState, workState, workStatus, wages, readState)
+	agi, _ := strconv.ParseFloat(entry["state_agi"], 64)
+	return entry["resident_status"], agi
+}
+
+// rosterEntry runs a two-state return and returns every attribute of the named
+// state's roster entry, as strings. One reader for every question a test wants
+// to ask of the roster.
+func rosterEntry(t *testing.T, rs *session.RuleSet, xmlDir,
+	residentState, workState, workStatus string, wages float64, readState string) map[string]string {
 	t.Helper()
 
 	doc := fmt.Sprintf(`<job>
@@ -122,16 +133,16 @@ func residencyOfState(t *testing.T, rs *session.RuleSet, xmlDir,
 			if code == nil || code.StringValue() != readState {
 				continue
 			}
-			if o, _ := ent.Get(dtrules.GetRName("resident_status")); o != nil {
-				status = o.StringValue()
+			out := map[string]string{}
+			for _, n := range ent.GetAttributeNames() {
+				if v, err := ent.Get(n); err == nil && v != nil {
+					out[n.StringValue()] = v.StringValue()
+				}
 			}
-			if o, _ := ent.Get(dtrules.GetRName("state_agi")); o != nil {
-				stateAGI, _ = o.DoubleValue()
-			}
-			return status, stateAGI
+			return out
 		}
 	}
-	return "", 0
+	return map[string]string{}
 }
 
 // The status a scenario supplies on the period has to reach the result, or the
@@ -198,5 +209,35 @@ func TestResidentStateGetsTheFederalAGI(t *testing.T) {
 		t.Errorf("the resident state's state_agi = %.2f, want the federal AGI 90000 — "+
 			"the full-year branch did not run, which happens when the roster is built "+
 			"after the allocation pass rather than before it", ohAGI)
+	}
+}
+
+// The dispatcher's ladder computes result.computed_state_tax for job.state,
+// and nothing carried it onto the roster -- so every state_tax_result's
+// liability sat at its default of zero, including the one state whose tax had
+// just been worked out. Anything reading the roster to answer "what did this
+// state cost" got nothing (#1177).
+func TestResidentStateCarriesItsComputedTax(t *testing.T) {
+	rs, xmlDir := loadTaxReturn(t)
+
+	liability := func(readState string) float64 {
+		t.Helper()
+		// Ohio resident, wages sourced to California. CA deliberately: Ohio's
+		// reciprocal partners would have the wages exempted to zero (#234),
+		// which is a different question from this one.
+		e := rosterEntry(t, rs, xmlDir, "OH", "CA", "nonresident", 90000, readState)
+		v, _ := strconv.ParseFloat(e["state_tax_liability"], 64)
+		return v
+	}
+
+	if got := liability("OH"); got <= 0 {
+		t.Errorf("the resident state's liability = %.2f, want the tax the dispatcher computed — "+
+			"the ladder's figure never reached the roster", got)
+	}
+
+	// The non-resident state is left alone: nothing computes a per-state tax
+	// for it, and a figure here would be fabricated.
+	if got := liability("CA"); got != 0 {
+		t.Errorf("a non-resident state's liability = %.2f, want 0", got)
 	}
 }
