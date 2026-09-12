@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -305,14 +306,35 @@ func (s *Server) loadDebugSessionLocked(validated string) (*debugSession, error)
 
 // debugNodeJSON serializes a trace subtree for the UI's tree view.
 func debugNodeJSON(n *trace.TraceNode) map[string]interface{} {
-	children := make([]map[string]interface{}, 0, len(n.Children))
-	for _, c := range n.Children {
-		children = append(children, debugNodeJSON(c))
-	}
+	return debugNodeJSONDepth(n, -1)
+}
+
+// debugNodeJSONDepth serializes a node, descending at most depth levels.
+// depth < 0 is unlimited; depth 0 serializes the node and none of its
+// children.
+//
+// A node whose children were left out says so, and always reports how many it
+// has, so a client can show "43 more" and fetch that subtree when the user
+// opens it rather than being handed the whole trace up front (#930).
+func debugNodeJSONDepth(n *trace.TraceNode, depth int) map[string]interface{} {
 	out := map[string]interface{}{
-		"number":   n.Number,
-		"name":     n.Name,
-		"children": children,
+		"number":     n.Number,
+		"name":       n.Name,
+		"childCount": len(n.Children),
+	}
+	if depth == 0 && len(n.Children) > 0 {
+		out["children"] = []map[string]interface{}{}
+		out["truncated"] = true
+	} else {
+		next := depth - 1
+		if depth < 0 {
+			next = -1
+		}
+		children := make([]map[string]interface{}, 0, len(n.Children))
+		for _, c := range n.Children {
+			children = append(children, debugNodeJSONDepth(c, next))
+		}
+		out["children"] = children
 	}
 	if len(n.Attributes) > 0 {
 		out["attrs"] = n.Attributes
@@ -336,9 +358,40 @@ func (s *Server) handleDebugTree(w http.ResponseWriter, r *http.Request) {
 		jsonError(w, "No trace loaded", http.StatusBadRequest)
 		return
 	}
+	// Paging is opt-in: with neither parameter the whole tree comes back as
+	// before, because that is what the tree view asks for today and 36 MB at
+	// 398k nodes is still comfortable. `depth` bounds the descent and `node`
+	// names a subtree, which together let a client fetch the tree as it is
+	// opened instead of all at once -- the shape it will need past a million
+	// nodes.
+	root := s.debug.trace.Root()
+	depth := -1
+	if v := strings.TrimSpace(r.URL.Query().Get("depth")); v != "" {
+		d, err := strconv.Atoi(v)
+		if err != nil || d < 0 {
+			jsonError(w, "depth must be a non-negative integer", http.StatusBadRequest)
+			return
+		}
+		depth = d
+	}
+	if v := strings.TrimSpace(r.URL.Query().Get("node")); v != "" {
+		n, err := strconv.Atoi(v)
+		if err != nil || n < 1 {
+			jsonError(w, "node must be a positive integer", http.StatusBadRequest)
+			return
+		}
+		sub := s.debug.trace.Find(n)
+		if sub == nil {
+			jsonError(w, fmt.Sprintf("Node %d not found", n), http.StatusBadRequest)
+			return
+		}
+		root = sub
+	}
+
 	jsonResponse(w, map[string]interface{}{
 		"success": true,
-		"tree":    debugNodeJSON(s.debug.trace.Root()),
+		"nodes":   s.debug.nodeCount,
+		"tree":    debugNodeJSONDepth(root, depth),
 	})
 }
 
