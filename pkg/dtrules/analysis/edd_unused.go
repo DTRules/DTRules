@@ -214,6 +214,76 @@ var assignPattern = regexp.MustCompile(`(?i)(?:set\s+([a-z_][a-z0-9_]*)\.([a-z0-
 // createEntityPattern detects "new X entity" or "createentity" near entity push
 var createEntityPattern = regexp.MustCompile(`(?i)new\s+([a-z_][a-z0-9_]*)\s+entity`)
 
+// entityAliasPatterns bind a local name to an entity type. Both forms appear
+// in the corpus:
+//
+//	create state_tax_result as st_result
+//	local entity st_result = new state_tax_result entity
+//
+// References through the alias are dotted -- `st_result.state_withholding` --
+// so the plain dotted scan sees them and attributes them to an "entity" named
+// st_result, which the EDD has never heard of. The field they really name goes
+// unreferenced and is reported unused, while being both written and read on
+// every multi-state return (#776).
+var entityAliasPatterns = []*regexp.Regexp{
+	regexp.MustCompile(`(?i)\bcreate\s+([a-z_][a-z0-9_]*)\s+as\s+([a-z_][a-z0-9_]*)`),
+	regexp.MustCompile(`(?i)\blocal\s+entity\s+([a-z_][a-z0-9_]*)\s*=\s*new\s+([a-z_][a-z0-9_]*)\s+entity`),
+}
+
+// collectEntityAliases maps alias -> entity type for one table. Collected over
+// the whole table rather than per row, because the create and the uses are
+// routinely in different actions of the same table.
+//
+// An alias is only recorded when the EDD declares the type it names: an alias
+// for something undeclared cannot rewrite a reference into anything useful,
+// and guessing would invent references to fields that do not exist.
+func collectEntityAliases(dsls []string, schema *eddSchema) map[string]string {
+	if schema == nil {
+		return nil
+	}
+	var aliases map[string]string
+	for _, dsl := range dsls {
+		for i, re := range entityAliasPatterns {
+			for _, m := range re.FindAllStringSubmatch(dsl, -1) {
+				// The two spellings put the type and the alias in opposite
+				// order.
+				entity, alias := m[1], m[2]
+				if i == 1 {
+					entity, alias = m[2], m[1]
+				}
+				entity, alias = strings.ToLower(entity), strings.ToLower(alias)
+				if entity == "" || alias == "" || entity == alias {
+					continue
+				}
+				if _, ok := schema.FieldsByEntity[entity]; !ok {
+					continue
+				}
+				if aliases == nil {
+					aliases = make(map[string]string, 2)
+				}
+				aliases[alias] = entity
+			}
+		}
+	}
+	return aliases
+}
+
+// resolveAlias rewrites an alias-qualified key to the entity it stands for.
+// Returns the key unchanged when the prefix is not an alias.
+func resolveAlias(aliases map[string]string, key string) string {
+	if len(aliases) == 0 {
+		return key
+	}
+	dot := strings.IndexByte(key, '.')
+	if dot < 0 {
+		return key
+	}
+	if entity, ok := aliases[key[:dot]]; ok {
+		return entity + key[dot:]
+	}
+	return key
+}
+
 // collectDTReferences walks all *_dt.xml files and collects identifiers.
 // readRefs: identifiers appearing in read positions (conditions, RHS of assignments).
 // writeRefs: identifiers appearing as LHS of assignment statements.
@@ -280,6 +350,24 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 			// resolves (#776).
 			entityStack := append(append([]string{}, baseStack...), stackFromContexts(schema, table.Contexts)...)
 
+			// An alias bound by `create <Type> as <name>` is table-wide: the
+			// create and the uses routinely sit in different actions.
+			aliasDSLs := make([]string, 0,
+				len(table.Contexts)+len(table.InitialActions)+len(table.Conditions)+len(table.Actions))
+			for _, c := range table.Contexts {
+				aliasDSLs = append(aliasDSLs, c.DSL)
+			}
+			for _, a := range table.InitialActions {
+				aliasDSLs = append(aliasDSLs, a.DSL)
+			}
+			for _, c := range table.Conditions {
+				aliasDSLs = append(aliasDSLs, c.DSL)
+			}
+			for _, a := range table.Actions {
+				aliasDSLs = append(aliasDSLs, a.DSL)
+			}
+			aliases := collectEntityAliases(aliasDSLs, schema)
+
 			// The iterated field itself is being read by every
 			// iteration clause (context or inline). Record it so
 			// the analyzer doesn't flag e.g. `job.taxpayers` as
@@ -302,7 +390,7 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 
 			// Conditions are always reads.
 			for _, c := range table.Conditions {
-				extractReads(c.DSL, readRefs)
+				extractReadsAliased(c.DSL, aliases, readRefs)
 				extractReads(c.Postfix, readRefs)
 				if schema != nil {
 					local := append(append([]string{}, entityStack...), inlinePushes(c.DSL, schema)...)
@@ -312,7 +400,7 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 			}
 			// Actions: extract writes explicitly, then reads for non-write positions.
 			for _, a := range table.InitialActions {
-				extractWritesAndReads(a.DSL, writeRefs, readRefs)
+				extractWritesAndReadsAliased(a.DSL, aliases, writeRefs, readRefs)
 				extractWritesAndReads(a.Postfix, writeRefs, readRefs)
 				if schema != nil {
 					local := append(append([]string{}, entityStack...), inlinePushes(a.DSL, schema)...)
@@ -321,7 +409,7 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 				}
 			}
 			for _, a := range table.Actions {
-				extractWritesAndReads(a.DSL, writeRefs, readRefs)
+				extractWritesAndReadsAliased(a.DSL, aliases, writeRefs, readRefs)
 				extractWritesAndReads(a.Postfix, writeRefs, readRefs)
 				if schema != nil {
 					local := append(append([]string{}, entityStack...), inlinePushes(a.DSL, schema)...)
@@ -754,10 +842,20 @@ func attribute(ident string, entityStack []string, schema *eddSchema) string {
 
 // extractReads collects all dotted identifiers from text as read references.
 func extractReads(text string, into map[string]bool) {
+	extractReadsAliased(text, nil, into)
+}
+
+// extractReadsAliased is extractReads with alias-qualified references
+// attributed to the entity the alias stands for.
+func extractReadsAliased(text string, aliases map[string]string, into map[string]bool) {
 	for _, m := range identifierPattern.FindAllStringSubmatch(strings.ToLower(text), -1) {
 		key := m[1] + "." + m[2]
-		if !isRuntimeReserved(key) {
-			into[key] = true
+		if isRuntimeReserved(key) {
+			continue
+		}
+		into[key] = true
+		if resolved := resolveAlias(aliases, key); resolved != key {
+			into[resolved] = true
 		}
 	}
 }
@@ -765,6 +863,12 @@ func extractReads(text string, into map[string]bool) {
 // extractWritesAndReads separates write targets (LHS of set/xdef) from read references.
 // Write targets go into writes; all other identifiers go into reads.
 func extractWritesAndReads(text string, writes, reads map[string]bool) {
+	extractWritesAndReadsAliased(text, nil, writes, reads)
+}
+
+// extractWritesAndReadsAliased is extractWritesAndReads with alias-qualified
+// references attributed to the entity the alias stands for.
+func extractWritesAndReadsAliased(text string, aliases map[string]string, writes, reads map[string]bool) {
 	lower := strings.ToLower(text)
 
 	// Collect write targets first.
@@ -781,6 +885,10 @@ func extractWritesAndReads(text string, writes, reads map[string]bool) {
 				if !isRuntimeReserved(key) {
 					localWrites[key] = true
 					writes[key] = true
+					if resolved := resolveAlias(aliases, key); resolved != key {
+						localWrites[resolved] = true
+						writes[resolved] = true
+					}
 				}
 			}
 		}
@@ -789,8 +897,12 @@ func extractWritesAndReads(text string, writes, reads map[string]bool) {
 	// All other identifiers are reads.
 	for _, m := range identifierPattern.FindAllStringSubmatch(lower, -1) {
 		key := m[1] + "." + m[2]
-		if !isRuntimeReserved(key) && !localWrites[key] {
-			reads[key] = true
+		if isRuntimeReserved(key) || localWrites[key] {
+			continue
+		}
+		reads[key] = true
+		if resolved := resolveAlias(aliases, key); resolved != key && !localWrites[resolved] {
+			reads[resolved] = true
 		}
 	}
 }
