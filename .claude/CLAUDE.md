@@ -1,5 +1,14 @@
 # DTRules Project - Claude Code Instructions
 
+**The system specification is normative: [docs/SPEC.md](../docs/SPEC.md).**
+
+- ALL work is done **against the spec**. Before building or changing
+  anything, read the relevant section; if the change contradicts the spec,
+  resolve that first (change the spec deliberately, or change the plan).
+- **New work requires updating the spec.** A change is not finished until
+  SPEC.md describes the system as it now is — same commit or same change
+  set, not "later".
+
 ## Project Structure (Go Primary)
 
 DTRules is now a Go-first project. The structure is:
