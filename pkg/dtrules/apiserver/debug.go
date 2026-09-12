@@ -226,6 +226,18 @@ func debugSessionPayload(ds *debugSession) map[string]interface{} {
 		// node, or runs until a predicate fires needs to be able to ask; it
 		// was the one piece of session state the payload did not carry.
 		"position": ds.position,
+		// What this session is comparing against, if anything, and whether
+		// that is a speculation or a second real trace. A client showing a
+		// diff has to be able to say which.
+		"baseline": func() interface{} {
+			if ds.baseline == nil {
+				return nil
+			}
+			return map[string]interface{}{
+				"path":        ds.baselinePath,
+				"speculative": ds.speculative,
+			}
+		}(),
 	}
 }
 
@@ -769,4 +781,95 @@ func (s *Server) evalAt(node int, postfix string) (bool, error) {
 		return b, nil
 	}
 	return strings.EqualFold(strings.TrimSpace(v.StringValue()), "true"), nil
+}
+
+// handleDebugBaseline sets or clears a second trace to compare the loaded one
+// against.
+// POST /api/debug/baseline {"path": "..."} — "" clears it.
+//
+// Reports already diff whenever a baseline is present; until now the only way
+// to get one was to start a speculation, which is a different question. Asking
+// "what changed between period N and period N-1" means comparing two runs that
+// both really happened, and that needed no speculation at all (#930).
+func (s *Server) handleDebugBaseline(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		jsonError(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var req struct {
+		Path string `json:"path"`
+	}
+	if err := s.limitedDecode(w, r, &req); err != nil {
+		jsonError(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.debug == nil {
+		jsonError(w, "No trace loaded", http.StatusBadRequest)
+		return
+	}
+	if s.debug.speculative {
+		jsonError(w, "A speculation is active; reset it before comparing traces",
+			http.StatusBadRequest)
+		return
+	}
+
+	if strings.TrimSpace(req.Path) == "" {
+		s.debug.baseline = nil
+		s.debug.baselinePath = ""
+		jsonResponse(w, map[string]interface{}{"success": true, "baseline": nil})
+		return
+	}
+
+	validated, err := s.validateProjectPath(req.Path)
+	if err != nil {
+		jsonError(w, fmt.Sprintf("Invalid trace path: %v", err), http.StatusBadRequest)
+		return
+	}
+	if validated == s.debug.tracePath {
+		jsonError(w, "The baseline is the trace already loaded; a run does not differ from itself",
+			http.StatusBadRequest)
+		return
+	}
+
+	tr := trace.NewTrace()
+	root, err := tr.Load(validated)
+	if err != nil {
+		jsonError(w, fmt.Sprintf("failed to load baseline trace: %v", err), http.StatusBadRequest)
+		return
+	}
+
+	// Two traces are only comparable if the same rules produced them.
+	// Diffing a report across a rules change reads as data drift when it is
+	// nothing of the sort, so the mismatch is reported rather than hidden --
+	// and not refused, because comparing across a deliberate rules change is
+	// a real thing to want.
+	prov := tr.Provenance()
+	fingerprintMatch := "unknown"
+	if prov.RulesFingerprint != "" && s.debug.provenance.RulesFingerprint != "" {
+		if prov.RulesFingerprint == s.debug.provenance.RulesFingerprint {
+			fingerprintMatch = "match"
+		} else {
+			fingerprintMatch = "mismatch"
+		}
+	}
+
+	s.debug.baseline = tr
+	s.debug.baselinePath = validated
+	rel := validated
+	if r, rerr := filepath.Rel(s.projectPath, validated); rerr == nil {
+		rel = r
+	}
+	jsonResponse(w, map[string]interface{}{
+		"success": true,
+		"baseline": map[string]interface{}{
+			"path":             rel,
+			"nodes":            root.Count(),
+			"dtrulesVersion":   prov.DTRulesVersion,
+			"fingerprintMatch": fingerprintMatch,
+			"speculative":      false,
+		},
+	})
 }

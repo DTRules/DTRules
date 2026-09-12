@@ -47,6 +47,10 @@ const (
 	// prevent for rules and which test fixtures are just as prone to.
 	kidaidTrace    = "testdata/kidaid.trace.xml"
 	syntheticTrace = "testdata/big-synthetic.trace.xml"
+
+	// baselineTraceName is a second copy of the loaded trace, placed in every
+	// test project so a comparison baseline can be set without a speculation.
+	baselineTraceName = "baseline.trace.xml"
 )
 
 // debugServer returns a router with the KidAid trace already loaded.
@@ -63,6 +67,16 @@ func debugServer(t *testing.T, readOnly bool) http.Handler {
 // is outside any sample, and that refusal is correct. Copying both into one
 // temp directory exercises the real validation instead of disabling it.
 func debugServerWith(t *testing.T, tracePath string, readOnly bool) http.Handler {
+	t.Helper()
+	h, _ := debugServerAndRoot(t, tracePath, readOnly)
+	return h
+}
+
+// debugServerAndRoot is debugServerWith with the project root returned, for
+// tests that need to name a file inside it -- trace paths are validated
+// against the root, so a relative name would resolve against the working
+// directory instead.
+func debugServerAndRoot(t *testing.T, tracePath string, readOnly bool) (http.Handler, string) {
 	t.Helper()
 	root := t.TempDir()
 
@@ -96,6 +110,12 @@ func debugServerWith(t *testing.T, tracePath string, readOnly bool) http.Handler
 	if err := os.WriteFile(tracePathInProject, trace, 0o644); err != nil {
 		t.Fatal(err)
 	}
+	// A second copy, so a test can set a comparison baseline. Identical
+	// content on purpose: the diff of a run against itself is empty, which is
+	// the cleanest assertion that the comparison ran at all.
+	if err := os.WriteFile(filepath.Join(root, baselineTraceName), trace, 0o644); err != nil {
+		t.Fatal(err)
+	}
 
 	s := New(Config{ProjectRoot: root, ReadOnly: readOnly})
 	// A trace is read in the context of the rules it came from, so the
@@ -106,7 +126,7 @@ func debugServerWith(t *testing.T, tracePath string, readOnly bool) http.Handler
 	if err := s.LoadDebugTrace(tracePathInProject); err != nil {
 		t.Fatalf("LoadDebugTrace(%s): %v", tracePathInProject, err)
 	}
-	return s.Routes()
+	return s.Routes(), root
 }
 
 // do issues a request and returns the status and decoded body. A body that is
