@@ -104,7 +104,10 @@ func (s *Server) handleDebugSpeculateReset(w http.ResponseWriter, r *http.Reques
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if s.debug == nil || s.debug.baseline == nil {
+	// Keyed on speculation, not on a baseline existing: a comparison
+	// baseline is a second real trace, and "reset" must not swap the active
+	// session over to it.
+	if s.debug == nil || !s.debug.speculative || s.debug.baseline == nil {
 		jsonError(w, "No speculation active", http.StatusBadRequest)
 		return
 	}

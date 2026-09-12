@@ -444,6 +444,7 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("/api/debug/position", s.handleDebugPosition)
 	mux.HandleFunc("/api/debug/console", s.handleDebugConsole)
 	mux.HandleFunc("/api/debug/watch", s.handleDebugWatch)
+	mux.HandleFunc("/api/debug/baseline", s.handleDebugBaseline)
 
 	origin := s.cfg.CORSOrigin
 	if origin == "" {
@@ -473,6 +474,9 @@ func readOnlyGuard(next http.Handler) http.Handler {
 		// same terms as the console and leaves the session where it found it
 		// unless the predicate fires.
 		"/api/debug/watch": true,
+		// Setting a comparison baseline loads a second trace to read; it
+		// writes nothing and replaces nothing.
+		"/api/debug/baseline": true,
 		// Reports read replayed state; spec SAVES are guarded inside the
 		// handler itself (403 when read-only).
 		"/api/debug/report": true,
