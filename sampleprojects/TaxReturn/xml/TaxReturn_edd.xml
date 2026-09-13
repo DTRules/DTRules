@@ -1141,6 +1141,7 @@
 		<field name="small_employer_pension_credit" type="double" subtype="" access="rw" input="main" default_value="0" comment="Small Employer Pension Plan Startup Credit (Form 8881)"></field>
 		<field name="ss_taxable_percentage" type="double" subtype="" access="rw" input="" default_value="0" comment="0, 0.50, or 0.85 SS taxable rate"></field>
 		<field name="standard_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Standard deduction amount"></field>
+		<field name="state_calc_agi" type="double" subtype="" access="rw" input="" default_value="0" comment="The AGI a state calculation runs against. Federal AGI for the resident state; the roster entry state_agi for a non-resident one. State rate logic reads this rather than result.agi so the same table can be run for more than one state (#1177)."></field>
 		<field name="state_tax_liability" type="double" subtype="" access="r" input="" default_value="0.0" comment="State income tax liability, read by the federal summary. Was declared by IL and MI separately, so whichever EDD won the merge decided its comment and the other file lost the field on rebuild (#1109). The core reads it, so the core declares it."></field>
 		<field name="state_tax_refund" type="double" subtype="" access="rw" input="main" default_value="0" comment="State tax refund (Form 1040 Line 1). Source: IRC 111"></field>
 		<field name="student_loan_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Student loan interest deduction (Schedule 1 Line 21)"></field>

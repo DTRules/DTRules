@@ -7,7 +7,7 @@
 <relative_path>SD.xlsx</relative_path>
 <file_name>SD.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:44ab69bd50208d8a3e154ef43717bfa8290f07e67b22cebd3e41cfd967210dac</source_hash>
+<source_hash>sha256:8d5d742d7233560e7f7ab62a35e9316e9a92b879548e6cdf8e784b4b1242579e</source_hash>
 </source>
 <table_name>SD_Tax</table_name>
 <xls_file>SD.xlsx</xls_file>
@@ -19,9 +19,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>add "SOUTH DAKOTA - no state income tax (sd_has_income_tax=false)" to job.audit_trail; set result.sd_agi = result.agi</initial_action_dsl>
+<initial_action_dsl>add "SOUTH DAKOTA - no state income tax (sd_has_income_tax=false)" to job.audit_trail; set result.sd_agi = result.state_calc_agi</initial_action_dsl>
 <initial_action_postfix>
-"SOUTH DAKOTA - no state income tax (sd_has_income_tax=false)" job.audit_trail swap addto result.agi cvi /result.sd_agi xdef
+"SOUTH DAKOTA - no state income tax (sd_has_income_tax=false)" job.audit_trail swap addto result.state_calc_agi cvi /result.sd_agi xdef
 </initial_action_postfix>
 </initial_action>
 </initial_actions>

@@ -7,7 +7,7 @@
 <relative_path>NJ.xlsx</relative_path>
 <file_name>NJ.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:bb5bff100732752dc680e8204606c1851f5049c09ce13a7f7174cef73c8318f6</source_hash>
+<source_hash>sha256:0921c945f0613c32843877398f33aca0827918ec67e615ad8031ce6345244d83</source_hash>
 </source>
 <table_name>NJ_Military_Retirement_Exclusion</table_name>
 <xls_file>NJ.xlsx</xls_file>
@@ -29,7 +29,7 @@
 <relative_path>NJ.xlsx</relative_path>
 <file_name>NJ.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:bb5bff100732752dc680e8204606c1851f5049c09ce13a7f7174cef73c8318f6</source_hash>
+<source_hash>sha256:0921c945f0613c32843877398f33aca0827918ec67e615ad8031ce6345244d83</source_hash>
 </source>
 <table_name>nj_tax</table_name>
 <xls_file>NJ.xlsx</xls_file>
@@ -41,9 +41,9 @@
 <contexts></contexts>
 <initial_actions>
 <initial_action>
-<initial_action_dsl>set result.nj_tax = 0; set result.nj_exemption_total = 0; set result.nj_taxable_income = 0; set result.nj_agi = result.agi; set result.nj_exemption_total = length of job.taxpayers * nj_personal_exemption + length of job.dependents * nj_dependent_exemption; set result.nj_taxable_income = the maximum of (result.nj_agi - result.nj_exemption_total) and 0; add "NEW JERSEY FORM NJ-1040 - State Income Tax Calculation" to job.audit_trail</initial_action_dsl>
+<initial_action_dsl>set result.nj_tax = 0; set result.nj_exemption_total = 0; set result.nj_taxable_income = 0; set result.nj_agi = result.state_calc_agi; set result.nj_exemption_total = length of job.taxpayers * nj_personal_exemption + length of job.dependents * nj_dependent_exemption; set result.nj_taxable_income = the maximum of (result.nj_agi - result.nj_exemption_total) and 0; add "NEW JERSEY FORM NJ-1040 - State Income Tax Calculation" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
-0 cvd /result.nj_tax xdef 0 cvd /result.nj_exemption_total xdef 0 cvd /result.nj_taxable_income xdef result.agi cvd /result.nj_agi xdef job.taxpayers length nj_personal_exemption fmul job.dependents length nj_dependent_exemption fmul f+ cvd /result.nj_exemption_total xdef result.nj_agi result.nj_exemption_total f- 0 fmax cvd /result.nj_taxable_income xdef "NEW JERSEY FORM NJ-1040 - State Income Tax Calculation" job.audit_trail swap addto
+0 cvd /result.nj_tax xdef 0 cvd /result.nj_exemption_total xdef 0 cvd /result.nj_taxable_income xdef result.state_calc_agi cvd /result.nj_agi xdef job.taxpayers length nj_personal_exemption fmul job.dependents length nj_dependent_exemption fmul f+ cvd /result.nj_exemption_total xdef result.nj_agi result.nj_exemption_total f- 0 fmax cvd /result.nj_taxable_income xdef "NEW JERSEY FORM NJ-1040 - State Income Tax Calculation" job.audit_trail swap addto
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -105,7 +105,7 @@ result.nj_taxable_income cvd /result.computed_state_taxable_income xdef result.n
 <relative_path>NJ.xlsx</relative_path>
 <file_name>NJ.xlsx</file_name>
 <sheet_number>3</sheet_number>
-<source_hash>sha256:bb5bff100732752dc680e8204606c1851f5049c09ce13a7f7174cef73c8318f6</source_hash>
+<source_hash>sha256:0921c945f0613c32843877398f33aca0827918ec67e615ad8031ce6345244d83</source_hash>
 </source>
 <table_name>NJ_Tax_MFJ_Brackets</table_name>
 <xls_file>NJ.xlsx</xls_file>
@@ -264,7 +264,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_brac
 <relative_path>NJ.xlsx</relative_path>
 <file_name>NJ.xlsx</file_name>
 <sheet_number>4</sheet_number>
-<source_hash>sha256:bb5bff100732752dc680e8204606c1851f5049c09ce13a7f7174cef73c8318f6</source_hash>
+<source_hash>sha256:0921c945f0613c32843877398f33aca0827918ec67e615ad8031ce6345244d83</source_hash>
 </source>
 <table_name>NJ_Tax_Single_Brackets</table_name>
 <xls_file>NJ.xlsx</xls_file>

@@ -7,7 +7,7 @@
 <relative_path>KY.xlsx</relative_path>
 <file_name>KY.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:767ff959d19891d8e08915bc321d2396c0c7310f0e15ca6b3151cf4bdfcc5b33</source_hash>
+<source_hash>sha256:6dadee3a2450e1974f64731c3b481d4ee1a8f1cfa2045c3261357823305f1177</source_hash>
 </source>
 <table_name>ky_military_retirement_exemption</table_name>
 <xls_file>KY.xlsx</xls_file>
@@ -37,7 +37,7 @@
 <relative_path>KY.xlsx</relative_path>
 <file_name>KY.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:767ff959d19891d8e08915bc321d2396c0c7310f0e15ca6b3151cf4bdfcc5b33</source_hash>
+<source_hash>sha256:6dadee3a2450e1974f64731c3b481d4ee1a8f1cfa2045c3261357823305f1177</source_hash>
 </source>
 <table_name>KY_Tax</table_name>
 <xls_file>KY.xlsx</xls_file>
@@ -70,9 +70,9 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment>Compute KY taxable income (AGI − $3,270) and 4.00% tax</action_comment>
-<action_dsl>set result.ky_taxable_income = the maximum of (result.agi - ky_standard_deduction) and 0.0; set result.ky_state_tax = result.ky_taxable_income * ky_tax_rate; add "  KY taxable income (AGI - $3,270): $" + result.ky_taxable_income to job.audit_trail; add "  KY state tax (4.00%): $" + result.ky_state_tax to job.audit_trail</action_dsl>
+<action_dsl>set result.ky_taxable_income = the maximum of (result.state_calc_agi - ky_standard_deduction) and 0.0; set result.ky_state_tax = result.ky_taxable_income * ky_tax_rate; add "  KY taxable income (AGI - $3,270): $" + result.ky_taxable_income to job.audit_trail; add "  KY state tax (4.00%): $" + result.ky_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
-result.agi ky_standard_deduction f- 0.0 fmax cvd /result.ky_taxable_income xdef result.ky_taxable_income ky_tax_rate fmul cvd /result.ky_state_tax xdef "  KY taxable income (AGI - $3,270): $" result.ky_taxable_income strconcat job.audit_trail swap addto "  KY state tax (4.00%): $" result.ky_state_tax strconcat job.audit_trail swap addto
+result.state_calc_agi ky_standard_deduction f- 0.0 fmax cvd /result.ky_taxable_income xdef result.ky_taxable_income ky_tax_rate fmul cvd /result.ky_state_tax xdef "  KY taxable income (AGI - $3,270): $" result.ky_taxable_income strconcat job.audit_trail swap addto "  KY state tax (4.00%): $" result.ky_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X</columns>
 </action_details>

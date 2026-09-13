@@ -7,7 +7,7 @@
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:cd1c660e15ce792cd841ab1970f11b963991a16864f8b73de4eb31865f3502b3</source_hash>
+<source_hash>sha256:f60cc6c4e054016132e13422aff8db97883a91a3d5713ea62827e21f78b8acd1</source_hash>
 </source>
 <table_name>co_military_retirement_exemption</table_name>
 <xls_file>CO.xlsx</xls_file>
@@ -48,7 +48,7 @@ taxpayer.age 65 &gt;=
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:cd1c660e15ce792cd841ab1970f11b963991a16864f8b73de4eb31865f3502b3</source_hash>
+<source_hash>sha256:f60cc6c4e054016132e13422aff8db97883a91a3d5713ea62827e21f78b8acd1</source_hash>
 </source>
 <table_name>co_pension_subtraction</table_name>
 <xls_file>CO.xlsx</xls_file>
@@ -80,7 +80,7 @@ taxpayer.age 65 &gt;=
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>3</sheet_number>
-<source_hash>sha256:cd1c660e15ce792cd841ab1970f11b963991a16864f8b73de4eb31865f3502b3</source_hash>
+<source_hash>sha256:f60cc6c4e054016132e13422aff8db97883a91a3d5713ea62827e21f78b8acd1</source_hash>
 </source>
 <table_name>CO_Tax</table_name>
 <xls_file>CO.xlsx</xls_file>
@@ -113,9 +113,9 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment>CO tax = AGI x 4.40%</action_comment>
-<action_dsl>set result.co_taxable_income = the maximum of result.agi and 0.0; set result.co_tax = result.co_taxable_income * co_tax_rate; add "  CO taxable income: $" + result.co_taxable_income to job.audit_trail; add "  CO state tax (4.40%): $" + result.co_tax to job.audit_trail</action_dsl>
+<action_dsl>set result.co_taxable_income = the maximum of result.state_calc_agi and 0.0; set result.co_tax = result.co_taxable_income * co_tax_rate; add "  CO taxable income: $" + result.co_taxable_income to job.audit_trail; add "  CO state tax (4.40%): $" + result.co_tax to job.audit_trail</action_dsl>
 <action_postfix>
-result.agi 0.0 fmax cvd /result.co_taxable_income xdef result.co_taxable_income co_tax_rate fmul cvd /result.co_tax xdef "  CO taxable income: $" result.co_taxable_income strconcat job.audit_trail swap addto "  CO state tax (4.40%): $" result.co_tax strconcat job.audit_trail swap addto
+result.state_calc_agi 0.0 fmax cvd /result.co_taxable_income xdef result.co_taxable_income co_tax_rate fmul cvd /result.co_tax xdef "  CO taxable income: $" result.co_taxable_income strconcat job.audit_trail swap addto "  CO state tax (4.40%): $" result.co_tax strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -143,7 +143,7 @@ result.co_taxable_income cvd /result.computed_state_taxable_income xdef result.c
 <relative_path>CO.xlsx</relative_path>
 <file_name>CO.xlsx</file_name>
 <sheet_number>4</sheet_number>
-<source_hash>sha256:cd1c660e15ce792cd841ab1970f11b963991a16864f8b73de4eb31865f3502b3</source_hash>
+<source_hash>sha256:f60cc6c4e054016132e13422aff8db97883a91a3d5713ea62827e21f78b8acd1</source_hash>
 </source>
 <table_name>CO_EITC</table_name>
 <xls_file>CO.xlsx</xls_file>
