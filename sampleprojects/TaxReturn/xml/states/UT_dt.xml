@@ -7,7 +7,7 @@
 <relative_path>UT.xlsx</relative_path>
 <file_name>UT.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:2c04c36119822ce8a295b5dc0bf524f1ddf6ab41e3747f58f6e0eea80f5df999</source_hash>
+<source_hash>sha256:2e80f675f8c5f26ca979e660833703ec01eef7db30bea324c33b2ebbd8a7313f</source_hash>
 </source>
 <table_name>ut_tax</table_name>
 <xls_file>UT.xlsx</xls_file>
@@ -40,9 +40,9 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment>UT taxable income = max(AGI − dependent_exemption × #dependents, 0); tax = 4.5% × taxable_income</action_comment>
-<action_dsl>set result.ut_taxable_income = the maximum of (result.agi - length of job.dependents * ut_personal_exemption) and 0.0; set result.ut_tax = result.ut_taxable_income * ut_tax_rate; set result.ut_state_tax = result.ut_tax; add "  UT taxable income (AGI - $2,111 per dependent): $" + result.ut_taxable_income to job.audit_trail; add "  UT state tax (4.5%): $" + result.ut_state_tax to job.audit_trail</action_dsl>
+<action_dsl>set result.ut_taxable_income = the maximum of (result.state_calc_agi - length of job.dependents * ut_personal_exemption) and 0.0; set result.ut_tax = result.ut_taxable_income * ut_tax_rate; set result.ut_state_tax = result.ut_tax; add "  UT taxable income (AGI - $2,111 per dependent): $" + result.ut_taxable_income to job.audit_trail; add "  UT state tax (4.5%): $" + result.ut_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
-result.agi job.dependents length ut_personal_exemption fmul f- 0.0 fmax cvd /result.ut_taxable_income xdef result.ut_taxable_income ut_tax_rate fmul cvd /result.ut_tax xdef result.ut_tax cvd /result.ut_state_tax xdef "  UT taxable income (AGI - $2,111 per dependent): $" result.ut_taxable_income strconcat job.audit_trail swap addto "  UT state tax (4.5%): $" result.ut_state_tax strconcat job.audit_trail swap addto
+result.state_calc_agi job.dependents length ut_personal_exemption fmul f- 0.0 fmax cvd /result.ut_taxable_income xdef result.ut_taxable_income ut_tax_rate fmul cvd /result.ut_tax xdef result.ut_tax cvd /result.ut_state_tax xdef "  UT taxable income (AGI - $2,111 per dependent): $" result.ut_taxable_income strconcat job.audit_trail swap addto "  UT state tax (4.5%): $" result.ut_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -61,7 +61,7 @@ result.agi job.dependents length ut_personal_exemption fmul f- 0.0 fmax cvd /res
 <relative_path>UT.xlsx</relative_path>
 <file_name>UT.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:2c04c36119822ce8a295b5dc0bf524f1ddf6ab41e3747f58f6e0eea80f5df999</source_hash>
+<source_hash>sha256:2e80f675f8c5f26ca979e660833703ec01eef7db30bea324c33b2ebbd8a7313f</source_hash>
 </source>
 <table_name>UT_Military_Retirement_Exclusion</table_name>
 <xls_file>UT.xlsx</xls_file>

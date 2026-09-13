@@ -7,7 +7,7 @@
 <relative_path>NY.xlsx</relative_path>
 <file_name>NY.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:39512cca152b36b6425500c5614d2b7a51ed01ee86b70e1c795bc1bab646e30d</source_hash>
+<source_hash>sha256:fb3bd5dd01df7aaa1b5a4e540344e4a517d8b5260c05b658cb4cf248b39bd44d</source_hash>
 </source>
 <table_name>NY_Tax</table_name>
 <xls_file>NY.xlsx</xls_file>
@@ -49,27 +49,27 @@ job.filing_status "HOH" streq
 <action_details>
 <action_number>1</action_number>
 <action_comment>MFJ/QSS: $16,050 std ded, 10.9%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 16050.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.109</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 16050.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.109</action_dsl>
 <action_postfix>
-result.agi 16050.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.109 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi 16050.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.109 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
 <action_comment>HOH: $11,200 std ded, 10.9%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 11200.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.109</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 11200.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.109</action_dsl>
 <action_postfix>
-result.agi 11200.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.109 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi 11200.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.109 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
 <action_comment>Default (Single/MFS): $8,000 std ded, 10.9%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 8000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.109</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 8000.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.109</action_dsl>
 <action_postfix>
-result.agi 8000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.109 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi 8000.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.109 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>--X</columns>
 </action_details>

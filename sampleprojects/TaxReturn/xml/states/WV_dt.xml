@@ -7,7 +7,7 @@
 <relative_path>WV.xlsx</relative_path>
 <file_name>WV.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:e82f4098206bdfd8084dda57194a30167b16b40ad21b386e8f0f581e7668274a</source_hash>
+<source_hash>sha256:bfc9565351726d154a45fa1e363fdb5471518565ccf26644a34c9406af8a6476</source_hash>
 </source>
 <table_name>WV_Tax</table_name>
 <xls_file>WV.xlsx</xls_file>
@@ -40,9 +40,9 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment>WV tax = max(AGI - $0, 0) x 4.82%</action_comment>
-<action_dsl>set result.computed_state_taxable_income = the maximum of (result.agi - 0.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0482</action_dsl>
+<action_dsl>set result.computed_state_taxable_income = the maximum of (result.state_calc_agi - 0.0) and 0.0; set result.computed_state_tax = result.computed_state_taxable_income * 0.0482</action_dsl>
 <action_postfix>
-result.agi 0.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0482 fmul cvd /result.computed_state_tax xdef
+result.state_calc_agi 0.0 f- 0.0 fmax cvd /result.computed_state_taxable_income xdef result.computed_state_taxable_income 0.0482 fmul cvd /result.computed_state_tax xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>

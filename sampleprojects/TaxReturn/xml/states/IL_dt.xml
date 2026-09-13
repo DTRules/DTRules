@@ -7,7 +7,7 @@
 <relative_path>IL.xlsx</relative_path>
 <file_name>IL.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:5b574a055a8dbd89eb45a9d2a57378b91bd497a6da12ba322051658d065050e4</source_hash>
+<source_hash>sha256:e5d435a8fd0b95613088683a4961810230df3cb35a8aea7b045d8e7ccfbcb02d</source_hash>
 </source>
 <table_name>il_tax</table_name>
 <xls_file>IL.xlsx</xls_file>
@@ -40,9 +40,9 @@ true
 <action_details>
 <action_number>1</action_number>
 <action_comment>IL exemptions = $2,850 x (taxpayers + dependents); tax = 4.95% x max(AGI - exemptions, 0)</action_comment>
-<action_dsl>set result.il_total_exemptions = (length of job.taxpayers + length of job.dependents) * il_personal_exemption; set result.il_taxable_income = the maximum of (result.agi - result.il_total_exemptions) and 0.0; set result.il_state_tax = result.il_taxable_income * il_tax_rate; add "  IL exemptions ($2,850 per person): $" + result.il_total_exemptions to job.audit_trail; add "  IL state tax (4.95%): $" + result.il_state_tax to job.audit_trail</action_dsl>
+<action_dsl>set result.il_total_exemptions = (length of job.taxpayers + length of job.dependents) * il_personal_exemption; set result.il_taxable_income = the maximum of (result.state_calc_agi - result.il_total_exemptions) and 0.0; set result.il_state_tax = result.il_taxable_income * il_tax_rate; add "  IL exemptions ($2,850 per person): $" + result.il_total_exemptions to job.audit_trail; add "  IL state tax (4.95%): $" + result.il_state_tax to job.audit_trail</action_dsl>
 <action_postfix>
-job.taxpayers length job.dependents length + il_personal_exemption fmul cvd /result.il_total_exemptions xdef result.agi result.il_total_exemptions f- 0.0 fmax cvd /result.il_taxable_income xdef result.il_taxable_income il_tax_rate fmul cvd /result.il_state_tax xdef "  IL exemptions ($2,850 per person): $" result.il_total_exemptions strconcat job.audit_trail swap addto "  IL state tax (4.95%): $" result.il_state_tax strconcat job.audit_trail swap addto
+job.taxpayers length job.dependents length + il_personal_exemption fmul cvd /result.il_total_exemptions xdef result.state_calc_agi result.il_total_exemptions f- 0.0 fmax cvd /result.il_taxable_income xdef result.il_taxable_income il_tax_rate fmul cvd /result.il_state_tax xdef "  IL exemptions ($2,850 per person): $" result.il_total_exemptions strconcat job.audit_trail swap addto "  IL state tax (4.95%): $" result.il_state_tax strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X</columns>
 </action_details>
