@@ -138,83 +138,81 @@ byte-identically because that is what `dtrules verify` compares.
 
 ## State Tax Implementation
 
-### CRITICAL: Use Separate Files Per State
+Each state's rules live in their own pair of files under
+`sampleprojects/TaxReturn/xml/states/` so that parallel state work never
+touches the same file:
 
-**Each state gets 2 files** to avoid merge conflicts:
-- `sampleprojects/TaxReturn/xml/states/XX_edd.xml` (state constants)
-- `sampleprojects/TaxReturn/xml/states/XX_dt.xml` (state decision tables)
+- `states/XX_edd.xml` — the state's constants (rates, brackets, deductions)
+- `states/XX_dt.xml` — the state's decision tables (`XX_Tax` and helpers)
 
-Where XX is the 2-letter state code (CO, CA, NY, etc.)
+The loader reads every `*_dt.xml` and `*_edd.xml` under `xml/` directly.
+There is no merge step: a state file is part of the project the moment it
+exists, and `TaxReturn_dt.xml` never contains a copy of it.
 
-**Do NOT edit** the main `TaxReturn_edd.xml` or `TaxReturn_dt.xml` files directly!
+### Authoring a state (through the API — never by hand)
 
-### File Templates
+The state files are generated XML like every other rule file. **Do not edit
+them by hand and do not copy the templates.** Author through the API, which
+writes the XML, compiles the postfix and updates the paired workbook in one
+operation (#1169 made this work for `states/*`):
 
-Copy these templates to create your state files:
-- `sampleprojects/TaxReturn/xml/states/TEMPLATE_edd.xml`
-- `sampleprojects/TaxReturn/xml/states/TEMPLATE_dt.xml`
-
-Example:
 ```bash
-cp sampleprojects/TaxReturn/xml/states/TEMPLATE_edd.xml sampleprojects/TaxReturn/xml/states/CO_edd.xml
-cp sampleprojects/TaxReturn/xml/states/TEMPLATE_dt.xml sampleprojects/TaxReturn/xml/states/CO_dt.xml
+cd sampleprojects/TaxReturn
+
+# Constants: add fields to the state's EDD file (creates it if new)
+echo '{"op":"add-field","entity":"result","field":{"name":"co_tax_rate","type":"double","default":"0.044","comment":"CO flat rate 4.4% (2025)"}}' \
+  | dtrules edd patch --edd-file states/CO_edd.xml --project .
+
+# Rules: create or replace the state's table (--range and --reason when the file is new)
+dtrules table put CO_Tax --file states/CO_dt.xml --range 40600-40699 \
+  --reason "Colorado tax; own file to avoid merge conflicts" --project . < co_tax.json
+
+# Later edits: patch one cell or one row at a time
+echo '{"op":"update-action-dsl","action_number":1,"dsl":"..."}' | dtrules table patch CO_Tax --project .
+
+dtrules table schema        # the JSON shape `table put` expects
+dtrules docs decision-tables
 ```
 
-### State Implementation Pattern
+Table numbers: `4[state_number][00-99]` where state_number is the state's
+alphabetical position (AL=01 … WY=50); see `states/README.md`.
 
-1. **Research ONLY what you need**:
-   - Tax rate(s)
-   - Standard deduction amounts
-   - Exemption amounts
-   - 2-3 key state-specific rules
-   - Don't research everything upfront!
+Every `XX_Tax` table computes against `result.state_calc_agi` (the AGI of the
+roster entry being computed, set by `Compute_Roster_State_Tax`) and writes
+its answer to `result.computed_state_taxable_income` and
+`result.computed_state_tax`. The dispatcher harvests those onto the
+`state_tax_result` roster entry; a table that writes only `result.xx_state_tax`
+leaves the roster at zero.
 
-2. **Create state files from templates**
+### What to research
 
-3. **Add constants to `XX_edd.xml`**
+Tax rate(s), standard deduction, exemptions, and two or three key
+state-specific rules. Cite the state revenue department's publication in the
+table or field comment. IRS and state publications first — do not ask the
+user tax questions (see the memory on this).
 
-4. **Create decision table in `XX_dt.xml`**
-
-5. **Merge files before testing**:
-   ```bash
-   cd sampleprojects/TaxReturn
-   ./scripts/merge-states.sh
-   ```
-
-6. **Build and test**:
-   ```bash
-   go test ./pkg/dtrules/... -run TestTaxReturn > /tmp/test.log 2>&1
-   tail -50 /tmp/test.log
-   ```
-
-7. **Create 3 test cases** in `testfiles/TestScenarios/State/XX/`
-
-### Git Workflow for States
+### Test and verify
 
 ```bash
-# Create your state files
-cp sampleprojects/TaxReturn/xml/states/TEMPLATE_edd.xml sampleprojects/TaxReturn/xml/states/CO_edd.xml
-cp sampleprojects/TaxReturn/xml/states/TEMPLATE_dt.xml sampleprojects/TaxReturn/xml/states/CO_dt.xml
+go test ./pkg/dtrules/... -run TestTaxReturnScenarioCoverage > /tmp/test.log 2>&1
+tail -20 /tmp/test.log
+dtrules verify sampleprojects/TaxReturn     # XML must match its Excel source
+```
 
-# Edit the files (add your state's logic)
-# ... edit CO_edd.xml and CO_dt.xml ...
+Create three scenarios under `testfiles/TestScenarios/XX/` with the
+expected figures derived from the state's own worksheet, never from what the
+rules happen to compute.
 
-# Merge and test
-cd sampleprojects/TaxReturn && ./scripts/merge-states.sh
-go test ./pkg/dtrules/... -run TestTaxReturn > /tmp/test.log 2>&1
-tail -50 /tmp/test.log
+### Git
 
-# Stage ONLY your state files (not the merged files!)
-git add sampleprojects/TaxReturn/xml/states/CO_edd.xml sampleprojects/TaxReturn/xml/states/CO_dt.xml
+Stage the state's XML files **and** the workbook the API updated for them.
+`dtrules verify` in CI rejects XML with no Excel behind it.
 
-# Commit
+```bash
+git add sampleprojects/TaxReturn/xml/states/CO_edd.xml sampleprojects/TaxReturn/xml/states/CO_dt.xml \
+        sampleprojects/TaxReturn/excel/states/CO.xlsx
 git commit -m "feat: implement CO state tax (#180)"
-
-# Push
-git push origin feature/issue-180 > /tmp/git-push.log 2>&1
 ```
-
-**IMPORTANT**: Do NOT commit the merged `TaxReturn_edd.xml` or `TaxReturn_dt.xml` files!
 
 ## Build Commands
 
