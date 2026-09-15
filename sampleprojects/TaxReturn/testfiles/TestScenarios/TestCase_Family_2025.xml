@@ -48,9 +48,17 @@
          The rental property's interest and taxes are Schedule E expenses and
          are correctly left out of Schedule A. Previously assumed the standard
          deduction (#1161). -->
-   <expected_agi>251942.958450</expected_agi>
-   <expected_taxable_income>193302.958450</expected_taxable_income>
-   <expected_total_tax>43471.366380</expected_total_tax>
+   <!-- Reduced by the rental property's $3,600 management fee, a Schedule E
+        expense the return declared and Process_Rental_Income did not sum
+        (#1206). Net rental income 7,800 -> 4,200, and AGI and taxable income
+        fall by the same 3,600. Tax falls by 865.83: 792 of income tax (3,600
+        at the 22% MFJ rate, which both figures sit in) and the 73.83 of net
+        investment income tax that no longer applies, because MAGI of
+        248,342.96 is below the $250,000 MFJ threshold it used to exceed by
+        1,942.96. Nothing else in the run moves. -->
+   <expected_agi>248342.958450</expected_agi>
+   <expected_taxable_income>189702.958450</expected_taxable_income>
+   <expected_total_tax>42605.533959</expected_total_tax>
    <expected_refund>0</expected_refund>
 
    <!-- The external reference figures, kept so the target is not lost.

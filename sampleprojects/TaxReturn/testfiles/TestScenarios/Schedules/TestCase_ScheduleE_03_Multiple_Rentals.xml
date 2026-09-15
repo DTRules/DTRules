@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Test Case: Schedule E - Multiple Rental Properties -->
 <!-- Scenario: Taxpayer with three rental properties -->
-<!-- Property 1 net: $8,000, Property 2 net: $5,000, Property 3 net: ($2,000) -->
-<!-- Total net rental income: $11,000 -->
+<!-- Property 1 net: $2,000, Property 2 net: $1,000, Property 3 net: ($6,000) -->
+<!-- Total net rental income: ($3,000) -->
 <job>
     <id>10018</id>
     <tax_year>2025</tax_year>
@@ -10,13 +10,22 @@
     <state>FL</state>
 
     <!-- Expected results -->
-    <!-- AGI: $105,000 W-2 + $11,000 rental net = $116,000 -->
-    <!-- Deduction: $30,000 standard -->
-    <!-- Taxable: $86,000 -->
-    <!-- Tax: ~$9,980 -->
-    <expected_agi>116000</expected_agi>
-    <expected_taxable_income>86000</expected_taxable_income>
-    <expected_total_tax>9980</expected_total_tax>
+    <!-- Each property's expenses, from this file's own fields (insurance +
+         management + mortgage interest + property taxes + repairs +
+         utilities + depreciation):
+           P1: 22,000 - 20,000 =  2,000
+           P2: 18,000 - 17,000 =  1,000
+           P3: 15,000 - 21,000 = (6,000)
+         AGI 102,000 is under the $150,000 ceiling and the $3,000 net loss is
+         well inside the $25,000 active-participation allowance, so it is
+         deductible in full -->
+    <!-- AGI: $105,000 W-2 - $3,000 rental net loss = $102,000 -->
+    <!-- Deduction: $31,500 standard (MFJ, 2025) -->
+    <!-- Taxable: $102,000 - $31,500 = $70,500 -->
+    <!-- Tax: $7,983 (2025 MFJ brackets: 2,385 + 12% of 46,650) -->
+    <expected_agi>102000</expected_agi>
+    <expected_taxable_income>70500</expected_taxable_income>
+    <expected_total_tax>7983</expected_total_tax>
 
     <taxpayers>
         <taxpayer>
