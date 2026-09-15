@@ -12,7 +12,7 @@ Status of record. Update as phases land.
 | 447 | EL expressions: West states | **Verify → close** | 0 |
 | 178 | Full 41-state coverage | **Verify → close or re-scope** | 0 |
 | 1161 | Itemized deductions performed by nothing | **Fix** | 1 |
-| 776 | Static EDD usage analysis | **Finish narrow, descope rest** | 2 |
+| 776 | Static EDD usage analysis | **Done 2026-09-15** — `possibly_used` wired; AST-walk rewrite descoped | 2 |
 | 849 | Competing platforms | **Finish tranches** | 3 |
 | 930 | Trace debugger roadmap | **Decide** | 4 |
 | 234 | Reciprocal state agreements | **Build, or descope explicitly** | 5 |

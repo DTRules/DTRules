@@ -78,6 +78,14 @@ type crossTableTableInfo struct {
 // failure (callers should treat a non-nil error as "propagation did
 // not run to completion").
 func applyCrossTablePropagation(xmlDir string, schema *eddSchema, readRefs, writeRefs map[string]bool) error {
+	return applyCrossTablePropagationExcept(xmlDir, schema, readRefs, writeRefs, nil)
+}
+
+// applyCrossTablePropagationExcept is applyCrossTablePropagation leaving out
+// the references that sit in the tables named by skip -- the tables reached
+// only through a derived dispatch bound, when the caller is deciding what is
+// definitely used (#776).
+func applyCrossTablePropagationExcept(xmlDir string, schema *eddSchema, readRefs, writeRefs map[string]bool, skip map[string]bool) error {
 	if schema == nil {
 		return nil
 	}
@@ -106,6 +114,9 @@ func applyCrossTablePropagation(xmlDir string, schema *eddSchema, readRefs, writ
 	// from this pass; the per-file pass already captured everything
 	// the table-level context provided.
 	for _, info := range infos {
+		if skip[info.name] {
+			continue
+		}
 		stack := effective[info.name]
 		if len(stack) == 0 {
 			continue
