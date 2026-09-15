@@ -10,14 +10,14 @@
     <state>TX</state>
 
     <!-- Expected results -->
-    <!-- AGI: $120,000 - $25,100 expenses - $6,704 SE deduction + $45,000 spouse = $133,196 -->
-    <!-- Deduction: $30,000 standard -->
-    <!-- QBI: ~$18,980 (20% of $94,900) -->
-    <!-- Taxable: $133,196 - $30,000 - $18,980 = ~$84,216 -->
-    <!-- Tax: ~$9,863 income + $13,409 SE = ~$23,272 -->
+    <!-- AGI: $120,000 - $25,100 expenses - $6,704.47 SE deduction + $45,000 spouse = $133,195.53 -->
+    <!-- Deduction: $31,500 standard (MFJ, 2025) -->
+    <!-- QBI: $18,980 (20% of $94,900) -->
+    <!-- Taxable: $133,195.53 - $31,500 - $18,980 = $82,715.53 -->
+    <!-- Tax: $9,448.86 income (2025 MFJ brackets: 2,385 + 12% of 58,865.53) + $13,408.94 SE = $22,857.81 -->
     <expected_agi>133196</expected_agi>
-    <expected_taxable_income>84216</expected_taxable_income>
-    <expected_total_tax>23272</expected_total_tax>
+    <expected_taxable_income>82716</expected_taxable_income>
+    <expected_total_tax>22858</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

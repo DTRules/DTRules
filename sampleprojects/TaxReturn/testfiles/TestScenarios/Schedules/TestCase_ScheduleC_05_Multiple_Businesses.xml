@@ -11,14 +11,14 @@
     <state>TX</state>
 
     <!-- Expected results -->
-    <!-- AGI: $115,000 - $43,000 expenses - $5,086 SE deduction = $66,914 -->
-    <!-- Deduction: $15,000 standard -->
-    <!-- QBI: ~$14,400 (20% of $72,000) -->
-    <!-- Taxable: $66,914 - $15,000 - $14,400 = ~$37,514 -->
-    <!-- Tax: ~$4,289 income + $10,173 SE = ~$14,462 -->
-    <expected_agi>66914</expected_agi>
-    <expected_taxable_income>37514</expected_taxable_income>
-    <expected_total_tax>14462</expected_total_tax>
+    <!-- AGI: $115,000 - $43,000 expenses - $5,086.64 SE deduction = $66,913.36 -->
+    <!-- Deduction: $15,750 standard (single, 2025) -->
+    <!-- QBI: $14,400 (20% of $72,000) -->
+    <!-- Taxable: $66,913.36 - $15,750 - $14,400 = $36,763.36 -->
+    <!-- Tax: $4,173.10 income (2025 single brackets: 1,192.50 + 12% of 24,838.36) + $10,173.28 SE = $14,346.38 -->
+    <expected_agi>66913</expected_agi>
+    <expected_taxable_income>36763</expected_taxable_income>
+    <expected_total_tax>14346</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

@@ -11,12 +11,12 @@
 
     <!-- Expected results -->
     <!-- AGI: $80,000 spouse W-2 - $20,000 business loss = $60,000 -->
-    <!-- Deduction: $30,000 standard -->
-    <!-- Taxable: $60,000 - $30,000 = $30,000 -->
-    <!-- Tax: ~$3,180 (no SE tax on loss) -->
+    <!-- Deduction: $31,500 standard (MFJ, 2025) -->
+    <!-- Taxable: $60,000 - $31,500 = $28,500 -->
+    <!-- Tax: $2,943 (2025 MFJ brackets: 2,385 + 12% of 4,650; no SE tax on a loss) -->
     <expected_agi>60000</expected_agi>
-    <expected_taxable_income>30000</expected_taxable_income>
-    <expected_total_tax>3180</expected_total_tax>
+    <expected_taxable_income>28500</expected_taxable_income>
+    <expected_total_tax>2943</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

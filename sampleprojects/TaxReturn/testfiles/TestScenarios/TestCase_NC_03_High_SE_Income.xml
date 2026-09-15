@@ -32,9 +32,9 @@
       <se_expense id="3"><id>3</id><type>office</type><amount>9000</amount></se_expense>
       <se_expense id="4"><id>4</id><type>insurance</type><amount>6000</amount></se_expense>
    </se_expenses>
-   <itemized_deductions>
-      <itemized_deduction id="1"><id>1</id><type>property_tax</type><amount>10000</amount></itemized_deduction>
-      <itemized_deduction id="2"><id>2</id><type>mortgage_interest</type><amount>15000</amount></itemized_deduction>
-      <itemized_deduction id="3"><id>3</id><type>charity</type><amount>3000</amount></itemized_deduction>
-   </itemized_deductions>
+   <deductions>
+      <deduction id="1"><id>1</id><category>property_tax</category><amount>10000</amount></deduction>
+      <deduction id="2"><id>2</id><category>mortgage_interest</category><amount>15000</amount></deduction>
+      <deduction id="3"><id>3</id><category>charity</category><amount>3000</amount></deduction>
+   </deductions>
 </job>
