@@ -10,38 +10,37 @@ Each state gets 2 files to avoid merge conflicts during parallel development:
 
 Where `XX` is the 2-letter state code (CO, CA, NY, TX, etc.)
 
-## Quick Start
+## How a state is authored
 
-### 1. Copy Templates
-
-```bash
-cd sampleprojects/TaxReturn/xml/states
-cp TEMPLATE_edd.xml CO_edd.xml
-cp TEMPLATE_dt.xml CO_dt.xml
-```
-
-### 2. Edit Your Files
-
-Edit `CO_edd.xml` to add Colorado-specific constants:
-```xml
-<entity name="result">
-  <field name="co_tax_rate" type="double" default_value="0.044"
-         comment="CO flat rate 4.4% (2025)"/>
-</entity>
-```
-
-Edit `CO_dt.xml` to implement Colorado tax calculation logic.
-
-### 3. Merge and Test
-
-The merge script combines all state files into the main XML files:
+These are generated rule files, like every file under `xml/`. Do not edit
+them by hand and do not copy the templates: the authoring API writes the XML,
+compiles the postfix and updates the paired workbook in one operation, and
+`dtrules verify` rejects XML that has no Excel behind it. See
+[docs/authoring-contract.md](../../../../docs/authoring-contract.md).
 
 ```bash
-cd ../..  # Back to TaxReturn directory
-./scripts/merge-states.sh
-cd ../../go
-go test ./pkg/dtrules/... -run TestTaxReturn
+cd sampleprojects/TaxReturn
+
+# constants
+echo '{"op":"add-field","entity":"result","field":{"name":"co_tax_rate","type":"double","default":"0.044","comment":"CO flat rate 4.4% (2025)"}}' \
+  | dtrules edd patch --edd-file states/CO_edd.xml --project .
+
+# the table (--range and --reason are required when the file is new)
+dtrules table put CO_Tax --file states/CO_dt.xml --range 40600-40699 \
+  --reason "Colorado tax; own file to avoid merge conflicts" --project . < co_tax.json
+
+dtrules verify .
 ```
+
+There is no merge step. The loader reads every `*_dt.xml` and `*_edd.xml`
+under `xml/` directly, so a state file is part of the project the moment it
+exists, and `TaxReturn_dt.xml` never carries a copy of it.
+
+Every `XX_Tax` table reads `result.state_calc_agi` — the AGI of the roster
+entry being computed — and writes `result.computed_state_taxable_income` and
+`result.computed_state_tax`, which `Compute_Roster_State_Tax` harvests onto
+the `state_tax_result`. A table that writes only `result.xx_state_tax` leaves
+the roster at zero.
 
 ## File Naming Convention
 
@@ -70,16 +69,6 @@ Examples:
 
 See `TEMPLATE_dt.xml` for details.
 
-## Build Process
-
-The build process works as follows:
-
-1. **Development**: Edit separate state files (`XX_edd.xml`, `XX_dt.xml`)
-2. **Merge**: Run `scripts/merge-states.sh` to combine all files
-3. **Generated**: Creates `TaxReturn_edd.xml` and `TaxReturn_dt.xml`
-4. **Testing**: Tests run against the merged files
-5. **Git**: Commit ONLY your state files, NOT the merged files
-
 ## Benefits of Separate Files
 
 1. **Zero merge conflicts**: States don't modify the same files
@@ -90,7 +79,5 @@ The build process works as follows:
 
 ## See Also
 
-- Main documentation: `../../ARCHITECTURE_REFACTOR.md`
-- Merge script: `../../scripts/merge-states.sh`
-- Templates: `TEMPLATE_edd.xml`, `TEMPLATE_dt.xml`
+- Authoring contract: `../../../../docs/authoring-contract.md`
 - Claude Code instructions: `../../../../.claude/CLAUDE.md`

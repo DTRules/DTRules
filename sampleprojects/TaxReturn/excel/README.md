@@ -28,12 +28,6 @@ open excel/TaxReturn_edd.xlsx
 
 ### Regenerate Excel Files
 
-Excel files are automatically generated when you run:
-```bash
-./scripts/merge-states.sh
-```
-
-Or manually:
 ```bash
 ./scripts/extract-to-excel.sh
 ```
@@ -98,10 +92,9 @@ To find rules about a specific topic:
 
 These Excel files are **generated outputs** - do not edit them directly!
 
-To modify decision tables:
-1. Edit the XML source files in `xml/` or `xml/states/`
-2. Run `./scripts/merge-states.sh`
-3. Excel files will be automatically regenerated
+To modify decision tables, go through the authoring API (`dtrules table`,
+`dtrules edd`), which updates the XML and the paired workbook together; see
+`docs/authoring-contract.md`. Never edit the XML by hand.
 
 ## Technical Details
 

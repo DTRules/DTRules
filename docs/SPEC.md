@@ -251,9 +251,6 @@ load-bearing enough to record:
   The multi-state roster, residency and reciprocity all populate correctly;
   nothing computes a per-state tax into them. The other-state tax credit is
   blocked on this, not on itself (#1177).
-- **`.claude/CLAUDE.md` documents a state-authoring workflow that contradicts
-  §1.5 invariants 1 and 3** — it instructs hand-editing the generated XML
-  (#1193).
 - **Five element types carrying `<category>` are neither declared nor mapped** —
   `expense`, `business_expense`, `medical_expense`, `itemized_deduction`,
   `adjustment` — so 62 of the corpus's 110 occurrences are dropped at load
