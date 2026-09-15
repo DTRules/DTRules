@@ -374,7 +374,7 @@ func (p *Project) RenameTable(old, new string) error {
 	}
 	for fi := range p.dtFiles {
 		for ti := range p.dtFiles[fi].tables.Tables {
-			if p.dtFiles[fi].tables.Tables[ti].TableName == old {
+			if strings.EqualFold(p.dtFiles[fi].tables.Tables[ti].TableName, old) {
 				p.dtFiles[fi].tables.Tables[ti].TableName = new
 				p.logChange("renamed table %s -> %s", old, new)
 				return nil
@@ -399,7 +399,7 @@ func (p *Project) Tables() []string {
 func (p *Project) Table(name string) *Table {
 	for fi := range p.dtFiles {
 		for ti := range p.dtFiles[fi].tables.Tables {
-			if p.dtFiles[fi].tables.Tables[ti].TableName == name {
+			if strings.EqualFold(p.dtFiles[fi].tables.Tables[ti].TableName, name) {
 				return newTableWithProject(&p.dtFiles[fi].tables.Tables[ti], p.symbols, p)
 			}
 		}

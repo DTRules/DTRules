@@ -130,7 +130,7 @@ func (p *Project) RangeOf(file string) (lo, hi int, exists bool) {
 func (p *Project) FileOf(table string) string {
 	for i := range p.dtFiles {
 		for _, t := range p.dtFiles[i].tables.Tables {
-			if t.TableName == table {
+			if strings.EqualFold(t.TableName, table) {
 				return p.relPathOf(p.dtFiles[i].path)
 			}
 		}
@@ -238,7 +238,7 @@ func (p *Project) validateNumberFor(table string, n int) error {
 	}
 	for i := range p.dtFiles {
 		for _, t := range p.dtFiles[i].tables.Tables {
-			if t.TableName == table {
+			if strings.EqualFold(t.TableName, table) {
 				continue
 			}
 			if cur, err := strconv.Atoi(strings.TrimSpace(t.AttributeFields.TableNumber)); err == nil && cur == n {
@@ -349,7 +349,7 @@ func (p *Project) MoveTable(name, target, reason string) error {
 func (p *Project) locateTable(name string) (int, int) {
 	for fi := range p.dtFiles {
 		for ti, t := range p.dtFiles[fi].tables.Tables {
-			if t.TableName == name {
+			if strings.EqualFold(t.TableName, name) {
 				return fi, ti
 			}
 		}

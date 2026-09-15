@@ -14,7 +14,10 @@
 
 package authoring
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // AssertVisited returns an error if no invocation of table was found in the trace.
 // If column > 0, the invocation must have been triggered from that specific column.
@@ -37,7 +40,7 @@ func (t *RunTrace) AssertVisited(table string, column int) error {
 // AssertNotVisited returns an error if table was invoked at all in the trace.
 func (t *RunTrace) AssertNotVisited(table string) error {
 	for _, inv := range t.Invocations {
-		if inv.TableName == table {
+		if strings.EqualFold(inv.TableName, table) {
 			return fmt.Errorf("AssertNotVisited: table %q was visited (index %d)", table, inv.Index)
 		}
 	}
@@ -55,7 +58,7 @@ func (t *RunTrace) AssertSequence(tables []string) error {
 	for i, want := range tables {
 		found := false
 		for pos < len(t.Invocations) {
-			if t.Invocations[pos].TableName == want {
+			if strings.EqualFold(t.Invocations[pos].TableName, want) {
 				pos++
 				found = true
 				break
