@@ -2,8 +2,8 @@
 <!-- Test Case: Schedule SE - Self-Employment Tax (Non-Farm) -->
 <!-- Scenario: Freelance graphic designer with net business income below SS wage base -->
 <!-- Net SE Income: $95,000 -->
-<!-- Expected: SE tax $13,428 (15.3% of $92.35% of $95k = $87,733) -->
-<!-- SE deduction: $6,714 (50% of SE tax) -->
+<!-- Expected: SE tax $13,423.07 (15.3% of 92.35% of $95,000 = $87,732.50) -->
+<!-- SE deduction: $6,711.54 (50% of SE tax) -->
 <job>
     <id>AdditionalTaxes_01</id>
     <tax_year>2025</tax_year>
@@ -11,16 +11,15 @@
     <state>TX</state>
 
     <!-- Expected results -->
-    <!-- AGI: $95,000 - $6,714 SE deduction = $88,286 -->
-    <!-- Deduction: $15,000 standard -->
+    <!-- AGI: $95,000 - $6,711.54 SE deduction = $88,288.46 -->
+    <!-- Deduction: $15,750 standard (single, 2025) -->
     <!-- QBI: $19,000 (20% of $95,000 net SE income) -->
-    <!-- Taxable: $88,286 - $15,000 - $19,000 = $54,286 -->
-    <!-- Income tax: ~$6,815 (10% on $11,925 + 12% on $36,550 + 22% on $5,811) -->
-    <!-- SE tax: $13,428 (12.4% SS + 2.9% Medicare on $87,733) -->
-    <!-- Total tax: $20,243 -->
-    <expected_agi>88286</expected_agi>
-    <expected_taxable_income>54286</expected_taxable_income>
-    <expected_total_tax>20243</expected_total_tax>
+    <!-- Taxable: $88,288.46 - $15,750 - $19,000 = $53,538.46 -->
+    <!-- SE tax: $13,423.07 (12.4% SS + 2.9% Medicare on $87,732.50) -->
+    <!-- Income tax: $6,692.46 (2025 single brackets: 1,192.50 + 4,386 + 22% of 5,063.46); total tax: $20,115.53 -->
+    <expected_agi>88288</expected_agi>
+    <expected_taxable_income>53538</expected_taxable_income>
+    <expected_total_tax>20116</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

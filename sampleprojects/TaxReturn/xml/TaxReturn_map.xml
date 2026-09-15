@@ -233,6 +233,11 @@
 			<setattribute tag='state_code' RAttribute='state_code' enclosure='income' type='string'></setattribute>
 			<setattribute tag='expected_reciprocity_state' RAttribute='expected_reciprocity_state' enclosure='job' type='string'></setattribute>
 			<setattribute tag='expected_nonresident_source_income' RAttribute='expected_nonresident_source_income' enclosure='job' type='double'></setattribute>
+			<setattribute tag='id' RAttribute='id' enclosure='expense' type='integer'></setattribute>
+			<setattribute tag='taxpayer_id' RAttribute='taxpayer_id' enclosure='expense' type='integer'></setattribute>
+			<setattribute tag='category' RAttribute='category' enclosure='expense' type='string'></setattribute>
+			<setattribute tag='description' RAttribute='description' enclosure='expense' type='string'></setattribute>
+			<setattribute tag='amount' RAttribute='amount' enclosure='expense' type='double'></setattribute>
 			<createentity entity='taxpayer' tag='taxpayer' id='id' list='taxpayers'></createentity>
 			<createentity entity='dependent' tag='dependent' id='id' list='dependents'></createentity>
 			<createentity entity='income' tag='income' id='id' list='incomes'></createentity>
@@ -251,6 +256,7 @@
 			<createentity entity='result' tag='result' id='id'></createentity>
 			<createentity entity='state_tax_result' tag='state_tax_result' id='state_code' list='state_tax_results'></createentity>
 			<createentity entity='state_period' tag='state_period' id='id' list='state_periods'></createentity>
+			<createentity entity='expense' tag='expense' id='id' list='expenses'></createentity>
 		</map>
 		<entities>
 			<entity name='constants' number='1'></entity>
@@ -272,6 +278,7 @@
 			<entity name='credit' number='*'></entity>
 			<entity name='state_tax_result' number='*'></entity>
 			<entity name='state_period' number='*'></entity>
+			<entity name='expense' number='*'></entity>
 		</entities>
 		<initialization>
 			<initialentity entity='result' epush='true'></initialentity>

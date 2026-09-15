@@ -10,14 +10,14 @@
     <state>CA</state>
 
     <!-- Expected results -->
-    <!-- AGI: $95,000 - $15,500 total expenses - $5,617 SE deduction = $73,883 -->
-    <!-- Deduction: $15,000 standard -->
-    <!-- QBI: ~$15,900 (20% of $79,500) -->
-    <!-- Taxable: $73,883 - $15,000 - $15,900 = ~$42,983 -->
-    <!-- Tax: ~$5,377 income + $11,234 SE = ~$16,611 -->
+    <!-- AGI: $95,000 - $15,500 total expenses - $5,616.50 SE deduction = $73,883.50 -->
+    <!-- Deduction: $15,750 standard (single, 2025) -->
+    <!-- QBI: $15,900 (20% of $79,500) -->
+    <!-- Taxable: $73,883.50 - $15,750 - $15,900 = $42,233.50 -->
+    <!-- Tax: $4,829.52 income (2025 single brackets: 1,192.50 + 12% of 30,308.50) + $11,232.99 SE = $16,062.51 -->
     <expected_agi>73883</expected_agi>
-    <expected_taxable_income>42983</expected_taxable_income>
-    <expected_total_tax>16611</expected_total_tax>
+    <expected_taxable_income>42234</expected_taxable_income>
+    <expected_total_tax>16063</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

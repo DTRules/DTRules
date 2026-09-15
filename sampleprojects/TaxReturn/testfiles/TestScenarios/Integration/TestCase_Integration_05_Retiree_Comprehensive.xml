@@ -131,38 +131,7 @@
       </investment_account>
    </investment_accounts>
 
-   <!-- Medical expenses (potential itemized deduction) -->
-   <medical_expenses>
-      <medical_expense id="1">
-         <id>1</id>
-         <category>insurance_premiums</category>
-         <description>Medicare supplement insurance</description>
-         <amount>8400</amount>
-      </medical_expense>
-
-      <medical_expense id="2">
-         <id>2</id>
-         <category>prescription_drugs</category>
-         <description>Prescription medications</description>
-         <amount>4200</amount>
-      </medical_expense>
-
-      <medical_expense id="3">
-         <id>3</id>
-         <category>dental</category>
-         <description>Dental work</description>
-         <amount>3800</amount>
-      </medical_expense>
-
-      <medical_expense id="4">
-         <id>4</id>
-         <category>doctor_visits</category>
-         <description>Co-pays and out-of-pocket</description>
-         <amount>2600</amount>
-      </medical_expense>
-   </medical_expenses>
-
-   <!-- Deductions -->
+<!-- Deductions -->
    <deductions>
       <deduction id="1">
          <id>1</id>
@@ -176,6 +145,32 @@
          <category>charity</category>
          <description>Red Cross</description>
          <amount>3000</amount>
+      </deduction>
+
+      <!-- Medical (Schedule A, subject to the 7.5% AGI floor) -->
+      <deduction id="3">
+         <id>3</id>
+         <category>medical</category>
+         <description>Medicare supplement insurance (insurance_premiums)</description>
+         <amount>8400</amount>
+      </deduction>
+      <deduction id="4">
+         <id>4</id>
+         <category>medical</category>
+         <description>Prescription medications (prescription_drugs)</description>
+         <amount>4200</amount>
+      </deduction>
+      <deduction id="5">
+         <id>5</id>
+         <category>medical</category>
+         <description>Dental work (dental)</description>
+         <amount>3800</amount>
+      </deduction>
+      <deduction id="6">
+         <id>6</id>
+         <category>medical</category>
+         <description>Co-pays and out-of-pocket (doctor_visits)</description>
+         <amount>2600</amount>
       </deduction>
    </deductions>
 </job>

@@ -2,7 +2,7 @@
 <!-- Test Case: Schedule C - Simple Sole Proprietor Business -->
 <!-- Scenario: Freelance consultant with straightforward income and expenses -->
 <!-- Gross: $85,000, Expenses: $15,000, Net: $70,000 -->
-<!-- Expected: SE tax ~$9,891, SE deduction ~$4,946, QBI deduction ~$14,000 -->
+<!-- Expected: SE tax $9,890.69 (92.35% x $70,000 x 15.3%), SE deduction $4,945.34, QBI deduction $14,000 -->
 <job>
     <id>10006</id>
     <tax_year>2025</tax_year>
@@ -10,14 +10,14 @@
     <state>TX</state>
 
     <!-- Expected results -->
-    <!-- AGI: $85,000 - $15,000 expenses - $4,946 SE deduction = $65,054 -->
-    <!-- Deduction: $15,000 standard -->
+    <!-- AGI: $85,000 - $15,000 expenses - $4,945.34 SE deduction = $65,054.66 -->
+    <!-- Deduction: $15,750 standard (single, 2025) -->
     <!-- QBI: ~$14,000 (20% of $70,000 net SE income) -->
-    <!-- Taxable: $65,054 - $15,000 - $14,000 = ~$36,054 -->
-    <!-- Tax: ~$4,087 income + $9,891 SE = ~$13,978 -->
+    <!-- Taxable: $65,054.66 - $15,750 - $14,000 = $35,304.66 -->
+    <!-- Tax: $3,998.06 income (2025 single brackets: 1,192.50 + 12% of 23,379.66) + $9,890.69 SE = $13,888.74 -->
     <expected_agi>65054</expected_agi>
-    <expected_taxable_income>36054</expected_taxable_income>
-    <expected_total_tax>13978</expected_total_tax>
+    <expected_taxable_income>35305</expected_taxable_income>
+    <expected_total_tax>13889</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

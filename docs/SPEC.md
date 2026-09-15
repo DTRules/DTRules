@@ -243,7 +243,7 @@ entity/array inspection, console, watch, report, baseline, speculate.
 
 ## 2.9 Known gaps in the sample rule sets
 
-The samples are tests and documentation, not products, and two gaps are
+The samples are tests and documentation, not products, and one gap is
 load-bearing enough to record:
 
 - **TaxReturn's non-resident state tax uses resident deductions.**
@@ -257,10 +257,6 @@ load-bearing enough to record:
   per-state credit ceilings (#1201). Four state tables (AR, LA, NM, OK) have
   conditions with no actions wired to any column and compute nothing; they
   were unreachable before and now record a zero honestly (#1200).
-- **Five element types carrying `<category>` are neither declared nor mapped** —
-  `expense`, `business_expense`, `medical_expense`, `itemized_deduction`,
-  `adjustment` — so 62 of the corpus's 110 occurrences are dropped at load
-  (#1194).
 
 ## 2.10 Versioning and release
 

@@ -66,10 +66,11 @@ func TestDeductionCategoriesAreCanonical(t *testing.T) {
 		if rerr != nil {
 			return nil
 		}
-		// Only <deduction> elements: <category> also appears on expense,
-		// business_expense, medical_expense, itemized_deduction and
-		// adjustment, none of which the EDD declares or the mapping maps, so
-		// they are dropped at load and are a separate problem.
+		// Only <deduction> elements. <expense> carries a <category> too, with
+		// its own vocabulary (business_expense, home_office, farm_expense);
+		// the other spellings that used to carry one -- itemized_deduction,
+		// medical_expense, business_expense, adjustment -- were folded into
+		// these two shapes (#1194) and no longer exist in the corpus.
 		for _, blk := range deductionBlock.FindAll(data, -1) {
 			m := categoryTag.FindSubmatch(blk)
 			if m == nil {
@@ -120,7 +121,7 @@ func TestCanonicalCategoriesTheRulesClaimToRead(t *testing.T) {
 	// Categories the rules are expected to consume today. The above-the-line
 	// adjustments and "other" are deliberately absent: they are declared so
 	// the data can say what it means, and are not Schedule A items.
-	for _, cat := range []string{"state_tax", "property_tax", "charity"} {
+	for _, cat := range []string{"state_tax", "property_tax", "charity", "medical"} {
 		if !strings.Contains(rules, `deduction.category is equal to "`+cat+`"`) {
 			t.Errorf("no rule reads deduction category %q, so every deduction carrying it "+
 				"is loaded and then ignored", cat)

@@ -113,71 +113,79 @@
    </properties>
 
    <!-- Business expenses (Schedule C) -->
-   <business_expenses>
+   <expenses>
       <!-- Office expenses -->
-      <business_expense id="1">
+      <expense id="1">
          <id>1</id>
-         <category>office_supplies</category>
-         <description>Computer equipment and software</description>
+         <taxpayer_id>1</taxpayer_id>
+         <category>business_expense</category>
+         <description>Computer equipment and software (office_supplies)</description>
          <amount>8500</amount>
-      </business_expense>
+      </expense>
 
       <!-- Travel -->
-      <business_expense id="2">
+      <expense id="2">
          <id>2</id>
-         <category>travel</category>
-         <description>Client travel and hotels</description>
+         <taxpayer_id>1</taxpayer_id>
+         <category>business_expense</category>
+         <description>Client travel and hotels (travel)</description>
          <amount>12000</amount>
-      </business_expense>
+      </expense>
 
       <!-- Professional development -->
-      <business_expense id="3">
+      <expense id="3">
          <id>3</id>
-         <category>education</category>
-         <description>Professional certifications and training</description>
+         <taxpayer_id>1</taxpayer_id>
+         <category>business_expense</category>
+         <description>Professional certifications and training (education)</description>
          <amount>4500</amount>
-      </business_expense>
+      </expense>
 
       <!-- Business insurance -->
-      <business_expense id="4">
+      <expense id="4">
          <id>4</id>
-         <category>insurance</category>
-         <description>Professional liability insurance</description>
+         <taxpayer_id>1</taxpayer_id>
+         <category>business_expense</category>
+         <description>Professional liability insurance (insurance)</description>
          <amount>3200</amount>
-      </business_expense>
+      </expense>
 
       <!-- Marketing -->
-      <business_expense id="5">
+      <expense id="5">
          <id>5</id>
-         <category>advertising</category>
-         <description>Website and marketing</description>
+         <taxpayer_id>1</taxpayer_id>
+         <category>business_expense</category>
+         <description>Website and marketing (advertising)</description>
          <amount>5800</amount>
-      </business_expense>
+      </expense>
 
       <!-- Home office (simplified method: 250 sq ft * $5 = $1,250) -->
-      <business_expense id="6">
+      <expense id="6">
          <id>6</id>
-         <category>home_office</category>
-         <description>Home office expense (10% of home)</description>
+         <taxpayer_id>1</taxpayer_id>
+         <category>business_expense</category>
+         <description>Home office expense (10% of home) (home_office)</description>
          <amount>2300</amount>
-      </business_expense>
+      </expense>
 
       <!-- Phone and internet -->
-      <business_expense id="7">
+      <expense id="7">
          <id>7</id>
-         <category>utilities</category>
-         <description>Business phone and internet (75% business use)</description>
+         <taxpayer_id>1</taxpayer_id>
+         <category>business_expense</category>
+         <description>Business phone and internet (75% business use) (utilities)</description>
          <amount>2700</amount>
-      </business_expense>
+      </expense>
 
       <!-- Professional services -->
-      <business_expense id="8">
+      <expense id="8">
          <id>8</id>
-         <category>legal_professional</category>
-         <description>Legal and accounting fees</description>
+         <taxpayer_id>1</taxpayer_id>
+         <category>business_expense</category>
+         <description>Legal and accounting fees (legal_professional)</description>
          <amount>3000</amount>
-      </business_expense>
-   </business_expenses>
+      </expense>
+   </expenses>
 
    <!-- Retirement contributions -->
    <retirement_contributions>

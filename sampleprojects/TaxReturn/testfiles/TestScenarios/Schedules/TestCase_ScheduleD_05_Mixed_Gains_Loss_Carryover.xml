@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Test Case: Schedule D - Mixed ST/LT Gains with Capital Loss Carryover -->
-<!-- Scenario: Taxpayer with both ST and LT gains, plus capital loss carryover -->
-<!-- STCG: $10,000, LTCG: $30,000, Loss carryover: $8,000 -->
-<!-- Expected: Loss offsets gains, net gain $32,000 -->
+<!-- Test Case: Schedule D - Mixed ST/LT Gains -->
+<!-- Scenario: Taxpayer with both ST and LT gains. A prior-year capital loss carryover
+     used to be supplied here as an <adjustment> element no mapping read, so it never
+     loaded; the sample has no carryover field or rule, and the expectations below are
+     the arithmetic of the inputs that do load (#1194) -->
+<!-- STCG: $10,000, LTCG: $30,000 -->
+<!-- Expected: net gain $40,000, $30,000 of it at the 15% long-term rate -->
 <job>
     <id>10015</id>
     <tax_year>2025</tax_year>
@@ -10,13 +13,13 @@
     <state>TX</state>
 
     <!-- Expected results -->
-    <!-- AGI: $130,000 W-2 + $32,000 net gains = $162,000 -->
-    <!-- Deduction: $30,000 standard -->
-    <!-- Taxable: $132,000 -->
-    <!-- Tax: ~$15,180 ordinary + $4,500 LTCG (15% on $30k) = ~$19,680 -->
-    <expected_agi>162000</expected_agi>
-    <expected_taxable_income>132000</expected_taxable_income>
-    <expected_total_tax>19680</expected_total_tax>
+    <!-- AGI: $130,000 W-2 + $40,000 gains = $170,000 -->
+    <!-- Deduction: $31,500 standard (MFJ, 2025) -->
+    <!-- Taxable: $138,500 -->
+    <!-- Tax: $13,698 ordinary on $108,500 (2025 MFJ brackets: 2,385 + 8,772 + 2,541) + $4,500 LTCG (15% on $30k) = $18,198 -->
+    <expected_agi>170000</expected_agi>
+    <expected_taxable_income>138500</expected_taxable_income>
+    <expected_total_tax>18198</expected_total_tax>
 
     <taxpayers>
         <taxpayer>
@@ -69,15 +72,6 @@
         </income>
     </incomes>
 
-    <adjustments>
-        <!-- Capital loss carryover from prior year -->
-        <adjustment>
-            <id>1</id>
-            <category>capital_loss_carryover</category>
-            <description>Prior year capital loss carryover</description>
-            <amount>8000</amount>
-        </adjustment>
-    </adjustments>
 
     <dependents></dependents>
     <properties></properties>

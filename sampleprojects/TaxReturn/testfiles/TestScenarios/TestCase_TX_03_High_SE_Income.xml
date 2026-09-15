@@ -65,27 +65,27 @@
    </se_expenses>
 
    <!-- Itemized deductions (SALT capped at $10k) -->
-   <itemized_deductions>
-      <itemized_deduction id="1">
+   <deductions>
+      <deduction id="1">
          <id>1</id>
-         <type>state_income_tax</type>
+         <category>state_tax</category>
          <amount>0</amount>
-      </itemized_deduction>
-      <itemized_deduction id="2">
+      </deduction>
+      <deduction id="2">
          <id>2</id>
-         <type>property_tax</type>
+         <category>property_tax</category>
          <amount>10000</amount>
-      </itemized_deduction>
-      <itemized_deduction id="3">
+      </deduction>
+      <deduction id="3">
          <id>3</id>
-         <type>mortgage_interest</type>
+         <category>mortgage_interest</category>
          <amount>15000</amount>
-      </itemized_deduction>
-      <itemized_deduction id="4">
+      </deduction>
+      <deduction id="4">
          <id>4</id>
-         <type>charity</type>
+         <category>charity</category>
          <amount>3000</amount>
-      </itemized_deduction>
-   </itemized_deductions>
+      </deduction>
+   </deductions>
 
 </job>

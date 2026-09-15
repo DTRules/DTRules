@@ -79,21 +79,21 @@
    </schedule_e_income>
 
    <!-- Itemized deductions -->
-   <itemized_deductions>
-      <itemized_deduction id="1">
+   <deductions>
+      <deduction id="1">
          <id>1</id>
          <category>mortgage_interest</category>
          <amount>8000</amount>
-      </itemized_deduction>
-      <itemized_deduction id="2">
+      </deduction>
+      <deduction id="2">
          <id>2</id>
-         <category>state_local_taxes</category>
+         <category>state_tax</category>
          <amount>5000</amount>
-      </itemized_deduction>
-      <itemized_deduction id="3">
+      </deduction>
+      <deduction id="3">
          <id>3</id>
-         <category>charitable</category>
+         <category>charity</category>
          <amount>2000</amount>
-      </itemized_deduction>
-   </itemized_deductions>
+      </deduction>
+   </deductions>
 </job>
