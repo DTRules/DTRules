@@ -16,6 +16,7 @@ package dtrules_test
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -212,32 +213,49 @@ func TestResidentStateGetsTheFederalAGI(t *testing.T) {
 	}
 }
 
-// The dispatcher's ladder computes result.computed_state_tax for job.state,
-// and nothing carried it onto the roster -- so every state_tax_result's
-// liability sat at its default of zero, including the one state whose tax had
-// just been worked out. Anything reading the roster to answer "what did this
-// state cost" got nothing (#1177).
+// Every roster entry carries the tax its own state's table computed, and the
+// resident entry carries the credit for what the non-resident entries owe.
+// Before #1177 the dispatcher branched on the scalar job.state, so exactly one
+// state's tax existed and a non-resident entry's liability was always zero --
+// which is what the first version of this test asserted, because a figure
+// there would have been fabricated. Now it is computed.
 func TestResidentStateCarriesItsComputedTax(t *testing.T) {
 	rs, xmlDir := loadTaxReturn(t)
 
-	liability := func(readState string) float64 {
+	entry := func(readState string) map[string]float64 {
 		t.Helper()
 		// Ohio resident, wages sourced to California. CA deliberately: Ohio's
 		// reciprocal partners would have the wages exempted to zero (#234),
 		// which is a different question from this one.
 		e := rosterEntry(t, rs, xmlDir, "OH", "CA", "nonresident", 90000, readState)
-		v, _ := strconv.ParseFloat(e["state_tax_liability"], 64)
-		return v
+		out := map[string]float64{}
+		for _, k := range []string{"state_tax_before_credits", "state_credits", "state_tax_liability"} {
+			out[k], _ = strconv.ParseFloat(e[k], 64)
+		}
+		return out
 	}
 
-	if got := liability("OH"); got <= 0 {
-		t.Errorf("the resident state's liability = %.2f, want the tax the dispatcher computed — "+
-			"the ladder's figure never reached the roster", got)
+	oh, ca := entry("OH"), entry("CA")
+	if oh["state_tax_before_credits"] <= 0 {
+		t.Errorf("the resident state's tax before credits = %.2f, want the tax its table computed — "+
+			"the roster pass did not reach the resident entry", oh["state_tax_before_credits"])
+	}
+	if ca["state_tax_liability"] <= 0 {
+		t.Errorf("the non-resident state's liability = %.2f, want CA's tax on the 90000 sourced there — "+
+			"the roster pass did not dispatch to CA_Tax", ca["state_tax_liability"])
 	}
 
-	// The non-resident state is left alone: nothing computes a per-state tax
-	// for it, and a figure here would be fabricated.
-	if got := liability("CA"); got != 0 {
-		t.Errorf("a non-resident state's liability = %.2f, want 0", got)
+	// The credit for taxes paid to other states is the lesser of what CA
+	// charged and Ohio's own tax on that income; all 90000 is doubly taxed
+	// here, so the ceiling is Ohio's whole tax.
+	wantCredit := math.Min(ca["state_tax_liability"], oh["state_tax_before_credits"])
+	if math.Abs(oh["state_credits"]-wantCredit) > 0.01 {
+		t.Errorf("the resident state's credits = %.2f, want %.2f (lesser of CA's %.2f and OH's %.2f)",
+			oh["state_credits"], wantCredit, ca["state_tax_liability"], oh["state_tax_before_credits"])
+	}
+	wantLiability := math.Max(oh["state_tax_before_credits"]-oh["state_credits"], 0)
+	if math.Abs(oh["state_tax_liability"]-wantLiability) > 0.01 {
+		t.Errorf("the resident state's liability = %.2f, want %.2f (tax before credits less the credit)",
+			oh["state_tax_liability"], wantLiability)
 	}
 }

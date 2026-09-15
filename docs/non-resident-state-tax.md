@@ -1,20 +1,31 @@
 # Non-Resident State Tax Implementation
 
-> **Status note (2026-08, #234).** Much of what follows describes an intended
+> **Status note (2026-09, #1177).** Much of what follows describes an intended
 > design rather than the shipped rules, and is kept for its reasoning only.
 > Measured against the XML: the income-source fields it names
 > (`taxpayer.w2_state_source`, `taxpayer.se_state_source`, `income.state_source`,
 > `property.state_location`) **do not exist** — the real discriminators are
-> `income.state_code` and `income.type`. `Dispatch_State_Tax` does **not**
-> iterate `state_tax_result` entities; it branches on the scalar `job.state`,
-> so only the resident state's tax is computed. The test cases named below
+> `income.state_code` and `income.type`. The test cases named below
 > (`TestCase_NonResident_*.xml`) are not in the repository.
 >
-> What *is* wired up, as of #234: `state_period` is mapped and loads,
+> What *is* wired up: `state_period` is mapped and loads,
 > `Calculate_State_Source_Income` builds one `state_tax_result` per period with
-> `is_resident` and a wage/non-wage income split, and reciprocal agreements are
-> applied. See [state-reciprocal-agreements.md](state-reciprocal-agreements.md).
-> Per-state non-resident *rate* computation remains unimplemented.
+> `is_resident` and a wage/non-wage income split, reciprocal agreements are
+> applied ([state-reciprocal-agreements.md](state-reciprocal-agreements.md)),
+> and — since #1177 — `Dispatch_State_Tax` **does** iterate the roster:
+> `Compute_Roster_State_Tax` sets `result.state_calc_agi` from each entry's
+> `state_agi`, dispatches `perform table named (state_code + "_Tax") among …`
+> over every state and territory table, and harvests
+> `result.computed_state_tax` back onto the entry. The state tables do not
+> read `state_tax_result` themselves; they read `result.state_calc_agi`, which
+> is how one table serves both the resident and the non-resident pass.
+> `Calculate_Other_State_Tax_Credit` then credits the resident entry with the
+> lesser of the non-resident liabilities and the resident tax prorated by the
+> doubly-taxed share of AGI.
+>
+> Still unimplemented: the proportional non-resident deductions described
+> under "State-Specific Tables" below (every table applies its resident
+> deduction to sourced income) and per-state credit ceilings.
 
 ## Overview
 

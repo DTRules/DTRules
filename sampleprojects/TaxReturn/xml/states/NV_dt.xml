@@ -7,7 +7,7 @@
 <relative_path>NV.xlsx</relative_path>
 <file_name>NV.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:92edb82bf26d38d606cd24216f73c9faae2112d0c16c589ca220428207de1a3e</source_hash>
+<source_hash>sha256:746df0351089272793f233793509eb3bcb72987d373cac3839119f6b52864e36</source_hash>
 </source>
 <table_name>NV_Tax</table_name>
 <xls_file>NV.xlsx</xls_file>
@@ -17,85 +17,29 @@
 <TABLE_NUMBER>46800</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-<initial_action>
-<initial_action_dsl>set result.nv_state_tax = 0; add "Nevada (no state income tax)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>
-0 cvi /result.nv_state_tax xdef "Nevada (no state income tax)" job.audit_trail swap addto
-</initial_action_postfix>
-</initial_action>
-</initial_actions>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Married Filing Jointly</condition_comment>
-<condition_dsl>true</condition_dsl>
+<condition_comment></condition_comment>
+<condition_dsl>perform when called</condition_dsl>
 <condition_postfix>
-true
+perform when called
 </condition_postfix>
-<columns>YNN</columns>
-</condition_details>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Single</condition_comment>
-<condition_dsl>job.filing_status is equal to "single"</condition_dsl>
-<condition_postfix>
-job.filing_status "single" streq
-</condition_postfix>
-<columns>NYN</columns>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
-<condition_comment>Head of Household</condition_comment>
-<condition_dsl>job.filing_status is equal to "head_of_household"</condition_dsl>
-<condition_postfix>
-job.filing_status "head_of_household" streq
-</condition_postfix>
-<columns>NNY</columns>
+<columns>*</columns>
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate NV tax MFJ; Calculate NV tax with MFJ standard deduction and progressive brackets</action_comment>
-<action_dsl>set result.nv_state_tax = 0</action_dsl>
+<action_comment>No income tax: the roster pass resets result.computed_state_tax to zero before dispatching here, so the only thing to do is say so. The table used to assign a result field no EDD declared, which nothing noticed because the old dispatcher never performed it (#1177)</action_comment>
+<action_dsl>add "  Nevada (no state income tax)" to job.audit_trail</action_dsl>
 <action_postfix>
-0 cvi /result.nv_state_tax xdef
+"  Nevada (no state income tax)" job.audit_trail swap addto
 </action_postfix>
-<columns>X--</columns>
-</action_details>
-<action_details>
-<action_number>2</action_number>
-<action_comment>Calculate NV tax Single; Calculate NV tax with Single standard deduction and progressive brackets</action_comment>
-<action_dsl>set result.nv_state_tax = 0</action_dsl>
-<action_postfix>
-0 cvi /result.nv_state_tax xdef
-</action_postfix>
-<columns>-X-</columns>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>Calculate NV tax HOH; Calculate NV tax with HOH standard deduction and progressive brackets</action_comment>
-<action_dsl>set result.nv_state_tax = 0</action_dsl>
-<action_postfix>
-0 cvi /result.nv_state_tax xdef
-</action_postfix>
-<columns>--X</columns>
+<columns>X</columns>
 </action_details>
 </actions>
-<policy_statements>
-<policy_statement column="1">
-<policy_description>NV progressive tax MFJ with standard deduction</policy_description>
-<policy_statement_postfix>"NV progressive tax MFJ with standard deduction"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="2">
-<policy_description>NV progressive tax Single with standard deduction</policy_description>
-<policy_statement_postfix>"NV progressive tax Single with standard deduction"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="3">
-<policy_description>NV progressive tax HOH with standard deduction</policy_description>
-<policy_statement_postfix>"NV progressive tax HOH with standard deduction"</policy_statement_postfix>
-</policy_statement>
-</policy_statements>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

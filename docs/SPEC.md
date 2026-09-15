@@ -246,11 +246,17 @@ entity/array inspection, console, watch, report, baseline, speculate.
 The samples are tests and documentation, not products, and two gaps are
 load-bearing enough to record:
 
-- **TaxReturn computes one state's tax.** `Dispatch_State_Tax` branches on the
-  scalar `job.state`, so `state_tax_liability` is zero on every roster entry.
-  The multi-state roster, residency and reciprocity all populate correctly;
-  nothing computes a per-state tax into them. The other-state tax credit is
-  blocked on this, not on itself (#1177).
+- **TaxReturn's non-resident state tax uses resident deductions.**
+  `Dispatch_State_Tax` runs every roster entry through its state's table
+  (`Compute_Roster_State_Tax`, dispatched by state code over the full set of
+  state and territory tables), so each `state_tax_result` carries its own
+  liability and the other-state credit is real. What each `XX_Tax` table
+  applies to a non-resident's sourced income is the same standard deduction
+  and exemptions it applies to a resident; the proportional non-resident
+  deductions the states actually use are not modelled, and neither are
+  per-state credit ceilings (#1201). Four state tables (AR, LA, NM, OK) have
+  conditions with no actions wired to any column and compute nothing; they
+  were unreachable before and now record a zero honestly (#1200).
 - **Five element types carrying `<category>` are neither declared nor mapped** —
   `expense`, `business_expense`, `medical_expense`, `itemized_deduction`,
   `adjustment` — so 62 of the corpus's 110 occurrences are dropped at load

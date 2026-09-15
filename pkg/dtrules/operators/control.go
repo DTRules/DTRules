@@ -750,9 +750,13 @@ func popAmongList(state dtrules.State) ([]*dtrules.RName, error) {
 }
 
 func amongContains(names []*dtrules.RName, want *dtrules.RName) bool {
-	// RNames intern case-insensitively, so pointer equality is name equality.
+	// RNames intern case-insensitively, but every name is a pair: the
+	// executable form and the /literal form, with distinct pointers. The
+	// list arrives as /literals from the compiled postfix and the computed
+	// name arrives from a string, so compare the pair, not the pointer.
+	w := want.GetNonExecutable()
 	for _, n := range names {
-		if n == want {
+		if n.GetNonExecutable() == w {
 			return true
 		}
 	}

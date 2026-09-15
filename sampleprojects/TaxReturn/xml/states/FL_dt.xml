@@ -7,7 +7,7 @@
 <relative_path>FL.xlsx</relative_path>
 <file_name>FL.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:eb969ee596b0a8e7ed1566b7bb7749dd067bc96eb77fbd11db869f7ab04a942d</source_hash>
+<source_hash>sha256:fdcdec49190b8d138c25f2d166259970f116a4fc179e9189986a8fafe2674193</source_hash>
 </source>
 <table_name>FL_Tax</table_name>
 <xls_file>FL.xlsx</xls_file>
@@ -17,16 +17,29 @@
 <TABLE_NUMBER>40900</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-<initial_action>
-<initial_action_dsl>set result.fl_tax = 0; add "  Florida (no state income tax)" to job.audit_trail</initial_action_dsl>
-<initial_action_postfix>
-0 cvi /result.fl_tax xdef "  Florida (no state income tax)" job.audit_trail swap addto
-</initial_action_postfix>
-</initial_action>
-</initial_actions>
-<conditions></conditions>
-<actions></actions>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment></condition_comment>
+<condition_dsl>perform when called</condition_dsl>
+<condition_postfix>
+perform when called
+</condition_postfix>
+<columns>*</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>No income tax: the roster pass resets result.computed_state_tax to zero before dispatching here, so the only thing to do is say so. The table used to assign a result field no EDD declared, which nothing noticed because the old dispatcher never performed it (#1177)</action_comment>
+<action_dsl>add "  Florida (no state income tax)" to job.audit_trail</action_dsl>
+<action_postfix>
+"  Florida (no state income tax)" job.audit_trail swap addto
+</action_postfix>
+<columns>X</columns>
+</action_details>
+</actions>
 <policy_statements></policy_statements>
 </decision_table>
 </decision_tables>
