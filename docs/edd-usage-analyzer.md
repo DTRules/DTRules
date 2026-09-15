@@ -58,25 +58,19 @@ References are split into **read** and **write** kinds:
 |---|---|
 | `INFO unused EDD field` | Declared in EDD, no read or write reference. Safe to remove, modulo external mapping/JSON consumers. |
 | `INFO write-only EDD field` | Set somewhere, never read anywhere. Likely a bug — either the read got deleted, or the set is doing nothing. |
+| `INFO possibly used EDD field` | Every reference sits in a table reached only through a dispatch bound derived from literals (`perform table named ("Determine_" + code + "_Thing")` with no `among`). The bound says which tables the expression *could* name, not which it will, so the field is neither used nor unused. The finding names the tables; an `among` list on the dispatch site makes the edges exact and the reference definite (#776). |
 
-Both surface through `dtrules review` and the build pipeline's advisory channel.
+All three surface through `dtrules review` and the build pipeline's advisory channel, and carry a machine-readable `Category` (`unused`, `write_only`, `possibly_used`).
+
+"Reached" is decided on the static call graph from its roots — the tables nothing else performs. A table with a static path from a root is definitely reached whatever else also matches it; a table with no path at all is treated as definitely reached for this purpose, since unreachable-table reporting is a separate advisory.
 
 ## What it still misses (phase 3 backlog)
 
 - **Cross-table references**: a `perform <Table>` call descends into the called table's context. The current pass treats each `*_dt.xml` independently. A field read only inside a table called via `perform` from another table is currently visible at the file granularity, but the **caller's** entity-stack push doesn't carry into the callee's reference resolution.
-- **Dynamic dispatch**: `perform table named (<string-expression>)` (shipped v1.12.0) computes the target table name at runtime. The analyzer sees the string expression but cannot enumerate possible values. [#776](https://github.com/DTRules/DTRules/issues/776) proposes EDD-declared enumeration bounds so authors can give the analyzer the bounded set.
+- **Dynamic dispatch** is bounded, not missed: the literal segments of `perform table named (<expr>)` derive a pattern over the defined tables, an `among` list declares the exact set, and a site with neither is reported as `unbounded_dispatch` (#776). What remains approximate is the derived case, which the `possibly used` category above makes visible rather than silent.
 - **Postfix-only blocks**: the strict hand-coded-postfix gate (v1.11.0) means new code can't introduce hand-edited postfix anyway, but legacy fixtures with raw postfix and no EL DSL fall outside the analyzer's view.
 
-When phase 3 lands, the categories grow to:
-
-| Category | Meaning |
-|---|---|
-| `Used` | Reference visible somewhere reachable. |
-| `Unused` | No reference anywhere. |
-| `Possibly used` | Referenced inside an unbound-string dispatch target — the analyzer can't prove unreached. |
-| `Write-only` | Set, never read. |
-
-Unbound dynamic dispatch (no enumeration declared) escalates from a warning to an error in `dtrules build --require-review`.
+Unbounded dynamic dispatch (no literal segments and no `among`) is an error through `AnalyzeExternalRefs`, not an advisory: the analyzer cannot reason about a rule set it cannot bound.
 
 ## Running it
 

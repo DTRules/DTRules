@@ -21,6 +21,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -84,10 +85,11 @@ func AnalyzeEDDUsage(xmlDir string) ([]EDDWarning, error) {
 		return nil, err
 	}
 
-	readRefs, writeRefs, err := collectDTReferences(xmlDir, schema)
+	byTable, err := collectDTReferencesByTable(xmlDir, schema)
 	if err != nil {
 		return nil, err
 	}
+	readRefs, writeRefs := mergeTableRefs(byTable, nil)
 
 	// Cross-table entity-stack propagation (#776 piece A continued).
 	// Resolve bare identifiers in callee tables against the union of
@@ -99,9 +101,82 @@ func AnalyzeEDDUsage(xmlDir string) ([]EDDWarning, error) {
 	// We log nothing (the analyzer is meant to be silent on success
 	// and on transient walk errors) and return the warnings the
 	// per-file pass already computed.
-	_ = applyCrossTablePropagation(xmlDir, schema, readRefs, writeRefs)
+	_ = applyCrossTablePropagationExcept(xmlDir, schema, readRefs, writeRefs, nil)
 
-	return diffEDDUsage(schema.Fields, readRefs, writeRefs), nil
+	warnings := diffEDDUsage(schema.Fields, readRefs, writeRefs)
+	return append(warnings, possiblyUsed(xmlDir, schema, byTable, warnings)...), nil
+}
+
+// possiblyUsed finds the fields whose every reference sits in a table reached
+// only through a derived dispatch bound (#776). Such a table is one a
+// `perform table named (<expr>)` site *could* name; nothing sanctions it, so
+// a field read nowhere else is neither used nor unused. The pass is
+// additive: it re-runs the diff without those tables and reports, as
+// possibly_used, exactly the fields that flip to unused.
+func possiblyUsed(xmlDir string, schema *eddSchema, byTable map[string]*tableRefs, warnings []EDDWarning) []EDDWarning {
+	graph, err := AnalyzeTableCallGraph(xmlDir)
+	if err != nil || graph == nil {
+		return nil
+	}
+	possible := graph.PossiblyReached(graph.Roots())
+	if len(possible) == 0 {
+		return nil
+	}
+	reads, writes := mergeTableRefs(byTable, possible)
+	_ = applyCrossTablePropagationExcept(xmlDir, schema, reads, writes, possible)
+
+	unusedWithAll := make(map[string]bool)
+	for _, w := range warnings {
+		if w.Category == EDDUsageUnused {
+			unusedWithAll[w.Field] = true
+		}
+	}
+	var out []EDDWarning
+	for _, w := range diffEDDUsage(schema.Fields, reads, writes) {
+		if w.Category != EDDUsageUnused || unusedWithAll[w.Field] {
+			continue
+		}
+		var where []string
+		for name := range possible {
+			if refs := byTable[name]; refs != nil && (refs.reads[w.Field] || refs.writes[w.Field]) {
+				where = append(where, name)
+			}
+		}
+		sort.Strings(where)
+		out = append(out, EDDWarning{
+			Field:   w.Field,
+			EddFile: w.EddFile,
+			Reason: fmt.Sprintf("possibly used EDD field: %s (referenced only in %s, reached through a dispatch bound derived from literals; an `among` list would make the reference definite)",
+				w.Field, strings.Join(where, ", ")),
+			Category: EDDUsagePossibly,
+		})
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Field < out[j].Field })
+	return out
+}
+
+// tableRefs is one table's own references, before cross-table propagation.
+type tableRefs struct {
+	reads, writes map[string]bool
+}
+
+// mergeTableRefs unions the per-table references, leaving out the tables in
+// skip.
+func mergeTableRefs(byTable map[string]*tableRefs, skip map[string]bool) (reads, writes map[string]bool) {
+	reads = make(map[string]bool)
+	writes = make(map[string]bool)
+	for name, refs := range byTable {
+		if skip[name] {
+			continue
+		}
+		for k := range refs.reads {
+			reads[k] = true
+		}
+		for k := range refs.writes {
+			writes[k] = true
+		}
+	}
+	return reads, writes
 }
 
 // eddField is a declared EDD field.
@@ -295,13 +370,24 @@ func resolveAlias(aliases map[string]string, key string) string {
 // field of the iterated entity are recorded as `entitytype.field`
 // references. This is the entity-stack-aware pass from #776 phase 1.
 func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]bool, writeRefs map[string]bool, err error) {
+	byTable, err := collectDTReferencesByTable(xmlDir, schema)
+	if err != nil {
+		return nil, nil, err
+	}
+	readRefs, writeRefs = mergeTableRefs(byTable, nil)
+	return readRefs, writeRefs, nil
+}
+
+// collectDTReferencesByTable is collectDTReferences attributed to the table
+// each reference sits in, keyed by the authored table name. Two tables with
+// one name (which verify rejects) merge.
+func collectDTReferencesByTable(xmlDir string, schema *eddSchema) (map[string]*tableRefs, error) {
 	// What the mapping puts on the entity stack before any table runs. Every
 	// table's own context extends this rather than starting empty (#776).
 	baseStack := initialEntities(xmlDir)
-	readRefs = make(map[string]bool)
-	writeRefs = make(map[string]bool)
+	byTable := make(map[string]*tableRefs)
 
-	err = filepath.WalkDir(xmlDir, func(path string, d os.DirEntry, err error) error {
+	err := filepath.WalkDir(xmlDir, func(path string, d os.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
 		}
@@ -317,6 +403,7 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 
 		var tables struct {
 			Tables []struct {
+				Name           string         `xml:"table_name"`
 				Contexts       []contextEntry `xml:"contexts>context_details"`
 				InitialActions []struct {
 					DSL     string `xml:"initial_action_dsl"`
@@ -337,6 +424,12 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 		}
 
 		for _, table := range tables.Tables {
+			refs := byTable[table.Name]
+			if refs == nil {
+				refs = &tableRefs{reads: make(map[string]bool), writes: make(map[string]bool)}
+				byTable[table.Name] = refs
+			}
+			readRefs, writeRefs := refs.reads, refs.writes
 			// Determine the table-level entity stack from its
 			// `<context_details>` block. Inline iterations inside
 			// each DSL fragment extend this stack per-fragment.
@@ -420,7 +513,7 @@ func collectDTReferences(xmlDir string, schema *eddSchema) (readRefs map[string]
 		}
 		return nil
 	})
-	return readRefs, writeRefs, err
+	return byTable, err
 }
 
 // iterationPattern matches every EL construct that pushes an entity

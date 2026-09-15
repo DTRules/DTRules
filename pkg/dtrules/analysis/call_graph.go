@@ -57,6 +57,14 @@ type TableCallGraph struct {
 	// non-perform actions don't get an empty set).
 	Calls map[string]map[string]bool
 
+	// DerivedCalls is the subset of Calls that exists only because a
+	// `perform table named (<expr>)` site's literal segments matched the
+	// callee (#776). A derived bound over-approximates: it says which tables
+	// the expression *could* name, not which it will. An edge that is also
+	// recorded statically (`perform X`) or declared in an `among` list is
+	// not derived -- the author sanctioned it -- so it is never here.
+	DerivedCalls map[string]map[string]bool
+
 	// OrphanCalls lists (caller, callee) pairs where the callee
 	// isn't a declared table. These are likely typos in the DSL —
 	// the runtime would fail at execution time with "table not
@@ -146,10 +154,11 @@ var reservedAfterPerform = map[string]bool{
 // cannot reason about a rule set it cannot bound.
 func AnalyzeTableCallGraph(xmlDir string) (*TableCallGraph, error) {
 	graph := &TableCallGraph{
-		Tables: make(map[string]bool),
-		byFold: make(map[string]string),
-		Calls:  make(map[string]map[string]bool),
-		DTFile: make(map[string]string),
+		Tables:       make(map[string]bool),
+		byFold:       make(map[string]string),
+		Calls:        make(map[string]map[string]bool),
+		DerivedCalls: make(map[string]map[string]bool),
+		DTFile:       make(map[string]string),
 	}
 
 	// Pass 1: collect the set of defined tables. We need the full
@@ -293,7 +302,7 @@ func recordDynamicCalls(graph *TableCallGraph, caller, file, dsl string) {
 		matched := false
 		for folded, authored := range graph.byFold {
 			if bound.MatchString(folded) {
-				addCall(graph, caller, authored)
+				addDerivedCall(graph, caller, authored)
 				matched = true
 			}
 		}
@@ -315,6 +324,33 @@ func addCall(graph *TableCallGraph, caller, callee string) {
 		graph.Calls[caller] = make(map[string]bool)
 	}
 	graph.Calls[caller][callee] = true
+	// A sanctioned edge (static perform, `among`, `with default`) makes a
+	// derived one for the same pair moot.
+	if d := graph.DerivedCalls[caller]; d != nil {
+		delete(d, callee)
+	}
+}
+
+// addDerivedCall records an edge that only a literal-derived bound
+// produced. If the author already sanctioned the pair it stays as it was.
+func addDerivedCall(graph *TableCallGraph, caller, callee string) {
+	if authored, ok := graph.byFold[strings.ToLower(callee)]; ok {
+		callee = authored
+	}
+	if graph.Calls[caller][callee] {
+		return
+	}
+	if _, ok := graph.Calls[caller]; !ok {
+		graph.Calls[caller] = make(map[string]bool)
+	}
+	graph.Calls[caller][callee] = true
+	if graph.DerivedCalls == nil {
+		graph.DerivedCalls = make(map[string]map[string]bool)
+	}
+	if _, ok := graph.DerivedCalls[caller]; !ok {
+		graph.DerivedCalls[caller] = make(map[string]bool)
+	}
+	graph.DerivedCalls[caller][callee] = true
 }
 
 func recordCalls(graph *TableCallGraph, rt struct {
@@ -342,10 +378,15 @@ func recordCalls(graph *TableCallGraph, rt struct {
 		if _, ok := graph.Calls[rt.Name]; !ok {
 			graph.Calls[rt.Name] = make(map[string]bool)
 		}
-		if graph.Calls[rt.Name][callee] {
+		if graph.Calls[rt.Name][callee] && !graph.DerivedCalls[rt.Name][callee] {
 			continue // already recorded for this caller
 		}
 		graph.Calls[rt.Name][callee] = true
+		// The static perform sanctions the pair; a derived edge recorded
+		// from an earlier fragment of this table no longer counts as such.
+		if d := graph.DerivedCalls[rt.Name]; d != nil {
+			delete(d, callee)
+		}
 		if !graph.Tables[callee] {
 			graph.OrphanCalls = append(graph.OrphanCalls, OrphanCall{
 				Caller: rt.Name,
@@ -414,4 +455,59 @@ func (g *TableCallGraph) UnreachedTables(entryTables []string) []string {
 	}
 	sort.Strings(out)
 	return out
+}
+
+// Roots returns the defined tables no other table calls -- the entry points
+// as far as the static graph can tell -- sorted.
+func (g *TableCallGraph) Roots() []string {
+	called := make(map[string]bool)
+	for _, callees := range g.Calls {
+		for callee := range callees {
+			called[callee] = true
+		}
+	}
+	var out []string
+	for t := range g.Tables {
+		if !called[t] {
+			out = append(out, t)
+		}
+	}
+	sort.Strings(out)
+	return out
+}
+
+// PossiblyReached returns the tables reachable from the entries only by
+// crossing a derived-bound edge -- tables a `perform table named (<expr>)`
+// site *could* name, that nothing sanctions statically (#776). A table with a
+// static path from any entry is not here, whatever else also reaches it.
+//
+// Definitely reached is the walk over Calls that refuses DerivedCalls edges;
+// possibly reached is the full walk minus that.
+func (g *TableCallGraph) PossiblyReached(entries []string) map[string]bool {
+	definite := make(map[string]bool)
+	var walk func(string)
+	walk = func(t string) {
+		if definite[t] {
+			return
+		}
+		definite[t] = true
+		for callee := range g.Calls[t] {
+			if g.DerivedCalls[t][callee] {
+				continue
+			}
+			walk(callee)
+		}
+	}
+	for _, e := range entries {
+		walk(e)
+	}
+	possible := make(map[string]bool)
+	for _, e := range entries {
+		for t := range g.Reachable(e) {
+			if !definite[t] {
+				possible[t] = true
+			}
+		}
+	}
+	return possible
 }

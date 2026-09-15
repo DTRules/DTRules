@@ -1213,7 +1213,9 @@ aren't mis-flagged:
                 ("declared output never written").
   access="rw"   Internal / read-write (the default when omitted). Flagged
                 "unused" if never referenced, "write-only" if set but never
-                read.
+                read, "possibly used" if its only references sit in tables a
+                dynamic dispatch could name but nothing performs outright
+                (an "among" list on the dispatch makes them definite).
 
   <field name="agi"        type="double" access="r"/>   <!-- input  -->
   <field name="dose_mg"    type="integer" access="w"/>  <!-- output -->
