@@ -224,3 +224,58 @@ func TestAmongDefaultCatchesUnlisted(t *testing.T) {
 		t.Errorf("marker %d, want Handle_Default (2)", got)
 	}
 }
+
+// The compiled postfix pushes the among list as /literals, which intern to
+// the non-executable half of each name pair, while the computed name comes
+// from a string and interns to the executable half. Pointer equality between
+// the two halves never holds, so a listed target fell through to the default
+// on every real dispatch (#1177). The runAmong helper above pushes strings
+// for both sides and could not see it; this pushes the list the way the
+// compiler does.
+func TestAmongMatchesCompiledLiterals(t *testing.T) {
+	dir := t.TempDir()
+	edd := filepath.Join(dir, "dispatch_edd.xml")
+	dt := filepath.Join(dir, "dispatch_dt.xml")
+	if err := os.WriteFile(edd, []byte(dispatchEDD), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(dt, []byte(dispatchDT), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rs := session.NewRuleSet("among-literals")
+	if err := rs.LoadEDDFile(edd); err != nil {
+		t.Fatal(err)
+	}
+	if err := rs.LoadDecisionTablesTolerantFile(dt); err != nil {
+		t.Fatal(err)
+	}
+	sess, err := rs.NewSession()
+	if err != nil {
+		t.Fatal(err)
+	}
+	state := sess.GetState()
+	result, err := sess.CreateEntity(dtrules.GetRName("result"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	state.EntityPush(result)
+
+	state.DataPush(dtrules.GetRString("Handle_AA"))
+	state.DataPush(dtrules.GetRName("/Handle_AA"))
+	state.DataPush(dtrules.GetRIntegerValue(1))
+	state.DataPush(dtrules.GetRName("/Handle_Default"))
+	op, ok := operators.GetByString("performtableamongdefault")
+	if !ok {
+		t.Fatal("performtableamongdefault not registered")
+	}
+	if err := op.Execute(state); err != nil {
+		t.Fatalf("listed target: %v", err)
+	}
+	v, err := result.Get(dtrules.GetRName("hit"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := v.IntValue(); got != 1 {
+		t.Fatalf("a target listed as a /literal must run, not the default: hit=%d", got)
+	}
+}

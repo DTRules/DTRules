@@ -7,7 +7,7 @@
 <relative_path>SD.xlsx</relative_path>
 <file_name>SD.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:8d5d742d7233560e7f7ab62a35e9316e9a92b879548e6cdf8e784b4b1242579e</source_hash>
+<source_hash>sha256:574d948618b8a1b2aaaaf32508ea14c086ba85fa2e189e5ee0b18f92038e82e1</source_hash>
 </source>
 <table_name>SD_Tax</table_name>
 <xls_file>SD.xlsx</xls_file>
@@ -17,85 +17,29 @@
 <TABLE_NUMBER>46600</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions>
-<initial_action>
-<initial_action_dsl>add "SOUTH DAKOTA - no state income tax (sd_has_income_tax=false)" to job.audit_trail; set result.sd_agi = result.state_calc_agi</initial_action_dsl>
-<initial_action_postfix>
-"SOUTH DAKOTA - no state income tax (sd_has_income_tax=false)" job.audit_trail swap addto result.state_calc_agi cvi /result.sd_agi xdef
-</initial_action_postfix>
-</initial_action>
-</initial_actions>
+<initial_actions></initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Married Filing Jointly</condition_comment>
-<condition_dsl>job.filing_status is equal to "married_filing_jointly"</condition_dsl>
+<condition_comment></condition_comment>
+<condition_dsl>perform when called</condition_dsl>
 <condition_postfix>
-job.filing_status "married_filing_jointly" streq
+perform when called
 </condition_postfix>
-<columns>YNN</columns>
-</condition_details>
-<condition_details>
-<condition_number>2</condition_number>
-<condition_comment>Single</condition_comment>
-<condition_dsl>job.filing_status is equal to "single"</condition_dsl>
-<condition_postfix>
-job.filing_status "single" streq
-</condition_postfix>
-<columns>NYN</columns>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
-<condition_comment>Head of Household</condition_comment>
-<condition_dsl>job.filing_status is equal to "head_of_household"</condition_dsl>
-<condition_postfix>
-job.filing_status "head_of_household" streq
-</condition_postfix>
-<columns>NNY</columns>
+<columns>*</columns>
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>SD tax MFJ - no state income tax in South Dakota (sd_has_income_tax=false)</action_comment>
-<action_dsl>set result.sd_tax = 0; add "  South Dakota has no state income tax (MFJ): $0" to job.audit_trail</action_dsl>
+<action_comment>No income tax: the roster pass resets result.computed_state_tax to zero before dispatching here, so the only thing to do is say so. The table used to assign a result field no EDD declared, which nothing noticed because the old dispatcher never performed it (#1177)</action_comment>
+<action_dsl>add "  South Dakota (no state income tax)" to job.audit_trail</action_dsl>
 <action_postfix>
-0 cvi /result.sd_tax xdef "  South Dakota has no state income tax (MFJ): $0" job.audit_trail swap addto
+"  South Dakota (no state income tax)" job.audit_trail swap addto
 </action_postfix>
-<columns>X--</columns>
-</action_details>
-<action_details>
-<action_number>2</action_number>
-<action_comment>SD tax Single - no state income tax in South Dakota (sd_has_income_tax=false)</action_comment>
-<action_dsl>set result.sd_tax = 0; add "  South Dakota has no state income tax (Single): $0" to job.audit_trail</action_dsl>
-<action_postfix>
-0 cvi /result.sd_tax xdef "  South Dakota has no state income tax (Single): $0" job.audit_trail swap addto
-</action_postfix>
-<columns>-X-</columns>
-</action_details>
-<action_details>
-<action_number>3</action_number>
-<action_comment>SD tax HOH - no state income tax in South Dakota (sd_has_income_tax=false)</action_comment>
-<action_dsl>set result.sd_tax = 0; add "  South Dakota has no state income tax (HOH): $0" to job.audit_trail</action_dsl>
-<action_postfix>
-0 cvi /result.sd_tax xdef "  South Dakota has no state income tax (HOH): $0" job.audit_trail swap addto
-</action_postfix>
-<columns>--X</columns>
+<columns>X</columns>
 </action_details>
 </actions>
-<policy_statements>
-<policy_statement column="1">
-<policy_description>SD progressive tax MFJ with standard deduction</policy_description>
-<policy_statement_postfix>"SD progressive tax MFJ with standard deduction"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="2">
-<policy_description>SD progressive tax Single with standard deduction</policy_description>
-<policy_statement_postfix>"SD progressive tax Single with standard deduction"</policy_statement_postfix>
-</policy_statement>
-<policy_statement column="3">
-<policy_description>SD progressive tax HOH with standard deduction</policy_description>
-<policy_statement_postfix>"SD progressive tax HOH with standard deduction"</policy_statement_postfix>
-</policy_statement>
-</policy_statements>
+<policy_statements></policy_statements>
 </decision_table>
 </decision_tables>
