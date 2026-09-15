@@ -17,6 +17,7 @@ package authoring
 import (
 	"regexp"
 	"sort"
+	"strings"
 )
 
 // performRe matches "perform <identifier>" in DSL text.
@@ -64,7 +65,7 @@ func (t *Table) Callers() []string {
 	for _, entry := range t.project.dtFiles {
 		for i := range entry.tables.Tables {
 			x := &entry.tables.Tables[i]
-			if x.TableName == t.Name {
+			if strings.EqualFold(x.TableName, t.Name) {
 				continue
 			}
 			other := newTable(x, t.project.symbols)

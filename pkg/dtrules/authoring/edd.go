@@ -180,7 +180,7 @@ func (e *EDD) Entities() []*Entity {
 // Entity returns the named entity, or nil if not found.
 func (e *EDD) Entity(name string) *Entity {
 	for _, xe := range e.xml.Entities {
-		if xe.Name == name {
+		if strings.EqualFold(xe.Name, name) {
 			return entityFromXML(xe)
 		}
 	}
@@ -190,7 +190,7 @@ func (e *EDD) Entity(name string) *Entity {
 // AddEntity creates a new entity. Returns an error if the name is already taken.
 func (e *EDD) AddEntity(name string) (*Entity, error) {
 	for _, xe := range e.xml.Entities {
-		if xe.Name == name {
+		if strings.EqualFold(xe.Name, name) {
 			return nil, fmt.Errorf("entity %q already exists", name)
 		}
 	}
@@ -208,7 +208,7 @@ func (e *EDD) AddEntity(name string) (*Entity, error) {
 // Pass the owning project so cross-artifact references can be detected.
 func (e *EDD) DeleteEntity(name string) error {
 	for i, xe := range e.xml.Entities {
-		if xe.Name == name {
+		if strings.EqualFold(xe.Name, name) {
 			e.xml.Entities = append(e.xml.Entities[:i], e.xml.Entities[i+1:]...)
 			return nil
 		}
@@ -223,12 +223,12 @@ func (e *EDD) deleteEntityChecked(name string, dtFiles []dtFileEntry) error {
 			// Match either a legacy <context_entity> directive or a DSL
 			// statement that names the entity.
 			for _, ent := range t.Contexts.Entities {
-				if strings.TrimSpace(ent) == name {
+				if strings.EqualFold(strings.TrimSpace(ent), name) {
 					return fmt.Errorf("cannot delete entity %q: referenced as context in table %q", name, t.TableName)
 				}
 			}
 			for _, ctx := range t.Contexts.DSLLines() {
-				if strings.TrimSpace(ctx) == name {
+				if strings.EqualFold(strings.TrimSpace(ctx), name) {
 					return fmt.Errorf("cannot delete entity %q: referenced as context in table %q", name, t.TableName)
 				}
 			}
@@ -296,7 +296,7 @@ func (e *Entity) AddAttribute(a Attribute) error {
 		return err
 	}
 	for _, f := range e.xmlEntity.Fields {
-		if f.Name == a.Name {
+		if strings.EqualFold(f.Name, a.Name) {
 			return fmt.Errorf("attribute %q already exists on entity %q", a.Name, e.Name)
 		}
 	}
@@ -326,7 +326,7 @@ func (e *Entity) UpdateAttribute(name string, a Attribute) error {
 // DeleteAttribute removes the named attribute.
 func (e *Entity) DeleteAttribute(name string) error {
 	for i, f := range e.xmlEntity.Fields {
-		if f.Name == name {
+		if strings.EqualFold(f.Name, name) {
 			e.xmlEntity.Fields = append(e.xmlEntity.Fields[:i], e.xmlEntity.Fields[i+1:]...)
 			e.Attributes = append(e.Attributes[:i], e.Attributes[i+1:]...)
 			return nil
