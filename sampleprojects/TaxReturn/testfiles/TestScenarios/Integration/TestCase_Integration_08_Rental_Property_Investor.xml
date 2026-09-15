@@ -27,20 +27,23 @@
    <city>Austin</city>
 
    <!-- Expected values -->
-   <!-- Rental Property 1: $36,000 income - $28,700 expenses - $8,200 depreciation = -$900 loss -->
-   <!-- Rental Property 2: $42,000 income - $25,400 expenses - $9,800 depreciation = $6,800 profit -->
-   <!-- Rental Property 3: $28,800 income - $22,600 expenses - $7,200 depreciation = -$1,000 loss -->
-   <!-- Net rental income: -$900 + $6,800 - $1,000 = $4,900 -->
+   <!-- Each property's expenses are summed from this file's own fields
+        (advertising + insurance + management + mortgage interest + property
+        taxes + repairs + utilities + depreciation):
+          P1: 36,000 - 35,500 =   500
+          P2: 42,000 - 34,850 = 7,150
+          P3: 28,800 - 28,415 =   385 -->
+   <!-- Net rental income: $500 + $7,150 + $385 = $8,035 -->
    <!-- W-2 income (spouse): $95,000 -->
-   <!-- Total income: $99,900 -->
-   <!-- AGI: $99,900 -->
-   <!-- Standard deduction: $30,000 -->
-   <!-- Taxable: $69,900 -->
-   <!-- Tax: ~$8,000 -->
+   <!-- AGI: $95,000 + $8,035 = $103,035 -->
+   <!-- Standard deduction: $31,500 (MFJ, 2025) -->
+   <!-- Taxable: $103,035 - $31,500 = $71,535 -->
+   <!-- Tax: $8,107.20 (2025 MFJ brackets: 2,385 + 12% of 47,685) less the
+        $2,200 child tax credit for one child = $5,907.20 -->
    <!-- Note: Real estate professional status would allow full loss deduction -->
-   <expected_agi>99900</expected_agi>
-   <expected_taxable_income>69900</expected_taxable_income>
-   <expected_total_tax>0</expected_total_tax>
+   <expected_agi>103035</expected_agi>
+   <expected_taxable_income>71535</expected_taxable_income>
+   <expected_total_tax>5907.20</expected_total_tax>
    <expected_refund>0</expected_refund>
 
    <!-- Taxpayers -->

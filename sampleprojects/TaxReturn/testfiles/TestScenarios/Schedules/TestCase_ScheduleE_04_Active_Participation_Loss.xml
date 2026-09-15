@@ -2,7 +2,7 @@
 <!-- Test Case: Schedule E - Rental with Active Participation ($25k Loss Allowance) -->
 <!-- Scenario: Moderate income taxpayer actively participating in rental -->
 <!-- AGI &lt; $100k allows up to $25k rental loss deduction -->
-<!-- Rental loss: ($12,000), fully deductible -->
+<!-- Rental loss: ($13,000), fully deductible -->
 <job>
     <id>10019</id>
     <tax_year>2025</tax_year>
@@ -10,13 +10,18 @@
     <state>TX</state>
 
     <!-- Expected results -->
-    <!-- AGI: $75,000 W-2 - $12,000 rental loss = $63,000 -->
-    <!-- Deduction: $30,000 standard -->
-    <!-- Taxable: $33,000 -->
-    <!-- Tax: ~$3,580 -->
-    <expected_agi>63000</expected_agi>
-    <expected_taxable_income>33000</expected_taxable_income>
-    <expected_total_tax>3580</expected_total_tax>
+    <!-- Schedule E expenses, from this file's own fields: advertising 300 +
+         insurance 1,800 + management 0 + mortgage interest 9,500 + property
+         taxes 4,200 + repairs 5,000 + utilities 1,200 + depreciation 7,000
+         = 29,000. Net: 16,000 - 29,000 = (13,000), inside the $25,000
+         active-participation allowance at this AGI -->
+    <!-- AGI: $75,000 W-2 - $13,000 rental loss = $62,000 -->
+    <!-- Deduction: $31,500 standard (MFJ, 2025) -->
+    <!-- Taxable: $62,000 - $31,500 = $30,500 -->
+    <!-- Tax: $3,183 (2025 MFJ brackets: 2,385 + 12% of 6,650) -->
+    <expected_agi>62000</expected_agi>
+    <expected_taxable_income>30500</expected_taxable_income>
+    <expected_total_tax>3183</expected_total_tax>
 
     <taxpayers>
         <taxpayer>

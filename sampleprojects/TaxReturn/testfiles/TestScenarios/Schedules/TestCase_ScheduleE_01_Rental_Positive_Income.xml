@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Test Case: Schedule E - Single Rental Property with Positive Income -->
 <!-- Scenario: Rental property generating net positive income -->
-<!-- Rental income: $24,000, Expenses: $15,000, Net: $9,000 -->
+<!-- Rental income: $24,000, Expenses: $22,000, Net: $2,000 -->
 <!-- Expected: Net rental income added to AGI -->
 <job>
     <id>10016</id>
@@ -10,13 +10,17 @@
     <state>TX</state>
 
     <!-- Expected results -->
-    <!-- AGI: $90,000 W-2 + $9,000 rental net = $99,000 -->
-    <!-- Deduction: $30,000 standard -->
-    <!-- Taxable: $69,000 -->
-    <!-- Tax: ~$7,980 -->
-    <expected_agi>99000</expected_agi>
-    <expected_taxable_income>69000</expected_taxable_income>
-    <expected_total_tax>7980</expected_total_tax>
+    <!-- Schedule E expenses, from this file's own fields: insurance 1,200 +
+         management 1,800 + mortgage interest 7,200 + property taxes 3,500 +
+         repairs 2,000 + utilities 0 + depreciation 6,300 = 22,000.
+         Net rental income: 24,000 - 22,000 = 2,000 -->
+    <!-- AGI: $90,000 W-2 + $2,000 rental net = $92,000 -->
+    <!-- Deduction: $31,500 standard (MFJ, 2025) -->
+    <!-- Taxable: $92,000 - $31,500 = $60,500 -->
+    <!-- Tax: $6,783 (2025 MFJ brackets: 2,385 + 12% of 36,650) -->
+    <expected_agi>92000</expected_agi>
+    <expected_taxable_income>60500</expected_taxable_income>
+    <expected_total_tax>6783</expected_total_tax>
 
     <taxpayers>
         <taxpayer>
