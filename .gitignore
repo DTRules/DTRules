@@ -87,3 +87,6 @@ sampleprojects/TaxReturn/.dtrules/
 
 # release build output
 dist/
+
+# Go build output. main.go sits beside it; rebuild with `go build`.
+legacy/go/cmd/benchmark/benchmark
