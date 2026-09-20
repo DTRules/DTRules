@@ -310,41 +310,127 @@ for the CLI wiring.
 
 ## Embedding in a Go application
 
-A compiled rule set is just XML; you can `//go:embed` it and ship one binary
-with no external files. The `cmd/sinusitis-web` command is a complete worked
-example — it embeds a rule set and serves it as a web interview:
+A compiled rule set is just XML. Import the engine packages, load a directory
+(or an `embed.FS`), run a table, read the result entity. There is no separate
+SDK layer and there is not going to be one: `pkg/dtrules/sdk` was tried and
+removed in `69774f70` because DTRules already has a data-in surface — values
+arrive as XML shaped by the EDD — and a parallel programmatic entity API only
+duplicated it. The code below is the supported path, not a stopgap; both CLI
+binaries (`cmd/dtrules`, `cmd/api`) and `pkg/dtrules/web` use exactly it, and
+`pkg/dtrules/embedding_example_test.go` compiles and runs it on every build.
+
+The packages an embedder imports:
+
+| Package | For |
+|---------|-----|
+| `pkg/dtrules` | the shared types: `RName`, `Entity`, `State`, `Session` |
+| `pkg/dtrules/session` | rule sets and sessions — `NewRuleSet`, `LoadFromDirectory`, `LoadFromFS` |
+| `pkg/dtrules/mapping` | loading input XML whose tags are not yours to choose |
+| `pkg/dtrules/datafile` | canonical, mapping-free data XML (tags 1:1 with the EDD) |
+| `pkg/dtrules/entity` | `*entity.REntity`, needed by the `datafile` callbacks |
+| `pkg/dtrules/trace` + `pkg/dtrules/interpreter` | optional trace capture |
+| `pkg/dtrules/interview` | optional: run a table as an interactive interview |
+
+**Load once, execute per request.** A `RuleSet` is immutable after loading and
+safe to share; a `Session` holds one execution's entity stack, so make a fresh
+one per request.
 
 ```go
-import "github.com/DTRules/DTRules/pkg/dtrules/web"
-
-//go:embed rules/xml
-var rulesFS embed.FS
-
-// extract rulesFS to a temp dir, then:
-web.ServeDir(addr, xmlDir, web.Options{Entry: "Determine_Therapy", Title: "My App"})
+rs := session.NewRuleSet("SinusitisTherapy")
+rs.LoadFromDirectory(xmlDir)                  // or rs.LoadFromFS(embedded, "rules/xml")
+sess, _ := rs.NewSession()
 ```
 
-For programmatic (non-web) execution, the pipeline is:
+**Data in, path 1 — a mapping.** Use this when the input document's tag names
+come from somewhere else. `LoadDataAndPushSingletons` reads the document and
+then pushes the cardinality-1 entities it created, so the stack holds the
+loaded instances:
 
 ```go
-rs := session.NewRuleSet("MyRules")
-rs.LoadFromDirectory(xmlDir)                 // load compiled EDD + decision tables
-sess, _ := rs.NewSession()
+mf, _ := os.Open(mapFile)
+m := mapping.NewMapping(sess)
+m.LoadMapping(mf)
 
-m := mapping.NewMapping(sess)                // optional: set up entities + load input
-m.LoadMapping(mapFile); m.Initialize(); m.LoadData(inputFile)
+in, _ := os.Open(inputFile)
+m.LoadDataAndPushSingletons(in)               // or m.Initialize() for no input data
+```
 
+**Data in, path 2 — canonical data, no mapping.** Use this when you own the
+data. Canonical data XML is `<entity><field>value</field></entity>`, 1:1 with
+the EDD, so nothing has to be reconciled. Push the singletons the rules resolve
+bare field names against, then read into them:
+
+```go
+state := sess.GetState()
+for _, name := range []string{"constants", "result", "patient"} {
+    e, _ := sess.CreateEntity(dtrules.GetRName(name))
+    state.EntityPush(e)
+}
+
+find := func(name string) *entity.REntity {
+    e, err := state.FindEntity(dtrules.GetRName(name))
+    if err != nil || e == nil {
+        return nil
+    }
+    re, _ := e.(*entity.REntity)
+    return re
+}
+create := func(subtype string) (*entity.REntity, error) {
+    e, err := sess.CreateEntity(dtrules.GetRName(subtype))
+    if err != nil {
+        return nil, err
+    }
+    re, _ := e.(*entity.REntity)
+    return re, nil
+}
+df, _ := os.Open(dataFile)
+datafile.Read(df, find, create, datafile.Authoritative)   // or datafile.Review
+```
+
+**Execute and read the result.** Fetch the entry table by name and run it
+against the state, then find the output entity *on the stack* — `CreateEntity`
+would hand you a fresh, empty one instead:
+
+```go
 state := sess.GetState()
 dt, _ := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Determine_Therapy"))
 dt.Execute(state)
 
 result, _ := state.FindEntity(dtrules.GetRName("result"))
+drug, _ := result.Get(dtrules.GetRName("recommended_drug"))
 ```
 
-> A higher-level `pkg/dtrules/sdk` package that wraps this glue into a one-call
-> `Engine` API is in progress ([#757](https://github.com/DTRules/DTRules/issues/757)).
-> Until it lands, both CLI binaries (`cmd/dtrules`, `cmd/api`) wire the pipeline
-> directly, as shown above. See `dtrules docs embedding`.
+**Optionally capture a trace.** Enable it *before* the data load so the
+recording opens with the initial data, and write the final state after
+execution — that is what makes the file replayable in the trace debugger:
+
+```go
+dts := sess.GetState().(*interpreter.DTState)
+trace.WriteHeader(f, trace.Provenance{DTRulesVersion: version.Version})
+dts.SetOutput(f, nil)
+dts.EnableTrace()
+// ... load data, dt.Execute(state) ...
+trace.WriteFinalState(f, state)
+trace.WriteFooter(f)
+```
+
+**Shipping one binary.** `//go:embed` the compiled `xml/` tree and load it with
+`session.LoadRulesFromFS` — no files at runtime. `cmd/sinusitis-web` is a
+complete worked example, and `pkg/dtrules/web` wraps the whole pipeline as a
+web interview in one call:
+
+```go
+//go:embed rules/xml
+var rulesFS embed.FS
+
+rs, _ := session.LoadRulesFromFS("MyRules", rulesFS, "rules/xml")
+// or, for the browser front end:
+web.ServeDir(addr, xmlDir, web.Options{Entry: "Determine_Therapy", Title: "My App"})
+```
+
+See `dtrules docs embedding` for the embed layout, binary-size figures, and
+anti-patterns, and §2.11 of [docs/SPEC.md](docs/SPEC.md) for the normative
+statement of this surface.
 
 ---
 

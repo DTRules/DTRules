@@ -88,15 +88,20 @@ from the binary — no file paths, no workbook names, no sync manifest.
 
 The surface area the application touches is purely DTRules types:
 
-  import "github.com/DTRules/DTRules/pkg/dtrules/sdk"
+  import (
+      "github.com/DTRules/DTRules/pkg/dtrules"
+      "github.com/DTRules/DTRules/pkg/dtrules/session"
+  )
 
-  rs, err := sdk.LoadEmbedded(embeddedFS)  // rules come from binary
-  session := rs.NewSession()
-  session.SetEntity("input", map[string]any{"income": 85000.0})
-  session.Execute("Compute_Tax_Return")
-  result := session.GetEntity("result")
+  rs, err := session.LoadRulesFromFS("MyRules", embeddedFS, "rules/xml")
+  sess, err := rs.NewSession()
+  // data in via mapping or canonical data XML, then:
+  dt, err := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Compute_Tax_Return"))
+  err = dt.Execute(sess.GetState())
+  result, err := sess.GetState().FindEntity(dtrules.GetRName("result"))
 
-The application never sees file paths, workbook names, or XML content directly.
+There is no wrapper package over this; see 'dtrules docs embedding'. The
+application never sees file paths, workbook names, or XML content directly.
 
 Deploy-time graph:
 
