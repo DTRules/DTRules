@@ -36,9 +36,15 @@ DTRules/
 └── go.mod                  # Module: github.com/DTRules/DTRules
 ```
 
-A `pkg/dtrules/sdk` package for embeddable engine wiring is being
-extracted (#757). Until it lands, both CLI binaries (`cmd/dtrules`,
-`cmd/api`) glue the engine pipeline together independently.
+There is no SDK package and none is planned. An embedder wires the engine
+from `session`, `mapping`/`datafile` and the entry table directly; that is
+the supported path, and it is what both CLI binaries (`cmd/dtrules`,
+`cmd/api`) and `pkg/dtrules/web` do. A `pkg/dtrules/sdk` wrapper was written
+and removed (`69774f70`) because values already arrive through the EDD as
+XML — do not propose it again. The path is spelled out in README.md
+("Embedding in a Go application"), `dtrules docs embedding`, and §2.11 of
+[docs/SPEC.md](../docs/SPEC.md); `pkg/dtrules/embedding_example_test.go`
+compiles and runs it.
 
 ## CRITICAL: Output Redirection
 
