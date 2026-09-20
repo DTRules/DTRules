@@ -50,6 +50,17 @@ Three properties are the point, and the design pays for each:
   otherwise.
 - **Decision table** — conditions, actions, and the column grid binding them,
   plus a policy (`FIRST`, `ALL`, `BALANCED`) governing how many columns fire.
+  A condition cell holds one of four values and no others: `Y` (must be
+  true), `N` (must be false), `-` (this column does not test this condition),
+  `*` (otherwise). An action cell holds `X` or nothing.
+- **Otherwise column** — a column marked `*`. `*` does not mean "don't care":
+  it is allowed only in the **last column** of a table, and only when that
+  column holds no `Y` and no `N`. The column executes if and only if no other
+  column executes, under every table policy. It follows that a table has at
+  most one. `*` outside the last column, or in a column that also holds `Y`
+  or `N`, is a load error. There is no "always" column: an action that must
+  always execute carries an `X` in every column, the otherwise column
+  included.
 - **EDD (Entity Data Dictionary)** — the declared entities and their typed
   fields. The type system for everything the rules touch.
 - **Mapping** — which external XML tag becomes which entity or attribute, and
