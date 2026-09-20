@@ -2748,26 +2748,38 @@ Decision Table (eligibility_dt.xml):
 </decision_tables>
 
 
-Go Code (preview — pkg/dtrules/sdk is being extracted, issue #757):
--------------------------------------------------------------------
-import "github.com/DTRules/DTRules/pkg/dtrules/sdk/engine"
+Go Code (the supported embedding path — there is no wrapper package):
+---------------------------------------------------------------------
+import (
+    "github.com/DTRules/DTRules/pkg/dtrules"
+    "github.com/DTRules/DTRules/pkg/dtrules/datafile"
+    "github.com/DTRules/DTRules/pkg/dtrules/session"
+)
 
-ctx := engine.NewContext()
-ctx.SetEntity("applicant", "age", 25)
-ctx.SetEntity("applicant", "income", 50000.0)
-ctx.SetEntity("applicant", "citizen", true)
+rs := session.NewRuleSet("Eligibility")
+if err := rs.LoadFromDirectory(xmlDir); err != nil { ... }
+sess, err := rs.NewSession()
+state := sess.GetState()
 
-result, _ := engine.Execute("Check_Eligibility", ctx)
-
-if result.GetBool("eligible") {
-    fmt.Printf("Approved! Max amount: $%.2f\n", result.GetFloat("max_amount"))
-} else {
-    fmt.Printf("Denied: %s\n", result.GetString("reason"))
+// Data in. Canonical data XML is 1:1 with the EDD, so no mapping is
+// needed: push the singletons, then read the document into them.
+for _, name := range []string{"applicant", "decision"} {
+    e, _ := sess.CreateEntity(dtrules.GetRName(name))
+    state.EntityPush(e)
 }
+datafile.Read(dataXML, find, create, datafile.Authoritative)
 
-Until the SDK lands, the supported embedding path is to construct
-the engine directly from cmd/dtrules (see cli.go) — both binaries
-in this repo (cmd/dtrules, cmd/api) follow that pattern.
+// Execute the entry table and read the result off the stack.
+dt, _ := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Check_Eligibility"))
+if err := dt.Execute(state); err != nil { ... }
+
+decision, _ := state.FindEntity(dtrules.GetRName("decision"))
+eligible, _ := decision.Get(dtrules.GetRName("eligible"))
+fmt.Println(eligible.StringValue())
+
+Input data whose tag names are not yours to choose goes through
+pkg/dtrules/mapping instead; see 'dtrules docs embedding' for both
+paths, the embed layout, and trace capture.
 `
 
 const docWorkflow = `DTRules Development Workflow
@@ -3936,6 +3948,7 @@ Top-level command map
     dtrules init       Scaffold a new project directory
     dtrules build      Extract DSL from Excel + compile postfix (the human path)
     dtrules run        Run a decision table; --interactive collects missing inputs;
+                       --pending records them instead (unattended, exit 3);
                        --trace records a debugger-ready execution trace
     dtrules debug      Run + trace + open the editor's trace debugger (one command)
     dtrules report     Generate an EDD-driven report from a trace (see docs debug)
@@ -4162,6 +4175,27 @@ Typical workflows
       dtrules run . --entry Determine_Therapy --input case.xml   # batch
       dtrules run . --entry Determine_Therapy --interactive      # prompt for
                                                                  # reached collect fields
+
+  Run a table unattended, when a collect field may go unanswered:
+
+      dtrules run . --entry Determine_Therapy --data case.xml --pending ask.json
+
+      Never prompts. Every reached collect field that was not supplied is
+      recorded to ask.json (entity, instance, field, question text/type,
+      options, reference range, units, and the default substituted for it),
+      its default is used, and the run finishes.
+
+      Exit 0  complete   nothing was asked; ask.json holds [] and the result
+                         stands.
+      Exit 3  provisional questions are pending; defaults nobody confirmed were
+                         substituted. Do not act on the result: answer the
+                         questions, load them with --data, and re-run.
+      Exit 1  error      the run failed; questions reached before the failure
+                         are still written.
+
+      Answering one question can bring another into reach, because the
+      substituted defaults steer which branches run — so loop until exit 0.
+      --pending is mutually exclusive with --interactive and --web.
 
   Programmatic editing (AI agent / tooling):
 

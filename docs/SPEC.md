@@ -99,6 +99,8 @@ Stated because each is a boundary people assume otherwise:
 - No governance surface — no roles, approvals, or glossary.
 - No visual model editor. The authoring surfaces are a spreadsheet and a JSON
   API.
+- No embedding SDK. An embedder imports the engine packages and drives them
+  directly; see §2.11.
 - No per-state non-resident tax engine in the TaxReturn sample; see §2.9.
 
 ---
@@ -192,6 +194,26 @@ one and an amd64 assembly one.
 A tag that resolves against nothing is dropped silently at load; this is why
 §2.7 validates mappings at authoring time.
 
+**Collection.** A field the EDD marks `collect` carries a question, and a run
+may reach it without having a value. A `Collector` attached to the state is
+called just before such a field is read; with none attached execution is pure
+batch and pays nothing. Three collectors exist, and they differ only in what
+answers: the CLI prompt (`dtrules run --interactive`), the web interview
+(`--web`), and the recorder (`--pending <file.json>`).
+
+The recorder is the non-blocking one. It records the question — entity,
+instance id, field, text, type, options, reference range, units and the
+default it substituted — writes the set as a JSON array, and lets the default
+stand so the run finishes. Its result is therefore **provisional**: computed
+from defaults nobody confirmed. `dtrules run` says so on the result and exits
+`3`, distinct from `0` (complete, and the file holds `[]`) and from `1`
+(error). A caller answers the questions, loads them with `--data`, and re-runs
+until the exit code is `0`. Because the substituted defaults steer which
+branches the run takes, the *set* of questions reached can change once real
+answers arrive — so the loop is the contract, not a single pass. `--pending`
+is mutually exclusive with `--interactive` and `--web`: it is the opposite of
+asking, not a variation on it.
+
 ## 2.6 Static analysis
 
 `pkg/dtrules/analysis` runs project-wide:
@@ -275,3 +297,39 @@ The version comes from `git describe`; `pkg/dtrules/version` reports it and the
 build stamps it. A `v*` tag triggers the release workflow, which builds five
 platform binaries plus checksums and publishes a GitHub release. `CHANGELOG.md`
 carries the notes.
+
+## 2.11 Embedding the engine
+
+The Go library surface (§1.3) is the engine packages themselves. There is no
+wrapper package and none is planned: `pkg/dtrules/sdk` existed briefly and was
+removed in `69774f70` because data already enters through the EDD as XML
+(§2.5), so a parallel programmatic entity API restated the same surface in a
+second, unvalidated shape. Both CLI binaries, `pkg/dtrules/web` and
+`pkg/dtrules/interview` embed the engine this way; `pkg/dtrules/interview` is
+the one packaged runner, and it wraps an interview, not the engine.
+
+The supported sequence:
+
+1. **Load.** `session.NewRuleSet(name)`, then `LoadFromDirectory(xmlDir)` or
+   `LoadFromFS(fsys, root)` for a `//go:embed`ed `xml/` tree. A loaded rule set
+   is immutable and shareable.
+2. **Session.** `rs.NewSession()` per execution — a session owns one entity
+   stack.
+3. **Data in**, either way of §2.5:
+   - a mapping — `mapping.NewMapping(sess)`, `LoadMapping`, then
+     `LoadDataAndPushSingletons(doc)` (or `Initialize()` with no input);
+   - canonical data — push the singletons the rules resolve bare names against
+     (`sess.CreateEntity` + `state.EntityPush`, the set a mapping's
+     `<initialentity>` would name), then `datafile.Read(r, find, create, mode)`.
+4. **Execute.** `sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName(entry))`,
+   then `dt.Execute(state)`.
+5. **Read out.** `state.FindEntity(...)` — the executed instance on the stack.
+   `CreateEntity` returns a fresh, empty entity and is not how a result is read.
+6. **Optionally trace.** `trace.WriteHeader`, `dts.SetOutput` + `dts.EnableTrace`
+   before the data load, `trace.WriteFinalState` and `trace.WriteFooter` after
+   execution (§2.8).
+
+README.md and `dtrules docs embedding` document this sequence;
+`pkg/dtrules/embedding_example_test.go` compiles and executes it against
+`SinusitisTherapy`, both ways of loading data, and fails if either document
+points embedders at the removed SDK again (#1211).
