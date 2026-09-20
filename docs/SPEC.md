@@ -181,6 +181,34 @@ one and an amd64 assembly one.
 A tag that resolves against nothing is dropped silently at load; this is why
 §2.7 validates mappings at authoring time.
 
+### 2.5.1 Field value constraints
+
+An EDD field may declare what values it can legally hold:
+
+- `allowed_values` — a closed vocabulary, written as one `<allowed_value
+  value="…"/>` per member. Valid on `string` and `integer` fields, and
+  independent of `collect`: a field nobody is asked for can still have one.
+- `max_length` — the longest value a `string` field may hold, in characters.
+- `max_words` — the most whitespace-separated words a `string` field may hold.
+
+A vocabulary is matched the way every other name in the system is matched:
+without regard to case (§1.5.5). `Acute Sinusitis` and `acute sinusitis` are
+one value, and the spelling written back out is the authored one.
+
+The constraints travel with the field through every layer — the entity model,
+the EDD XML, `dtrules edd get|put|patch`, and columns N–P of the Excel EDD
+sheet (`Allowed Values`, `Max Length`, `Max Words`) — so `dtrules build` and
+`dtrules verify` round-trip them byte-identically.
+
+`dtrules validate` rejects a field whose own `default` its constraints reject,
+and the authoring API refuses to write one. Such a default is unreachable
+rather than merely odd: the field starts every run holding a value the rules
+were told it can never hold.
+
+Enforcement on the paths that write a field from outside the rules — `--input`
+mapping, `--data`, the collect resolver, the web interview and the API — is
+the second half of #1209 and is not yet wired.
+
 ## 2.6 Static analysis
 
 `pkg/dtrules/analysis` runs project-wide:

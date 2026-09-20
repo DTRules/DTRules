@@ -1226,6 +1226,43 @@ read of the array, so append-style outputs (e.g. a warnings/rationale
 list) stay access="rw", not "w". Use "w" for scalar set-once outputs.
 
 
+Value Constraints (allowed_values / max_length / max_words)
+----------------------------------------------------------
+A field can declare what values it may legally hold:
+
+  <field name="diagnosis" type="string" default_value="Acute Sinusitis"
+         max_length="40">
+      <allowed_value value="Acute Sinusitis"/>
+      <allowed_value value="Chronic Sinusitis"/>
+  </field>
+
+  allowed_values   A closed vocabulary, one <allowed_value value="..."/>
+                   per member. Valid on string and integer fields, and
+                   independent of collect -- a field nobody is asked for
+                   can still have one.
+  max_length       Longest value a string field may hold, in characters.
+  max_words        Most whitespace-separated words a string field may hold.
+
+The vocabulary is matched the way every name in EL is matched: without
+regard to case. "Acute Sinusitis" and "acute sinusitis" are one value, and
+the spelling written back out is the one you authored.
+
+Declare them through the authoring API, never by hand:
+
+  echo '{"op":"update-field","entity":"patient","field":{
+    "name":"diagnosis",
+    "allowed_values":["Acute Sinusitis","Chronic Sinusitis"],
+    "max_length":"40"}}' | dtrules edd patch
+
+The same metadata lives in columns N-P of the EDD sheet (Allowed Values,
+Max Length, Max Words), so editing the workbook and running 'dtrules build'
+is the other way to declare it. On a patch, omitting a constraint keeps
+what the field has; "allowed_values": [] and "max_length": "0" clear it.
+
+'dtrules validate' rejects a field whose own default its constraints
+reject -- such a default is unreachable, because no input can correct it.
+
+
 Best Practices
 --------------
 1. Use lowercase_with_underscores for names
