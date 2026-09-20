@@ -109,9 +109,44 @@ type EDDXMLOption struct {
 // eddColumnCount is the number of columns in the EDD sheet. Columns A–H are
 // the legacy field metadata; I–M carry the collect/question metadata (#850):
 // I=Collect, J=Question text, K=Question type, L=Options, M=Reference range.
-// N–P carry the value constraints (#1209): N=Allowed values, O=Max length,
-// P=Max words.
-const eddColumnCount = 16
+const eddColumnCount = 13
+
+// eddConstraintColumnCount is the column count of a sheet that also carries
+// the value constraints (#1209): N=Allowed values, O=Max length, P=Max words.
+//
+// Those three are written only for a sheet where some field declares one.
+// An EDD sheet is not a schema that every workbook must match — the importer
+// reads by column position and a column that is not there reads as empty —
+// and writing them unconditionally would have rewritten the EDD sheet of
+// every workbook in every project the first time anything was authored,
+// recompiling all of them and attaching that diff to an unrelated edit.
+const eddConstraintColumnCount = 16
+
+// eddColumns is the width of an EDD sheet with or without the constraint
+// columns.
+func eddColumns(withConstraints bool) int {
+	if withConstraints {
+		return eddConstraintColumnCount
+	}
+	return eddColumnCount
+}
+
+// eddHeaders is the EDD sheet's header row, with the constraint columns only
+// when the sheet carries them.
+func eddHeaders(withConstraints bool) []string {
+	h := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description", "Collect", "Question", "Q Type", "Options", "Reference"}
+	if withConstraints {
+		h = append(h, "Allowed Values", "Max Length", "Max Words")
+	}
+	return h
+}
+
+// fieldHasConstraints reports whether an EDD XML field declares any value
+// constraint (#1209).
+func fieldHasConstraints(f *EDDXMLField) bool {
+	return f != nil && (len(f.AllowedValues) > 0 ||
+		strings.TrimSpace(f.MaxLength) != "" || strings.TrimSpace(f.MaxWords) != "")
+}
 
 // encodeEDDOptions packs multiple_choice options into one Excel cell as
 // `value=label|value=label`. Quick-and-dirty (#850): values/labels are

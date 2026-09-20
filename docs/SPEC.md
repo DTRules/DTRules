@@ -198,7 +198,10 @@ one value, and the spelling written back out is the authored one.
 The constraints travel with the field through every layer — the entity model,
 the EDD XML, `dtrules edd get|put|patch`, and columns N–P of the Excel EDD
 sheet (`Allowed Values`, `Max Length`, `Max Words`) — so `dtrules build` and
-`dtrules verify` round-trip them byte-identically.
+`dtrules verify` round-trip them byte-identically. A sheet grows those three
+columns only where some field declares a constraint: the importer reads by
+column position and an absent column reads as empty, so a project that uses
+none keeps the workbook it already has.
 
 `dtrules validate` rejects a field whose own `default` its constraints reject,
 and the authoring API refuses to write one. Such a default is unreachable

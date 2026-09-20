@@ -1256,8 +1256,10 @@ Declare them through the authoring API, never by hand:
 
 The same metadata lives in columns N-P of the EDD sheet (Allowed Values,
 Max Length, Max Words), so editing the workbook and running 'dtrules build'
-is the other way to declare it. On a patch, omitting a constraint keeps
-what the field has; "allowed_values": [] and "max_length": "0" clear it.
+is the other way to declare it. A workbook grows those columns the first
+time a field in it declares a constraint. On a patch, omitting a constraint
+keeps what the field has; "allowed_values": [] and "max_length": "0" clear
+it.
 
 'dtrules validate' rejects a field whose own default its constraints
 reject -- such a default is unreachable, because no input can correct it.
