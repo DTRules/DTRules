@@ -3815,6 +3815,7 @@ Top-level command map
     dtrules init       Scaffold a new project directory
     dtrules build      Extract DSL from Excel + compile postfix (the human path)
     dtrules run        Run a decision table; --interactive collects missing inputs;
+                       --pending records them instead (unattended, exit 3);
                        --trace records a debugger-ready execution trace
     dtrules debug      Run + trace + open the editor's trace debugger (one command)
     dtrules report     Generate an EDD-driven report from a trace (see docs debug)
@@ -4041,6 +4042,27 @@ Typical workflows
       dtrules run . --entry Determine_Therapy --input case.xml   # batch
       dtrules run . --entry Determine_Therapy --interactive      # prompt for
                                                                  # reached collect fields
+
+  Run a table unattended, when a collect field may go unanswered:
+
+      dtrules run . --entry Determine_Therapy --data case.xml --pending ask.json
+
+      Never prompts. Every reached collect field that was not supplied is
+      recorded to ask.json (entity, instance, field, question text/type,
+      options, reference range, units, and the default substituted for it),
+      its default is used, and the run finishes.
+
+      Exit 0  complete   nothing was asked; ask.json holds [] and the result
+                         stands.
+      Exit 3  provisional questions are pending; defaults nobody confirmed were
+                         substituted. Do not act on the result: answer the
+                         questions, load them with --data, and re-run.
+      Exit 1  error      the run failed; questions reached before the failure
+                         are still written.
+
+      Answering one question can bring another into reach, because the
+      substituted defaults steer which branches run — so loop until exit 0.
+      --pending is mutually exclusive with --interactive and --web.
 
   Programmatic editing (AI agent / tooling):
 
