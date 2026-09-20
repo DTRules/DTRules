@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
+	"github.com/DTRules/DTRules/pkg/dtrules/entity"
 )
 
 // dataLoader loads XML data according to a mapping.
@@ -320,8 +321,8 @@ func (l *dataLoader) setAttribute(pending pendingAttrib, body string, createdEnt
 	}
 
 	// Find the entity that has this attribute
-	entity, err := l.state.FindEntity(attrName)
-	if err != nil || entity == nil {
+	owner, err := l.state.FindEntity(attrName)
+	if err != nil || owner == nil {
 		return nil // Attribute not found, skip
 	}
 
@@ -394,6 +395,13 @@ func (l *dataLoader) setAttribute(pending pendingAttrib, body string, createdEnt
 
 	default:
 		value = dtrules.NewRString(body)
+	}
+
+	// Input data comes from outside the rules, so the field's declared
+	// constraints apply: a value outside them fails the load instead of
+	// reaching the rules (#1209).
+	if cerr := entity.CheckExternalWrite(owner, attrName, value); cerr != nil {
+		return cerr
 	}
 
 	// Use def to set the attribute in the current context

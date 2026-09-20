@@ -243,9 +243,16 @@ func readEntityBody(dec *xml.Decoder, e *entity.REntity, find EntityFinder, crea
 				if err != nil {
 					return err
 				}
+				// A value handed in from outside the rules has to satisfy the
+				// field's declared constraints; a violation fails the load
+				// rather than falling through to a default column (#1209).
+				val := dtrules.GetRString(txt)
+				if err := entity.CheckExternalWrite(e, field, val); err != nil {
+					return err
+				}
 				// Put coerces the text to the field's declared type, and (when
 				// tracking is on, i.e. authoritative) marks it collected.
-				_ = e.Put(field, dtrules.GetRString(txt))
+				_ = e.Put(field, val)
 			}
 		case xml.EndElement:
 			return nil

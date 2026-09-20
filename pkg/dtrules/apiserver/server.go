@@ -1603,7 +1603,9 @@ func (s *Server) handleExecute(w http.ResponseWriter, r *http.Request) {
 	// Load input data into entities
 	warnings, err := loadInputData(rsess, state, factory, req.Data)
 	if err != nil {
-		jsonError(w, fmt.Sprintf("Failed to load input data: %v", err), http.StatusInternalServerError)
+		// The only load failure that reaches here is a value the EDD refuses
+		// (#1209) — a bad request, not a server fault.
+		jsonError(w, fmt.Sprintf("Failed to load input data: %v", err), http.StatusBadRequest)
 		return
 	}
 
@@ -1719,10 +1721,7 @@ func loadInputData(sess *session.RSession, state *interpreter.DTState, factory *
 			// Single entity - load it with its nested arrays
 			rentity, err := loadEntityWithArrays(sess, state, factory, key, v, &warnings)
 			if err != nil {
-				warning := fmt.Sprintf("Failed to load entity '%s': %v", key, err)
-				log.Printf("Warning: %s", warning)
-				warnings = append(warnings, warning)
-				continue
+				return warnings, fmt.Errorf("entity %q: %w", key, err)
 			}
 			// Push the entity onto the entity stack
 			if err := state.EntityPush(rentity); err != nil {
@@ -1741,10 +1740,7 @@ func loadInputData(sess *session.RSession, state *interpreter.DTState, factory *
 				if itemMap, ok := item.(map[string]interface{}); ok {
 					rentity, err := loadEntityWithArrays(sess, state, factory, entityName, itemMap, &warnings)
 					if err != nil {
-						warning := fmt.Sprintf("Failed to load %s[%d]: %v", key, i, err)
-						log.Printf("Warning: %s", warning)
-						warnings = append(warnings, warning)
-						continue
+						return warnings, fmt.Errorf("%s[%d]: %w", key, i, err)
 					}
 					if err := state.EntityPush(rentity); err != nil {
 						warning := fmt.Sprintf("Failed to push %s[%d]: %v", key, i, err)
@@ -1840,6 +1836,14 @@ func loadEntityWithArrays(sess *session.RSession, state *interpreter.DTState, fa
 		}
 		if dtValue == nil {
 			continue
+		}
+
+		// The request body is outside data, so the field's declared
+		// constraints apply (#1209). Unlike the warnings below, a violation
+		// fails the load: the caller sent a value the EDD does not admit and
+		// gets told so, instead of a result computed from a default.
+		if err := entity.CheckExternalWrite(rentity, attrName, dtValue); err != nil {
+			return nil, err
 		}
 
 		// Set the value on the entity
