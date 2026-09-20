@@ -55,7 +55,11 @@ type LazyTable struct {
 	columnNodes  []*ANode         // per-column action node, in authored order
 	numCols      int
 	numConds     int
-	star         bool
+	// otherwise is the 0-based index of the otherwise column, or -1. It is
+	// left out of the elimination sweep entirely and executed at the end iff
+	// no other column executed (#1215).
+	otherwise int
+	star      bool
 	// first: execute only the first surviving column (FIRST policy). The
 	// elimination loop is unchanged; only the final sweep differs.
 	first bool
@@ -97,6 +101,7 @@ func buildLazyTable(dt *RDecisionTable) *LazyTable {
 		columnNodes:  nodes,
 		numCols:      numCols,
 		numConds:     numConds,
+		otherwise:    dt.otherwiseColumn,
 	}
 }
 
@@ -105,6 +110,12 @@ func (lt *LazyTable) Execute(state dtrules.State) error {
 	alive := make([]bool, lt.numCols)
 	for i := range alive {
 		alive[i] = true
+	}
+	// The otherwise column tests nothing, so it would survive every
+	// elimination. It is not a candidate: it runs below only if nothing else
+	// did.
+	if lt.otherwise >= 0 && lt.otherwise < lt.numCols {
+		alive[lt.otherwise] = false
 	}
 
 	evaluated := make([]bool, lt.numConds)
@@ -167,15 +178,22 @@ func (lt *LazyTable) Execute(state dtrules.State) error {
 
 	// Execute actions for the surviving columns in authored order -- all of
 	// them, or only the first for a FIRST-policy table.
+	fired := false
 	for col := 0; col < lt.numCols; col++ {
 		if alive[col] {
 			if err := lt.columnNodes[col].Execute(state); err != nil {
 				return err
 			}
+			fired = true
 			if lt.first {
 				break
 			}
 		}
+	}
+
+	// Otherwise: iff no other column executed.
+	if !fired && lt.otherwise >= 0 && lt.otherwise < lt.numCols {
+		return lt.columnNodes[lt.otherwise].Execute(state)
 	}
 	return nil
 }

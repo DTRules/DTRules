@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping><XMLtoEDD><map></map>
+<entities><entity name='policy' number='1'></entity><entity name='result' number='1'></entity></entities>
+<initialization><initialentity entity='policy' epush='true'></initialentity><initialentity entity='result' epush='true'></initialentity></initialization>
+</XMLtoEDD></mapping>

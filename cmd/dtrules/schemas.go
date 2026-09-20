@@ -57,8 +57,8 @@ const tableSchemaJSON = `{
           "dsl":     {"type": "string"},
           "columns": {
             "type": "object",
-            "description": "map of column number (stringified) to Y/N/-",
-            "additionalProperties": {"type": "string", "enum": ["Y", "N", "-"]}
+            "description": "map of column number (stringified) to Y/N/- (or * for the otherwise column: last column only, and only when that column has no Y or N)",
+            "additionalProperties": {"type": "string", "enum": ["Y", "N", "-", "*"]}
           }
         }
       }
@@ -137,7 +137,7 @@ const tablePatchSchema = `{
     "condition_number": {"type": "integer", "minimum": 1},
     "action_number":    {"type": "integer", "minimum": 1},
     "index":            {"type": "integer", "minimum": 0},
-    "value":            {"type": "string", "enum": ["Y", "N", "-"]},
+    "value":            {"type": "string", "enum": ["Y", "N", "-", "*"]},
     "on":               {"type": "boolean"},
     "name":             {"type": "string"},
     "number":           {"type": "integer", "minimum": 1},
@@ -150,8 +150,8 @@ const tablePatchSchema = `{
     "description":      {"type": "string", "description": "set-policy-statement: template text; {expr} substitutes a runtime value"},
     "conditions": {
       "type": "object",
-      "description": "add-column / update-column: condition-number (stringified) to Y/N/-",
-      "additionalProperties": {"type": "string", "enum": ["Y", "N", "-"]}
+      "description": "add-column / update-column: condition-number (stringified) to Y/N/- (or * for the otherwise column: last column only, and only when that column has no Y or N)",
+      "additionalProperties": {"type": "string", "enum": ["Y", "N", "-", "*"]}
     },
     "actions": {
       "type": "array",
@@ -160,8 +160,8 @@ const tablePatchSchema = `{
     },
     "columns": {
       "type": "object",
-      "description": "add-condition / update-condition: map of column number (stringified) to Y/N/-",
-      "additionalProperties": {"type": "string", "enum": ["Y", "N", "-"]}
+      "description": "add-condition / update-condition: map of column number (stringified) to Y/N/- (or * for the otherwise column: last column only, and only when that column has no Y or N)",
+      "additionalProperties": {"type": "string", "enum": ["Y", "N", "-", "*"]}
     },
     "action_columns": {
       "type": "object",

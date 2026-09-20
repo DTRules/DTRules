@@ -55,11 +55,48 @@ A typical layout inside your Go module:
     └── go.mod
 
 
+The supported embedding path
+----------------------------
+The engine packages ARE the embedding API. There is no wrapper package and
+none is planned: 'pkg/dtrules/sdk' was written and removed (commit 69774f70)
+because data already enters through the EDD as XML, so a parallel
+programmatic entity API restated the same surface in a second, unvalidated
+shape. Do not re-propose it. Both CLI binaries, pkg/dtrules/web and
+pkg/dtrules/interview embed the engine exactly the way this page shows.
+
+What you import:
+
+  pkg/dtrules              shared types: RName, Entity, State, Session
+  pkg/dtrules/session      rule sets and sessions
+  pkg/dtrules/mapping      input XML whose tags are not yours to choose
+  pkg/dtrules/datafile     canonical data XML (tags 1:1 with the EDD)
+  pkg/dtrules/entity       *entity.REntity, for the datafile callbacks
+  pkg/dtrules/trace        optional trace capture (with pkg/dtrules/interpreter)
+  pkg/dtrules/interview    optional: run a table as an interactive interview
+
+The sequence, in order:
+
+  1. Load     session.NewRuleSet(name), then LoadFromDirectory(xmlDir) or
+              LoadFromFS(fsys, root) for an embedded tree. A loaded rule set
+              is immutable — load once, share it.
+  2. Session  rs.NewSession() per execution; a session owns one entity stack.
+  3. Data in  a mapping, or canonical data XML (both shown below).
+  4. Execute  GetDecisionTable(GetRName(entry)), then dt.Execute(state).
+  5. Read out state.FindEntity(...) — the EXECUTED instance on the stack.
+              sess.CreateEntity() returns a fresh, empty entity; it is not
+              how a result is read.
+  6. Trace    optional; see "TRACES FOR DEBUGGING AND VALIDATION" below.
+
+pkg/dtrules/embedding_example_test.go compiles and runs this sequence on
+SinusitisTherapy, both ways of loading data, and pins the answers against
+what 'dtrules run' produces.
+
+
 Minimal end-to-end example
 ---------------------------
-The following self-contained program embeds a compiled rules tree, loads it
-directly from the embed.FS (no temp-directory round-trip), sets one input
-field, calls a decision table, and reads a result.
+A self-contained program that embeds a compiled rules tree, loads it directly
+from the embed.FS (no temp-directory round-trip), supplies input as canonical
+data XML, runs the entry table, and reads a result.
 
     package main
 
@@ -67,8 +104,11 @@ field, calls a decision table, and reads a result.
         "embed"
         "fmt"
         "log"
+        "os"
 
         "github.com/DTRules/DTRules/pkg/dtrules"
+        "github.com/DTRules/DTRules/pkg/dtrules/datafile"
+        "github.com/DTRules/DTRules/pkg/dtrules/entity"
         "github.com/DTRules/DTRules/pkg/dtrules/session"
     )
 
@@ -82,31 +122,64 @@ field, calls a decision table, and reads a result.
             log.Fatal(err)
         }
 
-        // --- step 2: create a session and build input entities ---
+        // --- step 2: one session per execution ---
         sess, err := rs.NewSession()
         if err != nil {
             log.Fatal(err)
         }
-
-        taxpayer, err := sess.CreateEntity(dtrules.GetRName("taxpayer"))
-        if err != nil {
-            log.Fatal(err)
-        }
-        _ = taxpayer.Put(dtrules.GetRName("w2_wages"), dtrules.GetRDoubleValue(50000))
-        _ = taxpayer.Put(dtrules.GetRName("filing_status"), dtrules.NewRString("SINGLE"))
-
         state := sess.GetState()
-        state.EntityPush(taxpayer)
 
-        // --- step 3: execute the entry-point decision table ---
-        if err := sess.Execute("Compute_Tax_Return"); err != nil {
+        // --- step 3: push the singletons the rules resolve bare names
+        // against (the set a mapping's <initialentity> would name) ---
+        for _, name := range []string{"constants", "result", "taxpayer"} {
+            e, err := sess.CreateEntity(dtrules.GetRName(name))
+            if err != nil {
+                log.Fatal(err)
+            }
+            if err := state.EntityPush(e); err != nil {
+                log.Fatal(err)
+            }
+        }
+
+        // --- step 4: read canonical data XML into those instances ---
+        find := func(name string) *entity.REntity {
+            e, err := state.FindEntity(dtrules.GetRName(name))
+            if err != nil || e == nil {
+                return nil
+            }
+            re, _ := e.(*entity.REntity)
+            return re
+        }
+        create := func(subtype string) (*entity.REntity, error) {
+            e, err := sess.CreateEntity(dtrules.GetRName(subtype))
+            if err != nil {
+                return nil, err
+            }
+            re, _ := e.(*entity.REntity)
+            return re, nil
+        }
+        data, err := os.Open("taxpayer.xml")
+        if err != nil {
+            log.Fatal(err)
+        }
+        defer data.Close()
+        if err := datafile.Read(data, find, create, datafile.Authoritative); err != nil {
             log.Fatal(err)
         }
 
-        // --- step 4: read a result field ---
-        result, err := sess.CreateEntity(dtrules.GetRName("result"))
-        if err != nil {
+        // --- step 5: execute the entry-point decision table ---
+        dt, err := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Compute_Tax_Return"))
+        if err != nil || dt == nil {
+            log.Fatal("entry table not found")
+        }
+        if err := dt.Execute(state); err != nil {
             log.Fatal(err)
+        }
+
+        // --- step 6: read a result field off the STACK ---
+        result, err := state.FindEntity(dtrules.GetRName("result"))
+        if err != nil || result == nil {
+            log.Fatal("no result entity")
         }
         val, err := result.Get(dtrules.GetRName("federal_tax"))
         if err != nil {
@@ -121,6 +194,44 @@ To use this in your own project:
   3. Paste the code above into main.go, adjusting the entity names and
      decision table name for your rule set.
   4. 'go build -ldflags="-s -w" -trimpath' produces the final binary.
+
+
+Input through a mapping instead
+-------------------------------
+Canonical data XML assumes you choose the tag names. When the document comes
+from somewhere else, the project's *_map.xml reconciles its tags against the
+EDD; replace steps 3 and 4 with:
+
+    mf, err := os.Open(mapFile)          // the project's *_map.xml
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer mf.Close()
+
+    m := mapping.NewMapping(sess)
+    if err := m.LoadMapping(mf); err != nil {
+        log.Fatal(err)
+    }
+
+    in, err := os.Open(inputFile)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer in.Close()
+
+    // Reads the document, THEN pushes the cardinality-1 entities it created,
+    // so the stack holds the loaded instances rather than empty singletons.
+    if err := m.LoadDataAndPushSingletons(in); err != nil {
+        log.Fatal(err)
+    }
+
+With no input document, m.Initialize() pushes the <initialentity> singletons
+and nothing else — use it when the values arrive some other way (interactive
+collection, or a canonical data load layered on top).
+
+A canonical data file is also what 'dtrules run --save' writes and what
+'--data' / '--review' read, so a saved dataset is both the audit record of a
+run and a replay fixture for an embedded one.
 
 
 Build pipeline

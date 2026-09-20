@@ -345,8 +345,13 @@ func setConditionCell(t *authoring.Table, num, col int, value string) error {
 	if col < 1 {
 		return fmt.Errorf("set-condition-cell requires column >= 1")
 	}
-	if value != "Y" && value != "N" && value != "-" {
-		return fmt.Errorf("value must be one of Y, N, -")
+	// '*' is one of the four. Refusing it here was how the otherwise column
+	// became unauthorable: the only entry point that could add one cell at a
+	// time said it did not exist. Where a '*' may stand is UpdateCondition's
+	// question — it applies the engine's rule and refuses before anything is
+	// written (#1215).
+	if value != "Y" && value != "N" && value != "-" && value != "*" {
+		return fmt.Errorf("value must be one of Y, N, -, * (%s)", authoring.OtherwiseRule)
 	}
 	existing, err := findCondition(t, num)
 	if err != nil {

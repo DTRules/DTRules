@@ -472,6 +472,10 @@ func (t *Table) AddCondition(c Condition) error {
 		c.Columns = make(map[int]string)
 	}
 	t.Conditions = append(t.Conditions, c)
+	if err := t.checkOtherwise(); err != nil {
+		t.Conditions = t.Conditions[:len(t.Conditions)-1]
+		return err
+	}
 	t.syncToXML()
 	return nil
 }
@@ -488,6 +492,10 @@ func (t *Table) UpdateCondition(num int, c Condition) error {
 				c.Columns = existing.Columns
 			}
 			t.Conditions[i] = c
+			if err := t.checkOtherwise(); err != nil {
+				t.Conditions[i] = existing
+				return err
+			}
 			t.syncToXML()
 			return nil
 		}
@@ -521,6 +529,10 @@ func (t *Table) AddAction(a Action) error {
 		a.Columns = make(map[int]bool)
 	}
 	t.Actions = append(t.Actions, a)
+	if err := t.checkOtherwise(); err != nil {
+		t.Actions = t.Actions[:len(t.Actions)-1]
+		return err
+	}
 	t.syncToXML()
 	return nil
 }
@@ -540,6 +552,10 @@ func (t *Table) UpdateAction(num int, a Action) error {
 				a.Columns = existing.Columns
 			}
 			t.Actions[i] = a
+			if err := t.checkOtherwise(); err != nil {
+				t.Actions[i] = existing
+				return err
+			}
 			t.syncToXML()
 			return nil
 		}
@@ -631,19 +647,26 @@ func (t *Table) DeleteContext(idx int) error {
 
 // --- Column operations ---
 
-// validColumnValue checks that a condition column value is one of the legal tokens.
+// validColumnValue checks that a condition column value is one of the legal
+// tokens. '*' is one of them: it marks the otherwise column, and where it is
+// allowed to stand is checkOtherwise's question, not this one's.
 func validColumnValue(v string) bool {
-	return v == "Y" || v == "N" || v == "-"
+	return v == "Y" || v == "N" || v == "-" || v == "*"
 }
 
-// AddColumn adds a new rule column. conditions maps condition Number -> "Y"/"N"/"-".
+// AddColumn adds a new rule column. conditions maps condition Number -> "Y"/"N"/"-"/"*".
 // actions is the list of action Numbers that execute on this column.
 func (t *Table) AddColumn(conditions map[int]string, actions []int) error {
 	if err := t.validateColumnArgs(conditions, actions); err != nil {
 		return err
 	}
 	col := t.Columns() + 1
+	before := t.snapshotCells()
 	t.applyColumn(col, conditions, actions)
+	if err := t.checkOtherwise(); err != nil {
+		t.restoreCells(before)
+		return err
+	}
 	t.syncToXML()
 	return nil
 }
@@ -657,6 +680,7 @@ func (t *Table) UpdateColumn(col int, conditions map[int]string, actions []int) 
 		return err
 	}
 	// Remove col from all conditions and actions, then re-apply.
+	before := t.snapshotCells()
 	for i := range t.Conditions {
 		delete(t.Conditions[i].Columns, col)
 	}
@@ -664,6 +688,10 @@ func (t *Table) UpdateColumn(col int, conditions map[int]string, actions []int) 
 		delete(t.Actions[i].Columns, col)
 	}
 	t.applyColumn(col, conditions, actions)
+	if err := t.checkOtherwise(); err != nil {
+		t.restoreCells(before)
+		return err
+	}
 	t.syncToXML()
 	return nil
 }
@@ -720,7 +748,7 @@ func (t *Table) validateColumnArgs(conditions map[int]string, actions []int) err
 			return fmt.Errorf("condition number %d does not exist in table", num)
 		}
 		if !validColumnValue(val) {
-			return fmt.Errorf("invalid column value %q for condition %d: must be Y, N, or -", val, num)
+			return fmt.Errorf("invalid column value %q for condition %d: must be Y, N, - or * (%s)", val, num, OtherwiseRule)
 		}
 	}
 	for _, num := range actions {

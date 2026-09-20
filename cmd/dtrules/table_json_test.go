@@ -358,10 +358,11 @@ func TestTablePatchDeleteCondition(t *testing.T) {
 }
 
 func TestTablePatchAddColumn(t *testing.T) {
-	// Target table: use one that has no '*' columns so AddColumn's legal-
-	// value check accepts it.
+	// Target table: one with no otherwise column. A '*' column has to stay
+	// the last column, so appending a column to a table that has one is
+	// refused -- see TestTablePatchAddColumnAfterOtherwise (#1215).
 	dir := copyProject(t, "../../sampleprojects/CHIP")
-	out, _, _ := runTableCmd(t, dir, []string{"get", "Evaluate_CHIP_Eligibility"}, "")
+	out, _, _ := runTableCmd(t, dir, []string{"get", "Calculate_Group_Size"}, "")
 	var before TableJSON
 	_ = json.Unmarshal([]byte(out), &before)
 	if len(before.Conditions) == 0 {
@@ -379,7 +380,7 @@ func TestTablePatchAddColumn(t *testing.T) {
 		Actions    []int             `json:"actions"`
 	}{"add-column", condsMap, []int{}}
 	payload, _ := json.Marshal(patch)
-	_, se, code := runTableCmd(t, dir, []string{"patch", "Evaluate_CHIP_Eligibility"}, string(payload))
+	_, se, code := runTableCmd(t, dir, []string{"patch", "Calculate_Group_Size"}, string(payload))
 	if code != 0 {
 		t.Fatalf("add-column exit %d stderr=%s", code, se)
 	}
@@ -393,7 +394,7 @@ func TestTablePatchAddColumn(t *testing.T) {
 			}
 		}
 	}
-	out2, _, _ := runTableCmd(t, dir, []string{"get", "Evaluate_CHIP_Eligibility"}, "")
+	out2, _, _ := runTableCmd(t, dir, []string{"get", "Calculate_Group_Size"}, "")
 	var after TableJSON
 	_ = json.Unmarshal([]byte(out2), &after)
 	newCol := maxCol + 1
