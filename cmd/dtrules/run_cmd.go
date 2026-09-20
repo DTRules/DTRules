@@ -41,7 +41,7 @@ import (
 // value hasn't been provided (#850/#854).
 func (c *CLI) runRun(args []string) int {
 	path, entry, input, resultEntity := ".", "", "", "result"
-	var save, data, review, tracePath, mapPath string
+	var save, data, review, tracePath, mapPath, pendingPath string
 	interactive, web, noOpen := false, false, false
 	port := "0" // 0 = let the OS pick a free port
 	for i := 0; i < len(args); i++ {
@@ -69,6 +69,11 @@ func (c *CLI) runRun(args []string) int {
 		case "--map":
 			if i+1 < len(args) {
 				mapPath = args[i+1]
+				i++
+			}
+		case "--pending":
+			if i+1 < len(args) {
+				pendingPath = args[i+1]
 				i++
 			}
 		case "--review":
@@ -113,6 +118,19 @@ func (c *CLI) runRun(args []string) int {
 			path = args[i]
 		}
 	}
+	// --pending is the non-blocking opposite of an interview: it records what
+	// would have been asked instead of asking. Pairing it with a front end
+	// that asks is a contradiction, not a preference (#1210).
+	if pendingPath != "" && (interactive || web) {
+		other := "--interactive"
+		if web {
+			other = "--web"
+		}
+		fmt.Fprintf(os.Stderr, "Error: --pending and %s are mutually exclusive (--pending never prompts)\n", other)
+		c.printRunUsage()
+		return 1
+	}
+
 	// The project's DTRules.xml may declare the default entry table.
 	if entry == "" {
 		if cfg, err := loadProjectConfig(mustAbs(path)); err == nil {
@@ -213,6 +231,19 @@ func (c *CLI) runRun(args []string) int {
 		}
 	}
 
+	// --pending records every reached, unanswered collect field and lets the
+	// default stand, so the run completes without a human and without stdin.
+	var recorder *collect.Recorder
+	if pendingPath != "" {
+		dts, ok := state.(*interpreter.DTState)
+		if !ok {
+			fmt.Fprintln(os.Stderr, "Error: --pending unavailable for this session state")
+			return 1
+		}
+		recorder = collect.NewRecorder()
+		dts.SetCollector(recorder)
+	}
+
 	dt, err := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName(entry))
 	if err != nil || dt == nil {
 		fmt.Fprintf(os.Stderr, "Error: decision table %q not found\n", entry)
@@ -221,6 +252,16 @@ func (c *CLI) runRun(args []string) int {
 	if err := dt.Execute(state); err != nil {
 		if traceFile != nil {
 			trace.WriteFooter(traceFile)
+		}
+		// Publish whatever was recorded before the failure. A run that dies
+		// on a substituted default is the case where knowing which fields
+		// went unanswered matters most; an empty file would be a dead end
+		// for an unattended caller. The exit code stays 1 — this run did not
+		// complete, so it is an error, not a provisional result.
+		if recorder != nil {
+			if werr := writePendingFile(recorder, pendingPath); werr != nil {
+				fmt.Fprintf(os.Stderr, "Error writing pending questions: %v\n", werr)
+			}
 		}
 		fmt.Fprintf(os.Stderr, "Error executing %q: %v\n", entry, err)
 		return 1
@@ -249,8 +290,59 @@ func (c *CLI) runRun(args []string) int {
 	}
 
 	renderReadings(state, rs)
+
+	if recorder == nil {
+		renderResult(state, resultEntity)
+		return 0
+	}
+
+	pending := recorder.Pending()
+	if err := writePendingFile(recorder, pendingPath); err != nil {
+		fmt.Fprintf(os.Stderr, "Error writing pending questions: %v\n", err)
+		return 1
+	}
+	if len(pending) == 0 {
+		// Nothing was asked: the run stands on its own, exactly as it would
+		// without --pending.
+		renderResult(state, resultEntity)
+		return 0
+	}
+	fmt.Printf("\n=== PROVISIONAL: %d question(s) pending ===\n", len(pending))
+	fmt.Printf("  Defaults were substituted for the unanswered collect fields below.\n")
+	fmt.Printf("  Do not act on this result; answer them, load the answers with\n")
+	fmt.Printf("  --data, and re-run until this run exits 0.\n")
+	for _, p := range pending {
+		text := p.QuestionText
+		if text == "" {
+			text = p.Field
+		}
+		fmt.Printf("  - %s.%s: %s (default %s)\n", p.Entity, p.Field, text, p.Default)
+	}
 	renderResult(state, resultEntity)
-	return 0
+	fmt.Fprintf(os.Stderr, "pending questions written to %s (%d)\n", pendingPath, len(pending))
+	return exitPending
+}
+
+// exitPending is the exit code of a run that completed but whose result is
+// provisional because collect questions went unanswered (#1210). It is
+// distinct from 0 (complete) and from 1 (error) so an unattended caller can
+// tell "needs a human" from "broke".
+const exitPending = 3
+
+// writePendingFile writes the recorded questions as a JSON array. It always
+// writes the file, even when nothing is pending: `[]` is the answer "no
+// question was reached", which a caller must be able to tell from "the run
+// never got that far".
+func writePendingFile(r *collect.Recorder, path string) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	if err := r.WritePending(f); err != nil {
+		f.Close()
+		return err
+	}
+	return f.Close()
 }
 
 // initMapping loads the project's *_map.xml (if any), initializes the entity
@@ -429,6 +521,11 @@ Options:
                          every table/column/action, resulting state) with
                          DTRules version + rules fingerprint for replay
   --interactive, -i      Prompt for any reached collect field not supplied
+  --pending <file.json>  Never prompt: record every reached collect field that
+                         was not supplied to this JSON file, substitute its
+                         default, and exit 3 with the result marked provisional
+                         (exit 0 and [] when nothing is pending). Mutually
+                         exclusive with --interactive and --web.
   --web                  Serve an interactive web interview instead of a CLI run
   --port <n>             Port for --web (default: an unused port chosen by the OS)
   --no-open              Do not auto-open the browser with --web
@@ -440,7 +537,11 @@ with --review --interactive.
 Examples:
   dtrules run ./sampleprojects/SinusitisTherapy --entry Determine_Therapy --interactive --save case.xml
   dtrules run . --entry Determine_Therapy --data case.xml
-  dtrules run . --entry Determine_Therapy --review case.xml --interactive`)
+  dtrules run . --entry Determine_Therapy --review case.xml --interactive
+  dtrules run . --entry Determine_Therapy --data case.xml --pending ask.json
+
+Exit codes: 0 complete; 3 ran but provisional, questions are pending
+(--pending only); 1 error.`)
 }
 
 func mustAbs(p string) string {
