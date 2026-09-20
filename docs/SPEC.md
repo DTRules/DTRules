@@ -244,7 +244,10 @@ were told it can never hold.
 **Where they are enforced.** Every path that writes a field from *outside* the
 rules refuses a violating value: the mapping (`--input`, XML and JSON), the
 canonical data file (`--data` and `--review`), the `collect` resolver and so
-the web interview, and the API server's `/api/execute`. Each calls one gate,
+the web interview, the API server's `/api/execute`, and the Go SDK
+(`authoring.Project.SetAttribute` and `authoring.DebugSession.SetAttribute`,
+which return the gate's error unchanged and leave the field's previous value
+in place). Each calls one gate,
 `entity.CheckExternalWrite`; none compares values itself. A refusal names
 `entity.field`, the offending value and the allowed set (or the limit and the
 actual size); the CLI exits non-zero and prints no result, and the API answers
