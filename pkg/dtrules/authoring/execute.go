@@ -246,6 +246,9 @@ func (p *Project) SetAttribute(entityName, attribute string, value any) error {
 	if err != nil {
 		return fmt.Errorf("convert value: %w", err)
 	}
+	if err := entity.CheckExternalWrite(ent, aName, obj); err != nil {
+		return err
+	}
 	return ent.Put(aName, obj)
 }
 
