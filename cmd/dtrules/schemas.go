@@ -215,7 +215,14 @@ const eddSchemaJSON = `{
                 },
                 "question_ref_low": {"type": "string", "description": "reference range low bound for a number question (lab-report style, #850); guidance only, never rejected"},
                 "question_ref_high": {"type": "string", "description": "reference range high bound for a number question"},
-                "question_units": {"type": "string", "description": "unit label for a number question (e.g. mg/dL)"}
+                "question_units": {"type": "string", "description": "unit label for a number question (e.g. mg/dL)"},
+                "allowed_values": {
+                  "type": "array",
+                  "description": "closed vocabulary for a string or integer field (#1209); matched case-insensitively like every EL name, written back in the authored spelling",
+                  "items": {"type": "string"}
+                },
+                "max_length": {"type": "string", "description": "longest value a string field may hold, in characters (#1209); omitted or \"0\" means no limit"},
+                "max_words": {"type": "string", "description": "most whitespace-separated words a string field may hold (#1209); omitted or \"0\" means no limit"}
               }
             }
           }
@@ -256,7 +263,10 @@ const eddPatchSchema = `{
         "default": {"type": "string"},
         "access":  {"type": "string"},
         "input":   {"type": "string"},
-        "comment": {"type": "string"}
+        "comment": {"type": "string"},
+        "allowed_values": {"type": "array", "items": {"type": "string"}, "description": "closed vocabulary (#1209); omit to keep the existing one, [] to clear it"},
+        "max_length": {"type": "string", "description": "character limit for a string field (#1209); omit to keep, \"0\" to clear"},
+        "max_words": {"type": "string", "description": "word limit for a string field (#1209); omit to keep, \"0\" to clear"}
       }
     }
   }

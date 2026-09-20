@@ -110,6 +110,10 @@ type AttributeJSON struct {
 	QuestionRefLow  string       `json:"question_ref_low,omitempty"`
 	QuestionRefHigh string       `json:"question_ref_high,omitempty"`
 	QuestionUnits   string       `json:"question_units,omitempty"`
+	// Value constraints (#1209). Independent of collect.
+	AllowedValues []string `json:"allowed_values,omitempty"`
+	MaxLength     string   `json:"max_length,omitempty"`
+	MaxWords      string   `json:"max_words,omitempty"`
 }
 
 // OptionJSON is one choice for a multiple_choice question.
@@ -177,6 +181,9 @@ func eddToJSON(e *authoring.EDD) EDDJSON {
 				QuestionRefLow:  a.QuestionRefLow,
 				QuestionRefHigh: a.QuestionRefHigh,
 				QuestionUnits:   a.QuestionUnits,
+				AllowedValues:   a.AllowedValues,
+				MaxLength:       a.MaxLength,
+				MaxWords:        a.MaxWords,
 			}
 			for _, o := range a.Options {
 				fj.Options = append(fj.Options, OptionJSON{Value: o.Value, Label: o.Label})

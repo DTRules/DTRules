@@ -498,6 +498,9 @@ func attributeFromJSON(a AttributeJSON) authoring.Attribute {
 		QuestionRefLow:  a.QuestionRefLow,
 		QuestionRefHigh: a.QuestionRefHigh,
 		QuestionUnits:   a.QuestionUnits,
+		AllowedValues:   a.AllowedValues,
+		MaxLength:       a.MaxLength,
+		MaxWords:        a.MaxWords,
 	}
 	for _, o := range a.Options {
 		attr.Options = append(attr.Options, authoring.Option{Value: o.Value, Label: o.Label})

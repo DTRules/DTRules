@@ -23,6 +23,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -125,6 +126,19 @@ type EDDField struct {
 	Collect string `xml:"collect,attr,omitempty" json:"collect,omitempty"`
 	// Question is the metadata used to ask for a Collect field.
 	Question *EDDQuestion `xml:"question,omitempty" json:"question,omitempty"`
+	// MaxLength / MaxWords bound a string field's length (#1209). Strings so
+	// that an absent limit stays absent on a round trip rather than
+	// reappearing as "0".
+	MaxLength string `xml:"max_length,attr,omitempty" json:"max_length,omitempty"`
+	MaxWords  string `xml:"max_words,attr,omitempty" json:"max_words,omitempty"`
+	// AllowedValues is the field's closed vocabulary (#1209), independent of
+	// Collect: a field nobody is asked for can still have one.
+	AllowedValues []EDDAllowedValue `xml:"allowed_value,omitempty" json:"allowed_values,omitempty"`
+}
+
+// EDDAllowedValue is one member of a field's closed vocabulary (#1209).
+type EDDAllowedValue struct {
+	Value string `xml:"value,attr" json:"value"`
 }
 
 // EDDQuestion describes how to ask the user for a Collect field (#850).
@@ -343,6 +357,14 @@ func (l *EDDLoader) processField(refEntity *entity.REntity, field *EDDField, xls
 		}
 	}
 
+	// Carry the value constraints onto the entity entry (#1209) so the
+	// Excel exporter and anything checking a value can see them.
+	if c := fieldConstraints(field); c != nil {
+		if entry := refEntity.GetEntry(attributeName); entry != nil {
+			entry.Constraints = c
+		}
+	}
+
 	// Carry collect/question metadata onto the entity entry (#850) so the
 	// runtime read-point and the Excel exporter can see it.
 	if strings.EqualFold(field.Collect, "true") {
@@ -364,6 +386,30 @@ func (l *EDDLoader) processField(refEntity *entity.REntity, field *EDDField, xls
 		}
 	}
 	return nil
+}
+
+// fieldConstraints builds the entity-level constraint record from a declared
+// field, or nil when the field declares none (#1209). A limit that is not a
+// non-negative number is dropped rather than failing the load: `dtrules
+// validate` is where a malformed EDD is reported, and refusing to load one
+// would take the whole project down over a typo in one cell.
+func fieldConstraints(field *EDDField) *entity.FieldConstraints {
+	c := &entity.FieldConstraints{}
+	for _, v := range field.AllowedValues {
+		if s := strings.TrimSpace(v.Value); s != "" {
+			c.AllowedValues = append(c.AllowedValues, s)
+		}
+	}
+	if n, err := strconv.Atoi(strings.TrimSpace(field.MaxLength)); err == nil && n > 0 {
+		c.MaxLength = n
+	}
+	if n, err := strconv.Atoi(strings.TrimSpace(field.MaxWords)); err == nil && n > 0 {
+		c.MaxWords = n
+	}
+	if c.IsEmpty() {
+		return nil
+	}
+	return c
 }
 
 // computeDefaultValue computes the default value for a given type. The

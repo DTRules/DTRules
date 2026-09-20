@@ -404,10 +404,13 @@ func setEDDColumnWidthsForFile(f *excelize.File, sheet string) {
 	AutoWidth(f, sheet, "K", 16)
 	AutoWidth(f, sheet, "L", 30)
 	AutoWidth(f, sheet, "M", 18)
+	AutoWidth(f, sheet, "N", 30)
+	AutoWidth(f, sheet, "O", 12)
+	AutoWidth(f, sheet, "P", 12)
 }
 
 func writeEDDHeadersForFile(f *excelize.File, sheet string, styler *Styler, startRow int) {
-	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description", "Collect", "Question", "Q Type", "Options", "Reference"}
+	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description", "Collect", "Question", "Q Type", "Options", "Reference", "Allowed Values", "Max Length", "Max Words"}
 	for col, header := range headers {
 		cell, _ := excelize.CoordinatesToCellName(col+1, startRow)
 		styler.ApplyHeader(f, sheet, cell, cell, cell, header)
@@ -485,6 +488,14 @@ func writeEDDXMLEntities(f *excelize.File, sheet string, entities []*EDDXMLEntit
 			f.SetCellStyle(sheet, cellName(12, row), cellName(12, row), rowStyle)
 			f.SetCellValue(sheet, cellName(13, row), qRef)
 			f.SetCellStyle(sheet, cellName(13, row), cellName(13, row), rowStyle)
+
+			// Value constraints (#1209), columns N–P.
+			f.SetCellValue(sheet, cellName(14, row), encodeEDDAllowed(field.AllowedValues))
+			f.SetCellStyle(sheet, cellName(14, row), cellName(14, row), rowStyle)
+			f.SetCellValue(sheet, cellName(15, row), field.MaxLength)
+			f.SetCellStyle(sheet, cellName(15, row), cellName(15, row), rowStyle)
+			f.SetCellValue(sheet, cellName(16, row), field.MaxWords)
+			f.SetCellStyle(sheet, cellName(16, row), cellName(16, row), rowStyle)
 
 			row++
 		}

@@ -723,6 +723,8 @@ func (w *WorkbookImporter) parseEDDSheetFromRows(rows [][]string, sheetName stri
 		// Collect + question metadata (#850), columns I–M.
 		field.Collect, field.Question = questionFromCells(
 			getCellValue(row, 8), getCellValue(row, 9), getCellValue(row, 10), getCellValue(row, 11), getCellValue(row, 12))
+		// Value constraints (#1209), columns N–P.
+		constraintsFromCells(field, getCellValue(row, 13), getCellValue(row, 14), getCellValue(row, 15))
 
 		// Apply defaults
 		if field.Type == "" {

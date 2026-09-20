@@ -802,10 +802,13 @@ func (e *Exporter) setEDDColumnWidths(f *excelize.File, sheet string) {
 	AutoWidth(f, sheet, "K", 16)
 	AutoWidth(f, sheet, "L", 30)
 	AutoWidth(f, sheet, "M", 18)
+	AutoWidth(f, sheet, "N", 30)
+	AutoWidth(f, sheet, "O", 12)
+	AutoWidth(f, sheet, "P", 12)
 }
 
 func (e *Exporter) writeEDDHeaders(f *excelize.File, sheet string, styler *Styler, startRow int) {
-	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description", "Collect", "Question", "Q Type", "Options", "Reference"}
+	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description", "Collect", "Question", "Q Type", "Options", "Reference", "Allowed Values", "Max Length", "Max Words"}
 	for col, header := range headers {
 		cell, _ := excelize.CoordinatesToCellName(col+1, startRow)
 		styler.ApplyHeader(f, sheet, cell, cell, cell, header)
@@ -926,6 +929,28 @@ func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*
 			f.SetCellStyle(sheet, cellName(12, row), cellName(12, row), rowStyle)
 			f.SetCellValue(sheet, cellName(13, row), qRef)
 			f.SetCellStyle(sheet, cellName(13, row), cellName(13, row), rowStyle)
+
+			// Value constraints (#1209), columns N–P.
+			allowed, maxLen, maxWords := "", "", ""
+			if c := entry.Constraints; !c.IsEmpty() {
+				xa := make([]*EDDXMLAllowedValue, 0, len(c.AllowedValues))
+				for _, v := range c.AllowedValues {
+					xa = append(xa, &EDDXMLAllowedValue{Value: v})
+				}
+				allowed = encodeEDDAllowed(xa)
+				if c.MaxLength > 0 {
+					maxLen = strconv.Itoa(c.MaxLength)
+				}
+				if c.MaxWords > 0 {
+					maxWords = strconv.Itoa(c.MaxWords)
+				}
+			}
+			f.SetCellValue(sheet, cellName(14, row), allowed)
+			f.SetCellStyle(sheet, cellName(14, row), cellName(14, row), rowStyle)
+			f.SetCellValue(sheet, cellName(15, row), maxLen)
+			f.SetCellStyle(sheet, cellName(15, row), cellName(15, row), rowStyle)
+			f.SetCellValue(sheet, cellName(16, row), maxWords)
+			f.SetCellStyle(sheet, cellName(16, row), cellName(16, row), rowStyle)
 
 			row++
 			attrRow++

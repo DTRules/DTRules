@@ -832,7 +832,28 @@ func (c *CLI) runValidate(args []string) int {
 		fmt.Println()
 	}
 
-	// 3. Check sync status (if both directories exist)
+	// 3. Check the EDD's value constraints (#1209). A default outside the
+	// field's own allowed_values is unreachable by any input, so it is an
+	// error here rather than a warning at run time.
+	if dirExists(c.xmlDir) {
+		fmt.Println("Checking EDD value constraints...")
+		findings, err := sync.ValidateEDDConstraints(c.xmlDir)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error validating EDD constraints: %v\n", err)
+			return 1
+		}
+		if len(findings) > 0 {
+			for _, f := range findings {
+				fmt.Fprintf(os.Stderr, "  ERROR: %s\n", f.String())
+			}
+			exitCode = 1
+		} else {
+			fmt.Println("  ✓ Declared defaults satisfy their constraints")
+		}
+		fmt.Println()
+	}
+
+	// 4. Check sync status (if both directories exist)
 	if dirExists(c.xmlDir) && dirExists(c.excelDir) {
 		fmt.Println("Checking sync status...")
 		if err := c.initSyncer(); err == nil {
