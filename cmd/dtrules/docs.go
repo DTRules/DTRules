@@ -1264,6 +1264,37 @@ it.
 'dtrules validate' rejects a field whose own default its constraints
 reject -- such a default is unreachable, because no input can correct it.
 
+Where constraints are enforced
+------------------------------
+Every path that writes a field from OUTSIDE the rules refuses a violating
+value:
+
+  --input <file>     the mapping loader (XML and JSON)
+  --data / --review  the canonical data file
+  collect            the interview resolver, and so the web UI
+  POST /api/execute  the API server
+
+A refusal names entity.field, the offending value and the allowed set (or
+the limit and the actual size). The CLI exits non-zero and prints no
+result; the API answers 400. A refused interview answer leaves the field
+uncollected on its default, so it can be asked again.
+
+  dtrules run . --entry Determine_Therapy --data case.xml
+  Error loading data "case.xml": patient.diagnosis: "Banana" is not one of
+  the allowed values [Acute Sinusitis, Chronic Sinusitis]
+
+A field absent from the input is not a violation -- it takes its default.
+
+Where they are NOT enforced
+---------------------------
+A rule's own assignment. 'set patient.diagnosis = "Bannana"' runs: a
+constraint says what the outside world may hand in, not what the rules may
+compute. 'dtrules review' reports a literal outside the vocabulary as an
+advisory (constraint_advisories: table, action number, field, literal and
+the allowed set). Advisories never gate deployment.
+
+A field that declares no constraint is not checked at all.
+
 
 Best Practices
 --------------

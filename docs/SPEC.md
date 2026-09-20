@@ -208,9 +208,32 @@ and the authoring API refuses to write one. Such a default is unreachable
 rather than merely odd: the field starts every run holding a value the rules
 were told it can never hold.
 
-Enforcement on the paths that write a field from outside the rules — `--input`
-mapping, `--data`, the collect resolver, the web interview and the API — is
-the second half of #1209 and is not yet wired.
+**Where they are enforced.** Every path that writes a field from *outside* the
+rules refuses a violating value: the mapping (`--input`, XML and JSON), the
+canonical data file (`--data` and `--review`), the `collect` resolver and so
+the web interview, and the API server's `/api/execute`. Each calls one gate,
+`entity.CheckExternalWrite`; none compares values itself. A refusal names
+`entity.field`, the offending value and the allowed set (or the limit and the
+actual size); the CLI exits non-zero and prints no result, and the API answers
+`400`. A refused interview answer leaves the field *uncollected*, still holding
+its default, so the question can be asked again.
+
+A field that is simply absent from the input is not a violation: it takes its
+default. The check applies to values supplied, and an illegal default is a
+`dtrules validate` error rather than a run-time one.
+
+**Where they are not.** A rule's own assignment is never refused. `set
+patient.diagnosis = "Bannana"` runs. A constraint describes what the outside
+world may hand in, not what the rules may compute — a rule set is allowed to
+know something its EDD's vocabulary has not been told yet, and a table that
+halted mid-run because an intermediate value was not yet in the list would be
+worse than the typo. `dtrules review` reports such a literal as an **advisory**
+(`constraint_advisories`: the table, the action number, the field, the literal
+and the set), because out of the set is nearly always a typo. Advisories never
+gate deployment.
+
+A field declaring no constraint is not checked at all — the gate returns on a
+nil check, so a project that declares none pays nothing.
 
 ## 2.6 Static analysis
 
@@ -223,6 +246,9 @@ the second half of #1209 and is not yet wired.
   `entity.attr` the EDD does not declare, an operator absent from the registry.
 - **Dated constants** — a comment citing a year that is not the project's
   declared tax year.
+- **Constrained assignments** — a `set field = "literal"` whose literal is
+  outside the field's declared vocabulary (§2.5.1). Advisory: a rule may write
+  what it computes, but the literal is usually a typo.
 - **Advisory pass** (`pkg/dtrules/decisiontable`) — redundant conditions,
   columns subsumed by another, no-op columns.
 
