@@ -15,6 +15,7 @@
 package authoring
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
 	"os"
@@ -210,6 +211,15 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 		}
 	}
 
+	// A project with no Excel anywhere is being bootstrapped, not refreshed.
+	// The authoring contract says the first `dtrules table` / `dtrules edd`
+	// write to an Excel-less project generates Excel from the XML; until it
+	// did, such a project stayed Excel-less and `verify` failed it for having
+	// rules with no system of record behind them (#1215). The test is "no
+	// workbook at all", which keeps the #1062 rule intact: a project that has
+	// Excel never has a deleted workbook invented back.
+	bootstrap := len(indexWorkbooksByBase(resolvedExcelDir)) == 0
+
 	for excelPath, xmlFiles := range targets {
 		// Refresh what exists; do not resurrect what does not.
 		//
@@ -226,7 +236,15 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 		// project with no Excel at all is a different path — no manifest,
 		// handled above.
 		if _, err := os.Stat(excelPath); err != nil {
-			continue
+			// The exporter writes .xlsx. A workbook recorded as legacy .xls
+			// is a name from the corpus, not a file this can produce, so
+			// bootstrapping does not try.
+			if !bootstrap || !strings.EqualFold(filepath.Ext(excelPath), ".xlsx") {
+				continue
+			}
+			if err := os.MkdirAll(filepath.Dir(excelPath), 0o755); err != nil {
+				return fmt.Errorf("excel bootstrap: create %s: %w", filepath.Dir(excelPath), err)
+			}
 		}
 		// Only this workbook's own tables. ExportDecisionTables writes the
 		// whole rule set, which run across a project's workbooks gives every
@@ -277,7 +295,45 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 	// Only workbooks whose bytes actually changed: an edit to one table in a
 	// 58-workbook project recompiles one workbook, not 58. The hash makes that
 	// cheap to know.
+	if bootstrap {
+		return recompileKeepingEDD(xmlDir, resolvedExcelDir, changed)
+	}
 	return recompileWorkbooks(xmlDir, resolvedExcelDir, changed)
+}
+
+// recompileKeepingEDD is recompileWorkbooks for a workbook that did not exist
+// a moment ago, with the project's dictionary held back from the round trip.
+//
+// The recompile is what makes the XML literally the output of compiling the
+// Excel, and a bootstrap needs that as much as any other write. But the EDD
+// sheet does not carry everything an EDD file holds -- an entity's comment
+// has no cell -- so importing a workbook this same call just generated would
+// delete from the dictionary what the dictionary was never asked to give up.
+// On a bootstrap the XML is the source; the workbook is one second old and
+// has nothing to teach it (#1215).
+func recompileKeepingEDD(xmlDir, excelDir string, workbooks []string) error {
+	kept := map[string][]byte{}
+	_ = filepath.WalkDir(xmlDir, func(p string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !strings.HasSuffix(p, "_edd.xml") {
+			return nil
+		}
+		if data, rerr := os.ReadFile(p); rerr == nil {
+			kept[p] = data
+		}
+		return nil
+	})
+	if err := recompileWorkbooks(xmlDir, excelDir, workbooks); err != nil {
+		return err
+	}
+	for path, data := range kept {
+		if current, err := os.ReadFile(path); err == nil && bytes.Equal(current, data) {
+			continue
+		}
+		if err := os.WriteFile(path, data, 0o644); err != nil {
+			return fmt.Errorf("excel bootstrap: restore %s: %w", path, err)
+		}
+	}
+	return nil
 }
 
 // recompileWorkbooks regenerates XML from the named workbooks, mirroring each

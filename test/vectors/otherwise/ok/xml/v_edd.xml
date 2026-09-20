@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+	<entity name="policy" number="100" access="rw">
+		<field name="flag" type="integer" subtype="" access="rw" input="" default_value="1" comment="always 1 in these vectors"></field>
+	</entity>
+	<entity name="result" number="200" access="rw">
+		<field name="fired" type="string" subtype="" access="rw" input="" default_value="" comment="each fired column appends its label"></field>
+	</entity>
+</entity_data_dictionary>

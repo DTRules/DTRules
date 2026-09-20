@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decision_tables>
+<decision_table el_compiled="true">
+<table_name>V1_first_none_match</table_name>
+<attribute_fields><Type>FIRST</Type><TABLE_NUMBER>9001</TABLE_NUMBER></attribute_fields>
+<contexts></contexts><initial_actions></initial_actions>
+<conditions>
+<condition_details><condition_number>1</condition_number><condition_dsl>policy.flag == 7</condition_dsl><condition_postfix>policy.flag 7 ==</condition_postfix><columns>Y-*</columns></condition_details>
+<condition_details><condition_number>2</condition_number><condition_dsl>policy.flag &lt; 100</condition_dsl><condition_postfix>policy.flag 100 &lt;</condition_postfix><columns>-N*</columns></condition_details>
+</conditions>
+<actions>
+<action_details><action_number>1</action_number><action_dsl>set result.fired = result.fired + "1;"</action_dsl><action_postfix>result.fired "1;" strconcat cvs /result.fired xdef</action_postfix><columns>X--</columns></action_details>
+<action_details><action_number>2</action_number><action_dsl>set result.fired = result.fired + "2;"</action_dsl><action_postfix>result.fired "2;" strconcat cvs /result.fired xdef</action_postfix><columns>-X-</columns></action_details>
+<action_details><action_number>3</action_number><action_dsl>set result.fired = result.fired + "O;"</action_dsl><action_postfix>result.fired "O;" strconcat cvs /result.fired xdef</action_postfix><columns>--X</columns></action_details>
+</actions>
+</decision_table>
+<decision_table el_compiled="true">
+<table_name>V2_first_col1_matches</table_name>
+<attribute_fields><Type>FIRST</Type><TABLE_NUMBER>9002</TABLE_NUMBER></attribute_fields>
+<contexts></contexts><initial_actions></initial_actions>
+<conditions>
+<condition_details><condition_number>1</condition_number><condition_dsl>policy.flag == 1</condition_dsl><condition_postfix>policy.flag 1 ==</condition_postfix><columns>Y-*</columns></condition_details>
+<condition_details><condition_number>2</condition_number><condition_dsl>policy.flag &lt; 100</condition_dsl><condition_postfix>policy.flag 100 &lt;</condition_postfix><columns>-N*</columns></condition_details>
+</conditions>
+<actions>
+<action_details><action_number>1</action_number><action_dsl>set result.fired = result.fired + "1;"</action_dsl><action_postfix>result.fired "1;" strconcat cvs /result.fired xdef</action_postfix><columns>X--</columns></action_details>
+<action_details><action_number>2</action_number><action_dsl>set result.fired = result.fired + "2;"</action_dsl><action_postfix>result.fired "2;" strconcat cvs /result.fired xdef</action_postfix><columns>-X-</columns></action_details>
+<action_details><action_number>3</action_number><action_dsl>set result.fired = result.fired + "O;"</action_dsl><action_postfix>result.fired "O;" strconcat cvs /result.fired xdef</action_postfix><columns>--X</columns></action_details>
+</actions>
+</decision_table>
+<decision_table el_compiled="true">
+<table_name>V3_all_none_match</table_name>
+<attribute_fields><Type>ALL</Type><TABLE_NUMBER>9003</TABLE_NUMBER></attribute_fields>
+<contexts></contexts><initial_actions></initial_actions>
+<conditions>
+<condition_details><condition_number>1</condition_number><condition_dsl>policy.flag == 7</condition_dsl><condition_postfix>policy.flag 7 ==</condition_postfix><columns>Y-*</columns></condition_details>
+<condition_details><condition_number>2</condition_number><condition_dsl>policy.flag &lt; 100</condition_dsl><condition_postfix>policy.flag 100 &lt;</condition_postfix><columns>-N*</columns></condition_details>
+</conditions>
+<actions>
+<action_details><action_number>1</action_number><action_dsl>set result.fired = result.fired + "1;"</action_dsl><action_postfix>result.fired "1;" strconcat cvs /result.fired xdef</action_postfix><columns>X--</columns></action_details>
+<action_details><action_number>2</action_number><action_dsl>set result.fired = result.fired + "2;"</action_dsl><action_postfix>result.fired "2;" strconcat cvs /result.fired xdef</action_postfix><columns>-X-</columns></action_details>
+<action_details><action_number>3</action_number><action_dsl>set result.fired = result.fired + "O;"</action_dsl><action_postfix>result.fired "O;" strconcat cvs /result.fired xdef</action_postfix><columns>--X</columns></action_details>
+</actions>
+</decision_table>
+<decision_table el_compiled="true">
+<table_name>V4_all_two_match</table_name>
+<attribute_fields><Type>ALL</Type><TABLE_NUMBER>9004</TABLE_NUMBER></attribute_fields>
+<contexts></contexts><initial_actions></initial_actions>
+<conditions>
+<condition_details><condition_number>1</condition_number><condition_dsl>policy.flag == 1</condition_dsl><condition_postfix>policy.flag 1 ==</condition_postfix><columns>Y-*</columns></condition_details>
+<condition_details><condition_number>2</condition_number><condition_dsl>policy.flag &lt; 100</condition_dsl><condition_postfix>policy.flag 100 &lt;</condition_postfix><columns>-Y*</columns></condition_details>
+</conditions>
+<actions>
+<action_details><action_number>1</action_number><action_dsl>set result.fired = result.fired + "1;"</action_dsl><action_postfix>result.fired "1;" strconcat cvs /result.fired xdef</action_postfix><columns>X--</columns></action_details>
+<action_details><action_number>2</action_number><action_dsl>set result.fired = result.fired + "2;"</action_dsl><action_postfix>result.fired "2;" strconcat cvs /result.fired xdef</action_postfix><columns>-X-</columns></action_details>
+<action_details><action_number>3</action_number><action_dsl>set result.fired = result.fired + "O;"</action_dsl><action_postfix>result.fired "O;" strconcat cvs /result.fired xdef</action_postfix><columns>--X</columns></action_details>
+</actions>
+</decision_table>
+<decision_table el_compiled="true">
+<table_name>V5_none_type_none_match</table_name>
+<attribute_fields><Type>NONE</Type><TABLE_NUMBER>9005</TABLE_NUMBER></attribute_fields>
+<contexts></contexts><initial_actions></initial_actions>
+<conditions>
+<condition_details><condition_number>1</condition_number><condition_dsl>policy.flag == 7</condition_dsl><condition_postfix>policy.flag 7 ==</condition_postfix><columns>Y-*</columns></condition_details>
+<condition_details><condition_number>2</condition_number><condition_dsl>policy.flag &lt; 100</condition_dsl><condition_postfix>policy.flag 100 &lt;</condition_postfix><columns>-N*</columns></condition_details>
+</conditions>
+<actions>
+<action_details><action_number>1</action_number><action_dsl>set result.fired = result.fired + "1;"</action_dsl><action_postfix>result.fired "1;" strconcat cvs /result.fired xdef</action_postfix><columns>X--</columns></action_details>
+<action_details><action_number>2</action_number><action_dsl>set result.fired = result.fired + "2;"</action_dsl><action_postfix>result.fired "2;" strconcat cvs /result.fired xdef</action_postfix><columns>-X-</columns></action_details>
+<action_details><action_number>3</action_number><action_dsl>set result.fired = result.fired + "O;"</action_dsl><action_postfix>result.fired "O;" strconcat cvs /result.fired xdef</action_postfix><columns>--X</columns></action_details>
+</actions>
+</decision_table>
+<decision_table el_compiled="true">
+<table_name>V6_x_in_every_column_other</table_name>
+<attribute_fields><Type>FIRST</Type><TABLE_NUMBER>9006</TABLE_NUMBER></attribute_fields>
+<contexts></contexts><initial_actions></initial_actions>
+<conditions>
+<condition_details><condition_number>1</condition_number><condition_dsl>policy.flag == 7</condition_dsl><condition_postfix>policy.flag 7 ==</condition_postfix><columns>Y-*</columns></condition_details>
+<condition_details><condition_number>2</condition_number><condition_dsl>policy.flag &lt; 100</condition_dsl><condition_postfix>policy.flag 100 &lt;</condition_postfix><columns>-N*</columns></condition_details>
+</conditions>
+<actions>
+<action_details><action_number>1</action_number><action_dsl>set result.fired = result.fired + "1;"</action_dsl><action_postfix>result.fired "1;" strconcat cvs /result.fired xdef</action_postfix><columns>X--</columns></action_details>
+<action_details><action_number>2</action_number><action_dsl>set result.fired = result.fired + "2;"</action_dsl><action_postfix>result.fired "2;" strconcat cvs /result.fired xdef</action_postfix><columns>-X-</columns></action_details>
+<action_details><action_number>3</action_number><action_dsl>set result.fired = result.fired + "O;"</action_dsl><action_postfix>result.fired "O;" strconcat cvs /result.fired xdef</action_postfix><columns>--X</columns></action_details>
+<action_details><action_number>4</action_number><action_dsl>set result.fired = result.fired + "A;"</action_dsl><action_postfix>result.fired "A;" strconcat cvs /result.fired xdef</action_postfix><columns>XXX</columns></action_details>
+</actions>
+</decision_table>
+<decision_table el_compiled="true">
+<table_name>V7_x_in_every_column_col1</table_name>
+<attribute_fields><Type>FIRST</Type><TABLE_NUMBER>9007</TABLE_NUMBER></attribute_fields>
+<contexts></contexts><initial_actions></initial_actions>
+<conditions>
+<condition_details><condition_number>1</condition_number><condition_dsl>policy.flag == 1</condition_dsl><condition_postfix>policy.flag 1 ==</condition_postfix><columns>Y-*</columns></condition_details>
+<condition_details><condition_number>2</condition_number><condition_dsl>policy.flag &lt; 100</condition_dsl><condition_postfix>policy.flag 100 &lt;</condition_postfix><columns>-N*</columns></condition_details>
+</conditions>
+<actions>
+<action_details><action_number>1</action_number><action_dsl>set result.fired = result.fired + "1;"</action_dsl><action_postfix>result.fired "1;" strconcat cvs /result.fired xdef</action_postfix><columns>X--</columns></action_details>
+<action_details><action_number>2</action_number><action_dsl>set result.fired = result.fired + "2;"</action_dsl><action_postfix>result.fired "2;" strconcat cvs /result.fired xdef</action_postfix><columns>-X-</columns></action_details>
+<action_details><action_number>3</action_number><action_dsl>set result.fired = result.fired + "O;"</action_dsl><action_postfix>result.fired "O;" strconcat cvs /result.fired xdef</action_postfix><columns>--X</columns></action_details>
+<action_details><action_number>4</action_number><action_dsl>set result.fired = result.fired + "A;"</action_dsl><action_postfix>result.fired "A;" strconcat cvs /result.fired xdef</action_postfix><columns>XXX</columns></action_details>
+</actions>
+</decision_table>
+<decision_table el_compiled="true">
+<table_name>V8_sole_star_column</table_name>
+<attribute_fields><Type>FIRST</Type><TABLE_NUMBER>9008</TABLE_NUMBER></attribute_fields>
+<contexts></contexts><initial_actions></initial_actions>
+<conditions>
+<condition_details><condition_number>1</condition_number><condition_dsl>policy.flag == 7</condition_dsl><condition_postfix>policy.flag 7 ==</condition_postfix><columns>*</columns></condition_details>
+<condition_details><condition_number>2</condition_number><condition_dsl>policy.flag &lt; 100</condition_dsl><condition_postfix>policy.flag 100 &lt;</condition_postfix><columns>*</columns></condition_details>
+</conditions>
+<actions>
+<action_details><action_number>1</action_number><action_dsl>set result.fired = result.fired + "O;"</action_dsl><action_postfix>result.fired "O;" strconcat cvs /result.fired xdef</action_postfix><columns>X</columns></action_details>
+</actions>
+</decision_table>
+<decision_table el_compiled="true">
+<table_name>V9_star_first_row_only</table_name>
+<attribute_fields><Type>FIRST</Type><TABLE_NUMBER>9009</TABLE_NUMBER></attribute_fields>
+<contexts></contexts><initial_actions></initial_actions>
+<conditions>
+<condition_details><condition_number>1</condition_number><condition_dsl>policy.flag == 7</condition_dsl><condition_postfix>policy.flag 7 ==</condition_postfix><columns>Y-*</columns></condition_details>
+<condition_details><condition_number>2</condition_number><condition_dsl>policy.flag &lt; 100</condition_dsl><condition_postfix>policy.flag 100 &lt;</condition_postfix><columns>-N-</columns></condition_details>
+</conditions>
+<actions>
+<action_details><action_number>1</action_number><action_dsl>set result.fired = result.fired + "1;"</action_dsl><action_postfix>result.fired "1;" strconcat cvs /result.fired xdef</action_postfix><columns>X--</columns></action_details>
+<action_details><action_number>2</action_number><action_dsl>set result.fired = result.fired + "2;"</action_dsl><action_postfix>result.fired "2;" strconcat cvs /result.fired xdef</action_postfix><columns>-X-</columns></action_details>
+<action_details><action_number>3</action_number><action_dsl>set result.fired = result.fired + "O;"</action_dsl><action_postfix>result.fired "O;" strconcat cvs /result.fired xdef</action_postfix><columns>--X</columns></action_details>
+</actions>
+</decision_table>
+<decision_table el_compiled="true">
+<table_name>V10_star_second_row_only</table_name>
+<attribute_fields><Type>FIRST</Type><TABLE_NUMBER>9010</TABLE_NUMBER></attribute_fields>
+<contexts></contexts><initial_actions></initial_actions>
+<conditions>
+<condition_details><condition_number>1</condition_number><condition_dsl>policy.flag == 7</condition_dsl><condition_postfix>policy.flag 7 ==</condition_postfix><columns>Y--</columns></condition_details>
+<condition_details><condition_number>2</condition_number><condition_dsl>policy.flag &lt; 100</condition_dsl><condition_postfix>policy.flag 100 &lt;</condition_postfix><columns>-N*</columns></condition_details>
+</conditions>
+<actions>
+<action_details><action_number>1</action_number><action_dsl>set result.fired = result.fired + "1;"</action_dsl><action_postfix>result.fired "1;" strconcat cvs /result.fired xdef</action_postfix><columns>X--</columns></action_details>
+<action_details><action_number>2</action_number><action_dsl>set result.fired = result.fired + "2;"</action_dsl><action_postfix>result.fired "2;" strconcat cvs /result.fired xdef</action_postfix><columns>-X-</columns></action_details>
+<action_details><action_number>3</action_number><action_dsl>set result.fired = result.fired + "O;"</action_dsl><action_postfix>result.fired "O;" strconcat cvs /result.fired xdef</action_postfix><columns>--X</columns></action_details>
+</actions>
+</decision_table>
+</decision_tables>

@@ -144,10 +144,12 @@ type RDecisionTable struct {
 	columnUnreachable []bool
 	hasNullColumn     bool
 
-	// Star column handling
-	starColumn      int // -1 if none
-	otherwiseColumn int // -1 if none
-	alwaysColumn    int // -1 if none
+	// otherwiseColumn is the 0-based index of the otherwise column -- the
+	// last column, marked with '*' and holding no Y/N -- or -1 when the
+	// table has none. It is not part of the decision tree: its actions fill
+	// every path no column claims, which is what makes it fire iff no other
+	// column fired (#1215).
+	otherwiseColumn int
 
 	optimize bool // Whether to optimize the decision tree
 
@@ -170,9 +172,7 @@ func NewRDecisionTable(name *dtrules.RName, session dtrules.Session) *RDecisionT
 		tableType:       BALANCED,
 		maxCol:          1,
 		fields:          make(map[string]string),
-		starColumn:      -1,
 		otherwiseColumn: -1,
-		alwaysColumn:    -1,
 		optimize:        true,
 		errors:          make([]error, 0),
 	}
@@ -361,19 +361,105 @@ func (dt *RDecisionTable) IsExecutable() bool {
 	return true
 }
 
-// isColumnAllStars checks if all conditions in a column have star (*) or dash (-) values.
-// Returns true only if the column is a true "otherwise" column where no conditions are tested.
-func (dt *RDecisionTable) isColumnAllStars(col int) bool {
-	for row := 0; row < len(dt.conditionTable); row++ {
-		if col >= len(dt.conditionTable[row]) {
-			continue
-		}
-		v := strings.ToUpper(strings.TrimSpace(dt.conditionTable[row][col]))
-		if v != "*" && v != DASH && v != "" {
-			return false
+// validateOtherwiseColumn checks the table's use of '*' and, when it is
+// well formed, records which column is the otherwise column.
+//
+// '*' does not mean "don't care" -- that is '-'. It marks the otherwise
+// column, which fires iff no other column fired, in every table type. It is
+// allowed only in the last column and only when that column holds no Y or N
+// (so a table has at most one). Anything else is rejected here, at load,
+// naming the table, the column and the rule, rather than misbehaving at
+// execute time (#1215).
+func (dt *RDecisionTable) validateOtherwiseColumn() error {
+	dt.otherwiseColumn = -1
+	if len(dt.conditionTable) == 0 || dt.maxCol < 1 {
+		return nil
+	}
+
+	name := dt.name.StringValue()
+	last := dt.lastSpecifiedColumn()
+	if last < 0 {
+		return nil
+	}
+	starRow := -1
+
+	for row, cells := range dt.conditionTable {
+		for col, v := range cells {
+			if !equalsIgnoreCase(strings.TrimSpace(v), "*") {
+				continue
+			}
+			if col != last {
+				return fmt.Errorf("table %s: '*' at condition %d, column %d: '*' marks the otherwise column, "+
+					"which is only allowed in the last column (column %d) and only when that column has no Y or N",
+					name, row+1, col+1, last+1)
+			}
+			if starRow < 0 {
+				starRow = row
+			}
 		}
 	}
-	return true
+	if starRow < 0 {
+		return nil
+	}
+
+	for row, cells := range dt.conditionTable {
+		if last >= len(cells) {
+			continue
+		}
+		v := strings.ToUpper(strings.TrimSpace(cells[last]))
+		if v == "Y" || v == "N" {
+			return fmt.Errorf("table %s: condition %d, column %d is '%s', but column %d is marked '*' at condition %d: "+
+				"'*' marks the otherwise column, which is only allowed in the last column and only when that column has no Y or N",
+				name, row+1, last+1, v, last+1, starRow+1)
+		}
+	}
+
+	dt.otherwiseColumn = last
+	return nil
+}
+
+// lastSpecifiedColumn returns the index of the last column the author
+// actually wrote: the rightmost one holding a Y, N or '*' in a condition, or
+// an X in an action. Columns past it are padding -- the sparse
+// <condition_column> form pads a one-column table out to the table's declared
+// width -- and a table's otherwise column is the last real column, not the
+// last cell of the padding.
+func (dt *RDecisionTable) lastSpecifiedColumn() int {
+	last := -1
+	for _, cells := range dt.conditionTable {
+		for col, v := range cells {
+			if col <= last {
+				continue
+			}
+			v = strings.TrimSpace(v)
+			if equalsIgnoreCase(v, "y") || equalsIgnoreCase(v, "n") || equalsIgnoreCase(v, "*") {
+				last = col
+			}
+		}
+	}
+	for _, cells := range dt.actionTable {
+		for col, v := range cells {
+			if col > last && equalsIgnoreCase(strings.TrimSpace(v), "x") {
+				last = col
+			}
+		}
+	}
+	if last >= dt.maxCol {
+		last = dt.maxCol - 1
+	}
+	return last
+}
+
+// otherwiseNode returns the action node of the otherwise column, or nil when
+// the table has none. The node is not reached through conditions: the tree
+// builders install it on every path no column claims.
+func (dt *RDecisionTable) otherwiseNode() *ANode {
+	if dt.otherwiseColumn < 0 {
+		return nil
+	}
+	node := NewANodeForColumn(dt, dt.otherwiseColumn)
+	node.SetStar(true)
+	return node
 }
 
 // ArrayExecute executes this decision table when it appears in a code block.
@@ -565,7 +651,8 @@ func (dt *RDecisionTable) validateConfig() error {
 		}
 	}
 
-	return nil
+	// Check the otherwise column, and record it for the tree builders.
+	return dt.validateOtherwiseColumn()
 }
 
 // compile converts postfix strings to executable objects
@@ -578,36 +665,35 @@ func (dt *RDecisionTable) compile() error {
 
 // buildBalanced builds a decision tree for a balanced table
 func (dt *RDecisionTable) buildBalanced() {
-	// Handle empty or star-only tables
+	// Handle empty tables, and tables whose only column is the otherwise
+	// column -- there is nothing to test, so its actions are the whole tree.
 	if len(dt.conditionTable) == 0 || len(dt.conditionTable[0]) == 0 {
 		dt.decisionTree = NewANodeForColumn(dt, 0)
 		return
 	}
-	if dt.conditionTable[0][0] == "*" {
-		dt.decisionTree = NewANodeForColumn(dt, 0)
+	if dt.otherwiseColumn == 0 {
+		dt.decisionTree = dt.otherwiseNode()
 		return
 	}
 
 	// Allocate root node
 	dt.decisionTree = NewCNode(dt, 0, 0, dt.rconditions[0])
 
-	// For each column, trace the path through the tree
+	// For each column, trace the path through the tree. The otherwise column
+	// is not one of them: it tests nothing, and is installed below on the
+	// paths no column claimed.
 	for col := 0; col < dt.maxCol; col++ {
+		if col == dt.otherwiseColumn {
+			continue
+		}
 		lastStep := equalsIgnoreCase(dt.conditionTable[0][col], "y")
 		last := dt.decisionTree.(*CNode)
 
-		star := false
 		for i := 1; i < len(dt.conditionTable); i++ {
 			t := dt.conditionTable[i][col]
 
 			yes := equalsIgnoreCase(t, "y")
 			no := equalsIgnoreCase(t, "n")
-
-			if star {
-				dt.errors = append(dt.errors,
-					fmt.Errorf("cannot follow '*' with '%s' at row %d, col %d", t, i, col))
-			}
-			star = equalsIgnoreCase(t, "*")
 
 			if yes || no {
 				var here *CNode
@@ -649,6 +735,12 @@ func (dt *RDecisionTable) buildBalanced() {
 		}
 	}
 
+	// The otherwise column's actions fill every path no column claimed, so
+	// it fires iff no other column fired (#1215).
+	if otherwise := dt.otherwiseNode(); otherwise != nil {
+		dt.decisionTree = dt.addDefaults(dt.decisionTree, otherwise)
+	}
+
 	// Validate the tree is complete
 	coord := dt.decisionTree.Validate()
 	if coord != nil {
@@ -664,8 +756,9 @@ func (dt *RDecisionTable) buildUnbalanced(state dtrules.State, executeAll bool) 
 	if len(dt.conditionTable) == 0 || len(dt.conditionTable[0]) == 0 {
 		return
 	}
-	if dt.conditionTable[0][0] == "*" {
-		dt.decisionTree = NewANodeForColumn(dt, 0)
+	if dt.otherwiseColumn == 0 {
+		// The only column is the otherwise column: nothing to test.
+		dt.decisionTree = dt.otherwiseNode()
 		return
 	}
 
@@ -689,8 +782,12 @@ func (dt *RDecisionTable) buildUnbalanced(state dtrules.State, executeAll bool) 
 	// Create the root node
 	top := NewCNode(dt, 1, 0, dt.rconditions[0])
 
-	// Process each column
+	// Process each column. The otherwise column tests nothing, so it is not
+	// part of the tree -- it becomes the default below.
 	for col := 0; col < dt.maxCol; col++ {
+		if col == dt.otherwiseColumn {
+			continue
+		}
 		nonEmptyColumn := false
 		for row := 0; row < len(dt.conditions); row++ {
 			v := dt.conditionTable[row][col]
@@ -701,60 +798,31 @@ func (dt *RDecisionTable) buildUnbalanced(state dtrules.State, executeAll bool) 
 			}
 		}
 		if nonEmptyColumn {
-			dt.processCol(executeAll, top, 0, col, -1)
+			dt.processCol(executeAll, top, 0, col)
 		}
 	}
 
-	// Add defaults to unmapped branches
-	defaults := NewANode(dt)
+	// Add defaults to unmapped branches. The otherwise column's actions are
+	// that default when the table has one, which is what makes it fire iff no
+	// other column fired (#1215); otherwise an empty node that does nothing.
+	defaults := dt.otherwiseNode()
+	if defaults == nil {
+		defaults = NewANode(dt)
+	}
 	dt.addDefaults(top, defaults)
 
 	// Optimize the tree
 	dt.decisionTree = dt.optimizeTree(state, top)
 }
 
-// processCol builds a path through the decision tree for a particular column
-func (dt *RDecisionTable) processCol(executeAll bool, here DTNode, row, col, istar int) DTNode {
-	// Note: We no longer enforce strict "one star column must be last" constraint.
-	// Stars in individual cells are treated as "don't care" for that condition.
-	// Only a true "otherwise" column (all conditions are stars) becomes the star column.
-
+// processCol builds a path through the decision tree for a particular column.
+// The otherwise column never gets here: it tests nothing and is installed as
+// the tree's default. Every cell this sees is therefore Y, N or '-' -- a '*'
+// anywhere else is rejected at load by validateOtherwiseColumn (#1215).
+func (dt *RDecisionTable) processCol(executeAll bool, here DTNode, row, col int) DTNode {
 	// End of column - create action node
 	if row >= len(dt.conditions) {
 		thisCol := NewANodeForColumn(dt, col)
-
-		// Check if this is a true "star column" (all conditions evaluated via star)
-		// by checking if istar was set AND it's the first row (meaning all rows had stars)
-		isFullStarColumn := istar == 0 && dt.isColumnAllStars(col)
-		thisCol.SetStar(isFullStarColumn)
-
-		if isFullStarColumn {
-			dt.starColumn = col
-
-			condition := strings.TrimSpace(strings.ToLower(dt.conditions[istar]))
-			always := condition == "always"
-			// Treat any non-"always" star condition as "otherwise" (default behavior)
-			otherwise := !always
-
-			if here == nil {
-				return thisCol
-			}
-
-			if otherwise {
-				dt.otherwiseColumn = col
-				return here
-			}
-
-			if always {
-				dt.alwaysColumn = col
-				if anode, ok := here.(*ANode); ok {
-					if err := thisCol.AddNode(anode); err != nil {
-						dt.errors = append(dt.errors, err)
-					}
-				}
-				return thisCol
-			}
-		}
 
 		if here != nil && !executeAll {
 			// FIRST type - keep existing path
@@ -779,25 +847,9 @@ func (dt *RDecisionTable) processCol(executeAll bool, here DTNode, row, col, ist
 	yes := equalsIgnoreCase(v, "y")
 	no := equalsIgnoreCase(v, "n")
 
-	if istar >= 0 && (yes || no) {
-		dt.errors = append(dt.errors,
-			fmt.Errorf("cannot follow '*' with '%s' at row %d, col %d", v, row+1, col+1))
-	}
-
-	if equalsIgnoreCase(v, "*") {
-		istar = row
-	}
-
 	// Skip don't-care on non-matching row
 	if (here == nil || here.GetRow() != row) && dcare {
-		return dt.processCol(executeAll, here, row+1, col, istar)
-	}
-
-	// Handle star
-	if istar >= 0 {
-		t := dt.processCol(executeAll, here, row+1, col, istar)
-		t.SetStar(true)
-		return t
+		return dt.processCol(executeAll, here, row+1, col)
 	}
 
 	// Create or navigate CNode
@@ -815,12 +867,12 @@ func (dt *RDecisionTable) processCol(executeAll bool, here DTNode, row, col, ist
 	// Recurse on true/false branches
 	if yes || dcare {
 		next := cnode.IfTrue
-		t := dt.processCol(executeAll, next, row+1, col, -1)
+		t := dt.processCol(executeAll, next, row+1, col)
 		cnode.IfTrue = t
 	}
 	if no || dcare {
 		next := cnode.IfFalse
-		t := dt.processCol(executeAll, next, row+1, col, -1)
+		t := dt.processCol(executeAll, next, row+1, col)
 		cnode.IfFalse = t
 	}
 
