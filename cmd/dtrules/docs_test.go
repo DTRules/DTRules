@@ -294,3 +294,68 @@ func TestDocumentation_WorkflowAuthoringPaths(t *testing.T) {
 		}
 	}
 }
+
+// TestDocumentation_OtherwiseColumn pins the definition of the otherwise
+// column in the embedded manual (#1215). `*` does not mean "don't care": it
+// is allowed only in the last column of a table, only when that column has
+// no Y/N, and it executes only if no other column executes — in all table
+// types. AI sessions author from `dtrules docs`, so this text is the one
+// that has to be right.
+func TestDocumentation_OtherwiseColumn(t *testing.T) {
+	doc, ok := docTopics["decision-tables"]
+	if !ok {
+		t.Fatal("decision-tables topic not registered in docTopics")
+	}
+	for _, term := range []string{
+		"The Otherwise Column",
+		`* does not mean "don't care"`,
+		"only in the LAST column",
+		"in ALL table types",
+		"put an X in\nevery column",
+		`There is no "always" column`,
+	} {
+		if !strings.Contains(doc, term) {
+			t.Errorf("decision-tables doc missing required term: %q", term)
+		}
+	}
+}
+
+// TestDocumentation_StarIsNeverDontCare guards the vocabulary across every
+// embedded topic: Y, N, - (don't care), * (otherwise, last column only).
+// No topic may pair `*` with "don't care" on one line, and none may tell an
+// author to reach for `*` when they mean a dash.
+func TestDocumentation_StarIsNeverDontCare(t *testing.T) {
+	for name, doc := range docTopics {
+		for i, line := range strings.Split(doc, "\n") {
+			low := strings.ToLower(line)
+			if strings.Contains(low, "does not mean") {
+				continue // the sentence that states the rule
+			}
+			if strings.Contains(low, "use * for") {
+				t.Errorf("topic %q line %d tells authors to use * for something: %q", name, i+1, line)
+			}
+			if strings.Contains(low, "*") && (strings.Contains(low, "don't care") || strings.Contains(low, "dont care")) {
+				t.Errorf("topic %q line %d describes * as \"don't care\": %q", name, i+1, line)
+			}
+		}
+	}
+}
+
+// TestDocumentation_ELRejectsOtherwiseKeyword pins that `dtrules docs el`
+// sends a reader who guesses `otherwise` / `default` / `always` as an EL
+// condition to the otherwise column instead (#1215).
+func TestDocumentation_ELRejectsOtherwiseKeyword(t *testing.T) {
+	doc, ok := docTopics["el"]
+	if !ok {
+		t.Fatal("el topic not registered in docTopics")
+	}
+	for _, term := range []string{
+		"are NOT EL conditions",
+		"OTHERWISE COLUMN",
+		"docs decision-tables",
+	} {
+		if !strings.Contains(doc, term) {
+			t.Errorf("el doc missing required term: %q", term)
+		}
+	}
+}

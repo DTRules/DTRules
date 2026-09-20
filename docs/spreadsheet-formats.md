@@ -8,9 +8,10 @@ DTRules supports multiple spreadsheet formats for defining Entity Definition Doc
 2. [Excel Formats (.xls, .xlsx, .xlsm)](#excel-formats)
 3. [OpenDocument Format (.ods)](#opendocument-format)
 4. [Google Sheets](#google-sheets)
-5. [Format Comparison](#format-comparison)
-6. [Migration Guide](#migration-guide)
-7. [Troubleshooting](#troubleshooting)
+5. [Decision Table Cell Values](#decision-table-cell-values)
+6. [Format Comparison](#format-comparison)
+7. [Migration Guide](#migration-guide)
+8. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -203,6 +204,58 @@ String value = GoogleSheetsReader.getCellValue(data, row, col);
 int rows = GoogleSheetsReader.getRowCount(data);
 int cols = GoogleSheetsReader.getColumnCount(data, row);
 ```
+
+---
+
+## Decision Table Cell Values
+
+Whatever the file format, a decision-table sheet is a grid: each row is one
+condition or one action, each column is one rule. A column fires when every
+condition cell in it is satisfied, and firing runs the actions marked `X` in
+that column.
+
+Condition cells hold exactly one of four values — this is the whole
+vocabulary, and it is the same in Excel, `.ods`, Google Sheets and the XML
+the workbook builds into:
+
+| Cell | Meaning |
+|------|---------|
+| `Y` | the condition must be true for this column to fire |
+| `N` | the condition must be false for this column to fire |
+| `-` | dash: this column does not test this condition (don't care) |
+| `*` | otherwise — last column only (see below) |
+
+Action cells hold `X` or are left empty.
+
+### The otherwise column
+
+`*` does not mean "don't care". It is allowed only in the **last column**,
+and only when that column holds no `Y` and no `N`. It means **otherwise**:
+the column executes only if no other column executes, in **all table
+types**.
+
+|                              | 1 | 2 | 3 |
+|------------------------------|---|---|---|
+| C1 `claim.kind is "medical"` | Y | N | * |
+| C2 `claim.amount > 1000`     | - | Y | * |
+| A1 `perform Price_Medical`   | X |   |   |
+| A2 `perform Price_Large`     |   | X |   |
+| A3 `perform Escalate`        |   |   | X |
+| A4 `set result.seen = true`  | X | X | X |
+
+Column 3 fires only when columns 1 and 2 both failed. A4 carries an `X` in
+every column, so it runs whichever column fires — that is how a sheet says
+"always". There is no "always" column.
+
+An otherwise column may be typed as `*` in every condition cell, or as a
+single `*` with the rest of the cells left as dashes. A column whose cells
+are all dashes is **not** an otherwise column: it tests nothing.
+
+A `*` outside the last column, a second `*` column, or a `*` in a column
+that also holds `Y` or `N` is a load error, not a lenient reinterpretation.
+
+See `dtrules docs decision-tables` and
+[decision-table-xml-format.md](decision-table-xml-format.md).
 
 ---
 

@@ -545,6 +545,19 @@ Cast from index or string:
     (boolean) accounts[i]
     (boolean) "true"
 
+Not EL: otherwise, default, always
+    'otherwise', 'default' and 'always' are NOT EL conditions. They are not
+    keywords, not operators, and not names the engine can resolve; a
+    condition whose text is one of them fails.
+
+    What you are reaching for is the OTHERWISE COLUMN, which lives in the
+    table grid, not in EL: put * in the last column of the table (a column
+    that holds no Y and no N) and that column executes only if no other
+    column executes, in all table types. To make an action always execute,
+    put an X in every column — there is no "always" column.
+
+    See 'dtrules docs decision-tables', section "The Otherwise Column".
+
 
 Date Expressions (dexpr)
 --------------------------
@@ -1103,7 +1116,13 @@ Key Elements:
   - number attribute: Unique table number for ordering
   - <expression>: EL condition (compiled automatically)
   - <action>: EL statements separated by semicolons
-  - Y/N/-: Condition values (Yes/No/Don't care)
+  - Condition cells: Y (must be true), N (must be false), - (dash: this
+    column does not test this condition, i.e. don't care)
+  - * : the otherwise column. Allowed only in the last column, and only
+    when that column holds no Y and no N. It executes only if no other
+    column executes, in all table types. It is not a "don't care" cell and
+    there is no "always" column — to always execute an action, put an X in
+    every column. See 'dtrules docs decision-tables'.
 
 DSL Tag Names:
   - <context_dsl>: Context statement in EL (inside <context_details>)
@@ -1272,30 +1291,123 @@ See 'dtrules docs el' for complete EL syntax reference.
 Anatomy of a Decision Table
 ---------------------------
 
-    +---+------------------+------------------+------------------+
-    |   | Condition 1      | Condition 2      | Action 1         |
-    +---+------------------+------------------+------------------+
-    | 1 | input.age >= 18  | input.income > 0 | result.eligible  |
-    | 2 | true             | true             | true             |
-    | 3 | true             | false            | false            |
-    | 4 | false            | *                | false            |
-    +---+------------------+------------------+------------------+
+A table is a grid. Each ROW is one condition or one action; each COLUMN is
+one rule. A column fires when every condition cell in it is satisfied, and
+firing runs the actions marked X in that column.
 
-Row 1: Column headers (descriptions)
-Row 2+: Rules (condition values → action values)
+                                           | 1 | 2 | 3 |
+    +--------------------------------------+---+---+---+
+    | C1  input.age >= 18                  | Y | Y | * |
+    | C2  input.income > 0                 | Y | N | * |
+    +--------------------------------------+---+---+---+
+    | A1  set result.eligible = true       | X |   |   |
+    | A2  set result.eligible = false      |   | X |   |
+    | A3  set result.error = "under age"   |   |   | X |
+    +--------------------------------------+---+---+---+
+
+Column 1 fires for an adult with income; column 2 for an adult without.
+Column 3 is the otherwise column (see below): it fires only when neither
+of the others did.
+
+
+Condition Cell Values
+---------------------
+
+There are exactly four, and this is the whole vocabulary — in Excel, in
+XML, and in the authoring API.
+
+    Y    the condition must be true for this column to fire
+    N    the condition must be false for this column to fire
+    -    dash: this column does not test this condition (don't care)
+    *    otherwise — last column only; see "The Otherwise Column" below
+
+Action cells hold X (run this action when the column fires) or are left
+blank.
+
+
+The Otherwise Column
+--------------------
+
+* does not mean "don't care". It is allowed only in the LAST column, and
+only when that column has no Y and no N entries. It means OTHERWISE: it
+executes only if no other column executes, in ALL table types.
+
+There is no "always" column. To make an action always execute, put an X in
+every column, including the otherwise column.
+
+Worked grid — FIRST, three columns, the third is the otherwise column:
+
+                                           | 1 | 2 | 3 |
+    +--------------------------------------+---+---+---+
+    | C1  claim.kind is "medical"          | Y | N | * |
+    | C2  claim.amount > 1000              | - | Y | * |
+    +--------------------------------------+---+---+---+
+    | A1  perform Price_Medical_Claim      | X |   |   |
+    | A2  perform Price_Large_Claim        |   | X |   |
+    | A3  perform Escalate_Unhandled       |   |   | X |
+    | A4  set result.claim_seen = true     | X | X | X |
+    +--------------------------------------+---+---+---+
+
+    kind "medical", any amount    → column 1 fires; column 3 does not.
+    kind "dental", amount 5000    → column 2 fires; column 3 does not.
+    kind "dental", amount 10      → nothing else fired, so column 3 does:
+                                    Escalate_Unhandled.
+
+    A4 carries an X in every column, so it runs whichever column fires.
+    That is how a table says "always".
+
+An otherwise column may be written as * in every condition cell, or as a
+single * with the remaining cells left as dashes. Both are "a column with
+no Y/N entries", and both mean the same thing.
+
+In all table types:
+
+    FIRST     no earlier column fired → the otherwise column fires.
+    ALL       no other column fired at all → the otherwise column fires.
+    BALANCED  same rule.
+    NONE      same rule.
+    any other type  same rule. There is no exception.
+
+Ill-formed uses are load errors, not lenient reinterpretations: * in a
+column that is not the last, two * columns, or a * cell in a column that
+also holds Y or N.
+
+
+* vs - side by side
+-------------------
+
+                                           | 1 | 2 | 3 |
+    +--------------------------------------+---+---+---+
+    | C1  member.enrolled                  | Y | Y | * |
+    | C2  member.age >= 65                 | Y | - | * |
+    +--------------------------------------+---+---+---+
+
+    Column 1  fires when C1 is true AND C2 is true.
+    Column 2  has a dash in C2: that one cell is not tested, so column 2
+              fires on C1 alone. The dash says nothing about the other
+              columns — column 2 competes with them normally.
+    Column 3  is the otherwise column: it fires only when neither column 1
+              nor column 2 fired.
+
+A dash answers "does THIS column test THIS condition?" and applies to one
+cell. A star answers "when does this column fire?" and applies to the whole
+column — only in the absence of every other column. They are not
+interchangeable. A column whose cells are all dashes is not an otherwise
+column: it tests nothing and says nothing about the other columns. When you
+mean otherwise, write * in the last column.
 
 
 Table Types
 -----------
 
 FIRST (most common):
-  - Executes the FIRST row where all conditions match
+  - Executes the FIRST column where all conditions match
   - Stops after first match
   - Use for: if/else logic, lookup tables
 
 ALL:
-  - Executes ALL rows where conditions match
-  - Continues through all rows
+  - Executes ALL columns where conditions match
+  - Continues through all columns
   - Use for: accumulating values, multiple effects
 
 BALANCED:
@@ -1343,17 +1455,6 @@ action, and "add the policy statements to the job.notes" as the action —
 one statement per thing, each naming that thing's value.
 
 
-Condition Values
-----------------
-
-Value        Meaning                      Example
----------    --------------------------   ----------------------
-true         Condition must be true       input.age >= 18 → true
-false        Condition must be false      input.age >= 18 → false
-*            Any value (don't care)       input.age >= 18 → *
--            Skip this row                Used for N/A cases
-
-
 Action Column Types
 -------------------
 
@@ -1390,11 +1491,11 @@ XML Structure
         <conditions>
             <condition_details>
                 <row_number>1</row_number>
-                <condition_value>true</condition_value>
+                <condition_value>Y</condition_value>
             </condition_details>
             <condition_details>
                 <row_number>2</row_number>
-                <condition_value>false</condition_value>
+                <condition_value>N</condition_value>
             </condition_details>
         </conditions>
     </condition_columns>
@@ -1515,7 +1616,8 @@ Best Practices
 1. Use descriptive table names: Calculate_Tax, Validate_Input
 2. Number tables uniquely (100, 101, 102...)
 3. Put most specific conditions first (FIRST type)
-4. Use * for "don't care" conditions
+4. Write a dash in a cell the column does not test; write * only in a
+   last column that means otherwise
 5. Keep tables focused on one decision
 6. Use EXECUTE columns for side effects
 7. Document complex conditions in column headers
@@ -1526,23 +1628,42 @@ Best Practices
 Common Patterns
 ---------------
 
-Lookup table:
-    State | Tax Rate
-    "CO"  | 0.044
-    "CA"  | 0.0725
-    *     | 0.0
+Lookup (FIRST), with an otherwise column for the default:
 
-Validation:
-    input.age >= 0 | input.amount > 0 | result.valid | result.error
-    false          | *                | false        | "Invalid age"
-    *              | false            | false        | "Invalid amount"
-    true           | true             | true         | ""
+                                           | 1 | 2 | 3 |
+    +--------------------------------------+---+---+---+
+    | C1  input.state is "CO"              | Y | N | * |
+    | C2  input.state is "CA"              | - | Y | * |
+    +--------------------------------------+---+---+---+
+    | A1  set result.rate = 0.044          | X |   |   |
+    | A2  set result.rate = 0.0725         |   | X |   |
+    | A3  set result.rate = 0.0            |   |   | X |
+    +--------------------------------------+---+---+---+
 
-Tiered calculation:
-    input.amount >= 100000 | result.rate
-    true                   | 0.05
-    input.amount >= 10000  | 0.08
-    *                      | 0.10
+Validation (FIRST):
+
+                                           | 1 | 2 | 3 |
+    +--------------------------------------+---+---+---+
+    | C1  input.age >= 0                   | N | Y | * |
+    | C2  input.amount > 0                 | - | N | * |
+    +--------------------------------------+---+---+---+
+    | A1  set result.valid = false         | X | X |   |
+    | A2  set result.error = "bad age"     | X |   |   |
+    | A3  set result.error = "bad amount"  |   | X |   |
+    | A4  set result.valid = true          |   |   | X |
+    +--------------------------------------+---+---+---+
+
+Tiered calculation (FIRST) — the lowest tier is the otherwise column:
+
+                                           | 1 | 2 | 3 |
+    +--------------------------------------+---+---+---+
+    | C1  input.amount >= 100000           | Y | N | * |
+    | C2  input.amount >= 10000            | - | Y | * |
+    +--------------------------------------+---+---+---+
+    | A1  set result.rate = 0.05           | X |   |   |
+    | A2  set result.rate = 0.08           |   | X |   |
+    | A3  set result.rate = 0.10           |   |   | X |
+    +--------------------------------------+---+---+---+
 `
 
 const docOperators = `DTRules EL Operators

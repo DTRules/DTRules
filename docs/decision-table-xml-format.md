@@ -136,6 +136,68 @@ The EL format uses the `name` attribute on the `<decision_table>` element and `<
 
 ---
 
+## Condition Cell Values
+
+A rule is a column. Every condition cell in a column holds exactly one of
+four values, and this is the whole vocabulary — in XML, in Excel, and in the
+authoring API:
+
+| Cell | Meaning |
+|------|---------|
+| `Y` | the condition must be true for this column to fire |
+| `N` | the condition must be false for this column to fire |
+| `-` | dash: this column does not test this condition (don't care) |
+| `*` | otherwise — last column only (see below) |
+
+Action cells hold `X` (run this action when the column fires) or are empty.
+
+### The otherwise column
+
+`*` does not mean "don't care". It is allowed only in the **last column**,
+and only when that column holds no `Y` and no `N`. It means **otherwise**:
+the column executes only if no other column executes, in **all table
+types** (`FIRST`, `ALL`, `BALANCED`, `NONE`).
+
+```xml
+<conditions>
+<condition_details>
+  <condition_number>1</condition_number>
+  <condition_dsl>claim.kind is "medical"</condition_dsl>
+  <columns>YN*</columns>
+</condition_details>
+<condition_details>
+  <condition_number>2</condition_number>
+  <condition_dsl>claim.amount &gt; 1000</condition_dsl>
+  <columns>-Y*</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+  <action_number>3</action_number>
+  <action_dsl>perform Escalate_Unhandled</action_dsl>
+  <columns>--X</columns>
+</action_details>
+</actions>
+```
+
+Column 3 fires only when columns 1 and 2 both failed. An otherwise column
+may be written as `*` in every condition cell or as a single `*` with the
+rest of the cells left as dashes; both are "a column with no `Y`/`N`".
+
+There is no "always" column. To make an action always execute, give it an
+`X` in every column, including the otherwise column.
+
+These are load errors, not lenient reinterpretations:
+
+- `*` in a column that is not the last column
+- two `*` columns (which follows from the rule above)
+- a `*` cell in a column that also holds `Y` or `N`
+
+A column whose cells are all dashes is not an otherwise column: it tests
+nothing. When you mean otherwise, write `*` in the last column.
+
+---
+
 ## Legacy Format (DEPRECATED)
 
 **DO NOT USE THIS FORMAT FOR NEW PROJECTS.**
