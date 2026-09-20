@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Canonical (mapping-free) form of the AdultStandard scenario: the tags are
+     1:1 with the EDD, so no *_map.xml is consulted to read it. Same patient as
+     testfiles/TestScenarios/AdultStandard/input.xml — healthy 40-year-old, no
+     allergy, normal renal function, no active medications.
+     Expected: Amoxicillin, 500 mg every 24 h for 14 days, no warnings. -->
+<dtrules-data>
+  <patient>
+    <age>40</age>
+    <lean_body_weight>80</lean_body_weight>
+    <pcr>0.9</pcr>
+    <penicillin_allergic>false</penicillin_allergic>
+    <diagnosis>Acute Sinusitis</diagnosis>
+  </patient>
+</dtrules-data>
