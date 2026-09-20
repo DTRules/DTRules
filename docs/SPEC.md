@@ -183,6 +183,26 @@ one and an amd64 assembly one.
 A tag that resolves against nothing is dropped silently at load; this is why
 §2.7 validates mappings at authoring time.
 
+**Collection.** A field the EDD marks `collect` carries a question, and a run
+may reach it without having a value. A `Collector` attached to the state is
+called just before such a field is read; with none attached execution is pure
+batch and pays nothing. Three collectors exist, and they differ only in what
+answers: the CLI prompt (`dtrules run --interactive`), the web interview
+(`--web`), and the recorder (`--pending <file.json>`).
+
+The recorder is the non-blocking one. It records the question — entity,
+instance id, field, text, type, options, reference range, units and the
+default it substituted — writes the set as a JSON array, and lets the default
+stand so the run finishes. Its result is therefore **provisional**: computed
+from defaults nobody confirmed. `dtrules run` says so on the result and exits
+`3`, distinct from `0` (complete, and the file holds `[]`) and from `1`
+(error). A caller answers the questions, loads them with `--data`, and re-runs
+until the exit code is `0`. Because the substituted defaults steer which
+branches the run takes, the *set* of questions reached can change once real
+answers arrive — so the loop is the contract, not a single pass. `--pending`
+is mutually exclusive with `--interactive` and `--web`: it is the opposite of
+asking, not a variation on it.
+
 ## 2.6 Static analysis
 
 `pkg/dtrules/analysis` runs project-wide:

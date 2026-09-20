@@ -169,7 +169,7 @@ for a guided tour.
 |---------|---------|
 | `dtrules init` | Scaffold a new project directory |
 | `dtrules build` | Extract DSL from Excel + compile postfix (the human path) |
-| `dtrules run` | Run a decision table; `--interactive` / `--web` collect missing inputs |
+| `dtrules run` | Run a decision table; `--interactive` / `--web` collect missing inputs, `--pending` records them |
 | `dtrules table` | JSON-first per-table read/write (the programmatic path) |
 | `dtrules edd` | JSON-first EDD read/write (the programmatic path) |
 | `dtrules sync` | Fine-grained Excel/XML sync (`status`/`check`/`import`/`export`/`auto`) |
@@ -190,10 +190,16 @@ dtrules run [path] --entry <table> [options]
   --interactive, -i    Prompt for any reached collect field not supplied
   --web                Serve an interactive web interview instead of a CLI run
   --port <n>           Port for --web (default: an unused port chosen by the OS)
+  --pending <f.json>   Never prompt: record the reached collect fields that were
+                       not supplied, substitute their defaults, exit 3 with the
+                       result marked provisional (0 and [] when none pending)
   --data <file.xml>    Load canonical (mapping-free) data, authoritative
   --review <file.xml>  Load canonical data for re-interview (pre-filled, asked)
   --save <file.xml>    Save the collected data as canonical XML after the run
 ```
+
+Exit codes: `0` complete; `3` ran but provisional, questions are pending
+(`--pending` only); `1` error.
 
 ---
 
@@ -251,6 +257,41 @@ dtrules run MyRules --entry T --review case.xml --interactive
 `--data` loads values **authoritatively** (marked collected → not re-asked);
 `--review` loads them as **defaults** (re-asked, pre-filled). The web interview
 exposes the same review/modify loop with a button.
+
+### Unattended runs: `--pending`
+
+A daemon tick or a nightly batch cannot park on a person, and must not act on a
+result computed from a default nobody confirmed. `--pending` runs the rules
+without prompting, records every reached collect field that was not supplied,
+and says so:
+
+```bash
+# Run without a human. Exit 3 means "ran, but provisional".
+dtrules run MyRules --entry T --data case.xml --pending ask.json
+```
+
+```json
+[
+  {
+    "entity": "patient", "instance": 10019, "field": "pcr",
+    "question_text": "Plasma creatinine (mg/dL)?", "question_type": "number",
+    "ref_low": "0.7", "ref_high": "1.3", "units": "mg/dL",
+    "default": "0"
+  }
+]
+```
+
+Publish the questions, write the answers into the canonical data file, and
+re-run with `--data`. Exit `0` and an empty `[]` mean nothing was asked and the
+result stands. Because the substituted defaults steer which branches the run
+takes, answering one question can bring another into reach — so **loop until
+the exit code is 0**. That is inherent to a path-dependent interview, not a
+defect.
+
+`--pending` is mutually exclusive with `--interactive` and `--web`: it is the
+opposite of asking, not a variation on it. The library equivalent is
+`collect.NewRecorder()`, attached with `SetCollector`; `Pending()` returns the
+same list.
 
 ### How it works
 
