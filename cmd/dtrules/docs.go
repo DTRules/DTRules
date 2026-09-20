@@ -2627,26 +2627,38 @@ Decision Table (eligibility_dt.xml):
 </decision_tables>
 
 
-Go Code (preview — pkg/dtrules/sdk is being extracted, issue #757):
--------------------------------------------------------------------
-import "github.com/DTRules/DTRules/pkg/dtrules/sdk/engine"
+Go Code (the supported embedding path — there is no wrapper package):
+---------------------------------------------------------------------
+import (
+    "github.com/DTRules/DTRules/pkg/dtrules"
+    "github.com/DTRules/DTRules/pkg/dtrules/datafile"
+    "github.com/DTRules/DTRules/pkg/dtrules/session"
+)
 
-ctx := engine.NewContext()
-ctx.SetEntity("applicant", "age", 25)
-ctx.SetEntity("applicant", "income", 50000.0)
-ctx.SetEntity("applicant", "citizen", true)
+rs := session.NewRuleSet("Eligibility")
+if err := rs.LoadFromDirectory(xmlDir); err != nil { ... }
+sess, err := rs.NewSession()
+state := sess.GetState()
 
-result, _ := engine.Execute("Check_Eligibility", ctx)
-
-if result.GetBool("eligible") {
-    fmt.Printf("Approved! Max amount: $%.2f\n", result.GetFloat("max_amount"))
-} else {
-    fmt.Printf("Denied: %s\n", result.GetString("reason"))
+// Data in. Canonical data XML is 1:1 with the EDD, so no mapping is
+// needed: push the singletons, then read the document into them.
+for _, name := range []string{"applicant", "decision"} {
+    e, _ := sess.CreateEntity(dtrules.GetRName(name))
+    state.EntityPush(e)
 }
+datafile.Read(dataXML, find, create, datafile.Authoritative)
 
-Until the SDK lands, the supported embedding path is to construct
-the engine directly from cmd/dtrules (see cli.go) — both binaries
-in this repo (cmd/dtrules, cmd/api) follow that pattern.
+// Execute the entry table and read the result off the stack.
+dt, _ := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Check_Eligibility"))
+if err := dt.Execute(state); err != nil { ... }
+
+decision, _ := state.FindEntity(dtrules.GetRName("decision"))
+eligible, _ := decision.Get(dtrules.GetRName("eligible"))
+fmt.Println(eligible.StringValue())
+
+Input data whose tag names are not yours to choose goes through
+pkg/dtrules/mapping instead; see 'dtrules docs embedding' for both
+paths, the embed layout, and trace capture.
 `
 
 const docWorkflow = `DTRules Development Workflow
