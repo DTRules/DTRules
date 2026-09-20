@@ -48,11 +48,15 @@ type reviewReport struct {
 	// DatedConstants: fields whose comment cites a year other than the
 	// project's declared tax year (#1140).
 	DatedConstants []analysis.DatedConstantWarning `json:"dated_constants"`
-	ContextHints   []analysis.ContextSuggestion    `json:"context_hints"`
-	Diagnostics    []authoring.Diagnostic          `json:"diagnostics"`
-	Structure      interface{}                     `json:"structure"`
-	ELCompliance   interface{}                     `json:"el_compliance"`
-	Passed         bool                            `json:"passed"`
+	// ConstraintAdvisories: actions that assign a literal outside the target
+	// field's declared vocabulary (#1209). Advisory — the boundary refuses a
+	// bad value, but a rule may set what it computes.
+	ConstraintAdvisories []analysis.ConstraintAdvisory `json:"constraint_advisories"`
+	ContextHints         []analysis.ContextSuggestion  `json:"context_hints"`
+	Diagnostics          []authoring.Diagnostic        `json:"diagnostics"`
+	Structure            interface{}                   `json:"structure"`
+	ELCompliance         interface{}                   `json:"el_compliance"`
+	Passed               bool                          `json:"passed"`
 }
 
 // reviewError tags every hard error with its source so consumers can
@@ -104,6 +108,8 @@ func runFullReview(projectPath string) (*reviewReport, error) {
 		DatedConstants: []analysis.DatedConstantWarning{},
 		ContextHints:   []analysis.ContextSuggestion{},
 		Diagnostics:    []authoring.Diagnostic{},
+
+		ConstraintAdvisories: []analysis.ConstraintAdvisory{},
 	}
 
 	// 1. Structure validation.
@@ -226,6 +232,14 @@ func runFullReview(projectPath string) (*reviewReport, error) {
 	// context so their fields read unqualified. Never an error.
 	if hints, hintErr := analysis.SuggestContextPushes(xmlDir); hintErr == nil {
 		rep.ContextHints = append(rep.ContextHints, hints...)
+	}
+
+	// 5c. Constrained assignments (advisory): a table setting a string
+	// literal that the target field's declared vocabulary does not contain
+	// (#1209). Never an error — enforcement stops at the boundary — but a
+	// literal out of the set is nearly always a typo.
+	if adv, advErr := analysis.AnalyzeConstrainedAssignments(xmlDir); advErr == nil {
+		rep.ConstraintAdvisories = append(rep.ConstraintAdvisories, adv...)
 	}
 
 	// 6. Table call graph — orphan `perform <Name>` calls surface as
