@@ -1292,6 +1292,8 @@ value:
   --data / --review  the canonical data file
   collect            the interview resolver, and so the web UI
   POST /api/execute  the API server
+  Go SDK             Project.SetAttribute and DebugSession.SetAttribute
+                     (the gate's error is returned; the old value stays)
 
 A refusal names entity.field, the offending value and the allowed set (or
 the limit and the actual size). The CLI exits non-zero and prints no
