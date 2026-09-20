@@ -74,6 +74,19 @@ type EDDXMLField struct {
 	Collect string `xml:"collect,attr,omitempty"`
 	// Question is the metadata used to ask for a Collect field.
 	Question *EDDXMLQuestion `xml:"question,omitempty"`
+	// MaxLength / MaxWords bound a string field's length (#1209). Strings,
+	// not ints, so an absent limit stays absent through a round trip rather
+	// than reappearing as "0".
+	MaxLength string `xml:"max_length,attr,omitempty"`
+	MaxWords  string `xml:"max_words,attr,omitempty"`
+	// AllowedValues is the field's closed vocabulary (#1209). Independent of
+	// Collect: a field nobody is asked for can still have one.
+	AllowedValues []*EDDXMLAllowedValue `xml:"allowed_value,omitempty"`
+}
+
+// EDDXMLAllowedValue is one member of a field's closed vocabulary (#1209).
+type EDDXMLAllowedValue struct {
+	Value string `xml:"value,attr"`
 }
 
 // EDDXMLQuestion describes how to ask the user for a Collect field.
@@ -97,6 +110,43 @@ type EDDXMLOption struct {
 // the legacy field metadata; I–M carry the collect/question metadata (#850):
 // I=Collect, J=Question text, K=Question type, L=Options, M=Reference range.
 const eddColumnCount = 13
+
+// eddConstraintColumnCount is the column count of a sheet that also carries
+// the value constraints (#1209): N=Allowed values, O=Max length, P=Max words.
+//
+// Those three are written only for a sheet where some field declares one.
+// An EDD sheet is not a schema that every workbook must match — the importer
+// reads by column position and a column that is not there reads as empty —
+// and writing them unconditionally would have rewritten the EDD sheet of
+// every workbook in every project the first time anything was authored,
+// recompiling all of them and attaching that diff to an unrelated edit.
+const eddConstraintColumnCount = 16
+
+// eddColumns is the width of an EDD sheet with or without the constraint
+// columns.
+func eddColumns(withConstraints bool) int {
+	if withConstraints {
+		return eddConstraintColumnCount
+	}
+	return eddColumnCount
+}
+
+// eddHeaders is the EDD sheet's header row, with the constraint columns only
+// when the sheet carries them.
+func eddHeaders(withConstraints bool) []string {
+	h := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description", "Collect", "Question", "Q Type", "Options", "Reference"}
+	if withConstraints {
+		h = append(h, "Allowed Values", "Max Length", "Max Words")
+	}
+	return h
+}
+
+// fieldHasConstraints reports whether an EDD XML field declares any value
+// constraint (#1209).
+func fieldHasConstraints(f *EDDXMLField) bool {
+	return f != nil && (len(f.AllowedValues) > 0 ||
+		strings.TrimSpace(f.MaxLength) != "" || strings.TrimSpace(f.MaxWords) != "")
+}
 
 // encodeEDDOptions packs multiple_choice options into one Excel cell as
 // `value=label|value=label`. Quick-and-dirty (#850): values/labels are
@@ -164,6 +214,47 @@ func decodeEDDRef(s string) (low, high, units string) {
 		return ""
 	}
 	return get(0), get(1), get(2)
+}
+
+// encodeEDDAllowed packs a field's closed vocabulary into one Excel cell as
+// `first|second` (#1209), the same one-cell-one-list convention the question
+// options use. Values are assumed not to contain `|`.
+func encodeEDDAllowed(values []*EDDXMLAllowedValue) string {
+	parts := make([]string, 0, len(values))
+	for _, v := range values {
+		if v == nil || strings.TrimSpace(v.Value) == "" {
+			continue
+		}
+		parts = append(parts, v.Value)
+	}
+	return strings.Join(parts, "|")
+}
+
+// decodeEDDAllowed parses the cell encoding produced by encodeEDDAllowed.
+// The authored spelling of each value is preserved; only surrounding
+// whitespace is trimmed.
+func decodeEDDAllowed(s string) []*EDDXMLAllowedValue {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return nil
+	}
+	var out []*EDDXMLAllowedValue
+	for _, part := range strings.Split(s, "|") {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		out = append(out, &EDDXMLAllowedValue{Value: part})
+	}
+	return out
+}
+
+// constraintsFromCells reads the value-constraint cells (columns N–P) onto a
+// field (#1209).
+func constraintsFromCells(f *EDDXMLField, allowed, maxLength, maxWords string) {
+	f.AllowedValues = decodeEDDAllowed(allowed)
+	f.MaxLength = strings.TrimSpace(maxLength)
+	f.MaxWords = strings.TrimSpace(maxWords)
 }
 
 // questionFromCells builds an EDDXMLQuestion from the collect/question cells
@@ -564,6 +655,8 @@ func (i *EDDImporter) parseEDDSheet(f *excelize.File, sheetName string) (*EDDXML
 		}
 		field.Collect, field.Question = questionFromCells(
 			getCellValue(row, 8), getCellValue(row, 9), getCellValue(row, 10), getCellValue(row, 11), getCellValue(row, 12))
+		// Value constraints (#1209), columns N–P.
+		constraintsFromCells(field, getCellValue(row, 13), getCellValue(row, 14), getCellValue(row, 15))
 
 		// Apply defaults
 		if field.Type == "" {
@@ -627,6 +720,10 @@ func MergeEDD(edds ...*EDDXML) *EDDXML {
 						Comment:      field.Comment,
 						Collect:      field.Collect,
 						Question:     field.Question,
+
+						MaxLength:     field.MaxLength,
+						MaxWords:      field.MaxWords,
+						AllowedValues: field.AllowedValues,
 					})
 				}
 				entityMap[ent.Name] = cloned
@@ -649,6 +746,10 @@ func MergeEDD(edds ...*EDDXML) *EDDXML {
 							Comment:      field.Comment,
 							Collect:      field.Collect,
 							Question:     field.Question,
+
+							MaxLength:     field.MaxLength,
+							MaxWords:      field.MaxWords,
+							AllowedValues: field.AllowedValues,
 						})
 						fieldMap[field.Name] = true
 					}

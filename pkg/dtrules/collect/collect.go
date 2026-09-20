@@ -131,6 +131,15 @@ func (c *Collector) MaybeCollect(e dtrules.Entity, attr *dtrules.RName) error {
 	// answered==true with a nil value is treated as "keep the default" (same as
 	// a decline); an Asker that means a real value must return a non-nil one.
 	if answered && value != nil {
+		// An answer is outside data like any other, so the field's declared
+		// constraints apply (#1209). A refused answer was never collected:
+		// clear the mark set above, so the field is still defaulted and a
+		// caller that retries asks again rather than reading a value that
+		// was rejected.
+		if err := entity.CheckExternalWrite(re, attr, value); err != nil {
+			re.UnmarkCollected(attr)
+			return err
+		}
 		if err := re.Put(attr, value); err != nil {
 			return err
 		}

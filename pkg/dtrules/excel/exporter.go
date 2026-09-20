@@ -400,16 +400,17 @@ func (e *Exporter) ExportEDD(filename string) error {
 		return err
 	}
 
-	e.setEDDColumnWidths(f, sheet)
-	e.writeEDDHeaders(f, sheet, styler, 1)
-	FreezePaneAtRow2(f, sheet)
-
 	entities := e.ruleSet.GetEntityFactory().GetRefEntities()
 	sort.Slice(entities, func(i, j int) bool {
 		return entities[i].GetName().StringValue() < entities[j].GetName().StringValue()
 	})
 
-	e.writeEDDEntities(f, sheet, entities, styler, eddStyles, 2)
+	withConstraints := e.eddHasConstraints(entities)
+	e.setEDDColumnWidths(f, sheet, withConstraints)
+	e.writeEDDHeaders(f, sheet, styler, 1, withConstraints)
+	FreezePaneAtRow2(f, sheet)
+
+	e.writeEDDEntities(f, sheet, entities, styler, eddStyles, 2, withConstraints)
 
 	return f.SaveAs(filename)
 }
@@ -465,16 +466,17 @@ func (e *Exporter) writeEDDSheet(f *excelize.File, styler *Styler, sheetName str
 		return err
 	}
 
-	e.setEDDColumnWidths(f, sheetName)
+	withConstraints := e.eddHasConstraints(entities)
+	e.setEDDColumnWidths(f, sheetName, withConstraints)
 
 	// Row 1: type marker for mixed-workbook sheet-type detection
 	f.SetCellValue(sheetName, "A1", "EDD: EDD")
 	f.SetCellStyle(sheetName, "A1", "A1", styler.HeaderStyle)
 
-	e.writeEDDHeaders(f, sheetName, styler, 2)
+	e.writeEDDHeaders(f, sheetName, styler, 2, withConstraints)
 	FreezePaneAtRow3(f, sheetName)
 
-	e.writeEDDEntities(f, sheetName, entities, styler, eddStyles, 3)
+	e.writeEDDEntities(f, sheetName, entities, styler, eddStyles, 3, withConstraints)
 
 	return nil
 }
@@ -595,10 +597,11 @@ func (e *Exporter) writeEDDGroup(dir, xlsFile string, entities []*entity.REntity
 		return err
 	}
 
-	e.setEDDColumnWidths(f, sheet)
-	e.writeEDDHeaders(f, sheet, styler, 1)
+	withConstraints := e.eddHasConstraints(entities)
+	e.setEDDColumnWidths(f, sheet, withConstraints)
+	e.writeEDDHeaders(f, sheet, styler, 1, withConstraints)
 	FreezePaneAtRow2(f, sheet)
-	e.writeEDDEntities(f, sheet, entities, styler, eddStyles, 2)
+	e.writeEDDEntities(f, sheet, entities, styler, eddStyles, 2, withConstraints)
 
 	return f.SaveAs(dir + "/" + xlsFile)
 }
@@ -788,7 +791,32 @@ func (e *Exporter) getTypeStyle(s *eddExtraStyles, typeName string) int {
 	}
 }
 
-func (e *Exporter) setEDDColumnWidths(f *excelize.File, sheet string) {
+// eddHasConstraints reports whether any field this sheet will carry declares
+// a value constraint (#1209). Only then does the sheet grow columns N–P — see
+// eddConstraintColumnCount for why they are not written unconditionally.
+func (e *Exporter) eddHasConstraints(entities []*entity.REntity) bool {
+	for _, ent := range entities {
+		if ent == nil {
+			continue
+		}
+		entityName := ent.GetName().StringValue()
+		for _, attrName := range ent.GetAttributeNames() {
+			if attrName.StringValue() == entityName || attrName.StringValue() == "mapping*key" {
+				continue
+			}
+			entry := ent.GetEntry(attrName)
+			if entry == nil || !e.includes(entry) {
+				continue
+			}
+			if !entry.Constraints.IsEmpty() {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (e *Exporter) setEDDColumnWidths(f *excelize.File, sheet string, withConstraints bool) {
 	AutoWidth(f, sheet, "A", 18)
 	AutoWidth(f, sheet, "B", 25)
 	AutoWidth(f, sheet, "C", 10)
@@ -802,17 +830,22 @@ func (e *Exporter) setEDDColumnWidths(f *excelize.File, sheet string) {
 	AutoWidth(f, sheet, "K", 16)
 	AutoWidth(f, sheet, "L", 30)
 	AutoWidth(f, sheet, "M", 18)
+	if withConstraints {
+		AutoWidth(f, sheet, "N", 30)
+		AutoWidth(f, sheet, "O", 12)
+		AutoWidth(f, sheet, "P", 12)
+	}
 }
 
-func (e *Exporter) writeEDDHeaders(f *excelize.File, sheet string, styler *Styler, startRow int) {
-	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description", "Collect", "Question", "Q Type", "Options", "Reference"}
+func (e *Exporter) writeEDDHeaders(f *excelize.File, sheet string, styler *Styler, startRow int, withConstraints bool) {
+	headers := eddHeaders(withConstraints)
 	for col, header := range headers {
 		cell, _ := excelize.CoordinatesToCellName(col+1, startRow)
 		styler.ApplyHeader(f, sheet, cell, cell, cell, header)
 	}
 }
 
-func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*entity.REntity, styler *Styler, s *eddExtraStyles, startRow int) {
+func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*entity.REntity, styler *Styler, s *eddExtraStyles, startRow int, withConstraints bool) {
 	row := startRow
 	for _, ent := range entities {
 		entityName := ent.GetName().StringValue()
@@ -837,7 +870,7 @@ func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*
 
 		f.SetCellValue(sheet, cellName(1, row), entityName)
 		f.SetCellValue(sheet, cellName(2, row), fmt.Sprintf("(%d attributes)", attrCount))
-		for col := 1; col <= eddColumnCount; col++ {
+		for col := 1; col <= eddColumns(withConstraints); col++ {
 			f.SetCellStyle(sheet, cellName(col, row), cellName(col, row), s.entityHeader)
 		}
 		row++
@@ -926,6 +959,30 @@ func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*
 			f.SetCellStyle(sheet, cellName(12, row), cellName(12, row), rowStyle)
 			f.SetCellValue(sheet, cellName(13, row), qRef)
 			f.SetCellStyle(sheet, cellName(13, row), cellName(13, row), rowStyle)
+
+			// Value constraints (#1209), columns N–P.
+			allowed, maxLen, maxWords := "", "", ""
+			if c := entry.Constraints; withConstraints && !c.IsEmpty() {
+				xa := make([]*EDDXMLAllowedValue, 0, len(c.AllowedValues))
+				for _, v := range c.AllowedValues {
+					xa = append(xa, &EDDXMLAllowedValue{Value: v})
+				}
+				allowed = encodeEDDAllowed(xa)
+				if c.MaxLength > 0 {
+					maxLen = strconv.Itoa(c.MaxLength)
+				}
+				if c.MaxWords > 0 {
+					maxWords = strconv.Itoa(c.MaxWords)
+				}
+			}
+			if withConstraints {
+				f.SetCellValue(sheet, cellName(14, row), allowed)
+				f.SetCellStyle(sheet, cellName(14, row), cellName(14, row), rowStyle)
+				f.SetCellValue(sheet, cellName(15, row), maxLen)
+				f.SetCellStyle(sheet, cellName(15, row), cellName(15, row), rowStyle)
+				f.SetCellValue(sheet, cellName(16, row), maxWords)
+				f.SetCellStyle(sheet, cellName(16, row), cellName(16, row), rowStyle)
+			}
 
 			row++
 			attrRow++

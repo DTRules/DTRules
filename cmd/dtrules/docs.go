@@ -1245,6 +1245,76 @@ read of the array, so append-style outputs (e.g. a warnings/rationale
 list) stay access="rw", not "w". Use "w" for scalar set-once outputs.
 
 
+Value Constraints (allowed_values / max_length / max_words)
+----------------------------------------------------------
+A field can declare what values it may legally hold:
+
+  <field name="diagnosis" type="string" default_value="Acute Sinusitis"
+         max_length="40">
+      <allowed_value value="Acute Sinusitis"/>
+      <allowed_value value="Chronic Sinusitis"/>
+  </field>
+
+  allowed_values   A closed vocabulary, one <allowed_value value="..."/>
+                   per member. Valid on string and integer fields, and
+                   independent of collect -- a field nobody is asked for
+                   can still have one.
+  max_length       Longest value a string field may hold, in characters.
+  max_words        Most whitespace-separated words a string field may hold.
+
+The vocabulary is matched the way every name in EL is matched: without
+regard to case. "Acute Sinusitis" and "acute sinusitis" are one value, and
+the spelling written back out is the one you authored.
+
+Declare them through the authoring API, never by hand:
+
+  echo '{"op":"update-field","entity":"patient","field":{
+    "name":"diagnosis",
+    "allowed_values":["Acute Sinusitis","Chronic Sinusitis"],
+    "max_length":"40"}}' | dtrules edd patch
+
+The same metadata lives in columns N-P of the EDD sheet (Allowed Values,
+Max Length, Max Words), so editing the workbook and running 'dtrules build'
+is the other way to declare it. A workbook grows those columns the first
+time a field in it declares a constraint. On a patch, omitting a constraint
+keeps what the field has; "allowed_values": [] and "max_length": "0" clear
+it.
+
+'dtrules validate' rejects a field whose own default its constraints
+reject -- such a default is unreachable, because no input can correct it.
+
+Where constraints are enforced
+------------------------------
+Every path that writes a field from OUTSIDE the rules refuses a violating
+value:
+
+  --input <file>     the mapping loader (XML and JSON)
+  --data / --review  the canonical data file
+  collect            the interview resolver, and so the web UI
+  POST /api/execute  the API server
+
+A refusal names entity.field, the offending value and the allowed set (or
+the limit and the actual size). The CLI exits non-zero and prints no
+result; the API answers 400. A refused interview answer leaves the field
+uncollected on its default, so it can be asked again.
+
+  dtrules run . --entry Determine_Therapy --data case.xml
+  Error loading data "case.xml": patient.diagnosis: "Banana" is not one of
+  the allowed values [Acute Sinusitis, Chronic Sinusitis]
+
+A field absent from the input is not a violation -- it takes its default.
+
+Where they are NOT enforced
+---------------------------
+A rule's own assignment. 'set patient.diagnosis = "Bannana"' runs: a
+constraint says what the outside world may hand in, not what the rules may
+compute. 'dtrules review' reports a literal outside the vocabulary as an
+advisory (constraint_advisories: table, action number, field, literal and
+the allowed set). Advisories never gate deployment.
+
+A field that declares no constraint is not checked at all.
+
+
 Best Practices
 --------------
 1. Use lowercase_with_underscores for names

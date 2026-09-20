@@ -214,6 +214,60 @@ answers arrive — so the loop is the contract, not a single pass. `--pending`
 is mutually exclusive with `--interactive` and `--web`: it is the opposite of
 asking, not a variation on it.
 
+### 2.5.1 Field value constraints
+
+An EDD field may declare what values it can legally hold:
+
+- `allowed_values` — a closed vocabulary, written as one `<allowed_value
+  value="…"/>` per member. Valid on `string` and `integer` fields, and
+  independent of `collect`: a field nobody is asked for can still have one.
+- `max_length` — the longest value a `string` field may hold, in characters.
+- `max_words` — the most whitespace-separated words a `string` field may hold.
+
+A vocabulary is matched the way every other name in the system is matched:
+without regard to case (§1.5.5). `Acute Sinusitis` and `acute sinusitis` are
+one value, and the spelling written back out is the authored one.
+
+The constraints travel with the field through every layer — the entity model,
+the EDD XML, `dtrules edd get|put|patch`, and columns N–P of the Excel EDD
+sheet (`Allowed Values`, `Max Length`, `Max Words`) — so `dtrules build` and
+`dtrules verify` round-trip them byte-identically. A sheet grows those three
+columns only where some field declares a constraint: the importer reads by
+column position and an absent column reads as empty, so a project that uses
+none keeps the workbook it already has.
+
+`dtrules validate` rejects a field whose own `default` its constraints reject,
+and the authoring API refuses to write one. Such a default is unreachable
+rather than merely odd: the field starts every run holding a value the rules
+were told it can never hold.
+
+**Where they are enforced.** Every path that writes a field from *outside* the
+rules refuses a violating value: the mapping (`--input`, XML and JSON), the
+canonical data file (`--data` and `--review`), the `collect` resolver and so
+the web interview, and the API server's `/api/execute`. Each calls one gate,
+`entity.CheckExternalWrite`; none compares values itself. A refusal names
+`entity.field`, the offending value and the allowed set (or the limit and the
+actual size); the CLI exits non-zero and prints no result, and the API answers
+`400`. A refused interview answer leaves the field *uncollected*, still holding
+its default, so the question can be asked again.
+
+A field that is simply absent from the input is not a violation: it takes its
+default. The check applies to values supplied, and an illegal default is a
+`dtrules validate` error rather than a run-time one.
+
+**Where they are not.** A rule's own assignment is never refused. `set
+patient.diagnosis = "Bannana"` runs. A constraint describes what the outside
+world may hand in, not what the rules may compute — a rule set is allowed to
+know something its EDD's vocabulary has not been told yet, and a table that
+halted mid-run because an intermediate value was not yet in the list would be
+worse than the typo. `dtrules review` reports such a literal as an **advisory**
+(`constraint_advisories`: the table, the action number, the field, the literal
+and the set), because out of the set is nearly always a typo. Advisories never
+gate deployment.
+
+A field declaring no constraint is not checked at all — the gate returns on a
+nil check, so a project that declares none pays nothing.
+
 ## 2.6 Static analysis
 
 `pkg/dtrules/analysis` runs project-wide:
@@ -225,6 +279,9 @@ asking, not a variation on it.
   `entity.attr` the EDD does not declare, an operator absent from the registry.
 - **Dated constants** — a comment citing a year that is not the project's
   declared tax year.
+- **Constrained assignments** — a `set field = "literal"` whose literal is
+  outside the field's declared vocabulary (§2.5.1). Advisory: a rule may write
+  what it computes, but the literal is usually a typo.
 - **Advisory pass** (`pkg/dtrules/decisiontable`) — redundant conditions,
   columns subsumed by another, no-op columns.
 

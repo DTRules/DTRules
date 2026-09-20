@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
+	"github.com/DTRules/DTRules/pkg/dtrules/entity"
 )
 
 // jsonDataLoader loads JSON data into entities using the mapping configuration.
@@ -115,11 +116,11 @@ func (l *jsonDataLoader) processTag(tag string, raw json.RawMessage) error {
 
 // processEntityObject creates an entity from a JSON object and processes its fields.
 func (l *jsonDataLoader) processEntityObject(tag string, info *EntityInfo, obj map[string]interface{}) error {
-	entity, err := l.findOrCreateEntity(info, obj)
+	ent, err := l.findOrCreateEntity(info, obj)
 	if err != nil {
 		return err
 	}
-	if entity == nil {
+	if ent == nil {
 		return nil
 	}
 
@@ -134,16 +135,16 @@ func (l *jsonDataLoader) processEntityObject(tag string, info *EntityInfo, obj m
 	}
 	mappingKey := dtrules.GetRName("mapping*key")
 	if mappingKey != nil {
-		entity.Put(mappingKey, dtrules.NewRString(code))
+		ent.Put(mappingKey, dtrules.NewRString(code))
 		// Direct Put bypasses Def, so trace the write explicitly for replay.
 		l.state.TraceInfo("def", dtrules.NewRString(code).PostFix(),
-			"entity", entity.GetName().StringValue(),
+			"entity", ent.GetName().StringValue(),
 			"name", "mapping*key",
-			"id", fmt.Sprintf("%d", entity.GetID()))
+			"id", fmt.Sprintf("%d", ent.GetID()))
 	}
 
 	// Push entity onto the entity stack
-	l.state.EntityPush(entity)
+	l.state.EntityPush(ent)
 
 	// Process child fields
 	for childTag, childValue := range obj {
@@ -184,6 +185,9 @@ func (l *jsonDataLoader) processEntityObject(tag string, info *EntityInfo, obj m
 		}
 		value := l.goValueToDTRules(childValue)
 		if value != nil {
+			if err := entity.CheckExternalWrite(foundEntity, attrName, value); err != nil {
+				return err
+			}
 			l.state.Def(attrName, value, true)
 		}
 	}
@@ -242,6 +246,14 @@ func (l *jsonDataLoader) processAttributeValue(tag string, aInfo *AttributeInfo,
 
 	value := l.convertToAttributeType(attrib.Type, body, goValue)
 	if value != nil {
+		// Same gate as the XML mapping loader: JSON input is outside data too
+		// and must satisfy the field's declared constraints (#1209).
+		owner, ferr := l.state.FindEntity(attrName)
+		if ferr == nil && owner != nil {
+			if err := entity.CheckExternalWrite(owner, attrName, value); err != nil {
+				return err
+			}
+		}
 		l.state.Def(attrName, value, true)
 	}
 

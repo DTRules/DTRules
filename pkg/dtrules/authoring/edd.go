@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
+	"github.com/DTRules/DTRules/pkg/dtrules/entity"
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
 )
 
@@ -87,6 +88,18 @@ type Attribute struct {
 	QuestionRefLow  string
 	QuestionRefHigh string
 	QuestionUnits   string
+
+	// AllowedValues is the field's closed vocabulary (#1209). Independent of
+	// Collect — a field nobody is asked for can still be restricted. Matching
+	// follows EL's rule for names (case-insensitive); the authored spelling
+	// is what is written back. On a patch, nil means "keep existing" and an
+	// empty non-nil slice clears the vocabulary.
+	AllowedValues []string
+	// MaxLength / MaxWords bound a string field's length, in characters and
+	// in whitespace-separated words (#1209). Empty means no limit, and ==
+	// "keep existing" on a patch; "0" clears the limit.
+	MaxLength string
+	MaxWords  string
 }
 
 // Option is one choice for a multiple_choice question.
@@ -258,6 +271,13 @@ func attributeFromXML(f *excel.EDDXMLField) Attribute {
 		Comment: f.Comment,
 		Collect: f.Collect,
 	}
+	a.MaxLength = f.MaxLength
+	a.MaxWords = f.MaxWords
+	for _, v := range f.AllowedValues {
+		if v != nil {
+			a.AllowedValues = append(a.AllowedValues, v.Value)
+		}
+	}
 	if f.Question != nil {
 		a.QuestionText = f.Question.Text
 		a.QuestionType = f.Question.Type
@@ -378,6 +398,25 @@ func mergeAttribute(base, patch Attribute) Attribute {
 	if patch.QuestionUnits != "" {
 		result.QuestionUnits = patch.QuestionUnits
 	}
+	if patch.AllowedValues != nil {
+		result.AllowedValues = patch.AllowedValues
+		if len(patch.AllowedValues) == 0 {
+			result.AllowedValues = nil
+		}
+	}
+	if patch.MaxLength != "" {
+		result.MaxLength = patch.MaxLength
+	}
+	if patch.MaxWords != "" {
+		result.MaxWords = patch.MaxWords
+	}
+	// "0" is how a patch says "no limit"; store the absence, not the zero.
+	if strings.TrimSpace(result.MaxLength) == "0" {
+		result.MaxLength = ""
+	}
+	if strings.TrimSpace(result.MaxWords) == "0" {
+		result.MaxWords = ""
+	}
 	// A field that isn't collected carries no question metadata.
 	if !strings.EqualFold(result.Collect, "true") {
 		result.QuestionText, result.QuestionType, result.Options = "", "", nil
@@ -395,6 +434,13 @@ func attributeToXML(a Attribute) *excel.EDDXMLField {
 		Access:       a.Access,
 		Input:        a.Input,
 		Comment:      a.Comment,
+		MaxLength:    zeroAsAbsent(a.MaxLength),
+		MaxWords:     zeroAsAbsent(a.MaxWords),
+	}
+	for _, v := range a.AllowedValues {
+		if strings.TrimSpace(v) != "" {
+			f.AllowedValues = append(f.AllowedValues, &excel.EDDXMLAllowedValue{Value: strings.TrimSpace(v)})
+		}
 	}
 	if strings.EqualFold(a.Collect, "true") {
 		f.Collect = "true"
@@ -440,7 +486,85 @@ func validateAttribute(a Attribute) error {
 	if err := validateCollect(a); err != nil {
 		return err
 	}
+	if err := validateConstraints(a); err != nil {
+		return err
+	}
 	return nil
+}
+
+// constraintTypes is the set of types a closed vocabulary may be declared on
+// (#1209). A vocabulary is a list of literal spellings, which only reads
+// sensibly for text and whole numbers.
+var constraintTypes = map[string]bool{"string": true, "integer": true}
+
+// validateConstraints checks the value constraints a field declares (#1209):
+// that they apply to a type they can apply to, that the limits are numbers,
+// that the vocabulary lists each value once, and that the field's own default
+// satisfies them. The last is the check `dtrules validate` reports — a
+// default outside its own vocabulary can never be corrected by any input.
+func validateConstraints(a Attribute) error {
+	maxLength, err := parseLimit(a.Name, "max_length", a.MaxLength)
+	if err != nil {
+		return err
+	}
+	maxWords, err := parseLimit(a.Name, "max_words", a.MaxWords)
+	if err != nil {
+		return err
+	}
+	if (maxLength > 0 || maxWords > 0) && a.Type != "" && a.Type != "string" {
+		return fmt.Errorf("attribute %q: max_length and max_words apply to a string field, not %q", a.Name, a.Type)
+	}
+	if len(a.AllowedValues) > 0 && a.Type != "" && !constraintTypes[a.Type] {
+		return fmt.Errorf("attribute %q: allowed_values applies to a string or integer field, not %q", a.Name, a.Type)
+	}
+	seen := map[string]bool{}
+	for i, v := range a.AllowedValues {
+		if strings.TrimSpace(v) == "" {
+			return fmt.Errorf("attribute %q: allowed value %d is empty", a.Name, i+1)
+		}
+		// EL matches names without regard to case, and this vocabulary
+		// matches the same way, so two spellings that differ only in case are
+		// one value listed twice.
+		key := strings.ToLower(strings.TrimSpace(v))
+		if seen[key] {
+			return fmt.Errorf("attribute %q: allowed value %q is listed twice", a.Name, v)
+		}
+		seen[key] = true
+	}
+	if a.Default == "" {
+		return nil
+	}
+	c := &entity.FieldConstraints{MaxLength: maxLength, MaxWords: maxWords}
+	for _, v := range a.AllowedValues {
+		c.AllowedValues = append(c.AllowedValues, strings.TrimSpace(v))
+	}
+	if err := c.Check("attribute "+strconv.Quote(a.Name)+" default", a.Default); err != nil {
+		return err
+	}
+	return nil
+}
+
+// zeroAsAbsent normalises a limit for storage: "no limit" is an absent
+// attribute, so a declared 0 is written as nothing rather than as "0".
+func zeroAsAbsent(v string) string {
+	v = strings.TrimSpace(v)
+	if v == "0" {
+		return ""
+	}
+	return v
+}
+
+// parseLimit reads a max_length / max_words cell. Empty is no limit.
+func parseLimit(name, which, v string) (int, error) {
+	v = strings.TrimSpace(v)
+	if v == "" {
+		return 0, nil
+	}
+	n, err := strconv.Atoi(v)
+	if err != nil || n < 0 {
+		return 0, fmt.Errorf("attribute %q: %s %q is not a non-negative whole number", name, which, v)
+	}
+	return n, nil
 }
 
 // validQuestionTypes is the set of question types the collection UI can

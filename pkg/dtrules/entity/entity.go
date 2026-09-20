@@ -94,6 +94,54 @@ func (e *REntity) MarkCollected(name *dtrules.RName) {
 	}
 }
 
+// UnmarkCollected clears the collected mark on the named attribute, putting
+// the field back to "still defaulted". No-op when tracking is off.
+//
+// Interactive collection marks a field collected *before* it asks, so a read
+// triggered from inside the Asker doesn't recurse into asking again (#852).
+// When the answer is then refused — a value outside the field's declared
+// vocabulary (#1209) — that mark is a lie: nothing was collected. Clearing it
+// is what keeps a refused answer from looking like an accepted one.
+func (e *REntity) UnmarkCollected(name *dtrules.RName) {
+	if e.collected == nil {
+		return
+	}
+	entry := e.attributes[name]
+	if entry != nil && entry.Index < len(e.collected) {
+		e.collected[entry.Index] = false
+	}
+}
+
+// CheckExternalWrite is the single gate every path that writes a field from
+// OUTSIDE the rules passes a value through (#1209): the mapping (`--input`),
+// the canonical data file (`--data` / `--review`), the collect resolver (and
+// so the web interview), and the API server. Each calls this and refuses the
+// write when it returns an error; none compares values itself.
+//
+// Rules are deliberately NOT gated here. A table's own `set` may write what it
+// likes — a constraint describes what the outside world may hand in, not what
+// the rules may compute. `dtrules review` reports a literal assigned outside a
+// field's vocabulary as an advisory instead.
+//
+// A field with no declared constraint costs one map lookup and one nil check:
+// the comparison is skipped, not run and passed. An attribute the entity does
+// not have is not this function's business either — Put reports that.
+func CheckExternalWrite(ent dtrules.Entity, name *dtrules.RName, value dtrules.Object) error {
+	e, ok := ent.(*REntity)
+	if !ok || e == nil || value == nil {
+		return nil
+	}
+	entry := e.attributes[name]
+	if entry == nil || entry.Constraints == nil {
+		return nil
+	}
+	field := entry.AuthoredName
+	if field == "" {
+		field = name.StringValue()
+	}
+	return entry.Constraints.Check(e.name.StringValue()+"."+field, value.StringValue())
+}
+
 // NewREntity creates a new reference entity (id=0 for references).
 func NewREntity(id int, readonly bool, name *dtrules.RName) *REntity {
 	e := &REntity{

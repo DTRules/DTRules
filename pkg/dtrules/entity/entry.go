@@ -18,6 +18,7 @@ package entity
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
 )
@@ -81,6 +82,87 @@ type EntityEntry struct {
 	Collect bool
 	// Question describes how to ask for a Collect field (nil when none).
 	Question *QuestionMeta
+
+	// Constraints bound the values this field may legally hold (#1209).
+	// Nil when the field declares none, which is the common case — a field
+	// with no constraint is never checked.
+	Constraints *FieldConstraints
+}
+
+// FieldConstraints declares what values a field may take (#1209). Every
+// member is optional; a zero-valued FieldConstraints constrains nothing.
+//
+// This is declaration only. Enforcement on the paths that write a field from
+// outside the rules is separate work; what lives here is the metadata the EDD
+// carries, round-trips through Excel, and exposes to the authoring API.
+type FieldConstraints struct {
+	// AllowedValues is the closed vocabulary for the field. Empty means the
+	// field is not restricted to a vocabulary.
+	//
+	// Matching follows EL's rule for names: case-insensitive. "Acute" and
+	// "acute" are one value, not two. The authored spelling is what is
+	// written back out, so the list is stored exactly as declared.
+	AllowedValues []string
+	// MaxLength is the longest string the field may hold, in characters
+	// (runes, not bytes). 0 means unlimited.
+	MaxLength int
+	// MaxWords is the most whitespace-separated words the field may hold.
+	// 0 means unlimited.
+	MaxWords int
+}
+
+// IsEmpty reports whether these constraints restrict nothing.
+func (c *FieldConstraints) IsEmpty() bool {
+	return c == nil || (len(c.AllowedValues) == 0 && c.MaxLength == 0 && c.MaxWords == 0)
+}
+
+// MatchAllowed looks value up in the vocabulary and returns the authored
+// spelling of the entry it matched. Matching is case-insensitive, the same
+// rule EL uses for names; the spelling returned is the one the EDD declares,
+// never the caller's.
+//
+// Reports false when the value is outside the vocabulary. A field with no
+// vocabulary admits everything, so the value is returned unchanged.
+func (c *FieldConstraints) MatchAllowed(value string) (string, bool) {
+	if c == nil || len(c.AllowedValues) == 0 {
+		return value, true
+	}
+	for _, v := range c.AllowedValues {
+		if strings.EqualFold(strings.TrimSpace(v), strings.TrimSpace(value)) {
+			return v, true
+		}
+	}
+	return value, false
+}
+
+// WordCount counts the whitespace-separated words in s, the unit MaxWords
+// bounds. Any run of whitespace separates, so tabs and newlines count the
+// same as spaces.
+func WordCount(s string) int { return len(strings.Fields(s)) }
+
+// Check reports the first way value violates these constraints, or nil when
+// it satisfies them all. The error names the field, the offending value and
+// the limit it broke, so a caller can report it without composing its own
+// message; fieldName is the qualified name to use ("patient.diagnosis").
+func (c *FieldConstraints) Check(fieldName, value string) error {
+	if c.IsEmpty() {
+		return nil
+	}
+	if c.MaxLength > 0 {
+		if n := len([]rune(value)); n > c.MaxLength {
+			return fmt.Errorf("%s: value is %d characters, max_length is %d", fieldName, n, c.MaxLength)
+		}
+	}
+	if c.MaxWords > 0 {
+		if n := WordCount(value); n > c.MaxWords {
+			return fmt.Errorf("%s: value is %d words, max_words is %d", fieldName, n, c.MaxWords)
+		}
+	}
+	if _, ok := c.MatchAllowed(value); !ok {
+		return fmt.Errorf("%s: %q is not one of the allowed values [%s]",
+			fieldName, value, strings.Join(c.AllowedValues, ", "))
+	}
+	return nil
 }
 
 // QuestionMeta is the metadata used to ask the user for a Collect field (#850).

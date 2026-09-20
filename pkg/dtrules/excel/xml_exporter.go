@@ -376,10 +376,11 @@ func WriteEDDXMLToExcel(edd *EDDXML, filename string) error {
 		return err
 	}
 
-	setEDDColumnWidthsForFile(f, sheet)
-	writeEDDHeadersForFile(f, sheet, styler, 1)
+	withConstraints := eddXMLHasConstraints(edd.Entities)
+	setEDDColumnWidthsForFile(f, sheet, withConstraints)
+	writeEDDHeadersForFile(f, sheet, styler, 1, withConstraints)
 	FreezePaneAtRow2(f, sheet)
-	writeEDDXMLEntities(f, sheet, edd.Entities, styler, eddStyles, 2)
+	writeEDDXMLEntities(f, sheet, edd.Entities, styler, eddStyles, 2, withConstraints)
 
 	return f.SaveAs(filename)
 }
@@ -390,7 +391,24 @@ func newEDDStylesForFile(f *excelize.File) (*eddExtraStyles, error) {
 	return e.newEDDStyles(f)
 }
 
-func setEDDColumnWidthsForFile(f *excelize.File, sheet string) {
+// eddXMLHasConstraints reports whether any field in these entities declares a
+// value constraint, which is what decides whether the sheet carries columns
+// N–P at all (#1209).
+func eddXMLHasConstraints(entities []*EDDXMLEntity) bool {
+	for _, ent := range entities {
+		if ent == nil {
+			continue
+		}
+		for _, f := range ent.Fields {
+			if fieldHasConstraints(f) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func setEDDColumnWidthsForFile(f *excelize.File, sheet string, withConstraints bool) {
 	AutoWidth(f, sheet, "A", 18)
 	AutoWidth(f, sheet, "B", 25)
 	AutoWidth(f, sheet, "C", 10)
@@ -404,17 +422,22 @@ func setEDDColumnWidthsForFile(f *excelize.File, sheet string) {
 	AutoWidth(f, sheet, "K", 16)
 	AutoWidth(f, sheet, "L", 30)
 	AutoWidth(f, sheet, "M", 18)
+	if withConstraints {
+		AutoWidth(f, sheet, "N", 30)
+		AutoWidth(f, sheet, "O", 12)
+		AutoWidth(f, sheet, "P", 12)
+	}
 }
 
-func writeEDDHeadersForFile(f *excelize.File, sheet string, styler *Styler, startRow int) {
-	headers := []string{"Entity", "Attribute", "Type", "SubType", "Default", "Input", "Access", "Description", "Collect", "Question", "Q Type", "Options", "Reference"}
+func writeEDDHeadersForFile(f *excelize.File, sheet string, styler *Styler, startRow int, withConstraints bool) {
+	headers := eddHeaders(withConstraints)
 	for col, header := range headers {
 		cell, _ := excelize.CoordinatesToCellName(col+1, startRow)
 		styler.ApplyHeader(f, sheet, cell, cell, cell, header)
 	}
 }
 
-func writeEDDXMLEntities(f *excelize.File, sheet string, entities []*EDDXMLEntity, styler *Styler, s *eddExtraStyles, startRow int) {
+func writeEDDXMLEntities(f *excelize.File, sheet string, entities []*EDDXMLEntity, styler *Styler, s *eddExtraStyles, startRow int, withConstraints bool) {
 	row := startRow
 	for _, ent := range entities {
 		attrCount := len(ent.Fields)
@@ -424,7 +447,7 @@ func writeEDDXMLEntities(f *excelize.File, sheet string, entities []*EDDXMLEntit
 
 		f.SetCellValue(sheet, cellName(1, row), ent.Name)
 		f.SetCellValue(sheet, cellName(2, row), fmt.Sprintf("(%d attributes)", attrCount))
-		for col := 1; col <= eddColumnCount; col++ {
+		for col := 1; col <= eddColumns(withConstraints); col++ {
 			f.SetCellStyle(sheet, cellName(col, row), cellName(col, row), s.entityHeader)
 		}
 		row++
@@ -485,6 +508,16 @@ func writeEDDXMLEntities(f *excelize.File, sheet string, entities []*EDDXMLEntit
 			f.SetCellStyle(sheet, cellName(12, row), cellName(12, row), rowStyle)
 			f.SetCellValue(sheet, cellName(13, row), qRef)
 			f.SetCellStyle(sheet, cellName(13, row), cellName(13, row), rowStyle)
+
+			// Value constraints (#1209), columns N–P.
+			if withConstraints {
+				f.SetCellValue(sheet, cellName(14, row), encodeEDDAllowed(field.AllowedValues))
+				f.SetCellStyle(sheet, cellName(14, row), cellName(14, row), rowStyle)
+				f.SetCellValue(sheet, cellName(15, row), field.MaxLength)
+				f.SetCellStyle(sheet, cellName(15, row), cellName(15, row), rowStyle)
+				f.SetCellValue(sheet, cellName(16, row), field.MaxWords)
+				f.SetCellStyle(sheet, cellName(16, row), cellName(16, row), rowStyle)
+			}
 
 			row++
 		}
