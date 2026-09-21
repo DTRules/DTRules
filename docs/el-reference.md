@@ -509,8 +509,8 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 
 #### Date arithmetic (date plus/minus days/months/years)
 
-**Syntax**: `dexpr plus N days|months|years` / `dexpr minus N days|months|years`
-**Semantics**: Add or subtract a date interval. Postfix operators: `adddays`, `subdays`, `addmonths`, `submonths`, `addyears`, `subyears`.
+**Syntax**: `dexpr + N days|months|years|minutes|seconds` / `dexpr - N days|months|years|minutes|seconds`
+**Semantics**: Add or subtract a date interval. Postfix operators: `adddays`, `addmonths`, `addyears`, `addminutes`, `addseconds` (subtraction is `negate` then the add). Minutes and seconds (#1232) are elapsed time: the instant that much later or earlier, keeping the date's zone.
 
 **Example (EL)**: `taxpayer.birth_date + 18 years is before current date`
 **Compiled postfix**: `taxpayer.birth_date 18 addyears today d<`
@@ -518,9 +518,12 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Example (EL)**: `taxpayer.birth_date - 1 months == current date`
 **Compiled postfix**: `taxpayer.birth_date 1 negate addmonths today d==`
 
+**Example (EL)**: `job.started + 90 seconds is before job.checked_at`
+**Compiled postfix**: `job.started 90 addseconds job.checked_at d<`
+
 #### Date statement arithmetic (modifies field in place)
 
-**Syntax**: `ADD N DAYS|MONTHS|YEARS TO typedDate` / `SUBTRACT N DAYS|MONTHS|YEARS FROM typedDate`
+**Syntax**: `ADD N DAYS|MONTHS|YEARS|MINUTES|SECONDS TO typedDate` / `SUBTRACT N DAYS|MONTHS|YEARS|MINUTES|SECONDS FROM typedDate`
 **Semantics**: Modify a date field by adding or subtracting an interval. Used as an action statement.
 **Example (EL)**: `add 18 years to taxpayer.birth_date`
 **Compiled postfix**: `taxpayer.birth_date 18 addyears /taxpayer.birth_date xdef`
@@ -533,6 +536,15 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Compiled postfix**: `taxpayer.birth_date today yearsbetween 18 >=`
 
 **Tax example**: `years from taxpayer.birth_date to current date >= 65` → age 65+ check
+
+#### Seconds / minutes between (#1232)
+
+**Syntax**: `SECONDS FROM dexpr TO dexpr` / `MINUTES FROM dexpr TO dexpr`
+**Semantics**: Whole seconds (minutes) of elapsed time from the first instant to the second: `d2 - d1`, negative when `d2` is earlier, truncated toward zero (119 seconds is 1 minute). The zone a date carries does not change the answer; across a daylight-saving change it counts the time that actually passed. Postfix operators: `secondsbetween`, `minutesbetween`. `second(s)` and `minute(s)` are keywords.
+**Example (EL)**: `seconds from job.last_progress to job.checked_at > 120`
+**Compiled postfix**: `job.last_progress job.checked_at secondsbetween 120 >`
+
+`current date` is today's date at midnight, not the current instant; to measure against "now" write `current date in zone "UTC"` (postfix `"UTC" currentdateinzone`).
 **Eligibility example**: `years from taxpayer.birth_date to current date >= constants.adult_age`
 
 #### Is before / is after / is between

@@ -210,6 +210,8 @@ Built-in integer functions:
     get days of months for someDate       day-of-month number
     get yearof someDate                   four-digit year
     days from d1 to d2                    days between two dates
+    seconds from d1 to d2                 whole seconds between two instants
+    minutes from d1 to d2                 whole minutes between two instants
     months from d1 to d2                  whole months between two dates
     years from d1 to d2                   whole years between two dates
     long value of myOperator(args)        integer result from a custom operator
@@ -591,20 +593,52 @@ Date arithmetic (returns dexpr):
     subtract N years from myDate   mutating subtract
     subtract N months from myDate
     subtract N days from myDate
+    add N minutes to myDate        mutating add, elapsed time (#1232)
+    add N seconds to myDate
+    subtract N minutes from myDate
+    subtract N seconds from myDate
 
-    d plus N years                 non-mutating date expression
-    d plus N months
-    d plus N days
-    d minus N years
-    d minus N months
-    d minus N days
+    d + N years                    non-mutating date expression
+    d + N months
+    d + N days
+    d + N minutes                  elapsed time (#1232)
+    d + N seconds
+    d - N years
+    d - N months
+    d - N days
+    d - N minutes
+    d - N seconds
 
     subtract N years from dexpr    expression-level (returns new dexpr)
     subtract N months from dexpr
     subtract N days from dexpr
+    subtract N minutes from dexpr
+    subtract N seconds from dexpr
     add N years to dexpr
     add N months to dexpr
     add N days to dexpr
+    add N minutes to dexpr
+    add N seconds to dexpr
+
+Time below a day (#1232):
+    seconds from d1 to d2          integer: whole seconds, d2 - d1
+    minutes from d1 to d2          integer: whole minutes, d2 - d1
+    d + 120 seconds, d - 5 minutes date: that much elapsed time later/earlier
+
+    A date is an instant. These count elapsed time between instants,
+    signed (negative when d2 is before d1) and truncated toward zero
+    (119 seconds is 1 minute; -119 is -1). The zone a date carries does
+    not change the answer: "2026-04-17T21:05:30Z" and
+    "2026-04-17T16:06:30-05:00" are 60 seconds apart. Across a daylight-
+    saving change the count is the time that actually passed (00:00 to
+    03:00 Chicago on a spring-forward day is 7200 seconds), and
+    d + N seconds keeps d's zone. Use days/months/years from for calendar
+    distances. Example -- idle for more than two minutes:
+        seconds from job.last_progress to job.checked_at > 120
+    "current date" is today at midnight, not the current instant; for
+    "now" write: current date in zone "UTC".
+    "second(s)" and "minute(s)" are keywords; a field named exactly
+    "seconds" or "minutes" must be written with its entity (job.seconds).
 
 Date navigation:
     first of years of d            January 1 of d's year
@@ -1979,6 +2013,8 @@ get days in months for dexpr                  integer   days in date's month
 get days of months for dexpr                  integer   day-of-month (1-31)
 get yearof dexpr                              integer   four-digit year
 days from d1 to d2                            integer   days between dates
+seconds from d1 to d2                         integer   whole seconds between instants (#1232)
+minutes from d1 to d2                         integer   whole minutes between instants (#1232)
 months from d1 to d2                          integer   whole months between dates
 years from d1 to d2                           integer   whole years between dates
 long value of typedOperator(args)             integer   custom operator result
@@ -2239,12 +2275,16 @@ Source operators:
     current timestamp                       current date/time as string
 
 Arithmetic returning dexpr:
-    d plus N years
-    d plus N months
-    d plus N days
-    d minus N years
-    d minus N months
-    d minus N days
+    d + N years
+    d + N months
+    d + N days
+    d + N minutes                           elapsed time; keeps d's zone (#1232)
+    d + N seconds
+    d - N years
+    d - N months
+    d - N days
+    d - N minutes
+    d - N seconds
     (N days)                                duration literal
 
 Arithmetic on expressions (non-mutating):
@@ -2254,6 +2294,16 @@ Arithmetic on expressions (non-mutating):
     subtract N years from dexpr
     subtract N months from dexpr
     subtract N days from dexpr
+    add N minutes to dexpr                  elapsed time (#1232)
+    add N seconds to dexpr
+    subtract N minutes from dexpr
+    subtract N seconds from dexpr
+
+Differences (integer):
+    days from d1 to d2 / months from … / years from …
+    minutes from d1 to d2                   whole minutes, d2 - d1, toward zero
+    seconds from d1 to d2                   whole seconds, d2 - d1, toward zero
+    Postfix: secondsbetween, minutesbetween, addseconds, addminutes.
 
 Mutating date statements (action context, operate on typed date fields):
     add N years to typedDate
@@ -2262,6 +2312,10 @@ Mutating date statements (action context, operate on typed date fields):
     subtract N years from typedDate
     subtract N months from typedDate
     subtract N days from typedDate
+    add N minutes to typedDate
+    add N seconds to typedDate
+    subtract N minutes from typedDate
+    subtract N seconds from typedDate
 
 Navigation:
     first of years of d                     January 1 of d's year

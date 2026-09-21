@@ -844,8 +844,23 @@ type ELListener interface {
 	// EnterDateAddDays is called when entering the dateAddDays production.
 	EnterDateAddDays(c *DateAddDaysContext)
 
+	// EnterDateSubMinutes is called when entering the dateSubMinutes production.
+	EnterDateSubMinutes(c *DateSubMinutesContext)
+
+	// EnterDateSubSeconds is called when entering the dateSubSeconds production.
+	EnterDateSubSeconds(c *DateSubSecondsContext)
+
+	// EnterDateAddMinutes is called when entering the dateAddMinutes production.
+	EnterDateAddMinutes(c *DateAddMinutesContext)
+
+	// EnterDateAddSeconds is called when entering the dateAddSeconds production.
+	EnterDateAddSeconds(c *DateAddSecondsContext)
+
 	// EnterDateFromStrFunc is called when entering the dateFromStrFunc production.
 	EnterDateFromStrFunc(c *DateFromStrFuncContext)
+
+	// EnterDateExprAddSeconds is called when entering the dateExprAddSeconds production.
+	EnterDateExprAddSeconds(c *DateExprAddSecondsContext)
 
 	// EnterDateFromStrCast is called when entering the dateFromStrCast production.
 	EnterDateFromStrCast(c *DateFromStrCastContext)
@@ -865,6 +880,12 @@ type ELListener interface {
 	// EnterDateFirstOfYear is called when entering the dateFirstOfYear production.
 	EnterDateFirstOfYear(c *DateFirstOfYearContext)
 
+	// EnterDateMinusSeconds is called when entering the dateMinusSeconds production.
+	EnterDateMinusSeconds(c *DateMinusSecondsContext)
+
+	// EnterDatePlusMinutes is called when entering the datePlusMinutes production.
+	EnterDatePlusMinutes(c *DatePlusMinutesContext)
+
 	// EnterDateEndOfWeekInZone is called when entering the dateEndOfWeekInZone production.
 	EnterDateEndOfWeekInZone(c *DateEndOfWeekInZoneContext)
 
@@ -876,6 +897,9 @@ type ELListener interface {
 
 	// EnterDatePlusMonths is called when entering the datePlusMonths production.
 	EnterDatePlusMonths(c *DatePlusMonthsContext)
+
+	// EnterDateMinusMinutes is called when entering the dateMinusMinutes production.
+	EnterDateMinusMinutes(c *DateMinusMinutesContext)
 
 	// EnterDateCurrentDateInZone is called when entering the dateCurrentDateInZone production.
 	EnterDateCurrentDateInZone(c *DateCurrentDateInZoneContext)
@@ -940,6 +964,9 @@ type ELListener interface {
 	// EnterDateExprAddYears is called when entering the dateExprAddYears production.
 	EnterDateExprAddYears(c *DateExprAddYearsContext)
 
+	// EnterDatePlusSeconds is called when entering the datePlusSeconds production.
+	EnterDatePlusSeconds(c *DatePlusSecondsContext)
+
 	// EnterDateTyped is called when entering the dateTyped production.
 	EnterDateTyped(c *DateTypedContext)
 
@@ -973,6 +1000,9 @@ type ELListener interface {
 	// EnterDateExprAddDays is called when entering the dateExprAddDays production.
 	EnterDateExprAddDays(c *DateExprAddDaysContext)
 
+	// EnterDateExprSubMinutes is called when entering the dateExprSubMinutes production.
+	EnterDateExprSubMinutes(c *DateExprSubMinutesContext)
+
 	// EnterDateMinusYears is called when entering the dateMinusYears production.
 	EnterDateMinusYears(c *DateMinusYearsContext)
 
@@ -988,6 +1018,9 @@ type ELListener interface {
 	// EnterDateUsing is called when entering the dateUsing production.
 	EnterDateUsing(c *DateUsingContext)
 
+	// EnterDateExprAddMinutes is called when entering the dateExprAddMinutes production.
+	EnterDateExprAddMinutes(c *DateExprAddMinutesContext)
+
 	// EnterDateFirstOfWeekInZone is called when entering the dateFirstOfWeekInZone production.
 	EnterDateFirstOfWeekInZone(c *DateFirstOfWeekInZoneContext)
 
@@ -996,6 +1029,9 @@ type ELListener interface {
 
 	// EnterDateDays is called when entering the dateDays production.
 	EnterDateDays(c *DateDaysContext)
+
+	// EnterDateExprSubSeconds is called when entering the dateExprSubSeconds production.
+	EnterDateExprSubSeconds(c *DateExprSubSecondsContext)
 
 	// EnterDateInZone is called when entering the dateInZone production.
 	EnterDateInZone(c *DateInZoneContext)
@@ -1291,11 +1327,17 @@ type ELListener interface {
 	// EnterIntMulBy is called when entering the intMulBy production.
 	EnterIntMulBy(c *IntMulByContext)
 
+	// EnterIntSecondsBetween is called when entering the intSecondsBetween production.
+	EnterIntSecondsBetween(c *IntSecondsBetweenContext)
+
 	// EnterIntMaxOfArray is called when entering the intMaxOfArray production.
 	EnterIntMaxOfArray(c *IntMaxOfArrayContext)
 
 	// EnterIntTyped is called when entering the intTyped production.
 	EnterIntTyped(c *IntTypedContext)
+
+	// EnterIntMinutesBetween is called when entering the intMinutesBetween production.
+	EnterIntMinutesBetween(c *IntMinutesBetweenContext)
 
 	// EnterIntDaysInYearInZone is called when entering the intDaysInYearInZone production.
 	EnterIntDaysInYearInZone(c *IntDaysInYearInZoneContext)
@@ -2776,8 +2818,23 @@ type ELListener interface {
 	// ExitDateAddDays is called when exiting the dateAddDays production.
 	ExitDateAddDays(c *DateAddDaysContext)
 
+	// ExitDateSubMinutes is called when exiting the dateSubMinutes production.
+	ExitDateSubMinutes(c *DateSubMinutesContext)
+
+	// ExitDateSubSeconds is called when exiting the dateSubSeconds production.
+	ExitDateSubSeconds(c *DateSubSecondsContext)
+
+	// ExitDateAddMinutes is called when exiting the dateAddMinutes production.
+	ExitDateAddMinutes(c *DateAddMinutesContext)
+
+	// ExitDateAddSeconds is called when exiting the dateAddSeconds production.
+	ExitDateAddSeconds(c *DateAddSecondsContext)
+
 	// ExitDateFromStrFunc is called when exiting the dateFromStrFunc production.
 	ExitDateFromStrFunc(c *DateFromStrFuncContext)
+
+	// ExitDateExprAddSeconds is called when exiting the dateExprAddSeconds production.
+	ExitDateExprAddSeconds(c *DateExprAddSecondsContext)
 
 	// ExitDateFromStrCast is called when exiting the dateFromStrCast production.
 	ExitDateFromStrCast(c *DateFromStrCastContext)
@@ -2797,6 +2854,12 @@ type ELListener interface {
 	// ExitDateFirstOfYear is called when exiting the dateFirstOfYear production.
 	ExitDateFirstOfYear(c *DateFirstOfYearContext)
 
+	// ExitDateMinusSeconds is called when exiting the dateMinusSeconds production.
+	ExitDateMinusSeconds(c *DateMinusSecondsContext)
+
+	// ExitDatePlusMinutes is called when exiting the datePlusMinutes production.
+	ExitDatePlusMinutes(c *DatePlusMinutesContext)
+
 	// ExitDateEndOfWeekInZone is called when exiting the dateEndOfWeekInZone production.
 	ExitDateEndOfWeekInZone(c *DateEndOfWeekInZoneContext)
 
@@ -2808,6 +2871,9 @@ type ELListener interface {
 
 	// ExitDatePlusMonths is called when exiting the datePlusMonths production.
 	ExitDatePlusMonths(c *DatePlusMonthsContext)
+
+	// ExitDateMinusMinutes is called when exiting the dateMinusMinutes production.
+	ExitDateMinusMinutes(c *DateMinusMinutesContext)
 
 	// ExitDateCurrentDateInZone is called when exiting the dateCurrentDateInZone production.
 	ExitDateCurrentDateInZone(c *DateCurrentDateInZoneContext)
@@ -2872,6 +2938,9 @@ type ELListener interface {
 	// ExitDateExprAddYears is called when exiting the dateExprAddYears production.
 	ExitDateExprAddYears(c *DateExprAddYearsContext)
 
+	// ExitDatePlusSeconds is called when exiting the datePlusSeconds production.
+	ExitDatePlusSeconds(c *DatePlusSecondsContext)
+
 	// ExitDateTyped is called when exiting the dateTyped production.
 	ExitDateTyped(c *DateTypedContext)
 
@@ -2905,6 +2974,9 @@ type ELListener interface {
 	// ExitDateExprAddDays is called when exiting the dateExprAddDays production.
 	ExitDateExprAddDays(c *DateExprAddDaysContext)
 
+	// ExitDateExprSubMinutes is called when exiting the dateExprSubMinutes production.
+	ExitDateExprSubMinutes(c *DateExprSubMinutesContext)
+
 	// ExitDateMinusYears is called when exiting the dateMinusYears production.
 	ExitDateMinusYears(c *DateMinusYearsContext)
 
@@ -2920,6 +2992,9 @@ type ELListener interface {
 	// ExitDateUsing is called when exiting the dateUsing production.
 	ExitDateUsing(c *DateUsingContext)
 
+	// ExitDateExprAddMinutes is called when exiting the dateExprAddMinutes production.
+	ExitDateExprAddMinutes(c *DateExprAddMinutesContext)
+
 	// ExitDateFirstOfWeekInZone is called when exiting the dateFirstOfWeekInZone production.
 	ExitDateFirstOfWeekInZone(c *DateFirstOfWeekInZoneContext)
 
@@ -2928,6 +3003,9 @@ type ELListener interface {
 
 	// ExitDateDays is called when exiting the dateDays production.
 	ExitDateDays(c *DateDaysContext)
+
+	// ExitDateExprSubSeconds is called when exiting the dateExprSubSeconds production.
+	ExitDateExprSubSeconds(c *DateExprSubSecondsContext)
 
 	// ExitDateInZone is called when exiting the dateInZone production.
 	ExitDateInZone(c *DateInZoneContext)
@@ -3223,11 +3301,17 @@ type ELListener interface {
 	// ExitIntMulBy is called when exiting the intMulBy production.
 	ExitIntMulBy(c *IntMulByContext)
 
+	// ExitIntSecondsBetween is called when exiting the intSecondsBetween production.
+	ExitIntSecondsBetween(c *IntSecondsBetweenContext)
+
 	// ExitIntMaxOfArray is called when exiting the intMaxOfArray production.
 	ExitIntMaxOfArray(c *IntMaxOfArrayContext)
 
 	// ExitIntTyped is called when exiting the intTyped production.
 	ExitIntTyped(c *IntTypedContext)
+
+	// ExitIntMinutesBetween is called when exiting the intMinutesBetween production.
+	ExitIntMinutesBetween(c *IntMinutesBetweenContext)
 
 	// ExitIntDaysInYearInZone is called when exiting the intDaysInYearInZone production.
 	ExitIntDaysInYearInZone(c *IntDaysInYearInZoneContext)

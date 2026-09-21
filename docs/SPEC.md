@@ -244,6 +244,16 @@ The flag is sticky until reset;
 and writes it on the `--save` root as `<dtrules-data changed="true|false">`.
 `datafile.Read` ignores the attribute.
 
+**Dates and time.** A date value is an instant that carries a zone. Calendar
+arithmetic (`d + N days|months|years`, `days|months|years from`) works on the
+calendar; arithmetic below a day (`d + N seconds|minutes`, `seconds|minutes
+from d1 to d2`, operators `addseconds`, `addminutes`, `secondsbetween`,
+`minutesbetween`) is elapsed time between instants (#1232). A difference is
+`d2 - d1` in whole units, truncated toward zero, and does not depend on the zone
+either date carries; across a daylight-saving change it counts the time that
+actually passed. An offset keeps the zone of the date it moved. Both are
+computed on Unix seconds, so spans beyond `time.Duration`'s ~292 years are
+exact.
 ## 2.5 Data in
 
 `pkg/dtrules/mapping` loads external XML against a mapping file:
