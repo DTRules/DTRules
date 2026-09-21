@@ -801,7 +801,7 @@ birthday cvdate cvdate /effectiveDate xdef
 <initial_action>
 <initial_action_dsl>set effectiveDate = (date) clients [2]</initial_action_dsl>
 <initial_action_postfix>
-clients 2 bytesidx cvdate cvdate /effectiveDate xdef
+clients 2 getat cvdate cvdate /effectiveDate xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -1542,7 +1542,7 @@ effectiveDate getdaysinmonth cvi /DateNumber xdef
 <action_comment></action_comment>
 <action_dsl>set totalGroupIncome = (long) clients [1]</action_dsl>
 <action_postfix>
-clients 1 bytesidx cvi cvi /totalGroupIncome xdef
+clients 1 getat cvi cvi /totalGroupIncome xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -3451,7 +3451,7 @@ birthday cvdate cvdate /effectiveDate xdef
 <initial_action>
 <initial_action_dsl>set effectiveDate = (date) clients [2]</initial_action_dsl>
 <initial_action_postfix>
-clients 2 bytesidx cvdate cvdate /effectiveDate xdef
+clients 2 getat cvdate cvdate /effectiveDate xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -5311,7 +5311,7 @@ pregnant
 <condition_comment></condition_comment>
 <condition_dsl>( boolean ) flags [ 0 ]</condition_dsl>
 <condition_postfix>
-3 local@ 0 bytesidx cvb
+3 local@ 0 getat cvb
 </condition_postfix>
 <columns>------------N---</columns>
 </condition_details>
@@ -5961,7 +5961,7 @@ pregnant
 <condition_comment></condition_comment>
 <condition_dsl>( boolean ) errorCodes [ 1 ]</condition_dsl>
 <condition_postfix>
-errorCodes 1 bytesidx cvb
+errorCodes 1 getat cvb
 </condition_postfix>
 <columns>-</columns>
 </condition_details>
