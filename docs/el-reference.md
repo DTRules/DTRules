@@ -488,6 +488,13 @@ This is the value, not the element attaining it. `the <entity> in <array> with t
 **Example (EL)**: `taxpayer.birth_date is before current date`
 **Compiled postfix**: `taxpayer.birth_date today d<`
 
+#### Today in a zone
+
+**Syntax**: `today in zone strexpr`
+**Semantics**: Midnight of today's date in the given zone, stamped with that zone. Postfix: `todayinzone` (#1273). Bare `today` is today's date at midnight UTC, the same as `current date`. `today` is not a keyword: a local or EDD field named `today` keeps its own meaning, and then `today in zone` rewraps that value like any other date.
+**Example (EL)**: `job.due_date is before today in zone "America/Chicago"`
+**Compiled postfix**: `job.due_date "America/Chicago" todayinzone d<`
+
 #### Date from string
 
 **Syntax**: `(date) strexpr` or `date(strexpr)`
