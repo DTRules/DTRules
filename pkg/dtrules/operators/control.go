@@ -875,7 +875,14 @@ func opPerformAliased(state dtrules.State) error {
 	}
 	// Call ExecuteTable which runs the decision tree directly without context setup
 	// This is appropriate when called from within a forall loop where the entity
-	// context has already been established
+	// context has already been established.
+	//
+	// It is still a table of its own, numbering its locals from 0, so it gets
+	// a frame as Execute does (#1226).
+	if err := state.PushFrame(); err != nil {
+		return err
+	}
+	defer state.PopFrame()
 	return dtObj.ExecuteTable(state)
 }
 

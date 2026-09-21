@@ -173,7 +173,12 @@ a misspelled operator is refused at authoring time rather than at execution.
 - **entity stack** — the scope chain. `entitypush`/`entitypop` move it;
   `for all` pushes an element per iteration.
 - **control stack** — frames for locals; `allocate`/`deallocate` and
-  `local@`/`local!` address slots relative to the current frame.
+  `local@`/`local!` address slots relative to the current frame. Every
+  execution of a table opens a frame of its own (`RDecisionTable.Execute`,
+  and `performaliased`, which runs a body without its context) and closes it
+  on return, error included. The context runs the body through `executetable`
+  inside that same frame, matching the compiler's per-table numbering; a
+  performed table's slot 0 is therefore never its caller's (#1226).
 
 Two executors live behind one interface in `pkg/dtrules/runtime`: a portable Go
 one and an amd64 assembly one.

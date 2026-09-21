@@ -64,6 +64,11 @@ func TestAllocateDeallocateRoundTrip(t *testing.T) {
 // index; local@ reads it back. Uses PushFrame to set up a frame
 // with pre-allocated slots (via allocate) so there's something to
 // write into.
+//
+// The PushFrame here stands in for the one RDecisionTable.Execute opens
+// per table execution. This tests the operators only; that the frame is
+// opened on the way through `perform` is proven with compiled tables in
+// perform_local_frame_exec_test.go (#1226).
 func TestLocalStoreFetch(t *testing.T) {
 	state := newTestState()
 
