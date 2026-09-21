@@ -110,11 +110,10 @@ var inheritedAllowlist = map[string]string{
 	"VisitSetArrayFloat":  "dead grammar; setFloat wins for IDENT/fexpr RHS",
 	"VisitSetArrayInt":    "dead grammar; setInt wins for IDENT/iexpr RHS",
 	"VisitSetArrayString": "dead grammar; setString wins for IDENT/strexpr RHS",
-	// setStringFromNumber/Name/Table are unreachable: ANTLR adaptive
-	// prediction picks setInt/setFloat/setName/setTable first for
+	// setStringFromNumber/Name are unreachable: ANTLR adaptive
+	// prediction picks setInt/setFloat/setName first for
 	// IDENT-prefixed RHS. Confirmed by parse-tree inspection (#803 batch 2).
 	"VisitSetStringFromNumber": "dead grammar; ANTLR picks setInt/setFloat for IDENT/number RHS",
-	"VisitSetStringFromTable":  "dead grammar; ANTLR picks setTable for texpr RHS",
 	// strConcatNull / strConcatInvalid: the base `strexpr PLUS strexpr`
 	// # strConcat wins when the RHS is an IDENT (it matches typedXmlValue).
 	// The Int/Float/Date/Entity/Array alternatives are reached with a
