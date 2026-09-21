@@ -1293,6 +1293,15 @@ local bytes myvar = 0xdeadbeef
 
 After declaration, reads emit `0 local@` and writes emit `0 local!`.
 
+**A declared name must be new.** Declaring a name that is already defined is a
+compile error, `the variable 'x' is already defined: ...`. That covers an EDD
+attribute of any type (matched case-insensitively), and a local already in
+scope: one the table's contexts declared, or one declared earlier in the same
+condition or action. Sibling conditions and actions each start from the
+contexts' locals, so two actions may each declare the same name. The Java
+compiler made the same check; `for all ... as <alias>` makes the EDD half of it
+for aliases.
+
 **Tax example (context cell)**:
 ```
 local double running_total = 0.0

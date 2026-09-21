@@ -112,17 +112,11 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#localEntityInit.
 	VisitLocalEntityInit(ctx *LocalEntityInitContext) interface{}
 
-	// Visit a parse tree produced by ELParser#localEntityDefined.
-	VisitLocalEntityDefined(ctx *LocalEntityDefinedContext) interface{}
-
 	// Visit a parse tree produced by ELParser#localLongUndef.
 	VisitLocalLongUndef(ctx *LocalLongUndefContext) interface{}
 
 	// Visit a parse tree produced by ELParser#localLongInit.
 	VisitLocalLongInit(ctx *LocalLongInitContext) interface{}
-
-	// Visit a parse tree produced by ELParser#localLongDefined.
-	VisitLocalLongDefined(ctx *LocalLongDefinedContext) interface{}
 
 	// Visit a parse tree produced by ELParser#localDoubleUndef.
 	VisitLocalDoubleUndef(ctx *LocalDoubleUndefContext) interface{}
@@ -130,17 +124,11 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#localDoubleInit.
 	VisitLocalDoubleInit(ctx *LocalDoubleInitContext) interface{}
 
-	// Visit a parse tree produced by ELParser#localDoubleDefined.
-	VisitLocalDoubleDefined(ctx *LocalDoubleDefinedContext) interface{}
-
 	// Visit a parse tree produced by ELParser#localBoolUndef.
 	VisitLocalBoolUndef(ctx *LocalBoolUndefContext) interface{}
 
 	// Visit a parse tree produced by ELParser#localBoolInit.
 	VisitLocalBoolInit(ctx *LocalBoolInitContext) interface{}
-
-	// Visit a parse tree produced by ELParser#localBoolDefined.
-	VisitLocalBoolDefined(ctx *LocalBoolDefinedContext) interface{}
 
 	// Visit a parse tree produced by ELParser#localDateUndef.
 	VisitLocalDateUndef(ctx *LocalDateUndefContext) interface{}
@@ -148,17 +136,11 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#localDateInit.
 	VisitLocalDateInit(ctx *LocalDateInitContext) interface{}
 
-	// Visit a parse tree produced by ELParser#localDateDefined.
-	VisitLocalDateDefined(ctx *LocalDateDefinedContext) interface{}
-
 	// Visit a parse tree produced by ELParser#localArrayUndef.
 	VisitLocalArrayUndef(ctx *LocalArrayUndefContext) interface{}
 
 	// Visit a parse tree produced by ELParser#localArrayInit.
 	VisitLocalArrayInit(ctx *LocalArrayInitContext) interface{}
-
-	// Visit a parse tree produced by ELParser#localArrayDefined.
-	VisitLocalArrayDefined(ctx *LocalArrayDefinedContext) interface{}
 
 	// Visit a parse tree produced by ELParser#localStringUndef.
 	VisitLocalStringUndef(ctx *LocalStringUndefContext) interface{}
@@ -166,17 +148,11 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#localStringInit.
 	VisitLocalStringInit(ctx *LocalStringInitContext) interface{}
 
-	// Visit a parse tree produced by ELParser#localStringDefined.
-	VisitLocalStringDefined(ctx *LocalStringDefinedContext) interface{}
-
 	// Visit a parse tree produced by ELParser#localBigIntUndef.
 	VisitLocalBigIntUndef(ctx *LocalBigIntUndefContext) interface{}
 
 	// Visit a parse tree produced by ELParser#localBigIntInit.
 	VisitLocalBigIntInit(ctx *LocalBigIntInitContext) interface{}
-
-	// Visit a parse tree produced by ELParser#localBigIntDefined.
-	VisitLocalBigIntDefined(ctx *LocalBigIntDefinedContext) interface{}
 
 	// Visit a parse tree produced by ELParser#localFixedUndef.
 	VisitLocalFixedUndef(ctx *LocalFixedUndefContext) interface{}
@@ -184,17 +160,11 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#localFixedInit.
 	VisitLocalFixedInit(ctx *LocalFixedInitContext) interface{}
 
-	// Visit a parse tree produced by ELParser#localFixedDefined.
-	VisitLocalFixedDefined(ctx *LocalFixedDefinedContext) interface{}
-
 	// Visit a parse tree produced by ELParser#localBytesUndef.
 	VisitLocalBytesUndef(ctx *LocalBytesUndefContext) interface{}
 
 	// Visit a parse tree produced by ELParser#localBytesInit.
 	VisitLocalBytesInit(ctx *LocalBytesInitContext) interface{}
-
-	// Visit a parse tree produced by ELParser#localBytesDefined.
-	VisitLocalBytesDefined(ctx *LocalBytesDefinedContext) interface{}
 
 	// Visit a parse tree produced by ELParser#ifThen.
 	VisitIfThen(ctx *IfThenContext) interface{}

@@ -118,37 +118,30 @@ contextForTable
     | localvariables                                        # contextLocal
     ;
 
+// A name that is already defined (an EDD attribute or a local in scope) is
+// refused by the emitter, not here: the parser cannot tell a defined IDENT
+// from an undefined one (#1249).
 localvariables
     : LOCAL ENTITY undefinedIdent                           # localEntityUndef
     | LOCAL ENTITY undefinedIdent ASSIGN eexpr              # localEntityInit
-    | LOCAL ENTITY typedEntity                              # localEntityDefined
     | LOCAL LONG undefinedIdent                             # localLongUndef
     | LOCAL LONG undefinedIdent ASSIGN number               # localLongInit
-    | LOCAL LONG typedLong                                  # localLongDefined
     | LOCAL DOUBLE undefinedIdent                           # localDoubleUndef
     | LOCAL DOUBLE undefinedIdent ASSIGN number             # localDoubleInit
-    | LOCAL DOUBLE typedDouble                              # localDoubleDefined
     | LOCAL BOOLEAN undefinedIdent                          # localBoolUndef
     | LOCAL BOOLEAN undefinedIdent ASSIGN bexpr             # localBoolInit
-    | LOCAL BOOLEAN typedBoolean                            # localBoolDefined
     | LOCAL DATE undefinedIdent                             # localDateUndef
     | LOCAL DATE undefinedIdent ASSIGN dexpr                # localDateInit
-    | LOCAL DATE typedDate                                  # localDateDefined
     | LOCAL ARRAY undefinedIdent                            # localArrayUndef
     | LOCAL ARRAY undefinedIdent ASSIGN arrayExpr           # localArrayInit
-    | LOCAL ARRAY typedArray                                # localArrayDefined
     | LOCAL STRING undefinedIdent                           # localStringUndef
     | LOCAL STRING undefinedIdent ASSIGN strexpr            # localStringInit
-    | LOCAL STRING typedString                              # localStringDefined
     | LOCAL BIGINT undefinedIdent                           # localBigIntUndef
     | LOCAL BIGINT undefinedIdent ASSIGN bigexpr            # localBigIntInit
-    | LOCAL BIGINT typedBigInt                              # localBigIntDefined
     | LOCAL FIXED undefinedIdent                            # localFixedUndef
     | LOCAL FIXED undefinedIdent ASSIGN iexpr               # localFixedInit
-    | LOCAL FIXED typedLong                                 # localFixedDefined
     | LOCAL BYTES undefinedIdent                            # localBytesUndef
     | LOCAL BYTES undefinedIdent ASSIGN bytesexpr           # localBytesInit
-    | LOCAL BYTES typedBytes                                # localBytesDefined
     ;
 
 ifstatement

@@ -147,19 +147,11 @@ func (v *BaseELVisitor) VisitLocalEntityInit(ctx *LocalEntityInitContext) interf
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitLocalEntityDefined(ctx *LocalEntityDefinedContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitLocalLongUndef(ctx *LocalLongUndefContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
 func (v *BaseELVisitor) VisitLocalLongInit(ctx *LocalLongInitContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitLocalLongDefined(ctx *LocalLongDefinedContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -171,19 +163,11 @@ func (v *BaseELVisitor) VisitLocalDoubleInit(ctx *LocalDoubleInitContext) interf
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitLocalDoubleDefined(ctx *LocalDoubleDefinedContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitLocalBoolUndef(ctx *LocalBoolUndefContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
 func (v *BaseELVisitor) VisitLocalBoolInit(ctx *LocalBoolInitContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitLocalBoolDefined(ctx *LocalBoolDefinedContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -195,19 +179,11 @@ func (v *BaseELVisitor) VisitLocalDateInit(ctx *LocalDateInitContext) interface{
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitLocalDateDefined(ctx *LocalDateDefinedContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitLocalArrayUndef(ctx *LocalArrayUndefContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
 func (v *BaseELVisitor) VisitLocalArrayInit(ctx *LocalArrayInitContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitLocalArrayDefined(ctx *LocalArrayDefinedContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -219,19 +195,11 @@ func (v *BaseELVisitor) VisitLocalStringInit(ctx *LocalStringInitContext) interf
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitLocalStringDefined(ctx *LocalStringDefinedContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitLocalBigIntUndef(ctx *LocalBigIntUndefContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
 func (v *BaseELVisitor) VisitLocalBigIntInit(ctx *LocalBigIntInitContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitLocalBigIntDefined(ctx *LocalBigIntDefinedContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -243,19 +211,11 @@ func (v *BaseELVisitor) VisitLocalFixedInit(ctx *LocalFixedInitContext) interfac
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitLocalFixedDefined(ctx *LocalFixedDefinedContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitLocalBytesUndef(ctx *LocalBytesUndefContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
 func (v *BaseELVisitor) VisitLocalBytesInit(ctx *LocalBytesInitContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitLocalBytesDefined(ctx *LocalBytesDefinedContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
