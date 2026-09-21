@@ -691,6 +691,16 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Example (EL)**: `person` (identifier declared entity in EDD)
 **Compiled postfix**: `person`
 
+#### Colon and possessive references
+
+**Syntax**: `:typedEntity: field` / `entity's field` (chains: `a's b's field`, `:a: b's field`)
+**Semantics**: Reads or stores `field` with the named entity made current: the entity is pushed on the entity stack around the access and popped after it (`entitypop` leaves the entity on the data stack, so `pop` drops it). This is the Java engine's behaviour. A reference that only pushed the entity onto the data stack would resolve the field against whatever entity was current.
+**Example (EL)**: `:person: age >= 18`
+**Compiled postfix**: `person entitypush age entitypop pop 18 >=`
+
+**Example (EL)**: `set person's is_adult = true`
+**Compiled postfix**: `true cvb person entitypush /is_adult xdef entitypop pop`
+
 #### New entity
 
 **Syntax**: `NEW typedEntity ENTITY` or `NEW nexpr ENTITY`
