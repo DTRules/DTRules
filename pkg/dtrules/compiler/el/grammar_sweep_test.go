@@ -12,8 +12,12 @@ package el
 
 import (
 	"bufio"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
 	"regexp"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -176,6 +180,11 @@ func TestGrammarSweep_CompilesAndEmitsPostfix(t *testing.T) {
 	helpers := loadHelpers(t)
 
 	c := NewCompiler()
+	// `for all <type> entities` needs a resolver to name the owning
+	// collection; any answer will do for a compile sweep.
+	c.SetCollectionResolver(func(entityType string) (string, string, error) {
+		return "sweep", entityType + "s", nil
+	})
 	var fails []string
 	var unexpectedPasses []string
 	for _, r := range rows {
@@ -218,11 +227,25 @@ func TestGrammarSweep_CompilesAndEmitsPostfix(t *testing.T) {
 	}
 }
 
+// minGrammarLabels is a floor on how many labelled alternatives EL.g4 has.
+// It exists so the coverage guard cannot go silently dead again: until #1244
+// the extractor returned 0 labels (it expected `rule :` on one line, and
+// EL.g4 puts the `:` on the next), and a guard over an empty set always
+// passes. EL.g4 had 608 labels when this was written; lower the floor only if
+// labels are really removed from the grammar.
+const minGrammarLabels = 500
+
 // TestGrammarSweep_CoverageGuard reads EL.g4 and asserts every labeled
 // alternative has at least one corpus row. Adding a new `# label` to the
 // grammar without a corpus entry fails this test.
+//
+// The label set is extracted twice, independently: from EL.g4's text and from
+// the generated parser's context types (el_parser.go). The two must agree and
+// must clear minGrammarLabels, so a broken extractor fails the test instead of
+// making it pass vacuously.
 func TestGrammarSweep_CoverageGuard(t *testing.T) {
 	grammarLabels := extractGrammarLabels(t)
+	checkLabelExtraction(t, grammarLabels, extractParserLabels(t))
 	rows := loadCorpus(t)
 	covered := map[string]bool{}
 	for _, r := range rows {
@@ -247,9 +270,59 @@ func TestGrammarSweep_CoverageGuard(t *testing.T) {
 	}
 }
 
-var labelRE = regexp.MustCompile(`#\s*([A-Za-z_][A-Za-z0-9_]*)\s*$`)
-var ruleStartRE = regexp.MustCompile(`^([a-z][A-Za-z0-9_]*)\s*(?:\[[^\]]*\])?\s*:`)
+// checkLabelExtraction fails unless the grammar-text and generated-parser
+// label sets are plausibly large, duplicate-free and identical.
+func checkLabelExtraction(t *testing.T, fromGrammar, fromParser []string) {
+	t.Helper()
+	if len(fromGrammar) < minGrammarLabels {
+		t.Fatalf("extracted %d labels from EL.g4, want at least %d: the extractor is broken, and the coverage guard would pass vacuously", len(fromGrammar), minGrammarLabels)
+	}
+	if len(fromParser) < minGrammarLabels {
+		t.Fatalf("extracted %d labels from el_parser.go, want at least %d: the extractor is broken, and the coverage guard would pass vacuously", len(fromParser), minGrammarLabels)
+	}
+	g := map[string]bool{}
+	for _, l := range fromGrammar {
+		if g[l] {
+			t.Fatalf("EL.g4 label %s extracted twice", l)
+		}
+		g[l] = true
+	}
+	p := map[string]bool{}
+	for _, l := range fromParser {
+		p[l] = true
+	}
+	var diff []string
+	for l := range g {
+		if !p[l] {
+			diff = append(diff, "in EL.g4 but not el_parser.go: "+l)
+		}
+	}
+	for l := range p {
+		if !g[l] {
+			diff = append(diff, "in el_parser.go but not EL.g4: "+l)
+		}
+	}
+	if len(diff) > 0 {
+		sort.Strings(diff)
+		for _, d := range diff {
+			t.Logf("  %s", d)
+		}
+		t.Fatalf("EL.g4 and el_parser.go disagree on %d labels: the parser is stale (regenerate it) or an extractor is broken", len(diff))
+	}
+}
 
+var (
+	labelRE     = regexp.MustCompile(`#\s*([A-Za-z_][A-Za-z0-9_]*)\s*$`)
+	ruleStartRE = regexp.MustCompile(`^([a-z][A-Za-z0-9_]*)\s*(?:\[[^\]]*\])?\s*:`)
+	bareRuleRE  = regexp.MustCompile(`^([a-z][A-Za-z0-9_]*)\s*(?:\[[^\]]*\])?$`)
+	quotedLitRE = regexp.MustCompile(`'(?:\\.|[^'\\])*'`)
+)
+
+// extractGrammarLabels returns every labelled alternative in EL.g4 as
+// "rule/label". A parser rule starts either as `name :` on one line or as a
+// bare `name` line whose next non-blank line begins with `:` (EL.g4's usual
+// layout); it ends at `;`. A `# label` found outside a rule is a fatal error,
+// never a silent skip.
 func extractGrammarLabels(t *testing.T) []string {
 	t.Helper()
 	f, err := os.Open("EL.g4")
@@ -260,11 +333,13 @@ func extractGrammarLabels(t *testing.T) []string {
 	sc := bufio.NewScanner(f)
 	sc.Buffer(make([]byte, 0, 64*1024), 1024*1024)
 	var labels []string
-	var rule string
+	var rule, pending string
 	inBlockComment := false
+	lineNo := 0
 	for sc.Scan() {
-		line := sc.Text()
-		// Strip block comments /* */ crudely.
+		lineNo++
+		// Quoted literals may hold comment markers ('//', '/*') or '#'.
+		line := quotedLitRE.ReplaceAllString(sc.Text(), "''")
 		if inBlockComment {
 			if idx := strings.Index(line, "*/"); idx >= 0 {
 				line = line[idx+2:]
@@ -273,15 +348,19 @@ func extractGrammarLabels(t *testing.T) []string {
 				continue
 			}
 		}
-		if idx := strings.Index(line, "/*"); idx >= 0 {
+		for {
+			idx := strings.Index(line, "/*")
+			if idx < 0 {
+				break
+			}
 			if end := strings.Index(line[idx:], "*/"); end >= 0 {
 				line = line[:idx] + line[idx+end+2:]
 			} else {
 				line = line[:idx]
 				inBlockComment = true
+				break
 			}
 		}
-		// Strip line comments.
 		if idx := strings.Index(line, "//"); idx >= 0 {
 			line = line[:idx]
 		}
@@ -289,18 +368,70 @@ func extractGrammarLabels(t *testing.T) []string {
 		if trimmed == "" {
 			continue
 		}
-		if m := ruleStartRE.FindStringSubmatch(trimmed); m != nil {
-			rule = m[1]
+		switch {
+		case rule == "" && pending != "" && strings.HasPrefix(trimmed, ":"):
+			rule = pending
+		case rule == "":
+			if m := ruleStartRE.FindStringSubmatch(trimmed); m != nil {
+				rule = m[1]
+			} else if m := bareRuleRE.FindStringSubmatch(trimmed); m != nil {
+				pending = m[1]
+				continue
+			}
 		}
-		if strings.HasPrefix(trimmed, ";") || trimmed == ";" {
-			rule = ""
-		}
-		if m := labelRE.FindStringSubmatch(line); m != nil && rule != "" {
+		pending = ""
+		if m := labelRE.FindStringSubmatch(line); m != nil {
+			if rule == "" {
+				t.Fatalf("EL.g4:%d: label #%s is outside any parser rule the extractor recognised", lineNo, m[1])
+			}
 			labels = append(labels, rule+"/"+m[1])
+		}
+		if strings.HasSuffix(trimmed, ";") {
+			rule = ""
 		}
 	}
 	if err := sc.Err(); err != nil {
 		t.Fatalf("scan EL.g4: %v", err)
+	}
+	return labels
+}
+
+// extractParserLabels returns every labelled alternative the generated parser
+// knows, as "rule/label". ANTLR emits one context struct per rule, embedding
+// antlr.BaseParserRuleContext, and one per label, embedding its rule's
+// context; names are the rule or label with the first letter upper-cased and
+// "Context" appended.
+func extractParserLabels(t *testing.T) []string {
+	t.Helper()
+	file, err := parser.ParseFile(token.NewFileSet(), "el_parser.go", nil, parser.SkipObjectResolution)
+	if err != nil {
+		t.Fatalf("parse el_parser.go: %v", err)
+	}
+	lowerFirst := func(s string) string { return strings.ToLower(s[:1]) + s[1:] }
+	var labels []string
+	for _, decl := range file.Decls {
+		gd, ok := decl.(*ast.GenDecl)
+		if !ok || gd.Tok != token.TYPE {
+			continue
+		}
+		for _, spec := range gd.Specs {
+			ts := spec.(*ast.TypeSpec)
+			st, ok := ts.Type.(*ast.StructType)
+			if !ok || !strings.HasSuffix(ts.Name.Name, "Context") || st.Fields == nil || len(st.Fields.List) == 0 {
+				continue
+			}
+			first := st.Fields.List[0]
+			if len(first.Names) != 0 {
+				continue
+			}
+			parent, ok := first.Type.(*ast.Ident)
+			if !ok || !strings.HasSuffix(parent.Name, "Context") {
+				continue // a rule context (embeds antlr.BaseParserRuleContext)
+			}
+			rule := lowerFirst(strings.TrimSuffix(parent.Name, "Context"))
+			label := lowerFirst(strings.TrimSuffix(ts.Name.Name, "Context"))
+			labels = append(labels, rule+"/"+label)
+		}
 	}
 	return labels
 }

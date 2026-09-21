@@ -1,4 +1,105 @@
 rule	label	entry	dsl	note
+createstatement	createEntityAs	action	create account as acct	#1244: no row while the coverage guard was dead
+localvariables	localFixedUndef	context	local fixed x	#1244: no row while the coverage guard was dead
+localvariables	localFixedInit	context	local fixed x = 100fp	#1244: no row while the coverage guard was dead
+localvariables	localFixedDefined	context	local fixed n	#1244: grammar-unreachable, parses as localFixedUndef (typedLong and undefinedIdent are both IDENT); same for localLongDefined, localDoubleDefined
+forallctl	forallReverse	context	for all accounts in reverse	#1244: no row while the coverage guard was dead
+forallctl	forallReverseWhere	context	for all accounts in reverse where true	#1244: no row while the coverage guard was dead
+forallctl	forallTypeEntities	context	for all account entities	#1244: no row while the coverage guard was dead
+forallctl	forallTypeEntitiesWhere	context	for all account entities where true	#1244: no row while the coverage guard was dead
+forallctl	forallAs	context	for all accounts as acct	#1244: no row while the coverage guard was dead
+forallctl	forallAsWhere	context	for all accounts as acct where true	#1244: no row while the coverage guard was dead
+forallblock	forallBlockReverse	action	for all accounts in reverse { set x = 1; }	#1244: no row while the coverage guard was dead
+forallblock	forallBlockReverseWhere	action	for all accounts in reverse where true { set x = 1; }	#1244: no row while the coverage guard was dead
+performstatement	performDynamicTable	action	perform table named ("T")	#1244: no row while the coverage guard was dead
+numexpr	numNegate	condition	- 1.0 > 0.0	#1244: no row while the coverage guard was dead
+numexpr	numMulDiv	condition	1.0 * 2.0 > 0.0	#1244: no row while the coverage guard was dead
+numexpr	numAddSub	condition	1.0 + 2.0 > 0.0	#1244: no row while the coverage guard was dead
+numexpr	numFexpr	condition	1.0 > 0.0	#1244: no row while the coverage guard was dead
+numexpr	numIntLiteral	condition	1 > 0	#1244: no row while the coverage guard was dead
+numexpr	numFpLiteral	condition	1fp > 0fp	#1244: no row while the coverage guard was dead
+numexpr	numIexpr	condition	get yearof (date) "2020-01-01" > 0	#1244: no row while the coverage guard was dead
+eexpr	entityFirstOf	condition	first of accounts == account	#1244: no row while the coverage guard was dead
+dexpr	dateCurrentDateInZone	condition	current date in zone "UTC" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateFirstOfYearInZone	condition	first of years of (date) "2020-01-01" in zone "UTC" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateFirstOfMonthInZone	condition	first of months of (date) "2020-01-01" in zone "UTC" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateEndOfMonthInZone	condition	end of months of (date) "2020-01-01" in zone "UTC" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateFirstOfWeekStartingInZone	condition	first of weeks of (date) "2020-01-01" starting "sunday" in zone "UTC" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateFirstOfWeekStarting	condition	first of weeks of (date) "2020-01-01" starting "sunday" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateFirstOfWeekInZone	condition	first of weeks of (date) "2020-01-01" in zone "UTC" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateFirstOfWeek	condition	first of weeks of (date) "2020-01-01" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateEndOfWeekStartingInZone	condition	end of weeks of (date) "2020-01-01" starting "sunday" in zone "UTC" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateEndOfWeekStarting	condition	end of weeks of (date) "2020-01-01" starting "sunday" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateEndOfWeekInZone	condition	end of weeks of (date) "2020-01-01" in zone "UTC" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateEndOfWeek	condition	end of weeks of (date) "2020-01-01" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateFirstOfQuarterInZone	condition	first of quarters of (date) "2020-01-01" in zone "UTC" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateFirstOfQuarter	condition	first of quarters of (date) "2020-01-01" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateEndOfQuarterInZone	condition	end of quarters of (date) "2020-01-01" in zone "UTC" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateEndOfQuarter	condition	end of quarters of (date) "2020-01-01" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateEndOfYearInZone	condition	end of years of (date) "2020-01-01" in zone "UTC" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateEndOfYear	condition	end of years of (date) "2020-01-01" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateNewYMDhmsInZoneWithDST	condition	new date 2020, 1, 2, 3, 4, 5 in zone "America/New_York" with dst_rule "earlier" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateNewYMDhmsInZone	condition	new date 2020, 1, 2, 3, 4, 5 in zone "UTC" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateNewYMDInZoneWithDST	condition	new date 2020, 1, 2 in zone "America/New_York" with dst_rule "earlier" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateNewYMDInZone	condition	new date 2020, 1, 2 in zone "UTC" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+dexpr	dateInZone	condition	(date) "2020-01-01" in zone "UTC" is equal to (date) "2020-01-01"	#1244: no row while the coverage guard was dead
+strexpr	strLowercaseOf	condition	lowercase of "A" == "a"	#1244: no row while the coverage guard was dead
+strexpr	strUppercaseOf	condition	uppercase of "a" == "A"	#1244: no row while the coverage guard was dead
+strexpr	strFormatDateInZone	condition	format((date) "2020-01-01", "2006-01-02") in zone "UTC" == "2020-01-01"	#1244: no row while the coverage guard was dead
+strexpr	strFormatDate	condition	format((date) "2020-01-01", "2006-01-02") == "2020-01-01"	#1244: no row while the coverage guard was dead
+fexpr	divideRoundingBy	action	set x = divide 1fp by 3fp rounding by 0.5fp	#1244: no row while the coverage guard was dead
+fexpr	floatCeilingOf	condition	ceiling of 1.5 > 0.0	#1244: no row while the coverage guard was dead
+fexpr	floatCeilingOfInt	condition	ceiling of 1 > 0.0	#1244: no row while the coverage guard was dead
+fexpr	floatFloorOf	condition	floor of 1.5 > 0.0	#1244: no row while the coverage guard was dead
+fexpr	floatFloorOfInt	condition	floor of 1 > 0.0	#1244: no row while the coverage guard was dead
+fexpr	floatSumOfWhere	condition	sum of d in accounts where true > 0.0	#1244: no row while the coverage guard was dead
+fexpr	floatMaxOfArray	condition	max of d in accounts > 0.0	#1244: no row while the coverage guard was dead
+fexpr	floatMaxOfArrayWhere	condition	max of d in accounts where true > 0.0	#1244: no row while the coverage guard was dead
+fexpr	floatMinOfArray	condition	min of d in accounts > 0.0	#1244: no row while the coverage guard was dead
+fexpr	floatMinOfArrayWhere	condition	min of d in accounts where true > 0.0	#1244: no row while the coverage guard was dead
+fexpr	numMinOf	condition	minimum of 1.0 and 2.0 > 0.0	#1244: no row while the coverage guard was dead
+fexpr	numMinOfComma	condition	minimum of 1.0 , 2.0 > 0.0	#1244: no row while the coverage guard was dead
+fexpr	numMaxOf	condition	maximum of 1.0 and 2.0 > 0.0	#1244: no row while the coverage guard was dead
+fexpr	numMaxOfComma	condition	maximum of 1.0 , 2.0 > 0.0	#1244: no row while the coverage guard was dead
+iexpr	intMulDiv	condition	get yearof (date) "2020-01-01" * 2 > 0	#1244: no row while the coverage guard was dead
+iexpr	intAddSub	context	local fixed x = 1fp + 2fp	#1244: no row while the coverage guard was dead
+iexpr	fixedLiteral	context	local fixed x = 1fp	#1244: no row while the coverage guard was dead
+iexpr	intDaysInYearInZone	condition	get days in yearof (date) "2020-01-01" in zone "UTC" > 0	#1244: no row while the coverage guard was dead
+iexpr	intDaysInMonthInZone	condition	get days in months for (date) "2020-01-01" in zone "UTC" > 0	#1244: no row while the coverage guard was dead
+iexpr	intDayOfMonthInZone	condition	get days of months for (date) "2020-01-01" in zone "UTC" > 0	#1244: no row while the coverage guard was dead
+iexpr	fixedFromStr	condition	(fixed) "1.5" > 0fp	#1244: no row while the coverage guard was dead
+iexpr	fixedFromNumber	condition	(fixed) 1 > 0fp	#1244: no row while the coverage guard was dead
+iexpr	fixedFromFloat	condition	(fixed) 1.5 > 0fp	#1244: no row while the coverage guard was dead
+iexpr	fixedFromIndex	condition	(fixed) copy of accounts[1] > 0fp	#1244: no row while the coverage guard was dead
+iexpr	intYearOfInZone	condition	get yearof (date) "2020-01-01" in zone "UTC" > 0	#1244: no row while the coverage guard was dead
+iexpr	intHourOfInZone	condition	get hourof (date) "2020-01-01" in zone "UTC" > 0	#1244: no row while the coverage guard was dead
+iexpr	intHourOf	condition	get hourof (date) "2020-01-01" > 0	#1244: no row while the coverage guard was dead
+iexpr	intMinuteOfInZone	condition	get minuteof (date) "2020-01-01" in zone "UTC" > 0	#1244: no row while the coverage guard was dead
+iexpr	intMinuteOf	condition	get minuteof (date) "2020-01-01" > 0	#1244: no row while the coverage guard was dead
+iexpr	intSecondOfInZone	condition	get secondof (date) "2020-01-01" in zone "UTC" > 0	#1244: no row while the coverage guard was dead
+iexpr	intSecondOf	condition	get secondof (date) "2020-01-01" > 0	#1244: no row while the coverage guard was dead
+iexpr	intDayOfWeekInZone	condition	get dayofweek of (date) "2020-01-01" in zone "UTC" > 0	#1244: no row while the coverage guard was dead
+iexpr	intDayOfWeek	condition	get dayofweek of (date) "2020-01-01" > 0	#1244: no row while the coverage guard was dead
+iexpr	intWeekOfYearInZone	condition	get weekofyear of (date) "2020-01-01" in zone "UTC" > 0	#1244: no row while the coverage guard was dead
+iexpr	intWeekOfYear	condition	get weekofyear of (date) "2020-01-01" > 0	#1244: no row while the coverage guard was dead
+iexpr	intSumOfWhere	condition	sum of 1 in accounts where true > 0	#1244: no row while the coverage guard was dead
+iexpr	intMaxOfArray	condition	max of 1 in accounts > 0	#1244: no row while the coverage guard was dead
+iexpr	intMaxOfArrayWhere	condition	max of 1 in accounts where true > 0	#1244: no row while the coverage guard was dead
+iexpr	intMinOfArray	condition	min of 1 in accounts > 0	#1244: no row while the coverage guard was dead
+iexpr	intMinOfArrayWhere	condition	min of 1 in accounts where true > 0	#1244: no row while the coverage guard was dead
+bexpr	boolNumEq	condition	1 == 1	#1244: no row while the coverage guard was dead
+bexpr	boolNumNeq	condition	1 != 1	#1244: no row while the coverage guard was dead
+bexpr	boolNumGt	condition	1 > 1	#1244: no row while the coverage guard was dead
+bexpr	boolNumGte	condition	1 >= 1	#1244: no row while the coverage guard was dead
+bexpr	boolNumLt	condition	1 < 1	#1244: no row while the coverage guard was dead
+bexpr	boolNumLte	condition	1 <= 1	#1244: no row while the coverage guard was dead
+bexpr	boolFirstPass	condition	first pass	#1244: no row while the coverage guard was dead
+bexpr	boolSameCalendarDay	condition	(date) "2020-01-01" is same calendar days as (date) "2020-01-01" in zone "UTC"	#1244: no row while the coverage guard was dead
+bexpr	boolSameCalendarWeekStarting	condition	(date) "2020-01-01" is same calendar weeks as (date) "2020-01-01" starting "sunday" in zone "UTC"	#1244: no row while the coverage guard was dead
+bexpr	boolSameCalendarWeek	condition	(date) "2020-01-01" is same calendar weeks as (date) "2020-01-01" in zone "UTC"	#1244: no row while the coverage guard was dead
+bexpr	boolSameCalendarMonth	condition	(date) "2020-01-01" is same calendar months as (date) "2020-01-01" in zone "UTC"	#1244: no row while the coverage guard was dead
+bexpr	boolSameCalendarQuarter	condition	(date) "2020-01-01" is same calendar quarters as (date) "2020-01-01" in zone "UTC"	#1244: no row while the coverage guard was dead
+bexpr	boolSameCalendarYear	condition	(date) "2020-01-01" is same calendar years as (date) "2020-01-01" in zone "UTC"	#1244: no row while the coverage guard was dead
 block	blockCurly	action	{ set x = 1; }
 block	blockUsing	action	using account { set x = 1; }
 block	blockGforall	action	{ set x = 1; } for all accounts	gforall: body block, then forall
