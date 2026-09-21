@@ -231,7 +231,9 @@ collection, or a canonical data load layered on top).
 
 A canonical data file is also what 'dtrules run --save' writes and what
 '--data' / '--review' read, so a saved dataset is both the audit record of a
-run and a replay fixture for an embedded one.
+run and a replay fixture for an embedded one. It is written in EDD
+declaration order (entities, and the fields within each), so the same rules on
+the same input save byte-identical files.
 
 
 Build pipeline

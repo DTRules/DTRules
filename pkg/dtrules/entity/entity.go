@@ -17,6 +17,7 @@ package entity
 
 import (
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -393,11 +394,18 @@ func (e *REntity) GetEntries() []*EntityEntry {
 }
 
 // GetAttributeNames returns all attribute names.
+// The names come back in declaration order (the order AddAttribute first
+// saw them, which for an EDD entity is the EDD's field order), so every
+// listing of an entity — --save, traces, printed results — is stable
+// across runs (#1231).
 func (e *REntity) GetAttributeNames() []*dtrules.RName {
 	names := make([]*dtrules.RName, 0, len(e.attributes))
 	for name := range e.attributes {
 		names = append(names, name)
 	}
+	sort.Slice(names, func(i, j int) bool {
+		return e.attributes[names[i]].Index < e.attributes[names[j]].Index
+	})
 	return names
 }
 
