@@ -435,7 +435,7 @@ This is the value, not the element attaining it. `the <entity> in <array> with t
 #### Matches (regex)
 
 **Syntax**: `strexpr MATCHES strexpr`
-**Semantics**: True if the string matches the regular expression. Postfix operator: `matches`.
+**Semantics**: True if the left string matches the regular expression on the right (subject first, pattern second). Postfix operator: `regexmatch`.
 **Example (EL)**: `taxpayer.filing_status matches "MF.*"`
 **Compiled postfix**: `taxpayer.filing_status "MF.*" regexmatch`
 

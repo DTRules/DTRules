@@ -297,13 +297,15 @@ func opCapitalize(state dtrules.State) error {
 	return state.DataPush(dtrules.NewRString(string(runes)))
 }
 
-// opRegexMatch: ( regex string -- boolean ) returns true if string matches regex
+// opRegexMatch: ( string regex -- boolean ) returns true if string matches
+// regex. The subject is pushed first and the pattern last, the order in which
+// `s matches p` compiles (`s p regexmatch`).
 func opRegexMatch(state dtrules.State) error {
-	strObj, err := state.DataPop()
+	regexObj, err := state.DataPop()
 	if err != nil {
 		return err
 	}
-	regexObj, err := state.DataPop()
+	strObj, err := state.DataPop()
 	if err != nil {
 		return err
 	}
