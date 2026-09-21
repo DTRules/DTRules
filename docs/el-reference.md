@@ -1049,6 +1049,10 @@ The type-conversion operators used in set statements:
 **Example (EL)**: `subtract 1000 from taxpayer.age`
 **Compiled postfix**: `1000 taxpayer.age swap - /taxpayer.age xdef`
 
+The target may name its entity as `:e: field` or `e's field`. The entity is made current around the update, and the op is typed by the field as above.
+**Example (EL)**: `subtract 1.5 from result's total_tax`
+**Compiled postfix**: `1.5 result entitypush cvd total_tax swap f- /total_tax xdef entitypop`
+
 ---
 
 ### perform
