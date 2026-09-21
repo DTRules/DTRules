@@ -5127,23 +5127,38 @@ func (e *PostfixEmitter) VisitStrValueOfBool(ctx *StrValueOfBoolContext) interfa
 
 // Eexpr emitters.
 
-// VisitIndxExpr: `<arrayExpr> [ <iexpr> ]` — array element access. The
-// rule had no override and antlr's BaseParseTreeVisitor.VisitChildren is
-// a no-op, so every visitor that delegated via Visit(IndxExpr())
-// silently produced empty output for the indexed expression. Affected
-// callers include VisitEntityIndex, VisitDateFromIndex,
-// VisitStrFromIndex, VisitIntFromIndex, VisitFloatFromIndex,
-// VisitFixedFromIndex, and VisitBoolFromIndex (#803).
+// VisitIndxExpr: `<arrayExpr> [ <iexpr> ]` — element access, used by the
+// cast forms VisitDateFromIndex, VisitStrFromIndex, VisitIntFromIndex,
+// VisitFloatFromIndex, VisitFixedFromIndex and VisitBoolFromIndex (#803).
 //
-// Emits the standard array-index sequence the runtime expects:
-// `<array> <index> bytesidx` — matching the postfix produced by the
-// alternative iexpr path (`a.alist[0]` in an iexpr context) which has
-// always worked through a different rule.
+// The index follows the declared type of what is indexed: an array gives
+// its element (`getat`), a bytes value gives the byte (`bytesidx`). This
+// always emitted `bytesidx`, a strictly-bytes accessor, so `(string)
+// node.ancestors[0]` on an array failed with "RBytesValue: cannot convert
+// to bytes" (#1229).
 func (e *PostfixEmitter) VisitIndxExpr(ctx *IndxExprContext) interface{} {
 	e.Visit(ctx.ArrayExpr())
 	e.Visit(ctx.Iexpr())
-	e.emit("bytesidx")
+	e.emit(e.indexOp(ctx.ArrayExpr()))
 	return nil
+}
+
+// indexOp picks the accessor for `<base>[<i>]` from the declared type of
+// base: `bytesidx` for a bytes value, `getat` otherwise — the grammar has
+// already placed base where an array is expected, so an undeclared name is
+// treated as one.
+func (e *PostfixEmitter) indexOp(base antlr.ParseTree) string {
+	name := base.GetText()
+	typ := ""
+	if lv, ok := e.lookupLocal(name); ok {
+		typ = lv.Type
+	} else {
+		typ = e.lookupType(name)
+	}
+	if typ == TypeBytes {
+		return "bytesidx"
+	}
+	return "getat"
 }
 
 // VisitEntityIndex: eexpr as an indxExpr (array/index form) —
@@ -6790,11 +6805,11 @@ func (e *PostfixEmitter) VisitDateFromIndex(ctx *DateFromIndexContext) interface
 
 // VisitDateFromArrayAt: `(date) <typedArray>[<iexpr>]` — same shape as
 // FromIndex but the grammar inlines the array+index instead of going
-// through indxExpr, so we emit the bytesidx ourselves.
+// through indxExpr, so we emit the accessor ourselves (#1229).
 func (e *PostfixEmitter) VisitDateFromArrayAt(ctx *DateFromArrayAtContext) interface{} {
 	e.Visit(ctx.TypedArray())
 	e.Visit(ctx.Iexpr())
-	e.emit("bytesidx")
+	e.emit(e.indexOp(ctx.TypedArray()))
 	e.emit("cvdate")
 	return nil
 }

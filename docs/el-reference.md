@@ -654,9 +654,9 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 #### Array at index
 
 **Syntax**: `(string) arrayExpr[iexpr]` / `(long) arrayExpr[iexpr]`
-**Semantics**: Access an array element by index with a type cast.
+**Semantics**: Access an array element by index with a type cast. The index follows the declared type: an array gives its element (`getat`); a bytes value gives the byte at that offset (`bytesidx`).
 **Example (EL)**: `(string) myarray[idx] == "foo"`
-**Compiled postfix**: `myarray idx bytesidx cvs "foo" streq`
+**Compiled postfix**: `myarray idx getat cvs "foo" streq`
 
 #### Copy / deep copy
 

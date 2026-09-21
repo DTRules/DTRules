@@ -48,8 +48,10 @@ func TestIssue803_DateCastFormsEmitInnerExpr(t *testing.T) {
 		// dateFromStrFunc: `date("literal")` — same emission as the cast.
 		{`set a.d = date("2026-01-15")`, `"2026-01-15"`},
 		// dateFromIndex: `(date) <indxExpr>` — relies on the
-		// VisitIndxExpr fix from batch 1 for the inner array+index.
-		{`set a.d = (date) a.dlist[0]`, "a.dlist 0 bytesidx"},
+		// VisitIndxExpr fix from batch 1 for the inner array+index. An
+		// array indexes to its element with getat, not the bytes
+		// accessor (#1229).
+		{`set a.d = (date) a.dlist[0]`, "a.dlist 0 getat"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.dsl, func(t *testing.T) {
