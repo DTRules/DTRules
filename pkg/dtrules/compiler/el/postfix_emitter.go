@@ -5096,6 +5096,42 @@ func (e *PostfixEmitter) VisitStrConcatName(ctx *StrConcatNameContext) interface
 	return nil
 }
 
+// VisitStrConcatInt / Float / Date / Entity / Array: `<s> + <x>` where the
+// right operand is not itself a string expression (a literal number, a date,
+// an entity or array expression) → `<s> <x> strconcat`. strconcat takes the
+// string value of both operands, as it does for a numeric field in the base
+// strConcat form (#1251).
+func (e *PostfixEmitter) emitStrConcatOf(s IStrexprContext, x antlr.ParseTree) {
+	e.Visit(s)
+	e.Visit(x)
+	e.emit("strconcat")
+}
+
+func (e *PostfixEmitter) VisitStrConcatInt(ctx *StrConcatIntContext) interface{} {
+	e.emitStrConcatOf(ctx.Strexpr(), ctx.Iexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitStrConcatFloat(ctx *StrConcatFloatContext) interface{} {
+	e.emitStrConcatOf(ctx.Strexpr(), ctx.Fexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitStrConcatDate(ctx *StrConcatDateContext) interface{} {
+	e.emitStrConcatOf(ctx.Strexpr(), ctx.Dexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitStrConcatEntity(ctx *StrConcatEntityContext) interface{} {
+	e.emitStrConcatOf(ctx.Strexpr(), ctx.Eexpr())
+	return nil
+}
+
+func (e *PostfixEmitter) VisitStrConcatArray(ctx *StrConcatArrayContext) interface{} {
+	e.emitStrConcatOf(ctx.Strexpr(), ctx.ArrayExpr())
+	return nil
+}
+
 // VisitStrFromIndex: `(string) <indx>` → `<indx> cvs`.
 func (e *PostfixEmitter) VisitStrFromIndex(ctx *StrFromIndexContext) interface{} {
 	e.Visit(ctx.IndxExpr())
