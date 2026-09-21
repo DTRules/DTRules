@@ -4889,13 +4889,12 @@ func (e *PostfixEmitter) VisitNameArrayAt(ctx *NameArrayAtContext) interface{} {
 
 // VisitNameUsing: `using <eexpr> ( <nexpr> )` — push eexpr onto entity stack,
 // resolve nexpr with it in scope, pop entity while preserving the name
-// value. Parallels boolUsing.
+// value. Ends `entitypop pop`, as boolUsing does (#1270).
 func (e *PostfixEmitter) VisitNameUsing(ctx *NameUsingContext) interface{} {
 	e.Visit(ctx.Eexpr())
 	e.emit("entitypush")
 	e.Visit(ctx.Nexpr())
 	e.emit("entitypop")
-	e.emit("swap")
 	e.emit("pop")
 	return nil
 }
@@ -5515,14 +5514,14 @@ func (e *PostfixEmitter) VisitBoolWithinPercent(ctx *BoolWithinPercentContext) i
 
 // VisitBoolUsing: `using <eexpr> ( <bexpr> )` — push eexpr onto the entity
 // stack, evaluate bexpr, pop the entity while preserving the bool result.
-// entitypop pushes the popped entity onto the data stack, so we swap under
-// the bool and discard the entity with pop.
+// entitypop pushes the popped entity onto the data stack, above the bool, so a
+// bare pop discards it. (`swap pop` discarded the bool and kept the entity,
+// #1270.) Every value-returning using form ends `entitypop pop`.
 func (e *PostfixEmitter) VisitBoolUsing(ctx *BoolUsingContext) interface{} {
 	e.Visit(ctx.Eexpr())
 	e.emit("entitypush")
 	e.Visit(ctx.Bexpr())
 	e.emit("entitypop")
-	e.emit("swap")
 	e.emit("pop")
 	return nil
 }
@@ -6125,12 +6124,14 @@ func (e *PostfixEmitter) VisitStrTableInfo(ctx *StrTableInfoContext) interface{}
 // arrayExpr accepts any IDENT and `(<expr>)` matches as `number`. The
 // semantic intent is the entity-stack delegation pattern (see
 // VisitBigUsing): push the entity, evaluate the inner expression in
-// that context, pop.
+// that context, pop, and discard the entity entitypop leaves on the data
+// stack (#1270).
 func (e *PostfixEmitter) VisitIntUsingArray(ctx *IntUsingArrayContext) interface{} {
 	e.Visit(ctx.ArrayExpr())
 	e.emit("entitypush")
 	e.Visit(ctx.Number())
 	e.emit("entitypop")
+	e.emit("pop")
 	return nil
 }
 
@@ -7051,6 +7052,7 @@ func (e *PostfixEmitter) VisitBigUsing(ctx *BigUsingContext) interface{} {
 	e.emit("entitypush")
 	e.Visit(ctx.Bigexpr())
 	e.emit("entitypop")
+	e.emit("pop")
 	return nil
 }
 
@@ -7099,12 +7101,13 @@ func (e *PostfixEmitter) VisitDateFromArrayAt(ctx *DateFromArrayAtContext) inter
 // VisitDateUsing: `using <eexpr> (<dexpr>)` — evaluate the date
 // expression with eexpr pushed onto the entity stack. Mirrors the
 // existing VisitBigUsing pattern: entitypush before the inner
-// expression, entitypop after.
+// expression, `entitypop pop` after (#1270).
 func (e *PostfixEmitter) VisitDateUsing(ctx *DateUsingContext) interface{} {
 	e.Visit(ctx.Eexpr())
 	e.emit("entitypush")
 	e.Visit(ctx.Dexpr())
 	e.emit("entitypop")
+	e.emit("pop")
 	return nil
 }
 
@@ -7987,12 +7990,14 @@ func (e *PostfixEmitter) VisitBoolNumLte(ctx *BoolNumLteContext) interface{} {
 // previously lost IDENT inputs to intUsingArray (number tried iexpr first),
 // so no visitor existed; numexpr prefers the fexpr leaf and routes here, and
 // an unimplemented visitor emits nothing at all -- the whole RHS vanished
-// from the postfix (#1148, the #803 batch-6 shape).
+// from the postfix (#1148, the #803 batch-6 shape). The trailing pop discards
+// the entity entitypop leaves above the value (#1270).
 func (e *PostfixEmitter) VisitFloatUsing(ctx *FloatUsingContext) interface{} {
 	e.Visit(ctx.Eexpr())
 	e.emit("entitypush")
 	e.Visit(ctx.Fexpr())
 	e.emit("entitypop")
+	e.emit("pop")
 	return nil
 }
 
@@ -8001,5 +8006,6 @@ func (e *PostfixEmitter) VisitIntUsing(ctx *IntUsingContext) interface{} {
 	e.emit("entitypush")
 	e.Visit(ctx.Iexpr())
 	e.emit("entitypop")
+	e.emit("pop")
 	return nil
 }

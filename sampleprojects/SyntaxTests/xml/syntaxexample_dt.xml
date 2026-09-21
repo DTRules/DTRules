@@ -807,7 +807,7 @@ clients 2 getat cvdate cvdate /effectiveDate xdef
 <initial_action>
 <initial_action_dsl>set effectiveDate = using client (currentDate)</initial_action_dsl>
 <initial_action_postfix>
-client entitypush currentDate entitypop cvdate /effectiveDate xdef
+client entitypush currentDate entitypop pop cvdate /effectiveDate xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -1178,7 +1178,7 @@ gettimestamp cvs /strBuffer xdef
 <action_comment>set street = using client (street)</action_comment>
 <action_dsl>set street = using client (street)</action_dsl>
 <action_postfix>
-client entitypush street entitypop cvs /street xdef
+client entitypush street entitypop pop cvs /street xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -1358,7 +1358,7 @@ totalIncome fabs cvd /totalIncome xdef
 <action_comment>set totalIncome = using clients (totalIncome)</action_comment>
 <action_dsl>set totalIncome = using clients (totalIncome)</action_dsl>
 <action_postfix>
-clients entitypush totalIncome entitypop cvd /totalIncome xdef
+clients entitypush totalIncome entitypop pop cvd /totalIncome xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -1623,7 +1623,7 @@ importantDates birthday indexof cvi /DateNumber xdef
 <action_comment></action_comment>
 <action_dsl>set FPL_Base = using clients 3</action_dsl>
 <action_postfix>
-clients entitypush 3 entitypop cvi /FPL_Base xdef
+clients entitypush 3 entitypop pop cvi /FPL_Base xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -1673,7 +1673,7 @@ totalGroupIncome abs cvi /totalGroupIncome xdef
 <action_comment>set totalGroupIncome = using client (IncomeGroupCount)</action_comment>
 <action_dsl>set totalGroupIncome = using client (IncomeGroupCount)</action_dsl>
 <action_postfix>
-client entitypush IncomeGroupCount entitypop cvi /totalGroupIncome xdef
+client entitypush IncomeGroupCount entitypop pop cvi /totalGroupIncome xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -3457,7 +3457,7 @@ clients 2 getat cvdate cvdate /effectiveDate xdef
 <initial_action>
 <initial_action_dsl>set effectiveDate = using client (currentDate)</initial_action_dsl>
 <initial_action_postfix>
-client entitypush currentDate entitypop cvdate /effectiveDate xdef
+client entitypush currentDate entitypop pop cvdate /effectiveDate xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -3995,7 +3995,7 @@ gettimestamp cvs /strBuffer xdef
 <initial_action>
 <initial_action_dsl>set street = using client (street)</initial_action_dsl>
 <initial_action_postfix>
-client entitypush street entitypop cvs /street xdef
+client entitypush street entitypop pop cvs /street xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -4208,7 +4208,7 @@ totalIncome fabs cvd /totalIncome xdef
 <initial_action>
 <initial_action_dsl>set totalIncome = using clients (totalIncome)</initial_action_dsl>
 <initial_action_postfix>
-clients entitypush totalIncome entitypop cvd /totalIncome xdef
+clients entitypush totalIncome entitypop pop cvd /totalIncome xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -4545,7 +4545,7 @@ gettimestamp cvs /strBuffer xdef
 <initial_action>
 <initial_action_dsl>set street = using client (street)</initial_action_dsl>
 <initial_action_postfix>
-client entitypush street entitypop cvs /street xdef
+client entitypush street entitypop pop cvs /street xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -4749,7 +4749,7 @@ totalIncome fabs cvd /totalIncome xdef
 <initial_action>
 <initial_action_dsl>set totalIncome = using clients (totalIncome)</initial_action_dsl>
 <initial_action_postfix>
-clients entitypush totalIncome entitypop cvd /totalIncome xdef
+clients entitypush totalIncome entitypop pop cvd /totalIncome xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -5293,7 +5293,7 @@ case_ID isnull not
 <condition_comment>using firstClient ( pregnant )</condition_comment>
 <condition_dsl>using firstClient ( pregnant )</condition_dsl>
 <condition_postfix>
-2 local@ entitypush pregnant entitypop swap pop
+2 local@ entitypush pregnant entitypop pop
 </condition_postfix>
 <columns>----------N-----</columns>
 </condition_details>
@@ -5943,7 +5943,7 @@ errorCodes isnull not
 <condition_comment>using firstClient ( pregnant )</condition_comment>
 <condition_dsl>using firstClient ( pregnant )</condition_dsl>
 <condition_postfix>
-2 local@ entitypush pregnant entitypop swap pop
+2 local@ entitypush pregnant entitypop pop
 </condition_postfix>
 <columns>-</columns>
 </condition_details>
