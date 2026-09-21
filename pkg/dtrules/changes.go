@@ -18,11 +18,13 @@ package dtrules
 // changed entity data (#1233). A host that runs rules on a timer resets the
 // flag, executes, and skips journaling when Changed reports false.
 //
-// A change is a write that leaves a different value behind: an attribute
-// set to a value unequal to the one it held, or an array that gained, lost
-// or reordered elements. Writing the value a field already holds is not a
-// change. The flag is sticky: it stays set across executions until
-// ResetChanged.
+// A change is a write by the running rules that alters what a save would
+// write: an attribute set to a value that saves differently (SameValue), an
+// array that gained, lost or reordered elements, or an entity stack left
+// different from the one ResetChanged recorded. Writing the value a field
+// already holds is not a change. Writes that bypass the rules (entity.Put
+// from a host, the loaders, trace replay) are not counted. The flag is
+// sticky: it stays set across executions until ResetChanged.
 type ChangeTracker interface {
 	// Changed reports whether entity data changed since the state was
 	// created or last reset.
@@ -68,7 +70,7 @@ func WatchArray(state State, arr *RArray) func() {
 			return
 		}
 		for i := range after {
-			if eq, err := after[i].Equals(before[i]); err != nil || !eq {
+			if !SameValue(before[i], after[i]) {
 				t.MarkChanged()
 				return
 			}
@@ -77,7 +79,11 @@ func WatchArray(state State, arr *RArray) func() {
 }
 
 // SameValue reports whether a write that replaced old with new left the
-// value unchanged.
+// value unchanged, as a save would write it: scalars of the same type with
+// the same text, the same entity (by identity), or arrays whose elements
+// are pairwise the same. It is deliberately stricter than Equals, which
+// lets doubles differ by 1e-9 and names differ in case, so a value whose
+// saved form changed is never reported as unchanged.
 func SameValue(old, new Object) bool {
 	if old == nil || new == nil {
 		return old == nil && new == nil
@@ -85,6 +91,27 @@ func SameValue(old, new Object) bool {
 	if old == new {
 		return true
 	}
-	eq, err := old.Equals(new)
-	return err == nil && eq
+	if old.Type().GetID() != new.Type().GetID() {
+		return false
+	}
+	if oa, ok := old.(*RArray); ok {
+		na, ok := new.(*RArray)
+		if !ok {
+			return false
+		}
+		a, b := oa.GetIterator(), na.GetIterator()
+		if len(a) != len(b) {
+			return false
+		}
+		for i := range a {
+			if !SameValue(a[i], b[i]) {
+				return false
+			}
+		}
+		return true
+	}
+	if _, ok := old.(Entity); ok {
+		return false // distinct entities (identity was checked above)
+	}
+	return old.StringValue() == new.StringValue()
 }

@@ -31,6 +31,8 @@ const changedEDD = `<?xml version="1.0" encoding="UTF-8"?>
 <entity name="state" number="100" access="rw">
 <field name="count" type="integer" subtype="" access="rw" input="" default_value="0" comment="a counter"></field>
 <field name="items" type="array" subtype="string" access="rw" input="" default_value="" comment="a list"></field>
+<field name="ratio" type="double" subtype="" access="rw" input="" default_value="0.0" comment="a double"></field>
+<field name="tag" type="name" subtype="" access="rw" input="" default_value="" comment="a name"></field>
 </entity>
 </entity_data_dictionary>
 `
@@ -50,6 +52,8 @@ const changedData = `<?xml version='1.0' encoding='UTF-8'?>
 <dtrules-data>
   <state>
     <count>3</count>
+    <ratio>3</ratio>
+    <tag>abc</tag>
     <items>
       <item>a</item>
       <item>b</item>
@@ -73,6 +77,19 @@ var changedTables = []struct {
 	{"Remove_Item", `remove "a" from state.items array`, `state.items "a" remove`, true},
 	{"Remove_At", "remove 0 element from state.items array", "state.items 0 removeat", true},
 	{"Clear_List", "clear state.items", "state.items cleararray", true},
+	// No EL form leaves the entity stack unbalanced; hand postfix can, and
+	// the stack decides which instance --save writes.
+	{"Push_New_State", "push a new state", "/state newentity entitypush", true},
+	{"Pop_State", "pop the state", "entitypop pop", true},
+	{"Push_Pop_Balanced", "push and pop the state", "state entitypush entitypop pop", false},
+	// Equals is looser than the saved text: doubles within 1e-9 and names
+	// differing only in case are Equal, but save differently.
+	{"Same_Ratio", "set state.ratio = 3.0", "3.0 /state.ratio xdef", false},
+	{"Nudge_Ratio", "set state.ratio = 3.00000000001", "3.00000000001 /state.ratio xdef", true},
+	{"Same_Tag", "set state.tag to abc", "/abc /state.tag xdef", false},
+	// Names intern case-insensitively, first spelling wins, so /ABC is the
+	// same name as abc and saves as abc: no change, and the oracle agrees.
+	{"Recase_Tag", "set state.tag to ABC", "/ABC /state.tag xdef", false},
 }
 
 func writeChangedProject(t *testing.T) (project, data string) {
@@ -113,6 +130,24 @@ func writeChangedProject(t *testing.T) (project, data string) {
 	return project, data
 }
 
+// strip removes the changed attribute, leaving the saved data.
+func strip(saved []byte) string {
+	return changedAttr.ReplaceAllString(string(saved), "<dtrules-data>")
+}
+
+func saveStripped(t *testing.T, project, entry, data string) string {
+	t.Helper()
+	out := filepath.Join(t.TempDir(), "out.xml")
+	if code, _ := runCapture(t, project, "--entry", entry, "--data", data, "--save", out); code != 0 {
+		t.Fatalf("%s: exit %d", entry, code)
+	}
+	b, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return strip(b)
+}
+
 func xmlEscape(s string) string {
 	return strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", `"`, "&quot;").Replace(s)
 }
@@ -124,8 +159,14 @@ var changedAttr = regexp.MustCompile(`<dtrules-data changed="(true|false)">`)
 // data. Writing a value a field already holds is not a change; changing one
 // field, or adding to, removing from, clearing or reordering a list, is.
 // Runs through the production path: project load, mapping, --data, --save.
+//
+// The byte oracle: save order is deterministic (#1231), so a run whose saved
+// data (without the attribute) differs from a no-op run's has changed the
+// state, and the flag must say so. A false "unchanged" is the failure that
+// matters: a host would skip work it had to do.
 func TestRunSave_ReportsWhetherTheRunChangedTheState(t *testing.T) {
 	project, data := writeChangedProject(t)
+	baseline := saveStripped(t, project, "Nothing", data)
 	for _, tb := range changedTables {
 		t.Run(tb.name, func(t *testing.T) {
 			out := filepath.Join(t.TempDir(), "out.xml")
@@ -140,8 +181,12 @@ func TestRunSave_ReportsWhetherTheRunChangedTheState(t *testing.T) {
 			if m == nil {
 				t.Fatalf("saved file has no changed attribute on its root:\n%s", saved)
 			}
-			if got := string(m[1]) == "true"; got != tb.changed {
+			got := string(m[1]) == "true"
+			if got != tb.changed {
 				t.Errorf("changed=%s, want %v\n%s", m[1], tb.changed, saved)
+			}
+			if differs := strip(saved) != baseline; differs != got {
+				t.Errorf("changed=%v but the saved data differs from a no-op run's: %v\n--- no-op ---\n%s\n--- this run ---\n%s", got, differs, baseline, saved)
 			}
 		})
 	}

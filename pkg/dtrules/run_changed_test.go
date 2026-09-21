@@ -228,3 +228,53 @@ func TestChangeTracker_CollectedAnswer(t *testing.T) {
 		}
 	}
 }
+
+// The entity stack decides which instance each name resolves to, and so
+// what a save writes: leaving it different is a change; a balanced
+// push/pop is not.
+func TestChangeTracker_EntityStack(t *testing.T) {
+	t.Run("push left on the stack", func(t *testing.T) {
+		sess, tracker, _ := newChangeState(t)
+		fresh, err := sess.CreateEntity(dtrules.GetRName("state"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		sess.GetState().EntityPush(fresh)
+		if !tracker.Changed() {
+			t.Error("a new state instance now shadows the old one")
+		}
+	})
+	t.Run("pop", func(t *testing.T) {
+		sess, tracker, _ := newChangeState(t)
+		sess.GetState().EntityPop()
+		if !tracker.Changed() {
+			t.Error("the state entity is no longer on the stack")
+		}
+	})
+	t.Run("balanced", func(t *testing.T) {
+		sess, tracker, ent := newChangeState(t)
+		sess.GetState().EntityPush(ent)
+		sess.GetState().EntityPop()
+		if tracker.Changed() {
+			t.Error("a balanced push/pop leaves the stack as it was")
+		}
+	})
+}
+
+// SameValue compares what a save would write, not the tolerant Equals:
+// doubles 1e-11 apart are Equal but save differently.
+func TestSameValue_IsStricterThanEquals(t *testing.T) {
+	a, b := dtrules.GetRDoubleValue(3), dtrules.GetRDoubleValue(3.00000000001)
+	if eq, _ := a.Equals(b); !eq {
+		t.Skip("RDouble.Equals is no longer tolerant; the case below is moot")
+	}
+	if dtrules.SameValue(a, b) {
+		t.Errorf("3 and 3.00000000001 save as %q and %q; SameValue must not call them the same", a.StringValue(), b.StringValue())
+	}
+	if !dtrules.SameValue(a, dtrules.GetRDoubleValue(3)) {
+		t.Error("equal doubles are the same value")
+	}
+	if dtrules.SameValue(dtrules.GetRIntegerValue(3), a) {
+		t.Error("an integer and a double are different types")
+	}
+}

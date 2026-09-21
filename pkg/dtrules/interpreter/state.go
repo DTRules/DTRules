@@ -127,6 +127,11 @@ type DTState struct {
 	// changed records that execution changed entity data since the state
 	// was created or last reset (#1233). See dtrules.ChangeTracker.
 	changed bool
+	// resetStk is the entity stack as ResetChanged found it. Which
+	// instance a name resolves to is what a save writes, so a run that
+	// leaves the stack different has changed the state even when no
+	// attribute was written.
+	resetStk []dtrules.Entity
 }
 
 // SetCollector attaches (or clears, with nil) the interactive data collector.
@@ -139,11 +144,32 @@ func (s *DTState) SetCollector(c dtrules.Collector) {
 // Changed reports whether entity data changed since the state was created
 // or last reset: an attribute written with a different value, or an array
 // that gained, lost or reordered elements (#1233).
-func (s *DTState) Changed() bool { return s.changed }
+//
+// It also reports true when the entity stack differs from the one
+// ResetChanged saw: a pushed or popped entity changes which instance each
+// name resolves to, and so what a save writes.
+func (s *DTState) Changed() bool {
+	if s.changed {
+		return true
+	}
+	if len(s.entityStk) != len(s.resetStk) {
+		return true
+	}
+	for i, e := range s.entityStk {
+		if e != s.resetStk[i] {
+			return true
+		}
+	}
+	return false
+}
 
-// ResetChanged clears the changed flag. Call it after loading data and
-// before the execution to be measured.
-func (s *DTState) ResetChanged() { s.changed = false }
+// ResetChanged clears the changed flag and records the entity stack as it
+// is now. Call it after loading data and before the execution to be
+// measured.
+func (s *DTState) ResetChanged() {
+	s.changed = false
+	s.resetStk = append(s.resetStk[:0], s.entityStk...)
+}
 
 // MarkChanged sets the changed flag.
 func (s *DTState) MarkChanged() { s.changed = true }
