@@ -456,7 +456,7 @@ This is the value, not the element attaining it. `the <entity> in <array> with t
 #### Join
 
 **Syntax**: `JOIN arrayExpr BY strexpr`
-**Semantics**: The array's elements with the separator between them, as one string: no separator before the first or after the last, and `""` for an empty array. It is the inverse of `tokenize`: `join (tokenize s by sep) by sep` is `s`, empty fields included. A non-string element contributes its string value, as it would to `+`. The separator takes the whole string expression after `by`, so parenthesize a join used inside a concatenation: `"[" + (join names by "|") + "]"`. Postfix operator: `join` (#1234). `join` is a keyword.
+**Semantics**: The array's elements with the separator between them, as one string: no separator before the first or after the last, and `""` for an empty array. It is the inverse of `tokenize`: `join (tokenize s by sep) by sep` is `s`, empty fields included. A non-string element contributes its string value, as it would to `+`. The separator binds as a single operand: `join names by "|" + "]"` is `(join names by "|") + "]"`, so a join sits inside a concatenation without parentheses (`"[" + join names by "|" + "]"` gives `[a|b]`), and a separator built with `+` must be parenthesized: `join names by ("|" + "-")`. Postfix operator: `join` (#1234). `join` is a keyword.
 **Example (EL)**: `set report.names = join household.member_names by ", "`
 **Compiled postfix**: `household.member_names ", " join cvs /report.names xdef`
 

@@ -85,6 +85,12 @@ func TestJoinExecution(t *testing.T) {
 		{`set out = join nums by "-"`, "3-1-4"},
 		{`set out = "[" + (join words by "|") + "]"`, "[a|b|c]"},
 		{`set out = join tokenize "x;y;z" by ";" by "/"`, "x/y/z"},
+		// Precedence: the separator binds as a primary, so `+` after it
+		// concatenates onto the joined string, and a compound separator
+		// needs parentheses.
+		{`set out = "[" + join words by "|" + "]"`, "[a|b|c]"},
+		{`set out = join words by "|" + "]"`, "a|b|c]"},
+		{`set out = join words by ("|" + "-")`, "a|-b|-c"},
 	}
 	for _, c := range cases {
 		if got := exec(c.action); got != c.want {
