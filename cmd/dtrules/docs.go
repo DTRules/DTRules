@@ -491,7 +491,7 @@ String comparisons:
     s starts with "prefix"         prefix test
     s at 3 starts with "x"         starts-with at character offset
     s > "b"    s < "b"    s >= "b"    s <= "b"   lexicographic comparison
-    s matches "regex.*"            regular expression match
+    s matches "regex.*"            regex search (unanchored; ^...$ for a full match)
     s is one of myArray            member of array
     s is not one of myArray        not a member of array
 
