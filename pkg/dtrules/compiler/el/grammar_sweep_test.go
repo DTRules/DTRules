@@ -16,10 +16,13 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
+	"reflect"
 	"regexp"
 	"sort"
 	"strings"
 	"testing"
+
+	"github.com/antlr4-go/antlr/v4"
 )
 
 type corpusRow struct {
@@ -251,6 +254,12 @@ func TestGrammarSweep_CoverageGuard(t *testing.T) {
 	for _, r := range rows {
 		covered[r.rule+"/"+r.label] = true
 	}
+	checkNoStaleKeys(t, grammarLabels, map[string][]string{
+		"grammar_corpus.tsv + grammar_overrides.tsv": keysOf(covered),
+		"grammar_known_fails.tsv":                    keysOf(loadKnownFails(t)),
+		"grammar_helpers.tsv":                        keysOf(loadHelpers(t)),
+		"grammar_label_misses.tsv":                   keysOf(loadTSV3(t, "testdata/grammar_label_misses.tsv")),
+	})
 	var missing []string
 	for _, gl := range grammarLabels {
 		if !covered[gl] {
@@ -268,6 +277,42 @@ func TestGrammarSweep_CoverageGuard(t *testing.T) {
 		}
 		t.Fatalf("grammar coverage gap: %d labels lack corpus entries", len(missing))
 	}
+}
+
+// checkNoStaleKeys fails if any testdata file names a rule/label that is not
+// in EL.g4. The sweep only ever checked grammar ⊆ corpus, so rows for labels
+// the grammar had dropped stayed on as dead weight (52 of them from the #1148
+// numexpr rework, found under #1247), and a row filed under a mistyped label
+// covered nothing while looking like coverage.
+func checkNoStaleKeys(t *testing.T, grammarLabels []string, files map[string][]string) {
+	t.Helper()
+	inGrammar := make(map[string]bool, len(grammarLabels))
+	for _, gl := range grammarLabels {
+		inGrammar[gl] = true
+	}
+	var stale []string
+	for file, keys := range files {
+		for _, k := range keys {
+			if !inGrammar[k] {
+				stale = append(stale, file+": "+k)
+			}
+		}
+	}
+	if len(stale) > 0 {
+		sort.Strings(stale)
+		for _, s := range stale {
+			t.Logf("  %s", s)
+		}
+		t.Fatalf("%d testdata keys name a rule/label that is not in EL.g4: delete the row, or file it under the label it covers", len(stale))
+	}
+}
+
+func keysOf[V any](m map[string]V) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, k)
+	}
+	return out
 }
 
 // checkLabelExtraction fails unless the grammar-text and generated-parser
@@ -434,4 +479,105 @@ func extractParserLabels(t *testing.T) []string {
 		}
 	}
 	return labels
+}
+
+// TestGrammarSweep_RowsReachTheirLabel asserts that every corpus row, compiled
+// the way the compile sweep compiles it, parses through the labelled
+// alternative it is filed under. A row that compiles through a sibling label
+// covers that sibling, not its own; until #1247, 250 of 559 rows did.
+//
+// The tree checked is the one the compiler itself parsed and emitted (through
+// Compiler.parsed), so CompileAction's rewrites (`perform` wrapping, the added
+// `;`, the raw-statement fallback) are the production ones.
+//
+// Rows that do not reach their label for a reason that belongs to the grammar
+// or the emitter, not the row, are listed with that reason in
+// testdata/grammar_label_misses.tsv. A listed row that reaches its label fails
+// the test, so the list can only shrink.
+func TestGrammarSweep_RowsReachTheirLabel(t *testing.T) {
+	rows := loadCorpus(t)
+	known := loadKnownFails(t)
+	misses := loadTSV3(t, "testdata/grammar_label_misses.tsv")
+
+	c := NewCompiler()
+	c.SetCollectionResolver(func(entityType string) (string, string, error) {
+		return "sweep", entityType + "s", nil
+	})
+	var tree IDoneContext
+	c.parsed = func(d IDoneContext) { tree = d }
+
+	// Bare label names, for naming the labels a row did go through.
+	labels := map[string]bool{}
+	for _, rl := range extractParserLabels(t) {
+		labels[rl[strings.Index(rl, "/")+1:]] = true
+	}
+
+	var wrong, unexpected []string
+	for _, r := range rows {
+		name := r.rule + "/" + r.label
+		if _, isKnown := known[name]; isKnown {
+			continue // does not compile; the compile sweep owns it
+		}
+		tree = nil
+		_, _ = compileRow(c, r)
+		reached := tree != nil && treeHasLabel(tree, r.label)
+		_, listed := misses[name]
+		switch {
+		case reached && listed:
+			unexpected = append(unexpected, name)
+		case !reached && !listed:
+			got := "no parse"
+			if tree != nil {
+				got = strings.Join(treeLabels(labels, tree), " ")
+			}
+			wrong = append(wrong, name+"  dsl="+r.dsl+"  parsed via: "+got)
+		}
+	}
+	if len(unexpected) > 0 {
+		for _, u := range unexpected {
+			t.Logf("  %s", u)
+		}
+		t.Errorf("%d rows listed in testdata/grammar_label_misses.tsv now reach their label: remove them", len(unexpected))
+	}
+	if len(wrong) > 0 {
+		for _, w := range wrong {
+			t.Logf("  %s", w)
+		}
+		t.Errorf("%d corpus rows do not parse through the label they are filed under", len(wrong))
+	}
+}
+
+// treeHasLabel reports whether the parse tree contains a node of the given
+// label's context type.
+func treeHasLabel(tree antlr.Tree, label string) bool {
+	want := strings.ToUpper(label[:1]) + label[1:] + "Context"
+	found := false
+	walkContexts(tree, func(name string) {
+		if name == want {
+			found = true
+		}
+	})
+	return found
+}
+
+// treeLabels lists the labelled-alternative contexts in a parse tree, in
+// pre-order, for failure messages.
+func treeLabels(labels map[string]bool, tree antlr.Tree) []string {
+	var out []string
+	walkContexts(tree, func(name string) {
+		l := strings.ToLower(name[:1]) + strings.TrimSuffix(name[1:], "Context")
+		if labels[l] {
+			out = append(out, l)
+		}
+	})
+	return out
+}
+
+func walkContexts(tree antlr.Tree, visit func(typeName string)) {
+	if _, ok := tree.(antlr.RuleContext); ok {
+		visit(reflect.TypeOf(tree).Elem().Name())
+	}
+	for _, ch := range tree.GetChildren() {
+		walkContexts(ch, visit)
+	}
 }
