@@ -23,7 +23,6 @@ import (
 	"github.com/DTRules/DTRules/pkg/dtrules"
 	"github.com/DTRules/DTRules/pkg/dtrules/authoring"
 	"github.com/DTRules/DTRules/pkg/dtrules/interpreter"
-	"github.com/DTRules/DTRules/pkg/dtrules/operators"
 	"github.com/DTRules/DTRules/pkg/dtrules/session"
 )
 
@@ -63,6 +62,13 @@ const frameEDD = `<?xml version="1.0" encoding="UTF-8"?>
 		<field name="d2after" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
 		<field name="d3" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
 		<field name="handled" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="e1" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="e2" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="e3" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="f1" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="g1" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="g2" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+		<field name="h1" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
 		<field name="num" type="integer" subtype="" access="rw" input="" default_value="0" comment=""></field>
 	</entity>
 	<entity name="failure" number="400" xls_file="f.xlsx" access="rw">
@@ -71,11 +77,15 @@ const frameEDD = `<?xml version="1.0" encoding="UTF-8"?>
 </entity_data_dictionary>
 `
 
-// frameTable is one table: its contexts and its initial actions, in order.
+// frameTable is one table: its contexts, initial actions, conditions and
+// actions, in order. A table with conditions or actions gets one column, in
+// which every condition must be true and every action executes.
 type frameTable struct {
-	name     string
-	contexts []string
-	initial  []string
+	name       string
+	contexts   []string
+	initial    []string
+	conditions []string
+	actions    []string
 }
 
 // frameTables is the rule set every test below runs against.
@@ -170,6 +180,41 @@ var frameTables = []frameTable{
 		contexts: []string{`for all state.nodes as h`},
 		initial:  []string{`set result.handled = h.id`}},
 
+	// A perform from an action column, in an action that declares its own
+	// local: both the action's local and the context's alias must survive.
+	{name: "Caller_Action",
+		contexts:   []string{`for all state.nodes as n where n.id == "n1"`},
+		conditions: []string{`n.id == "n1"`},
+		actions: []string{
+			`create node as mine; set mine.id = "own"; set result.e1 = mine.id; ` +
+				`perform Callee_One; set result.e2 = mine.id; set result.e3 = n.id`,
+		}},
+
+	// A callee with no context whose action column declares a local: that
+	// local is the callee's slot 0, not the caller's alias.
+	{name: "Caller_To_Action_Local",
+		contexts: []string{`for all state.nodes as n where n.id == "n2"`},
+		initial: []string{
+			`set result.g1 = n.id`,
+			`perform Callee_Action_Local`,
+			`set result.g2 = n.id`,
+		}},
+	{name: "Callee_Action_Local",
+		conditions: []string{`result.g1 == "n2"`},
+		actions: []string{
+			`create node as tmp; set tmp.id = "callee-tmp"; set result.f1 = tmp.id`,
+		}},
+
+	// A condition that reads the context's alias after two performs.
+	{name: "Caller_Condition",
+		contexts: []string{`for all state.nodes as n where n.id == "n1"`},
+		initial: []string{
+			`perform Callee_One`,
+			`perform Callee_One`,
+		},
+		conditions: []string{`n.id == "n1"`},
+		actions:    []string{`set result.h1 = n.id`}},
+
 	// A table that fails at the entry point, not under a catch.
 	{name: "Fails_At_Entry",
 		contexts: []string{
@@ -222,6 +267,26 @@ func frameSession(t *testing.T) (*session.RSession, dtrules.Entity) {
 				t.Fatalf("%s: initial action %q: %v", ft.name, a, err)
 			}
 		}
+		if len(ft.conditions)+len(ft.actions) == 0 {
+			continue
+		}
+		cells := map[int]string{}
+		for i, c := range ft.conditions {
+			if err := tbl.AddCondition(authoring.Condition{DSL: c}); err != nil {
+				t.Fatalf("%s: condition %q: %v", ft.name, c, err)
+			}
+			cells[i+1] = "Y"
+		}
+		var fire []int
+		for i, a := range ft.actions {
+			if err := tbl.AddAction(authoring.Action{DSL: a}); err != nil {
+				t.Fatalf("%s: action %q: %v", ft.name, a, err)
+			}
+			fire = append(fire, i+1)
+		}
+		if err := tbl.AddColumn(cells, fire); err != nil {
+			t.Fatalf("%s: column: %v", ft.name, err)
+		}
 	}
 	if err := p.Save(); err != nil {
 		t.Fatalf("save: %v", err)
@@ -234,9 +299,6 @@ func frameSession(t *testing.T) (*session.RSession, dtrules.Entity) {
 	sess, err := session.NewSession(rs)
 	if err != nil {
 		t.Fatal(err)
-	}
-	if st, ok := sess.GetState().(*interpreter.DTState); ok {
-		st.SetOperatorTable(operators.GetOperatorTable())
 	}
 	state := sess.GetState()
 	for _, name := range []string{"state", "result"} {
@@ -357,6 +419,41 @@ func TestFailedPerformUnderCatchLeavesTheCallersSlot(t *testing.T) {
 		"missing": "n1",
 		"handled": "n3",
 	})
+	wantStacksClean(t, sess)
+}
+
+func TestPerformFromAnActionColumnKeepsTheActionsLocal(t *testing.T) {
+	sess, result := frameSession(t)
+	if err := sess.Execute("Caller_Action"); err != nil {
+		t.Fatalf("Caller_Action: %v", err)
+	}
+	wantFields(t, result, map[string]string{
+		"e1": "own", "e2": "own", // the action's own local, across the perform
+		"e3":      "n1", // the context's alias, across the perform
+		"finding": "n3",
+	})
+	wantStacksClean(t, sess)
+}
+
+func TestContextlessCalleeLocalIsItsOwnSlot(t *testing.T) {
+	sess, result := frameSession(t)
+	if err := sess.Execute("Caller_To_Action_Local"); err != nil {
+		t.Fatalf("Caller_To_Action_Local: %v", err)
+	}
+	wantFields(t, result, map[string]string{
+		"g1": "n2", "g2": "n2",
+		"f1": "callee-tmp",
+	})
+	wantStacksClean(t, sess)
+}
+
+func TestConditionReadsTheAliasAfterTwoPerforms(t *testing.T) {
+	sess, result := frameSession(t)
+	if err := sess.Execute("Caller_Condition"); err != nil {
+		t.Fatalf("Caller_Condition: %v", err)
+	}
+	// Empty means the condition saw a node other than n1.
+	wantFields(t, result, map[string]string{"h1": "n1", "finding": "n3"})
 	wantStacksClean(t, sess)
 }
 
