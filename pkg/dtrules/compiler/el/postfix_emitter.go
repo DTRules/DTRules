@@ -5507,6 +5507,7 @@ func (e *PostfixEmitter) VisitClearArray(ctx *ClearArrayContext) interface{} {
 // VisitSortAscending: `sort <arrayExpr> in ascending order by <nexpr>`.
 // opSortEntities signature: (array name asc --).
 func (e *PostfixEmitter) VisitSortAscending(ctx *SortAscendingContext) interface{} {
+	e.checkSortKey(ctx.Nexpr())
 	e.Visit(ctx.ArrayExpr())
 	e.Visit(ctx.Nexpr())
 	e.emit("true")
@@ -5514,8 +5515,43 @@ func (e *PostfixEmitter) VisitSortAscending(ctx *SortAscendingContext) interface
 	return nil
 }
 
+// checkSortKey rejects a field read after `by` (#1227). The sort key is a
+// name expression: sortentities is handed the name of the field to sort on.
+// `by entry.key`, `by key` or `by $key`, where key is a string (or any
+// non-name) field, reads the field's value instead -- before sortentities
+// runs, with no entity on the stack -- and failed only at run time with "The
+// Name 'key' was not defined by any Entity". A field or local whose declared
+// type is name holds a sort key and is accepted, as is anything whose type is
+// not known here.
+func (e *PostfixEmitter) checkSortKey(n INexprContext) {
+	var ident string
+	switch n := n.(type) {
+	case *NameTypedContext:
+		ident = n.GetText()
+	case *NameLiteralContext:
+		text := n.GetText()
+		if !strings.HasPrefix(text, "$") {
+			return // the keyword `name`: a literal name
+		}
+		ident = text[1:]
+	default:
+		return
+	}
+	typ := e.lookupType(ident)
+	if lv, ok := e.lookupLocal(ident); ok {
+		typ = lv.Type
+	}
+	if typ == "" || typ == TypeName {
+		return
+	}
+	field := ident[strings.LastIndex(ident, ".")+1:]
+	e.emitError("sort … by %s: %q reads a %s value, but `by` takes the name of the field to sort on; write: by the name %q",
+		n.GetText(), n.GetText(), typ, field)
+}
+
 // VisitSortDescending: `sort <arrayExpr> in descending order by <nexpr>`.
 func (e *PostfixEmitter) VisitSortDescending(ctx *SortDescendingContext) interface{} {
+	e.checkSortKey(ctx.Nexpr())
 	e.Visit(ctx.ArrayExpr())
 	e.Visit(ctx.Nexpr())
 	e.emit("false")

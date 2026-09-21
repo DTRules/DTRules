@@ -741,8 +741,14 @@ CLEAR array:
     clear myArray
 
 SORT array:
-    sort myArray in ascending order by $nameField
-    sort myArray in descending order by $nameField
+    sort myArray in ascending order by the name "field"
+    sort myArray in descending order by the name "field"
+    sort myArray in ascending order by $sortKey      (sortKey: a name-typed field
+                                                      holding the field to sort on)
+  ` + "`by`" + ` takes a NAME: the name of the entity field to sort on. A field
+  read is a compile error -- ` + "`by entry.key`" + `, ` + "`by key`" + ` and
+  ` + "`by $key`" + ` with key a string field read key's value, not its name.
+  Write ` + "`by the name \"key\"`" + ` (or ` + "`by (name) \"key\"`" + `).
 
 RANDOMIZE array:
     randomize myArray

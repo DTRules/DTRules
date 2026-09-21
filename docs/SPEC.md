@@ -175,6 +175,11 @@ parser can never choose the label) and `grammar_helpers.tsv` (a fragment that
 cannot be compiled on its own). An exception that starts passing fails the
 sweep, so each list can only shrink.
 
+The emitter also refuses, at authoring time, a field read where a name is
+required: after `sort … by`, a field or local whose declared type is not `name`
+is an error that points at `the name "<field>"`, because it would be evaluated
+before the sort with no entity on the stack and fail at execution (#1227).
+
 ## 2.4 Execution
 
 `pkg/dtrules/interpreter` holds the VM. Three stacks:
