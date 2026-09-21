@@ -483,8 +483,8 @@ This is the value, not the element attaining it. `the <entity> in <array> with t
 
 #### Current date
 
-**Syntax**: `current date` or `current time`
-**Semantics**: Returns the current date/time. Postfix: `currentdate`.
+**Syntax**: `current date`
+**Semantics**: Today's date at midnight UTC -- not the current instant. Postfix: `today`. For the current instant write `current date in zone "UTC"` (postfix `"UTC" currentdateinzone`), which is the instant now stamped with that zone.
 **Example (EL)**: `taxpayer.birth_date is before current date`
 **Compiled postfix**: `taxpayer.birth_date today d<`
 
@@ -505,7 +505,7 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Compiled postfix**: `"2024-01-01" cvdate today d<`
 
 **Example (EL with timestamp)**: `(date)"2026-04-17T21:05:30Z" is before current date`
-**Compiled postfix**: `"2026-04-17T21:05:30Z" cvdate currentdate d<`
+**Compiled postfix**: `"2026-04-17T21:05:30Z" cvdate today d<`
 
 #### Date arithmetic (date plus/minus days/months/years)
 
@@ -531,7 +531,7 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 #### Days / months / years between
 
 **Syntax**: `DAYS FROM dexpr TO dexpr` / `MONTHS FROM dexpr TO dexpr` / `YEARS FROM dexpr TO dexpr`
-**Semantics**: Returns integer difference. Postfix operators: `daysbetween`, `monthsbetween`, `yearsbetween`.
+**Semantics**: Returns integer difference, `d2 - d1`. Postfix operators: `daysbetween`, `monthsbetween`, `yearsbetween`. `days from` is elapsed time -- whole 24-hour periods, truncated toward zero -- not a calendar-day count: across a daylight-saving change it can be one short (America/Chicago, 2026-03-08 00:00 to 2026-03-10 00:00 is 47 hours, so 1). `months from` compares year and month; `years from` counts anniversaries.
 **Example (EL)**: `years from taxpayer.birth_date to current date >= 18`
 **Compiled postfix**: `taxpayer.birth_date today yearsbetween 18 >=`
 

@@ -15,6 +15,7 @@
 package operators
 
 import (
+	"math"
 	"testing"
 	"time"
 
@@ -131,5 +132,74 @@ func TestAddMinutesOverflow(t *testing.T) {
 	o, _ := Get(dtrules.GetRName("addminutes"))
 	if err := o.Execute(state); err == nil {
 		t.Errorf("addminutes accepted 2^62 minutes")
+	}
+}
+
+// An offset whose sum falls outside the range of a date is an error, not a
+// wrapped date -- for addseconds, and for addminutes after the n*60 guard
+// has passed (review of #1243).
+func TestAddSecondsSumOverflow(t *testing.T) {
+	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	cases := []struct {
+		op string
+		n  int64
+	}{
+		{"addseconds", math.MaxInt64},
+		{"addseconds", math.MinInt64},
+		// No int64 overflow, but past year 9999, where Go's calendar
+		// arithmetic wraps (it printed year 292277024627).
+		{"addseconds", math.MaxInt64 - 62135596800 - 1767225600 + 1},
+		{"addseconds", 253402300800}, // lands in year ~10056: past 9999
+		{"addseconds", -63902822401}, // one second before year 1, from 2026-01-01
+		{"addminutes", math.MaxInt64 / 60},
+		{"addminutes", math.MinInt64 / 60},
+	}
+	for _, c := range cases {
+		state := newTestState()
+		pushInstant(t, state, start)
+		state.DataPush(dtrules.GetRIntegerValue(c.n))
+		o, _ := Get(dtrules.GetRName(c.op))
+		if err := o.Execute(state); err == nil {
+			top, _ := state.DataPop()
+			t.Errorf("%s %d: no error, got %v", c.op, c.n, top)
+		}
+	}
+	// The whole range still works and round-trips exactly: from 2026 to
+	// the last second of 9999, and back to the first of year 1.
+	last := time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)
+	first := time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC)
+	for _, end := range []time.Time{last, first} {
+		span := end.Unix() - start.Unix()
+		top := runDateOp(t, "addseconds", func(s dtrules.State) {
+			pushInstant(t, s, start)
+			s.DataPush(dtrules.GetRIntegerValue(span))
+		})
+		got, _ := top.TimeValue()
+		if !got.Equal(end) {
+			t.Errorf("addseconds %d = %s, want %s", span, got, end)
+		}
+		top = runDateOp(t, "secondsbetween", func(s dtrules.State) {
+			pushInstant(t, s, start)
+			pushInstant(t, s, got)
+		})
+		if v, _ := top.LongValue(); v != span {
+			t.Errorf("round trip = %d, want %d", v, span)
+		}
+	}
+}
+
+// Two representable dates can be further apart than an int64 of seconds.
+func TestSecondsBetweenOverflow(t *testing.T) {
+	a := time.Unix(1<<62, 0).UTC()
+	b := time.Unix(-(1 << 62), 0).UTC()
+	for _, op := range []string{"secondsbetween", "minutesbetween"} {
+		state := newTestState()
+		pushInstant(t, state, b)
+		pushInstant(t, state, a)
+		o, _ := Get(dtrules.GetRName(op))
+		if err := o.Execute(state); err == nil {
+			top, _ := state.DataPop()
+			t.Errorf("%s across 2^63 s: no error, got %v", op, top)
+		}
 	}
 }

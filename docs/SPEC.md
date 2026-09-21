@@ -244,16 +244,32 @@ The flag is sticky until reset;
 and writes it on the `--save` root as `<dtrules-data changed="true|false">`.
 `datafile.Read` ignores the attribute.
 
-**Dates and time.** A date value is an instant that carries a zone. Calendar
-arithmetic (`d + N days|months|years`, `days|months|years from`) works on the
-calendar; arithmetic below a day (`d + N seconds|minutes`, `seconds|minutes
-from d1 to d2`, operators `addseconds`, `addminutes`, `secondsbetween`,
-`minutesbetween`) is elapsed time between instants (#1232). A difference is
-`d2 - d1` in whole units, truncated toward zero, and does not depend on the zone
-either date carries; across a daylight-saving change it counts the time that
-actually passed. An offset keeps the zone of the date it moved. Both are
-computed on Unix seconds, so spans beyond `time.Duration`'s ~292 years are
-exact.
+**Dates and time.** A date value is an instant that carries a zone.
+
+- `d + N days|months|years` is calendar arithmetic (Go `AddDate` in the date's
+  zone). `months from` and `years from` compare calendar fields: months by year
+  and month, years by anniversary.
+- `days from d1 to d2` (`daysbetween`) is **elapsed** time: whole 24-hour
+  periods, truncated toward zero. It is not a calendar-day count. Across a
+  daylight-saving change it can come out one short of the calendar: in
+  America/Chicago, 2026-03-08 00:00 to 2026-03-10 00:00 is 47 hours, so `days
+  from` is 1. `d + 1 days` and `days from` are therefore not inverses across
+  such a change. Whether `days from` should count calendar days is an open
+  question (#1265).
+- Below a day (#1232), `d + N seconds|minutes` and `seconds|minutes from d1 to
+  d2` (operators `addseconds`, `addminutes`, `secondsbetween`,
+  `minutesbetween`) are elapsed time between instants. A difference is `d2 -
+  d1` in whole units, truncated toward zero, independent of the zones the dates
+  carry; across a daylight-saving change it counts the time that actually
+  passed. An offset keeps the zone of the date it moved. Both work on Unix
+  seconds, so spans beyond `time.Duration`'s ~292 years are exact. An offset
+  that would leave years 1-9999, or a difference too large for an integer, is
+  an error rather than a wrapped value. Leap seconds are not counted, as in
+  every other date operation.
+- `current date` is today's date at midnight UTC (`today`), not the current
+  instant. `current date in zone "<tz>"` (`currentdateinzone`) is the current
+  instant, stamped with that zone. EL has no other spelling of "now" (#1266).
+
 ## 2.5 Data in
 
 `pkg/dtrules/mapping` loads external XML against a mapping file:

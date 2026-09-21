@@ -162,7 +162,7 @@ Fixed:         1.5fp   0fp   100.0FP   (8-decimal fixed-point, see 'docs fixed')
 String:        "hello"   'single quoted'   "John's tax"
 Boolean:       true   false   default   otherwise   always
                perform when called
-Date:          current date       (today's date)
+Date:          current date       (today's date, midnight UTC)
                current timestamp  (returns the current timestamp as string)
 Null:          (tested with "is null" / "is not null")
 
@@ -564,7 +564,7 @@ Not EL: otherwise, default, always
 Date Expressions (dexpr)
 --------------------------
 Sources:
-    current date                   today's date
+    current date                   today's date, midnight UTC (not now)
     myDate                         typed date field
     taxpayer's birthDate           possessive
 
@@ -632,13 +632,19 @@ Time below a day (#1232):
     "2026-04-17T16:06:30-05:00" are 60 seconds apart. Across a daylight-
     saving change the count is the time that actually passed (00:00 to
     03:00 Chicago on a spring-forward day is 7200 seconds), and
-    d + N seconds keeps d's zone. Use days/months/years from for calendar
-    distances. Example -- idle for more than two minutes:
+    d + N seconds keeps d's zone. An offset that would leave years
+    1-9999 is an error. Leap seconds are not counted.
+    Example -- idle for more than two minutes:
         seconds from job.last_progress to job.checked_at > 120
-    "current date" is today at midnight, not the current instant; for
+    "current date" is today at midnight UTC, not the current instant; for
     "now" write: current date in zone "UTC".
-    "second(s)" and "minute(s)" are keywords; a field named exactly
-    "seconds" or "minutes" must be written with its entity (job.seconds).
+    "days from" is elapsed time too: whole 24-hour periods, truncated.
+    It is not a calendar-day count -- across a daylight-saving change it
+    can be one short (Chicago 2026-03-08 00:00 to 03-10 00:00 is 47 h,
+    so 1 day). "months from" and "years from" do compare the calendar.
+    "second(s)" and "minute(s)" are keywords in any case (Seconds,
+    MINUTES); a field named exactly that must be written with its entity
+    (job.seconds).
 
 Date navigation:
     first of years of d            January 1 of d's year
@@ -2271,7 +2277,8 @@ See 'dtrules docs bytes' for full bytes documentation.
 Date Operators
 --------------
 Source operators:
-    current date                            today's date
+    current date                            today's date, midnight UTC (not now)
+    current date in zone "UTC"              the current instant
     current timestamp                       current date/time as string
 
 Arithmetic returning dexpr:
@@ -2333,7 +2340,7 @@ Timezone-aware variants (#743): every date op above has an ` + "`in zone <tz>`" 
 counterpart that interprets the date in the given IANA timezone (e.g.
 "America/Chicago", "UTC"). The runtime op names suffix ` + "`inzone`" + `.
 
-    current date in zone "America/Chicago"      today in Chicago
+    current date in zone "America/Chicago"      the current instant, in Chicago's zone
     today in zone "UTC"                          today in UTC
     new date "2024-03-10" in zone "America/Chicago"
     new date "2024-03-10 02:30" in zone "America/Chicago" with dst rule "fall back"
