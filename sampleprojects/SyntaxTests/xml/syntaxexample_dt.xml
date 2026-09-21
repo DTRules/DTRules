@@ -639,7 +639,7 @@ clients $steve false sortentities
 <initial_action>
 <initial_action_dsl>Set InterestingClients = job's clients</initial_action_dsl>
 <initial_action_postfix>
-job clients /InterestingClients xdef
+job entitypush clients entitypop pop /InterestingClients xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -705,7 +705,7 @@ clients 0 getat cve 0 local!
 <initial_action>
 <initial_action_dsl>set InterestingClients = job's clients</initial_action_dsl>
 <initial_action_postfix>
-job clients /InterestingClients xdef
+job entitypush clients entitypop pop /InterestingClients xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -729,7 +729,7 @@ newClient clone cve /client xdef
 <initial_action>
 <initial_action_dsl>set client = client's address</initial_action_dsl>
 <initial_action_postfix>
-client address cve /client xdef
+client entitypush address entitypop pop cve /client xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -813,7 +813,7 @@ client entitypush currentDate entitypop cvdate /effectiveDate xdef
 <initial_action>
 <initial_action_dsl>set effectiveDate = job's effectiveDate</initial_action_dsl>
 <initial_action_postfix>
-job effectiveDate cvdate /effectiveDate xdef
+job entitypush effectiveDate entitypop pop cvdate /effectiveDate xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -3055,7 +3055,7 @@ clients $steve false sortentities
 <initial_action>
 <initial_action_dsl>Set InterestingClients = job's clients</initial_action_dsl>
 <initial_action_postfix>
-job clients /InterestingClients xdef
+job entitypush clients entitypop pop /InterestingClients xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -3238,7 +3238,7 @@ clients 0 getat cve 0 local!
 <initial_action>
 <initial_action_dsl>set InterestingClients = job's clients</initial_action_dsl>
 <initial_action_postfix>
-job clients /InterestingClients xdef
+job entitypush clients entitypop pop /InterestingClients xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -3262,7 +3262,7 @@ newClient clone cve /client xdef
 <initial_action>
 <initial_action_dsl>set client = client's address</initial_action_dsl>
 <initial_action_postfix>
-client address cve /client xdef
+client entitypush address entitypop pop cve /client xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -3463,7 +3463,7 @@ client entitypush currentDate entitypop cvdate /effectiveDate xdef
 <initial_action>
 <initial_action_dsl>set effectiveDate = job's effectiveDate</initial_action_dsl>
 <initial_action_postfix>
-job effectiveDate cvdate /effectiveDate xdef
+job entitypush effectiveDate entitypop pop cvdate /effectiveDate xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
