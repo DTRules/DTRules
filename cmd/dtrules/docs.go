@@ -578,7 +578,9 @@ Accepted string formats (most-specific tried first):
     RFC 3339 with nanoseconds: "2026-04-17T21:05:30.123456789Z"
     RFC 3339:                  "2026-04-17T21:05:30Z"
     Space-separated datetime:  "2026-04-17 21:05:30"
+    ISO 8601, no offset:       "2026-04-17T21:05:30"   (#1275)
     Pure date (midnight UTC):  "2026-04-17"
+A timestamp with no offset is read as UTC; fractional seconds are allowed.
 
 Pure dates serialize as "YYYY-MM-DD"; timestamps serialize as RFC 3339.
 
