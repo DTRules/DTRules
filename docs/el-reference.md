@@ -32,6 +32,7 @@ Expression Language (EL) is the human-readable syntax used in DTRules condition,
    - [set](#set)
    - [increment / decrement](#increment--decrement)
    - [add to / subtract from](#add-to--subtract-from)
+   - [add to / subtract from / multiply / divide by (expression)](#add-to--subtract-from--multiply--divide-by-expression)
    - [perform](#perform)
    - [xml set attribute](#xml-set-attribute)
 8. [Map / Filter / Sum / There-is](#map--filter--sum--there-is)
@@ -1092,6 +1093,15 @@ The type-conversion operators used in set statements:
 The target may name its entity as `:e: field` or `e's field`. The entity is made current around the update, and the op is typed by the field as above.
 **Example (EL)**: `subtract 1.5 from result's total_tax`
 **Compiled postfix**: `1.5 result entitypush cvd total_tax swap f- /total_tax xdef entitypop`
+
+---
+
+### add to / subtract from / multiply / divide by (expression)
+
+**Syntax**: `ADD TO x number` / `SUBTRACT FROM x number` / `MULTIPLY x BY number` / `DIVIDE x BY number`
+**Semantics**: In an expression these are values: x + number, x - number, x * number and x / number. The op is typed by x's declared type, and x is not changed.
+**Example (EL)**: `subtract from taxpayer.age 18 > 0`
+**Compiled postfix**: `taxpayer.age 18 - 0 >`
 
 ---
 

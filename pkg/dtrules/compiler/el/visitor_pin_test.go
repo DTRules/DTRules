@@ -79,20 +79,10 @@ var inheritedAllowlist = map[string]string{
 	"VisitBlistIcOr":    "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
 	"VisitBlistMulti":   "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
 	"VisitBlistOr":      "dead grammar; parent traverses via collectBlistStrexprs, never Visit",
-	// AddTo/SubFrom — these alts live inside fexpr/iexpr but the
-	// action-statement form `add X to Y` / `subtract X from Y` parses
-	// as addtostatement (rule `addtostatement`), not via the fexpr
-	// path. Confirmed by tree-dump probe; `add 2 to a.x` matches
-	// addNumToDest and emits the correct postfix through that path
-	// (#803 batch 4).
-	"VisitFloatAddTo":   "dead grammar; addtostatement handles `add X to Y` as a statement",
-	"VisitFloatSubFrom": "dead grammar; addtostatement handles `subtract X from Y`",
 	// Float/Int Using are unreachable: ANTLR adaptive prediction
 	// picks intUsingArray (in iexpr) first for the `using <ident>(<expr>)`
 	// shape because both IDENT-typed sides match more broadly. The
 	// actually-reached intUsingArray now has an override (#803 batch 6).
-	"VisitIntAddTo":   "dead grammar; addtostatement handles `add X to Y` (see VisitFloatAddTo)",
-	"VisitIntSubFrom": "dead grammar; addtostatement handles `subtract X from Y`",
 	// leftTexpr alts are unreachable because the only SET form that
 	// targets a typedTable (setTable) now emits an elstmterror
 	// placeholder without visiting the leftTexpr (hash tables removed,
