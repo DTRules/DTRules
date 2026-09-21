@@ -16,23 +16,23 @@ package el
 
 import "testing"
 
-// Issue #1258: subDestColon stored number - field, with the integer `-` for
-// every field type. The runtime behaviour is pinned in
-// pkg/dtrules/authoring/subtract_from_colon_test.go; this pins the postfix,
-// including the fixed-point form the runtime test's EDD does not declare.
-func TestSubtractFromColon_Postfix(t *testing.T) {
+// Issue #1287: the colon/possessive add and subtract statements drop the
+// entity entitypop leaves on the data stack. The runtime behaviour is pinned
+// in pkg/dtrules/authoring/colon_dest_stack_test.go.
+func TestColonDestStack_Postfix(t *testing.T) {
 	c := NewCompiler()
 	c.SetSymbols(map[string]string{
 		"account":   TypeEntity,
 		"account.n": TypeInteger,
 		"account.d": TypeDouble,
-		"account.f": TypeFixed,
+		"n":         TypeInteger,
+		"d":         TypeDouble,
 	})
 	for _, tc := range []struct{ el, want string }{
+		{`add 1 to :account: n`, `1 account entitypush n + /n xdef entitypop pop`},
+		{`add 1 to account's n`, `1 account entitypush n + /n xdef entitypop pop`},
+		{`add 1.5 to account's d`, `1.5 account entitypush d f+ /d xdef entitypop pop`},
 		{`subtract 1 from :account: n`, `1 account entitypush n swap - /n xdef entitypop pop`},
-		{`subtract 1 from account's n`, `1 account entitypush n swap - /n xdef entitypop pop`},
-		{`subtract 1.5 from account's d`, `1.5 account entitypush cvd d swap f- /d xdef entitypop pop`},
-		{`subtract 1 from :account: f`, `1 account entitypush cvfp f swap fp- /f xdef entitypop pop`},
 	} {
 		got, err := c.CompileAction(tc.el)
 		if err != nil {

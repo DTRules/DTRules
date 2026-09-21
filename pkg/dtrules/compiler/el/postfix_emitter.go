@@ -6172,7 +6172,7 @@ func colonRefEntityName(colonRef IColonRefContext) string {
 }
 
 // VisitSubDestColon: `subtract <number> from <colonRef> <field>` →
-// `<number> <entity> entitypush <field> swap - /<field> xdef entitypop`,
+// `<number> <entity> entitypush <field> swap - /<field> xdef entitypop pop`,
 // so the field becomes field - number, with the op typed by the field's
 // declared type as in emitTypeAwareAddSub (`cvd ... f-` for a double).
 // It used to emit `<field> -` with no swap, storing number - field, and
@@ -6206,6 +6206,7 @@ func (e *PostfixEmitter) VisitSubDestColon(ctx *SubDestColonContext) interface{}
 		e.emit("xdef")
 	}
 	e.emit("entitypop")
+	e.emit("pop")
 	return nil
 }
 
@@ -6458,6 +6459,7 @@ func (e *PostfixEmitter) VisitAddArrayToArray(ctx *AddArrayToArrayContext) inter
 			e.emit("entitypush")
 			e.emitTypeAwareAddSub(fieldName, "+")
 			e.emit("entitypop")
+			e.emit("pop")
 			return nil
 		}
 	}
@@ -6678,6 +6680,7 @@ func (e *PostfixEmitter) VisitAddDestColon(ctx *AddDestColonContext) interface{}
 			e.emit("/" + fieldName)
 			e.emit("xdef")
 			e.emit("entitypop")
+			e.emit("pop")
 			return nil
 		case TypeDouble:
 			// Double field - use float arithmetic
@@ -6686,6 +6689,7 @@ func (e *PostfixEmitter) VisitAddDestColon(ctx *AddDestColonContext) interface{}
 			e.emit("/" + fieldName)
 			e.emit("xdef")
 			e.emit("entitypop")
+			e.emit("pop")
 			return nil
 		default:
 			// Array field or unknown - use array operations
@@ -6693,6 +6697,7 @@ func (e *PostfixEmitter) VisitAddDestColon(ctx *AddDestColonContext) interface{}
 			e.emit("swap")
 			e.emit("addto")
 			e.emit("entitypop")
+			e.emit("pop")
 			return nil
 		}
 	}
@@ -6706,6 +6711,7 @@ func (e *PostfixEmitter) VisitAddDestColon(ctx *AddDestColonContext) interface{}
 	e.emit("/" + fieldName)
 	e.emit("xdef")
 	e.emit("entitypop")
+	e.emit("pop")
 	return nil
 }
 

@@ -1104,7 +1104,7 @@ The type-conversion operators used in set statements:
 
 The target may name its entity as `:e: field` or `e's field`. The entity is made current around the update, and the op is typed by the field as above.
 **Example (EL)**: `subtract 1.5 from result's total_tax`
-**Compiled postfix**: `1.5 result entitypush cvd total_tax swap f- /total_tax xdef entitypop`
+**Compiled postfix**: `1.5 result entitypush cvd total_tax swap f- /total_tax xdef entitypop pop`
 
 ---
 
