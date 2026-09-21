@@ -325,18 +325,6 @@ fexpr	floatTyped	condition	d > 0.0
 fexpr	floatFromStr	condition	( double ) "x" > 0.0
 fexpr	floatFromInt	condition	( double ) 1 > 0.0
 fexpr	floatTableLookup	condition	( double ) tbl ( tablelist ) > 0.0
-fexpr	floatMulInt	condition	1.0 * 1 > 0.0
-fexpr	intMulFloat	condition	1 * 1.0 > 0.0
-fexpr	floatMulFloat	condition	1.0 * 1.0 > 0.0
-fexpr	floatDivInt	condition	1.0 / 1 > 0.0
-fexpr	intDivFloat	condition	1 / 1.0 > 0.0
-fexpr	floatDivFloat	condition	1.0 / 1.0 > 0.0
-fexpr	floatAddInt	condition	1.0 + 1 > 0.0
-fexpr	floatAddFloat	condition	1.0 + 1.0 > 0.0
-fexpr	intAddFloat	condition	1 + 1.0 > 0.0
-fexpr	floatSubInt	condition	1.0 - 1 > 0.0
-fexpr	intSubFloat	condition	1 - 1.0 > 0.0
-fexpr	floatSubFloat	condition	1.0 - 1.0 > 0.0
 fexpr	floatNegate	condition	- 1.0 > 0.0
 fexpr	floatParen	condition	( 1.0 ) > 0.0
 fexpr	floatFromIndex	condition	( double ) indxExpr > 0.0
@@ -351,22 +339,6 @@ fexpr	floatRounded	condition	1.0 rounded > 0.0
 fexpr	floatRoundedTo	condition	1.0 rounded to 1 decimal places > 0.0
 fexpr	floatRoundedBoundry	condition	1.0 rounded to 1 decimal places with boundry 1.0 > 0.0
 fexpr	floatSumOf	condition	sum of d in accounts > 0.0
-fexpr	floatMinOfFloat	condition	minimum of 1.0 and 1.0 > 0.0
-fexpr	floatMinOfInt	condition	minimum of 1.0 and 1 > 0.0
-fexpr	floatMinIntOf	condition	minimum of 1 and 1.0 > 0.0
-fexpr	floatMinOfFloatComma	condition	minimum of 1.0 , 1.0 > 0.0
-fexpr	floatMinOfIntComma	condition	minimum of 1.0 , 1 > 0.0
-fexpr	floatMinIntOfComma	condition	minimum of 1 , 1.0 > 0.0
-fexpr	floatMaxOfFloat	condition	maximum of 1.0 and 1.0 > 0.0
-fexpr	floatMaxOfInt	condition	maximum of 1.0 and 1 > 0.0
-fexpr	floatMaxIntOf	condition	maximum of 1 and 1.0 > 0.0
-fexpr	floatMaxOfFloatComma	condition	maximum of 1.0 , 1.0 > 0.0
-fexpr	floatMaxOfIntComma	condition	maximum of 1.0 , 1 > 0.0
-fexpr	floatMaxIntOfComma	condition	maximum of 1 , 1.0 > 0.0
-iexpr	intMul	condition	1 * 1 > 0
-iexpr	intDiv	condition	1 / 1 > 0
-iexpr	intAdd	condition	1 + 1 > 0
-iexpr	intSub	condition	1 - 1 > 0
 iexpr	intLiteral	condition	int_literal > 0
 iexpr	intNegate	condition	- 1 > 0
 iexpr	intParen	condition	( 1 ) > 0
@@ -461,30 +433,6 @@ bexpr	boolNameEq	condition	/tbl == /tbl
 bexpr	boolNameEqStr	condition	/tbl == "x"
 bexpr	boolNameNeq	condition	/tbl != /tbl
 bexpr	boolNameNeqStr	condition	/tbl != "x"
-bexpr	boolIntEq	condition	1 == 1
-bexpr	boolFloatEqInt	condition	1.0 == 1
-bexpr	boolIntEqFloat	condition	1 == 1.0
-bexpr	boolFloatEq	condition	1.0 == 1.0
-bexpr	boolIntNeq	condition	1 != 1
-bexpr	boolFloatNeqInt	condition	1.0 != 1
-bexpr	boolIntNeqFloat	condition	1 != 1.0
-bexpr	boolFloatNeq	condition	1.0 != 1.0
-bexpr	boolIntGt	condition	1 > 1
-bexpr	boolFloatGtInt	condition	1.0 > 1
-bexpr	boolIntGtFloat	condition	1 > 1.0
-bexpr	boolFloatGt	condition	1.0 > 1.0
-bexpr	boolIntGte	condition	1 >= 1
-bexpr	boolFloatGteInt	condition	1.0 >= 1
-bexpr	boolIntGteFloat	condition	1 >= 1.0
-bexpr	boolFloatGte	condition	1.0 >= 1.0
-bexpr	boolIntLt	condition	1 < 1
-bexpr	boolFloatLtInt	condition	1.0 < 1
-bexpr	boolIntLtFloat	condition	1 < 1.0
-bexpr	boolFloatLt	condition	1.0 < 1.0
-bexpr	boolIntLte	condition	1 <= 1
-bexpr	boolFloatLteInt	condition	1.0 <= 1
-bexpr	boolIntLteFloat	condition	1 <= 1.0
-bexpr	boolFloatLte	condition	1.0 <= 1.0
 bexpr	boolBigEq	condition	1 == 1
 bexpr	boolBigNeq	condition	1 != 1
 bexpr	boolBigGt	condition	1 > 1

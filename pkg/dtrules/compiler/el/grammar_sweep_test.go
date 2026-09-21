@@ -1,10 +1,12 @@
 // Grammar sweep: drive every labeled alternative in EL.g4 through the
-// compiler. Two assertions per entry: compile succeeds, postfix is non-empty.
-// The empty-postfix check is what makes the silent fall-through that caused
-// #626 impossible — a labeled alternative without a PostfixEmitter override
-// emits nothing, and this sweep fails.
+// compiler. Three assertions per entry: compile succeeds, postfix is
+// non-empty, and the row parses through the label it is filed under. The
+// empty-postfix check is what makes the silent fall-through that caused #626
+// impossible — a labeled alternative without a PostfixEmitter override emits
+// nothing, and this sweep fails. The label check is what makes the row a test
+// of that label at all (#1247).
 //
-// The corpus is generated from EL.g4 itself (see tools/gen_corpus.py) so
+// The corpus is generated from EL.g4 itself (see tools/gen_el_corpus.py) so
 // adding a new labeled alternative forces a corpus entry: the coverage guard
 // below fails if any grammar label has no corpus row.
 
