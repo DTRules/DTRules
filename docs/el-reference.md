@@ -453,6 +453,13 @@ This is the value, not the element attaining it. `the <entity> in <array> with t
 **Example (EL)**: `substring of taxpayer.filing_status from 0 to 1 == "M"`
 **Compiled postfix**: `taxpayer.filing_status 0 1 over - substring "M" streq`
 
+#### Join
+
+**Syntax**: `JOIN arrayExpr BY strexpr`
+**Semantics**: The array's elements with the separator between them, as one string: no separator before the first or after the last, and `""` for an empty array. It is the inverse of `tokenize`: `join (tokenize s by sep) by sep` is `s`, empty fields included. A non-string element contributes its string value, as it would to `+`. The separator takes the whole string expression after `by`, so parenthesize a join used inside a concatenation: `"[" + (join names by "|") + "]"`. Postfix operator: `join` (#1234). `join` is a keyword.
+**Example (EL)**: `set report.names = join household.member_names by ", "`
+**Compiled postfix**: `household.member_names ", " join cvs /report.names xdef`
+
 #### Index of
 
 **Syntax**: `INDEX_OF strexpr IN strexpr`

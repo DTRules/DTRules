@@ -42,6 +42,7 @@ func init() {
 	Register("contains", opContains)
 	Register("replace", opReplace)
 	Register("split", opSplit)
+	Register("join", opJoin)
 	Register("tostring", opToString)
 	Register("cvs", opCvs) // Convert to string (PostScript style)
 	Register("regexmatch", opRegexMatch)
@@ -263,6 +264,32 @@ func opSplit(state dtrules.State) error {
 		return err
 	}
 	return state.DataPush(arr)
+}
+
+// opJoin: ( array sep -- string ) the elements' string values with sep
+// between them; "" for an empty array. The inverse of split: joining what
+// split produced, by the same separator, gives back the original string
+// (#1234). A non-string element contributes its string value, as it would to
+// `+`.
+func opJoin(state dtrules.State) error {
+	sepObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	arrayObj, err := state.DataPop()
+	if err != nil {
+		return err
+	}
+	arr, err := arrayObj.RArrayValue()
+	if err != nil {
+		return err
+	}
+	elements := arr.GetIterator()
+	parts := make([]string, len(elements))
+	for i, el := range elements {
+		parts[i] = el.StringValue()
+	}
+	return state.DataPush(dtrules.NewRString(strings.Join(parts, sepObj.StringValue())))
 }
 
 // opToString: ( obj -- string ) converts any object to string

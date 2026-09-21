@@ -421,6 +421,8 @@ Concatenation (+ operator accepts mixed types):
 
 String functions:
     substring of s from 0 to 5     extract characters 0..4
+    join myArray by ", "           elements with ", " between them; the
+                                    inverse of tokenize (#1234)
     trim(myString)                  strip leading/trailing whitespace
     change myString to upper case   convert to uppercase
     change myString to lower case   convert to lowercase
@@ -680,6 +682,7 @@ Constructors:
     { e1, e2, e3 }                 array literal (entities, strings, numbers)
     array of values [ v1, v2 ]     array of scalar values
     tokenize "a,b,c" by ","        split string into array
+                                    (join arr by "," puts it back together)
 
 Iteration (context cell):
     for all myArray                forward, the usual form
@@ -1930,6 +1933,7 @@ Operator      EL Syntax                                  Example
 +             s + arrayExpr                              "Items: " + myList
 
 Substring:    substring of s from start to end           substring of name from 0 to 3
+Join:         join arrayExpr by sep                      join names by ", "   ("" if empty; inverse of tokenize)
 Trim:         trim(s)                                    trim(input.value)
 Upper case:   change s to upper case                     change input.state to upper case
 Lower case:   change s to lower case                     change input.code to lower case

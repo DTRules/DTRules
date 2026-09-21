@@ -2338,6 +2338,12 @@ func (s *BaseELListener) EnterStrConcatFloat(ctx *StrConcatFloatContext) {}
 // ExitStrConcatFloat is called when production strConcatFloat is exited.
 func (s *BaseELListener) ExitStrConcatFloat(ctx *StrConcatFloatContext) {}
 
+// EnterStrJoin is called when production strJoin is entered.
+func (s *BaseELListener) EnterStrJoin(ctx *StrJoinContext) {}
+
+// ExitStrJoin is called when production strJoin is exited.
+func (s *BaseELListener) ExitStrJoin(ctx *StrJoinContext) {}
+
 // EnterStrTableLookup is called when production strTableLookup is entered.
 func (s *BaseELListener) EnterStrTableLookup(ctx *StrTableLookupContext) {}
 

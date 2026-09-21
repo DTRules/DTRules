@@ -1551,6 +1551,10 @@ func (v *BaseELVisitor) VisitStrConcatFloat(ctx *StrConcatFloatContext) interfac
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitStrJoin(ctx *StrJoinContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitStrTableLookup(ctx *StrTableLookupContext) interface{} {
 	return v.VisitChildren(ctx)
 }

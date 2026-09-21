@@ -324,6 +324,7 @@ func TestAllOperatorsRegistered(t *testing.T) {
 		"sortarray",
 		"sortentities",
 		"split",
+		"join",
 		"startswith",
 		"stringlength",
 		"strlength",
