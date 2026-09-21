@@ -45,7 +45,7 @@ func TestConsoleAcceptsEL(t *testing.T) {
 
 // The construct that caught a bug in this change before it shipped.
 // `there is <x> in <array> where ...` is a pure read, and it compiles to
-// `... entitypush ... entitypop swap pop`. Both of those are on the raw-postfix
+// `... entitypush ... entitypop pop`. Both of those are on the raw-postfix
 // blocklist, because a hand-typed push can be left unbalanced -- so checking
 // compiled EL against that list refused a legitimate query.
 func TestConsoleAllowsAnExistentialQuery(t *testing.T) {

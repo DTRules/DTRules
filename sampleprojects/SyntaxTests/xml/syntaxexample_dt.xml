@@ -1768,7 +1768,7 @@ FPL_base 867 &lt; cvb /eligible xdef
 <action_comment></action_comment>
 <action_dsl>set eligible = is there mailingAddress in the Address where mailingAddress == billingAddress</action_dsl>
 <action_postfix>
-Address entitypush mailingAddress billingAddress req entitypop swap pop cvb /eligible xdef
+Address entitypush mailingAddress billingAddress req entitypop pop cvb /eligible xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -1786,7 +1786,7 @@ false { applying false beq or } clients forall not cvb /eligible xdef
 <action_comment>set eligible = there is no client in the case where applying == false</action_comment>
 <action_dsl>set eligible = there is no client in the case where (applying == false)</action_dsl>
 <action_postfix>
-case entitypush applying false beq entitypop swap pop not cvb /eligible xdef
+case entitypush applying false beq entitypop pop not cvb /eligible xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
