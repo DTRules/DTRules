@@ -32,9 +32,13 @@ const arrayIndexEDD = `<entity_data_dictionary version="2">
 <field name="dates" type="array" subtype="" access="rw" input="" default_value="" comment=""></field>
 <field name="flags" type="array" subtype="" access="rw" input="" default_value="" comment=""></field>
 <field name="children" type="array" subtype="child" access="rw" input="" default_value="" comment=""></field>
+<field name="kin" type="array" subtype="" access="rw" input="" default_value="" comment=""></field>
 <field name="digest" type="bytes" subtype="" access="rw" input="" default_value="" comment=""></field>
 </entity>
 <entity name="child" number="101" access="rw">
+<field name="label" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
+</entity>
+<entity name="elder" number="103" access="rw">
 <field name="label" type="string" subtype="" access="rw" input="" default_value="" comment=""></field>
 </entity>
 <entity name="result" number="102" access="rw">
@@ -91,6 +95,10 @@ func TestCastIndexedArrayElement(t *testing.T) {
 		t.Fatal(err)
 	}
 	child1.Put(dtrules.GetRName("label"), dtrules.NewRString("second"))
+	elder, err := sess.CreateEntity(dtrules.GetRName("elder"))
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	arr := func(elems ...dtrules.Object) *dtrules.RArray {
 		t.Helper()
@@ -105,11 +113,13 @@ func TestCastIndexedArrayElement(t *testing.T) {
 	node.Put(dtrules.GetRName("dates"), arr(dtrules.NewRString("2026-01-15")))
 	node.Put(dtrules.GetRName("flags"), arr(dtrules.GetRBoolean(false), dtrules.GetRBoolean(true)))
 	node.Put(dtrules.GetRName("children"), arr(child0, child1))
+	node.Put(dtrules.GetRName("kin"), arr(child0, elder))
 	node.Put(dtrules.GetRName("digest"), dtrules.NewRBytes([]byte{0xde, 0xad, 0xbe, 0xef}))
 
+	var syms map[string]string = symbols
 	exec := func(action string) {
 		t.Helper()
-		postfix, err := authoring.CheckAction(action, symbols)
+		postfix, err := authoring.CheckAction(action, syms)
 		if err != nil {
 			t.Fatalf("%q compile: %v", action, err)
 		}
@@ -181,9 +191,15 @@ func TestCastIndexedArrayElement(t *testing.T) {
 	if k, err := get("kid").REntityValue(); err != nil || k.GetID() != child1.GetID() {
 		t.Errorf("node.children[1] = %v (%v), want the second child", get("kid"), err)
 	}
-	exec(`set result.table = (string) node.children[1]`)
-	if got, want := str("table"), child1.StringValue(); got != want {
-		t.Errorf("(string) node.children[1] = %q, want %q", got, want)
+	// A cast of an entity element reads its entity type, so index an array
+	// whose two elements differ in type: an off-by-one gives the other one.
+	exec(`set result.table = (string) node.kin[1]`)
+	if got := str("table"); got != "elder" {
+		t.Errorf(`(string) node.kin[1] = %q, want "elder"`, got)
+	}
+	exec(`set result.table = (string) node.kin[0]`)
+	if got := str("table"); got != "child" {
+		t.Errorf(`(string) node.kin[0] = %q, want "child"`, got)
 	}
 
 	// A bytes value still indexes to the byte.
@@ -194,5 +210,18 @@ func TestCastIndexedArrayElement(t *testing.T) {
 	exec(`set result.count = node.digest[3]`)
 	if got := num("count"); got != 0xef {
 		t.Errorf("node.digest[3] = %d, want %d", got, 0xef)
+	}
+
+	// With no symbol table (CheckAction(el, nil), and `dtrules build` on a
+	// project without an EDD) an undeclared name is indexed as an array, by
+	// the cast form and the bare form alike.
+	syms = nil
+	exec(`set result.count = (long) node.counts[0]`)
+	if got := num("count"); got != 300 {
+		t.Errorf("no symbols: (long) node.counts[0] = %d, want 300", got)
+	}
+	exec(`set result.count = node.counts[1]`)
+	if got := num("count"); got != 41 {
+		t.Errorf("no symbols: node.counts[1] = %d, want 41", got)
 	}
 }

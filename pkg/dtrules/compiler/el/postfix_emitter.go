@@ -1581,17 +1581,12 @@ func (e *PostfixEmitter) VisitIntLengthBytes(ctx *IntLengthBytesContext) interfa
 // are both IDENT — so an ARRAY indexed in this position used to lower to
 // `bytesidx`, whose operator is strictly a bytes accessor (RBytesValue) and
 // misreads or errors on arrays; with the set-statement's appended converter
-// that was `stack.cards[0]` silently becoming an integer (#1022). Route by
-// declared type, exactly like eexprIsArray does for the entity folds (#869):
-// arrays get the generic element accessor, bytes keep bytesidx.
+// that was `stack.cards[0]` silently becoming an integer (#1022). indexOp
+// routes it the same way as the cast forms (#1229).
 func (e *PostfixEmitter) VisitIntBytesIndex(ctx *IntBytesIndexContext) interface{} {
 	e.Visit(ctx.Bytesexpr())
 	e.Visit(ctx.Iexpr())
-	if e.eexprIsArray(ctx.Bytesexpr()) {
-		e.emit("getat")
-	} else {
-		e.emit("bytesidx")
-	}
+	e.emit(e.indexOp(ctx.Bytesexpr()))
 	return nil
 }
 
@@ -5143,12 +5138,26 @@ func (e *PostfixEmitter) VisitIndxExpr(ctx *IndxExprContext) interface{} {
 	return nil
 }
 
-// indexOp picks the accessor for `<base>[<i>]` from the declared type of
-// base: `bytesidx` for a bytes value, `getat` otherwise — the grammar has
-// already placed base where an array is expected, so an undeclared name is
-// treated as one.
+// indexOp picks the accessor for `<base>[<i>]`, for every rule that indexes:
+// `bytesidx` when base is bytes, `getat` (the array element) otherwise.
+// Base is bytes when it is an expression that can only be bytes (a hex
+// literal, a hash, a slice, a conversion) or a name declared bytes. A name
+// with no declared type — no symbol table, or a field the EDD does not
+// know — is indexed as an array.
 func (e *PostfixEmitter) indexOp(base antlr.ParseTree) string {
-	name := base.GetText()
+	var name string
+	switch b := base.(type) {
+	case *BytesTypedContext:
+		name = b.TypedBytes().GetText()
+	case *BytesColonRefContext:
+		name = b.TypedBytes().GetText()
+	case *BytesParenContext:
+		return e.indexOp(b.Bytesexpr())
+	case IBytesexprContext:
+		return "bytesidx"
+	default:
+		name = base.GetText()
+	}
 	typ := ""
 	if lv, ok := e.lookupLocal(name); ok {
 		typ = lv.Type
