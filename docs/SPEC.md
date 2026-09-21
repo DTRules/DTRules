@@ -286,7 +286,10 @@ nil check, so a project that declares none pays nothing.
   outside the field's declared vocabulary (§2.5.1). Advisory: a rule may write
   what it computes, but the literal is usually a typo.
 - **Advisory pass** (`pkg/dtrules/decisiontable`) — redundant conditions,
-  columns subsumed by another, no-op columns.
+  columns subsumed by another, no-op columns, and actions marked in a column
+  of a table with no conditions. A table with no conditions has no decision
+  tree: it runs its initial actions and never selects a column, so the marked
+  actions never run; the warning points at initial actions (#1230).
 
 ## 2.7 Enforcement of the invariants
 

@@ -186,6 +186,25 @@ actions. They can collapse into one column with all conditions
   and '[B, A]' are NOT the same action set because the runtime
   executes them in order.
 
+10. column actions without conditions (#1230)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The table has no conditions but marks actions in a column. A table with
+no conditions has no decision tree: executing it runs its initial
+actions and never selects a column, so the marked actions never run.
+This is how the engine is defined, not a fault in it. When this fires,
+the no-conditions warning is the only one reported for the table,
+because every column check presumes conditions select the column.
+
+  Repro:
+    policy ALL, no conditions
+    action 1: set result.table = "computed"    column 1: X
+
+  Action: move actions that should always run to initial_actions
+  (` + "`\"initial_actions\": [{\"dsl\": \"...\"}]`" + ` in ` + "`dtrules table put`" + `).
+  If the actions should run only sometimes, add the conditions that
+  choose between them.
+
 Severity and exit codes
 -----------------------
 

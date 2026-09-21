@@ -55,6 +55,12 @@ func (w Warning) String() string {
 	}
 }
 
+// KindColumnActionsWithoutConditions is the warning kind for a table that has
+// no conditions but marks actions in a column (#1230). With no conditions
+// there is no decision tree, so no column is ever selected: ExecuteTable runs
+// the initial_actions and nothing else.
+const KindColumnActionsWithoutConditions = "column actions without conditions"
+
 // Inputs bundles the per-table data the advisory pass consumes. The
 // `Inputs`-keyed Analyze entry point is the one to prefer in new code;
 // the older AnalyzeTable signature is kept as a thin shim so existing
@@ -78,6 +84,12 @@ type Inputs struct {
 func Analyze(in Inputs) []Warning {
 	if in.MaxCol == 0 {
 		return nil
+	}
+	// Every column check below presumes conditions select the column. With
+	// no conditions nothing is selected, so the only thing worth saying is
+	// that the marked actions never run.
+	if len(in.Conditions) == 0 {
+		return checkColumnActionsWithoutConditions(in.Name, in.Actions, in.MaxCol)
 	}
 	var warnings []Warning
 	warnings = append(warnings, checkNoOpColumns(in.Name, in.Actions, in.MaxCol)...)
@@ -219,6 +231,33 @@ func isCommentOrEmpty(postfix string) bool {
 		return false
 	}
 	return true
+}
+
+// checkColumnActionsWithoutConditions flags a table with no conditions whose
+// action rows are marked in some column (#1230). Such a table has no decision
+// tree; ExecuteTable runs its initial_actions and never reaches a column, so
+// the marked actions are dead. Actions that should always run belong in
+// initial_actions. Nothing is reported when no action is marked.
+func checkColumnActionsWithoutConditions(tableName string, actions []ActionRow, maxCol int) []Warning {
+	var marked []string
+	for i, a := range actions {
+		for col := 0; col < maxCol && col < len(a.Columns); col++ {
+			if strings.ToUpper(strings.TrimSpace(a.Columns[col])) == "X" {
+				marked = append(marked, fmt.Sprintf("%d", i+1))
+				break
+			}
+		}
+	}
+	if len(marked) == 0 {
+		return nil
+	}
+	noun := "action"
+	if len(marked) > 1 {
+		noun = "actions"
+	}
+	return []Warning{newWarning(tableName, KindColumnActionsWithoutConditions,
+		fmt.Sprintf("has no conditions, so no column is ever selected and %s %s marked in its columns never run — move actions that should always run to initial_actions",
+			noun, strings.Join(marked, ", ")))}
 }
 
 // checkNoOpColumns flags columns with no actions marked X.
