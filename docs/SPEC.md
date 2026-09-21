@@ -201,6 +201,28 @@ sweep, so each list can only shrink.
 Two executors live behind one interface in `pkg/dtrules/runtime`: a portable Go
 one and an amd64 assembly one.
 
+**Change tracking.** The state records whether execution changed entity data
+(`dtrules.ChangeTracker`: `Changed`, `ResetChanged`), so a host running rules
+on a timer can skip a no-op run without diffing its output (#1233). A change
+is a write that leaves a different value behind:
+
+- an attribute write (`DTState.Def`, which every rule write goes through, and a
+  collector's answer) whose stored value is not `Equals` to the one it
+  replaced. Writing the value a field already holds is not a change;
+- an in-place array operation that gained, lost or reordered elements
+  (`addto`, `addat`, `remove`, `removeat`, `cleararray`, `copyelements`,
+  `addarray`, `add_no_dups`, the sorts, `randomize`, and the operators that
+  fill a destination array). An array built by `newarray` is *fresh* until an
+  attribute or another array holds it, so filling an array literal is not a
+  change; storing it is compared like any other attribute write.
+
+It records writes, not a diff: a run that sets a field to 7 and back to 3 reads
+changed. It errs only that way. Entities created during the run are new
+objects, so storing one always counts. The flag is sticky until reset;
+`dtrules run` resets it after loading data, just before the entry table runs,
+and writes it on the `--save` root as `<dtrules-data changed="true|false">`.
+`datafile.Read` ignores the attribute.
+
 ## 2.5 Data in
 
 `pkg/dtrules/mapping` loads external XML against a mapping file:
@@ -411,7 +433,9 @@ The supported sequence:
      (`sess.CreateEntity` + `state.EntityPush`, the set a mapping's
      `<initialentity>` would name), then `datafile.Read(r, find, create, mode)`.
 4. **Execute.** `sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName(entry))`,
-   then `dt.Execute(state)`.
+   then `dt.Execute(state)`. To learn whether the run changed anything, call
+   `state.(dtrules.ChangeTracker).ResetChanged()` after the data load and read
+   `Changed()` after execution (§2.4).
 5. **Read out.** `state.FindEntity(...)` — the executed instance on the stack.
    `CreateEntity` returns a fresh, empty entity and is not how a result is read.
 6. **Optionally trace.** `trace.WriteHeader`, `dts.SetOutput` + `dts.EnableTrace`

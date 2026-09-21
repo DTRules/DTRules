@@ -236,6 +236,33 @@ declaration order (entities, and the fields within each), so the same rules on
 the same input save byte-identical files.
 
 
+Did the run change anything?
+----------------------------
+A host that runs rules on a timer can skip journaling a run that changed
+nothing. The state records it, so there is no output to diff:
+
+    tracker := state.(dtrules.ChangeTracker)
+    tracker.ResetChanged()              // after the data load: input is not a change
+    if err := dt.Execute(state); err != nil {
+        log.Fatal(err)
+    }
+    if !tracker.Changed() {
+        return                          // nothing to journal
+    }
+
+A change is a write that leaves a different value behind: an attribute set to
+a value not equal to the one it held, or an array that gained, lost or
+reordered elements. Writing the value a field already holds is not a change,
+and neither is building an array literal: 'set x = ["a", "b"]' counts only if
+x did not already hold a, b. The flag records writes, not a diff, so a run
+that sets a field to 7 and back to 3 reads changed. It errs only in that
+direction. The flag stays set across executions until ResetChanged.
+
+'dtrules run --save' writes the same flag on the root element,
+<dtrules-data changed="true|false">. datafile.WriteRun writes it for an
+embedded host, and datafile.Read ignores it.
+
+
 Build pipeline
 --------------
 

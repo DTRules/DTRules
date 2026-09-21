@@ -469,6 +469,11 @@ func (e *REntity) Put(name *dtrules.RName, value dtrules.Object) error {
 		}
 	}
 
+	// An array stored in an attribute is held from now on, so changing it
+	// in place is a change to entity data (#1233).
+	if a, ok := value.(*dtrules.RArray); ok {
+		a.Adopt()
+	}
 	e.values[entry.Index] = value
 	// A write makes a collected field authoritative, so a later read of it
 	// during interactive collection won't re-ask. No-op in batch (tracking

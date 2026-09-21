@@ -123,6 +123,10 @@ type DTState struct {
 	// it is consulted at each field read in Find. nil means batch execution
 	// — Find is unchanged and adds at most one nil-check.
 	collector dtrules.Collector
+
+	// changed records that execution changed entity data since the state
+	// was created or last reset (#1233). See dtrules.ChangeTracker.
+	changed bool
 }
 
 // SetCollector attaches (or clears, with nil) the interactive data collector.
@@ -131,6 +135,18 @@ type DTState struct {
 func (s *DTState) SetCollector(c dtrules.Collector) {
 	s.collector = c
 }
+
+// Changed reports whether entity data changed since the state was created
+// or last reset: an attribute written with a different value, or an array
+// that gained, lost or reordered elements (#1233).
+func (s *DTState) Changed() bool { return s.changed }
+
+// ResetChanged clears the changed flag. Call it after loading data and
+// before the execution to be measured.
+func (s *DTState) ResetChanged() { s.changed = false }
+
+// MarkChanged sets the changed flag.
+func (s *DTState) MarkChanged() { s.changed = true }
 
 // Collector returns the attached collector (nil in batch execution).
 func (s *DTState) Collector() dtrules.Collector {
@@ -593,8 +609,18 @@ func (s *DTState) Find(name *dtrules.RName) (dtrules.Object, error) {
 	// collector a chance to obtain a not-yet-collected `collect` field. A
 	// nil collector (batch) skips this entirely — at most one nil-check.
 	if s.collector != nil {
+		var before dtrules.Object
+		if !s.changed {
+			before, _ = entity.Get(attrName)
+		}
 		if err := s.collector.MaybeCollect(entity, attrName); err != nil {
 			return nil, err
+		}
+		// An answer that differs from what the field held is a change.
+		if !s.changed {
+			if after, _ := entity.Get(attrName); !dtrules.SameValue(before, after) {
+				s.changed = true
+			}
 		}
 	}
 	return entity.Get(attrName)
@@ -669,9 +695,20 @@ func (s *DTState) Def(name *dtrules.RName, value dtrules.Object, trace bool) (bo
 		return false, dtrules.UndefinedError("Def", "invalid attribute name: "+name.GetName())
 	}
 
+	// Writing the value a field already holds is not a change (#1233).
+	// Once a change is recorded, the comparison is skipped.
+	var before dtrules.Object
+	if !s.changed {
+		before, _ = entity.Get(attrName)
+	}
 	err = entity.Put(attrName, value)
 	if err != nil {
 		return false, err
+	}
+	if !s.changed {
+		if after, _ := entity.Get(attrName); !dtrules.SameValue(before, after) {
+			s.changed = true
+		}
 	}
 	return true, nil
 }

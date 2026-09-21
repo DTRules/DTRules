@@ -42,9 +42,25 @@ func reservedAttr(entityName, attr string) bool {
 
 // Write serializes the given entities to canonical data XML.
 func Write(w io.Writer, entities []*entity.REntity) error {
+	return write(w, entities, "")
+}
+
+// WriteRun serializes the entities like Write and records on the root
+// element whether the run that produced them changed entity data:
+// <dtrules-data changed="true|false"> (#1233). Read ignores the attribute,
+// so the file still loads as data.
+func WriteRun(w io.Writer, entities []*entity.REntity, changed bool) error {
+	attr := ` changed="false"`
+	if changed {
+		attr = ` changed="true"`
+	}
+	return write(w, entities, attr)
+}
+
+func write(w io.Writer, entities []*entity.REntity, rootAttrs string) error {
 	var b strings.Builder
 	b.WriteString(xml.Header)
-	b.WriteString("<" + rootElement + ">\n")
+	b.WriteString("<" + rootElement + rootAttrs + ">\n")
 	for _, e := range entities {
 		if e == nil {
 			continue
