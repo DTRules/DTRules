@@ -552,7 +552,7 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 #### Days / months / years between
 
 **Syntax**: `DAYS FROM dexpr TO dexpr` / `MONTHS FROM dexpr TO dexpr` / `YEARS FROM dexpr TO dexpr`
-**Semantics**: Returns integer difference, `d2 - d1`. Postfix operators: `daysbetween`, `monthsbetween`, `yearsbetween`. `days from` is elapsed time -- whole 24-hour periods, truncated toward zero -- not a calendar-day count: across a daylight-saving change it can be one short (America/Chicago, 2026-03-08 00:00 to 2026-03-10 00:00 is 47 hours, so 1). `months from` compares year and month; `years from` counts anniversaries.
+**Semantics**: Returns integer difference, `d2 - d1`. Postfix operators: `daysbetween`, `monthsbetween`, `yearsbetween`. `days from` counts calendar days (#1265): the calendar date of `d2` minus the calendar date of `d1`, both read in `d1`'s zone. The time of day does not count (Mar 8 23:00 to Mar 9 01:00 is 1; Mar 8 01:00 to Mar 8 23:00 is 0), and neither does a daylight-saving change (America/Chicago, 2026-03-08 00:00 to 2026-03-10 00:00 is 47 hours and 2 days), so `days from d to d + N days` is N. `months from` compares year and month; `years from` counts anniversaries; each reads a date's fields in the zone that date carries.
 **Example (EL)**: `years from taxpayer.birth_date to current date >= 18`
 **Compiled postfix**: `taxpayer.birth_date today yearsbetween 18 >=`
 

@@ -253,15 +253,24 @@ and writes it on the `--save` root as `<dtrules-data changed="true|false">`.
 **Dates and time.** A date value is an instant that carries a zone.
 
 - `d + N days|months|years` is calendar arithmetic (Go `AddDate` in the date's
-  zone). `months from` and `years from` compare calendar fields: months by year
-  and month, years by anniversary.
-- `days from d1 to d2` (`daysbetween`) is **elapsed** time: whole 24-hour
-  periods, truncated toward zero. It is not a calendar-day count. Across a
-  daylight-saving change it can come out one short of the calendar: in
-  America/Chicago, 2026-03-08 00:00 to 2026-03-10 00:00 is 47 hours, so `days
-  from` is 1. `d + 1 days` and `days from` are therefore not inverses across
-  such a change. Whether `days from` should count calendar days is an open
-  question (#1265).
+  zone): the wall-clock time is kept and the date moves, so `d + 1 days` across
+  a daylight-saving change is 23 or 25 hours later. `months from` and `years
+  from` compare calendar fields: months by year and month, years by
+  anniversary, each date's fields read in the zone that date carries.
+- `days from d1 to d2` (`daysbetween`) counts **calendar days** (#1265): the
+  calendar date of d2 minus the calendar date of d1, both read in **d1's
+  zone**. The time of day does not count: 23:00 to 01:00 the next morning is 1
+  day, 01:00 to 23:00 on the same date is 0, and 01:00 back to 23:00 the
+  evening before is -1. Neither does a daylight-saving change: in
+  America/Chicago 2026-03-08 00:00 to 2026-03-10 00:00 is 47 hours and 2 days;
+  in Europe/London midnight 2026-03-29 to midnight 2026-03-30 is 1 day. So
+  `days from d to d + N days` is N. Reading d2 in d1's zone keeps the sign
+  honest when the zones differ: a d2 earlier than d1 is never a later date.
+  It also makes the count depend on which date comes first when their zones
+  differ (`days from d2 to d1` reads both in d2's zone and need not be the
+  negation). Dates at midnight UTC, the common case, count as before; the
+  count is exact over years 1-9999. Before #1265 this was whole 24-hour
+  periods of elapsed time, truncated toward zero.
 - Below a day (#1232), `d + N seconds|minutes` and `seconds|minutes from d1 to
   d2` (operators `addseconds`, `addminutes`, `secondsbetween`,
   `minutesbetween`) are elapsed time between instants. A difference is `d2 -

@@ -438,29 +438,30 @@ func opAddYears(state dtrules.State) error {
 	return state.DataPush(dtrules.GetRTime(result))
 }
 
-// opDaysBetween: ( date1 date2 -- days ) returns days between two dates
+// opDaysBetween: ( date1 date2 -- days ) the number of calendar days from
+// date1 to date2 (#1265): the calendar date of date2 minus the calendar date
+// of date1, both read in date1's zone. The time of day does not count (23:00
+// to 01:00 the next morning is 1 day), nor does a daylight-saving change (a
+// 23-hour day is still a day). Negative when date2 falls on an earlier date.
+// Because `d + N days` is calendar arithmetic in d's zone, `days from d to
+// d + N days` is N.
 func opDaysBetween(state dtrules.State) error {
-	date2Obj, err := state.DataPop()
+	t1, t2, err := popTwoDates(state)
 	if err != nil {
 		return err
 	}
-	date1Obj, err := state.DataPop()
-	if err != nil {
-		return err
-	}
+	return state.DataPush(dtrules.GetRIntegerValue(calendarDaysBetween(t1, t2)))
+}
 
-	t1, err := date1Obj.TimeValue()
-	if err != nil {
-		return err
-	}
-	t2, err := date2Obj.TimeValue()
-	if err != nil {
-		return err
-	}
-
-	duration := t2.Sub(t1)
-	days := int(duration.Hours() / 24)
-	return state.DataPush(dtrules.GetRIntegerValueFromInt(days))
+// calendarDaysBetween returns the calendar date of t2 minus that of t1, both
+// taken in t1's zone. It counts on Unix seconds of the two dates at midnight
+// UTC, so it is exact over the whole of years 1-9999.
+func calendarDaysBetween(t1, t2 time.Time) int64 {
+	y1, m1, d1 := t1.Date()
+	y2, m2, d2 := t2.In(t1.Location()).Date()
+	u1 := time.Date(y1, m1, d1, 0, 0, 0, 0, time.UTC).Unix()
+	u2 := time.Date(y2, m2, d2, 0, 0, 0, 0, time.UTC).Unix()
+	return (u2 - u1) / 86400
 }
 
 // Offsets and differences below a day (#1232) are elapsed time between
