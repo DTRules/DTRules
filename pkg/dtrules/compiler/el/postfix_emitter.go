@@ -5421,6 +5421,20 @@ func (e *PostfixEmitter) VisitBoolUsing(ctx *BoolUsingContext) interface{} {
 	return nil
 }
 
+// VisitStrUsing: `using <eexpr> ( <strexpr> )` — evaluate the string with the
+// entity on the entity stack. entitypop leaves the popped entity on top of the
+// data stack, above the string, so a bare `pop` discards it and the string is
+// the result. (`entitypop swap pop` would discard the string and keep the
+// entity.) It had no visitor, so the whole expression emitted nothing (#1252).
+func (e *PostfixEmitter) VisitStrUsing(ctx *StrUsingContext) interface{} {
+	e.Visit(ctx.Eexpr())
+	e.emit("entitypush")
+	e.Visit(ctx.Strexpr())
+	e.emit("entitypop")
+	e.emit("pop")
+	return nil
+}
+
 // Randomstatements emitters. Array mutation statements.
 
 // VisitRemoveAtIndex: `remove <iexpr> element from <arrayExpr> array`.
