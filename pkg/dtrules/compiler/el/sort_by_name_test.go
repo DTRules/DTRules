@@ -83,3 +83,42 @@ func TestSortByNameAccepted(t *testing.T) {
 		})
 	}
 }
+
+// A bare field name shared by two entities with different types (review of
+// #1240). The EDD loader fills the bare key last-entity-wins, so the bare
+// type is whichever entity came last; the check must not trust it. The
+// qualified names are exact and still decide.
+func TestSortByBareNameCollision(t *testing.T) {
+	// Both orders the loader could have filled the bare key in.
+	for _, bare := range []string{"name", "string"} {
+		c := NewCompiler()
+		c.SetSymbols(map[string]string{
+			"orders": "array",
+			"order.sortkey": "name", "line.sortkey": "string",
+			"sortkey": bare,
+		})
+		if pf, err := c.CompileAction("sort orders in ascending order by sortkey"); err != nil {
+			t.Errorf("bare sortkey (filled as %s) refused though order.sortkey is a name: %v", bare, err)
+		} else if !strings.Contains(pf, "sortkey true sortentities") {
+			t.Errorf("postfix = %q", pf)
+		}
+		// Qualified: order.sortkey is a name, line.sortkey is not.
+		if _, err := c.CompileAction("sort orders in ascending order by order.sortkey"); err != nil {
+			t.Errorf("order.sortkey is a name field, refused: %v", err)
+		}
+		_, err := c.CompileAction("sort orders in ascending order by line.sortkey")
+		if err == nil || !strings.Contains(err.Error(), `the name "sortkey"`) {
+			t.Errorf("line.sortkey is a string field; want the hint, got %v", err)
+		}
+	}
+	// Every entity that declares the bare name agrees it is a string: the
+	// bare name is still refused, and the message names where it comes from.
+	c := NewCompiler()
+	c.SetSymbols(map[string]string{
+		"orders": "array", "order.key": "string", "line.key": "string", "key": "string",
+	})
+	_, err := c.CompileAction("sort orders in ascending order by key")
+	if err == nil || !strings.Contains(err.Error(), `the name "key"`) {
+		t.Errorf("bare key, string everywhere: want the hint, got %v", err)
+	}
+}
