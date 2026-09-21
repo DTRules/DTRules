@@ -61,8 +61,27 @@ func TestTablePutWarnsColumnActionsWithoutConditions(t *testing.T) {
 		t.Errorf("put response carries no %q warning: %s", decisiontable.KindColumnActionsWithoutConditions, out)
 	}
 
+	// With no policy the table loads as BALANCED, which runs column 1: the
+	// same action draws no warning there.
+	tbl.Policy = ""
+	payload, _ = json.Marshal(tbl)
+	out, se, code = runTableCmd(t, dir, []string{"put", "NoCond_Probe"}, string(payload))
+	if code != 0 {
+		t.Fatalf("put without policy exit %d stderr=%s", code, se)
+	}
+	resp.Warnings = nil
+	if err := json.Unmarshal([]byte(out), &resp); err != nil {
+		t.Fatalf("put response not JSON: %v\n%s", err, out)
+	}
+	for _, w := range resp.Warnings {
+		if w.Kind == decisiontable.KindColumnActionsWithoutConditions {
+			t.Errorf("BALANCED column 1 runs, yet warned: %v", w)
+		}
+	}
+
 	// The same table with its action in initial_actions is the fix the
 	// warning points at, and draws no such warning.
+	tbl.Policy = "ALL"
 	tbl.Actions = nil
 	tbl.InitialActions = []InitialActionJSON{{DSL: "set client.eligible = true"}}
 	payload, _ = json.Marshal(tbl)

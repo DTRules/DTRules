@@ -19,48 +19,87 @@ import (
 	"testing"
 )
 
-// A table with no conditions has no decision tree: ExecuteTable runs its
-// initial_actions and nothing else. Actions marked in a column of such a
-// table can never run, and the table compiled without a word (#1230).
+// A table with no conditions has no condition to select a column (#1230).
+// Under FIRST and ALL the engine builds no tree and runs no column; under
+// BALANCED (the default when no policy is given) it runs column 1 only.
+// Execution against the real loader is pinned in
+// pkg/dtrules/no_conditions_policy_test.go.
 
-func TestAnalyze_ColumnActionsWithoutConditions(t *testing.T) {
-	warns := Analyze(Inputs{
-		Name:    "NoCond",
-		Policy:  "ALL",
-		Actions: makeActions([]string{`set result.table = "nocond-ALL"`}, [][]string{{"X"}}),
-		MaxCol:  1,
-	})
-	if len(warns) != 1 {
-		t.Fatalf("want exactly one warning, got %d: %v", len(warns), warns)
+func noCondWarnings(ws []Warning) []Warning {
+	var out []Warning
+	for _, w := range ws {
+		if w.Kind == KindColumnActionsWithoutConditions {
+			out = append(out, w)
+		}
 	}
-	w := warns[0]
-	if w.Kind != KindColumnActionsWithoutConditions {
-		t.Errorf("kind = %q, want %q", w.Kind, KindColumnActionsWithoutConditions)
-	}
-	if !strings.Contains(w.Reason, "initial_actions") || !strings.Contains(w.Reason, "never run") {
-		t.Errorf("reason does not say the actions never run and where they belong: %q", w.Reason)
-	}
-	if !strings.Contains(w.Reason, "action 1") {
-		t.Errorf("reason does not name the stranded action: %q", w.Reason)
+	return out
+}
+
+func TestAnalyze_ColumnActionsWithoutConditions_FirstAll(t *testing.T) {
+	for _, policy := range []string{"FIRST", "ALL", "all"} {
+		ws := noCondWarnings(Analyze(Inputs{
+			Name:   "NoCond",
+			Policy: policy,
+			Actions: makeActions(
+				[]string{`set result.table = "nocond"`, `set result.b = 2`, `set result.c = 3`},
+				[][]string{{"X", ""}, {"", "X"}, {"", ""}}),
+			MaxCol: 2,
+		}))
+		if len(ws) != 1 {
+			t.Fatalf("%s: want one warning, got %v", policy, ws)
+		}
+		r := ws[0].Reason
+		if !strings.Contains(r, "actions 1, 2 marked") || !strings.Contains(r, "never run") || !strings.Contains(r, "initial_actions") {
+			t.Errorf("%s: reason should name actions 1 and 2 (not the unmarked 3) and point at initial_actions: %q", policy, r)
+		}
 	}
 }
 
-// The column checks all presume columns are selected by conditions. With no
-// conditions none of them means anything, and "assignment-only table" in
-// particular would advise inlining a table that does nothing.
-func TestAnalyze_ColumnActionsWithoutConditions_Only(t *testing.T) {
-	warns := Analyze(Inputs{
-		Name: "NoCond",
-		Actions: makeActions(
-			[]string{`set result.a = 1`, `set result.b = 2`},
-			[][]string{{"X", ""}, {"", ""}}),
-		MaxCol: 2,
-	})
-	if len(warns) != 1 || warns[0].Kind != KindColumnActionsWithoutConditions {
-		t.Fatalf("want only the no-conditions warning, got %v", warns)
+// Under BALANCED, or with no policy (which loads as BALANCED), column 1 runs.
+// Only an action marked in later columns and not in column 1 is dead.
+func TestAnalyze_ColumnActionsWithoutConditions_Balanced(t *testing.T) {
+	for _, policy := range []string{"", "BALANCED"} {
+		acts := makeActions(
+			[]string{`set result.a = 1`, `set result.b = 2`, `set result.c = 3`},
+			[][]string{{"X", ""}, {"", "X"}, {"X", "X"}})
+		ws := noCondWarnings(Analyze(Inputs{Name: "NoCond", Policy: policy, Actions: acts, MaxCol: 2}))
+		if len(ws) != 1 {
+			t.Fatalf("policy %q: want one warning, got %v", policy, ws)
+		}
+		r := ws[0].Reason
+		if !strings.Contains(r, "action 2 marked") || !strings.Contains(r, "column 1") {
+			t.Errorf("policy %q: reason should name only action 2 and say column 1 runs: %q", policy, r)
+		}
+
+		// Actions in column 1 only: that is a working table, no warning.
+		ws = noCondWarnings(Analyze(Inputs{Name: "NoCond", Policy: policy,
+			Actions: makeActions([]string{`set result.a = 1`}, [][]string{{"X"}}), MaxCol: 1}))
+		if len(ws) != 0 {
+			t.Errorf("policy %q: column-1-only table warned: %v", policy, ws)
+		}
 	}
-	if !strings.Contains(warns[0].Reason, "action 1") || strings.Contains(warns[0].Reason, "action 2") {
-		t.Errorf("reason should name action 1 (marked) and not action 2 (unmarked): %q", warns[0].Reason)
+}
+
+// The other checks still run on a table with no conditions: a column with
+// no actions is still reported as a no-op column.
+func TestAnalyze_NoConditions_KeepsOtherChecks(t *testing.T) {
+	ws := Analyze(Inputs{
+		Name:    "Skeleton",
+		Policy:  "FIRST",
+		Actions: makeActions([]string{`// placeholder`}, [][]string{{""}}),
+		MaxCol:  1,
+	})
+	found := false
+	for _, w := range ws {
+		if w.Kind == "no-op column" && w.Column == 1 {
+			found = true
+		}
+		if w.Kind == KindColumnActionsWithoutConditions {
+			t.Errorf("no action is marked, yet: %v", w)
+		}
+	}
+	if !found {
+		t.Errorf("no-op column warning suppressed for a table with no conditions: %v", ws)
 	}
 }
 
@@ -69,13 +108,12 @@ func TestAnalyze_ColumnActionsWithoutConditions_Only(t *testing.T) {
 func TestAnalyze_ColumnActionsWithOneCondition_NoWarning(t *testing.T) {
 	warns := Analyze(Inputs{
 		Name:       "OneCond",
+		Policy:     "FIRST",
 		Conditions: makeConditions([]string{"true"}, [][]string{{"Y"}}),
 		Actions:    makeActions([]string{`perform Other`}, [][]string{{"X"}}),
 		MaxCol:     1,
 	})
-	for _, w := range warns {
-		if w.Kind == KindColumnActionsWithoutConditions {
-			t.Errorf("warning fired on a table with a condition: %v", w)
-		}
+	if ws := noCondWarnings(warns); len(ws) != 0 {
+		t.Errorf("warning fired on a table with a condition: %v", ws)
 	}
 }

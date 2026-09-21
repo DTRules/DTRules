@@ -1129,9 +1129,11 @@ DSL Tag Names:
   - <condition_dsl>: Condition expression in EL (inside <condition_details>)
   - <action_dsl>: Action statement in EL (inside <action_details>)
   - <initial_action_dsl>: Initial action in EL (executed before conditions)
-    A table with no conditions selects no column and runs only its initial
-    actions; an action marked in a column of such a table never runs, and
-    the advisory pass says so ("column actions without conditions").
+    A table with no conditions has nothing to select a column with. Under
+    FIRST or ALL it runs only its initial actions; under BALANCED (also
+    what no policy means) it runs column 1 and no other. Column actions
+    that can never run are reported by the advisory pass ("column actions
+    without conditions").
 
 Note: For backward compatibility, the system also reads legacy tag names
 (*_description instead of *_dsl). New code should use *_dsl tags.
