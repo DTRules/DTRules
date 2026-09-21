@@ -118,8 +118,8 @@ cmd/
 pkg/dtrules/
   compiler/el/        ANTLR-based EL → postfix compiler
   decisiontable/      table model and the advisory pass
-  interpreter/        the VM: state, entity stack, data stack (Go + amd64 asm)
-  runtime/            bytecode executors — goruntime, nativeasm
+  interpreter/        the VM: state, entity stack, data stack
+  runtime/            the runtime interface and its Go executor (goruntime)
   operators/          the operator registry
   entity/ session/    entities, rule sets, execution context
   excel/              Excel ↔ XML import and export
@@ -175,8 +175,10 @@ a misspelled operator is refused at authoring time rather than at execution.
 - **control stack** — frames for locals; `allocate`/`deallocate` and
   `local@`/`local!` address slots relative to the current frame.
 
-Two executors live behind one interface in `pkg/dtrules/runtime`: a portable Go
-one and an amd64 assembly one.
+One executor lives behind the interface in `pkg/dtrules/runtime`: the portable
+Go VM (`pkg/dtrules/interpreter/vm.go`, wrapped by `runtime/goruntime`). There
+is no assembly executor; the amd64 one was removed because it addressed a
+`DTState` layout the engine no longer has (#1267).
 
 ## 2.5 Data in
 

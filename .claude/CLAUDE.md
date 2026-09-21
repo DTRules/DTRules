@@ -22,9 +22,9 @@ DTRules/
 │   ├── authoring/          # Typed authoring view + Project API
 │   ├── compiler/el/        # ANTLR-based EL → postfix compiler
 │   ├── decisiontable/      # Decision-table model + advisory pass
-│   ├── interpreter/        # Stack-based VM (Go + amd64 ASM)
+│   ├── interpreter/        # Stack-based VM (Go)
 │   ├── operators/          # Operator registry
-│   ├── runtime/            # Bytecode executors (Go + nativeasm)
+│   ├── runtime/            # Bytecode executor interface (goruntime)
 │   ├── session/            # Execution context
 │   ├── sync/               # Excel/XML sync + validation
 │   └── ...

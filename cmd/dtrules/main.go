@@ -598,7 +598,7 @@ func compileRules(rs *session.RuleSet, outFile string) {
 	rsess := sess.(*session.RSession)
 
 	// For now, just compile a simple test expression and dump bytecode
-	// This verifies the opcode alignment with ASM runtime
+	// and write its serialised form to the output file.
 	testExpr := "1 2 +"
 	bc, err := rsess.CompileExpressionToBytecode(testExpr)
 	if err != nil {

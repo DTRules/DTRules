@@ -77,12 +77,10 @@ test:
 # exclusions and why:
 #   - pkg/dtrules/compiler/el/: ANTLR-generated parser triggers "unreachable
 #     code" diagnostics that aren't worth fighting per-regen.
-#   - pkg/dtrules/interpreter/: asm_stubs.go declares extern symbols vet can't
-#     see implementations for. Build still passes (amd64-only //go:build amd64).
 #   - pkg/dtrules/cmd: pre-existing test reference; vet flags it but tests pass.
 vet:
 	@echo "Running go vet..."
-	go vet ./pkg/dtrules/analysis/... ./pkg/dtrules/benchmark/... ./pkg/dtrules/collect/... ./pkg/dtrules/compiler/ ./pkg/dtrules/datafile/... ./pkg/dtrules/decisiontable/... ./pkg/dtrules/encoding/... ./pkg/dtrules/entity/... ./pkg/dtrules/excel/... ./pkg/dtrules/interview/... ./pkg/dtrules/loader/... ./pkg/dtrules/mapping/... ./pkg/dtrules/operators/... ./pkg/dtrules/repository/... ./pkg/dtrules/ruleset/... ./pkg/dtrules/runtime/... ./pkg/dtrules/session/... ./pkg/dtrules/sync/... ./pkg/dtrules/testsupport/... ./pkg/dtrules/trace/... ./pkg/dtrules/version/... ./pkg/dtrules/web/...
+	go vet ./pkg/dtrules/analysis/... ./pkg/dtrules/benchmark/... ./pkg/dtrules/collect/... ./pkg/dtrules/compiler/ ./pkg/dtrules/datafile/... ./pkg/dtrules/decisiontable/... ./pkg/dtrules/encoding/... ./pkg/dtrules/entity/... ./pkg/dtrules/excel/... ./pkg/dtrules/interpreter/... ./pkg/dtrules/interview/... ./pkg/dtrules/loader/... ./pkg/dtrules/mapping/... ./pkg/dtrules/operators/... ./pkg/dtrules/repository/... ./pkg/dtrules/ruleset/... ./pkg/dtrules/runtime/... ./pkg/dtrules/session/... ./pkg/dtrules/sync/... ./pkg/dtrules/testsupport/... ./pkg/dtrules/trace/... ./pkg/dtrules/version/... ./pkg/dtrules/web/...
 
 check: vet
 	@echo "Checking full module build..."
