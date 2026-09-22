@@ -6080,6 +6080,15 @@ func (e *PostfixEmitter) VisitSetTable(ctx *SetTableContext) interface{} {
 	return nil
 }
 
+// VisitSetStringFromTable: `set <string> = <texpr>`, reached whenever the
+// right-hand side is `new X table of Y`. It had no visitor and compiled to
+// nothing, which the loader refuses (#1255). Same stub as setTable.
+func (e *PostfixEmitter) VisitSetStringFromTable(ctx *SetStringFromTableContext) interface{} {
+	e.emit("\"hash tables removed — `set <string> = <table>` unsupported\"")
+	e.emit("elstmterror")
+	return nil
+}
+
 // VisitStrTableInfo: the `tableinformation` keyword. Hash tables were
 // removed; this leaves a sentinel string on the stack for the surrounding
 // expression and errors loudly at runtime.
