@@ -514,6 +514,9 @@ The parser accepts both pure dates and full timestamps. Formats tried in order:
 - RFC 3339 with nanoseconds: `2026-04-17T21:05:30.123456789Z`
 - RFC 3339: `2026-04-17T21:05:30Z`
 - Space-separated datetime: `2026-04-17 21:05:30`
+- ISO 8601 with no offset: `2026-04-17T21:05:30` (#1275)
+
+A timestamp with no offset, in either spelling, is read as UTC and may carry fractional seconds (`2026-04-17T21:05:30.25`).
 - Pure date (midnight UTC): `2026-04-17`
 
 Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize as RFC 3339.

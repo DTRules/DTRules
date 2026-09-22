@@ -233,13 +233,17 @@ type DateParser struct {
 
 // NewDateParser creates a new date parser with common formats.
 // Most-specific formats are tried first; RFC3339 variants precede date-only formats
-// so that timestamps like "2026-04-17T21:05:30Z" are parsed correctly.
+// so that timestamps like "2026-04-17T21:05:30Z" are parsed correctly. A
+// timestamp with no offset -- "2026-04-17 21:05:30" or "2026-04-17T21:05:30"
+// -- is read as UTC, and may carry fractional seconds (time.Parse accepts a
+// fraction after the seconds field even when the layout has none).
 func NewDateParser() *DateParser {
 	return &DateParser{
 		formats: []string{
 			time.RFC3339Nano,      // 2006-01-02T15:04:05.999999999Z07:00
 			time.RFC3339,          // 2006-01-02T15:04:05Z07:00
 			"2006-01-02 15:04:05", // YYYY-MM-DD HH:MM:SS (space-separated)
+			"2006-01-02T15:04:05", // YYYY-MM-DDTHH:MM:SS, ISO 8601 with no offset (#1275)
 			"2006-01-02",          // YYYY-MM-DD
 			"01/02/2006",          // MM/DD/YYYY
 			"1/2/2006",            // M/D/YYYY
