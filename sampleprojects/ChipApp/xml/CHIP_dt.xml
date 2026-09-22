@@ -308,7 +308,7 @@ client.age 18 &gt;
 <action_comment>Count the Client himself and particular relatives</action_comment>
 <action_dsl>add 1 to ThisClient's IncomeGroupCount</action_dsl>
 <action_postfix>
-1 0 local@ entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop
+1 0 local@ entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop pop
 </action_postfix>
 <columns>XXXXXXX-----</columns>
 </action_details>
@@ -317,7 +317,7 @@ client.age 18 &gt;
 <action_comment>Add 1 for each of the expected babies for a pregnant person</action_comment>
 <action_dsl>add expectedChildren to ThisClient's IncomeGroupCount</action_dsl>
 <action_postfix>
-expectedChildren 0 local@ entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop
+expectedChildren 0 local@ entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop pop
 </action_postfix>
 <columns>-X-X-X------</columns>
 </action_details>
@@ -326,7 +326,7 @@ expectedChildren 0 local@ entitypush IncomeGroupCount + /IncomeGroupCount xdef e
 <action_comment>Add this person's Income to the ThisPerson's total group income</action_comment>
 <action_dsl>add the client.totalIncome to ThisClient's totalGroupIncome</action_dsl>
 <action_postfix>
-client.totalIncome 0 local@ entitypush totalGroupIncome + /totalGroupIncome xdef entitypop
+client.totalIncome 0 local@ entitypush totalGroupIncome + /totalGroupIncome xdef entitypop pop
 </action_postfix>
 <columns>--------XXXX</columns>
 </action_details>
