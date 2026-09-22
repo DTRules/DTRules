@@ -16,8 +16,10 @@
 package operators
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
+	"sync"
 	"unicode"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -326,7 +328,10 @@ func opCapitalize(state dtrules.State) error {
 
 // opRegexMatch: ( string regex -- boolean ) returns true if string matches
 // regex. The subject is pushed first and the pattern last, the order in which
-// `s matches p` compiles (`s p regexmatch`).
+// `s matches p` compiles (`s p regexmatch`). The match is an unanchored
+// search (Go regexp syntax): the pattern may match anywhere in the string
+// unless it is written ^…$. A pattern that does not compile is an error,
+// never a silent false (#1262).
 func opRegexMatch(state dtrules.State) error {
 	regexObj, err := state.DataPop()
 	if err != nil {
@@ -337,14 +342,42 @@ func opRegexMatch(state dtrules.State) error {
 		return err
 	}
 
-	str := strObj.StringValue()
-	pattern := regexObj.StringValue()
-
-	matched, err := regexp.MatchString(pattern, str)
+	re, err := compiledPattern(regexObj.StringValue())
 	if err != nil {
-		return state.DataPush(dtrules.GetRBoolean(false))
+		return err
 	}
-	return state.DataPush(dtrules.GetRBoolean(matched))
+	return state.DataPush(dtrules.GetRBoolean(re.MatchString(strObj.StringValue())))
+}
+
+// maxCachedPatterns bounds the regexmatch cache. Rule patterns are nearly
+// always literals, so a few hundred covers any rule set; a pattern built
+// from data past the bound is compiled on each use rather than cached.
+const maxCachedPatterns = 512
+
+var patternCache = struct {
+	sync.RWMutex
+	m map[string]*regexp.Regexp
+}{m: make(map[string]*regexp.Regexp)}
+
+// compiledPattern returns the compiled form of pattern, compiling it once.
+func compiledPattern(pattern string) (*regexp.Regexp, error) {
+	patternCache.RLock()
+	re, ok := patternCache.m[pattern]
+	patternCache.RUnlock()
+	if ok {
+		return re, nil
+	}
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+		return nil, dtrules.NewRulesErrorWithCause("Invalid Regex", "regexmatch",
+			fmt.Sprintf("pattern %q does not compile", pattern), err)
+	}
+	patternCache.Lock()
+	if len(patternCache.m) < maxCachedPatterns {
+		patternCache.m[pattern] = re
+	}
+	patternCache.Unlock()
+	return re, nil
 }
 
 // opStringEqual: ( string1 string2 -- boolean ) returns true if strings are equal

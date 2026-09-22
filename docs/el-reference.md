@@ -435,7 +435,7 @@ This is the value, not the element attaining it. `the <entity> in <array> with t
 #### Matches (regex)
 
 **Syntax**: `strexpr MATCHES strexpr`
-**Semantics**: True if the left string matches the regular expression on the right (subject first, pattern second). Postfix operator: `regexmatch`.
+**Semantics**: True if the left string matches the regular expression on the right (subject first, pattern second). The match is an unanchored search in Go regexp syntax: `"xabcx" matches "abc"` is true; write `^…$` to require the whole string to match. A pattern that does not compile is a runtime error naming the pattern, not a false. Postfix operator: `regexmatch`.
 **Example (EL)**: `taxpayer.filing_status matches "MF.*"`
 **Compiled postfix**: `taxpayer.filing_status "MF.*" regexmatch`
 
