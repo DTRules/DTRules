@@ -136,7 +136,7 @@ const tablePatchSchema = `{
     "column":           {"type": "integer", "minimum": 1},
     "condition_number": {"type": "integer", "minimum": 1},
     "action_number":    {"type": "integer", "minimum": 1},
-    "index":            {"type": "integer", "minimum": 0},
+    "index":            {"type": "integer", "minimum": 1, "description": "1-based, like action_number: the first initial action or context is 1 (#1297)"},
     "value":            {"type": "string", "enum": ["Y", "N", "-", "*"]},
     "on":               {"type": "boolean"},
     "name":             {"type": "string"},
