@@ -57,7 +57,8 @@ func TestIssue869_EntityOperandKeepsEntityScope(t *testing.T) {
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
-	want := "house entitypush tax 5 > entitypop swap pop"
+	// entitypop leaves the entity above the boolean; pop discards it (#1283).
+	want := "house entitypush tax 5 > entitypop pop"
 	if got != want {
 		t.Errorf("entity operand shape\n got: %q\nwant: %q", got, want)
 	}

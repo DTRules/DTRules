@@ -5403,8 +5403,7 @@ func (e *PostfixEmitter) VisitBoolThereIsInEntityWhere(ctx *BoolThereIsInEntityW
 	e.emit("entitypush")
 	e.Visit(ctx.WhereBody())
 	e.emit("entitypop")
-	e.emit("swap")
-	e.emit("pop")
+	e.emit("pop") // discard the entity entitypop leaves above the boolean (#1283)
 	return nil
 }
 
@@ -5418,8 +5417,7 @@ func (e *PostfixEmitter) VisitBoolThereIsNoInEntityWhere(ctx *BoolThereIsNoInEnt
 	e.emit("entitypush")
 	e.Visit(ctx.WhereBody())
 	e.emit("entitypop")
-	e.emit("swap")
-	e.emit("pop")
+	e.emit("pop") // discard the entity entitypop leaves above the boolean (#1283)
 	e.emit("not")
 	return nil
 }
