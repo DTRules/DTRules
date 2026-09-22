@@ -83,15 +83,16 @@ func TestOrderSensitiveExecution(t *testing.T) {
 	getBool := func() bool { v, _ := root.Get(dtrules.GetRName("b")); x, _ := v.BooleanValue(); return x }
 	getDate := func() time.Time { v, _ := root.Get(dtrules.GetRName("dout")); x, _ := v.TimeValue(); return x }
 
-	// days between: d2 - d1 = 14 (order matters: from d1 to d2).
+	// days between: d2 is 14 dates after d1, so 15 days counting both
+	// (#1265); order matters: from d1 to d2.
 	exec("set n = days from d1 to d2")
-	if getInt() != 14 {
-		t.Errorf("days from d1 to d2 = %d, want 14", getInt())
+	if getInt() != 15 {
+		t.Errorf("days from d1 to d2 = %d, want 15", getInt())
 	}
-	// reverse: from d2 to d1 = -14.
+	// reverse: from d2 to d1 = -15.
 	exec("set n = days from d2 to d1")
-	if getInt() != -14 {
-		t.Errorf("days from d2 to d1 = %d, want -14", getInt())
+	if getInt() != -15 {
+		t.Errorf("days from d2 to d1 = %d, want -15", getInt())
 	}
 
 	// index of "l" in "hello" = 2 (0-based). Order: needle in haystack.

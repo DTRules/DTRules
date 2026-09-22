@@ -136,8 +136,8 @@ func TestDateBetween(t *testing.T) {
 		y1, m1, d1, y2, m2, d2 int
 		want                   int64
 	}{
-		{"daysbetween", 2024, 1, 1, 2024, 1, 11, 10},
-		{"daysbetween", 2024, 1, 11, 2024, 1, 1, 10}, // absolute
+		{"daysbetween", 2024, 1, 1, 2024, 1, 11, 11}, // Jan 1 to Jan 11, both counted (#1265)
+		{"daysbetween", 2024, 1, 11, 2024, 1, 1, 11}, // Jan 11 back to Jan 1, both counted (#1265)
 		{"monthsbetween", 2024, 1, 1, 2024, 7, 1, 6},
 		{"yearsbetween", 2020, 1, 1, 2025, 1, 1, 5},
 	}

@@ -439,18 +439,18 @@ func opAddYears(state dtrules.State) error {
 }
 
 // opDaysBetween: ( date1 date2 -- days ) the number of calendar days from
-// date1 to date2 (#1265): the calendar date of date2 minus the calendar date
-// of date1, both read in date1's zone. The time of day does not count (23:00
-// to 01:00 the next morning is 1 day), nor does a daylight-saving change (a
-// 23-hour day is still a day). Negative when date2 falls on an earlier date.
-// Because `d + N days` is calendar arithmetic in d's zone, `days from d to
-// d + N days` is N.
+// date1 to date2, counting both (#1265): Mar 8 to Mar 10 is 3 days, and a
+// date to itself is 1. Both dates are read in date1's zone. The time of day
+// does not count (23:00 to 01:00 the next morning is 2 days), nor does a
+// daylight-saving change (a 23-hour day is still a day). When date2 falls on
+// an earlier date than date1 the count is the same days, negative: Mar 10 to
+// Mar 8 is -3. The result is never 0.
 func opDaysBetween(state dtrules.State) error {
 	t1, t2, err := popTwoDates(state)
 	if err != nil {
 		return err
 	}
-	return state.DataPush(dtrules.GetRIntegerValue(calendarDaysBetween(t1, t2)))
+	return state.DataPush(dtrules.GetRIntegerValue(inclusiveDays(calendarDaysBetween(t1, t2))))
 }
 
 // calendarDaysBetween returns the calendar date of t2 minus that of t1, both
@@ -462,6 +462,15 @@ func calendarDaysBetween(t1, t2 time.Time) int64 {
 	u1 := time.Date(y1, m1, d1, 0, 0, 0, 0, time.UTC).Unix()
 	u2 := time.Date(y2, m2, d2, 0, 0, 0, 0, time.UTC).Unix()
 	return (u2 - u1) / 86400
+}
+
+// inclusiveDays turns a difference of calendar dates into a count of the
+// days from the first to the second, both included, signed by direction.
+func inclusiveDays(diff int64) int64 {
+	if diff < 0 {
+		return diff - 1
+	}
+	return diff + 1
 }
 
 // Offsets and differences below a day (#1232) are elapsed time between

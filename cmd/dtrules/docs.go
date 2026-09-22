@@ -209,7 +209,7 @@ Built-in integer functions:
     get days in months for someDate       days in month of date
     get days of months for someDate       day-of-month number
     get yearof someDate                   four-digit year
-    days from d1 to d2                    calendar days, date of d2 - date of d1
+    days from d1 to d2                    calendar days, both ends counted
     seconds from d1 to d2                 whole seconds between two instants
     minutes from d1 to d2                 whole minutes between two instants
     months from d1 to d2                  whole months between two dates
@@ -642,11 +642,13 @@ Time below a day (#1232):
         seconds from job.last_progress to job.checked_at > 120
     "current date" is today at midnight UTC, not the current instant; for
     "now" write: current date in zone "UTC".
-    "days from" is NOT elapsed time: it counts calendar days (#1265),
-    the date of d2 minus the date of d1, both read in d1's zone. The
-    time of day does not count (Mar 8 23:00 to Mar 9 01:00 is 1 day)
-    and neither does daylight saving (Chicago 2026-03-08 00:00 to
-    03-10 00:00 is 47 h and 2 days), so days from d to d + N days is N.
+    "days from" is NOT elapsed time: it counts calendar days with both
+    ends included (#1265), both dates read in d1's zone. Mar 8 to
+    Mar 10 is 3, a date to itself is 1, Jan 1 to Dec 31 is 365, and
+    Mar 10 back to Mar 8 is -3. The time of day does not count (Mar 8
+    23:00 to Mar 9 01:00 is 2) and neither does daylight saving
+    (Chicago 2026-03-08 00:00 to 03-10 00:00 is 47 h and 3 days).
+    Do not add 1 for an inclusive count: it already is one.
     "months from" and "years from" compare the calendar too.
     "second(s)" and "minute(s)" are keywords in any case (Seconds,
     MINUTES); a field named exactly that must be written with its entity
@@ -2026,7 +2028,7 @@ get days in year of dexpr                     integer   days in date's year (365
 get days in months for dexpr                  integer   days in date's month
 get days of months for dexpr                  integer   day-of-month (1-31)
 get yearof dexpr                              integer   four-digit year
-days from d1 to d2                            integer   calendar days, d2's date - d1's date, in d1's zone (#1265)
+days from d1 to d2                            integer   calendar days, both ends counted, in d1's zone (#1265)
 seconds from d1 to d2                         integer   whole seconds between instants (#1232)
 minutes from d1 to d2                         integer   whole minutes between instants (#1232)
 months from d1 to d2                          integer   whole months between dates

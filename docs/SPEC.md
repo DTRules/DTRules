@@ -258,20 +258,24 @@ and writes it on the `--save` root as `<dtrules-data changed="true|false">`.
   a daylight-saving change is 23 or 25 hours later. `months from` and `years
   from` compare calendar fields: months by year and month, years by
   anniversary, each date's fields read in the zone that date carries.
-- `days from d1 to d2` (`daysbetween`) counts **calendar days** (#1265): the
-  calendar date of d2 minus the calendar date of d1, both read in **d1's
-  zone**. The time of day does not count: 23:00 to 01:00 the next morning is 1
-  day, 01:00 to 23:00 on the same date is 0, and 01:00 back to 23:00 the
-  evening before is -1. Neither does a daylight-saving change: in
-  America/Chicago 2026-03-08 00:00 to 2026-03-10 00:00 is 47 hours and 2 days;
-  in Europe/London midnight 2026-03-29 to midnight 2026-03-30 is 1 day. So
-  `days from d to d + N days` is N. Reading d2 in d1's zone keeps the sign
-  honest when the zones differ: a d2 earlier than d1 is never a later date.
-  It also makes the count depend on which date comes first when their zones
-  differ (`days from d2 to d1` reads both in d2's zone and need not be the
-  negation). Dates at midnight UTC, the common case, count as before; the
-  count is exact over years 1-9999. Before #1265 this was whole 24-hour
-  periods of elapsed time, truncated toward zero.
+- `days from d1 to d2` (`daysbetween`) counts **calendar days, both ends
+  included** (#1265): the number of dates from d1's date to d2's date, with
+  both dates read in **d1's zone**. Mar 8 to Mar 10 is 3; a date to itself is
+  1; Jan 1 to Dec 31 is 365. When d2's date is earlier the count is the same
+  days, negative: Mar 10 to Mar 8 is -3. The result is never 0. Inclusive
+  because the users are financial: a period from its first day to its last
+  covers both. The time of day does not count: 23:00 to 01:00 the next
+  morning is 2, and 01:00 to 23:00 on the same date is 1. Neither does a
+  daylight-saving change: in America/Chicago 2026-03-08 00:00 to 2026-03-10
+  00:00 is 47 hours and 3 days. So `days from d to d + N days` is N + 1 for
+  N >= 0 and N - 1 for N < 0; it is not the inverse of `+ N days`. Reading d2
+  in d1's zone keeps the sign honest when the zones differ: a d2 earlier than
+  d1 is never a later date. It also makes the count depend on which date comes
+  first when their zones differ (`days from d2 to d1` reads both in d2's zone
+  and need not be the negation). The count is exact over years 1-9999. Before
+  #1265 this was whole 24-hour periods of elapsed time, truncated toward zero;
+  rules that added 1 to get an inclusive count (TaxReturn's
+  `Allocate_Income_By_State`) no longer do.
 - Below a day (#1232), `d + N seconds|minutes` and `seconds|minutes from d1 to
   d2` (operators `addseconds`, `addminutes`, `secondsbetween`,
   `minutesbetween`) are elapsed time between instants. A difference is `d2 -
