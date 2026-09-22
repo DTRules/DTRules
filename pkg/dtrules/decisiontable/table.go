@@ -491,6 +491,17 @@ func (dt *RDecisionTable) Execute(state dtrules.State) error {
 	state.TraceOpen("decisiontable", "name", dt.name.StringValue())
 	defer state.TraceClose("decisiontable")
 
+	// Locals are frame-relative and numbered per table from 0: the context's
+	// aliases first, then the rows' own. Without a frame of its own a
+	// performed table's slot 0 is its caller's, and after the perform the
+	// caller's alias holds whatever the callee stored last (#1226). The
+	// context runs the body through executetable inside this same frame.
+	// PopFrame also releases whatever an error left allocated.
+	if err := state.PushFrame(); err != nil {
+		return err
+	}
+	defer state.PopFrame()
+
 	// If there's a context, execute it (the context will call ExecuteTable internally)
 	// If no context, execute the table directly
 	if dt.rcontext != nil {

@@ -199,6 +199,16 @@ type State interface {
 	// SetFrameValue sets a value in the current frame
 	SetFrameValue(index int, value Object) error
 
+	// PushFrame opens a frame at the top of the control stack, so local
+	// index 0 is the next slot allocated. The compiler numbers a table's
+	// locals from 0, so every execution of a table body runs in a frame of
+	// its own (#1226).
+	PushFrame() error
+
+	// PopFrame drops everything allocated since the matching PushFrame and
+	// restores the caller's frame.
+	PopFrame() error
+
 	// GetSession returns the associated session
 	GetSession() Session
 

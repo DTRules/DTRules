@@ -687,6 +687,12 @@ frame pointer. Local variables in the current frame are accessed via
 `GetFrameValue(i)` / `SetFrameValue(i, v)`. `PopFrame()` restores the
 slice and frame pointer.
 
+`RDecisionTable.Execute` pushes a frame before it evaluates the table's
+context or body and pops it on return, so each table execution numbers its
+locals from 0, as the compiler does (#1226). `performaliased` does the same
+around `ExecuteTable`. `executetable`, which a context uses to run its own
+table's body, does not: the body shares the frame its context allocated into.
+
 Local variable postfix tokens (`0 local@`, `0 local!`) are translated by
 the bytecode compiler to `GetFrameValue` / `SetFrameValue` calls.
 
