@@ -715,7 +715,10 @@ Patch operations:
   add-action, update-action, update-action-dsl, delete-action,
   add-initial-action, update-initial-action, delete-initial-action,
   add-context, update-context, delete-context,
-  set-policy-statement, delete-policy-statement`)
+  set-policy-statement, delete-policy-statement
+
+Row numbering is 1-based throughout: action_number, condition_number and
+index (initial actions, contexts) all start at 1. See: table schema --patch`)
 }
 
 func (c *CLI) printEDDUsage() {

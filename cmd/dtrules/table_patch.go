@@ -34,7 +34,7 @@ type tablePatch struct {
 	Column          int    `json:"column,omitempty"`
 	ConditionNumber int    `json:"condition_number,omitempty"`
 	ActionNumber    int    `json:"action_number,omitempty"`
-	Index           int    `json:"index,omitempty"`
+	Index           int    `json:"index,omitempty"` // 1-based, like action_number (#1297)
 	Value           string `json:"value,omitempty"`
 	On              bool   `json:"on,omitempty"`
 	Name            string `json:"name,omitempty"`
@@ -69,6 +69,20 @@ func strOr(p *string, existing string) string {
 		return *p
 	}
 	return existing
+}
+
+// slotIndex converts the 1-based `index` of the patch API into the slice
+// index the authoring methods take. It is 1-based for the same reason
+// `action_number` and `condition_number` are: one numbering for the whole
+// payload (#1297). Zero is refused rather than silently meaning the first
+// slot, because `index` is `omitempty` — a payload that forgot the field and
+// one that asked for slot 0 arrive identically, and the old 0-based reading
+// turned a 1-based caller into a silent overwrite of the *next* row.
+func slotIndex(index int, op string) (int, error) {
+	if index < 1 {
+		return 0, fmt.Errorf("%s requires index (1-based: the first initial action or context is 1, not 0)", op)
+	}
+	return index - 1, nil
 }
 
 // reqStr returns the field or an error naming the op that requires it.
@@ -297,10 +311,18 @@ func (p *tablePatch) apply(proj *authoring.Project, t *authoring.Table) error {
 		if err != nil {
 			return err
 		}
-		return t.UpdateInitialAction(p.Index, authoring.InitialAction{DSL: dsl})
+		idx, err := slotIndex(p.Index, "update-initial-action")
+		if err != nil {
+			return err
+		}
+		return t.UpdateInitialAction(idx, authoring.InitialAction{DSL: dsl})
 
 	case "delete-initial-action":
-		return t.DeleteInitialAction(p.Index)
+		idx, err := slotIndex(p.Index, "delete-initial-action")
+		if err != nil {
+			return err
+		}
+		return t.DeleteInitialAction(idx)
 
 	case "add-context":
 		dsl, err := reqStr(p.DSL, "add-context")
@@ -314,10 +336,18 @@ func (p *tablePatch) apply(proj *authoring.Project, t *authoring.Table) error {
 		if err != nil {
 			return err
 		}
-		return t.UpdateContext(p.Index, authoring.Context{DSL: dsl})
+		idx, err := slotIndex(p.Index, "update-context")
+		if err != nil {
+			return err
+		}
+		return t.UpdateContext(idx, authoring.Context{DSL: dsl})
 
 	case "delete-context":
-		return t.DeleteContext(p.Index)
+		idx, err := slotIndex(p.Index, "delete-context")
+		if err != nil {
+			return err
+		}
+		return t.DeleteContext(idx)
 
 	case "set-policy-statement":
 		if p.Column < 1 {
