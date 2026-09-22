@@ -88,7 +88,7 @@ Each `done` alternative maps to one cell type in a decision table.
 | `dexpr` | date | Date arithmetic and comparisons |
 | `strexpr` | string | String operations |
 | `eexpr` | entity | Entity references |
-| `nexpr` | name | Name (`$name`) references |
+| `nexpr` | name | Name references (`the name "x"`, `(name) "x"`, a name-typed field) |
 | `arrayExpr` / `arrayExpr2` | array | Array expressions |
 | `bigexpr` | bigint | Arbitrary-precision integers |
 | `texpr` | table | Decision table references |

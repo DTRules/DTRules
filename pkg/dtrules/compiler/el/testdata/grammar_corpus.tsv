@@ -117,7 +117,6 @@ setstatement	decrementDouble	action	decrement d;
 performstatement	performCatchError	action	perform dt and on error add account to context and perform dt;
 performstatement	performDT	action	dt;
 performstatement	performDTExplicit	action	perform dt;
-performstatement	performName	action	perform x;
 errorstatement	errorStmt	condition	error "x"
 warnstatement	warnStmt	condition	warn "x"
 debugstatement	debugStr	context	debug "x"

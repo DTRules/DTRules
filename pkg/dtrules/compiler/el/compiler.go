@@ -194,6 +194,24 @@ func (c *Compiler) CompileContext(el string) (string, error) {
 // CompileAction compiles an EL action statement to postfix.
 // The input should be one or more statements like "set result.eligible = true".
 // If the input is just an identifier (table name), it's treated as "perform TableName".
+// rejectDollarNames refuses `$foo`, the removed name-literal sigil (#1280),
+// and names the spelling that works. A name literal is `the name "foo"` or
+// `(name) "foo"` (both compile to `"foo" cvn`); a variable holding a name is
+// the field itself.
+func rejectDollarNames(tokens *antlr.CommonTokenStream) error {
+	tokens.Fill()
+	for _, tok := range tokens.GetAllTokens() {
+		text := tok.GetText()
+		if tok.GetTokenType() != ELLexerNAME || !strings.HasPrefix(text, "$") {
+			continue
+		}
+		bare := strings.TrimPrefix(text, "$")
+		return fmt.Errorf("`%s` is not a name: the `$name` notation was removed (#1280). "+
+			"Write `the name %q` for the name itself, or `%s` for a field holding one", text, bare, bare)
+	}
+	return nil
+}
+
 func (c *Compiler) CompileAction(el string) (string, error) {
 	el = strings.TrimSpace(el)
 	if isCommentOnly(el) {
@@ -282,6 +300,17 @@ func (c *Compiler) compile(el string) (string, error) {
 	lexer.AddErrorListener(errorListener)
 
 	tokens := antlr.NewCommonTokenStream(lexer, antlr.TokenDefaultChannel)
+
+	// `$foo` is gone (#1280). It lexes as a NAME, but the emitter passed the
+	// token through verbatim, and postfix has no `$`: `$foo` was an
+	// executable lookup of an attribute literally called "$foo", which no
+	// EDD declares. The check is here rather than in the visitors because
+	// several forms (nameArrayAt, arrayName) discard the NAME token, so a
+	// per-visitor guard would let those through silently.
+	if err := rejectDollarNames(tokens); err != nil {
+		return "", err
+	}
+
 	parser := NewELParser(tokens)
 
 	parser.RemoveErrorListeners()

@@ -111,13 +111,13 @@ addtodest2	addDestLong2	action	add 1 to :account: n	#1247: unreachable, parses a
 addtostatement	addDateToDest	action	add current date to accounts	#1247
 addtostatement	addEntityToDest	action	add first of accounts to accounts	#1247
 arrayExpr2	arrayLiteral	condition	[ "a" ] includes string "a"	#1247
-arrayExpr2	arrayName	condition	(array) $x includes account	#1247: emits a not-yet-implemented elstmterror
+arrayExpr2	arrayName	condition	(array) name includes account	#1247: emits a not-yet-implemented elstmterror
 arrayList	arrayListArraySingle	condition	[ copy of accounts ] includes string "x"	#1247
 arrayList	arrayListBoolSingle	condition	[ true ] includes string "x"	#1247
 arrayList	arrayListEntitySingle	condition	[ first of accounts ] includes string "x"	#1247: a bare identifier is taken by arrayListBoolSingle
 arrayList	arrayListFloatSingle	condition	[ 1.0 ] includes value 1	#1247
 arrayList	arrayListIntSingle	condition	[ 1 ] includes value 1	#1247
-arrayList	arrayListNameSingle	condition	[ $x ] includes string "x"	#1247
+arrayList	arrayListNameSingle	condition	[ name ] includes string "x"	#1247
 arrayList	arrayListStrSingle	condition	[ "x" ] includes string "x"	#1247
 bexpr	boolArrayIsNotNull	condition	copy of accounts is not null	#1247: a bare identifier is taken by boolBexprIsNotNull
 bexpr	boolArrayIsNull	condition	copy of accounts is null	#1247: a bare identifier is taken by boolBexprIsNull
@@ -205,7 +205,6 @@ operatorlist	opListInt	action	op(1, 1)	#1247
 operatorlist	opListIntSingle	action	op(1)	#1247
 operatorlist	opListStr	action	op("x", 1)	#1247
 operatorlist	opListStrSingle	action	op("x")	#1247
-performstatement	performName	action	perform $x	#1247: emits nothing: #1254
 randomstatements	removeEntity	action	remove first of accounts from accounts array	#1247: a bare identifier is taken by removeName
 setstatement	decrementDouble	action	decrement d	#1247: unreachable, parses as decrementLong (#1250)
 setstatement	incrementDouble	action	increment d	#1247: unreachable, parses as incrementLong (#1250)
@@ -216,7 +215,7 @@ setstatement	setArrayFloat	action	set arr = 1.0	#1247: unreachable, parses as se
 setstatement	setArrayInt	action	set arr = 1	#1247: unreachable, parses as setInt (#1250)
 setstatement	setArrayString	action	set arr = "x"	#1247: unreachable, parses as setString (#1250)
 setstatement	setBigInt	action	set bi = (bigint) "1"	#1247
-setstatement	setBoolFromName	action	set b = $x	#1247: unreachable, parses as setStringFromName (#1250)
+setstatement	setBoolFromName	action	set b = the name "x"	#1247: unreachable, parses as setStringFromName (#1250)
 setstatement	setDate	action	set dt = current date	#1247: unreachable, parses as setStringFromDate (#1250)
 setstatement	setEntity	action	set e = first of accounts	#1247: a bare identifier on the right is taken by setInt
 setstatement	setFloat	action	set d = 5	#1247: unreachable, parses as setInt (#1250)
@@ -301,17 +300,17 @@ localvariables	localBigIntUndef	context	local bigint x
 localvariables	localBigIntInit	context	local bigint x = (bigint) 1
 localvariables	localBytesUndef	context	local bytes x
 localvariables	localBytesInit	context	local bytes x = 0xab
-setstatement	setStringFromName	action	set s = $tbl
+setstatement	setStringFromName	action	set s = the name "tbl"
 bexpr	boolArrayIncludes	condition	accounts includes account
 bexpr	boolArrayDoesInclude	condition	accounts does include account
 bexpr	boolArrayNotInclude	condition	accounts does not include account
 bexpr	boolDateBefore	condition	(date) "2020-01-01" is before (date) "2020-01-02"
 bexpr	boolDateAfter	condition	(date) "2020-01-02" is after (date) "2020-01-01"
 bexpr	boolDateBetween	condition	(date) "2020-01-01" is between (date) "2020-01-01" and (date) "2020-01-02"
-bexpr	boolNameEq	condition	$a == $b
-bexpr	boolNameEqStr	condition	$a == "x"
-bexpr	boolNameNeq	condition	$a != $b
-bexpr	boolNameNeqStr	condition	$a != "x"
+bexpr	boolNameEq	condition	the name "a" == the name "b"
+bexpr	boolNameEqStr	condition	the name "a" == "x"
+bexpr	boolNameNeq	condition	the name "a" != the name "b"
+bexpr	boolNameNeqStr	condition	the name "a" != "x"
 dexpr	dateCurrentDate	condition	current date is equal to (date) "2020-01-01"
 dexpr	dateFromStrCast	condition	(date) "2020-01-01" is equal to (date) "2020-01-01"
 dexpr	dateFromStrFunc	condition	date("2020-01-01") is equal to (date) "2020-01-01"
@@ -362,7 +361,7 @@ iexpr	intDaysBetween	condition	days from (date) "2020-01-01" to (date) "2020-01-
 iexpr	intMonthsBetween	condition	months from (date) "2020-01-01" to (date) "2020-01-01" > 0
 iexpr	intYearsBetween	condition	years from (date) "2020-01-01" to (date) "2020-01-01" > 0
 iexpr	intYearOf	condition	get yearof (date) "2020-01-01" > 0
-strexpr	strConcatName	condition	"a" + $tbl is equal to "x"
+strexpr	strConcatName	condition	"a" + the name "tbl" is equal to "x"
 strexpr	strHexOfBytes	condition	hex of 0xab is equal to "x"
 strexpr	strValueOfInt	condition	string value of 1 is equal to "x"
 strexpr	strValueOfFloat	condition	string value of 1.0 is equal to "x"
@@ -381,14 +380,14 @@ bigexpr	bigFromBytes	condition	bigint of bytes 0xab > (bigint) 0
 contextForTable	contextFor	context	for i = 0; i < 3; increment i;
 errorstatement	errorStmt	action	error "msg"
 warnstatement	warnStmt	action	warn "msg"
-nexpr	nameOf	condition	nameof account == $tbl
-nexpr	nameTheName	condition	the name "x" == $tbl
-nexpr	nameUsing	condition	using account ( $tbl ) == $tbl
+nexpr	nameOf	condition	nameof account == the name "tbl"
+nexpr	nameTheName	condition	the name "x" == the name "tbl"
+nexpr	nameUsing	condition	using account ( the name "tbl" ) == the name "tbl"
 fexpr	floatLiteral	condition	1.0 > 0.0
 strexpr	strFromIndex	condition	(string) arr[1] is equal to "x"
-randomstatements	removeName	action	remove $tbl from accounts array
-randomstatements	sortAscending	action	sort accounts in ascending order by $tbl
-randomstatements	sortDescending	action	sort accounts in descending order by $tbl
+randomstatements	removeName	action	remove the name "tbl" from accounts array
+randomstatements	sortAscending	action	sort accounts in ascending order by the name "tbl"
+randomstatements	sortDescending	action	sort accounts in descending order by the name "tbl"
 randomstatements	clearArray	action	clear accounts	#1247: unreachable, parses as clearstatement (unlabelled) (#1250)
 addtostatement	addEntityToDestDup	action	add account to x and to y
 addtostatement	addStrToDestDup	action	add "x" to x and to y
@@ -415,8 +414,8 @@ bexpr	boolValueOfOp	condition	boolean value of isnull("x")
 iexpr	intValueOfOp	condition	long value of cvi(1.0) > 0
 fexpr	floatValueOfOp	condition	double value of cvr(1) > 0.0
 strexpr	strValueOfOp	condition	string value of cvs(1) is equal to "1"
-done	policyNExpr	raw	policystatement $tbl;
-bexpr	boolMatchForall	condition	there is match for all accounts to $tbl in accounts
+done	policyNExpr	raw	policystatement the name "tbl";
+bexpr	boolMatchForall	condition	there is match for all accounts to the name "tbl" in accounts
 datestatement	dateAddSeconds	action	add 5 seconds to dt	#1232
 datestatement	dateAddMinutes	action	add 5 minutes to dt	#1232
 datestatement	dateSubSeconds	action	subtract 5 seconds from dt	#1232

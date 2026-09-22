@@ -175,6 +175,16 @@ required: after `sort … by`, a field or local whose declared type is not `name
 is an error that points at `the name "<field>"`, because it would be evaluated
 before the sort with no entity on the stack and fail at execution (#1227).
 
+A name value is written `the name "foo"` or `(name) "foo"` (both compile to
+`"foo" cvn`); a variable holding a name is the field itself. The `$foo`
+spelling is removed (#1280): it lexed as a name, but the sigil rode into the
+postfix, where a bare `$foo` is an executable lookup of an attribute literally
+called `$foo`, which no EDD declares — so every use failed at execution. The
+compiler refuses it and names the replacement. `perform $x` went with it, and
+with it the `performName` alternative (#1254); a table chosen at runtime is
+`perform table named (<string>) among …`, which keeps the call edges visible
+to the analyzer.
+
 The grammar sweep (`grammar_sweep_test.go`) holds every labelled alternative
 in `EL.g4` to a corpus row in `testdata/`. Each row must compile to non-empty
 postfix, and must parse through the label it is filed under (checked on the

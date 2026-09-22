@@ -145,7 +145,7 @@ DTRules supports the following primitive and composite types. Each type keyword 
 | `bigint` / `biginteger` | Arbitrary-precision integer          |
 | `fixed`             | 256-bit fixed-point, 8 decimal digits (see [Fixed Type](#fixed-type)) |
 | `bytes`             | Immutable byte sequence (hex, constant-time equality) |
-| `name`              | Symbol/name value (e.g., `$foo`)        |
+| `name`              | Symbol/name value (`the name "foo"`, `(name) "foo"`) |
 | `entity`            | Reference to a DTRules entity            |
 | `array`             | Ordered list of DTRules objects          |
 | `table`             | Decision-table reference                 |
@@ -815,6 +815,10 @@ date or other non-name field) is a compile error that points at
 **Semantics**: Returns the absolute value. Postfix: `abs`.
 **Example (EL)**: `absolute value of result.agi > 0.0`
 **Compiled postfix**: `result.agi fabs 0.0 f>`
+
+### Name values (`$name` removed, #1280)
+
+A name is written `the name "foo"` or `(name) "foo"` (both compile to `"foo" cvn`); a variable holding a name is the field itself, written plainly. The `$foo` spelling is **removed**: it lexed as a name but the sigil rode into the postfix, where `$foo` is an executable lookup of an attribute literally called `$foo` — which no EDD declares, so every use failed at runtime with `The Name '$foo' was not defined by any Entity on the Entity Stack`. It is now a compile error naming the replacement. `perform $x` went with it; for a table chosen at runtime use `perform table named (<string>) among …`.
 
 ### Nameof
 

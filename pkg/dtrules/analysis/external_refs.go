@@ -440,8 +440,6 @@ func operatorCandidate(tok string) bool {
 		return false
 	case '/': // name literal (table/entity reference pushed by name)
 		return false
-	case '$': // variable/local reference
-		return false
 	}
 	if isNumericLiteral(tok) {
 		return false

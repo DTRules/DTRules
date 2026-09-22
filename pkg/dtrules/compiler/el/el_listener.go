@@ -418,9 +418,6 @@ type ELListener interface {
 	// EnterPerformDTExplicit is called when entering the performDTExplicit production.
 	EnterPerformDTExplicit(c *PerformDTExplicitContext)
 
-	// EnterPerformName is called when entering the performName production.
-	EnterPerformName(c *PerformNameContext)
-
 	// EnterErrorStmt is called when entering the errorStmt production.
 	EnterErrorStmt(c *ErrorStmtContext)
 
@@ -2367,9 +2364,6 @@ type ELListener interface {
 
 	// ExitPerformDTExplicit is called when exiting the performDTExplicit production.
 	ExitPerformDTExplicit(c *PerformDTExplicitContext)
-
-	// ExitPerformName is called when exiting the performName production.
-	ExitPerformName(c *PerformNameContext)
 
 	// ExitErrorStmt is called when exiting the errorStmt production.
 	ExitErrorStmt(c *ErrorStmtContext)

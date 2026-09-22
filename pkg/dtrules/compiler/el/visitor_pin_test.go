@@ -89,7 +89,6 @@ var inheritedAllowlist = map[string]string{
 	// #803 batch 6).
 	"VisitLeftTexprColon":  "dead grammar; setTable emits elstmterror without visiting leftTexpr",
 	"VisitLeftTexprSimple": "dead grammar; setTable emits elstmterror without visiting leftTexpr",
-	"VisitPerformName":     "dead grammar; ANTLR matches performDT/performDTExplicit first for any IDENT after PERFORM (verified by tree dump)",
 	// setArray<Type> are unreachable for non-array RHS: ANTLR picks
 	// setInt/setFloat/setString/setEntity/setDate first when the RHS
 	// could be either a single typed value or an arrayExpr. The only

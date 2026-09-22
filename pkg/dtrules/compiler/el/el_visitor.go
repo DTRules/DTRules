@@ -418,9 +418,6 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#performDTExplicit.
 	VisitPerformDTExplicit(ctx *PerformDTExplicitContext) interface{}
 
-	// Visit a parse tree produced by ELParser#performName.
-	VisitPerformName(ctx *PerformNameContext) interface{}
-
 	// Visit a parse tree produced by ELParser#errorStmt.
 	VisitErrorStmt(ctx *ErrorStmtContext) interface{}
 

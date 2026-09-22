@@ -67,7 +67,6 @@ func TestSortByNameAccepted(t *testing.T) {
 		{`sort state.entries in descending order by (name) "key"`, `state.entries "key" cvn false sortentities`},
 		{`sort state.entries in ascending order by name`, `state.entries /name true sortentities`},
 		{`sort state.entries in ascending order by state.sort_field`, `state.entries state.sort_field true sortentities`},
-		{`sort state.entries in ascending order by $sort_field`, `state.entries $sort_field true sortentities`},
 	}
 	for _, tc := range cases {
 		t.Run(tc.dsl, func(t *testing.T) {
@@ -81,6 +80,23 @@ func TestSortByNameAccepted(t *testing.T) {
 				t.Errorf("postfix = %q, want %q", pf, tc.want)
 			}
 		})
+	}
+}
+
+// `$name` is gone (#1280). It never produced a name: the sigil rode into the
+// postfix, where `$sort_field` is a lookup of an attribute nothing declares.
+// The error names the spelling that works.
+func TestSortByDollarNameRejected(t *testing.T) {
+	c := NewCompiler()
+	c.SetSymbols(sortSymbols())
+	got, err := c.CompileAction(`sort state.entries in ascending order by $sort_field`)
+	if err == nil {
+		t.Fatalf("expected a compile error, got %q", got)
+	}
+	for _, want := range []string{`the name "sort_field"`, "#1280"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("error should mention %s, got: %v", want, err)
+		}
 	}
 }
 
