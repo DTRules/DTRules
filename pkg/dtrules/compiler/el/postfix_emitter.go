@@ -2535,10 +2535,39 @@ func (e *PostfixEmitter) VisitDateCurrentDateInZone(ctx *DateCurrentDateInZoneCo
 }
 
 func (e *PostfixEmitter) VisitDateInZone(ctx *DateInZoneContext) interface{} {
+	if e.isBuiltinToday(ctx.Dexpr()) {
+		// `today in zone <s>` is midnight today in that zone. Through the
+		// generic rewrap it was UTC midnight shown in the zone -- the
+		// previous evening west of UTC (#1273).
+		e.Visit(ctx.Strexpr())
+		e.emit("todayinzone")
+		return nil
+	}
 	e.Visit(ctx.Dexpr())
 	e.Visit(ctx.Strexpr())
 	e.emit("dateinzone")
 	return nil
+}
+
+// isBuiltinToday reports whether d is the bare word `today` meaning the
+// built-in, not a local or an EDD field of that name. `today` is not a
+// keyword -- SyntaxTests declares `local date Today` -- so it parses as a
+// typed date and, when nothing else claims the name, emits the registered
+// `today` operator.
+func (e *PostfixEmitter) isBuiltinToday(d IDexprContext) bool {
+	typed, ok := d.(*DateTypedContext)
+	if !ok {
+		return false
+	}
+	name := typed.GetText()
+	if !strings.EqualFold(name, "today") {
+		return false
+	}
+	if _, isLocal := e.lookupLocal(name); isLocal {
+		return false
+	}
+	_, isField := e.symbols[strings.ToLower(name)]
+	return !isField
 }
 
 func (e *PostfixEmitter) VisitDateFirstOfYearInZone(ctx *DateFirstOfYearInZoneContext) interface{} {
