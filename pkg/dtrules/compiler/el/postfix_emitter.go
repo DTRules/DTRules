@@ -1864,6 +1864,32 @@ func (e *PostfixEmitter) VisitFloatDivBy(ctx *FloatDivByContext) interface{} {
 	return nil
 }
 
+// VisitIntAddTo / IntSubFrom / FloatAddTo / FloatSubFrom: the expression
+// forms `add to <ident> <number>` and `subtract from <ident> <number>` are
+// the value ident + number / ident - number, typed by the ident's declared
+// type as `multiply <ident> by <number>` is. The ident is not modified; the
+// statement `add <number> to <ident>` is the mutating form. They used to
+// emit nothing (#1253).
+func (e *PostfixEmitter) VisitIntAddTo(ctx *IntAddToContext) interface{} {
+	emitMulDivBy(e, ctx.TypedLong(), ctx.Number(), "+", "b+", "f+", "fp+")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitIntSubFrom(ctx *IntSubFromContext) interface{} {
+	emitMulDivBy(e, ctx.TypedLong(), ctx.Number(), "-", "b-", "f-", "fp-")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatAddTo(ctx *FloatAddToContext) interface{} {
+	emitMulDivBy(e, ctx.TypedDouble(), ctx.Number(), "+", "b+", "f+", "fp+")
+	return nil
+}
+
+func (e *PostfixEmitter) VisitFloatSubFrom(ctx *FloatSubFromContext) interface{} {
+	emitMulDivBy(e, ctx.TypedDouble(), ctx.Number(), "-", "b-", "f-", "fp-")
+	return nil
+}
+
 // emitMulDivBy is the shared emission helper for `multiply <ident> by
 // <number>` and `divide <ident> by <number>`. The field's declared type
 // drives op choice; we promote only the RHS number to match the field's

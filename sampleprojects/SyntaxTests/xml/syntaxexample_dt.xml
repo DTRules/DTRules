@@ -1313,7 +1313,7 @@ clients 0 getat cvd cvd /totalIncome xdef
 <action_comment></action_comment>
 <action_dsl>set totalIncome = add to totalIncome 75</action_dsl>
 <action_postfix>
-cvd /totalIncome xdef
+totalIncome 75 f+ cvd /totalIncome xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -1322,7 +1322,7 @@ cvd /totalIncome xdef
 <action_comment></action_comment>
 <action_dsl>set totalIncome = subtract from totalIncome 99</action_dsl>
 <action_postfix>
-cvd /totalIncome xdef
+totalIncome 99 f- cvd /totalIncome xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -1632,7 +1632,7 @@ clients entitypush 3 entitypop cvi /FPL_Base xdef
 <action_comment></action_comment>
 <action_dsl>set totalGroupIncome = add to totalGroupIncome 75</action_dsl>
 <action_postfix>
-cvi /totalGroupIncome xdef
+totalGroupIncome 75 + cvi /totalGroupIncome xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -1641,7 +1641,7 @@ cvi /totalGroupIncome xdef
 <action_comment></action_comment>
 <action_dsl>set totalGroupIncome = subtract from totalGroupIncome 50</action_dsl>
 <action_postfix>
-cvi /totalGroupIncome xdef
+totalGroupIncome 50 - cvi /totalGroupIncome xdef
 </action_postfix>
 <columns>X</columns>
 </action_details>
@@ -4178,13 +4178,13 @@ clients 0 getat cvd cvd /totalIncome xdef
 <initial_action>
 <initial_action_dsl>set totalIncome = add to totalIncome 75</initial_action_dsl>
 <initial_action_postfix>
-cvd /totalIncome xdef
+totalIncome 75 f+ cvd /totalIncome xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
 <initial_action_dsl>set totalIncome = subtract from totalIncome 99</initial_action_dsl>
 <initial_action_postfix>
-cvd /totalIncome xdef
+totalIncome 99 f- cvd /totalIncome xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -4719,13 +4719,13 @@ clients 0 getat cvd cvd /totalIncome xdef
 <initial_action>
 <initial_action_dsl>set totalIncome = add to totalIncome 75</initial_action_dsl>
 <initial_action_postfix>
-cvd /totalIncome xdef
+totalIncome 75 f+ cvd /totalIncome xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
 <initial_action_dsl>set totalIncome = subtract from totalIncome 99</initial_action_dsl>
 <initial_action_postfix>
-cvd /totalIncome xdef
+totalIncome 99 f- cvd /totalIncome xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
