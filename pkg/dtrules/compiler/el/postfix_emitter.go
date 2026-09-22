@@ -636,36 +636,31 @@ func (e *PostfixEmitter) emitTypeAwareAddSub(fieldName, op string) {
 	if op != "+" && op != "-" {
 		panic("emitTypeAwareAddSub: op must be + or -")
 	}
-	switch e.mutationType(fieldName) {
+	e.emitTypedAddSub(e.mutationType(fieldName), op, func() { e.emitFieldPush(fieldName) })
+	e.emitFieldStore(fieldName)
+}
+
+// emitTypedAddSub emits the arithmetic half of emitTypeAwareAddSub: with the
+// value on the stack, promote it to fieldType, push the field with
+// pushField, and apply the typed op so that subtract yields field - value.
+func (e *PostfixEmitter) emitTypedAddSub(fieldType, op string, pushField func()) {
+	prefix := ""
+	switch fieldType {
 	case TypeFixed:
 		e.emit("cvfp")
-		e.emitFieldPush(fieldName)
-		if op == "-" {
-			e.emit("swap")
-		}
-		e.emit("fp" + op)
+		prefix = "fp"
 	case TypeBigInt:
 		e.emit("cvbi")
-		e.emitFieldPush(fieldName)
-		if op == "-" {
-			e.emit("swap")
-		}
-		e.emit("b" + op)
+		prefix = "b"
 	case TypeDouble:
 		e.emit("cvd")
-		e.emitFieldPush(fieldName)
-		if op == "-" {
-			e.emit("swap")
-		}
-		e.emit("f" + op)
-	default:
-		e.emitFieldPush(fieldName)
-		if op == "-" {
-			e.emit("swap")
-		}
-		e.emit(op)
+		prefix = "f"
 	}
-	e.emitFieldStore(fieldName)
+	pushField()
+	if op == "-" {
+		e.emit("swap")
+	}
+	e.emit(prefix + op)
 }
 
 // identNumericType returns the EDD/local-declared type of a name reference
@@ -6152,12 +6147,12 @@ func colonRefEntityName(colonRef IColonRefContext) string {
 	return ""
 }
 
-// VisitSubDestColon: `subtract <number> from <colonRef> <field>` —
-// mirrors VisitAddDestColon for subtraction. Pre-fix the entire
-// destination part was dropped (parent VisitSubtractNum emitted the
-// number but Visit(subtodest) hit BaseELVisitor's no-op). Matches
-// VisitSubDestPossessiveLong's `<field> - /<field> xdef` emission so
-// the runtime computes `value - field`.
+// VisitSubDestColon: `subtract <number> from <colonRef> <field>` →
+// `<number> <entity> entitypush <field> swap - /<field> xdef entitypop`,
+// so the field becomes field - number, with the op typed by the field's
+// declared type as in emitTypeAwareAddSub (`cvd ... f-` for a double).
+// It used to emit `<field> -` with no swap, storing number - field, and
+// the integer `-` for every type (#1258).
 func (e *PostfixEmitter) VisitSubDestColon(ctx *SubDestColonContext) interface{} {
 	entityName := colonRefEntityName(ctx.ColonRef())
 	if entityName != "" {
@@ -6168,18 +6163,21 @@ func (e *PostfixEmitter) VisitSubDestColon(ctx *SubDestColonContext) interface{}
 	e.emit("entitypush")
 
 	addDest2 := ctx.Addtodest2()
-	var fieldName string
+	var fieldName, fieldType string
 	switch d := addDest2.(type) {
 	case *AddDestLong2Context:
 		fieldName = d.TypedLong().GetText()
 	case *AddDestDouble2Context:
 		fieldName = d.TypedDouble().GetText()
+		fieldType = TypeDouble
 	case *AddDestArray2Context:
 		fieldName = d.ArrayExpr2().GetText()
 	}
 	if fieldName != "" {
-		e.emit(fieldName)
-		e.emit("-")
+		if t := e.mutationType(entityName + "." + fieldName); t != "" {
+			fieldType = t
+		}
+		e.emitTypedAddSub(fieldType, "-", func() { e.emit(fieldName) })
 		e.emit("/" + fieldName)
 		e.emit("xdef")
 	}
