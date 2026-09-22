@@ -296,7 +296,13 @@ nil check, so a project that declares none pays nothing.
   outside the field's declared vocabulary (§2.5.1). Advisory: a rule may write
   what it computes, but the literal is usually a typo.
 - **Advisory pass** (`pkg/dtrules/decisiontable`) — redundant conditions,
-  columns subsumed by another, no-op columns.
+  columns subsumed by another, no-op columns, and column actions that can never
+  run in a table with no conditions (#1230). Such a table has nothing to select
+  a column with: under FIRST or ALL the engine builds no tree and runs only the
+  initial actions, so every marked action is dead; under BALANCED (the default
+  when no policy is given) it runs column 1 only, so an action marked only in
+  later columns is dead. The warning names those actions and points at initial
+  actions (or column 1). The other advisory checks still run on the table.
 
 ## 2.7 Enforcement of the invariants
 

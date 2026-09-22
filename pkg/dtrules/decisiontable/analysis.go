@@ -55,6 +55,12 @@ func (w Warning) String() string {
 	}
 }
 
+// KindColumnActionsWithoutConditions is the warning kind for a table that has
+// no conditions but marks actions in a column (#1230). With no conditions
+// there is no decision tree, so no column is ever selected: ExecuteTable runs
+// the initial_actions and nothing else.
+const KindColumnActionsWithoutConditions = "column actions without conditions"
+
 // Inputs bundles the per-table data the advisory pass consumes. The
 // `Inputs`-keyed Analyze entry point is the one to prefer in new code;
 // the older AnalyzeTable signature is kept as a thin shim so existing
@@ -87,6 +93,9 @@ func Analyze(in Inputs) []Warning {
 		warnings = append(warnings, checkRedundantFirstPolicy(in.Name, in.Conditions, in.MaxCol)...)
 	}
 	warnings = append(warnings, checkAssignmentOnlyTable(in.Name, in.Actions, in.MaxCol)...)
+	if len(in.Conditions) == 0 {
+		warnings = append(warnings, checkColumnActionsWithoutConditions(in.Name, in.Policy, in.Actions, in.MaxCol)...)
+	}
 	return warnings
 }
 
@@ -219,6 +228,59 @@ func isCommentOrEmpty(postfix string) bool {
 		return false
 	}
 	return true
+}
+
+// checkColumnActionsWithoutConditions flags column actions that can never
+// run in a table with no conditions (#1230). Such a table has no condition to
+// select a column, and what runs depends on the policy, exactly as the tree
+// builders in table.go decide it:
+//
+//   - FIRST and ALL build no tree at all: ExecuteTable runs the initial
+//     actions and no column. Every marked action is dead.
+//   - BALANCED -- also what an empty or unknown policy loads as -- installs
+//     column 1's actions as the whole tree. Column 1 runs; an action marked
+//     only in later columns never does.
+//
+// Actions that should always run belong in initial_actions (or, under
+// BALANCED, column 1).
+func checkColumnActionsWithoutConditions(tableName, policy string, actions []ActionRow, maxCol int) []Warning {
+	marked := func(a ActionRow, col int) bool {
+		return col < len(a.Columns) && strings.ToUpper(strings.TrimSpace(a.Columns[col])) == "X"
+	}
+	unselected := strings.EqualFold(policy, "FIRST") || strings.EqualFold(policy, "ALL")
+	var dead []string
+	for i, a := range actions {
+		first := 0
+		if !unselected {
+			if marked(a, 0) {
+				continue // column 1 runs under BALANCED
+			}
+			first = 1
+		}
+		for col := first; col < maxCol; col++ {
+			if marked(a, col) {
+				dead = append(dead, fmt.Sprintf("%d", i+1))
+				break
+			}
+		}
+	}
+	if len(dead) == 0 {
+		return nil
+	}
+	noun := "action"
+	if len(dead) > 1 {
+		noun = "actions"
+	}
+	list := strings.Join(dead, ", ")
+	var reason string
+	if unselected {
+		reason = fmt.Sprintf("has no conditions and policy %s, so no column is ever selected: %s %s marked in its columns never run — move actions that should always run to initial_actions",
+			strings.ToUpper(strings.TrimSpace(policy)), noun, list)
+	} else {
+		reason = fmt.Sprintf("has no conditions, and a BALANCED table with no conditions runs column 1 only: %s %s marked only in later columns never run — move them to column 1 or initial_actions",
+			noun, list)
+	}
+	return []Warning{newWarning(tableName, KindColumnActionsWithoutConditions, reason)}
 }
 
 // checkNoOpColumns flags columns with no actions marked X.
