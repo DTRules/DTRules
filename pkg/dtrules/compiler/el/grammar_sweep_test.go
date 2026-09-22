@@ -199,6 +199,10 @@ func TestGrammarSweep_CompilesAndEmitsPostfix(t *testing.T) {
 		if _, isHelper := helpers[name]; isHelper {
 			continue
 		}
+		// Each row stands alone, as a table of its own: without this, a
+		// row's locals are still declared when the next row declares the
+		// same name, and the redeclaration is refused (#1249).
+		c.ResetLocals()
 		postfix, err := compileRow(c, r)
 		passed := err == nil && (strings.TrimSpace(postfix) != "" || emptyPostfixAllowed[r.label])
 		if _, isKnown := known[name]; isKnown {
@@ -521,6 +525,7 @@ func TestGrammarSweep_RowsReachTheirLabel(t *testing.T) {
 			continue // does not compile; the compile sweep owns it
 		}
 		tree = nil
+		c.ResetLocals()
 		_, _ = compileRow(c, r)
 		reached := tree != nil && treeHasLabel(tree, r.label)
 		_, listed := misses[name]

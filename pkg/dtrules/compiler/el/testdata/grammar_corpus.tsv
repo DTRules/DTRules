@@ -28,31 +28,22 @@ contextForTable	contextCtx	context	contextstatement
 contextForTable	contextLocal	context	with local string s
 localvariables	localEntityUndef	context	local entity undefinedIdent
 localvariables	localEntityInit	context	local entity undefinedIdent = account
-localvariables	localEntityDefined	context	local entity account
 localvariables	localLongUndef	context	local int undefinedIdent
 localvariables	localLongInit	context	local int undefinedIdent = 5
-localvariables	localLongDefined	context	local int n
 localvariables	localDoubleUndef	context	local double undefinedIdent
 localvariables	localDoubleInit	context	local double undefinedIdent = 5
-localvariables	localDoubleDefined	context	local double d
 localvariables	localBoolUndef	context	local boolean undefinedIdent
 localvariables	localBoolInit	context	local boolean undefinedIdent = true
-localvariables	localBoolDefined	context	local boolean b
 localvariables	localDateUndef	context	local 2020-01-01 undefinedIdent
 localvariables	localDateInit	context	local 2020-01-01 undefinedIdent = 2020-01-01
-localvariables	localDateDefined	context	local 2020-01-01 dt
 localvariables	localArrayUndef	context	local array undefinedIdent
 localvariables	localArrayInit	context	local array undefinedIdent = accounts
-localvariables	localArrayDefined	context	local array arr
 localvariables	localStringUndef	context	local "hello" undefinedIdent
 localvariables	localStringInit	context	local "hello" undefinedIdent = "x"
-localvariables	localStringDefined	context	local "hello" s
 localvariables	localBigIntUndef	context	local bigint undefinedIdent
 localvariables	localBigIntInit	context	local bigint undefinedIdent = 1
-localvariables	localBigIntDefined	context	local bigint typedBigInt
 localvariables	localBytesUndef	context	local bytes undefinedIdent
 localvariables	localBytesInit	context	local bytes undefinedIdent = 0xab
-localvariables	localBytesDefined	context	local bytes typedBytes
 ifstatement	ifThen	action	if true then { set x = 1; } endif;
 ifstatement	ifThenElse	action	if true then { set x = 1; } else { set x = 1; } endif;
 forallctl	forallSimple	context	for all accounts

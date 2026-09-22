@@ -112,17 +112,11 @@ type ELListener interface {
 	// EnterLocalEntityInit is called when entering the localEntityInit production.
 	EnterLocalEntityInit(c *LocalEntityInitContext)
 
-	// EnterLocalEntityDefined is called when entering the localEntityDefined production.
-	EnterLocalEntityDefined(c *LocalEntityDefinedContext)
-
 	// EnterLocalLongUndef is called when entering the localLongUndef production.
 	EnterLocalLongUndef(c *LocalLongUndefContext)
 
 	// EnterLocalLongInit is called when entering the localLongInit production.
 	EnterLocalLongInit(c *LocalLongInitContext)
-
-	// EnterLocalLongDefined is called when entering the localLongDefined production.
-	EnterLocalLongDefined(c *LocalLongDefinedContext)
 
 	// EnterLocalDoubleUndef is called when entering the localDoubleUndef production.
 	EnterLocalDoubleUndef(c *LocalDoubleUndefContext)
@@ -130,17 +124,11 @@ type ELListener interface {
 	// EnterLocalDoubleInit is called when entering the localDoubleInit production.
 	EnterLocalDoubleInit(c *LocalDoubleInitContext)
 
-	// EnterLocalDoubleDefined is called when entering the localDoubleDefined production.
-	EnterLocalDoubleDefined(c *LocalDoubleDefinedContext)
-
 	// EnterLocalBoolUndef is called when entering the localBoolUndef production.
 	EnterLocalBoolUndef(c *LocalBoolUndefContext)
 
 	// EnterLocalBoolInit is called when entering the localBoolInit production.
 	EnterLocalBoolInit(c *LocalBoolInitContext)
-
-	// EnterLocalBoolDefined is called when entering the localBoolDefined production.
-	EnterLocalBoolDefined(c *LocalBoolDefinedContext)
 
 	// EnterLocalDateUndef is called when entering the localDateUndef production.
 	EnterLocalDateUndef(c *LocalDateUndefContext)
@@ -148,17 +136,11 @@ type ELListener interface {
 	// EnterLocalDateInit is called when entering the localDateInit production.
 	EnterLocalDateInit(c *LocalDateInitContext)
 
-	// EnterLocalDateDefined is called when entering the localDateDefined production.
-	EnterLocalDateDefined(c *LocalDateDefinedContext)
-
 	// EnterLocalArrayUndef is called when entering the localArrayUndef production.
 	EnterLocalArrayUndef(c *LocalArrayUndefContext)
 
 	// EnterLocalArrayInit is called when entering the localArrayInit production.
 	EnterLocalArrayInit(c *LocalArrayInitContext)
-
-	// EnterLocalArrayDefined is called when entering the localArrayDefined production.
-	EnterLocalArrayDefined(c *LocalArrayDefinedContext)
 
 	// EnterLocalStringUndef is called when entering the localStringUndef production.
 	EnterLocalStringUndef(c *LocalStringUndefContext)
@@ -166,17 +148,11 @@ type ELListener interface {
 	// EnterLocalStringInit is called when entering the localStringInit production.
 	EnterLocalStringInit(c *LocalStringInitContext)
 
-	// EnterLocalStringDefined is called when entering the localStringDefined production.
-	EnterLocalStringDefined(c *LocalStringDefinedContext)
-
 	// EnterLocalBigIntUndef is called when entering the localBigIntUndef production.
 	EnterLocalBigIntUndef(c *LocalBigIntUndefContext)
 
 	// EnterLocalBigIntInit is called when entering the localBigIntInit production.
 	EnterLocalBigIntInit(c *LocalBigIntInitContext)
-
-	// EnterLocalBigIntDefined is called when entering the localBigIntDefined production.
-	EnterLocalBigIntDefined(c *LocalBigIntDefinedContext)
 
 	// EnterLocalFixedUndef is called when entering the localFixedUndef production.
 	EnterLocalFixedUndef(c *LocalFixedUndefContext)
@@ -184,17 +160,11 @@ type ELListener interface {
 	// EnterLocalFixedInit is called when entering the localFixedInit production.
 	EnterLocalFixedInit(c *LocalFixedInitContext)
 
-	// EnterLocalFixedDefined is called when entering the localFixedDefined production.
-	EnterLocalFixedDefined(c *LocalFixedDefinedContext)
-
 	// EnterLocalBytesUndef is called when entering the localBytesUndef production.
 	EnterLocalBytesUndef(c *LocalBytesUndefContext)
 
 	// EnterLocalBytesInit is called when entering the localBytesInit production.
 	EnterLocalBytesInit(c *LocalBytesInitContext)
-
-	// EnterLocalBytesDefined is called when entering the localBytesDefined production.
-	EnterLocalBytesDefined(c *LocalBytesDefinedContext)
 
 	// EnterIfThen is called when entering the ifThen production.
 	EnterIfThen(c *IfThenContext)
@@ -2089,17 +2059,11 @@ type ELListener interface {
 	// ExitLocalEntityInit is called when exiting the localEntityInit production.
 	ExitLocalEntityInit(c *LocalEntityInitContext)
 
-	// ExitLocalEntityDefined is called when exiting the localEntityDefined production.
-	ExitLocalEntityDefined(c *LocalEntityDefinedContext)
-
 	// ExitLocalLongUndef is called when exiting the localLongUndef production.
 	ExitLocalLongUndef(c *LocalLongUndefContext)
 
 	// ExitLocalLongInit is called when exiting the localLongInit production.
 	ExitLocalLongInit(c *LocalLongInitContext)
-
-	// ExitLocalLongDefined is called when exiting the localLongDefined production.
-	ExitLocalLongDefined(c *LocalLongDefinedContext)
 
 	// ExitLocalDoubleUndef is called when exiting the localDoubleUndef production.
 	ExitLocalDoubleUndef(c *LocalDoubleUndefContext)
@@ -2107,17 +2071,11 @@ type ELListener interface {
 	// ExitLocalDoubleInit is called when exiting the localDoubleInit production.
 	ExitLocalDoubleInit(c *LocalDoubleInitContext)
 
-	// ExitLocalDoubleDefined is called when exiting the localDoubleDefined production.
-	ExitLocalDoubleDefined(c *LocalDoubleDefinedContext)
-
 	// ExitLocalBoolUndef is called when exiting the localBoolUndef production.
 	ExitLocalBoolUndef(c *LocalBoolUndefContext)
 
 	// ExitLocalBoolInit is called when exiting the localBoolInit production.
 	ExitLocalBoolInit(c *LocalBoolInitContext)
-
-	// ExitLocalBoolDefined is called when exiting the localBoolDefined production.
-	ExitLocalBoolDefined(c *LocalBoolDefinedContext)
 
 	// ExitLocalDateUndef is called when exiting the localDateUndef production.
 	ExitLocalDateUndef(c *LocalDateUndefContext)
@@ -2125,17 +2083,11 @@ type ELListener interface {
 	// ExitLocalDateInit is called when exiting the localDateInit production.
 	ExitLocalDateInit(c *LocalDateInitContext)
 
-	// ExitLocalDateDefined is called when exiting the localDateDefined production.
-	ExitLocalDateDefined(c *LocalDateDefinedContext)
-
 	// ExitLocalArrayUndef is called when exiting the localArrayUndef production.
 	ExitLocalArrayUndef(c *LocalArrayUndefContext)
 
 	// ExitLocalArrayInit is called when exiting the localArrayInit production.
 	ExitLocalArrayInit(c *LocalArrayInitContext)
-
-	// ExitLocalArrayDefined is called when exiting the localArrayDefined production.
-	ExitLocalArrayDefined(c *LocalArrayDefinedContext)
 
 	// ExitLocalStringUndef is called when exiting the localStringUndef production.
 	ExitLocalStringUndef(c *LocalStringUndefContext)
@@ -2143,17 +2095,11 @@ type ELListener interface {
 	// ExitLocalStringInit is called when exiting the localStringInit production.
 	ExitLocalStringInit(c *LocalStringInitContext)
 
-	// ExitLocalStringDefined is called when exiting the localStringDefined production.
-	ExitLocalStringDefined(c *LocalStringDefinedContext)
-
 	// ExitLocalBigIntUndef is called when exiting the localBigIntUndef production.
 	ExitLocalBigIntUndef(c *LocalBigIntUndefContext)
 
 	// ExitLocalBigIntInit is called when exiting the localBigIntInit production.
 	ExitLocalBigIntInit(c *LocalBigIntInitContext)
-
-	// ExitLocalBigIntDefined is called when exiting the localBigIntDefined production.
-	ExitLocalBigIntDefined(c *LocalBigIntDefinedContext)
 
 	// ExitLocalFixedUndef is called when exiting the localFixedUndef production.
 	ExitLocalFixedUndef(c *LocalFixedUndefContext)
@@ -2161,17 +2107,11 @@ type ELListener interface {
 	// ExitLocalFixedInit is called when exiting the localFixedInit production.
 	ExitLocalFixedInit(c *LocalFixedInitContext)
 
-	// ExitLocalFixedDefined is called when exiting the localFixedDefined production.
-	ExitLocalFixedDefined(c *LocalFixedDefinedContext)
-
 	// ExitLocalBytesUndef is called when exiting the localBytesUndef production.
 	ExitLocalBytesUndef(c *LocalBytesUndefContext)
 
 	// ExitLocalBytesInit is called when exiting the localBytesInit production.
 	ExitLocalBytesInit(c *LocalBytesInitContext)
-
-	// ExitLocalBytesDefined is called when exiting the localBytesDefined production.
-	ExitLocalBytesDefined(c *LocalBytesDefinedContext)
 
 	// ExitIfThen is called when exiting the ifThen production.
 	ExitIfThen(c *IfThenContext)

@@ -161,6 +161,10 @@ actions each emit their own `allocate` and therefore restart numbering from the
 context's count. `Compiler.MarkLocalScope` / `ResetToLocalScope` implement that
 boundary, and both compile paths (the authoring SDK and the Excel importer) use
 them.
+A declaration must introduce a new name: one that is already an EDD attribute,
+or a local in scope, is refused at compile time. The emitter makes that
+decision, because the grammar cannot tell a defined identifier from an
+undefined one.
 
 The compiler is injected with an operator existence check and an arity check so
 a misspelled operator is refused at authoring time rather than at execution.

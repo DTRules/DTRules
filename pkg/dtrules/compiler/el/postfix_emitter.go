@@ -100,6 +100,28 @@ func (e *PostfixEmitter) declareLocalEntity(name, varType, entityType string) in
 	return idx
 }
 
+// declareNewLocal registers a local that a `local <type> <name>` declaration
+// introduces. The name must not already be defined, either as an EDD
+// attribute or as a local in scope. The Java grammar made this check with a
+// `LOCAL <TYPE> R<TYPE>` alternative per type ("The variable 'x' is already
+// defined"). The Go grammar is type-blind, so the check lives here (#1249).
+// forall aliases make the same EDD check in checkAliasName.
+func (e *PostfixEmitter) declareNewLocal(name, varType string) int {
+	return e.declareNewLocalEntity(name, varType, "")
+}
+
+// declareNewLocalEntity is declareNewLocal for an entity local of a known
+// entity type; see declareLocalEntity.
+func (e *PostfixEmitter) declareNewLocalEntity(name, varType, entityType string) int {
+	lower := strings.ToLower(name)
+	if lv, ok := e.lookupLocal(lower); ok {
+		e.emitError("the variable '%s' is already defined: it is a local of type %s", lower, lv.Type)
+	} else if t := e.lookupType(lower); t != "" {
+		e.emitError("the variable '%s' is already defined: it is an EDD attribute of type %s", lower, t)
+	}
+	return e.declareLocalEntity(name, varType, entityType)
+}
+
 // lookupLocal returns the local variable info if it exists.
 func (e *PostfixEmitter) lookupLocal(name string) (LocalVar, bool) {
 	name = strings.ToLower(name)
@@ -3438,7 +3460,7 @@ func (e *PostfixEmitter) VisitContextCtx(ctx *ContextCtxContext) interface{} {
 
 func (e *PostfixEmitter) VisitLocalEntityUndef(ctx *LocalEntityUndefContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeEntity)
+	e.declareNewLocal(name, TypeEntity)
 	e.emit("null")
 	e.emit("allocate")
 	e.emit("execute")
@@ -3453,7 +3475,7 @@ func (e *PostfixEmitter) VisitLocalEntityInit(ctx *LocalEntityInitContext) inter
 	// (#819) so mutationType can resolve `<local>.<field>` against the
 	// EDD's `<typedEntity>.<field>` symbol — without this, SET on a
 	// local-entity field gets the default integer cv* cast.
-	e.declareLocalEntity(name, TypeEntity, entityTypeFromEexpr(ctx.Eexpr()))
+	e.declareNewLocalEntity(name, TypeEntity, entityTypeFromEexpr(ctx.Eexpr()))
 	e.Visit(ctx.Eexpr())
 	e.emit("cve")
 	e.emit("allocate")
@@ -3487,15 +3509,9 @@ func entityTypeFromEexpr(ee IEexprContext) string {
 	return ""
 }
 
-func (e *PostfixEmitter) VisitLocalEntityDefined(ctx *LocalEntityDefinedContext) interface{} {
-	// Already defined entity - this is an error in Java, we'll just emit the name
-	e.emit(ctx.TypedEntity().GetText())
-	return nil
-}
-
 func (e *PostfixEmitter) VisitLocalLongUndef(ctx *LocalLongUndefContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeInteger)
+	e.declareNewLocal(name, TypeInteger)
 	e.emit("null")
 	e.emit("allocate")
 	e.emit("execute")
@@ -3506,7 +3522,7 @@ func (e *PostfixEmitter) VisitLocalLongUndef(ctx *LocalLongUndefContext) interfa
 
 func (e *PostfixEmitter) VisitLocalLongInit(ctx *LocalLongInitContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeInteger)
+	e.declareNewLocal(name, TypeInteger)
 	e.Visit(ctx.Number())
 	e.emit("cvi")
 	e.emit("allocate")
@@ -3516,14 +3532,9 @@ func (e *PostfixEmitter) VisitLocalLongInit(ctx *LocalLongInitContext) interface
 	return nil
 }
 
-func (e *PostfixEmitter) VisitLocalLongDefined(ctx *LocalLongDefinedContext) interface{} {
-	e.emit(ctx.TypedLong().GetText())
-	return nil
-}
-
 func (e *PostfixEmitter) VisitLocalDoubleUndef(ctx *LocalDoubleUndefContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeDouble)
+	e.declareNewLocal(name, TypeDouble)
 	e.emit("null")
 	e.emit("allocate")
 	e.emit("execute")
@@ -3534,7 +3545,7 @@ func (e *PostfixEmitter) VisitLocalDoubleUndef(ctx *LocalDoubleUndefContext) int
 
 func (e *PostfixEmitter) VisitLocalDoubleInit(ctx *LocalDoubleInitContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeDouble)
+	e.declareNewLocal(name, TypeDouble)
 	e.Visit(ctx.Number())
 	e.emit("cvd")
 	e.emit("allocate")
@@ -3544,14 +3555,9 @@ func (e *PostfixEmitter) VisitLocalDoubleInit(ctx *LocalDoubleInitContext) inter
 	return nil
 }
 
-func (e *PostfixEmitter) VisitLocalDoubleDefined(ctx *LocalDoubleDefinedContext) interface{} {
-	e.emit(ctx.TypedDouble().GetText())
-	return nil
-}
-
 func (e *PostfixEmitter) VisitLocalBoolUndef(ctx *LocalBoolUndefContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeBoolean)
+	e.declareNewLocal(name, TypeBoolean)
 	e.emit("null")
 	e.emit("allocate")
 	e.emit("execute")
@@ -3562,7 +3568,7 @@ func (e *PostfixEmitter) VisitLocalBoolUndef(ctx *LocalBoolUndefContext) interfa
 
 func (e *PostfixEmitter) VisitLocalBoolInit(ctx *LocalBoolInitContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeBoolean)
+	e.declareNewLocal(name, TypeBoolean)
 	e.Visit(ctx.Bexpr())
 	e.emit("cvb")
 	e.emit("allocate")
@@ -3572,14 +3578,9 @@ func (e *PostfixEmitter) VisitLocalBoolInit(ctx *LocalBoolInitContext) interface
 	return nil
 }
 
-func (e *PostfixEmitter) VisitLocalBoolDefined(ctx *LocalBoolDefinedContext) interface{} {
-	e.emit(ctx.TypedBoolean().GetText())
-	return nil
-}
-
 func (e *PostfixEmitter) VisitLocalDateUndef(ctx *LocalDateUndefContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeDate)
+	e.declareNewLocal(name, TypeDate)
 	e.emit("null")
 	e.emit("allocate")
 	e.emit("execute")
@@ -3590,7 +3591,7 @@ func (e *PostfixEmitter) VisitLocalDateUndef(ctx *LocalDateUndefContext) interfa
 
 func (e *PostfixEmitter) VisitLocalDateInit(ctx *LocalDateInitContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeDate)
+	e.declareNewLocal(name, TypeDate)
 	e.Visit(ctx.Dexpr())
 	e.emit("cvd")
 	e.emit("allocate")
@@ -3600,14 +3601,9 @@ func (e *PostfixEmitter) VisitLocalDateInit(ctx *LocalDateInitContext) interface
 	return nil
 }
 
-func (e *PostfixEmitter) VisitLocalDateDefined(ctx *LocalDateDefinedContext) interface{} {
-	e.emit(ctx.TypedDate().GetText())
-	return nil
-}
-
 func (e *PostfixEmitter) VisitLocalArrayUndef(ctx *LocalArrayUndefContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeArray)
+	e.declareNewLocal(name, TypeArray)
 	e.emit("null")
 	e.emit("allocate")
 	e.emit("execute")
@@ -3618,7 +3614,7 @@ func (e *PostfixEmitter) VisitLocalArrayUndef(ctx *LocalArrayUndefContext) inter
 
 func (e *PostfixEmitter) VisitLocalArrayInit(ctx *LocalArrayInitContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeArray)
+	e.declareNewLocal(name, TypeArray)
 	e.Visit(ctx.ArrayExpr())
 	e.emit("allocate")
 	e.emit("execute")
@@ -3627,14 +3623,9 @@ func (e *PostfixEmitter) VisitLocalArrayInit(ctx *LocalArrayInitContext) interfa
 	return nil
 }
 
-func (e *PostfixEmitter) VisitLocalArrayDefined(ctx *LocalArrayDefinedContext) interface{} {
-	e.emit(ctx.TypedArray().GetText())
-	return nil
-}
-
 func (e *PostfixEmitter) VisitLocalStringUndef(ctx *LocalStringUndefContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeString)
+	e.declareNewLocal(name, TypeString)
 	e.emit("null")
 	e.emit("allocate")
 	e.emit("execute")
@@ -3645,18 +3636,13 @@ func (e *PostfixEmitter) VisitLocalStringUndef(ctx *LocalStringUndefContext) int
 
 func (e *PostfixEmitter) VisitLocalStringInit(ctx *LocalStringInitContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeString)
+	e.declareNewLocal(name, TypeString)
 	e.Visit(ctx.Strexpr())
 	e.emit("cvs")
 	e.emit("allocate")
 	e.emit("execute")
 	e.emit("deallocate")
 	e.emit("pop")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitLocalStringDefined(ctx *LocalStringDefinedContext) interface{} {
-	e.emit(ctx.TypedString().GetText())
 	return nil
 }
 
@@ -3874,8 +3860,7 @@ func scopedDeclOf(b IBlockContext) antlr.ParseTree {
 
 // emitScopedLocalPrefix declares the local and emits its initial value for
 // the scoped shape (everything up to, but not including, `allocate`).
-// Returns false for declaration forms that don't bind a new local (the
-// *Defined reference alts) and for create-as with a name that resolves in
+// Returns false for create-as with a name that resolves in
 // the EDD — that form keeps the legacy attribute-binding lowering for
 // back-compat (see VisitCreateEntityAs).
 func (e *PostfixEmitter) emitScopedLocalPrefix(decl antlr.ParseTree) bool {
@@ -3890,75 +3875,75 @@ func (e *PostfixEmitter) emitScopedLocalPrefix(decl antlr.ParseTree) bool {
 		e.emit("/" + typeName)
 		e.emit("createentity")
 	case *LocalEntityInitContext:
-		e.declareLocalEntity(c.UndefinedIdent().GetText(), TypeEntity, entityTypeFromEexpr(c.Eexpr()))
+		e.declareNewLocalEntity(c.UndefinedIdent().GetText(), TypeEntity, entityTypeFromEexpr(c.Eexpr()))
 		e.Visit(c.Eexpr())
 		e.emit("cve")
 	case *LocalEntityUndefContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeEntity)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeEntity)
 		e.emit("null")
 	case *LocalLongInitContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeInteger)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeInteger)
 		e.Visit(c.Number())
 		e.emit("cvi")
 	case *LocalLongUndefContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeInteger)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeInteger)
 		e.emit("null")
 	case *LocalDoubleInitContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeDouble)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeDouble)
 		e.Visit(c.Number())
 		e.emit("cvd")
 	case *LocalDoubleUndefContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeDouble)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeDouble)
 		e.emit("null")
 	case *LocalBoolInitContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeBoolean)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeBoolean)
 		e.Visit(c.Bexpr())
 		e.emit("cvb")
 	case *LocalBoolUndefContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeBoolean)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeBoolean)
 		e.emit("null")
 	case *LocalDateInitContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeDate)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeDate)
 		e.Visit(c.Dexpr())
 		e.emit("cvd")
 	case *LocalDateUndefContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeDate)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeDate)
 		e.emit("null")
 	case *LocalArrayInitContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeArray)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeArray)
 		e.Visit(c.ArrayExpr())
 	case *LocalArrayUndefContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeArray)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeArray)
 		e.emit("null")
 	case *LocalStringInitContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeString)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeString)
 		e.Visit(c.Strexpr())
 		e.emit("cvs")
 	case *LocalStringUndefContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeString)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeString)
 		e.emit("null")
 	case *LocalBigIntInitContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeBigInt)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeBigInt)
 		e.Visit(c.Bigexpr())
 		e.emit("cvbi")
 	case *LocalBigIntUndefContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeBigInt)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeBigInt)
 		e.emit("null")
 	case *LocalFixedInitContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeFixed)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeFixed)
 		e.emitWithTypeConversion(c.Iexpr(), TypeFixed)
 	case *LocalFixedUndefContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeFixed)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeFixed)
 		e.emit("null")
 	case *LocalBytesInitContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeBytes)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeBytes)
 		e.Visit(c.Bytesexpr())
 		e.emit("cvbytes")
 	case *LocalBytesUndefContext:
-		e.declareLocal(c.UndefinedIdent().GetText(), TypeBytes)
+		e.declareNewLocal(c.UndefinedIdent().GetText(), TypeBytes)
 		e.emit("null")
 	default:
-		return false // *Defined reference alts keep their existing lowering
+		return false
 	}
 	return true
 }
@@ -7047,7 +7032,7 @@ func (e *PostfixEmitter) VisitTypedBigInt(ctx *TypedBigIntContext) interface{} {
 
 func (e *PostfixEmitter) VisitLocalBigIntUndef(ctx *LocalBigIntUndefContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeBigInt)
+	e.declareNewLocal(name, TypeBigInt)
 	e.emit("null")
 	e.emit("allocate")
 	e.emit("execute")
@@ -7058,18 +7043,13 @@ func (e *PostfixEmitter) VisitLocalBigIntUndef(ctx *LocalBigIntUndefContext) int
 
 func (e *PostfixEmitter) VisitLocalBigIntInit(ctx *LocalBigIntInitContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeBigInt)
+	e.declareNewLocal(name, TypeBigInt)
 	e.Visit(ctx.Bigexpr())
 	e.emit("cvbi")
 	e.emit("allocate")
 	e.emit("execute")
 	e.emit("deallocate")
 	e.emit("pop")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitLocalBigIntDefined(ctx *LocalBigIntDefinedContext) interface{} {
-	e.emit(ctx.TypedBigInt().GetText())
 	return nil
 }
 
@@ -7294,7 +7274,7 @@ func (e *PostfixEmitter) VisitBoolBytesNeq(ctx *BoolBytesNeqContext) interface{}
 
 func (e *PostfixEmitter) VisitLocalBytesUndef(ctx *LocalBytesUndefContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeBytes)
+	e.declareNewLocal(name, TypeBytes)
 	e.emit("null")
 	e.emit("allocate")
 	e.emit("execute")
@@ -7305,18 +7285,13 @@ func (e *PostfixEmitter) VisitLocalBytesUndef(ctx *LocalBytesUndefContext) inter
 
 func (e *PostfixEmitter) VisitLocalBytesInit(ctx *LocalBytesInitContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeBytes)
+	e.declareNewLocal(name, TypeBytes)
 	e.Visit(ctx.Bytesexpr())
 	e.emit("cvbytes")
 	e.emit("allocate")
 	e.emit("execute")
 	e.emit("deallocate")
 	e.emit("pop")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitLocalBytesDefined(ctx *LocalBytesDefinedContext) interface{} {
-	e.emit(ctx.TypedBytes().GetText())
 	return nil
 }
 
@@ -7361,7 +7336,7 @@ func (e *PostfixEmitter) VisitFixedFromIndex(ctx *FixedFromIndexContext) interfa
 
 func (e *PostfixEmitter) VisitLocalFixedUndef(ctx *LocalFixedUndefContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeFixed)
+	e.declareNewLocal(name, TypeFixed)
 	e.emit("null")
 	e.emit("allocate")
 	e.emit("execute")
@@ -7372,17 +7347,12 @@ func (e *PostfixEmitter) VisitLocalFixedUndef(ctx *LocalFixedUndefContext) inter
 
 func (e *PostfixEmitter) VisitLocalFixedInit(ctx *LocalFixedInitContext) interface{} {
 	name := ctx.UndefinedIdent().GetText()
-	e.declareLocal(name, TypeFixed)
+	e.declareNewLocal(name, TypeFixed)
 	e.emitWithTypeConversion(ctx.Iexpr(), TypeFixed)
 	e.emit("allocate")
 	e.emit("execute")
 	e.emit("deallocate")
 	e.emit("pop")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitLocalFixedDefined(ctx *LocalFixedDefinedContext) interface{} {
-	e.emit(ctx.TypedLong().GetText())
 	return nil
 }
 

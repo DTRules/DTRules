@@ -230,12 +230,6 @@ func (s *BaseELListener) EnterLocalEntityInit(ctx *LocalEntityInitContext) {}
 // ExitLocalEntityInit is called when production localEntityInit is exited.
 func (s *BaseELListener) ExitLocalEntityInit(ctx *LocalEntityInitContext) {}
 
-// EnterLocalEntityDefined is called when production localEntityDefined is entered.
-func (s *BaseELListener) EnterLocalEntityDefined(ctx *LocalEntityDefinedContext) {}
-
-// ExitLocalEntityDefined is called when production localEntityDefined is exited.
-func (s *BaseELListener) ExitLocalEntityDefined(ctx *LocalEntityDefinedContext) {}
-
 // EnterLocalLongUndef is called when production localLongUndef is entered.
 func (s *BaseELListener) EnterLocalLongUndef(ctx *LocalLongUndefContext) {}
 
@@ -247,12 +241,6 @@ func (s *BaseELListener) EnterLocalLongInit(ctx *LocalLongInitContext) {}
 
 // ExitLocalLongInit is called when production localLongInit is exited.
 func (s *BaseELListener) ExitLocalLongInit(ctx *LocalLongInitContext) {}
-
-// EnterLocalLongDefined is called when production localLongDefined is entered.
-func (s *BaseELListener) EnterLocalLongDefined(ctx *LocalLongDefinedContext) {}
-
-// ExitLocalLongDefined is called when production localLongDefined is exited.
-func (s *BaseELListener) ExitLocalLongDefined(ctx *LocalLongDefinedContext) {}
 
 // EnterLocalDoubleUndef is called when production localDoubleUndef is entered.
 func (s *BaseELListener) EnterLocalDoubleUndef(ctx *LocalDoubleUndefContext) {}
@@ -266,12 +254,6 @@ func (s *BaseELListener) EnterLocalDoubleInit(ctx *LocalDoubleInitContext) {}
 // ExitLocalDoubleInit is called when production localDoubleInit is exited.
 func (s *BaseELListener) ExitLocalDoubleInit(ctx *LocalDoubleInitContext) {}
 
-// EnterLocalDoubleDefined is called when production localDoubleDefined is entered.
-func (s *BaseELListener) EnterLocalDoubleDefined(ctx *LocalDoubleDefinedContext) {}
-
-// ExitLocalDoubleDefined is called when production localDoubleDefined is exited.
-func (s *BaseELListener) ExitLocalDoubleDefined(ctx *LocalDoubleDefinedContext) {}
-
 // EnterLocalBoolUndef is called when production localBoolUndef is entered.
 func (s *BaseELListener) EnterLocalBoolUndef(ctx *LocalBoolUndefContext) {}
 
@@ -283,12 +265,6 @@ func (s *BaseELListener) EnterLocalBoolInit(ctx *LocalBoolInitContext) {}
 
 // ExitLocalBoolInit is called when production localBoolInit is exited.
 func (s *BaseELListener) ExitLocalBoolInit(ctx *LocalBoolInitContext) {}
-
-// EnterLocalBoolDefined is called when production localBoolDefined is entered.
-func (s *BaseELListener) EnterLocalBoolDefined(ctx *LocalBoolDefinedContext) {}
-
-// ExitLocalBoolDefined is called when production localBoolDefined is exited.
-func (s *BaseELListener) ExitLocalBoolDefined(ctx *LocalBoolDefinedContext) {}
 
 // EnterLocalDateUndef is called when production localDateUndef is entered.
 func (s *BaseELListener) EnterLocalDateUndef(ctx *LocalDateUndefContext) {}
@@ -302,12 +278,6 @@ func (s *BaseELListener) EnterLocalDateInit(ctx *LocalDateInitContext) {}
 // ExitLocalDateInit is called when production localDateInit is exited.
 func (s *BaseELListener) ExitLocalDateInit(ctx *LocalDateInitContext) {}
 
-// EnterLocalDateDefined is called when production localDateDefined is entered.
-func (s *BaseELListener) EnterLocalDateDefined(ctx *LocalDateDefinedContext) {}
-
-// ExitLocalDateDefined is called when production localDateDefined is exited.
-func (s *BaseELListener) ExitLocalDateDefined(ctx *LocalDateDefinedContext) {}
-
 // EnterLocalArrayUndef is called when production localArrayUndef is entered.
 func (s *BaseELListener) EnterLocalArrayUndef(ctx *LocalArrayUndefContext) {}
 
@@ -319,12 +289,6 @@ func (s *BaseELListener) EnterLocalArrayInit(ctx *LocalArrayInitContext) {}
 
 // ExitLocalArrayInit is called when production localArrayInit is exited.
 func (s *BaseELListener) ExitLocalArrayInit(ctx *LocalArrayInitContext) {}
-
-// EnterLocalArrayDefined is called when production localArrayDefined is entered.
-func (s *BaseELListener) EnterLocalArrayDefined(ctx *LocalArrayDefinedContext) {}
-
-// ExitLocalArrayDefined is called when production localArrayDefined is exited.
-func (s *BaseELListener) ExitLocalArrayDefined(ctx *LocalArrayDefinedContext) {}
 
 // EnterLocalStringUndef is called when production localStringUndef is entered.
 func (s *BaseELListener) EnterLocalStringUndef(ctx *LocalStringUndefContext) {}
@@ -338,12 +302,6 @@ func (s *BaseELListener) EnterLocalStringInit(ctx *LocalStringInitContext) {}
 // ExitLocalStringInit is called when production localStringInit is exited.
 func (s *BaseELListener) ExitLocalStringInit(ctx *LocalStringInitContext) {}
 
-// EnterLocalStringDefined is called when production localStringDefined is entered.
-func (s *BaseELListener) EnterLocalStringDefined(ctx *LocalStringDefinedContext) {}
-
-// ExitLocalStringDefined is called when production localStringDefined is exited.
-func (s *BaseELListener) ExitLocalStringDefined(ctx *LocalStringDefinedContext) {}
-
 // EnterLocalBigIntUndef is called when production localBigIntUndef is entered.
 func (s *BaseELListener) EnterLocalBigIntUndef(ctx *LocalBigIntUndefContext) {}
 
@@ -355,12 +313,6 @@ func (s *BaseELListener) EnterLocalBigIntInit(ctx *LocalBigIntInitContext) {}
 
 // ExitLocalBigIntInit is called when production localBigIntInit is exited.
 func (s *BaseELListener) ExitLocalBigIntInit(ctx *LocalBigIntInitContext) {}
-
-// EnterLocalBigIntDefined is called when production localBigIntDefined is entered.
-func (s *BaseELListener) EnterLocalBigIntDefined(ctx *LocalBigIntDefinedContext) {}
-
-// ExitLocalBigIntDefined is called when production localBigIntDefined is exited.
-func (s *BaseELListener) ExitLocalBigIntDefined(ctx *LocalBigIntDefinedContext) {}
 
 // EnterLocalFixedUndef is called when production localFixedUndef is entered.
 func (s *BaseELListener) EnterLocalFixedUndef(ctx *LocalFixedUndefContext) {}
@@ -374,12 +326,6 @@ func (s *BaseELListener) EnterLocalFixedInit(ctx *LocalFixedInitContext) {}
 // ExitLocalFixedInit is called when production localFixedInit is exited.
 func (s *BaseELListener) ExitLocalFixedInit(ctx *LocalFixedInitContext) {}
 
-// EnterLocalFixedDefined is called when production localFixedDefined is entered.
-func (s *BaseELListener) EnterLocalFixedDefined(ctx *LocalFixedDefinedContext) {}
-
-// ExitLocalFixedDefined is called when production localFixedDefined is exited.
-func (s *BaseELListener) ExitLocalFixedDefined(ctx *LocalFixedDefinedContext) {}
-
 // EnterLocalBytesUndef is called when production localBytesUndef is entered.
 func (s *BaseELListener) EnterLocalBytesUndef(ctx *LocalBytesUndefContext) {}
 
@@ -391,12 +337,6 @@ func (s *BaseELListener) EnterLocalBytesInit(ctx *LocalBytesInitContext) {}
 
 // ExitLocalBytesInit is called when production localBytesInit is exited.
 func (s *BaseELListener) ExitLocalBytesInit(ctx *LocalBytesInitContext) {}
-
-// EnterLocalBytesDefined is called when production localBytesDefined is entered.
-func (s *BaseELListener) EnterLocalBytesDefined(ctx *LocalBytesDefinedContext) {}
-
-// ExitLocalBytesDefined is called when production localBytesDefined is exited.
-func (s *BaseELListener) ExitLocalBytesDefined(ctx *LocalBytesDefinedContext) {}
 
 // EnterIfThen is called when production ifThen is entered.
 func (s *BaseELListener) EnterIfThen(ctx *IfThenContext) {}

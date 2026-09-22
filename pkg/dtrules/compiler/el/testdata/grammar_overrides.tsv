@@ -2,7 +2,6 @@ rule	label	entry	dsl	note
 createstatement	createEntityAs	action	create account as acct	#1244: no row while the coverage guard was dead
 localvariables	localFixedUndef	context	local fixed x	#1244: no row while the coverage guard was dead
 localvariables	localFixedInit	context	local fixed x = 100fp	#1244: no row while the coverage guard was dead
-localvariables	localFixedDefined	context	local fixed x	#1247: unreachable, parses as localFixedUndef (#1249)
 forallctl	forallReverse	context	for all accounts in reverse	#1244: no row while the coverage guard was dead
 forallctl	forallReverseWhere	context	for all accounts in reverse where true	#1244: no row while the coverage guard was dead
 forallctl	forallTypeEntities	context	for all account entities	#1244: no row while the coverage guard was dead
@@ -286,31 +285,22 @@ ifcontinue	ifElse	action	if true then set x = 1; else set y = 1; endif
 ifcontinue	ifElseIf	action	if true then set x = 1; else if false then set y = 1; endif
 localvariables	localEntityUndef	context	local entity x
 localvariables	localEntityInit	context	local entity x = account
-localvariables	localEntityDefined	context	local entity x	#1247: unreachable, parses as localEntityUndef (#1249)
 localvariables	localLongUndef	context	local int x
 localvariables	localLongInit	context	local int x = 5
-localvariables	localLongDefined	context	local int x	#1247: unreachable, parses as localLongUndef (#1249)
 localvariables	localDoubleUndef	context	local double x
 localvariables	localDoubleInit	context	local double x = 5.0
-localvariables	localDoubleDefined	context	local double x	#1247: unreachable, parses as localDoubleUndef (#1249)
 localvariables	localBoolUndef	context	local boolean x
 localvariables	localBoolInit	context	local boolean x = true
-localvariables	localBoolDefined	context	local boolean x	#1247: unreachable, parses as localBoolUndef (#1249)
 localvariables	localDateUndef	context	local date x
 localvariables	localDateInit	context	local date x = today
-localvariables	localDateDefined	context	local date x	#1247: unreachable, parses as localDateUndef (#1249)
 localvariables	localArrayUndef	context	local array x
 localvariables	localArrayInit	context	local array x = accounts
-localvariables	localArrayDefined	context	local array x	#1247: unreachable, parses as localArrayUndef (#1249)
 localvariables	localStringUndef	context	local string x
 localvariables	localStringInit	context	local string x = "x"
-localvariables	localStringDefined	context	local string x	#1247: unreachable, parses as localStringUndef (#1249)
 localvariables	localBigIntUndef	context	local bigint x
 localvariables	localBigIntInit	context	local bigint x = (bigint) 1
-localvariables	localBigIntDefined	context	local bigint x	#1247: unreachable, parses as localBigIntUndef (#1249)
 localvariables	localBytesUndef	context	local bytes x
 localvariables	localBytesInit	context	local bytes x = 0xab
-localvariables	localBytesDefined	context	local bytes x	#1247: unreachable, parses as localBytesUndef (#1249)
 setstatement	setStringFromName	action	set s = $tbl
 bexpr	boolArrayIncludes	condition	accounts includes account
 bexpr	boolArrayDoesInclude	condition	accounts does include account
