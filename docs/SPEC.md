@@ -130,6 +130,7 @@ pkg/dtrules/
   apiserver/ web/     HTTP API and editor serving
 sampleprojects/       13 rule sets used as tests and documentation
 ui/                   TypeScript editor and debugger front end
+scripts/merge-pr.sh   the merge gate (§2.10); the rest of scripts/ is untracked
 docs/                 this file and the reference documents
 ```
 
@@ -470,6 +471,18 @@ The version comes from `git describe`; `pkg/dtrules/version` reports it and the
 build stamps it. A `v*` tag triggers the release workflow, which builds five
 platform binaries plus checksums and publishes a GitHub release. `CHANGELOG.md`
 carries the notes.
+
+A pull request reaches `main` only through `scripts/merge-pr.sh`. It squashes
+the PR onto the current `main` in a scratch worktree and runs the checks on
+that combined tree, not on the PR alone: the generated parser must match the
+merged `EL.g4`, then `make check`, `dtrules verify` on every sample with an
+`excel/` directory, and `dtrules validate` on CHIP. Only then does it merge,
+with `--match-head-commit` set to the commit it tested. A PR that no longer
+squashes cleanly is rebased and force-pushed (with lease). Commits inherited
+from an already-merged PR are dropped. Only two conflicts are resolved
+automatically: additions on both sides of a Markdown file, and generated
+parser files, which are rebuilt from the merged grammar. Any other conflict
+stops the run. `--check` runs the checks without pushing or merging.
 
 ## 2.11 Embedding the engine
 
