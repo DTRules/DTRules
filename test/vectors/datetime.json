@@ -124,20 +124,20 @@
     },
     {
       "name": "daysbetween_positive",
-      "description": "Days between two dates (earlier to later)",
+      "description": "Days from Mar 1 to Mar 15, both counted (#1265)",
       "operator": "daysbetween",
       "date1": "2024-03-01",
       "date2": "2024-03-15",
-      "expected": 14,
+      "expected": 15,
       "type": "integer"
     },
     {
       "name": "daysbetween_same",
-      "description": "Days between same date",
+      "description": "A date to itself is one day (#1265)",
       "operator": "daysbetween",
       "date1": "2024-03-15",
       "date2": "2024-03-15",
-      "expected": 0,
+      "expected": 1,
       "type": "integer"
     },
     {
