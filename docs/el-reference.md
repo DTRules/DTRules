@@ -623,9 +623,17 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 #### Sort array
 
 **Syntax**: `SORT arrayExpr IN ASCENDINGORDER BY nexpr` / `SORT arrayExpr IN DESCENDINGORDER BY nexpr`
-**Semantics**: Sort an array by a named field.
+**Semantics**: Sort an array of entities by a named field. `nexpr` evaluates
+to the *name* of the field: `the name "key"`, `(name) "key"`, the keyword
+`name`, or a field whose type is `name` and holds the field to sort on. A field
+read after `by` (`by entry.key`, `by key`, `by $key` where `key` is a string,
+date or other non-name field) is a compile error that points at
+`the name "key"` (#1227): it would read the field's value before the sort runs.
 **Example (EL)**: `sort household.members in ascending order by name`
 **Compiled postfix**: `household.members /name true sortentities`
+
+**Example (EL)**: `sort state.entries in ascending order by the name "key"`
+**Compiled postfix**: `state.entries "key" cvn true sortentities`
 
 **Example (EL)**: `sort household.members in descending order by name`
 **Compiled postfix**: `household.members /name false sortentities`

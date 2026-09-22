@@ -17,6 +17,7 @@ package el
 import (
 	"fmt"
 	"math/big"
+	"sort"
 	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
@@ -5507,6 +5508,7 @@ func (e *PostfixEmitter) VisitClearArray(ctx *ClearArrayContext) interface{} {
 // VisitSortAscending: `sort <arrayExpr> in ascending order by <nexpr>`.
 // opSortEntities signature: (array name asc --).
 func (e *PostfixEmitter) VisitSortAscending(ctx *SortAscendingContext) interface{} {
+	e.checkSortKey(ctx.Nexpr())
 	e.Visit(ctx.ArrayExpr())
 	e.Visit(ctx.Nexpr())
 	e.emit("true")
@@ -5514,8 +5516,81 @@ func (e *PostfixEmitter) VisitSortAscending(ctx *SortAscendingContext) interface
 	return nil
 }
 
+// checkSortKey rejects a field read after `by` (#1227). The sort key is a
+// name expression: sortentities is handed the name of the field to sort on.
+// `by entry.key`, `by key` or `by $key`, where key is a string (or any
+// non-name) field, reads the field's value instead -- before sortentities
+// runs, with no entity on the stack -- and failed only at run time with "The
+// Name 'key' was not defined by any Entity". A field or local whose declared
+// type is name holds a sort key and is accepted, as is anything whose type is
+// not known here.
+func (e *PostfixEmitter) checkSortKey(n INexprContext) {
+	var ident string
+	switch n := n.(type) {
+	case *NameTypedContext:
+		ident = n.GetText()
+	case *NameLiteralContext:
+		text := n.GetText()
+		if !strings.HasPrefix(text, "$") {
+			return // the keyword `name`: a literal name
+		}
+		ident = text[1:]
+	default:
+		return
+	}
+	typ, source := e.sortKeyType(ident)
+	if typ == "" || typ == TypeName {
+		return
+	}
+	field := ident[strings.LastIndex(ident, ".")+1:]
+	e.emitError("sort … by %s: %q reads a %s value (%s), but `by` takes the name of the field to sort on; write: by the name %q",
+		n.GetText(), n.GetText(), typ, source, field)
+}
+
+// sortKeyType is the declared type of ident for checkSortKey, and where it
+// was found, or "" when it cannot be known exactly. lookupType is not used:
+// it falls back from entity.field to the bare field, and the EDD loader fills
+// bare fields last-entity-wins, so a bare type can belong to any entity
+// declaring the name. Only a local, an exact entity.field entry, or a bare
+// name on which every declaring entity agrees is trusted.
+func (e *PostfixEmitter) sortKeyType(ident string) (typ, source string) {
+	if lv, ok := e.lookupLocal(ident); ok {
+		return lv.Type, "a local"
+	}
+	key := strings.ToLower(ident)
+	if strings.Contains(key, ".") {
+		if t, ok := e.symbols[key]; ok {
+			return t, "field " + key
+		}
+		return "", ""
+	}
+	var agreed string
+	var owners []string
+	for k, t := range e.symbols {
+		dot := strings.LastIndex(k, ".")
+		if dot < 0 || k[dot+1:] != key {
+			continue
+		}
+		if agreed != "" && t != agreed {
+			return "", "" // entities disagree: unknown
+		}
+		agreed = t
+		owners = append(owners, k)
+	}
+	if len(owners) == 0 {
+		// Only a bare entry (no entity-qualified one): trust it as given.
+		if t, ok := e.symbols[key]; ok {
+			return t, "field " + key
+		}
+		return "", ""
+	}
+	sort.Strings(owners)
+	return agreed, "declared as " + strings.Join(owners, ", ")
+}
+
 // VisitSortDescending: `sort <arrayExpr> in descending order by <nexpr>`.
 func (e *PostfixEmitter) VisitSortDescending(ctx *SortDescendingContext) interface{} {
+	e.checkSortKey(ctx.Nexpr())
 	e.Visit(ctx.ArrayExpr())
 	e.Visit(ctx.Nexpr())
 	e.emit("false")
