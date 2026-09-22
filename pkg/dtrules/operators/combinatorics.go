@@ -225,6 +225,7 @@ func opCombinations(state dtrules.State) error {
 	if err != nil {
 		return fmt.Errorf("%s: dest must be an array: %w", op, err)
 	}
+	defer dtrules.WatchArray(state, dest)()
 	sumField, err := popString(state, op, "sumfield")
 	if err != nil {
 		return err
@@ -291,6 +292,7 @@ func opSubsets(state dtrules.State) error {
 	if err != nil {
 		return fmt.Errorf("%s: dest must be an array: %w", op, err)
 	}
+	defer dtrules.WatchArray(state, dest)()
 	sumField, err := popString(state, op, "sumfield")
 	if err != nil {
 		return err
@@ -337,6 +339,7 @@ func opGroupBy(state dtrules.State) error {
 	if err != nil {
 		return fmt.Errorf("%s: dest must be an array: %w", op, err)
 	}
+	defer dtrules.WatchArray(state, dest)()
 	typeName, err := popRName(state, op, "typename")
 	if err != nil {
 		return err
@@ -400,6 +403,7 @@ func opMaximalRuns(state dtrules.State) error {
 	if err != nil {
 		return fmt.Errorf("%s: dest must be an array: %w", op, err)
 	}
+	defer dtrules.WatchArray(state, dest)()
 	typeName, err := popRName(state, op, "typename")
 	if err != nil {
 		return err
@@ -484,6 +488,7 @@ func opSuffixes(state dtrules.State) error {
 	if err != nil {
 		return fmt.Errorf("%s: dest must be an array: %w", op, err)
 	}
+	defer dtrules.WatchArray(state, dest)()
 	typeName, err := popRName(state, op, "typename")
 	if err != nil {
 		return err

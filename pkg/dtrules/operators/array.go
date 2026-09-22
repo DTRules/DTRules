@@ -53,6 +53,7 @@ func opNewArray(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
+	arr.MarkFresh()
 	return state.DataPush(arr)
 }
 
@@ -70,7 +71,9 @@ func opAddTo(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	arr.Add(element)
+	if arr.Add(element) {
+		dtrules.MarkArrayChanged(state, arr)
+	}
 	dtrules.TraceArrayAdd(state, arr, element)
 	return nil
 }
@@ -101,6 +104,7 @@ func opAddAt(state dtrules.State) error {
 	if err := arr.AddAt(index, element); err != nil {
 		return err
 	}
+	dtrules.MarkArrayChanged(state, arr)
 	dtrules.TraceArrayAddAt(state, arr, element, index)
 	return nil
 }
@@ -164,7 +168,11 @@ func opRemoveAt(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
+	size := arr.Size()
 	arr.Delete(index)
+	if arr.Size() != size {
+		dtrules.MarkArrayChanged(state, arr)
+	}
 	dtrules.TraceArrayRemoveAt(state, arr, index)
 	return nil
 }
@@ -183,7 +191,11 @@ func opRemove(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
+	size := arr.Size()
 	arr.Remove(element)
+	if arr.Size() != size {
+		dtrules.MarkArrayChanged(state, arr)
+	}
 	dtrules.TraceArrayRemove(state, arr, element)
 	return nil
 }
@@ -283,7 +295,9 @@ func opCopyElements(state dtrules.State) error {
 	}
 
 	for _, elem := range src.GetIterator() {
-		dest.Add(elem)
+		if dest.Add(elem) {
+			dtrules.MarkArrayChanged(state, dest)
+		}
 	}
 	return nil
 }
@@ -308,6 +322,7 @@ func opSortArray(state dtrules.State) error {
 		return err
 	}
 
+	defer dtrules.WatchArray(state, arr)()
 	elements := arr.GetIterator()
 	var cmpErr error
 	sort.SliceStable(elements, func(i, j int) bool {
@@ -356,6 +371,7 @@ func opSortEntities(state dtrules.State) error {
 		return err
 	}
 
+	defer dtrules.WatchArray(state, arr)()
 	elements := arr.GetIterator()
 	var cmpErr error
 	sort.SliceStable(elements, func(i, j int) bool {
@@ -410,8 +426,8 @@ func opAddNoDups(state dtrules.State) error {
 		return err
 	}
 
-	if !arr.Contains(value) {
-		arr.Add(value)
+	if !arr.Contains(value) && arr.Add(value) {
+		dtrules.MarkArrayChanged(state, arr)
 	}
 	return nil
 }
@@ -461,6 +477,7 @@ func opRandomize(state dtrules.State) error {
 		return err
 	}
 
+	defer dtrules.WatchArray(state, arr)()
 	elements := arr.GetIterator()
 	size := len(elements)
 	for i := 0; i < 10; i++ {
@@ -563,8 +580,8 @@ func opAddArray(state dtrules.State) error {
 	}
 
 	for _, o := range a1.GetIterator() {
-		if dups || !a2.Contains(o) {
-			a2.Add(o)
+		if (dups || !a2.Contains(o)) && a2.Add(o) {
+			dtrules.MarkArrayChanged(state, a2)
 		}
 	}
 	return nil
@@ -606,6 +623,9 @@ func opClearArray(state dtrules.State) error {
 	arr, err := arrayObj.RArrayValue()
 	if err != nil {
 		return err
+	}
+	if arr.Size() > 0 {
+		dtrules.MarkArrayChanged(state, arr)
 	}
 	arr.Clear()
 	return nil

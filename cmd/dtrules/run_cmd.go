@@ -249,6 +249,12 @@ func (c *CLI) runRun(args []string) int {
 		fmt.Fprintf(os.Stderr, "Error: decision table %q not found\n", entry)
 		return 1
 	}
+	// Loading the data wrote to the entities; the run's own changes start
+	// here (#1233).
+	tracker, _ := state.(dtrules.ChangeTracker)
+	if tracker != nil {
+		tracker.ResetChanged()
+	}
 	if err := dt.Execute(state); err != nil {
 		if traceFile != nil {
 			trace.WriteFooter(traceFile)
@@ -282,11 +288,19 @@ func (c *CLI) runRun(args []string) int {
 			return 1
 		}
 		defer f.Close()
-		if err := datafile.Write(f, dataEntities(state, rs)); err != nil {
+		write := func() error { return datafile.Write(f, dataEntities(state, rs)) }
+		if tracker != nil {
+			write = func() error { return datafile.WriteRun(f, dataEntities(state, rs), tracker.Changed()) }
+		}
+		if err := write(); err != nil {
 			fmt.Fprintf(os.Stderr, "Error saving data: %v\n", err)
 			return 1
 		}
-		fmt.Fprintf(os.Stderr, "saved data to %s\n", save)
+		if tracker != nil {
+			fmt.Fprintf(os.Stderr, "saved data to %s (changed=%v)\n", save, tracker.Changed())
+		} else {
+			fmt.Fprintf(os.Stderr, "saved data to %s\n", save)
+		}
 	}
 
 	renderReadings(state, rs)
@@ -516,7 +530,10 @@ Options:
                          argument to loading, not a property of the project.
                          Required when the project holds more than one.
   --review <file.xml>    Load canonical data for re-interview (pre-filled, asked)
-  --save <file.xml>      Save the collected data as canonical XML after the run
+  --save <file.xml>      Save the collected data as canonical XML after the run.
+                         The root element says whether the run changed any
+                         entity data: <dtrules-data changed="true|false">.
+                         Writing a value a field already holds is not a change.
   --trace <file.xml>     Write a complete execution trace (initial data,
                          every table/column/action, resulting state) with
                          DTRules version + rules fingerprint for replay

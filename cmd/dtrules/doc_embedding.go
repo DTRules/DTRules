@@ -236,6 +236,44 @@ declaration order (entities, and the fields within each), so the same rules on
 the same input save byte-identical files.
 
 
+Did the run change anything?
+----------------------------
+A host that runs rules on a timer can skip journaling a run that changed
+nothing. The state records it, so there is no output to diff:
+
+    tracker := state.(dtrules.ChangeTracker)
+    tracker.ResetChanged()              // after the data load: input is not a change
+    if err := dt.Execute(state); err != nil {
+        log.Fatal(err)
+    }
+    if !tracker.Changed() {
+        return                          // nothing to journal
+    }
+
+A change is a write by the running rules that alters what a save would write:
+an attribute set to a value that saves differently (type, text, or a different
+entity), an array that gained, lost or reordered elements, or an entity stack
+left different from the one ResetChanged saw. Writing the value a field
+already holds is not a change, and neither is building an array literal:
+'set x = ["a", "b"]' counts only if x did not already hold a, b.
+
+What is guaranteed: if the rules changed what a save writes, Changed reports
+true. The reverse does not hold, because the flag records writes, not a diff.
+A run that sets a field to 7 and back to 3 reads changed, and storing an entity
+created during the run always counts.
+
+Your own writes are not counted. Anything that calls entity.Put directly
+instead of going through the rules does not set the flag: a Go host, the
+mapping and datafile loaders, the authoring tools, the API server, and trace
+replay. Reset after loading, and account for anything you write yourself
+between ResetChanged and Changed. The flag stays set across executions until
+ResetChanged.
+
+'dtrules run --save' writes the same flag on the root element,
+<dtrules-data changed="true|false">. datafile.WriteRun writes it for an
+embedded host, and datafile.Read ignores it.
+
+
 Build pipeline
 --------------
 

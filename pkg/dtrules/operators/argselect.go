@@ -78,6 +78,7 @@ func argSelect(state dtrules.State, op string, wantMax bool) error {
 	}
 
 	// Clear first: a table that runs twice must select, not accumulate.
+	defer dtrules.WatchArray(state, dest)()
 	dest.Clear()
 	if len(ents) == 0 {
 		return nil

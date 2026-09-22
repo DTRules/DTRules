@@ -31,6 +31,25 @@ type RArray struct {
 	executable bool     // Whether this is the executable version
 	dups       bool     // Whether duplicates are allowed
 	id         int      // Unique ID for this array
+	fresh      bool     // Built by newarray and not yet held by anything (#1233)
+}
+
+// MarkFresh records that this array was just built by the rules and nothing
+// holds it yet, so filling it is not a change to entity data (#1233).
+func (r *RArray) MarkFresh() {
+	r.fresh = true
+	if r.pair != nil {
+		r.pair.fresh = true
+	}
+}
+
+// Adopt records that an entity attribute or another array now holds this
+// array: from here on, changing it in place changes entity data.
+func (r *RArray) Adopt() {
+	r.fresh = false
+	if r.pair != nil {
+		r.pair.fresh = false
+	}
 }
 
 // NewArray creates a new RArray with the specified properties.
@@ -427,6 +446,9 @@ func (r *RArray) Add(v Object) bool {
 	if !r.dups && r.Contains(v) {
 		return false
 	}
+	if a, ok := v.(*RArray); ok {
+		a.Adopt()
+	}
 	r.array = append(r.array, v)
 	r.pair.array = r.array
 	return true
@@ -439,6 +461,9 @@ func (r *RArray) AddAt(index int, v Object) error {
 		return OutOfBoundsError("RArray.AddAt", "negative index not allowed")
 	}
 	r.uncache()
+	if a, ok := v.(*RArray); ok {
+		a.Adopt()
+	}
 	if index >= len(r.array) {
 		r.array = append(r.array, v)
 	} else {
