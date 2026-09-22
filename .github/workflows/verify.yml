@@ -14,6 +14,10 @@ on:
       - 'pkg/dtrules/apiserver/**'
       - 'pkg/dtrules/excel/**'
       - 'pkg/dtrules/loader/**'
+      # The compiler decides what every stored postfix row says. #1229 changed
+      # it, and the stale SyntaxTests rows went unnoticed because no path
+      # here matched (#1260).
+      - 'pkg/dtrules/compiler/**'
       - 'pkg/dtrules/sync/**'
       - 'cmd/dtrules/**'
       - '.github/workflows/verify.yml'

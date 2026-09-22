@@ -110,6 +110,26 @@ The rest compile and load but do not execute, for three reasons:
 - **Uninitialised context locals.** `local boolean Test` with no initialiser,
   then `does test == true ?`, puts a null where a boolean is required.
 
+Run as entries against `testfiles/test.xml`, 21 of the 24 tables fail before
+finishing (#1260):
+
+| Tables | First failure |
+|---|---|
+| Syntax_Examples, Run_Test_9, 10, 12, 13, 14, 15, 16, 17 | `clients` undefined (Run_Test_15 runs when performed by `Run_Syntax_Examples`) |
+| Syntax_Examples_2, Run_Test_3 to 8 | `validatedCitizenship` undefined |
+| Syntax_Examples_3 | `attribute <name> of <entity>` stub |
+| Syntax_Examples_4 | `expectedChildren` undefined |
+| Run_Test | uninitialised boolean local |
+| Run_Test_2 | `age` undefined |
+| Run_Test_11 | `totalIncome` undefined |
+
+**Rows executed by nothing.** Every row in those tables is compile-only. So is
+every condition in `Syntax_Examples_5`: the table runs, but it has one column
+and each condition is `-` in it, so no condition is ever evaluated. What guards
+these rows is not execution but `TestSampleProjectsMatchTheirBuild`
+(cmd/dtrules), which fails `make check` whenever the stored postfix differs
+from what the current compiler builds from the Excel source.
+
 `TestSyntaxTestsExecuteEachTable` pins the executable set;
 `TestSampleProjectsProduceLoadableTraces` pins that the project runs and leaves
 a trace with real fired columns.
