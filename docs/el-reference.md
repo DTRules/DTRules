@@ -185,9 +185,9 @@ EL supports standard arithmetic on integers, doubles, and bigints. The emitter m
 #### Integer division
 
 **Syntax**: `iexpr / iexpr` or `iexpr div iexpr`
-**Semantics**: Integer division (truncates). Postfix operator: `/`.
-**Example (EL)**: `total / count >= 0`
-**Compiled postfix**: `total count fdiv 0 f>=`
+**Semantics**: Integer division, truncating toward zero: `7 / 2` is 3 and `-7 / 2` is -3. The result is an integer even when it is assigned to a double field. Dividing by zero is a runtime error (`Math Exception: Division by zero`), not a silent result. If either operand is a double, the division is float division (`fdiv`) instead. Postfix operator: `/`. In postfix a lone `/` is this operator; `/name` (a slash followed by at least one character) is a literal name.
+**Example (EL)**: `count / 2 >= 1` (`count` an integer field)
+**Compiled postfix**: `count 2 / 1 >=`
 
 #### Float addition
 

@@ -387,10 +387,10 @@ calc.dividend calc.divisor / calc.result =
 		}
 	}
 
-	// A divide-by-zero may succeed silently in the DTRules VM if it returns Inf/NaN.
-	// Document the actual behavior here without hard-failing on it.
+	// Integer division by zero is a runtime error (#1241); it used to pass
+	// silently because the postfix reader took the lone "/" as a name.
 	if !hasError {
-		t.Logf("Note: divide-by-zero produced no error in trace — VM may return Inf/NaN silently")
+		t.Error("integer divide-by-zero produced no error in the trace")
 	}
 }
 

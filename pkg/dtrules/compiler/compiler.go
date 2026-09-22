@@ -207,8 +207,10 @@ func (c *Compiler) compileToken(token string) (dtrules.Object, error) {
 	}
 
 	// Handle literal (non-executable) names starting with /
-	// In PostScript convention: /name is a literal name, name is executable
-	if strings.HasPrefix(token, "/") {
+	// In PostScript convention: /name is a literal name, name is executable.
+	// A lone "/" is not a literal name (the name would be empty); it is the
+	// integer-division operator and is looked up below (#1241).
+	if len(token) > 1 && token[0] == '/' {
 		// Strip the / and return a non-executable name
 		literalName := token[1:]
 		name := dtrules.GetRName(literalName)

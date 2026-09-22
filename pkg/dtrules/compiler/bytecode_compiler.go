@@ -118,8 +118,9 @@ func (c *Compiler) compileTokenToBytecode(bc *dtrules.BytecodeChunk, token strin
 		return nil
 	}
 
-	// Handle literal (non-executable) names starting with /
-	if strings.HasPrefix(token, "/") {
+	// Handle literal (non-executable) names starting with /. A lone "/" is
+	// the integer-division operator, not an empty literal name (#1241).
+	if len(token) > 1 && token[0] == '/' {
 		literalName := token[1:]
 		name := dtrules.GetRName(literalName)
 		if name == nil {
