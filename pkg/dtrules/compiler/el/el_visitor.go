@@ -877,6 +877,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#dateEndOfYearInZone.
 	VisitDateEndOfYearInZone(ctx *DateEndOfYearInZoneContext) interface{}
 
+	// Visit a parse tree produced by ELParser#dateCurrentTime.
+	VisitDateCurrentTime(ctx *DateCurrentTimeContext) interface{}
+
 	// Visit a parse tree produced by ELParser#dateNewYMDInZone.
 	VisitDateNewYMDInZone(ctx *DateNewYMDInZoneContext) interface{}
 

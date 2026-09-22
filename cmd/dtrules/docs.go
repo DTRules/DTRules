@@ -163,7 +163,7 @@ String:        "hello"   'single quoted'   "John's tax"
 Boolean:       true   false   default   otherwise   always
                perform when called
 Date:          current date       (today's date, midnight UTC)
-               current timestamp  (returns the current timestamp as string)
+               current time       (the current instant, UTC)
 Null:          (tested with "is null" / "is not null")
 
 
@@ -426,7 +426,7 @@ String functions:
     trim(myString)                  strip leading/trailing whitespace
     change myString to upper case   convert to uppercase
     change myString to lower case   convert to lowercase
-    get current timestamp           current date/time as string
+    set myString = current time     the current instant as a timestamp string
     string value of myDouble        double to string
     string value of myInt           integer to string
     string value of myDate          date to string
@@ -640,8 +640,13 @@ Time below a day (#1232):
     1-9999 is an error. Leap seconds are not counted.
     Example -- idle for more than two minutes:
         seconds from job.last_progress to job.checked_at > 120
-    "current date" is today at midnight UTC, not the current instant; for
-    "now" write: current date in zone "UTC".
+    "current time" is the current instant, in UTC; "current date" is
+    today at midnight UTC, not the instant. It is a phrase, so it
+    reserves no name, and it is typed as a date: "current time + 1"
+    is a compile error, "current time + 1 days" is a date. For the
+    instant as a string, assign it to a string field. The old
+    "get current timestamp" is removed (#1266): it formatted whatever
+    was on the stack, not the clock.
     "days from" is NOT elapsed time: it counts calendar days with both
     ends included (#1265), both dates read in d1's zone. Mar 8 to
     Mar 10 is 3, a date to itself is 1, Jan 1 to Dec 31 is 365, and
@@ -1943,7 +1948,7 @@ Join:         join arrayExpr by sep                      join names by ", "   ("
 Trim:         trim(s)                                    trim(input.value)
 Upper case:   change s to upper case                     change input.state to upper case
 Lower case:   change s to lower case                     change input.code to lower case
-Timestamp:    get current timestamp                      current date/time as string
+Timestamp:    set s = current time                       the instant as a string (RFC3339Nano)
 Index of:     index of sub in s                          index of "x" in myStr   (-> -1 if absent)
 Starts with:  s starts with "prefix"
               s at N starts with "prefix"                starts at character offset N
@@ -2287,9 +2292,9 @@ See 'dtrules docs bytes' for full bytes documentation.
 Date Operators
 --------------
 Source operators:
+    current time                            the current instant, in UTC
     current date                            today's date, midnight UTC (not now)
     current date in zone "UTC"              the current instant
-    current timestamp                       current date/time as string
 
 Arithmetic returning dexpr:
     d + N years
@@ -2350,6 +2355,7 @@ Timezone-aware variants (#743): every date op above has an ` + "`in zone <tz>`" 
 counterpart that interprets the date in the given IANA timezone (e.g.
 "America/Chicago", "UTC"). The runtime op names suffix ` + "`inzone`" + `.
 
+    current time in zone "America/Chicago"      the current instant, in Chicago's zone
     current date in zone "America/Chicago"      the current instant, in Chicago's zone
     today in zone "UTC"                          today in UTC
     new date "2024-03-10" in zone "America/Chicago"

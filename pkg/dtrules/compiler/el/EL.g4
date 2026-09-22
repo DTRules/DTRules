@@ -556,6 +556,10 @@ dexpr
     // ANTLR matches the longer form first.
     | CURRENT_DATE INZONE strexpr                           # dateCurrentDateInZone
     | CURRENT_DATE                                          # dateCurrentDate
+    // #1266: the current instant. `current time in zone <s>` needs no
+    // alternative of its own -- the generic `dexpr INZONE strexpr` rewrap is
+    // what it means.
+    | CURRENT_TIME                                          # dateCurrentTime
     | SUBTRACT number YEARS FROM dexpr                      # dateExprSubYears
     | SUBTRACT number MONTHS FROM dexpr                     # dateExprSubMonths
     | SUBTRACT number DAYS FROM dexpr                       # dateExprSubDays
@@ -1107,6 +1111,10 @@ SIZE                : 'size' ;
 // Current date/time
 CURRENT_TIMESTAMP   : 'current' WS+ 'timestamp' ;
 CURRENT_DATE        : 'current' WS+ 'date' ;
+// #1266: `current time` is the current instant, a phrase like `current
+// date` so that no identifier is reserved -- `current` on its own is still
+// an ordinary name. Longest match keeps `current timestamp` distinct.
+CURRENT_TIME        : 'current' WS+ 'time' ;
 
 // Phase 2 of #743: explicit timezone DSL — `<dexpr> in zone <strexpr>`.
 // Single token so the natural-language phrase can't be split across other

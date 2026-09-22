@@ -286,9 +286,27 @@ and writes it on the `--save` root as `<dtrules-data changed="true|false">`.
   that would leave years 1-9999, or a difference too large for an integer, is
   an error rather than a wrapped value. Leap seconds are not counted, as in
   every other date operation.
+- `current time` (`now`) is the current instant, in UTC. It is what a rule
+  running on a timer measures against: `seconds from job.last_progress to
+  current time > 120`. Anchored to UTC for the same reason as `today` (#743)
+  — the zone a date carries decides what the calendar operators read, so it
+  must not answer differently on a server in another zone. `current time in
+  zone "<tz>"` is the same instant stamped with that zone (#1266).
 - `current date` is today's date at midnight UTC (`today`), not the current
-  instant. `current date in zone "<tz>"` (`currentdateinzone`) is the current
-  instant, stamped with that zone. EL has no other spelling of "now" (#1266).
+  instant. `current date in zone "<tz>"` (`currentdateinzone`) is also the
+  current instant, stamped with that zone: `in zone` there changes the
+  meaning and not only the zone, which is why `current time` exists.
+- `current time` is a phrase, like `current date`, so it reserves no
+  identifier: `current`, `time` and a field named `current.time` all keep
+  working. It is still a `dexpr` alternative of its own (`dateCurrentTime`),
+  so the compiler types it — `current time + 1` is a compile error where
+  `current time + 1 days` is a date, and a comparison against a date uses the
+  date comparison rather than the generic one.
+- `get current timestamp` is removed (#1266). It emitted a bare
+  `gettimestamp`, an operator that *pops* a date and formats it, so the
+  statement underflowed the data stack or stringified whatever happened to be
+  under it. Assign `current time` to a string field instead: `cvs` renders a
+  date carrying a time as RFC3339Nano.
 
 ## 2.5 Data in
 

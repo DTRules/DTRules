@@ -31,17 +31,20 @@ func issue803Batch11Symbols() map[string]string {
 	}
 }
 
-// TestIssue803_StrTimestamp: `get current_timestamp` is a niladic
-// runtime op call. The op is registered as `gettimestamp`.
+// TestIssue803_StrTimestamp: `get current timestamp` is removed (#1266).
+// #803 made it emit a bare `gettimestamp`, but that operator *pops* a date
+// and formats it, so the statement underflowed the stack or stringified
+// whatever happened to be under it. It is a compile error now, and the
+// message names the replacement.
 func TestIssue803_StrTimestamp(t *testing.T) {
 	c := NewCompiler()
 	c.SetSymbols(issue803Batch11Symbols())
 	got, err := c.CompileAction(`set client.ts = get current timestamp`)
-	if err != nil {
-		t.Fatalf("compile: %v", err)
+	if err == nil {
+		t.Fatalf("expected a compile error, got postfix %q", got)
 	}
-	if !strings.Contains(got, "gettimestamp") {
-		t.Errorf("expected gettimestamp in postfix, got: %s", got)
+	if !strings.Contains(err.Error(), "current time") {
+		t.Errorf("error should name the replacement, got: %v", err)
 	}
 }
 

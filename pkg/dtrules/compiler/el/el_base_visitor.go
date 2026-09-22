@@ -1167,6 +1167,10 @@ func (v *BaseELVisitor) VisitDateEndOfYearInZone(ctx *DateEndOfYearInZoneContext
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseELVisitor) VisitDateCurrentTime(ctx *DateCurrentTimeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseELVisitor) VisitDateNewYMDInZone(ctx *DateNewYMDInZoneContext) interface{} {
 	return v.VisitChildren(ctx)
 }
