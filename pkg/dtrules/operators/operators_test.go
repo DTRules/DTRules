@@ -1973,8 +1973,8 @@ func TestRegexMatchOperator(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			state := newTestState()
-			state.DataPush(dtrules.NewRString(tt.pattern))
 			state.DataPush(dtrules.NewRString(tt.str))
+			state.DataPush(dtrules.NewRString(tt.pattern))
 
 			op, _ := Get(dtrules.GetRName("regexmatch"))
 			err := op.Execute(state)
