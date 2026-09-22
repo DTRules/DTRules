@@ -157,24 +157,12 @@ func (s *DTState) ExecuteBytecode(bc *dtrules.BytecodeChunk) error {
 			if err != nil {
 				return err
 			}
-			// Integer division for integers, float division otherwise
-			if a.IsInteger() && b.IsInteger() {
-				bVal := b.AsInteger()
-				if bVal == 0 {
-					return dtrules.NewRulesError("Division By Zero", "OpDiv", "cannot divide by zero")
-				}
-				if err := s.ValuePush(dtrules.NewValueInteger(a.AsInteger() / bVal)); err != nil {
-					return err
-				}
-			} else {
-				// Use TryDiv to check for division by zero (returns error instead of Inf/NaN)
-				result, divErr := a.TryDiv(b)
-				if divErr != nil {
-					return dtrules.NewRulesError("Division By Zero", "OpDiv", "cannot divide by zero")
-				}
-				if err := s.ValuePush(result); err != nil {
-					return err
-				}
+			q, err := integerDivide(a, b)
+			if err != nil {
+				return err
+			}
+			if err := s.ValuePush(dtrules.NewValueInteger(q)); err != nil {
+				return err
 			}
 		case dtrules.OpNeg:
 			a, err := s.ValuePop()
@@ -818,4 +806,35 @@ func (s *DTState) EvaluateBytecodeAction(bc *dtrules.BytecodeChunk) error {
 	}
 
 	return nil
+}
+
+// integerDivide is OpDiv. It matches the "/" operator (operators.opDiv) that
+// the session path runs: both operands are truncated to integers, the
+// quotient truncates toward zero, and a zero divisor (after truncation) is
+// the same "Division by zero" error (#1261).
+func integerDivide(a, b dtrules.Value) (int64, error) {
+	aVal, err := valueToLong(a)
+	if err != nil {
+		return 0, err
+	}
+	bVal, err := valueToLong(b)
+	if err != nil {
+		return 0, err
+	}
+	if bVal == 0 {
+		return 0, dtrules.NewRulesError("Math Exception", "/", "Division by zero")
+	}
+	return aVal / bVal, nil
+}
+
+// valueToLong converts an integer or double Value to int64 the way
+// Object.LongValue does (a double truncates toward zero).
+func valueToLong(v dtrules.Value) (int64, error) {
+	switch {
+	case v.IsInteger():
+		return v.AsInteger(), nil
+	case v.IsDouble():
+		return int64(v.AsDouble()), nil
+	}
+	return 0, dtrules.ConversionError("OpDiv", "operand is not an integer or double")
 }

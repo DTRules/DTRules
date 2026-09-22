@@ -523,9 +523,9 @@ func TestBytecodeExecutionDivision(t *testing.T) {
 	}
 
 	result, _ := state.ValuePop()
-	// Division always returns double
-	if result.AsDouble() != 20.0 {
-		t.Errorf("Expected 20.0, got %f", result.AsDouble())
+	// OpDiv is integer division, like the "/" operator (#1261)
+	if !result.IsInteger() || result.AsInteger() != 20 {
+		t.Errorf("Expected integer 20, got %v", result)
 	}
 }
 
