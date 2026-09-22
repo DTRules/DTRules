@@ -1087,8 +1087,7 @@ func (e *PostfixEmitter) VisitBoolTypedIsNotLiteral(ctx *BoolTypedIsNotLiteralCo
 
 func (e *PostfixEmitter) VisitBoolColonIsLiteral(ctx *BoolColonIsLiteralContext) interface{} {
 	// colonRef typedBoolean IS RBOOLEAN
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.TypedBoolean())
+	e.emitColonScoped(ctx.ColonRef(), ctx.TypedBoolean())
 	text := strings.ToLower(ctx.RBOOLEAN().GetText())
 	e.emit(text)
 	e.emit("beq")
@@ -1097,8 +1096,7 @@ func (e *PostfixEmitter) VisitBoolColonIsLiteral(ctx *BoolColonIsLiteralContext)
 
 func (e *PostfixEmitter) VisitBoolColonIsNotLiteral(ctx *BoolColonIsNotLiteralContext) interface{} {
 	// colonRef typedBoolean IS NOT RBOOLEAN
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.TypedBoolean())
+	e.emitColonScoped(ctx.ColonRef(), ctx.TypedBoolean())
 	text := strings.ToLower(ctx.RBOOLEAN().GetText())
 	e.emit(text)
 	e.emit("beq")
@@ -5280,12 +5278,13 @@ func (e *PostfixEmitter) VisitEntityFirstOf(ctx *EntityFirstOfContext) interface
 	return nil
 }
 
-// VisitEntityColonRef: `<colonRef> <typedEntity>`. Emit colonRef postfix
-// followed by the entity name token (which resolves to the entity object at
-// runtime).
+// VisitEntityColonRef: `<colonRef> <typedEntity>`: the entity field is read
+// with the referenced entity current (see emitColonScoped).
 func (e *PostfixEmitter) VisitEntityColonRef(ctx *EntityColonRefContext) interface{} {
 	e.Visit(ctx.ColonRef())
+	e.emit("entitypush")
 	e.emit(ctx.TypedEntity().GetText())
+	e.emitEntityPopDrop()
 	return nil
 }
 
@@ -6826,72 +6825,92 @@ func (e *PostfixEmitter) VisitAddToContextFor(ctx *AddToContextForContext) inter
 // Possessive Reference Visitors
 // ============================================================================
 
+// emitColonScoped emits a colon or possessive reference, `:e: field` /
+// `e's field`, with e made the current entity while the field is read or
+// stored: `<e> entitypush <field> entitypop pop`. The Java compiler emitted
+// `e entitypush v entitypop` for every such reference, rvalue and lvalue
+// (`colonRef:re RBOOLEAN:b {: RESULT = re+"entitypush "+b+" entitypop "; :}`
+// in parser.cup); here entitypop also pushes the popped entity onto the data
+// stack, so it is dropped with pop. Pushing e without making it current read
+// the field from the wrong entity and left e on the stack (#1257).
+func (e *PostfixEmitter) emitColonScoped(colonRef IColonRefContext, field antlr.ParseTree) {
+	e.Visit(colonRef)
+	e.emit("entitypush")
+	e.Visit(field)
+	e.emitEntityPopDrop()
+}
+
+// emitEntityPopDrop ends a scoped read or store: pop the entity stack and
+// drop the entity that entitypop leaves on the data stack.
+func (e *PostfixEmitter) emitEntityPopDrop() {
+	e.emit("entitypop")
+	e.emit("pop")
+}
+
+// VisitPossessiveChain: `a's b's c's` leaves c, read with b current, read
+// with a current, on the data stack, as parser.cup's `POSSESSIVE COMMA
+// possessiveRef` does: `a entitypush b entitypush c entitypop pop entitypop
+// pop`. A trailing possessiveRef is read with the last entity current. See
+// emitColonScoped for the `pop`.
 func (e *PostfixEmitter) VisitPossessiveChain(ctx *PossessiveChainContext) interface{} {
-	// Handle possessive chains like "client's plan's"
-	// Each POSSESSIVE pushes an entity onto the context stack
 	possessives := ctx.AllPOSSESSIVE()
 	for i, poss := range possessives {
 		text := poss.GetText()
-		// Remove "'s" suffix
-		entityName := text[:len(text)-2]
-		e.emit(entityName)
+		e.emit(text[:len(text)-2]) // strip "'s"
 		if i < len(possessives)-1 {
 			e.emit("entitypush")
 		}
 	}
-	// Handle optional nested possessiveRef
 	if ctx.PossessiveRef() != nil {
 		e.emit("entitypush")
 		e.Visit(ctx.PossessiveRef())
-		e.emit("entitypop")
+		e.emitEntityPopDrop()
+	}
+	for range possessives[1:] {
+		e.emitEntityPopDrop()
 	}
 	return nil
 }
 
+// VisitColonChain: `:a:` leaves a on the data stack; `:a: b's` reads b
+// with a current.
 func (e *PostfixEmitter) VisitColonChain(ctx *ColonChainContext) interface{} {
-	// Handle colon-style entity references like ":Client:plan"
 	e.Visit(ctx.TypedEntity())
 	if ctx.PossessiveRef() != nil {
 		e.emit("entitypush")
 		e.Visit(ctx.PossessiveRef())
-		e.emit("entitypop")
+		e.emitEntityPopDrop()
 	}
 	return nil
 }
 
 func (e *PostfixEmitter) VisitLeftIexprColon(ctx *LeftIexprColonContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.LeftIexpr())
+	e.emitColonScoped(ctx.ColonRef(), ctx.LeftIexpr())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitLeftFexprColon(ctx *LeftFexprColonContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.LeftFexpr())
+	e.emitColonScoped(ctx.ColonRef(), ctx.LeftFexpr())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitLeftBexprColon(ctx *LeftBexprColonContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.LeftBexpr())
+	e.emitColonScoped(ctx.ColonRef(), ctx.LeftBexpr())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitLeftEexprColon(ctx *LeftEexprColonContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.LeftEexpr())
+	e.emitColonScoped(ctx.ColonRef(), ctx.LeftEexpr())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitLeftStrexprColon(ctx *LeftStrexprColonContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.LeftStrexpr())
+	e.emitColonScoped(ctx.ColonRef(), ctx.LeftStrexpr())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitLeftDexprColon(ctx *LeftDexprColonContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.LeftDexpr())
+	e.emitColonScoped(ctx.ColonRef(), ctx.LeftDexpr())
 	return nil
 }
 
@@ -6958,8 +6977,7 @@ func (e *PostfixEmitter) VisitBigTyped(ctx *BigTypedContext) interface{} {
 }
 
 func (e *PostfixEmitter) VisitBigColonRef(ctx *BigColonRefContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.TypedBigInt())
+	e.emitColonScoped(ctx.ColonRef(), ctx.TypedBigInt())
 	return nil
 }
 
@@ -6982,26 +7000,22 @@ func (e *PostfixEmitter) VisitBigColonRef(ctx *BigColonRefContext) interface{} {
 // =============================================================================
 
 func (e *PostfixEmitter) VisitIntColonRef(ctx *IntColonRefContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.TypedLong())
+	e.emitColonScoped(ctx.ColonRef(), ctx.TypedLong())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitFloatColonRef(ctx *FloatColonRefContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.TypedDouble())
+	e.emitColonScoped(ctx.ColonRef(), ctx.TypedDouble())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitBoolColonRef(ctx *BoolColonRefContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.TypedBoolean())
+	e.emitColonScoped(ctx.ColonRef(), ctx.TypedBoolean())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitDateColonRef(ctx *DateColonRefContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.TypedDate())
+	e.emitColonScoped(ctx.ColonRef(), ctx.TypedDate())
 	return nil
 }
 
@@ -7010,20 +7024,17 @@ func (e *PostfixEmitter) VisitDateColonRef(ctx *DateColonRefContext) interface{}
 // reach this alt because the simpler typed forms win first; included
 // for grammar completeness and defensive depth.
 func (e *PostfixEmitter) VisitStrColonRef(ctx *StrColonRefContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.Strexpr())
+	e.emitColonScoped(ctx.ColonRef(), ctx.Strexpr())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitNameColonRef(ctx *NameColonRefContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.TypedName())
+	e.emitColonScoped(ctx.ColonRef(), ctx.TypedName())
 	return nil
 }
 
 func (e *PostfixEmitter) VisitArrayColonRef(ctx *ArrayColonRefContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.TypedArray())
+	e.emitColonScoped(ctx.ColonRef(), ctx.TypedArray())
 	return nil
 }
 
@@ -7186,8 +7197,7 @@ func (e *PostfixEmitter) VisitLeftBigexprSimple(ctx *LeftBigexprSimpleContext) i
 }
 
 func (e *PostfixEmitter) VisitLeftBigexprColon(ctx *LeftBigexprColonContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.LeftBigexpr())
+	e.emitColonScoped(ctx.ColonRef(), ctx.LeftBigexpr())
 	return nil
 }
 
@@ -7254,8 +7264,7 @@ func (e *PostfixEmitter) VisitBytesTyped(ctx *BytesTypedContext) interface{} {
 }
 
 func (e *PostfixEmitter) VisitBytesColonRef(ctx *BytesColonRefContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.TypedBytes())
+	e.emitColonScoped(ctx.ColonRef(), ctx.TypedBytes())
 	return nil
 }
 
@@ -7598,8 +7607,7 @@ func (e *PostfixEmitter) VisitOpListEntitySingle(ctx *OpListEntitySingleContext)
 // leftArrayRef which emits the field-store trailer. Pre-fix the rule
 // silently emitted nothing.
 func (e *PostfixEmitter) VisitLeftArrayColon(ctx *LeftArrayColonContext) interface{} {
-	e.Visit(ctx.ColonRef())
-	e.Visit(ctx.LeftArrayRef())
+	e.emitColonScoped(ctx.ColonRef(), ctx.LeftArrayRef())
 	return nil
 }
 
