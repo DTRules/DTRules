@@ -115,16 +115,11 @@ var inheritedAllowlist = map[string]string{
 	// IDENT-prefixed RHS. Confirmed by parse-tree inspection (#803 batch 2).
 	"VisitSetStringFromNumber": "dead grammar; ANTLR picks setInt/setFloat for IDENT/number RHS",
 	"VisitSetStringFromTable":  "dead grammar; ANTLR picks setTable for texpr RHS",
-	// strConcat<Type> are all unreachable: ANTLR always picks the base
-	// `strexpr PLUS strexpr` # strConcat first because the RHS IDENT
-	// matches typedXmlValue inside strexpr. Confirmed by parse-tree
-	// inspection across int/float/date/name/entity/array/null/invalid
-	// RHS shapes (#803 batch 2).
-	"VisitStrConcatArray":   "dead grammar; base strConcat wins parser-side",
-	"VisitStrConcatDate":    "dead grammar; base strConcat wins parser-side",
-	"VisitStrConcatEntity":  "dead grammar; base strConcat wins parser-side",
-	"VisitStrConcatFloat":   "dead grammar; base strConcat wins parser-side",
-	"VisitStrConcatInt":     "dead grammar; base strConcat wins parser-side",
+	// strConcatNull / strConcatInvalid: the base `strexpr PLUS strexpr`
+	// # strConcat wins when the RHS is an IDENT (it matches typedXmlValue).
+	// The Int/Float/Date/Entity/Array alternatives are reached with a
+	// literal, date or entity/array expression on the right (#1251) and
+	// have overrides.
 	"VisitStrConcatInvalid": "dead grammar; base strConcat wins parser-side",
 	"VisitStrConcatNull":    "dead grammar; base strConcat wins parser-side",
 	// tablelist / tableTyped are helper rules referenced from the

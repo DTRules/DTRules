@@ -10779,7 +10779,7 @@ taxpayer.is_educator true beq
 <action_comment>set result.educator_deduction = taxpayer.educator_expenses (max $300)</action_comment>
 <action_dsl>set result.educator_expense_deduction = result.educator_expense_deduction + (the minimum of taxpayer.educator_expenses and constants.educator_expense_limit); set result.total_adjustments = result.total_adjustments + result.educator_expense_deduction; add "  Educator Expense for " + taxpayer.name + ": $" + (the minimum of taxpayer.educator_expenses and constants.educator_expense_limit) to job.audit_trail</action_dsl>
 <action_postfix>
-result.educator_expense_deduction taxpayer.educator_expenses constants.educator_expense_limit fmin f+ cvd /result.educator_expense_deduction xdef result.total_adjustments result.educator_expense_deduction f+ cvd /result.total_adjustments xdef job.audit_trail swap addto
+result.educator_expense_deduction taxpayer.educator_expenses constants.educator_expense_limit fmin f+ cvd /result.educator_expense_deduction xdef result.total_adjustments result.educator_expense_deduction f+ cvd /result.total_adjustments xdef "  Educator Expense for " taxpayer.name strconcat ": $" strconcat taxpayer.educator_expenses constants.educator_expense_limit fmin strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X-</columns>
 </action_details>

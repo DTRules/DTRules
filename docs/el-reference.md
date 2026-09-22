@@ -408,6 +408,9 @@ This is the value, not the element attaining it. `the <entity> in <array> with t
 **Tax example**: `taxpayer.filing_status + taxpayer.age == "MFJ30"`
 → `taxpayer.filing_status taxpayer.age strconcat "MFJ30" streq`
 
+The right operand need not be a string: a number, a date, an entity or an array expression is joined by its string value, with the same operator.
+**Example (EL)**: `"x" + 1 == "x1"` → `"x" 1 strconcat "x1" streq`
+
 #### Change to lower case / upper case
 
 **Syntax**: `CHANGE strexpr TO LOWER_CASE` / `CHANGE strexpr TO UPPER_CASE`
