@@ -17,6 +17,7 @@ package entity
 
 import (
 	"fmt"
+	"sort"
 	"sync"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -164,6 +165,9 @@ func (f *Factory) GetRefEntities() []*REntity {
 	for _, entity := range f.referenceEntities {
 		entities = append(entities, entity)
 	}
+	// Ids are handed out as entities are first declared, so id order is
+	// declaration order — the EDD's entity order (#1231).
+	sort.Slice(entities, func(i, j int) bool { return entities[i].id < entities[j].id })
 	return entities
 }
 
