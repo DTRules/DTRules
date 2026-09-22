@@ -835,9 +835,11 @@ date or other non-name field) is a compile error that points at
 ### Using (delegation)
 
 **Syntax**: `USING eexpr (expr)`
-**Semantics**: Evaluate an expression in the context of a different entity.
+**Semantics**: Evaluate an expression in the context of a different entity. The value of the expression is the value of the `using` form, whatever its type (boolean, string, name, integer, double, bigint, date).
 **Example (EL)**: `using person (person.age >= 18)`
-**Compiled postfix**: `person entitypush person.age 18 >= entitypop swap pop`
+**Compiled postfix**: `person entitypush person.age 18 >= entitypop pop`
+
+`entitypop` pushes the entity it pops onto the data stack, above the expression's value. The trailing `pop` discards the entity and leaves the value on the stack.
 
 ### Get current timestamp
 
