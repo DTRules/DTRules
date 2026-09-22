@@ -87,7 +87,7 @@ var inheritedAllowlist = map[string]string{
 	// (#803 batch 4).
 	"VisitFloatAddTo":   "dead grammar; addtostatement handles `add X to Y` as a statement",
 	"VisitFloatSubFrom": "dead grammar; addtostatement handles `subtract X from Y`",
-	// Float/Int/Str Using are unreachable: ANTLR adaptive prediction
+	// Float/Int Using are unreachable: ANTLR adaptive prediction
 	// picks intUsingArray (in iexpr) first for the `using <ident>(<expr>)`
 	// shape because both IDENT-typed sides match more broadly. The
 	// actually-reached intUsingArray now has an override (#803 batch 6).
@@ -127,7 +127,6 @@ var inheritedAllowlist = map[string]string{
 	"VisitStrConcatInt":     "dead grammar; base strConcat wins parser-side",
 	"VisitStrConcatInvalid": "dead grammar; base strConcat wins parser-side",
 	"VisitStrConcatNull":    "dead grammar; base strConcat wins parser-side",
-	"VisitStrUsing":         "dead grammar; intUsingArray wins parser-side (see VisitFloatUsing)",
 	// tablelist / tableTyped are helper rules referenced from the
 	// table-lookup alts; with the table-lookup parent emitting
 	// elstmterror placeholders (#803 batch 6), the helpers are never
