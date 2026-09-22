@@ -165,6 +165,11 @@ them.
 The compiler is injected with an operator existence check and an arity check so
 a misspelled operator is refused at authoring time rather than at execution.
 
+The emitter also refuses, at authoring time, a field read where a name is
+required: after `sort … by`, a field or local whose declared type is not `name`
+is an error that points at `the name "<field>"`, because it would be evaluated
+before the sort with no entity on the stack and fail at execution (#1227).
+
 The grammar sweep (`grammar_sweep_test.go`) holds every labelled alternative
 in `EL.g4` to a corpus row in `testdata/`. Each row must compile to non-empty
 postfix, and must parse through the label it is filed under (checked on the
@@ -174,11 +179,6 @@ exist in `EL.g4`. Exceptions are listed per row with a reason:
 parser can never choose the label) and `grammar_helpers.tsv` (a fragment that
 cannot be compiled on its own). An exception that starts passing fails the
 sweep, so each list can only shrink.
-
-The emitter also refuses, at authoring time, a field read where a name is
-required: after `sort … by`, a field or local whose declared type is not `name`
-is an error that points at `the name "<field>"`, because it would be evaluated
-before the sort with no entity on the stack and fail at execution (#1227).
 
 ## 2.4 Execution
 
