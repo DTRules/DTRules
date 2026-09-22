@@ -103,7 +103,7 @@ func TestIssue803_ArrayMap_ErrorsLoudly(t *testing.T) {
 func TestIssue803_ArrayName_ErrorsLoudly(t *testing.T) {
 	c := NewCompiler()
 	c.SetSymbols(issue803Batch9Symbols())
-	got, err := c.CompileAction(`set client.backup = (array) $kids`)
+	got, err := c.CompileAction(`set client.backup = (array) name`)
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}

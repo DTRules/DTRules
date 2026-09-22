@@ -297,7 +297,6 @@ performstatement
     | PERFORM TABLE NAMED LPAREN strexpr RPAREN (AMONG typedDecisionTable (COMMA typedDecisionTable)*)? (WITH_DEFAULT typedDecisionTable)? # performDynamicTable
     | typedDecisionTable                                    # performDT
     | PERFORM typedDecisionTable                            # performDTExplicit
-    | PERFORM NAME                                          # performName
     ;
 
 errorstatement
@@ -1197,6 +1196,9 @@ INCLUDE             : 'include' ;
 INCLUDES            : 'includes' ;
 ATTRIBUTE           : 'attribute' ;
 VALUE               : 'value' ;
+// `$foo` no longer means anything (#1280): the lexer still recognises it so
+// the compiler can refuse it by name and point at `the name "foo"`, rather
+// than failing with an unrecognised character.
 NAME                : '$' IDENT_CHAR+ | 'name' ;
 LOCAL               : 'local' ;
 SUBSTRING           : 'substring' ;

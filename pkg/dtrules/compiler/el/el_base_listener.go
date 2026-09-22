@@ -842,12 +842,6 @@ func (s *BaseELListener) EnterPerformDTExplicit(ctx *PerformDTExplicitContext) {
 // ExitPerformDTExplicit is called when production performDTExplicit is exited.
 func (s *BaseELListener) ExitPerformDTExplicit(ctx *PerformDTExplicitContext) {}
 
-// EnterPerformName is called when production performName is entered.
-func (s *BaseELListener) EnterPerformName(ctx *PerformNameContext) {}
-
-// ExitPerformName is called when production performName is exited.
-func (s *BaseELListener) ExitPerformName(ctx *PerformNameContext) {}
-
 // EnterErrorStmt is called when production errorStmt is entered.
 func (s *BaseELListener) EnterErrorStmt(ctx *ErrorStmtContext) {}
 
