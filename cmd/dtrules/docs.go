@@ -3778,6 +3778,11 @@ an error and the table is not touched — callers can safely retry.
     (*Table).UpdateContext(idx int, c Context) error
     (*Table).DeleteContext(idx int) error
 
+  Numbering: num is the author-visible number a condition or action
+  carries in the table; idx is a Go slice index counting from 0. The
+  JSON patch API numbers everything from 1 — action_number,
+  condition_number and index alike — and refuses index 0 (#1297).
+
   Columns (rule cells — condition cell is "Y"/"N"/" ", actions fire by number):
     (*Table).AddColumn(conditions map[int]string, actions []int) error
     (*Table).UpdateColumn(col int, conditions map[int]string, actions []int) error
