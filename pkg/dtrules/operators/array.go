@@ -362,9 +362,16 @@ func opSortEntities(state dtrules.State) error {
 	if err != nil {
 		return err
 	}
-	name, err := nameObj.RNameValue()
+	literal, err := nameObj.RNameValue()
 	if err != nil {
 		return err
+	}
+	// The field usually arrives as a literal, /val: the non-executable form.
+	// Attributes are keyed by the interned executable form, so resolve it
+	// the way Find and Def do (#1274).
+	name := dtrules.GetRName(literal.GetName())
+	if name == nil {
+		return dtrules.UndefinedError("sortentities", "invalid field name: "+literal.StringValue())
 	}
 	arr, err := arrayObj.RArrayValue()
 	if err != nil {
@@ -396,6 +403,15 @@ func opSortEntities(state dtrules.State) error {
 		v2, err := e2.Get(name)
 		if err != nil {
 			cmpErr = err
+			return false
+		}
+		if v1 == nil || v2 == nil {
+			missing := e1
+			if v1 != nil {
+				missing = e2
+			}
+			cmpErr = dtrules.UndefinedError("sortentities",
+				"entity "+missing.GetName().StringValue()+" has no field "+name.GetName())
 			return false
 		}
 		cmp, err := v1.Compare(v2)
