@@ -2,7 +2,7 @@ rule	label	entry	dsl	note
 createstatement	createEntityAs	action	create account as acct	#1244: no row while the coverage guard was dead
 localvariables	localFixedUndef	context	local fixed x	#1244: no row while the coverage guard was dead
 localvariables	localFixedInit	context	local fixed x = 100fp	#1244: no row while the coverage guard was dead
-localvariables	localFixedDefined	context	local fixed n	#1244: grammar-unreachable, parses as localFixedUndef (typedLong and undefinedIdent are both IDENT); same for localLongDefined, localDoubleDefined
+localvariables	localFixedDefined	context	local fixed x	#1247: unreachable, parses as localFixedUndef (#1249)
 forallctl	forallReverse	context	for all accounts in reverse	#1244: no row while the coverage guard was dead
 forallctl	forallReverseWhere	context	for all accounts in reverse where true	#1244: no row while the coverage guard was dead
 forallctl	forallTypeEntities	context	for all account entities	#1244: no row while the coverage guard was dead
@@ -100,6 +100,149 @@ bexpr	boolSameCalendarWeek	condition	(date) "2020-01-01" is same calendar weeks 
 bexpr	boolSameCalendarMonth	condition	(date) "2020-01-01" is same calendar months as (date) "2020-01-01" in zone "UTC"	#1244: no row while the coverage guard was dead
 bexpr	boolSameCalendarQuarter	condition	(date) "2020-01-01" is same calendar quarters as (date) "2020-01-01" in zone "UTC"	#1244: no row while the coverage guard was dead
 bexpr	boolSameCalendarYear	condition	(date) "2020-01-01" is same calendar years as (date) "2020-01-01" in zone "UTC"	#1244: no row while the coverage guard was dead
+addtodest	addDestArray	action	add "x" to accounts	#1247
+addtodest	addDestColon	action	add 1 to :account: accounts	#1247
+addtodest	addDestDouble	action	add 1.0 to d	#1247: unreachable, parses as addDestArray (#1250)
+addtodest	addDestLong	action	add 1 to n	#1247: unreachable, parses as addDestArray (#1250)
+addtodest	addDestPossessiveDouble	action	add 1.0 to account's d	#1247: unreachable, parses as addDestColon (#1250)
+addtodest	addDestPossessiveLong	action	add 1 to account's n	#1247: unreachable, parses as addDestColon (#1250)
+addtodest2	addDestArray2	action	add 1 to :account: accounts	#1247
+addtodest2	addDestDouble2	action	add 1.0 to :account: d	#1247: unreachable, parses as addDestArray2 (#1250)
+addtodest2	addDestLong2	action	add 1 to :account: n	#1247: unreachable, parses as addDestArray2 (#1250)
+addtostatement	addDateToDest	action	add current date to accounts	#1247
+addtostatement	addEntityToDest	action	add first of accounts to accounts	#1247
+arrayExpr2	arrayLiteral	condition	[ "a" ] includes string "a"	#1247
+arrayExpr2	arrayName	condition	(array) $x includes account	#1247: emits a not-yet-implemented elstmterror
+arrayList	arrayListArraySingle	condition	[ copy of accounts ] includes string "x"	#1247
+arrayList	arrayListBoolSingle	condition	[ true ] includes string "x"	#1247
+arrayList	arrayListEntitySingle	condition	[ first of accounts ] includes string "x"	#1247: a bare identifier is taken by arrayListBoolSingle
+arrayList	arrayListFloatSingle	condition	[ 1.0 ] includes value 1	#1247
+arrayList	arrayListIntSingle	condition	[ 1 ] includes value 1	#1247
+arrayList	arrayListNameSingle	condition	[ $x ] includes string "x"	#1247
+arrayList	arrayListStrSingle	condition	[ "x" ] includes string "x"	#1247
+bexpr	boolArrayIsNotNull	condition	copy of accounts is not null	#1247: a bare identifier is taken by boolBexprIsNotNull
+bexpr	boolArrayIsNull	condition	copy of accounts is null	#1247: a bare identifier is taken by boolBexprIsNull
+bexpr	boolBigEq	condition	(bigint) "1" == (bigint) "1"	#1247
+bexpr	boolBigGt	condition	(bigint) "1" > (bigint) "0"	#1247
+bexpr	boolBigGte	condition	(bigint) "1" >= (bigint) "0"	#1247
+bexpr	boolBigLt	condition	(bigint) "1" < (bigint) "2"	#1247
+bexpr	boolBigLte	condition	(bigint) "1" <= (bigint) "2"	#1247
+bexpr	boolBigNeq	condition	(bigint) "1" != (bigint) "2"	#1247
+bexpr	boolDateEq	condition	current date == current date	#1247: 2020-01-01 lexes as integer subtraction
+bexpr	boolDateGt	condition	current date > current date	#1247
+bexpr	boolDateGte	condition	current date >= current date	#1247
+bexpr	boolDateIsNotNull	condition	current date is not null	#1247
+bexpr	boolDateIsNull	condition	current date is null	#1247
+bexpr	boolDateLt	condition	current date < current date	#1247
+bexpr	boolDateLte	condition	current date <= current date	#1247
+bexpr	boolEntityEq	condition	first of accounts == account	#1247: identifier == identifier is taken by boolNameEq
+bexpr	boolEntityIsNotNull	condition	first of accounts is not null	#1247
+bexpr	boolEntityIsNull	condition	first of accounts is null	#1247: a bare identifier is taken by boolBexprIsNull
+bexpr	boolEntityNeq	condition	first of accounts != account	#1247
+bexpr	boolFromIndex	condition	(boolean) arr[1]	#1247: emits bytesidx on an array: #1256
+bexpr	boolFunction	condition	bf	#1247: unreachable, parses as boolTyped (#1250)
+bexpr	boolStrEqIcList	condition	"x" is equal to ignore case "a", or "b"	#1247
+bexpr	boolStrEqList	condition	"x" == "a", or "b"	#1247: a blist needs a comma or `or`
+bigexpr	bigAbs	condition	absolute value of (bigint) "1" > (bigint) "0"	#1247: integer literals go through numexpr
+bigexpr	bigAdd	condition	(bigint) "1" + (bigint) "1" > (bigint) "0"	#1247
+bigexpr	bigDiv	condition	(bigint) "1" / (bigint) "1" > (bigint) "0"	#1247
+bigexpr	bigMul	condition	(bigint) "1" * (bigint) "1" > (bigint) "0"	#1247
+bigexpr	bigNegate	condition	- (bigint) "1" > (bigint) "0"	#1247
+bigexpr	bigParen	condition	( (bigint) "1" ) > (bigint) "0"	#1247
+bigexpr	bigSub	condition	(bigint) "1" - (bigint) "1" > (bigint) "0"	#1247
+bigexpr	bigTyped	condition	bi > (bigint) "0"	#1247
+bigexpr	bigUsing	condition	using account ( (bigint) "1" ) > (bigint) "0"	#1247
+blist	blistMulti	condition	"x" == "a", or "b"	#1247
+blist	blistOr	condition	"x" == or "a"	#1247
+blistIc	blistIcMulti	condition	"x" is equal to ignore case "a", or "b"	#1247
+blistIc	blistIcOr	condition	"x" is equal to ignore case or "a"	#1247
+debugstatement	debugArray	context	debug copy of accounts	#1247: a bare identifier is taken by debugStr
+debugstatement	debugDate	context	debug current date	#1247
+debugstatement	debugEntity	context	debug first of accounts	#1247
+debugstatement	printArray	context	print copy of accounts	#1247
+debugstatement	printDate	context	print current date	#1247
+debugstatement	printEntity	context	print first of accounts	#1247
+dexpr	dateAdd	condition	current date + current date is equal to current date	#1247
+dexpr	dateParen	condition	( current date ) is equal to current date	#1247
+dexpr	dateSub	condition	current date - current date is equal to current date	#1247
+dexpr	dateTyped	condition	dt is equal to current date	#1247
+dexpr	dateUsing	condition	using account ( current date ) is equal to current date	#1247
+fexpr	floatFromIndex	condition	(double) copy of accounts[1] > 0.0	#1247: (double) arr[1] is taken by floatFromInt; emits bytesidx: #1256
+fexpr	floatNegate	condition	absolute value of - 1.0 > 0.0	#1247: - 1.0 in a comparison is numNegate
+iexpr	intAddTo	context	local fixed f = add to n 5	#1247: emits nothing for the expression: #1253
+iexpr	intDivBy	context	local fixed f = divide n by 5	#1247
+iexpr	intFromIndex	context	local fixed f = (int) arr[1]	#1247: emits bytesidx on an array: #1256
+iexpr	intLiteral	context	local fixed f = 5	#1247: a comparison takes numexpr, not iexpr; local fixed takes iexpr
+iexpr	intMaxOf	context	local fixed f = maximum of 1 and 2	#1247
+iexpr	intMaxOfComma	context	local fixed f = maximum of 1, 2	#1247
+iexpr	intMinOf	context	local fixed f = minimum of 1 and 2	#1247
+iexpr	intMinOfComma	context	local fixed f = minimum of 1, 2	#1247
+iexpr	intMulBy	context	local fixed f = multiply n by 5	#1247
+iexpr	intNegate	context	local fixed f = - 1	#1247
+iexpr	intParen	context	local fixed f = ( 1 )	#1247
+iexpr	intSubFrom	context	local fixed f = subtract from n 5	#1247: emits nothing for the expression: #1253
+iexpr	intTyped	context	local fixed f = n	#1247
+iexpr	intUsing	context	local fixed f = using new account entity ( 1 )	#1247: using <identifier> (...) is taken by intUsingArray
+ifstatement	ifThen	context	for n = 1; n < 3; if true then { set n = 1; } endif;	#1247: in an action, block's IF alternative takes it; forctl's body is a bare statement
+ifstatement	ifThenElse	context	for n = 1; n < 3; if true then { set n = 1; } else { set n = 2; } endif;	#1247
+includeSearch	includeDate	condition	accounts includes date current date	#1247
+includeSearch	includeEntity	condition	accounts includes account	#1247
+includeSearch	includeNumber	condition	accounts includes value 5	#1247
+includeSearch	includeString	condition	accounts includes string "x"	#1247
+leftArrayRef	leftArraySimple	action	set arr = copy of accounts	#1247
+leftBexpr	leftBexprSimple	action	set b = true	#1247
+leftBigexpr	leftBigexprSimple	action	set bi = (bigint) "1"	#1247
+leftDexpr	leftDexprSimple	action	set dt = current date	#1247: unreachable, parses as leftStrexprSimple (setDate is dead) (#1250)
+leftEexpr	leftEexprSimple	action	set e = first of accounts	#1247
+leftFexpr	leftFexprSimple	action	set d = 1.0	#1247: unreachable, parses as leftIexprSimple (setFloat is dead) (#1250)
+leftIexpr	leftIexprSimple	action	set n = 1	#1247
+leftStrexpr	leftStrexprSimple	action	set s = "x"	#1247
+leftTexpr	leftTexprSimple	action	set t = tbl	#1247: unreachable, parses as leftIexprSimple (setTable is dead) (#1250)
+operatorlist	opListEntity	action	op(new account entity, 1)	#1247: a bare identifier is taken by opListStr
+operatorlist	opListEntitySingle	action	op(new account entity)	#1247
+operatorlist	opListFloat	action	op(1.0, 1)	#1247
+operatorlist	opListFloatSingle	action	op(1.0)	#1247
+operatorlist	opListInt	action	op(1, 1)	#1247
+operatorlist	opListIntSingle	action	op(1)	#1247
+operatorlist	opListStr	action	op("x", 1)	#1247
+operatorlist	opListStrSingle	action	op("x")	#1247
+performstatement	performName	action	perform $x	#1247: emits nothing: #1254
+randomstatements	removeEntity	action	remove first of accounts from accounts array	#1247: a bare identifier is taken by removeName
+setstatement	decrementDouble	action	decrement d	#1247: unreachable, parses as decrementLong (#1250)
+setstatement	incrementDouble	action	increment d	#1247: unreachable, parses as incrementLong (#1250)
+setstatement	setArrayArray	action	set arr = copy of accounts	#1247
+setstatement	setArrayDate	action	set arr = current date	#1247: unreachable, parses as setStringFromDate (#1250)
+setstatement	setArrayEntity	action	set arr = first of accounts	#1247: unreachable, parses as setEntity (#1250)
+setstatement	setArrayFloat	action	set arr = 1.0	#1247: unreachable, parses as setInt (#1250)
+setstatement	setArrayInt	action	set arr = 1	#1247: unreachable, parses as setInt (#1250)
+setstatement	setArrayString	action	set arr = "x"	#1247: unreachable, parses as setString (#1250)
+setstatement	setBigInt	action	set bi = (bigint) "1"	#1247
+setstatement	setBoolFromName	action	set b = $x	#1247: unreachable, parses as setStringFromName (#1250)
+setstatement	setDate	action	set dt = current date	#1247: unreachable, parses as setStringFromDate (#1250)
+setstatement	setEntity	action	set e = first of accounts	#1247: a bare identifier on the right is taken by setInt
+setstatement	setFloat	action	set d = 5	#1247: unreachable, parses as setInt (#1250)
+setstatement	setStringFromDate	action	set s = current date	#1247
+setstatement	setStringFromNumber	action	set s = 5	#1247: unreachable, parses as setInt (#1250)
+setstatement	setStringFromTable	action	set s = new "x" table of "y"	#1247: emits nothing: #1255
+setstatement	setTable	action	set t = tbl	#1247: unreachable, parses as setInt (#1250)
+strexpr	strConcatArray	condition	"x" + copy of accounts is equal to "x"	#1247: the concatenation emits nothing: #1251
+strexpr	strConcatDate	condition	"x" + current date is equal to "x"	#1247: the concatenation emits nothing: #1251
+strexpr	strConcatEntity	condition	"x" + first of accounts is equal to "x"	#1247: the concatenation emits nothing: #1251
+strexpr	strConcatInvalid	condition	"x" + bad is equal to "x"	#1247: unreachable, parses as strConcat (#1250)
+strexpr	strConcatNull	condition	"x" + nothing is equal to "x"	#1247: unreachable, parses as strConcat (#1250)
+strexpr	strTyped	condition	"x" is equal to s	#1247: unreachable, parses as strXmlValue (#1250)
+strexpr	strXmlValue	condition	"x" is equal to s	#1247: identifier == string is taken by boolNameEqStr
+subtodest	subDestColon	action	subtract 1 from :account: n	#1247
+subtodest	subDestDouble	action	subtract 1.0 from d	#1247: unreachable, parses as subDestLong (#1250)
+subtodest	subDestLong	action	subtract 1 from n	#1247
+subtodest	subDestPossessiveDouble	action	subtract 1.0 from account's d	#1247: unreachable, parses as subDestColon (#1250)
+subtodest	subDestPossessiveLong	action	subtract 1 from account's n	#1247: unreachable, parses as subDestColon (#1250)
+tablelist	tableListMulti	condition	(string) tbl("k", "j") == "x"	#1247: hash tables removed: emits an elstmterror
+tablelist	tableListSingle	condition	(string) tbl("k") == "x"	#1247: hash tables removed: emits an elstmterror
+texpr	tableNew	condition	(string) new "x" table of "y" ("k") == "x"	#1247: hash tables removed: emits an elstmterror
+texpr	tableTyped	condition	(string) tbl("k") == "x"	#1247: hash tables removed: emits an elstmterror
+xmlvaluestatements	xmlAddAttrEntity	action	first of accounts : add attribute "x" = "y"	#1247: a bare identifier is taken by xmlAddAttr
+xmlvaluestatements	xmlSetAttrEntity	action	first of accounts : set attribute "x" = "y"	#1247
 block	blockCurly	action	{ set x = 1; }
 block	blockUsing	action	using account { set x = 1; }
 block	blockGforall	action	{ set x = 1; } for all accounts	gforall: body block, then forall
@@ -130,12 +273,12 @@ done	policyStrExpr	raw	policystatement "x";
 done	policyIExpr	raw	policystatement 1;
 done	policyFExpr	raw	policystatement 1.0;
 done	policyBExpr	raw	policystatement true;
-done	policyDExpr	raw	policystatement 2020-01-01;
+done	policyDExpr	raw	policystatement current date;	#1247
 done	conditionDebugBefore	raw	condition debug "hi"; true;
 done	conditionDebugAfter	raw	condition true; debug "hi";
 done	contextDebugBefore	raw	context debug "hi"; for all accounts;
-possessiveRef	possessiveChain	condition	account's name EQ /tbl	tested via nexpr in a condition
-possessiveRef	colonChain	condition	account:name EQ /tbl
+possessiveRef	possessiveChain	condition	account's flag	#1247
+possessiveRef	colonChain	condition	:account: flag	#1247
 contextstatement	addToContextOf	context	add account to context of this table
 contextstatement	addToContextFor	context	add account to context for this table
 ifcontinue	ifEnd	action	if true then set x = 1; endif
@@ -143,31 +286,31 @@ ifcontinue	ifElse	action	if true then set x = 1; else set y = 1; endif
 ifcontinue	ifElseIf	action	if true then set x = 1; else if false then set y = 1; endif
 localvariables	localEntityUndef	context	local entity x
 localvariables	localEntityInit	context	local entity x = account
-localvariables	localEntityDefined	context	local entity x
+localvariables	localEntityDefined	context	local entity x	#1247: unreachable, parses as localEntityUndef (#1249)
 localvariables	localLongUndef	context	local int x
 localvariables	localLongInit	context	local int x = 5
-localvariables	localLongDefined	context	local int x
+localvariables	localLongDefined	context	local int x	#1247: unreachable, parses as localLongUndef (#1249)
 localvariables	localDoubleUndef	context	local double x
 localvariables	localDoubleInit	context	local double x = 5.0
-localvariables	localDoubleDefined	context	local double x
+localvariables	localDoubleDefined	context	local double x	#1247: unreachable, parses as localDoubleUndef (#1249)
 localvariables	localBoolUndef	context	local boolean x
 localvariables	localBoolInit	context	local boolean x = true
-localvariables	localBoolDefined	context	local boolean x
+localvariables	localBoolDefined	context	local boolean x	#1247: unreachable, parses as localBoolUndef (#1249)
 localvariables	localDateUndef	context	local date x
 localvariables	localDateInit	context	local date x = today
-localvariables	localDateDefined	context	local date x
+localvariables	localDateDefined	context	local date x	#1247: unreachable, parses as localDateUndef (#1249)
 localvariables	localArrayUndef	context	local array x
 localvariables	localArrayInit	context	local array x = accounts
-localvariables	localArrayDefined	context	local array x
+localvariables	localArrayDefined	context	local array x	#1247: unreachable, parses as localArrayUndef (#1249)
 localvariables	localStringUndef	context	local string x
 localvariables	localStringInit	context	local string x = "x"
-localvariables	localStringDefined	context	local string x
+localvariables	localStringDefined	context	local string x	#1247: unreachable, parses as localStringUndef (#1249)
 localvariables	localBigIntUndef	context	local bigint x
 localvariables	localBigIntInit	context	local bigint x = (bigint) 1
-localvariables	localBigIntDefined	context	local bigint x
+localvariables	localBigIntDefined	context	local bigint x	#1247: unreachable, parses as localBigIntUndef (#1249)
 localvariables	localBytesUndef	context	local bytes x
 localvariables	localBytesInit	context	local bytes x = 0xab
-localvariables	localBytesDefined	context	local bytes x
+localvariables	localBytesDefined	context	local bytes x	#1247: unreachable, parses as localBytesUndef (#1249)
 setstatement	setStringFromName	action	set s = $tbl
 bexpr	boolArrayIncludes	condition	accounts includes account
 bexpr	boolArrayDoesInclude	condition	accounts does include account
@@ -182,8 +325,8 @@ bexpr	boolNameNeqStr	condition	$a != "x"
 dexpr	dateCurrentDate	condition	current date is equal to (date) "2020-01-01"
 dexpr	dateFromStrCast	condition	(date) "2020-01-01" is equal to (date) "2020-01-01"
 dexpr	dateFromStrFunc	condition	date("2020-01-01") is equal to (date) "2020-01-01"
-dexpr	dateFromIndex	condition	(date) indxExpr is equal to (date) "2020-01-01"
-dexpr	dateFromArrayAt	condition	(date) arr[1] is equal to (date) "2020-01-01"
+dexpr	dateFromIndex	condition	(date) arr[1] is equal to current date	#1247: emits bytesidx on an array: #1256
+dexpr	dateFromArrayAt	condition	(date) arr[1] is equal to current date	#1247: unreachable, parses as dateFromIndex (#1250)
 dexpr	dateExprAddDays	condition	add 5 days to (date) "2020-01-01" is equal to (date) "2020-01-01"
 dexpr	dateExprAddMonths	condition	add 5 months to (date) "2020-01-01" is equal to (date) "2020-01-01"
 dexpr	dateExprAddYears	condition	add 5 years to (date) "2020-01-01" is equal to (date) "2020-01-01"
@@ -214,13 +357,13 @@ bytesexpr	bytesCvHex	condition	bytes of hex "ab" == 0xab
 bytesexpr	bytesCvBase58Check	condition	bytes of base58check "x" == 0xab
 bytesexpr	bytesCvBech32	condition	bytes of bech32 "x" == 0xab
 bytesexpr	bytesCvBigInt	condition	bytes of bigint (bigint) 1 size 1 == 0xab
-eexpr	entityTyped	condition	account == account
-eexpr	entityParen	condition	(account) == account
-eexpr	entityIndex	condition	account == account
+eexpr	entityTyped	condition	clone of account == first of accounts	#1247
+eexpr	entityParen	condition	(account) == first of accounts	#1247
+eexpr	entityIndex	condition	arr[1] == first of accounts	#1247
 eexpr	entityNewName	condition	new account entity == account
-eexpr	entityNewTyped	condition	new account entity == account
+eexpr	entityNewTyped	condition	new account entity == first of accounts	#1247: unreachable, parses as entityNewName (#1250)
 eexpr	entityClone	condition	clone of account == account
-eexpr	entityColonRef	condition	:account:account == account
+eexpr	entityColonRef	condition	:account: account == first of accounts	#1247
 eexpr	entityRelationship	condition	"role" of account == account
 iexpr	intDaysInYear	condition	get days in yearof (date) "2020-01-01" > 0
 iexpr	intDaysInMonth	condition	get days in months for (date) "2020-01-01" > 0
@@ -256,7 +399,7 @@ strexpr	strFromIndex	condition	(string) arr[1] is equal to "x"
 randomstatements	removeName	action	remove $tbl from accounts array
 randomstatements	sortAscending	action	sort accounts in ascending order by $tbl
 randomstatements	sortDescending	action	sort accounts in descending order by $tbl
-randomstatements	clearArray	action	clear accounts
+randomstatements	clearArray	action	clear accounts	#1247: unreachable, parses as clearstatement (unlabelled) (#1250)
 addtostatement	addEntityToDestDup	action	add account to x and to y
 addtostatement	addStrToDestDup	action	add "x" to x and to y
 addtostatement	addNumToDestDup	action	add 5 to x and to y
@@ -271,9 +414,9 @@ bexpr	boolOneOfHasa	condition	one of accounts has a true
 bexpr	boolThereIsWhere	condition	there is account where true
 bexpr	boolThereIsNoWhere	condition	there is no account where true
 bexpr	boolThereIsInEntityWhere	condition	there is account in account where true
-bexpr	boolThereIsInArrayWhere	condition	there is account in accounts where true
+bexpr	boolThereIsInArrayWhere	condition	there is account in copy of accounts where true	#1247: a bare identifier is taken by boolThereIsInEntityWhere
 bexpr	boolThereIsNoInEntityWhere	condition	there is no account in account where true
-bexpr	boolThereIsNoInArrayWhere	condition	there is no account in accounts where true
+bexpr	boolThereIsNoInArrayWhere	condition	there is no account in copy of accounts where true	#1247
 bexpr	boolEntityHasaWhere	condition	account has a "rel" where true
 bexpr	boolStartsWithAt	condition	"hello" at 2 starts with "llo"
 dexpr	dateDays	condition	(date) "2020-01-01" + (5 days) is equal to (date) "2020-01-06"

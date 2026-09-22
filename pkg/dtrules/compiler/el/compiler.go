@@ -48,6 +48,11 @@ type Compiler struct {
 	// the current table compiles against; see MarkLocalScope.
 	localScope    LocalsMark
 	hasLocalScope bool
+
+	// parsed, when set, receives each tree that parsed cleanly, before it is
+	// emitted. The grammar sweep uses it to see which labelled alternative a
+	// row actually went through.
+	parsed func(IDoneContext)
 }
 
 // NewCompiler creates a new EL compiler.
@@ -296,6 +301,10 @@ func (c *Compiler) compile(el string) (string, error) {
 	if tok := tokens.LA(1); tok != antlr.TokenEOF {
 		rest := tokens.GetTextFromInterval(antlr.NewInterval(tokens.Index(), tokens.Size()-1))
 		return "", fmt.Errorf("unexpected tokens after parse: %s", strings.TrimSpace(rest))
+	}
+
+	if c.parsed != nil {
+		c.parsed(tree)
 	}
 
 	// Emit postfix using persistent emitter (preserves local variable state)

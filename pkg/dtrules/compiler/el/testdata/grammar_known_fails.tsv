@@ -32,3 +32,5 @@ nexpr	nameFromStr	corpus DSL starts with "( x )" which parses as entity group; r
 nexpr	nameLiteral	corpus DSL "x EQ /tbl" leaves EQ /tbl unconsumed (#703)
 nexpr	nameTyped	corpus DSL "nm EQ /tbl" leaves EQ /tbl unconsumed (#703)
 strexpr	strColonRef	corpus uses literal word "colonRef" not a COLON chain (#703)
+performstatement	performName	the row reaches performName, which has no emitter and compiles to empty postfix (#1254)
+setstatement	setStringFromTable	the row reaches setStringFromTable, which has no emitter and compiles to empty postfix (#1255)

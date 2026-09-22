@@ -165,6 +165,16 @@ them.
 The compiler is injected with an operator existence check and an arity check so
 a misspelled operator is refused at authoring time rather than at execution.
 
+The grammar sweep (`grammar_sweep_test.go`) holds every labelled alternative
+in `EL.g4` to a corpus row in `testdata/`. Each row must compile to non-empty
+postfix, and must parse through the label it is filed under (checked on the
+tree the compiler itself parsed). Every rule/label named in `testdata/` must
+exist in `EL.g4`. Exceptions are listed per row with a reason:
+`grammar_known_fails.tsv` (does not compile), `grammar_label_misses.tsv` (the
+parser can never choose the label) and `grammar_helpers.tsv` (a fragment that
+cannot be compiled on its own). An exception that starts passing fails the
+sweep, so each list can only shrink.
+
 ## 2.4 Execution
 
 `pkg/dtrules/interpreter` holds the VM. Three stacks:
