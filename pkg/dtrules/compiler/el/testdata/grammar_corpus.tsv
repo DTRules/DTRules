@@ -247,6 +247,7 @@ dexpr	dateAdd	condition	2020-01-01 + 2020-01-01 is equal to 2020-01-01
 dexpr	dateSub	condition	2020-01-01 - 2020-01-01 is equal to 2020-01-01
 dexpr	dateTableLookup	condition	( 2020-01-01 ) tbl ( tablelist ) is equal to 2020-01-01
 dexpr	dateCurrentDate	condition	current date is equal to 2020-01-01
+dexpr	dateCurrentTime	condition	current time is after current date
 dexpr	dateExprSubYears	condition	subtract 5 year s from 2020-01-01 is equal to 2020-01-01
 dexpr	dateExprSubMonths	condition	subtract 5 month s from 2020-01-01 is equal to 2020-01-01
 dexpr	dateExprSubDays	condition	subtract 5 day s from 2020-01-01 is equal to 2020-01-01

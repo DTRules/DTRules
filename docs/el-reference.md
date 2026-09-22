@@ -495,9 +495,20 @@ The right operand need not be a string: a number, a date, an entity or an array 
 #### Current date
 
 **Syntax**: `current date`
-**Semantics**: Today's date at midnight UTC -- not the current instant. Postfix: `today`. For the current instant write `current date in zone "UTC"` (postfix `"UTC" currentdateinzone`), which is the instant now stamped with that zone.
+**Semantics**: Today's date at midnight UTC -- not the current instant. Postfix: `today`. For the current instant write `current time` (#1266); `current date in zone "UTC"` is the same instant, stamped with that zone.
 **Example (EL)**: `taxpayer.birth_date is before current date`
 **Compiled postfix**: `taxpayer.birth_date today d<`
+
+#### Current time (#1266)
+
+**Syntax**: `current time`
+**Semantics**: The current instant, in UTC. Postfix: `now`. This is the phrase for a rule that runs against real time -- how long since something happened, whether a deadline has passed. `current time in zone "<tz>"` is the same instant stamped with that zone. UTC-anchored for the same reason as `today`: the zone a date carries decides what the calendar operators read, so a rule must not answer differently on a server in another zone. A phrase reserves no identifier, so `current`, `time` and a field named `current.time` all keep working, and the compiler still types it as a date (`current time + 1` is a compile error; `current time + 1 days` is a date).
+**Example (EL)**: `seconds from job.last_progress to current time > 120`
+**Compiled postfix**: `job.last_progress now secondsbetween 120 >`
+
+**As a string**: assign it to a string field -- `set job.stamp = current time` compiles to `now cvs /job.stamp xdef`, and `cvs` renders a date carrying a time as RFC3339Nano. This replaces `get current timestamp`, removed in #1266.
+
+**Contrast**: `current date` is today at midnight UTC, so `seconds from job.last_progress to current date` measures from midnight, not from the instant.
 
 #### Today in a zone
 
@@ -565,7 +576,7 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Example (EL)**: `seconds from job.last_progress to job.checked_at > 120`
 **Compiled postfix**: `job.last_progress job.checked_at secondsbetween 120 >`
 
-`current date` is today's date at midnight, not the current instant; to measure against "now" write `current date in zone "UTC"` (postfix `"UTC" currentdateinzone`).
+Measure against `current time`, the current instant (#1266): `seconds from job.last_progress to current time > 120`. `current date` is today at midnight, so it is not a stand-in for the instant.
 **Eligibility example**: `years from taxpayer.birth_date to current date >= constants.adult_age`
 
 #### Is before / is after / is between
@@ -850,13 +861,6 @@ date or other non-name field) is a compile error that points at
 **Compiled postfix**: `person entitypush person.age 18 >= entitypop pop`
 
 `entitypop` pushes the entity it pops onto the data stack, above the expression's value. The trailing `pop` discards the entity and leaves the value on the stack.
-
-### Get current timestamp
-
-**Syntax**: `get current timestamp`
-**Semantics**: Returns the current date/time as a formatted string.
-**Example (EL)**: `get current timestamp == ""`
-**Compiled postfix**: `gettimestamp "" streq`
 
 ### Mapping key
 

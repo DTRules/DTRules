@@ -7,7 +7,7 @@
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Syntax_Examples</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -282,7 +282,7 @@ else
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Syntax_Examples_2</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -942,7 +942,7 @@ effectiveDate endofmonth cvdate /currentDate xdef
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>3</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Syntax_Examples_3</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -1167,9 +1167,9 @@ today cvdate /effectiveDate xdef
 <action_details>
 <action_number>23</action_number>
 <action_comment>USE VERY CAREFULLY.  Can break testing</action_comment>
-<action_dsl>set strBuffer = get current timestamp</action_dsl>
+<action_dsl>set strBuffer = current time</action_dsl>
 <action_postfix>
-gettimestamp cvs /strBuffer xdef
+now cvs /strBuffer xdef
 </action_postfix>
 <columns>-</columns>
 </action_details>
@@ -1408,7 +1408,7 @@ totalIncome 2 .4 roundto cvd /totalIncome xdef
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>4</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Syntax_Examples_4</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -2086,7 +2086,7 @@ clients client_ID memberof not cvb /eligible xdef
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>5</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Error_Handling_Table</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -2108,7 +2108,7 @@ clients client_ID memberof not cvb /eligible xdef
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>6</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -2359,7 +2359,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>7</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_2</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -2554,7 +2554,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>8</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_3</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -2759,7 +2759,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>9</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_4</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -2966,7 +2966,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>10</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_5</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -3173,7 +3173,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>11</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_6</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -3380,7 +3380,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>12</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_7</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -3580,7 +3580,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>13</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_8</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -3756,7 +3756,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>14</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_9</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -3930,7 +3930,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>15</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_10</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -3987,9 +3987,9 @@ today cvdate /effectiveDate xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
-<initial_action_dsl>set strBuffer = get current timestamp</initial_action_dsl>
+<initial_action_dsl>set strBuffer = current time</initial_action_dsl>
 <initial_action_postfix>
-gettimestamp cvs /strBuffer xdef
+now cvs /strBuffer xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -4110,7 +4110,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>16</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_11</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -4299,7 +4299,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>17</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_12</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -4486,7 +4486,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>18</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_13</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -4537,9 +4537,9 @@ today cvdate /effectiveDate xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
-<initial_action_dsl>set strBuffer = get current timestamp</initial_action_dsl>
+<initial_action_dsl>set strBuffer = current time</initial_action_dsl>
 <initial_action_postfix>
-gettimestamp cvs /strBuffer xdef
+now cvs /strBuffer xdef
 </initial_action_postfix>
 </initial_action>
 <initial_action>
@@ -4666,7 +4666,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>19</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_14</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -4840,7 +4840,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>20</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_15</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -5124,7 +5124,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>21</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_16</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -5424,7 +5424,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>22</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Test_17</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -5667,7 +5667,7 @@ policystatements results true addarray
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>23</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Syntax_Examples_5</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>
@@ -6111,7 +6111,7 @@ results 1 getat
 <relative_path>syntaxexample.xlsx</relative_path>
 <file_name>syntaxexample.xlsx</file_name>
 <sheet_number>24</sheet_number>
-<source_hash>sha256:5a10760b1301fef09689a970f1f834be2f7018d4791049ed0cf84490bc6d4358</source_hash>
+<source_hash>sha256:80d13d6976a3844222c12bce21a43632608b80f80119bbe0e49cd97e9b493a28</source_hash>
 </source>
 <table_name>Run_Syntax_Examples</table_name>
 <xls_file>syntaxexample.xlsx</xls_file>

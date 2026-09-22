@@ -877,6 +877,9 @@ type ELListener interface {
 	// EnterDateEndOfYearInZone is called when entering the dateEndOfYearInZone production.
 	EnterDateEndOfYearInZone(c *DateEndOfYearInZoneContext)
 
+	// EnterDateCurrentTime is called when entering the dateCurrentTime production.
+	EnterDateCurrentTime(c *DateCurrentTimeContext)
+
 	// EnterDateNewYMDInZone is called when entering the dateNewYMDInZone production.
 	EnterDateNewYMDInZone(c *DateNewYMDInZoneContext)
 
@@ -2823,6 +2826,9 @@ type ELListener interface {
 
 	// ExitDateEndOfYearInZone is called when exiting the dateEndOfYearInZone production.
 	ExitDateEndOfYearInZone(c *DateEndOfYearInZoneContext)
+
+	// ExitDateCurrentTime is called when exiting the dateCurrentTime production.
+	ExitDateCurrentTime(c *DateCurrentTimeContext)
 
 	// ExitDateNewYMDInZone is called when exiting the dateNewYMDInZone production.
 	ExitDateNewYMDInZone(c *DateNewYMDInZoneContext)

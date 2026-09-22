@@ -2402,11 +2402,14 @@ func (e *PostfixEmitter) VisitStrUppercaseOf(ctx *StrUppercaseOfContext) interfa
 	return nil
 }
 
-// VisitStrTimestamp: `get current_timestamp` → `gettimestamp`. The
-// runtime op is niladic and pushes the current wall-clock timestamp
-// (RFC 3339 string). Pre-fix this rule silently emitted nothing.
+// VisitStrTimestamp: `get current timestamp` is removed (#1266). It emitted
+// a bare `gettimestamp`, but that operator *pops* a date and formats it, so
+// the statement underflowed the stack or stringified whatever value happened
+// to be under it. Nothing executing ever used it. `(string) current time`
+// Assigning `current time` to a string field is the replacement: cvs
+// stringifies a date carrying a time as RFC3339Nano.
 func (e *PostfixEmitter) VisitStrTimestamp(ctx *StrTimestampContext) interface{} {
-	e.emit("gettimestamp")
+	e.emitError("`get current timestamp` was removed: it formatted whatever was on the stack, not the clock. Write `set <string field> = current time`")
 	return nil
 }
 
@@ -2539,6 +2542,16 @@ func (e *PostfixEmitter) VisitDateParen(ctx *DateParenContext) interface{} {
 
 func (e *PostfixEmitter) VisitDateCurrentDate(ctx *DateCurrentDateContext) interface{} {
 	e.emit("today") // registered op name (#888)
+	return nil
+}
+
+// VisitDateCurrentTime: `current time`, the current instant in UTC (#1266).
+// `current date` is today at midnight; this is the phrase for a rule that
+// runs against real time. `current time in zone <s>` needs no visitor of its
+// own: the generic rewrap (VisitDateInZone) is exactly what it means -- the
+// same instant, stamped with that zone.
+func (e *PostfixEmitter) VisitDateCurrentTime(ctx *DateCurrentTimeContext) interface{} {
+	e.emit("now") // registered op name
 	return nil
 }
 

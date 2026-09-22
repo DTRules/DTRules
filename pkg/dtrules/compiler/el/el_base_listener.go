@@ -1762,6 +1762,12 @@ func (s *BaseELListener) EnterDateEndOfYearInZone(ctx *DateEndOfYearInZoneContex
 // ExitDateEndOfYearInZone is called when production dateEndOfYearInZone is exited.
 func (s *BaseELListener) ExitDateEndOfYearInZone(ctx *DateEndOfYearInZoneContext) {}
 
+// EnterDateCurrentTime is called when production dateCurrentTime is entered.
+func (s *BaseELListener) EnterDateCurrentTime(ctx *DateCurrentTimeContext) {}
+
+// ExitDateCurrentTime is called when production dateCurrentTime is exited.
+func (s *BaseELListener) ExitDateCurrentTime(ctx *DateCurrentTimeContext) {}
+
 // EnterDateNewYMDInZone is called when production dateNewYMDInZone is entered.
 func (s *BaseELListener) EnterDateNewYMDInZone(ctx *DateNewYMDInZoneContext) {}
 

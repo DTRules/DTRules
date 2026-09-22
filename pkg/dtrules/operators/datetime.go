@@ -270,9 +270,15 @@ func opGetDayOfMonthInZone(state dtrules.State) error {
 	return state.DataPush(dtrules.GetRIntegerValueFromInt(t.In(loc).Day()))
 }
 
-// opNow: ( -- date ) pushes the current date/time
+// opNow: ( -- date ) pushes the current instant, the EL word `now` (#1266).
+//
+// Anchored to UTC for the same reason as `today` (#743): the zone a date
+// carries decides what `get day of` and the calendar operators read, so a
+// rule that says `now` must not answer differently on a server in Chicago.
+// It is the instant, not a date: `now in zone "<tz>"` is the same instant
+// stamped with that zone, and `current date` remains today at midnight UTC.
 func opNow(state dtrules.State) error {
-	return state.DataPush(dtrules.GetRTime(time.Now()))
+	return state.DataPush(dtrules.GetRTime(time.Now().UTC()))
 }
 
 // opToday: ( -- date ) pushes today's date (midnight)
