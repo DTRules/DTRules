@@ -1694,11 +1694,41 @@ func (s *BaseELListener) EnterDateAddDays(ctx *DateAddDaysContext) {}
 // ExitDateAddDays is called when production dateAddDays is exited.
 func (s *BaseELListener) ExitDateAddDays(ctx *DateAddDaysContext) {}
 
+// EnterDateSubMinutes is called when production dateSubMinutes is entered.
+func (s *BaseELListener) EnterDateSubMinutes(ctx *DateSubMinutesContext) {}
+
+// ExitDateSubMinutes is called when production dateSubMinutes is exited.
+func (s *BaseELListener) ExitDateSubMinutes(ctx *DateSubMinutesContext) {}
+
+// EnterDateSubSeconds is called when production dateSubSeconds is entered.
+func (s *BaseELListener) EnterDateSubSeconds(ctx *DateSubSecondsContext) {}
+
+// ExitDateSubSeconds is called when production dateSubSeconds is exited.
+func (s *BaseELListener) ExitDateSubSeconds(ctx *DateSubSecondsContext) {}
+
+// EnterDateAddMinutes is called when production dateAddMinutes is entered.
+func (s *BaseELListener) EnterDateAddMinutes(ctx *DateAddMinutesContext) {}
+
+// ExitDateAddMinutes is called when production dateAddMinutes is exited.
+func (s *BaseELListener) ExitDateAddMinutes(ctx *DateAddMinutesContext) {}
+
+// EnterDateAddSeconds is called when production dateAddSeconds is entered.
+func (s *BaseELListener) EnterDateAddSeconds(ctx *DateAddSecondsContext) {}
+
+// ExitDateAddSeconds is called when production dateAddSeconds is exited.
+func (s *BaseELListener) ExitDateAddSeconds(ctx *DateAddSecondsContext) {}
+
 // EnterDateFromStrFunc is called when production dateFromStrFunc is entered.
 func (s *BaseELListener) EnterDateFromStrFunc(ctx *DateFromStrFuncContext) {}
 
 // ExitDateFromStrFunc is called when production dateFromStrFunc is exited.
 func (s *BaseELListener) ExitDateFromStrFunc(ctx *DateFromStrFuncContext) {}
+
+// EnterDateExprAddSeconds is called when production dateExprAddSeconds is entered.
+func (s *BaseELListener) EnterDateExprAddSeconds(ctx *DateExprAddSecondsContext) {}
+
+// ExitDateExprAddSeconds is called when production dateExprAddSeconds is exited.
+func (s *BaseELListener) ExitDateExprAddSeconds(ctx *DateExprAddSecondsContext) {}
 
 // EnterDateFromStrCast is called when production dateFromStrCast is entered.
 func (s *BaseELListener) EnterDateFromStrCast(ctx *DateFromStrCastContext) {}
@@ -1738,6 +1768,18 @@ func (s *BaseELListener) EnterDateFirstOfYear(ctx *DateFirstOfYearContext) {}
 // ExitDateFirstOfYear is called when production dateFirstOfYear is exited.
 func (s *BaseELListener) ExitDateFirstOfYear(ctx *DateFirstOfYearContext) {}
 
+// EnterDateMinusSeconds is called when production dateMinusSeconds is entered.
+func (s *BaseELListener) EnterDateMinusSeconds(ctx *DateMinusSecondsContext) {}
+
+// ExitDateMinusSeconds is called when production dateMinusSeconds is exited.
+func (s *BaseELListener) ExitDateMinusSeconds(ctx *DateMinusSecondsContext) {}
+
+// EnterDatePlusMinutes is called when production datePlusMinutes is entered.
+func (s *BaseELListener) EnterDatePlusMinutes(ctx *DatePlusMinutesContext) {}
+
+// ExitDatePlusMinutes is called when production datePlusMinutes is exited.
+func (s *BaseELListener) ExitDatePlusMinutes(ctx *DatePlusMinutesContext) {}
+
 // EnterDateEndOfWeekInZone is called when production dateEndOfWeekInZone is entered.
 func (s *BaseELListener) EnterDateEndOfWeekInZone(ctx *DateEndOfWeekInZoneContext) {}
 
@@ -1761,6 +1803,12 @@ func (s *BaseELListener) EnterDatePlusMonths(ctx *DatePlusMonthsContext) {}
 
 // ExitDatePlusMonths is called when production datePlusMonths is exited.
 func (s *BaseELListener) ExitDatePlusMonths(ctx *DatePlusMonthsContext) {}
+
+// EnterDateMinusMinutes is called when production dateMinusMinutes is entered.
+func (s *BaseELListener) EnterDateMinusMinutes(ctx *DateMinusMinutesContext) {}
+
+// ExitDateMinusMinutes is called when production dateMinusMinutes is exited.
+func (s *BaseELListener) ExitDateMinusMinutes(ctx *DateMinusMinutesContext) {}
 
 // EnterDateCurrentDateInZone is called when production dateCurrentDateInZone is entered.
 func (s *BaseELListener) EnterDateCurrentDateInZone(ctx *DateCurrentDateInZoneContext) {}
@@ -1888,6 +1936,12 @@ func (s *BaseELListener) EnterDateExprAddYears(ctx *DateExprAddYearsContext) {}
 // ExitDateExprAddYears is called when production dateExprAddYears is exited.
 func (s *BaseELListener) ExitDateExprAddYears(ctx *DateExprAddYearsContext) {}
 
+// EnterDatePlusSeconds is called when production datePlusSeconds is entered.
+func (s *BaseELListener) EnterDatePlusSeconds(ctx *DatePlusSecondsContext) {}
+
+// ExitDatePlusSeconds is called when production datePlusSeconds is exited.
+func (s *BaseELListener) ExitDatePlusSeconds(ctx *DatePlusSecondsContext) {}
+
 // EnterDateTyped is called when production dateTyped is entered.
 func (s *BaseELListener) EnterDateTyped(ctx *DateTypedContext) {}
 
@@ -1954,6 +2008,12 @@ func (s *BaseELListener) EnterDateExprAddDays(ctx *DateExprAddDaysContext) {}
 // ExitDateExprAddDays is called when production dateExprAddDays is exited.
 func (s *BaseELListener) ExitDateExprAddDays(ctx *DateExprAddDaysContext) {}
 
+// EnterDateExprSubMinutes is called when production dateExprSubMinutes is entered.
+func (s *BaseELListener) EnterDateExprSubMinutes(ctx *DateExprSubMinutesContext) {}
+
+// ExitDateExprSubMinutes is called when production dateExprSubMinutes is exited.
+func (s *BaseELListener) ExitDateExprSubMinutes(ctx *DateExprSubMinutesContext) {}
+
 // EnterDateMinusYears is called when production dateMinusYears is entered.
 func (s *BaseELListener) EnterDateMinusYears(ctx *DateMinusYearsContext) {}
 
@@ -1984,6 +2044,12 @@ func (s *BaseELListener) EnterDateUsing(ctx *DateUsingContext) {}
 // ExitDateUsing is called when production dateUsing is exited.
 func (s *BaseELListener) ExitDateUsing(ctx *DateUsingContext) {}
 
+// EnterDateExprAddMinutes is called when production dateExprAddMinutes is entered.
+func (s *BaseELListener) EnterDateExprAddMinutes(ctx *DateExprAddMinutesContext) {}
+
+// ExitDateExprAddMinutes is called when production dateExprAddMinutes is exited.
+func (s *BaseELListener) ExitDateExprAddMinutes(ctx *DateExprAddMinutesContext) {}
+
 // EnterDateFirstOfWeekInZone is called when production dateFirstOfWeekInZone is entered.
 func (s *BaseELListener) EnterDateFirstOfWeekInZone(ctx *DateFirstOfWeekInZoneContext) {}
 
@@ -2001,6 +2067,12 @@ func (s *BaseELListener) EnterDateDays(ctx *DateDaysContext) {}
 
 // ExitDateDays is called when production dateDays is exited.
 func (s *BaseELListener) ExitDateDays(ctx *DateDaysContext) {}
+
+// EnterDateExprSubSeconds is called when production dateExprSubSeconds is entered.
+func (s *BaseELListener) EnterDateExprSubSeconds(ctx *DateExprSubSecondsContext) {}
+
+// ExitDateExprSubSeconds is called when production dateExprSubSeconds is exited.
+func (s *BaseELListener) ExitDateExprSubSeconds(ctx *DateExprSubSecondsContext) {}
 
 // EnterDateInZone is called when production dateInZone is entered.
 func (s *BaseELListener) EnterDateInZone(ctx *DateInZoneContext) {}
@@ -2590,6 +2662,12 @@ func (s *BaseELListener) EnterIntMulBy(ctx *IntMulByContext) {}
 // ExitIntMulBy is called when production intMulBy is exited.
 func (s *BaseELListener) ExitIntMulBy(ctx *IntMulByContext) {}
 
+// EnterIntSecondsBetween is called when production intSecondsBetween is entered.
+func (s *BaseELListener) EnterIntSecondsBetween(ctx *IntSecondsBetweenContext) {}
+
+// ExitIntSecondsBetween is called when production intSecondsBetween is exited.
+func (s *BaseELListener) ExitIntSecondsBetween(ctx *IntSecondsBetweenContext) {}
+
 // EnterIntMaxOfArray is called when production intMaxOfArray is entered.
 func (s *BaseELListener) EnterIntMaxOfArray(ctx *IntMaxOfArrayContext) {}
 
@@ -2601,6 +2679,12 @@ func (s *BaseELListener) EnterIntTyped(ctx *IntTypedContext) {}
 
 // ExitIntTyped is called when production intTyped is exited.
 func (s *BaseELListener) ExitIntTyped(ctx *IntTypedContext) {}
+
+// EnterIntMinutesBetween is called when production intMinutesBetween is entered.
+func (s *BaseELListener) EnterIntMinutesBetween(ctx *IntMinutesBetweenContext) {}
+
+// ExitIntMinutesBetween is called when production intMinutesBetween is exited.
+func (s *BaseELListener) ExitIntMinutesBetween(ctx *IntMinutesBetweenContext) {}
 
 // EnterIntDaysInYearInZone is called when production intDaysInYearInZone is entered.
 func (s *BaseELListener) EnterIntDaysInYearInZone(ctx *IntDaysInYearInZoneContext) {}

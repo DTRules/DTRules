@@ -16,6 +16,8 @@
 package operators
 
 import (
+	"fmt"
+	"math"
 	"time"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
@@ -37,6 +39,11 @@ func init() {
 	Alias("monthsbetween", "numberofmonths")
 	Register("yearsbetween", opYearsBetween)
 	Alias("yearsbetween", "numberofyears")
+	// #1232: elapsed-time offsets and differences below a day.
+	Register("addseconds", opAddSeconds)
+	Register("addminutes", opAddMinutes)
+	Register("secondsbetween", opSecondsBetween)
+	Register("minutesbetween", opMinutesBetween)
 	Register("firstofmonth", opFirstOfMonth)
 	Register("firstofyear", opFirstOfYear)
 	Register("endofmonth", opEndOfMonth)
@@ -99,9 +106,10 @@ func opTodayInZone(state dtrules.State) error {
 	return state.DataPush(dtrules.GetRTime(today))
 }
 
-// opCurrentDateInZone: ( zone -- date ) pushes the current instant interpreted
-// in the given zone. Same instant as `current date`, but stamped with the
-// requested location so downstream extraction reads the local calendar.
+// opCurrentDateInZone: ( zone -- date ) pushes the current instant, stamped
+// with the given zone so downstream extraction reads the local calendar.
+// Not the same value as `current date`, which lowers to `today` and is
+// midnight UTC.
 func opCurrentDateInZone(state dtrules.State) error {
 	loc, err := popZone(state)
 	if err != nil {
@@ -453,6 +461,161 @@ func opDaysBetween(state dtrules.State) error {
 	duration := t2.Sub(t1)
 	days := int(duration.Hours() / 24)
 	return state.DataPush(dtrules.GetRIntegerValueFromInt(days))
+}
+
+// Offsets and differences below a day (#1232) are elapsed time between
+// instants. The zone a date carries does not enter into them: across a
+// daylight-saving change `d + 3600 seconds` is one hour later on any clock
+// even though the local wall clock moves by two hours or none, and `seconds
+// from` counts the seconds that actually pass. The result keeps the zone of
+// the date it was computed from. They are computed on Unix seconds rather
+// than time.Duration, which saturates at about 292 years.
+
+// The range an offset may land in: years 1 through 9999, the range a date
+// can be written in (RFC 3339) and read back. Go's own clock goes further,
+// but its calendar arithmetic wraps long before its seconds count does.
+var (
+	minOffsetUnix = time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC).Unix()
+	maxOffsetUnix = time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC).Unix()
+)
+
+// addSecondsTo returns t moved by secs seconds, in t's zone. An offset that
+// overflows, or lands outside years 1-9999, is an error, never a wrapped
+// date.
+func addSecondsTo(op string, t time.Time, secs int64) (time.Time, error) {
+	u := t.Unix()
+	if (secs > 0 && u > math.MaxInt64-secs) || (secs < 0 && u < math.MinInt64-secs) {
+		return time.Time{}, dateRangeError(op, secs)
+	}
+	if u+secs < minOffsetUnix || u+secs > maxOffsetUnix {
+		return time.Time{}, dateRangeError(op, secs)
+	}
+	return time.Unix(u+secs, int64(t.Nanosecond())).In(t.Location()), nil
+}
+
+func dateRangeError(op string, secs int64) error {
+	return dtrules.NewRulesError("Overflow", op,
+		fmt.Sprintf("moving the date by %d seconds leaves years 1-9999", secs))
+}
+
+// secondsBetween returns the whole seconds from t1 to t2, signed (t2 - t1)
+// and truncated toward zero. Two dates further apart than an int64 of
+// seconds are an error.
+func secondsBetween(op string, t1, t2 time.Time) (int64, error) {
+	u1, u2 := t1.Unix(), t2.Unix()
+	if (u1 < 0 && u2 > math.MaxInt64+u1) || (u1 > 0 && u2 < math.MinInt64+u1) {
+		return 0, dtrules.NewRulesError("Overflow", op, "the two dates are too far apart to count in seconds")
+	}
+	secs := u2 - u1
+	nanos := t2.Nanosecond() - t1.Nanosecond()
+	switch {
+	case secs > 0 && nanos < 0:
+		secs--
+	case secs < 0 && nanos > 0:
+		secs++
+	}
+	return secs, nil
+}
+
+// popDateAndCount pops ( date n -- ) for the offset operators.
+func popDateAndCount(state dtrules.State) (time.Time, int64, error) {
+	nObj, err := state.DataPop()
+	if err != nil {
+		return time.Time{}, 0, err
+	}
+	dateObj, err := state.DataPop()
+	if err != nil {
+		return time.Time{}, 0, err
+	}
+	t, err := dateObj.TimeValue()
+	if err != nil {
+		return time.Time{}, 0, err
+	}
+	n, err := nObj.LongValue()
+	if err != nil {
+		return time.Time{}, 0, err
+	}
+	return t, n, nil
+}
+
+// popTwoDates pops ( date1 date2 -- ) for the difference operators.
+func popTwoDates(state dtrules.State) (time.Time, time.Time, error) {
+	date2Obj, err := state.DataPop()
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	date1Obj, err := state.DataPop()
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	t1, err := date1Obj.TimeValue()
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	t2, err := date2Obj.TimeValue()
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	return t1, t2, nil
+}
+
+// opAddSeconds: ( date seconds -- date ) the instant that many seconds later
+// (earlier when negative).
+func opAddSeconds(state dtrules.State) error {
+	t, n, err := popDateAndCount(state)
+	if err != nil {
+		return err
+	}
+	r, err := addSecondsTo("addseconds", t, n)
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRTime(r))
+}
+
+// opAddMinutes: ( date minutes -- date ) the instant that many minutes later
+// (earlier when negative).
+func opAddMinutes(state dtrules.State) error {
+	t, n, err := popDateAndCount(state)
+	if err != nil {
+		return err
+	}
+	if n > math.MaxInt64/60 || n < math.MinInt64/60 {
+		return dtrules.NewRulesError("Overflow", "addminutes", fmt.Sprintf("%d minutes is out of range", n))
+	}
+	r, err := addSecondsTo("addminutes", t, n*60)
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRTime(r))
+}
+
+// opSecondsBetween: ( date1 date2 -- seconds ) whole seconds from date1 to
+// date2: positive when date2 is later, truncated toward zero.
+func opSecondsBetween(state dtrules.State) error {
+	t1, t2, err := popTwoDates(state)
+	if err != nil {
+		return err
+	}
+	secs, err := secondsBetween("secondsbetween", t1, t2)
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRIntegerValue(secs))
+}
+
+// opMinutesBetween: ( date1 date2 -- minutes ) whole minutes from date1 to
+// date2: positive when date2 is later, truncated toward zero.
+func opMinutesBetween(state dtrules.State) error {
+	t1, t2, err := popTwoDates(state)
+	if err != nil {
+		return err
+	}
+	secs, err := secondsBetween("minutesbetween", t1, t2)
+	if err != nil {
+		return err
+	}
+	return state.DataPush(dtrules.GetRIntegerValue(secs / 60))
 }
 
 // opMonthsBetween: ( date1 date2 -- months ) returns whole months between dates

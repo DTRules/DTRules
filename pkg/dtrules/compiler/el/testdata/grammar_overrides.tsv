@@ -427,3 +427,17 @@ fexpr	floatValueOfOp	condition	double value of cvr(1) > 0.0
 strexpr	strValueOfOp	condition	string value of cvs(1) is equal to "1"
 done	policyNExpr	raw	policystatement $tbl;
 bexpr	boolMatchForall	condition	there is match for all accounts to $tbl in accounts
+datestatement	dateAddSeconds	action	add 5 seconds to dt	#1232
+datestatement	dateAddMinutes	action	add 5 minutes to dt	#1232
+datestatement	dateSubSeconds	action	subtract 5 seconds from dt	#1232
+datestatement	dateSubMinutes	action	subtract 5 minutes from dt	#1232
+dexpr	dateExprAddSeconds	condition	add 5 seconds to (date) "2020-01-01" is equal to (date) "2020-01-01"	#1232
+dexpr	dateExprAddMinutes	condition	add 5 minutes to (date) "2020-01-01" is equal to (date) "2020-01-01"	#1232
+dexpr	dateExprSubSeconds	condition	subtract 5 seconds from (date) "2020-01-01" is equal to (date) "2020-01-01"	#1232
+dexpr	dateExprSubMinutes	condition	subtract 5 minutes from (date) "2020-01-01" is equal to (date) "2020-01-01"	#1232
+dexpr	datePlusSeconds	condition	(date) "2020-01-01" + 5 seconds is equal to (date) "2020-01-01"	#1232
+dexpr	datePlusMinutes	condition	(date) "2020-01-01" + 5 minutes is equal to (date) "2020-01-01"	#1232
+dexpr	dateMinusSeconds	condition	(date) "2020-01-01" - 5 seconds is equal to (date) "2020-01-01"	#1232
+dexpr	dateMinusMinutes	condition	(date) "2020-01-01" - 5 minutes is equal to (date) "2020-01-01"	#1232
+iexpr	intSecondsBetween	condition	seconds from (date) "2020-01-01" to (date) "2020-01-01" > 0	#1232
+iexpr	intMinutesBetween	condition	minutes from (date) "2020-01-01" to (date) "2020-01-01" > 0	#1232

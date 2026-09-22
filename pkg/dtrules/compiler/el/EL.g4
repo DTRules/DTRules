@@ -539,6 +539,11 @@ datestatement
     | ADD number YEARS TO typedDate                         # dateAddYears
     | ADD number MONTHS TO typedDate                        # dateAddMonths
     | ADD number DAYS TO typedDate                          # dateAddDays
+    // #1232: offsets below a day. Elapsed time, not calendar arithmetic.
+    | SUBTRACT number MINUTES FROM typedDate                # dateSubMinutes
+    | SUBTRACT number SECONDS FROM typedDate                # dateSubSeconds
+    | ADD number MINUTES TO typedDate                       # dateAddMinutes
+    | ADD number SECONDS TO typedDate                       # dateAddSeconds
     ;
 
 dexpr
@@ -570,6 +575,15 @@ dexpr
     | dexpr PLUS number YEARS                               # datePlusYears
     | dexpr PLUS number MONTHS                              # datePlusMonths
     | dexpr PLUS number DAYS                                # datePlusDays
+    // #1232: offsets below a day, added as elapsed seconds.
+    | SUBTRACT number MINUTES FROM dexpr                    # dateExprSubMinutes
+    | SUBTRACT number SECONDS FROM dexpr                    # dateExprSubSeconds
+    | ADD number MINUTES TO dexpr                           # dateExprAddMinutes
+    | ADD number SECONDS TO dexpr                           # dateExprAddSeconds
+    | dexpr MINUS number MINUTES                            # dateMinusMinutes
+    | dexpr MINUS number SECONDS                            # dateMinusSeconds
+    | dexpr PLUS number MINUTES                             # datePlusMinutes
+    | dexpr PLUS number SECONDS                             # datePlusSeconds
     | FIRST OF YEARS OF dexpr INZONE strexpr                # dateFirstOfYearInZone
     | FIRST OF YEARS OF dexpr                               # dateFirstOfYear
     | FIRST OF MONTHS OF dexpr INZONE strexpr               # dateFirstOfMonthInZone
@@ -756,6 +770,8 @@ iexpr
     | DAYS FROM dexpr TO dexpr                              # intDaysBetween
     | MONTHS FROM dexpr TO dexpr                            # intMonthsBetween
     | YEARS FROM dexpr TO dexpr                             # intYearsBetween
+    | MINUTES FROM dexpr TO dexpr                           # intMinutesBetween
+    | SECONDS FROM dexpr TO dexpr                           # intSecondsBetween
     | GET YEAROF dexpr INZONE strexpr                       # intYearOfInZone
     | GET YEAROF dexpr                                      # intYearOf
     // Phase 3 of #743: time-component extractors. In-zone alts listed first.
@@ -1238,6 +1254,10 @@ WAS                 : 'was' ;
 ONE                 : 'one' ;
 DOES                : 'does' ;
 DAYS                : 'day' 's'? ;
+// #1232: units below a day. `hourof`/`minuteof`/`secondof` are separate
+// one-word tokens, so these do not collide with them.
+MINUTES             : 'minute' 's'? ;
+SECONDS             : 'second' 's'? ;
 ISNULL              : 'is' WS+ 'null' ;
 ISNOTNULL           : 'is' WS+ 'not' WS+ 'null' ;
 CHANGE              : 'change' ;

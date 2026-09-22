@@ -483,8 +483,8 @@ This is the value, not the element attaining it. `the <entity> in <array> with t
 
 #### Current date
 
-**Syntax**: `current date` or `current time`
-**Semantics**: Returns the current date/time. Postfix: `currentdate`.
+**Syntax**: `current date`
+**Semantics**: Today's date at midnight UTC -- not the current instant. Postfix: `today`. For the current instant write `current date in zone "UTC"` (postfix `"UTC" currentdateinzone`), which is the instant now stamped with that zone.
 **Example (EL)**: `taxpayer.birth_date is before current date`
 **Compiled postfix**: `taxpayer.birth_date today d<`
 
@@ -505,12 +505,12 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Compiled postfix**: `"2024-01-01" cvdate today d<`
 
 **Example (EL with timestamp)**: `(date)"2026-04-17T21:05:30Z" is before current date`
-**Compiled postfix**: `"2026-04-17T21:05:30Z" cvdate currentdate d<`
+**Compiled postfix**: `"2026-04-17T21:05:30Z" cvdate today d<`
 
 #### Date arithmetic (date plus/minus days/months/years)
 
-**Syntax**: `dexpr plus N days|months|years` / `dexpr minus N days|months|years`
-**Semantics**: Add or subtract a date interval. Postfix operators: `adddays`, `subdays`, `addmonths`, `submonths`, `addyears`, `subyears`.
+**Syntax**: `dexpr + N days|months|years|minutes|seconds` / `dexpr - N days|months|years|minutes|seconds`
+**Semantics**: Add or subtract a date interval. Postfix operators: `adddays`, `addmonths`, `addyears`, `addminutes`, `addseconds` (subtraction is `negate` then the add). Minutes and seconds (#1232) are elapsed time: the instant that much later or earlier, keeping the date's zone.
 
 **Example (EL)**: `taxpayer.birth_date + 18 years is before current date`
 **Compiled postfix**: `taxpayer.birth_date 18 addyears today d<`
@@ -518,9 +518,12 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 **Example (EL)**: `taxpayer.birth_date - 1 months == current date`
 **Compiled postfix**: `taxpayer.birth_date 1 negate addmonths today d==`
 
+**Example (EL)**: `job.started + 90 seconds is before job.checked_at`
+**Compiled postfix**: `job.started 90 addseconds job.checked_at d<`
+
 #### Date statement arithmetic (modifies field in place)
 
-**Syntax**: `ADD N DAYS|MONTHS|YEARS TO typedDate` / `SUBTRACT N DAYS|MONTHS|YEARS FROM typedDate`
+**Syntax**: `ADD N DAYS|MONTHS|YEARS|MINUTES|SECONDS TO typedDate` / `SUBTRACT N DAYS|MONTHS|YEARS|MINUTES|SECONDS FROM typedDate`
 **Semantics**: Modify a date field by adding or subtracting an interval. Used as an action statement.
 **Example (EL)**: `add 18 years to taxpayer.birth_date`
 **Compiled postfix**: `taxpayer.birth_date 18 addyears /taxpayer.birth_date xdef`
@@ -528,11 +531,20 @@ Pure dates (midnight UTC) serialize back as `YYYY-MM-DD`; timestamps serialize a
 #### Days / months / years between
 
 **Syntax**: `DAYS FROM dexpr TO dexpr` / `MONTHS FROM dexpr TO dexpr` / `YEARS FROM dexpr TO dexpr`
-**Semantics**: Returns integer difference. Postfix operators: `daysbetween`, `monthsbetween`, `yearsbetween`.
+**Semantics**: Returns integer difference, `d2 - d1`. Postfix operators: `daysbetween`, `monthsbetween`, `yearsbetween`. `days from` is elapsed time -- whole 24-hour periods, truncated toward zero -- not a calendar-day count: across a daylight-saving change it can be one short (America/Chicago, 2026-03-08 00:00 to 2026-03-10 00:00 is 47 hours, so 1). `months from` compares year and month; `years from` counts anniversaries.
 **Example (EL)**: `years from taxpayer.birth_date to current date >= 18`
 **Compiled postfix**: `taxpayer.birth_date today yearsbetween 18 >=`
 
 **Tax example**: `years from taxpayer.birth_date to current date >= 65` → age 65+ check
+
+#### Seconds / minutes between (#1232)
+
+**Syntax**: `SECONDS FROM dexpr TO dexpr` / `MINUTES FROM dexpr TO dexpr`
+**Semantics**: Whole seconds (minutes) of elapsed time from the first instant to the second: `d2 - d1`, negative when `d2` is earlier, truncated toward zero (119 seconds is 1 minute). The zone a date carries does not change the answer; across a daylight-saving change it counts the time that actually passed. Postfix operators: `secondsbetween`, `minutesbetween`. `second(s)` and `minute(s)` are keywords.
+**Example (EL)**: `seconds from job.last_progress to job.checked_at > 120`
+**Compiled postfix**: `job.last_progress job.checked_at secondsbetween 120 >`
+
+`current date` is today's date at midnight, not the current instant; to measure against "now" write `current date in zone "UTC"` (postfix `"UTC" currentdateinzone`).
 **Eligibility example**: `years from taxpayer.birth_date to current date >= constants.adult_age`
 
 #### Is before / is after / is between

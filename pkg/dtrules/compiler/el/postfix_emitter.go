@@ -6195,6 +6195,97 @@ func (e *PostfixEmitter) VisitDateMinusDays(ctx *DateMinusDaysContext) interface
 	return nil
 }
 
+// Time offsets and differences below a day (#1232). A date is an instant,
+// and these are elapsed time: `d + N seconds` is N seconds later on any
+// clock, and `seconds from d1 to d2` is the signed number of whole seconds
+// between the two instants, truncated toward zero. The zone a date carries
+// changes neither. Minutes lower to the minute operators so a count is never
+// multiplied into an overflow in postfix.
+
+func (e *PostfixEmitter) emitTimeOffset(date, count antlr.ParserRuleContext, op string, negate bool) {
+	e.Visit(date)
+	e.Visit(count)
+	if negate {
+		e.emit("negate")
+	}
+	e.emit(op)
+}
+
+// emitTimeOffsetStatement is the mutating form: `add N seconds to d` stores
+// the result back in d, like `add N days to d`.
+func (e *PostfixEmitter) emitTimeOffsetStatement(date ITypedDateContext, count antlr.ParserRuleContext, op string, negate bool) {
+	name := date.GetText()
+	e.emit(name)
+	e.Visit(count)
+	if negate {
+		e.emit("negate")
+	}
+	e.emit(op)
+	e.emit("/" + name)
+	e.emit("xdef")
+}
+
+func (e *PostfixEmitter) VisitDatePlusSeconds(ctx *DatePlusSecondsContext) interface{} {
+	e.emitTimeOffset(ctx.Dexpr(), ctx.Number(), "addseconds", false)
+	return nil
+}
+func (e *PostfixEmitter) VisitDateMinusSeconds(ctx *DateMinusSecondsContext) interface{} {
+	e.emitTimeOffset(ctx.Dexpr(), ctx.Number(), "addseconds", true)
+	return nil
+}
+func (e *PostfixEmitter) VisitDatePlusMinutes(ctx *DatePlusMinutesContext) interface{} {
+	e.emitTimeOffset(ctx.Dexpr(), ctx.Number(), "addminutes", false)
+	return nil
+}
+func (e *PostfixEmitter) VisitDateMinusMinutes(ctx *DateMinusMinutesContext) interface{} {
+	e.emitTimeOffset(ctx.Dexpr(), ctx.Number(), "addminutes", true)
+	return nil
+}
+func (e *PostfixEmitter) VisitDateExprAddSeconds(ctx *DateExprAddSecondsContext) interface{} {
+	e.emitTimeOffset(ctx.Dexpr(), ctx.Number(), "addseconds", false)
+	return nil
+}
+func (e *PostfixEmitter) VisitDateExprSubSeconds(ctx *DateExprSubSecondsContext) interface{} {
+	e.emitTimeOffset(ctx.Dexpr(), ctx.Number(), "addseconds", true)
+	return nil
+}
+func (e *PostfixEmitter) VisitDateExprAddMinutes(ctx *DateExprAddMinutesContext) interface{} {
+	e.emitTimeOffset(ctx.Dexpr(), ctx.Number(), "addminutes", false)
+	return nil
+}
+func (e *PostfixEmitter) VisitDateExprSubMinutes(ctx *DateExprSubMinutesContext) interface{} {
+	e.emitTimeOffset(ctx.Dexpr(), ctx.Number(), "addminutes", true)
+	return nil
+}
+func (e *PostfixEmitter) VisitDateAddSeconds(ctx *DateAddSecondsContext) interface{} {
+	e.emitTimeOffsetStatement(ctx.TypedDate(), ctx.Number(), "addseconds", false)
+	return nil
+}
+func (e *PostfixEmitter) VisitDateSubSeconds(ctx *DateSubSecondsContext) interface{} {
+	e.emitTimeOffsetStatement(ctx.TypedDate(), ctx.Number(), "addseconds", true)
+	return nil
+}
+func (e *PostfixEmitter) VisitDateAddMinutes(ctx *DateAddMinutesContext) interface{} {
+	e.emitTimeOffsetStatement(ctx.TypedDate(), ctx.Number(), "addminutes", false)
+	return nil
+}
+func (e *PostfixEmitter) VisitDateSubMinutes(ctx *DateSubMinutesContext) interface{} {
+	e.emitTimeOffsetStatement(ctx.TypedDate(), ctx.Number(), "addminutes", true)
+	return nil
+}
+func (e *PostfixEmitter) VisitIntSecondsBetween(ctx *IntSecondsBetweenContext) interface{} {
+	e.Visit(ctx.Dexpr(0))
+	e.Visit(ctx.Dexpr(1))
+	e.emit("secondsbetween")
+	return nil
+}
+func (e *PostfixEmitter) VisitIntMinutesBetween(ctx *IntMinutesBetweenContext) interface{} {
+	e.Visit(ctx.Dexpr(0))
+	e.Visit(ctx.Dexpr(1))
+	e.emit("minutesbetween")
+	return nil
+}
+
 func (e *PostfixEmitter) VisitDatePlusMonths(ctx *DatePlusMonthsContext) interface{} {
 	e.Visit(ctx.Dexpr())
 	e.Visit(ctx.Number())
