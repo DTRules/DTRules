@@ -42,7 +42,7 @@ EL source text
 │                                                             │
 │  DTState runs the Object-based path                         │
 │  ExecuteBytecode runs the Value-based fast path             │
-│  GoRuntime / NativeRuntime wrap the state as contexts       │
+│  GoRuntime wraps the state as contexts                      │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -605,7 +605,7 @@ All rule values implement `dtrules.Object`. Concrete types:
 | `EntityFactory` | `entity.Factory` |
 | `DateParser` | `session.DateParser` |
 | `RuleSet` | `session.RuleSet` |
-| `RuntimeFactory` | `runtime.GoRuntime`, `runtime.NativeRuntime` |
+| `RuntimeFactory` | `interpreter.GoRuntimeFactory` |
 
 ### 5.3 Error types
 
@@ -645,17 +645,8 @@ Constructor helpers in `errors.go`:
 
 `GoRuntime.Capabilities()` reports `ConcurrentContexts: true`, `MaxStackDepth: 1000`.
 
-**NativeRuntime** (`runtime/nativeasm/`)
-
-| Type | Role |
-|------|------|
-| `NativeRuntime` | x86-64 assembly runtime (CGO) |
-| `NativeContext` | Context backed by assembly VM |
-| `Executor` | Assembly executor implementation |
-| `Factory` | NativeRuntime factory |
-
-`NativeRuntime` does not support concurrent contexts (`ConcurrentContexts: false`).
-It uses the same `BytecodeChunk` format as `GoRuntime`.
+`GoRuntime` is the only runtime. The amd64 assembly VM and the `nativeasm`
+runtime that wrapped it were removed (#1267).
 
 ---
 
@@ -824,9 +815,7 @@ Hard limit is 1000 for all three stacks. Deeply recursive decision tables
 stack limit before the data stack limit. Each `FORALL` block adds one entity
 stack frame for the loop variable.
 
-### NativeASM vs GoRuntime
+### Concurrency
 
-The `NativeRuntime` x86-64 assembly backend executes the same
-`BytecodeChunk` byte stream as `GoRuntime`. It does not support concurrent
-contexts (global register state). Use `GoRuntime` when executing rules in
-parallel across goroutines.
+`GoRuntime` supports concurrent contexts: each context owns its own
+`DTState`, so rules can execute in parallel across goroutines.

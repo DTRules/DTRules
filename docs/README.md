@@ -89,7 +89,6 @@ mvn clean install
 | [Root README](../README.md) | Installation, CLI usage |
 | [Design Review](go-design-review.md) | Architecture, design decisions, security review |
 | [Performance Analysis](go-performance.md) | Detailed benchmarks and optimizations |
-| [Native ASM Runtime](nativeasm-runtime.md) | Plan 9 assembly runtime (20-50x faster) |
 
 ### Go Quick Start
 
@@ -106,20 +105,9 @@ cd go && go build -o dtrules ./cmd/dtrules
 | Operator Lookup | 130x faster |
 | Value Arithmetic | 24x faster |
 | String Interning | 3.7x faster |
-| Native ASM Push/Pop | 20x vs CGO |
 
 ---
 
-## Assembly Implementation
-
-| Document | Description |
-|----------|-------------|
-| [Assembly Guide](asm-guide.md) | x86-64 NASM implementation - architecture, compatibility, testing |
-| [Legacy ASM](../legacy/) | Original Plan 9 assembly tree (archived; superseded by the Go-native runtime) |
-
-The assembly implementation is educational, demonstrating how a rules engine can be built at the lowest level with no libc dependencies.
-
----
 
 ## Visual UI
 

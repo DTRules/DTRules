@@ -39,13 +39,6 @@ const stackLimit = 1000
 // MaxStackDepth is the maximum depth for data and entity stacks.
 const MaxStackDepth = stackLimit
 
-// BytecodeExecutor defines the interface for bytecode execution strategies.
-// Different runtime implementations (Go, NativeASM, etc.) implement this interface.
-type BytecodeExecutor interface {
-	Name() string
-	ExecuteBytecode(state *DTState, bc *dtrules.BytecodeChunk) error
-}
-
 // DTState implements the interpreter state with three stacks.
 // The interpreter is a stack-based interpreter similar to PostScript.
 //
@@ -99,12 +92,6 @@ type DTState struct {
 
 	// Operator table for bytecode execution (set externally to avoid import cycle)
 	operatorTable []dtrules.Object
-
-	// Bytecode executor for pluggable runtime implementations
-	bytecodeExecutor BytecodeExecutor
-
-	// Last error from ASM helper functions
-	lastError error
 
 	// loopIterations is the iteration counter for each currently-active
 	// loop, deepest last. Iteration operators (for, forr, forall,
@@ -1057,17 +1044,6 @@ func (s *DTState) String() string {
 	}
 
 	return sb.String()
-}
-
-// SetBytecodeExecutor sets the bytecode executor for this state.
-// This allows pluggable runtime implementations (Go, NativeASM, etc.).
-func (s *DTState) SetBytecodeExecutor(executor BytecodeExecutor) {
-	s.bytecodeExecutor = executor
-}
-
-// GetBytecodeExecutor returns the current bytecode executor.
-func (s *DTState) GetBytecodeExecutor() BytecodeExecutor {
-	return s.bytecodeExecutor
 }
 
 // DataFetch retrieves an element from the data stack at the given index.

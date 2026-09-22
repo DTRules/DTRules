@@ -677,20 +677,20 @@ DTRules supports multiple runtime implementations, all executing the same byteco
                     └──────────────┬───────────────┘
                                    │
                                    │ Same bytecode
-                    ┌──────────────┼──────────────┐
-                    │              │              │
-                    ▼              ▼              ▼
-          ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-          │ Go Runtime  │ │Java Runtime │ │ ASM Runtime │
-          │             │ │             │ │             │
-          │ ┌─────────┐ │ │ ┌─────────┐ │ │ ┌─────────┐ │
-          │ │DTState  │ │ │ │DTState  │ │ │ │VMState  │ │
-          │ │(Go)     │ │ │ │(Java)   │ │ │ │(Native) │ │
-          │ └─────────┘ │ │ └─────────┘ │ │ └─────────┘ │
-          │             │ │             │ │             │
-          │ Operators   │ │ Operators   │ │ Operators   │
-          │ (Go impl)   │ │ (Java impl) │ │ (ASM impl)  │
-          └─────────────┘ └─────────────┘ └─────────────┘
+                           ┌───────┴───────┐
+                           │               │
+                           ▼               ▼
+                    ┌─────────────┐ ┌─────────────┐
+                    │ Go Runtime  │ │Java Runtime │
+                    │             │ │             │
+                    │ ┌─────────┐ │ │ ┌─────────┐ │
+                    │ │DTState  │ │ │ │DTState  │ │
+                    │ │(Go)     │ │ │ │(Java)   │ │
+                    │ └─────────┘ │ │ └─────────┘ │
+                    │             │ │             │
+                    │ Operators   │ │ Operators   │
+                    │ (Go impl)   │ │ (Java impl) │
+                    └─────────────┘ └─────────────┘
 
           Each runtime is COMPLETE and SELF-CONTAINED.
           No cross-runtime dependencies at execution time.

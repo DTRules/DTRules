@@ -30,11 +30,11 @@ log_info "Timestamp: $TIMESTAMP"
 echo
 
 # =============================================================================
-# Go Benchmarks (Go, NativeASM, x86-64-ASM runtimes)
+# Go Benchmarks (Go runtime)
 # =============================================================================
 
 run_go_benchmarks() {
-    log_info "Running Go benchmarks (go, native-asm, x86-64-asm)..."
+    log_info "Running Go benchmarks..."
 
     cd "$ROOT_DIR/go"
 

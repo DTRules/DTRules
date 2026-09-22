@@ -50,7 +50,7 @@ The Go implementation has comprehensive unit tests covering:
 - **Value types** - Integer, Double, Boolean, String, etc.
 - **Session management** - Session lifecycle, state
 - **Entity operations** - Entity creation, attribute access
-- **Runtime implementations** - GoRuntime, NativeASM, ASMRuntime
+- **Runtime implementations** - GoRuntime
 - **Bytecode** - Compilation and execution
 - **Integration** - End-to-end rule execution
 
@@ -217,7 +217,6 @@ GitHub Actions workflow (`.github/workflows/tests.yml`) runs:
 - Java tests on Linux, macOS, Windows with JDK 11, 17, 21
 - ASM tests on Linux (requires NASM)
 - Comparison tests (ASM vs Go)
-- NativeASM tests
 - Performance benchmarks (on main branch only)
 
 ### CI Status Checks
@@ -363,14 +362,9 @@ cd asm
 make bench
 ```
 
-Benchmarks compare:
-- Pure Go runtime
-- NativeASM runtime (Go with assembly hot paths)
-- Full ASM runtime (standalone assembly)
+Benchmarks compare the Go runtime against the standalone ASM runtime.
 
 ## References
 
 - [Go Implementation Design](go-design-review.md)
-- [ASM Guide](asm-guide.md)
 - [Bytecode Specification](bytecode-spec.md)
-- [NativeASM Runtime](nativeasm-runtime.md)

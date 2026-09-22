@@ -118,8 +118,8 @@ cmd/
 pkg/dtrules/
   compiler/el/        ANTLR-based EL → postfix compiler
   decisiontable/      table model and the advisory pass
-  interpreter/        the VM: state, entity stack, data stack (Go + amd64 asm)
-  runtime/            bytecode executors — goruntime, nativeasm
+  interpreter/        the VM: state, entity stack, data stack
+  runtime/            the runtime interface and its Go executor (goruntime)
   operators/          the operator registry
   entity/ session/    entities, rule sets, execution context
   excel/              Excel ↔ XML import and export
@@ -202,8 +202,10 @@ sweep, so each list can only shrink.
   than 1000 tables, recursion included, fails with "Control Stack Overflow",
   even when the tables declare no locals.
 
-Two executors live behind one interface in `pkg/dtrules/runtime`: a portable Go
-one and an amd64 assembly one.
+One executor lives behind the interface in `pkg/dtrules/runtime`: the portable
+Go VM (`pkg/dtrules/interpreter/vm.go`, wrapped by `runtime/goruntime`). There
+is no assembly executor; the amd64 one was removed because it addressed a
+`DTState` layout the engine no longer has (#1267).
 
 **Change tracking.** The state records whether execution changed entity data
 (`dtrules.ChangeTracker`: `Changed`, `ResetChanged`), so a host running rules

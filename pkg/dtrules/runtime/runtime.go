@@ -25,7 +25,7 @@
 // Usage:
 //
 //	// Choose a runtime
-//	rt := goruntime.New()  // or asmruntime.New()
+//	rt := goruntime.New()
 //
 //	// Create an execution context
 //	ctx, err := rt.CreateContext()
@@ -46,7 +46,6 @@ import (
 //
 // Implementations include:
 //   - goruntime: Pure Go interpreter
-//   - asmruntime: x86-64 assembly via CGO
 //
 // Each Runtime can create multiple ExecutionContexts for concurrent execution
 // (depending on implementation capabilities).
@@ -72,7 +71,6 @@ type Runtime interface {
 // Capabilities describes what features a runtime supports.
 type Capabilities struct {
 	// ConcurrentContexts indicates if multiple contexts can execute simultaneously.
-	// ASM runtime typically does not support this (global state).
 	ConcurrentContexts bool
 
 	// Tracing indicates if the runtime can emit trace events.
