@@ -82,7 +82,9 @@ __pycache__/
 plans/
 docs-dev/
 benchmark-results/
-scripts/
+# scripts/ holds local one-offs; merge-pr.sh is the tracked exception.
+scripts/*
+!scripts/merge-pr.sh
 sampleprojects/TaxReturn/.dtrules/
 
 # release build output

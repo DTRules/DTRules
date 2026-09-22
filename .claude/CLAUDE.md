@@ -29,7 +29,7 @@ DTRules/
 │   ├── sync/               # Excel/XML sync + validation
 │   └── ...
 ├── sampleprojects/         # Rule sets (TaxReturn, CHIP, ...)
-├── scripts/                # Project-level scripts (merge-pr, ...)
+├── scripts/                # merge-pr.sh (tracked); other scripts are local-only
 ├── ui/                     # TypeScript UI surface
 ├── legacy/
 │   └── go/                 # ASM-dependent Go code (archived)
@@ -244,6 +244,21 @@ go test ./pkg/dtrules/... -run TestTaxReturn > /tmp/test.log 2>&1
 # Install
 make install > /tmp/make-install.log 2>&1
 ```
+
+## Merging PRs
+
+**Never run `gh pr merge` directly.** Merge with `scripts/merge-pr.sh`, which
+tests the PR squashed onto the current `main` (not the PR alone) and merges
+only that tested commit. See §2.10 of [docs/SPEC.md](../docs/SPEC.md).
+
+```bash
+scripts/merge-pr.sh 1301 1302 1303      # in order; stops at the first failure
+scripts/merge-pr.sh --check 1301        # run every check, push and merge nothing
+```
+
+It prints one line per PR; logs are in `/tmp/dtrules-merge-pr/pr-<N>.log`.
+Merge stacked PRs parent-first. If it stops on a conflict, resolve it on the
+PR branch, push, and rerun it from that PR.
 
 ## Commit Convention
 

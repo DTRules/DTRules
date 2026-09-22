@@ -93,7 +93,7 @@ func TestSortByBareNameCollision(t *testing.T) {
 	for _, bare := range []string{"name", "string"} {
 		c := NewCompiler()
 		c.SetSymbols(map[string]string{
-			"orders": "array",
+			"orders":        "array",
 			"order.sortkey": "name", "line.sortkey": "string",
 			"sortkey": bare,
 		})
