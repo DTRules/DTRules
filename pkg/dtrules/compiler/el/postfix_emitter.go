@@ -2742,6 +2742,16 @@ func (e *PostfixEmitter) VisitArrayName(ctx *ArrayNameContext) interface{} {
 	return nil
 }
 
+// VisitStrJoin: `join <arrayExpr> by <strexpr>` concatenates the array's
+// elements with the separator between them -- the inverse of tokenize
+// (#1234): join (tokenize s by sep) by sep is s.
+func (e *PostfixEmitter) VisitStrJoin(ctx *StrJoinContext) interface{} {
+	e.Visit(ctx.ArrayExpr())
+	e.Visit(ctx.Strexpr())
+	e.emit("join")
+	return nil
+}
+
 // VisitArrayTokenize: `tokenize <strexpr> by <strexpr>` splits a
 // string on a delimiter and returns the resulting array of substrings.
 // The runtime already has a `split` op with the right shape.

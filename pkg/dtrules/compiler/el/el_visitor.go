@@ -1165,6 +1165,9 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#strConcatFloat.
 	VisitStrConcatFloat(ctx *StrConcatFloatContext) interface{}
 
+	// Visit a parse tree produced by ELParser#strJoin.
+	VisitStrJoin(ctx *StrJoinContext) interface{}
+
 	// Visit a parse tree produced by ELParser#strTableLookup.
 	VisitStrTableLookup(ctx *StrTableLookupContext) interface{}
 

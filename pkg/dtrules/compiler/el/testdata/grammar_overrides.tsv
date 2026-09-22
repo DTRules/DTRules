@@ -441,3 +441,4 @@ dexpr	dateMinusSeconds	condition	(date) "2020-01-01" - 5 seconds is equal to (da
 dexpr	dateMinusMinutes	condition	(date) "2020-01-01" - 5 minutes is equal to (date) "2020-01-01"	#1232
 iexpr	intSecondsBetween	condition	seconds from (date) "2020-01-01" to (date) "2020-01-01" > 0	#1232
 iexpr	intMinutesBetween	condition	minutes from (date) "2020-01-01" to (date) "2020-01-01" > 0	#1232
+strexpr	strJoin	condition	join tokenize "a,b" by "," by "-" is equal to "a-b"	#1234

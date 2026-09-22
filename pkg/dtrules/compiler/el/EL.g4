@@ -647,6 +647,8 @@ strexpr
     | typedXmlValue                                         # strXmlValue
     | typedXmlValue COLON GET ATTRIBUTE strexpr             # strXmlAttr
     | SUBSTRING OF strexpr FROM iexpr TO iexpr              # strSubstring
+    // #1234: the inverse of `tokenize <strexpr> by <strexpr>`.
+    | JOIN arrayExpr BY strexpr                             # strJoin
     | TABLEINFORMATION                                      # strTableInfo
     | STRING VALUE OF operatorstatements                    # strValueOfOp
     | LPAREN STRING RPAREN texpr LPAREN tablelist RPAREN    # strTableLookup
@@ -1283,6 +1285,7 @@ MONTHS              : 'month' 's'? ;
 WEEKS               : 'week' 's'? ;
 QUARTERS            : 'quarter' 's'? ;
 TOKENIZE            : 'tokenize' ;
+JOIN                : 'join' ;
 TOBEREMOVED         : 'to' WS+ 'be' WS+ 'removed' ;
 TABLEINFORMATION    : 'table' WS+ 'information' ;
 WITHIN              : 'with' WS* 'in' ;

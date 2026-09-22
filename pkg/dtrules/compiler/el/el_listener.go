@@ -1165,6 +1165,9 @@ type ELListener interface {
 	// EnterStrConcatFloat is called when entering the strConcatFloat production.
 	EnterStrConcatFloat(c *StrConcatFloatContext)
 
+	// EnterStrJoin is called when entering the strJoin production.
+	EnterStrJoin(c *StrJoinContext)
+
 	// EnterStrTableLookup is called when entering the strTableLookup production.
 	EnterStrTableLookup(c *StrTableLookupContext)
 
@@ -3138,6 +3141,9 @@ type ELListener interface {
 
 	// ExitStrConcatFloat is called when exiting the strConcatFloat production.
 	ExitStrConcatFloat(c *StrConcatFloatContext)
+
+	// ExitStrJoin is called when exiting the strJoin production.
+	ExitStrJoin(c *StrJoinContext)
 
 	// ExitStrTableLookup is called when exiting the strTableLookup production.
 	ExitStrTableLookup(c *StrTableLookupContext)
