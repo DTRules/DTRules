@@ -567,9 +567,11 @@ func (ctx *tableCmdCtx) tablePatch(rest []string) int {
 	if t2 := p.Table(t.Name); t2 != nil {
 		t = t2
 	}
-	return writeOKWithWarnings(ctx, "patched",
-		map[string]string{"table": t.Name, "op": patch.Op, "file": p.FileOf(t.Name)},
-		analyzeAuthoringTable(t))
+	fields := map[string]string{"table": t.Name, "op": patch.Op, "file": p.FileOf(t.Name)}
+	if patch.Op == "add-column" {
+		fields["column"] = strconv.Itoa(patch.Column)
+	}
+	return writeOKWithWarnings(ctx, "patched", fields, analyzeAuthoringTable(t))
 }
 
 func (ctx *tableCmdCtx) tableSchema(rest []string) int {

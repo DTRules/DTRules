@@ -350,3 +350,48 @@ func sameInts(got, want []int) bool {
 	}
 	return true
 }
+
+// TestTrailingPaddingDoesNotDisableOtherwise is #1221. `add-column` appended
+// an empty column after the otherwise column. The load check rightly treats it
+// as padding, but the BALANCED builder traced it: with no Y or N it wrote its
+// empty leaf over the root's false branch, so neither the otherwise column nor
+// column 2 could fire. FIRST and ALL were unaffected; all three are pinned.
+func TestTrailingPaddingDoesNotDisableOtherwise(t *testing.T) {
+	cases := []struct {
+		name         string
+		tableType    TableType
+		cond1, cond2 bool
+		want         []int
+	}{
+		{"first/no column matches", FIRST, false, true, []int{3}},
+		{"first/column 2 matches", FIRST, false, false, []int{2}},
+		{"all/no column matches", ALL, false, true, []int{3}},
+		{"balanced/no column matches", BALANCED, false, true, []int{3}},
+		{"balanced/column 1 matches", BALANCED, true, true, []int{1}},
+		{"balanced/column 2 matches", BALANCED, false, false, []int{2}},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			executed := make([]int, 0)
+			dt, err := buildTestTable("Padded", c.tableType,
+				[]dtrules.Object{&boolCondition{value: c.cond1}, &boolCondition{value: c.cond2}},
+				[]dtrules.Object{
+					&testAction{num: 1, executed: &executed},
+					&testAction{num: 2, executed: &executed},
+					&testAction{num: 3, executed: &executed},
+				},
+				// otherwiseFixture's table plus one padding column.
+				[][]string{{"Y", "-", "*", "-"}, {"-", "N", "*", "-"}},
+				[][]string{{"x", "", "", ""}, {"", "x", "", ""}, {"", "", "x", ""}}, 4)
+			if err != nil {
+				t.Fatalf("build: %v", err)
+			}
+			if err := dt.ExecuteTable(newTestState()); err != nil {
+				t.Fatalf("execute: %v", err)
+			}
+			if !sameInts(executed, c.want) {
+				t.Errorf("executed %v, want %v", executed, c.want)
+			}
+		})
+	}
+}

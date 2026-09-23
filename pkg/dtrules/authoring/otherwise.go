@@ -100,6 +100,46 @@ func (t *Table) lastSpecifiedColumn() int {
 	return last
 }
 
+// otherwiseColumn is the table's otherwise column (1-based), or 0 when it has
+// none: the last specified column, when a condition marks it '*'.
+func (t *Table) otherwiseColumn() int {
+	last := t.lastSpecifiedColumn()
+	if last < 1 {
+		return 0
+	}
+	for _, c := range t.Conditions {
+		if isStarCell(c.Columns[last]) {
+			return last
+		}
+	}
+	return 0
+}
+
+// shiftColumnsRight moves every condition and action cell in column from and
+// beyond one column to the right, leaving column from empty.
+func (t *Table) shiftColumnsRight(from int) {
+	for i := range t.Conditions {
+		shifted := make(map[int]string, len(t.Conditions[i].Columns))
+		for n, v := range t.Conditions[i].Columns {
+			if n >= from {
+				n++
+			}
+			shifted[n] = v
+		}
+		t.Conditions[i].Columns = shifted
+	}
+	for i := range t.Actions {
+		shifted := make(map[int]bool, len(t.Actions[i].Columns))
+		for n, v := range t.Actions[i].Columns {
+			if n >= from {
+				n++
+			}
+			shifted[n] = v
+		}
+		t.Actions[i].Columns = shifted
+	}
+}
+
 // isStarCell reports whether a condition cell is the otherwise marker.
 func isStarCell(v string) bool {
 	return strings.TrimSpace(v) == "*"

@@ -656,19 +656,37 @@ func validColumnValue(v string) bool {
 
 // AddColumn adds a new rule column. conditions maps condition Number -> "Y"/"N"/"-"/"*".
 // actions is the list of action Numbers that execute on this column.
+// See InsertColumn for where it lands.
 func (t *Table) AddColumn(conditions map[int]string, actions []int) error {
+	_, err := t.InsertColumn(conditions, actions)
+	return err
+}
+
+// InsertColumn adds a new rule column and returns its number.
+//
+// It goes after the last column -- unless the table has an otherwise column,
+// which must stay last. Then the new column takes the otherwise column's place
+// and the otherwise column moves one right. Appending put the new column after
+// the '*', where it was either refused (given any content) or, empty, accepted
+// as trailing padding: `patched`, with the otherwise column no longer last
+// and the author's next edit to the new column refused (#1221).
+func (t *Table) InsertColumn(conditions map[int]string, actions []int) (int, error) {
 	if err := t.validateColumnArgs(conditions, actions); err != nil {
-		return err
+		return 0, err
 	}
-	col := t.Columns() + 1
 	before := t.snapshotCells()
+	col := t.Columns() + 1
+	if oc := t.otherwiseColumn(); oc > 0 {
+		col = oc
+		t.shiftColumnsRight(col)
+	}
 	t.applyColumn(col, conditions, actions)
 	if err := t.checkOtherwise(); err != nil {
 		t.restoreCells(before)
-		return err
+		return 0, err
 	}
 	t.syncToXML()
-	return nil
+	return col, nil
 }
 
 // UpdateColumn replaces an existing column.

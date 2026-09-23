@@ -415,13 +415,17 @@ func (s *mcpServer) toolTablePatch(project string, args json.RawMessage) (map[st
 	if t2 := p.Table(t.Name); t2 != nil {
 		t = t2
 	}
-	return mcpJSONResult(map[string]interface{}{
+	out := map[string]interface{}{
 		"status":   "patched",
 		"table":    t.Name,
 		"op":       op.Op,
 		"file":     p.FileOf(t.Name),
 		"warnings": warningsForJSON(analyzeAuthoringTable(t)),
-	})
+	}
+	if op.Op == "add-column" {
+		out["column"] = op.Column
+	}
+	return mcpJSONResult(out)
 }
 
 func (s *mcpServer) toolEDDPut(project string, args json.RawMessage) (map[string]interface{}, error) {

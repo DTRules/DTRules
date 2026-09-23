@@ -170,26 +170,6 @@ func TestTablePatchSetConditionCellStar(t *testing.T) {
 	}
 }
 
-// TestTablePatchAddColumnAfterOtherwise: appending a column past the
-// otherwise column would leave it in the middle, so it is refused.
-func TestTablePatchAddColumnAfterOtherwise(t *testing.T) {
-	dir := copyProject(t, "../../sampleprojects/CHIP")
-	payload := otherwiseTable(t,
-		map[string]string{"1": "Y", "2": "-", "3": "*"},
-		map[string]string{"1": "-", "2": "N", "3": "-"})
-	if se, code := putOtherwise(t, dir, payload); code != 0 {
-		t.Fatalf("put exit %d stderr=%s", code, se)
-	}
-	_, se, code := runTableCmd(t, dir, []string{"patch", "Otherwise_Probe"},
-		`{"op":"add-column","conditions":{"1":"N","2":"N"},"actions":[1]}`)
-	if code == 0 {
-		t.Fatalf("add-column appended past the otherwise column")
-	}
-	if !strings.Contains(se, "last column") {
-		t.Errorf("error does not state the rule: %s", se)
-	}
-}
-
 // TestTableSchemaListsStar: the schema is what an AI session reads before it
 // writes, and it said the otherwise column was impossible.
 func TestTableSchemaListsStar(t *testing.T) {
@@ -202,5 +182,78 @@ func TestTableSchemaListsStar(t *testing.T) {
 		if !strings.Contains(out, `"*"`) {
 			t.Errorf("%v does not list \"*\"", args)
 		}
+	}
+}
+
+// #1221: add-column appended after the otherwise column. Empty, the new column
+// was accepted as trailing padding -- `patched`, the '*' no longer last, and
+// in a BALANCED table the otherwise column switched off. It now takes the
+// otherwise column's place, which moves one right, and patch says where.
+func TestAddColumnGoesBeforeTheOtherwiseColumn(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		patch string
+		// want is condition 1's and 2's cells after the patch.
+		want1, want2 map[string]string
+	}{
+		{"empty column",
+			`{"op":"add-column"}`,
+			map[string]string{"1": "Y", "2": "-", "3": "-", "4": "*"},
+			map[string]string{"1": "-", "2": "N", "3": "-", "4": "-"}},
+		{"column with content",
+			`{"op":"add-column","conditions":{"1":"N","2":"Y"},"actions":[2]}`,
+			map[string]string{"1": "Y", "2": "-", "3": "N", "4": "*"},
+			map[string]string{"1": "-", "2": "N", "3": "Y", "4": "-"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := copyProject(t, "../../sampleprojects/CHIP")
+			if se, code := putOtherwise(t, dir, otherwiseTable(t,
+				map[string]string{"1": "Y", "2": "-", "3": "*"},
+				map[string]string{"1": "-", "2": "N", "3": "-"})); code != 0 {
+				t.Fatalf("put exit %d stderr=%s", code, se)
+			}
+			out, se, code := runTableCmd(t, dir, []string{"patch", "Otherwise_Probe"}, tc.patch)
+			if code != 0 {
+				t.Fatalf("patch exit %d stderr=%s", code, se)
+			}
+			if !strings.Contains(out, `"column": "3"`) {
+				t.Errorf("patch should report the new column as 3:\n%s", out)
+			}
+
+			got, _, _ := runTableCmd(t, dir, []string{"get", "Otherwise_Probe"}, "")
+			var tbl TableJSON
+			if err := json.Unmarshal([]byte(got), &tbl); err != nil {
+				t.Fatalf("get: %v", err)
+			}
+			for i, want := range []map[string]string{tc.want1, tc.want2} {
+				for col, v := range want {
+					if g := tbl.Conditions[i].Columns[col]; g != v {
+						t.Errorf("condition %d column %s = %q, want %q (all: %v)", i+1, col, g, v, tbl.Conditions[i].Columns)
+					}
+				}
+			}
+			// The otherwise column's action moved with it.
+			if !tbl.Actions[2].Columns["4"] || tbl.Actions[2].Columns["3"] {
+				t.Errorf("action 3 (the otherwise action) = %v, want it on column 4 only", tbl.Actions[2].Columns)
+			}
+		})
+	}
+}
+
+// Without an otherwise column, add-column still appends.
+func TestAddColumnAppendsWithoutAnOtherwiseColumn(t *testing.T) {
+	dir := copyProject(t, "../../sampleprojects/CHIP")
+	if se, code := putOtherwise(t, dir, otherwiseTable(t,
+		map[string]string{"1": "Y", "2": "-", "3": "N"},
+		map[string]string{"1": "-", "2": "N", "3": "-"})); code != 0 {
+		t.Fatalf("put exit %d stderr=%s", code, se)
+	}
+	out, se, code := runTableCmd(t, dir, []string{"patch", "Otherwise_Probe"},
+		`{"op":"add-column","conditions":{"1":"N","2":"Y"}}`)
+	if code != 0 {
+		t.Fatalf("patch exit %d stderr=%s", code, se)
+	}
+	if !strings.Contains(out, `"column": "4"`) {
+		t.Errorf("patch should report the new column as 4:\n%s", out)
 	}
 }

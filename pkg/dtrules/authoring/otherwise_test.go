@@ -154,23 +154,28 @@ func TestOtherwiseColumnRefusesYOrN(t *testing.T) {
 	}
 }
 
-// TestAddColumnPastOtherwiseRefused: AddColumn appends at max+1, which would
-// leave the otherwise column in the middle.
-func TestAddColumnPastOtherwiseRefused(t *testing.T) {
+// TestAddColumnGoesBeforeOtherwise: appending at max+1 would leave the
+// otherwise column in the middle. #1215 refused a column with content there,
+// but let an empty one through as padding (#1221); now the new column takes
+// the otherwise column's place and the otherwise column moves one right.
+func TestAddColumnGoesBeforeOtherwise(t *testing.T) {
 	p := otherwiseProject(t)
 	tbl := p.Table("Probe")
 	if err := setCell(tbl, 1, 3, "*"); err != nil {
 		t.Fatalf("refused a legal otherwise cell: %v", err)
 	}
-	err := tbl.AddColumn(map[int]string{1: "N", 2: "N"}, []int{1})
-	if err == nil {
-		t.Fatal("appended a column past the otherwise column")
-	}
-	if !strings.Contains(err.Error(), "last column") {
-		t.Errorf("error does not state the rule: %v", err)
-	}
-	if tbl.Columns() != 3 {
-		t.Errorf("a refused AddColumn widened the table to %d columns", tbl.Columns())
+	for _, conds := range []map[int]string{{1: "N", 2: "N"}, {}} {
+		want := tbl.Columns() // the otherwise column's current place
+		col, err := tbl.InsertColumn(conds, []int{1})
+		if err != nil {
+			t.Fatalf("InsertColumn(%v): %v", conds, err)
+		}
+		if col != want {
+			t.Errorf("new column is %d, want %d (the otherwise column's place)", col, want)
+		}
+		if got := tbl.otherwiseColumn(); got != tbl.Columns() {
+			t.Errorf("otherwise column is %d of %d: no longer last", got, tbl.Columns())
+		}
 	}
 }
 
