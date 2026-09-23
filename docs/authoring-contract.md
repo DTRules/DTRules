@@ -147,7 +147,19 @@ of which is steady-state authoring:
 - **Recovery** when Excel is lost but XML survives.
 
 Bootstrap generates Excel from the XML's DSL and writes a `.sync-manifest.json`.
-It is lossless because Excel only needs DSL (invariant #2). It is owned by the
+It is lossless because Excel only needs DSL (invariant #2).
+
+Every rule file comes out of it with a workbook behind it, which is what
+`verify` checks (#1303):
+
+- each table file `X_dt.xml` gets `X.xlsx`;
+- an EDD entity naming no workbook is given the one named after its file
+  (`X_edd.xml` → `X.xlsx`), and the EDD is then rebuilt from that workbook;
+- each mapping `X_map.xml` gets `X_map.xlsx`, and is rebuilt from it.
+
+The one thing the EDD sheet cannot carry is an entity's comment. An EDD that
+has one keeps its XML rather than lose it, so that project does not pass
+`verify` until the comment has somewhere to live. It is owned by the
 authoring API's "Excel absent ⇒ create it" path and an explicit one-shot
 migration command — **not** by `build`. After bootstrap the project is in
 normal steady state and the write-through applies on every edit.

@@ -789,7 +789,13 @@ func importMapWorkbooks(xmlDir, excelDir string, force, verbose bool) error {
 		if err != nil {
 			return fmt.Errorf("import MAP xlsx %s: %w", rel, err)
 		}
-		if mapXML == nil || len(mapXML.Entries) == 0 {
+		// Empty means empty: no attributes, and no entity, createentity or
+		// initialization rows either. A mapping that only declares and pushes
+		// its entities -- every value from EDD defaults -- is a real mapping,
+		// and skipping it for having no attributes meant its XML was never
+		// rebuilt from the workbook (#1303).
+		if mapXML == nil || (len(mapXML.Entries) == 0 && len(mapXML.EntityDecls) == 0 &&
+			len(mapXML.CreateEntities) == 0 && len(mapXML.InitialEntities) == 0) {
 			return nil
 		}
 		// Clobber guard. A workbook written by an older DTRules can be

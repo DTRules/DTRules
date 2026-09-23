@@ -194,6 +194,24 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 // xml/<dir>/ pairs with excel/<dir>/X.xlsx.
 func refreshExcel(xmlDir, excelDir string, created []string) error {
 	resolvedExcelDir := resolveExcelDir(xmlDir, excelDir)
+	// A project with no Excel anywhere is being bootstrapped (see below).
+	// Every rule file must come out of it with a workbook behind it, and an
+	// EDD whose entities name no workbook is claimed by none, so it was never
+	// exported: after bootstrap the dictionary still existed only as XML, and
+	// verify's provenance check failed the project (#1303). Give each such
+	// entity the workbook paired with its own file first.
+	//
+	// "No Excel anywhere" includes the manifest: a project whose workbooks
+	// sit where its .sync-manifest.json says, outside excel/, has Excel.
+	m, manifestDir := loadSyncManifest(xmlDir, excelDir)
+	bootstrapping := m == nil && len(indexWorkbooksByBase(resolvedExcelDir)) == 0
+	if bootstrapping {
+		claimed, err := claimUnownedEntities(xmlDir)
+		if err != nil {
+			return err
+		}
+		created = append(created, claimed...)
+	}
 	pairing := discoverWorkbookPairing(xmlDir, resolvedExcelDir)
 	create := map[string]bool{}
 	for _, xmlPath := range created {
@@ -201,7 +219,7 @@ func refreshExcel(xmlDir, excelDir string, created []string) error {
 		if err != nil || strings.HasPrefix(rel, "..") {
 			continue
 		}
-		wb := filepath.Join(resolvedExcelDir, strings.TrimSuffix(rel, "_dt.xml")+".xlsx")
+		wb := filepath.Join(resolvedExcelDir, ruleFileStem(rel)+".xlsx")
 		if _, err := os.Stat(wb); err == nil {
 			continue // already there: an ordinary refresh
 		}
@@ -219,7 +237,6 @@ func refreshExcel(xmlDir, excelDir string, created []string) error {
 		}
 		create[wb] = true
 	}
-	m, manifestDir := loadSyncManifest(xmlDir, excelDir)
 	if m == nil && len(pairing) == 0 {
 		return nil
 	}
@@ -331,9 +348,122 @@ func refreshExcel(xmlDir, excelDir string, created []string) error {
 	// 58-workbook project recompiles one workbook, not 58. The hash makes that
 	// cheap to know.
 	if bootstrap {
-		return recompileKeepingEDD(xmlDir, resolvedExcelDir, changed)
+		if err := recompileKeepingEDD(xmlDir, resolvedExcelDir, changed); err != nil {
+			return err
+		}
+		return bootstrapMapWorkbooks(xmlDir, resolvedExcelDir)
 	}
 	return recompileWorkbooks(xmlDir, resolvedExcelDir, changed)
+}
+
+// hasEntityComment reports whether an EDD file gives any entity a comment:
+// the one thing it holds that the EDD sheet has no cell for.
+func hasEntityComment(data []byte) bool {
+	var doc excel.EDDXML
+	if xml.Unmarshal(data, &doc) != nil {
+		return true // unreadable here: keep it rather than risk it
+	}
+	for _, ent := range doc.Entities {
+		if ent != nil && strings.TrimSpace(ent.Comment) != "" {
+			return true
+		}
+	}
+	return false
+}
+
+// ruleFileStem is a rule file's path relative to the XML directory, less its
+// _dt.xml / _edd.xml suffix: the workbook `build` would compile it from is
+// the stem plus .xlsx, in the same relative directory under excel/.
+func ruleFileStem(rel string) string {
+	for _, suffix := range []string{"_dt.xml", "_edd.xml"} {
+		if strings.HasSuffix(rel, suffix) {
+			return strings.TrimSuffix(rel, suffix)
+		}
+	}
+	return strings.TrimSuffix(rel, filepath.Ext(rel))
+}
+
+// claimUnownedEntities gives every entity that names no workbook -- no
+// xls_file, no <source> -- the workbook named after its EDD file, and returns
+// the EDD files it changed. X_edd.xml pairs with X.xlsx, as `build` pairs
+// them. Only a bootstrap calls this: in a project with Excel, an unowned
+// entity is a question for the author, not something to guess at.
+func claimUnownedEntities(xmlDir string) ([]string, error) {
+	var changed []string
+	err := filepath.WalkDir(xmlDir, func(p string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !strings.HasSuffix(d.Name(), "_edd.xml") || loader.SkipRuleFile(p) {
+			return nil
+		}
+		data, err := os.ReadFile(p)
+		if err != nil {
+			return nil
+		}
+		var doc excel.EDDXML
+		if xml.Unmarshal(data, &doc) != nil {
+			return nil
+		}
+		workbook := strings.TrimSuffix(d.Name(), "_edd.xml") + ".xlsx"
+		touched := false
+		for _, ent := range doc.Entities {
+			if ent != nil && strings.TrimSpace(ent.XlsFile) == "" && ent.Source == nil {
+				ent.XlsFile = workbook
+				touched = true
+			}
+		}
+		if !touched {
+			return nil
+		}
+		if err := excel.NewEDDImporter().WriteXML(&doc, p); err != nil {
+			return fmt.Errorf("excel bootstrap: claim entities in %s: %w", p, err)
+		}
+		changed = append(changed, p)
+		return nil
+	})
+	return changed, err
+}
+
+// bootstrapMapWorkbooks writes a _map.xlsx for every mapping that has none,
+// at the path `build` reads it from. A bootstrap that stopped at tables and
+// dictionaries left the mapping as rule XML nothing produces (#1303).
+func bootstrapMapWorkbooks(xmlDir, excelDir string) error {
+	return filepath.WalkDir(xmlDir, func(p string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !strings.HasSuffix(d.Name(), "_map.xml") {
+			return nil
+		}
+		rel, err := filepath.Rel(xmlDir, p)
+		if err != nil {
+			return nil
+		}
+		// SkipRuleFile skips every mapping; ask it about the table file of
+		// the same name, so templates, test data and schemas stay excluded.
+		if loader.SkipRuleFile(strings.TrimSuffix(p, "_map.xml") + "_dt.xml") {
+			return nil
+		}
+		wb := filepath.Join(excelDir, strings.TrimSuffix(rel, ".xml")+".xlsx")
+		if _, err := os.Stat(wb); err == nil {
+			return nil
+		}
+		m, err := excel.LoadMapXMLFromFile(p)
+		if err != nil {
+			return fmt.Errorf("excel bootstrap: load %s: %w", p, err)
+		}
+		if err := os.MkdirAll(filepath.Dir(wb), 0o755); err != nil {
+			return err
+		}
+		if err := excel.NewMapExporter().ExportToFile(m, wb); err != nil {
+			return fmt.Errorf("excel bootstrap: export %s: %w", wb, err)
+		}
+		// And back, as the tables are: the XML becomes what compiling the
+		// workbook produces, not the hand-formatted file it started as.
+		built, err := excel.NewMapImporter().ImportFile(wb)
+		if err != nil {
+			return fmt.Errorf("excel bootstrap: import %s: %w", wb, err)
+		}
+		if err := excel.WriteMapXML(built, p); err != nil {
+			return fmt.Errorf("excel bootstrap: write %s: %w", p, err)
+		}
+		return nil
+	})
 }
 
 // recompileKeepingEDD is recompileWorkbooks for a workbook that did not exist
@@ -346,13 +476,18 @@ func refreshExcel(xmlDir, excelDir string, created []string) error {
 // delete from the dictionary what the dictionary was never asked to give up.
 // On a bootstrap the XML is the source; the workbook is one second old and
 // has nothing to teach it (#1215).
+//
+// Only a dictionary that holds something the sheet cannot is kept, though.
+// Keeping every one left each EDD as XML that no compile of its workbook
+// reproduces, which verify rejects; and an EDD with no entity comment loses
+// nothing on the trip (#1303).
 func recompileKeepingEDD(xmlDir, excelDir string, workbooks []string) error {
 	kept := map[string][]byte{}
 	_ = filepath.WalkDir(xmlDir, func(p string, d os.DirEntry, err error) error {
 		if err != nil || d.IsDir() || !strings.HasSuffix(p, "_edd.xml") {
 			return nil
 		}
-		if data, rerr := os.ReadFile(p); rerr == nil {
+		if data, rerr := os.ReadFile(p); rerr == nil && hasEntityComment(data) {
 			kept[p] = data
 		}
 		return nil
