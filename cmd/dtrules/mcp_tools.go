@@ -356,6 +356,7 @@ func (s *mcpServer) toolTablePut(project string, args json.RawMessage) (map[stri
 		if strings.TrimSpace(req.Reason) == "" {
 			return nil, newToolError("invalid_command", "moving a table requires a reason", "set arguments.reason")
 		}
+		req.Table.followMove(t)
 		if err := p.MoveTable(req.Name, file, req.Reason); err != nil {
 			return nil, newToolError("invalid_command", "could not move table", err.Error())
 		}
@@ -363,6 +364,9 @@ func (s *mcpServer) toolTablePut(project string, args json.RawMessage) (map[stri
 	}
 	if err := req.Table.ApplyTo(t); err != nil {
 		return nil, newToolError("compile_error", "an EL expression failed to compile", err.Error())
+	}
+	if err := p.CheckNewFiles(); err != nil {
+		return nil, newToolError("invalid_command", "could not place table", err.Error())
 	}
 	if err := p.Save(); err != nil {
 		return nil, newToolError("io_error", "save failed", err.Error())

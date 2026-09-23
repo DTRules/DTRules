@@ -91,7 +91,7 @@ func ensureFile(p *authoring.Project, file, rng, reason string) error {
 		return nil
 	}
 	if rng == "" {
-		return fmt.Errorf("file %q is new; provide --range LO-HI to create it", file)
+		return fmt.Errorf("file %q is new; provide --range LO-HI (or \"range\" in a patch body) to create it", file)
 	}
 	lo, hi, err := parseRange(rng)
 	if err != nil {
@@ -101,6 +101,22 @@ func ensureFile(p *authoring.Project, file, rng, reason string) error {
 		return fmt.Errorf("creating file %q requires --reason", file)
 	}
 	return p.CreateFile(file, lo, hi, reason)
+}
+
+// followMove is for a put that moves t to another file. The body is usually
+// `table get` output, which carries the table's number and workbook from
+// *before* the move. Those are not a request; they are where the table was.
+// Applied, the old number fell outside the new file's range and the old
+// workbook sent the table back into the file it had just left (#1225). Values
+// that match the old placement follow the move; a value that differs is still
+// honoured. Call it before MoveTable, while t still describes the old place.
+func (tj *TableJSON) followMove(t *authoring.Table) {
+	if tj.Number == t.Number {
+		tj.Number = 0
+	}
+	if strings.EqualFold(strings.TrimSpace(tj.Workbook), strings.TrimSpace(t.Workbook)) {
+		tj.Workbook = ""
+	}
 }
 
 // jsonError is the single shape every non-zero exit writes to stderr.
@@ -415,6 +431,7 @@ func (ctx *tableCmdCtx) tablePut(rest []string) int {
 		if strings.TrimSpace(reasonFlag) == "" {
 			return emitErr(ctx.stderr, 1, "invalid_input", "", "moving a table requires --reason", "")
 		}
+		tj.followMove(t)
 		if err := p.MoveTable(name, file, reasonFlag); err != nil {
 			return emitErr(ctx.stderr, 1, "invalid_input", "", "", err.Error())
 		}
@@ -428,6 +445,9 @@ func (ctx *tableCmdCtx) tablePut(rest []string) int {
 
 	if err := tj.ApplyTo(t); err != nil {
 		return emitErr(ctx.stderr, 1, "compile_error", "", "an EL expression failed to compile", err.Error())
+	}
+	if err := p.CheckNewFiles(); err != nil {
+		return emitErr(ctx.stderr, 1, "invalid_input", "", "", err.Error())
 	}
 	if err := p.Save(); err != nil {
 		return emitErr(ctx.stderr, 1, "io_error", "", "save failed", err.Error())
@@ -491,6 +511,7 @@ func (ctx *tableCmdCtx) tableNote(rest []string) int {
 }
 
 func (ctx *tableCmdCtx) tablePatch(rest []string) int {
+	fileFlag, rngFlag, reasonFlag, rest := parseTableFlags(rest)
 	name, code := ctx.requireName(rest, "table patch <name>")
 	if code != 0 {
 		return code
@@ -518,6 +539,23 @@ func (ctx *tableCmdCtx) tablePatch(rest []string) int {
 	if err := dec.Decode(&patch); err != nil {
 		return emitErr(ctx.stderr, 1, "parse_error", "",
 			"patch input must be a flat JSON object matching `table schema --patch`", err.Error())
+	}
+	// --file, --range and --reason mean what they mean to `put`. They were
+	// silently dropped here, while the error for a missing range said to pass
+	// --range (#1225). The body wins where both are given and disagree.
+	for _, f := range []struct {
+		flag string
+		body *string
+		name string
+	}{{fileFlag, &patch.File, "file"}, {rngFlag, &patch.Range, "range"}, {reasonFlag, &patch.Reason, "reason"}} {
+		switch {
+		case f.flag == "":
+		case *f.body == "":
+			*f.body = f.flag
+		case *f.body != f.flag:
+			return emitErr(ctx.stderr, 1, "invalid_input", "", "",
+				fmt.Sprintf("--%s %q disagrees with \"%s\": %q in the body; give one", f.name, f.flag, f.name, *f.body))
+		}
 	}
 	if err := patch.apply(p, t); err != nil {
 		return emitErr(ctx.stderr, 1, "invalid_patch", "", patch.hint(), err.Error())

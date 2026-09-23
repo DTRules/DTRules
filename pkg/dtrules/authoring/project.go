@@ -62,6 +62,11 @@ type Project struct {
 	pendingLog []string
 	// orphans are DT files emptied this session, deleted on Save.
 	orphans []string
+	// created are DT files (absolute paths) created this session. Their
+	// workbooks do not exist yet, and Save's Excel refresh creates exactly
+	// these -- a new file with no workbook behind it is rule XML nothing
+	// produces (#1225).
+	created []string
 	// clock is overridable in tests so change-log dates are deterministic.
 	clock func() time.Time
 }
@@ -305,11 +310,32 @@ func (p *Project) Save() error {
 	if err := p.preWriteExcelGuard(); err != nil {
 		return err
 	}
+	created, err := p.createdWorkbooks()
+	if err != nil {
+		return err
+	}
 
+	// Files created this session first, directory included. A move writes
+	// two files, and in the other order a target that could not be written
+	// -- xml/styles/ did not exist -- left the table already removed from its
+	// source and in neither file (#1225). This way a failure can at worst
+	// leave it in both, which the loader reports rather than loses.
 	imp := excel.NewDTImporter()
-	for _, entry := range p.dtFiles {
-		if err := imp.WriteXML(entry.tables, entry.path); err != nil {
-			return fmt.Errorf("failed to write %s: %w", entry.path, err)
+	isNew := map[string]bool{}
+	for _, abs := range p.created {
+		isNew[abs] = true
+	}
+	for _, pass := range []bool{true, false} {
+		for _, entry := range p.dtFiles {
+			if isNew[entry.path] != pass {
+				continue
+			}
+			if err := os.MkdirAll(filepath.Dir(entry.path), 0o755); err != nil {
+				return fmt.Errorf("failed to create %s: %w", filepath.Dir(entry.path), err)
+			}
+			if err := imp.WriteXML(entry.tables, entry.path); err != nil {
+				return fmt.Errorf("failed to write %s: %w", entry.path, err)
+			}
 		}
 	}
 	// Delete files emptied this session (move/delete left them with no tables),
@@ -321,7 +347,54 @@ func (p *Project) Save() error {
 	if err := p.saveEDDXMLOnly(); err != nil {
 		return err
 	}
-	return p.refreshExcelFromXML()
+	if err := refreshExcel(p.xmlDir, p.excelDir, created); err != nil {
+		return err
+	}
+	p.created = nil
+	return nil
+}
+
+// CheckNewFiles reports, before anything is written, a table in a file created
+// this session that names a workbook other than the file's own -- the one
+// check Save would otherwise fail on after its caller had done its work.
+func (p *Project) CheckNewFiles() error {
+	_, err := p.createdWorkbooks()
+	return err
+}
+
+// createdWorkbooks returns the DT files created this session that still hold
+// tables, for the Excel refresh to create their workbooks.
+//
+// `build` names its output after the workbook -- X.xlsx compiles to X_dt.xml
+// -- so a new file's workbook can only be the one named after the file. A
+// table in it naming any other workbook would be exported somewhere that
+// builds into a different file; that is refused here, before anything is
+// written.
+func (p *Project) createdWorkbooks() ([]string, error) {
+	var files []string
+	for _, abs := range p.created {
+		idx := -1
+		for i := range p.dtFiles {
+			if p.dtFiles[i].path == abs {
+				idx = i
+				break
+			}
+		}
+		if idx < 0 || len(p.dtFiles[idx].tables.Tables) == 0 {
+			continue // dropped again, or never given a table: nothing to back
+		}
+		want := strings.TrimSuffix(filepath.Base(abs), "_dt.xml") + ".xlsx"
+		for _, t := range p.dtFiles[idx].tables.Tables {
+			if wb := strings.TrimSpace(t.XLSFile); wb != "" && !strings.EqualFold(filepath.Base(wb), want) {
+				return nil, fmt.Errorf("table %q is in new file %q but names workbook %q; "+
+					"a file's workbook is the one named after it (%s), because the build "+
+					"compiles X.xlsx to X_dt.xml. Omit \"workbook\" to take %s",
+					t.TableName, p.relPathOf(abs), wb, want, want)
+			}
+		}
+		files = append(files, abs)
+	}
+	return files, nil
 }
 
 // preWriteExcelGuard is the Project-method facade over GuardExcelInDir.

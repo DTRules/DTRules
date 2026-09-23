@@ -180,8 +180,45 @@ func RefreshExcelInDir(xmlDir string) error {
 // RefreshExcelIn is RefreshExcelInDir with the project's declared Excel
 // directory. Pass "" to search the conventional layouts (#1049).
 func RefreshExcelIn(xmlDir, excelDir string) error {
+	return refreshExcel(xmlDir, excelDir, nil)
+}
+
+// refreshExcel is RefreshExcelIn that also creates the workbooks of created,
+// the DT files (absolute paths) a Project created in this session.
+//
+// A workbook that does not exist is otherwise never made (#1062, below). A
+// file the author just created is the exception: its workbook cannot exist
+// yet, and without it the file is rule XML that no workbook produces --
+// `table put --file new_dt.xml` and `set-file` both left exactly that
+// (#1225). The workbook sits where `build` would read it: X_dt.xml under
+// xml/<dir>/ pairs with excel/<dir>/X.xlsx.
+func refreshExcel(xmlDir, excelDir string, created []string) error {
 	resolvedExcelDir := resolveExcelDir(xmlDir, excelDir)
 	pairing := discoverWorkbookPairing(xmlDir, resolvedExcelDir)
+	create := map[string]bool{}
+	for _, xmlPath := range created {
+		rel, err := filepath.Rel(xmlDir, xmlPath)
+		if err != nil || strings.HasPrefix(rel, "..") {
+			continue
+		}
+		wb := filepath.Join(resolvedExcelDir, strings.TrimSuffix(rel, "_dt.xml")+".xlsx")
+		if _, err := os.Stat(wb); err == nil {
+			continue // already there: an ordinary refresh
+		}
+		// Pairing resolved the new file's bare workbook name against excelDir,
+		// which is only right for a top-level file. Re-key it to the path the
+		// workbook will have.
+		for k, xmls := range pairing {
+			if _, err := os.Stat(k); err != nil && strings.EqualFold(filepath.Base(k), filepath.Base(wb)) {
+				delete(pairing, k)
+				pairing[wb] = append(pairing[wb], xmls...)
+			}
+		}
+		if _, ok := pairing[wb]; !ok {
+			pairing[wb] = []string{xmlPath}
+		}
+		create[wb] = true
+	}
 	m, manifestDir := loadSyncManifest(xmlDir, excelDir)
 	if m == nil && len(pairing) == 0 {
 		return nil
@@ -237,7 +274,7 @@ func RefreshExcelIn(xmlDir, excelDir string) error {
 			// The exporter writes .xlsx. A workbook recorded as legacy .xls
 			// is a name from the corpus, not a file this can produce, so
 			// bootstrapping does not try.
-			if !bootstrap || !strings.EqualFold(filepath.Ext(excelPath), ".xlsx") {
+			if !(bootstrap || create[excelPath]) || !strings.EqualFold(filepath.Ext(excelPath), ".xlsx") {
 				continue
 			}
 			if err := os.MkdirAll(filepath.Dir(excelPath), 0o755); err != nil {
