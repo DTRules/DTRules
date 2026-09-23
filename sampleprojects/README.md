@@ -23,7 +23,6 @@ These projects demonstrate how to integrate DTRules into applications:
 | Project | Wraps | Features |
 |---------|-------|----------|
 | [ChipApp](ChipApp/) | CHIP | Multi-threaded execution, performance benchmarking |
-| [KidAid_Application](KidAid_Application/) | KidAid | Simple integration example |
 
 ## Getting Started
 
@@ -54,13 +53,13 @@ mvn exec:java -Dexec.mainClass="com.dtrules.samples.chipeligibility.TestChip"
 │                    Rule Set Projects                        │
 │  ┌──────────┐  ┌──────────┐                                 │
 │  │   CHIP   │  │  KidAid  │                                 │
-│  └────┬─────┘  └────┬─────┘                                 │
-│       │             │                                        │
-│       ▼             ▼                                        │
-│  ┌──────────┐  ┌──────────────┐                             │
-│  │ ChipApp  │  │ KidAid_App   │                             │
-│  │          │  │              │                             │
-│  └──────────┘  └──────────────┘                             │
+│  └────┬─────┘  └──────────┘                                 │
+│       │                                                     │
+│       ▼                                                     │
+│  ┌──────────┐                                               │
+│  │ ChipApp  │                                               │
+│  │          │                                               │
+│  └──────────┘                                               │
 │           Application Wrappers                              │
 └─────────────────────────────────────────────────────────────┘
 

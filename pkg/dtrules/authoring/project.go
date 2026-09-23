@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
+	"github.com/DTRules/DTRules/pkg/dtrules/loader"
 	"github.com/DTRules/DTRules/pkg/dtrules/project"
 )
 
@@ -211,7 +212,10 @@ func (p *Project) loadDTFiles(xmlDir string) error {
 		if d.IsDir() {
 			return nil
 		}
-		if strings.HasSuffix(path, "_dt.xml") {
+		// Same rule-file test as the loader and verify. Without it the API
+		// listed and edited TaxReturn's TEMPLATE_dt.xml -- hand-written
+		// postfix the engine never loads -- as a table of the project (#1300).
+		if strings.HasSuffix(path, "_dt.xml") && !loader.SkipRuleFile(path) {
 			dtPaths = append(dtPaths, path)
 		}
 		return nil
@@ -324,7 +328,7 @@ func (p *Project) Save() error {
 // It threads the project's OverwriteExcel flag through and otherwise
 // delegates straight to the package-level helper, so the same code
 // path runs whether the caller is Project.Save or a non-Project
-// surface like dtrules compile.
+// surface.
 func (p *Project) preWriteExcelGuard() error {
 	return GuardExcelIn(p.xmlDir, p.excelDir, p.OverwriteExcel)
 }
@@ -350,7 +354,7 @@ func (p *Project) preWriteExcelGuard() error {
 // refreshExcelFromXML is the Project-method facade over
 // RefreshExcelInDir. Same pattern as preWriteExcelGuard: delegate to
 // the package-level helper so the same code path runs from any caller
-// (Save, SaveEDD, dtrules compile).
+// (Save, SaveEDD).
 func (p *Project) refreshExcelFromXML() error {
 	return RefreshExcelIn(p.xmlDir, p.excelDir)
 }

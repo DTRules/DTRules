@@ -476,7 +476,7 @@ Older samples remain for reference; some predate the current authoring contract.
 |---------|-------------|
 | **SinusitisTherapy** | Antibiotic selection, dosing, renal adjustment, and interaction checks — the interactive-collection demo |
 | **CHIP** / **ChipApp** | Health-insurance eligibility determination |
-| **KidAid** / **KidAid_Application** | Child-assistance program eligibility |
+| **KidAid** | Child-assistance program eligibility |
 | **CorporateTax** / **StateTax** | Tax calculation |
 | **Poker** | Decision-making by player archetype — the smallest end-to-end example |
 

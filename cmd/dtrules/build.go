@@ -759,7 +759,14 @@ func (c *CLI) syncMAPFiles(xmlDir, excelDir, direction string, verbose bool) err
 		})
 	}
 
-	// Walk Excel dir for _map.xlsx files (excel-to-xml direction)
+	return importMapWorkbooks(xmlDir, excelDir, false, verbose)
+}
+
+// importMapWorkbooks writes each _map.xlsx under excelDir to its _map.xml.
+// Unless force is set, a workbook no newer than its XML is skipped. verify
+// forces it: its copy of the project has no meaningful timestamps, and a
+// rebuild that skips the mappings never checks them at all (#1300).
+func importMapWorkbooks(xmlDir, excelDir string, force, verbose bool) error {
 	return filepath.WalkDir(excelDir, func(path string, d os.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
@@ -774,7 +781,7 @@ func (c *CLI) syncMAPFiles(xmlDir, excelDir, direction string, verbose bool) err
 		// Check timestamps: import if xlsx is newer
 		xlsxInfo, _ := os.Stat(path)
 		xmlInfo, _ := os.Stat(xmlPath)
-		if xmlInfo != nil && !xlsxInfo.ModTime().After(xmlInfo.ModTime()) {
+		if !force && xmlInfo != nil && !xlsxInfo.ModTime().After(xmlInfo.ModTime()) {
 			return nil // xml already up to date
 		}
 

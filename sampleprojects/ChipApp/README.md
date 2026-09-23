@@ -176,7 +176,6 @@ Adjust case count and thread pool:
 ## Related Projects
 
 - **CHIP** - The underlying rule set
-- **KidAid_Application** - Similar wrapper for KidAid
 
 ## DSL
 

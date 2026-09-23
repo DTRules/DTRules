@@ -59,10 +59,16 @@ type mapCreateJSON struct {
 }
 
 type mapAttributeJSON struct {
-	Tag        string `json:"tag"`
+	Tag        string `json:"tag,omitempty"`
 	RAttribute string `json:"rattribute,omitempty"`
-	Enclosure  string `json:"enclosure"`
+	Enclosure  string `json:"enclosure,omitempty"`
 	Type       string `json:"type,omitempty"`
+	// Comment makes the entry a section comment instead of an attribute: an
+	// XML comment in the <map> block, a "# ..." row in the workbook. Such an
+	// entry carries nothing else. get dropped these, so a put of get's own
+	// output silently erased every note an author had left in the mapping
+	// (#1300).
+	Comment string `json:"comment,omitempty"`
 }
 
 // mapPatchOp is one change. Deliberately one op per invocation, like `edd
@@ -304,6 +310,13 @@ func mapFromJSON(doc mapJSON) (*excel.MapXML, error) {
 		})
 	}
 	for _, a := range doc.Attributes {
+		if c := strings.TrimSpace(a.Comment); c != "" {
+			if a.Tag != "" || a.RAttribute != "" || a.Enclosure != "" || a.Type != "" {
+				return nil, fmt.Errorf("an attribute entry is a comment or an attribute, not both (comment %q, tag %q)", c, a.Tag)
+			}
+			m.Entries = append(m.Entries, excel.MapEntry{IsSection: true, Comment: c})
+			continue
+		}
 		if strings.TrimSpace(a.Tag) == "" || strings.TrimSpace(a.Enclosure) == "" {
 			return nil, fmt.Errorf("an attribute needs a tag and an enclosure")
 		}
@@ -576,6 +589,7 @@ func mapToJSON(m *excel.MapXML) mapJSON {
 	}
 	for _, e := range m.Entries {
 		if e.IsSection {
+			out.Attributes = append(out.Attributes, mapAttributeJSON{Comment: e.Comment})
 			continue
 		}
 		out.Attributes = append(out.Attributes, mapAttributeJSON{
@@ -632,7 +646,9 @@ entity and all of its tags together.
 
 put is how a project gets its first mapping: every patch op needs a file that
 already exists, so before it the first one was always hand-written. The file is
-named after the project unless --map-file says otherwise.
+named after the project unless --map-file says otherwise. An "attributes"
+entry of the form {"comment":"..."} is a note to the reader, kept in the XML
+and the workbook; get emits them, so put of get's output loses nothing.
 
 Both put and patch are checked against the EDD first. A mapping entry that
 resolves against nothing does not fail at load -- the value is dropped and the

@@ -204,5 +204,4 @@ tail -30 /tmp/merge.log
 
 - `../EXTRACTION_GUIDE.md` - Complete guide to multi-file XML structure
 - `../.claude/CLAUDE.md` - Project development guidelines
-- `../xml/states/TEMPLATE_dt.xml` - Template for new state decision tables
-- `../xml/states/TEMPLATE_edd.xml` - Template for new state entity definitions
+- `../xml/states/README.md` - How a state is authored through the API

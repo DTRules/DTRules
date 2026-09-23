@@ -48,7 +48,6 @@
 - `states/RI_dt.xml`
 - `states/SC_dt.xml`
 - `states/SD_dt.xml`
-- `states/TEMPLATE_dt.xml`
 - `states/TN_dt.xml`
 - `states/TX_dt.xml`
 - `states/UT_dt.xml`

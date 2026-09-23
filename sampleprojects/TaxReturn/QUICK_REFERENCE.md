@@ -63,13 +63,13 @@ MD = 41900-41999
 
 ## New State Checklist
 
-1. Copy templates
-   ```bash
-   cp xml/states/TEMPLATE_dt.xml xml/states/XX_dt.xml
-   cp xml/states/TEMPLATE_edd.xml xml/states/XX_edd.xml
-   ```
+1. Author the state through the API, never by hand: constants with
+   `dtrules edd patch --edd-file states/XX_edd.xml`, the table with
+   `dtrules table put XX_Tax --file states/XX_dt.xml --range <range above>`.
+   The API compiles the postfix and writes `excel/states/XX.xlsx` in the same
+   operation. Full example: `xml/states/README.md`.
 
-2. Edit files (use correct TABLE_NUMBER from above)
+2. Further edits: `dtrules table patch` / `dtrules edd patch`
 
 3. Validate
    ```bash
@@ -88,7 +88,7 @@ MD = 41900-41999
 
 6. Commit (only state files!)
    ```bash
-   git add xml/states/XX_dt.xml xml/states/XX_edd.xml
+   git add xml/states/XX_dt.xml xml/states/XX_edd.xml excel/states/XX.xlsx
    git commit -m "feat: implement XX state tax (#NNN)"
    ```
 

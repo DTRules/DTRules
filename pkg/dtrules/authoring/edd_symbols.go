@@ -19,6 +19,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/DTRules/DTRules/pkg/dtrules/loader"
 )
 
 // LoadEDDSymbols walks the *_edd.xml files under root (recursively, so nested
@@ -62,7 +64,8 @@ func LoadEDDSymbols(root string) map[string]string {
 		if err != nil || d.IsDir() {
 			return nil
 		}
-		if !strings.HasSuffix(d.Name(), "_edd.xml") {
+		// A template's placeholder fields are not the project's (#1109, #1300).
+		if !strings.HasSuffix(d.Name(), "_edd.xml") || loader.SkipRuleFile(p) {
 			return nil
 		}
 		data, readErr := os.ReadFile(p)

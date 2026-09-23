@@ -146,7 +146,12 @@ Excel workbook ──dtrules build──▶ XML (DSL + compiled postfix) ──l
 - `dtrules build` reads the workbooks, extracts DSL into XML, and compiles
   DSL→postfix. It is one-directional: there is no build from XML.
 - The authoring API writes XML DSL, compiles postfix, and exports Excel in the
-  same operation.
+  same operation. It sees the same file set as the loader: files
+  `loader.SkipRuleFile` excludes (templates, test data, schemas) are not part
+  of the project to it either (#1300).
+- `map get` emits a mapping's section comments as `{"comment": "..."}` entries
+  in `attributes`, and `map put` writes them back, so a put of get's output
+  loses nothing the mapping model holds.
 - The loader is strict. It executes stored postfix and refuses DSL with
   missing or empty postfix; it does not recompile at load time.
 
@@ -438,8 +443,8 @@ nil check, so a project that declares none pays nothing.
 
 | Invariant (§1.5) | Mechanism |
 |---|---|
-| 1. Excel is the record | `dtrules verify` rebuilds XML from the committed Excel and requires byte equality |
-| 2. Postfix is compiled | the strict loader refuses missing postfix; every write regenerates it from DSL |
+| 1. Excel is the record | `dtrules verify` rebuilds XML (tables, EDDs and mappings) from the committed Excel and requires byte equality, and requires every rule file to be one a workbook produces |
+| 2. Postfix is compiled | the strict loader refuses missing postfix; every write regenerates it from DSL; `TestSamplePostfixIsCompiledFromDSL` recompiles every stored DSL row in `sampleprojects/` and requires the stored postfix to equal it, with no postfix lacking DSL |
 | 3. Writers are write-through | `authoring.Project.Save`/`SaveEDD` and the `map` writer export Excel in the same operation and fail if they cannot |
 | 4. Self-contained | `verify`'s external-reference gate; `map put`/`map patch` validate against the EDD before writing |
 | 5. Case-insensitive, case-preserving | matching uses `EqualFold` and lowercased keys; `AuthoredName()` is written back |
@@ -448,14 +453,22 @@ nil check, so a project that declares none pays nothing.
 `dtrules verify` is the gate. It is read-only, and runs, in order:
 
 1. **unique table names** across every file in the project
-2. **build idempotency** — rebuilding from the committed Excel changes nothing
-3. **source headers** — every artifact records the workbook it came from
-4. **prefix ordering** — numeric filename prefixes agree with sheet order
-5. **suffix content consistency**
-6. **Excel presence** — a system-of-record workbook exists
-7. **external references** (§2.6)
+2. **build idempotency** — rebuilding from the committed Excel changes nothing.
+   The rebuild includes mappings (`_map.xlsx` → `_map.xml`), which run outside
+   the sync pipeline and were never compared before #1300.
+3. **workbook provenance** — rebuilt on a copy with every rule file removed,
+   each committed `_dt.xml`, `_edd.xml` and `_map.xml` comes back. Idempotency
+   cannot see a file no workbook writes: its rebuild leaves the file in place,
+   and it compares equal to itself. Only presence is checked here; content is
+   (2)'s job. Files the loader does not read as rules (`loader.SkipRuleFile`:
+   templates, test data, schemas) are exempt.
+4. **source headers** — every artifact records the workbook it came from
+5. **prefix ordering** — numeric filename prefixes agree with sheet order
+6. **suffix content consistency**
+7. **Excel presence** — a system-of-record workbook exists
+8. **external references** (§2.6)
 
-Implemented as `checkBuildIdempotency`, `checkSourceHeaders`,
+Implemented as `checkBuildIdempotency`, `checkWorkbookProvenance`, `checkSourceHeaders`,
 `checkPrefixOrdering`, `checkSuffixContentConsistency`, `checkExcelPresence`
 and `checkExternalRefs` in `cmd/dtrules/verify.go`, with the unique-name gate
 ahead of them.

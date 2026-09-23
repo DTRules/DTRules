@@ -9,7 +9,7 @@
 			<file_name>Test.xlsx</file_name>
 			<sheet_number>2</sheet_number>
 		</source>
-		<field name="notes" type="array" subtype="" access="rw" input="main" default_value="" comment="Notes on processing the job"></field>
+		<field name="notes" type="array" subtype="string" access="rw" input="main" default_value="" comment="Notes on processing the job"></field>
 		<field name="things" type="array" subtype="" access="rw" input="main" default_value="" comment="This test tests things"></field>
 	</entity>
 	<entity name="thing" number="200" xls_file="Test.xlsx" access="rw">

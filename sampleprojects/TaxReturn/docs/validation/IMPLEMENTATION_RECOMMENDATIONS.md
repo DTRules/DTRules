@@ -227,86 +227,37 @@ With parallel work or experienced developers, this could be reduced to 4-6 weeks
 
 ## Implementation Pattern
 
-### 1. Entity Definitions
+This section used to show the state table, the dispatcher row and the EDD
+fields as XML to paste in, postfix included. That is not how a state is
+written: rule XML is generated, and postfix is compiled from DSL, never typed
+(`docs/authoring-contract.md`, #1300). The dispatcher row is gone too —
+`Compute_Roster_State_Tax` performs a state's `XX_Tax` table by its state code
+(#1177), so a new state needs no change outside its own two files.
 
-All states use existing entity definitions. No new entities required.
+### 1. Constants and result fields
 
-### 2. Decision Table Structure
+Through the API, into the state's own EDD file:
 
-Follow the pattern established in `Calculate_IL_Tax`, `Calculate_NH_Tax`, and `Calculate_MT_Tax`:
-
-```xml
-<decision_table>
-  <table_name>Calculate_[STATE]_Tax</table_name>
-  <Type>FIRST</Type>
-  <COMMENTS>State-specific description</COMMENTS>
-  <TABLE_NUMBER>[Next available number]</TABLE_NUMBER>
-
-  <initial_actions>
-    <!-- Initialize state-specific fields -->
-    <!-- Log start of calculation -->
-  </initial_actions>
-
-  <conditions>
-    <!-- Filing status conditions -->
-    <!-- Income range conditions (for progressive) -->
-  </conditions>
-
-  <actions>
-    <!-- Calculate deductions -->
-    <!-- Calculate exemptions -->
-    <!-- Apply tax rate(s) -->
-    <!-- Store results in result.[state]_* fields -->
-  </actions>
-</decision_table>
+```bash
+cd sampleprojects/TaxReturn
+echo '{"op":"add-field","entity":"result","field":{"name":"pa_tax_rate","type":"double","default":"0.0307","comment":"PA flat rate 3.07% (cite the PA-40 instructions)"}}' \
+  | dtrules edd patch --edd-file states/PA_edd.xml --project .
 ```
 
-### 3. Update Dispatch_State_Tax
+### 2. The state table
 
-Add new condition and action for each state:
+`dtrules table schema` gives the JSON shape. The table computes from
+`result.state_calc_agi` and ends by writing `result.computed_state_taxable_income`
+and `result.computed_state_tax`, which the roster pass harvests:
 
-```xml
-<condition_details>
-  <condition_number>X</condition_number>
-  <condition_comment>[State] state</condition_comment>
-  <condition_postfix>
-    state_period isnull not
-    if
-      state_period.state_code [STATE] streq
-    else
-      job.state [STATE] streq
-    then
-  </condition_postfix>
-</condition_details>
-
-<action_details>
-  <action_number>X</action_number>
-  <action_description>Calculate_[STATE]_Tax</action_description>
-  <action_postfix>
-    Calculate_[STATE]_Tax
-  </action_postfix>
-</action_details>
+```bash
+dtrules table put PA_Tax --file states/PA_dt.xml --range 43800-43899 \
+  --reason "Pennsylvania tax; own file to avoid merge conflicts" --project . < pa_tax.json
 ```
 
-### 4. Result Fields
-
-Add to result entity in EDD:
-
-```xml
-<!-- [STATE] Tax Calculations -->
-<field name='[state]_agi' type='double' comment='[State] Adjusted Gross Income'/>
-<field name='[state]_standard_deduction' type='double' comment='[State] standard deduction'/>
-<field name='[state]_exemption_total' type='double' comment='[State] personal exemptions'/>
-<field name='[state]_taxable_income' type='double' comment='[State] taxable income'/>
-<field name='[state]_tax' type='double' comment='[State] income tax'/>
-```
-
-For progressive states, add bracket fields:
-```xml
-<field name='[state]_bracket_1_tax' type='double'/>
-<field name='[state]_bracket_2_tax' type='double'/>
-<!-- etc. -->
-```
+This writes the XML, compiles the postfix and writes `excel/states/PA.xlsx` in
+one operation. Later edits go through `dtrules table patch` / `dtrules edd patch`.
+See `xml/states/README.md`.
 
 ### 5. Test Cases
 

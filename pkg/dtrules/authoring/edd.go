@@ -26,6 +26,7 @@ import (
 	"github.com/DTRules/DTRules/pkg/dtrules"
 	"github.com/DTRules/DTRules/pkg/dtrules/entity"
 	"github.com/DTRules/DTRules/pkg/dtrules/excel"
+	"github.com/DTRules/DTRules/pkg/dtrules/loader"
 )
 
 // validTypes is the set of DTRules primitive types accepted by the
@@ -684,7 +685,13 @@ func validateDefault(typ, def string) error {
 // and the Project model works on one at a time. Which one is the caller's
 // choice, made with UseEDDFile; this is only the list to choose from.
 func (p *Project) eddCandidates() []string {
-	top, _ := filepath.Glob(filepath.Join(p.xmlDir, "*_edd.xml"))
+	var top []string
+	globbed, _ := filepath.Glob(filepath.Join(p.xmlDir, "*_edd.xml"))
+	for _, path := range globbed {
+		if !loader.SkipRuleFile(path) {
+			top = append(top, path)
+		}
+	}
 	sort.Strings(top)
 
 	var nested []string
@@ -692,7 +699,7 @@ func (p *Project) eddCandidates() []string {
 		if err != nil || d.IsDir() || filepath.Dir(path) == p.xmlDir {
 			return nil
 		}
-		if strings.HasSuffix(d.Name(), "_edd.xml") {
+		if strings.HasSuffix(d.Name(), "_edd.xml") && !loader.SkipRuleFile(path) {
 			nested = append(nested, path)
 		}
 		return nil
