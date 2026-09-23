@@ -455,282 +455,22 @@ func TestJSONEDDLoaderWithComment(t *testing.T) {
 }
 
 // Test singularize helper
-func TestSingularize(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{"orders", "order"},
-		{"entities", "entity"},
-		{"boxes", "box"},
-		{"classes", "class"},
-		{"person", "person"},
-		{"s", "s"},
-		{"", ""},
-		{"items", "item"},
-		{"addresses", "address"},
-	}
-
-	for _, tt := range tests {
-		result := singularize(tt.input)
-		if result != tt.expected {
-			t.Errorf("singularize(%q) = %q, want %q", tt.input, result, tt.expected)
-		}
-	}
-}
-
 // Test goValueToDTRulesObject
-func TestGoValueToDTRulesObject(t *testing.T) {
-	// nil
-	obj := goValueToDTRulesObject(nil)
-	if obj.Type() != dtrules.TypeNull {
-		t.Errorf("Expected null for nil, got %v", obj.Type())
-	}
-
-	// bool
-	obj = goValueToDTRulesObject(true)
-	if v, err := obj.BooleanValue(); err != nil || !v {
-		t.Errorf("Expected true boolean, got %v", obj)
-	}
-
-	// integer (float64 that is a whole number)
-	obj = goValueToDTRulesObject(float64(42))
-	if v, err := obj.IntValue(); err != nil || v != 42 {
-		t.Errorf("Expected integer 42, got %v", obj)
-	}
-
-	// double (float64 with decimal)
-	obj = goValueToDTRulesObject(float64(3.14))
-	if v, err := obj.DoubleValue(); err != nil || v != 3.14 {
-		t.Errorf("Expected double 3.14, got %v", obj)
-	}
-
-	// string
-	obj = goValueToDTRulesObject("hello")
-	if obj.StringValue() != "hello" {
-		t.Errorf("Expected string 'hello', got %v", obj.StringValue())
-	}
-}
-
 // Test JSONDataLoadError
-func TestJSONDataLoadError(t *testing.T) {
-	// Single error
-	singleErr := &JSONDataLoadError{
-		Errors: []error{errors.New("single error")},
-	}
-	if !strings.Contains(singleErr.Error(), "single error") {
-		t.Errorf("Expected single error message: %s", singleErr.Error())
-	}
-
-	// Multiple errors
-	multiErr := &JSONDataLoadError{
-		Errors: []error{errors.New("first"), errors.New("second")},
-	}
-	if !strings.Contains(multiErr.Error(), "2 errors") {
-		t.Errorf("Expected multiple error message: %s", multiErr.Error())
-	}
-	if !strings.Contains(multiErr.Error(), "first") {
-		t.Errorf("Expected first error in message: %s", multiErr.Error())
-	}
-
-	// Unwrap
-	innerErr := errors.New("inner")
-	unwrapErr := &JSONDataLoadError{
-		Errors: []error{innerErr},
-	}
-	if unwrapErr.Unwrap() != innerErr {
-		t.Error("Expected Unwrap to return first error")
-	}
-
-	// Unwrap empty
-	emptyErr := &JSONDataLoadError{}
-	if emptyErr.Unwrap() != nil {
-		t.Error("Expected Unwrap to return nil for empty errors")
-	}
-}
-
 // Test goValueToDTRulesObject with array values
-func TestGoValueToDTRulesObjectArray(t *testing.T) {
-	arr := []interface{}{"a", float64(1), true}
-	obj := goValueToDTRulesObject(arr)
-	if obj == nil {
-		t.Fatal("Expected non-nil object for array")
-	}
-	// The result should be an RArray containing 3 items
-	sv := obj.StringValue()
-	if sv == "" {
-		t.Error("Expected non-empty string value for array")
-	}
-}
-
 // Test goValueToDTRulesObject with nested map values
-func TestGoValueToDTRulesObjectMap(t *testing.T) {
-	m := map[string]interface{}{"key": "value", "num": float64(42)}
-	obj := goValueToDTRulesObject(m)
-	if obj == nil {
-		t.Fatal("Expected non-nil object for map")
-	}
-	// Maps are serialized as JSON strings
-	sv := obj.StringValue()
-	if !strings.Contains(sv, "key") || !strings.Contains(sv, "value") {
-		t.Errorf("Expected JSON string containing 'key' and 'value', got: %s", sv)
-	}
-}
-
 // Test goValueToDTRulesObject with false boolean
-func TestGoValueToDTRulesObjectFalse(t *testing.T) {
-	obj := goValueToDTRulesObject(false)
-	v, err := obj.BooleanValue()
-	if err != nil || v {
-		t.Errorf("Expected false boolean, got %v (err: %v)", v, err)
-	}
-}
-
 // Test goValueToDTRulesObject with negative integer
-func TestGoValueToDTRulesObjectNegativeInt(t *testing.T) {
-	obj := goValueToDTRulesObject(float64(-5))
-	v, err := obj.IntValue()
-	if err != nil || v != -5 {
-		t.Errorf("Expected -5, got %d (err: %v)", v, err)
-	}
-}
-
 // Test goValueToDTRulesObject with zero
-func TestGoValueToDTRulesObjectZero(t *testing.T) {
-	obj := goValueToDTRulesObject(float64(0))
-	v, err := obj.IntValue()
-	if err != nil || v != 0 {
-		t.Errorf("Expected 0, got %d (err: %v)", v, err)
-	}
-}
-
 // Test goValueToDTRulesObject with empty string
-func TestGoValueToDTRulesObjectEmptyString(t *testing.T) {
-	obj := goValueToDTRulesObject("")
-	if obj.StringValue() != "" {
-		t.Errorf("Expected empty string, got %q", obj.StringValue())
-	}
-}
-
 // Test goValueToDTRulesObject with empty array
-func TestGoValueToDTRulesObjectEmptyArray(t *testing.T) {
-	arr := []interface{}{}
-	obj := goValueToDTRulesObject(arr)
-	if obj == nil {
-		t.Fatal("Expected non-nil object for empty array")
-	}
-}
-
 // Test goValueToDTRulesObject with empty map
-func TestGoValueToDTRulesObjectEmptyMap(t *testing.T) {
-	m := map[string]interface{}{}
-	obj := goValueToDTRulesObject(m)
-	if obj == nil {
-		t.Fatal("Expected non-nil object for empty map")
-	}
-	sv := obj.StringValue()
-	if sv != "{}" {
-		t.Errorf("Expected '{}', got %q", sv)
-	}
-}
-
 // Test JSONDataLoader size limit
-func TestJSONDataLoaderSizeLimit(t *testing.T) {
-	originalMax := MaxJSONSize
-	defer func() { MaxJSONSize = originalMax }()
-
-	MaxJSONSize = 10
-
-	loader := NewJSONDataLoader(nil, nil)
-
-	// This JSON is definitely larger than 10 bytes
-	jsonData := `{"person": {"name": "John", "age": 30}}`
-	err := loader.Load(strings.NewReader(jsonData))
-	if err == nil {
-		t.Fatal("Expected error for oversized JSON data")
-	}
-	if !strings.Contains(err.Error(), "exceeds maximum size limit") {
-		t.Errorf("Expected size limit error, got: %v", err)
-	}
-}
-
 // Test JSONDataLoader read error
-func TestJSONDataLoaderReadError(t *testing.T) {
-	loader := NewJSONDataLoader(nil, nil)
-	err := loader.Load(&errorReader{})
-	if err == nil {
-		t.Fatal("Expected error from failing reader")
-	}
-	if !strings.Contains(err.Error(), "read") {
-		t.Errorf("Expected read error, got: %v", err)
-	}
-}
-
 // Test JSONDataLoader malformed JSON
-func TestJSONDataLoaderMalformedJSON(t *testing.T) {
-	loader := NewJSONDataLoader(nil, nil)
-	err := loader.Load(strings.NewReader(`{"broken`))
-	if err == nil {
-		t.Fatal("Expected error for malformed JSON")
-	}
-	if !strings.Contains(err.Error(), "parse") {
-		t.Errorf("Expected parse error, got: %v", err)
-	}
-}
-
 // Test JSONDataLoader GetErrors and GetWarnings on fresh loader
-func TestJSONDataLoaderGettersEmpty(t *testing.T) {
-	factory := entity.NewFactory(nil)
-	loader := NewJSONDataLoader(nil, factory)
-
-	errs := loader.GetErrors()
-	if len(errs) != 0 {
-		t.Errorf("Expected no errors initially, got %d", len(errs))
-	}
-
-	warnings := loader.GetWarnings()
-	if len(warnings) != 0 {
-		t.Errorf("Expected no warnings initially, got %d", len(warnings))
-	}
-}
-
 // Test JSONDataLoadError with warnings
-func TestJSONDataLoadErrorWithWarnings(t *testing.T) {
-	err := &JSONDataLoadError{
-		Errors:   []error{errors.New("err1")},
-		Warnings: []string{"warn1", "warn2"},
-	}
-
-	errMsg := err.Error()
-	if errMsg == "" {
-		t.Error("Expected non-empty error message")
-	}
-}
-
 // Test singularize with additional edge cases
-func TestSingularizeEdgeCases(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{"a", "a"},                // Single character
-		{"ss", "ss"},             // Double s (not plural)
-		{"boss", "boss"},         // Ends in ss
-		{"buses", "bus"},         // Ends in ses
-		{"foxes", "fox"},         // Ends in xes
-		{"babies", "baby"},       // Ends in ies
-		{"policies", "policy"},   // Ends in ies
-		{"Categories", "Category"}, // Case preserved
-	}
-
-	for _, tt := range tests {
-		result := singularize(tt.input)
-		if result != tt.expected {
-			t.Errorf("singularize(%q) = %q, want %q", tt.input, result, tt.expected)
-		}
-	}
-}
-
 // Test NewJSONEDDLoader returns valid loader
 func TestNewJSONEDDLoader(t *testing.T) {
 	factory := entity.NewFactory(nil)
@@ -741,14 +481,6 @@ func TestNewJSONEDDLoader(t *testing.T) {
 }
 
 // Test NewJSONDataLoader returns valid loader
-func TestNewJSONDataLoader(t *testing.T) {
-	factory := entity.NewFactory(nil)
-	loader := NewJSONDataLoader(nil, factory)
-	if loader == nil {
-		t.Fatal("NewJSONDataLoader returned nil")
-	}
-}
-
 // Test JSON EDD loader with empty entity name
 func TestJSONEDDLoaderEmptyEntityName(t *testing.T) {
 	factory := entity.NewFactory(nil)
@@ -1093,40 +825,6 @@ func TestJSONEDDLoaderFixedDefaultValue(t *testing.T) {
 
 // TestGoValueToDTRulesObjectLargeNumber tests that large numeric strings
 // that exceed float64 precision are handled appropriately
-func TestGoValueToDTRulesObjectLargeNumber(t *testing.T) {
-	// JSON numbers decode to float64, which has limited precision
-	// A very large integer like 123456789012345678901234567890 would lose precision
-	// when parsed as float64
-
-	// Test: float64 that fits in int64
-	obj := goValueToDTRulesObject(float64(9007199254740991)) // Max safe integer in JS
-	v, err := obj.LongValue()
-	if err != nil {
-		t.Fatalf("Expected integer value, got error: %v", err)
-	}
-	if v != 9007199254740991 {
-		t.Errorf("Expected 9007199254740991, got %d", v)
-	}
-
-	// Test: large float64 should become double if it has decimal part
-	obj = goValueToDTRulesObject(float64(1e20))
-	// 1e20 is an exact integer, so it should be converted to integer
-	// However, it exceeds max int64 (9223372036854775807), so goValueToDTRulesObject
-	// will try to make it an integer but it won't fit
-
-	// Actually, float64(1e20) == float64(int64(1e20)) is true because
-	// 1e20 can be represented as an integer in float64 (no fractional part)
-	// But converting to int64 would overflow. Let's verify behavior:
-	f := float64(1e20)
-	if f != float64(int64(f)) {
-		// This means 1e20 has fractional representation loss, so it becomes double
-		_, doubleErr := obj.DoubleValue()
-		if doubleErr != nil {
-			t.Errorf("Expected double value for 1e20, got error: %v", doubleErr)
-		}
-	}
-}
-
 // TestBigIntStringInput documents that large numbers passed as strings
 // can be converted to BigInt properly
 func TestBigIntStringInput(t *testing.T) {

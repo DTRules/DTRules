@@ -400,7 +400,10 @@ the web interview, the API server's `/api/execute`, and the Go SDK
 (`authoring.Project.SetAttribute` and `authoring.DebugSession.SetAttribute`,
 which return the gate's error unchanged and leave the field's previous value
 in place). Each calls one gate,
-`entity.CheckExternalWrite`; none compares values itself. A refusal names
+`entity.CheckExternalWrite`; none compares values itself.
+`TestEveryDecodingWriterIsGated` holds the list closed: a file under
+`pkg/dtrules` that decodes JSON or XML and calls `Put` must call the gate
+(#1220, which deleted the one that did not: an unused `loader.JSONDataLoader`). A refusal names
 `entity.field`, the offending value and the allowed set (or the limit and the
 actual size); the CLI exits non-zero and prints no result, and the API answers
 `400`. A refused interview answer leaves the field *uncollected*, still holding
