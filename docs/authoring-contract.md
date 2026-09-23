@@ -63,8 +63,9 @@ XML→Excel direction lossless for everything that matters.
 ### 3. The authoring API is the only writer, and it is write-through
 
 There is exactly one way to change a rule programmatically: the authoring
-API (`pkg/dtrules/authoring`, surfaced as `dtrules table`/`dtrules edd` and
-the MCP write tools). Every API write performs, atomically:
+API (`pkg/dtrules/authoring`, surfaced as `dtrules table` for decision
+tables, `dtrules edd` for the dictionary, `dtrules map` for mappings, and the
+MCP write tools). Every API write performs, atomically:
 
 1. update the XML DSL,
 2. compile DSL → postfix into the XML (invariant #2),

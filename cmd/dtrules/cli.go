@@ -145,6 +145,8 @@ Usage: dtrules <command> [options]
 Commands:
   build     Normalize and compile Excel/XML rules (primary workflow)
   run       Run a decision table; --interactive collects missing inputs
+  debug     Run the entry table while recording a trace, for stepping through it
+  report    Generate an EDD-driven report from a trace
   verify    Gate CI by checking XML matches Excel build output
   sync      Synchronize Excel and XML files (status/check/auto)
   init      Initialize a DTRules project structure
@@ -152,6 +154,7 @@ Commands:
   review    Run the project-wide Full Review (errors + advisory warnings, deploy gate)
   table     JSON-first decision-table read/write (for AI agents)
   edd       JSON-first entity data dictionary read/write (for AI agents)
+  map       JSON-first mapping read/write: entities, createentity, attributes
   project   Project-level JSON surface (diagnostics, ...)
   edit      Serve the editor UI in your browser (editor-enabled builds)
   mcp       Run a Model Context Protocol server over stdio (for AI agents)
