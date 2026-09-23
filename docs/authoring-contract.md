@@ -262,6 +262,14 @@ structure, where new tables belong, and why it's organized that way.
   unplaced table is an error.
 - `file` is a table property: `table get` reports it; `put` with a changed
   `file`, or the `set-file` patch op, **moves** the table.
+- **A file's workbook is named after it** — `X_dt.xml` under `xml/<dir>/`
+  pairs with `excel/<dir>/X.xlsx`, because `build` compiles `X.xlsx` to
+  `X_dt.xml`. A moved table takes its new file's workbook, and a file the API
+  creates gets its workbook created in the same Save; a new file's table that
+  names any other workbook is refused before anything is written (#1225).
+- A `put` that moves a table ignores `number` and `workbook` values equal to
+  the table's old ones — they are what `table get` reported before the move,
+  not a request. A different value is honoured.
 - **Empty files auto-delete** — when the last table leaves (move or delete),
   the API drops the file entry and removes the orphaned `.xml` and its Excel
   workbook on Save.
@@ -347,6 +355,8 @@ build-reproducible; not gitignored).
    reason.
 5. **Move auto-renumbers** into the target file's next in-range slot; `set-file`
    takes no number. To pick a specific number, follow with `set-number`.
+   `table patch` takes `--file`, `--range` and `--reason` as flags as well as
+   in the body; a flag that disagrees with the body is refused.
 6. **authoring-notes.md** is created on the first structural op if absent; lives
    at the project root (for flat layouts, the dir holding the `*_dt.xml`); the
    API rewrites only the **Files** and **Change log** sections and preserves all

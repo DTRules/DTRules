@@ -275,6 +275,7 @@ func (p *Project) CreateFile(file string, lo, hi int, reason string) error {
 		hi:      hi,
 		purpose: strings.TrimSpace(reason),
 	})
+	p.created = append(p.created, abs)
 	p.logChange("add file `%s` [%d-%d] — %q", rel, lo, hi, strings.TrimSpace(reason))
 	return nil
 }
@@ -335,6 +336,14 @@ func (p *Project) MoveTable(name, target, reason string) error {
 	}
 	tbl := p.dtFiles[srcIdx].tables.Tables[tabIdx]
 	tbl.AttributeFields.TableNumber = strconv.Itoa(num)
+	// The table's workbook goes with its file. Left pointing at the old one,
+	// the Excel refresh exported the table back into the source workbook and
+	// recompiled that into the source _dt.xml -- so a "moved" table existed
+	// twice and the loader renamed one of them `-1` (#1225). Clearing both
+	// lets the writer's provenance backfill give it the target file's
+	// workbook: its other tables' one, or the one named after the file.
+	tbl.XLSFile = ""
+	tbl.Source = nil
 	// remove from source
 	src := p.dtFiles[srcIdx].tables.Tables
 	p.dtFiles[srcIdx].tables.Tables = append(src[:tabIdx], src[tabIdx+1:]...)

@@ -149,6 +149,13 @@ Excel workbook ──dtrules build──▶ XML (DSL + compiled postfix) ──l
   same operation. It sees the same file set as the loader: files
   `loader.SkipRuleFile` excludes (templates, test data, schemas) are not part
   of the project to it either (#1300).
+- A table's workbook follows its file: `xml/<dir>/X_dt.xml` pairs with
+  `excel/<dir>/X.xlsx`. Moving a table (`set-file`, or `put` with another
+  `file`) gives it the target file's workbook, and a file the API creates has
+  its workbook created in the same Save — the one exception to the refresh's
+  rule of never creating a missing workbook (#1062), because a new file's
+  workbook cannot exist yet (#1225). Save writes new files before the files
+  tables left, so a failed write cannot lose a moved table.
 - `map get` emits a mapping's section comments as `{"comment": "..."}` entries
   in `attributes`, and `map put` writes them back, so a put of get's output
   loses nothing the mapping model holds.
