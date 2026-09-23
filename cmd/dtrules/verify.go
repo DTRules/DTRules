@@ -125,6 +125,9 @@ func (c *CLI) runVerify(args []string) int {
 	buildFails := checkBuildIdempotency(absPath, xmlDir, excelDir, opts)
 	failures = append(failures, buildFails...)
 
+	// Check 1b: every rule file comes from a workbook (#1300)
+	failures = append(failures, checkWorkbookProvenance(absPath, xmlDir, excelDir)...)
+
 	// Check 2: <source> header validity
 	if dirExists(xmlDir) {
 		sourceFails := checkSourceHeaders(xmlDir, excelDir, opts.strict)
@@ -209,34 +212,8 @@ func checkBuildIdempotency(projectDir, xmlDir, excelDir string, opts *verifyOpti
 
 	// Run the build pipeline on the copy (always Excel-authored: Excel→XML)
 	if dirExists(tmpExcel) {
-		syncOpts := sync.DefaultOptions()
-		// FORCE Excel→XML. Detection cannot serve this check: hand-editing
-		// the XML is exactly what makes it newer, so detection answers
-		// XMLToExcel and exports the edit INTO Excel instead of letting
-		// Excel overwrite it. The rebuild then matches the edit and verify
-		// passes — the gate could never fail for the one thing it exists to
-		// catch (#1010).
-		syncOpts.ForceDirection = sync.ExcelToXML
-		syncer := sync.NewSyncerWithOptions(tmpXML, tmpExcel, syncOpts)
-		syncer.SetUseCombinedWorkbooks(true)
-
-		// Same constructor as `build`: verify runs the build pipeline on a
-		// copy, so an importer without the EL compiler would have it
-		// verifying a pipeline nobody runs, and passing (#929).
-		importer := newWorkbookImporter(tmpXML)
-		syncer.SetWorkbookImporter(&workbookImporterAdapter{impl: importer})
-
-		exporter := excel.NewWorkbookExporter()
-		syncer.SetExporter(&workbookExporterAdapter{impl: exporter})
-
-		_ = os.MkdirAll(tmpXML, 0755)
-		result, err := syncer.SyncAll()
-		if err != nil {
+		if err := rebuildFromExcel(tmpXML, tmpExcel); err != nil {
 			return []verifyFailure{{kind: "build", message: fmt.Sprintf("build pipeline failed: %v", err)}}
-		}
-		for _, e := range result.Errors {
-			// Non-fatal: record but continue
-			_ = e
 		}
 	}
 
@@ -267,6 +244,124 @@ func checkBuildIdempotency(projectDir, xmlDir, excelDir string, opts *verifyOpti
 	}
 
 	return failures
+}
+
+// rebuildFromExcel runs the `build` pipeline, forced Excel→XML, from
+// excelDir into xmlDir: decision tables and EDDs, then mappings.
+func rebuildFromExcel(xmlDir, excelDir string) error {
+	syncOpts := sync.DefaultOptions()
+	// FORCE Excel→XML. Detection cannot serve this check: hand-editing
+	// the XML is exactly what makes it newer, so detection answers
+	// XMLToExcel and exports the edit INTO Excel instead of letting
+	// Excel overwrite it. The rebuild then matches the edit and verify
+	// passes — the gate could never fail for the one thing it exists to
+	// catch (#1010).
+	syncOpts.ForceDirection = sync.ExcelToXML
+	syncer := sync.NewSyncerWithOptions(xmlDir, excelDir, syncOpts)
+	syncer.SetUseCombinedWorkbooks(true)
+
+	// Same constructor as `build`: verify runs the build pipeline on a
+	// copy, so an importer without the EL compiler would have it
+	// verifying a pipeline nobody runs, and passing (#929).
+	importer := newWorkbookImporter(xmlDir)
+	syncer.SetWorkbookImporter(&workbookImporterAdapter{impl: importer})
+
+	exporter := excel.NewWorkbookExporter()
+	syncer.SetExporter(&workbookExporterAdapter{impl: exporter})
+
+	_ = os.MkdirAll(xmlDir, 0755)
+	if _, err := syncer.SyncAll(); err != nil {
+		return err
+	}
+	// Mappings are outside the sync pipeline, as in `build`. Without this
+	// step no committed _map.xml was ever compared with its workbook.
+	return importMapWorkbooks(xmlDir, excelDir, true, false)
+}
+
+// checkWorkbookProvenance fails for every rule file in xmlDir that no workbook
+// produces (#1300).
+//
+// checkBuildIdempotency cannot see such a file. It rebuilds on a copy that
+// already holds the committed XML, and a file no workbook writes is simply
+// left where it was -- so it compares equal to itself and passes. Nothing
+// proves it came from Excel or from the authoring API; it was written by hand,
+// or copied, or compiled by a tool that no longer exists. The #1300 audit found
+// three kinds in the samples: a template with hand-written postfix, a mapping
+// written by hand, and an EDD that lived only as XML (so the tables built from
+// the workbook compiled untyped without it).
+//
+// So rebuild once more on a copy with the rule XML removed, and report what
+// does not come back. Only presence is compared here; content is
+// checkBuildIdempotency's job.
+func checkWorkbookProvenance(projectDir, xmlDir, excelDir string) []verifyFailure {
+	if !dirExists(xmlDir) || !dirExists(excelDir) {
+		return nil // checkExcelPresence reports a project with no workbooks
+	}
+	var committed []string
+	_ = filepath.WalkDir(xmlDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil
+		}
+		if isAuthoredRuleXML(path) {
+			rel, _ := filepath.Rel(xmlDir, path)
+			committed = append(committed, rel)
+		}
+		return nil
+	})
+	if len(committed) == 0 {
+		return nil
+	}
+
+	tmpDir, err := os.MkdirTemp("", "dtrules-verify-provenance-*")
+	if err != nil {
+		return []verifyFailure{{kind: "provenance", message: fmt.Sprintf("failed to create temp dir: %v", err)}}
+	}
+	defer os.RemoveAll(tmpDir)
+	if err := copyDir(projectDir, tmpDir); err != nil {
+		return []verifyFailure{{kind: "provenance", message: fmt.Sprintf("failed to copy project: %v", err)}}
+	}
+	copyRoot := filepath.Join(tmpDir, filepath.Base(projectDir))
+	tmpXML := relocate(projectDir, copyRoot, xmlDir)
+	tmpExcel := relocate(projectDir, copyRoot, excelDir)
+	for _, rel := range committed {
+		_ = os.Remove(filepath.Join(tmpXML, rel))
+	}
+	// With the EDD XML gone the first tables compile untyped and the build
+	// reports drops. That is expected and harmless here -- only which files
+	// appear is read -- so a build error is not itself a failure.
+	_ = rebuildFromExcel(tmpXML, tmpExcel)
+
+	var failures []verifyFailure
+	for _, rel := range committed {
+		if _, err := os.Stat(filepath.Join(tmpXML, rel)); err == nil {
+			continue
+		}
+		shown, _ := filepath.Rel(projectDir, filepath.Join(xmlDir, rel))
+		failures = append(failures, verifyFailure{kind: "provenance", message: fmt.Sprintf(
+			"%s: no workbook produces this file, so nothing shows it was authored "+
+				"rather than written by hand. Bring it under the authoring API "+
+				"(`dtrules table`/`edd`/`map` get | put writes its workbook), or delete it",
+			shown)})
+	}
+	return failures
+}
+
+// isAuthoredRuleXML is a rule file that must come from a workbook: decision
+// tables, EDDs and mappings, less what the loader does not treat as rules
+// (templates, test data, schemas).
+func isAuthoredRuleXML(path string) bool {
+	name := filepath.Base(path)
+	switch {
+	case strings.HasSuffix(name, "_map.xml"):
+		// SkipRuleFile skips every mapping, because the rule loader reads
+		// them separately -- not because they are exempt: `dtrules map` writes
+		// their workbook. Ask it about the same path as a table file, so the
+		// template/testfiles/schemas exclusions still apply.
+		return !loader.SkipRuleFile(strings.TrimSuffix(path, "_map.xml") + "_dt.xml")
+	case strings.HasSuffix(name, "_dt.xml"), strings.HasSuffix(name, "_edd.xml"):
+		return !loader.SkipRuleFile(path)
+	}
+	return false
 }
 
 type fileDiff struct {

@@ -242,15 +242,13 @@ State Entities (in XX_edd.xml):
    ├── Exemptions
    └── 2-3 key rules
 
-2. Create Files
-   ├── cp TEMPLATE_dt.xml XX_dt.xml
-   └── cp TEMPLATE_edd.xml XX_edd.xml
+2. Author through the API (never by hand; see xml/states/README.md)
+   ├── dtrules edd patch --edd-file states/XX_edd.xml   (constants)
+   └── dtrules table put XX_Tax --file states/XX_dt.xml --range 4NN00-4NN99
+       (creates the file, compiles postfix, writes excel/states/XX.xlsx)
 
 3. Implement
-   ├── Add constants to XX_edd.xml
-   └── Add decision table to XX_dt.xml
-       ├── Assign TABLE_NUMBER (from numbering scheme)
-       └── Set FILE_PATH (states/XX/...)
+   └── Further edits with dtrules table patch / dtrules edd patch
 
 4. Validate
    └── python3 scripts/validate_extraction.py

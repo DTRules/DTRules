@@ -33,8 +33,6 @@ sampleprojects/TaxReturn/xml/
 ├── TaxReturn_dt_core.xml         # Federal core decision tables
 ├── TaxReturn_edd_core.xml        # Federal core entity definitions
 ├── states/                       # State-specific files
-│   ├── TEMPLATE_dt.xml           # Template for new states (DT)
-│   ├── TEMPLATE_edd.xml          # Template for new states (EDD)
 │   ├── AL_dt.xml                 # Alabama decision tables
 │   ├── AL_edd.xml                # Alabama entity definitions
 │   ├── CA_dt.xml                 # California decision tables
@@ -120,17 +118,18 @@ The `FILE_PATH` is used for:
 
 #### Adding a New State
 
-1. **Copy templates:**
+1. **Author through the API** (never by hand, never by copying a file):
    ```bash
-   cd sampleprojects/TaxReturn/xml/states
-   cp TEMPLATE_dt.xml CO_dt.xml
-   cp TEMPLATE_edd.xml CO_edd.xml
+   cd sampleprojects/TaxReturn
+   echo '{"op":"add-field","entity":"result","field":{"name":"co_tax_rate","type":"double","default":"0.044"}}' \
+     | dtrules edd patch --edd-file states/CO_edd.xml --project .
+   dtrules table put CO_Tax --file states/CO_dt.xml --range 40600-40699 \
+     --reason "Colorado tax" --project . < co_tax.json
    ```
+   This writes the XML, compiles the postfix and writes `excel/states/CO.xlsx`
+   in one operation. See `xml/states/README.md`.
 
-2. **Edit state files:**
-   - Update `CO_dt.xml` with Colorado's tax logic
-   - Update `CO_edd.xml` with Colorado-specific constants
-   - Use appropriate TABLE_NUMBER from the numbering scheme
+2. **Edit** with `dtrules table patch` / `dtrules edd patch`.
 
 3. **Validate extraction:**
    ```bash
@@ -352,7 +351,7 @@ Extracted 94 entity definitions
 
 ### For State Developers
 
-1. **Copy Templates**: Always start from `TEMPLATE_dt.xml` and `TEMPLATE_edd.xml`
+1. **Author through the API**: `dtrules table put` / `dtrules edd patch`, never a copied or hand-edited file
 2. **Use Correct Numbers**: Follow the table numbering scheme
 3. **Validate Early**: Run validation frequently during development
 4. **Test After Merge**: Always test after merging
@@ -425,6 +424,5 @@ For questions about the multi-file structure:
 
 - `scripts/validate_extraction.py` - Validation script source
 - `scripts/merge_files.py` - Merge script source
-- `xml/states/TEMPLATE_dt.xml` - Decision table template
-- `xml/states/TEMPLATE_edd.xml` - Entity definition template
+- `xml/states/README.md` - How a state is authored through the API
 - `.claude/CLAUDE.md` - Project development guidelines

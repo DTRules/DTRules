@@ -31,9 +31,7 @@ import (
 
 // Package-level helpers that implement the "Excel is system of record"
 // contract for any caller working with a DTRules project on disk.
-// Project.Save / SaveEDD wrap them; dtrules compile (which does
-// byte-level XML rewriting outside the Project model) calls them
-// directly around its compile loop.
+// Project.Save / SaveEDD wrap them.
 //
 // Both helpers are no-ops on projects with no `.sync-manifest.json`
 // reachable from the XML directory — that's the legacy / flat layout
@@ -169,7 +167,7 @@ func recordedHashFor(manifestDir string, xmlFiles []string) string {
 // mid-edit (DSL added but not yet compiled to postfix).
 //
 // Idempotent: a second call right after the first writes the same
-// bytes. Called by Save / SaveEDD / dtrules compile after their
+// bytes. Called by Save / SaveEDD after their
 // respective XML writes; the manifest's RecordExport refreshes
 // LastExportTime so the next GuardExcelInDir starts from a clean
 // baseline.
@@ -476,9 +474,7 @@ func excelLockError(excelPath string) error {
 // by RefreshExcelInDir. It globs EDD and DT files directly
 // under xmlDir (the same set Project.loadDTFiles + Project.loadEDD
 // would have produced) and loads them into a tolerant RuleSet. Used
-// by callers that don't already have a Project in memory — chiefly
-// dtrules compile, which does byte-level XML rewriting outside the
-// Project model.
+// by callers that don't already have a Project in memory.
 func loadRuleSetForExportInDir(xmlDir string) (*session.RuleSet, error) {
 	rs := session.NewRuleSet("authoring-export")
 	if rs == nil {

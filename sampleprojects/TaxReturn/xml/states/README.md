@@ -13,7 +13,7 @@ Where `XX` is the 2-letter state code (CO, CA, NY, TX, etc.)
 ## How a state is authored
 
 These are generated rule files, like every file under `xml/`. Do not edit
-them by hand and do not copy the templates: the authoring API writes the XML,
+them by hand and do not copy another state's file: the authoring API writes the XML,
 compiles the postfix and updates the paired workbook in one operation, and
 `dtrules verify` rejects XML that has no Excel behind it. See
 [docs/authoring-contract.md](../../../../docs/authoring-contract.md).
@@ -49,9 +49,11 @@ the roster at zero.
   - California: `CA_edd.xml`, `CA_dt.xml`
   - New York: `NY_edd.xml`, `NY_dt.xml`
 
-- **Templates**: `TEMPLATE_edd.xml`, `TEMPLATE_dt.xml`
-  - Copy these to create new state implementations
-  - Never modify the templates directly
+There are no template files. A state's files are created by the first
+`dtrules edd patch --edd-file states/XX_edd.xml` and
+`dtrules table put ... --file states/XX_dt.xml`; the templates that used to
+live here carried hand-written postfix, and copying them was how it spread
+(#1300).
 
 ## Table Numbering Convention
 
@@ -67,7 +69,7 @@ Examples:
 - Colorado (CO, #6): 40600-40699
 - New York (NY, #33): 43300-43399
 
-See `TEMPLATE_dt.xml` for details.
+`dtrules table schema` gives the JSON shape `table put` expects.
 
 ## Benefits of Separate Files
 

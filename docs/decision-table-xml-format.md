@@ -402,14 +402,15 @@ For projects with multiple decision tables, organize files by domain:
 project/
   xml/
     Project_dt.xml          # Main/core tables
-    Project_dt_core.xml     # Core tables (merged)
     states/
-      TEMPLATE_dt.xml       # Template for state tables
       CO_dt.xml             # Colorado-specific
       CA_dt.xml             # California-specific
 ```
 
-Use merge scripts to combine files for testing while keeping source files modular.
+The loader reads every `*_dt.xml` under `xml/`; there is no merge step. Each
+file is created and edited through the authoring API
+(`dtrules table put --file states/CO_dt.xml --range ...`), which writes its
+workbook in the same operation.
 
 ---
 

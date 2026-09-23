@@ -109,7 +109,10 @@ a hand row should currently be empty, a repair should hold the exact broken DSL.
 
 - Legacy `repository/xml/` mirrors get deleted; each project single-sources on
   `xml/` and tests reading the mirror are repointed. **Exception:**
-  `KidAid_Application/repository` *is* the project.
+  `KidAid_Application/repository` *is* the project. (Deleted in #1300: it was
+  a copy of KidAid that had drifted, plus a second copy renamed `sp2`, with no
+  workbook behind either — so nothing could rebuild it, and its compiled
+  postfix was still missing the #1287 fix.)
 - `lib/*.jar` and `.classpath` get deleted. `DecisionTables/*.xls` and
   `edd/*.xls` stay as the historical authoring source.
 

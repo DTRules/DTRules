@@ -148,7 +148,6 @@ Then open http://localhost:5173
 | [CHIP](../sampleprojects/CHIP/) | Health insurance eligibility | High |
 | [KidAid](../sampleprojects/KidAid/) | Child assistance eligibility | High |
 | [ChipApp](../sampleprojects/ChipApp/) | CHIP integration example | Medium |
-| [KidAid_Application](../sampleprojects/KidAid_Application/) | KidAid integration example | Medium |
 
 See the [Sample Projects Overview](../sampleprojects/README.md) for the complete guide.
 

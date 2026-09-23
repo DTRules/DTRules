@@ -34,11 +34,11 @@ import (
 // The loader is strictly a *consumer* of pre-compiled postfix. EL DSL is
 // authoritative source text and is the authoring contract; postfix is the
 // compiled artifact and is what the loader executes. Compilation lives in
-// `dtrules build` and `dtrules compile` — never in the load path.
+// `dtrules build` and the authoring API — never in the load path.
 //
 // When a table element has non-empty, non-comment EL DSL but its
 // `<*_postfix>` is empty or comment-only, the loader returns an error
-// directing the operator to run `dtrules build` (or `dtrules compile`)
+// directing the operator to run `dtrules build`
 // before embedding the XML. This refusal prevents silent stale-build
 // drift and removes the EL compiler dependency from every consumer's
 // runtime binary.
@@ -80,7 +80,7 @@ func NewDTLoader(session dtrules.Session, factory *entity.Factory) *DTLoader {
 // (notably `session.RuleSet.LoadDecisionTables`). The loader no longer
 // compiles EL — DSL must be pre-compiled to postfix by the build pipeline
 // — so a symbol table here would have nothing to do. Symbol resolution
-// belongs to `dtrules build` / `dtrules compile`, which already build
+// belongs to `dtrules build` and the authoring API, which already build
 // the symbol map from the EDD they load alongside the tables.
 func (l *DTLoader) SetSymbols(_ map[string]string) {}
 
@@ -451,7 +451,7 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		dslTrimmed := strings.TrimSpace(dsl)
 
 		if !l.Tolerant && dslTrimmed != "" && !isCommentLine(dslTrimmed) && stored == "" {
-			return fmt.Errorf("context %d ('%s') has DSL but no compiled postfix in table %s — run `dtrules build` or `dtrules compile` before loading",
+			return fmt.Errorf("context %d ('%s') has DSL but no compiled postfix in table %s — run `dtrules build` (or author through `dtrules table`) before loading",
 				i+1, dsl, name.StringValue())
 		}
 		contextsPostfix[i] = stored
@@ -477,7 +477,7 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		dslTrimmed := strings.TrimSpace(dsl)
 		commentTrimmed := strings.TrimSpace(action.GetComment())
 		if !l.Tolerant && isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) && dslTrimmed != commentTrimmed {
-			return fmt.Errorf("initial action %d ('%s') has DSL but no compiled postfix in table %s — run `dtrules build` or `dtrules compile` before loading",
+			return fmt.Errorf("initial action %d ('%s') has DSL but no compiled postfix in table %s — run `dtrules build` (or author through `dtrules table`) before loading",
 				i+1, dsl, name.StringValue())
 		}
 		initialActionsPostfix[i] = postfix
@@ -503,7 +503,7 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		dslTrimmed := strings.TrimSpace(dsl)
 		commentTrimmed := strings.TrimSpace(cond.Comment)
 		if !l.Tolerant && isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) && dslTrimmed != commentTrimmed {
-			return fmt.Errorf("condition %d ('%s') has DSL but no compiled postfix in table %s — run `dtrules build` or `dtrules compile` before loading",
+			return fmt.Errorf("condition %d ('%s') has DSL but no compiled postfix in table %s — run `dtrules build` (or author through `dtrules table`) before loading",
 				i+1, dsl, name.StringValue())
 		}
 		// Comment-only DSL with no stored postfix → "true always" so the
@@ -537,7 +537,7 @@ func (l *DTLoader) processTable(table *DTTable) error {
 		dslTrimmed := strings.TrimSpace(dsl)
 		commentTrimmed := strings.TrimSpace(action.Comment)
 		if !l.Tolerant && isEmptyOrCommentOnly(postfix) && dslTrimmed != "" && !isCommentLine(dslTrimmed) && dslTrimmed != commentTrimmed {
-			return fmt.Errorf("action %d ('%s') has DSL but no compiled postfix in table %s — run `dtrules build` or `dtrules compile` before loading",
+			return fmt.Errorf("action %d ('%s') has DSL but no compiled postfix in table %s — run `dtrules build` (or author through `dtrules table`) before loading",
 				i+1, dsl, name.StringValue())
 		}
 		actionsPostfix[i] = postfix

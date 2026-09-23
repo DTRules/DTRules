@@ -89,7 +89,6 @@ mvn exec:java -Dexec.mainClass="com.dtrules.samples.sampleproject2.TestKidAid"
 
 ## Related Projects
 
-- **KidAid_Application** - Standalone application wrapper
 - **CHIP** - Similar eligibility determination project
 
 ## DSL

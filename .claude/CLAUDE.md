@@ -158,7 +158,7 @@ exists, and `TaxReturn_dt.xml` never contains a copy of it.
 ### Authoring a state (through the API — never by hand)
 
 The state files are generated XML like every other rule file. **Do not edit
-them by hand and do not copy the templates.** Author through the API, which
+them by hand and do not copy another state's file.** Author through the API, which
 writes the XML, compiles the postfix and updates the paired workbook in one
 operation (#1169 made this work for `states/*`):
 
