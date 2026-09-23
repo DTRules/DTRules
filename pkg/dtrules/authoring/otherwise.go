@@ -39,6 +39,14 @@ const OtherwiseRule = "'*' marks the otherwise column, which is only allowed in 
 // `table patch` refused '*' outright, which meant the otherwise column could
 // not be authored at all. Both are wrong, and both now ask this (#1215).
 func (t *Table) checkOtherwise() error {
+	if err := t.otherwiseViolation(); err != nil {
+		return &OtherwiseError{Err: err}
+	}
+	return nil
+}
+
+// otherwiseViolation is checkOtherwise's rule, unwrapped.
+func (t *Table) otherwiseViolation() error {
 	last := t.lastSpecifiedColumn()
 	if last < 1 {
 		return nil

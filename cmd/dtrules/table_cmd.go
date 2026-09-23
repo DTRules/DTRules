@@ -22,6 +22,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -117,6 +118,25 @@ func (tj *TableJSON) followMove(t *authoring.Table) {
 	if strings.EqualFold(strings.TrimSpace(tj.Workbook), strings.TrimSpace(t.Workbook)) {
 		tj.Workbook = ""
 	}
+}
+
+// applyErrorKind names the kind of failure a table body was refused for.
+// compile_error is kept for EL that does not compile; everything else used to
+// be reported as one too, and sent callers hunting for a broken expression
+// when the table number was out of range (#1222).
+func applyErrorKind(err error) (kind, hint string) {
+	var el *authoring.ELError
+	var ow *authoring.OtherwiseError
+	var num *authoring.NumberError
+	switch {
+	case errors.As(err, &el):
+		return "compile_error", "an EL expression failed to compile"
+	case errors.As(err, &ow):
+		return "otherwise_rule", authoring.OtherwiseRule
+	case errors.As(err, &num):
+		return "invalid_number", "a table number must be unique and inside its file's range; omit \"number\" to have one assigned"
+	}
+	return "invalid_table", "the table body was refused; see detail"
 }
 
 // jsonError is the single shape every non-zero exit writes to stderr.
@@ -444,7 +464,8 @@ func (ctx *tableCmdCtx) tablePut(rest []string) int {
 	}
 
 	if err := tj.ApplyTo(t); err != nil {
-		return emitErr(ctx.stderr, 1, "compile_error", "", "an EL expression failed to compile", err.Error())
+		kind, hint := applyErrorKind(err)
+		return emitErr(ctx.stderr, 1, kind, "", hint, err.Error())
 	}
 	if err := p.CheckNewFiles(); err != nil {
 		return emitErr(ctx.stderr, 1, "invalid_input", "", "", err.Error())

@@ -165,6 +165,12 @@ Excel workbook ──dtrules build──▶ XML (DSL + compiled postfix) ──l
   tables, EDDs (an entity naming no workbook takes its file's) and mappings
   (#1303). An EDD with an entity comment, which the EDD sheet has no cell for,
   keeps its XML instead.
+
+- A refused `table put` (CLI or MCP `table_put`) names the kind of failure,
+  so a caller knows where to look: `compile_error` for EL that does not
+  compile and nothing else; `otherwise_rule` for a `*` the otherwise-column
+  rule forbids; `invalid_number` for a table number outside its file's range
+  or already taken; `invalid_table` for any other refusal of the body (#1222).
 - `map get` emits a mapping's section comments as `{"comment": "..."}` entries
   in `attributes`, and `map put` writes them back, so a put of get's output
   loses nothing the mapping model holds.
