@@ -60,7 +60,11 @@ Three properties are the point, and the design pays for each:
   most one. `*` outside the last column, or in a column that also holds `Y`
   or `N`, is a load error. There is no "always" column: an action that must
   always execute carries an `X` in every column, the otherwise column
-  included.
+  included. "Last" means the last column holding a `Y`, `N`, `*` or `X`;
+  columns after it are **padding** — all `-`, no action — and are not columns
+  of the table: no policy traces them (#1221). `add-column` on a table with an
+  otherwise column inserts the new column in its place and moves it one
+  right, so it stays last; `patch` reports the new column's number.
 - **EDD (Entity Data Dictionary)** — the declared entities and their typed
   fields. The type system for everything the rules touch.
 - **Mapping** — which external XML tag becomes which entity or attribute, and

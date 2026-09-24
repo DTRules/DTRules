@@ -693,8 +693,17 @@ func (dt *RDecisionTable) buildBalanced() {
 	// For each column, trace the path through the tree. The otherwise column
 	// is not one of them: it tests nothing, and is installed below on the
 	// paths no column claimed.
+	//
+	// Nor is trailing padding -- columns after the last one holding a Y, N,
+	// '*' or X, which validateOtherwiseColumn already treats as not being
+	// columns at all. Traced, a padding column has no Y or N to branch on, so
+	// it wrote its empty leaf over the root's false branch: every path through
+	// there, the otherwise column's included, then ran nothing. One
+	// `add-column` after the '*' was enough to switch a table's otherwise
+	// column off (#1221).
+	lastCol := dt.lastSpecifiedColumn()
 	for col := 0; col < dt.maxCol; col++ {
-		if col == dt.otherwiseColumn {
+		if col == dt.otherwiseColumn || (lastCol >= 0 && col > lastCol) {
 			continue
 		}
 		lastStep := equalsIgnoreCase(dt.conditionTable[0][col], "y")

@@ -158,7 +158,10 @@ func (p *tablePatch) apply(proj *authoring.Project, t *authoring.Table) error {
 		if err != nil {
 			return err
 		}
-		return t.AddColumn(conds, p.Actions)
+		// Reported back: the new column is not always the last one (#1221).
+		col, err := t.InsertColumn(conds, p.Actions)
+		p.Column = col
+		return err
 
 	case "update-column":
 		if p.Column < 1 {

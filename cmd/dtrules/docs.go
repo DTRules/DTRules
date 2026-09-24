@@ -3785,6 +3785,10 @@ an error and the table is not touched — callers can safely retry.
 
   Columns (rule cells — condition cell is "Y"/"N"/" ", actions fire by number):
     (*Table).AddColumn(conditions map[int]string, actions []int) error
+    (*Table).InsertColumn(conditions map[int]string, actions []int) (int, error)
+        -- a new column goes last, or, when the table has an otherwise column,
+           takes its place and the otherwise column moves one right; the
+           returned number (which table patch reports) says which
     (*Table).UpdateColumn(col int, conditions map[int]string, actions []int) error
     (*Table).DeleteColumn(col int) error
     (*Table).Columns() int
