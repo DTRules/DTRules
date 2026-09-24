@@ -428,7 +428,7 @@ func (t *Table) Columns() int {
 func (t *Table) SetNumber(n int) error {
 	if t.project != nil {
 		if err := t.project.validateNumberFor(t.Name, n); err != nil {
-			return err
+			return &NumberError{Err: err}
 		}
 	}
 	t.Number = n

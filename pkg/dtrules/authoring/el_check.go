@@ -43,7 +43,8 @@ func CheckCondition(elStr string, symbols map[string]string) (postfix string, er
 	if symbols != nil {
 		c.SetSymbols(symbols)
 	}
-	return c.CompileCondition(elStr)
+	postfix, err = c.CompileCondition(elStr)
+	return postfix, elError("condition", elStr, err)
 }
 
 // CheckAction compiles an EL action statement to postfix. See CheckCondition.
@@ -52,7 +53,8 @@ func CheckAction(elStr string, symbols map[string]string) (postfix string, err e
 	if symbols != nil {
 		c.SetSymbols(symbols)
 	}
-	return c.CompileAction(strings.TrimSpace(elStr))
+	postfix, err = c.CompileAction(strings.TrimSpace(elStr))
+	return postfix, elError("action", elStr, err)
 }
 
 // CheckContext compiles an EL context statement to postfix. See CheckCondition.
@@ -61,7 +63,8 @@ func CheckContext(elStr string, symbols map[string]string) (postfix string, err 
 	if symbols != nil {
 		c.SetSymbols(symbols)
 	}
-	return c.CompileContext(strings.TrimSpace(elStr))
+	postfix, err = c.CompileContext(strings.TrimSpace(elStr))
+	return postfix, elError("context", elStr, err)
 }
 
 // tableCompiler compiles every row of one decision table through a single EL

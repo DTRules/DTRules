@@ -363,7 +363,8 @@ func (s *mcpServer) toolTablePut(project string, args json.RawMessage) (map[stri
 		t = p.Table(req.Name)
 	}
 	if err := req.Table.ApplyTo(t); err != nil {
-		return nil, newToolError("compile_error", "an EL expression failed to compile", err.Error())
+		kind, hint := applyErrorKind(err)
+		return nil, newToolError(kind, hint, err.Error())
 	}
 	if err := p.CheckNewFiles(); err != nil {
 		return nil, newToolError("invalid_command", "could not place table", err.Error())
