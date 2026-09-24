@@ -2971,7 +2971,7 @@ Two ways to change a rule
     compile. Requires the canonical project layout (<project>/xml/
     and <project>/excel/). Excel is the input; XML is generated.
 
-  dtrules table / dtrules edd       (the programmatic path, for AI agents)
+  dtrules table / edd / map         (the programmatic path, for AI agents)
     A write through the authoring API updates the XML DSL, compiles
     postfix, AND updates Excel in the same atomic operation. If the
     project has no Excel yet, the API bootstraps it from the XML.

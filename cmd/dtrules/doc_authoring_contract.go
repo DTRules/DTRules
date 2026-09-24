@@ -56,8 +56,9 @@ Exactly two ways to change a rule
       XML is generated.
 
   (b) The authoring API                        (the programmatic path)
-      'dtrules table' / 'dtrules edd' (and the MCP write tools) update the
-      XML DSL, compile postfix, AND update Excel in one operation.
+      'dtrules table' / 'dtrules edd' / 'dtrules map' (and the MCP write
+      tools) update the XML DSL, compile postfix, AND update Excel in one
+      operation.
 
 There is no third way. XML is a generated artifact; postfix is compiled.
 

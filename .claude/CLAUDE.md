@@ -100,14 +100,19 @@ dtrules docs workflow            # Development workflow
 There are exactly two ways to change a rule:
 
 - **Edit Excel**, then `dtrules build` — extracts DSL to XML and compiles DSL→postfix. Excel is the input; XML is generated.
-- **Call the authoring API** (`dtrules table`/`dtrules edd`, MCP write tools) — it writes the XML DSL, compiles postfix, **and** updates Excel in the same operation. If the project has no Excel yet, the API bootstraps it from the XML.
+- **Call the authoring API** (`dtrules table`/`dtrules edd`/`dtrules map`, MCP write tools) — it writes the XML DSL, compiles postfix, **and** updates Excel in the same operation. If the project has no Excel yet, the API bootstraps it from the XML.
 
 ```bash
 dtrules build                    # Excel → XML (+ compile); the human path
 dtrules build --dry-run          # Show what would change without writing
 dtrules table put <name>         # Programmatic edit; updates XML AND Excel
 dtrules edd put                  # Programmatic EDD edit; updates XML AND Excel
+dtrules map patch                # Programmatic mapping edit; updates XML AND Excel
 ```
+
+A mapping is authored through `dtrules map` like everything else — never
+by hand. `{"op":"add-entity","entity":"policy","number":"1"}` declares a
+singleton *and* pushes it on the entity stack (see `dtrules map --help`).
 
 Hard rules:
 
