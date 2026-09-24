@@ -160,6 +160,11 @@ Excel workbook ──dtrules build──▶ XML (DSL + compiled postfix) ──l
   rule of never creating a missing workbook (#1062), because a new file's
   workbook cannot exist yet (#1225). Save writes new files before the files
   tables left, so a failed write cannot lose a moved table.
+- The first authoring write to a project with no Excel (no workbook, no
+  manifest) bootstraps it, and leaves every rule file backed by a workbook:
+  tables, EDDs (an entity naming no workbook takes its file's) and mappings
+  (#1303). An EDD with an entity comment, which the EDD sheet has no cell for,
+  keeps its XML instead.
 - `map get` emits a mapping's section comments as `{"comment": "..."}` entries
   in `attributes`, and `map put` writes them back, so a put of get's output
   loses nothing the mapping model holds.
