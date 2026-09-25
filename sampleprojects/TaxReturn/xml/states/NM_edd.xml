@@ -7,8 +7,9 @@
 		<source>
 			<relative_path>NM.xlsx</relative_path>
 			<file_name>NM.xlsx</file_name>
-			<sheet_number>3</sheet_number>
+			<sheet_number>4</sheet_number>
 		</source>
+		<field name="nm_band_midpoint" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
 		<field name="nm_base_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="NM base tax before credits/rebates (computed)"></field>
 		<field name="nm_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.015" comment="NM tax rate bracket 1: 1.5% (2025). Source: NM TRD"></field>
 		<field name="nm_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.032" comment="NM tax rate bracket 2: 3.2% (2025)"></field>
@@ -16,17 +17,47 @@
 		<field name="nm_bracket_4_rate" type="double" subtype="" access="r" input="" default_value="0.047" comment="NM tax rate bracket 4: 4.7% (2025)"></field>
 		<field name="nm_bracket_5_rate" type="double" subtype="" access="r" input="" default_value="0.049" comment="NM tax rate bracket 5: 4.9% (2025)"></field>
 		<field name="nm_bracket_6_rate" type="double" subtype="" access="r" input="" default_value="0.059" comment="NM tax rate bracket 6: 5.9% (2025). Top marginal rate."></field>
-		<field name="nm_joint_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="8000.0" comment="NM bracket 1 upper limit joint (2025). Source: NM TRD"></field>
-		<field name="nm_joint_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="24000.0" comment="NM bracket 2 upper limit joint (2025)"></field>
-		<field name="nm_joint_bracket_3_limit" type="double" subtype="" access="r" input="" default_value="48000.0" comment="NM bracket 3 upper limit joint (2025)"></field>
-		<field name="nm_joint_bracket_4_limit" type="double" subtype="" access="r" input="" default_value="96000.0" comment="NM bracket 4 upper limit joint (2025)"></field>
-		<field name="nm_joint_bracket_5_limit" type="double" subtype="" access="r" input="" default_value="315000.0" comment="NM bracket 5 upper limit joint (2025)"></field>
+		<field name="nm_dependent_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
+		<field name="nm_dependent_deduction_amount" type="double" subtype="" access="r" input="" default_value="4000" comment="PIT-1 line 13 worksheet: $4,000 per dependent after the first (HOH and MFJ only)"></field>
+		<field name="nm_exemptions" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
+		<field name="nm_high_base" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
+		<field name="nm_joint_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="8000" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT): MFJ/HOH/QSS 1.5% bracket top"></field>
+		<field name="nm_joint_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="25000" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT): MFJ/HOH/QSS 3.2% bracket top"></field>
+		<field name="nm_joint_bracket_3_limit" type="double" subtype="" access="r" input="" default_value="50000" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT): MFJ/HOH/QSS 4.3% bracket top"></field>
+		<field name="nm_joint_bracket_4_limit" type="double" subtype="" access="r" input="" default_value="100000" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT): MFJ/HOH/QSS 4.7% bracket top"></field>
+		<field name="nm_joint_bracket_5_limit" type="double" subtype="" access="r" input="" default_value="315000" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT): MFJ/HOH/QSS 4.9% bracket top"></field>
+		<field name="nm_joint_high_base" type="double" subtype="" access="r" input="" default_value="4087" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT) p.T-7: MFJ/HOH over $100,000, not over $315,000: $4,087 + 4.9% over $100,000"></field>
+		<field name="nm_joint_top_base" type="double" subtype="" access="r" input="" default_value="14622" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT) p.T-7: MFJ/HOH over $315,000: $14,622 + 5.9% over $315,000"></field>
 		<field name="nm_lictr_income_limit" type="double" subtype="" access="r" input="" default_value="36000.0" comment="NM LICTR modified gross income limit (2025). Source: NM TRD"></field>
 		<field name="nm_lictr_max_rebate_hoh" type="double" subtype="" access="r" input="" default_value="575.0" comment="NM LICTR maximum rebate for head of household (2025). Source: NM TRD"></field>
 		<field name="nm_lictr_max_rebate_joint" type="double" subtype="" access="r" input="" default_value="700.0" comment="NM LICTR maximum rebate for joint filers (2025). Source: NM TRD"></field>
 		<field name="nm_lictr_max_rebate_single" type="double" subtype="" access="r" input="" default_value="450.0" comment="NM LICTR maximum rebate for single filers (2025). Source: NM TRD"></field>
 		<field name="nm_lictr_rebate" type="double" subtype="" access="r" input="" default_value="0.0" comment="NM LICTR rebate amount (computed)"></field>
-		<field name="nm_low_middle_income_exemption" type="double" subtype="" access="r" input="" default_value="2500.0" comment="NM low and middle income exemption per qualified exemption (2025). Source: NM TRD"></field>
+		<field name="nm_limit_1" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
+		<field name="nm_limit_2" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
+		<field name="nm_limit_3" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
+		<field name="nm_limit_4" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
+		<field name="nm_lmi_base" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
+		<field name="nm_lmi_base_joint" type="double" subtype="" access="r" input="" default_value="30000" comment="PIT-1 line 14 worksheet line 2, MFJ, Surviving Spouse, HOH"></field>
+		<field name="nm_lmi_base_mfs" type="double" subtype="" access="r" input="" default_value="15000" comment="PIT-1 line 14 worksheet line 2, MFS"></field>
+		<field name="nm_lmi_base_single" type="double" subtype="" access="r" input="" default_value="20000" comment="PIT-1 line 14 worksheet line 2, Single"></field>
+		<field name="nm_lmi_exemption" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
+		<field name="nm_lmi_limit" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
+		<field name="nm_lmi_limit_joint" type="double" subtype="" access="r" input="" default_value="55000" comment="PIT-1 line 14: MFJ, Surviving Spouse, HOH eligible with federal AGI $55,000 or less"></field>
+		<field name="nm_lmi_limit_mfs" type="double" subtype="" access="r" input="" default_value="27500" comment="PIT-1 line 14: MFS eligible with federal AGI $27,500 or less"></field>
+		<field name="nm_lmi_limit_single" type="double" subtype="" access="r" input="" default_value="36667" comment="PIT-1 line 14: Single eligible with federal AGI $36,667 or less"></field>
+		<field name="nm_lmi_rate" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
+		<field name="nm_lmi_rate_joint" type="double" subtype="" access="r" input="" default_value="0.10" comment="PIT-1 line 14 worksheet line 4, MFJ, Surviving Spouse, HOH"></field>
+		<field name="nm_lmi_rate_mfs" type="double" subtype="" access="r" input="" default_value="0.20" comment="PIT-1 line 14 worksheet line 4, MFS"></field>
+		<field name="nm_lmi_rate_single" type="double" subtype="" access="r" input="" default_value="0.15" comment="PIT-1 line 14 worksheet line 4, Single"></field>
+		<field name="nm_low_middle_income_exemption" type="double" subtype="" access="r" input="" default_value="2500" comment="PIT-1 line 14 worksheet: $2,500 per exemption before the reduction"></field>
+		<field name="nm_mfs_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="4000" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT): MFS 1.5% bracket top"></field>
+		<field name="nm_mfs_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="12500" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT): MFS 3.2% bracket top"></field>
+		<field name="nm_mfs_bracket_3_limit" type="double" subtype="" access="r" input="" default_value="25000" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT): MFS 4.3% bracket top"></field>
+		<field name="nm_mfs_bracket_4_limit" type="double" subtype="" access="r" input="" default_value="50000" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT): MFS 4.7% bracket top"></field>
+		<field name="nm_mfs_bracket_5_limit" type="double" subtype="" access="r" input="" default_value="157500" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT): MFS 4.9% bracket top"></field>
+		<field name="nm_mfs_high_base" type="double" subtype="" access="r" input="" default_value="4492" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT) p.T-7: MFS over $100,000, not over $157,500: $4,492 + 4.9% over $100,000"></field>
+		<field name="nm_mfs_top_base" type="double" subtype="" access="r" input="" default_value="7310" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT) p.T-7: MFS over $157,500: $7,310 + 5.9% over $157,500"></field>
 		<field name="nm_military_retirement_exemption" type="double" subtype="" access="r" input="" default_value="30000.0" comment="NM military retirement exemption amount for 2025-2026 (2025). Source: MOAA State Report Card"></field>
 		<field name="nm_military_retirement_taxable" type="double" subtype="" access="r" input="" default_value="0.0" comment="NM taxable military retirement after exemption (computed)"></field>
 		<field name="nm_single_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="5500.0" comment="NM bracket 1 upper limit single (2025). Source: NM TRD"></field>
@@ -34,11 +65,19 @@
 		<field name="nm_single_bracket_3_limit" type="double" subtype="" access="r" input="" default_value="33500.0" comment="NM bracket 3 upper limit single (2025)"></field>
 		<field name="nm_single_bracket_4_limit" type="double" subtype="" access="r" input="" default_value="66500.0" comment="NM bracket 4 upper limit single (2025)"></field>
 		<field name="nm_single_bracket_5_limit" type="double" subtype="" access="r" input="" default_value="210000.0" comment="NM bracket 5 upper limit single (2025)"></field>
+		<field name="nm_single_high_base" type="double" subtype="" access="r" input="" default_value="4356" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT) p.T-7: Single over $100,000, not over $210,000: $4,356 + 4.9% over $100,000"></field>
+		<field name="nm_single_top_base" type="double" subtype="" access="r" input="" default_value="9746" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT) p.T-7: Single over $210,000: $9,746 + 5.9% over $210,000"></field>
 		<field name="nm_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="15750.0" comment="NM standard deduction head of household (2025). Source: NM TRD"></field>
 		<field name="nm_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="31500.0" comment="NM standard deduction married filing jointly (2025). Source: NM TRD"></field>
 		<field name="nm_standard_deduction_mfs" type="double" subtype="" access="r" input="" default_value="15750.0" comment="NM standard deduction married filing separately (2025). Source: NM TRD"></field>
 		<field name="nm_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="15750.0" comment="NM standard deduction single (2025). Source: NM TRD"></field>
+		<field name="nm_std_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
+		<field name="nm_table_limit" type="double" subtype="" access="r" input="" default_value="100000" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT): the table covers taxable income through $100,000; over it, the schedule on page T-7"></field>
+		<field name="nm_table_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
 		<field name="nm_tax" type="double" subtype="" access="r" input="" default_value="0.0" comment="NM final tax liability after credits/rebates (computed)"></field>
 		<field name="nm_taxable_income" type="double" subtype="" access="r" input="" default_value="0.0" comment="NM taxable income after deductions (computed)"></field>
+		<field name="nm_top_base" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
+		<field name="nm_top_threshold" type="double" subtype="" access="rw" input="" default_value="0" comment="NM tax computation (nm_tax)"></field>
+		<field name="nm_zero_limit" type="double" subtype="" access="r" input="" default_value="60" comment="NM 2025 PIT-1 Tax Rate Table (PIT-TRT): taxable income not over $60 has no tax"></field>
 	</entity>
 </entity_data_dictionary>

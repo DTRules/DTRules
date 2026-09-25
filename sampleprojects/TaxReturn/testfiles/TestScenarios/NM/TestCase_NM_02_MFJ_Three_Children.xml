@@ -1,0 +1,102 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- NM Test Case 02: married filing jointly, $52,000 of wages, three children: the dependent deduction and the low- and middle-income exemption -->
+   <id>NM-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>NM</state>
+   <city>Albuquerque</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values, worked from the state's own form -->
+   <!-- Sources: New Mexico 2025 PIT-1 instructions: line 12 federal standard deduction, line 13 deduction for certain dependents, line 14 low- and middle-income exemption worksheet, line 17 taxable income; 2025 Tax Rate Table (PIT-TRT), bands 'more than X but not over X+100', and the page T-7 schedule over $100,000. -->
+   <!-- Federal: AGI $52,000; taxable $52,000 - $31,500 = $20,500 -->
+   <!-- New Mexico: line 12 $31,500. Line 13: (3 dependents - 1) x $4,000 =
+        $8,000. Line 14: $2,500 - 10% x ($52,000 - $30,000) = $300, x 5
+        exemptions = $1,500. Line 17: $52,000 - $31,500 - $8,000 - $1,500 =
+        $11,000. Table row more than $10,900 not over $11,000, Married
+        Filing Jointly: $214 (1.5% x 8,000 + 3.2% x 2,950 at the $10,950
+        midpoint = $214.40) -->
+   <expected_agi>52000</expected_agi>
+   <expected_taxable_income>20500</expected_taxable_income>
+   <expected_state_tax>214</expected_state_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Mateo Chavez</name>
+         <ssn>702-22-3412</ssn>
+         <date_of_birth>5/03/1987</date_of_birth>
+         <occupation>Mechanic</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>32000</w2_wages>
+         <w2_withholding>2400</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Rosa Chavez</name>
+         <ssn>703-33-4523</ssn>
+         <date_of_birth>8/27/1989</date_of_birth>
+         <occupation>Bookkeeper</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>20000</w2_wages>
+         <w2_withholding>1500</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Diego Chavez</name>
+         <ssn>704-44-5634</ssn>
+         <date_of_birth>1/12/2012</date_of_birth>
+         <age>13</age>
+         <relationship>child</relationship>
+         <is_student>false</is_student>
+         <is_disabled>false</is_disabled>
+         <has_ssn>true</has_ssn>
+         <months_lived_with>12</months_lived_with>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Ana Chavez</name>
+         <ssn>705-55-6745</ssn>
+         <date_of_birth>6/30/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <is_student>false</is_student>
+         <is_disabled>false</is_disabled>
+         <has_ssn>true</has_ssn>
+         <months_lived_with>12</months_lived_with>
+      </dependent>
+      <dependent id="3">
+         <id>3</id>
+         <name>Pablo Chavez</name>
+         <ssn>706-66-7856</ssn>
+         <date_of_birth>11/09/2019</date_of_birth>
+         <age>6</age>
+         <relationship>child</relationship>
+         <is_student>false</is_student>
+         <is_disabled>false</is_disabled>
+         <has_ssn>true</has_ssn>
+         <months_lived_with>12</months_lived_with>
+      </dependent>
+   </dependents>
+</job>

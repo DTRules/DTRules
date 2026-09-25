@@ -29,7 +29,7 @@ import (
 // stateScenarioStates are the states whose testfiles/TestScenarios/<XX>
 // scenarios this test holds to their expected_state_tax: the #1200 states,
 // whose tables computed nothing until they were rewritten.
-var stateScenarioStates = []string{"AR", "LA"}
+var stateScenarioStates = []string{"AR", "LA", "NM"}
 
 // TestStateScenarios runs each scenario under testfiles/TestScenarios/<XX>
 // and compares that state's roster entry -- what Compute_Roster_State_Tax
