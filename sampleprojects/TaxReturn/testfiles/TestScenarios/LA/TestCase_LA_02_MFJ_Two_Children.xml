@@ -1,0 +1,87 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- LA Test Case 02: married filing jointly, $110,000 of wages, two children -->
+   <id>LA-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>LA</state>
+   <city>Baton Rouge</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values, worked from the state's own form -->
+   <!-- Sources: Louisiana IT-540 2025 instructions (Act 11 of the 2024 Third Extraordinary Session): line 8 standard deduction, line 10 taxable income, line 11 = line 10 x .03 rounded to the nearest dollar. -->
+   <!-- Federal: AGI $110,000; taxable $110,000 - $31,500 = $78,500 -->
+   <!-- Louisiana: line 7 $110,000 - line 8 $25,000 = line 10 $85,000;
+        line 11 $85,000 x .03 = $2,550. Dependents no longer reduce
+        Louisiana taxable income from 2025. -->
+   <expected_agi>110000</expected_agi>
+   <expected_taxable_income>78500</expected_taxable_income>
+   <expected_state_tax>2550</expected_state_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Andre Thibodeaux</name>
+         <ssn>602-22-3312</ssn>
+         <date_of_birth>1/15/1983</date_of_birth>
+         <occupation>Welder</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>60000</w2_wages>
+         <w2_withholding>6000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Nicole Thibodeaux</name>
+         <ssn>603-33-4423</ssn>
+         <date_of_birth>9/02/1985</date_of_birth>
+         <occupation>Registered Nurse</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>50000</w2_wages>
+         <w2_withholding>5000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Luc Thibodeaux</name>
+         <ssn>604-44-5534</ssn>
+         <date_of_birth>4/18/2013</date_of_birth>
+         <age>12</age>
+         <relationship>child</relationship>
+         <is_student>false</is_student>
+         <is_disabled>false</is_disabled>
+         <has_ssn>true</has_ssn>
+         <months_lived_with>12</months_lived_with>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Elise Thibodeaux</name>
+         <ssn>605-55-6645</ssn>
+         <date_of_birth>12/03/2016</date_of_birth>
+         <age>8</age>
+         <relationship>child</relationship>
+         <is_student>false</is_student>
+         <is_disabled>false</is_disabled>
+         <has_ssn>true</has_ssn>
+         <months_lived_with>12</months_lived_with>
+      </dependent>
+   </dependents>
+</job>

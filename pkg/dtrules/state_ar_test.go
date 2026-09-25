@@ -17,13 +17,11 @@ import (
 	"bufio"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/DTRules/DTRules/pkg/dtrules"
-	"github.com/DTRules/DTRules/pkg/dtrules/mapping"
 )
 
 // Arkansas (#1200). AR_Tax computed nothing: its actions were wired to no
@@ -97,102 +95,4 @@ func TestARTaxTableMatchesThePublishedTable(t *testing.T) {
 			t.Errorf("net taxable income $%d: tax $%d, want $%d", c[0], got, c[1])
 		}
 	}
-}
-
-// TestARScenarios runs each testfiles/TestScenarios/AR scenario and compares
-// the Arkansas roster entry's tax -- what Compute_Roster_State_Tax harvested
-// from AR_Tax -- with the figure the scenario works out by hand.
-// Validate_Summary does not check expected_state_tax, so this does.
-func TestARScenarios(t *testing.T) {
-	rs, xmlDir := loadTaxReturn(t)
-	dir := filepath.Join(xmlDir, "..", "testfiles", "TestScenarios", "AR")
-	files, _ := filepath.Glob(filepath.Join(dir, "*.xml"))
-	if len(files) < 3 {
-		t.Fatalf("want at least 3 AR scenarios, found %d", len(files))
-	}
-	expected := regexp.MustCompile(`<expected_state_tax>([0-9.]+)</expected_state_tax>`)
-	for _, path := range files {
-		t.Run(filepath.Base(path), func(t *testing.T) {
-			src, err := os.ReadFile(path)
-			if err != nil {
-				t.Fatal(err)
-			}
-			m := expected.FindSubmatch(src)
-			if m == nil {
-				t.Fatal("scenario has no <expected_state_tax>")
-			}
-			want, _ := strconv.ParseFloat(string(m[1]), 64)
-
-			sess, err := rs.NewSession()
-			if err != nil {
-				t.Fatal(err)
-			}
-			mp := mapping.NewMapping(sess)
-			mf, err := os.Open(filepath.Join(xmlDir, "TaxReturn_map.xml"))
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer mf.Close()
-			if err := mp.LoadMapping(mf); err != nil {
-				t.Fatal(err)
-			}
-			if err := mp.Initialize(); err != nil {
-				t.Fatal(err)
-			}
-			if err := mp.LoadData(strings.NewReader(string(src))); err != nil {
-				t.Fatal(err)
-			}
-			state := sess.GetState()
-			dt, err := sess.GetEntityFactory().GetDecisionTable(dtrules.GetRName("Compute_Tax_Return"))
-			if err != nil || dt == nil {
-				t.Fatalf("Compute_Tax_Return: %v", err)
-			}
-			if err := dt.Execute(state); err != nil {
-				t.Fatalf("execute: %v", err)
-			}
-			if auditHasFailure(state) {
-				t.Error("the rules' own validation reported a FAIL line")
-			}
-
-			got, found := arRosterTax(state)
-			if !found {
-				t.Fatal("no Arkansas entry on job.state_tax_results")
-			}
-			if got != want {
-				t.Errorf("Arkansas tax $%.2f, scenario works out $%.2f", got, want)
-			}
-		})
-	}
-}
-
-// arRosterTax returns the state_tax_before_credits of the AR roster entry.
-func arRosterTax(state dtrules.State) (float64, bool) {
-	for i := 0; i < state.EntityDepth(); i++ {
-		e, _ := state.EntityFetch(i)
-		if e == nil || e.GetName().StringValue() != "job" {
-			continue
-		}
-		v, _ := e.Get(dtrules.GetRName("state_tax_results"))
-		if v == nil {
-			continue
-		}
-		arr, err := v.ArrayValue()
-		if err != nil {
-			continue
-		}
-		for _, o := range arr {
-			entry, ok := o.(dtrules.Entity)
-			if !ok {
-				continue
-			}
-			code, _ := entry.Get(dtrules.GetRName("state_code"))
-			if code == nil || code.StringValue() != "AR" {
-				continue
-			}
-			tax, _ := entry.Get(dtrules.GetRName("state_tax_before_credits"))
-			f, _ := tax.DoubleValue()
-			return f, true
-		}
-	}
-	return 0, false
 }

@@ -1,0 +1,51 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- LA Test Case 01: single, $48,000 of wages -->
+   <id>LA-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>LA</state>
+   <city>Baton Rouge</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values, worked from the state's own form -->
+   <!-- Sources: Louisiana IT-540 2025 instructions (Act 11 of the 2024 Third Extraordinary Session): line 8 standard deduction, line 10 taxable income, line 11 = line 10 x .03 rounded to the nearest dollar. -->
+   <!-- Federal: AGI $48,000; taxable $48,000 - $15,750 = $32,250 -->
+   <!-- Louisiana: line 7 $48,000 - line 8 $12,500 = line 10 $35,500;
+        line 11 $35,500 x .03 = $1,065 -->
+   <expected_agi>48000</expected_agi>
+   <expected_taxable_income>32250</expected_taxable_income>
+   <expected_state_tax>1065</expected_state_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Camille Broussard</name>
+         <ssn>601-11-2201</ssn>
+         <date_of_birth>6/09/1991</date_of_birth>
+         <occupation>Teacher</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>48000</w2_wages>
+         <w2_withholding>4300</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+   </dependents>
+</job>
