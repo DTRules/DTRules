@@ -211,11 +211,6 @@ leftIexpr
     | colonRef leftIexpr                                    # leftIexprColon
     ;
 
-leftFexpr
-    : typedDouble                                           # leftFexprSimple
-    | colonRef leftFexpr                                    # leftFexprColon
-    ;
-
 leftBexpr
     : typedBoolean                                          # leftBexprSimple
     | colonRef leftBexpr                                    # leftBexprColon
@@ -231,16 +226,6 @@ leftStrexpr
     | colonRef leftStrexpr                                  # leftStrexprColon
     ;
 
-leftDexpr
-    : typedDate                                             # leftDexprSimple
-    | colonRef leftDexpr                                    # leftDexprColon
-    ;
-
-leftTexpr
-    : typedTable                                            # leftTexprSimple
-    | colonRef leftTexpr                                    # leftTexprColon
-    ;
-
 leftBigexpr
     : typedBigInt                                           # leftBigexprSimple
     | colonRef leftBigexpr                                  # leftBigexprColon
@@ -253,28 +238,16 @@ leftArrayRef
 
 setstatement
     : SET leftIexpr ASSIGN number                           # setInt
-    | SET leftFexpr ASSIGN number                           # setFloat
     | SET leftBexpr ASSIGN bexpr                            # setBool
     | SET leftEexpr ASSIGN eexpr                            # setEntity
     | SET leftStrexpr ASSIGN strexpr                        # setString
-    | SET leftStrexpr ASSIGN number                         # setStringFromNumber
     | SET leftStrexpr ASSIGN dexpr                          # setStringFromDate
     | SET leftStrexpr ASSIGN nexpr                          # setStringFromName
     | SET leftStrexpr ASSIGN texpr                          # setStringFromTable
-    | SET leftBexpr ASSIGN nexpr                            # setBoolFromName
-    | SET leftDexpr ASSIGN dexpr                            # setDate
-    | SET leftTexpr ASSIGN texpr                            # setTable
-    | SET leftArrayRef ASSIGN eexpr                         # setArrayEntity
-    | SET leftArrayRef ASSIGN strexpr                       # setArrayString
-    | SET leftArrayRef ASSIGN fexpr                         # setArrayFloat
-    | SET leftArrayRef ASSIGN iexpr                         # setArrayInt
-    | SET leftArrayRef ASSIGN dexpr                         # setArrayDate
     | SET leftArrayRef ASSIGN arrayExpr                     # setArrayArray
     | SET leftBigexpr ASSIGN bigexpr                        # setBigInt
     | INCREMENT typedLong                                   # incrementLong
-    | INCREMENT typedDouble                                 # incrementDouble
     | DECREMENT typedLong                                   # decrementLong
-    | DECREMENT typedDouble                                 # decrementDouble
     ;
 
 forctl
@@ -374,25 +347,16 @@ numexpr
 
 addtodest2
     : arrayExpr2                                            # addDestArray2
-    | typedLong                                             # addDestLong2
-    | typedDouble                                           # addDestDouble2
     ;
 
 addtodest
     : arrayExpr2                                            # addDestArray
-    | typedLong                                             # addDestLong
-    | typedDouble                                           # addDestDouble
     | colonRef addtodest2                                   # addDestColon
-    | POSSESSIVE typedLong                                  # addDestPossessiveLong
-    | POSSESSIVE typedDouble                                # addDestPossessiveDouble
     ;
 
 subtodest
     : typedLong                                             # subDestLong
-    | typedDouble                                           # subDestDouble
     | colonRef addtodest2                                   # subDestColon
-    | POSSESSIVE typedLong                                  # subDestPossessiveLong
-    | POSSESSIVE typedDouble                                # subDestPossessiveDouble
     ;
 
 addtostatement
@@ -429,7 +393,6 @@ randomstatements
     | REMOVE strexpr FROM arrayExpr ARRAY                   # removeString
     | REMOVE eexpr FROM arrayExpr ARRAY                     # removeEntity
     | RANDOMIZE arrayExpr                                   # randomizeArray
-    | CLEAR arrayExpr                                       # clearArray
     | SORT arrayExpr IN ASCENDINGORDER BY nexpr             # sortAscending
     | SORT arrayExpr IN DESCENDINGORDER BY nexpr            # sortDescending
     ;
@@ -514,7 +477,6 @@ eexpr
     | LPAREN eexpr RPAREN                                   # entityParen
     | indxExpr                                              # entityIndex
     | NEW nexpr ENTITY                                      # entityNewName
-    | NEW typedEntity ENTITY                                # entityNewTyped
     | CLONE OF eexpr                                        # entityClone
     | colonRef typedEntity                                  # entityColonRef
     | LPAREN ENTITY RPAREN typedTable LPAREN tablelist RPAREN # entityTableLookup
@@ -544,7 +506,6 @@ dexpr
     | LPAREN DATE RPAREN strexpr                            # dateFromStrCast
     | DATE LPAREN strexpr RPAREN                            # dateFromStrFunc
     | LPAREN DATE RPAREN indxExpr                           # dateFromIndex
-    | LPAREN DATE RPAREN typedArray LBRACE iexpr RBRACE     # dateFromArrayAt
     | USING eexpr LPAREN dexpr RPAREN                       # dateUsing
     | colonRef typedDate                                    # dateColonRef
     | LPAREN number DAYS RPAREN                             # dateDays
@@ -648,7 +609,6 @@ strexpr
     | TABLEINFORMATION                                      # strTableInfo
     | STRING VALUE OF operatorstatements                    # strValueOfOp
     | LPAREN STRING RPAREN texpr LPAREN tablelist RPAREN    # strTableLookup
-    | typedString                                           # strTyped
     | colonRef strexpr                                      # strColonRef
     | STRING_LITERAL                                        # strLiteral
     | strexpr PLUS strexpr                                  # strConcat
@@ -663,8 +623,6 @@ strexpr
     | strexpr PLUS eexpr                                    # strConcatEntity
     | strexpr PLUS dexpr                                    # strConcatDate
     | strexpr PLUS arrayExpr                                # strConcatArray
-    | strexpr PLUS typedNull                                # strConcatNull
-    | strexpr PLUS typedInvalid                             # strConcatInvalid
     | TRIM LPAREN strexpr RPAREN                            # strTrim
     | LPAREN STRING RPAREN indxExpr                         # strFromIndex
     | CHANGE strexpr TO LOWER_CASE                          # strToLower
@@ -1028,7 +986,6 @@ bexpr
 
     // Operator and function
     | BOOLEAN VALUE OF operatorstatements                   # boolValueOfOp
-    | typedBoolFunction                                     # boolFunction
     ;
 
 // Common error handling
@@ -1053,9 +1010,6 @@ typedName           : IDENT ;
 typedDecisionTable  : IDENT ;
 typedOperator       : IDENT ;
 typedXmlValue       : IDENT ;
-typedNull           : IDENT ;
-typedInvalid        : IDENT ;
-typedBoolFunction   : IDENT ;
 typedBigInt         : IDENT ;
 typedBytes          : IDENT ;
 undefinedIdent      : IDENT ;

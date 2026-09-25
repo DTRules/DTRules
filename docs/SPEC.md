@@ -222,6 +222,13 @@ parser can never choose the label) and `grammar_helpers.tsv` (a fragment that
 cannot be compiled on its own). An exception that starts passing fails the
 sweep, so each list can only shrink.
 
+`grammar_label_misses.tsv` is empty: an alternative the parser can never
+choose is deleted, with its emitter, rather than kept and listed (#1250). An
+alternative that differs from an earlier one only by which `typedX : IDENT`
+placeholder it names can never be chosen — the parser has no symbol table,
+so it takes the first — and typing belongs in the emitter of the one that
+is.
+
 ## 2.4 Execution
 
 `pkg/dtrules/interpreter` holds the VM. Three stacks:

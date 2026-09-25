@@ -75,45 +75,27 @@ block	blockIf	action	if if true then { set x = 1; } endif;
 block	blockStatement	action	statement;
 leftIexpr	leftIexprSimple	condition	n
 leftIexpr	leftIexprColon	condition	colonRef leftIexpr
-leftFexpr	leftFexprSimple	condition	d
-leftFexpr	leftFexprColon	condition	colonRef leftFexpr
 leftBexpr	leftBexprSimple	condition	b
 leftBexpr	leftBexprColon	condition	colonRef leftBexpr
 leftEexpr	leftEexprSimple	condition	account
 leftEexpr	leftEexprColon	condition	colonRef leftEexpr
 leftStrexpr	leftStrexprSimple	condition	s
 leftStrexpr	leftStrexprColon	condition	colonRef leftStrexpr
-leftDexpr	leftDexprSimple	condition	dt
-leftDexpr	leftDexprColon	condition	colonRef leftDexpr
-leftTexpr	leftTexprSimple	condition	tbl
-leftTexpr	leftTexprColon	condition	colonRef leftTexpr
 leftBigexpr	leftBigexprSimple	condition	typedBigInt
 leftBigexpr	leftBigexprColon	condition	colonRef leftBigexpr
 leftArrayRef	leftArraySimple	condition	arr
 leftArrayRef	leftArrayColon	condition	colonRef leftArrayRef
 setstatement	setInt	action	set leftIexpr = 5;
-setstatement	setFloat	action	set leftFexpr = 5;
 setstatement	setBool	action	set leftBexpr = true;
 setstatement	setEntity	action	set leftEexpr = account;
 setstatement	setString	action	set leftStrexpr = "x";
-setstatement	setStringFromNumber	action	set leftStrexpr = 5;
 setstatement	setStringFromDate	action	set leftStrexpr = 2020-01-01;
 setstatement	setStringFromName	action	set leftStrexpr = /tbl;
 setstatement	setStringFromTable	action	set leftStrexpr = texpr;
-setstatement	setBoolFromName	action	set leftBexpr = /tbl;
-setstatement	setDate	action	set leftDexpr = 2020-01-01;
-setstatement	setTable	action	set leftTexpr = texpr;
-setstatement	setArrayEntity	action	set leftArrayRef = account;
-setstatement	setArrayString	action	set leftArrayRef = "x";
-setstatement	setArrayFloat	action	set leftArrayRef = 1.0;
-setstatement	setArrayInt	action	set leftArrayRef = 1;
-setstatement	setArrayDate	action	set leftArrayRef = 2020-01-01;
 setstatement	setArrayArray	action	set leftArrayRef = accounts;
 setstatement	setBigInt	action	set leftBigexpr = 1;
 setstatement	incrementLong	action	increment n;
-setstatement	incrementDouble	action	increment d;
 setstatement	decrementLong	action	decrement n;
-setstatement	decrementDouble	action	decrement d;
 performstatement	performCatchError	action	perform dt and on error add account to context and perform dt;
 performstatement	performDT	action	dt;
 performstatement	performDTExplicit	action	perform dt;
@@ -137,19 +119,10 @@ ifcontinue	ifEnd	condition	endif
 ifcontinue	ifElse	condition	else set x = 1; endif
 ifcontinue	ifElseIf	condition	else if if true then { set x = 1; } endif
 addtodest2	addDestArray2	condition	accounts
-addtodest2	addDestLong2	condition	n
-addtodest2	addDestDouble2	condition	d
 addtodest	addDestArray	action	accounts;
-addtodest	addDestLong	action	n;
-addtodest	addDestDouble	action	d;
 addtodest	addDestColon	action	colonRef addtodest2;
-addtodest	addDestPossessiveLong	action	's n;
-addtodest	addDestPossessiveDouble	action	's d;
 subtodest	subDestLong	action	n;
-subtodest	subDestDouble	action	d;
 subtodest	subDestColon	action	colonRef addtodest2;
-subtodest	subDestPossessiveLong	action	's n;
-subtodest	subDestPossessiveDouble	action	's d;
 addtostatement	addArrayNoMember	action	add accounts to accounts if not member s;
 addtostatement	addArrayToArray	action	add accounts to accounts;
 addtostatement	addEntityToDest	action	add account to x;
@@ -173,7 +146,6 @@ randomstatements	removeName	action	remove /tbl from accounts array;
 randomstatements	removeString	action	remove "x" from accounts array;
 randomstatements	removeEntity	action	remove account from accounts array;
 randomstatements	randomizeArray	action	randomize accounts;
-randomstatements	clearArray	action	clear accounts;
 randomstatements	sortAscending	action	sort accounts in ascending order by /tbl;
 randomstatements	sortDescending	action	sort accounts in descending order by /tbl;
 operatorlist	opListStr	action	"x" , x;
@@ -220,7 +192,6 @@ eexpr	entityTyped	condition	there is account where true
 eexpr	entityParen	condition	there is ( account ) where true
 eexpr	entityIndex	condition	there is indxExpr where true
 eexpr	entityNewName	condition	there is new /tbl entity where true
-eexpr	entityNewTyped	condition	there is new account entity where true
 eexpr	entityClone	condition	there is clone of account where true
 eexpr	entityColonRef	condition	there is colonRef account where true
 eexpr	entityTableLookup	condition	there is ( entity ) tbl ( tablelist ) where true
@@ -238,7 +209,6 @@ dexpr	dateTyped	condition	dt is equal to 2020-01-01
 dexpr	dateFromStrCast	condition	( 2020-01-01 ) "x" is equal to 2020-01-01
 dexpr	dateFromStrFunc	condition	2020-01-01 ( "x" ) is equal to 2020-01-01
 dexpr	dateFromIndex	condition	( 2020-01-01 ) indxExpr is equal to 2020-01-01
-dexpr	dateFromArrayAt	condition	( 2020-01-01 ) arr [ 1 ] is equal to 2020-01-01
 dexpr	dateUsing	condition	using account ( 2020-01-01 ) is equal to 2020-01-01
 dexpr	dateColonRef	condition	colonRef dt is equal to 2020-01-01
 dexpr	dateDays	condition	( 5 day s ) is equal to 2020-01-01
@@ -283,7 +253,6 @@ strexpr	strSubstring	condition	substring of "x" from 1 to 1 is equal to "x"
 strexpr	strTableInfo	condition	table information is equal to "x"
 strexpr	strValueOfOp	condition	"hello" value of operatorstatements is equal to "x"
 strexpr	strTableLookup	condition	( "hello" ) texpr ( tablelist ) is equal to "x"
-strexpr	strTyped	condition	s is equal to "x"
 strexpr	strColonRef	condition	colonRef "x" is equal to "x"
 strexpr	strLiteral	condition	" " is equal to "x"
 strexpr	strConcat	condition	"x" + "x" is equal to "x"
@@ -298,8 +267,6 @@ strexpr	strConcatName	condition	"x" + /tbl is equal to "x"
 strexpr	strConcatEntity	condition	"x" + account is equal to "x"
 strexpr	strConcatDate	condition	"x" + 2020-01-01 is equal to "x"
 strexpr	strConcatArray	condition	"x" + accounts is equal to "x"
-strexpr	strConcatNull	condition	"x" + typedNull is equal to "x"
-strexpr	strConcatInvalid	condition	"x" + typedInvalid is equal to "x"
 strexpr	strTrim	condition	trim ( "x" ) is equal to "x"
 strexpr	strFromIndex	condition	( "hello" ) indxExpr is equal to "x"
 strexpr	strToLower	condition	change "x" to lower case is equal to "x"
@@ -496,4 +463,3 @@ bexpr	boolEntityInContext	condition	account entity is in context
 bexpr	boolStrEntityInContext	condition	"x" entity is in context
 bexpr	boolStrEntityNotInContext	condition	"x" entity is not in context
 bexpr	boolValueOfOp	condition	boolean value of operatorstatements
-bexpr	boolFunction	condition	typedBoolFunction

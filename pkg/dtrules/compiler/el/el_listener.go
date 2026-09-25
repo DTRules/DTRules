@@ -286,12 +286,6 @@ type ELListener interface {
 	// EnterLeftIexprColon is called when entering the leftIexprColon production.
 	EnterLeftIexprColon(c *LeftIexprColonContext)
 
-	// EnterLeftFexprSimple is called when entering the leftFexprSimple production.
-	EnterLeftFexprSimple(c *LeftFexprSimpleContext)
-
-	// EnterLeftFexprColon is called when entering the leftFexprColon production.
-	EnterLeftFexprColon(c *LeftFexprColonContext)
-
 	// EnterLeftBexprSimple is called when entering the leftBexprSimple production.
 	EnterLeftBexprSimple(c *LeftBexprSimpleContext)
 
@@ -310,18 +304,6 @@ type ELListener interface {
 	// EnterLeftStrexprColon is called when entering the leftStrexprColon production.
 	EnterLeftStrexprColon(c *LeftStrexprColonContext)
 
-	// EnterLeftDexprSimple is called when entering the leftDexprSimple production.
-	EnterLeftDexprSimple(c *LeftDexprSimpleContext)
-
-	// EnterLeftDexprColon is called when entering the leftDexprColon production.
-	EnterLeftDexprColon(c *LeftDexprColonContext)
-
-	// EnterLeftTexprSimple is called when entering the leftTexprSimple production.
-	EnterLeftTexprSimple(c *LeftTexprSimpleContext)
-
-	// EnterLeftTexprColon is called when entering the leftTexprColon production.
-	EnterLeftTexprColon(c *LeftTexprColonContext)
-
 	// EnterLeftBigexprSimple is called when entering the leftBigexprSimple production.
 	EnterLeftBigexprSimple(c *LeftBigexprSimpleContext)
 
@@ -337,9 +319,6 @@ type ELListener interface {
 	// EnterSetInt is called when entering the setInt production.
 	EnterSetInt(c *SetIntContext)
 
-	// EnterSetFloat is called when entering the setFloat production.
-	EnterSetFloat(c *SetFloatContext)
-
 	// EnterSetBool is called when entering the setBool production.
 	EnterSetBool(c *SetBoolContext)
 
@@ -348,9 +327,6 @@ type ELListener interface {
 
 	// EnterSetString is called when entering the setString production.
 	EnterSetString(c *SetStringContext)
-
-	// EnterSetStringFromNumber is called when entering the setStringFromNumber production.
-	EnterSetStringFromNumber(c *SetStringFromNumberContext)
 
 	// EnterSetStringFromDate is called when entering the setStringFromDate production.
 	EnterSetStringFromDate(c *SetStringFromDateContext)
@@ -361,30 +337,6 @@ type ELListener interface {
 	// EnterSetStringFromTable is called when entering the setStringFromTable production.
 	EnterSetStringFromTable(c *SetStringFromTableContext)
 
-	// EnterSetBoolFromName is called when entering the setBoolFromName production.
-	EnterSetBoolFromName(c *SetBoolFromNameContext)
-
-	// EnterSetDate is called when entering the setDate production.
-	EnterSetDate(c *SetDateContext)
-
-	// EnterSetTable is called when entering the setTable production.
-	EnterSetTable(c *SetTableContext)
-
-	// EnterSetArrayEntity is called when entering the setArrayEntity production.
-	EnterSetArrayEntity(c *SetArrayEntityContext)
-
-	// EnterSetArrayString is called when entering the setArrayString production.
-	EnterSetArrayString(c *SetArrayStringContext)
-
-	// EnterSetArrayFloat is called when entering the setArrayFloat production.
-	EnterSetArrayFloat(c *SetArrayFloatContext)
-
-	// EnterSetArrayInt is called when entering the setArrayInt production.
-	EnterSetArrayInt(c *SetArrayIntContext)
-
-	// EnterSetArrayDate is called when entering the setArrayDate production.
-	EnterSetArrayDate(c *SetArrayDateContext)
-
 	// EnterSetArrayArray is called when entering the setArrayArray production.
 	EnterSetArrayArray(c *SetArrayArrayContext)
 
@@ -394,14 +346,8 @@ type ELListener interface {
 	// EnterIncrementLong is called when entering the incrementLong production.
 	EnterIncrementLong(c *IncrementLongContext)
 
-	// EnterIncrementDouble is called when entering the incrementDouble production.
-	EnterIncrementDouble(c *IncrementDoubleContext)
-
 	// EnterDecrementLong is called when entering the decrementLong production.
 	EnterDecrementLong(c *DecrementLongContext)
-
-	// EnterDecrementDouble is called when entering the decrementDouble production.
-	EnterDecrementDouble(c *DecrementDoubleContext)
 
 	// EnterForctl is called when entering the forctl production.
 	EnterForctl(c *ForctlContext)
@@ -505,44 +451,17 @@ type ELListener interface {
 	// EnterAddDestArray2 is called when entering the addDestArray2 production.
 	EnterAddDestArray2(c *AddDestArray2Context)
 
-	// EnterAddDestLong2 is called when entering the addDestLong2 production.
-	EnterAddDestLong2(c *AddDestLong2Context)
-
-	// EnterAddDestDouble2 is called when entering the addDestDouble2 production.
-	EnterAddDestDouble2(c *AddDestDouble2Context)
-
 	// EnterAddDestArray is called when entering the addDestArray production.
 	EnterAddDestArray(c *AddDestArrayContext)
-
-	// EnterAddDestLong is called when entering the addDestLong production.
-	EnterAddDestLong(c *AddDestLongContext)
-
-	// EnterAddDestDouble is called when entering the addDestDouble production.
-	EnterAddDestDouble(c *AddDestDoubleContext)
 
 	// EnterAddDestColon is called when entering the addDestColon production.
 	EnterAddDestColon(c *AddDestColonContext)
 
-	// EnterAddDestPossessiveLong is called when entering the addDestPossessiveLong production.
-	EnterAddDestPossessiveLong(c *AddDestPossessiveLongContext)
-
-	// EnterAddDestPossessiveDouble is called when entering the addDestPossessiveDouble production.
-	EnterAddDestPossessiveDouble(c *AddDestPossessiveDoubleContext)
-
 	// EnterSubDestLong is called when entering the subDestLong production.
 	EnterSubDestLong(c *SubDestLongContext)
 
-	// EnterSubDestDouble is called when entering the subDestDouble production.
-	EnterSubDestDouble(c *SubDestDoubleContext)
-
 	// EnterSubDestColon is called when entering the subDestColon production.
 	EnterSubDestColon(c *SubDestColonContext)
-
-	// EnterSubDestPossessiveLong is called when entering the subDestPossessiveLong production.
-	EnterSubDestPossessiveLong(c *SubDestPossessiveLongContext)
-
-	// EnterSubDestPossessiveDouble is called when entering the subDestPossessiveDouble production.
-	EnterSubDestPossessiveDouble(c *SubDestPossessiveDoubleContext)
 
 	// EnterAddArrayNoMember is called when entering the addArrayNoMember production.
 	EnterAddArrayNoMember(c *AddArrayNoMemberContext)
@@ -615,9 +534,6 @@ type ELListener interface {
 
 	// EnterRandomizeArray is called when entering the randomizeArray production.
 	EnterRandomizeArray(c *RandomizeArrayContext)
-
-	// EnterClearArray is called when entering the clearArray production.
-	EnterClearArray(c *ClearArrayContext)
 
 	// EnterSortAscending is called when entering the sortAscending production.
 	EnterSortAscending(c *SortAscendingContext)
@@ -769,9 +685,6 @@ type ELListener interface {
 	// EnterEntityNewName is called when entering the entityNewName production.
 	EnterEntityNewName(c *EntityNewNameContext)
 
-	// EnterEntityNewTyped is called when entering the entityNewTyped production.
-	EnterEntityNewTyped(c *EntityNewTypedContext)
-
 	// EnterEntityClone is called when entering the entityClone production.
 	EnterEntityClone(c *EntityCloneContext)
 
@@ -909,9 +822,6 @@ type ELListener interface {
 
 	// EnterDateExprSubDays is called when entering the dateExprSubDays production.
 	EnterDateExprSubDays(c *DateExprSubDaysContext)
-
-	// EnterDateFromArrayAt is called when entering the dateFromArrayAt production.
-	EnterDateFromArrayAt(c *DateFromArrayAtContext)
 
 	// EnterDateFirstOfQuarterInZone is called when entering the dateFirstOfQuarterInZone production.
 	EnterDateFirstOfQuarterInZone(c *DateFirstOfQuarterInZoneContext)
@@ -1096,20 +1006,11 @@ type ELListener interface {
 	// EnterStrLiteral is called when entering the strLiteral production.
 	EnterStrLiteral(c *StrLiteralContext)
 
-	// EnterStrConcatInvalid is called when entering the strConcatInvalid production.
-	EnterStrConcatInvalid(c *StrConcatInvalidContext)
-
 	// EnterStrMappingKey is called when entering the strMappingKey production.
 	EnterStrMappingKey(c *StrMappingKeyContext)
 
 	// EnterStrTableInfo is called when entering the strTableInfo production.
 	EnterStrTableInfo(c *StrTableInfoContext)
-
-	// EnterStrTyped is called when entering the strTyped production.
-	EnterStrTyped(c *StrTypedContext)
-
-	// EnterStrConcatNull is called when entering the strConcatNull production.
-	EnterStrConcatNull(c *StrConcatNullContext)
 
 	// EnterStrAttrOf is called when entering the strAttrOf production.
 	EnterStrAttrOf(c *StrAttrOfContext)
@@ -1864,9 +1765,6 @@ type ELListener interface {
 	// EnterBoolOr is called when entering the boolOr production.
 	EnterBoolOr(c *BoolOrContext)
 
-	// EnterBoolFunction is called when entering the boolFunction production.
-	EnterBoolFunction(c *BoolFunctionContext)
-
 	// EnterBoolDateIsNotNull is called when entering the boolDateIsNotNull production.
 	EnterBoolDateIsNotNull(c *BoolDateIsNotNullContext)
 
@@ -1935,15 +1833,6 @@ type ELListener interface {
 
 	// EnterTypedXmlValue is called when entering the typedXmlValue production.
 	EnterTypedXmlValue(c *TypedXmlValueContext)
-
-	// EnterTypedNull is called when entering the typedNull production.
-	EnterTypedNull(c *TypedNullContext)
-
-	// EnterTypedInvalid is called when entering the typedInvalid production.
-	EnterTypedInvalid(c *TypedInvalidContext)
-
-	// EnterTypedBoolFunction is called when entering the typedBoolFunction production.
-	EnterTypedBoolFunction(c *TypedBoolFunctionContext)
 
 	// EnterTypedBigInt is called when entering the typedBigInt production.
 	EnterTypedBigInt(c *TypedBigIntContext)
@@ -2233,12 +2122,6 @@ type ELListener interface {
 	// ExitLeftIexprColon is called when exiting the leftIexprColon production.
 	ExitLeftIexprColon(c *LeftIexprColonContext)
 
-	// ExitLeftFexprSimple is called when exiting the leftFexprSimple production.
-	ExitLeftFexprSimple(c *LeftFexprSimpleContext)
-
-	// ExitLeftFexprColon is called when exiting the leftFexprColon production.
-	ExitLeftFexprColon(c *LeftFexprColonContext)
-
 	// ExitLeftBexprSimple is called when exiting the leftBexprSimple production.
 	ExitLeftBexprSimple(c *LeftBexprSimpleContext)
 
@@ -2257,18 +2140,6 @@ type ELListener interface {
 	// ExitLeftStrexprColon is called when exiting the leftStrexprColon production.
 	ExitLeftStrexprColon(c *LeftStrexprColonContext)
 
-	// ExitLeftDexprSimple is called when exiting the leftDexprSimple production.
-	ExitLeftDexprSimple(c *LeftDexprSimpleContext)
-
-	// ExitLeftDexprColon is called when exiting the leftDexprColon production.
-	ExitLeftDexprColon(c *LeftDexprColonContext)
-
-	// ExitLeftTexprSimple is called when exiting the leftTexprSimple production.
-	ExitLeftTexprSimple(c *LeftTexprSimpleContext)
-
-	// ExitLeftTexprColon is called when exiting the leftTexprColon production.
-	ExitLeftTexprColon(c *LeftTexprColonContext)
-
 	// ExitLeftBigexprSimple is called when exiting the leftBigexprSimple production.
 	ExitLeftBigexprSimple(c *LeftBigexprSimpleContext)
 
@@ -2284,9 +2155,6 @@ type ELListener interface {
 	// ExitSetInt is called when exiting the setInt production.
 	ExitSetInt(c *SetIntContext)
 
-	// ExitSetFloat is called when exiting the setFloat production.
-	ExitSetFloat(c *SetFloatContext)
-
 	// ExitSetBool is called when exiting the setBool production.
 	ExitSetBool(c *SetBoolContext)
 
@@ -2295,9 +2163,6 @@ type ELListener interface {
 
 	// ExitSetString is called when exiting the setString production.
 	ExitSetString(c *SetStringContext)
-
-	// ExitSetStringFromNumber is called when exiting the setStringFromNumber production.
-	ExitSetStringFromNumber(c *SetStringFromNumberContext)
 
 	// ExitSetStringFromDate is called when exiting the setStringFromDate production.
 	ExitSetStringFromDate(c *SetStringFromDateContext)
@@ -2308,30 +2173,6 @@ type ELListener interface {
 	// ExitSetStringFromTable is called when exiting the setStringFromTable production.
 	ExitSetStringFromTable(c *SetStringFromTableContext)
 
-	// ExitSetBoolFromName is called when exiting the setBoolFromName production.
-	ExitSetBoolFromName(c *SetBoolFromNameContext)
-
-	// ExitSetDate is called when exiting the setDate production.
-	ExitSetDate(c *SetDateContext)
-
-	// ExitSetTable is called when exiting the setTable production.
-	ExitSetTable(c *SetTableContext)
-
-	// ExitSetArrayEntity is called when exiting the setArrayEntity production.
-	ExitSetArrayEntity(c *SetArrayEntityContext)
-
-	// ExitSetArrayString is called when exiting the setArrayString production.
-	ExitSetArrayString(c *SetArrayStringContext)
-
-	// ExitSetArrayFloat is called when exiting the setArrayFloat production.
-	ExitSetArrayFloat(c *SetArrayFloatContext)
-
-	// ExitSetArrayInt is called when exiting the setArrayInt production.
-	ExitSetArrayInt(c *SetArrayIntContext)
-
-	// ExitSetArrayDate is called when exiting the setArrayDate production.
-	ExitSetArrayDate(c *SetArrayDateContext)
-
 	// ExitSetArrayArray is called when exiting the setArrayArray production.
 	ExitSetArrayArray(c *SetArrayArrayContext)
 
@@ -2341,14 +2182,8 @@ type ELListener interface {
 	// ExitIncrementLong is called when exiting the incrementLong production.
 	ExitIncrementLong(c *IncrementLongContext)
 
-	// ExitIncrementDouble is called when exiting the incrementDouble production.
-	ExitIncrementDouble(c *IncrementDoubleContext)
-
 	// ExitDecrementLong is called when exiting the decrementLong production.
 	ExitDecrementLong(c *DecrementLongContext)
-
-	// ExitDecrementDouble is called when exiting the decrementDouble production.
-	ExitDecrementDouble(c *DecrementDoubleContext)
 
 	// ExitForctl is called when exiting the forctl production.
 	ExitForctl(c *ForctlContext)
@@ -2452,44 +2287,17 @@ type ELListener interface {
 	// ExitAddDestArray2 is called when exiting the addDestArray2 production.
 	ExitAddDestArray2(c *AddDestArray2Context)
 
-	// ExitAddDestLong2 is called when exiting the addDestLong2 production.
-	ExitAddDestLong2(c *AddDestLong2Context)
-
-	// ExitAddDestDouble2 is called when exiting the addDestDouble2 production.
-	ExitAddDestDouble2(c *AddDestDouble2Context)
-
 	// ExitAddDestArray is called when exiting the addDestArray production.
 	ExitAddDestArray(c *AddDestArrayContext)
-
-	// ExitAddDestLong is called when exiting the addDestLong production.
-	ExitAddDestLong(c *AddDestLongContext)
-
-	// ExitAddDestDouble is called when exiting the addDestDouble production.
-	ExitAddDestDouble(c *AddDestDoubleContext)
 
 	// ExitAddDestColon is called when exiting the addDestColon production.
 	ExitAddDestColon(c *AddDestColonContext)
 
-	// ExitAddDestPossessiveLong is called when exiting the addDestPossessiveLong production.
-	ExitAddDestPossessiveLong(c *AddDestPossessiveLongContext)
-
-	// ExitAddDestPossessiveDouble is called when exiting the addDestPossessiveDouble production.
-	ExitAddDestPossessiveDouble(c *AddDestPossessiveDoubleContext)
-
 	// ExitSubDestLong is called when exiting the subDestLong production.
 	ExitSubDestLong(c *SubDestLongContext)
 
-	// ExitSubDestDouble is called when exiting the subDestDouble production.
-	ExitSubDestDouble(c *SubDestDoubleContext)
-
 	// ExitSubDestColon is called when exiting the subDestColon production.
 	ExitSubDestColon(c *SubDestColonContext)
-
-	// ExitSubDestPossessiveLong is called when exiting the subDestPossessiveLong production.
-	ExitSubDestPossessiveLong(c *SubDestPossessiveLongContext)
-
-	// ExitSubDestPossessiveDouble is called when exiting the subDestPossessiveDouble production.
-	ExitSubDestPossessiveDouble(c *SubDestPossessiveDoubleContext)
 
 	// ExitAddArrayNoMember is called when exiting the addArrayNoMember production.
 	ExitAddArrayNoMember(c *AddArrayNoMemberContext)
@@ -2562,9 +2370,6 @@ type ELListener interface {
 
 	// ExitRandomizeArray is called when exiting the randomizeArray production.
 	ExitRandomizeArray(c *RandomizeArrayContext)
-
-	// ExitClearArray is called when exiting the clearArray production.
-	ExitClearArray(c *ClearArrayContext)
 
 	// ExitSortAscending is called when exiting the sortAscending production.
 	ExitSortAscending(c *SortAscendingContext)
@@ -2716,9 +2521,6 @@ type ELListener interface {
 	// ExitEntityNewName is called when exiting the entityNewName production.
 	ExitEntityNewName(c *EntityNewNameContext)
 
-	// ExitEntityNewTyped is called when exiting the entityNewTyped production.
-	ExitEntityNewTyped(c *EntityNewTypedContext)
-
 	// ExitEntityClone is called when exiting the entityClone production.
 	ExitEntityClone(c *EntityCloneContext)
 
@@ -2856,9 +2658,6 @@ type ELListener interface {
 
 	// ExitDateExprSubDays is called when exiting the dateExprSubDays production.
 	ExitDateExprSubDays(c *DateExprSubDaysContext)
-
-	// ExitDateFromArrayAt is called when exiting the dateFromArrayAt production.
-	ExitDateFromArrayAt(c *DateFromArrayAtContext)
 
 	// ExitDateFirstOfQuarterInZone is called when exiting the dateFirstOfQuarterInZone production.
 	ExitDateFirstOfQuarterInZone(c *DateFirstOfQuarterInZoneContext)
@@ -3043,20 +2842,11 @@ type ELListener interface {
 	// ExitStrLiteral is called when exiting the strLiteral production.
 	ExitStrLiteral(c *StrLiteralContext)
 
-	// ExitStrConcatInvalid is called when exiting the strConcatInvalid production.
-	ExitStrConcatInvalid(c *StrConcatInvalidContext)
-
 	// ExitStrMappingKey is called when exiting the strMappingKey production.
 	ExitStrMappingKey(c *StrMappingKeyContext)
 
 	// ExitStrTableInfo is called when exiting the strTableInfo production.
 	ExitStrTableInfo(c *StrTableInfoContext)
-
-	// ExitStrTyped is called when exiting the strTyped production.
-	ExitStrTyped(c *StrTypedContext)
-
-	// ExitStrConcatNull is called when exiting the strConcatNull production.
-	ExitStrConcatNull(c *StrConcatNullContext)
 
 	// ExitStrAttrOf is called when exiting the strAttrOf production.
 	ExitStrAttrOf(c *StrAttrOfContext)
@@ -3811,9 +3601,6 @@ type ELListener interface {
 	// ExitBoolOr is called when exiting the boolOr production.
 	ExitBoolOr(c *BoolOrContext)
 
-	// ExitBoolFunction is called when exiting the boolFunction production.
-	ExitBoolFunction(c *BoolFunctionContext)
-
 	// ExitBoolDateIsNotNull is called when exiting the boolDateIsNotNull production.
 	ExitBoolDateIsNotNull(c *BoolDateIsNotNullContext)
 
@@ -3882,15 +3669,6 @@ type ELListener interface {
 
 	// ExitTypedXmlValue is called when exiting the typedXmlValue production.
 	ExitTypedXmlValue(c *TypedXmlValueContext)
-
-	// ExitTypedNull is called when exiting the typedNull production.
-	ExitTypedNull(c *TypedNullContext)
-
-	// ExitTypedInvalid is called when exiting the typedInvalid production.
-	ExitTypedInvalid(c *TypedInvalidContext)
-
-	// ExitTypedBoolFunction is called when exiting the typedBoolFunction production.
-	ExitTypedBoolFunction(c *TypedBoolFunctionContext)
 
 	// ExitTypedBigInt is called when exiting the typedBigInt production.
 	ExitTypedBigInt(c *TypedBigIntContext)
