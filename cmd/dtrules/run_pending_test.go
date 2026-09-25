@@ -160,11 +160,10 @@ func TestRunPending_NothingPending(t *testing.T) {
 // default, records exactly that question, exits 3, and marks the result
 // provisional.
 //
-// The issue names patient.pcr here. pcr's default is 0.0 and SinusitisTherapy
-// divides by it (Cockcroft-Gault), so a run without it aborts — see
-// TestRunPending_RecordsBeforeAnExecutionError, which asserts the pcr
-// question's published content. penicillin_allergic is the same vector on a
-// field whose default the rules survive.
+// The issue named patient.pcr here, which could not be tested while
+// SinusitisTherapy divided by pcr's 0.0 default; TestRunPending_PcrIsProvisional
+// is that vector now (#1223). penicillin_allergic is the same vector on a
+// second field.
 func TestRunPending_OneQuestionIsProvisional(t *testing.T) {
 	data := writeData(t, "noallergy.xml", "penicillin_allergic")
 	out := filepath.Join(t.TempDir(), "pending.json")
@@ -200,6 +199,33 @@ func TestRunPending_OneQuestionIsProvisional(t *testing.T) {
 	}
 }
 
+// Vector 2 on patient.pcr, as #1210 wrote it (#1223). Without a plasma
+// creatinine the rules skip Cockcroft-Gault instead of dividing by the 0.0
+// default, so the run completes -- provisional, with pcr the one question.
+func TestRunPending_PcrIsProvisional(t *testing.T) {
+	data := writeData(t, "nopcr.xml", "pcr")
+	out := filepath.Join(t.TempDir(), "pending.json")
+
+	code, stdout := runCapture(t, sinusitisProject, "--entry", "Determine_Therapy",
+		"--data", data, "--pending", out)
+	if code != exitPending {
+		t.Fatalf("exit %d, want %d (provisional)\n%s", code, exitPending, stdout)
+	}
+	got := readPending(t, out)
+	if len(got) != 1 || got[0].Entity != "patient" || got[0].Field != "pcr" {
+		t.Fatalf("want exactly patient.pcr pending, got %+v", got)
+	}
+	if got[0].Default != "0" {
+		t.Errorf("substituted default: got %q, want %q", got[0].Default, "0")
+	}
+	if !strings.Contains(stdout, "PROVISIONAL") || resultLines(stdout) == nil {
+		t.Errorf("want a provisional result:\n%s", stdout)
+	}
+	if !strings.Contains(stdout, "CCr not computed") {
+		t.Errorf("the rationale should say CCr was not computed:\n%s", stdout)
+	}
+}
+
 // Vector 3: answer the pending question, re-run, and the result stands —
 // exit 0, nothing pending, the same result as vector 1.
 func TestRunPending_AnsweredRunStands(t *testing.T) {
@@ -232,19 +258,17 @@ func TestRunPending_AnsweredRunStands(t *testing.T) {
 
 // Vector 4: with no data at all, every collect field the run reaches is
 // recorded once each, in the order reached — never twice, however often the
-// rules read it.
+// rules read it. The run completes on the defaults, so it is provisional.
 //
-// SinusitisTherapy cannot finish this run: with no data, pcr defaults to 0.0
-// and Determine_Creatinine_Clearance divides by it. The exit code is
-// therefore 1 (the run failed), not 3 (the run is provisional) — but the
-// questions reached before the failure are still published, which is the
-// whole point of recording them.
-func TestRunPending_RecordsBeforeAnExecutionError(t *testing.T) {
+// Until #1223 this run divided by pcr's 0.0 default and exited 1; the
+// questions reached before an execution error are covered by
+// TestRunPending_RecordsBeforeAnExecutionError on a project that still fails.
+func TestRunPending_NoDataRecordsEachQuestionOnce(t *testing.T) {
 	out := filepath.Join(t.TempDir(), "pending.json")
 
 	code, _ := runCapture(t, sinusitisProject, "--entry", "Determine_Therapy", "--pending", out)
-	if code != 1 {
-		t.Fatalf("exit %d, want 1 (the sample divides by pcr's zero default)", code)
+	if code != exitPending {
+		t.Fatalf("exit %d, want %d (provisional)", code, exitPending)
 	}
 	got := readPending(t, out)
 
@@ -257,11 +281,13 @@ func TestRunPending_RecordsBeforeAnExecutionError(t *testing.T) {
 		seen[q.Field] = true
 		order = append(order, q.Field)
 	}
-	want := "diagnosis,age,lean_body_weight,pcr"
+	// lean_body_weight is read only by Cockcroft-Gault, which a run without
+	// a plasma creatinine no longer reaches.
+	want := "diagnosis,pcr,penicillin_allergic,age"
 	if strings.Join(order, ",") != want {
 		t.Errorf("order reached: got %q, want %q", strings.Join(order, ","), want)
 	}
-	// The pcr question the issue's vector 2 names, published in full.
+	// The pcr question, published in full.
 	var pcr *collect.Pending
 	for i := range got {
 		if got[i].Field == "pcr" {
@@ -277,6 +303,37 @@ func TestRunPending_RecordsBeforeAnExecutionError(t *testing.T) {
 	if pcr.Default != "0" {
 		t.Errorf("pcr substituted default: got %q, want %q", pcr.Default, "0")
 	}
+}
+
+// A run that fails still publishes the questions it reached before failing:
+// exit 1, not 3, and the file written. SinusitisTherapy no longer fails
+// without data (#1223), so this uses a copy whose Cockcroft-Gault action is
+// made to divide by zero whenever it runs.
+func TestRunPending_RecordsBeforeAnExecutionError(t *testing.T) {
+	proj := copyProject(t, sinusitisProject)
+	if _, se, code := runTableCmd(t, proj, []string{"patch", "Determine_Creatinine_Clearance"},
+		`{"op":"update-action-dsl","action_number":1,"dsl":"set result.ccr = patient.age / 0"}`); code != 0 {
+		t.Fatalf("patch: exit %d %s", code, se)
+	}
+	out := filepath.Join(t.TempDir(), "pending.json")
+	// diagnosis is the first question the run reaches; pcr is supplied, so
+	// the patched Cockcroft-Gault runs, and fails, after it.
+	data := writeData(t, "nodiagnosis.xml", "diagnosis")
+
+	code, _ := runCapture(t, proj, "--entry", "Determine_Therapy", "--data", data, "--pending", out)
+	if code != 1 {
+		t.Fatalf("exit %d, want 1 (the run fails)", code)
+	}
+	got := readPending(t, out)
+	if len(got) == 0 {
+		t.Fatal("a failed run published no questions")
+	}
+	for _, q := range got {
+		if q.Field == "diagnosis" {
+			return // reached before the failure, and published
+		}
+	}
+	t.Errorf("diagnosis, reached before the failure, was not published: %+v", got)
 }
 
 // Vector 7: --pending is the non-blocking opposite of an interview. Pairing

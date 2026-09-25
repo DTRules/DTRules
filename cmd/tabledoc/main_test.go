@@ -188,7 +188,7 @@ func TestRunGolden(t *testing.T) {
 const (
 	publishedRulesDir  = "../sinusitis-web/rules"
 	publishedDocTitle  = "SinusitisTherapy"
-	publishedDocDigest = "81bb284debf238746ae866e33947d00407ad677ec7b17eefa8a3feb03ea72516"
+	publishedDocDigest = "361a4d3e7151358839d9dcf83a15b6786da23cd1fa3a499840b979e8ce4ac680"
 )
 
 // TestPublishedPDFIsCurrent fails when the rules change without the shipped PDF
