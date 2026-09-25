@@ -839,6 +839,12 @@ func (e *PostfixEmitter) iexprIsBytes(ctx IIexprContext) bool {
 
 func (e *PostfixEmitter) VisitBoolStrEq(ctx *BoolStrEqContext) interface{} {
 	left, right := ctx.Strexpr(0), ctx.Strexpr(1)
+	if e.strexprIsBytes(left) && e.strexprIsBytes(right) {
+		e.Visit(left)
+		e.Visit(right)
+		e.emit("bytes==")
+		return nil
+	}
 	e.Visit(left)
 	e.Visit(right)
 	e.emit("streq")
@@ -847,6 +853,12 @@ func (e *PostfixEmitter) VisitBoolStrEq(ctx *BoolStrEqContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolStrNeq(ctx *BoolStrNeqContext) interface{} {
 	left, right := ctx.Strexpr(0), ctx.Strexpr(1)
+	if e.strexprIsBytes(left) && e.strexprIsBytes(right) {
+		e.Visit(left)
+		e.Visit(right)
+		e.emit("bytes!=")
+		return nil
+	}
 	// `strneq` was never registered as a runtime op; the runtime has
 	// only `s==` (alias `streq`). Compose inequality as equality then
 	// `not` so the dispatch resolves (#835).
@@ -857,8 +869,37 @@ func (e *PostfixEmitter) VisitBoolStrNeq(ctx *BoolStrNeqContext) interface{} {
 	return nil
 }
 
+// strexprIsBytes reports whether a strexpr is an identifier declared bytes.
+// An identifier in a string position parses as strXmlValue (typedXmlValue
+// takes every IDENT), so that is the context to look at. The check used to
+// look for strTyped, which the parser can never choose (#1250), so it never
+// fired and `b1 is b2` compiled to a string comparison (#1310).
+func (e *PostfixEmitter) strexprIsBytes(ctx IStrexprContext) bool {
+	name, ok := strexprIdent(ctx)
+	return ok && e.identIsBytes(name)
+}
+
+// strexprIdent returns the identifier a strexpr is, if it is one.
+func strexprIdent(ctx IStrexprContext) (string, bool) {
+	x, ok := ctx.(*StrXmlValueContext)
+	if !ok {
+		return "", false
+	}
+	return x.TypedXmlValue().GetText(), true
+}
+
+// `a is b` on two identifiers is the comparison `a == b` is, typed from the
+// symbol table: bytes==, fp==, ==, req. It parses here, as two strexprs, so
+// it compared every type as text -- bytes included (#1310), and fixed-point
+// fields whose text differs for equal values.
 func (e *PostfixEmitter) VisitBoolStrIs(ctx *BoolStrIsContext) interface{} {
 	left, right := ctx.Strexpr(0), ctx.Strexpr(1)
+	if n0, ok0 := strexprIdent(left); ok0 {
+		if n1, ok1 := strexprIdent(right); ok1 {
+			e.emitNameEq(n0, n1, left, right)
+			return nil
+		}
+	}
 	e.Visit(left)
 	e.Visit(right)
 	e.emit("streq")
@@ -867,6 +908,12 @@ func (e *PostfixEmitter) VisitBoolStrIs(ctx *BoolStrIsContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolStrIsNot(ctx *BoolStrIsNotContext) interface{} {
 	left, right := ctx.Strexpr(0), ctx.Strexpr(1)
+	if n0, ok0 := strexprIdent(left); ok0 {
+		if n1, ok1 := strexprIdent(right); ok1 {
+			e.emitNameNeq(n0, n1, left, right)
+			return nil
+		}
+	}
 	// `<a> is not <b>` is logical inequality. Pre-fix this emitted
 	// `strneq not` which was doubly broken: `strneq` is unregistered,
 	// and even if it weren't, the trailing `not` would re-invert the
@@ -1168,19 +1215,25 @@ func (e *PostfixEmitter) VisitBoolEntityNeq(ctx *BoolEntityNeqContext) interface
 }
 
 func (e *PostfixEmitter) VisitBoolNameEq(ctx *BoolNameEqContext) interface{} {
+	e.emitNameEq(ctx.Nexpr(0).GetText(), ctx.Nexpr(1).GetText(), ctx.Nexpr(0), ctx.Nexpr(1))
+	return nil
+}
+
+// emitNameEq emits a typed equality of two named operands: bytes, numeric (with
+// promotion), entity reference, or string. Shared by the `==`/`!=` forms and
+// by `is`/`is not` on two identifiers, which are the same comparison (#1310).
+func (e *PostfixEmitter) emitNameEq(name0, name1 string, left, right antlr.ParseTree) {
 	// Check if either operand is an entity (local variable or from EDD)
 	// If so, use req (reference equals) instead of streq (string equals)
-	name0 := ctx.Nexpr(0).GetText()
-	name1 := ctx.Nexpr(1).GetText()
-
+		
 	// bytes type: check before entity so bytes==bytes uses constant-time comparison
 	isBytes0 := e.identIsBytes(name0)
 	isBytes1 := e.identIsBytes(name1)
 	if isBytes0 && isBytes1 {
-		e.Visit(ctx.Nexpr(0))
-		e.Visit(ctx.Nexpr(1))
+		e.Visit(left)
+		e.Visit(right)
 		e.emit("bytes==")
-		return nil
+		return
 	}
 
 	// Numeric names: the grammar routes `field == field` to this nexpr
@@ -1190,12 +1243,12 @@ func (e *PostfixEmitter) VisitBoolNameEq(ctx *BoolNameEqContext) interface{} {
 	// Fixed > BigInt > Integer promotion when both sides are numeric.
 	if t0, t1 := e.identNumericType(name0), e.identNumericType(name1); t0 != "" && t1 != "" {
 		target := e.promote(t0, t1)
-		e.Visit(ctx.Nexpr(0))
+		e.Visit(left)
 		e.emitTypeCast(t0, target)
-		e.Visit(ctx.Nexpr(1))
+		e.Visit(right)
 		e.emitTypeCast(t1, target)
 		e.emit(arithOp(target, "==", "b==", "f==", "fp=="))
-		return nil
+		return
 	}
 
 	// The numeric block above excludes double, so fixed/bigint == double would
@@ -1203,7 +1256,7 @@ func (e *PostfixEmitter) VisitBoolNameEq(ctx *BoolNameEqContext) interface{} {
 	// implicit mix the same way the arithmetic path does (#876).
 	if t0, t1 := e.lookupType(name0), e.lookupType(name1); isDoubleExactMix(t0, t1) {
 		e.emitDoubleMixError(exactOf(t0, t1))
-		return nil
+		return
 	}
 
 	isEntity := false
@@ -1217,27 +1270,33 @@ func (e *PostfixEmitter) VisitBoolNameEq(ctx *BoolNameEqContext) interface{} {
 		isEntity = true
 	}
 
-	e.Visit(ctx.Nexpr(0))
-	e.Visit(ctx.Nexpr(1))
+	e.Visit(left)
+	e.Visit(right)
 	if isEntity {
 		e.emit("req") // Reference equals for entities
 	} else {
 		e.emit("streq") // String equals for names
 	}
-	return nil
+	return
 }
 
 func (e *PostfixEmitter) VisitBoolNameNeq(ctx *BoolNameNeqContext) interface{} {
-	// Check if either operand is an entity
-	name0 := ctx.Nexpr(0).GetText()
-	name1 := ctx.Nexpr(1).GetText()
+	e.emitNameNeq(ctx.Nexpr(0).GetText(), ctx.Nexpr(1).GetText(), ctx.Nexpr(0), ctx.Nexpr(1))
+	return nil
+}
 
+// emitNameNeq emits a typed inequality of two named operands: bytes, numeric (with
+// promotion), entity reference, or string. Shared by the `==`/`!=` forms and
+// by `is`/`is not` on two identifiers, which are the same comparison (#1310).
+func (e *PostfixEmitter) emitNameNeq(name0, name1 string, left, right antlr.ParseTree) {
+	// Check if either operand is an entity
+		
 	// bytes: constant-time inequality
 	if e.identIsBytes(name0) && e.identIsBytes(name1) {
-		e.Visit(ctx.Nexpr(0))
-		e.Visit(ctx.Nexpr(1))
+		e.Visit(left)
+		e.Visit(right)
 		e.emit("bytes!=")
-		return nil
+		return
 	}
 
 	// Numeric names: dispatch to the proper inequality family. Same
@@ -1245,9 +1304,9 @@ func (e *PostfixEmitter) VisitBoolNameNeq(ctx *BoolNameNeqContext) interface{} {
 	// are distinct ops, integer falls back to the historic `== not`.
 	if t0, t1 := e.identNumericType(name0), e.identNumericType(name1); t0 != "" && t1 != "" {
 		target := e.promote(t0, t1)
-		e.Visit(ctx.Nexpr(0))
+		e.Visit(left)
 		e.emitTypeCast(t0, target)
-		e.Visit(ctx.Nexpr(1))
+		e.Visit(right)
 		e.emitTypeCast(t1, target)
 		switch target {
 		case TypeFixed:
@@ -1258,13 +1317,13 @@ func (e *PostfixEmitter) VisitBoolNameNeq(ctx *BoolNameNeqContext) interface{} {
 			e.emit("==")
 			e.emit("not")
 		}
-		return nil
+		return
 	}
 
 	// Reject an implicit fixed/bigint != double the same way == does (#876).
 	if t0, t1 := e.lookupType(name0), e.lookupType(name1); isDoubleExactMix(t0, t1) {
 		e.emitDoubleMixError(exactOf(t0, t1))
-		return nil
+		return
 	}
 
 	isEntity := false
@@ -1278,15 +1337,15 @@ func (e *PostfixEmitter) VisitBoolNameNeq(ctx *BoolNameNeqContext) interface{} {
 		isEntity = true
 	}
 
-	e.Visit(ctx.Nexpr(0))
-	e.Visit(ctx.Nexpr(1))
+	e.Visit(left)
+	e.Visit(right)
 	if isEntity {
 		e.emit("req") // Reference equals for entities
 	} else {
 		e.emit("streq") // String equals for names
 	}
 	e.emit("not")
-	return nil
+	return
 }
 
 func (e *PostfixEmitter) VisitBoolNameEqStr(ctx *BoolNameEqStrContext) interface{} {
@@ -1538,6 +1597,11 @@ func (e *PostfixEmitter) VisitIntLengthArray(ctx *IntLengthArrayContext) interfa
 }
 
 func (e *PostfixEmitter) VisitIntLengthStr(ctx *IntLengthStrContext) interface{} {
+	if e.strexprIsBytes(ctx.Strexpr()) {
+		e.Visit(ctx.Strexpr())
+		e.emit("byteslen")
+		return nil
+	}
 	e.Visit(ctx.Strexpr())
 	e.emit("length")
 	return nil
