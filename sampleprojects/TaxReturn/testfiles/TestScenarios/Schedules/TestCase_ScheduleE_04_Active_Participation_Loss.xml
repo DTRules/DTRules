@@ -52,6 +52,7 @@
         <property>
             <id>1</id>
             <type>rental</type>
+            <active_participation>true</active_participation>
             <address>789 Cedar Court, Houston, TX 77002</address>
             <purchase_date>2/1/2023</purchase_date>
             <purchase_price>240000</purchase_price>

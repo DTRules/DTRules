@@ -238,6 +238,7 @@
 			<setattribute tag='category' RAttribute='category' enclosure='expense' type='string'></setattribute>
 			<setattribute tag='description' RAttribute='description' enclosure='expense' type='string'></setattribute>
 			<setattribute tag='amount' RAttribute='amount' enclosure='expense' type='double'></setattribute>
+			<setattribute tag='active_participation' RAttribute='active_participation' enclosure='property' type='boolean'></setattribute>
 			<createentity entity='taxpayer' tag='taxpayer' id='id' list='taxpayers'></createentity>
 			<createentity entity='dependent' tag='dependent' id='id' list='dependents'></createentity>
 			<createentity entity='income' tag='income' id='id' list='incomes'></createentity>
