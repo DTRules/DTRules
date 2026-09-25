@@ -7,7 +7,7 @@
 <relative_path>AR.xlsx</relative_path>
 <file_name>AR.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:88bb3545c976c4654dd2fa0d2ebe4c76a6c62474dd5d1b73ec48ade7c6fe7a16</source_hash>
+<source_hash>sha256:fc6a46dcfcddea531a34fe55c53a2f1ce25505feb9914865a31956375d20d472</source_hash>
 </source>
 <table_name>AR_Tax</table_name>
 <xls_file>AR.xlsx</xls_file>
@@ -17,63 +17,97 @@
 <TABLE_NUMBER>40400</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions></initial_actions>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>set result.ar_std_deduction = ar_standard_deduction_single; set result.ar_extra_credits = 0.0</initial_action_dsl>
+<initial_action_postfix>
+ar_standard_deduction_single cvd /result.ar_std_deduction xdef 0.0 cvd /result.ar_extra_credits xdef
+</initial_action_postfix>
+</initial_action>
+</initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Married filing jointly</condition_comment>
-<condition_dsl>filing_status == "MFJ"</condition_dsl>
+<condition_comment>Married Filing Joint</condition_comment>
+<condition_dsl>job.filing_status is equal to "MFJ"</condition_dsl>
 <condition_postfix>
-filing_status "MFJ" streq
+job.filing_status "MFJ" streq
 </condition_postfix>
-<columns>-</columns>
+<columns>Y--</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Head of household</condition_comment>
-<condition_dsl>filing_status == "HOH"</condition_dsl>
+<condition_comment>Head of Household or Surviving Spouse: one extra personal credit</condition_comment>
+<condition_dsl>job.filing_status is equal to "HOH" or job.filing_status is equal to "QSS"</condition_dsl>
 <condition_postfix>
-filing_status "HOH" streq
+job.filing_status "HOH" streq { pop job.filing_status "QSS" streq } over not if
 </condition_postfix>
-<columns>-</columns>
-</condition_details>
-<condition_details>
-<condition_number>3</condition_number>
-<condition_comment>Married filing separately</condition_comment>
-<condition_dsl>filing_status == "MFS"</condition_dsl>
-<condition_postfix>
-filing_status "MFS" streq
-</condition_postfix>
-<columns>-</columns>
+<columns>-Y*</columns>
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate Arkansas tax - Married filing jointly (5-tier progressive: 0%/2%/3%/3.4%/3.9%). NOTE: result.ar_taxable_income / result.ar_state_tax not declared in AR_edd — EDD authorship needed.</action_comment>
-<action_dsl>set result.ar_taxable_income = the maximum of (result.state_calc_agi - ar_standard_deduction_joint) and 0.0; set result.ar_state_tax = (the minimum of result.ar_taxable_income and ar_bracket_1_limit) * ar_bracket_1_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_2_limit) - ar_bracket_1_limit) and 0.0) * ar_bracket_2_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_3_limit) - ar_bracket_2_limit) and 0.0) * ar_bracket_3_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_4_limit) - ar_bracket_3_limit) and 0.0) * ar_bracket_4_rate + (the maximum of (result.ar_taxable_income - ar_bracket_4_limit) and 0.0) * ar_bracket_5_rate; add "  AR tax (MFJ, 5 brackets): $" + result.ar_state_tax to job.audit_trail</action_dsl>
+<action_comment>$4,940 standard deduction, MFJ</action_comment>
+<action_dsl>set result.ar_std_deduction = ar_standard_deduction_joint</action_dsl>
 <action_postfix>
-result.state_calc_agi ar_standard_deduction_joint f- 0.0 fmax cvi /result.ar_taxable_income xdef result.ar_taxable_income ar_bracket_1_limit fmin ar_bracket_1_rate fmul result.ar_taxable_income ar_bracket_2_limit fmin ar_bracket_1_limit f- 0.0 fmax ar_bracket_2_rate fmul f+ result.ar_taxable_income ar_bracket_3_limit fmin ar_bracket_2_limit f- 0.0 fmax ar_bracket_3_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit fmin ar_bracket_3_limit f- 0.0 fmax ar_bracket_4_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit f- 0.0 fmax ar_bracket_5_rate fmul f+ cvi /result.ar_state_tax xdef "  AR tax (MFJ, 5 brackets): $" result.ar_state_tax strconcat job.audit_trail swap addto
+ar_standard_deduction_joint cvd /result.ar_std_deduction xdef
 </action_postfix>
-<columns>-</columns>
+<columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Calculate Arkansas tax - Head of household (5-tier progressive: 0%/2%/3%/3.4%/3.9%).</action_comment>
-<action_dsl>set result.ar_taxable_income = the maximum of (result.state_calc_agi - ar_standard_deduction_hoh) and 0.0; set result.ar_state_tax = (the minimum of result.ar_taxable_income and ar_bracket_1_limit) * ar_bracket_1_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_2_limit) - ar_bracket_1_limit) and 0.0) * ar_bracket_2_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_3_limit) - ar_bracket_2_limit) and 0.0) * ar_bracket_3_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_4_limit) - ar_bracket_3_limit) and 0.0) * ar_bracket_4_rate + (the maximum of (result.ar_taxable_income - ar_bracket_4_limit) and 0.0) * ar_bracket_5_rate; add "  AR tax (HOH, 5 brackets): $" + result.ar_state_tax to job.audit_trail</action_dsl>
+<action_comment>AR1000F line 7A: HOH or Surviving Spouse box</action_comment>
+<action_dsl>set result.ar_extra_credits = 1.0</action_dsl>
 <action_postfix>
-result.state_calc_agi ar_standard_deduction_hoh f- 0.0 fmax cvi /result.ar_taxable_income xdef result.ar_taxable_income ar_bracket_1_limit fmin ar_bracket_1_rate fmul result.ar_taxable_income ar_bracket_2_limit fmin ar_bracket_1_limit f- 0.0 fmax ar_bracket_2_rate fmul f+ result.ar_taxable_income ar_bracket_3_limit fmin ar_bracket_2_limit f- 0.0 fmax ar_bracket_3_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit fmin ar_bracket_3_limit f- 0.0 fmax ar_bracket_4_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit f- 0.0 fmax ar_bracket_5_rate fmul f+ cvi /result.ar_state_tax xdef "  AR tax (HOH, 5 brackets): $" result.ar_state_tax strconcat job.audit_trail swap addto
+1.0 cvd /result.ar_extra_credits xdef
 </action_postfix>
-<columns>-</columns>
+<columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Calculate Arkansas tax - Married filing separately (5-tier progressive: 0%/2%/3%/3.4%/3.9%).</action_comment>
-<action_dsl>set result.ar_taxable_income = the maximum of (result.state_calc_agi - ar_standard_deduction_mfs) and 0.0; set result.ar_state_tax = (the minimum of result.ar_taxable_income and ar_bracket_1_limit) * ar_bracket_1_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_2_limit) - ar_bracket_1_limit) and 0.0) * ar_bracket_2_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_3_limit) - ar_bracket_2_limit) and 0.0) * ar_bracket_3_rate + (the maximum of ((the minimum of result.ar_taxable_income and ar_bracket_4_limit) - ar_bracket_3_limit) and 0.0) * ar_bracket_4_rate + (the maximum of (result.ar_taxable_income - ar_bracket_4_limit) and 0.0) * ar_bracket_5_rate; add "  AR tax (MFS, 5 brackets): $" + result.ar_state_tax to job.audit_trail</action_dsl>
+<action_comment>Line 28 net taxable income; line 29 tax from the Regular Tax Table</action_comment>
+<action_dsl>set result.ar_taxable_income = the maximum of (result.state_calc_agi - result.ar_std_deduction) and 0.0; perform AR_Tax_Table</action_dsl>
 <action_postfix>
-result.state_calc_agi ar_standard_deduction_mfs f- 0.0 fmax cvi /result.ar_taxable_income xdef result.ar_taxable_income ar_bracket_1_limit fmin ar_bracket_1_rate fmul result.ar_taxable_income ar_bracket_2_limit fmin ar_bracket_1_limit f- 0.0 fmax ar_bracket_2_rate fmul f+ result.ar_taxable_income ar_bracket_3_limit fmin ar_bracket_2_limit f- 0.0 fmax ar_bracket_3_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit fmin ar_bracket_3_limit f- 0.0 fmax ar_bracket_4_rate fmul f+ result.ar_taxable_income ar_bracket_4_limit f- 0.0 fmax ar_bracket_5_rate fmul f+ cvi /result.ar_state_tax xdef "  AR tax (MFS, 5 brackets): $" result.ar_state_tax strconcat job.audit_trail swap addto
+result.state_calc_agi result.ar_std_deduction f- 0.0 fmax cvd /result.ar_taxable_income xdef /AR_Tax_Table performtable
 </action_postfix>
-<columns>-</columns>
+<columns>XXX</columns>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Lines 7A-7C / 34: $29 each</action_comment>
+<action_dsl>set result.ar_personal_credits = (length of job.taxpayers + length of job.dependents + result.senior_std_count + result.ar_extra_credits) * ar_personal_tax_credit</action_dsl>
+<action_postfix>
+job.taxpayers length job.dependents length + result.senior_std_count + result.ar_extra_credits f+ ar_personal_tax_credit fmul cvd /result.ar_personal_credits xdef
+</action_postfix>
+<columns>XXX</columns>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Tax less personal tax credits</action_comment>
+<action_dsl>set result.ar_state_tax = the maximum of (result.ar_table_tax - result.ar_personal_credits) and 0.0</action_dsl>
+<action_postfix>
+result.ar_table_tax result.ar_personal_credits f- 0.0 fmax cvd /result.ar_state_tax xdef
+</action_postfix>
+<columns>XXX</columns>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Harvested onto the roster by Compute_Roster_State_Tax</action_comment>
+<action_dsl>set result.computed_state_taxable_income = result.ar_taxable_income; set result.computed_state_tax = result.ar_state_tax</action_dsl>
+<action_postfix>
+result.ar_taxable_income cvd /result.computed_state_taxable_income xdef result.ar_state_tax cvd /result.computed_state_tax xdef
+</action_postfix>
+<columns>XXX</columns>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Audit</action_comment>
+<action_dsl>add "  Arkansas (AR1000F 2025): net taxable income $" + result.ar_taxable_income + ", table tax $" + result.ar_table_tax + ", personal credits $" + result.ar_personal_credits + ", tax $" + result.ar_state_tax to job.audit_trail</action_dsl>
+<action_postfix>
+"  Arkansas (AR1000F 2025): net taxable income $" result.ar_taxable_income strconcat ", table tax $" strconcat result.ar_table_tax strconcat ", personal credits $" strconcat result.ar_personal_credits strconcat ", tax $" strconcat result.ar_state_tax strconcat job.audit_trail swap addto
+</action_postfix>
+<columns>XXX</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -85,7 +119,7 @@ result.state_calc_agi ar_standard_deduction_mfs f- 0.0 fmax cvi /result.ar_taxab
 <relative_path>AR.xlsx</relative_path>
 <file_name>AR.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:88bb3545c976c4654dd2fa0d2ebe4c76a6c62474dd5d1b73ec48ade7c6fe7a16</source_hash>
+<source_hash>sha256:fc6a46dcfcddea531a34fe55c53a2f1ce25505feb9914865a31956375d20d472</source_hash>
 </source>
 <table_name>AR_Military_Retirement_Exclusion</table_name>
 <xls_file>AR.xlsx</xls_file>
@@ -98,6 +132,172 @@ result.state_calc_agi ar_standard_deduction_mfs f- 0.0 fmax cvi /result.ar_taxab
 <initial_actions></initial_actions>
 <conditions></conditions>
 <actions></actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 40410: AR_Tax_Table -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>AR.xlsx</relative_path>
+<file_name>AR.xlsx</file_name>
+<sheet_number>3</sheet_number>
+<source_hash>sha256:fc6a46dcfcddea531a34fe55c53a2f1ce25505feb9914865a31956375d20d472</source_hash>
+</source>
+<table_name>AR_Tax_Table</table_name>
+<xls_file>AR.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>40410</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>if result.ar_taxable_income &gt;= ar_table_band_shift then { set result.ar_band_midpoint = (the floor of ((result.ar_taxable_income - 1.0) / 100.0)) * 100.0 + 51.0; } else { set result.ar_band_midpoint = (the floor of (result.ar_taxable_income / 100.0)) * 100.0 + 50.0; } endif</initial_action_dsl>
+<initial_action_postfix>
+{ result.ar_taxable_income 1.0 f- 100.0 fdiv floor 100.0 fmul 51.0 f+ cvd /result.ar_band_midpoint xdef } { result.ar_taxable_income 100.0 fdiv floor 100.0 fmul 50.0 f+ cvd /result.ar_band_midpoint xdef } result.ar_taxable_income ar_table_band_shift f&gt;= ifelse
+</initial_action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Over $100,000: formula</condition_comment>
+<condition_dsl>result.ar_taxable_income &gt; ar_high_threshold</condition_dsl>
+<condition_postfix>
+result.ar_taxable_income ar_high_threshold f&gt;
+</condition_postfix>
+<columns>Y-------</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>0% bracket</condition_comment>
+<condition_dsl>result.ar_band_midpoint &lt;= ar_bracket_1_limit</condition_dsl>
+<condition_postfix>
+result.ar_band_midpoint ar_bracket_1_limit f&lt;=
+</condition_postfix>
+<columns>-Y-----*</columns>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>2% bracket</condition_comment>
+<condition_dsl>result.ar_band_midpoint &lt;= ar_bracket_2_limit</condition_dsl>
+<condition_postfix>
+result.ar_band_midpoint ar_bracket_2_limit f&lt;=
+</condition_postfix>
+<columns>--Y-----</columns>
+</condition_details>
+<condition_details>
+<condition_number>4</condition_number>
+<condition_comment>3% bracket</condition_comment>
+<condition_dsl>result.ar_band_midpoint &lt;= ar_bracket_3_limit</condition_dsl>
+<condition_postfix>
+result.ar_band_midpoint ar_bracket_3_limit f&lt;=
+</condition_postfix>
+<columns>---Y----</columns>
+</condition_details>
+<condition_details>
+<condition_number>5</condition_number>
+<condition_comment>3.4% bracket</condition_comment>
+<condition_dsl>result.ar_band_midpoint &lt;= ar_bracket_4_limit</condition_dsl>
+<condition_postfix>
+result.ar_band_midpoint ar_bracket_4_limit f&lt;=
+</condition_postfix>
+<columns>----Y---</columns>
+</condition_details>
+<condition_details>
+<condition_number>6</condition_number>
+<condition_comment>3.9% bracket</condition_comment>
+<condition_dsl>result.ar_band_midpoint &lt;= ar_bracket_5_limit</condition_dsl>
+<condition_postfix>
+result.ar_band_midpoint ar_bracket_5_limit f&lt;=
+</condition_postfix>
+<columns>-----Y--</columns>
+</condition_details>
+<condition_details>
+<condition_number>7</condition_number>
+<condition_comment>3.9%, adjustment phasing out $94,701-$97,800</condition_comment>
+<condition_dsl>result.ar_band_midpoint &lt;= ar_phase_limit</condition_dsl>
+<condition_postfix>
+result.ar_band_midpoint ar_phase_limit f&lt;=
+</condition_postfix>
+<columns>------Y-</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>$3,809 + 3.9% of the excess over $100,000</action_comment>
+<action_dsl>set result.ar_table_tax = the floor of (ar_high_base + (result.ar_taxable_income - ar_high_threshold) * ar_bracket_5_rate + 0.5)</action_dsl>
+<action_postfix>
+ar_high_base result.ar_taxable_income ar_high_threshold f- ar_bracket_5_rate fmul f+ 0.5 f+ floor cvd /result.ar_table_tax xdef
+</action_postfix>
+<columns>X-------</columns>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>0%</action_comment>
+<action_dsl>set result.ar_table_tax = 0.0</action_dsl>
+<action_postfix>
+0.0 cvd /result.ar_table_tax xdef
+</action_postfix>
+<columns>-X------</columns>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>2% less $111.98</action_comment>
+<action_dsl>set result.ar_table_tax = the floor of (result.ar_band_midpoint * ar_bracket_2_rate - ar_bracket_2_adjust + 0.5)</action_dsl>
+<action_postfix>
+result.ar_band_midpoint ar_bracket_2_rate fmul ar_bracket_2_adjust f- 0.5 f+ floor cvd /result.ar_table_tax xdef
+</action_postfix>
+<columns>--X-----</columns>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>3% less $223.97</action_comment>
+<action_dsl>set result.ar_table_tax = the floor of (result.ar_band_midpoint * ar_bracket_3_rate - ar_bracket_3_adjust + 0.5)</action_dsl>
+<action_postfix>
+result.ar_band_midpoint ar_bracket_3_rate fmul ar_bracket_3_adjust f- 0.5 f+ floor cvd /result.ar_table_tax xdef
+</action_postfix>
+<columns>---X----</columns>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>3.4% less $287.97</action_comment>
+<action_dsl>set result.ar_table_tax = the floor of (result.ar_band_midpoint * ar_bracket_4_rate - ar_bracket_4_adjust + 0.5)</action_dsl>
+<action_postfix>
+result.ar_band_midpoint ar_bracket_4_rate fmul ar_bracket_4_adjust f- 0.5 f+ floor cvd /result.ar_table_tax xdef
+</action_postfix>
+<columns>----X---</columns>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>3.9% less $419.96</action_comment>
+<action_dsl>set result.ar_table_tax = the floor of (result.ar_band_midpoint * ar_bracket_5_rate - ar_bracket_5_adjust + 0.5)</action_dsl>
+<action_postfix>
+result.ar_band_midpoint ar_bracket_5_rate fmul ar_bracket_5_adjust f- 0.5 f+ floor cvd /result.ar_table_tax xdef
+</action_postfix>
+<columns>-----X--</columns>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>3.9% less $399.30, $10.00 less per $100 band from $94,701</action_comment>
+<action_dsl>set result.ar_table_tax = the floor of (result.ar_band_midpoint * ar_bracket_5_rate - (ar_phase_adjust_first - (the floor of ((result.ar_taxable_income - ar_bracket_5_limit - 1.0) / 100.0)) * ar_phase_adjust_step) + 0.5)</action_dsl>
+<action_postfix>
+result.ar_band_midpoint ar_bracket_5_rate fmul ar_phase_adjust_first result.ar_taxable_income ar_bracket_5_limit f- 1.0 f- 100.0 fdiv floor ar_phase_adjust_step fmul f- f- 0.5 f+ floor cvd /result.ar_table_tax xdef
+</action_postfix>
+<columns>------X-</columns>
+</action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>3.9% less $89.30, $97,801-$100,000</action_comment>
+<action_dsl>set result.ar_table_tax = the floor of (result.ar_band_midpoint * ar_bracket_5_rate - ar_top_adjust + 0.5)</action_dsl>
+<action_postfix>
+result.ar_band_midpoint ar_bracket_5_rate fmul ar_top_adjust f- 0.5 f+ floor cvd /result.ar_table_tax xdef
+</action_postfix>
+<columns>-------X</columns>
+</action_details>
+</actions>
 <policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

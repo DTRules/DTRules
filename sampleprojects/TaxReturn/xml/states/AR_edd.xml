@@ -7,20 +7,40 @@
 		<source>
 			<relative_path>AR.xlsx</relative_path>
 			<file_name>AR.xlsx</file_name>
-			<sheet_number>3</sheet_number>
+			<sheet_number>4</sheet_number>
 		</source>
-		<field name="ar_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="5499.0" comment="AR tax bracket 1 upper limit - 0% rate (2025)"></field>
+		<field name="ar_band_midpoint" type="double" subtype="" access="rw" input="" default_value="0" comment="AR tax computation (AR_Tax)"></field>
+		<field name="ar_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="5599" comment="AR DFA 2025 Indexed Tax Brackets: 0% on net taxable income through $5,599"></field>
 		<field name="ar_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.00" comment="AR tax rate for bracket 1 - 0% (2025)"></field>
-		<field name="ar_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="10999.0" comment="AR tax bracket 2 upper limit (2025)"></field>
+		<field name="ar_bracket_2_adjust" type="double" subtype="" access="r" input="" default_value="111.98" comment="AR DFA 2025 Indexed Tax Brackets: 2% bracket, minus adjustment"></field>
+		<field name="ar_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="11199" comment="AR DFA 2025 Indexed Tax Brackets: 2% bracket top"></field>
 		<field name="ar_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.02" comment="AR tax rate for bracket 2 - 2% (2025)"></field>
-		<field name="ar_bracket_3_limit" type="double" subtype="" access="r" input="" default_value="16999.0" comment="AR tax bracket 3 upper limit (2025)"></field>
+		<field name="ar_bracket_3_adjust" type="double" subtype="" access="r" input="" default_value="223.97" comment="AR DFA 2025 Indexed Tax Brackets: 3% bracket, minus adjustment"></field>
+		<field name="ar_bracket_3_limit" type="double" subtype="" access="r" input="" default_value="15999" comment="AR DFA 2025 Indexed Tax Brackets: 3% bracket top"></field>
 		<field name="ar_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.03" comment="AR tax rate for bracket 3 - 3% (2025)"></field>
-		<field name="ar_bracket_4_limit" type="double" subtype="" access="r" input="" default_value="25699.0" comment="AR tax bracket 4 upper limit (2025)"></field>
+		<field name="ar_bracket_4_adjust" type="double" subtype="" access="r" input="" default_value="287.97" comment="AR DFA 2025 Indexed Tax Brackets: 3.4% bracket, minus adjustment"></field>
+		<field name="ar_bracket_4_limit" type="double" subtype="" access="r" input="" default_value="26399" comment="AR DFA 2025 Indexed Tax Brackets: 3.4% bracket top"></field>
 		<field name="ar_bracket_4_rate" type="double" subtype="" access="r" input="" default_value="0.034" comment="AR tax rate for bracket 4 - 3.4% (2025)"></field>
+		<field name="ar_bracket_5_adjust" type="double" subtype="" access="r" input="" default_value="419.96" comment="AR DFA 2025 Indexed Tax Brackets: 3.9% bracket, minus adjustment"></field>
+		<field name="ar_bracket_5_limit" type="double" subtype="" access="r" input="" default_value="94700" comment="AR DFA 2025 Indexed Tax Brackets: 3.9% bracket top before the $94,701-$97,800 adjustment phase-in"></field>
 		<field name="ar_bracket_5_rate" type="double" subtype="" access="r" input="" default_value="0.039" comment="AR tax rate for bracket 5 - 3.9% on income over $25,700 (2025)"></field>
-		<field name="ar_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="2410.0" comment="AR standard deduction head of household (2025)"></field>
-		<field name="ar_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="4820.0" comment="AR standard deduction married filing jointly (2025)"></field>
-		<field name="ar_standard_deduction_mfs" type="double" subtype="" access="r" input="" default_value="2410.0" comment="AR standard deduction married filing separately (2025)"></field>
-		<field name="ar_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="2410.0" comment="AR standard deduction single (2025)"></field>
+		<field name="ar_extra_credits" type="double" subtype="" access="rw" input="" default_value="0" comment="AR tax computation (AR_Tax)"></field>
+		<field name="ar_high_base" type="double" subtype="" access="r" input="" default_value="3809" comment="AR 2025 Tax Tables: $3,809 + 3.9% of the excess over $100,000"></field>
+		<field name="ar_high_threshold" type="double" subtype="" access="r" input="" default_value="100000" comment="AR 2025 Tax Tables: over $100,000 the tax is a formula"></field>
+		<field name="ar_personal_credits" type="double" subtype="" access="rw" input="" default_value="0" comment="AR tax computation (AR_Tax)"></field>
+		<field name="ar_personal_tax_credit" type="double" subtype="" access="r" input="" default_value="29" comment="AR1000F line 7: $29 per personal tax credit"></field>
+		<field name="ar_phase_adjust_first" type="double" subtype="" access="r" input="" default_value="399.30" comment="AR DFA 2025 Indexed Tax Brackets: minus adjustment for $94,701-$94,800"></field>
+		<field name="ar_phase_adjust_step" type="double" subtype="" access="r" input="" default_value="10.00" comment="AR DFA 2025 Indexed Tax Brackets: the adjustment falls $10.00 per $100 band from $94,701"></field>
+		<field name="ar_phase_limit" type="double" subtype="" access="r" input="" default_value="97800" comment="AR DFA 2025 Indexed Tax Brackets: last $100 band of the adjustment phase-in"></field>
+		<field name="ar_standard_deduction_hoh" type="double" subtype="" access="r" input="" default_value="2470" comment="AR standard deduction 2025, Head of Household (AR1000F instructions, line 27)"></field>
+		<field name="ar_standard_deduction_joint" type="double" subtype="" access="r" input="" default_value="4940" comment="AR standard deduction 2025, Married Filing Joint (AR1000F instructions, line 27)"></field>
+		<field name="ar_standard_deduction_mfs" type="double" subtype="" access="r" input="" default_value="2470" comment="AR standard deduction 2025, Married Filing Separately (AR1000F instructions, line 27)"></field>
+		<field name="ar_standard_deduction_single" type="double" subtype="" access="r" input="" default_value="2470" comment="AR standard deduction 2025, Single (AR1000F instructions, line 27)"></field>
+		<field name="ar_state_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="AR tax computation (AR_Tax)"></field>
+		<field name="ar_std_deduction" type="double" subtype="" access="rw" input="" default_value="0" comment="AR tax computation (AR_Tax)"></field>
+		<field name="ar_table_band_shift" type="double" subtype="" access="r" input="" default_value="75000" comment="AR 2025 Regular Tax Table: below $75,000 its $100 bands run 00-99; the band ending at $75,000 is 74,900-75,000 inclusive and from there bands run 01-00 (75,001-75,100 ...)"></field>
+		<field name="ar_table_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="AR tax computation (AR_Tax)"></field>
+		<field name="ar_taxable_income" type="double" subtype="" access="rw" input="" default_value="0" comment="AR tax computation (AR_Tax)"></field>
+		<field name="ar_top_adjust" type="double" subtype="" access="r" input="" default_value="89.30" comment="AR DFA 2025 Indexed Tax Brackets: minus adjustment from $97,801 to $100,000"></field>
 	</entity>
 </entity_data_dictionary>

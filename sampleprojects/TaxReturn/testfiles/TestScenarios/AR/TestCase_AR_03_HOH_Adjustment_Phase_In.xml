@@ -1,0 +1,71 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- AR Test Case 03: head of household, $99,000 of wages, one child, in the $94,701-$97,800 adjustment phase-in -->
+   <id>AR-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>HOH</filing_status>
+   <state>AR</state>
+   <city>Little Rock</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values, worked from each form's own rules -->
+   <!-- Sources: AR1000F/AR1000NR 2025 instructions (standard deduction, line 27;
+        personal tax credits, line 7); AR DFA 2025 Indexed Tax Brackets and
+        2025 Regular Income Tax Table (tax at the midpoint of the $100 band,
+        rounded to the dollar). -->
+   <!-- Federal: AGI $99,000; taxable $99,000 - $23,625 = $75,375 -->
+   <!-- Arkansas: net taxable income $99,000 - $2,470 = $96,530.
+        Band $96,501-$96,600, midpoint $96,551; this band's minus adjustment
+        is $219.30 ($399.30 at $94,701, $10.00 less per $100 band).
+        $96,551 x 3.9% = $3,765.49 - $219.30 = $3,546.19 -> $3,546 (table row
+        96,501-96,601: $3,546).
+        Personal tax credits: taxpayer + Head of Household box + 1 dependent
+        = 3 x $29 = $87. Tax: $3,546 - $87 = $3,459 -->
+   <expected_agi>99000</expected_agi>
+   <expected_taxable_income>75375</expected_taxable_income>
+   <expected_state_tax>3459</expected_state_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Renee Castillo</name>
+         <ssn>506-77-8956</ssn>
+         <date_of_birth>11/30/1982</date_of_birth>
+         <occupation>Project Manager</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>99000</w2_wages>
+         <w2_withholding>11000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Sofia Castillo</name>
+         <ssn>507-88-9067</ssn>
+         <date_of_birth>5/14/2012</date_of_birth>
+         <age>13</age>
+         <relationship>child</relationship>
+         <is_student>false</is_student>
+         <is_disabled>false</is_disabled>
+         <has_ssn>true</has_ssn>
+         <months_lived_with>12</months_lived_with>
+      </dependent>
+   </dependents>
+</job>
