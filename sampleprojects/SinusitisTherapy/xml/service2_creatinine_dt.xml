@@ -7,7 +7,7 @@
 <relative_path>service2_creatinine.xlsx</relative_path>
 <file_name>service2_creatinine.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:a418769770baee0f21ad335cc43684dc7eeb8c99dad57218bf024833f033f1c6</source_hash>
+<source_hash>sha256:052447ac98bd1031bee888143a8bda28dd1c810e1ac502e2234615d7e311fbf6</source_hash>
 </source>
 <table_name>Determine_Creatinine_Clearance</table_name>
 <xls_file>service2_creatinine.xlsx</xls_file>
@@ -21,12 +21,12 @@
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Always compute CCr</condition_comment>
-<condition_dsl>true</condition_dsl>
+<condition_comment>Plasma creatinine was measured (0 is the unmeasured default)</condition_comment>
+<condition_dsl>patient.pcr &gt; 0</condition_dsl>
 <condition_postfix>
-true
+patient.pcr 0 f&gt;
 </condition_postfix>
-<columns>Y</columns>
+<columns>YN</columns>
 </condition_details>
 </conditions>
 <actions>
@@ -37,7 +37,7 @@ true
 <action_postfix>
 140 patient.age - patient.lean_body_weight fmul patient.pcr 72 fmul fdiv cvd /result.ccr xdef
 </action_postfix>
-<columns>X</columns>
+<columns>X-</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -46,7 +46,16 @@ true
 <action_postfix>
 "CCr estimated via Cockcroft-Gault from age, lean body weight, and plasma creatinine." result.rationale swap addto
 </action_postfix>
-<columns>X</columns>
+<columns>X-</columns>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Rationale: no PCr, no CCr</action_comment>
+<action_dsl>add "CCr not computed: plasma creatinine was not supplied, so no renal dose adjustment was considered." to result.rationale</action_dsl>
+<action_postfix>
+"CCr not computed: plasma creatinine was not supplied, so no renal dose adjustment was considered." result.rationale swap addto
+</action_postfix>
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

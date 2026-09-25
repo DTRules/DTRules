@@ -56,6 +56,13 @@ challenge):
 CCr [mL/min] = ((140 − age) × Lean Body Weight [kg]) / (PCr × 72)
 ```
 
+Only when a plasma creatinine was supplied. `pcr` is a `collect` field whose
+default is 0 — "not measured" — and dividing by it is not an answer, so
+without one CCr is not computed, the rationale says so, and no renal
+adjustment is considered (that needs PCr > 1.4 anyway). Under `--pending`
+the run is provisional with `pcr` the open question; `--interactive` asks
+for it (#1223).
+
 **Service 3 — Drug interactions**
 
 Conflicts between the recommended drug and the patient's active medications
