@@ -1,0 +1,93 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- AR Test Case 02: married filing jointly, $98,000 of wages, two children -->
+   <id>AR-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>AR</state>
+   <city>Little Rock</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values, worked from each form's own rules -->
+   <!-- Sources: AR1000F/AR1000NR 2025 instructions (standard deduction, line 27;
+        personal tax credits, line 7); AR DFA 2025 Indexed Tax Brackets and
+        2025 Regular Income Tax Table (tax at the midpoint of the $100 band,
+        rounded to the dollar). -->
+   <!-- Federal: AGI $98,000; taxable $98,000 - $31,500 = $66,500 -->
+   <!-- Arkansas: net taxable income $98,000 - $4,940 = $93,060.
+        Band $93,001-$93,100 (from $75,000 the bands run 01-00), midpoint
+        $93,051: x 3.9% = $3,628.99 - $419.96 = $3,209.03 -> $3,209 (table
+        row 93,001-93,101: $3,209).
+        Personal tax credits: 2 taxpayers + 2 dependents = 4 x $29 = $116.
+        Tax: $3,209 - $116 = $3,093 -->
+   <expected_agi>98000</expected_agi>
+   <expected_taxable_income>66500</expected_taxable_income>
+   <expected_state_tax>3093</expected_state_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Marcus Webb</name>
+         <ssn>502-33-4512</ssn>
+         <date_of_birth>2/03/1984</date_of_birth>
+         <occupation>Electrician</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>60000</w2_wages>
+         <w2_withholding>6000</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Leah Webb</name>
+         <ssn>503-44-5623</ssn>
+         <date_of_birth>7/19/1986</date_of_birth>
+         <occupation>Dental Hygienist</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>38000</w2_wages>
+         <w2_withholding>3800</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Ava Webb</name>
+         <ssn>504-55-6734</ssn>
+         <date_of_birth>3/08/2014</date_of_birth>
+         <age>11</age>
+         <relationship>child</relationship>
+         <is_student>false</is_student>
+         <is_disabled>false</is_disabled>
+         <has_ssn>true</has_ssn>
+         <months_lived_with>12</months_lived_with>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Noah Webb</name>
+         <ssn>505-66-7845</ssn>
+         <date_of_birth>10/22/2017</date_of_birth>
+         <age>8</age>
+         <relationship>child</relationship>
+         <is_student>false</is_student>
+         <is_disabled>false</is_disabled>
+         <has_ssn>true</has_ssn>
+         <months_lived_with>12</months_lived_with>
+      </dependent>
+   </dependents>
+</job>

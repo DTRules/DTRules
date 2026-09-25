@@ -1,0 +1,56 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- AR Test Case 01: single, $52,000 of wages -->
+   <id>AR-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>AR</state>
+   <city>Little Rock</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values, worked from each form's own rules -->
+   <!-- Sources: AR1000F/AR1000NR 2025 instructions (standard deduction, line 27;
+        personal tax credits, line 7); AR DFA 2025 Indexed Tax Brackets and
+        2025 Regular Income Tax Table (tax at the midpoint of the $100 band,
+        rounded to the dollar). -->
+   <!-- Federal: AGI $52,000; taxable $52,000 - $15,750 = $36,250 -->
+   <!-- Arkansas: net taxable income $52,000 - $2,470 = $49,530.
+        Band $49,500-$49,600, midpoint $49,550: x 3.9% = $1,932.45 - $419.96
+        = $1,512.49 -> $1,512 (table row 49,500-49,600: $1,512).
+        Personal tax credits: 1 x $29 = $29. Tax: $1,512 - $29 = $1,483 -->
+   <expected_agi>52000</expected_agi>
+   <expected_taxable_income>36250</expected_taxable_income>
+   <expected_state_tax>1483</expected_state_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Hannah Brooks</name>
+         <ssn>501-22-3401</ssn>
+         <date_of_birth>4/12/1990</date_of_birth>
+         <occupation>Pharmacist</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>52000</w2_wages>
+         <w2_withholding>5200</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+   </dependents>
+</job>
