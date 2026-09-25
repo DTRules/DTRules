@@ -7,7 +7,7 @@
 <relative_path>NM.xlsx</relative_path>
 <file_name>NM.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:6c85f1704f2a8d5eff928c5221fd58a91f1882765f5f2c1334595e76b7130459</source_hash>
+<source_hash>sha256:47d6a181a58c01f54c6944ba5262ed8326fc0435514d8c6814b7f6b474a788bb</source_hash>
 </source>
 <table_name>nm_tax</table_name>
 <xls_file>NM.xlsx</xls_file>
@@ -17,19 +17,108 @@
 <TABLE_NUMBER>43100</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions></initial_actions>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>set result.nm_limit_1 = nm_single_bracket_1_limit; set result.nm_limit_2 = nm_single_bracket_2_limit; set result.nm_limit_3 = nm_single_bracket_3_limit; set result.nm_limit_4 = nm_single_bracket_4_limit; set result.nm_high_base = nm_single_high_base; set result.nm_top_threshold = nm_single_bracket_5_limit; set result.nm_top_base = nm_single_top_base; set result.nm_lmi_limit = nm_lmi_limit_single; set result.nm_lmi_base = nm_lmi_base_single; set result.nm_lmi_rate = nm_lmi_rate_single; set result.nm_dependent_deduction = 0.0</initial_action_dsl>
+<initial_action_postfix>
+nm_single_bracket_1_limit cvd /result.nm_limit_1 xdef nm_single_bracket_2_limit cvd /result.nm_limit_2 xdef nm_single_bracket_3_limit cvd /result.nm_limit_3 xdef nm_single_bracket_4_limit cvd /result.nm_limit_4 xdef nm_single_high_base cvd /result.nm_high_base xdef nm_single_bracket_5_limit cvd /result.nm_top_threshold xdef nm_single_top_base cvd /result.nm_top_base xdef nm_lmi_limit_single cvd /result.nm_lmi_limit xdef nm_lmi_base_single cvd /result.nm_lmi_base xdef nm_lmi_rate_single cvd /result.nm_lmi_rate xdef 0.0 cvd /result.nm_dependent_deduction xdef
+</initial_action_postfix>
+</initial_action>
+</initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Head of household</condition_comment>
-<condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
+<condition_comment>MFJ or Head of Household: joint brackets and the line 13 dependent deduction</condition_comment>
+<condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "HOH"</condition_dsl>
 <condition_postfix>
-job.filing_status "HOH" streq
+job.filing_status "MFJ" streq { pop job.filing_status "HOH" streq } over not if
 </condition_postfix>
-<columns>NNY</columns>
+<columns>Y---</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Surviving Spouse: joint brackets, no line 13 deduction</condition_comment>
+<condition_dsl>job.filing_status is equal to "QSS"</condition_dsl>
+<condition_postfix>
+job.filing_status "QSS" streq
+</condition_postfix>
+<columns>-Y--</columns>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Married Filing Separately</condition_comment>
+<condition_dsl>job.filing_status is equal to "MFS"</condition_dsl>
+<condition_postfix>
+job.filing_status "MFS" streq
+</condition_postfix>
+<columns>--Y*</columns>
 </condition_details>
 </conditions>
-<actions></actions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Married Filing Jointly / Surviving Spouse / Head of Household column</action_comment>
+<action_dsl>set result.nm_limit_1 = nm_joint_bracket_1_limit; set result.nm_limit_2 = nm_joint_bracket_2_limit; set result.nm_limit_3 = nm_joint_bracket_3_limit; set result.nm_limit_4 = nm_joint_bracket_4_limit; set result.nm_high_base = nm_joint_high_base; set result.nm_top_threshold = nm_joint_bracket_5_limit; set result.nm_top_base = nm_joint_top_base; set result.nm_lmi_limit = nm_lmi_limit_joint; set result.nm_lmi_base = nm_lmi_base_joint; set result.nm_lmi_rate = nm_lmi_rate_joint</action_dsl>
+<action_postfix>
+nm_joint_bracket_1_limit cvd /result.nm_limit_1 xdef nm_joint_bracket_2_limit cvd /result.nm_limit_2 xdef nm_joint_bracket_3_limit cvd /result.nm_limit_3 xdef nm_joint_bracket_4_limit cvd /result.nm_limit_4 xdef nm_joint_high_base cvd /result.nm_high_base xdef nm_joint_bracket_5_limit cvd /result.nm_top_threshold xdef nm_joint_top_base cvd /result.nm_top_base xdef nm_lmi_limit_joint cvd /result.nm_lmi_limit xdef nm_lmi_base_joint cvd /result.nm_lmi_base xdef nm_lmi_rate_joint cvd /result.nm_lmi_rate xdef
+</action_postfix>
+<columns>XX--</columns>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Married Filing Separately column</action_comment>
+<action_dsl>set result.nm_limit_1 = nm_mfs_bracket_1_limit; set result.nm_limit_2 = nm_mfs_bracket_2_limit; set result.nm_limit_3 = nm_mfs_bracket_3_limit; set result.nm_limit_4 = nm_mfs_bracket_4_limit; set result.nm_high_base = nm_mfs_high_base; set result.nm_top_threshold = nm_mfs_bracket_5_limit; set result.nm_top_base = nm_mfs_top_base; set result.nm_lmi_limit = nm_lmi_limit_mfs; set result.nm_lmi_base = nm_lmi_base_mfs; set result.nm_lmi_rate = nm_lmi_rate_mfs</action_dsl>
+<action_postfix>
+nm_mfs_bracket_1_limit cvd /result.nm_limit_1 xdef nm_mfs_bracket_2_limit cvd /result.nm_limit_2 xdef nm_mfs_bracket_3_limit cvd /result.nm_limit_3 xdef nm_mfs_bracket_4_limit cvd /result.nm_limit_4 xdef nm_mfs_high_base cvd /result.nm_high_base xdef nm_mfs_bracket_5_limit cvd /result.nm_top_threshold xdef nm_mfs_top_base cvd /result.nm_top_base xdef nm_lmi_limit_mfs cvd /result.nm_lmi_limit xdef nm_lmi_base_mfs cvd /result.nm_lmi_base xdef nm_lmi_rate_mfs cvd /result.nm_lmi_rate xdef
+</action_postfix>
+<columns>--X-</columns>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Line 13: $4,000 per dependent after the first</action_comment>
+<action_dsl>set result.nm_dependent_deduction = (the maximum of (length of job.dependents - 1) and 0) * nm_dependent_deduction_amount</action_dsl>
+<action_postfix>
+job.dependents length 1 - 0 max nm_dependent_deduction_amount fmul cvd /result.nm_dependent_deduction xdef
+</action_postfix>
+<columns>X---</columns>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Line 12 federal standard deduction; line 14 low- and middle-income exemption worksheet, rounded to the dollar</action_comment>
+<action_dsl>set result.nm_std_deduction = result.standard_deduction; set result.nm_exemptions = length of job.taxpayers + length of job.dependents; if result.state_calc_agi &lt;= result.nm_lmi_limit then { set result.nm_lmi_exemption = the floor of ((the maximum of (nm_low_middle_income_exemption - result.nm_lmi_rate * (the maximum of (result.state_calc_agi - result.nm_lmi_base) and 0.0)) and 0.0) * result.nm_exemptions + 0.5); } else { set result.nm_lmi_exemption = 0.0; } endif</action_dsl>
+<action_postfix>
+result.standard_deduction cvd /result.nm_std_deduction xdef job.taxpayers length job.dependents length + cvd /result.nm_exemptions xdef { nm_low_middle_income_exemption result.nm_lmi_rate result.state_calc_agi result.nm_lmi_base f- 0.0 fmax fmul f- 0.0 fmax result.nm_exemptions fmul 0.5 f+ floor cvd /result.nm_lmi_exemption xdef } { 0.0 cvd /result.nm_lmi_exemption xdef } result.state_calc_agi result.nm_lmi_limit f&lt;= ifelse
+</action_postfix>
+<columns>XXXX</columns>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Line 17 taxable income; line 18 tax from the rate table</action_comment>
+<action_dsl>set result.nm_taxable_income = the maximum of (result.state_calc_agi - result.nm_std_deduction - result.nm_dependent_deduction - result.nm_lmi_exemption) and 0.0; perform NM_Tax_Table; set result.nm_tax = result.nm_table_tax</action_dsl>
+<action_postfix>
+result.state_calc_agi result.nm_std_deduction f- result.nm_dependent_deduction f- result.nm_lmi_exemption f- 0.0 fmax cvd /result.nm_taxable_income xdef /NM_Tax_Table performtable result.nm_table_tax cvd /result.nm_tax xdef
+</action_postfix>
+<columns>XXXX</columns>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Harvested onto the roster by Compute_Roster_State_Tax</action_comment>
+<action_dsl>set result.computed_state_taxable_income = result.nm_taxable_income; set result.computed_state_tax = result.nm_tax</action_dsl>
+<action_postfix>
+result.nm_taxable_income cvd /result.computed_state_taxable_income xdef result.nm_tax cvd /result.computed_state_tax xdef
+</action_postfix>
+<columns>XXXX</columns>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Audit</action_comment>
+<action_dsl>add "  New Mexico (PIT-1 2025): taxable income $" + result.nm_taxable_income + " (standard deduction $" + result.nm_std_deduction + ", dependents $" + result.nm_dependent_deduction + ", low/middle-income exemption $" + result.nm_lmi_exemption + "), tax $" + result.nm_tax to job.audit_trail</action_dsl>
+<action_postfix>
+"  New Mexico (PIT-1 2025): taxable income $" result.nm_taxable_income strconcat " (standard deduction $" strconcat result.nm_std_deduction strconcat ", dependents $" strconcat result.nm_dependent_deduction strconcat ", low/middle-income exemption $" strconcat result.nm_lmi_exemption strconcat "), tax $" strconcat result.nm_tax strconcat job.audit_trail swap addto
+</action_postfix>
+<columns>XXXX</columns>
+</action_details>
+</actions>
 <policy_statements></policy_statements>
 </decision_table>
 
@@ -39,7 +128,7 @@ job.filing_status "HOH" streq
 <relative_path>NM.xlsx</relative_path>
 <file_name>NM.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:6c85f1704f2a8d5eff928c5221fd58a91f1882765f5f2c1334595e76b7130459</source_hash>
+<source_hash>sha256:47d6a181a58c01f54c6944ba5262ed8326fc0435514d8c6814b7f6b474a788bb</source_hash>
 </source>
 <table_name>NM_Military_Retirement_Exclusion</table_name>
 <xls_file>NM.xlsx</xls_file>
@@ -52,6 +141,100 @@ job.filing_status "HOH" streq
 <initial_actions></initial_actions>
 <conditions></conditions>
 <actions></actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 43110: NM_Tax_Table -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>NM.xlsx</relative_path>
+<file_name>NM.xlsx</file_name>
+<sheet_number>3</sheet_number>
+<source_hash>sha256:47d6a181a58c01f54c6944ba5262ed8326fc0435514d8c6814b7f6b474a788bb</source_hash>
+</source>
+<table_name>NM_Tax_Table</table_name>
+<xls_file>NM.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>43110</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>set result.nm_band_midpoint = (the ceiling of (result.nm_taxable_income / 100.0)) * 100.0 - 50.0</initial_action_dsl>
+<initial_action_postfix>
+result.nm_taxable_income 100.0 fdiv ceiling 100.0 fmul 50.0 f- cvd /result.nm_band_midpoint xdef
+</initial_action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>$60 or less</condition_comment>
+<condition_dsl>result.nm_taxable_income &lt;= nm_zero_limit</condition_dsl>
+<condition_postfix>
+result.nm_taxable_income nm_zero_limit f&lt;=
+</condition_postfix>
+<columns>Y---</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>Through $100,000: the table</condition_comment>
+<condition_dsl>result.nm_taxable_income &lt;= nm_table_limit</condition_dsl>
+<condition_postfix>
+result.nm_taxable_income nm_table_limit f&lt;=
+</condition_postfix>
+<columns>-Y--</columns>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>Over $100,000, not over the 5.9% threshold</condition_comment>
+<condition_dsl>result.nm_taxable_income &lt;= result.nm_top_threshold</condition_dsl>
+<condition_postfix>
+result.nm_taxable_income result.nm_top_threshold f&lt;=
+</condition_postfix>
+<columns>--Y*</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment></action_comment>
+<action_dsl>set result.nm_table_tax = 0.0</action_dsl>
+<action_postfix>
+0.0 cvd /result.nm_table_tax xdef
+</action_postfix>
+<columns>X---</columns>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Bracket tax at the band midpoint, rounded</action_comment>
+<action_dsl>set result.nm_table_tax = the floor of (nm_bracket_1_rate * (the minimum of result.nm_band_midpoint and result.nm_limit_1) + nm_bracket_2_rate * (the maximum of ((the minimum of result.nm_band_midpoint and result.nm_limit_2) - result.nm_limit_1) and 0.0) + nm_bracket_3_rate * (the maximum of ((the minimum of result.nm_band_midpoint and result.nm_limit_3) - result.nm_limit_2) and 0.0) + nm_bracket_4_rate * (the maximum of ((the minimum of result.nm_band_midpoint and result.nm_limit_4) - result.nm_limit_3) and 0.0) + nm_bracket_5_rate * (the maximum of (result.nm_band_midpoint - result.nm_limit_4) and 0.0) + 0.5)</action_dsl>
+<action_postfix>
+nm_bracket_1_rate result.nm_band_midpoint result.nm_limit_1 fmin fmul nm_bracket_2_rate result.nm_band_midpoint result.nm_limit_2 fmin result.nm_limit_1 f- 0.0 fmax fmul f+ nm_bracket_3_rate result.nm_band_midpoint result.nm_limit_3 fmin result.nm_limit_2 f- 0.0 fmax fmul f+ nm_bracket_4_rate result.nm_band_midpoint result.nm_limit_4 fmin result.nm_limit_3 f- 0.0 fmax fmul f+ nm_bracket_5_rate result.nm_band_midpoint result.nm_limit_4 f- 0.0 fmax fmul f+ 0.5 f+ floor cvd /result.nm_table_tax xdef
+</action_postfix>
+<columns>-X--</columns>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Page T-7: base + 4.9% over $100,000</action_comment>
+<action_dsl>set result.nm_table_tax = the floor of (result.nm_high_base + nm_bracket_5_rate * (result.nm_taxable_income - nm_table_limit) + 0.5)</action_dsl>
+<action_postfix>
+result.nm_high_base nm_bracket_5_rate result.nm_taxable_income nm_table_limit f- fmul f+ 0.5 f+ floor cvd /result.nm_table_tax xdef
+</action_postfix>
+<columns>--X-</columns>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Page T-7: base + 5.9% over the threshold</action_comment>
+<action_dsl>set result.nm_table_tax = the floor of (result.nm_top_base + nm_bracket_6_rate * (result.nm_taxable_income - result.nm_top_threshold) + 0.5)</action_dsl>
+<action_postfix>
+result.nm_top_base nm_bracket_6_rate result.nm_taxable_income result.nm_top_threshold f- fmul f+ 0.5 f+ floor cvd /result.nm_table_tax xdef
+</action_postfix>
+<columns>---X</columns>
+</action_details>
+</actions>
 <policy_statements></policy_statements>
 </decision_table>
 </decision_tables>
