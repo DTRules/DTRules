@@ -222,6 +222,11 @@ parser can never choose the label) and `grammar_helpers.tsv` (a fragment that
 cannot be compiled on its own). An exception that starts passing fails the
 sweep, so each list can only shrink.
 
+`a is b` and `a is not b` between two names compile to exactly what
+`a == b` and `a != b` do, typed from the symbol table (`bytes==`, `fp==`,
+`==`, `streq`, …). They parse as a string comparison, and used to compare
+every type as text (#1310).
+
 `grammar_label_misses.tsv` is empty: an alternative the parser can never
 choose is deleted, with its emitter, rather than kept and listed (#1250). An
 alternative that differs from an earlier one only by which `typedX : IDENT`

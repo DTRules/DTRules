@@ -1861,11 +1861,13 @@ Equal:
     a == b
     a is equal to b
     equal to b
+    a is b          (a and b both names: the same comparison as a == b)
 
 Not equal:
     a != b
     a is not equal to b
     not equal to b
+    a is not b      (a and b both names: the same comparison as a != b)
 
 Greater than:
     a > b
