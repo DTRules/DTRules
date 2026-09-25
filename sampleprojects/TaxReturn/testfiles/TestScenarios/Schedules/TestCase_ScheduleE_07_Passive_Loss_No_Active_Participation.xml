@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule E - Rental loss without active participation -->
+<!-- Scenario: Moderate income, but the taxpayer does not actively participate in the rental -->
+<!-- Rental income: $10,000, Expenses: $16,000, Loss: ($6,000) -->
+<!-- Expected: the $25,000 special allowance does not apply; with no passive income the whole loss is suspended (IRS Pub 925) -->
+<job>
+    <id>10022</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- Schedule E expenses, from this file's own fields: mortgage interest
+         7,000 + property taxes 3,000 + insurance 1,000 + repairs 1,000 +
+         management 1,000 + utilities 0 + advertising 0 + depreciation 3,000
+         = 16,000. Net: 10,000 - 16,000 = (6,000) -->
+    <!-- Form 8582: the loss is not from active-participation rental real
+         estate, so Part II's special allowance does not reach it. There is
+         no passive income to absorb it: $0 allowed, $6,000 suspended -->
+    <!-- AGI: $70,000 W-2 (loss not deducted) -->
+    <!-- Deduction: $31,500 standard (MFJ, 2025) -->
+    <!-- Taxable: $70,000 - $31,500 = $38,500 -->
+    <!-- Tax: $4,143 (2025 MFJ brackets: 2,385 + 12% of 14,650) -->
+    <expected_agi>70000</expected_agi>
+    <expected_taxable_income>38500</expected_taxable_income>
+    <expected_total_tax>4143</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Priya Raman</name>
+            <ssn>456-78-9013</ssn>
+            <date_of_birth>01/19/1986</date_of_birth>
+            <occupation>Nurse</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>70000</w2_wages>
+            <w2_withholding>5500</w2_withholding>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Dev Raman</name>
+            <ssn>567-89-0124</ssn>
+            <date_of_birth>11/30/1985</date_of_birth>
+            <occupation>Student</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+        </taxpayer>
+    </taxpayers>
+
+    <properties>
+        <property>
+            <id>1</id>
+            <type>rental</type>
+            <active_participation>false</active_participation>
+            <address>400 Harbor Road, Galveston, TX 77550</address>
+            <purchase_date>6/1/2021</purchase_date>
+            <purchase_price>190000</purchase_price>
+            <current_fmv>205000</current_fmv>
+            <mortgage_balance>150000</mortgage_balance>
+            <mortgage_origination_date>6/1/2021</mortgage_origination_date>
+            <mortgage_interest>7000</mortgage_interest>
+            <property_taxes>3000</property_taxes>
+            <rental_income>10000</rental_income>
+            <rental_insurance>1000</rental_insurance>
+            <rental_repairs>1000</rental_repairs>
+            <rental_management>1000</rental_management>
+            <rental_utilities>0</rental_utilities>
+            <rental_advertising>0</rental_advertising>
+            <depreciation>3000</depreciation>
+        </property>
+    </properties>
+
+    <dependents></dependents>
+    <vehicles></vehicles>
+    <deductions></deductions>
+    <incomes></incomes>
+    <expenses></expenses>
+</job>

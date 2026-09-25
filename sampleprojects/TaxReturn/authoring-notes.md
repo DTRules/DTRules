@@ -65,6 +65,8 @@
 - 2026-09-13 — renamed table Dispatch_NonResident_State_Tax -> NR_State_Pass
 - 2026-09-13 — delete table `NR_State_Pass` from `TaxReturn_dt.xml` — "Non-resident dispatch pass did not execute; parked until the cause is understood (#1177)"
 - 2026-09-13 — delete table `No_State_Income_Tax` from `TaxReturn_dt.xml` — "Only existed as the fallback for the parked non-resident dispatch (#1177)"
+- 2026-09-25 — delete table `Filter_Rental_Property` from `TaxReturn_dt.xml` — "Unreached, and redundant: Process_Rental_Income filters rentals in its own context (#1207)"
+
 
 
 

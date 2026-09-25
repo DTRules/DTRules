@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test Case: Schedule E - Rental loss in the special allowance phaseout -->
+<!-- Scenario: Actively participating landlord with modified AGI between $100,000 and $150,000 -->
+<!-- Rental income: $12,000, Expenses: $30,000, Loss: ($18,000) -->
+<!-- Expected: $15,000 of the loss allowed, $3,000 suspended (IRS Pub 925; Form 8582 Part II) -->
+<job>
+    <id>10021</id>
+    <tax_year>2025</tax_year>
+    <filing_status>MFJ</filing_status>
+    <state>TX</state>
+
+    <!-- Expected results -->
+    <!-- Schedule E expenses, from this file's own fields: mortgage interest
+         14,000 + property taxes 5,000 + insurance 1,500 + repairs 2,500 +
+         management 1,000 + utilities 0 + advertising 0 + depreciation 6,000
+         = 30,000. Net: 12,000 - 30,000 = (18,000) -->
+    <!-- Form 8582: modified AGI $120,000 (wages; the passive loss is not
+         subtracted). Special allowance $25,000 - 50% x ($120,000 - $100,000)
+         = $15,000. Allowed: smaller of the $18,000 loss and $15,000 =
+         $15,000; $3,000 suspended and carried forward -->
+    <!-- AGI: $120,000 - $15,000 = $105,000 -->
+    <!-- Deduction: $31,500 standard (MFJ, 2025) -->
+    <!-- Taxable: $105,000 - $31,500 = $73,500 -->
+    <!-- Tax: $8,343 (2025 MFJ brackets: 2,385 + 12% of 49,650) -->
+    <expected_agi>105000</expected_agi>
+    <expected_taxable_income>73500</expected_taxable_income>
+    <expected_total_tax>8343</expected_total_tax>
+
+    <taxpayers>
+        <taxpayer>
+            <id>1</id>
+            <name>Grace Holloway</name>
+            <ssn>234-56-7801</ssn>
+            <date_of_birth>03/11/1979</date_of_birth>
+            <occupation>Engineer</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>true</is_primary>
+            <w2_wages>120000</w2_wages>
+            <w2_withholding>12000</w2_withholding>
+        </taxpayer>
+        <taxpayer>
+            <id>2</id>
+            <name>Owen Holloway</name>
+            <ssn>345-67-8902</ssn>
+            <date_of_birth>08/02/1980</date_of_birth>
+            <occupation>Homemaker</occupation>
+            <is_self_employed>false</is_self_employed>
+            <is_primary>false</is_primary>
+        </taxpayer>
+    </taxpayers>
+
+    <properties>
+        <property>
+            <id>1</id>
+            <type>rental</type>
+            <active_participation>true</active_participation>
+            <address>12 Birch Lane, Austin, TX 78701</address>
+            <purchase_date>5/1/2022</purchase_date>
+            <purchase_price>330000</purchase_price>
+            <current_fmv>345000</current_fmv>
+            <mortgage_balance>280000</mortgage_balance>
+            <mortgage_origination_date>5/1/2022</mortgage_origination_date>
+            <mortgage_interest>14000</mortgage_interest>
+            <property_taxes>5000</property_taxes>
+            <rental_income>12000</rental_income>
+            <rental_insurance>1500</rental_insurance>
+            <rental_repairs>2500</rental_repairs>
+            <rental_management>1000</rental_management>
+            <rental_utilities>0</rental_utilities>
+            <rental_advertising>0</rental_advertising>
+            <depreciation>6000</depreciation>
+        </property>
+    </properties>
+
+    <dependents></dependents>
+    <vehicles></vehicles>
+    <deductions></deductions>
+    <incomes></incomes>
+    <expenses></expenses>
+</job>

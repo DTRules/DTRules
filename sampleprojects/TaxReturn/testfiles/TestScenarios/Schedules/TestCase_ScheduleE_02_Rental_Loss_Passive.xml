@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Test Case: Schedule E - Rental Property with Loss (Passive Activity Rules) -->
 <!-- Scenario: High income taxpayer with rental loss (passive loss suspended) -->
-<!-- Rental income: $18,000, Expenses: $28,000, Loss: ($10,000) -->
-<!-- AGI > $150,000 so passive loss cannot be deducted -->
+<!-- Rental income: $18,000, Expenses: $43,200, Loss: ($25,200) -->
+<!-- Modified AGI > $150,000 so the special allowance is zero and the loss is suspended -->
 <!-- Expected: Loss is suspended (not deductible due to high income) -->
 <job>
     <id>10017</id>
@@ -11,13 +11,21 @@
     <state>CA</state>
 
     <!-- Expected results -->
-    <!-- AGI: $220,000 (rental loss suspended due to passive activity rules) -->
-    <!-- Deduction: $30,000 standard -->
-    <!-- Taxable: $190,000 -->
-    <!-- Tax: ~$31,780 -->
+    <!-- Schedule E expenses, from this file's own fields: insurance 2,400 +
+         management 1,800 + mortgage interest 18,000 + property taxes 6,500 +
+         repairs 4,500 + utilities 0 + depreciation 10,000 = 43,200.
+         Net: 18,000 - 43,200 = (25,200) -->
+    <!-- Form 8582 (IRS Pub 925): modified AGI $220,000 (wages; the passive loss
+         is not subtracted). Special allowance $25,000 - 50% x ($220,000 -
+         $100,000) = below zero, so $0. Loss allowed $0; $25,200 suspended
+         and carried forward -->
+    <!-- AGI: $220,000 W-2 (loss not deducted) -->
+    <!-- Deduction: $31,500 standard (MFJ, 2025) -->
+    <!-- Taxable: $220,000 - $31,500 = $188,500 -->
+    <!-- Tax: $31,298 (2025 MFJ brackets: 2,385 + 8,772 + 22% of 91,550 = 20,141) -->
     <expected_agi>220000</expected_agi>
-    <expected_taxable_income>190000</expected_taxable_income>
-    <expected_total_tax>31780</expected_total_tax>
+    <expected_taxable_income>188500</expected_taxable_income>
+    <expected_total_tax>31298</expected_total_tax>
 
     <taxpayers>
         <taxpayer>
@@ -48,6 +56,7 @@
         <property>
             <id>1</id>
             <type>rental</type>
+            <active_participation>true</active_participation>
             <address>890 Investment Ave, San Diego, CA 92101</address>
             <purchase_date>6/15/2022</purchase_date>
             <purchase_price>550000</purchase_price>
