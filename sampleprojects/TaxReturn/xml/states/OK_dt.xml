@@ -7,7 +7,7 @@
 <relative_path>OK.xlsx</relative_path>
 <file_name>OK.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:b9e8d77c4dfccfc6ad8924c628098539a9fa9d5fbb765ff9aec085b605550206</source_hash>
+<source_hash>sha256:d2c3ca37517ddc43a6878339a995c76f497e521e3bfd2c75d727f14fdb3ebbd8</source_hash>
 </source>
 <table_name>ok_tax</table_name>
 <xls_file>OK.xlsx</xls_file>
@@ -17,37 +17,117 @@
 <TABLE_NUMBER>43600</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions></initial_actions>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>set result.ok_limit_1 = ok_bracket_1_limit; set result.ok_limit_2 = ok_bracket_2_limit; set result.ok_limit_3 = ok_bracket_3_limit; set result.ok_limit_4 = ok_bracket_4_limit; set result.ok_limit_5 = ok_bracket_5_limit; set result.ok_high_base = ok_single_high_base; set result.ok_std_deduction = ok_standard_deduction_single; set result.ok_senior_limit = ok_senior_limit_single</initial_action_dsl>
+<initial_action_postfix>
+ok_bracket_1_limit cvd /result.ok_limit_1 xdef ok_bracket_2_limit cvd /result.ok_limit_2 xdef ok_bracket_3_limit cvd /result.ok_limit_3 xdef ok_bracket_4_limit cvd /result.ok_limit_4 xdef ok_bracket_5_limit cvd /result.ok_limit_5 xdef ok_single_high_base cvd /result.ok_high_base xdef ok_standard_deduction_single cvd /result.ok_std_deduction xdef ok_senior_limit_single cvd /result.ok_senior_limit xdef
+</initial_action_postfix>
+</initial_action>
+</initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Married filing jointly</condition_comment>
-<condition_dsl>job.filing_status is equal to "MFJ"</condition_dsl>
+<condition_comment>Married Filing Joint or Qualifying Surviving Spouse</condition_comment>
+<condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "QSS"</condition_dsl>
 <condition_postfix>
-job.filing_status "MFJ" streq
+job.filing_status "MFJ" streq { pop job.filing_status "QSS" streq } over not if
 </condition_postfix>
-<columns>-</columns>
+<columns>Y---</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
-<condition_comment>Head of household</condition_comment>
+<condition_comment>Head of Household: joint table column, its own standard deduction</condition_comment>
 <condition_dsl>job.filing_status is equal to "HOH"</condition_dsl>
 <condition_postfix>
 job.filing_status "HOH" streq
 </condition_postfix>
-<columns>-</columns>
+<columns>-Y--</columns>
 </condition_details>
 <condition_details>
 <condition_number>3</condition_number>
-<condition_comment>Married filing separately</condition_comment>
+<condition_comment>Married Filing Separate: single table column</condition_comment>
 <condition_dsl>job.filing_status is equal to "MFS"</condition_dsl>
 <condition_postfix>
 job.filing_status "MFS" streq
 </condition_postfix>
-<columns>-</columns>
+<columns>--Y*</columns>
 </condition_details>
 </conditions>
-<actions></actions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Married filing joint or head of household table column</action_comment>
+<action_dsl>set result.ok_limit_1 = ok_joint_bracket_1_limit; set result.ok_limit_2 = ok_joint_bracket_2_limit; set result.ok_limit_3 = ok_joint_bracket_3_limit; set result.ok_limit_4 = ok_joint_bracket_4_limit; set result.ok_limit_5 = ok_joint_bracket_5_limit; set result.ok_high_base = ok_joint_high_base</action_dsl>
+<action_postfix>
+ok_joint_bracket_1_limit cvd /result.ok_limit_1 xdef ok_joint_bracket_2_limit cvd /result.ok_limit_2 xdef ok_joint_bracket_3_limit cvd /result.ok_limit_3 xdef ok_joint_bracket_4_limit cvd /result.ok_limit_4 xdef ok_joint_bracket_5_limit cvd /result.ok_limit_5 xdef ok_joint_high_base cvd /result.ok_high_base xdef
+</action_postfix>
+<columns>XX--</columns>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Line 10 $12,700</action_comment>
+<action_dsl>set result.ok_std_deduction = ok_standard_deduction_joint; set result.ok_senior_limit = ok_senior_limit_joint</action_dsl>
+<action_postfix>
+ok_standard_deduction_joint cvd /result.ok_std_deduction xdef ok_senior_limit_joint cvd /result.ok_senior_limit xdef
+</action_postfix>
+<columns>X---</columns>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Line 10 $9,350</action_comment>
+<action_dsl>set result.ok_std_deduction = ok_standard_deduction_hoh; set result.ok_senior_limit = ok_senior_limit_hoh</action_dsl>
+<action_postfix>
+ok_standard_deduction_hoh cvd /result.ok_std_deduction xdef ok_senior_limit_hoh cvd /result.ok_senior_limit xdef
+</action_postfix>
+<columns>-X--</columns>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Line 10 $6,350</action_comment>
+<action_dsl>set result.ok_std_deduction = ok_standard_deduction_mfs; set result.ok_senior_limit = ok_senior_limit_mfs</action_dsl>
+<action_postfix>
+ok_standard_deduction_mfs cvd /result.ok_std_deduction xdef ok_senior_limit_mfs cvd /result.ok_senior_limit xdef
+</action_postfix>
+<columns>--X-</columns>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Line 11 exemptions, with the special 65+ exemption under the AGI limit</action_comment>
+<action_dsl>set result.ok_exemptions = length of job.taxpayers + length of job.dependents; if result.state_calc_agi &lt;= result.ok_senior_limit then { set result.ok_exemptions = result.ok_exemptions + result.senior_std_count; } endif</action_dsl>
+<action_postfix>
+job.taxpayers length job.dependents length + cvd /result.ok_exemptions xdef { result.ok_exemptions result.senior_std_count f+ cvd /result.ok_exemptions xdef } {} result.state_calc_agi result.ok_senior_limit f&lt;= ifelse
+</action_postfix>
+<columns>XXXX</columns>
+</action_details>
+<action_details>
+<action_number>6</action_number>
+<action_comment>Line 13 taxable income; line 14 tax from the table</action_comment>
+<action_dsl>set result.ok_taxable_income = the maximum of (result.state_calc_agi - result.ok_std_deduction - result.ok_exemptions * ok_personal_exemption_credit) and 0.0; perform OK_Tax_Table; set result.ok_tax = result.ok_table_tax</action_dsl>
+<action_postfix>
+result.state_calc_agi result.ok_std_deduction f- result.ok_exemptions ok_personal_exemption_credit fmul f- 0.0 fmax cvd /result.ok_taxable_income xdef /OK_Tax_Table performtable result.ok_table_tax cvd /result.ok_tax xdef
+</action_postfix>
+<columns>XXXX</columns>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>Harvested onto the roster by Compute_Roster_State_Tax</action_comment>
+<action_dsl>set result.computed_state_taxable_income = result.ok_taxable_income; set result.computed_state_tax = result.ok_tax</action_dsl>
+<action_postfix>
+result.ok_taxable_income cvd /result.computed_state_taxable_income xdef result.ok_tax cvd /result.computed_state_tax xdef
+</action_postfix>
+<columns>XXXX</columns>
+</action_details>
+<action_details>
+<action_number>8</action_number>
+<action_comment>Audit</action_comment>
+<action_dsl>add "  Oklahoma (Form 511 2025): taxable income $" + result.ok_taxable_income + " (standard deduction $" + result.ok_std_deduction + ", " + result.ok_exemptions + " exemptions), tax $" + result.ok_tax to job.audit_trail</action_dsl>
+<action_postfix>
+"  Oklahoma (Form 511 2025): taxable income $" result.ok_taxable_income strconcat " (standard deduction $" strconcat result.ok_std_deduction strconcat ", " strconcat result.ok_exemptions strconcat " exemptions), tax $" strconcat result.ok_tax strconcat job.audit_trail swap addto
+</action_postfix>
+<columns>XXXX</columns>
+</action_details>
+</actions>
 <policy_statements></policy_statements>
 </decision_table>
 
@@ -57,7 +137,7 @@ job.filing_status "MFS" streq
 <relative_path>OK.xlsx</relative_path>
 <file_name>OK.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:b9e8d77c4dfccfc6ad8924c628098539a9fa9d5fbb765ff9aec085b605550206</source_hash>
+<source_hash>sha256:d2c3ca37517ddc43a6878339a995c76f497e521e3bfd2c75d727f14fdb3ebbd8</source_hash>
 </source>
 <table_name>OK_Military_Retirement_Exclusion</table_name>
 <xls_file>OK.xlsx</xls_file>
@@ -78,6 +158,64 @@ job.filing_status "MFS" streq
 0 cvd /result.ok_military_retirement_exemption xdef
 </action_postfix>
 <columns>-</columns>
+</action_details>
+</actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 43610: OK_Tax_Table -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>OK.xlsx</relative_path>
+<file_name>OK.xlsx</file_name>
+<sheet_number>3</sheet_number>
+<source_hash>sha256:d2c3ca37517ddc43a6878339a995c76f497e521e3bfd2c75d727f14fdb3ebbd8</source_hash>
+</source>
+<table_name>OK_Tax_Table</table_name>
+<xls_file>OK.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>43610</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>set result.ok_band_midpoint = (the floor of (result.ok_taxable_income / 50.0)) * 50.0 + 25.0</initial_action_dsl>
+<initial_action_postfix>
+result.ok_taxable_income 50.0 fdiv floor 50.0 fmul 25.0 f+ cvd /result.ok_band_midpoint xdef
+</initial_action_postfix>
+</initial_action>
+</initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>Less than $100,000: the table</condition_comment>
+<condition_dsl>result.ok_taxable_income &lt; ok_table_limit</condition_dsl>
+<condition_postfix>
+result.ok_taxable_income ok_table_limit f&lt;
+</condition_postfix>
+<columns>Y*</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>Bracket tax at the band midpoint, rounded</action_comment>
+<action_dsl>set result.ok_table_tax = the floor of (ok_bracket_1_rate * (the minimum of result.ok_band_midpoint and result.ok_limit_1) + ok_bracket_2_rate * (the maximum of ((the minimum of result.ok_band_midpoint and result.ok_limit_2) - result.ok_limit_1) and 0.0) + ok_bracket_3_rate * (the maximum of ((the minimum of result.ok_band_midpoint and result.ok_limit_3) - result.ok_limit_2) and 0.0) + ok_bracket_4_rate * (the maximum of ((the minimum of result.ok_band_midpoint and result.ok_limit_4) - result.ok_limit_3) and 0.0) + ok_bracket_5_rate * (the maximum of ((the minimum of result.ok_band_midpoint and result.ok_limit_5) - result.ok_limit_4) and 0.0) + ok_bracket_6_rate * (the maximum of (result.ok_band_midpoint - result.ok_limit_5) and 0.0) + 0.5)</action_dsl>
+<action_postfix>
+ok_bracket_1_rate result.ok_band_midpoint result.ok_limit_1 fmin fmul ok_bracket_2_rate result.ok_band_midpoint result.ok_limit_2 fmin result.ok_limit_1 f- 0.0 fmax fmul f+ ok_bracket_3_rate result.ok_band_midpoint result.ok_limit_3 fmin result.ok_limit_2 f- 0.0 fmax fmul f+ ok_bracket_4_rate result.ok_band_midpoint result.ok_limit_4 fmin result.ok_limit_3 f- 0.0 fmax fmul f+ ok_bracket_5_rate result.ok_band_midpoint result.ok_limit_5 fmin result.ok_limit_4 f- 0.0 fmax fmul f+ ok_bracket_6_rate result.ok_band_midpoint result.ok_limit_5 f- 0.0 fmax fmul f+ 0.5 f+ floor cvd /result.ok_table_tax xdef
+</action_postfix>
+<columns>X-</columns>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Page 38: base plus 0.0475 over $100,000</action_comment>
+<action_dsl>set result.ok_table_tax = the floor of (result.ok_high_base + ok_bracket_6_rate * (result.ok_taxable_income - ok_table_limit) + 0.5)</action_dsl>
+<action_postfix>
+result.ok_high_base ok_bracket_6_rate result.ok_taxable_income ok_table_limit f- fmul f+ 0.5 f+ floor cvd /result.ok_table_tax xdef
+</action_postfix>
+<columns>-X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>

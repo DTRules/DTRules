@@ -532,8 +532,15 @@ entity/array inspection, console, watch, report, baseline, speculate.
 
 ## 2.9 Known gaps in the sample rule sets
 
-The samples are tests and documentation, not products, and one gap is
+The samples are tests and documentation, not products, and these gaps are
 load-bearing enough to record:
+
+- **TaxReturn does not normalise `job.filing_status`.** The rules compare
+  canonical codes (`MFJ`, `HOH`, `MFS`, `QSS`); scenarios spelled
+  `married_filing_jointly` and the like are computed as Single (#1316).
+- **Scenario `expected_state_tax` is not checked by the rules** (#1317).
+  `TestStateScenarios` checks it for the states whose tables were rebuilt
+  under #1200 (AR, LA, NM, OK).
 
 - **TaxReturn's non-resident state tax uses resident deductions.**
   `Dispatch_State_Tax` runs every roster entry through its state's table
@@ -543,9 +550,7 @@ load-bearing enough to record:
   applies to a non-resident's sourced income is the same standard deduction
   and exemptions it applies to a resident; the proportional non-resident
   deductions the states actually use are not modelled, and neither are
-  per-state credit ceilings (#1201). Four state tables (AR, LA, NM, OK) have
-  conditions with no actions wired to any column and compute nothing; they
-  were unreachable before and now record a zero honestly (#1200).
+  per-state credit ceilings (#1201).
 
 ## 2.10 Versioning and release
 

@@ -1,0 +1,89 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- OK Test Case 02: married filing jointly, $85,000 of wages, two children -->
+   <id>OK-02</id>
+   <tax_year>2025</tax_year>
+   <filing_status>MFJ</filing_status>
+   <state>OK</state>
+   <city>Oklahoma City</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values, worked from the state's own form -->
+   <!-- Sources: Oklahoma 2025 Form 511 packet: line 10 standard deduction, line 11 $1,000 per exemption, line 13 taxable income, line 14 Income Tax Table (bands 'at least X but less than X+50') and the $100,000-or-more computation on page 38. -->
+   <!-- Federal: AGI $85,000; taxable $85,000 - $31,500 = $53,500 -->
+   <!-- Oklahoma: line 10 $12,700; line 11 4 exemptions (two spouses, two
+        dependents) x $1,000 = $4,000; line 13 $85,000 - $16,700 = $68,300.
+        Table row at least $68,300 but less than $68,350, married filing
+        joint: $2,868 (bracket tax at the $68,325 midpoint: $307 + 4.75% x
+        $53,925 = $2,868.44) -->
+   <expected_agi>85000</expected_agi>
+   <expected_taxable_income>53500</expected_taxable_income>
+   <expected_state_tax>2868</expected_state_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Caleb Harjo</name>
+         <ssn>802-22-3512</ssn>
+         <date_of_birth>3/21/1985</date_of_birth>
+         <occupation>Lineman</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>55000</w2_wages>
+         <w2_withholding>4500</w2_withholding>
+      </taxpayer>
+      <taxpayer id="2">
+         <id>2</id>
+         <name>Megan Harjo</name>
+         <ssn>803-33-4623</ssn>
+         <date_of_birth>12/11/1986</date_of_birth>
+         <occupation>Pharmacy Technician</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>false</is_primary>
+         <w2_wages>30000</w2_wages>
+         <w2_withholding>2200</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Owen Harjo</name>
+         <ssn>804-44-5734</ssn>
+         <date_of_birth>7/07/2014</date_of_birth>
+         <age>11</age>
+         <relationship>child</relationship>
+         <is_student>false</is_student>
+         <is_disabled>false</is_disabled>
+         <has_ssn>true</has_ssn>
+         <months_lived_with>12</months_lived_with>
+      </dependent>
+      <dependent id="2">
+         <id>2</id>
+         <name>Lily Harjo</name>
+         <ssn>805-55-6845</ssn>
+         <date_of_birth>2/19/2018</date_of_birth>
+         <age>7</age>
+         <relationship>child</relationship>
+         <is_student>false</is_student>
+         <is_disabled>false</is_disabled>
+         <has_ssn>true</has_ssn>
+         <months_lived_with>12</months_lived_with>
+      </dependent>
+   </dependents>
+</job>

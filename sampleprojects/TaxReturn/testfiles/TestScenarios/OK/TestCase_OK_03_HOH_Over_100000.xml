@@ -1,0 +1,65 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- OK Test Case 03: head of household, $120,000 of wages, one child, taxable income over $100,000 -->
+   <id>OK-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>HOH</filing_status>
+   <state>OK</state>
+   <city>Oklahoma City</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values, worked from the state's own form -->
+   <!-- Sources: Oklahoma 2025 Form 511 packet: line 10 standard deduction, line 11 $1,000 per exemption, line 13 taxable income, line 14 Income Tax Table (bands 'at least X but less than X+50') and the $100,000-or-more computation on page 38. -->
+   <!-- Federal: AGI $120,000; taxable $120,000 - $23,625 = $96,375 -->
+   <!-- Oklahoma: line 10 $9,350; line 11 2 exemptions x $1,000 = $2,000;
+        line 13 $120,000 - $11,350 = $108,650. $100,000 or more, married
+        filing joint / head of household computation: $4,373 plus 0.0475 x
+        ($108,650 - $100,000) = $4,373 + $410.88 = $4,783.88 -> $4,784 -->
+   <expected_agi>120000</expected_agi>
+   <expected_taxable_income>96375</expected_taxable_income>
+   <expected_state_tax>4784</expected_state_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Dana Whitehorse</name>
+         <ssn>806-66-7956</ssn>
+         <date_of_birth>8/14/1981</date_of_birth>
+         <occupation>Operations Director</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>120000</w2_wages>
+         <w2_withholding>16000</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Kai Whitehorse</name>
+         <ssn>807-77-8067</ssn>
+         <date_of_birth>4/02/2013</date_of_birth>
+         <age>12</age>
+         <relationship>child</relationship>
+         <is_student>false</is_student>
+         <is_disabled>false</is_disabled>
+         <has_ssn>true</has_ssn>
+         <months_lived_with>12</months_lived_with>
+      </dependent>
+   </dependents>
+</job>

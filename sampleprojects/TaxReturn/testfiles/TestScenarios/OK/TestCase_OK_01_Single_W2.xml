@@ -1,0 +1,53 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- OK Test Case 01: single, $45,000 of wages -->
+   <id>OK-01</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>OK</state>
+   <city>Oklahoma City</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values, worked from the state's own form -->
+   <!-- Sources: Oklahoma 2025 Form 511 packet: line 10 standard deduction, line 11 $1,000 per exemption, line 13 taxable income, line 14 Income Tax Table (bands 'at least X but less than X+50') and the $100,000-or-more computation on page 38. -->
+   <!-- Federal: AGI $45,000; taxable $45,000 - $15,750 = $29,250 -->
+   <!-- Oklahoma: line 10 $6,350; line 11 1 exemption x $1,000 = $1,000;
+        line 13 $45,000 - $7,350 = $37,650. Table row at least $37,650 but
+        less than $37,700, single: $1,601 (bracket tax at the $37,675
+        midpoint: $153.50 + 4.75% x $30,475 = $1,601.06) -->
+   <expected_agi>45000</expected_agi>
+   <expected_taxable_income>29250</expected_taxable_income>
+   <expected_state_tax>1601</expected_state_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Tyler Redbird</name>
+         <ssn>801-11-2401</ssn>
+         <date_of_birth>10/05/1990</date_of_birth>
+         <occupation>Surveyor</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>45000</w2_wages>
+         <w2_withholding>3800</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+   </dependents>
+</job>
