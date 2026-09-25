@@ -1,0 +1,63 @@
+<job>
+   <copyright>
+      Copyright 2025 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- LA Test Case 03: head of household, $41,350 of wages, one child; the tax rounds half up -->
+   <id>LA-03</id>
+   <tax_year>2025</tax_year>
+   <filing_status>HOH</filing_status>
+   <state>LA</state>
+   <city>Baton Rouge</city>
+   <has_state_income_tax>true</has_state_income_tax>
+
+   <!-- Expected values, worked from the state's own form -->
+   <!-- Sources: Louisiana IT-540 2025 instructions (Act 11 of the 2024 Third Extraordinary Session): line 8 standard deduction, line 10 taxable income, line 11 = line 10 x .03 rounded to the nearest dollar. -->
+   <!-- Federal: AGI $41,350; taxable $41,350 - $23,625 = $17,725 -->
+   <!-- Louisiana: line 7 $41,350 - line 8 $25,000 = line 10 $16,350;
+        line 11 $16,350 x .03 = $490.50, rounded to the nearest dollar = $491 -->
+   <expected_agi>41350</expected_agi>
+   <expected_taxable_income>17725</expected_taxable_income>
+   <expected_state_tax>491</expected_state_tax>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Brandon Guidry</name>
+         <ssn>606-66-7756</ssn>
+         <date_of_birth>3/27/1988</date_of_birth>
+         <occupation>Warehouse Supervisor</occupation>
+         <is_self_employed>false</is_self_employed>
+         <is_primary>true</is_primary>
+         <w2_wages>41350</w2_wages>
+         <w2_withholding>3100</w2_withholding>
+      </taxpayer>
+   </taxpayers>
+
+   <dependents>
+      <dependent id="1">
+         <id>1</id>
+         <name>Mia Guidry</name>
+         <ssn>607-77-8867</ssn>
+         <date_of_birth>7/21/2015</date_of_birth>
+         <age>10</age>
+         <relationship>child</relationship>
+         <is_student>false</is_student>
+         <is_disabled>false</is_disabled>
+         <has_ssn>true</has_ssn>
+         <months_lived_with>12</months_lived_with>
+      </dependent>
+   </dependents>
+</job>

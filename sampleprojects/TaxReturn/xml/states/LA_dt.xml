@@ -7,7 +7,7 @@
 <relative_path>LA.xlsx</relative_path>
 <file_name>LA.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:0058c90a88c9fb737c804b5a633ce323e8df4f46e2ab0f2a38bf2736ed7aaead</source_hash>
+<source_hash>sha256:8f4b142f3534f05f75e2ce0f62c88099d4c7cba157a38c89b6e794e5a9d62806</source_hash>
 </source>
 <table_name>LA_Tax</table_name>
 <xls_file>LA.xlsx</xls_file>
@@ -17,27 +17,70 @@
 <TABLE_NUMBER>41900</TABLE_NUMBER>
 </attribute_fields>
 <contexts></contexts>
-<initial_actions></initial_actions>
+<initial_actions>
+<initial_action>
+<initial_action_dsl>set result.la_standard_deduction = la_standard_deduction_single</initial_action_dsl>
+<initial_action_postfix>
+la_standard_deduction_single cvd /result.la_standard_deduction xdef
+</initial_action_postfix>
+</initial_action>
+</initial_actions>
 <conditions>
 <condition_details>
 <condition_number>1</condition_number>
-<condition_comment>Filing status is Married Filing Jointly or Head of Household; filing_status == "married_filing_jointly" OR filing_status == "head_of_household"</condition_comment>
-<condition_dsl>job.filing_status == "married_filing_jointly" || job.filing_status == "head_of_household"</condition_dsl>
+<condition_comment>Filing status 2, 4 or 5</condition_comment>
+<condition_dsl>job.filing_status is equal to "MFJ" or job.filing_status is equal to "HOH" or job.filing_status is equal to "QSS"</condition_dsl>
 <condition_postfix>
-job.filing_status "married_filing_jointly" streq { pop job.filing_status "head_of_household" streq } over not if
+job.filing_status "MFJ" streq { pop job.filing_status "HOH" streq } over not if { pop job.filing_status "QSS" streq } over not if
 </condition_postfix>
-<columns>NY</columns>
+<columns>Y*</columns>
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Calculate LA tax with joint/HOH standard deduction</action_comment>
-<action_dsl>set result.la_standard_deduction = la_standard_deduction_joint; set result.la_taxable_income = the maximum of (result.state_calc_agi - result.la_standard_deduction) and 0.0; set result.la_tax = result.la_taxable_income * la_tax_rate; add "  LA flat tax (3%, MFJ/HOH std deduction): $" + result.la_tax to job.audit_trail</action_dsl>
+<action_comment>Line 8: $25,000</action_comment>
+<action_dsl>set result.la_standard_deduction = la_standard_deduction_joint</action_dsl>
 <action_postfix>
-la_standard_deduction_joint cvi /result.la_standard_deduction xdef result.state_calc_agi result.la_standard_deduction f- 0.0 fmax cvi /result.la_taxable_income xdef result.la_taxable_income la_tax_rate fmul cvi /result.la_tax xdef "  LA flat tax (3%, MFJ/HOH std deduction): $" result.la_tax strconcat job.audit_trail swap addto
+la_standard_deduction_joint cvd /result.la_standard_deduction xdef
 </action_postfix>
-<columns>--</columns>
+<columns>X-</columns>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>Line 10</action_comment>
+<action_dsl>set result.la_taxable_income = the maximum of (result.state_calc_agi - result.la_standard_deduction) and 0.0</action_dsl>
+<action_postfix>
+result.state_calc_agi result.la_standard_deduction f- 0.0 fmax cvd /result.la_taxable_income xdef
+</action_postfix>
+<columns>XX</columns>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Line 11: x .03, rounded to the nearest dollar</action_comment>
+<action_dsl>set result.la_tax = the floor of (result.la_taxable_income * la_tax_rate + 0.5)</action_dsl>
+<action_postfix>
+result.la_taxable_income la_tax_rate fmul 0.5 f+ floor cvd /result.la_tax xdef
+</action_postfix>
+<columns>XX</columns>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Harvested onto the roster by Compute_Roster_State_Tax</action_comment>
+<action_dsl>set result.computed_state_taxable_income = result.la_taxable_income; set result.computed_state_tax = result.la_tax</action_dsl>
+<action_postfix>
+result.la_taxable_income cvd /result.computed_state_taxable_income xdef result.la_tax cvd /result.computed_state_tax xdef
+</action_postfix>
+<columns>XX</columns>
+</action_details>
+<action_details>
+<action_number>5</action_number>
+<action_comment>Audit</action_comment>
+<action_dsl>add "  Louisiana (IT-540 2025): taxable income $" + result.la_taxable_income + " x 3% = $" + result.la_tax to job.audit_trail</action_dsl>
+<action_postfix>
+"  Louisiana (IT-540 2025): taxable income $" result.la_taxable_income strconcat " x 3% = $" strconcat result.la_tax strconcat job.audit_trail swap addto
+</action_postfix>
+<columns>XX</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -49,7 +92,7 @@ la_standard_deduction_joint cvi /result.la_standard_deduction xdef result.state_
 <relative_path>LA.xlsx</relative_path>
 <file_name>LA.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:0058c90a88c9fb737c804b5a633ce323e8df4f46e2ab0f2a38bf2736ed7aaead</source_hash>
+<source_hash>sha256:8f4b142f3534f05f75e2ce0f62c88099d4c7cba157a38c89b6e794e5a9d62806</source_hash>
 </source>
 <table_name>LA_Military_Retirement_Exclusion</table_name>
 <xls_file>LA.xlsx</xls_file>
