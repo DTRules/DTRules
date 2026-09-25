@@ -379,14 +379,6 @@ func (v *BaseELVisitor) VisitLeftIexprColon(ctx *LeftIexprColonContext) interfac
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitLeftFexprSimple(ctx *LeftFexprSimpleContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitLeftFexprColon(ctx *LeftFexprColonContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitLeftBexprSimple(ctx *LeftBexprSimpleContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -411,22 +403,6 @@ func (v *BaseELVisitor) VisitLeftStrexprColon(ctx *LeftStrexprColonContext) inte
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitLeftDexprSimple(ctx *LeftDexprSimpleContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitLeftDexprColon(ctx *LeftDexprColonContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitLeftTexprSimple(ctx *LeftTexprSimpleContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitLeftTexprColon(ctx *LeftTexprColonContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitLeftBigexprSimple(ctx *LeftBigexprSimpleContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -447,10 +423,6 @@ func (v *BaseELVisitor) VisitSetInt(ctx *SetIntContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitSetFloat(ctx *SetFloatContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitSetBool(ctx *SetBoolContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -460,10 +432,6 @@ func (v *BaseELVisitor) VisitSetEntity(ctx *SetEntityContext) interface{} {
 }
 
 func (v *BaseELVisitor) VisitSetString(ctx *SetStringContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitSetStringFromNumber(ctx *SetStringFromNumberContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -479,38 +447,6 @@ func (v *BaseELVisitor) VisitSetStringFromTable(ctx *SetStringFromTableContext) 
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitSetBoolFromName(ctx *SetBoolFromNameContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitSetDate(ctx *SetDateContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitSetTable(ctx *SetTableContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitSetArrayEntity(ctx *SetArrayEntityContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitSetArrayString(ctx *SetArrayStringContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitSetArrayFloat(ctx *SetArrayFloatContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitSetArrayInt(ctx *SetArrayIntContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitSetArrayDate(ctx *SetArrayDateContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitSetArrayArray(ctx *SetArrayArrayContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -523,15 +459,7 @@ func (v *BaseELVisitor) VisitIncrementLong(ctx *IncrementLongContext) interface{
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitIncrementDouble(ctx *IncrementDoubleContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitDecrementLong(ctx *DecrementLongContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitDecrementDouble(ctx *DecrementDoubleContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -671,23 +599,7 @@ func (v *BaseELVisitor) VisitAddDestArray2(ctx *AddDestArray2Context) interface{
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitAddDestLong2(ctx *AddDestLong2Context) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitAddDestDouble2(ctx *AddDestDouble2Context) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitAddDestArray(ctx *AddDestArrayContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitAddDestLong(ctx *AddDestLongContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitAddDestDouble(ctx *AddDestDoubleContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -695,31 +607,11 @@ func (v *BaseELVisitor) VisitAddDestColon(ctx *AddDestColonContext) interface{} 
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitAddDestPossessiveLong(ctx *AddDestPossessiveLongContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitAddDestPossessiveDouble(ctx *AddDestPossessiveDoubleContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitSubDestLong(ctx *SubDestLongContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitSubDestDouble(ctx *SubDestDoubleContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitSubDestColon(ctx *SubDestColonContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitSubDestPossessiveLong(ctx *SubDestPossessiveLongContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitSubDestPossessiveDouble(ctx *SubDestPossessiveDoubleContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -816,10 +708,6 @@ func (v *BaseELVisitor) VisitRemoveEntity(ctx *RemoveEntityContext) interface{} 
 }
 
 func (v *BaseELVisitor) VisitRandomizeArray(ctx *RandomizeArrayContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitClearArray(ctx *ClearArrayContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1023,10 +911,6 @@ func (v *BaseELVisitor) VisitEntityNewName(ctx *EntityNewNameContext) interface{
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitEntityNewTyped(ctx *EntityNewTypedContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitEntityClone(ctx *EntityCloneContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -1208,10 +1092,6 @@ func (v *BaseELVisitor) VisitDateSub(ctx *DateSubContext) interface{} {
 }
 
 func (v *BaseELVisitor) VisitDateExprSubDays(ctx *DateExprSubDaysContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitDateFromArrayAt(ctx *DateFromArrayAtContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -1459,23 +1339,11 @@ func (v *BaseELVisitor) VisitStrLiteral(ctx *StrLiteralContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitStrConcatInvalid(ctx *StrConcatInvalidContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitStrMappingKey(ctx *StrMappingKeyContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
 func (v *BaseELVisitor) VisitStrTableInfo(ctx *StrTableInfoContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitStrTyped(ctx *StrTypedContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitStrConcatNull(ctx *StrConcatNullContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -2483,10 +2351,6 @@ func (v *BaseELVisitor) VisitBoolOr(ctx *BoolOrContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseELVisitor) VisitBoolFunction(ctx *BoolFunctionContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseELVisitor) VisitBoolDateIsNotNull(ctx *BoolDateIsNotNullContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -2576,18 +2440,6 @@ func (v *BaseELVisitor) VisitTypedOperator(ctx *TypedOperatorContext) interface{
 }
 
 func (v *BaseELVisitor) VisitTypedXmlValue(ctx *TypedXmlValueContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitTypedNull(ctx *TypedNullContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitTypedInvalid(ctx *TypedInvalidContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *BaseELVisitor) VisitTypedBoolFunction(ctx *TypedBoolFunctionContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 

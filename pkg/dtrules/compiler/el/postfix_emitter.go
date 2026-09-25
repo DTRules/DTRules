@@ -837,27 +837,8 @@ func (e *PostfixEmitter) iexprIsBytes(ctx IIexprContext) bool {
 	return false
 }
 
-// strexprIsBytes returns true if a strexpr resolves to an identifier typed as bytes.
-func (e *PostfixEmitter) strexprIsBytes(ctx IStrexprContext) bool {
-	typed, ok := ctx.(*StrTypedContext)
-	if !ok {
-		return false
-	}
-	ident := typed.TypedString().GetText()
-	if lv, ok := e.lookupLocal(ident); ok {
-		return lv.Type == TypeBytes
-	}
-	return e.lookupType(ident) == TypeBytes
-}
-
 func (e *PostfixEmitter) VisitBoolStrEq(ctx *BoolStrEqContext) interface{} {
 	left, right := ctx.Strexpr(0), ctx.Strexpr(1)
-	if e.strexprIsBytes(left) && e.strexprIsBytes(right) {
-		e.Visit(left)
-		e.Visit(right)
-		e.emit("bytes==")
-		return nil
-	}
 	e.Visit(left)
 	e.Visit(right)
 	e.emit("streq")
@@ -866,12 +847,6 @@ func (e *PostfixEmitter) VisitBoolStrEq(ctx *BoolStrEqContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolStrNeq(ctx *BoolStrNeqContext) interface{} {
 	left, right := ctx.Strexpr(0), ctx.Strexpr(1)
-	if e.strexprIsBytes(left) && e.strexprIsBytes(right) {
-		e.Visit(left)
-		e.Visit(right)
-		e.emit("bytes!=")
-		return nil
-	}
 	// `strneq` was never registered as a runtime op; the runtime has
 	// only `s==` (alias `streq`). Compose inequality as equality then
 	// `not` so the dispatch resolves (#835).
@@ -884,12 +859,6 @@ func (e *PostfixEmitter) VisitBoolStrNeq(ctx *BoolStrNeqContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolStrIs(ctx *BoolStrIsContext) interface{} {
 	left, right := ctx.Strexpr(0), ctx.Strexpr(1)
-	if e.strexprIsBytes(left) && e.strexprIsBytes(right) {
-		e.Visit(left)
-		e.Visit(right)
-		e.emit("bytes==")
-		return nil
-	}
 	e.Visit(left)
 	e.Visit(right)
 	e.emit("streq")
@@ -898,12 +867,6 @@ func (e *PostfixEmitter) VisitBoolStrIs(ctx *BoolStrIsContext) interface{} {
 
 func (e *PostfixEmitter) VisitBoolStrIsNot(ctx *BoolStrIsNotContext) interface{} {
 	left, right := ctx.Strexpr(0), ctx.Strexpr(1)
-	if e.strexprIsBytes(left) && e.strexprIsBytes(right) {
-		e.Visit(left)
-		e.Visit(right)
-		e.emit("bytes!=")
-		return nil
-	}
 	// `<a> is not <b>` is logical inequality. Pre-fix this emitted
 	// `strneq not` which was doubly broken: `strneq` is unregistered,
 	// and even if it weren't, the trailing `not` would re-invert the
@@ -1575,12 +1538,6 @@ func (e *PostfixEmitter) VisitIntLengthArray(ctx *IntLengthArrayContext) interfa
 }
 
 func (e *PostfixEmitter) VisitIntLengthStr(ctx *IntLengthStrContext) interface{} {
-	// If the strexpr resolves to a bytes-typed identifier, emit byteslen instead.
-	if e.strexprIsBytes(ctx.Strexpr()) {
-		e.Visit(ctx.Strexpr())
-		e.emit("byteslen")
-		return nil
-	}
 	e.Visit(ctx.Strexpr())
 	e.emit("length")
 	return nil
@@ -2341,11 +2298,6 @@ func (e *PostfixEmitter) VisitStrXmlValue(ctx *StrXmlValueContext) interface{} {
 	return nil
 }
 
-func (e *PostfixEmitter) VisitStrTyped(ctx *StrTypedContext) interface{} {
-	e.Visit(ctx.TypedString())
-	return nil
-}
-
 func (e *PostfixEmitter) VisitTypedXmlValue(ctx *TypedXmlValueContext) interface{} {
 	name := ctx.GetText()
 	// Alias field access: `<alias>.<field>` where alias is a local entity
@@ -2501,14 +2453,6 @@ func (e *PostfixEmitter) VisitEntityTyped(ctx *EntityTypedContext) interface{} {
 
 func (e *PostfixEmitter) VisitEntityParen(ctx *EntityParenContext) interface{} {
 	e.Visit(ctx.Eexpr())
-	return nil
-}
-
-func (e *PostfixEmitter) VisitEntityNewTyped(ctx *EntityNewTypedContext) interface{} {
-	// Java pattern: /EntityName createentity
-	entityName := ctx.TypedEntity().GetText()
-	e.emit("/" + entityName)
-	e.emit("createentity")
 	return nil
 }
 
@@ -3562,10 +3506,6 @@ func entityTypeFromEexpr(ee IEexprContext) string {
 		if ne := n.Nexpr(); ne != nil {
 			return ne.GetText()
 		}
-	case *EntityNewTypedContext:
-		if te := n.TypedEntity(); te != nil {
-			return te.GetText()
-		}
 	}
 	return ""
 }
@@ -4055,16 +3995,6 @@ func (e *PostfixEmitter) VisitSetInt(ctx *SetIntContext) interface{} {
 	return nil
 }
 
-func (e *PostfixEmitter) VisitSetFloat(ctx *SetFloatContext) interface{} {
-	e.Visit(ctx.Number())
-	fieldType := e.resolveSetTarget(ctx.LeftFexpr().GetText(), TypeDouble)
-	if conv := e.typeConverter(fieldType); conv != "" {
-		e.emit(conv)
-	}
-	e.Visit(ctx.LeftFexpr())
-	return nil
-}
-
 func (e *PostfixEmitter) VisitSetBool(ctx *SetBoolContext) interface{} {
 	e.Visit(ctx.Bexpr())
 	fieldType := e.resolveSetTarget(ctx.LeftBexpr().GetText(), TypeBoolean)
@@ -4092,16 +4022,6 @@ func (e *PostfixEmitter) VisitSetString(ctx *SetStringContext) interface{} {
 		e.emit(conv)
 	}
 	e.Visit(ctx.LeftStrexpr())
-	return nil
-}
-
-func (e *PostfixEmitter) VisitSetDate(ctx *SetDateContext) interface{} {
-	e.Visit(ctx.Dexpr())
-	fieldType := e.resolveSetTarget(ctx.LeftDexpr().GetText(), TypeDate)
-	if conv := e.typeConverter(fieldType); conv != "" {
-		e.emit(conv)
-	}
-	e.Visit(ctx.LeftDexpr())
 	return nil
 }
 
@@ -4135,11 +4055,6 @@ func (e *PostfixEmitter) VisitLeftIexprSimple(ctx *LeftIexprSimpleContext) inter
 	return nil
 }
 
-func (e *PostfixEmitter) VisitLeftFexprSimple(ctx *LeftFexprSimpleContext) interface{} {
-	e.emitFieldStore(ctx.TypedDouble().GetText())
-	return nil
-}
-
 func (e *PostfixEmitter) VisitLeftBexprSimple(ctx *LeftBexprSimpleContext) interface{} {
 	e.emitFieldStore(ctx.TypedBoolean().GetText())
 	return nil
@@ -4152,11 +4067,6 @@ func (e *PostfixEmitter) VisitLeftEexprSimple(ctx *LeftEexprSimpleContext) inter
 
 func (e *PostfixEmitter) VisitLeftStrexprSimple(ctx *LeftStrexprSimpleContext) interface{} {
 	e.emitFieldStore(ctx.TypedString().GetText())
-	return nil
-}
-
-func (e *PostfixEmitter) VisitLeftDexprSimple(ctx *LeftDexprSimpleContext) interface{} {
-	e.emitFieldStore(ctx.TypedDate().GetText())
 	return nil
 }
 
@@ -4494,25 +4404,8 @@ func (e *PostfixEmitter) VisitIncrementLong(ctx *IncrementLongContext) interface
 	return nil
 }
 
-func (e *PostfixEmitter) VisitIncrementDouble(ctx *IncrementDoubleContext) interface{} {
-	// typedDouble is also just IDENT — this alternative is rarely reached
-	// (typedLong wins first), but when it is we honor the declared field
-	// type the same way IncrementLong does.
-	name := ctx.TypedDouble().GetText()
-	e.emitOneForField(name)
-	e.emitTypeAwareAddSub(name, "+")
-	return nil
-}
-
 func (e *PostfixEmitter) VisitDecrementLong(ctx *DecrementLongContext) interface{} {
 	name := ctx.TypedLong().GetText()
-	e.emitOneForField(name)
-	e.emitTypeAwareAddSub(name, "-")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitDecrementDouble(ctx *DecrementDoubleContext) interface{} {
-	name := ctx.TypedDouble().GetText()
 	e.emitOneForField(name)
 	e.emitTypeAwareAddSub(name, "-")
 	return nil
@@ -4533,14 +4426,6 @@ func (e *PostfixEmitter) VisitSetStringFromName(ctx *SetStringFromNameContext) i
 		e.emit("cvs")
 	}
 	e.Visit(ctx.LeftStrexpr())
-	return nil
-}
-
-// VisitSetBoolFromName: `set <leftBexpr> = <nexpr>`.
-func (e *PostfixEmitter) VisitSetBoolFromName(ctx *SetBoolFromNameContext) interface{} {
-	e.Visit(ctx.Nexpr())
-	e.emit("cvb")
-	e.Visit(ctx.LeftBexpr())
 	return nil
 }
 
@@ -4916,11 +4801,6 @@ func (e *PostfixEmitter) VisitNameUsing(ctx *NameUsingContext) interface{} {
 // don't silently truncate via plain `-`.
 func (e *PostfixEmitter) VisitSubDestLong(ctx *SubDestLongContext) interface{} {
 	e.emitTypeAwareAddSub(ctx.TypedLong().GetText(), "-")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitSubDestDouble(ctx *SubDestDoubleContext) interface{} {
-	e.emitTypeAwareAddSub(ctx.TypedDouble().GetText(), "-")
 	return nil
 }
 
@@ -5602,13 +5482,6 @@ func (e *PostfixEmitter) VisitClearstatement(ctx *ClearstatementContext) interfa
 	return nil
 }
 
-// VisitClearArray: `clear <arrayExpr>`.
-func (e *PostfixEmitter) VisitClearArray(ctx *ClearArrayContext) interface{} {
-	e.Visit(ctx.ArrayExpr())
-	e.emit("cleararray")
-	return nil
-}
-
 // VisitSortAscending: `sort <arrayExpr> in ascending order by <nexpr>`.
 // opSortEntities signature: (array name asc --).
 func (e *PostfixEmitter) VisitSortAscending(ctx *SortAscendingContext) interface{} {
@@ -6104,12 +5977,6 @@ func (e *PostfixEmitter) VisitEntityTableLookup(ctx *EntityTableLookupContext) i
 	return nil
 }
 
-func (e *PostfixEmitter) VisitSetTable(ctx *SetTableContext) interface{} {
-	e.emit("\"hash tables removed — `set <table> = <table>` unsupported\"")
-	e.emit("elstmterror")
-	return nil
-}
-
 // VisitSetStringFromTable: `set <string> = <texpr>`, reached whenever the
 // right-hand side is `new X table of Y`. It had no visitor and compiled to
 // nothing, which the loader refuses (#1255). Same stub as setTable.
@@ -6142,16 +6009,6 @@ func (e *PostfixEmitter) VisitIntUsingArray(ctx *IntUsingArrayContext) interface
 	e.Visit(ctx.Number())
 	e.emit("entitypop")
 	e.emit("pop")
-	return nil
-}
-
-// VisitBoolFunction: `<typedBoolFunction>` as a boolean expression —
-// a niladic boolean function call. Mirrors VisitOperatorstatements'
-// shape (emit the name as executable) but with no argument list.
-// Without this override, `bexpr: ... | typedBoolFunction # boolFunction`
-// silently emitted nothing.
-func (e *PostfixEmitter) VisitBoolFunction(ctx *BoolFunctionContext) interface{} {
-	e.emit(ctx.TypedBoolFunction().GetText())
 	return nil
 }
 
@@ -6201,13 +6058,7 @@ func (e *PostfixEmitter) VisitSubDestColon(ctx *SubDestColonContext) interface{}
 
 	addDest2 := ctx.Addtodest2()
 	var fieldName, fieldType string
-	switch d := addDest2.(type) {
-	case *AddDestLong2Context:
-		fieldName = d.TypedLong().GetText()
-	case *AddDestDouble2Context:
-		fieldName = d.TypedDouble().GetText()
-		fieldType = TypeDouble
-	case *AddDestArray2Context:
+	if d, ok := addDest2.(*AddDestArray2Context); ok {
 		fieldName = d.ArrayExpr2().GetText()
 	}
 	if fieldName != "" {
@@ -6646,16 +6497,6 @@ func (e *PostfixEmitter) VisitAddDestArray(ctx *AddDestArrayContext) interface{}
 	return nil
 }
 
-func (e *PostfixEmitter) VisitAddDestLong(ctx *AddDestLongContext) interface{} {
-	e.emitTypeAwareAddSub(ctx.TypedLong().GetText(), "+")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitAddDestDouble(ctx *AddDestDoubleContext) interface{} {
-	e.emitTypeAwareAddSub(ctx.TypedDouble().GetText(), "+")
-	return nil
-}
-
 func (e *PostfixEmitter) VisitAddDestColon(ctx *AddDestColonContext) interface{} {
 	// Pattern: <entity-ref> entitypush <field> + /<field> xdef entitypop
 	// The colonRef contains either a possessive (`ThisClient's`) or a
@@ -6674,12 +6515,7 @@ func (e *PostfixEmitter) VisitAddDestColon(ctx *AddDestColonContext) interface{}
 	var fieldName string
 	var isDouble bool
 
-	if longCtx, ok := addDest2.(*AddDestLong2Context); ok {
-		fieldName = longCtx.TypedLong().GetText()
-	} else if doubleCtx, ok := addDest2.(*AddDestDouble2Context); ok {
-		fieldName = doubleCtx.TypedDouble().GetText()
-		isDouble = true
-	} else if arrayCtx, ok := addDest2.(*AddDestArray2Context); ok {
+	if arrayCtx, ok := addDest2.(*AddDestArray2Context); ok {
 		// Get the field name from the array context
 		fieldName = arrayCtx.ArrayExpr2().GetText()
 
@@ -6725,96 +6561,6 @@ func (e *PostfixEmitter) VisitAddDestColon(ctx *AddDestColonContext) interface{}
 	e.emit("xdef")
 	e.emit("entitypop")
 	e.emit("pop")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitAddDestPossessiveLong(ctx *AddDestPossessiveLongContext) interface{} {
-	// Pattern: <entity-ref> entitypush <field> + /<field> xdef entitypop
-	// e.g., "add 1 to ThisClient's IncomeGroupCount" =>
-	//       "1 0 local@ entitypush IncomeGroupCount + /IncomeGroupCount xdef entitypop"
-	poss := ctx.POSSESSIVE().GetText()
-	// Remove 's suffix to get entity name
-	entityName := poss[:len(poss)-2]
-	fieldName := ctx.TypedLong().GetText()
-
-	// Check if entity is a local variable
-	if e.emitLocalRef(entityName) {
-		// emitLocalRef already emitted "<index> local@"
-	} else {
-		e.emit(entityName)
-	}
-	e.emit("entitypush")
-	e.emit(fieldName)
-	e.emit("+")
-	e.emit("/" + fieldName)
-	e.emit("xdef")
-	e.emit("entitypop")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitAddDestPossessiveDouble(ctx *AddDestPossessiveDoubleContext) interface{} {
-	// Pattern: <entity-ref> entitypush <field> + /<field> xdef entitypop
-	poss := ctx.POSSESSIVE().GetText()
-	// Remove 's suffix to get entity name
-	entityName := poss[:len(poss)-2]
-	fieldName := ctx.TypedDouble().GetText()
-
-	// Check if entity is a local variable
-	if e.emitLocalRef(entityName) {
-		// emitLocalRef already emitted "<index> local@"
-	} else {
-		e.emit(entityName)
-	}
-	e.emit("entitypush")
-	e.emit(fieldName)
-	e.emit("+")
-	e.emit("/" + fieldName)
-	e.emit("xdef")
-	e.emit("entitypop")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitSubDestPossessiveLong(ctx *SubDestPossessiveLongContext) interface{} {
-	// Pattern: <entity-ref> entitypush <field> - /<field> xdef entitypop
-	poss := ctx.POSSESSIVE().GetText()
-	// Remove 's suffix to get entity name
-	entityName := poss[:len(poss)-2]
-	fieldName := ctx.TypedLong().GetText()
-
-	// Check if entity is a local variable
-	if e.emitLocalRef(entityName) {
-		// emitLocalRef already emitted "<index> local@"
-	} else {
-		e.emit(entityName)
-	}
-	e.emit("entitypush")
-	e.emit(fieldName)
-	e.emit("-")
-	e.emit("/" + fieldName)
-	e.emit("xdef")
-	e.emit("entitypop")
-	return nil
-}
-
-func (e *PostfixEmitter) VisitSubDestPossessiveDouble(ctx *SubDestPossessiveDoubleContext) interface{} {
-	// Pattern: <entity-ref> entitypush <field> - /<field> xdef entitypop
-	poss := ctx.POSSESSIVE().GetText()
-	// Remove 's suffix to get entity name
-	entityName := poss[:len(poss)-2]
-	fieldName := ctx.TypedDouble().GetText()
-
-	// Check if entity is a local variable
-	if e.emitLocalRef(entityName) {
-		// emitLocalRef already emitted "<index> local@"
-	} else {
-		e.emit(entityName)
-	}
-	e.emit("entitypush")
-	e.emit(fieldName)
-	e.emit("-")
-	e.emit("/" + fieldName)
-	e.emit("xdef")
-	e.emit("entitypop")
 	return nil
 }
 
@@ -6908,11 +6654,6 @@ func (e *PostfixEmitter) VisitLeftIexprColon(ctx *LeftIexprColonContext) interfa
 	return nil
 }
 
-func (e *PostfixEmitter) VisitLeftFexprColon(ctx *LeftFexprColonContext) interface{} {
-	e.emitColonScoped(ctx.ColonRef(), ctx.LeftFexpr())
-	return nil
-}
-
 func (e *PostfixEmitter) VisitLeftBexprColon(ctx *LeftBexprColonContext) interface{} {
 	e.emitColonScoped(ctx.ColonRef(), ctx.LeftBexpr())
 	return nil
@@ -6925,11 +6666,6 @@ func (e *PostfixEmitter) VisitLeftEexprColon(ctx *LeftEexprColonContext) interfa
 
 func (e *PostfixEmitter) VisitLeftStrexprColon(ctx *LeftStrexprColonContext) interface{} {
 	e.emitColonScoped(ctx.ColonRef(), ctx.LeftStrexpr())
-	return nil
-}
-
-func (e *PostfixEmitter) VisitLeftDexprColon(ctx *LeftDexprColonContext) interface{} {
-	e.emitColonScoped(ctx.ColonRef(), ctx.LeftDexpr())
 	return nil
 }
 
@@ -7111,17 +6847,6 @@ func (e *PostfixEmitter) VisitDateFromStrFunc(ctx *DateFromStrFuncContext) inter
 // `<array> <index> bytesidx` sequence; we append cvdate.
 func (e *PostfixEmitter) VisitDateFromIndex(ctx *DateFromIndexContext) interface{} {
 	e.Visit(ctx.IndxExpr())
-	e.emit("cvdate")
-	return nil
-}
-
-// VisitDateFromArrayAt: `(date) <typedArray>[<iexpr>]` — same shape as
-// FromIndex but the grammar inlines the array+index instead of going
-// through indxExpr, so we emit the accessor ourselves (#1229).
-func (e *PostfixEmitter) VisitDateFromArrayAt(ctx *DateFromArrayAtContext) interface{} {
-	e.Visit(ctx.TypedArray())
-	e.Visit(ctx.Iexpr())
-	e.emit(e.indexOp(ctx.TypedArray()))
 	e.emit("cvdate")
 	return nil
 }

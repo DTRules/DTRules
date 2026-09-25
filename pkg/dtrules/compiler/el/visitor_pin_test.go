@@ -65,12 +65,11 @@ var inheritedAllowlist = map[string]string{
 	// today; convert to explicit overrides or to a verified
 	// fall-through rationale in follow-up PRs.
 	// =========================================================
-	// addtodest2 alts are reached only from addDestColon/subDestColon,
-	// which type-switch and extract `GetText()` directly without calling
-	// Visit. Verified by inspection (#803 batch 7).
-	"VisitAddDestArray2":  "dead grammar; addDest/subDestColon extract via GetText, never Visit",
-	"VisitAddDestDouble2": "dead grammar; addDest/subDestColon extract via GetText, never Visit",
-	"VisitAddDestLong2":   "dead grammar; addDest/subDestColon extract via GetText, never Visit",
+	// addtodest2's one remaining alt is reached only from addDestColon /
+	// subDestColon, which extract `GetText()` directly without calling
+	// Visit. Verified by inspection (#803 batch 7). Its Long2/Double2
+	// siblings could never be chosen and were deleted (#1250).
+	"VisitAddDestArray2": "dead grammar; addDest/subDestColon extract via GetText, never Visit",
 	// blist / blistIc alts are traversed directly by the parent
 	// visitors (VisitBoolStrEqList / VisitBoolStrEqIcList via
 	// collectBlistStrexprs), not via the antlr Visit dispatch — so
@@ -83,33 +82,6 @@ var inheritedAllowlist = map[string]string{
 	// picks intUsingArray (in iexpr) first for the `using <ident>(<expr>)`
 	// shape because both IDENT-typed sides match more broadly. The
 	// actually-reached intUsingArray now has an override (#803 batch 6).
-	// leftTexpr alts are unreachable because the only SET form that
-	// targets a typedTable (setTable) now emits an elstmterror
-	// placeholder without visiting the leftTexpr (hash tables removed,
-	// #803 batch 6).
-	"VisitLeftTexprColon":  "dead grammar; setTable emits elstmterror without visiting leftTexpr",
-	"VisitLeftTexprSimple": "dead grammar; setTable emits elstmterror without visiting leftTexpr",
-	// setArray<Type> are unreachable for non-array RHS: ANTLR picks
-	// setInt/setFloat/setString/setEntity/setDate first when the RHS
-	// could be either a single typed value or an arrayExpr. The only
-	// reachable setArray alt is setArrayArray (which now has an
-	// override). Verified by tree-dump probe (#803 batch 3).
-	"VisitSetArrayDate":   "dead grammar; setDate wins for IDENT/dexpr RHS",
-	"VisitSetArrayEntity": "dead grammar; setEntity wins for IDENT/eexpr RHS",
-	"VisitSetArrayFloat":  "dead grammar; setFloat wins for IDENT/fexpr RHS",
-	"VisitSetArrayInt":    "dead grammar; setInt wins for IDENT/iexpr RHS",
-	"VisitSetArrayString": "dead grammar; setString wins for IDENT/strexpr RHS",
-	// setStringFromNumber/Name are unreachable: ANTLR adaptive
-	// prediction picks setInt/setFloat/setName first for
-	// IDENT-prefixed RHS. Confirmed by parse-tree inspection (#803 batch 2).
-	"VisitSetStringFromNumber": "dead grammar; ANTLR picks setInt/setFloat for IDENT/number RHS",
-	// strConcatNull / strConcatInvalid: the base `strexpr PLUS strexpr`
-	// # strConcat wins when the RHS is an IDENT (it matches typedXmlValue).
-	// The Int/Float/Date/Entity/Array alternatives are reached with a
-	// literal, date or entity/array expression on the right (#1251) and
-	// have overrides.
-	"VisitStrConcatInvalid": "dead grammar; base strConcat wins parser-side",
-	"VisitStrConcatNull":    "dead grammar; base strConcat wins parser-side",
 	// tablelist / tableTyped are helper rules referenced from the
 	// table-lookup alts; with the table-lookup parent emitting
 	// elstmterror placeholders (#803 batch 6), the helpers are never
@@ -128,12 +100,9 @@ var inheritedAllowlist = map[string]string{
 	// `ctx.TypedOperator().GetText()`; VisitLocalEntityInit reads
 	// `ctx.UndefinedIdent().GetText()`). The Visit() entry points are
 	// never invoked. Verified by source inspection (#803 batch 7).
-	"VisitTypedBoolFunction": "dead grammar; consumers use TypedBoolFunction().GetText() directly",
-	"VisitTypedInvalid":      "dead grammar; only used by dead-grammar strConcatInvalid",
-	"VisitTypedNull":         "dead grammar; only used by dead-grammar strConcatNull",
-	"VisitTypedOperator":     "dead grammar; VisitOperatorstatements extracts via GetText",
-	"VisitUndefinedIdent":    "dead grammar; CREATE/LOCAL parents extract via UndefinedIdent().GetText",
-	"VisitUsingstatement":    "dead grammar; the rule's only alt wraps usingblock which is visited via children elsewhere",
+	"VisitTypedOperator":  "dead grammar; VisitOperatorstatements extracts via GetText",
+	"VisitUndefinedIdent": "dead grammar; CREATE/LOCAL parents extract via UndefinedIdent().GetText",
+	"VisitUsingstatement": "dead grammar; the rule's only alt wraps usingblock which is visited via children elsewhere",
 }
 
 // TestPostfixEmitterVisitorCoverage asserts that the inherited

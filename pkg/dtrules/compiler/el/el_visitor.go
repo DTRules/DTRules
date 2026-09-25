@@ -286,12 +286,6 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#leftIexprColon.
 	VisitLeftIexprColon(ctx *LeftIexprColonContext) interface{}
 
-	// Visit a parse tree produced by ELParser#leftFexprSimple.
-	VisitLeftFexprSimple(ctx *LeftFexprSimpleContext) interface{}
-
-	// Visit a parse tree produced by ELParser#leftFexprColon.
-	VisitLeftFexprColon(ctx *LeftFexprColonContext) interface{}
-
 	// Visit a parse tree produced by ELParser#leftBexprSimple.
 	VisitLeftBexprSimple(ctx *LeftBexprSimpleContext) interface{}
 
@@ -310,18 +304,6 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#leftStrexprColon.
 	VisitLeftStrexprColon(ctx *LeftStrexprColonContext) interface{}
 
-	// Visit a parse tree produced by ELParser#leftDexprSimple.
-	VisitLeftDexprSimple(ctx *LeftDexprSimpleContext) interface{}
-
-	// Visit a parse tree produced by ELParser#leftDexprColon.
-	VisitLeftDexprColon(ctx *LeftDexprColonContext) interface{}
-
-	// Visit a parse tree produced by ELParser#leftTexprSimple.
-	VisitLeftTexprSimple(ctx *LeftTexprSimpleContext) interface{}
-
-	// Visit a parse tree produced by ELParser#leftTexprColon.
-	VisitLeftTexprColon(ctx *LeftTexprColonContext) interface{}
-
 	// Visit a parse tree produced by ELParser#leftBigexprSimple.
 	VisitLeftBigexprSimple(ctx *LeftBigexprSimpleContext) interface{}
 
@@ -337,9 +319,6 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#setInt.
 	VisitSetInt(ctx *SetIntContext) interface{}
 
-	// Visit a parse tree produced by ELParser#setFloat.
-	VisitSetFloat(ctx *SetFloatContext) interface{}
-
 	// Visit a parse tree produced by ELParser#setBool.
 	VisitSetBool(ctx *SetBoolContext) interface{}
 
@@ -348,9 +327,6 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#setString.
 	VisitSetString(ctx *SetStringContext) interface{}
-
-	// Visit a parse tree produced by ELParser#setStringFromNumber.
-	VisitSetStringFromNumber(ctx *SetStringFromNumberContext) interface{}
 
 	// Visit a parse tree produced by ELParser#setStringFromDate.
 	VisitSetStringFromDate(ctx *SetStringFromDateContext) interface{}
@@ -361,30 +337,6 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#setStringFromTable.
 	VisitSetStringFromTable(ctx *SetStringFromTableContext) interface{}
 
-	// Visit a parse tree produced by ELParser#setBoolFromName.
-	VisitSetBoolFromName(ctx *SetBoolFromNameContext) interface{}
-
-	// Visit a parse tree produced by ELParser#setDate.
-	VisitSetDate(ctx *SetDateContext) interface{}
-
-	// Visit a parse tree produced by ELParser#setTable.
-	VisitSetTable(ctx *SetTableContext) interface{}
-
-	// Visit a parse tree produced by ELParser#setArrayEntity.
-	VisitSetArrayEntity(ctx *SetArrayEntityContext) interface{}
-
-	// Visit a parse tree produced by ELParser#setArrayString.
-	VisitSetArrayString(ctx *SetArrayStringContext) interface{}
-
-	// Visit a parse tree produced by ELParser#setArrayFloat.
-	VisitSetArrayFloat(ctx *SetArrayFloatContext) interface{}
-
-	// Visit a parse tree produced by ELParser#setArrayInt.
-	VisitSetArrayInt(ctx *SetArrayIntContext) interface{}
-
-	// Visit a parse tree produced by ELParser#setArrayDate.
-	VisitSetArrayDate(ctx *SetArrayDateContext) interface{}
-
 	// Visit a parse tree produced by ELParser#setArrayArray.
 	VisitSetArrayArray(ctx *SetArrayArrayContext) interface{}
 
@@ -394,14 +346,8 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#incrementLong.
 	VisitIncrementLong(ctx *IncrementLongContext) interface{}
 
-	// Visit a parse tree produced by ELParser#incrementDouble.
-	VisitIncrementDouble(ctx *IncrementDoubleContext) interface{}
-
 	// Visit a parse tree produced by ELParser#decrementLong.
 	VisitDecrementLong(ctx *DecrementLongContext) interface{}
-
-	// Visit a parse tree produced by ELParser#decrementDouble.
-	VisitDecrementDouble(ctx *DecrementDoubleContext) interface{}
 
 	// Visit a parse tree produced by ELParser#forctl.
 	VisitForctl(ctx *ForctlContext) interface{}
@@ -505,44 +451,17 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#addDestArray2.
 	VisitAddDestArray2(ctx *AddDestArray2Context) interface{}
 
-	// Visit a parse tree produced by ELParser#addDestLong2.
-	VisitAddDestLong2(ctx *AddDestLong2Context) interface{}
-
-	// Visit a parse tree produced by ELParser#addDestDouble2.
-	VisitAddDestDouble2(ctx *AddDestDouble2Context) interface{}
-
 	// Visit a parse tree produced by ELParser#addDestArray.
 	VisitAddDestArray(ctx *AddDestArrayContext) interface{}
-
-	// Visit a parse tree produced by ELParser#addDestLong.
-	VisitAddDestLong(ctx *AddDestLongContext) interface{}
-
-	// Visit a parse tree produced by ELParser#addDestDouble.
-	VisitAddDestDouble(ctx *AddDestDoubleContext) interface{}
 
 	// Visit a parse tree produced by ELParser#addDestColon.
 	VisitAddDestColon(ctx *AddDestColonContext) interface{}
 
-	// Visit a parse tree produced by ELParser#addDestPossessiveLong.
-	VisitAddDestPossessiveLong(ctx *AddDestPossessiveLongContext) interface{}
-
-	// Visit a parse tree produced by ELParser#addDestPossessiveDouble.
-	VisitAddDestPossessiveDouble(ctx *AddDestPossessiveDoubleContext) interface{}
-
 	// Visit a parse tree produced by ELParser#subDestLong.
 	VisitSubDestLong(ctx *SubDestLongContext) interface{}
 
-	// Visit a parse tree produced by ELParser#subDestDouble.
-	VisitSubDestDouble(ctx *SubDestDoubleContext) interface{}
-
 	// Visit a parse tree produced by ELParser#subDestColon.
 	VisitSubDestColon(ctx *SubDestColonContext) interface{}
-
-	// Visit a parse tree produced by ELParser#subDestPossessiveLong.
-	VisitSubDestPossessiveLong(ctx *SubDestPossessiveLongContext) interface{}
-
-	// Visit a parse tree produced by ELParser#subDestPossessiveDouble.
-	VisitSubDestPossessiveDouble(ctx *SubDestPossessiveDoubleContext) interface{}
 
 	// Visit a parse tree produced by ELParser#addArrayNoMember.
 	VisitAddArrayNoMember(ctx *AddArrayNoMemberContext) interface{}
@@ -615,9 +534,6 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#randomizeArray.
 	VisitRandomizeArray(ctx *RandomizeArrayContext) interface{}
-
-	// Visit a parse tree produced by ELParser#clearArray.
-	VisitClearArray(ctx *ClearArrayContext) interface{}
 
 	// Visit a parse tree produced by ELParser#sortAscending.
 	VisitSortAscending(ctx *SortAscendingContext) interface{}
@@ -769,9 +685,6 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#entityNewName.
 	VisitEntityNewName(ctx *EntityNewNameContext) interface{}
 
-	// Visit a parse tree produced by ELParser#entityNewTyped.
-	VisitEntityNewTyped(ctx *EntityNewTypedContext) interface{}
-
 	// Visit a parse tree produced by ELParser#entityClone.
 	VisitEntityClone(ctx *EntityCloneContext) interface{}
 
@@ -909,9 +822,6 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#dateExprSubDays.
 	VisitDateExprSubDays(ctx *DateExprSubDaysContext) interface{}
-
-	// Visit a parse tree produced by ELParser#dateFromArrayAt.
-	VisitDateFromArrayAt(ctx *DateFromArrayAtContext) interface{}
 
 	// Visit a parse tree produced by ELParser#dateFirstOfQuarterInZone.
 	VisitDateFirstOfQuarterInZone(ctx *DateFirstOfQuarterInZoneContext) interface{}
@@ -1096,20 +1006,11 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#strLiteral.
 	VisitStrLiteral(ctx *StrLiteralContext) interface{}
 
-	// Visit a parse tree produced by ELParser#strConcatInvalid.
-	VisitStrConcatInvalid(ctx *StrConcatInvalidContext) interface{}
-
 	// Visit a parse tree produced by ELParser#strMappingKey.
 	VisitStrMappingKey(ctx *StrMappingKeyContext) interface{}
 
 	// Visit a parse tree produced by ELParser#strTableInfo.
 	VisitStrTableInfo(ctx *StrTableInfoContext) interface{}
-
-	// Visit a parse tree produced by ELParser#strTyped.
-	VisitStrTyped(ctx *StrTypedContext) interface{}
-
-	// Visit a parse tree produced by ELParser#strConcatNull.
-	VisitStrConcatNull(ctx *StrConcatNullContext) interface{}
 
 	// Visit a parse tree produced by ELParser#strAttrOf.
 	VisitStrAttrOf(ctx *StrAttrOfContext) interface{}
@@ -1864,9 +1765,6 @@ type ELVisitor interface {
 	// Visit a parse tree produced by ELParser#boolOr.
 	VisitBoolOr(ctx *BoolOrContext) interface{}
 
-	// Visit a parse tree produced by ELParser#boolFunction.
-	VisitBoolFunction(ctx *BoolFunctionContext) interface{}
-
 	// Visit a parse tree produced by ELParser#boolDateIsNotNull.
 	VisitBoolDateIsNotNull(ctx *BoolDateIsNotNullContext) interface{}
 
@@ -1935,15 +1833,6 @@ type ELVisitor interface {
 
 	// Visit a parse tree produced by ELParser#typedXmlValue.
 	VisitTypedXmlValue(ctx *TypedXmlValueContext) interface{}
-
-	// Visit a parse tree produced by ELParser#typedNull.
-	VisitTypedNull(ctx *TypedNullContext) interface{}
-
-	// Visit a parse tree produced by ELParser#typedInvalid.
-	VisitTypedInvalid(ctx *TypedInvalidContext) interface{}
-
-	// Visit a parse tree produced by ELParser#typedBoolFunction.
-	VisitTypedBoolFunction(ctx *TypedBoolFunctionContext) interface{}
 
 	// Visit a parse tree produced by ELParser#typedBigInt.
 	VisitTypedBigInt(ctx *TypedBigIntContext) interface{}
