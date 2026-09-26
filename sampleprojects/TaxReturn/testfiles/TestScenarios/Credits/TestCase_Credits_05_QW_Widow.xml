@@ -4,7 +4,7 @@
    </copyright>
 
    <!-- Filing Status Test: Qualifying Widow(er) -->
-   <!-- 2025 Standard Deduction QW: $30,000 (same as MFJ) -->
+   <!-- 2025 Standard Deduction QSS: $31,500 (same as MFJ) -->
    <!-- Available for 2 years after spouse's death with dependent child -->
    <!-- Uses MFJ tax brackets - most favorable rates -->
 
@@ -16,14 +16,20 @@
 
    <!-- Income: $70,000 W-2 -->
    <!-- AGI: $70,000 -->
-   <!-- Standard Deduction: $30,000 (MFJ rate) -->
-   <!-- Taxable Income: $40,000 -->
-   <!-- Tax (2025 MFJ brackets): $4,294 -->
-   <!-- Also qualifies for Child Tax Credit: $2,000 -->
+   <!-- Standard Deduction: $31,500 (MFJ amount; 2025, OBBBA) -->
+   <!-- Taxable Income: $70,000 - $31,500 = $38,500 -->
+   <!-- Tax (2025 MFJ brackets): 2,385 + 12% of 14,650 = $4,143 -->
+   <!-- Also qualifies for the Child Tax Credit: $2,200 (2025). The rules
+        currently give none, because the dependent's relationship is
+        "daughter" rather than "child" (#1321). -->
+   <!-- expected_taxable_income was $54,250, i.e. $70,000 less the $15,750
+        Single deduction: written to match the rules while QW was not
+        recognised as a filing status, contradicting this file's own notes
+        (#1316). -->
    <expected_agi>70000</expected_agi>
-   <expected_standard_deduction>30000</expected_standard_deduction>
-   <expected_taxable_income>54250</expected_taxable_income>
-   <expected_ctc>2000</expected_ctc>
+   <expected_standard_deduction>31500</expected_standard_deduction>
+   <expected_taxable_income>38500</expected_taxable_income>
+   <expected_ctc>2200</expected_ctc>
 
    <taxpayers>
       <taxpayer id="1">

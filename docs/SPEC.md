@@ -535,9 +535,11 @@ entity/array inspection, console, watch, report, baseline, speculate.
 The samples are tests and documentation, not products, and these gaps are
 load-bearing enough to record:
 
-- **TaxReturn does not normalise `job.filing_status`.** The rules compare
-  canonical codes (`MFJ`, `HOH`, `MFS`, `QSS`); scenarios spelled
-  `married_filing_jointly` and the like are computed as Single (#1316).
+- **TaxReturn normalises `job.filing_status` but not
+  `dependent.relationship`.** `Normalize_Filing_Status` runs first and
+  rewrites every spelling to `MFJ`, `MFS`, `HOH`, `QSS` or `Single` (#1316).
+  A dependent whose relationship is `son` or `daughter` is not yet treated
+  as a qualifying child (#1321).
 - **Scenario `expected_state_tax` is not checked by the rules** (#1317).
   `TestStateScenarios` checks it for the states whose tables were rebuilt
   under #1200 (AR, LA, NM, OK).

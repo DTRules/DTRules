@@ -7,7 +7,7 @@
 <relative_path>NJ.xlsx</relative_path>
 <file_name>NJ.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:0921c945f0613c32843877398f33aca0827918ec67e615ad8031ce6345244d83</source_hash>
+<source_hash>sha256:c05a6b2e37699b4bac52d645acb3aa4f907de213ad7da4949da937bfe1e87e91</source_hash>
 </source>
 <table_name>NJ_Military_Retirement_Exclusion</table_name>
 <xls_file>NJ.xlsx</xls_file>
@@ -29,7 +29,7 @@
 <relative_path>NJ.xlsx</relative_path>
 <file_name>NJ.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:0921c945f0613c32843877398f33aca0827918ec67e615ad8031ce6345244d83</source_hash>
+<source_hash>sha256:c05a6b2e37699b4bac52d645acb3aa4f907de213ad7da4949da937bfe1e87e91</source_hash>
 </source>
 <table_name>nj_tax</table_name>
 <xls_file>NJ.xlsx</xls_file>
@@ -51,9 +51,9 @@
 <condition_details>
 <condition_number>1</condition_number>
 <condition_comment>Joint filers use the joint bracket schedule</condition_comment>
-<condition_dsl>job.filing_status is equal to "married_filing_jointly" OR job.filing_status is equal to "MFJ"</condition_dsl>
+<condition_dsl>job.filing_status is equal to "MFJ"</condition_dsl>
 <condition_postfix>
-job.filing_status "married_filing_jointly" streq { pop job.filing_status "MFJ" streq } over not if
+job.filing_status "MFJ" streq
 </condition_postfix>
 <columns>YN</columns>
 </condition_details>
@@ -105,7 +105,7 @@ result.nj_taxable_income cvd /result.computed_state_taxable_income xdef result.n
 <relative_path>NJ.xlsx</relative_path>
 <file_name>NJ.xlsx</file_name>
 <sheet_number>3</sheet_number>
-<source_hash>sha256:0921c945f0613c32843877398f33aca0827918ec67e615ad8031ce6345244d83</source_hash>
+<source_hash>sha256:c05a6b2e37699b4bac52d645acb3aa4f907de213ad7da4949da937bfe1e87e91</source_hash>
 </source>
 <table_name>NJ_Tax_MFJ_Brackets</table_name>
 <xls_file>NJ.xlsx</xls_file>
@@ -264,7 +264,7 @@ nj_bracket_1_limit_joint nj_bracket_1_rate fmul nj_bracket_2_limit_joint nj_brac
 <relative_path>NJ.xlsx</relative_path>
 <file_name>NJ.xlsx</file_name>
 <sheet_number>4</sheet_number>
-<source_hash>sha256:0921c945f0613c32843877398f33aca0827918ec67e615ad8031ce6345244d83</source_hash>
+<source_hash>sha256:c05a6b2e37699b4bac52d645acb3aa4f907de213ad7da4949da937bfe1e87e91</source_hash>
 </source>
 <table_name>NJ_Tax_Single_Brackets</table_name>
 <xls_file>NJ.xlsx</xls_file>
