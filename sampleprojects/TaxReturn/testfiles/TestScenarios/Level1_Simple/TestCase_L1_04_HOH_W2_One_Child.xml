@@ -23,10 +23,12 @@
    <!--   Tax before credits ≈ $5,225 -->
    <!-- CTC: $2,200 per qualifying child (OBBBA Sec 13404) → -$2,200 -->
    <!--   Net regular tax  ≈ $3,025 -->
-   <!-- Expected total tax in test: ~$3,127 (small variance for additional computations) -->
+   <!-- expected_total_tax was $3,127: the Single schedule's $5,326.50 less
+        $2,200, written while the rules taxed HOH on the Single brackets
+        (#1324), against this file's own arithmetic above. -->
    <expected_agi>70000</expected_agi>
    <expected_taxable_income>46375</expected_taxable_income>
-   <expected_total_tax>3127</expected_total_tax>
+   <expected_total_tax>3025</expected_total_tax>
 
    <taxpayers>
       <taxpayer id="1">

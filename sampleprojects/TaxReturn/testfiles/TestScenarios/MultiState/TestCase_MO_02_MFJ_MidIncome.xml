@@ -27,9 +27,15 @@
    <!-- Expected values for validation (2025) -->
    <!-- Income: $75,000 + $55,000 = $130,000 -->
    <!-- Federal AGI: $130,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $30,000 (MFJ per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $100,000 -->
-   <!-- Federal Tax: 10% × $23,200 + 12% × $70,650 + 22% × $6,150 = $2,320 + $8,478 + $1,353 = $12,151 -->
+   <!-- 2025 federal figures re-derived (#1321, #1324): the $31,500 MFJ /
+        $23,625 HOH standard deduction (OBBBA), Rev. Proc. 2024-40 rate
+        schedules, and the $2,200 child tax credit for each child under 17.
+        The expected totals here had been written while sons and daughters got
+        no child tax credit and HOH was taxed on the Single schedule. -->
+   <!-- Federal Standard Deduction: $31,500 (MFJ) -->
+   <!-- Federal Taxable: $130,000 - $31,500 = $98,500 -->
+   <!-- Federal Tax: 10% x $23,850 + 12% x $73,100 + 22% x $1,550 = $2,385 + $8,772 + $341 = $11,498 -->
+   <!-- Child Tax Credit: 2 x $2,200 = $4,400; total tax $11,498 - $4,400 = $7,098 -->
    <!-- MO Standard Deduction: $30,000 (MFJ) -->
    <!-- MO Taxable: $130,000 - $30,000 = $100,000 -->
    <!-- MO Tax calculation (all income in top bracket): -->
@@ -45,9 +51,9 @@
    <!-- Withholding: $15,000 federal + $4,500 state -->
    <expected_agi>130000</expected_agi>
    <expected_taxable_income>98500</expected_taxable_income>
-   <expected_federal_tax>12151</expected_federal_tax>
+   <expected_federal_tax>11498</expected_federal_tax>
    <expected_state_tax>4525</expected_state_tax>
-   <expected_total_tax>10498</expected_total_tax>
+   <expected_total_tax>7098</expected_total_tax>
 
    <!-- Married Couple -->
    <taxpayers>

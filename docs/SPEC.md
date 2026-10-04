@@ -535,11 +535,12 @@ entity/array inspection, console, watch, report, baseline, speculate.
 The samples are tests and documentation, not products, and these gaps are
 load-bearing enough to record:
 
-- **TaxReturn normalises `job.filing_status` but not
-  `dependent.relationship`.** `Normalize_Filing_Status` runs first and
-  rewrites every spelling to `MFJ`, `MFS`, `HOH`, `QSS` or `Single` (#1316).
-  A dependent whose relationship is `son` or `daughter` is not yet treated
-  as a qualifying child (#1321).
+- **TaxReturn normalises its inputs before computing.** `Compute_Tax_Return`
+  first rewrites every filing-status spelling to `MFJ`, `MFS`, `HOH`, `QSS`
+  or `Single` (#1316), and every child relationship (son, daughter,
+  stepchild, foster or adopted child) to `child` (#1321). Siblings and
+  grandchildren, who can also be qualifying children, are not yet accepted
+  by the credit tables.
 - **Scenario `expected_state_tax` is not checked by the rules** (#1317).
   `TestStateScenarios` checks it for the states whose tables were rebuilt
   under #1200 (AR, LA, NM, OK).
