@@ -31,6 +31,9 @@
    <!-- Ohio (2025 IT 1040 booklet, tax.ohio.gov): exemption $1,900 per exemption at MAGI $85,000,
         2 exemptions = $3,800; Ohio taxable income $85,000 - $3,800 = $81,200; 2025 brackets (IT 1040 line 8a;
         R.C. 5747.02): $342.00 + 2.75% of ($81,200 - $26,050) = $1,858.62 -->
+   <!-- Ohio's printed 2025 figures are inconsistent: the over-$100,000 base, $2,394.32, is $360.69 (the 2024
+        bracket base) + 2.75% x $73,950, not $342.00 + 2.75% x $73,950 = $2,375.63. The $342.00 printed in the
+        2025 IT 1040 booklet and R.C. 5747.02 is used as published; the inconsistency is Ohio's. -->
    <!-- Joint filing credit (Schedule of Credits line 12): both spouses have qualifying income;
         MAGI less exemptions $81,200, so 5% of $1,858.62 = $92.93 (max $650); tax after credit $1,765.69 -->
    <!-- expected_state_tax was $1519, not derived from the state's 2025 form (#1317). -->

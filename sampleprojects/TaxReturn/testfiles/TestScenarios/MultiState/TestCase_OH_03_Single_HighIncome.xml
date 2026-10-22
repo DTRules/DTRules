@@ -31,6 +31,9 @@
    <!-- Ohio (2025 IT 1040 booklet, tax.ohio.gov): exemption $1,900 per exemption at MAGI $150,000,
         1 exemption = $1,900; Ohio taxable income $150,000 - $1,900 = $148,100; 2025 brackets (IT 1040 line 8a;
         R.C. 5747.02): $2,394.32 + 3.125% of ($148,100 - $100,000) = $3,897.45 -->
+   <!-- Ohio's printed 2025 figures are inconsistent: $2,394.32 is $360.69 (the 2024 bracket base) + 2.75% x
+        $73,950; the 2025 booklet's own $342.00 would give $2,375.63. The $2,394.32 printed in the 2025 IT 1040
+        booklet and R.C. 5747.02 is used as published; the inconsistency is Ohio's. -->
    <!-- expected_state_tax was $3538, not derived from the state's 2025 form (#1317). -->
    <expected_agi>150000</expected_agi>
    <expected_taxable_income>134250</expected_taxable_income>

@@ -11,8 +11,10 @@
 		</source>
 		<field name="oh_bracket_1_limit" type="double" subtype="" access="r" input="" default_value="26050.0" comment="OH tax bracket 1 upper limit - 0% rate applies (2025)"></field>
 		<field name="oh_bracket_1_rate" type="double" subtype="" access="r" input="" default_value="0.0" comment="OH tax rate for bracket 1 - 0% (2025)"></field>
+		<field name="oh_bracket_2_base" type="double" subtype="" access="r" input="" default_value="342.0" comment="OH 2025 tax at the bottom of bracket 2: $342.00 plus 2.75% of Ohio taxable income over $26,050, as the 2025 IT 1040 booklet (tax.ohio.gov) and R.C. 5747.02 print it. Ohio printed figures are inconsistent: the over-$100,000 base $2,394.32 is $360.69 (the 2024 base) + 2.75% x $73,950, not $342.00 + 2.75% x $73,950 = $2,375.63. The printed $342.00 is used as published (#1317)."></field>
 		<field name="oh_bracket_2_limit" type="double" subtype="" access="r" input="" default_value="100000.0" comment="OH tax bracket 2 upper limit (2025)"></field>
 		<field name="oh_bracket_2_rate" type="double" subtype="" access="r" input="" default_value="0.0275" comment="OH tax rate for bracket 2 - 2.75% (2025)"></field>
+		<field name="oh_bracket_3_base" type="double" subtype="" access="r" input="" default_value="2394.32" comment="OH 2025 tax at the bottom of bracket 3: $2,394.32 plus 3.125% of Ohio taxable income over $100,000, as the 2025 IT 1040 booklet and R.C. 5747.02 print it. $2,394.32 is consistent only with the 2024 bracket-2 base $360.69, not the 2025 $342.00 (see oh_bracket_2_base); the inconsistency is Ohio own figures (#1317)."></field>
 		<field name="oh_bracket_3_rate" type="double" subtype="" access="r" input="" default_value="0.03125" comment="OH tax rate for bracket 3 (income &gt; $100,000) - 3.125% (2025)"></field>
 		<field name="oh_exemption_high" type="double" subtype="" access="r" input="" default_value="1850.0" comment="OH personal exemption if MAGI over $80,000 (2025)"></field>
 		<field name="oh_exemption_low" type="double" subtype="" access="r" input="" default_value="2350.0" comment="OH personal exemption if MAGI under or equal to $40,000 (2025)"></field>
