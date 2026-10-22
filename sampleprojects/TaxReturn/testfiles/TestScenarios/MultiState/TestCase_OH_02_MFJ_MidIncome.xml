@@ -25,21 +25,19 @@
    <city>Cleveland</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $85,000 combined W2 -->
-   <!-- Federal AGI: $85,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $30,000 (MFJ per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $55,000 -->
-   <!-- Federal Tax: ~$5,827 (10% on $23,850 + 12% on $31,150) -->
-   <!-- OH Personal Exemption: $1,850 x 2 = $3,700 (AGI > $80,000) -->
-   <!-- OH Taxable: $85,000 - $3,700 = $81,300 -->
-   <!-- OH Tax: ($81,300 - $26,050) x 2.75% = $55,250 x 0.0275 = $1,519.38 -->
-   <!-- Withholding: $10,000 federal + $2,000 state -->
-   <!-- Federal Refund: ~$4,173 -->
-   <!-- State Refund: $480.62 -->
+   <!-- Income: $55,000 + $30,000 W-2 = $85,000 -->
+   <!-- Federal: AGI $85,000; standard deduction $31,500 (MFJ; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $85,000 - $31,500 = $53,500; tax $5,943 (2025 MFJ schedule, Rev. Proc. 2024-40) -->
+   <!-- Ohio (2025 IT 1040 booklet, tax.ohio.gov): exemption $1,900 per exemption at MAGI $85,000,
+        2 exemptions = $3,800; Ohio taxable income $85,000 - $3,800 = $81,200; 2025 brackets (IT 1040 line 8a;
+        R.C. 5747.02): $342.00 + 2.75% of ($81,200 - $26,050) = $1,858.62 -->
+   <!-- Joint filing credit (Schedule of Credits line 12): both spouses have qualifying income;
+        MAGI less exemptions $81,200, so 5% of $1,858.62 = $92.93 (max $650); tax after credit $1,765.69 -->
+   <!-- expected_state_tax was $1519, not derived from the state's 2025 form (#1317). -->
    <expected_agi>85000</expected_agi>
    <expected_taxable_income>53500</expected_taxable_income>
-   <expected_federal_tax>5827</expected_federal_tax>
-   <expected_state_tax>1519</expected_state_tax>
+   <expected_federal_tax>5943</expected_federal_tax>
+   <expected_state_tax>1766</expected_state_tax>
    <expected_total_tax>5943</expected_total_tax>
 
    <!-- Married Filing Jointly -->

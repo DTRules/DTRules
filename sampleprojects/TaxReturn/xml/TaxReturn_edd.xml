@@ -7,7 +7,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="adoption_finalized" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Adoption finalized"></field>
 		<field name="adoption_type" type="string" subtype="" access="r" input="main" default_value="domestic" comment="Type: domestic, foreign, special_needs"></field>
@@ -29,7 +29,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="cost_basis" type="double" subtype="" access="r" input="main" default_value="0" comment="Cost or adjusted basis"></field>
 		<field name="decrease_in_fmv" type="double" subtype="" access="rw" input="" default_value="0" comment="Decrease in FMV"></field>
@@ -50,7 +50,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="child_age" type="integer" subtype="" access="r" input="main" default_value="" comment="Child age at year end"></field>
 		<field name="child_earned_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Child earned income"></field>
@@ -69,7 +69,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="battery_capacity" type="double" subtype="" access="r" input="main" default_value="0" comment="Battery capacity in kWh"></field>
 		<field name="battery_components_pct" type="double" subtype="" access="r" input="main" default_value="0" comment="Battery components domestic content %"></field>
@@ -91,7 +91,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="HOH" type="string" subtype="" access="r" input="" default_value="HOH" comment="Head of Household"></field>
 		<field name="MFJ" type="string" subtype="" access="r" input="" default_value="MFJ" comment="Married Filing Jointly"></field>
@@ -376,7 +376,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit amount (computed)"></field>
 		<field name="description" type="string" subtype="" access="rw" input="" default_value="" comment="Description"></field>
@@ -392,7 +392,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="allowed_amount" type="double" subtype="" access="rw" input="" default_value="0" comment="Allowed amount after limitations (computed)"></field>
 		<field name="amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Claimed amount"></field>
@@ -408,7 +408,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="age" type="integer" subtype="" access="r" input="main" default_value="0" comment="Age at end of tax year"></field>
 		<field name="aotc_used_years" type="integer" subtype="" access="r" input="main" default_value="0" comment="Years AOTC already claimed (max 4)"></field>
@@ -444,7 +444,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="account_type" type="string" subtype="" access="r" input="main" default_value="ira" comment="Account type: ira, 401k, 403b, 457, roth_ira"></field>
 		<field name="age_at_distribution" type="integer" subtype="" access="r" input="main" default_value="0" comment="Age at time of distribution"></field>
@@ -463,7 +463,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="age_65_or_older" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Age 65 or older at end of year"></field>
 		<field name="agi_reduction" type="double" subtype="" access="rw" input="" default_value="0" comment="Reduction for excess AGI"></field>
@@ -483,7 +483,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="category" type="string" subtype="" access="r" input="main" default_value="" comment="Category: clean_energy (25D) or efficiency (25C)"></field>
 		<field name="cost" type="double" subtype="" access="r" input="main" default_value="0" comment="Total cost of improvement"></field>
@@ -497,7 +497,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="days_late" type="integer" subtype="" access="rw" input="" default_value="0" comment="Days payment was late"></field>
 		<field name="due_date" type="date" subtype="" access="r" input="main" default_value="" comment="Due date for quarter"></field>
@@ -513,7 +513,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Amount"></field>
 		<field name="category" type="string" subtype="" access="r" input="main" default_value="" comment="business_expense, home_office or farm_expense"></field>
@@ -525,7 +525,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="accounting_method" type="string" subtype="" access="r" input="main" default_value="cash" comment="Method: cash or accrual"></field>
 		<field name="agricultural_payments" type="double" subtype="" access="r" input="main" default_value="0" comment="Line 6: Agricultural program payments"></field>
@@ -572,7 +572,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="bona_fide_resident" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Bona fide residence test (full tax year)"></field>
 		<field name="country" type="string" subtype="" access="r" input="main" default_value="" comment="Foreign country of residence"></field>
@@ -594,7 +594,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="capital_gains" type="double" subtype="" access="r" input="main" default_value="0" comment="Foreign capital gains"></field>
 		<field name="country" type="string" subtype="" access="r" input="main" default_value="" comment="Country name"></field>
@@ -620,7 +620,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="cash_wages" type="double" subtype="" access="r" input="main" default_value="0" comment="Cash wages paid"></field>
 		<field name="federal_withholding" type="double" subtype="" access="r" input="main" default_value="0" comment="Federal income tax withheld"></field>
@@ -640,7 +640,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="gross_amount" type="double" subtype="" access="r" input="main" default_value="0" comment="Gross income amount"></field>
 		<field name="holding_period" type="string" subtype="" access="r" input="main" default_value="" comment="Holding period: short_term or long_term (Schedule D)"></field>
@@ -660,7 +660,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="adjusted_basis" type="double" subtype="" access="r" input="main" default_value="0" comment="Adjusted basis in property"></field>
 		<field name="contract_price" type="double" subtype="" access="rw" input="" default_value="0" comment="Contract price for GP ratio"></field>
@@ -682,7 +682,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="account_number" type="string" subtype="" access="r" input="main" default_value="" comment="Account number (last 4)"></field>
 		<field name="account_type" type="string" subtype="" access="r" input="main" default_value="traditional" comment="Type: traditional, roth, sep, simple"></field>
@@ -703,7 +703,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="actively_participates_rental" type="boolean" subtype="" access="r" input="main" default_value="true" comment="Actively participates in rental activities"></field>
 		<field name="adoptions" type="array" subtype="adoption" access="r" input="" default_value="" comment="Form 8839 Adoption Credits"></field>
@@ -729,6 +729,7 @@
 		<field name="expected_nonresident_source_income" type="double" subtype="" access="r" input="main" default_value="0" comment="Scenario expectation: income the work state may still tax after the wage exemption -- 0 when the taxpayer earned only wages there."></field>
 		<field name="expected_reciprocity_state" type="string" subtype="" access="r" input="main" default_value="" comment="Scenario expectation: the work state a reciprocal agreement should exempt. Empty means the scenario makes no reciprocity claim and Validate_Reciprocity stays silent."></field>
 		<field name="expected_refund" type="double" subtype="" access="r" input="main" default_value="" comment="Expected refund for validation"></field>
+		<field name="expected_state_tax" type="double" subtype="" access="r" input="main" default_value="" comment="Scenario expectation: the resident state&#39;s income tax as its own 2025 form computes it (after its exemptions and its own nonrefundable credits, before credit for taxes paid to other states), compared with state_tax_before_credits on the roster entry for job.state. Null when the scenario states none."></field>
 		<field name="expected_taxable_income" type="double" subtype="" access="r" input="main" default_value="" comment="Expected taxable income for validation"></field>
 		<field name="expected_total_tax" type="double" subtype="" access="r" input="main" default_value="" comment="Expected total tax for validation"></field>
 		<field name="expenses" type="array" subtype="expense" access="r" input="" default_value="" comment="Schedule C / F expense lines (#1194)"></field>
@@ -770,7 +771,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="ein" type="string" subtype="" access="r" input="main" default_value="" comment="Entity EIN"></field>
 		<field name="entity_name" type="string" subtype="" access="r" input="main" default_value="" comment="Partnership/S-corp/Trust name"></field>
@@ -804,7 +805,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="accelerated_portion" type="double" subtype="" access="r" input="main" default_value="0" comment="Accelerated portion of credit previously claimed"></field>
 		<field name="building_identification" type="string" subtype="" access="r" input="main" default_value="" comment="Building identification number (BIN)"></field>
@@ -823,7 +824,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="boot_received" type="double" subtype="" access="rw" input="" default_value="0" comment="Total boot received"></field>
 		<field name="cash_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="Cash boot paid"></field>
@@ -848,7 +849,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="carryforward_to_next" type="double" subtype="" access="rw" input="" default_value="0" comment="Unused credit carried to next year"></field>
 		<field name="certificate_number" type="string" subtype="" access="r" input="main" default_value="" comment="MCC certificate number"></field>
@@ -868,7 +869,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="amount_available" type="double" subtype="" access="r" input="main" default_value="0" comment="Amount available this year"></field>
 		<field name="amount_used" type="double" subtype="" access="rw" input="" default_value="0" comment="Amount used this year"></field>
@@ -884,7 +885,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="acquisition_method" type="string" subtype="" access="r" input="main" default_value="purchase" comment="How acquired: purchase, gift, inheritance, exchange"></field>
 		<field name="agi_limitation" type="double" subtype="" access="rw" input="" default_value="0" comment="AGI percentage limitation (30% or 50%)"></field>
@@ -914,7 +915,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="additional_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Additional tax due from adjustments"></field>
 		<field name="adjustment_year" type="integer" subtype="" access="r" input="main" default_value="" comment="Adjustment year (current year)"></field>
@@ -938,7 +939,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="amt_paid" type="double" subtype="" access="r" input="main" default_value="0" comment="AMT paid in origin year"></field>
 		<field name="carryforward_remaining" type="double" subtype="" access="rw" input="" default_value="0" comment="Credit remaining for future years"></field>
@@ -955,7 +956,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="active_participation" type="boolean" subtype="" access="r" input="main" default_value="false" comment="Taxpayer actively participates in rental (PAL exception)"></field>
 		<field name="address" type="string" subtype="" access="r" input="main" default_value="" comment="Property address"></field>
@@ -987,7 +988,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="adjusted_basis" type="double" subtype="" access="rw" input="" default_value="0" comment="Adjusted basis (cost + improvements - depreciation)"></field>
 		<field name="amount_realized" type="double" subtype="" access="rw" input="" default_value="0" comment="Amount realized (sales price - expenses)"></field>
@@ -1012,7 +1013,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="active_rental_net" type="double" subtype="" access="rw" input="" default_value="0" comment="Net Schedule E income of rental real estate the taxpayer actively participates in (Form 8582 lines 1a-1b; IRC 469(i))"></field>
 		<field name="additional_medicare_tax" type="double" subtype="" access="rw" input="" default_value="0" comment="Additional Medicare Tax (Form 8959)"></field>
@@ -1267,7 +1268,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="allocated_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Income allocated to this state (computed)"></field>
 		<field name="allocated_wage_income" type="double" subtype="" access="rw" input="" default_value="0" comment="Wages and salaries allocated to this period. Kept apart from allocated_income because reciprocal agreements exempt employee compensation only."></field>
@@ -1286,7 +1287,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="is_resident" type="boolean" subtype="" access="rw" input="" default_value="false" comment="True for the taxpayer resident state, false for a state taxed on sourced income only."></field>
 		<field name="reciprocity_applies" type="boolean" subtype="" access="rw" input="" default_value="false" comment="A reciprocal agreement between this work state and the resident state exempts this state wages."></field>
@@ -1307,7 +1308,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="age_50_or_over" type="boolean" subtype="" access="rw" input="main" default_value="false" comment="Age 50 or over for catchup contributions"></field>
 		<field name="appliance_type" type="string" subtype="" access="r" input="main" default_value="" comment="Type: dishwasher, clothes_washer, refrigerator (Form 8909)"></field>
@@ -1384,7 +1385,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="employer_ein" type="string" subtype="" access="r" input="main" default_value="" comment="Employer EIN"></field>
 		<field name="employer_name" type="string" subtype="" access="r" input="main" default_value="" comment="Employer name"></field>
@@ -1405,7 +1406,7 @@
 		<source>
 			<relative_path>TaxReturn.xlsx</relative_path>
 			<file_name>TaxReturn.xlsx</file_name>
-			<sheet_number>134</sheet_number>
+			<sheet_number>135</sheet_number>
 		</source>
 		<field name="actual_expenses" type="double" subtype="" access="r" input="main" default_value="0" comment="Actual vehicle expenses if using actual method"></field>
 		<field name="business_miles" type="integer" subtype="" access="r" input="main" default_value="0" comment="Business miles driven"></field>

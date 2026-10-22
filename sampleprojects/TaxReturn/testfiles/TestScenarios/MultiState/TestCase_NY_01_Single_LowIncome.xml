@@ -25,20 +25,17 @@
    <city>Albany</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $50,000 W2 -->
-   <!-- Federal AGI: $50,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $35,000 -->
-   <!-- NY Standard Deduction: $8,000 (Single) -->
-   <!-- NY Taxable: $42,000 -->
-   <!-- NY Tax: $2,145 (progressive brackets 1-4) -->
-   <!--   Bracket 1: $8,500 * 4% = $340 -->
-   <!--   Bracket 2: $3,200 * 4.5% = $144 -->
-   <!--   Bracket 3: $2,200 * 5.25% = $115.50 -->
-   <!--   Bracket 4: $28,100 * 5.5% = $1,545.50 -->
+   <!-- Income: $50,000 W-2 -->
+   <!-- Federal: AGI $50,000; standard deduction $15,750 (Single; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $50,000 - $15,750 = $34,250; tax $3,871.50 (2025 Single schedule, Rev. Proc. 2024-40) -->
+   <!-- New York (2025 Form IT-201): standard deduction $8,000 Single (IT-201-I page 10);
+        NY taxable income $50,000 - $8,000 = $42,000. NYAGI is not over $107,650 and taxable income is
+        under $65,000, so the 2025 NYS tax table applies: row at least $42,000 but less than $42,050,
+        Single column, $2,147 (rate schedule at the band's midpoint: $600 + 5.5% of the excess over $13,900) -->
+   <!-- expected_state_tax was $2145, not derived from the state's 2025 form (#1317). -->
    <expected_agi>50000</expected_agi>
    <expected_taxable_income>34250</expected_taxable_income>
-   <expected_state_tax>2145</expected_state_tax>
+   <expected_state_tax>2147</expected_state_tax>
 
    <!-- Single Taxpayer -->
    <taxpayers>

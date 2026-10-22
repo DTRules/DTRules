@@ -25,23 +25,20 @@
    <city>Green Bay</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $400,000 W2 -->
-   <!-- Federal AGI: $400,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $385,000 -->
-   <!-- Federal Tax: $110,851 (10% on $11,925 + 12% on $36,550 + 22% on $50,000 + 24% on $54,425 + 32% on $78,450 + 35% on $130,000 + 37% on $23,650) -->
-   <!-- WI Standard Deduction: $14,260 -->
-   <!-- WI Taxable: $400,000 - $14,260 = $385,740 -->
-   <!-- WI Tax Bracket 1: $14,679 × 3.5% = $513.77 -->
-   <!-- WI Tax Bracket 2: ($50,479 - $14,679) × 4.4% = $1,575.20 -->
-   <!-- WI Tax Bracket 3: ($323,289 - $50,479) × 5.3% = $14,458.93 -->
-   <!-- WI Tax Bracket 4: ($385,740 - $323,289) × 7.65% = $4,777.50 -->
-   <!-- WI Tax Total: $21,325.40 -->
-   <!-- Withholding: $120,000 federal + $22,000 state -->
+   <!-- Income: $400,000 W-2 -->
+   <!-- Federal: AGI $400,000; standard deduction $15,750 (Single; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $400,000 - $15,750 = $384,250; tax $104,034.75 (2025 Single schedule, Rev. Proc. 2024-40) -->
+   <!-- Additional Medicare tax (Form 8959): 0.9% of wages over $200,000 = $1,800; total $105,834.75 -->
+   <!-- Wisconsin (2025 Form 1 instructions, revenue.wi.gov/TaxForms2025/2025-Form1-Inst.pdf):
+        line 8 standard deduction $0 (the single deduction is fully phased out above the table); line 10 exemptions 1 x $700 = $700;
+        line 11 taxable income $400,000 - $0 - $700 = $399,300 -->
+   <!-- Line 12 tax from the Tax Computation Worksheet (taxable income $100,000 or more), Section A,
+        $323,290 or over: $399,300 x 7.65% - $8,183.76 = $22,362.69 -->
+   <!-- expected_state_tax was $21325, not derived from the state's 2025 form (#1317). -->
    <expected_agi>400000</expected_agi>
    <expected_taxable_income>384250</expected_taxable_income>
-   <expected_federal_tax>110851</expected_federal_tax>
-   <expected_state_tax>21325</expected_state_tax>
+   <expected_federal_tax>104035</expected_federal_tax>
+   <expected_state_tax>22363</expected_state_tax>
    <expected_total_tax>105834.75</expected_total_tax>
 
    <!-- Single High-Income Taxpayer -->

@@ -541,9 +541,16 @@ load-bearing enough to record:
   stepchild, foster or adopted child) to `child` (#1321). Siblings and
   grandchildren, who can also be qualifying children, are not yet accepted
   by the credit tables.
-- **Scenario `expected_state_tax` is not checked by the rules** (#1317).
-  `TestStateScenarios` checks it for the states whose tables were rebuilt
-  under #1200 (AR, LA, NM, OK).
+- **Scenario `expected_state_tax` is the resident state's own tax.**
+  `Validate_State_Tax` (#1317) compares it, within $1, with
+  `state_tax_before_credits` on the roster entry whose `state_code` is
+  `job.state`: the state's income tax as its own form computes it, after its
+  exemptions and its own nonrefundable credits, before credit for taxes paid
+  to other states. It runs with the other `Validate_*` tables whenever the
+  field is set, so the ratchet covers state tax; `TestStateScenarios` is
+  gone. Most state tables are still placeholders (the top rate on AGI less a
+  deduction), so a scenario reconciled to its state's form fails until #1200
+  rebuilds that state.
 - **A scenario's expected figures are worked from its own inputs and the
   year's law, never from what the rules print.** The arithmetic and its
   source go in the file (`Credits_05_QW_Widow`, the `XX_02_MFJ_Multiple`

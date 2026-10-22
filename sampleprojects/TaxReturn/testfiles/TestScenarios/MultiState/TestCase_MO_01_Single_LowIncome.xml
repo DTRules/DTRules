@@ -25,30 +25,19 @@
    <city>Kansas City</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $25,000 W2 -->
-   <!-- Federal AGI: $25,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $10,000 -->
-   <!-- Federal Tax: $1,000 (10% on $10,000) -->
-   <!-- MO Standard Deduction: $15,000 (Single) -->
-   <!-- MO Taxable: $25,000 - $15,000 = $10,000 -->
-   <!-- MO Tax calculation: -->
-   <!--   Bracket 1: $1,313 × 0% = $0 -->
-   <!--   Bracket 2: ($2,626 - $1,313) = $1,313 × 2% = $26.26 -->
-   <!--   Bracket 3: ($3,939 - $2,626) = $1,313 × 2.5% = $32.83 -->
-   <!--   Bracket 4: ($5,252 - $3,939) = $1,313 × 3% = $39.39 -->
-   <!--   Bracket 5: ($6,565 - $5,252) = $1,313 × 3.5% = $45.96 -->
-   <!--   Bracket 6: ($7,878 - $6,565) = $1,313 × 4% = $52.52 -->
-   <!--   Bracket 7: ($9,191 - $7,878) = $1,313 × 4.6% = $60.40 -->
-   <!--   Bracket 8: ($10,000 - $9,191) = $809 × 4.7% = $38.02 -->
-   <!--   Total MO Tax: $295.38 -->
-   <!-- Withholding: $3,000 federal + $300 state -->
-   <!-- Federal Refund: $2,000 -->
-   <!-- State Refund: $4.62 -->
+   <!-- Income: $25,000 W-2 -->
+   <!-- Federal: AGI $25,000; standard deduction $15,750 (Single; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $25,000 - $15,750 = $9,250; tax $925 (2025 Single schedule, Rev. Proc. 2024-40) -->
+   <!-- Missouri (2025 Form MO-1040 and 2025 Tax Chart, dor.mo.gov): line 11 federal tax is
+        Form 1040 line 22 (after nonrefundable credits), $925; line 12 percentage for
+        Missouri AGI $25,000 is 35%; line 13 federal income tax deduction $324 (cap $5,000/$10,000);
+        line 14 standard deduction $15,750 -->
+   <!-- Line 29 taxable income $8,926; chart: $197 + 4.5% of the excess over $7,878 = $244 -->
+   <!-- expected_state_tax was $295, not derived from the state's 2025 form (#1317). -->
    <expected_agi>25000</expected_agi>
    <expected_taxable_income>9250</expected_taxable_income>
-   <expected_federal_tax>1000</expected_federal_tax>
-   <expected_state_tax>295</expected_state_tax>
+   <expected_federal_tax>925</expected_federal_tax>
+   <expected_state_tax>244</expected_state_tax>
    <expected_total_tax>925</expected_total_tax>
 
    <!-- Single Taxpayer -->

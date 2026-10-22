@@ -25,23 +25,17 @@
    <city>Richmond</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $20,000 W2 -->
-   <!-- Federal AGI: $20,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $5,000 -->
-   <!-- Federal Tax: $500 (10% on $5,000) -->
-   <!-- VA AGI: $20,000 -->
-   <!-- VA Standard Deduction: $8,750 -->
-   <!-- VA Taxable Income: $11,250 -->
-   <!-- VA Tax Calculation (progressive): -->
-   <!--   Bracket 1 (2% on first $3,000): $60 -->
-   <!--   Bracket 2 (3% on $3,001-$5,000): $60 -->
-   <!--   Bracket 3 (5% on $5,001-$11,250): $312.50 -->
-   <!--   Total VA Tax: $432.50 -->
+   <!-- Income: $20,000 W-2 -->
+   <!-- Federal: AGI $20,000; standard deduction $15,750 (Single; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $20,000 - $15,750 = $4,250; tax $425 (2025 Single schedule, Rev. Proc. 2024-40) -->
+   <!-- Virginia (2025 Form 760 instructions and 2025 Tax Rate Schedule, tax.virginia.gov):
+        standard deduction $8,750 (2025); personal exemptions 1 x $930 = $930; Virginia taxable income
+        $20,000 - $8,750 - $930 = $10,320; rate schedule $120 + 5% of ($10,320 - $5,000) = $386, rounded $386 -->
+   <!-- expected_state_tax was $432.50, not derived from the state's 2025 form (#1317). -->
    <expected_agi>20000</expected_agi>
    <expected_taxable_income>4250</expected_taxable_income>
-   <expected_federal_tax>500</expected_federal_tax>
-   <expected_state_tax>432.50</expected_state_tax>
+   <expected_federal_tax>425</expected_federal_tax>
+   <expected_state_tax>386</expected_state_tax>
    <expected_total_tax>425</expected_total_tax>
 
    <!-- Single Taxpayer -->

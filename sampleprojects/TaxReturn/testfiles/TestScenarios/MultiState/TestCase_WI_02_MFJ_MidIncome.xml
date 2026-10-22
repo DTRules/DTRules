@@ -25,22 +25,21 @@
    <city>Milwaukee</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $80,000 W2 combined -->
-   <!-- Federal AGI: $80,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $30,000 (MFJ per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $50,000 -->
-   <!-- Federal Tax: $5,150 (10% on $23,850 + 12% on $26,150) -->
-   <!-- WI Standard Deduction: $26,510 -->
-   <!-- WI Taxable: $80,000 - $26,510 = $53,490 -->
-   <!-- WI Tax Bracket 1: $19,090 × 3.5% = $668.15 -->
-   <!-- WI Tax Bracket 2: ($38,190 - $19,090) × 4.4% = $840.40 -->
-   <!-- WI Tax Bracket 3: ($53,490 - $38,190) × 5.3% = $810.90 -->
-   <!-- WI Tax Total: $2,319.45 -->
-   <!-- Withholding: $12,000 federal + $2,500 state -->
+   <!-- Income: $50,000 + $30,000 W-2 = $80,000 -->
+   <!-- Federal: AGI $80,000; standard deduction $31,500 (MFJ; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $80,000 - $31,500 = $48,500; tax $5,343 (2025 MFJ schedule, Rev. Proc. 2024-40) -->
+   <!-- Wisconsin (2025 Form 1 instructions, revenue.wi.gov/TaxForms2025/2025-Form1-Inst.pdf):
+        line 8 standard deduction $14,818 (Standard Deduction Table row $80,000 to $80,500, married filing jointly); line 10 exemptions 2 x $700 = $1,400;
+        line 11 taxable income $80,000 - $14,818 - $1,400 = $63,782 -->
+   <!-- Line 12 tax from the 2025 Tax Table, row $63,700 to $63,800, married filing jointly column: $2,629 (the 2025 rates are 3.5%,
+        4.4% from $19,580 and 5.3% from $67,300; 2025 Wis. Act 15 widened the 4.4% bracket) -->
+   <!-- Line 18 married couple credit (Schedule 2): 3% of the smaller qualified earned income
+        $30,000, capped at $16,000, = $480 (max $480); tax after credit $2,149 -->
+   <!-- expected_state_tax was $2319, not derived from the state's 2025 form (#1317). -->
    <expected_agi>80000</expected_agi>
    <expected_taxable_income>48500</expected_taxable_income>
-   <expected_federal_tax>5150</expected_federal_tax>
-   <expected_state_tax>2319</expected_state_tax>
+   <expected_federal_tax>5343</expected_federal_tax>
+   <expected_state_tax>2149</expected_state_tax>
    <expected_total_tax>5343</expected_total_tax>
 
    <!-- Married Filing Jointly -->

@@ -25,24 +25,20 @@
    <city>Norfolk</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $65,000 W2 (primary) + $45,000 W2 (spouse) = $110,000 -->
-   <!-- Federal AGI: $110,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $30,000 (MFJ per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $80,000 -->
-   <!-- Federal Tax: $9,168 (10% on $23,850 + 12% on $56,150) -->
-   <!-- VA AGI: $110,000 -->
-   <!-- VA Standard Deduction: $17,500 (MFJ) -->
-   <!-- VA Taxable Income: $92,500 -->
-   <!-- VA Tax Calculation (progressive): -->
-   <!--   Bracket 1 (2% on first $3,000): $60 -->
-   <!--   Bracket 2 (3% on $3,001-$5,000): $60 -->
-   <!--   Bracket 3 (5% on $5,001-$17,000): $600 -->
-   <!--   Bracket 4 (5.75% on $17,001-$92,500): $4,341.25 -->
-   <!--   Total VA Tax: $5,061.25 -->
+   <!-- Income: $65,000 + $45,000 W-2 = $110,000 -->
+   <!-- Federal: AGI $110,000; standard deduction $31,500 (MFJ; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $110,000 - $31,500 = $78,500; tax $8,943 (2025 MFJ schedule, Rev. Proc. 2024-40) -->
+   <!-- Virginia (2025 Form 760 instructions and 2025 Tax Rate Schedule, tax.virginia.gov):
+        standard deduction $17,500 (2025); personal exemptions 2 x $930 = $1,860; Virginia taxable income
+        $110,000 - $17,500 - $1,860 = $90,640; rate schedule $720 + 5.75% of ($90,640 - $17,000) = $4,954.30, rounded $4,954 -->
+   <!-- Spouse tax adjustment (Form 760 line 17, worksheet page 11): each spouse's separate
+        VAGI less exemption ($64,070, $44,070) exceeds $17,000 and taxable income exceeds $34,000, so the
+        adjustment is the $259 maximum; tax after adjustment $4,695 -->
+   <!-- expected_state_tax was $5061.25, not derived from the state's 2025 form (#1317). -->
    <expected_agi>110000</expected_agi>
    <expected_taxable_income>78500</expected_taxable_income>
-   <expected_federal_tax>9168</expected_federal_tax>
-   <expected_state_tax>5061.25</expected_state_tax>
+   <expected_federal_tax>8943</expected_federal_tax>
+   <expected_state_tax>4695</expected_state_tax>
    <expected_total_tax>8943</expected_total_tax>
 
    <!-- Married Filing Jointly -->

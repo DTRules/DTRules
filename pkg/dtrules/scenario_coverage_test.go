@@ -39,7 +39,12 @@ import (
 // Validate_Summary writes no FAIL line — the rule set validates itself, and
 // this listens to it.
 const (
-	scenariosCleanFloor = 362 // #1322: 52 joint returns re-derived from their own inputs
+	// #1317: Validate_State_Tax now checks expected_state_tax, and the 24
+	// CO, MN, MO, NY, OH, UT, VA and WI scenarios that carry one fail it:
+	// those tables are placeholders (the top rate on AGI less a deduction),
+	// not the state's form. The scenarios are reconciled to the forms; the
+	// count comes back as #1200 rebuilds each state. 362 before this check.
+	scenariosCleanFloor = 338
 	scenariosRunFloor   = 518
 )
 

@@ -25,20 +25,17 @@
    <city>Denver</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $75,000 W2 -->
-   <!-- Federal AGI: $75,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $60,000 -->
-   <!-- Federal Tax: $8,329 (10% on $11,925 + 12% on $36,550 + 22% on $11,525) -->
-   <!-- CO uses federal taxable income: $60,000 -->
-   <!-- CO Tax: $2,640 (4.4% of $60,000) -->
-   <!-- Withholding: $12,000 federal + $3,000 state -->
-   <!-- Federal Refund: $3,671 -->
-   <!-- State Refund: $360 -->
+   <!-- Income: $75,000 W-2 -->
+   <!-- Federal: AGI $75,000; standard deduction $15,750 (Single; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $75,000 - $15,750 = $59,250; tax $7,949 (2025 Single schedule, Rev. Proc. 2024-40) -->
+   <!-- Colorado (2025 DR 0104): line 1 is federal taxable income, Form 1040 line 15,
+        $59,250; no additions or subtractions; tax at the 4.4% rate (2025 DR 0104EZ
+        instructions: 'The income tax rate is currently 4.4%') = $2,607 -->
+   <!-- expected_state_tax was $2640, not derived from the state's 2025 form (#1317). -->
    <expected_agi>75000</expected_agi>
    <expected_taxable_income>59250</expected_taxable_income>
-   <expected_federal_tax>8329</expected_federal_tax>
-   <expected_state_tax>2640</expected_state_tax>
+   <expected_federal_tax>7949</expected_federal_tax>
+   <expected_state_tax>2607</expected_state_tax>
    <expected_total_tax>7949</expected_total_tax>
 
    <!-- Single Taxpayer -->

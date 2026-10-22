@@ -25,17 +25,17 @@
    <city>Boulder</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $90,000 + $60,000 = $150,000 W2 -->
-   <!-- Federal AGI: $150,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $30,000 (MFJ per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $120,000 -->
-   <!-- Federal Tax: $18,229 (10% on $23,850 + 12% on $73,100 + 22% on $23,050) -->
-   <!-- CO uses federal taxable income: $120,000 -->
-   <!-- CO Tax: $5,280 (4.4% of $120,000) -->
+   <!-- Income: $90,000 + $60,000 W-2 = $150,000 -->
+   <!-- Federal: AGI $150,000; standard deduction $31,500 (MFJ; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $150,000 - $31,500 = $118,500; tax $15,898 (2025 MFJ schedule, Rev. Proc. 2024-40) -->
+   <!-- Colorado (2025 DR 0104): line 1 is federal taxable income, Form 1040 line 15,
+        $118,500; no additions or subtractions; tax at the 4.4% rate (2025 DR 0104EZ
+        instructions: 'The income tax rate is currently 4.4%') = $5,214 -->
+   <!-- expected_state_tax was $5280, not derived from the state's 2025 form (#1317). -->
    <expected_agi>150000</expected_agi>
    <expected_taxable_income>118500</expected_taxable_income>
-   <expected_federal_tax>18229</expected_federal_tax>
-   <expected_state_tax>5280</expected_state_tax>
+   <expected_federal_tax>15898</expected_federal_tax>
+   <expected_state_tax>5214</expected_state_tax>
    <expected_total_tax>15898</expected_total_tax>
 
    <!-- Married Couple -->

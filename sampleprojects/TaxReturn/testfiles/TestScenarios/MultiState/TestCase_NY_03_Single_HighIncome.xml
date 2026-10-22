@@ -25,23 +25,19 @@
    <city>Manhattan</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $2,000,000 W2 -->
-   <!-- Federal AGI: $2,000,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $1,985,000 -->
-   <!-- NY Standard Deduction: $8,000 (Single) -->
-   <!-- NY Taxable: $1,992,000 -->
-   <!-- NY Tax: $159,657 (progressive brackets 1-7) -->
-   <!--   Bracket 1: $8,500 * 4% = $340 -->
-   <!--   Bracket 2: $3,200 * 4.5% = $144 -->
-   <!--   Bracket 3: $2,200 * 5.25% = $115.50 -->
-   <!--   Bracket 4: $66,750 * 5.5% = $3,671.25 -->
-   <!--   Bracket 5: $134,750 * 6% = $8,085 -->
-   <!--   Bracket 6: $862,150 * 6.85% = $59,057.28 -->
-   <!--   Bracket 7: $914,450 * 9.65% = $88,244.43 -->
+   <!-- Income: $2,000,000 W-2 -->
+   <!-- Federal: AGI $2,000,000; standard deduction $15,750 (Single; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $2,000,000 - $15,750 = $1,984,250; tax $691,192.75 (2025 Single schedule, Rev. Proc. 2024-40) -->
+   <!-- Additional Medicare tax (Form 8959): 0.9% of wages over $200,000 = $16,200; total $707,392.75 -->
+   <!-- New York (2025 Form IT-201): standard deduction $8,000 Single (IT-201-I page 10); NY taxable
+        income $2,000,000 - $8,000 = $1,992,000. NYAGI is over $107,650, so IT-201-I tax computation worksheet 9
+        applies: line 3 rate-schedule tax $71,413 + 9.65% of ($1,992,000 - $1,077,550) = $159,657.42; line 4 recapture base
+        $2,399; line 5 incremental benefit $30,172; line 6 NYAGI over $1,077,550 = $922,450, line 7 the lesser of that
+        or $50,000 = $50,000, line 8 = 1.0000, line 9 = $30,172; line 10 tax $192,228 -->
+   <!-- expected_state_tax was $159657, not derived from the state's 2025 form (#1317). -->
    <expected_agi>2000000</expected_agi>
    <expected_taxable_income>1984250</expected_taxable_income>
-   <expected_state_tax>159657</expected_state_tax>
+   <expected_state_tax>192228</expected_state_tax>
 
    <!-- Single Taxpayer -->
    <taxpayers>

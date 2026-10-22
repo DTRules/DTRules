@@ -25,21 +25,19 @@
    <city>Madison</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $30,000 W2 -->
-   <!-- Federal AGI: $30,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $15,000 -->
-   <!-- Federal Tax: $1,597 (10% on $11,925 + 12% on $3,075) -->
-   <!-- WI Standard Deduction: $14,260 -->
-   <!-- WI Taxable: $30,000 - $14,260 = $15,740 -->
-   <!-- WI Tax Bracket 1: $14,679 × 3.5% = $513.77 -->
-   <!-- WI Tax Bracket 2: ($15,740 - $14,679) × 4.4% = $46.68 -->
-   <!-- WI Tax Total: $560.45 -->
-   <!-- Withholding: $4,500 federal + $600 state -->
+   <!-- Income: $30,000 W-2 -->
+   <!-- Federal: AGI $30,000; standard deduction $15,750 (Single; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $30,000 - $15,750 = $14,250; tax $1,471.50 (2025 Single schedule, Rev. Proc. 2024-40) -->
+   <!-- Wisconsin (2025 Form 1 instructions, revenue.wi.gov/TaxForms2025/2025-Form1-Inst.pdf):
+        line 8 standard deduction $12,276 (Standard Deduction Table row $30,000 to $30,500, single); line 10 exemptions 1 x $700 = $700;
+        line 11 taxable income $30,000 - $12,276 - $700 = $17,024 -->
+   <!-- Line 12 tax from the 2025 Tax Table, row $17,000 to $17,100, single column: $618 (the 2025 rates are 3.5%,
+        4.4% from $14,680 and 5.3% from $50,480; 2025 Wis. Act 15 widened the 4.4% bracket) -->
+   <!-- expected_state_tax was $560, not derived from the state's 2025 form (#1317). -->
    <expected_agi>30000</expected_agi>
    <expected_taxable_income>14250</expected_taxable_income>
-   <expected_federal_tax>1597</expected_federal_tax>
-   <expected_state_tax>560</expected_state_tax>
+   <expected_federal_tax>1471.5</expected_federal_tax>
+   <expected_state_tax>618</expected_state_tax>
    <expected_total_tax>1471.5</expected_total_tax>
 
    <!-- Single Taxpayer -->

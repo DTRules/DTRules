@@ -25,14 +25,15 @@
    <city>Minneapolis</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $40,000 W2 -->
-   <!-- Federal AGI: $40,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $25,000 -->
-   <!-- MN AGI: $40,000 -->
-   <!-- MN Standard Deduction: $14,950 -->
-   <!-- MN Taxable: $25,050 -->
-   <!-- MN Tax: $1,340.18 (5.35% of $25,050 - all in bracket 1) -->
+   <!-- Income: $40,000 W-2 -->
+   <!-- Federal: AGI $40,000; standard deduction $15,750 (Single; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $40,000 - $15,750 = $24,250; tax $2,671.50 (2025 Single schedule, Rev. Proc. 2024-40) -->
+   <!-- Minnesota (2025 Form M1; 2025 brackets and standard deduction from the
+        Department of Revenue, revenue.state.mn.us/mndor-pp/20636): standard deduction
+        single $14,950; taxable $40,000 - $14,950 = $25,050; $25,050 x 5.35% = $1,340.17;
+        tax $1,340.17. The M1 tax table (used under $100,000) is computed at the midpoint of
+        each $100 band, which is this figure here. -->
+   <!-- expected_state_tax, $1340, agrees with the state's 2025 form (#1317). -->
    <expected_agi>40000</expected_agi>
    <expected_taxable_income>24250</expected_taxable_income>
    <expected_state_tax>1340</expected_state_tax>
