@@ -15,7 +15,6 @@
 package authoring
 
 import (
-	"bytes"
 	"encoding/xml"
 	"fmt"
 	"os"
@@ -347,28 +346,18 @@ func refreshExcel(xmlDir, excelDir string, created []string) error {
 	// Only workbooks whose bytes actually changed: an edit to one table in a
 	// 58-workbook project recompiles one workbook, not 58. The hash makes that
 	// cheap to know.
+	//
+	// A bootstrap recompiles the same way. The EDD sheet carries everything
+	// an EDD file holds, the entity comment included (#1306), so the XML
+	// that comes back is the XML that went in, and nothing is held back from
+	// the trip.
+	if err := recompileWorkbooks(xmlDir, resolvedExcelDir, changed); err != nil {
+		return err
+	}
 	if bootstrap {
-		if err := recompileKeepingEDD(xmlDir, resolvedExcelDir, changed); err != nil {
-			return err
-		}
 		return bootstrapMapWorkbooks(xmlDir, resolvedExcelDir)
 	}
-	return recompileWorkbooks(xmlDir, resolvedExcelDir, changed)
-}
-
-// hasEntityComment reports whether an EDD file gives any entity a comment:
-// the one thing it holds that the EDD sheet has no cell for.
-func hasEntityComment(data []byte) bool {
-	var doc excel.EDDXML
-	if xml.Unmarshal(data, &doc) != nil {
-		return true // unreadable here: keep it rather than risk it
-	}
-	for _, ent := range doc.Entities {
-		if ent != nil && strings.TrimSpace(ent.Comment) != "" {
-			return true
-		}
-	}
-	return false
+	return nil
 }
 
 // ruleFileStem is a rule file's path relative to the XML directory, less its
@@ -464,46 +453,6 @@ func bootstrapMapWorkbooks(xmlDir, excelDir string) error {
 		}
 		return nil
 	})
-}
-
-// recompileKeepingEDD is recompileWorkbooks for a workbook that did not exist
-// a moment ago, with the project's dictionary held back from the round trip.
-//
-// The recompile is what makes the XML literally the output of compiling the
-// Excel, and a bootstrap needs that as much as any other write. But the EDD
-// sheet does not carry everything an EDD file holds -- an entity's comment
-// has no cell -- so importing a workbook this same call just generated would
-// delete from the dictionary what the dictionary was never asked to give up.
-// On a bootstrap the XML is the source; the workbook is one second old and
-// has nothing to teach it (#1215).
-//
-// Only a dictionary that holds something the sheet cannot is kept, though.
-// Keeping every one left each EDD as XML that no compile of its workbook
-// reproduces, which verify rejects; and an EDD with no entity comment loses
-// nothing on the trip (#1303).
-func recompileKeepingEDD(xmlDir, excelDir string, workbooks []string) error {
-	kept := map[string][]byte{}
-	_ = filepath.WalkDir(xmlDir, func(p string, d os.DirEntry, err error) error {
-		if err != nil || d.IsDir() || !strings.HasSuffix(p, "_edd.xml") {
-			return nil
-		}
-		if data, rerr := os.ReadFile(p); rerr == nil && hasEntityComment(data) {
-			kept[p] = data
-		}
-		return nil
-	})
-	if err := recompileWorkbooks(xmlDir, excelDir, workbooks); err != nil {
-		return err
-	}
-	for path, data := range kept {
-		if current, err := os.ReadFile(path); err == nil && bytes.Equal(current, data) {
-			continue
-		}
-		if err := os.WriteFile(path, data, 0o644); err != nil {
-			return fmt.Errorf("excel bootstrap: restore %s: %w", path, err)
-		}
-	}
-	return nil
 }
 
 // recompileWorkbooks regenerates XML from the named workbooks, mirroring each

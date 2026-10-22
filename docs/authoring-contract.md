@@ -158,12 +158,12 @@ Every rule file comes out of it with a workbook behind it, which is what
   (`X_edd.xml` → `X.xlsx`), and the EDD is then rebuilt from that workbook;
 - each mapping `X_map.xml` gets `X_map.xlsx`, and is rebuilt from it.
 
-The one thing the EDD sheet cannot carry is an entity's comment. An EDD that
-has one keeps its XML rather than lose it, so that project does not pass
-`verify` until the comment has somewhere to live. It is owned by the
-authoring API's "Excel absent ⇒ create it" path and an explicit one-shot
-migration command — **not** by `build`. After bootstrap the project is in
-normal steady state and the write-through applies on every edit.
+The EDD sheet carries everything an EDD file holds, an entity's own comment
+included (in the Description cell of the entity's header row, #1306), so
+nothing is held back from the rebuild. Bootstrap is owned by the authoring
+API's "Excel absent ⇒ create it" path and an explicit one-shot migration
+command — **not** by `build`. After bootstrap the project is in normal
+steady state and the write-through applies on every edit.
 
 "No manifest ⇒ treat as XML-only and skip Excel" is **removed**. Absent Excel
 means *bootstrap it*, never *skip it*.

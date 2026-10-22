@@ -1345,6 +1345,11 @@ time a field in it declares a constraint. On a patch, omitting a constraint
 keeps what the field has; "allowed_values": [] and "max_length": "0" clear
 it.
 
+An entity's own comment lives in the Description cell (column H) of its
+header row on the EDD sheet, the "(N attributes)" row, and 'edd get'/'edd put'
+carry it as entities[].comment. It round-trips through 'build' and every
+authoring refresh like a field's comment does.
+
 'dtrules validate' rejects a field whose own default its constraints
 reject -- such a default is unreachable, because no input can correct it.
 

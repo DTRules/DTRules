@@ -279,6 +279,7 @@ func (l *EDDLoader) processEntity(ent *EDDEntity, fileLevelPath string) error {
 	// Set entity comment and xls_file for export grouping
 	if ent.Comment != "" {
 		refEntity.SetComment(ent.Comment)
+		refEntity.SetCommentXlsFile(ent.XlsFile)
 	}
 	if ent.XlsFile != "" {
 		refEntity.SetXlsFile(ent.XlsFile)

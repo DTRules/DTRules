@@ -447,6 +447,11 @@ func writeEDDXMLEntities(f *excelize.File, sheet string, entities []*EDDXMLEntit
 
 		f.SetCellValue(sheet, cellName(1, row), ent.Name)
 		f.SetCellValue(sheet, cellName(2, row), fmt.Sprintf("(%d attributes)", attrCount))
+		// The entity's comment, in the header row's Description cell (#1306),
+		// written only when there is one.
+		if ent.Comment != "" {
+			f.SetCellValue(sheet, cellName(eddDescriptionColumn, row), ent.Comment)
+		}
 		for col := 1; col <= eddColumns(withConstraints); col++ {
 			f.SetCellStyle(sheet, cellName(col, row), cellName(col, row), s.entityHeader)
 		}

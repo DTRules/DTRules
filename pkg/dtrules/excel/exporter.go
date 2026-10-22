@@ -526,6 +526,30 @@ func (e *Exporter) declaresFieldsIn(ent *entity.REntity, want string) bool {
 	return false
 }
 
+// entityComment is the comment to write in an entity's header row.
+//
+// An entity declared in several EDD files is one REntity holding one
+// comment. A workbook-scoped export writes it only into the workbook whose
+// EDD declared it; otherwise every other workbook declaring the entity would
+// carry it too, and the next build would copy it into each of their EDD
+// files. TaxReturn's `result` is declared by 51 files and commented by one
+// (#1306). A comment whose EDD named no workbook stays with the entity's own,
+// as an unsourced field does (see includes).
+func (e *Exporter) entityComment(ent *entity.REntity) string {
+	comment := ent.GetComment()
+	if e.scopedTo == "" || comment == "" {
+		return comment
+	}
+	src := ent.GetCommentXlsFile()
+	if src == "" {
+		src = ent.GetXlsFile()
+	}
+	if workbookKey(src) == e.scopedTo {
+		return comment
+	}
+	return ""
+}
+
 // includes decides whether one field belongs in the EDD sheet being written.
 //
 // When an export is scoped to a workbook, a field goes in only if that
@@ -870,6 +894,13 @@ func (e *Exporter) writeEDDEntities(f *excelize.File, sheet string, entities []*
 
 		f.SetCellValue(sheet, cellName(1, row), entityName)
 		f.SetCellValue(sheet, cellName(2, row), fmt.Sprintf("(%d attributes)", attrCount))
+		// The entity's own comment, in the header row's Description cell
+		// (#1306): the one entity-level datum the sheet carries. Written
+		// only when there is one, so a workbook without entity comments is
+		// the workbook it was and is not recompiled for nothing.
+		if comment := e.entityComment(ent); comment != "" {
+			f.SetCellValue(sheet, cellName(eddDescriptionColumn, row), comment)
+		}
 		for col := 1; col <= eddColumns(withConstraints); col++ {
 			f.SetCellStyle(sheet, cellName(col, row), cellName(col, row), s.entityHeader)
 		}

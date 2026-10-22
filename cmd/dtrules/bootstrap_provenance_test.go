@@ -41,10 +41,11 @@ func TestBootstrapBacksEveryRuleFileWithAWorkbook(t *testing.T) {
 	assertVerifies(t, proj)
 }
 
-// The EDD sheet has no cell for an entity comment, so a dictionary that has
-// one is still kept as XML rather than lose it. That project cannot yet pass
-// verify; losing the comment silently would be worse.
-func TestBootstrapKeepsAnEntityComment(t *testing.T) {
+// An entity comment travels in the Description cell of the entity's header
+// row on the EDD sheet (#1306), so a dictionary that has one bootstraps like
+// any other: its XML becomes what compiling the new workbook produces, and
+// still says what it said.
+func TestBootstrapRoundTripsAnEntityComment(t *testing.T) {
 	proj := bootstrap(t, func(xmlDir string) {
 		p := filepath.Join(xmlDir, "v_edd.xml")
 		data, err := os.ReadFile(p)
@@ -63,4 +64,5 @@ func TestBootstrapKeepsAnEntityComment(t *testing.T) {
 	if !strings.Contains(string(data), `comment="the case under test"`) {
 		t.Errorf("bootstrap lost the entity comment:\n%s", data)
 	}
+	assertVerifies(t, proj)
 }

@@ -61,6 +61,7 @@ type EDD struct {
 // Entity is a typed view of one EDD entity.
 type Entity struct {
 	Name       string
+	Comment    string
 	Attributes []Attribute
 
 	xmlEntity *excel.EDDXMLEntity
@@ -258,7 +259,7 @@ func entityFromXML(xe *excel.EDDXMLEntity) *Entity {
 	for _, f := range xe.Fields {
 		attrs = append(attrs, attributeFromXML(f))
 	}
-	return &Entity{Name: xe.Name, Attributes: attrs, xmlEntity: xe}
+	return &Entity{Name: xe.Name, Comment: xe.Comment, Attributes: attrs, xmlEntity: xe}
 }
 
 func attributeFromXML(f *excel.EDDXMLField) Attribute {
@@ -308,6 +309,7 @@ func (e *Entity) SetAccess(a string) {
 
 // SetComment sets the entity-level comment.
 func (e *Entity) SetComment(c string) {
+	e.Comment = c
 	e.xmlEntity.Comment = c
 }
 

@@ -37,8 +37,13 @@ type REntity struct {
 	attributes map[*dtrules.RName]*EntityEntry
 	values     []dtrules.Object
 	comment    string
-	xlsFile    string // Export grouping for EDD spreadsheets (legacy)
-	filePath   string // Canonical file path for Excel generation
+	// commentXlsFile is the xls_file of the EDD entity that gave the comment.
+	// An entity declared in several EDD files is one REntity with one
+	// comment, and a workbook-scoped export writes it only into the workbook
+	// whose EDD declared it (#1306). Empty when that EDD named no workbook.
+	commentXlsFile string
+	xlsFile        string // Export grouping for EDD spreadsheets (legacy)
+	filePath       string // Canonical file path for Excel generation
 
 	// scratchArena is non-nil for entities allocated from a session's
 	// scratch arena (#1025). scratchGen is the arena generation the entity
@@ -167,6 +172,8 @@ func CloneEntity(readonly bool, source *REntity, session dtrules.Session) (*REnt
 		readonly:   readonly,
 		attributes: source.attributes, // Share attribute definitions
 		comment:    source.comment,
+
+		commentXlsFile: source.commentXlsFile,
 	}
 	if err := e.reinitFrom(source, session); err != nil {
 		return nil, err
@@ -347,6 +354,17 @@ func (e *REntity) GetComment() string {
 // SetComment sets the entity comment.
 func (e *REntity) SetComment(comment string) {
 	e.comment = comment
+}
+
+// GetCommentXlsFile returns the xls_file of the EDD entity that gave the
+// comment, or "" when it named no workbook (#1306).
+func (e *REntity) GetCommentXlsFile() string {
+	return e.commentXlsFile
+}
+
+// SetCommentXlsFile records which EDD entity's workbook the comment came from.
+func (e *REntity) SetCommentXlsFile(xlsFile string) {
+	e.commentXlsFile = xlsFile
 }
 
 // GetXlsFile returns the export grouping file for EDD spreadsheets.

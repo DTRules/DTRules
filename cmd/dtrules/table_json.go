@@ -87,10 +87,11 @@ type EDDJSON struct {
 	Entities []EntityJSON `json:"entities"`
 }
 
-// EntityJSON holds the attribute list for one entity.
+// EntityJSON holds the attribute list for one entity, and its comment.
 type EntityJSON struct {
-	Name   string          `json:"name"`
-	Fields []AttributeJSON `json:"fields,omitempty"`
+	Name    string          `json:"name"`
+	Comment string          `json:"comment,omitempty"`
+	Fields  []AttributeJSON `json:"fields,omitempty"`
 }
 
 // AttributeJSON mirrors authoring.Attribute.
@@ -165,7 +166,7 @@ func tableToJSON(t *authoring.Table) TableJSON {
 func eddToJSON(e *authoring.EDD) EDDJSON {
 	out := EDDJSON{}
 	for _, ent := range e.Entities() {
-		ej := EntityJSON{Name: ent.Name}
+		ej := EntityJSON{Name: ent.Name, Comment: ent.Comment}
 		for _, a := range ent.Attributes {
 			fj := AttributeJSON{
 				Name:            a.Name,
@@ -328,6 +329,9 @@ func (ej *EDDJSON) ApplyTo(e *authoring.EDD) error {
 				}
 			}
 		}
+		// A put replaces the EDD, so an omitted comment is an empty one --
+		// and a put of get's output keeps what get emitted (#1306).
+		cur.SetComment(ent.Comment)
 		for _, f := range ent.Fields {
 			if err := cur.AddAttribute(authoring.Attribute{
 				Name:    f.Name,
