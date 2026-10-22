@@ -27,9 +27,11 @@
    <!-- Expected values for validation (2025) -->
    <!-- Income: $100,000 W2 combined -->
    <!-- Federal AGI: $100,000 -->
-   <!-- Federal Standard Deduction: $30,000 (MFJ) -->
-   <!-- Federal Taxable: $70,000 -->
-   <!-- Federal Tax: $7,859 (10% on $23,850 + 12% on $46,150) -->
+   <!-- Federal Standard Deduction: $31,500 (MFJ; 2025 after OBBBA, P.L. 119-21
+        sec. 70102; IRS IR-2025-103) -->
+   <!-- Federal Taxable: $100,000 - $31,500 = $68,500 -->
+   <!-- Federal Tax (2025 MFJ brackets, Rev. Proc. 2024-40): 10% of $23,850 =
+        $2,385, plus 12% of $44,650 = $5,358; $7,743 -->
    <!-- NJ uses AGI minus 2x personal exemption: $100,000 - $2,000 = $98,000 -->
    <!-- NJ Tax MFJ brackets: -->
    <!--   $280 (1.4% on $20,000) -->
@@ -39,10 +41,13 @@
    <!--   + $995 (5.525% on $18,000) -->
    <!--   = $2,640 -->
    <expected_agi>100000</expected_agi>
-   <expected_taxable_income>70000</expected_taxable_income>
-   <expected_federal_tax>7859</expected_federal_tax>
+   <expected_taxable_income>68500</expected_taxable_income>
+   <!-- expected_total_tax is Form 1040 line 24, the federal total; NJ tax is
+        not part of it. It was $10,499: a $7,859 federal tax at the pre-OBBBA
+        $30,000 deduction plus the $2,640 NJ tax (#1322). -->
+   <expected_federal_tax>7743</expected_federal_tax>
    <expected_state_tax>2640</expected_state_tax>
-   <expected_total_tax>10499</expected_total_tax>
+   <expected_total_tax>7743</expected_total_tax>
 
    <!-- Married Taxpayers -->
    <taxpayers>

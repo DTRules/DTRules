@@ -544,6 +544,14 @@ load-bearing enough to record:
 - **Scenario `expected_state_tax` is not checked by the rules** (#1317).
   `TestStateScenarios` checks it for the states whose tables were rebuilt
   under #1200 (AR, LA, NM, OK).
+- **A scenario's expected figures are worked from its own inputs and the
+  year's law, never from what the rules print.** The arithmetic and its
+  source go in the file (`Credits_05_QW_Widow`, the `XX_02_MFJ_Multiple`
+  template). `TestTaxReturnScenarioCoverage` runs every scenario and holds
+  the count that validates cleanly at a floor that only rises (#1140,
+  #1322); the scenarios still under it state figures their inputs do not
+  support, and each is reconciled the same way or left failing, never
+  restated to match the rules.
 
 - **TaxReturn's non-resident state tax uses resident deductions.**
   `Dispatch_State_Tax` runs every roster entry through its state's table

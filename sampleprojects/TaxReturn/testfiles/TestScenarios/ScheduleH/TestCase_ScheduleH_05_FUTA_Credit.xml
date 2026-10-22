@@ -25,14 +25,17 @@
    <!-- Expected values for validation -->
    <!-- Taxpayer W-2 Wages: $175,000 -->
    <!-- AGI: $175,000 -->
-   <!-- Standard Deduction: $30,000 -->
-   <!-- Taxable Income: $145,000 -->
+   <!-- Standard Deduction: $31,500 (MFJ; 2025 after OBBBA, P.L. 119-21
+        sec. 70102; IRS IR-2025-103) -->
+   <!-- Taxable Income: $175,000 - $31,500 = $143,500 -->
+   <!-- expected_taxable_income was $145,000, from the pre-OBBBA $30,000
+        deduction (#1322). -->
    <!-- Nanny wages: $52,000 -->
    <!-- FICA: $52,000 × 7.65% = $3,978 -->
    <!-- FUTA: $7,000 × 0.6% = $42 (with SUTA credit) -->
    <!-- Total Schedule H: $4,020 -->
    <expected_agi>175000</expected_agi>
-   <expected_taxable_income>145000</expected_taxable_income>
+   <expected_taxable_income>143500</expected_taxable_income>
    <expected_schedule_h_social_security_tax>3224.00</expected_schedule_h_social_security_tax>
    <expected_schedule_h_medicare_tax>754.00</expected_schedule_h_medicare_tax>
    <expected_schedule_h_futa_tax>42.00</expected_schedule_h_futa_tax>

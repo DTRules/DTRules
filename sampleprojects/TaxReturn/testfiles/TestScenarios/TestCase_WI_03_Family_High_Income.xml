@@ -25,6 +25,9 @@
 
    <!-- Expected values for validation -->
    <!-- AGI: $180,000 W-2 + $70,000 W-2 + $5,000 interest = $255,000 -->
+   <!-- The W-2 wages are on each taxpayer (w2_wages), where the rules read
+        them; the incomes list repeats them for state allocation. They were
+        listed only as incomes, so nothing counted them (#1322). -->
    <!-- WI AGI: $255,000 (no adjustments) -->
    <!-- Standard Deduction: $26,510 -->
    <!-- Taxable Income: $228,490 -->
@@ -49,6 +52,8 @@
          <occupation>Doctor</occupation>
          <is_self_employed>false</is_self_employed>
          <is_primary>true</is_primary>
+         <w2_wages>180000</w2_wages>
+         <w2_withholding>35000</w2_withholding>
       </taxpayer>
       <taxpayer id="2">
          <id>2</id>
@@ -59,6 +64,8 @@
          <occupation>Attorney</occupation>
          <is_self_employed>false</is_self_employed>
          <is_primary>false</is_primary>
+         <w2_wages>70000</w2_wages>
+         <w2_withholding>12000</w2_withholding>
       </taxpayer>
    </taxpayers>
 

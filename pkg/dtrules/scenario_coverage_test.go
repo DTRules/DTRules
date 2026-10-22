@@ -39,7 +39,7 @@ import (
 // Validate_Summary writes no FAIL line — the rule set validates itself, and
 // this listens to it.
 const (
-	scenariosCleanFloor = 310 // #1200: AR, LA, NM and OK scenarios added
+	scenariosCleanFloor = 362 // #1322: 52 joint returns re-derived from their own inputs
 	scenariosRunFloor   = 518
 )
 
