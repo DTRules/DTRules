@@ -42,7 +42,7 @@ batch job, an interactive command-line interview, or a self-contained web app.
 
 ## Install
 
-**Option 1 — `go install`** (requires Go 1.24+):
+**Option 1 — `go install`** (requires Go 1.26+):
 
 ```bash
 go install github.com/DTRules/DTRules/cmd/dtrules@latest
@@ -581,7 +581,7 @@ the hot paths:
 
 ## Requirements & license
 
-- **Go 1.24+**
+- **Go 1.26+**
 
 Licensed under the **Apache License, Version 2.0**.
 
