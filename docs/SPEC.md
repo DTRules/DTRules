@@ -549,15 +549,18 @@ load-bearing enough to record:
   to other states; `state_tax_before_credits` is documented that way. It runs
   with the other `Validate_*` tables whenever the field is set, and
   `Validate_Results` writes a FAIL line when no roster entry's `state_code`
-  is `job.state`, so the check cannot pass by checking nothing.
-  `TestStateScenarios` stays: it holds the rebuilt states (AR, LA, NM, OK)
-  to the exact figure under `-short`. Most state tables are still
+  is `job.state`, so the check cannot pass by checking nothing;
+  `TestValidateStateTaxWritesFail` runs AR_01 with a wrong figure and with
+  no resident-state entry and expects each FAIL line, so the check cannot
+  vanish unnoticed either. `TestStateScenarios` stays: it holds the rebuilt
+  states (AR, LA, NM, OK) to the exact figure under `-short`. Most state
+  tables are still
   placeholders (the top rate on AGI less a deduction), so a scenario
   reconciled to its state's form fails until #1200 rebuilds that state. The
   20 `State/FullExemption` and `State/PartialExemption` military-retirement
   scenarios carry an `expected_state_tax` that is not yet reconciled:
   `military_retirement_pay` is not in the mapping, and they fail on federal
-  figures first (deferred on #1317).
+  figures first (#1330).
 - **A scenario's expected figures are worked from its own inputs and the
   year's law, never from what the rules print.** The arithmetic and its
   source go in the file (`Credits_05_QW_Widow`, the `XX_02_MFJ_Multiple`
