@@ -536,7 +536,10 @@ func (e *Exporter) declaresFieldsIn(ent *entity.REntity, want string) bool {
 // every other file's with it (TaxReturn_edd_forms.xml declares
 // `household_employee` twice, with two comments) (#1306). A comment whose
 // EDD named no workbook stays with the entity's own, as an unsourced field
-// does (see includes).
+// does (see includes) -- but only when no declaration named this workbook
+// outright. TaxReturn_edd_forms.xml declares `household_employee` once with
+// no workbook and once naming Forms.xls; Forms gets the comment that named
+// it, not the unsourced one that merely fell back to it.
 //
 // A whole-project export has one sheet for the dictionary and writes the
 // entity's one `comment`, the last loaded.
@@ -547,17 +550,18 @@ func (e *Exporter) entityComment(ent *entity.REntity) string {
 	declared := ent.DeclaredComments()
 	keys := make([]string, 0, len(declared))
 	for k := range declared {
-		keys = append(keys, k)
+		if k != "" {
+			keys = append(keys, k)
+		}
 	}
 	sort.Strings(keys)
 	for _, xlsFile := range keys {
-		src := xlsFile
-		if src == "" {
-			src = ent.GetXlsFile()
-		}
-		if workbookKey(src) == e.scopedTo {
+		if workbookKey(xlsFile) == e.scopedTo {
 			return declared[xlsFile]
 		}
+	}
+	if unsourced, ok := declared[""]; ok && workbookKey(ent.GetXlsFile()) == e.scopedTo {
+		return unsourced
 	}
 	return ""
 }

@@ -192,3 +192,81 @@ func TestEDDExport_EntityComment_EachWorkbookKeepsItsOwn(t *testing.T) {
 		}
 	}
 }
+
+// An entity declared once with no workbook and once naming one: the
+// workbook gets the comment that named it, whichever order the files were
+// loaded in. The unsourced key sorted first and fell back to the entity's
+// own workbook -- the last one loaded -- so Forms.xlsx got the unsourced
+// comment. TaxReturn_edd_forms.xml declares `household_employee` in exactly
+// this shape (lines 13 and 84).
+func TestEDDExport_EntityComment_WorkbookBeatsUnsourced(t *testing.T) {
+	const unsourced = `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+  <entity name="household_employee" access="rw" comment="A-unsourced">
+    <field name="name" type="string" access="rw"></field>
+  </entity>
+</entity_data_dictionary>`
+	const forms = `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+  <entity name="household_employee" xls_file="Forms.xlsx" access="rw" comment="B-forms">
+    <field name="wages" type="double" access="rw"></field>
+  </entity>
+</entity_data_dictionary>`
+
+	for _, order := range []struct {
+		name  string
+		files []string
+	}{
+		{"unsourced then Forms", []string{unsourced, forms}},
+		{"Forms then unsourced", []string{forms, unsourced}},
+	} {
+		t.Run(order.name, func(t *testing.T) {
+			rs := session.NewRuleSet("entity-comment-unsourced")
+			for i, f := range order.files {
+				if err := rs.LoadEDD(strings.NewReader(f)); err != nil {
+					t.Fatalf("LoadEDD %d: %v", i, err)
+				}
+			}
+			path := filepath.Join(t.TempDir(), "Forms.xlsx")
+			if n, err := NewExporter(rs).ExportDecisionTablesOwnedBy(path); err != nil || n == 0 {
+				t.Fatalf("export Forms.xlsx: n=%d err=%v", n, err)
+			}
+			got, err := NewEDDImporter().ImportEDD(path)
+			if err != nil {
+				t.Fatalf("ImportEDD: %v", err)
+			}
+			if c := entityComment(t, got, "household_employee"); c != "B-forms" {
+				t.Errorf("Forms.xlsx: household_employee comment = %q, want %q", c, "B-forms")
+			}
+		})
+	}
+}
+
+// With no declaration naming the entity's workbook, an unsourced comment
+// still falls back to it, as an unsourced field does.
+func TestEDDExport_EntityComment_UnsourcedFallsBackToOwnWorkbook(t *testing.T) {
+	const xmlDoc = `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+  <entity name="policy" xls_file="v.xlsx" access="rw">
+    <field name="flag" type="integer" access="rw"></field>
+  </entity>
+  <entity name="policy" access="rw" comment="A-unsourced">
+    <field name="other" type="string" access="rw"></field>
+  </entity>
+</entity_data_dictionary>`
+	rs := session.NewRuleSet("entity-comment-fallback")
+	if err := rs.LoadEDD(strings.NewReader(xmlDoc)); err != nil {
+		t.Fatalf("LoadEDD: %v", err)
+	}
+	path := filepath.Join(t.TempDir(), "v.xlsx")
+	if n, err := NewExporter(rs).ExportDecisionTablesOwnedBy(path); err != nil || n == 0 {
+		t.Fatalf("export v.xlsx: n=%d err=%v", n, err)
+	}
+	got, err := NewEDDImporter().ImportEDD(path)
+	if err != nil {
+		t.Fatalf("ImportEDD: %v", err)
+	}
+	if c := entityComment(t, got, "policy"); c != "A-unsourced" {
+		t.Errorf("v.xlsx: policy comment = %q, want %q", c, "A-unsourced")
+	}
+}

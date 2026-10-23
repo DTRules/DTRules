@@ -360,7 +360,12 @@ func (e *REntity) SetComment(comment string) {
 // DeclareComment records the comment one EDD file gives this entity, keyed
 // by the xls_file that file named -- "" when it named none (#1306). A later
 // declaration from the same workbook replaces the earlier one, which is the
-// most one EDD sheet can say about an entity anyway.
+// most one EDD sheet can say about an entity anyway. Declarations that name
+// no workbook all share the "" key, so of two such files the last loaded
+// wins: they fall back to the entity's own workbook, which has one cell. The
+// CLI does not produce that shape -- a bootstrap gives every unsourced
+// entity its file's workbook before anything is exported -- so it is
+// recorded here rather than resolved.
 func (e *REntity) DeclareComment(xlsFile, comment string) {
 	if e.comments == nil {
 		e.comments = map[string]string{}

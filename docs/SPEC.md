@@ -427,8 +427,12 @@ did. An entity declared by several EDD files is one entity with one comment,
 and a workbook-scoped export writes it only into the workbook whose EDD
 declared it, so a build does not copy it into the other files (TaxReturn's
 `result` is declared by 51 files and commented by one), and two files that
-comment the same entity each keep their own. Like a field's comment, it is
-read back from the sheet trimmed: leading and trailing whitespace does not
+comment the same entity each keep their own. A declaration that names no
+workbook falls back to the entity's own, and only where no declaration named
+that workbook outright; two such declarations share that one cell and the
+last loaded wins (the authoring API never writes that shape: a bootstrap gives
+every unsourced entity its file's workbook first). Like a field's comment, it
+is read back from the sheet trimmed: leading and trailing whitespace does not
 survive the round trip.
 
 `dtrules validate` rejects a field whose own `default` its constraints reject,
