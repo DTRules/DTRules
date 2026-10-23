@@ -276,10 +276,13 @@ func (l *EDDLoader) processEntity(ent *EDDEntity, fileLevelPath string) error {
 		return fmt.Errorf("failed to create entity %s: %w", ent.Name, err)
 	}
 
-	// Set entity comment and xls_file for export grouping
+	// Set entity comment and xls_file for export grouping. Each file's
+	// comment is kept against the workbook that file named, so an entity
+	// several files comment differently gives each workbook back its own
+	// (#1306).
 	if ent.Comment != "" {
 		refEntity.SetComment(ent.Comment)
-		refEntity.SetCommentXlsFile(ent.XlsFile)
+		refEntity.DeclareComment(ent.XlsFile, ent.Comment)
 	}
 	if ent.XlsFile != "" {
 		refEntity.SetXlsFile(ent.XlsFile)

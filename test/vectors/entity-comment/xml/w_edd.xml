@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+	<file_metadata>
+		<file_path>w_edd</file_path>
+	</file_metadata>
+	<entity name="policy" number="100" xls_file="w.xlsx" access="rw" comment="second file: the same entity, its own comment">
+		<source>
+			<relative_path>w.xlsx</relative_path>
+			<file_name>w.xlsx</file_name>
+			<sheet_number>1</sheet_number>
+		</source>
+		<field name="other" type="string" subtype="" access="rw" input="" default_value="" comment="declared by the second file"></field>
+	</entity>
+</entity_data_dictionary>

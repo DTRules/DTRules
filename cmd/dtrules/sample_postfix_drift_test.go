@@ -60,3 +60,39 @@ func TestSampleProjectsMatchTheirBuild(t *testing.T) {
 		t.Fatal("no sample project with an excel/ directory was found")
 	}
 }
+
+// Test fixtures with an excel/ directory are held to the same standard as
+// the samples. test/vectors/entity-comment is a project whose `policy`
+// entity is declared by two EDD files with two different comments: no
+// sample's workbooks carry an entity comment, so without it the feature is
+// exercised by nothing verify checks (#1306).
+func TestVectorProjectsMatchTheirBuild(t *testing.T) {
+	root := filepath.Join("..", "..", "test", "vectors")
+	checked := 0
+	_ = filepath.WalkDir(root, func(dir string, d os.DirEntry, err error) error {
+		if err != nil || !d.IsDir() {
+			return nil
+		}
+		if _, err := os.Stat(filepath.Join(dir, "excel")); err != nil {
+			return nil
+		}
+		if _, err := os.Stat(filepath.Join(dir, "xml")); err != nil {
+			return nil
+		}
+		checked++
+		name := filepath.Base(dir)
+		t.Run(name, func(t *testing.T) {
+			tmp := t.TempDir()
+			if err := copyDir(dir, tmp); err != nil {
+				t.Fatalf("copy %s: %v", dir, err)
+			}
+			if code := NewCLI().runVerify([]string{filepath.Join(tmp, name)}); code != 0 {
+				t.Errorf("verify %s exited %d: its stored XML is not what `dtrules build` produces from its Excel source", dir, code)
+			}
+		})
+		return filepath.SkipDir
+	})
+	if checked == 0 {
+		t.Fatal("no test/vectors project with an excel/ directory was found")
+	}
+}

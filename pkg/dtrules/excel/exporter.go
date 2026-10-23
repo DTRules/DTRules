@@ -528,24 +528,36 @@ func (e *Exporter) declaresFieldsIn(ent *entity.REntity, want string) bool {
 
 // entityComment is the comment to write in an entity's header row.
 //
-// An entity declared in several EDD files is one REntity holding one
-// comment. A workbook-scoped export writes it only into the workbook whose
-// EDD declared it; otherwise every other workbook declaring the entity would
-// carry it too, and the next build would copy it into each of their EDD
-// files. TaxReturn's `result` is declared by 51 files and commented by one
-// (#1306). A comment whose EDD named no workbook stays with the entity's own,
-// as an unsourced field does (see includes).
+// An entity declared in several EDD files is one REntity, and each file may
+// comment it. A workbook-scoped export writes the comment the workbook's own
+// EDD declared and no other: writing some other file's would copy it into
+// this file on the next build (TaxReturn's `result` is declared by 51 files
+// and commented by one), and writing one comment for all would overwrite
+// every other file's with it (TaxReturn_edd_forms.xml declares
+// `household_employee` twice, with two comments) (#1306). A comment whose
+// EDD named no workbook stays with the entity's own, as an unsourced field
+// does (see includes).
+//
+// A whole-project export has one sheet for the dictionary and writes the
+// entity's one `comment`, the last loaded.
 func (e *Exporter) entityComment(ent *entity.REntity) string {
-	comment := ent.GetComment()
-	if e.scopedTo == "" || comment == "" {
-		return comment
+	if e.scopedTo == "" {
+		return ent.GetComment()
 	}
-	src := ent.GetCommentXlsFile()
-	if src == "" {
-		src = ent.GetXlsFile()
+	declared := ent.DeclaredComments()
+	keys := make([]string, 0, len(declared))
+	for k := range declared {
+		keys = append(keys, k)
 	}
-	if workbookKey(src) == e.scopedTo {
-		return comment
+	sort.Strings(keys)
+	for _, xlsFile := range keys {
+		src := xlsFile
+		if src == "" {
+			src = ent.GetXlsFile()
+		}
+		if workbookKey(src) == e.scopedTo {
+			return declared[xlsFile]
+		}
 	}
 	return ""
 }

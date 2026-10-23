@@ -37,13 +37,15 @@ type REntity struct {
 	attributes map[*dtrules.RName]*EntityEntry
 	values     []dtrules.Object
 	comment    string
-	// commentXlsFile is the xls_file of the EDD entity that gave the comment.
-	// An entity declared in several EDD files is one REntity with one
-	// comment, and a workbook-scoped export writes it only into the workbook
-	// whose EDD declared it (#1306). Empty when that EDD named no workbook.
-	commentXlsFile string
-	xlsFile        string // Export grouping for EDD spreadsheets (legacy)
-	filePath       string // Canonical file path for Excel generation
+	// comments is the comment each declaring EDD file gave this entity, keyed
+	// by the xls_file that file named ("" when it named none). An entity
+	// declared in several EDD files is one REntity, and each file's comment
+	// is its own: a workbook-scoped export writes back the one its EDD
+	// declared, so no file's comment is overwritten by another's (#1306).
+	// `comment` above is the last one loaded, for callers that want one.
+	comments map[string]string
+	xlsFile  string // Export grouping for EDD spreadsheets (legacy)
+	filePath string // Canonical file path for Excel generation
 
 	// scratchArena is non-nil for entities allocated from a session's
 	// scratch arena (#1025). scratchGen is the arena generation the entity
@@ -172,8 +174,7 @@ func CloneEntity(readonly bool, source *REntity, session dtrules.Session) (*REnt
 		readonly:   readonly,
 		attributes: source.attributes, // Share attribute definitions
 		comment:    source.comment,
-
-		commentXlsFile: source.commentXlsFile,
+		comments:   source.comments,
 	}
 	if err := e.reinitFrom(source, session); err != nil {
 		return nil, err
@@ -356,15 +357,21 @@ func (e *REntity) SetComment(comment string) {
 	e.comment = comment
 }
 
-// GetCommentXlsFile returns the xls_file of the EDD entity that gave the
-// comment, or "" when it named no workbook (#1306).
-func (e *REntity) GetCommentXlsFile() string {
-	return e.commentXlsFile
+// DeclareComment records the comment one EDD file gives this entity, keyed
+// by the xls_file that file named -- "" when it named none (#1306). A later
+// declaration from the same workbook replaces the earlier one, which is the
+// most one EDD sheet can say about an entity anyway.
+func (e *REntity) DeclareComment(xlsFile, comment string) {
+	if e.comments == nil {
+		e.comments = map[string]string{}
+	}
+	e.comments[xlsFile] = comment
 }
 
-// SetCommentXlsFile records which EDD entity's workbook the comment came from.
-func (e *REntity) SetCommentXlsFile(xlsFile string) {
-	e.commentXlsFile = xlsFile
+// DeclaredComments is every comment the entity's EDD files gave it, keyed by
+// the xls_file each named. The map is the entity's own; do not modify it.
+func (e *REntity) DeclaredComments() map[string]string {
+	return e.comments
 }
 
 // GetXlsFile returns the export grouping file for EDD spreadsheets.

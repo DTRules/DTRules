@@ -426,7 +426,10 @@ older workbook, whose header rows have that cell empty, reads as it always
 did. An entity declared by several EDD files is one entity with one comment,
 and a workbook-scoped export writes it only into the workbook whose EDD
 declared it, so a build does not copy it into the other files (TaxReturn's
-`result` is declared by 51 files and commented by one).
+`result` is declared by 51 files and commented by one), and two files that
+comment the same entity each keep their own. Like a field's comment, it is
+read back from the sheet trimmed: leading and trailing whitespace does not
+survive the round trip.
 
 `dtrules validate` rejects a field whose own `default` its constraints reject,
 and the authoring API refuses to write one. Such a default is unreachable

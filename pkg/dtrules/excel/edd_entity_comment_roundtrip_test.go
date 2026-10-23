@@ -15,7 +15,6 @@
 package excel
 
 import (
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -78,28 +77,15 @@ func TestEDDRoundTrip_EntityComment_RuleSetPath(t *testing.T) {
 	}
 }
 
-// The `dtrules build` chain: XML → workbook → XML, byte-identical, which is
-// exactly what verify's [build] check compares.
+// WriteEDDXMLToExcel is the other writer of the sheet, from the XML structs
+// rather than a loaded rule set; it writes the same cell. The build chain
+// itself, XML → workbook → XML and verify, is TestBootstrapRoundTripsAnEntityComment.
 func TestEDDRoundTrip_EntityComment_XMLPath(t *testing.T) {
-	dir := t.TempDir()
-	xmlPath := filepath.Join(dir, "v_edd.xml")
-
 	seed, err := UnmarshalEDDXML([]byte(commentedEDDXML))
 	if err != nil {
 		t.Fatalf("parse seed: %v", err)
 	}
-	if err := NewEDDImporter().WriteXML(seed, xmlPath); err != nil {
-		t.Fatalf("WriteXML: %v", err)
-	}
-	first, err := os.ReadFile(xmlPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(string(first), `comment="the case under test"`) {
-		t.Fatalf("entity comment missing from the written XML:\n%s", first)
-	}
-
-	workbook := filepath.Join(dir, "v.xlsx")
+	workbook := filepath.Join(t.TempDir(), "v.xlsx")
 	if err := WriteEDDXMLToExcel(seed, workbook); err != nil {
 		t.Fatalf("WriteEDDXMLToExcel: %v", err)
 	}
@@ -110,36 +96,15 @@ func TestEDDRoundTrip_EntityComment_XMLPath(t *testing.T) {
 	if c := entityComment(t, back, "policy"); c != "the case under test" {
 		t.Errorf("policy comment = %q after the workbook, want %q", c, "the case under test")
 	}
-
-	rebuilt := filepath.Join(dir, "rebuilt", "v_edd.xml")
-	if err := os.MkdirAll(filepath.Dir(rebuilt), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	back.FileMetadata = seed.FileMetadata
-	for i, e := range back.Entities {
-		if i < len(seed.Entities) {
-			e.Number = seed.Entities[i].Number
-			e.Source = seed.Entities[i].Source
-			e.XlsFile = seed.Entities[i].XlsFile
-		}
-	}
-	if err := NewEDDImporter().WriteXML(back, rebuilt); err != nil {
-		t.Fatalf("WriteXML (rebuilt): %v", err)
-	}
-	second, err := os.ReadFile(rebuilt)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if string(first) != string(second) {
-		t.Errorf("the Excel round trip changed the EDD XML\n--- from XML ---\n%s\n--- rebuilt from Excel ---\n%s", first, second)
+	if c := entityComment(t, back, "result"); c != "" {
+		t.Errorf("result grew a comment: %q", c)
 	}
 }
 
-// An entity declared in several EDD files is one REntity with one comment.
-// A workbook-scoped export must write that comment only into the workbook
-// whose EDD declared it, or the next build copies it into every other file
-// that declares the entity -- TaxReturn's `result` is declared by 51 files
-// and commented by one.
+// An entity declared in several EDD files is one REntity. A workbook-scoped
+// export must write only the comment the workbook's own EDD declared, or the
+// next build copies it into every other file that declares the entity --
+// TaxReturn's `result` is declared by 51 files and commented by one.
 func TestEDDExport_EntityComment_StaysWithItsWorkbook(t *testing.T) {
 	const declaring = `<?xml version="1.0" encoding="UTF-8"?>
 <entity_data_dictionary version="2">
@@ -178,6 +143,52 @@ func TestEDDExport_EntityComment_StaysWithItsWorkbook(t *testing.T) {
 		}
 		if c := entityComment(t, got, "result"); c != tc.want {
 			t.Errorf("%s: result comment = %q, want %q", tc.workbook, c, tc.want)
+		}
+	}
+}
+
+// Two EDD files that both comment the same entity each keep their own: the
+// loader holds one comment per declaring workbook, not one per entity, so
+// neither file's build overwrites the other's. TaxReturn_edd_forms.xml
+// declares `household_employee` twice with two comments.
+func TestEDDExport_EntityComment_EachWorkbookKeepsItsOwn(t *testing.T) {
+	const first = `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+  <entity name="household_employee" xls_file="Core.xlsx" access="rw" comment="Household employee (nanny, housekeeper, etc.)">
+    <field name="name" type="string" access="rw"></field>
+  </entity>
+</entity_data_dictionary>`
+	const second = `<?xml version="1.0" encoding="UTF-8"?>
+<entity_data_dictionary version="2">
+  <entity name="household_employee" xls_file="Forms.xlsx" access="rw" comment="Schedule H Household Employment">
+    <field name="wages" type="double" access="rw"></field>
+  </entity>
+</entity_data_dictionary>`
+
+	rs := session.NewRuleSet("entity-comment-two-files")
+	if err := rs.LoadEDD(strings.NewReader(first)); err != nil {
+		t.Fatalf("LoadEDD Core: %v", err)
+	}
+	if err := rs.LoadEDD(strings.NewReader(second)); err != nil {
+		t.Fatalf("LoadEDD Forms: %v", err)
+	}
+
+	dir := t.TempDir()
+	exp := NewExporter(rs)
+	for _, tc := range []struct{ workbook, want string }{
+		{"Core.xlsx", "Household employee (nanny, housekeeper, etc.)"},
+		{"Forms.xlsx", "Schedule H Household Employment"},
+	} {
+		path := filepath.Join(dir, tc.workbook)
+		if n, err := exp.ExportDecisionTablesOwnedBy(path); err != nil || n == 0 {
+			t.Fatalf("export %s: n=%d err=%v", tc.workbook, n, err)
+		}
+		got, err := NewEDDImporter().ImportEDD(path)
+		if err != nil {
+			t.Fatalf("ImportEDD %s: %v", tc.workbook, err)
+		}
+		if c := entityComment(t, got, "household_employee"); c != tc.want {
+			t.Errorf("%s: household_employee comment = %q, want %q", tc.workbook, c, tc.want)
 		}
 	}
 }
