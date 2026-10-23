@@ -105,7 +105,9 @@ Stated because each is a boundary people assume otherwise:
   API.
 - No embedding SDK. An embedder imports the engine packages and drives them
   directly; see §2.11.
-- No per-state non-resident tax engine in the TaxReturn sample; see §2.9.
+- No complete per-state non-resident tax engine in the TaxReturn sample:
+  the roster pass publishes the proration inputs and two states apply them;
+  see §2.9.
 
 ---
 
@@ -577,15 +579,52 @@ load-bearing enough to record:
   scenarios (`Estimated_05`, `Estimated_06`, `Foreign_03`, `Integration_07`,
   `ScheduleE_05`) do not parse as XML; the ratchet counts them as not run.
 
-- **TaxReturn's non-resident state tax uses resident deductions.**
-  `Dispatch_State_Tax` runs every roster entry through its state's table
-  (`Compute_Roster_State_Tax`, dispatched by state code over the full set of
-  state and territory tables), so each `state_tax_result` carries its own
-  liability and the other-state credit is real. What each `XX_Tax` table
-  applies to a non-resident's sourced income is the same standard deduction
-  and exemptions it applies to a resident; the proportional non-resident
-  deductions the states actually use are not modelled, and neither are
-  per-state credit ceilings (#1201).
+- **TaxReturn's non-resident proration is per state, and most states are
+  not done.** `Dispatch_State_Tax` runs every roster entry through its
+  state's table (`Compute_Roster_State_Tax`, dispatched by state code over
+  the full set of state and territory tables), so each `state_tax_result`
+  carries its own liability and the other-state credit is real. Before
+  dispatching, the roster pass publishes what every state's non-resident
+  worksheet divides by: `result.state_calc_agi` (income sourced to the
+  entry), `result.state_calc_total_agi` (federal AGI),
+  `result.state_calc_ratio` (sourced over federal, capped at 1.0, unrounded
+  because each state rounds its own way), `result.state_calc_resident_status`
+  and `result.state_calc_days_in_state` (the calendar days of the entry's
+  period, both ends counted, carried from `state_period.days_in_state` onto
+  `state_tax_result.days_in_state` when the roster is built; 0 for a
+  single-state return, which has no period). Each `XX_Tax` table applies its
+  own form's method to those and cites it; there is no generic default,
+  because the states differ (#1201):
+  - **KY** gives a non-resident the full $3,270 standard deduction
+    (Form 740-NP line 10, "do not prorate"); only itemised deductions and
+    personal credits are prorated. `KY_Tax` needed no change.
+  - **MA** multiplies the exemptions (Form 1-NR/PY line 22a: the
+    filing-status exemption plus $1,000 per dependent) by a factor carried to
+    four decimal places: for a `nonresident` entry line 14g, Massachusetts
+    income over the return's total income (line 14f = 14d + 14e, where 14e is
+    non-Massachusetts income before the federal adjustments, less Social
+    Security and state tax refunds, not less than 0) -- not federal AGI,
+    which `state_calc_ratio` divides by; for a `part_year` entry the days as
+    a resident over 365 (line 3). `MA_Exemption_Ratio` picks the factor from
+    the entry's status and `MA_Tax` applies it. Massachusetts is the only
+    state that reads the days so far. A filer who is both a part-year
+    resident and a non-resident of Massachusetts (Schedule R/NR) is not
+    modelled: such a return gets two Massachusetts roster entries, each
+    with its own exemption, where the form combines them.
+  - A period for a state other than the taxpayer's state is a non-resident
+    period unless it says `part_year`: `resident_status` defaults to
+    `full_year`, and a non-resident period that leaves it out must not
+    arrive on the roster as a full-year resident with the whole exemption.
+  - **NY, MN, MD** compute tax as a resident on federal income and multiply
+    by the ratio (IT-203 lines 45-46; M1NR lines 30-32; MD 505NR also
+    prorates deductions and exemptions by its line 9 factor and adds a
+    2.25% special non-resident tax). Their tables are #1200 placeholders
+    and do not yet apply this.
+  - Every other state table applies its resident deduction to the sourced
+    income. Per-state credit ceilings are not modelled either.
+  `TestNonresidentScenarios` holds the KY and MA MultiState scenarios
+  (`expected_XX_nonresident_tax`, `expected_XX_part_year_tax`) to figures
+  worked from those forms.
 
 ## 2.10 Versioning and release
 

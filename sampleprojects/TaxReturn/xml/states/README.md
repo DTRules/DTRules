@@ -42,6 +42,29 @@ entry being computed — and writes `result.computed_state_taxable_income` and
 the `state_tax_result`. A table that writes only `result.xx_state_tax` leaves
 the roster at zero.
 
+For a non-resident or part-year entry the roster pass also publishes
+`result.state_calc_total_agi` (federal AGI), `result.state_calc_ratio`
+(sourced over federal income, capped at 1.0, unrounded),
+`result.state_calc_resident_status` (`full_year`, `part_year`,
+`nonresident`) and `result.state_calc_days_in_state` (the entry's period in
+calendar days, both ends counted; for a `part_year` entry the days of
+residence). A state's table applies its own non-resident or part-year form
+to these and cites it (#1201): read the form first, because the states
+differ — Kentucky gives a non-resident the whole standard deduction (740-NP
+line 10, "do not prorate"), Massachusetts multiplies the exemptions by an
+income ratio for a non-resident (1-NR/PY line 14g, whose denominator is the
+return's own total income, line 14f, not federal AGI: `MA_Exemption_Ratio`
+builds it from `result.gross_income` less what Massachusetts excludes) and
+by days of residence over 365 for a part-year resident (line 3), each
+rounded to four places (see `MA_Exemption_Ratio` and `MA_Tax`), and New York, Minnesota and Maryland
+compute as a resident on federal income and multiply the tax by the ratio.
+A state that prorates by days divides the published count by its own
+denominator; the roster does not pick one. `result.state_calc_ratio` divides
+by federal AGI, which is what Kentucky and Maryland want; if your state's
+form divides by something else (Massachusetts does), compute that
+denominator in the state's own table from the federal result fields. The figure in the scenario comes
+from the form's arithmetic, never from what the table prints.
+
 ## File Naming Convention
 
 - **State codes**: Use 2-letter postal codes (USPS standard)

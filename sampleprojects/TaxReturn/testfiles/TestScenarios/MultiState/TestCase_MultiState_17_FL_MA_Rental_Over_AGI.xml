@@ -1,0 +1,104 @@
+<job>
+   <copyright>
+      Copyright 2026 DTRules.com
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+   </copyright>
+
+   <!-- FL resident whose Massachusetts rent exceeds federal AGI. Small FL wages, a $7,000
+        traditional IRA deduction and $2,500 of student loan interest bring AGI below the
+        Massachusetts-source income. Form 1-NR/PY divides by total income before adjustments
+        (line 14f = 14d + 14e), not by AGI, so the ratio is 0.8108 and not 1.0; a ratio built
+        on AGI would cap at 1.0 and give the whole exemption (#1201 review, findings 1 and 3).
+
+        Federal (2025): total income (Form 1040 line 9) = 7,000 wages + 30,000 rent = $37,000;
+        adjustments: IRA deduction $7,000 (not over compensation of $7,000, no workplace
+        plan) + student loan interest $2,500 (the maximum; no phase-out below $85,000 MAGI);
+        AGI = 37,000 - 9,500 = $27,500; taxable income = 27,500 - 15,750 = $11,750.
+
+        Massachusetts, worked from the 2025 Form 1-NR/PY and its instructions
+        (mass.gov/doc/2025-form-1-nrpy-instructions/download):
+          line 9/12/14a Massachusetts 5.0% income (the rent)                 $30,000
+          line 14d      total income this return                             $30,000
+          line 14e      non-Massachusetts source income: the wages, before
+                        the federal adjustments ("not less than 0")          $7,000
+          line 14f      total income: 14d + 14e                              $37,000
+          line 14g      deduction and exemption ratio: 30,000 / 37,000      = 0.8108 (four decimal places)
+          line 4a/22a   personal exemption, single                           $4,400
+          line 22       nonresidents: 22a x 14g = 4,400 x 0.8108            = $3,567.52
+          line 23       5.0% income after exemptions: 30,000 - 3,567.52     = $26,432.48
+          line 26       tax on 5.0% income: 26,432.48 x 0.05                = $1,321.62 (1,321.624)
+        Rent rather than wages for the Massachusetts income so that the line 15 FICA
+        deduction, which MA_Tax does not model, does not enter the figure. -->
+   <id>MS-17-FL-MA-RENTAL-OVER-AGI</id>
+   <tax_year>2025</tax_year>
+   <filing_status>Single</filing_status>
+   <state>FL</state>
+
+   <expected_agi>27500</expected_agi>
+   <expected_taxable_income>11750</expected_taxable_income>
+   <expected_ma_nonresident_tax>1321.62</expected_ma_nonresident_tax>
+
+   <state_periods>
+      <state_period id="1">
+         <id>1</id>
+         <state_code>FL</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>full_year</resident_status>
+      </state_period>
+      <state_period id="2">
+         <id>2</id>
+         <state_code>MA</state_code>
+         <start_date>1/1/2025</start_date>
+         <end_date>12/31/2025</end_date>
+         <resident_status>nonresident</resident_status>
+      </state_period>
+   </state_periods>
+
+   <taxpayers>
+      <taxpayer id="1">
+         <id>1</id>
+         <name>Test Taxpayer</name>
+         <date_of_birth>1/15/1990</date_of_birth>
+         <is_primary>true</is_primary>
+         <w2_wages>7000</w2_wages>
+         <traditional_ira_contribution>7000</traditional_ira_contribution>
+         <student_loan_interest_paid>2500</student_loan_interest_paid>
+      </taxpayer>
+   </taxpayers>
+
+   <incomes>
+      <income id="1">
+         <id>1</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>w2_wages</type>
+         <source>Part-time employer in FL</source>
+         <gross_amount>7000</gross_amount>
+         <state_code>FL</state_code>
+      </income>
+      <income id="2">
+         <id>2</id>
+         <taxpayer_id>1</taxpayer_id>
+         <type>rental</type>
+         <source>Rental property in MA</source>
+         <gross_amount>30000</gross_amount>
+         <state_code>MA</state_code>
+      </income>
+   </incomes>
+
+   <dependents></dependents>
+   <properties></properties>
+   <vehicles></vehicles>
+   <deductions></deductions>
+</job>

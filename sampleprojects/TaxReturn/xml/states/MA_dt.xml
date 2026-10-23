@@ -7,7 +7,7 @@
 <relative_path>MA.xlsx</relative_path>
 <file_name>MA.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:9c0c035a88b0867c8c3be17018e5bad3a10840642f943a7b36c4a5f7ae2681aa</source_hash>
+<source_hash>sha256:6727a5807c945d64a631c0a72383e225e87f09adf6af1d6727bf578a6f52d967</source_hash>
 </source>
 <table_name>MA_Tax</table_name>
 <xls_file>MA.xlsx</xls_file>
@@ -22,6 +22,12 @@
 <initial_action_dsl>set result.ma_state_tax = 0; set result.ma_taxable_income = 0; set result.ma_surtax = 0; add "  Massachusetts Tax Calculation (Form 1) - flat 5.00% + 4% surtax over $1,083,150" to job.audit_trail</initial_action_dsl>
 <initial_action_postfix>
 0 cvd /result.ma_state_tax xdef 0 cvd /result.ma_taxable_income xdef 0 cvd /result.ma_surtax xdef "  Massachusetts Tax Calculation (Form 1) - flat 5.00% + 4% surtax over $1,083,150" job.audit_trail swap addto
+</initial_action_postfix>
+</initial_action>
+<initial_action>
+<initial_action_dsl>perform MA_Exemption_Ratio</initial_action_dsl>
+<initial_action_postfix>
+/MA_Exemption_Ratio performtable
 </initial_action_postfix>
 </initial_action>
 </initial_actions>
@@ -48,28 +54,28 @@ job.filing_status "HOH" streq
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>MFJ/QSS: exemption $8,800; tax = max(AGI − 8,800, 0) × 5.00% + surtax</action_comment>
-<action_dsl>set result.ma_taxable_income = the maximum of (result.state_calc_agi - 8800.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
+<action_comment>Form 1-NR/PY line 4a 8,800 married filing jointly / qualifying surviving spouse exemption plus line 4b $1,000 per dependent claimed on the U.S. return (every dependent on the return); line 22 multiplies the total (22a) by the ratio; line 23 = max(21 - 22, 0); line 26 = 5.0% of line 23 (2025 Form 1-NR/PY)</action_comment>
+<action_dsl>set result.ma_total_exemptions = 8800.0 + result.ma_exemption_dependent * (double) (length of job.dependents); set result.ma_taxable_income = the maximum of (result.state_calc_agi - result.ma_total_exemptions * result.ma_exemption_ratio) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05; add "  MA exemptions (line 4g): $8,800 married filing jointly / qualifying surviving spouse + " + (length of job.dependents) + " dependents x $1,000 = $" + result.ma_total_exemptions + "; line 22: x " + result.ma_exemption_ratio + " = $" + (result.ma_total_exemptions * result.ma_exemption_ratio) + "; 5.0% income after exemptions (line 23): $" + result.ma_taxable_income to job.audit_trail</action_dsl>
 <action_postfix>
-result.state_calc_agi 8800.0 f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef
+8800.0 result.ma_exemption_dependent job.dependents length cvd fmul f+ cvd /result.ma_total_exemptions xdef result.state_calc_agi result.ma_total_exemptions result.ma_exemption_ratio fmul f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef "  MA exemptions (line 4g): $8,800 married filing jointly / qualifying surviving spouse + " job.dependents length strconcat " dependents x $1,000 = $" strconcat result.ma_total_exemptions strconcat "; line 22: x " strconcat result.ma_exemption_ratio strconcat " = $" strconcat result.ma_total_exemptions result.ma_exemption_ratio fmul strconcat "; 5.0% income after exemptions (line 23): $" strconcat result.ma_taxable_income strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>X--</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>HOH: exemption $6,800; tax = max(AGI − 6,800, 0) × 5.00% + surtax</action_comment>
-<action_dsl>set result.ma_taxable_income = the maximum of (result.state_calc_agi - 6800.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
+<action_comment>Form 1-NR/PY line 4a 6,800 head of household exemption plus line 4b $1,000 per dependent claimed on the U.S. return (every dependent on the return); line 22 multiplies the total (22a) by the ratio; line 23 = max(21 - 22, 0); line 26 = 5.0% of line 23 (2025 Form 1-NR/PY)</action_comment>
+<action_dsl>set result.ma_total_exemptions = 6800.0 + result.ma_exemption_dependent * (double) (length of job.dependents); set result.ma_taxable_income = the maximum of (result.state_calc_agi - result.ma_total_exemptions * result.ma_exemption_ratio) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05; add "  MA exemptions (line 4g): $6,800 head of household + " + (length of job.dependents) + " dependents x $1,000 = $" + result.ma_total_exemptions + "; line 22: x " + result.ma_exemption_ratio + " = $" + (result.ma_total_exemptions * result.ma_exemption_ratio) + "; 5.0% income after exemptions (line 23): $" + result.ma_taxable_income to job.audit_trail</action_dsl>
 <action_postfix>
-result.state_calc_agi 6800.0 f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef
+6800.0 result.ma_exemption_dependent job.dependents length cvd fmul f+ cvd /result.ma_total_exemptions xdef result.state_calc_agi result.ma_total_exemptions result.ma_exemption_ratio fmul f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef "  MA exemptions (line 4g): $6,800 head of household + " job.dependents length strconcat " dependents x $1,000 = $" strconcat result.ma_total_exemptions strconcat "; line 22: x " strconcat result.ma_exemption_ratio strconcat " = $" strconcat result.ma_total_exemptions result.ma_exemption_ratio fmul strconcat "; 5.0% income after exemptions (line 23): $" strconcat result.ma_taxable_income strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>-X-</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
-<action_comment>Default (Single/MFS): exemption $4,400; tax = max(AGI − 4,400, 0) × 5.00% + surtax</action_comment>
-<action_dsl>set result.ma_taxable_income = the maximum of (result.state_calc_agi - 4400.0) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05</action_dsl>
+<action_comment>Form 1-NR/PY line 4a 4,400 single / married filing separately exemption plus line 4b $1,000 per dependent claimed on the U.S. return (every dependent on the return); line 22 multiplies the total (22a) by the ratio; line 23 = max(21 - 22, 0); line 26 = 5.0% of line 23 (2025 Form 1-NR/PY)</action_comment>
+<action_dsl>set result.ma_total_exemptions = 4400.0 + result.ma_exemption_dependent * (double) (length of job.dependents); set result.ma_taxable_income = the maximum of (result.state_calc_agi - result.ma_total_exemptions * result.ma_exemption_ratio) and 0.0; set result.ma_state_tax = result.ma_taxable_income * 0.05; add "  MA exemptions (line 4g): $4,400 single / married filing separately + " + (length of job.dependents) + " dependents x $1,000 = $" + result.ma_total_exemptions + "; line 22: x " + result.ma_exemption_ratio + " = $" + (result.ma_total_exemptions * result.ma_exemption_ratio) + "; 5.0% income after exemptions (line 23): $" + result.ma_taxable_income to job.audit_trail</action_dsl>
 <action_postfix>
-result.state_calc_agi 4400.0 f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef
+4400.0 result.ma_exemption_dependent job.dependents length cvd fmul f+ cvd /result.ma_total_exemptions xdef result.state_calc_agi result.ma_total_exemptions result.ma_exemption_ratio fmul f- 0.0 fmax cvd /result.ma_taxable_income xdef result.ma_taxable_income 0.05 fmul cvd /result.ma_state_tax xdef "  MA exemptions (line 4g): $4,400 single / married filing separately + " job.dependents length strconcat " dependents x $1,000 = $" strconcat result.ma_total_exemptions strconcat "; line 22: x " strconcat result.ma_exemption_ratio strconcat " = $" strconcat result.ma_total_exemptions result.ma_exemption_ratio fmul strconcat "; 5.0% income after exemptions (line 23): $" strconcat result.ma_taxable_income strconcat job.audit_trail swap addto
 </action_postfix>
 <columns>--X</columns>
 </action_details>
@@ -105,7 +111,7 @@ result.ma_taxable_income cvd /result.computed_state_taxable_income xdef result.m
 <relative_path>MA.xlsx</relative_path>
 <file_name>MA.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:9c0c035a88b0867c8c3be17018e5bad3a10840642f943a7b36c4a5f7ae2681aa</source_hash>
+<source_hash>sha256:6727a5807c945d64a631c0a72383e225e87f09adf6af1d6727bf578a6f52d967</source_hash>
 </source>
 <table_name>MA_Military_Retirement_Exclusion</table_name>
 <xls_file>MA.xlsx</xls_file>
@@ -118,6 +124,75 @@ result.ma_taxable_income cvd /result.computed_state_taxable_income xdef result.m
 <initial_actions></initial_actions>
 <conditions></conditions>
 <actions></actions>
+<policy_statements></policy_statements>
+</decision_table>
+
+<!-- TABLE 42102: MA_Exemption_Ratio -->
+<decision_table el_compiled="true">
+<source>
+<relative_path>MA.xlsx</relative_path>
+<file_name>MA.xlsx</file_name>
+<sheet_number>3</sheet_number>
+<source_hash>sha256:6727a5807c945d64a631c0a72383e225e87f09adf6af1d6727bf578a6f52d967</source_hash>
+</source>
+<table_name>MA_Exemption_Ratio</table_name>
+<xls_file>MA.xlsx</xls_file>
+<attribute_fields>
+<Type>FIRST</Type>
+<COMMENTS></COMMENTS>
+<TABLE_NUMBER>42102</TABLE_NUMBER>
+</attribute_fields>
+<contexts></contexts>
+<initial_actions></initial_actions>
+<conditions>
+<condition_details>
+<condition_number>1</condition_number>
+<condition_comment>The roster entry being computed is a non-resident of Massachusetts. Form 1-NR/PY line 22: nonresidents multiply line 22a by line 14g (income ratio); part-year residents multiply by line 3 (days as a resident, column 2); a full-year resident takes the whole exemption (column 3)</condition_comment>
+<condition_dsl>result.state_calc_resident_status is equal to "nonresident"</condition_dsl>
+<condition_postfix>
+result.state_calc_resident_status "nonresident" streq
+</condition_postfix>
+<columns>YNN</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>A part-year resident entry: Form 1-NR/PY lines 2 and 3 prorate the exemption by days of residence, not by income</condition_comment>
+<condition_dsl>result.state_calc_resident_status is equal to "part_year"</condition_dsl>
+<condition_postfix>
+result.state_calc_resident_status "part_year" streq
+</condition_postfix>
+<columns>-YN</columns>
+</condition_details>
+</conditions>
+<actions>
+<action_details>
+<action_number>1</action_number>
+<action_comment>2025 Form 1-NR/PY line 14g: divide line 14d (Massachusetts-source income) by line 14f (total income this return = 14d + 14e), carried to four decimal places. 14e is non-Massachusetts income, not less than 0 (form), from total U.S. income before adjustments (Form 1040 line 9) less what Massachusetts does not tax; Social Security and state tax refunds are the exclusions the engine models (see result.ma_non_ma_income). The Social Security term subtracts the whole benefit because the federal pass (Calculate_SS_Taxability) includes the whole benefit in gross_income; when the federal pass is corrected, subtract result.taxable_social_security instead -- scenario MultiState_19 holds the Massachusetts figure ($1,423.26) either way and will say so. Not federal AGI: the review of #1328 showed a $7,000 IRA deduction moving the ratio from 0.25 to 0.2655 when AGI was the denominator. The cap at 1.0 follows from 14e &gt;= 0</action_comment>
+<action_dsl>set result.ma_non_ma_income = the maximum of (result.gross_income - result.total_social_security - result.state_tax_refund - result.state_calc_agi) and 0.0; set result.ma_total_income = result.state_calc_agi + result.ma_non_ma_income; set result.ma_exemption_ratio = (result.state_calc_agi / result.ma_total_income) rounded to 4 decimal places; add "  MA deduction and exemption ratio (Form 1-NR/PY line 14g): Massachusetts income $" + result.state_calc_agi + " (14d) / total income this return $" + result.ma_total_income + " (14f = 14d + non-Massachusetts income $" + result.ma_non_ma_income + " (14e)) = " + result.ma_exemption_ratio to job.audit_trail</action_dsl>
+<action_postfix>
+result.gross_income result.total_social_security f- result.state_tax_refund f- result.state_calc_agi f- 0.0 fmax cvd /result.ma_non_ma_income xdef result.state_calc_agi result.ma_non_ma_income f+ cvd /result.ma_total_income xdef result.state_calc_agi result.ma_total_income fdiv 4 0.5 roundto cvd /result.ma_exemption_ratio xdef "  MA deduction and exemption ratio (Form 1-NR/PY line 14g): Massachusetts income $" result.state_calc_agi strconcat " (14d) / total income this return $" strconcat result.ma_total_income strconcat " (14f = 14d + non-Massachusetts income $" strconcat result.ma_non_ma_income strconcat " (14e)) = " strconcat result.ma_exemption_ratio strconcat job.audit_trail swap addto
+</action_postfix>
+<columns>X--</columns>
+</action_details>
+<action_details>
+<action_number>2</action_number>
+<action_comment>A full-year resident takes the whole exemption (Form 1, line 22 has no ratio)</action_comment>
+<action_dsl>set result.ma_exemption_ratio = 1.0</action_dsl>
+<action_postfix>
+1.0 cvd /result.ma_exemption_ratio xdef
+</action_postfix>
+<columns>--X</columns>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Line 3: total days as a Massachusetts resident divided by 365, carried to four decimal places (2025 Form 1-NR/PY instructions, Lines 2 and 3). The days come from the roster entry period (state_tax_result.days_in_state, both ends counted), published as result.state_calc_days_in_state</action_comment>
+<action_dsl>set result.ma_exemption_ratio = ((double) result.state_calc_days_in_state / 365.0) rounded to 4 decimal places; add "  MA exemption ratio (Form 1-NR/PY line 3): " + result.state_calc_days_in_state + " days resident / 365 = " + result.ma_exemption_ratio to job.audit_trail</action_dsl>
+<action_postfix>
+result.state_calc_days_in_state cvd 365.0 fdiv 4 0.5 roundto cvd /result.ma_exemption_ratio xdef "  MA exemption ratio (Form 1-NR/PY line 3): " result.state_calc_days_in_state strconcat " days resident / 365 = " strconcat result.ma_exemption_ratio strconcat job.audit_trail swap addto
+</action_postfix>
+<columns>-X-</columns>
+</action_details>
+</actions>
 <policy_statements></policy_statements>
 </decision_table>
 </decision_tables>

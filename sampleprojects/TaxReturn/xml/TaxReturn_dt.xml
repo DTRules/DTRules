@@ -7,7 +7,7 @@
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>1</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Compute_Tax_Return</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -235,7 +235,7 @@ otherwise
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>2</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Normalize_Filing_Status</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -358,7 +358,7 @@ job.filing_status "Single" s==i job.filing_status "S" s==i or
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>3</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Normalize_Dependent_Relationship</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -409,7 +409,7 @@ dependent.relationship "child" s==i dependent.relationship "son" s==i or depende
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>4</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Gross_Income</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -647,7 +647,7 @@ result.gross_income result.total_adjustments f- cvd /result.agi xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>5</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_W2_Income</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -751,7 +751,7 @@ taxpayer.tip_income cvd result.total_tip_income f+ /result.total_tip_income xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>6</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Self_Employment</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -847,7 +847,7 @@ taxpayer.se_gross_income taxpayer.se_expenses f- cvd /taxpayer.se_net_profit xde
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>7</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_SE_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -907,7 +907,7 @@ taxpayer.se_net_profit constants.se_income_multiplier fmul cvd /result.se_base x
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>8</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Vehicle_Deduction</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -998,7 +998,7 @@ vehicle.actual_expenses vehicle.vehicle_depreciation f+ vehicle.business_use_per
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>9</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Rental_Income</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -1116,7 +1116,7 @@ property.rental_net_income cvd result.total_rental_income f+ /result.total_renta
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>10</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Other_Income</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -1181,7 +1181,7 @@ income.tax_withheld cvd result.total_payments f+ /result.total_payments xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>11</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_AGI_Adjustments</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -1241,7 +1241,7 @@ taxpayer.se_tax_deduction cvd result.total_adjustments f+ /result.total_adjustme
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>12</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Deductions</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -1314,7 +1314,7 @@ result.standard_deduction cvd /result.total_deduction xdef "standard" cvs /resul
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>13</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Standard_Deduction</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -1442,7 +1442,7 @@ constants.additional_std_deduction_single result.senior_std_count fmul cvd resul
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>14</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Itemized_Deductions</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -1545,7 +1545,7 @@ perform when called
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>15</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Sum_Taxpayer_Medical_Expenses</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -1596,7 +1596,7 @@ taxpayer.medical_expenses cvd result.total_medical_expenses f+ /result.total_med
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>16</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_SALT_Deduction</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -1659,7 +1659,7 @@ result.total_salt_collected cvd /result.salt_deduction xdef result.total_itemize
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>17</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Effective_SALT_Cap</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -1728,7 +1728,7 @@ salt_cap result.agi salt_phaseout_start f- salt_phaseout_rate fmul f- salt_reduc
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>18</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Sum_Primary_Residence_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -1786,7 +1786,7 @@ property.property_taxes cvd result.total_salt_collected f+ /result.total_salt_co
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>19</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Sum_SALT_Deduction</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -1844,7 +1844,7 @@ deduction.amount cvd result.total_salt_collected f+ /result.total_salt_collected
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>20</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Mortgage_Interest</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -1926,7 +1926,7 @@ property.mortgage_interest mortgage_limit_post_tcja property.mortgage_balance fd
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>21</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Filter_Primary_Residence</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -1975,7 +1975,7 @@ property.type "primary_residence" streq
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>22</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Charitable_Deduction</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -2031,7 +2031,7 @@ deduction.amount cvd result.total_itemized f+ /result.total_itemized xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>23</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Filter_Charity_Deduction</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -2080,7 +2080,7 @@ deduction.allowed_amount cvd result.total_itemized f+ /result.total_itemized xde
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>24</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Noncash_Charitable</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -2145,7 +2145,7 @@ result.total_noncash_charitable cvd result.total_itemized f+ /result.total_itemi
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>25</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Noncash_Contribution</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -2240,7 +2240,7 @@ noncash_contribution.fair_market_value cvd /noncash_contribution.deduction_amoun
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>26</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Taxable_Income</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -2296,7 +2296,7 @@ result.agi result.total_deduction f- result.qbi_deduction f- 0 fmax cvd /result.
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>27</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_QBI_Deduction</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -2356,7 +2356,7 @@ result.total_se_income qbi_rate fmul cvd /result.qbi_deduction xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>28</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Tax_Liability</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -2468,7 +2468,7 @@ result.regular_tax result.capital_gains_tax f+ result.se_tax f+ result.niit_tax 
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>29</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Apply_Tax_Brackets</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -2564,7 +2564,7 @@ job.filing_status "MFS" streq
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>30</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Apply_Tax_Brackets_MFJ</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -2705,7 +2705,7 @@ bracket_1_mfj bracket_1_rate fmul bracket_2_mfj bracket_1_mfj f- bracket_2_rate 
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>31</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Apply_Tax_Brackets_Single</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -2846,7 +2846,7 @@ bracket_1_single bracket_1_rate fmul bracket_2_single bracket_1_single f- bracke
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>32</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_CDCC</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -2946,7 +2946,7 @@ result.total_care_expenses result.cdcc_expense_limit fmin cvd /result.cdcc_allow
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>33</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Count_CDCC_Qualifying_Person</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -3024,7 +3024,7 @@ false cvb /dependent.qualifies_for_cdcc xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>34</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Savers_Credit</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -3272,7 +3272,7 @@ constants.savers_max_contribution_single cvd /result.savers_contribution_cap xde
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>35</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Sum_Savers_Contribution</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -3319,7 +3319,7 @@ result.total_savers_contribution taxpayer.traditional_ira_contribution taxpayer.
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>36</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Energy_Credits</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -3391,7 +3391,7 @@ result.total_credits 0 f&gt;
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>37</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Energy_Credit_Per_Improvement</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -3451,7 +3451,7 @@ improvement.cost 0.30 fmul cvd result.energy_efficiency_credit f+ /result.energy
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>38</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Passive_Activity_Loss</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -3569,7 +3569,7 @@ result.suspended_passive_loss cvd result.gross_income f+ /result.gross_income xd
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>39</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Sum_Rental_Loss</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -3629,7 +3629,7 @@ property.rental_net_income cvd result.other_rental_net f+ /result.other_rental_n
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>40</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_AMT</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -3718,7 +3718,7 @@ result.amti amt_phaseout_single f- 0.25 fmul 0 fmax cvd /result.amt_exemption_re
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>41</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Credits</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -3911,7 +3911,7 @@ result.total_ctc result.total_odc f+ result.education_credit f+ result.total_aot
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>42</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_CTC_Phase_Out</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -4050,7 +4050,7 @@ result.ctc_before_phaseout cvd /result.ctc_after_phaseout xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>43</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Child_Tax_Credit</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -4150,7 +4150,7 @@ constants.odc_amount cvd result.total_odc f+ /result.total_odc xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>44</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Premium_Tax_Credit</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -4266,7 +4266,7 @@ job.advance_ptc_received cvd /result.ptc_repayment xdef 0 cvd /result.premium_ta
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>45</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_EITC</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -4459,7 +4459,7 @@ eitc_max_0_children result.agi eitc_threshold_mfj_0 f- 0.0765 fmul f- 0 fmax cvd
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>46</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Education_Credits</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -4508,7 +4508,7 @@ perform when called
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>47</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Education_Credit_Per_Dependent</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -4641,7 +4641,7 @@ dependent.qualified_expenses 0.20 fmul llc_max fmin cvd /dependent.education_cre
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>48</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Final_Balance</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -4739,7 +4739,7 @@ result.total_tax result.total_payments f- cvd /result.refund_or_owed xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>49</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Validate_Results</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -4797,7 +4797,7 @@ job.expected_agi isnull not
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>50</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Validate_AGI</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -4857,7 +4857,7 @@ result.agi job.expected_agi f- fabs 1.0 f&lt;=
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>51</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Validate_Total_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -4917,7 +4917,7 @@ result.total_tax job.expected_total_tax f- fabs 1.0 f&lt;=
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>52</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Validate_Summary</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -4968,7 +4968,7 @@ result.validation_passed true beq
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>53</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Validate_Reciprocity</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5062,7 +5062,7 @@ state_tax_result.state_source_income job.expected_nonresident_source_income f- f
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>54</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Validate_State_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5131,7 +5131,7 @@ true cvb /result.state_tax_entry_found xdef "  FAIL: State tax mismatch (" state
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>55</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Kiddie_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5180,7 +5180,7 @@ otherwise
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>56</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Kiddie_Tax_For_Dependent</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5285,7 +5285,7 @@ false cvb /dependent.subject_to_kiddie_tax xdef 0.0 cvd /dependent.kiddie_tax_am
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>57</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Validate_Taxable_Income</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5345,7 +5345,7 @@ result.taxable_income job.expected_taxable_income f- fabs 1.0 f&lt;=
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>58</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_DC_Homebuyer_Credit</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5408,7 +5408,7 @@ job.dc_home_purchase_price 0 f&gt;
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>59</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Energy_Appliance_Credit</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5466,7 +5466,7 @@ taxpayer.energy_efficient_appliances_produced 0 &gt;
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>60</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Schedule_H</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5524,7 +5524,7 @@ job.household_employees length 0 &gt;
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>61</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Schedule_H_Per_Employee</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5602,7 +5602,7 @@ household_employee.cash_wages constants.futa_rate fmul result.schedule_h_tax swa
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>62</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_General_Business_Credit</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5660,7 +5660,7 @@ result.general_business_credit_total result.gbc_available_limit fmin cvd /result
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>63</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Filter_Self_Employed_Taxpayer</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5709,7 +5709,7 @@ taxpayer.is_self_employed true beq
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>64</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Filter_Taxpayer_Vehicle</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5758,7 +5758,7 @@ vehicle.taxpayer_id taxpayer.id ==
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>65</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Count_EITC_Qualifying_Child</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5834,7 +5834,7 @@ dependent.months_lived_with 6 &gt;
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>66</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Mortgage_Interest_For_Property</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5885,7 +5885,7 @@ property.mortgage_interest cvd result.total_itemized f+ /result.total_itemized x
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>67</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_OBBBA_Deductions</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -5961,7 +5961,7 @@ result.tips_deduction result.overtime_deduction f+ result.senior_deduction f+ cv
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>68</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Tips_Deduction</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -6069,7 +6069,7 @@ result.total_tip_income constants.tips_deduction_max fmin cvd /result.tips_deduc
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>69</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Overtime_Deduction</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -6186,7 +6186,7 @@ result.total_overtime_income constants.overtime_deduction_max_single fmin cvd /r
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>70</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Senior_Deduction</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -6294,7 +6294,7 @@ result.senior_count constants.senior_deduction_amount fmul cvd /result.senior_de
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>71</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_SS_Taxability</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -6453,7 +6453,7 @@ result.total_social_security 0.85 fmul cvd /result.taxable_social_security xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>72</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Capital_Gains</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -6549,7 +6549,7 @@ income.gross_amount cvd result.total_qualified_dividends f+ /result.total_qualif
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>73</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Capital_Gains_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -6652,7 +6652,7 @@ job.filing_status "HOH" streq
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>74</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Capital_Gains_Tax_MFJ</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -6743,7 +6743,7 @@ perform when called
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>75</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Capital_Gains_Tax_HOH</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -6834,7 +6834,7 @@ perform when called
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>76</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Capital_Gains_Tax_Single</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -6925,7 +6925,7 @@ perform when called
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>77</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Apply_CG_Brackets_MFJ</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -6994,7 +6994,7 @@ result.cg_0_percent_mfj result.cg_rate_0_percent fmul result.cg_15_percent_mfj r
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>78</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Apply_CG_Brackets_HOH</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -7063,7 +7063,7 @@ result.cg_0_percent_hoh result.cg_rate_0_percent fmul result.cg_15_percent_hoh r
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>79</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Apply_CG_Brackets_Single</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -7132,7 +7132,7 @@ result.cg_0_percent_single result.cg_rate_0_percent fmul result.cg_15_percent_si
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>80</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_NIIT</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -7291,7 +7291,7 @@ result.magi_for_niit constants.niit_threshold_single f- 0.0 fmax cvd /result.nii
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>81</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Additional_Medicare_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -7428,7 +7428,7 @@ result.wages_for_additional_medicare constants.additional_medicare_threshold_sin
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>82</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_IRA_Deduction</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -7587,7 +7587,7 @@ taxpayer.traditional_ira_contribution constants.ira_contribution_limit fmin cvd 
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>83</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_HSA_Deduction</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -7711,7 +7711,7 @@ taxpayer.hsa_contribution constants.hsa_limit_self fmin cvd /taxpayer.hsa_deduct
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>84</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Student_Loan_Deduction</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -7837,7 +7837,7 @@ constants.student_loan_max_deduction constants.student_loan_phaseout_end_mfj res
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>85</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_K1_Income</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -7895,7 +7895,7 @@ k1_income.ordinary_income cvd result.total_k1_ordinary_income f+ /result.total_k
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>86</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_K1_SE_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -7953,7 +7953,7 @@ result.total_k1_se_earnings se_tax_rate fmul cvi /taxpayer.k1_se_tax xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>87</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_IRA_Accounts</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8020,7 +8020,7 @@ ira_account.contribution_amount result.total_ira_contributions swap addto
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>88</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Roth_Conversion_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8087,7 +8087,7 @@ result.total_ira_basis 0 f&gt;
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>89</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Farm_Income</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8145,7 +8145,7 @@ farm_income.gross_income result.total_farm_income swap addto
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>90</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Farm_SE_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8203,7 +8203,7 @@ result.net_farm_profit se_tax_rate fmul cvd /taxpayer.farm_se_tax xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>91</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Property_Sales</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8315,7 +8315,7 @@ property_sale.total_gain_loss result.total_collectibles_gain swap addto
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>92</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Section_1231</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8391,7 +8391,7 @@ result.net_section_1231 result.ordinary_loss swap addto
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>93</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Foreign_Income</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8449,7 +8449,7 @@ taxpayer.foreign_earned_income cvd result.total_foreign_earned_income f+ /result
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>94</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Foreign_Tax_Credit</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8516,7 +8516,7 @@ result.regular_tax result.foreign_source_taxable result.taxable_income fdiv fmul
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>95</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Foreign_Earned_Income</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8576,7 +8576,7 @@ taxpayer.foreign_earned_income constants.feie_cap min cvd /result.foreign_earned
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>96</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Installment_Sales</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8627,7 +8627,7 @@ payments_received gross_profit_ratio fmul cvd /result.installment_gain xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>97</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Like_Kind_Exchanges</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8678,7 +8678,7 @@ like_kind_exchange.cash_received like_kind_exchange.other_property_fmv f+ like_k
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>98</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Early_Distributions</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8738,7 +8738,7 @@ early_distribution.distribution_amount 0 f&gt;
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>99</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Kiddie_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8798,7 +8798,7 @@ dependent.unearned_income constants.kiddie_tax_threshold f&gt;
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>100</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Elderly_Disabled_Credit</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8858,7 +8858,7 @@ constants.elderly_credit_single cvd /result.elderly_base_amount xdef constants.e
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>101</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Estimated_Tax_Penalty</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8909,7 +8909,7 @@ estimated_payment.payment_amount cvd result.total_estimated_payments f+ /result.
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>102</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Casualty_Losses</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -8969,7 +8969,7 @@ casualty_loss.disaster_designation "" streq not
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>103</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Clean_Vehicle_Credit</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9029,7 +9029,7 @@ clean_vehicle.vehicle_type "new" streq { pop clean_vehicle.final_assembly_us tru
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>104</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Adoption_Credit</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9080,7 +9080,7 @@ constants.adoption_credit_max cvd /adoption.max_credit xdef adoption.qualified_e
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>105</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Combat_Zone_Pay_Exclusion</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9171,7 +9171,7 @@ taxpayer.combat_zone_pay constants.officer_combat_zone_cap fmin cvi /result.comb
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>106</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Military_Moving_Expenses</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9249,7 +9249,7 @@ taxpayer.moving_expense cvi /result.moving_expense_deduction xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>107</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_Household_Employment</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9309,7 +9309,7 @@ household_employee.cash_wages constants.fica_combined_rate fmul cvi /result.hous
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>108</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Process_NOL_Carryover</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9360,7 +9360,7 @@ result.nol_amount_available result.taxable_income_before_nol constants.nol_limit
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>109</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Coordinate_Military_And_Foreign_Income</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9427,7 +9427,7 @@ result.total_combat_zone_exclusion 0 f&gt; { pop job.foreign_earned_incomes leng
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>110</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Mortgage_Interest_Credit</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9487,7 +9487,7 @@ credit cvd /result.credit_amount xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>111</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Prior_Year_AMT_Credit</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9547,7 +9547,7 @@ prior_year_amt.credit_available regular_tax tentative_minimum_tax f- fmin cvi /r
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>112</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Partnership_Audit_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9598,7 +9598,7 @@ result.total_partnership_audit_adjustment constants.partnership_audit_rate * cvd
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>113</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Unreported_Tips_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9658,7 +9658,7 @@ unreported_tips.unreported_tips_amount constants.fica_employee_rate fmul cvd /re
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>114</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_LIHTC_Recapture</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9718,7 +9718,7 @@ recapture_amount interest f+ cvi /result.recapture_tax xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>115</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Part_Year_Allocation</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9790,7 +9790,7 @@ result.agi cvd /state_tax_result.state_agi xdef
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>116</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Synthesize_State_Tax_Result_If_Empty</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9832,7 +9832,7 @@ job.state_tax_results length 0 ==
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>117</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Log_State_Tax_Start</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9883,7 +9883,7 @@ job.state_periods length 0 ==
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>118</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Apply_Part_Year_Allocations</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -9934,7 +9934,7 @@ perform when called
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>119</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Dispatch_State_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -10039,7 +10039,7 @@ perform when called
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>120</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Dispatch_Territory_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -10203,7 +10203,7 @@ job.territory "MP" streq
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>121</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_State_Source_Income</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -10257,7 +10257,7 @@ perform when called
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>122</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Build_State_Tax_Result_For_Period</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -10285,27 +10285,63 @@ dup state_periods forall pop
 <condition_postfix>
 state_period.state_code job.state streq
 </condition_postfix>
-<columns>YN</columns>
+<columns>YNNN</columns>
+</condition_details>
+<condition_details>
+<condition_number>2</condition_number>
+<condition_comment>A mover: resident of this state for part of the year. Only this status is carried as-is onto a non-resident-state entry; anything else on a period for a state other than job.state is a non-resident, whatever the period says. The default status is full_year, and a non-resident period that left it out used to arrive as a full-year resident and take the whole exemption (#1201 review)</condition_comment>
+<condition_dsl>state_period.resident_status is equal to "part_year"</condition_dsl>
+<condition_postfix>
+state_period.resident_status "part_year" streq
+</condition_postfix>
+<columns>-YNN</columns>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>The period says nonresident, as a period for a state other than job.state should. Any other value here (full_year is the default when the input leaves it out) is read as nonresident too, with a note on the audit trail (#1201 review)</condition_comment>
+<condition_dsl>state_period.resident_status is equal to "nonresident"</condition_dsl>
+<condition_postfix>
+state_period.resident_status "nonresident" streq
+</condition_postfix>
+<columns>--YN</columns>
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
 <action_comment>Resident-state period: create state_tax_result, mark is_resident=true</action_comment>
-<action_dsl>create state_tax_result as st_result; set st_result.state_code = state_period.state_code; set st_result.is_resident = true; set st_result.resident_status = state_period.resident_status; set st_result.state_source_income = state_period.allocated_income; set st_result.state_wage_income = state_period.allocated_wage_income; set st_result.state_agi = state_period.allocated_income; set st_result.state_withholding = st_result.state_withholding + state_period.allocated_withholding; add "  Resident state: " + state_period.state_code + " (allocated income $" + state_period.allocated_income + ")" to job.audit_trail; add st_result to job.state_tax_results</action_dsl>
+<action_dsl>create state_tax_result as st_result; set st_result.state_code = state_period.state_code; set st_result.is_resident = true; set st_result.resident_status = state_period.resident_status; set st_result.days_in_state = state_period.days_in_state; set st_result.state_source_income = state_period.allocated_income; set st_result.state_wage_income = state_period.allocated_wage_income; set st_result.state_agi = state_period.allocated_income; set st_result.state_withholding = st_result.state_withholding + state_period.allocated_withholding; add "  Resident state: " + state_period.state_code + " (allocated income $" + state_period.allocated_income + ")" to job.audit_trail; add st_result to job.state_tax_results</action_dsl>
 <action_postfix>
-/state_tax_result createentity allocate { state_period.state_code cvs 0 local@ entitypush /state_code xdef entitypop pop true cvb 0 local@ entitypush /is_resident xdef entitypop pop state_period.resident_status cvs 0 local@ entitypush /resident_status xdef entitypop pop state_period.allocated_income cvd 0 local@ entitypush /state_source_income xdef entitypop pop state_period.allocated_wage_income cvd 0 local@ entitypush /state_wage_income xdef entitypop pop state_period.allocated_income cvd 0 local@ entitypush /state_agi xdef entitypop pop 0 local@ /state_withholding get state_period.allocated_withholding f+ cvd 0 local@ entitypush /state_withholding xdef entitypop pop "  Resident state: " state_period.state_code strconcat " (allocated income $" strconcat state_period.allocated_income strconcat ")" strconcat job.audit_trail swap addto 0 local@ job.state_tax_results swap addto } execute deallocate pop
+/state_tax_result createentity allocate { state_period.state_code cvs 0 local@ entitypush /state_code xdef entitypop pop true cvb 0 local@ entitypush /is_resident xdef entitypop pop state_period.resident_status cvs 0 local@ entitypush /resident_status xdef entitypop pop state_period.days_in_state cvi 0 local@ entitypush /days_in_state xdef entitypop pop state_period.allocated_income cvd 0 local@ entitypush /state_source_income xdef entitypop pop state_period.allocated_wage_income cvd 0 local@ entitypush /state_wage_income xdef entitypop pop state_period.allocated_income cvd 0 local@ entitypush /state_agi xdef entitypop pop 0 local@ /state_withholding get state_period.allocated_withholding f+ cvd 0 local@ entitypush /state_withholding xdef entitypop pop "  Resident state: " state_period.state_code strconcat " (allocated income $" strconcat state_period.allocated_income strconcat ")" strconcat job.audit_trail swap addto 0 local@ job.state_tax_results swap addto } execute deallocate pop
 </action_postfix>
-<columns>X-</columns>
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
-<action_comment>Non-resident period: create state_tax_result, mark is_resident=false</action_comment>
-<action_dsl>create state_tax_result as st_result; set st_result.state_code = state_period.state_code; set st_result.is_resident = false; set st_result.resident_status = state_period.resident_status; set st_result.state_source_income = state_period.allocated_income; set st_result.state_wage_income = state_period.allocated_wage_income; set st_result.state_agi = state_period.allocated_income; set st_result.state_withholding = st_result.state_withholding + state_period.allocated_withholding; add "  Non-resident state: " + state_period.state_code + " - source income $" + state_period.allocated_income + " (wages $" + state_period.allocated_wage_income + ")" to job.audit_trail; add st_result to job.state_tax_results</action_dsl>
+<action_comment>Non-resident-state period of a part-year resident: create state_tax_result, mark is_resident=false, carry part_year and the period's days</action_comment>
+<action_dsl>create state_tax_result as st_result; set st_result.state_code = state_period.state_code; set st_result.is_resident = false; set st_result.resident_status = state_period.resident_status; set st_result.days_in_state = state_period.days_in_state; set st_result.state_source_income = state_period.allocated_income; set st_result.state_wage_income = state_period.allocated_wage_income; set st_result.state_agi = state_period.allocated_income; set st_result.state_withholding = st_result.state_withholding + state_period.allocated_withholding; add "  Non-resident state: " + state_period.state_code + " - source income $" + state_period.allocated_income + " (wages $" + state_period.allocated_wage_income + ")" to job.audit_trail; add st_result to job.state_tax_results</action_dsl>
 <action_postfix>
-/state_tax_result createentity allocate { state_period.state_code cvs 0 local@ entitypush /state_code xdef entitypop pop false cvb 0 local@ entitypush /is_resident xdef entitypop pop state_period.resident_status cvs 0 local@ entitypush /resident_status xdef entitypop pop state_period.allocated_income cvd 0 local@ entitypush /state_source_income xdef entitypop pop state_period.allocated_wage_income cvd 0 local@ entitypush /state_wage_income xdef entitypop pop state_period.allocated_income cvd 0 local@ entitypush /state_agi xdef entitypop pop 0 local@ /state_withholding get state_period.allocated_withholding f+ cvd 0 local@ entitypush /state_withholding xdef entitypop pop "  Non-resident state: " state_period.state_code strconcat " - source income $" strconcat state_period.allocated_income strconcat " (wages $" strconcat state_period.allocated_wage_income strconcat ")" strconcat job.audit_trail swap addto 0 local@ job.state_tax_results swap addto } execute deallocate pop
+/state_tax_result createentity allocate { state_period.state_code cvs 0 local@ entitypush /state_code xdef entitypop pop false cvb 0 local@ entitypush /is_resident xdef entitypop pop state_period.resident_status cvs 0 local@ entitypush /resident_status xdef entitypop pop state_period.days_in_state cvi 0 local@ entitypush /days_in_state xdef entitypop pop state_period.allocated_income cvd 0 local@ entitypush /state_source_income xdef entitypop pop state_period.allocated_wage_income cvd 0 local@ entitypush /state_wage_income xdef entitypop pop state_period.allocated_income cvd 0 local@ entitypush /state_agi xdef entitypop pop 0 local@ /state_withholding get state_period.allocated_withholding f+ cvd 0 local@ entitypush /state_withholding xdef entitypop pop "  Non-resident state: " state_period.state_code strconcat " - source income $" strconcat state_period.allocated_income strconcat " (wages $" strconcat state_period.allocated_wage_income strconcat ")" strconcat job.audit_trail swap addto 0 local@ job.state_tax_results swap addto } execute deallocate pop
 </action_postfix>
-<columns>-X</columns>
+<columns>-X--</columns>
+</action_details>
+<action_details>
+<action_number>3</action_number>
+<action_comment>Non-resident period: create state_tax_result, mark is_resident=false, resident_status nonresident, carry the period's days</action_comment>
+<action_dsl>create state_tax_result as st_result; set st_result.state_code = state_period.state_code; set st_result.is_resident = false; set st_result.resident_status = "nonresident"; set st_result.days_in_state = state_period.days_in_state; set st_result.state_source_income = state_period.allocated_income; set st_result.state_wage_income = state_period.allocated_wage_income; set st_result.state_agi = state_period.allocated_income; set st_result.state_withholding = st_result.state_withholding + state_period.allocated_withholding; add "  Non-resident state: " + state_period.state_code + " - source income $" + state_period.allocated_income + " (wages $" + state_period.allocated_wage_income + ")" to job.audit_trail; add st_result to job.state_tax_results</action_dsl>
+<action_postfix>
+/state_tax_result createentity allocate { state_period.state_code cvs 0 local@ entitypush /state_code xdef entitypop pop false cvb 0 local@ entitypush /is_resident xdef entitypop pop "nonresident" cvs 0 local@ entitypush /resident_status xdef entitypop pop state_period.days_in_state cvi 0 local@ entitypush /days_in_state xdef entitypop pop state_period.allocated_income cvd 0 local@ entitypush /state_source_income xdef entitypop pop state_period.allocated_wage_income cvd 0 local@ entitypush /state_wage_income xdef entitypop pop state_period.allocated_income cvd 0 local@ entitypush /state_agi xdef entitypop pop 0 local@ /state_withholding get state_period.allocated_withholding f+ cvd 0 local@ entitypush /state_withholding xdef entitypop pop "  Non-resident state: " state_period.state_code strconcat " - source income $" strconcat state_period.allocated_income strconcat " (wages $" strconcat state_period.allocated_wage_income strconcat ")" strconcat job.audit_trail swap addto 0 local@ job.state_tax_results swap addto } execute deallocate pop
+</action_postfix>
+<columns>--X-</columns>
+</action_details>
+<action_details>
+<action_number>4</action_number>
+<action_comment>Non-resident period whose status is neither part_year nor nonresident (the full_year default, usually an omitted &lt;resident_status&gt;): built as a nonresident, and the audit line records the reading. Before this, such an entry arrived as a full-year resident and took the whole exemption</action_comment>
+<action_dsl>create state_tax_result as st_result; set st_result.state_code = state_period.state_code; set st_result.is_resident = false; set st_result.resident_status = "nonresident"; set st_result.days_in_state = state_period.days_in_state; set st_result.state_source_income = state_period.allocated_income; set st_result.state_wage_income = state_period.allocated_wage_income; set st_result.state_agi = state_period.allocated_income; set st_result.state_withholding = st_result.state_withholding + state_period.allocated_withholding; add "  Non-resident state: " + state_period.state_code + " - source income $" + state_period.allocated_income + " (wages $" + state_period.allocated_wage_income + "; period status " + state_period.resident_status + " read as nonresident)" to job.audit_trail; add st_result to job.state_tax_results</action_dsl>
+<action_postfix>
+/state_tax_result createentity allocate { state_period.state_code cvs 0 local@ entitypush /state_code xdef entitypop pop false cvb 0 local@ entitypush /is_resident xdef entitypop pop "nonresident" cvs 0 local@ entitypush /resident_status xdef entitypop pop state_period.days_in_state cvi 0 local@ entitypush /days_in_state xdef entitypop pop state_period.allocated_income cvd 0 local@ entitypush /state_source_income xdef entitypop pop state_period.allocated_wage_income cvd 0 local@ entitypush /state_wage_income xdef entitypop pop state_period.allocated_income cvd 0 local@ entitypush /state_agi xdef entitypop pop 0 local@ /state_withholding get state_period.allocated_withholding f+ cvd 0 local@ entitypush /state_withholding xdef entitypop pop "  Non-resident state: " state_period.state_code strconcat " - source income $" strconcat state_period.allocated_income strconcat " (wages $" strconcat state_period.allocated_wage_income strconcat "; period status " strconcat state_period.resident_status strconcat " read as nonresident)" strconcat job.audit_trail swap addto 0 local@ job.state_tax_results swap addto } execute deallocate pop
+</action_postfix>
+<columns>---X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -10317,7 +10353,7 @@ state_period.state_code job.state streq
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>123</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Determine_State_Reciprocity</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -10510,7 +10546,7 @@ true cvb /state_tax_result.reciprocity_applies xdef job.state cvs /state_tax_res
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>124</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Carry_Resident_State_Tax_To_Result</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -10568,7 +10604,7 @@ state_tax_result.state_taxable_income cvd /result.computed_state_taxable_income 
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>125</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Compute_Roster_State_Tax</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -10596,7 +10632,7 @@ dup job.state_tax_results forall pop
 <condition_postfix>
 state_tax_result.state_agi 0 f&gt;
 </condition_postfix>
-<columns>YYN</columns>
+<columns>YYNY</columns>
 </condition_details>
 <condition_details>
 <condition_number>2</condition_number>
@@ -10605,18 +10641,27 @@ state_tax_result.state_agi 0 f&gt;
 <condition_postfix>
 state_tax_result.is_resident true beq
 </condition_postfix>
-<columns>YN-</columns>
+<columns>YN--</columns>
+</condition_details>
+<condition_details>
+<condition_number>3</condition_number>
+<condition_comment>A mover: resident of this state for part of the year and taxed on the income allocated to that period. is_resident is a match against job.state, so without this the earlier state of a move was labelled non-resident (#1201); the tax was right, the label was not</condition_comment>
+<condition_dsl>state_tax_result.resident_status is equal to "part_year"</condition_dsl>
+<condition_postfix>
+state_tax_result.resident_status "part_year" streq
+</condition_postfix>
+<columns>NN-Y</columns>
 </condition_details>
 </conditions>
 <actions>
 <action_details>
 <action_number>1</action_number>
-<action_comment>Point the state tables at this entry's AGI. Every XX_Tax table reads result.state_calc_agi (#1198) and writes result.computed_state_tax; both are reset here so a table that leaves them untouched cannot inherit the previous entry's figures</action_comment>
-<action_dsl>set result.state_calc_agi = state_tax_result.state_agi; set result.computed_state_taxable_income = 0; set result.computed_state_tax = 0</action_dsl>
+<action_comment>Point the state tables at this entry. Every XX_Tax table reads result.state_calc_agi (#1198), the income sourced to this entry, and writes result.computed_state_tax; both are reset here so a table that leaves them untouched cannot inherit the previous entry. Beside it, what every non-resident and part-year worksheet needs (#1201): the federal AGI it divides by, the entry status, the days of the entry period (a part-year form that prorates by days, MA 1-NR/PY line 3, divides these by its own denominator), and the ratio of sourced to federal income -- 1.0 for a full-year resident, capped at 1.0 (KY 740-NP line 34, MD 505NR line 9) and 1.0 when federal AGI is zero or less, which the denominator arranges without a branch. Unrounded, because each state rounds its own way</action_comment>
+<action_dsl>set result.state_calc_agi = state_tax_result.state_agi; set result.state_calc_total_agi = result.agi; set result.state_calc_resident_status = state_tax_result.resident_status; set result.state_calc_days_in_state = state_tax_result.days_in_state; set result.state_calc_ratio = state_tax_result.state_agi / (the maximum of result.agi and state_tax_result.state_agi); set result.computed_state_taxable_income = 0; set result.computed_state_tax = 0</action_dsl>
 <action_postfix>
-state_tax_result.state_agi cvd /result.state_calc_agi xdef 0 cvd /result.computed_state_taxable_income xdef 0 cvd /result.computed_state_tax xdef
+state_tax_result.state_agi cvd /result.state_calc_agi xdef result.agi cvd /result.state_calc_total_agi xdef state_tax_result.resident_status cvs /result.state_calc_resident_status xdef state_tax_result.days_in_state cvi /result.state_calc_days_in_state xdef state_tax_result.state_agi result.agi state_tax_result.state_agi fmax fdiv cvd /result.state_calc_ratio xdef 0 cvd /result.computed_state_taxable_income xdef 0 cvd /result.computed_state_tax xdef
 </action_postfix>
-<columns>XX-</columns>
+<columns>XX-X</columns>
 </action_details>
 <action_details>
 <action_number>2</action_number>
@@ -10625,7 +10670,7 @@ state_tax_result.state_agi cvd /result.state_calc_agi xdef 0 cvd /result.compute
 <action_postfix>
 state_tax_result.state_code "_Tax" strconcat /AK_Tax /AL_Tax /AR_Tax /AS_Tax /AZ_Tax /CA_Tax /CO_Tax /CT_Tax /DC_Tax /DE_Tax /FL_Tax /GA_Tax /GU_Tax /HI_Tax /IA_Tax /ID_Tax /IL_Tax /IN_Tax /KS_Tax /KY_Tax /LA_Tax /MA_Tax /MD_Tax /ME_Tax /MI_Tax /MN_Tax /MO_Tax /MP_Tax /MS_Tax /MT_Tax /NC_Tax /ND_Tax /NE_Tax /NH_Tax /NJ_Tax /NM_Tax /NV_Tax /NY_Tax /OH_Tax /OK_Tax /OR_Tax /PA_Tax /PR_Tax /RI_Tax /SC_Tax /SD_Tax /TN_Tax /TX_Tax /UT_Tax /VA_Tax /VI_Tax /VT_Tax /WA_Tax /WI_Tax /WV_Tax /WY_Tax 56 /No_State_Tax_Table performtableamongdefault
 </action_postfix>
-<columns>XX-</columns>
+<columns>XX-X</columns>
 </action_details>
 <action_details>
 <action_number>3</action_number>
@@ -10634,7 +10679,7 @@ state_tax_result.state_code "_Tax" strconcat /AK_Tax /AL_Tax /AR_Tax /AS_Tax /AZ
 <action_postfix>
 result.computed_state_taxable_income cvd /state_tax_result.state_taxable_income xdef result.computed_state_tax cvd /state_tax_result.state_tax_before_credits xdef result.computed_state_tax state_tax_result.state_credits f- 0.0 fmax cvd /state_tax_result.state_tax_liability xdef
 </action_postfix>
-<columns>XX-</columns>
+<columns>XX-X</columns>
 </action_details>
 <action_details>
 <action_number>4</action_number>
@@ -10643,16 +10688,16 @@ result.computed_state_taxable_income cvd /state_tax_result.state_taxable_income 
 <action_postfix>
 "  Resident state tax (" state_tax_result.state_code strconcat "): $" strconcat state_tax_result.state_tax_liability strconcat " on state AGI $" strconcat state_tax_result.state_agi strconcat job.audit_trail swap addto
 </action_postfix>
-<columns>X--</columns>
+<columns>X---</columns>
 </action_details>
 <action_details>
 <action_number>5</action_number>
 <action_comment></action_comment>
-<action_dsl>add "  Non-resident state tax (" + state_tax_result.state_code + "): $" + state_tax_result.state_tax_liability + " on state-source AGI $" + state_tax_result.state_agi to job.audit_trail</action_dsl>
+<action_dsl>add "  Non-resident state tax (" + state_tax_result.state_code + "): $" + state_tax_result.state_tax_liability + " on state-source AGI $" + state_tax_result.state_agi + " of $" + result.agi + " federal (ratio " + result.state_calc_ratio + ")" to job.audit_trail</action_dsl>
 <action_postfix>
-"  Non-resident state tax (" state_tax_result.state_code strconcat "): $" strconcat state_tax_result.state_tax_liability strconcat " on state-source AGI $" strconcat state_tax_result.state_agi strconcat job.audit_trail swap addto
+"  Non-resident state tax (" state_tax_result.state_code strconcat "): $" strconcat state_tax_result.state_tax_liability strconcat " on state-source AGI $" strconcat state_tax_result.state_agi strconcat " of $" strconcat result.agi strconcat " federal (ratio " strconcat result.state_calc_ratio strconcat ")" strconcat job.audit_trail swap addto
 </action_postfix>
-<columns>-X-</columns>
+<columns>-X--</columns>
 </action_details>
 <action_details>
 <action_number>6</action_number>
@@ -10661,7 +10706,16 @@ result.computed_state_taxable_income cvd /state_tax_result.state_taxable_income 
 <action_postfix>
 "  No income sourced to " state_tax_result.state_code strconcat "; no tax computed" strconcat job.audit_trail swap addto
 </action_postfix>
-<columns>--X</columns>
+<columns>--X-</columns>
+</action_details>
+<action_details>
+<action_number>7</action_number>
+<action_comment>The part-year label; the credit already excludes these entries because neither state of a move taxes the other period</action_comment>
+<action_dsl>add "  Part-year resident state tax (" + state_tax_result.state_code + "): $" + state_tax_result.state_tax_liability + " on allocated AGI $" + state_tax_result.state_agi + " of $" + result.agi + " federal (ratio " + result.state_calc_ratio + ", " + state_tax_result.days_in_state + " days resident)" to job.audit_trail</action_dsl>
+<action_postfix>
+"  Part-year resident state tax (" state_tax_result.state_code strconcat "): $" strconcat state_tax_result.state_tax_liability strconcat " on allocated AGI $" strconcat state_tax_result.state_agi strconcat " of $" strconcat result.agi strconcat " federal (ratio " strconcat result.state_calc_ratio strconcat ", " strconcat state_tax_result.days_in_state strconcat " days resident)" strconcat job.audit_trail swap addto
+</action_postfix>
+<columns>---X</columns>
 </action_details>
 </actions>
 <policy_statements></policy_statements>
@@ -10673,7 +10727,7 @@ result.computed_state_taxable_income cvd /state_tax_result.state_taxable_income 
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>126</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>No_State_Tax_Table</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -10715,7 +10769,7 @@ perform when called
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>127</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Other_State_Tax_Credit</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -10773,7 +10827,7 @@ result.other_state_tax_paid 0 f&gt;
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>128</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Apply_Other_State_Tax_Credit</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -10840,7 +10894,7 @@ result.other_state_tax_paid state_tax_result.state_tax_before_credits result.oth
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>129</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Allocate_Income_By_State</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -10921,7 +10975,7 @@ state_period.start_date state_period.end_date daysbetween cvi /state_period.days
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>130</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Allocate_Income_To_State_Period</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -11006,7 +11060,7 @@ income.gross_amount state_period.allocation_percentage fmul cvd state_period.all
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>131</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Educator_Expenses</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -11062,7 +11116,7 @@ result.educator_expense_deduction taxpayer.educator_expenses constants.educator_
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>132</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Calculate_Medical_Expense_Deduction</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -11116,7 +11170,7 @@ result.agi constants.medical_floor_percentage fmul cvd /result.medical_expense_f
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>133</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Apply_Tax_Brackets_HOH</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>
@@ -11257,7 +11311,7 @@ bracket_1_hoh bracket_1_rate fmul bracket_2_hoh bracket_1_hoh f- bracket_2_rate 
 <relative_path>TaxReturn.xlsx</relative_path>
 <file_name>TaxReturn.xlsx</file_name>
 <sheet_number>134</sheet_number>
-<source_hash>sha256:7fa86e1eec7e94cacaa4c7bc13690b3b312329fa893151209f504719b7f44a91</source_hash>
+<source_hash>sha256:e4022e09c0fd99deb2499894e612f17a338feb8182e296d1191a2ec11887c62d</source_hash>
 </source>
 <table_name>Apply_Tax_Brackets_MFS</table_name>
 <xls_file>TaxReturn.xlsx</xls_file>

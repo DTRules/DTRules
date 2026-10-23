@@ -30,6 +30,19 @@
    <expected_reciprocity_state>KY</expected_reciprocity_state>
    <expected_nonresident_source_income>18000</expected_nonresident_source_income>
 
+   <!-- Kentucky's non-resident tax on the rent, worked from the 2025 Form 740-NP
+        (42A740-NP 10-25) and its instructions packet, revenue.ky.gov:
+          line 9   Kentucky AGI (Section B line 33 col. B)       $18,000
+          line 8   federal AGI (line 33 col. A)                  $90,000
+          line 7   percentage (line 34): 18,000 / 90,000 = 20%  (used only by lines 12 and 18)
+          line 10  "Nonitemizers: Enter $3,270 (do not prorate)"  $3,270
+          line 13  taxable income: 18,000 - 3,270               = $14,730
+          line 14  tax: 14,730 x 4%                             = $589.20
+        Kentucky does not prorate the standard deduction for a non-resident; only
+        itemized deductions (line 12) and personal tax credits (line 18) are
+        multiplied by the line 7 percentage, and this return has neither (#1201). -->
+   <expected_ky_nonresident_tax>589.20</expected_ky_nonresident_tax>
+
    <state_periods>
       <state_period id="1">
          <id>1</id>
