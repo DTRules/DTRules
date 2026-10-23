@@ -25,34 +25,22 @@
    <city>St. Louis</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $75,000 + $55,000 = $130,000 -->
-   <!-- Federal AGI: $130,000 (no adjustments) -->
-   <!-- 2025 federal figures re-derived (#1321, #1324): the $31,500 MFJ /
-        $23,625 HOH standard deduction (OBBBA), Rev. Proc. 2024-40 rate
-        schedules, and the $2,200 child tax credit for each child under 17.
-        The expected totals here had been written while sons and daughters got
-        no child tax credit and HOH was taxed on the Single schedule. -->
-   <!-- Federal Standard Deduction: $31,500 (MFJ) -->
-   <!-- Federal Taxable: $130,000 - $31,500 = $98,500 -->
-   <!-- Federal Tax: 10% x $23,850 + 12% x $73,100 + 22% x $1,550 = $2,385 + $8,772 + $341 = $11,498 -->
-   <!-- Child Tax Credit: 2 x $2,200 = $4,400; total tax $11,498 - $4,400 = $7,098 -->
-   <!-- MO Standard Deduction: $30,000 (MFJ) -->
-   <!-- MO Taxable: $130,000 - $30,000 = $100,000 -->
-   <!-- MO Tax calculation (all income in top bracket): -->
-   <!--   Bracket 1: $1,313 × 0% = $0 -->
-   <!--   Bracket 2: $1,313 × 2% = $26.26 -->
-   <!--   Bracket 3: $1,313 × 2.5% = $32.83 -->
-   <!--   Bracket 4: $1,313 × 3% = $39.39 -->
-   <!--   Bracket 5: $1,313 × 3.5% = $45.96 -->
-   <!--   Bracket 6: $1,313 × 4% = $52.52 -->
-   <!--   Bracket 7: $1,313 × 4.6% = $60.40 -->
-   <!--   Bracket 8: ($100,000 - $9,191) = $90,809 × 4.7% = $4,268.02 -->
-   <!--   Total MO Tax: $4,525.38 -->
-   <!-- Withholding: $15,000 federal + $4,500 state -->
+   <!-- Income: $75,000 + $55,000 W-2 = $130,000 -->
+   <!-- Federal: AGI $130,000; standard deduction $31,500 (MFJ; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $130,000 - $31,500 = $98,500; tax $11,498 (2025 MFJ schedule, Rev. Proc. 2024-40) -->
+   <!-- Child tax credit 2 x $2,200 = $4,400 (2025, IRC 24(h)); tax after credit $7,098 -->
+   <!-- Missouri (2025 Form MO-1040 and 2025 Tax Chart, dor.mo.gov): line 11 federal tax is
+        Form 1040 line 22 (after nonrefundable credits), $7,098; line 12 percentage for
+        Missouri AGI $130,000 is 0%; line 13 federal income tax deduction $0 (cap $5,000/$10,000);
+        line 14 standard deduction $31,500 -->
+   <!-- Combined return: line 7 income percentages 58% / 42% (rounded to a whole percent);
+        line 26 $130,000 - $0 - $31,500 = $98,500; line 27Y $57,130, 27S $41,370; chart: Y $256 + 4.7% of
+        $47,939 = $2,509, S $256 + 4.7% of $32,179 = $1,768; line 30 total $4,277 -->
+   <!-- expected_state_tax was $4525, not derived from the state's 2025 form (#1317). -->
    <expected_agi>130000</expected_agi>
    <expected_taxable_income>98500</expected_taxable_income>
    <expected_federal_tax>11498</expected_federal_tax>
-   <expected_state_tax>4525</expected_state_tax>
+   <expected_state_tax>4277</expected_state_tax>
    <expected_total_tax>7098</expected_total_tax>
 
    <!-- Married Couple -->

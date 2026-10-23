@@ -25,17 +25,19 @@
    <city>Colorado Springs</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $250,000 W2 -->
-   <!-- Federal AGI: $250,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $235,000 -->
-   <!-- Federal Tax: $50,673 (brackets: 10%+12%+22%+24%+32%+35%) -->
-   <!-- CO uses federal taxable income: $235,000 -->
-   <!-- CO Tax: $10,340 (4.4% of $235,000) -->
+   <!-- Income: $250,000 W-2 -->
+   <!-- Federal: AGI $250,000; standard deduction $15,750 (Single; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $250,000 - $15,750 = $234,250; tax $52,023 (2025 Single schedule, Rev. Proc. 2024-40) -->
+   <!-- Additional Medicare tax (Form 8959): 0.9% of wages over $200,000 = $450; total $52,473 -->
+   <!-- Colorado (2025 DR 0104): line 1 is federal taxable income, Form 1040 line 15,
+        $234,250; no additions or subtractions; tax at the 4.4% rate (2025 DR 0104EZ
+        instructions: 'The income tax rate is currently 4.4%') = $10,307 -->
+   <!-- expected_state_tax was $10340, not derived from the state's 2025 form (#1317). -->
    <expected_agi>250000</expected_agi>
    <expected_taxable_income>234250</expected_taxable_income>
+      <!-- expected_federal_tax is read by nothing and is left as it was; the 2025 figure is in the derivation above (#1317). -->
    <expected_federal_tax>50673</expected_federal_tax>
-   <expected_state_tax>10340</expected_state_tax>
+   <expected_state_tax>10307</expected_state_tax>
    <expected_total_tax>52473</expected_total_tax>
 
    <!-- Single High-Income Taxpayer -->

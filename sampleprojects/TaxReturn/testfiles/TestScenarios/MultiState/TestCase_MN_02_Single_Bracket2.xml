@@ -25,17 +25,15 @@
    <city>Saint Paul</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $85,000 W2 -->
-   <!-- Federal AGI: $85,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $70,000 -->
-   <!-- MN AGI: $85,000 -->
-   <!-- MN Standard Deduction: $14,950 -->
-   <!-- MN Taxable: $70,050 -->
-   <!-- MN Tax Calculation: -->
-   <!--   Bracket 1: $32,570 * 5.35% = $1,742.50 -->
-   <!--   Bracket 2: ($70,050 - $32,570) * 6.80% = $2,548.64 -->
-   <!--   Total: $4,291.14 -->
+   <!-- Income: $85,000 W-2 -->
+   <!-- Federal: AGI $85,000; standard deduction $15,750 (Single; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $85,000 - $15,750 = $69,250; tax $10,149 (2025 Single schedule, Rev. Proc. 2024-40) -->
+   <!-- Minnesota (2025 Form M1; 2025 brackets and standard deduction from the
+        Department of Revenue, revenue.state.mn.us/mndor-pp/20636): standard deduction
+        single $14,950; taxable $85,000 - $14,950 = $70,050; $32,570 x 5.35% = $1,742.49; $37,480 x 6.80% = $2,548.64;
+        tax $4,291.14. The M1 tax table (used under $100,000) is computed at the midpoint of
+        each $100 band, which is this figure here. -->
+   <!-- expected_state_tax, $4291, agrees with the state's 2025 form (#1317). -->
    <expected_agi>85000</expected_agi>
    <expected_taxable_income>69250</expected_taxable_income>
    <expected_state_tax>4291</expected_state_tax>

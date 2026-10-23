@@ -25,36 +25,21 @@
    <city>Springfield</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $62,000 W2 -->
-   <!-- Federal AGI: $62,000 (no adjustments) -->
-   <!-- 2025 federal figures re-derived (#1321, #1324): the $31,500 MFJ /
-        $23,625 HOH standard deduction (OBBBA), Rev. Proc. 2024-40 rate
-        schedules, and the $2,200 child tax credit for each child under 17.
-        The expected totals here had been written while sons and daughters got
-        no child tax credit and HOH was taxed on the Single schedule. -->
-   <!-- Federal Standard Deduction: $23,625 (HOH) -->
-   <!-- Federal Taxable: $62,000 - $23,625 = $38,375 -->
-   <!-- Federal Tax: HOH 10% x $17,000 + 12% x $21,375 = $1,700 + $2,565 = $4,265 -->
-   <!-- Child Tax Credit: 2 x $2,200 = $4,400 (phaseout begins at $200,000 for HOH),
-        nonrefundable up to the $4,265 of tax; the rest is refundable (ACTC) -->
-   <!-- Federal Tax after credits: $0 -->
-   <!-- MO Standard Deduction: $22,500 (HOH) -->
-   <!-- MO Taxable: $62,000 - $22,500 = $39,500 -->
-   <!-- MO Tax calculation: -->
-   <!--   Bracket 1: $1,313 × 0% = $0 -->
-   <!--   Bracket 2: $1,313 × 2% = $26.26 -->
-   <!--   Bracket 3: $1,313 × 2.5% = $32.83 -->
-   <!--   Bracket 4: $1,313 × 3% = $39.39 -->
-   <!--   Bracket 5: $1,313 × 3.5% = $45.96 -->
-   <!--   Bracket 6: $1,313 × 4% = $52.52 -->
-   <!--   Bracket 7: $1,313 × 4.6% = $60.40 -->
-   <!--   Bracket 8: ($39,500 - $9,191) = $30,309 × 4.7% = $1,424.52 -->
-   <!--   Total MO Tax: $1,681.88 -->
-   <!-- Withholding: $6,500 federal + $1,700 state -->
+   <!-- Income: $62,000 W-2 -->
+   <!-- Federal: AGI $62,000; standard deduction $23,625 (HOH; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $62,000 - $23,625 = $38,375; tax $4,265 (2025 HOH schedule, Rev. Proc. 2024-40) -->
+   <!-- Child tax credit 2 x $2,200 = $4,400 (2025, IRC 24(h)); tax after credit $0 -->
+   <!-- Missouri (2025 Form MO-1040 and 2025 Tax Chart, dor.mo.gov): line 11 federal tax is
+        Form 1040 line 22 (after nonrefundable credits), $0; line 12 percentage for
+        Missouri AGI $62,000 is 15%; line 13 federal income tax deduction $0 (cap $5,000/$10,000);
+        line 14 standard deduction $23,625; line 15 head of household exemption $1,400 -->
+   <!-- Line 29 taxable income $36,975; chart: $256 + 4.7% of the excess over $9,191 = $1,562 -->
+   <!-- expected_state_tax was $1682, not derived from the state's 2025 form (#1317). -->
    <expected_agi>62000</expected_agi>
    <expected_taxable_income>38375</expected_taxable_income>
+      <!-- expected_federal_tax is read by nothing and is left as it was; the 2025 figure is in the derivation above (#1317). -->
    <expected_federal_tax>0</expected_federal_tax>
-   <expected_state_tax>1682</expected_state_tax>
+   <expected_state_tax>1562</expected_state_tax>
    <expected_total_tax>0</expected_total_tax>
 
    <!-- Head of Household Taxpayer -->

@@ -541,15 +541,33 @@ load-bearing enough to record:
   stepchild, foster or adopted child) to `child` (#1321). Siblings and
   grandchildren, who can also be qualifying children, are not yet accepted
   by the credit tables.
-- **Scenario `expected_state_tax` is not checked by the rules** (#1317).
-  `TestStateScenarios` checks it for the states whose tables were rebuilt
-  under #1200 (AR, LA, NM, OK).
+- **Scenario `expected_state_tax` is the resident state's own tax.**
+  `Validate_State_Tax` (#1317) compares it, within $1, with
+  `state_tax_before_credits` on the roster entry whose `state_code` is
+  `job.state`: the state's income tax as its own form computes it, after its
+  exemptions and its own nonrefundable credits, before credit for taxes paid
+  to other states; `state_tax_before_credits` is documented that way. It runs
+  with the other `Validate_*` tables whenever the field is set, and
+  `Validate_Results` writes a FAIL line when no roster entry's `state_code`
+  is `job.state`, so the check cannot pass by checking nothing;
+  `TestValidateStateTaxWritesFail` runs AR_01 with a wrong figure and with
+  no resident-state entry and expects each FAIL line, so the check cannot
+  vanish unnoticed either. `TestStateScenarios` stays: it holds the rebuilt
+  states (AR, LA, NM, OK) to the exact figure under `-short`. Most state
+  tables are still
+  placeholders (the top rate on AGI less a deduction), so a scenario
+  reconciled to its state's form fails until #1200 rebuilds that state. The
+  20 `State/FullExemption` and `State/PartialExemption` military-retirement
+  scenarios carry an `expected_state_tax` that is not yet reconciled:
+  `military_retirement_pay` is not in the mapping, and they fail on federal
+  figures first (#1330).
 - **A scenario's expected figures are worked from its own inputs and the
   year's law, never from what the rules print.** The arithmetic and its
   source go in the file (`Credits_05_QW_Widow`, the `XX_02_MFJ_Multiple`
   template). `TestTaxReturnScenarioCoverage` runs every scenario, in CI
-  too, and holds the count that validates cleanly at a floor that only
-  rises (#1140, #1322). The scenarios still under it fail validation; each
+  too, and holds the count that validates cleanly at a floor that rises as
+  scenarios come clean (#1140, #1322) and fell once, 362 to 338, when #1317
+  made the check stricter. The scenarios still under it fail validation; each
   is brought clean by fixing whatever is wrong (scenario, mapping or rule),
   never by restating the scenario to match the rules.
 - **The ScheduleH scenarios compute no Schedule H tax.** `TaxReturn_map.xml`

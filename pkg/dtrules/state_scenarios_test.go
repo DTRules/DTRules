@@ -34,7 +34,9 @@ var stateScenarioStates = []string{"AR", "LA", "NM", "OK"}
 // TestStateScenarios runs each scenario under testfiles/TestScenarios/<XX>
 // and compares that state's roster entry -- what Compute_Roster_State_Tax
 // harvested from XX_Tax -- with the figure the scenario works out by hand.
-// Validate_Summary does not check expected_state_tax (#1317), so this does.
+// Validate_State_Tax checks expected_state_tax within $1 for every scenario
+// (#1317); this holds the rebuilt states to the exact figure, runs under
+// -short, and fails when the roster entry is missing.
 func TestStateScenarios(t *testing.T) {
 	rs, xmlDir := loadTaxReturn(t)
 	expected := regexp.MustCompile(`<expected_state_tax>([0-9.]+)</expected_state_tax>`)

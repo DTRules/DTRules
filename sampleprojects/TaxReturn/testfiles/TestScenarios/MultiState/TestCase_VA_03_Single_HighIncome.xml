@@ -25,24 +25,18 @@
    <city>Alexandria</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $150,000 W2 -->
-   <!-- Federal AGI: $150,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $135,000 -->
-   <!-- Federal Tax: $25,879 (22% bracket) -->
-   <!-- VA AGI: $150,000 -->
-   <!-- VA Standard Deduction: $8,750 (Single) -->
-   <!-- VA Taxable Income: $141,250 -->
-   <!-- VA Tax Calculation (progressive): -->
-   <!--   Bracket 1 (2% on first $3,000): $60 -->
-   <!--   Bracket 2 (3% on $3,001-$5,000): $60 -->
-   <!--   Bracket 3 (5% on $5,001-$17,000): $600 -->
-   <!--   Bracket 4 (5.75% on $17,001-$141,250): $7,144.38 -->
-   <!--   Total VA Tax: $7,864.38 -->
+   <!-- Income: $150,000 W-2 -->
+   <!-- Federal: AGI $150,000; standard deduction $15,750 (Single; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $150,000 - $15,750 = $134,250; tax $25,067 (2025 Single schedule, Rev. Proc. 2024-40) -->
+   <!-- Virginia (2025 Form 760 instructions and 2025 Tax Rate Schedule, tax.virginia.gov):
+        standard deduction $8,750 (2025); personal exemptions 1 x $930 = $930; Virginia taxable income
+        $150,000 - $8,750 - $930 = $140,320; rate schedule $720 + 5.75% of ($140,320 - $17,000) = $7,810.90, rounded $7,811 -->
+   <!-- expected_state_tax was $7864.38, not derived from the state's 2025 form (#1317). -->
    <expected_agi>150000</expected_agi>
    <expected_taxable_income>134250</expected_taxable_income>
+      <!-- expected_federal_tax is read by nothing and is left as it was; the 2025 figure is in the derivation above (#1317). -->
    <expected_federal_tax>25879</expected_federal_tax>
-   <expected_state_tax>7864.38</expected_state_tax>
+   <expected_state_tax>7811</expected_state_tax>
    <expected_total_tax>25067</expected_total_tax>
 
    <!-- Single Taxpayer -->

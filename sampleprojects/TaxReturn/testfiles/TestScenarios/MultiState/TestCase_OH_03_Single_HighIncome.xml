@@ -25,23 +25,21 @@
    <city>Cincinnati</city>
 
    <!-- Expected values for validation (2025) -->
-   <!-- Income: $150,000 W2 -->
-   <!-- Federal AGI: $150,000 (no adjustments) -->
-   <!-- Federal Standard Deduction: $15,000 (Single per Rev. Proc. 2024-40) -->
-   <!-- Federal Taxable: $135,000 -->
-   <!-- Federal Tax: ~$27,616 (10% + 12% + 22% + 24% brackets) -->
-   <!-- OH Personal Exemption: $1,850 (AGI > $80,000) -->
-   <!-- OH Taxable: $150,000 - $1,850 = $148,150 -->
-   <!-- OH Tax Bracket 2: ($100,000 - $26,050) x 2.75% = $2,033.63 -->
-   <!-- OH Tax Bracket 3: ($148,150 - $100,000) x 3.125% = $1,504.69 -->
-   <!-- OH Total Tax: $3,538.32 -->
-   <!-- Withholding: $30,000 federal + $4,000 state -->
-   <!-- Federal Refund: ~$2,384 -->
-   <!-- State Refund: $461.68 -->
+   <!-- Income: $150,000 W-2 -->
+   <!-- Federal: AGI $150,000; standard deduction $15,750 (Single; 2025 after OBBBA, P.L. 119-21 sec. 70102; IRS IR-2025-103); taxable income
+        $150,000 - $15,750 = $134,250; tax $25,067 (2025 Single schedule, Rev. Proc. 2024-40) -->
+   <!-- Ohio (2025 IT 1040 booklet, tax.ohio.gov): exemption $1,900 per exemption at MAGI $150,000,
+        1 exemption = $1,900; Ohio taxable income $150,000 - $1,900 = $148,100; 2025 brackets (IT 1040 line 8a;
+        R.C. 5747.02): $2,394.32 + 3.125% of ($148,100 - $100,000) = $3,897.45 -->
+   <!-- Ohio's printed 2025 figures are inconsistent: $2,394.32 is $360.69 (the 2024 bracket base) + 2.75% x
+        $73,950; the 2025 booklet's own $342.00 would give $2,375.63. The $2,394.32 printed in the 2025 IT 1040
+        booklet and R.C. 5747.02 is used as published; the inconsistency is Ohio's. -->
+   <!-- expected_state_tax was $3538, not derived from the state's 2025 form (#1317). -->
    <expected_agi>150000</expected_agi>
    <expected_taxable_income>134250</expected_taxable_income>
+      <!-- expected_federal_tax is read by nothing and is left as it was; the 2025 figure is in the derivation above (#1317). -->
    <expected_federal_tax>27616</expected_federal_tax>
-   <expected_state_tax>3538</expected_state_tax>
+   <expected_state_tax>3897</expected_state_tax>
    <expected_total_tax>25067</expected_total_tax>
 
    <!-- Single Taxpayer -->
